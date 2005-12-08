@@ -1,62 +1,27 @@
 /*
- * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004-2005 The University Of Bristol
- * All Rights Reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *  * Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *  * Neither the name of the University of Bristol nor the names
- *    of its contributors nor the University Corporation for Advanced
- *   Internet Development, Inc. may be used to endorse or promote
- *   products derived from this software without explicit prior
- *   written permission.
- *
- * You are under no obligation whatsoever to provide any enhancements
- * to the University of Bristol, its contributors, or the University
- * Corporation for Advanced Internet Development, Inc.  If you choose
- * to provide your enhancements, or if you choose to otherwise publish
- * or distribute your enhancements, in source code form without
- * contemporaneously requiring end users to enter into a separate
- * written license agreement for such enhancements, then you thereby
- * grant the University of Bristol, its contributors, and the University
- * Corporation for Advanced Internet Development, Inc. a non-exclusive,
- * royalty-free, perpetual license to install, use, modify, prepare
- * derivative works, incorporate into the software or other computer
- * software, distribute, and sublicense your enhancements or derivative
- * works thereof, in binary and source code form.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND WITH ALL FAULTS.  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT ARE DISCLAIMED AND the
- * entire risk of satisfactory quality, performance, accuracy, and effort
- * is with LICENSEE. IN NO EVENT SHALL THE COPYRIGHT OWNER, CONTRIBUTORS,
- * OR THE UNIVERSITY CORPORATION FOR ADVANCED INTERNET DEVELOPMENT, INC.
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2005 The University Of Bristol
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,19 +32,10 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.Grouper;
-import edu.internet2.middleware.grouper.GrouperAccess;
-import edu.internet2.middleware.grouper.GrouperGroup;
-import edu.internet2.middleware.grouper.GrouperHelper;
-import edu.internet2.middleware.grouper.GrouperMember;
-import edu.internet2.middleware.grouper.GrouperNaming;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperStem;
-import edu.internet2.middleware.grouper.ui.InitialStems;
+import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
-import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 
 
@@ -144,7 +100,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  *
  * @author Gary Brown.
- * @version $Id: PrepareBrowsePathAction.java,v 1.1 2005-11-22 10:37:58 isgwb Exp $
+ * @version $Id: PrepareBrowsePathAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
  */
 
 public class PrepareBrowsePathAction extends LowLevelGrouperCapableAction {
@@ -156,6 +112,13 @@ public class PrepareBrowsePathAction extends LowLevelGrouperCapableAction {
 			throws Exception {
 		
 		DynaActionForm browseForm = (DynaActionForm) form;
+		ResourceBundle nav = getNavResources(request);
+		String rootName = null;
+		try {
+			rootName = nav.getString("stem.root.display-name");
+			if("*".equals(rootName)) rootName=null;
+		}catch(MissingResourceException e){}
+		if(rootName==null) rootName="Root";
 		String browseMode = getBrowseMode(session);
 		RepositoryBrowser rb = RepositoryBrowserFactory.getInstance(browseMode,grouperSession,getMediaResources(request));
 		request.setAttribute("repositoryBrowser",rb);
@@ -167,8 +130,17 @@ public class PrepareBrowsePathAction extends LowLevelGrouperCapableAction {
 		if(browseParent==null) {
 			path = new ArrayList();
 		}else{
-			Group groupOrStem = (Group)browseParent.getWrappedObject();
+			GroupOrStem groupOrStem = GroupOrStem.findByID(grouperSession,(String)browseParent.get("id"));
 			path = rb.getParentStems(groupOrStem);
+			if("".equals(browseParent.get("name"))) {
+				browseParent.put("isRootStem",Boolean.TRUE);
+				browseParent.put("displayExtension",rootName);
+			}
+		}
+		
+		if(!path.isEmpty()) {
+			Map root = (Map)path.get(0);
+			if("".equals(root.get("name"))) root.put("displayExtension",rootName);
 		}
 		request.setAttribute("browsePath",path);
 		return null;

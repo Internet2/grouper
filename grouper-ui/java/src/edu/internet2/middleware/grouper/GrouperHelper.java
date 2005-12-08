@@ -1,59 +1,27 @@
 /*
- * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004-2005 The University Of Bristol
- * All Rights Reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *  * Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *  * Neither the name of the University of Bristol nor the names
- *    of its contributors nor the University Corporation for Advanced
- *   Internet Development, Inc. may be used to endorse or promote
- *   products derived from this software without explicit prior
- *   written permission.
- *
- * You are under no obligation whatsoever to provide any enhancements
- * to the University of Bristol, its contributors, or the University
- * Corporation for Advanced Internet Development, Inc.  If you choose
- * to provide your enhancements, or if you choose to otherwise publish
- * or distribute your enhancements, in source code form without
- * contemporaneously requiring end users to enter into a separate
- * written license agreement for such enhancements, then you thereby
- * grant the University of Bristol, its contributors, and the University
- * Corporation for Advanced Internet Development, Inc. a non-exclusive,
- * royalty-free, perpetual license to install, use, modify, prepare
- * derivative works, incorporate into the software or other computer
- * software, distribute, and sublicense your enhancements or derivative
- * works thereof, in binary and source code form.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND WITH ALL FAULTS.  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT ARE DISCLAIMED AND the
- * entire risk of satisfactory quality, performance, accuracy, and effort
- * is with LICENSEE. IN NO EVENT SHALL THE COPYRIGHT OWNER, CONTRIBUTORS,
- * OR THE UNIVERSITY CORPORATION FOR ADVANCED INTERNET DEVELOPMENT, INC.
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2005 The University Of Bristol
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package edu.internet2.middleware.grouper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -61,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
@@ -80,21 +49,21 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.2 2005-11-14 14:44:21 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.3 2005-12-08 15:29:33 isgwb Exp $
  */
 
 public class GrouperHelper {
 	public static HashMap list2privMap;
 	static {
 		list2privMap = new HashMap();
-		list2privMap.put("admins",Grouper.PRIV_ADMIN);
-		list2privMap.put("optins",Grouper.PRIV_OPTIN);
-		list2privMap.put("optouts",Grouper.PRIV_OPTOUT);
-		list2privMap.put("readers",Grouper.PRIV_READ);
-		list2privMap.put("updaters",Grouper.PRIV_UPDATE);
-		list2privMap.put("viewers",Grouper.PRIV_VIEW);
-		list2privMap.put("stemmers",Grouper.PRIV_STEM);
-		list2privMap.put("creators",Grouper.PRIV_CREATE);
+		list2privMap.put("admins","admin");
+		list2privMap.put("optins","optin");
+		list2privMap.put("optouts","optout");
+		list2privMap.put("readers","read");
+		list2privMap.put("updaters","update");
+		list2privMap.put("viewers","view");
+		list2privMap.put("stemmers","stem");
+		list2privMap.put("creators","create");
 		list2privMap.put("members","MEMBER");
 	}
 
@@ -104,10 +73,10 @@ public class GrouperHelper {
 	private static List personSources = null; //Subject sources which source
 											  // 'people'
 
-	public static final String HIER_DELIM = Grouper.HIER_DELIM; //Currently :
+	public static final String HIER_DELIM = ":"; //Currently :
 																// (name
 																// separator)
-	
+	public static final String NS_ROOT = "Grouper.NS_ROOT";
 	//List names for access privileges
 	private static final String[] listNames = new String[] { "members",
 			"admins", "updaters", "readers", "viewers", "optins", "optouts" };
@@ -133,10 +102,19 @@ public class GrouperHelper {
 	private static String[] stemPrivs = { "STEM", "CREATE" };
 
 	public static void main(String args[]) throws Exception{
-		Subject subj = SubjectFactory.getSubject("GrouperSystem");
-		GrouperSession s = GrouperSession.start(subj);
-		GrouperGroup g = GrouperGroup.create(s,Grouper.NS_ROOT,"DUMMY");
-		g.attribute("displayExtension","Dummy Group");
+		Subject subj = SubjectFinder.findById("GrouperSystem");
+		GrouperSession s = GrouperSession.startSession(subj);
+
+		Member member = MemberFinder.findBySubject(s,subj);
+		Date bef = new Date();
+		member.hasAdmin();
+		member.hasAdmin();
+		member.hasAdmin();
+		member.hasAdmin();
+		Date aft = new Date();
+		System.out.println("TIME:" + (aft.getTime()-bef.getTime()));
+		
+		
 		s.stop();
 	}
 
@@ -148,15 +126,29 @@ public class GrouperHelper {
 	 * @param stemId GrouperStem id
 	 * @return List of all stems and groups for stemId
 	 */
-	public static List getChildren(GrouperSession s, String stemId) {
-		if(Grouper.NS_ROOT.equals(stemId)) {
-			List children = GrouperStem.getRootStems(s);
-			return children;
+	public static List getChildren(GrouperSession s, String stemId) throws StemNotFoundException{
+		Stem stem =null;
+		if("".equals(stemId)) {
+			stem=StemFinder.findRootStem(s);
+		}else{
+			stem=StemFinder.findByName(s, stemId);
 		}
-		GrouperStem stem = (GrouperStem) GrouperStem.loadByName(s, stemId);
-		List children = stem.stems();
-		children.addAll(stem.groups());
-		return children;
+		ArrayList res = new ArrayList();
+		Set children = stem.getChildStems();
+		Iterator it = children.iterator();
+		Stem childStem = null;
+		while(it.hasNext()) {
+			childStem=(Stem)it.next();
+			res.add(GroupOrStem.findByStem(s,childStem));
+		}
+		children=stem.getChildGroups();
+		it = children.iterator();
+		Group childGroup = null;
+		while(it.hasNext()) {
+			childGroup=(Group)it.next();
+			res.add(GroupOrStem.findByGroup(s,childGroup));
+		}
+		return res;
 	}
 
 	/**
@@ -167,9 +159,9 @@ public class GrouperHelper {
 	 * @param list of GrouperAttributes
 	 * @return List of GrouperGroups or GrouperStems
 	 */
-	public static List instantiateStems(GrouperSession s, List list) {
+	/*public static List instantiateStems(GrouperSession s, List list) {
 		return instantiateGroups(s, list);
-	}
+	}*/
 
 
 
@@ -181,13 +173,13 @@ public class GrouperHelper {
 	 * @param list of GrouperAtributes
 	 * @return List of GrouperGroups or GrouperStems
 	 */
-	public static List instantiateGroups(GrouperSession s, List list) {
+	/*public static List instantiateGroups(GrouperSession s, List list) {
 		List instantiated = new ArrayList();
-		GrouperAttribute attr = null;
+		Attribute attr = null;
 		String key;
-		GrouperGroup stem = null;
+		Stem stem = null;
 		for (int i = 0; i < list.size(); i++) {
-			attr = (GrouperAttribute) list.get(i);
+			attr = (Attribute) list.get(i);
 			key = attr.key();
 
 			//stem=Cache.instance().getGroup(s,key);
@@ -202,7 +194,7 @@ public class GrouperHelper {
 			instantiated.add(stem);
 		}
 		return instantiated;
-	}
+	}*/
 
 	/**
 	 * Given a GrouperStem id return a list of Maps representing the children
@@ -212,11 +204,13 @@ public class GrouperHelper {
 	 * @param stemId
 	 * @return List of GrouperGroups and GrouperStems wrapped as Maps
 	 */
-	public static List getChildrenAsMaps(GrouperSession s, String stemId) {
+	public static List getChildrenAsMaps(GrouperSession s, String stemId) throws StemNotFoundException{
 		List stems = getChildren(s, stemId);
 		List maps = new ArrayList();
+		GroupOrStem groupOrStem = null;
 		for (int i = 0; i < stems.size(); i++) {
-			maps.add(group2Map(s, (Group) stems.get(i)));
+			groupOrStem = (GroupOrStem)stems.get(i);
+			maps.add(groupOrStem.getAsMap());
 		}
 		return maps;
 	}
@@ -229,7 +223,7 @@ public class GrouperHelper {
 	 * @param groups List of GrouperLists
 	 * @return List of GrouperGroups wrapped as Maps
 	 */
-	public static List groups2Maps(GrouperSession s, List groups) {
+	public static List groups2Maps(GrouperSession s, List groups) throws GroupNotFoundException{
 		List maps = new ArrayList();
 		Object obj;
 		for (int i = 0; i < groups.size(); i++) {
@@ -237,8 +231,8 @@ public class GrouperHelper {
 			// a pointer to it
 			try {
 				obj = groups.get(i);
-				if (obj instanceof GrouperList)
-					obj = ((GrouperList) obj).group();
+				if (obj instanceof Membership)
+					obj = ((Membership) obj).getGroup();
 				maps.add(group2Map(s, (Group) obj));
 			} catch (NullPointerException e) {
 				//@TODO What should happen?
@@ -255,8 +249,21 @@ public class GrouperHelper {
 	 * @param stems List of GrouperLists
 	 * @return List of GrouperStems wrapped as Maps
 	 */
-	public static List stems2Maps(GrouperSession s, List stems) {
-		return groups2Maps(s, stems);
+	public static List stems2Maps(GrouperSession s, List stems) throws GroupNotFoundException{
+		List maps = new ArrayList();
+		Object obj;
+		for (int i = 0; i < stems.size(); i++) {
+			//Just in case something goes wrong - Group doesn't exist but still
+			// a pointer to it
+			try {
+				obj = stems.get(i);
+				
+				maps.add(stem2Map(s, (Stem) obj));
+			} catch (NullPointerException e) {
+				//@TODO What should happen?
+			}
+		}
+		return maps;
 
 	}
 	
@@ -266,52 +273,47 @@ public class GrouperHelper {
 	 * @param stem GrouperStem to wrap
 	 * @return GrouperStem wrapped as a Map
 	 */
-	public static Map stem2Map(GrouperSession s, GrouperStem stem) {
-		return group2Map(s, stem);
+	public static Map stem2Map(GrouperSession s, Stem stem) {
+		Map stemMap = new StemAsMap(stem,s);
+		if("".equals(stem.getName())) {
+			stemMap.put("isRootStem",Boolean.TRUE);
+		}
+		return stemMap;
 
+	}
+	
+	/**
+	 * Given a Stem return a Map representing it
+	 * @param s GrouperSession for authenticated user
+	 * @param stem GrouperStem to wrap
+	 * @return Stem wrapped as a Map
+	 */
+	public static Map group2Map(GrouperSession s, Stem stem) {
+		return new StemAsMap(stem,s);
+
+	}
+	
+	/**
+	 * Given a GroupOrStem return a Map representing it
+	 * @param s GrouperSession for authenticated user
+	 * @param stem GroupOrStem to wrap
+	 * @return GroupOrStem wrapped as a Map
+	 */
+	public static Map group2Map(GrouperSession s, GroupOrStem groupOrStem) {
+		return groupOrStem.getAsMap();
 	}
 
 	/**
-	 * Given a Group (which can be a GrouperGroup or GrouperStem) return
+	 * Given a Group  return
 	 * a Map representation of it
 	 * @param s GrouperSession for authenticated user
-	 * @param groupOrStem GrouperGroup or GrouperStem to wrap
-	 * @return GrouperStem or GrouperGroup wrapped as a Map
+	 * @param Group to wrap
+	 * @return Group wrapped as a Map
 	 */
-	public static Map group2Map(GrouperSession s, Group groupOrStem) {
-		GrouperGroup group = null;
-		GrouperStem stem = null;
-		if (groupOrStem instanceof GrouperStem) {
-			stem = (GrouperStem) groupOrStem;
-			Map attr = stem.attributes();
-			if (attr.size() == 0) {
-				String id = stem.id();
-				stem = (GrouperStem) GrouperStem.loadByID(s, id);
-
-			}
-		} else {
-			group = (GrouperGroup) groupOrStem;
-			Map attr = group.attributes();
-			if (attr.size() == 0) {
-				String id = group.id();
-				group = (GrouperGroup) GrouperGroup.loadByID(s, id);
-			}
-		}
-
-		ObjectAsMap map = null;
-		//If no displayExtension improvise @TODO review this
-		if (stem != null) {
-			map = new StemAsMap(stem, s);
+	public static Map group2Map(GrouperSession s, Group group){ 
+		ObjectAsMap map = new GroupAsMap(group, s);
 			if (map.get("displayExtension") == null)
 				map.put("displayExtension", map.get("extension"));
-			map.put("key", stem.key());
-		} else {
-			map = new GroupAsMap(group, s);
-			if (map.get("displayExtension") == null)
-				map.put("displayExtension", map.get("extension"));
-			map.put("key", group.key());
-		}
-
 		return (Map) map;
 	}
 
@@ -323,14 +325,14 @@ public class GrouperHelper {
 	 * @param groupOrStem GrouperGroup or GrouperStem
 	 * @return List of ancestor GrouperStems wrapped as Maps
 	 */
-	public static List parentStemsAsMaps(GrouperSession s, Group groupOrStem) {
+	public static List parentStemsAsMaps(GrouperSession s, GroupOrStem groupOrStem) throws StemNotFoundException{
 		List path = new ArrayList();
 		if(groupOrStem==null) return path;
 		Map map = group2Map(s, groupOrStem);
 
-		GrouperStem curStem = null;
-		while (!Grouper.NS_ROOT.equals(map.get("stem"))) {
-			curStem = GrouperStem.loadByName(s, (String) map.get("stem"));
+		Stem curStem = null;
+		while (!GrouperHelper.NS_ROOT.equals(map.get("stem"))) {
+			curStem = StemFinder.findByName(s, (String) map.get("stem"));
 			if (curStem != null) {
 				map = stem2Map(s, curStem);
 				path.add(0, map);
@@ -348,8 +350,8 @@ public class GrouperHelper {
 	 * @param group GrouperGroup or GroupeStem for which privileges are being requested
 	 * @return Map representing privileges
 	 */
-	public static Map hasAsMap(GrouperSession s, Group group) {
-		return hasAsMap(s, group, false);
+	public static Map hasAsMap(GrouperSession s, GroupOrStem groupOrStem) throws MemberNotFoundException{
+		return hasAsMap(s, groupOrStem, false);
 	}
 
 	/**
@@ -361,58 +363,67 @@ public class GrouperHelper {
 	 * @param isMortal if system user should they be teated as such
 	 * @return Map representing privileges
 	 */
-	public static Map hasAsMap(GrouperSession s, Group groupOrStem,
-			boolean isMortal) {
+	public static Map hasAsMap(GrouperSession s, GroupOrStem groupOrStem,
+			boolean isMortal) throws MemberNotFoundException{
 		Map privs = null;
 
-		GrouperGroup g = null;
-		GrouperStem stem = null;
+		Group g = null;
+		Stem stem = null;
 		privs = new HashMap();
 		if (!isMortal
-				&& Grouper.config("member.system").equals(s.subject().getId())) {
+				&& "GrouperSystem".equals(s.getSubject().getId())) {
 			privs.putAll(superPrivs);
 			if(groupOrStem==null) return privs;
-			if (groupOrStem instanceof GrouperGroup) {
-				g = (GrouperGroup) groupOrStem;
-				GrouperMember member = GrouperMember.load(s.subject());
-				if (g.hasMember(member)) {
+			
+			if (groupOrStem.isGroup()) {
+				g = groupOrStem.getGroup();
+				
+				if (g.hasMember(s.getSubject())) {
 					privs.put("MEMBER", Boolean.TRUE);
 				}
 			} else {
-				stem = (GrouperStem) groupOrStem;
+				stem = groupOrStem.getStem();
 			}
 			if (privs == null)
 				privs = superPrivs;
 			return privs;
 		}
-		if(groupOrStem==null && Grouper.config("member.system").equals(s.subject().getId())) {
+		if(groupOrStem==null && "GrouperSystem".equals(s.getSubject().getId())) {
 			privs = new HashMap();
-			privs.put(Grouper.PRIV_STEM,Boolean.TRUE);
+			privs.put("STEM",Boolean.TRUE);
 			return privs;
 		}
 		if(groupOrStem==null) return new HashMap();
-		if (groupOrStem instanceof GrouperGroup) {
-			g = (GrouperGroup) groupOrStem;
-		} else {
-			stem = (GrouperStem) groupOrStem;
-		}
-		List privList = null;
+		
+			g = groupOrStem.getGroup();
+		
+			stem = groupOrStem.getStem();
+		
+		Set privList = null;
 		if (g != null) {
-			privList = s.access().has(s, g);
+			privList = g.getPrivs(s.getSubject());
 		} else {
-			privList = s.naming().has(s, stem);
+			privList = stem.getPrivs(s.getSubject());
 		}
-		for (int i = 0; i < privList.size(); i++) {
-			privs.put(privList.get(i), Boolean.TRUE);
+		if(privList !=null) {
+			Iterator it = privList.iterator();
+			Object p = null;
+			while(it.hasNext()){
+				p=it.next();
+				if(p instanceof AccessPrivilege) {
+					privs.put(((AccessPrivilege)p).getName().toUpperCase(), Boolean.TRUE);
+				}else if(p instanceof NamingPrivilege) {
+					privs.put(((NamingPrivilege)p).getName().toUpperCase(), Boolean.TRUE);
+				}else{
+					privs.put(it.next(), Boolean.TRUE);
+				}
+			}
 		}
 		if (g != null) {
-			GrouperMember member = GrouperMember.load(s.subject());
-			if (g.hasMember(member))
+			
+			if (g.hasMember(s.getSubject()))
 				privs.put("MEMBER", Boolean.TRUE);
 		}
-
-		//Cache.instance().put(s,privKey,privs);
-
 		return privs;
 	}
 
@@ -425,31 +436,32 @@ public class GrouperHelper {
 	 * @param member Subject who privileges were granted to
 	 * @return Map representing privileges
 	 */
-	public static Map hasAsMap(GrouperSession s, Group groupOrStem,
-			GrouperMember member) {
+	public static Map hasAsMap(GrouperSession s, GroupOrStem groupOrStem,
+		Member member) throws SubjectNotFoundException{
 		Map privs = null;
-		if (Grouper.config("member.system").equals(member.subjectID())) {
+		if ("GrouperSystem".equals(member.getSubjectId())) {
 			//@TODO Review
 			//return superPrivs;
 
 		}
-		List privList = null;
+		Set privList = null;
 
 		privs = new HashMap();
-		GrouperGroup group = null;
-		GrouperStem stem = null;
-		if (groupOrStem instanceof GrouperGroup) {
-			group = (GrouperGroup) groupOrStem;
-			privList = s.access().has(s, group, member);
+		Group group = null;
+		Stem stem = null;
+		if (groupOrStem.isGroup()) {
+			group = groupOrStem.getGroup();
+			privList = group.getPrivs(member.getSubject());
 		} else {
-			stem = (GrouperStem) groupOrStem;
-			privList = s.naming().has(s, stem, member);
+			stem = groupOrStem.getStem();
+			privList = stem.getPrivs(member.getSubject());
 		}
-		for (int i = 0; i < privList.size(); i++) {
-			privs.put(privList.get(i), Boolean.TRUE);
+		Iterator it = privList.iterator();
+		while(it.hasNext()) {
+			privs.put(it.next(), Boolean.TRUE);
 		}
 		if (group != null) {
-			if (group.hasMember(member))
+			if (group.hasMember(member.getSubject()))
 				privs.put("MEMBER", Boolean.TRUE);
 		}
 
@@ -489,7 +501,7 @@ public class GrouperHelper {
 	 * @return Subject wrapped as a Map
 	 */
 	public static Map subject2Map(GrouperSession s, String subjectId,
-			String subjectType,Map addAttr) {
+			String subjectType,Map addAttr) throws SubjectNotFoundException{
 		Map subjectMap = subject2Map(s,subjectId,subjectType);
 		if(addAttr !=null) subjectMap.putAll(addAttr);
 		return subjectMap;
@@ -504,20 +516,24 @@ public class GrouperHelper {
 	 * @return Subject wrapped as a Map
 	 */
 	public static Map subject2Map(GrouperSession s, String subjectId,
-			String subjectType) {
+			String subjectType) throws SubjectNotFoundException{
 		if (!"group".equals(subjectType)) {
 			Subject subject = null;
 			try {
-				subject = SubjectFactory.getSubject(subjectId, subjectType);
+				subject = SubjectFinder.findById(subjectId, subjectType);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 			SubjectAsMap map = new SubjectAsMap(subject);
 			return (Map) map;
 		}
-		GrouperGroup group = groupLoadById(s, subjectId);
+		try {
+		Group group = GroupFinder.findByUuid(s, subjectId);
 		Map groupMap = group2Map(s, group);
 		return groupMap;
+		}catch(GroupNotFoundException e) {
+			throw new SubjectNotFoundException(e.getMessage());
+		}
 	}
 	
 	/**
@@ -589,7 +605,7 @@ public class GrouperHelper {
 	 * @return List of Subjects wrapped as Maps
 	 */
 	public static List groupList2SubjectsMaps(GrouperSession s, List members,
-			int start, int pageSize) {
+			int start, int pageSize) throws GroupNotFoundException,SubjectNotFoundException,MemberNotFoundException{
 		return groupList2SubjectsMaps(s, members, null, start, pageSize);
 	}
 
@@ -599,7 +615,8 @@ public class GrouperHelper {
 	 * @param members List of GrouperLists or GrouperMembers
 	 * @return List of Subjects wrapped as Maps
 	 */
-	public static List groupList2SubjectsMaps(GrouperSession s, List members) {
+	public static List groupList2SubjectsMaps(GrouperSession s, List members) 
+		throws GroupNotFoundException,SubjectNotFoundException,MemberNotFoundException{
 		return groupList2SubjectsMaps(s, members, null);
 	}
 
@@ -612,7 +629,7 @@ public class GrouperHelper {
 	 * @return List of Subjects wrapped as Maps
 	 */
 	public static List groupList2SubjectsMaps(GrouperSession s, List members,
-			String asMemberOf) {
+			String asMemberOf) throws GroupNotFoundException,SubjectNotFoundException,MemberNotFoundException{
 		return groupList2SubjectsMaps(s, members, asMemberOf, 0, members.size());
 	}
 
@@ -628,21 +645,21 @@ public class GrouperHelper {
 	 * @return List of Subjects wrapped as Maps
 	 */
 	public static List groupList2SubjectsMaps(GrouperSession s, List members,
-			String asMemberOf, int start, int pageSize) {
+			String asMemberOf, int start, int pageSize) throws GroupNotFoundException,SubjectNotFoundException,MemberNotFoundException{
 		int end = start + pageSize;
 		if (end > members.size())
 			end = members.size();
 		List maps = new ArrayList();
-		GrouperList list = null;
-		GrouperMember member = null;
-		Subject subject;
+		Membership list = null;
+		Member member = null;
+		Subject subject=null;
 		Map subjMap = null;
 		Object listItem;
-		GrouperGroup via = null;
-		List chain = null;
+		Group via = null;
+		Set chain = null;
 		Object chainItem = null;
-		GrouperGroup firstInChain = null;
-		GrouperMember chainMember = null;
+		Group firstInChain = null;
+		Member chainMember = null;
 		String[] chainGroupIds = null;
 		int chainSizeAdjustment=1;
 		String[] emptyStrArray=new String[]{};
@@ -650,10 +667,12 @@ public class GrouperHelper {
 		for (int i = start; i < end; i++) {
 			chainGroupIds = emptyStrArray;
 			listItem = members.get(i);
-			if (listItem instanceof GrouperList) {
-				list = (GrouperList) listItem;
-				via = (GrouperGroup) list.via();
-				chain = list.chain();
+			if (listItem instanceof Membership) {
+				list = (Membership) listItem;
+				try{
+					via = (Group) list.getViaGroup();
+				}catch(GroupNotFoundException e){}
+				//XXXchain = list.getChildMemberships();
 
 				if (chain != null && chain.size() > 0) {
 					chainGroupIds = getChainGroupIds(s,list);
@@ -661,31 +680,64 @@ public class GrouperHelper {
 				} else {
 					firstInChain = null;
 				}
-				member = list.member();
+				member = list.getMember();
+				try {
+					subject = member.getSubject();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 
-			} else if (listItem instanceof GrouperMember)
-				member = (GrouperMember) listItem;
-			try {
-				subject = SubjectFactory.getSubject(member.subjectID(), member
-						.typeID());
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			} else if (listItem instanceof Membership) {
+				member = (Member) list.getMember();
+				try {
+					subject = member.getSubject();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}else if(listItem instanceof Subject) {
+				subject = (Subject)listItem;
+			}else if(listItem instanceof Group) {
+				
+				Subject subj = SubjectFinder.findById(asMemberOf);
+				Map gSubjMap = subject2Map(subj);
+				Map gMap = group2Map(s,(Group)listItem);
+				gSubjMap.put("memberOfGroup",gMap);
+				gSubjMap.put("asMemberOf",((Group)listItem).getUuid());
+				maps.add(gSubjMap);
+				continue;
+			}else if(listItem instanceof Stem) {
+				
+				Subject subj = SubjectFinder.findById(asMemberOf);
+				Map sSubjMap = subject2Map(subj);
+				Map sMap = stem2Map(s,(Stem)listItem);
+				sSubjMap.put("memberOfGroup",sMap);
+				sSubjMap.put("asMemberOf",((Stem)listItem).getUuid());
+				maps.add(sSubjMap);
+				continue;
 			}
+			
 			if (subject.getType().getName().equals("group")) {
-				GrouperGroup group = groupLoadById(s, subject.getId());
+				Group group = GroupFinder.findByUuid(s, subject.getId());
 				subjMap = group2Map(s, group);
 			} else {
 				subjMap = subject2Map(subject);
 			}
 			if (firstInChain != null)
 				subjMap.put("via", group2Map(s, firstInChain));
-			Group group = list.group();
-			subjMap.put("memberOfGroup",group2Map(s,group));
+			//Group group = list.getGroup();
+			
 			if (asMemberOf != null) {
-				subjMap.put("asMemberOf", asMemberOf);
+				try{
+					subjMap.put("memberOfGroup",group2Map(s,GroupFinder.findByUuid(s,asMemberOf)));
+					subjMap.put("asMemberOf", asMemberOf);
+				}catch(GroupNotFoundException e){}
 			}else{
-				
-				subjMap.put("asMemberOf", group.id());
+				if(list !=null) {
+					subjMap.put("memberOfGroup",group2Map(s,list.getGroup()));
+					subjMap.put("asMemberOf", list.getGroup().getUuid());
+					
+				}
+				//subjMap.put("asMemberOf", group.getUuid());
 			}
 			if (chain != null) {
 				subjMap.put("chain", chain);
@@ -698,23 +750,25 @@ public class GrouperHelper {
 		return maps;
 	}
 	
-	public static String[] getChainGroupIds(GrouperSession s,GrouperList list) {
+	public static String[] getChainGroupIds(GrouperSession s,Membership list) 
+		throws MemberNotFoundException,GroupNotFoundException{
 		Set chainIds = new LinkedHashSet();
-		GrouperMember chainMember;
-		List chain = list.chain();
+		Member chainMember;
+		Set chain = list.getChildMemberships();
 		String[] chainGroupIds={};
-		GrouperGroup via = (GrouperGroup)list.via();
+		Group via = list.getViaGroup();
 		if(via ==null && (chain==null ||chain.size()==0)) return chainGroupIds;
-		if (via !=null) chainIds.add(via.id());
-		GrouperList gl;
-		MemberVia mv;
-		for (int j = 0; j < chain.size(); j++) {
+		if (via !=null) chainIds.add(via.getUuid());
+		Membership gl;
+		Membership mv;
+		Iterator it = chain.iterator();
+		while(it.hasNext()) {
 			try {
-				mv =(MemberVia) chain.get(j);
-				gl=mv.toList(s);
-			    chainMember = gl.member();
+				gl =(Membership) it.next();
+				//gl=mv.toList(s);
+			    chainMember = gl.getMember();
 			
-			chainIds.add(chainMember.subjectID());
+			chainIds.add(chainMember.getSubjectId());
 			}catch(NullPointerException npe) {
 				//chainGroupIds[j] = "!";
 			}
@@ -736,40 +790,36 @@ public class GrouperHelper {
 	 * @param forStems indicates GrouperStem
 	 */
 	public static void assignPrivileges(GrouperSession s, String stemOrGroupId,
-			Subject[] members, String[] privileges, boolean forStems) {
-		GrouperGroup group = null;
-		GrouperStem stem = null;
-		GrouperAccess access = s.access();
-		GrouperNaming naming = s.naming();
+			Subject[] members, String[] privileges, boolean forStems) 
+		throws SchemaException,MemberAddException,InsufficientPrivilegeException,MemberNotFoundException,
+			GrantPrivilegeException{
+		Group group = null;
+		Stem stem = null;
 		Subject subject;
-		if (forStems) {
-			stem = (GrouperStem) GrouperStem.loadByID(s, stemOrGroupId);
-		} else {
-			group = (GrouperGroup) GrouperGroup.loadByID(s, stemOrGroupId);
-		}
+		GroupOrStem  groupOrStem=GroupOrStem.findByID(s,stemOrGroupId);
+		
+			stem = groupOrStem.getStem();
+			group = groupOrStem.getGroup();
+		
 		for (int i = 0; i < members.length; i++) {
 			subject = members[i];
 			for (int j = 0; j < privileges.length; j++) {
 				try {
-					if ("member".equals(privileges[j])) {
-						group.listAddVal(GrouperMember.load(s, subject.getId(),
-								subject.getType().getName()));
-					} else if (forStems) {
-						naming.grant(s, stem, GrouperMember.load(s, subject
-								.getId(), subject.getType().getName()),
-								privileges[j]);
+					if ("member".equals(privileges[j].toLowerCase()) && !group.hasImmediateMember(subject)) {
+						group.addMember(subject);						
+				
+					} else if (groupOrStem.isStem()) {
+						stem.grantPriv(subject,Privilege.getInstance(privileges[j].toLowerCase()));
+
 					} else {
-						access.grant(s, group, GrouperMember.load(s, subject
-								.getId(), subject.getType().getName()),
-								privileges[j]);
+						group.grantPriv(subject,Privilege.getInstance(privileges[j].toLowerCase()));
+
 					}
 				} catch (RuntimeException e) {
 					//@TODO Expect different type of Exception in future
 					if (e.getMessage().indexOf("List value already exists") == -1)
 						throw e;
-				} catch (SubjectNotFoundException e) {
-					throw new RuntimeException(e);
-				}
+				} 
 			}
 		}
 
@@ -787,7 +837,7 @@ public class GrouperHelper {
 	 * @param browseMode - UI browse mode
 	 * @return Map where keys are valid stems
 	 */
-	public static Map getValidStems(GrouperSession s, String browseMode) {
+	/*public static Map getValidStems(GrouperSession s, String browseMode) {
 		Map stems = new HashMap();
 		List groups = null;
 		GrouperAccess accessImpl = s.access();
@@ -850,7 +900,7 @@ public class GrouperHelper {
 			}
 		}
 		return stems;
-	}
+	}*/
 
 	
 	/**
@@ -860,7 +910,7 @@ public class GrouperHelper {
 	 * @return boolean
 	 */
 	public static boolean isSuperUser(GrouperSession s) {
-		return s.subject().getId().equals(Grouper.config("member.system"));
+		return s.getSubject().getId().equals("GrouperSystem");
 	}
 
 	/**
@@ -874,7 +924,7 @@ public class GrouperHelper {
 	public static Subject getSubjectFromIdAndType(String subjectId,
 			String subjectType) {
 		try {
-			return SubjectFactory.getSubject(subjectId, subjectType);
+			return SubjectFinder.findById(subjectId, subjectType);
 		} catch (Exception e) {
 		}
 		return null;
@@ -888,11 +938,11 @@ public class GrouperHelper {
 	 * @param id GrouperGroup id
 	 * @return GrouperGroup
 	 */
-	public static GrouperGroup groupLoadById(GrouperSession s, String id) {
+	public static Group groupLoadById(GrouperSession s, String id) throws GroupNotFoundException{
 
-		GrouperGroup group = null;
+		Group group = null;
 
-		group = (GrouperGroup) GrouperGroup.loadByID(s, id);
+		group = GroupFinder.findByUuid(s, id);
 		
 		return group;
 
@@ -928,8 +978,8 @@ public class GrouperHelper {
 	 */
 	public static List searchGroupsByAttribute(GrouperSession s, String query, String from,String attr) {
 
-		
-			String type = null;
+		return new ArrayList();
+			/*String type = null;
 
 			GrouperQuery grouperQuery = new GrouperQuery(s);
 			
@@ -944,7 +994,7 @@ public class GrouperHelper {
 			}
 
 			List res = grouperQuery.getGroups();
-			return res;
+			return res;*/
 		
 	}
 	
@@ -1007,7 +1057,8 @@ public class GrouperHelper {
 	 * @return List of GrouperGroups matched
 	 */
 	public static List searchGroups(GrouperSession s, String query,
-			String from, String searchInDisplayNameOrExtension,String searchInNameOrExtension,String browseMode) {
+			String from, String searchInDisplayNameOrExtension,
+			String searchInNameOrExtension,String browseMode) throws Exception{
 		String type = null;
 		List res = searchGroups(s, query, from,searchInDisplayNameOrExtension,searchInNameOrExtension);
 		if (res != null)
@@ -1020,24 +1071,24 @@ public class GrouperHelper {
 			allowedSet = GrouperHelper.getMembershipsSet(s);
 		} else if ("Manage".equals(browseMode)) {
 			allowedSet = GrouperHelper.getGroupsForPrivileges(s,
-					new String[] { Grouper.PRIV_ADMIN, Grouper.PRIV_UPDATE,
-							Grouper.PRIV_READ });
+					new String[] { "admin", "update",
+							"read" });
 		} else if ("Join".equals(browseMode)) {
 			allowedSet = GrouperHelper.getGroupsForPrivileges(s,
-					new String[] { Grouper.PRIV_OPTIN });
+					new String[] { "optin" });
 		}
 		if (allowedSet != null) {
 			Map allowed = new HashMap();
 			Iterator it = allowedSet.iterator();
-			GrouperList groupAsList;
+			Group group;
 			while (it.hasNext()) {
-				groupAsList = (GrouperList) it.next();
-				//allowed.put(groupAsList.getGroupKey(),Boolean.TRUE);
+				group = (Group) it.next();
+				allowed.put(group.getUuid(),Boolean.TRUE);
 			}
-			GrouperGroup group;
+			
 			for (int i = 0; i < res.size(); i++) {
-				group = (GrouperGroup) res.get(i);
-				if (allowed.containsKey(group.key()))
+				group = (Group) res.get(i);
+				if (allowed.containsKey(group.getUuid()))
 					returnRes.add(group);
 			}
 		}
@@ -1059,8 +1110,8 @@ public class GrouperHelper {
 	 */
 	public static List searchStemsByAttribute(GrouperSession s, String query, String from,String attr) {
 
-		
-			String type = null;
+			return new ArrayList();
+			/*String type = null;
 
 			GrouperQuery grouperQuery = new GrouperQuery(s);
 			
@@ -1075,7 +1126,7 @@ public class GrouperHelper {
 			}
 
 			List res = grouperQuery.getStems();
-			return res;
+			return res;*/
 		
 	}
 	
@@ -1147,21 +1198,19 @@ public class GrouperHelper {
 							   
 
 		memberships = new HashMap();
-		GrouperMember member = null;
+		Member member = null;
 		try {
-			member = GrouperMember.load(s, s.subject().getId(), s.subject()
-					.getType().getName());
+			member = MemberFinder.findBySubject(s, s.getSubject());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		List vals = member.listVals();
-		GrouperList list;
-		GrouperGroup group;
-
-		for (int i = 0; i < vals.size(); i++) {
-			list = (GrouperList) vals.get(i);
-			group = (GrouperGroup) list.group();
-			memberships.put(group.key(), Boolean.TRUE);
+		Set vals = member.getGroups();
+		Group group;
+		Iterator it = vals.iterator();
+		while(it.hasNext()){
+			
+			group = (Group) it.next();
+			memberships.put(group.getUuid(), Boolean.TRUE);
 		}
 
 		return memberships;
@@ -1183,16 +1232,15 @@ public class GrouperHelper {
 	public static Set getMembershipsSet(GrouperSession s, int start,
 			int pageSize, StringBuffer totalCount) {
 		Set memberships = new LinkedHashSet();
-		GrouperMember member = null;
+		Member member = null;
 		try {
-			member = GrouperMember.load(s, s.subject().getId(), s.subject()
-					.getType().getName());
+			member = MemberFinder.findBySubject(s, s.getSubject());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		List vals = member.listVals();
-		GrouperList list;
-		GrouperGroup group;
+		Set vals = member.getGroups();
+		
+		Group group;
 		int end = start + pageSize;
 		if (end > vals.size())
 			end = vals.size();
@@ -1200,9 +1248,11 @@ public class GrouperHelper {
 			totalCount.setLength(0);
 			totalCount.append("" + vals.size());
 		}
-		for (int i = start; i < end; i++) {
-			list = (GrouperList) vals.get(i);
-			group = (GrouperGroup) list.group();
+		
+		Iterator it = vals.iterator();
+		while(it.hasNext()){
+			
+			group = (Group) it.next();
 			memberships.add(group);
 		}
 		return memberships;
@@ -1216,7 +1266,7 @@ public class GrouperHelper {
 	 * @param privs privileges to test
 	 * @return Set of Grouper Groups 
 	 */
-	public static Set getGroupsForPrivileges(GrouperSession s, String[] privs) {
+	public static Set getGroupsForPrivileges(GrouperSession s, String[] privs) throws MemberNotFoundException{
 
 		Set groups = getGroupsForPrivileges(s, privs, 0, 100000, null);
 		
@@ -1238,17 +1288,16 @@ public class GrouperHelper {
 	 * @return Set - subset of GrouperGroups
 	 */
 	public static Set getGroupsForPrivileges(GrouperSession s, String[] privs,
-			int start, int pageSize, StringBuffer resultCount) {
-		GrouperAccess accessImpl = s.access();
+			int start, int pageSize, StringBuffer resultCount) throws MemberNotFoundException{
+		
 		Set groupSet = new LinkedHashSet();
-		List groups = new ArrayList();
+		
 		Set allSet = new LinkedHashSet();
-		Iterator it;
-		GrouperList gl;
-
+		
+		
+		Member member = MemberFinder.findBySubject(s,s.getSubject());
 		for (int i = 0; i < privs.length; i++) {
-			allSet.addAll(accessImpl.has(s, privs[i]));
-
+			allSet.addAll(getGroupsOrStemsWhereMemberHasPriv(member,privs[i].toLowerCase()));
 		}
 
 		int end = start + pageSize;
@@ -1258,14 +1307,12 @@ public class GrouperHelper {
 			resultCount.setLength(0);
 			resultCount.append("" + allSet.size());
 		}
-		groups.addAll(allSet);
-		for (int i = start; i < end; i++) {
-			gl = (GrouperList) groups.get(i);
-			if (resultCount == null) {
-				groupSet.add(gl);
-			} else {
-				groupSet.add(gl.group());
-			}
+		
+		Iterator it = allSet.iterator();
+		Group group = null;
+		while(it.hasNext()){
+			group = (Group) it.next();
+			groupSet.add(group);
 		}
 		return groupSet;
 	}
@@ -1278,12 +1325,8 @@ public class GrouperHelper {
 	 * @param privs privileges to test
 	 * @return Set of GrouperStems
 	 */
-	public static Set getStemsForPrivileges(GrouperSession s, String[] privs) {
+	public static Set getStemsForPrivileges(GrouperSession s, String[] privs) throws MemberNotFoundException{
 
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < privs.length; i++) {
-			sb.append(privs[i]);
-		}
 		Set groups = null;//Cache.instance().getSet(s,sb.toString());
 		if (groups != null)
 			return null;
@@ -1308,17 +1351,15 @@ public class GrouperHelper {
 	 * @return
 	 */
 	public static Set getStemsForPrivileges(GrouperSession s, String[] privs,
-			int start, int pageSize, StringBuffer resultCount) {
+			int start, int pageSize, StringBuffer resultCount) throws MemberNotFoundException{
 
-		GrouperNaming namingImpl = s.naming();
+		
 		Set stemSet = new LinkedHashSet();
 		Set allSet = new LinkedHashSet();
-		List stems = new ArrayList();
-
-		GrouperList gl;
+		
+		Member member = MemberFinder.findBySubject(s,s.getSubject());
 		for (int i = 0; i < privs.length; i++) {
-			allSet.addAll(namingImpl.has(s, privs[i]));
-
+			allSet.addAll(getGroupsOrStemsWhereMemberHasPriv(member,privs[i].toLowerCase()));
 		}
 		int end = start + pageSize;
 		if (end > allSet.size())
@@ -1327,14 +1368,12 @@ public class GrouperHelper {
 			resultCount.setLength(0);
 			resultCount.append("" + allSet.size());
 		}
-		stems.addAll(allSet);
-		for (int i = start; i < end; i++) {
-			gl = (GrouperList) stems.get(i);
-			if (resultCount == null) {
-				stemSet.add(gl);
-			} else {
-				stemSet.add(gl.group());
-			}
+		
+		Iterator it = allSet.iterator();
+		Stem stem = null;
+		while(it.hasNext()){
+			stem = (Stem) it.next();
+			stemSet.add(stem);
 		}
 		return stemSet;
 	}
@@ -1348,38 +1387,37 @@ public class GrouperHelper {
 	 * @return boolean indicating success
 	 * @throws Exception
 	 */
-	public static boolean stemDelete(GrouperSession s, GrouperStem stem)
+	public static boolean stemDelete(GrouperSession s, Stem stem)
 			throws Exception {
-		if (stem == null || !s.naming().has(s, stem, Grouper.PRIV_STEM)) {
+		if (stem == null || !stem.hasStem(s.getSubject())) {
 			return false;
 		}
-		String stemStr = stem.name() + HIER_DELIM;
+		String stemStr = stem.getName() + HIER_DELIM;
 		//@TODO: when searching scoped by stem fix
 		List children = new ArrayList();//getNestedStemChildren(s,stemStr);
 		if (children.size() > 100)
 			throw new Exception("Too many children (" + children.size()
 					+ ") - must be <=100");
 		Object[] res;
-		GrouperGroup g = null;
+		Group g = null;
 		boolean deleted = true;
 		GrouperSession sysSession = null;
 		try {
-			sysSession = GrouperSession.start(SubjectFactory.getSubject(Grouper
-					.config("member.system")));
+			sysSession = GrouperSession.startSession(SubjectFinder.findById("GrouperSystem"));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 		for (int i = 0; i < children.size(); i++) {
 			res = (Object[]) children.get(i);
-			g = (GrouperGroup) res[1];
-			if (!groupDelete(sysSession, g)) {
+			g = (Group) res[1];
+			if (!groupDelete(sysSession, GroupOrStem.findByGroup(s,g))) {
 				sysSession.stop();
 				return false;
 			}
 		}
 
 		sysSession.stop();
-		return groupDelete(s, stem);
+		return groupDelete(s, GroupOrStem.findByStem(s,stem));
 	}
 	
 	/**
@@ -1389,36 +1427,39 @@ public class GrouperHelper {
 	 * @param groupOrStem GrouperGroup or GrouperStem to delete
 	 * @return boolean indicating success
 	 */
-	public static boolean groupDelete(GrouperSession s, Group groupOrStem) {
-		GrouperGroup group = null;
-		GrouperStem stem = null;
+	public static boolean groupDelete(GrouperSession s, GroupOrStem groupOrStem) 
+		throws InsufficientPrivilegeException,MemberNotFoundException,
+		SubjectNotFoundException,MemberDeleteException{
+		Group group = groupOrStem.getGroup();
+		Stem stem = groupOrStem.getStem();
 		boolean deleted = true;
 		if (groupOrStem == null)
 			return false;
-		if (groupOrStem instanceof GrouperStem) {
-			stem = (GrouperStem) groupOrStem;
-			if (!s.naming().has(s, stem, Grouper.PRIV_STEM)) {
+		if (groupOrStem.isStem()) {
+			if(!stem.hasStem(s.getSubject())) {
+
 				return false;
 			}
 			try {
-				GrouperStem.delete(s, stem);
+				//Stem.delete(s, stem);
 			} catch (Exception e) {
 				deleted = false;
 			}
 			return deleted;
 		} else {
-			group = (GrouperGroup) groupOrStem;
-			if (!s.access().has(s, group, Grouper.PRIV_ADMIN)) {
+			
+			if (group.hasAdmin(s.getSubject())) {
 				return false;
 			}
 		}
 
-		List members = group.listImmVals();//Eff?
-		GrouperMember member;
-		for (int i = 0; i < members.size(); i++) {
-			member = ((GrouperList) members.get(i)).member();
+		Set memberships = group.getMemberships();//Eff?
+		Member member;
+		Iterator it = memberships.iterator();
+		while(it.hasNext()) {
+			member = (Member) it.next();
 			try {
-				group.listDelVal(member);
+				group.deleteMember(member.getSubject());
 				//group.listDelVal(member);
 			} catch (RuntimeException e) {
 				if (!"List value does not exist".equals(e.getMessage()))
@@ -1437,21 +1478,20 @@ public class GrouperHelper {
 		 */
 		GrouperSession sysSession = null;
 		try {
-			sysSession = GrouperSession.start(SubjectFactory.getSubject(Grouper
-					.config("member.system")));
+			sysSession = GrouperSession.startSession(SubjectFinder.findById("GrouperSystem"));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 
-		GrouperMember groupAsMember = null;
+		Member groupAsMember = null;
 		try {
-			groupAsMember = GrouperMember.load(s, group.id(), "group");
+			groupAsMember = MemberFinder.findBySubject(s, SubjectFinder.findById(group.getUuid(), "group"));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		for (int j = 0; j < listNames.length; j++) {
+		/*for (int j = 0; j < listNames.length; j++) {
 			String list = listNames[j];
-			List memberships = groupAsMember.listImmVals(list);
+			memberships = groupAsMember.;
 			GrouperGroup memberOf;
 			for (int i = 0; i < memberships.size(); i++) {
 				memberOf = (GrouperGroup) ((GrouperList) memberships.get(i))
@@ -1461,11 +1501,11 @@ public class GrouperHelper {
 				String type = memberOf.type();
 				memberOf.listDelVal(groupAsMember, list);
 			}
-		}
+		}*/
 		sysSession.stop();
 
 		try {
-			GrouperGroup.delete(s, group);
+			//Group.delete(s, group);
 		} catch (Exception e) {
 			deleted = false;
 		}
@@ -1482,35 +1522,49 @@ public class GrouperHelper {
 	 * @return GrouperStem created
 	 * @throws Exception
 	 */
-	public static GrouperStem createIfAbsentPersonalStem(GrouperSession s,
+	public static Stem createIfAbsentPersonalStem(GrouperSession s,
 			PersonalStem ps) throws Exception {
 		if (s == null)
 			return null;
 
-		String stemName = ps.getPersonalStemRoot(s.subject()) + HIER_DELIM
-				+ ps.getPersonalStemId(s.subject());
-		GrouperStem stem = GrouperStem.loadByName(s, stemName);
+		String stemName = ps.getPersonalStemId(s.getSubject());
+		String parentName=ps.getPersonalStemRoot(s.getSubject());
+		Stem parent = null;
+		String childName = null;
+		if(NS_ROOT.equals(parentName)||"".equals(parentName)) {
+			parent = StemFinder.findRootStem(s);
+			childName=stemName;
+		}else{
+			try{
+				parent = StemFinder.findByName(s,parentName);
+				childName=parent.getName() + HIER_DELIM + stemName;
+			}catch(StemNotFoundException e){
+				throw new IllegalStateException("Cannot find parent stem for personal stem: " + childName);
+			}
+		}
+		
+		Stem stem = null;
+		
+		try{
+			stem=StemFinder.findByName(s, childName);
+		}catch(Exception e){}
+		
 		if (stem == null) {
 			GrouperSession sysSession = null;
 			try {
-				sysSession = GrouperSession.start(SubjectFactory
-						.getSubject(Grouper.config("member.system")));
+				sysSession = GrouperSession.startSession(SubjectFinder.findById("GrouperSystem"));
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-			stem = GrouperStem.create(sysSession, ps.getPersonalStemRoot(s
-					.subject()), ps.getPersonalStemId(s.subject()));
-			stem.attribute("displayExtension", ps.getPersonalStemDisplayName(s
-					.subject()));
-			stem.attribute("description", ps.getPersonalStemDescription(s
-					.subject()));
+			stem = parent.addChildStem(stemName,ps.getPersonalStemDisplayName(s
+					.getSubject()));
+			
+			stem.setDescription(ps.getPersonalStemDescription(s
+					.getSubject()));
 
-			GrouperMember member = GrouperMember.load(s.subject());
-			s.naming().grant(sysSession, stem, member, Grouper.PRIV_CREATE);
-			s.naming().grant(sysSession, stem, member, Grouper.PRIV_STEM);
-
+			stem.grantPriv(s.getSubject(),Privilege.getInstance("create"));
+			stem.grantPriv(s.getSubject(),Privilege.getInstance("stem"));
 			sysSession.stop();
-
 		}
 		return stem;
 	}
@@ -1544,63 +1598,155 @@ public class GrouperHelper {
 		return personSources;
 	}
 	
-	public static List getAllWaysInWhichSubjectIsMemberOFGroup(GrouperSession s,Subject subject,GrouperGroup group) {
+	public static List getAllWaysInWhichSubjectIsMemberOFGroup(GrouperSession s,Subject subject,Group group) 
+		throws MemberNotFoundException,GroupNotFoundException{
 		List ways = new ArrayList();
-		GrouperMember member = GrouperMember.load(s,subject);
-		List memberships = member.listVals();
-		GrouperList gl;
-		for(int i=0;i<memberships.size();i++) {
-			gl = (GrouperList) memberships.get(i);
-			if(gl.groupKey().equals(group.key())) {
+		Member member = MemberFinder.findBySubject(s,subject);
+		Set memberships = member.getMemberships();
+		Membership gl;
+		Iterator it = memberships.iterator();
+		while(it.hasNext()) {
+			gl = (Membership) it.next();
+			if(gl.getGroup().getUuid().equals(group.getUuid())) {
 				ways.add(gl);
 			}
 		}
 		return ways;
 	}
 	
-	public static Map getExtendedHas(GrouperSession s,Group group,GrouperMember member) {
-		Map map  =getAllHas(s,group,member);
+	public static Map getExtendedHas(GrouperSession s,GroupOrStem groupOrStem,Member member) {
+		Map map  =getAllHas(s,groupOrStem,member);
 		
 		map.remove("subject");
 		return map;
 		
 	}
-	public static Map getImmediateHas(GrouperSession s,Group group,GrouperMember member) {
-		Map map  =getAllHas(s,group,member);
+	public static Map getImmediateHas(GrouperSession s,GroupOrStem groupOrStem,Member member) {
+		Map map = getAllHas(s,groupOrStem,member);
 		
 		return (Map)map.get("subject");
 		
 	}
-	private static Map getAllHas(GrouperSession s,Group group,GrouperMember member) {
-		List gls = group.getListValsByMember(s,member);
+	private static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member) {
+		Set allPrivs = null;
+		if(groupOrStem.isGroup()) {
+			allPrivs = member.getPrivs(groupOrStem.getGroup());
+		}else{
+			allPrivs = member.getPrivs(groupOrStem.getStem());
+		}
+		
 		Map results = new LinkedHashMap();
 		Map privs;
-		GrouperList gl;
+		AccessPrivilege priv = null;
+		NamingPrivilege nPriv=null;
 		String key="subject";
 		results.put(key,new HashMap());
 		List tmpList = new ArrayList();
-		for(int i=0;i<gls.size();i++) {
-			gl = (GrouperList)gls.get(i);
-			if(gl.via()==null) {
-				key="subject";
-			}else{
-				key=gl.viaKey();
-			}
-			privs = (Map)results.get(key);
-			if(privs==null) {
-				privs=new HashMap();
-				results.put(key,privs);
-				privs.put("group",group2Map(s,gl.via()));
-				//privs.put("group",group2Map(s,gl.group()));
-				
-			}
-			privs.put(list2privMap.get(gl.groupField()),Boolean.TRUE);
-			
+		Iterator it = allPrivs.iterator();
+		boolean isEffective = false;
+		if(groupOrStem.isGroup() && member.isImmediateMember(groupOrStem.getGroup())) {
+			privs = new HashMap();
+			privs.put("MEMBER",Boolean.TRUE);
+			results.put("subject",privs);
 		}
-		
+		while(it.hasNext()) {
+			if(groupOrStem.isGroup()) {
+				priv = (AccessPrivilege)it.next();
+				
+				if(member.getSubjectId().equals(priv.getOwner().getId())) {
+					key="subject";
+					isEffective = false;
+				}else{
+					key=priv.getOwner().getId();
+					isEffective = true;
+				}
+				privs = (Map)results.get(key);
+				if(privs==null) {
+					privs=new HashMap();
+					results.put(key,privs);
+					
+					if(isEffective) {
+						try{
+							privs.put("group",group2Map(s,GroupFinder.findByUuid(s,priv.getOwner().getId())));
+						}catch(GroupNotFoundException e){}
+					}
+					
+				}
+				privs.put(priv.getName().toUpperCase()
+						,Boolean.TRUE);
+			}else{
+				nPriv = (NamingPrivilege)it.next();
+				
+				if(member.getSubjectId().equals(nPriv.getOwner().getId())) {
+					key="subject";
+					isEffective = false;
+				}else{
+					key=nPriv.getOwner().getId();
+					isEffective = true;
+				}
+					privs = (Map)results.get(key);
+					if(privs==null) {
+						privs=new HashMap();
+						results.put(key,privs);
+						if(isEffective) {
+							try{
+								privs.put("group",group2Map(s,GroupFinder.findByUuid(s,nPriv.getOwner().getId())));
+							}catch(GroupNotFoundException e){}
+						}
+						
+					}
+					privs.put(nPriv.getName().toUpperCase(),Boolean.TRUE);
+			}
+		}
 		return results;
 		
 	}
+	public static Set getSubjectsWithPriv(Group group,String privilege) {
+		privilege = privilege.toLowerCase();
+		if(privilege.equals("admin")) return group.getAdmins();
+		if(privilege.equals("update")) return group.getUpdaters();
+		if(privilege.equals("read")) return group.getReaders();
+		if(privilege.equals("view")) return group.getViewers();
+		if(privilege.equals("optin")) return group.getOptins();
+		if(privilege.equals("optout")) return group.getOptouts();
+		return new HashSet();
+	}
 	
+	public static Set getGroupsOrStemsWhereMemberHasPriv(Member member,String privilege) {
+		privilege=privilege.toLowerCase();
+		if(privilege.equals("admin")) return member.hasAdmin();
+		if(privilege.equals("update")) return member.hasUpdate();
+		if(privilege.equals("read")) return member.hasRead();
+		if(privilege.equals("view")) return member.hasView();
+		if(privilege.equals("optin")) return member.hasOptin();
+		if(privilege.equals("optout")) return member.hasOptout();
+		if(privilege.equals("create")) return member.hasCreate();
+		if(privilege.equals("stem")) return member.hasStem();
+		return new HashSet();
+	}
+	
+	public static Set getSubjectsWithPriv(Stem stem,String privilege) {
+		privilege=privilege.toLowerCase();
+		if(privilege.equals("stem")) return stem.getStemmers();
+		if(privilege.equals("create")) return stem.getCreators();
+		return new HashSet();
+	}
+	
+	public static boolean hasSubjectPrivForGroup(Subject subject,Group group,String privilege) {
+		privilege=privilege.toLowerCase();
+		if(privilege.equals("admin")) return group.hasAdmin(subject);
+		if(privilege.equals("update")) return group.hasUpdate(subject);
+		if(privilege.equals("read")) return group.hasRead(subject);
+		if(privilege.equals("view")) return group.hasView(subject);
+		if(privilege.equals("optin")) return group.hasOptin(subject);
+		if(privilege.equals("optout")) return group.hasOptout(subject);
+		return false;
+	}
+	public static boolean hasSubjectPrivForStem(Subject subject,Stem stem,String privilege) {
+		privilege=privilege.toLowerCase();
+		if(privilege.equals("stem")) return stem.hasStem(subject);
+		if(privilege.equals("create")) return stem.hasCreate(subject);
+		return false;
+	}
 }
 

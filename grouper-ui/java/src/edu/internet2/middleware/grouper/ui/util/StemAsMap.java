@@ -1,59 +1,28 @@
 /*
- * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004-2005 The University Of Bristol
- * All Rights Reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *  * Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *  * Neither the name of the University of Bristol nor the names
- *    of its contributors nor the University Corporation for Advanced
- *   Internet Development, Inc. may be used to endorse or promote
- *   products derived from this software without explicit prior
- *   written permission.
- *
- * You are under no obligation whatsoever to provide any enhancements
- * to the University of Bristol, its contributors, or the University
- * Corporation for Advanced Internet Development, Inc.  If you choose
- * to provide your enhancements, or if you choose to otherwise publish
- * or distribute your enhancements, in source code form without
- * contemporaneously requiring end users to enter into a separate
- * written license agreement for such enhancements, then you thereby
- * grant the University of Bristol, its contributors, and the University
- * Corporation for Advanced Internet Development, Inc. a non-exclusive,
- * royalty-free, perpetual license to install, use, modify, prepare
- * derivative works, incorporate into the software or other computer
- * software, distribute, and sublicense your enhancements or derivative
- * works thereof, in binary and source code form.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND WITH ALL FAULTS.  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT ARE DISCLAIMED AND the
- * entire risk of satisfactory quality, performance, accuracy, and effort
- * is with LICENSEE. IN NO EVENT SHALL THE COPYRIGHT OWNER, CONTRIBUTORS,
- * OR THE UNIVERSITY CORPORATION FOR ADVANCED INTERNET DEVELOPMENT, INC.
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2005 The University Of Bristol
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package edu.internet2.middleware.grouper.ui.util;
 
-import edu.internet2.middleware.grouper.GrouperAttribute;
+
+import org.apache.commons.beanutils.WrapDynaBean;
+
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperStem;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemNotFoundException;
 
 /**
  * Wraps a GrouperStem- allows non persistent values to be stored for the UI and
@@ -61,11 +30,12 @@ import edu.internet2.middleware.grouper.GrouperStem;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: StemAsMap.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: StemAsMap.java,v 1.2 2005-12-08 15:31:42 isgwb Exp $
  */
 public class StemAsMap extends ObjectAsMap {
-
-	protected GrouperStem stem = null;
+	
+	
+	protected Stem stem = null;
 
 	protected final static String objType = "GrouperStem";
 
@@ -77,8 +47,9 @@ public class StemAsMap extends ObjectAsMap {
 	 * @param s
 	 *            GrouperSession for authenticated user
 	 */
-	public StemAsMap(GrouperStem stem, GrouperSession s) {
+	public StemAsMap(Stem stem, GrouperSession s) {
 		super();
+		dynaBean = new WrapDynaBean(stem);
 		super.objType = objType;
 		if (stem == null)
 			throw new NullPointerException(
@@ -88,8 +59,11 @@ public class StemAsMap extends ObjectAsMap {
 		put("subjectType", "stem");
 		//put("isGroup",Boolean.FALSE);
 		put("isStem", Boolean.TRUE);
-		put("id", stem.id());
-		put("stemId", stem.id());
+		put("id", stem.getUuid());
+		put("stemId", stem.getUuid());
+		try{
+		put("stem",stem.getParentStem().getName());
+		}catch(StemNotFoundException e){}
 	}
 
 	/*
@@ -101,12 +75,15 @@ public class StemAsMap extends ObjectAsMap {
 		//Map would override GrouperGroup values
 		Object obj = super.get(key);
 		if (obj == null) {
-			//No value, so check the wrapped group
-			GrouperAttribute ga = stem.attribute((String) key);
-			obj = ga.value();
+			//No value, so check the wrapped stem
+			Class stemClass = stem.getClass();
+			obj = getByIntrospection(key);
+			
 		}
 		if (obj == null)
 			obj = "";
 		return obj;
 	}
+	
+
 }

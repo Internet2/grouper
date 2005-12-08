@@ -1,53 +1,19 @@
 /*
- * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004-2005 The University Of Bristol
- * All Rights Reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *  * Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *  * Neither the name of the University of Bristol nor the names
- *    of its contributors nor the University Corporation for Advanced
- *   Internet Development, Inc. may be used to endorse or promote
- *   products derived from this software without explicit prior
- *   written permission.
- *
- * You are under no obligation whatsoever to provide any enhancements
- * to the University of Bristol, its contributors, or the University
- * Corporation for Advanced Internet Development, Inc.  If you choose
- * to provide your enhancements, or if you choose to otherwise publish
- * or distribute your enhancements, in source code form without
- * contemporaneously requiring end users to enter into a separate
- * written license agreement for such enhancements, then you thereby
- * grant the University of Bristol, its contributors, and the University
- * Corporation for Advanced Internet Development, Inc. a non-exclusive,
- * royalty-free, perpetual license to install, use, modify, prepare
- * derivative works, incorporate into the software or other computer
- * software, distribute, and sublicense your enhancements or derivative
- * works thereof, in binary and source code form.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND WITH ALL FAULTS.  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT ARE DISCLAIMED AND the
- * entire risk of satisfactory quality, performance, accuracy, and effort
- * is with LICENSEE. IN NO EVENT SHALL THE COPYRIGHT OWNER, CONTRIBUTORS,
- * OR THE UNIVERSITY CORPORATION FOR ADVANCED INTERNET DEVELOPMENT, INC.
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2005 The University Of Bristol
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package uk.ac.bris.is.grouper.quickstart; 
 
@@ -59,22 +25,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import edu.internet2.middleware.grouper.Grouper;
-import edu.internet2.middleware.grouper.GrouperAccess;
-import edu.internet2.middleware.grouper.GrouperGroup;
-import edu.internet2.middleware.grouper.GrouperMember;
-import edu.internet2.middleware.grouper.GrouperNaming;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
+import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperStem;
-import edu.internet2.middleware.grouper.SubjectFactory;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Privilege;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -135,7 +103,7 @@ import edu.internet2.middleware.subject.Subject;
 <p></p>
  * 
  * @author Gary Brown.
- * @version $Id: XmlLoader.java,v 1.1.1.1 2005-08-23 13:03:13 isgwb Exp $
+ * @version $Id: XmlLoader.java,v 1.2 2005-12-08 15:26:48 isgwb Exp $
  */
 public class XmlLoader {
 	private final static String sep=":";
@@ -150,8 +118,8 @@ public class XmlLoader {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception{
-		Subject sys = SubjectFactory.getSubject(Grouper.config("member.system"));
-		GrouperSession s = GrouperSession.start(sys);
+		Subject sys = SubjectFinder.findById("GrouperSystem");
+		GrouperSession s = GrouperSession.startSession(sys);
 		String dataFile=args[0];
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
@@ -175,7 +143,7 @@ public class XmlLoader {
 		XmlLoader.s = s;
 		Element root = doc.getDocumentElement();
 		System.out.println("Starting load...");
-		process(root,Grouper.NS_ROOT);
+		process(root,GrouperHelper.NS_ROOT);
 		processMemberships();
 		processNamingPrivs();
 		processAccessPrivs();
@@ -209,38 +177,39 @@ public class XmlLoader {
 	private static void processNamingPrivs() throws Exception {
 		Element naming;
 		String stem;
-		GrouperMember member = null;
-		GrouperStem grouperStem;
+		Member member = null;
+		Stem grouperStem;
 		Map map;
 		String group;
 		String person;
 		String priv;
 		Subject subj;
 		String absoluteGroup;
-		GrouperGroup privGroup;
-		GrouperNaming grouperNaming = s.naming();
+		Group privGroup;
+		
 		for(int i=0;i<namingPrivs.size();i++) {
+			
 			map = (Map)namingPrivs.get(i);
 			naming = (Element)map.get("naming");
 			stem = (String) map.get("stem");
 			group=naming.getAttribute("group");
 			person=naming.getAttribute("person");
-			priv=naming.getAttribute("priv");
+			priv=naming.getAttribute("priv").toLowerCase();
 			if(!isEmpty(group)) {
 				absoluteGroup = getAbsoluteName(group,stem);
-				privGroup = GrouperGroup.loadByName(s,absoluteGroup);
-				member = GrouperMember.load(s,privGroup.id(),"group");
+				privGroup = GroupFinder.findByName(s,absoluteGroup);
+				member = MemberFinder.findBySubject(s,SubjectFinder.findById(privGroup.getUuid(),"group"));
 				
 				System.out.println("Assigning " + priv + " to " + absoluteGroup + " for " + stem);
 			}else if(!isEmpty(person)) {
-				subj = SubjectFactory.getSubjectByIdentifier(person,"person");
-				member = GrouperMember.load(s,subj);
+				subj = SubjectFinder.findByIdentifier(person,"person");
+				member = MemberFinder.findBySubject(s,subj);
 				System.out.println("Assigning " + priv + " to " + subj.getName() + " for " + stem);
 			}
 			
-			grouperStem = GrouperStem.loadByName(s,stem);
-			if(!grouperNaming.has(s,grouperStem,member,priv)) {
-				grouperNaming.grant(s,grouperStem,member,priv);
+			grouperStem = StemFinder.findByName(s,stem);
+			if(!GrouperHelper.hasSubjectPrivForStem(member.getSubject(),grouperStem,priv)) {
+				grouperStem.grantPriv(member.getSubject(),Privilege.getInstance(priv));
 			}
 		}
 	}
@@ -248,37 +217,37 @@ public class XmlLoader {
 	private static void processAccessPrivs() throws Exception {
 		Element access;
 		String stem;
-		GrouperMember member=null;
-		GrouperGroup grouperGroup;
+		Member member=null;
+		Group grouperGroup;
 		Map map;
 		String group;
 		String person;
 		String priv;
 		String absoluteGroup;
-		GrouperGroup privGroup;
+		Group privGroup;
 		Subject subj;
-		GrouperAccess grouperAccess = s.access();
 		for(int i=0;i<accessPrivs.size();i++) {
+			
 			map = (Map)accessPrivs.get(i);
 			access = (Element)map.get("access");
 			stem = (String) map.get("stem");
 			group=access.getAttribute("group");
 			person = access.getAttribute("person");
-			priv=access.getAttribute("priv");
-			grouperGroup = GrouperGroup.loadByName(s,stem);
+			priv=access.getAttribute("priv").toLowerCase();
+			grouperGroup = GroupFinder.findByName(s,stem);
 			if(!isEmpty(group)) {
 				absoluteGroup = getAbsoluteName(group,stem);
-				privGroup = GrouperGroup.loadByName(s,absoluteGroup);
-				member = GrouperMember.load(s,privGroup.id(),"group");
+				privGroup = GroupFinder.findByName(s,absoluteGroup);
+				member = MemberFinder.findBySubject(s,SubjectFinder.findById(privGroup.getUuid(),"group"));
 				
 				System.out.println("Assigning " + priv + " to " + absoluteGroup + " for " + stem);
 			}else if(!isEmpty(person)) {
-				subj = SubjectFactory.getSubjectByIdentifier(person,"person");
-				member = GrouperMember.load(s,subj);
+				subj = SubjectFinder.findByIdentifier(person,"person");
+				member = MemberFinder.findBySubject(s,subj);
 				System.out.println("Assigning " + priv + " to " + subj.getName() + " for " + stem);
 			}
-			if(!grouperAccess.has(s,grouperGroup,member,priv)) {
-				grouperAccess.grant(s,grouperGroup,member,priv);
+			if(!GrouperHelper.hasSubjectPrivForGroup(member.getSubject(),grouperGroup,priv)) {
+				grouperGroup.grantPriv(member.getSubject(),Privilege.getInstance(priv));
 			}
 		}
 	}
@@ -302,28 +271,28 @@ public class XmlLoader {
 	private static void processMemberships() throws Exception {
 		Element subject;
 		String stem;
-		GrouperMember member;
-		GrouperGroup group;
+		Member member;
+		Group group;
 		Map map;
 		for(int i=0;i<memberships.size();i++) {
 			map = (Map)memberships.get(i);
 			subject = (Element)map.get("subject");
 			stem = (String) map.get("stem");
 			String id = subject.getAttribute("id");
-			group = GrouperGroup.loadByName(s,stem);
+			group = GroupFinder.findByName(s,stem);
 			if(id !=null && id.length()!=0) {
-				member = GrouperMember.load(s,id,"person");
+				member = MemberFinder.findBySubject(s,SubjectFinder.findById(id,"person"));
 				
-				if(group!=null && !group.hasMember(member)) group.listAddVal(member);
+				if(group!=null && !group.hasMember(member.getSubject())) group.addMember(member.getSubject());
 			}else{
 				String groupName = subject.getAttribute("group");
 				if(groupName!=null && groupName.length()!=0) {
 					if("relative".equals(subject.getAttribute("location"))) {
-						groupName = group.attribute("stem").value() + sep + groupName;	
+						groupName = group.getParentStem().getName() + sep + groupName;	
 					}
-					GrouperGroup groupSubj = GrouperGroup.loadByName(s,groupName);
-					member = GrouperMember.load(s,groupSubj.id(),"group");
-					if(group!=null && !group.hasMember(member)) group.listAddVal(member);
+					Group groupSubj = GroupFinder.findByName(s,groupName);
+					member = MemberFinder.findBySubject(s,SubjectFinder.findById(groupSubj.getUuid(),"group"));
+					if(group!=null && !group.hasMember(member.getSubject())) group.addMember(member.getSubject());
 				}
 			}
 		}
@@ -334,29 +303,39 @@ public class XmlLoader {
 		String displayExtension = e.getAttribute("displayExtension");
 		String description = e.getAttribute("description");
 		String newStem = joinStem(stem,extension);
-		GrouperStem existingStem = GrouperStem.loadByName(s,newStem);
+		Stem existingStem = null;
+		try {
+			existingStem = StemFinder.findByName(s,newStem);
+		}catch(StemNotFoundException ex) {}
 		if(existingStem==null) {
-			GrouperStem gs = GrouperStem.create(s,stem,extension);
-			gs.attribute("displayExtension",displayExtension);
-			if(description!=null && description.length()!=0) gs.attribute("description",description);
+			Stem parent = null;
+			try {
+				parent = StemFinder.findByName(s,stem);
+			}catch(StemNotFoundException ex) {
+				if(GrouperHelper.NS_ROOT.equals(stem)) parent = StemFinder.findRootStem(s);
+			}
+			Stem gs = parent.addChildStem(extension,displayExtension);
+			if(description!=null && description.length()!=0) gs.setDescription(description);
 		}
-		processNaming(e,newStem.replaceAll(Grouper.NS_ROOT + sep,""));
-		process(e,newStem.replaceAll(Grouper.NS_ROOT + sep,""));
+		processNaming(e,newStem.replaceAll(GrouperHelper.NS_ROOT + sep,""));
+		process(e,newStem.replaceAll(GrouperHelper.NS_ROOT + sep,""));
 	}
 	
 	private static void processGroup(Element e,String stem) throws Exception {
 		String extension = e.getAttribute("extension");
 		String displayExtension = e.getAttribute("displayExtension");
 		String description = e.getAttribute("description");
-		String newStem = joinStem(stem,extension);
-		GrouperGroup existingGroup=GrouperGroup.load(s,stem,extension);
+		String newGroup = joinStem(stem,extension);
+		Group existingGroup=null;
+		try {
+			existingGroup=GroupFinder.findByName(s,newGroup);
+		}catch(GroupNotFoundException ex){}
 		if(existingGroup==null) {
-			GrouperGroup gg = GrouperGroup.create(s,stem,extension);
-			gg.attribute("displayExtension",displayExtension);
-			if(description!=null && description.length()!=0) gg.attribute("description",description);
-		}
-		processSubjects(e,newStem);
-		processAccess(e,newStem);
+			Stem parent = StemFinder.findByName(s,stem);
+			Group gg = parent.addChildGroup(extension,displayExtension);
+			if(description!=null && description.length()!=0) gg.setDescription(description);		}
+		processSubjects(e,newGroup);
+		processAccess(e,newGroup);
 		
 	}
 	
@@ -407,7 +386,7 @@ public class XmlLoader {
 	
 	
 	private static String joinStem(String stem,String extension) {
-		if(stem.equals(Grouper.NS_ROOT)) return extension;
+		if(stem.equals(GrouperHelper.NS_ROOT)) return extension;
 		return stem + sep + extension;
 	}
 	

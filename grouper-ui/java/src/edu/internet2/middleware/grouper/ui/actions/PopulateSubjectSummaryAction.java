@@ -1,59 +1,27 @@
 /*
- * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004-2005 The University Of Bristol
- * All Rights Reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *  * Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *  * Neither the name of the University of Bristol nor the names
- *    of its contributors nor the University Corporation for Advanced
- *   Internet Development, Inc. may be used to endorse or promote
- *   products derived from this software without explicit prior
- *   written permission.
- *
- * You are under no obligation whatsoever to provide any enhancements
- * to the University of Bristol, its contributors, or the University
- * Corporation for Advanced Internet Development, Inc.  If you choose
- * to provide your enhancements, or if you choose to otherwise publish
- * or distribute your enhancements, in source code form without
- * contemporaneously requiring end users to enter into a separate
- * written license agreement for such enhancements, then you thereby
- * grant the University of Bristol, its contributors, and the University
- * Corporation for Advanced Internet Development, Inc. a non-exclusive,
- * royalty-free, perpetual license to install, use, modify, prepare
- * derivative works, incorporate into the software or other computer
- * software, distribute, and sublicense your enhancements or derivative
- * works thereof, in binary and source code form.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND WITH ALL FAULTS.  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT ARE DISCLAIMED AND the
- * entire risk of satisfactory quality, performance, accuracy, and effort
- * is with LICENSEE. IN NO EVENT SHALL THE COPYRIGHT OWNER, CONTRIBUTORS,
- * OR THE UNIVERSITY CORPORATION FOR ADVANCED INTERNET DEVELOPMENT, INC.
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2005 The University Of Bristol
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -64,13 +32,11 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
-import edu.internet2.middleware.grouper.Grouper;
-import edu.internet2.middleware.grouper.GrouperAccess;
 import edu.internet2.middleware.grouper.GrouperHelper;
-import edu.internet2.middleware.grouper.GrouperMember;
-import edu.internet2.middleware.grouper.GrouperNaming;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFactory;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.subject.Subject;
 
@@ -137,6 +103,12 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">selected Naming privilege - 
       only used if scope=naming</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">changeMode</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">if true then chnage browse mode 
+      to Subject Search</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
@@ -232,7 +204,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.2 2005-11-14 14:29:47 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -248,8 +220,10 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		
-		session.setAttribute("subtitle", "subject.action.show-summary");
+		
 		DynaActionForm subjectForm = (DynaActionForm) form;
+		if("true".equals(request.getParameter("changeMode"))) PopulateSearchSubjectsAction.initMode(session);
+		session.setAttribute("subtitle", "subject.action.show-summary");
 		if(isEmpty(subjectForm.get("callerPageId"))) {
 			if(isEmpty(subjectForm.get("subjectId"))) {
 				restoreDynaFormBean(session,subjectForm,"lastSubjectSummaryForm");
@@ -261,7 +235,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		subjectForm.set("contextSubject","true");
 		String subjectId = (String)subjectForm.get("subjectId");
 		String subjectType = (String)subjectForm.get("subjectType");
-		Subject subject = SubjectFactory.getSubject(subjectId,subjectType);
+		Subject subject = SubjectFinder.findById(subjectId,subjectType);
 		Map subjectMap = GrouperHelper.subject2Map(subject);
 		
 		request.setAttribute("subject",subjectMap);
@@ -279,18 +253,18 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		
 		String accessPriv = (String) subjectForm.get("accessPriv");
 		if(isEmpty(accessPriv)) accessPriv = (String)session.getAttribute("subjectSummaryAccessPriv");
-		if(isEmpty(accessPriv)) accessPriv = Grouper.PRIV_READ;
+		if(isEmpty(accessPriv)) accessPriv = "read";
 		session.setAttribute("subjectSummaryAccessPriv",accessPriv);
 		subjectForm.set("accessPriv",accessPriv);
 		
 		String namingPriv = (String) subjectForm.get("namingPriv");
 		if(isEmpty(namingPriv)) namingPriv = (String)session.getAttribute("subjectSummaryNamingPriv");
-		if(isEmpty(namingPriv)) namingPriv = Grouper.PRIV_CREATE;
+		if(isEmpty(namingPriv)) namingPriv = "create";
 		session.setAttribute("subjectSummaryNamingPriv",namingPriv);
 		subjectForm.set("namingPriv",namingPriv);
 		//Retrieve the membership according to scope selected by user
-		GrouperMember member = GrouperMember.load(grouperSession,subject);
-		List subjectScopes = null;
+		Member member = MemberFinder.findBySubject(grouperSession,subject);
+		Set subjectScopes = null;
 		List subjectScopeMaps = null;
 		Map listViews = new HashMap();
 		listViews.put("titleKey","subject.summary.memberships");
@@ -301,29 +275,31 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		listViews.put("footerView","genericListFooter");
 		
 		if ("imm".equals(membershipListScope)) {
-			subjectScopes = member.listImmVals();
+			subjectScopes = member.getImmediateMemberships();
 		} else if ("eff".equals(membershipListScope)) {
-			subjectScopes = member.listEffVals();
+			subjectScopes = member.getEffectiveMemberships();
 			listViews.put("noResultsKey","subject.list-membership.eff.none");
 		} else if ("all".equals(membershipListScope)){
-			subjectScopes = member.listVals();
+			subjectScopes = member.getMemberships();
 		}else if("access".equals(membershipListScope)) {
-			GrouperAccess accessImpl = grouperSession.access();
-			subjectScopes = accessImpl.has(grouperSession,member,accessPriv);
+			
+			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,accessPriv);
+			subjectScopeMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,new ArrayList(subjectScopes),subjectId);
+			
 			listViews.put("titleKey","subject.summary.access-privs");
 			listViews.put("noResultsKey","subject.list-access.none");
 			listViews.put("view","subjectAccessPrivs");
 			listViews.put("itemView","subjectAccessPriv");
 		}else {
-			GrouperNaming namingImpl = grouperSession.naming();
-			subjectScopes = namingImpl.has(grouperSession,member,namingPriv);
+			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,namingPriv);
+			subjectScopeMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,new ArrayList(subjectScopes),subjectId);
 			listViews.put("titleKey","subject.summary.naming-privs");
 			listViews.put("noResultsKey","subject.list-naming.none");
 			listViews.put("view","subjectNamingPrivs");
 			listViews.put("itemView","subjectNamingPriv");
 		}
 		request.setAttribute("scopeListData",listViews);
-		subjectScopeMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,subjectScopes);
+		if(subjectScopeMaps==null) subjectScopeMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,new ArrayList(subjectScopes));
 		
 		String startStr = (String)subjectForm.get("start");
 		if (startStr == null || "".equals(startStr))

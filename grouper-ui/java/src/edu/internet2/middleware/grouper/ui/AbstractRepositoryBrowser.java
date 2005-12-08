@@ -1,73 +1,37 @@
 /*
- * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004-2005 The University Of Bristol
- * All Rights Reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *  * Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *  * Neither the name of the University of Bristol nor the names
- *    of its contributors nor the University Corporation for Advanced
- *   Internet Development, Inc. may be used to endorse or promote
- *   products derived from this software without explicit prior
- *   written permission.
- *
- * You are under no obligation whatsoever to provide any enhancements
- * to the University of Bristol, its contributors, or the University
- * Corporation for Advanced Internet Development, Inc.  If you choose
- * to provide your enhancements, or if you choose to otherwise publish
- * or distribute your enhancements, in source code form without
- * contemporaneously requiring end users to enter into a separate
- * written license agreement for such enhancements, then you thereby
- * grant the University of Bristol, its contributors, and the University
- * Corporation for Advanced Internet Development, Inc. a non-exclusive,
- * royalty-free, perpetual license to install, use, modify, prepare
- * derivative works, incorporate into the software or other computer
- * software, distribute, and sublicense your enhancements or derivative
- * works thereof, in binary and source code form.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND WITH ALL FAULTS.  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT ARE DISCLAIMED AND the
- * entire risk of satisfactory quality, performance, accuracy, and effort
- * is with LICENSEE. IN NO EVENT SHALL THE COPYRIGHT OWNER, CONTRIBUTORS,
- * OR THE UNIVERSITY CORPORATION FOR ADVANCED INTERNET DEVELOPMENT, INC.
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2005 The University Of Bristol
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package edu.internet2.middleware.grouper.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
-
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.Grouper;
-import edu.internet2.middleware.grouper.GrouperAccess;
-import edu.internet2.middleware.grouper.GrouperGroup;
 import edu.internet2.middleware.grouper.GrouperHelper;
-import edu.internet2.middleware.grouper.GrouperList;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperStem;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -133,12 +97,12 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.1 2005-11-22 10:30:33 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.2 2005-12-08 15:30:19 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	protected String prefix = null;
 	protected String initialStems = null;
-	private static String browseMode=null;
+	protected String browseMode=null;
 	private GrouperSession s;
 	private  ResourceBundle mediaBundle = null;
 	boolean isFlatCapable  = false;
@@ -147,21 +111,23 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	private String[] flatPrivs = {};
 	private String flatType = null;
 	private Subject subject = null;
-	/**
-	 * 
-	 */
+	protected Map savedValidStems=null;
 	
+	/**
+	 * Default no argument constructor
+	 */
 	public AbstractRepositoryBrowser() {
 
 	}
-	public AbstractRepositoryBrowser(GrouperSession s,ResourceBundle bundle) {
-		init(s,bundle);
-	}
 	
+	
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#init(edu.internet2.middleware.grouper.GrouperSession, java.util.ResourceBundle)
+	 */
 	public void init(GrouperSession s,ResourceBundle bundle) {
 		mediaBundle = bundle;
 		this.s = s;
-		this.subject=s.subject();
+		this.subject=s.getSubject();
 		
 		isFlatCapable = "true".equals(getProperty("flat-capable"));
 		rootNode = getProperty("root-node");
@@ -170,17 +136,34 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		flatPrivs = getProperty("flat-privs").split(" ");
 	}
 
-	public  String getProperty(String key) {
+	/**
+	 * Returns configuration settings
+	 * @param key
+	 * @return
+	 */
+	protected  String getProperty(String key) {
 		try {
 			return mediaBundle.getString(getPrefix() + key);
 		}catch(MissingResourceException e){}
 		return "";
 	}
 	
-	protected Set getFlatChildren(int start,int pageSize,StringBuffer totalCount) {
-		if("stem".equals(flatType)) return GrouperHelper.getStemsForPrivileges(
+	/**
+	 * Called from getChildren if in flat mode
+	 * @param start
+	 * @param pageSize
+	 * @param totalCount
+	 * @return
+	 * @throws Exception
+	 */
+	protected Set getFlatChildren(int start,int pageSize,StringBuffer totalCount) throws Exception{
+		if("stem".equals(flatType)) {
+			List l = GrouperHelper.stems2Maps(s,new ArrayList( GrouperHelper.getStemsForPrivileges(
+		
 				s, flatPrivs, start, pageSize,
-				totalCount);
+				totalCount)));
+			return new LinkedHashSet(l);
+		}
 		if(flatPrivs.length==1 && flatPrivs[0].equals("MEMBER")) {
 			
 			Set tmp = GrouperHelper.getMembershipsSet(getGrouperSession(),
@@ -189,56 +172,57 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			tmpList = GrouperHelper.groups2Maps(getGrouperSession(),tmpList);
 			return new LinkedHashSet(tmpList);
 		}
-		return GrouperHelper.getGroupsForPrivileges(
+		List l=GrouperHelper.groups2Maps(s,new ArrayList( GrouperHelper.getGroupsForPrivileges(
 				s, flatPrivs, start, pageSize,
-				totalCount);
+				totalCount)));
+		return new LinkedHashSet(l);
 	}
 	
-	public Set getChildren(String node,int start,int pageSize,StringBuffer totalCount,boolean isFlat,boolean isForAssignment) {
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#getChildren(java.lang.String, int, int, java.lang.StringBuffer, boolean, boolean)
+	 */
+	public Set getChildren(String node,int start,int pageSize,StringBuffer totalCount,boolean isFlat,boolean isForAssignment) throws Exception{
 		if(isFlat) return getFlatChildren(start,pageSize,totalCount);
 		
 		Set results = new LinkedHashSet();
-		GrouperGroup group = null;
-		GrouperStem stem = null;
-		try {
-			group = GrouperGroup.loadByID(s,node);
-		}catch(ClassCastException e) {}
-
-		if(group==null) stem = GrouperStem.loadByID(s,node);
+		GroupOrStem groupOrStem = GroupOrStem.findByID(s,node);
+		Group group = groupOrStem.getGroup();
+		Stem stem = groupOrStem.getStem();
 		 
-		List allChildren = new ArrayList();
+		Set allChildren = new LinkedHashSet();
 		int resultSize=0;
 		if(isForAssignment) {
 			if(group !=null) {//display immediate members
-				allChildren = group.listImmVals();
+				allChildren = group.getImmediateMemberships();
 				resultSize = allChildren.size();
-				allChildren = GrouperHelper.groupList2SubjectsMaps(
-						s, allChildren, start, pageSize);
-				results.addAll(allChildren);
+				results.addAll(GrouperHelper.groupList2SubjectsMaps(
+						s, new ArrayList(allChildren), start, pageSize));
+				
 				return results;
 			}
 		} else if(group!=null) return results;
 			//must be stem
 				String stemName = null;
 				if(stem!=null) {
-					stemName = stem.name();
-				}else if(Grouper.NS_ROOT.equals(node)){
+					stemName = stem.getName();
+				}else if(GrouperHelper.NS_ROOT.equals(node)){
 					stemName=node;
 				}else{
 					throw new RuntimeException(node + " is not recognised");
 				}
-				allChildren = GrouperHelper.getChildrenAsMaps(s, stemName);
+				allChildren.addAll(GrouperHelper.getChildrenAsMaps(s, stemName));
 				//Map validStems  = GrouperHelper.getValidStems(s,browseMode);
 				boolean addChild = false;
 				int end = start + pageSize;
 				
 				Map child;
 				String name;
-				
-				for (int i = 0; i < allChildren.size(); i++) {
+				Iterator it = allChildren.iterator();
+				int count=0;
+				while(it.hasNext()) {
 					addChild = false;
 
-					child = (Map) allChildren.get(i);
+					child = (Map) it.next();
 						if(isForAssignment) {
 							addChild=true;
 						}else{
@@ -250,31 +234,45 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 							if (resultSize >= start && resultSize < end)
 								results.add(child);
 							}
-
 						}
-					
-				
-			
 		return results;
 	}
 	
-	public abstract Map getValidStems();
+	/**
+	 * USed to filter unwanted children
+	 * @return
+	 * @throws Exception
+	 */
+	protected abstract Map getValidStems() throws Exception;
 	
-	protected Map getStems(List groups) {
-		GrouperGroup group;
-		GrouperList grouperList;
+	/**
+	 * Given a Collection of groups, find all their stems and return as a Map.
+	 * Called by getValidStems implementations
+	 * @param groups
+	 * @return
+	 * @throws Exception
+	 */
+	protected Map getStems(Collection groups) throws Exception{
+		Group group;
+		Stem stem;
+		Object item;
 		String groupKey;
-		String stem;
+		
 		int pos = 0;
 		String partStem;
 		String gkey;
 		String name;
 		Map stems = new HashMap();
 		String HIER_DELIM = GrouperHelper.HIER_DELIM;
-		
-		for (int i = 0; i < groups.size(); i++) {
-			grouperList = (GrouperList) groups.get(i);
-			name = grouperList.group().name();
+		Iterator it = groups.iterator();
+		while(it.hasNext()) {
+			item =  it.next();
+			if(item instanceof Group) {
+				stems.put(((Group)item).getName(), Boolean.TRUE);
+				name = ((Group)item).getParentStem().getName();
+			}else{
+				name = ((Stem)item).getName();
+			}
 	
 			if (!stems.containsKey(name)) {
 				stems.put(name, Boolean.TRUE);
@@ -289,19 +287,35 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 				}
 			}
 		}
+		savedValidStems = stems;
 		return stems;
 	}
 	
-	public boolean hasAtleastOneOf(String[] privileges,GrouperSession s, GrouperGroup group) {
+	/**
+	 * Convenience method
+	 * @param privileges
+	 * @param s
+	 * @param group
+	 * @return
+	 */
+	protected boolean hasAtleastOneOf(String[] privileges,GrouperSession s, Group group) {
 		if(privileges == null || privileges.length==0) return true;
-		GrouperAccess accessImpl = s.access();
+		
 		boolean result = false;
 		for(int i=0;i<privileges.length;i++) {
-			if(accessImpl.has(s,group,privileges[i])) return true;
+			if(privileges[i].equals("admin") && group.hasAdmin(s.getSubject())) return true;
+			if(privileges[i].equals("update") && group.hasUpdate(s.getSubject())) return true;
+			if(privileges[i].equals("read") && group.hasRead(s.getSubject())) return true;
+			if(privileges[i].equals("view") && group.hasView(s.getSubject())) return true;
+			if(privileges[i].equals("optin") && group.hasOptin(s.getSubject())) return true;
+			if(privileges[i].equals("optout") && group.hasOptout(s.getSubject())) return true;
 		}
 		return result;
 	}
 	
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#getInitialStems()
+	 */
 	public String getInitialStems() {
 		if(initialStems!=null) return initialStems;
 		try {
@@ -311,13 +325,16 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		return null;
 	}
 	
-	public List getParentStems(Group groupOrStem) {
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#getParentStems(edu.internet2.middleware.grouper.ui.GroupOrStem)
+	 */
+	public List getParentStems(GroupOrStem groupOrStem) throws Exception{
 		List path = new ArrayList();
 		if(groupOrStem==null) return path;
 		Map map = GrouperHelper.group2Map(s, groupOrStem);
 
-		GrouperStem curStem = null;
-		String endPoint = Grouper.NS_ROOT;
+		Stem curStem = null;
+		String endPoint = GrouperHelper.NS_ROOT;
 		
 		boolean isEndPointReached = false;
 		if(isHidePreRootNode()) {
@@ -325,31 +342,49 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			if(map.get("name").equals(endPoint)) isEndPointReached=true;
 		}
 
-		while (!isEndPointReached && !Grouper.NS_ROOT.equals(map.get("stem"))) {
-			curStem = GrouperStem.loadByName(s, (String) map.get("stem"));
+		while (!isEndPointReached && !GrouperHelper.NS_ROOT.equals(map.get("stem"))) {
+			curStem = StemFinder.findByName(s, (String) map.get("stem"));
 			if (curStem != null) {
 				map = GrouperHelper.stem2Map(s, curStem);
 				path.add(0, map);
 				if(curStem.getName().equals(endPoint))isEndPointReached=true;
 			}
 		}
+		if(!isEndPointReached) {
+			path.add(0, GrouperHelper.stem2Map(s, StemFinder.findRootStem(s)));
+		}
 		return path;
 		
 	}
 	
-	public abstract boolean isValidChild(Map child);
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#search(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String, java.util.Map)
+	 */
+	public List search(GrouperSession s, String query,String from, Map attr) throws Exception {
+		String searchInDisplayNameOrExtension = (String) attr.get("searchInDisplayNameOrExtension");
+		String searchInNameOrExtension = (String) attr.get("searchInNameOrExtension");
+		if(browseMode.equals("Create")) {
+			GrouperHelper.searchStems(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension);
+		}
+		return GrouperHelper.searchGroups(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension,browseMode);
+	}
+
+	
+	/**
+	 * In order to have a generic getChildren method, the decision to keep, or
+	 * not, a child has been factored out
+	 * @param child
+	 * @return
+	 * @throws Exception
+	 */
+	protected abstract boolean isValidChild(Map child) throws Exception;
 	/**
 	 * @return Returns the browseMode.
 	 */
-	protected static String getBrowseMode() {
+	protected String getBrowseMode() {
 		return browseMode;
 	}
-	/**
-	 * @param browseMode The browseMode to set.
-	 */
-	protected static void setBrowseMode(String browseMode) {
-		AbstractRepositoryBrowser.browseMode = browseMode;
-	}
+	
 	/**
 	 * @return Returns the prefix.
 	 */
@@ -363,24 +398,14 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	public boolean isFlatCapable() {
 		return isFlatCapable;
 	}
-	/**
-	 * @param isFlatCapable The isFlatCapable to set.
-	 */
-	protected void setFlatCapable(boolean isFlatCapable) {
-		this.isFlatCapable = isFlatCapable;
-	}
+	
 	/**
 	 * @return Returns the mediaBundle.
 	 */
 	protected ResourceBundle getMediaBundle() {
 		return mediaBundle;
 	}
-	/**
-	 * @param mediaBundle The mediaBundle to set.
-	 */
-	protected void setMediaBundle(ResourceBundle mediaBundle) {
-		this.mediaBundle = mediaBundle;
-	}
+	
 	
 	/**
 	 * @return Returns the rootNode.
@@ -400,24 +425,14 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	protected GrouperSession getGrouperSession() {
 		return s;
 	}
-	/**
-	 * @param s The s to set.
-	 */
-	protected void setGrouperSession(GrouperSession s) {
-		this.s = s;
-	}
+	
 	/**
 	 * @return Returns the subject.
 	 */
 	protected Subject getSubject() {
 		return subject;
 	}
-	/**
-	 * @param subject The subject to set.
-	 */
-	protected void setSubject(Subject subject) {
-		this.subject = subject;
-	}
+	
 	
 	/**
 	 * @return Returns the flatPrivs.
@@ -425,23 +440,12 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	protected String[] getFlatPrivs() {
 		return flatPrivs;
 	}
-	/**
-	 * @param flatPrivs The flatPrivs to set.
-	 */
-	protected void setFlatPrivs(String[] flatPrivs) {
-		this.flatPrivs = flatPrivs;
-	}
+	
 	/**
 	 * @return Returns the flatType.
 	 */
 	protected String getFlatType() {
 		return flatType;
-	}
-	/**
-	 * @param flatType The flatType to set.
-	 */
-	protected void setFlatType(String flatType) {
-		this.flatType = flatType;
 	}
 	/**
 	 * @return Returns the hidePreRootNode.
