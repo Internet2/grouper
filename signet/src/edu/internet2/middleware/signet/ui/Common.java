@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.51 2005-12-09 19:16:04 acohen Exp $
-  $Date: 2005-12-09 19:16:04 $
+  $Id: Common.java,v 1.52 2005-12-09 22:26:33 acohen Exp $
+  $Date: 2005-12-09 22:26:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -182,7 +182,7 @@ public class Common
     return changeStr.toString();
   }
   
-  private static StringBuffer describeDateChange
+  private static StringBuffer describeChange
     (String label,
      String timeWord,
      String nullDescription,
@@ -231,54 +231,91 @@ public class Common
   }
   
   private static StringBuffer describeModifications
-    (AssignmentHistory newer,
-     AssignmentHistory older)
+    (History newer,
+     History older)
   {
     StringBuffer description = new StringBuffer();
     description.append
-      (describeDateChange
+      (describeChange
         ("Effective Date",
          "",
          "immediate",
          newer.getEffectiveDate(),
          older.getEffectiveDate()));
     description.append
-      (describeDateChange
+      (describeChange
         ("Duration",
          "until",
          "revoked",
          newer.getExpirationDate(),
          older.getExpirationDate()));
-//    description.append
-//      (describeLimitChanges
-//        (newer.getLimitValues(), older.getLimitValues()));
+    
+    if (newer instanceof AssignmentHistory)
+    {
+      description.append
+        (describeChange
+          ("Can Use",
+           ((AssignmentHistory)newer).canUse(),
+           ((AssignmentHistory)older).canUse()));
+      description.append
+        (describeChange
+          ("Can Grant",
+           ((AssignmentHistory)newer).canGrant(),
+           ((AssignmentHistory)older).canGrant()));
+
+//      description.append
+//        (describeLimitChanges
+//          (newer.getLimitValues(), older.getLimitValues()));
+    }
+    else
+    {
+      description.append
+        (describeChange
+          ("Can Use",
+           ((ProxyHistory)newer).canUse(),
+           ((ProxyHistory)older).canUse()));
+      description.append
+        (describeChange
+          ("Can Extend",
+           ((ProxyHistory)newer).canExtend(),
+           ((ProxyHistory)older).canExtend()));
+    }
     
     return description;
   }
-  
-  private static StringBuffer describeModifications
-    (ProxyHistory newer,
-     ProxyHistory older)
+
+  private static StringBuffer describeChange
+    (String label,
+     boolean newer,
+     boolean older)
   {
     StringBuffer description = new StringBuffer();
-    description.append
-      (describeDateChange
-        ("Effective Date",
-         "",
-         "immediate",
-         newer.getEffectiveDate(),
-         older.getEffectiveDate()));
-    description.append
-      (describeDateChange
-        ("Duration",
-         "until",
-         "revoked",
-         newer.getExpirationDate(),
-         older.getExpirationDate()));
+    
+    if (newer != older)
+    {
+      description.append("<p>\n");
+      description.append("  <span class=\"status\">\n");
+      description.append("    changed\n");
+      description.append("  </span>\n");
+      description.append("  <span class=\"label\">\n");
+      description.append(     label);
+      description.append("    from\n");
+      description.append("  </span>\n");
+      description.append("    '");
+      description.append(     older);
+      description.append(     "'\n");
+      description.append("  <span class=\"label\">\n");
+      description.append("    to\n");
+      description.append("  </span>\n");
+      description.append("    '");
+      description.append(     newer);
+      description.append(     "'\n");
+      description.append("</p>\n");
+    }
     
     return description;
   }
-  
+
   private static StringBuffer describeEditor(History history)
   {
     StringBuffer description = new StringBuffer();
