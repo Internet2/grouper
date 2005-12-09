@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.23 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.24 2005-12-09 17:15:43 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -552,6 +552,18 @@ class PrivilegeResolver {
     this.naming.grantPriv(s, ns, subj, priv);
   } // protected void grantPriv(s, ns, subj, priv)
 
+  protected boolean isRoot(Subject subj) {
+    if (
+      (subj.getId().equals("GrouperSystem"))
+      && (subj.getSource().getId().equals(InternalSourceAdapter.ID))
+      && (subj.getType().getName().equals("application"))
+    )
+    {
+      return true;
+    }  
+    return false;
+  } // protected boolean isRoot(subj)
+
   protected boolean hasPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
@@ -559,7 +571,7 @@ class PrivilegeResolver {
     GrouperSession.validate(s);
     String msg = "hasPriv '" + priv.getName().toUpperCase() 
       + "' '" + subj.getId() + "' ";
-    if (this._isRoot(subj)) {
+    if (this.isRoot(subj)) {
       GrouperLog.debug(LOG, s, msg + "true (ROOT)");
       return true;
     }
@@ -585,7 +597,7 @@ class PrivilegeResolver {
     GrouperSession.validate(s);
     String msg = "hasPriv '" + priv.getName().toUpperCase() 
       + "' '" + subj.getId() + "': ";
-    if (this._isRoot(subj)) {
+    if (this.isRoot(subj)) {
       GrouperLog.debug(LOG, s, msg + "true (ROOT)");
       return true;
     }
@@ -687,18 +699,6 @@ class PrivilegeResolver {
   {
     return naming.hasPriv(s, ns, SubjectFinder.findAllSubject(), priv);
   } // private boolean _isAll(s, ns, priv);
-
-  private boolean _isRoot(Subject subj) {
-    if (
-      (subj.getId().equals("GrouperSystem"))
-      && (subj.getSource().getId().equals("grouper internal adapter"))
-      && (subj.getType().getName().equals("application"))
-    )
-    {
-      return true;
-    }  
-    return false;
-  } // private boolean _isRoot(subj)
 
 }
 

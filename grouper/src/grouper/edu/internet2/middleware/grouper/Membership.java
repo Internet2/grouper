@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.10 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: Membership.java,v 1.11 2005-12-09 17:15:43 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -693,14 +693,17 @@ public class Membership implements Serializable {
             MemberNotFoundException
   {
     GrouperSession.validate(s);
+    return MemberOf.doMemberOf(s, imm);
+/*
     Set       effs  = new LinkedHashSet();
     Iterator  iter  = MemberOf.doMemberOf(s, imm).iterator();
+    // TODO What's the point of iterating?
     while (iter.hasNext()) {
       Membership ms = (Membership) iter.next();
-      effs.add(ms.getMember());
       effs.add(ms);
     }
     return effs;
+*/
   } // private static _findEffectiveMemberships(s, imm)
 
   private static String _getOid(Object o) {
@@ -801,7 +804,7 @@ public class Membership implements Serializable {
   
   // Hibernate Accessors
 
-  public String getId() {
+  protected String getId() {
     return this.id;
   }
 

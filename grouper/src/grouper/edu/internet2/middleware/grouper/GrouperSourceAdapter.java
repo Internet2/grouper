@@ -41,10 +41,15 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.5 2005-12-06 20:38:42 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.6 2005-12-09 17:15:43 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
   // TODO Is configuration necessary if used within Grouper?
+
+  // Public Class Constants
+  public static final String ID   = "g:gsa";
+  public static final String NAME = "Grouper: Group Source Adapter";
+
 
   // Private Instance Variables
   private Set types = new LinkedHashSet();

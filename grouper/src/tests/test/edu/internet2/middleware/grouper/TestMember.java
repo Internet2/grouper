@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.2 2005-12-06 20:56:07 blair Exp $
+ * @version $Id: TestMember.java,v 1.3 2005-12-09 17:15:43 blair Exp $
  */
 public class TestMember extends TestCase {
 
@@ -68,6 +68,49 @@ public class TestMember extends TestCase {
       Assert.fail(e.getMessage());
     }
   } // public void testGetSource()
+
+  public void testSetSubjectIdNotRoot() {
+    LOG.info("testSetSubjectIdNotRoot");
+    GrouperSession nrs = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
+    try {
+      Member  m     = MemberFinder.findBySubject(nrs, SubjectHelper.SUBJ1);
+      String  orig  = m.getSubjectId();
+      try {
+        m.setSubjectId(orig.toUpperCase());
+        Assert.fail("set");
+      }
+      catch (InsufficientPrivilegeException eIP) {
+        Assert.assertTrue(eIP.getMessage(), true);
+        Assert.assertTrue("unchanged", m.getSubjectId().equals(orig));
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("could not get: " + e.getMessage());
+    }
+    nrs.stop();
+  } // public void testSetSubjectIdNotRoot
+
+  public void testSetSubjectIdRoot() {
+    LOG.info("testSetSubjectIdRoot");
+    GrouperSession s = SessionHelper.getRootSession();
+    try {
+      Member  m     = MemberFinder.findBySubject(s, SubjectHelper.SUBJ1);
+      String  orig  = m.getSubjectId();
+      try {
+        m.setSubjectId(orig.toUpperCase());
+        Assert.assertTrue("set", true);
+        Assert.assertFalse("changed", m.getSubjectId().equals(orig));
+        Assert.assertTrue("val", m.getSubjectId().equals(orig.toUpperCase()));
+      }
+      catch (InsufficientPrivilegeException eIP) {
+        Assert.fail("not set: " + eIP.getMessage());
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("could not get: " + e.getMessage());
+    }
+    s.stop();
+  } // public void testSetSubjectIdRoot
 
 }
 

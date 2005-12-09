@@ -31,12 +31,14 @@ import  org.apache.commons.logging.*;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.4 2005-12-06 20:38:43 blair Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.5 2005-12-09 17:15:43 blair Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestInternalSourceAdapter.class);
+  private static final  String  ID    = InternalSourceAdapter.ID;
+  private static final  Log     LOG   = LogFactory.getLog(TestInternalSourceAdapter.class);
+  private static final  String  NAME  = InternalSourceAdapter.NAME;
 
 
   // Private Class Variables
@@ -49,7 +51,7 @@ public class TestInternalSourceAdapter extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     Db.refreshDb();
-    sa = new InternalSourceAdapter("isa", "isa");
+    sa = new InternalSourceAdapter(ID, NAME);
   }
 
   protected void tearDown () {
@@ -61,8 +63,8 @@ public class TestInternalSourceAdapter extends TestCase {
   public void testAdapter() { 
     LOG.info("testAdapter");
     Assert.assertNotNull("sa !null", sa);
-    Assert.assertTrue("sa.id == isa", sa.getId().equals("isa"));
-    Assert.assertTrue("sa.name == isa", sa.getName().equals("isa"));
+    Assert.assertTrue("sa.id", sa.getId().equals(ID));
+    Assert.assertTrue("sa.name", sa.getName().equals(NAME));
   } // public void testAdapter()
 
   public void testAdapterTypes() {

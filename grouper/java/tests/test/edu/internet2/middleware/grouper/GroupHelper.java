@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.14 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.15 2005-12-09 17:15:43 blair Exp $
  */
 public class GroupHelper {
 
@@ -602,7 +602,8 @@ public class GroupHelper {
         "m type == group", m.getSubjectTypeId().equals("group")
       );
       Assert.assertTrue(
-        "m source", m.getSubjectSourceId().equals("grouper group adapter")
+        "m source",
+        m.getSubjectSourceId().equals(GrouperSourceAdapter.ID)
       );
       return m;
     }

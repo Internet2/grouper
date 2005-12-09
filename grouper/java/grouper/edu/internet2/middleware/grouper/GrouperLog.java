@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.3 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.4 2005-12-09 17:15:43 blair Exp $
  *     
 */
 class GrouperLog implements Serializable {
@@ -39,6 +39,10 @@ class GrouperLog implements Serializable {
 
   protected static void error(Log log, GrouperSession s, String msg) {
     log.error( _formatMsg(s, msg) );
+  } // protected static void error(log, s, msg)
+
+  protected static void info(Log log, GrouperSession s, String msg) {
+    log.info( _formatMsg(s, msg) );
   } // protected static void error(log, s, msg)
 
   protected static void warn(Log log, GrouperSession s, String msg) {
