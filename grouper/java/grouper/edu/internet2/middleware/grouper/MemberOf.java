@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.11 2005-12-06 17:40:21 blair Exp $
+ * @version $Id: MemberOf.java,v 1.12 2005-12-09 07:35:38 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -36,206 +36,223 @@ class MemberOf implements Serializable {
   private static final Log LOG = LogFactory.getLog(MemberOf.class);
 
 
+  // Private Instance Variables
+  private Field           f;
+  private Group           g;
+  private Member          m;
+  private Membership      ms;
+  private String          msg;
+  private Stem            ns;
+  private GrouperSession  root;
+  private GrouperSession  s;
+
+
+  // Constructors
+  private MemberOf(GrouperSession s, Membership ms) {
+    this.s    = s;
+    this.ms   = ms;
+    this.msg  = "doMemberOf for " + ms;
+  }
+
   // Protected Class Methods
   
   // Find effective memberships, whether for addition or deletion
-  protected static Set doMemberOf(GrouperSession s, Group g, Member m, Field f) 
-    throws  GroupNotFoundException
+  protected static Set doMemberOf(GrouperSession s, Membership ms) 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
   {
-    // In order to bypass privilege constraints since a subject may be
-    // privileged to adjust memberships but not be privileged to see,
-    // let alone alter, all of the effective memberships that change as
-    // a result.
-    GrouperSession  root    = GrouperSessionFinder.getRootSession();
-    Set             mships  = new LinkedHashSet();
-    String          msg     = "doMemberOf for '" + g.getName() + "'/'" 
-      + m + "'/'" + f.getName() + "'";
-    GrouperLog.debug(LOG, s, msg);
+    MemberOf mof = new MemberOf(s, ms);
+    return mof._calculate();
+  } // protected static Set doMemberOf(s, ms)
 
-    // Proxy as root for a short period of time
-    g.setSession(root);  
 
-    // Find *everywhere* where g is a member - but do it as root
-    Set isMember = g.toMember().getAllMemberships();
+  // Private Instance Methods
 
-    // Add m to where g is a member - as root - but only we are adding
-    // to g's "members" list
-    if (f.equals(Group.getDefaultList())) {
-      Set temp0 = _findMembershipsWhereGroupIsMember(root, s, g, m, isMember);
-      mships.addAll(temp0);
-    }
-
-    // Add members of m to g - as root
-    // Add members of m to where g is a member - as root
-    mships.addAll(_findGroupAsMember(root, s, g.getUuid(), m, f, isMember));
-
-    // Now reset everything to the proper session
-    g.setSession(s);
-    Set resetMships = new LinkedHashSet();
-    // TODO Don't I already have a method to do this in bulk?
-    Iterator iter = mships.iterator();
-    while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();    
-      ms.setSession(s);
-      resetMships.add(ms);
-      GrouperLog.debug(LOG, s, msg + " found: " + ms);
-    }
-
-    GrouperLog.debug(LOG, s, msg + ": " + resetMships.size());
-    return resetMships;
-  } // protected static Set doMemberOf(s, g, m, f)
-
-  // Find effective memberships, whether for addition or deletion
-  protected static Set doMemberOf(GrouperSession s, Stem ns, Member m, Field f) 
-    throws  StemNotFoundException
+  // Add m's hasMembers to g
+  private Set _addHasMembersToGroup(Set hasMembers) 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
   {
-    // TODO Add logging as above
-    Set mships    = new LinkedHashSet();
-
-    // Stems can't be members
-    Set isMember  = new LinkedHashSet();
-
-    // Add members of m to ns
-    // Add members of m to where ns is a member
-    try {
-      mships.addAll(
-        _findGroupAsMember(s, s, ns.getUuid(), m, f, isMember)
-      );
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new StemNotFoundException(eGNF.getMessage());
-    }
-
-    return mships;
-  } // protected static Set doMemberOf(s, ns, m, f)
-
-
-  // Private Class Methods
-
-  // If m is a group, find its members and add them to g and where g is
-  // a member
-  private static Set _findGroupAsMember(
-    GrouperSession s, GrouperSession orig, String oid, Member m, 
-    Field f, Set isMember
-  )
-    throws  GroupNotFoundException
-  {
-    Set     mships      = new LinkedHashSet();
-    Set     hasMembers  = new LinkedHashSet();
-    String  msg         = "findGroupAsMember";
-    GrouperLog.debug(LOG, orig, msg);
-
-    if (m.getSubjectTypeId().equals("group")) {
-      // Convert member back to a group
-      Group gm = m.toGroup();
-      GrouperLog.debug(LOG, orig, msg + " member is group: " + m);
-      // And attach root session for better looking up of memberships
-      gm.setSession(GrouperSessionFinder.getRootSession());
-
-      // Find members of m
-      Set hasMships = gm.getMemberships();
-      GrouperLog.debug(LOG, orig, msg + " has members: " + hasMships.size());
-
-      // Add members of m to g
-      // Add members of m to where g is a member
-      mships.addAll(
-        _findMembershipsOfMember(
-          s, orig, oid, gm.getUuid(), f, isMember, hasMships
-        )
-      );
-    }
-    GrouperLog.debug(LOG, orig, msg + ": " + mships.size());
-    return mships; 
-  } // private static Set _findGroupAsMember(s, orig, oid, m, f, isMember)
-
-  // Member is a group.  Look for its memberships and add them to where
-  // the containing object is a member.
-  private static Set _findMembershipsOfMember(
-    GrouperSession s, GrouperSession orig, String oid, String gmid, Field f, 
-    Set isMember, Set hasMembers
-  ) 
-  {
-    // TODO Refactor into smaller components
     Set     mships  = new LinkedHashSet();
-    String  msg     = "findMembershipsOfMember";
-    GrouperLog.debug(LOG, orig, "findMembershipsOfMember");
+    String  _msg    = this.msg + " addHasMembersToGroup";
+    GrouperLog.debug(LOG, this.s, _msg);
+    Iterator iter = hasMembers.iterator();
+    while (iter.hasNext()) {
+      Membership hasMS = (Membership) iter.next();
+      GrouperLog.debug(LOG, this.s, _msg + " hasMember: " + hasMS);
+      Membership  eff = Membership.newEffectiveMembership(
+        this.s, this.ms, hasMS, 1
+      );
+      mships.add(eff);
+      GrouperLog.debug(LOG, this.s, _msg + " found: " + eff);
+    }
+    GrouperLog.debug(LOG, this.s, _msg + ": " + mships.size());
+    return mships;
+  } // private Set _addHasMembersToGroup(hasMembers)
 
-    // Add members of m to where this group is a member
+  // Add m's hasMembers to where g isMember
+  private Set _addHasMembersToWhereGroupIsMember(Set isMember, Set hasMembers) 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
+  {
+    Set     mships  = new LinkedHashSet();
+    String  _msg    = this.msg + " addHasMembersToWhereGroupIsMember";
+    GrouperLog.debug(LOG, this.s, _msg);
 
-    // For every member of m...
-    Iterator iterMofM = hasMembers.iterator();
-    while (iterMofM.hasNext()) {
-      Membership  mofm  = (Membership) iterMofM.next();
-      // ... add to this group
-      int         depth = mofm.getDepth() + 1;
-      String      vid   = mofm.getVia_id();
-      if (vid == null) {
-        vid = gmid;
-      }
-      try {
-        Membership msMofM = new Membership(
-          s, oid, mofm.getMember(), f, vid, depth
-        );
-        GrouperLog.debug(LOG, orig, msg + " msMofM: " + msMofM);
-        mships.add(msMofM);
-      }
-      catch (MemberNotFoundException eMNF0) {
-        // TODO
-        GrouperLog.warn(LOG, orig, eMNF0.getMessage());
-      }
-      // ... and add to wherever this is a member - as root - but only
-      // if we were adding to g's "members" list
-      if (f.equals(Group.getDefaultList())) {
-        Iterator iterGisM = isMember.iterator();
-        while (iterGisM.hasNext()) {
-          Membership gism = (Membership) iterGisM.next();
-          try {
-            Membership msGisM = new Membership(
-              s, gism.getOwner_id(), mofm.getMember(), Group.getDefaultList(), 
-              vid, depth + gism.getDepth() 
-            );
-            GrouperLog.debug(LOG, orig, msg + " msGisM: " + msGisM);
-            mships.add(msGisM);
-          }
-          catch (MemberNotFoundException eMNF1) {
-            // TODO
-            GrouperLog.warn(LOG, orig, eMNF1.getMessage());
-          }
+    // Add the members of m to where g is a member but only if f == "members"
+    if (this.f.equals(Group.getDefaultList())) {
+      Iterator isIter = isMember.iterator();
+      while (isIter.hasNext()) {
+        Membership isMS = (Membership) isIter.next();
+        GrouperLog.debug(LOG, this.s, _msg + " isMember: " + isMS);
+        Iterator hasIter = hasMembers.iterator();
+        while (hasIter.hasNext()) {
+          Membership  hasMS = (Membership) hasIter.next();
+          GrouperLog.debug(LOG, this.s, _msg + " hasMembers: " + hasMS);
+          Membership  eff   = Membership.newEffectiveMembership(
+            this.s, isMS, hasMS, 2
+          );
+          mships.add(eff);
+          GrouperLog.debug(LOG, this.s, _msg + " found: " + eff);
         }
       }
     }
 
-    GrouperLog.debug(LOG, orig, msg + ": " + mships.size());
+    GrouperLog.debug(LOG, this.s, _msg + ": " + mships.size());
     return mships;
-  } // private static Set _findMembershipsOfMember(s, orig, oid, gmid, f, isMember, hasMembers)
+  } // private Set _addHasMembersToWhereGroupIsMember(isMember, hasMembers)
 
-  // More effective membership voodoo
-  private static Set _findMembershipsWhereGroupIsMember(
-    GrouperSession s, GrouperSession orig, Group g, Member m, Set isMember
-  ) 
+  // Add m to where g isMember
+  private Set _addMemberToWhereGroupIsMember(Set isMember) 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
   {
     Set     mships  = new LinkedHashSet();
-    String  msg     = "findMembershipsWhereGroupIsMember";
-    GrouperLog.debug(LOG, orig, msg);
-    // Add m to where g is a member
-    Iterator iter = isMember.iterator();
-    while (iter.hasNext()) {
-      Membership  ms    = (Membership) iter.next();
-      ms.setSession(s);
-      GrouperLog.debug(LOG, orig, msg + " group isMember: " + ms);
-      int         depth = ms.getDepth() + 1;
-      String      vid   = ms.getVia_id();
-      if (vid == null) {
-        vid = g.getUuid();
+    String  _msg    = this.msg + " addMemberToWhereGroupIsMember";
+    GrouperLog.debug(LOG, this.s, _msg);
+
+    // Add m to where g is a member if f == "members"
+    if (this.f.equals(Group.getDefaultList())) {
+      Iterator isIter = isMember.iterator();
+      while (isIter.hasNext()) {
+        Membership  isMS  = (Membership) isIter.next();
+        GrouperLog.debug(LOG, this.s, _msg + " isMember: " + isMS);
+        Membership  eff   = Membership.newEffectiveMembership(
+          this.s, isMS, this.ms, 1
+        );
+        mships.add(eff);
+        GrouperLog.debug(LOG, this.s, _msg + " found: " + eff);
       }
-      Membership msGisM = new Membership(
-        s, ms.getOwner_id(), m, ms.getList(), vid, depth
-      );
-      mships.add(msGisM);
     }
-    GrouperLog.debug(LOG, orig, msg + ": " + mships.size());
+
+    GrouperLog.debug(LOG, this.s, _msg + ": " + mships.size());
     return mships;
-  } // private static Set _findMembershipsWhereGroupIsMember(s, orig, g, m, isMember)
+  } // private Set _addHasMembersToWhereGroupIsMember(isMember, hasMembers)
+
+  // Perform the memberOf calculation
+  private Set _calculate() 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
+  {
+    this._extractObjects();
+    GrouperLog.debug(LOG, s, msg);
+
+    Set mships  = new LinkedHashSet();
+
+    // If we are working on a group, where is it a member
+    Set isMember = new LinkedHashSet();
+    if (this.g != null) {
+      isMember = this.g.toMember().getAllMemberships();
+    }
+    GrouperLog.debug(LOG, this.s, this.msg + " g isMember: " + isMember.size());
+
+    // Members of m if m is a group
+    Set hasMembers  = this._findMembersOfMember();
+    GrouperLog.debug(LOG, this.s, this.msg + " m hasMembers: " + hasMembers.size());
+
+    // Add m to where g is a member if f == "members"
+    mships.addAll( this._addMemberToWhereGroupIsMember(isMember) );
+
+    // Add members of m to g
+    mships.addAll( this._addHasMembersToGroup(hasMembers) ); 
+
+    // Add members of m to where g is a member if f == "members"
+    mships.addAll( this._addHasMembersToWhereGroupIsMember(isMember, hasMembers) );
+
+    Set results = this._resetObjects(mships);
+    GrouperLog.debug(LOG, this.s, this.msg + " total: " + results.size());
+    return results;
+  } // private Set _calculate()
+
+  // Setup instance variables based upon the membership passed
+  private void _extractObjects() 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
+  {
+    this.root = GrouperSessionFinder.getRootSession();
+    try {
+      this.g = this.ms.getGroup();
+      this.g.setSession(this.root);
+    }
+    catch (GroupNotFoundException eGNF) {
+      try {
+        this.ns = this.ms.getStem();
+        this.ns.setSession(this.root);
+      }
+      catch (StemNotFoundException eSNF) {
+        throw new GroupNotFoundException(eGNF.getMessage());
+      }
+    }
+    this.m    = this.ms.getMember();
+    this.m.setSession(this.root);
+    this.f    = this.ms.getList();
+  } // private void _extractObjects()
+
+  // Find m's hasMembers
+  private Set _findMembersOfMember() 
+    throws  GroupNotFoundException
+  {
+    Set     hasMembers  = new LinkedHashSet();
+    String  _msg        = this.msg + " findMembersOfMember " + m;
+    GrouperLog.debug(LOG, this.s, _msg);
+
+    // If member is a group, convert to group and find its members.
+    if (this.m.getSubjectTypeId().equals("group")) {
+      // Convert member back to a group
+      Group gAsM = this.m.toGroup();
+      GrouperLog.debug(LOG, this.s, _msg + " is group");
+      // And attach root session for better looking up of memberships
+      gAsM.setSession(this.root);
+      // Find members of m 
+      hasMembers = gAsM.getMemberships();
+    }
+    GrouperLog.debug(LOG, this.s, _msg + " found: " + hasMembers.size());
+    return hasMembers;
+  } // private Set _findMembersOfMember()
+
+  // Reset the session on identified objects 
+  private Set _resetObjects(Set mships) {
+    Set results = new LinkedHashSet();
+    // Now reset everything to the proper session
+    if (this.g != null) {
+      g.setSession(this.s);
+    }
+    if (this.ns != null) {
+      ns.setSession(this.s);
+    }
+    m.setSession(this.s);
+    // TODO Don't I already have a method to do this in bulk?
+    //      But on the other hand, I **do** want to have the option of
+    //      logging each-and-every one of these.
+    Iterator iter = mships.iterator();
+    while (iter.hasNext()) {
+      Membership found = (Membership) iter.next();    
+      found.setSession(this.s);
+      results.add(found);
+      GrouperLog.debug(LOG, this.s, this.msg + " found: " + found);
+    }
+    return results;
+  } // private Set _resetObjects(mships)
 
 }
 

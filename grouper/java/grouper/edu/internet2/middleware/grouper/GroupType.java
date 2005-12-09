@@ -17,111 +17,109 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import java.util.Set;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+
+import  java.io.Serializable;
+import  java.util.*;
+import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * Schema specification for a Group type.
- * @author blair christensen.
+ * <p/>
+ * @author  blair christensen.
+ * @version $Id: GroupType.java,v 1.3 2005-12-09 07:35:38 blair Exp $
  *     
-*/
-class GroupType implements Serializable {
+ */
+public class GroupType implements Serializable {
 
-    /** identifier field */
-    private String id;
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(GroupType.class);
 
-    /** persistent field */
-    private String name;
 
-    /** nullable persistent field */
-    private Integer version;
+  // Hibernate Properties
+  private Set     fields  = new LinkedHashSet();
+  private String  id;
+  private String  name;
 
-    /** persistent field */
-    private Set fields;
 
-    /** full constructor */
-    public GroupType(String name, Integer version, Set fields) {
-        this.name = name;
-        this.version = version;
-        this.fields = fields;
+  // Constructors
+
+  // For Hibernate
+  public GroupType() {
+    super();
+  }
+
+  protected GroupType(String name, Set fields) {
+    this.setName(name);
+    this.setFields(fields); 
+  } // protected GroupType(name, fields)
+
+
+  // Public Instance Methods
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
     }
-
-    /** default constructor */
-    public GroupType() {
+    if (!(other instanceof GroupType)) {
+      return false;
     }
+    GroupType otherType = (GroupType) other;
+    return new EqualsBuilder()
+      .append(this.getName()  , otherType.getName())
+      .isEquals();
+  } // public boolean equals(other)
 
-    /** minimal constructor */
-    public GroupType(String name, Set fields) {
-        this.name = name;
-        this.fields = fields;
-    }
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append(getName())
+      .toHashCode();
+  } // public int hashCode()
 
-    private String getId() {
-        return this.id;
-    }
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
+      .append("name",   this.getName()  )
+      .toString();
+  } // public String toString()
 
-    private void setId(String id) {
-        this.id = id;
-    }
 
-    /** 
-     * Get type name.
-     *       
-     */
-    private String getName() {
-        return this.name;
-    }
+  // Hibernate Accessors
 
-    private void setName(String name) {
-        this.name = name;
-    }
+  /**
+   * Get group fields for this group type.
+   * @return  A set of {@link Field} objects.
+   */
+  public Set getFields() {
+    return this.fields;
+  } // public Set getFields()
 
-    private Integer getVersion() {
-        return this.version;
+  protected void setFields(Set fields) {
+    Iterator iter = fields.iterator();
+    while (iter.hasNext()) {
+      Field f = (Field) iter.next();
+      f.setGroup_type(this); 
     }
+    this.fields = fields;
+  } // protected void setFields(fields)
+  
+  private String getId() {
+    return this.id;
+  } // private String getId()
+  
+  private void setId(String id) {
+    this.id = id;
+  } // private void setId()
 
-    private void setVersion(Integer version) {
-        this.version = version;
-    }
+  /**
+   * Get group type name.
+   * @return  group type name.
+   */
+  public String getName() {
+    return this.name;
+  } // public String getName()
 
-    /** 
-     * Get fields.
-     *       
-     */
-    private Set getFields() {
-        return this.fields;
-    }
-
-    private void setFields(Set fields) {
-        this.fields = fields;
-    }
-
-    public String toString() {
-        return new ToStringBuilder(this)
-            .append("name", getName())
-            .append("fields", getFields())
-            .toString();
-    }
-
-    public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( !(other instanceof GroupType) ) return false;
-        GroupType castOther = (GroupType) other;
-        return new EqualsBuilder()
-            .append(this.getName(), castOther.getName())
-            .append(this.getFields(), castOther.getFields())
-            .isEquals();
-    }
-
-    public int hashCode() {
-        return new HashCodeBuilder()
-            .append(getName())
-            .append(getFields())
-            .toHashCode();
-    }
+  private void setName(String name) {
+    this.name = name;
+  } // private void setName(name)
 
 }

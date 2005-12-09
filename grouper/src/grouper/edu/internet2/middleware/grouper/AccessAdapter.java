@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.9 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: AccessAdapter.java,v 1.10 2005-12-09 07:35:38 blair Exp $
  */
 public interface AccessAdapter {
 
@@ -151,10 +151,12 @@ public interface AccessAdapter {
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
    * @throws  RevokePrivilegeException
+   * @throws  SchemaException
    */
   public void revokePriv(GrouperSession s, Group g, Privilege priv)
     throws  InsufficientPrivilegeException, 
-            RevokePrivilegeException
+            RevokePrivilegeException,
+            SchemaException
             ;
 
   /**
@@ -176,10 +178,12 @@ public interface AccessAdapter {
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
    * @throws  RevokePrivilegeException
+   * @throws  SchemaException
    */
   public void revokePriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws  InsufficientPrivilegeException, 
-            RevokePrivilegeException
+            RevokePrivilegeException,
+            SchemaException
             ;
 
 }

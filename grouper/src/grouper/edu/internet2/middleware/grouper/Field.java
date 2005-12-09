@@ -25,13 +25,14 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group attribute or list.
  * <p />
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.5 2005-12-06 05:35:03 blair Exp $    
+ * @version $Id: Field.java,v 1.6 2005-12-09 07:35:38 blair Exp $    
  */
 public class Field implements Serializable {
 
   // Hibernate Properties
   private String    field_name;
   private FieldType field_type;
+  private GroupType group_type;
   private String    id;
   private boolean   nullable;
   private Privilege read_priv;
@@ -96,11 +97,10 @@ public class Field implements Serializable {
   } // public int hashCode()
 
   public String toString() {
-    return new ToStringBuilder(this)
-      .append("name"   , getField_name() )
-      .append("type"   , getField_type() )
-      .append("read"   , getRead_priv()  )
-      .append("write"  , getWrite_priv() )
+    return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
+      .append("name"        , this.getField_name()  )
+      .append("group type"  , this.getGroup_type()  )
+      .append("field type"  , this.getField_type()  )
       .toString();
   } // public String toString()
 
@@ -128,6 +128,14 @@ public class Field implements Serializable {
 
   private void setField_type(FieldType type) {
     this.field_type = type;
+  }
+
+  private GroupType getGroup_type() {
+    return this.group_type;
+  }
+
+  protected void setGroup_type(GroupType type) {
+    this.group_type = type;
   }
 
   private boolean getNullable() {

@@ -26,6 +26,7 @@ public class SuiteAll extends TestCase {
   }
 
   static public Test suite() {
+
     TestSuite suite = new TestSuite();
 
     suite.addTestSuite(TestBugsClosed.class);
@@ -73,6 +74,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestMemberOf.class);
     // TODO suite.addTestSuite(TestMemberOfAccessPrivs.class);
     // TODO suite.addTestSuite(TestMemberOfNamingPrivs.class);
+    suite.addTestSuite(TestMembership.class);
     suite.addTestSuite(TestPrivADMIN.class);    // TODO group-with-priv checks
     suite.addTestSuite(TestPrivCREATE.class);  
     suite.addTestSuite(TestPrivOPTIN.class);    // TODO group-with-priv checks

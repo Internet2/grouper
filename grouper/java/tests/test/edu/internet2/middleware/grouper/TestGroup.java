@@ -17,38 +17,55 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
+import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.1 2005-12-02 03:15:53 blair Exp $
+ * @version $Id: TestGroup.java,v 1.2 2005-12-09 07:35:38 blair Exp $
  */
 public class TestGroup extends TestCase {
 
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(TestGroup.class);
+
+
+  // Private Class Variables
+  private static Stem           edu;
+  private static Group          i2;
+  private static Stem           root;
+  private static GrouperSession s; 
+
+  
   public TestGroup(String name) {
     super(name);
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     Db.refreshDb();
+    s     = SessionHelper.getRootSession();
+    root  = StemHelper.findRootStem(s);
+    edu   = StemHelper.addChildStem(root, "edu", "education");
+    i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
   }
 
   // Tests
 
   public void testGetParentStem() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    LOG.info("testGetParentStem");
     Stem parent = i2.getParentStem();
     Assert.assertNotNull("group has parent", parent);
     Assert.assertTrue("parent == edu", parent.equals(edu));
@@ -56,6 +73,84 @@ public class TestGroup extends TestCase {
       "root has STEM on parent", parent.hasStem(s.getSubject())
     );
   } // public void testGetParentStem()
+
+  public void testGetTypes() {
+    LOG.info("testGetTypes");
+    Set types = i2.getTypes();
+    Assert.assertTrue("has 1 type/" + types.size(), types.size() == 1);
+    Iterator iter = types.iterator();
+    while (iter.hasNext()) {
+      GroupType type = (GroupType) iter.next();
+      Assert.assertNotNull("type !null", type);
+      Assert.assertTrue("type instanceof GroupType", type instanceof GroupType);
+      Assert.assertTrue("type name == base", type.getName().equals("base"));
+      Set fields = type.getFields();
+      Assert.assertTrue(
+        "type has 12 fields/" + fields.size(), fields.size() == 12
+      );
+      Iterator  fIter = fields.iterator();
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "admins"              , FieldType.ACCESS,
+        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "description"         , FieldType.ATTRIBUTE,
+        AccessPrivilege.READ  , AccessPrivilege.ADMIN
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "displayExtension"    , FieldType.ATTRIBUTE,
+        AccessPrivilege.VIEW  , AccessPrivilege.ADMIN
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "displayName"         , FieldType.ATTRIBUTE,
+        AccessPrivilege.VIEW  , AccessPrivilege.SYSTEM
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "extension"           , FieldType.ATTRIBUTE,
+        AccessPrivilege.VIEW, AccessPrivilege.ADMIN
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "members"             , FieldType.LIST,
+        AccessPrivilege.READ  , AccessPrivilege.UPDATE
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "name"                , FieldType.ATTRIBUTE,
+        AccessPrivilege.VIEW  , AccessPrivilege.SYSTEM
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "optins"              , FieldType.ACCESS,
+        AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "optouts"             , FieldType.ACCESS,
+        AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "readers"             , FieldType.ACCESS,
+        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "updaters"            , FieldType.ACCESS,
+        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+      );
+      FieldHelper.testField( 
+        (Field) fIter.next()   , 
+        "viewers"             , FieldType.ACCESS,
+        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+      );
+    }
+  } // public void testGetTypes()
 
 }
 

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.6 2005-12-05 21:40:02 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.7 2005-12-09 07:35:38 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -37,11 +37,10 @@ A group within the Groups Registry.
         type="string"
         unsaved-value="null"
     >
-      <meta attribute="use-in-tostring">false</meta>
-      <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
+    <version name="version" column="version"/>
 
 
     <!-- attributes -->
@@ -59,7 +58,7 @@ A group within the Groups Registry.
       name="creator_id"
       class="edu.internet2.middleware.grouper.Member" 
     >
-      <column name="creator_id" sql-type="char(64)"/>
+      <column name="creator_id"/>
     </many-to-one>
     <!-- creator_id -->
 
@@ -88,31 +87,11 @@ Get create time.
     </property>
     <!-- create_time -->
 
-    <!-- memberships -->
-<!-- TODO I'll deal with this later
-    <set name="group_memberships">
-      <meta attribute="field-description">
-Get memberships.
-      </meta>
-      <key column="group_id"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Membership"/>
-    </set>
--->
-    <!-- memberships -->
-
     <!-- modifier_id -->
     <many-to-one
       name="modifier_id"
       class="edu.internet2.middleware.grouper.Member" 
-    >
-      <meta attribute="field-description">
-Get modifier.
-      </meta>
-      <meta attribute="finder-method">findByModifier</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-      <column name="modifier_id" sql-type="char(64)"/>
-    </many-to-one>
+    />
     <!-- modifier_id -->
 
     <!-- modify_source -->
@@ -143,11 +122,7 @@ Get last modify time.
       name="parent_stem"
       class="edu.internet2.middleware.grouper.Stem"
       cascade="none"
-    >
-      <column name="parent_stem" 
-              sql-type="char(32)"
-      />
-    </many-to-one>
+    />
     <!-- parent_stem -->
 
     <!-- group_id -->
@@ -159,6 +134,18 @@ Get last modify time.
       unique="true"
     />
     <!-- group_id -->
+
+    <!-- group_types -->
+    <set  name="group_types"
+          table="grouper_groups_types"
+          cascade="save-update"
+    >
+      <key column="group_id"/>
+      <many-to-many class="edu.internet2.middleware.grouper.GroupType"
+                    column="type_id"
+      />
+    </set>
+    <!-- group_types -->
 
   </class>
 </hibernate-mapping>

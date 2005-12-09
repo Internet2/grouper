@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.66 2005-12-06 06:24:04 blair Exp $ -->
+<!-- $Id: build.xml,v 1.67 2005-12-09 07:35:38 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -19,13 +19,14 @@
   <property name="build.test"             location="${build}/test"/>
   <property name="src.grouper"            location="${src}/grouper"/>
   <property name="src.test"               location="${src}/tests"/>
+  <property name="max.memory"             value="256m"/>
   <!-- Global Properties -->
 
   <!-- build -->
   <target name="build" depends="init"
         description="compile the source " >
     <javac srcdir="${src.grouper}" destdir="${build.grouper}">
-      <classpath refid="project.class.path"/>
+      <classpath refid="project.classpath"/>
     </javac>
   </target>
   <!-- build -->
@@ -45,7 +46,7 @@
     <mkdir dir="${dist}/run" />
     <taskdef name="hbm2java"
       classname="net.sf.hibernate.tool.hbm2java.Hbm2JavaTask"
-      classpathref="project.class.path"
+      classpathref="project.classpath"
     />
     <hbm2java config="conf/codegen.cfg.xml" output="${src.grouper}">
       <fileset dir="${src.grouper}">
@@ -58,8 +59,11 @@
   <!-- db -->
   <target name="db" depends="init" description="Launch HSQLDB UI">
     <property file="conf/hibernate.properties"/>
-    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
-      <classpath refid="project.class.path"/>
+    <java fork="yes"
+          classname="org.hsqldb.util.DatabaseManager"
+          maxmemory="${max.memory}"
+    >
+      <classpath refid="project.classpath"/>
       <arg value="-driver"/>
       <arg value="${hibernate.connection.driver_class}"/>
       <arg value="-url"/>
@@ -85,7 +89,7 @@
   >
     <property file="conf/hibernate.properties"/>
     <sql
-      classpathref="project.class.path"
+      classpathref="project.classpath"
       driver="${hibernate.connection.driver_class}"
       url="${hibernate.connection.url}"
       userid="${hibernate.connection.username}"
@@ -102,7 +106,7 @@
     <java classname="edu.internet2.middleware.grouper.RegistryInstall"
           fork="yes"
     >
-      <classpath refid="project.class.path"/>
+      <classpath refid="project.classpath"/>
     </java>
   </target>
   <!-- db-init-registryinstall -->
@@ -154,6 +158,12 @@
   </target>
   <!-- dist-lib -->
 
+  <!-- ensure-test-name -->
+  <target name="ensure-test-name" unless="test">
+    <fail message="You must run this target with -Dtest=TestName"/>
+  </target>
+  <!-- ensure-test-name -->
+
   <!-- html -->
   <target name="html" depends="build" description="generate public api docs" >
     <delete dir="${build.javadoc}"/>
@@ -162,7 +172,7 @@
       packagenames="${javadoc.packages}" 
       sourcepath="${src.grouper}"
       destdir="${build.javadoc}"
-      classpathref="project.class.path" 
+      classpathref="project.classpath" 
       access="public"
       author="true"
       stylesheetfile="${basedir}/doc/stylesheet.css"
@@ -178,7 +188,7 @@
     <mkdir dir="${dist}" />
     <mkdir dir="${dist}/run" />
     <!-- only define our classpath once -->
-    <path id="project.class.path">
+    <path id="project.classpath">
       <pathelement path="${classpath}"/>
       <!-- for configuration files -->
       <pathelement location="${basedir}/conf"/>
@@ -193,13 +203,46 @@
   </target>
   <!-- init -->
 
+  <!-- runtest -->
+  <target name="runtest" 
+          description="Runs the test you specify on the command line with -Dtest=" 
+          depends="test-build, ensure-test-name">
+    <junit printsummary="withOutAndErr" fork="yes"> 
+        <classpath    refid="project.classpath" />
+        <formatter    type="plain" usefile="false"/>
+      <batchtest>
+        <fileset dir="${src.test}">
+          <include name="**/${test}.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+  <!-- runtest -->
+
+  <!-- runtestprof -->
+  <target name="runtestprof" 
+          description="Runs and profiles the test case you specify on the command line with -Dtest=" 
+          depends="test-build, ensure-test-name">
+    <java fork="yes"
+          maxmemory="${max.memory}"
+          classname="junit.textui.TestRunner"
+          taskname="junit"
+          failonerror="true"
+    >
+      <arg    value="test.edu.internet2.middleware.grouper.${test}"/>
+      <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=4"/>
+      <classpath refid="project.classpath"/>
+    </java>
+  </target>
+  <!-- runtestprof -->
+
   <!-- schemaexport -->
   <target name="schemaexport" depends="build">
     <mkdir dir="${dist}" />
     <mkdir dir="${dist}/run" />
     <taskdef name="schemaexport"
       classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
-      classpathref="project.class.path"
+      classpathref="project.classpath"
     />
     <schemaexport
       properties="conf/hibernate.properties"
@@ -218,7 +261,7 @@
   <!-- test-build -->
   <target name="test-build" depends="build">
     <javac srcdir="${src.test}" destdir="${build.test}">
-      <classpath  refid="project.class.path"/>
+      <classpath  refid="project.classpath"/>
       <include name="**/*.java" />
     </javac>
   </target>
@@ -227,16 +270,15 @@
   <!-- test -->
   <target name="test" depends="test-build">
     <java fork="yes" 
+          maxmemory="${max.memory}"
           classname="junit.textui.TestRunner"
           taskname="junit" 
           failonerror="true">
       <arg value="test.edu.internet2.middleware.grouper.SuiteAll"/>
-      <classpath refid="project.class.path"/>
+      <classpath refid="project.classpath"/>
     </java>
   </target>
   <!-- test -->
-
-
 
   <target name="jar" depends="dist" />
 
@@ -248,7 +290,7 @@
     <javadoc sourcepath="${javadoc.source}" 
       destdir="${javadoc.dest.internal}" 
       packagenames="${javadoc.packages}" 
-      classpathref="project.class.path" 
+      classpathref="project.classpath" 
       access="protected"
       author="true"/>
   </target>

@@ -17,19 +17,26 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.5 2005-12-05 05:48:35 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.6 2005-12-09 07:35:38 blair Exp $
  */
 public class MemberFinder implements Serializable {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(MemberFinder.class);
+
 
   // Public Class Methods
 
@@ -50,11 +57,14 @@ public class MemberFinder implements Serializable {
    * @throws  MemberNotFoundException
    */
   public static Member findBySubject(GrouperSession s, Subject subj)
-    throws MemberNotFoundException
+    throws  MemberNotFoundException
   {
     GrouperSession.validate(s);
+    String msg = "findBySubject";
+    GrouperLog.debug(LOG, s, msg);
     Member m = findBySubject(subj);
     m.setSession(s);
+    GrouperLog.debug(LOG, s, msg + " found: " + m);
     return m;
   } // public static Member findBySubject(s, subj)
 
@@ -118,31 +128,31 @@ public class MemberFinder implements Serializable {
   } // protected static Member findAllMember()
 
   protected static Member findBySubject(Subject subj) 
-    throws MemberNotFoundException
+    throws  MemberNotFoundException
   {
+    String msg = "findBySubject";
+    LOG.debug(msg);
     if (subj == null) {
-      throw new MemberNotFoundException("invalid subject");
+      String err = msg + " null subject";
+      LOG.debug(err);
+      throw new MemberNotFoundException(err);
     }
     try {
       Member  m       = null;
       Session hs      = HibernateHelper.getSession();
       List    members = hs.find(
-                          "from Member as m where       "
-                          + "m.subject_id          = ?  "
-                          + "and m.subject_type    = ?  "
-                          + "and m.subject_source  = ?",
-                          new Object[] { 
-                            subj.getId(),
-                            subj.getType().getName(),
-                            subj.getSource().getId()
-                          },
-                          new Type[] {
-                            Hibernate.STRING,
-                            Hibernate.STRING,
-                            Hibernate.STRING
-                          }
-                        )
-                        ;
+        "from Member as m where       "
+        + "m.subject_id          = ?  "
+        + "and m.subject_type    = ?  "
+        + "and m.subject_source  = ?",
+        new Object[] { 
+          subj.getId(), subj.getType().getName(), subj.getSource().getId()
+        },
+        new Type[] {
+          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+        }
+        );
+      LOG.debug(msg + " found: " + members.size());
       if (members.size() == 1) {
         // The member already exists
         m = (Member) members.get(0);
@@ -150,17 +160,20 @@ public class MemberFinder implements Serializable {
       hs.close();
       if (m != null) {
         m.setSubject(subj);
+        LOG.debug(msg + " found existing member: " + m);
         return m;
       }
       else {
         // Create a new member
         m = Member.addMember(subj);
+        LOG.debug(msg + " created new member: " + m);
         return m;
-        //return Member.addMember(subj);
       }
     }
-    catch (HibernateException e) {
-      throw new MemberNotFoundException("member not found: " + e.getMessage());
+    catch (HibernateException eH) {
+      String err = msg + " member not found nor created: " + eH.getMessage();
+      LOG.error(err);
+      throw new MemberNotFoundException(err);
     }
   } // protected static Member findBySubject(subj)
 }

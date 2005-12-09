@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Group.delete()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDelete.java,v 1.6 2005-12-05 16:24:49 blair Exp $
+ * @version $Id: TestGroupDelete.java,v 1.7 2005-12-09 07:35:38 blair Exp $
  */
 public class TestGroupDelete extends TestCase {
 
@@ -70,31 +70,52 @@ public class TestGroupDelete extends TestCase {
 
   public void testGroupDeleteWhenMemberAndHasMembers() {
     LOG.info("testGroupDeleteWhenMemberAndHasMembers");
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.0");
     GrouperSession  s     = SessionHelper.getRootSession();
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.1");
     Stem            root  = StemHelper.findRootStem(s);
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.2");
     Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.3");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.4");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.5");
     Member          m     = Helper.getMemberBySubject(s, SubjectHelper.SUBJ0);
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.6");
     GroupHelper.addMember(uofc, SubjectHelper.SUBJ0, m);
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.7");
     MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.8");
     MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.9");
     MembershipHelper.testImmMship(s, uofc, SubjectHelper.SUBJ0, Group.getDefaultList());
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.10");
     GroupHelper.addMember(i2, uofc);
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.11");
     MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.12");
     MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.13");
     MembershipHelper.testImmMship(s, uofc, SubjectHelper.SUBJ0, Group.getDefaultList());
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.14");
     MembershipHelper.testImmMship(s, i2,   uofc,                Group.getDefaultList());
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.15");
     MembershipHelper.testEffMship(
       s, i2, SubjectHelper.SUBJ0, Group.getDefaultList(), uofc, 1
     );
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.16");
     try {
       uofc.delete();
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.17");
       Assert.assertTrue("group deleted", true);
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.18");
       MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.19");
     }
     catch (Exception e) {
-      Assert.fail("failed to delete group: " + e.getMessage());
+    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.20");
+      Assert.fail(e.getMessage());
     }
   } // public void testGroupDeleteWhenMemberAndHasMembers()
 

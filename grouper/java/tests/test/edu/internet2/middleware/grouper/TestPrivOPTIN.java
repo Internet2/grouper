@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the OPTIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivOPTIN.java,v 1.2 2005-12-05 02:41:09 blair Exp $
+ * @version $Id: TestPrivOPTIN.java,v 1.3 2005-12-09 07:35:38 blair Exp $
  */
 public class TestPrivOPTIN extends TestCase {
 
@@ -75,7 +75,7 @@ public class TestPrivOPTIN extends TestCase {
     Group a = GroupHelper.findByName(nrs, i2.getName());
     GroupHelper.addMemberUpdateFail(a, subj0, m);
   } // public void testAddSelfAsMemberWithoutADMIN
- 
+
   public void testAddSelfAsMemberWithADMIN() {
     LOG.info("testAddSelfAsMemberWithADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);

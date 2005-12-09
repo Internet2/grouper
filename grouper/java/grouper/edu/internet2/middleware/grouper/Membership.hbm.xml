@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.4 2005-12-05 21:40:02 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.5 2005-12-09 07:35:38 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -37,7 +37,6 @@ A list membership in the Groups Registry.
         type="string"
         unsaved-value="null"
     >
-      <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
@@ -48,7 +47,6 @@ A list membership in the Groups Registry.
               type="string"
     >
       <column name="owner_id" 
-              sql-type="char(64)" 
               unique-key="members_idx"
               not-null="true"
       />
@@ -56,13 +54,13 @@ A list membership in the Groups Registry.
     <!-- owner_id -->
 
     <!-- member_id -->
+    <!-- TODO cascade? -->
     <many-to-one
       name="member_id"
       class="edu.internet2.middleware.grouper.Member" 
-      cascade="save-update"
+      cascade="none"
     >
       <column name="member_id" 
-              sql-type="char(64)"
               unique-key="members_idx"
               not-null="true"
       />
@@ -91,7 +89,6 @@ A list membership in the Groups Registry.
               type="string"
     >
       <column name="via_id" 
-              sql-type="char(64)" 
               unique-key="members_idx"
       />
     </property>
@@ -109,6 +106,30 @@ A list membership in the Groups Registry.
       />
     </property>
     <!-- depth -->
+
+    <!-- parent_membership -->
+    <!-- TODO Don't allow updates? -->
+    <!-- TODO What cascade level do I want? -->
+    <many-to-one
+      name="parent_membership"
+      class="edu.internet2.middleware.grouper.Membership"
+      cascade="none"
+    >
+      <column name="parent_membership"/>
+    </many-to-one>
+    <!-- parent_membership -->
+
+    <!-- child_memberships -->
+    <!-- TODO What cascade level do I want? -->
+    <set  name="child_memberships"
+          table="grouper_memberships"
+          cascade="none"
+          inverse="true"
+    >
+      <key column="parent_membership"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Membership" />
+    </set>
+    <!-- child_memberships -->
 
   </class>
 </hibernate-mapping>

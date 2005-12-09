@@ -26,33 +26,30 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.2 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.3 2005-12-09 07:35:38 blair Exp $
  *     
 */
 class GrouperLog implements Serializable {
 
   // Protected Class Methods
-  protected static void debug(Log log, String msg) {
-    log.debug( _formatMsg("internal", msg) );
-  } // protected static void debug(log, id, msg)
-
-  protected static void debug(Log log, String id, String msg) {
-    log.debug( _formatMsg(id, msg) );
-  } // protected static void debug(log, id, msg)
 
   protected static void debug(Log log, GrouperSession s, String msg) {
-    log.debug( _formatMsg(s.toString(), msg) );
+    log.debug( _formatMsg(s, msg) );
   } // protected static void debug(log, s, msg)
 
+  protected static void error(Log log, GrouperSession s, String msg) {
+    log.error( _formatMsg(s, msg) );
+  } // protected static void error(log, s, msg)
+
   protected static void warn(Log log, GrouperSession s, String msg) {
-    log.warn( _formatMsg(s.toString(), msg) );
+    log.warn( _formatMsg(s, msg) );
   } // protected static void warn(log, s, msg)
 
 
   // Private Class Methods
-  private static String _formatMsg(String id, String msg) {
-    return "[" + id + "] " + msg;
-  } // private static String _formatMsg(id, msg)
+  private static String _formatMsg(GrouperSession s, String msg) {
+    return "[" + s.toString() + "] " + msg;
+  } // private static String _formatMsg(s, msg)
 
 } // protected class GrouperLog
 

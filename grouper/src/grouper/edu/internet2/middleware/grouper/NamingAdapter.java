@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.11 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: NamingAdapter.java,v 1.12 2005-12-09 07:35:38 blair Exp $
  */
 public interface NamingAdapter {
 
@@ -147,12 +147,13 @@ public interface NamingAdapter {
    * @param   ns    Revoke privilege on this stem.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
-   * @throws  SchemaException
    * @throws  RevokePrivilegeException
+   * @throws  SchemaException
    */
   public void revokePriv(GrouperSession s, Stem ns, Privilege priv)
     throws  InsufficientPrivilegeException, 
-            RevokePrivilegeException
+            RevokePrivilegeException,
+            SchemaException
             ;
 
   /**
@@ -174,10 +175,12 @@ public interface NamingAdapter {
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
    * @throws  RevokePrivilegeException
+   * @throws  SchemaException
    */
   public void revokePriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws  InsufficientPrivilegeException, 
-            RevokePrivilegeException
+            RevokePrivilegeException,
+            SchemaException
             ;
 
 }

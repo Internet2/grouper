@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.5 2005-12-01 21:18:23 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.6 2005-12-09 07:35:38 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -37,16 +37,17 @@ A namespace within the Groups Registry.
         type="string" 
         unsaved-value="null"
     >
-      <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
+    <version name="version" column="version"/>
 
 
     <!-- child_groups -->
+    <!-- TODO cascade -->
     <set  name="child_groups"
           table="grouper_groups"
-          cascade="save-update"
+          cascade="none"
           inverse="true"
     >
       <key column="parent_stem"/>
@@ -69,12 +70,8 @@ A namespace within the Groups Registry.
     <many-to-one
       name="creator_id"
       class="edu.internet2.middleware.grouper.Member" 
-    >
-      <column name="creator_id" 
-              not-null="true"
-              sql-type="char(64)"
-      />
-    </many-to-one>
+      not-null="true"
+    />
     <!-- creator_id -->
 
     <!-- create_source -->
@@ -152,11 +149,7 @@ Get description.
       name="modifier_id"
       class="edu.internet2.middleware.grouper.Member" 
       cascade="none"
-    >
-      <column name="modifier_id" 
-              sql-type="char(64)"
-      />
-    </many-to-one>
+    />
     <!-- modifier_id -->
 
     <!-- modify_source -->
@@ -193,9 +186,7 @@ Get description.
       class="edu.internet2.middleware.grouper.Stem"
       cascade="none"
     >
-      <column name="parent_stem" 
-              sql-type="char(32)"
-      />
+      <column name="parent_stem"/>
     </many-to-one>
     <!-- parent_stem -->
 
@@ -203,7 +194,6 @@ Get description.
     <property 
       name="stem_id"
       type="string"
-      length="64"
       not-null="true"
       unique="true"
     />

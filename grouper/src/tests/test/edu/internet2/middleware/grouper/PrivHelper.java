@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.14 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.15 2005-12-09 07:35:38 blair Exp $
  */
 public class PrivHelper {
 
@@ -142,17 +142,8 @@ public class PrivHelper {
       g.grantPriv(subj, priv);  
       hasPriv(g, subj, m, priv, true);
     }
-    catch (GrantPrivilegeException eGP) {
-      Assert.fail(eGP.getMessage());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail(eIP.getMessage());
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
-    }
-    catch (SchemaException eS) {
-      Assert.fail(eS.getMessage());
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
     }
   } // protected static void grantPriv(s, g, subj, priv)
 
@@ -393,17 +384,9 @@ public class PrivHelper {
       LOG.debug("revokePrivFail.2");
       Assert.fail("revoked privilege");
     }
-    catch (RevokePrivilegeException eRP) {
+    catch (Exception e) {
       Assert.assertTrue("failed to revoke privilege", true);
       LOG.debug("revokePrivFail.3");
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.assertTrue("failed to revoke privilege", true);
-      LOG.debug("revokePrivFail.4");
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.assertTrue("failed to revoke privilege", true);
-      LOG.debug("revokePrivFail.5");
     }
   } // protected static void revokePrivFail(s, g, subj, priv)
 
@@ -425,20 +408,22 @@ public class PrivHelper {
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
   {
+    LOG.debug("revokePrivFail.0");
     String msg = subj.getName() + " does not have " + priv + " on  " + ns.getName();
     try {
       Member m = MemberFinder.findBySubject(s, subj);
+      LOG.debug("revokePrivFail.1");
       ns.revokePriv(subj, priv);  
+      LOG.debug("revokePrivFail.2");
       Assert.fail("revoked privilege");
     }
-    catch (RevokePrivilegeException eRP) {
-      Assert.fail(eRP.getMessage());
-    }
     catch (InsufficientPrivilegeException eIP) {
-      Assert.assertTrue("failed to revoke privilege", true);
+      LOG.debug("revokePrivFail.3");
+      Assert.assertTrue("failed to revoke priv", true);
     }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
+    catch (Exception e) {
+      LOG.debug("revokePrivFail.4");
+      Assert.fail(e.getMessage());
     }
   } // protected static void revokePriv(s, ns, subj, priv)
 
@@ -450,11 +435,8 @@ public class PrivHelper {
       g.revokePriv(priv);  
       getSubjsWithPriv(g, new HashSet(), priv);
     }
-    catch (RevokePrivilegeException eRP) {
-      Assert.fail(eRP.getMessage());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail(eIP.getMessage());
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
     }
   } // protected static void revokePriv(s, g, priv)
 
@@ -466,11 +448,8 @@ public class PrivHelper {
       ns.revokePriv(priv);  
       getSubjsWithPriv(ns, new HashSet(), priv);
     }
-    catch (RevokePrivilegeException eRP) {
-      Assert.fail(eRP.getMessage());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail(eIP.getMessage());
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
     }
   } // protected static void revokePriv(s, ns, priv)
 
@@ -478,15 +457,19 @@ public class PrivHelper {
     GrouperSession s, Stem ns, Privilege priv
   )
   {
+    LOG.debug("revokePrivFail.0");
     try {
       ns.revokePriv(priv);  
+      LOG.debug("revokePrivFail.1");
       Assert.fail("revoked priv");
     }
-    catch (RevokePrivilegeException eRP) {
-      Assert.fail(eRP.getMessage());
-    }
     catch (InsufficientPrivilegeException eIP) {
+      LOG.debug("revokePrivFail.2");
       Assert.assertTrue("failed to revoke priv", true);
+    }
+    catch (Exception e) {
+      LOG.debug("revokePrivFail.3");
+      Assert.fail(e.getMessage());
     }
   } // protected static void revokePriv(s, ns, priv)
 

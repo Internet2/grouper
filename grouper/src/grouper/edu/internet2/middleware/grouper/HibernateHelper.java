@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.6 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.7 2005-12-09 07:35:38 blair Exp $
  */
 class HibernateHelper {
 
@@ -79,6 +79,9 @@ class HibernateHelper {
   protected static void delete(Set objects)
     throws HibernateException
   { 
+    Object  err = null;
+    String  msg = "delete";
+    LOG.debug(msg + ": will delete " + objects.size());
     try {
       Session     hs = HibernateHelper.getSession();
       Transaction tx = hs.beginTransaction();
@@ -86,21 +89,27 @@ class HibernateHelper {
       try {
         while (iter.hasNext()) {
           Object o = iter.next();
-          hs.delete(o); 
+          err = o;
+          LOG.debug(msg + ": deleting " + o);
+          hs.delete( _getPersistent(hs, o) );
+          LOG.debug(msg + ": deleted " + o);
         }
         tx.commit();
       }
-      catch (HibernateException e) {
+      catch (HibernateException eH) {
+        msg += ": unable to delete " + err + ": " + eH.getMessage();
         tx.rollback();
-        throw new HibernateException(e.getMessage());
+        throw new HibernateException(msg);
       }
       finally {
         hs.close();
       }
     }
-    catch (HibernateException e) {
-      throw new HibernateException(e.getMessage());
+    catch (HibernateException eH) {
+      LOG.error(eH.getMessage());
+      throw new HibernateException(eH.getMessage());
     }
+    LOG.info(msg + ": deleted " + objects.size());
   } // protected static void delete(objects)
 
   // @return  A Hibernate session 
@@ -125,43 +134,43 @@ class HibernateHelper {
   protected static void save(Set objects)
     throws HibernateException
   { 
-    String msg = "save: ";
+    Object err = null;
+    String  msg = "save";
+    LOG.debug(msg + ": will save " + objects.size());
     try {
-      GrouperLog.debug(LOG, msg + objects.size() + " objects");
       Session     hs = HibernateHelper.getSession();
       Transaction tx = hs.beginTransaction();
       Iterator    iter  = objects.iterator();
       try {
         while (iter.hasNext()) {
           Object o = iter.next();
-          GrouperLog.debug(LOG, msg + "saving " + o.getClass() + " " + o);
+          err = o;
+          LOG.debug(msg + ": saving " + o);
           hs.saveOrUpdate(o);
-          GrouperLog.debug(LOG, msg + "saved");
+          LOG.debug(msg + ": saved " + o);
         }
-        GrouperLog.debug(LOG, msg + "committing");
         tx.commit();
-        GrouperLog.debug(LOG, msg + "committed");
       }
-      catch (HibernateException e) {
-        GrouperLog.debug(LOG, msg + "rollback");
+      catch (HibernateException eH) {
+        msg += ": unable to save " + err + ": " + eH.getMessage();
         tx.rollback();
-        throw new HibernateException(e.getMessage());
+        throw new HibernateException(msg);
       }
       finally {
-        GrouperLog.debug(LOG, msg + "hibernate session closing");
         hs.close();
-        GrouperLog.debug(LOG, msg + "hibernate session closed");
       }
     }
     catch (HibernateException eH) {
-      GrouperLog.debug(LOG, msg + eH.getMessage());
-      throw new HibernateException(msg + eH.getMessage());
+      LOG.error(eH.getMessage());
+      throw new HibernateException(eH.getMessage());
     }
+    LOG.info(msg + ": saved " + objects.size());
   } // protected static void save(objects)
 
   protected static void saveAndDelete(Set saves, Set deletes)
     throws HibernateException
   { 
+    Object err = null;
     try {
       Session     hs    = HibernateHelper.getSession();
       Transaction tx    = hs.beginTransaction();
@@ -170,26 +179,73 @@ class HibernateHelper {
       try {
         while (iterD.hasNext()) {
           Object o = iterD.next();
-          hs.delete(o); 
+          err = o;
+          try {
+            hs.delete( _getPersistent(hs, o) );
+          }
+          catch (HibernateException eH) {
+            String msg = "unable to delete " + o + ": " + eH.getMessage();
+            throw new HibernateException(msg);
+          }
         }
         while (iterS.hasNext()) {
           Object o = iterS.next();
-          hs.saveOrUpdate(o);
+          err = o;
+          try {
+            hs.saveOrUpdate(o);
+          }
+          catch (HibernateException eH) {
+            String msg = "unable to save " + o + ": " + eH.getMessage();
+            throw new HibernateException(msg);
+          }
         }
         tx.commit();
       }
-      catch (HibernateException e) {
+      catch (HibernateException eH) {
         tx.rollback();
-        throw new HibernateException(e.getMessage());
+        throw new HibernateException(eH.getMessage());
       }
       finally {
         hs.close();
       }
     }
-    catch (HibernateException e) {
-      throw new HibernateException(e.getMessage());
+    catch (HibernateException eH) {
+      LOG.error(eH.getMessage());
+      throw new HibernateException(eH.getMessage());
     }
+    LOG.info("saved: " + saves.size() + " deleted: " + deletes.size());
   } // protected static void saveAndDelete(saves, deletes)
+
+
+  // Private Class Methods
+  private static Object _getPersistent(Session hs, Object o) {
+    boolean persistent  = false;
+    String  msg         = "attempt to delete transient object: " + o;
+    if (hs.contains(o)) {
+      persistent = true;
+    }
+    else {
+      try {
+        hs.update(o);
+        if (hs.contains(o)) {
+          persistent = true;       
+        }
+      }
+      catch (HibernateException eH) {
+        // ignore
+      }
+    }
+    if (persistent == false) {
+      try {
+        throw new RuntimeException(msg);
+      }
+      catch (RuntimeException eR) {
+        eR.printStackTrace();
+        throw new RuntimeException(eR.getMessage());
+      }
+    }
+    return o;
+  } // private static Object _getPersistent(hs, o)
 
 }
 

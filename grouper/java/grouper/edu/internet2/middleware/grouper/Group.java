@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.35 2005-12-06 19:42:19 blair Exp $
+ * @version $Id: Group.java,v 1.36 2005-12-09 07:35:38 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -43,7 +43,7 @@ public class Group implements Serializable {
   private static final Log    LOG     = LogFactory.getLog(Group.class);
   private static final String MSG_AM  = "add member ";
   private static final String MSG_DG  = "group deleted: ";
-  private static final String MSG_RM  = "revoke member ";
+  private static final String MSG_DM  = "revoke member ";
 
 
   // Hibernate Properties
@@ -52,15 +52,22 @@ public class Group implements Serializable {
   private Member  creator_id;
   private Set     group_attributes;
   private String  group_id;
-  private Set     group_memberships;
+  private Set     group_types         = new LinkedHashSet(); 
   private String  id;
   private Member  modifier_id;
   private String  modify_source;
   private long    modify_time;
   private Stem    parent_stem;
+  private int     version;
 
 
   // Transient Instance Variables
+  private transient Member          as_member = null;
+  private transient Subject         as_subj   = null;
+  private transient String          attr_dn   = null;
+  private transient String          attr_de   = null;
+  private transient String          attr_e    = null;
+  private transient String          attr_n    = null;
   private transient Map             attrs     = new HashMap();
   private transient Subject         creator;
   private transient Subject         modifier;
@@ -89,27 +96,21 @@ public class Group implements Serializable {
     this.setGroup_id( GrouperUuid.getUuid() );
     // Set naming information
     Set attributes = new LinkedHashSet();
-    attributes.add( 
-      new Attribute(
-        this, FieldFinder.find("name"),
-        Stem.constructName(ns.getName(), extn)
-      )
+    this.attr_de  = displayExtn;
+    this.attr_dn  = Stem.constructName(ns.getDisplayName(), displayExtn);
+    this.attr_e   = extn;
+    this.attr_n   = Stem.constructName(ns.getName(), extn);
+    attributes.add(
+      new Attribute(this, FieldFinder.find("displayExtension"), attr_de )
     );
-    attributes.add( 
-      new Attribute(
-        this, FieldFinder.find("displayName"),
-        Stem.constructName(ns.getDisplayName(), displayExtn)
-      )
+    attributes.add(
+      new Attribute(this, FieldFinder.find("displayName")     , attr_dn )
     );
-    attributes.add( 
-      new Attribute(
-        this, FieldFinder.find("extension"), extn
-      )
+    attributes.add(
+      new Attribute(this, FieldFinder.find("extension")       , attr_e  )
     );
-    attributes.add( 
-      new Attribute(
-        this, FieldFinder.find("displayExtension"), displayExtn
-      )
+    attributes.add(
+      new Attribute(this, FieldFinder.find("name")            , attr_n  )
     );
     this.setGroup_attributes(attributes);
   } // protected Group(s, ns, extn, displayExtn)
@@ -191,49 +192,27 @@ public class Group implements Serializable {
             MemberAddException,
             SchemaException
   {
-    String msg = MSG_AM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
+    String  msg = MSG_AM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
     GrouperLog.debug(LOG, this.s, msg);
-    this._canWriteList(subj, f, ERR_AM);
     try {
-      // The objects that will need saving
-      Set     objects = new LinkedHashSet();
-      // Who we're adding
-      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
-        this.s, subj, ERR_AM
+      PrivilegeResolver.getInstance().canWriteField(
+        this.s, this, this.s.getSubject(), f, FieldType.LIST
       );
-
-      this.setModified();
-      objects.add(this);
-
-      // Create the immediate membership
-      objects.add( Membership.addMembership(this.s, this, m, f) ); 
-
-      // Find effective memberships
-      Set effs = MemberOf.doMemberOf(this.s, this, m, f);
-      objects.addAll(effs);
-
-      // And then save group and memberships
-      HibernateHelper.save(objects);
-      // TODO make INFO + (conditionally?) log each membership added
-      GrouperLog.debug(
-        LOG, this.s, 
-        "added members to '"+ this.getName() + "'/'" + f.getName() 
-        + "': " + SubjectHelper.getPretty(subj) + " and " + effs.size() 
-        + " effs"
-      );
+      GrouperLog.debug(LOG, s, msg + " can write list");
+    } catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, s, msg + " cannot write list");
+      try {
+        this._canOPTIN(subj, f);
+        GrouperLog.debug(LOG, s, msg + " can OPTIN");
+      }
+      catch (InsufficientPrivilegeException optinEIP) {
+        String err = msg + " cannot OPTIN: " + eIP.getMessage();
+        GrouperLog.debug(LOG, s, err);
+        throw new InsufficientPrivilegeException(err);
+      }
     }
-    catch (GroupNotFoundException eGNF) {
-      GrouperLog.debug(LOG, s, ERR_AM + eGNF.getMessage());
-      throw new MemberAddException(ERR_AM + eGNF.getMessage());
-    }
-    catch (HibernateException eH) {
-      GrouperLog.debug(LOG, s, ERR_AM + eH.getMessage());
-      throw new MemberAddException(ERR_AM + eH.getMessage());
-    }
-    catch (MemberNotFoundException eMNF) {
-      GrouperLog.debug(LOG, s, ERR_AM + eMNF.getMessage());
-      throw new MemberAddException(ERR_AM + eMNF.getMessage());
-    }
+    Membership.addImmediateMembership(this.s, this, subj, f);
+    GrouperLog.debug(LOG, this.s, msg + ": added");
   } // public void addMember(subj, f)
 
   /**
@@ -257,76 +236,56 @@ public class Group implements Serializable {
             InsufficientPrivilegeException
   {
     // TODO Refactor into smaller components
+    GrouperSession.validate(this.s);
+    String msg = "delete";
+    GrouperLog.debug(LOG, this.s, msg);
     try {
       PrivilegeResolver.getInstance().canADMIN(this.s, this, this.s.getSubject());
+      GrouperLog.debug(LOG, this.s, msg + " canADMIN");
     }
     catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, this.s, ERR_DG + eIP.getMessage());
-      throw new InsufficientPrivilegeException(ERR_DG + eIP.getMessage());
+      String err = msg + " cannot ADMIN: " + eIP.getMessage();
+      GrouperLog.debug(LOG, this.s, err);
+      throw new InsufficientPrivilegeException(err);
     } 
     try {
-      Set     deletes = new LinkedHashSet();
-      deletes.add(this);
-      String  name    = "'" + this.getName() + "'";
-      String  msg     = "deleting group " + name;
+      Set deletes = new LinkedHashSet();
+      msg += " '" + this.getName() + "'";
       GrouperLog.debug(LOG, this.s, msg);
 
       // And revoke all access privileges
+      GrouperLog.debug(LOG, this.s, msg + " revoking access privs");
       this._revokeAllAccessPrivs(msg);
+      GrouperLog.debug(LOG, this.s, msg + " access privs revoked");
 
-      GrouperSession orig = this.s;
-      this.setSession(GrouperSessionFinder.getRootSession());
+      // And delete all memberships - as root
+      GrouperLog.debug(
+        LOG, this.s, msg + " finding memberships to delete"
+      );
+      deletes.addAll( 
+        Membership.deleteAllFieldType(
+          GrouperSessionFinder.getRootSession(), this, FieldType.LIST
+        )
+      );
+      GrouperLog.debug(
+        LOG, this.s, msg + " total membership to delete: " + deletes.size()
+      );
 
-      // Find all fields of type list
-      Iterator iter = FieldFinder.findAllByType(FieldType.LIST).iterator();
-      while (iter.hasNext()) {
-        Field   f       = (Field) iter.next();
-        String  tmpMsg  = msg + " '" + f.getName() + "'";
-        GrouperLog.debug(LOG, this.s, tmpMsg);
-
-        // ... and then remove where this group is an immediate member
-        Iterator  iterIs  = this.toMember().getImmediateGroups().iterator();
-        while (iterIs.hasNext()) {
-          Group g = (Group) iterIs.next();
-          Set   temp0 = this._membershipsToDelete(g, this.toSubject(), f);
-          deletes.addAll(temp0);
-          GrouperLog.debug(
-            LOG, this.s, 
-            tmpMsg + ": " + temp0.size() + " mships from group membership "
-            + " in group '" + g.getName() + "'"
-          );
-        }
-        // ... and then deal with this group's immediate members
-        Iterator  iterHas = this.getImmediateMembers().iterator();
-        while (iterHas.hasNext()) { 
-          Member  m     = (Member) iterHas.next();
-          Set     temp1 = this._membershipsToDelete(this, m.getSubject(), f);
-          deletes.addAll(temp1);
-          GrouperLog.debug(
-            LOG, this.s, 
-            tmpMsg + ": " + temp1.size() + " mships from immediate member '" 
-            + m + "'"
-          );
-        }
-      }
-      this.setSession(orig);
+      // Add the group last for good luck    
+      deletes.add(this);
 
       // And then commit changes to registry
       HibernateHelper.delete(deletes);
       // TODO info
-      GrouperLog.debug(LOG, this.s, MSG_DG + name);
+      GrouperLog.debug(LOG, this.s, msg + " deleted");
     }
-    catch (HibernateException eH) {
-      throw new GroupDeleteException(ERR_DG + eH.getMessage());
+    catch (InsufficientPrivilegeException eIP) {
+      LOG.debug(ERR_DG + eIP.getMessage());
+      throw new InsufficientPrivilegeException(eIP.getMessage());
     }
-    catch (MemberDeleteException eMD) {
-      throw new GroupDeleteException(ERR_DG + eMD.getMessage());
-    }
-    catch (RevokePrivilegeException eRP) {
-      throw new GroupDeleteException(ERR_DG + eRP.getMessage());
-    }
-    catch (SubjectNotFoundException eSNF) {
-      throw new GroupDeleteException(ERR_DG + eSNF.getMessage());
+    catch (Exception e) {
+      LOG.debug(ERR_DG + e.getMessage());
+      throw new GroupDeleteException(e.getMessage());
     }
   } // public void delete()
 
@@ -472,40 +431,27 @@ public class Group implements Serializable {
             MemberDeleteException,
             SchemaException
   {
-    this._canWriteList(subj, f, ERR_DM);
-    String msg = MSG_RM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
+    String  msg = MSG_DM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
     GrouperLog.debug(LOG, this.s, msg);
     try {
-      // The objects that will need saving and deleting
-      Set     deletes = new LinkedHashSet();
-      Set     saves   = new LinkedHashSet();
-      // Who we're adding
-      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
-        this.s, subj, ERR_DM
+      PrivilegeResolver.getInstance().canWriteField(
+        this.s, this, this.s.getSubject(), f, FieldType.LIST
       );
-      // Update group modify time
-      this.setModified();
-      saves.add(this);
-      // Find memberships to delete
-      Set effs = this._membershipsToDelete(this, subj, f);
-      deletes.addAll(effs);
-      // And then commit changes to registry
-      HibernateHelper.saveAndDelete(saves, deletes);
-      GrouperLog.debug(
-        LOG, this.s, 
-        "deleted members from '"+ this.getName() + "'/'" + f.getName() 
-        + "': " + SubjectHelper.getPretty(subj) + " and " + effs.size() 
-        + " effs"
-      );
+      GrouperLog.debug(LOG, s, msg + " can write list");
+    } catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, s, msg + " cannot write list");
+      try {
+        this._canOPTOUT(subj, f);
+        GrouperLog.debug(LOG, s, msg + " can OPTOUT");
+      }
+      catch (InsufficientPrivilegeException optinEIP) {
+        String err = msg + " cannot OPTOUT: " + eIP.getMessage();
+        GrouperLog.debug(LOG, s, err);
+        throw new InsufficientPrivilegeException(err);
+      }
     }
-    catch (HibernateException eH) {
-      GrouperLog.debug(LOG, s, ERR_DM + eH.getMessage());
-      throw new MemberDeleteException(ERR_DM + eH.getMessage());
-    }
-    catch (MemberNotFoundException eMNF) {
-      GrouperLog.debug(LOG, s, ERR_DM + eMNF.getMessage());
-      throw new MemberDeleteException(ERR_DM + eMNF.getMessage());
-    }
+    Membership.delImmediateMembership(this.s, this, subj, f);
+    GrouperLog.debug(LOG, this.s, msg + ": deleted");
   } // public void deleteMember(subj, f)
 
   public boolean equals(Object other) {
@@ -516,13 +462,11 @@ public class Group implements Serializable {
       return false;
     }
     Group otherGroup = (Group) other;
-    // TODO Include parent stem check
     return new EqualsBuilder()
-           .append(this.getUuid(),        otherGroup.getUuid()      )
-           .append(this.getExtension(),   otherGroup.getExtension() )
-           .append(this.getName(),        otherGroup.getName()      )
-           .append(this.getCreator_id(),  otherGroup.getCreator_id())
-           .isEquals();
+      .append(this.getCreator_id()  , otherGroup.getCreator_id()  )
+      .append(this.getCreate_time() , otherGroup.getCreate_time() )
+      .append(this.getGroup_id()    , otherGroup.getGroup_id()    )
+      .isEquals();
   } // public boolean equals(other)
 
   /**
@@ -675,12 +619,21 @@ public class Group implements Serializable {
    * @return  Gruop displayExtension.
    */
   public String getDisplayExtension() {
-    try {
-      return (String) this.getAttribute("displayExtension");
+    GrouperSession.validate(s);
+    String msg = "getDisplayExtension";
+    if (attr_de == null) {
+      try {
+        GrouperLog.debug(LOG, this.s, msg + " fetching");
+        attr_de = (String) this.getAttribute("displayExtension");
+        GrouperLog.debug(LOG, this.s, msg + " fetched");
+      }
+      catch (AttributeNotFoundException eANF) {
+        String err = "group without displayExtension";
+        GrouperLog.error(LOG, this.s, err);
+        throw new RuntimeException(err);
+      }
     }
-    catch (AttributeNotFoundException eANF) {
-      throw new RuntimeException("group without displayExtension");
-    }
+    return attr_de;
   } // public String getDisplayExtension()
 
   /**
@@ -691,12 +644,21 @@ public class Group implements Serializable {
    * @return  Group displayName.
    */
   public String getDisplayName() {
-    try {
-      return (String) this.getAttribute("displayName");
+    GrouperSession.validate(s);
+    String msg = "getDisplayName";
+    if (attr_dn == null) {
+      try {
+        GrouperLog.debug(LOG, this.s, msg + " fetching");
+        attr_dn = (String) this.getAttribute("displayName");
+        GrouperLog.debug(LOG, this.s, msg + " fetched");
+      }
+      catch (AttributeNotFoundException eANF) {
+        String err = "group without displayName";
+        GrouperLog.error(LOG, this.s, err);
+        throw new RuntimeException(err);
+      }
     }
-    catch (AttributeNotFoundException eANF) {
-      throw new RuntimeException("group without displayName");
-    }
+    return attr_dn;
   } // public String getDisplayName()
 
   /**
@@ -753,12 +715,21 @@ public class Group implements Serializable {
    * @return  Group extension.
    */
   public String getExtension() {
-    try {
-      return (String) this.getAttribute("extension");
+    GrouperSession.validate(s);
+    String msg = "getExtension";
+    if (attr_e == null) {
+      try {
+        GrouperLog.debug(LOG, this.s, msg + " fetching");
+        attr_e = (String) this.getAttribute("extension");
+        GrouperLog.debug(LOG, this.s, msg + " fetched");
+      }
+      catch (AttributeNotFoundException eANF) {
+        String err = "group without extension";
+        GrouperLog.error(LOG, this.s, err);
+        throw new RuntimeException(err);
+      }
     }
-    catch (AttributeNotFoundException eANF) {
-      throw new RuntimeException("group without extension");
-    }
+    return attr_e;
   } // public String getExtension()
  
   /**
@@ -804,6 +775,7 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getImmediateMemberships(Field f) {
+    GrouperSession.validate(this.s);
     return MembershipFinder.findImmediateMemberships(this.s, this, f);
   } // public Set getImmediateMemberships(f)
 
@@ -918,12 +890,21 @@ public class Group implements Serializable {
    * @return  Group name.
    */
   public String getName() {
-    try {
-      return (String) this.getAttribute("name");
+    GrouperSession.validate(s);
+    String msg = "getName";
+    if (attr_n == null) {
+      try {
+        GrouperLog.debug(LOG, this.s, msg + " fetching");
+        attr_n = (String) this.getAttribute("name");
+        GrouperLog.debug(LOG, this.s, msg + " fetched");
+      }
+      catch (AttributeNotFoundException eANF) {
+        String err = "group without name";
+        GrouperLog.error(LOG, this.s, err);
+        throw new RuntimeException(err);
+      }
     }
-    catch (AttributeNotFoundException eANF) {
-      throw new RuntimeException("group without name");
-    }
+    return attr_n;
   } // public String getName()
 
   /**
@@ -1001,8 +982,8 @@ public class Group implements Serializable {
    * @return  Set of group types.
    */
   public Set getTypes() {
-    throw new RuntimeException("Not implemented");
-  }
+    return this.getGroup_types();
+  } // public Set getTypes()
 
   /**
    * Get subjects with the UPDATE privilege on this group.
@@ -1185,10 +1166,10 @@ public class Group implements Serializable {
 
   public int hashCode() {
     return new HashCodeBuilder()
-           .append(getUuid())
-           .append(getCreator_id())
-           .append(getModifier_id())
-           .toHashCode();
+      .append(this.getCreator_id()  )
+      .append(this.getCreate_time() )
+      .append(this.getGroup_id()    )
+      .toHashCode();
   }
 
   /**
@@ -1350,10 +1331,12 @@ public class Group implements Serializable {
    * @param   priv  Revoke all instances of this privilege.
    * @throws  InsufficientPrivilegeException
    * @throws  RevokePrivilegeException
+   * @throws  SchemaException
    */
   public void revokePriv(Privilege priv)
     throws  InsufficientPrivilegeException,
-            RevokePrivilegeException
+            RevokePrivilegeException,
+            SchemaException
   {
     PrivilegeResolver.getInstance().revokePriv(
       this.s, this, priv
@@ -1377,10 +1360,12 @@ public class Group implements Serializable {
    * @param   priv  Revoke this privilege.
    * @throws  InsufficientPrivilegeException
    * @throws  RevokePrivilegeException
+   * @throws  SchemaException
    */
   public void revokePriv(Subject subj, Privilege priv) 
     throws  InsufficientPrivilegeException,
-            RevokePrivilegeException
+            RevokePrivilegeException,
+            SchemaException
   {
     PrivilegeResolver.getInstance().revokePriv(
       this.s, this, subj, priv
@@ -1415,6 +1400,7 @@ public class Group implements Serializable {
             InsufficientPrivilegeException
   {
     // TODO s,AttributeNotFoundException,SchemaException,?
+    //      Or both?
     String msg = "setAttribute: ";
     if ( (value == null) || (value.equals("")) ) {
       GrouperLog.debug(LOG, this.s, msg + "no value");
@@ -1553,29 +1539,6 @@ public class Group implements Serializable {
   } // public void setDisplayExtension(value)
 
   /**
-   * Set group type.
-   * <pre class="eg">
-   * try {
-   *   g.setTypes(types);
-   * }
-   * catch (GroupModifyException e0) {
-   *   // Unable to modify group
-   * }
-   * catch (InsufficientPrivilegeException e1) {
-   *   // Not privileged to modify group type
-   * }
-   * </pre>
-   * @param   types   Set of group types.
-   * @throws  GroupModifyException
-   * @throws  InsufficientPrivilegeException
-   */
-  public void setTypes(Set types) 
-    throws GroupModifyException, InsufficientPrivilegeException
-  {
-    throw new RuntimeException("Not implemented");
-  }
- 
-  /**
    * Convert this group to a {@link Member} object.
    * <p/>
    * <pre class="eg">
@@ -1584,17 +1547,27 @@ public class Group implements Serializable {
    * @return  {@link Group} as a {@link Member}
    */
   public Member toMember() {
-  // TODO Does this need to be public?
-    try {
-      return MemberFinder.findBySubject(
-        this.s, this.toSubject()
-      );
+    // TODO Does this need to be public?
+    GrouperSession.validate(this.s);
+    String msg = "toMember";
+    GrouperLog.debug(LOG, s, msg);
+    if (as_member == null) {
+      try {
+        GrouperLog.debug(LOG, s, msg + " finding group as member");
+        as_member = MemberFinder.findBySubject(
+          this.s, this.toSubject()
+        );
+        GrouperLog.debug(LOG, s, msg + " found: " + as_member);
+      }  
+      catch (MemberNotFoundException eMNF) {
+        // If we can't convert a group to a member we have major issues
+        // and should probably just give up
+        String err = msg + " could not convert group to member: " + eMNF.getMessage();
+        GrouperLog.error(LOG, s, err);
+        throw new RuntimeException(err);
+      }
     }
-    catch (MemberNotFoundException eMNF) {
-      throw new RuntimeException(
-        "could not find group as member: " + eMNF.getMessage()
-      );
-    }
+    return as_member;
   } // public Member toMember()
 
   /**
@@ -1606,16 +1579,24 @@ public class Group implements Serializable {
    * @return  {@link Group} as a {@link Subject}
    */
   public Subject toSubject() {
-    try {
-      return SubjectFinder.findById(
-        this.getUuid(), "group"
-      );
+    GrouperSession.validate(s);
+    String msg = "toSubject";
+    GrouperLog.debug(LOG, s, msg);
+    if (as_subj == null) {
+      try {
+        GrouperLog.debug(LOG , s, msg + " find group as subject");
+        as_subj = SubjectFinder.findById(this.getUuid(), "group");
+        GrouperLog.debug(LOG, s, msg + " found: " + as_subj);
+      }
+      catch (SubjectNotFoundException eSNF) {
+        // If we can't find an existing group as a subject we have
+        // major issues and shoudl probably just give up
+        String err = msg + " could not find group as subject: " + eSNF.getMessage();
+        GrouperLog.error(LOG, s, err);
+        throw new RuntimeException(err);
+      }
     }
-    catch (SubjectNotFoundException eSNF) {
-      throw new RuntimeException(
-        "could not find group as subject: " + eSNF.getMessage()
-      );
-    }
+    return as_subj;
   } // public Subject toSubject()
 
   public String toString() {
@@ -1643,6 +1624,10 @@ public class Group implements Serializable {
 
 
   // Protected Instance Methods
+  protected void addType(GroupType type) {
+    this.getGroup_types().add(type);
+  } // protected void addType(type)
+
   protected void setModified() {
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
@@ -1656,6 +1641,65 @@ public class Group implements Serializable {
 
   // Private Instance Methods
 
+  private void _canOPTIN(Subject subj, Field f) 
+    throws  InsufficientPrivilegeException
+  {
+    GrouperSession.validate(s);
+    boolean can = false;
+    String  msg = "_canOPTIN '" + f.getName() + "'";
+    String  err = msg;
+    GrouperLog.debug(LOG, this.s, msg);
+    if (
+      s.getSubject().getId().equals(subj.getId())
+      && s.getSubject().getType().equals(subj.getType())
+      && s.getSubject().getSource().equals(subj.getSource())
+      && f.equals(getDefaultList())
+    )
+    {
+      try {
+        PrivilegeResolver.getInstance().canOPTIN(this.s, this, subj);
+        can = true;
+      }
+      catch (InsufficientPrivilegeException eIP) {
+        err = eIP.getMessage();
+      }
+    }
+    if (can == false) {
+      GrouperLog.debug(LOG, this.s, msg + ": " + err);
+      throw new InsufficientPrivilegeException(err);
+    }
+  } // private void _canOPTIN(subj, f)
+
+  private void _canOPTOUT(Subject subj, Field f)
+    throws  InsufficientPrivilegeException
+  {
+    GrouperSession.validate(s);
+    boolean can = false;
+    String  msg = "_canOPTOUT '" + f.getName() + "'";
+    String  err = msg;
+    GrouperLog.debug(LOG, this.s, msg);
+    if (
+      s.getSubject().getId().equals(subj.getId())
+      && s.getSubject().getType().equals(subj.getType())
+      && s.getSubject().getSource().equals(subj.getSource())
+      && f.equals(getDefaultList())
+    )
+    {
+      try {
+        PrivilegeResolver.getInstance().canOPTOUT(this.s, this, subj);
+        can = true;
+      }
+      catch (InsufficientPrivilegeException eIP) {
+        err = eIP.getMessage();
+      }
+    }
+    if (can == false) {
+      GrouperLog.debug(LOG, this.s, msg + ": " + err);
+      throw new InsufficientPrivilegeException(err);
+    }
+  } // private void _canOPTOUT(subj, f)
+
+/*
   // What a tangled mess this has become
   private void _canWriteList(Subject subj, Field f, String msg) 
     throws  InsufficientPrivilegeException,
@@ -1704,6 +1748,7 @@ public class Group implements Serializable {
       throw new InsufficientPrivilegeException(eipMsg);
     }
   } // private void _canWriteList(subj, f, msg)
+*/
 
   private Map _getAttributes() {
     Iterator iter = this.getGroup_attributes().iterator();
@@ -1714,69 +1759,34 @@ public class Group implements Serializable {
     return this.attrs;
   } // private Map _getAttributes()
 
-  private Set _membershipsToDelete(Group g, Subject subj, Field f) 
-    throws  MemberDeleteException
-  {
-    Set     memberships = new LinkedHashSet();
-    String  msg         = "membership delete calculation for  " + 
-      SubjectHelper.getPretty(subj) + " '" + f.getName() + "'";
-    GrouperLog.debug(LOG, g.s, msg);
-    try {
-      Member m = MemberFinder.findBySubject(this.s, subj);
-      // Find the immediate membership that is to be deleted
-      Membership imm = MembershipFinder.findImmediateMembership(this.s, g, subj, f);
-      memberships.add(imm);
-      // Find effective memberships
-      // As many of the memberships are likely to be transient, we
-      // need to retrieve the persistent version of each before
-      // passing it along to be deleted by HibernateHelper.  
-      Session   hs    = HibernateHelper.getSession();
-      Iterator  iter  = MemberOf.doMemberOf(this.s, g, m, f).iterator();
-      while (iter.hasNext()) {
-        Membership ms = (Membership) iter.next();
-        memberships.add( 
-          MembershipFinder.findEffectiveMembership(
-            ms.getOwner_id(), ms.getMember().getId(), 
-            ms.getList(), ms.getVia_id(), ms.getDepth()
-          )
-        );
-      }
-      hs.close();
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new MemberDeleteException(eGNF.getMessage());
-    }
-    catch (HibernateException eH) {
-      throw new MemberDeleteException(eH.getMessage());
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new MemberDeleteException(eMNF.getMessage());
-    }
-    catch (MembershipNotFoundException eMSNF) {
-      throw new MemberDeleteException(eMSNF.getMessage());
-    }
-    GrouperLog.debug(LOG, g.s, msg + ": " + memberships.size());
-    return memberships;
-  } // private Set _membershipsToDelete(g, subj, f)
-
   private void _revokeAllAccessPrivs(String msg) 
     throws  InsufficientPrivilegeException,
-            RevokePrivilegeException
+            RevokePrivilegeException, 
+            SchemaException
   {
+    // Proxy as root
     GrouperSession orig = this.s;
     this.setSession(GrouperSessionFinder.getRootSession());
-    GrouperLog.debug(LOG, orig, msg + ": revoking ADMIN");
+
+    GrouperLog.debug(LOG, orig, msg + " revoking ADMIN");
     this.revokePriv(AccessPrivilege.ADMIN);
-    GrouperLog.debug(LOG, orig, msg + ": revoking OPTIN");
+    GrouperLog.debug(LOG, orig, msg + " revoked ADMIN");
+    GrouperLog.debug(LOG, orig, msg + " revoking OPTIN");
     this.revokePriv(AccessPrivilege.OPTIN);
-    GrouperLog.debug(LOG, orig, msg + ": revoking OPTOUT");
+    GrouperLog.debug(LOG, orig, msg + " revoked OPTIN");
+    GrouperLog.debug(LOG, orig, msg + " revoking OPTOUT");
     this.revokePriv(AccessPrivilege.OPTOUT);
-    GrouperLog.debug(LOG, orig, msg + ": revoking READ");
+    GrouperLog.debug(LOG, orig, msg + " revoked OPTOUT");
+    GrouperLog.debug(LOG, orig, msg + " revoking READ");
     this.revokePriv(AccessPrivilege.READ);
-    GrouperLog.debug(LOG, orig, msg + ": revoking UPDATE");
+    GrouperLog.debug(LOG, orig, msg + " revoked READ");
+    GrouperLog.debug(LOG, orig, msg + " revoking UPDATE");
     this.revokePriv(AccessPrivilege.UPDATE);
-    GrouperLog.debug(LOG, orig, msg + ": revoking VIEW");
+    GrouperLog.debug(LOG, orig, msg + " revoked UPDATE");
+    GrouperLog.debug(LOG, orig, msg + " revoking VIEW");
     this.revokePriv(AccessPrivilege.VIEW);
+    GrouperLog.debug(LOG, orig, msg + " revoked VIEW");
+
     this.setSession(orig);
   } // private void _revokeAllAccessPrivs(msg)
 
@@ -1792,9 +1802,13 @@ public class Group implements Serializable {
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().getName().equals("name")) {
-          a.setValue(
-            Stem.constructName(this.getParentStem().getName(), value)
+          String newVal = Stem.constructName(
+            this.getParentStem().getName(), value
           );
+          a.setValue(newVal);
+          // Update the cached values
+          this.attr_e = value;
+          this.attr_n = newVal;
         }
         updated.add(a);
       }
@@ -1804,9 +1818,13 @@ public class Group implements Serializable {
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().getName().equals("displayName")) {
-          a.setValue(
-            Stem.constructName(this.getParentStem().getDisplayName(), value)
+          String newVal = Stem.constructName(
+            this.getParentStem().getDisplayName(), value
           );
+          a.setValue(newVal);
+          // Update the cached values
+          this.attr_de = value;
+          this.attr_dn = newVal;
         }
         updated.add(a);
       }
@@ -1817,7 +1835,7 @@ public class Group implements Serializable {
   } // private Set _updateSystemAttrs(f, value, attrs
 
   // Hibernate Accessors
-  private String getId() {
+  public String getId() {
     return this.id;
   }
 
@@ -1873,6 +1891,14 @@ public class Group implements Serializable {
     this.creator_id = creator_id;
   }
 
+  private Set getGroup_types() {
+    return this.group_types;
+  }
+
+  private void setGroup_types(Set types) {
+    this.group_types = types;
+  }
+
   private Member getModifier_id() {
     return this.modifier_id;
   }
@@ -1897,12 +1923,13 @@ public class Group implements Serializable {
     this.group_attributes = group_attributes;
   }
 
-  private Set getGroup_memberships() {
-    return this.group_memberships;
+  private int getVersion() {
+    return this.version;
   }
 
-  private void setGroup_memberships(Set group_memberships) {
-    this.group_memberships = group_memberships;
+  private void setVersion(int version) {
+    this.version = version;
   }
 
 }
+

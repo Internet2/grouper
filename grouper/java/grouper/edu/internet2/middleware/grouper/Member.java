@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.21 2005-12-06 20:56:07 blair Exp $
+ * @version $Id: Member.java,v 1.22 2005-12-09 07:35:38 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -88,6 +88,7 @@ public class Member implements Serializable {
       Membership ms = (Membership) iter.next();
       try {
         Group g = ms.getGroup();
+        g.setSession(this.s);
         groups.add(g);
       }
       catch (GroupNotFoundException eGNF) {
@@ -105,10 +106,23 @@ public class Member implements Serializable {
    * @return  Set of {@link Membership} objects.
    */
   public Set getEffectiveMemberships() {
-    return MembershipFinder.findEffectiveMemberships(
-      this.s, this, Group.getDefaultList()
-    );
+    return this.getEffectiveMemberships(Group.getDefaultList());
   } // public Set getEffectiveMemberships()
+
+  /**
+   * Get effective memberships.
+   * <pre class="eg">
+   * Set effectives = m.getEffectiveMemberships(f);
+   * </pre>
+   * @param   f   Get effective memberships in this list field.
+   * @return  Set of {@link Membership} objects.
+   */
+  public Set getEffectiveMemberships(Field f) {
+    GrouperSession.validate(this.s);
+    return MembershipFinder.findEffectiveMemberships(
+      this.s, this, f
+    );
+  } // public Set getEffectiveMemberships(f)
 
   /**
    * Get groups where this member is a member.
@@ -125,6 +139,7 @@ public class Member implements Serializable {
       Membership ms = (Membership) iter.next();
       try {
         Group g = ms.getGroup();
+        g.setSession(this.s);
         groups.add(g);
       }
       catch (GroupNotFoundException eGNF) {
@@ -149,6 +164,7 @@ public class Member implements Serializable {
       Membership ms = (Membership) iter.next();
       try {
         Group g = ms.getGroup();
+        g.setSession(this.s);
         groups.add(g);
       }
       catch (GroupNotFoundException eGNF) {
@@ -166,10 +182,23 @@ public class Member implements Serializable {
    * @return  Set of {@link Membership} objects.
    */
   public Set getImmediateMemberships() {
-    return MembershipFinder.findImmediateMemberships(
-      this.s, this, Group.getDefaultList()
-    );
+    return this.getImmediateMemberships(Group.getDefaultList());
   } // public Set getImmediateMemberships()
+
+  /**
+   * Get immediate memberships.
+   * <pre class="eg">
+   * Set immediates = m.getImmediateMemberships(f);
+   * </pre>
+   * @param   f   Get immediate memberships in this list field.
+   * @return  Set of {@link Membership} objects.
+   */
+  public Set getImmediateMemberships(Field f) {
+    GrouperSession.validate(this.s);
+    return MembershipFinder.findImmediateMemberships(
+      this.s, this, f
+    );
+  } // public Set getImmediateMemberships(f)
 
   /**
    * Get memberships.
@@ -179,10 +208,23 @@ public class Member implements Serializable {
    * @return  Set of {@link Membership} objects.
    */
   public Set getMemberships() {
-    return MembershipFinder.findMemberships(
-      this, Group.getDefaultList()
-    );
+    return this.getMemberships(Group.getDefaultList());
   } // public Set getMemberships()
+
+  /**
+   * Get memberships.
+   * <pre class="eg">
+   * Set groups = m.getMemberships(f);
+   * </pre>
+   * @param   f   Get memberships in this list field.
+   * @return  Set of {@link Membership} objects.
+   */
+  public Set getMemberships(Field f) {
+    GrouperSession.validate(this.s);
+    return MembershipFinder.findMemberships(
+      this.s, this, f
+    );
+  } // public Set getMemberships(f)
 
   /**
    * Find access privileges held by this member on a {@link Group}.
@@ -800,21 +842,21 @@ public class Member implements Serializable {
     }
     Member otherMember = (Member) other;
     return new EqualsBuilder()
-           .append(this.getSubject_id(),      otherMember.getSubject_id()     )
-           .append(this.getSubject_source(),  otherMember.getSubject_source() )
-           .append(this.getSubject_type(),    otherMember.getSubject_type()   )
-           .append(this.getUuid(),            otherMember.getUuid()           )
-           .isEquals();
+      .append(this.getSubject_id()    , otherMember.getSubject_id()     )
+      .append(this.getSubject_source(), otherMember.getSubject_source() )
+      .append(this.getSubject_type()  , otherMember.getSubject_type()   )
+      .append(this.getUuid()          , otherMember.getUuid()           )
+      .isEquals();
   } // public boolean equals(other)
 
   public int hashCode() {
     return new HashCodeBuilder()
-           .append(getSubject_id())
-           .append(getSubject_source())
-           .append(getSubject_type())
-           .append(getUuid())
-           .toHashCode();
-  }
+      .append(getSubject_id()     )
+      .append(getSubject_source() )
+      .append(getSubject_type()   )
+      .append(getUuid()           )
+      .toHashCode();
+  } // public int hashCode()
 
   /**
    * Convert this member back to a {@link Group} object.
@@ -861,8 +903,9 @@ public class Member implements Serializable {
  
   // Find *all* memberships for this member 
   // @filtered  no
+  // @session   yes
   protected Set getAllMemberships() {
-    return MembershipFinder.findMemberships(this);
+    return MembershipFinder.findMemberships(this.s, this);
   } // protected Set getAllMemberships()
 
   // Assign Session

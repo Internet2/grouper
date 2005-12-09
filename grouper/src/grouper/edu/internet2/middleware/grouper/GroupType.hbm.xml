@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: GroupType.hbm.xml,v 1.2 2005-11-11 18:32:07 blair Exp $ -->
+<!-- $Id: GroupType.hbm.xml,v 1.3 2005-12-09 07:35:38 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="GroupType" table="grouper_types">
@@ -33,45 +33,32 @@ Schema specification for a Group type.
     <meta attribute="session-method">HibernateHelper.getSession();</meta>
 
     <!-- id -->
-    <id name="id" type="string">
-      <meta attribute="use-in-tostring">false</meta>
-      <column name="id" sql-type="char(32)"/>
+    <id name="id" 
+        type="string"
+        unsaved-value="null"
+    >
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
-    <!-- version -->
-    <version name="version"/>
-    <!-- version -->
-
 
     <!-- name -->
-    <property
-      name="name"
-      type="string"
-      length="255"
-      not-null="true"
-    >
-      <meta attribute="field-description">
-Get type name.
-      </meta>
-      <meta attribute="finder-method">findByName</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-    </property>
-    <!-- type_id -->
+    <property name="name"
+              type="string"
+              length="255"
+              not-null="true"
+              unique="true"
+    />
+    <!-- name -->
 
     <!-- fields -->
-<!-- TODO Resolve this later
-    <set name="fields">
-      <meta attribute="field-description">
-Get fields.
-      </meta>
-      <meta attribute="use-in-equals">true</meta> 
-      <meta attribute="use-in-tostring">true</meta> 
-      <key  column="id"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Field"/>
+    <set  name="fields"
+          inverse="true"
+          cascade="all-delete-orphan"
+          order-by="field_name asc"
+    >
+      <key column="group_type"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Field" />
     </set>
--->
     <!-- fields -->
 
   </class>

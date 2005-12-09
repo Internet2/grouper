@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Field.hbm.xml,v 1.4 2005-12-01 03:12:24 blair Exp $ -->
+<!-- $Id: Field.hbm.xml,v 1.5 2005-12-09 07:35:38 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Field" table="grouper_fields">
@@ -37,11 +37,22 @@ Schema specification for a Group attribute or list.
         type="string"
         unsaved-value="null"
     >
-      <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
 
+
+    <!-- group_type -->
+    <!-- TODO What cascade level do I want? -->
+    <many-to-one
+      name="group_type"
+      class="edu.internet2.middleware.grouper.GroupType"
+    >
+      <column name="group_type" 
+              not-null="true"
+      />
+    </many-to-one>
+    <!-- group_type -->
 
     <!-- field_type -->
     <property 
