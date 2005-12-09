@@ -3,14 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.104 2005-12-09 17:32:08 blair Exp $
+$Id: ROADMAP,v 1.105 2005-12-09 20:40:44 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* wheel group
 * ALL toggle switches 
 * Finish refactoring _MembershipFinder_ to apply READ + VIEW filtering
 * Profiling and benchmarking
@@ -22,7 +21,6 @@ $Id: ROADMAP,v 1.104 2005-12-09 17:32:08 blair Exp $
   * Lazy + batch collection fetching
 * Review files and add TODO items to this list
 * Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
-* Have sessions close themselves automatically
 * Review generated SQL
   * Including my twisty column names
   * Add 
@@ -39,6 +37,8 @@ $Id: ROADMAP,v 1.104 2005-12-09 17:32:08 blair Exp $
   * Lists
   * Naming privs
   * Access privs
+* Test create + modify subject when !root
+* Test _AccessPrivilege_ and _NamingPrivilege_ objects
 
 ## Later - pre-code freeze
 * Test
@@ -47,11 +47,9 @@ $Id: ROADMAP,v 1.104 2005-12-09 17:32:08 blair Exp $
     * Versioning
   * Test with Pg and Oracle and review generated SQL
     * ship with generated schema?
+  * deletion (group + mship + priv) in _TestMemberOf_
   * What happens when you delete a group and then attempt to perform
     further operations on it?
-  * _AccessPrivilege_ and _NamingPrivilege_ objects
-  * creator + modifier
-  * deletion (group + mship + priv) in _TestMemberOf_
   * renaming "root" subject?  this probably shouldn't be allowed.
 * Review thrown exceptions, especially runtime exceptions
   * Only public methods should adjust the exception messages
@@ -130,6 +128,7 @@ $Id: ROADMAP,v 1.104 2005-12-09 17:32:08 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

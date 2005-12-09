@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.24 2005-12-09 17:15:43 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.25 2005-12-09 20:40:44 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -45,6 +45,7 @@ class PrivilegeResolver {
 
   // Private Instance Variables
   private AccessAdapter access;
+  private Group         wheel     = null;
   private NamingAdapter naming;
 
 
@@ -553,15 +554,35 @@ class PrivilegeResolver {
   } // protected void grantPriv(s, ns, subj, priv)
 
   protected boolean isRoot(Subject subj) {
+    boolean rv = false;
+    // First check to see if this is GrouperSystem
     if (
       (subj.getId().equals("GrouperSystem"))
       && (subj.getSource().getId().equals(InternalSourceAdapter.ID))
       && (subj.getType().getName().equals("application"))
     )
     {
-      return true;
+      rv = true;
     }  
-    return false;
+    else if (
+      GrouperConfig.getInstance().getProperty("groups.wheel.use").equals("true")
+    )
+    { 
+      // TODO This has to be a performance killer
+      GrouperSession  root = GrouperSessionFinder.getTransientRootSession();
+      String          name = GrouperConfig.getInstance().getProperty("groups.wheel.group");
+      try {
+        Group wheel = GroupFinder.findByName(root, name);
+        rv = wheel.hasMember(subj);
+      }
+      catch (GroupNotFoundException eGNF) {
+        // Group not found.  Oh well.
+        // TODO The problem is that the test suite deletes it.  
+        // LOG.error("wheel group enabled not found: " + name);
+      }
+      root.stop();
+    }
+    return rv;
   } // protected boolean isRoot(subj)
 
   protected boolean hasPriv(

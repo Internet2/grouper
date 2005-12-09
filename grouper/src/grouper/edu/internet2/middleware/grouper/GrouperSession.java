@@ -24,16 +24,21 @@ import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.8 2005-12-09 17:15:43 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.9 2005-12-09 20:40:44 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(GrouperSession.class);
+
 
   // Hibernate Properties
   private String  id;
@@ -44,6 +49,8 @@ public class GrouperSession implements Serializable {
 
   // Private Transient Instance Variables
   private transient Subject subj  = null;
+  private transient String  who;
+  private transient String  type;
 
 
   // Constructors
@@ -210,15 +217,10 @@ public class GrouperSession implements Serializable {
   } // public void stop()
 
   public String toString() {
-    String  who   = this.getSubject().getId();
-    String  type  = this.getSubject().getType().getName();
-    if (type.equals(SubjectTypeEnum.valueOf("group"))) {
-      who = this.getSubject().getName();
-    }
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append("session_id"    , this.getSession_id())
-      .append("subject_id"    , who                 )
-      .append("subject_type"  , type                )
+      .append("subject_id"    , this.who            )
+      .append("subject_type"  , this.type           )
       .toString();
   } // public String toString()
 
@@ -254,7 +256,12 @@ public class GrouperSession implements Serializable {
     try {
       GrouperSession s = new GrouperSession();
       // Transient
-      s.subj = subj;
+      s.subj  = subj;
+      s.who   = subj.getId();
+      s.type  = subj.getType().getName();
+      if (s.type.equals(SubjectTypeEnum.valueOf("group"))) {
+        s.who = subj.getName();
+      }
       // Persistent
       s.setMember_id(MemberFinder.findBySubject(subj));
       s.setStart_time( new Date() );

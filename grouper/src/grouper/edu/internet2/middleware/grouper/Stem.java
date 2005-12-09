@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.31 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: Stem.java,v 1.32 2005-12-09 20:40:44 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -807,7 +807,7 @@ public class Stem implements Serializable {
 
   // Protected Class Methods
 
-  protected static void addRootStem(GrouperSession s) {
+  protected static Stem addRootStem(GrouperSession s) {
     Stem root = new Stem(s);
     try {
       HibernateHelper.save(root);
@@ -817,7 +817,8 @@ public class Stem implements Serializable {
         "unable to add root stem: " + eH.getMessage()
       );
     }
-  } // protected static void addRootStem(GrouperSession s)
+    return root;
+  } // protected static Stem addRootStem(GrouperSession s)
 
   protected static String constructName(String stem, String extn) {
     // TODO This should probably end up in a "naming" utility class
