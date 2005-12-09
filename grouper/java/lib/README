@@ -4,7 +4,7 @@
 This file provides information on the third party libraries that ship
 with Grouper.
 
-$Id: README,v 1.16 2005-11-28 21:02:55 blair Exp $
+$Id: README,v 1.17 2005-12-09 17:32:08 blair Exp $
 
 ---
 
@@ -187,7 +187,7 @@ implementation"
 
 "The I2MI Subject Interface."
 
-* Version:  CVS HEAD checkout on 20050622
+* Version:  CVS HEAD checkout on 20051209
 * Source:   <http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/subject/?cvsroot=I2MI>
-* License:  TODO
+* License:  Apache License, Version 2.0 (?)
 

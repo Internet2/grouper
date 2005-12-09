@@ -3,14 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.103 2005-12-09 17:15:43 blair Exp $
+$Id: ROADMAP,v 1.104 2005-12-09 17:32:08 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Update Subject API jar
 * wheel group
 * ALL toggle switches 
 * Finish refactoring _MembershipFinder_ to apply READ + VIEW filtering
@@ -35,6 +34,11 @@ $Id: ROADMAP,v 1.103 2005-12-09 17:15:43 blair Exp $
     immediate and effective memberships and privs
   * What triggers a "modified" update?
     * possibly make configurable to avoid bikeshedding?
+* Test field validation
+  * Attributes
+  * Lists
+  * Naming privs
+  * Access privs
 
 ## Later - pre-code freeze
 * Test
@@ -45,11 +49,6 @@ $Id: ROADMAP,v 1.103 2005-12-09 17:15:43 blair Exp $
     * ship with generated schema?
   * What happens when you delete a group and then attempt to perform
     further operations on it?
-  * Field validation
-    * Attributes
-    * Lists
-    * Naming privs
-    * Access privs
   * _AccessPrivilege_ and _NamingPrivilege_ objects
   * creator + modifier
   * deletion (group + mship + priv) in _TestMemberOf_
@@ -131,6 +130,7 @@ $Id: ROADMAP,v 1.103 2005-12-09 17:15:43 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 
