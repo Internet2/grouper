@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.36 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: Group.java,v 1.37 2005-12-09 17:15:43 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -1835,7 +1835,7 @@ public class Group implements Serializable {
   } // private Set _updateSystemAttrs(f, value, attrs
 
   // Hibernate Accessors
-  public String getId() {
+  private String getId() {
     return this.id;
   }
 

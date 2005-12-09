@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
-import  java.util.Date;
+import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.7 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.8 2005-12-09 17:15:43 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -74,8 +74,11 @@ public class GrouperSession implements Serializable {
   {
     GrouperSession s = _getSession(subject);
     try {
-      // Will cascade and save newly created Member if appropriate
-      HibernateHelper.save(s);
+      // No cascading so save everything myself
+      Set objects = new LinkedHashSet();
+      objects.add(s.getMember_id());
+      objects.add(s);
+      HibernateHelper.save(objects);
     }
     catch (HibernateException e) {
       throw new SessionException(

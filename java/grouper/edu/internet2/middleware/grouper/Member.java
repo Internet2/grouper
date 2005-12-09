@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.22 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: Member.java,v 1.23 2005-12-09 17:15:43 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -810,6 +810,46 @@ public class Member implements Serializable {
     }
     return rv;
   } // public boolean isMember(g, f)
+
+  /**
+   * Change subject id.
+   * <p>
+   * You must be a root-like {@link Subject} to use this method.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   m.setSubjectId("new id");
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to change subject id
+   * }
+   * </pre>
+   * @param   id  Set subject id to this.
+   * @throws  InsufficientPrivilegeException
+   */
+  public void setSubjectId(String id) 
+    throws  InsufficientPrivilegeException
+  {
+    GrouperSession.validate(this.s);
+    String  oid = this.getSubject_id();
+    String  err = "not privileged to change subjectId";
+    if (PrivilegeResolver.getInstance().isRoot(this.s.getSubject())) {
+      try {
+        this.setSubject_id(id);
+        HibernateHelper.save(this);
+      }
+      catch (Exception e) {
+        err = e.getMessage();
+      }
+    }
+    if (this.getSubject_id().equals(oid)) {
+      GrouperLog.debug(LOG, this.s, err);
+      throw new InsufficientPrivilegeException(err);
+    }
+    GrouperLog.info(
+      LOG, this.s, "changed subjectId for " + this.getUuid() + ": " + id
+    );
+  } // public void setSubjectId(id)
 
   public String toString() {
     try {

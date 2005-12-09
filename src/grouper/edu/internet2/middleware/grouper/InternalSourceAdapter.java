@@ -31,9 +31,14 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.5 2005-12-06 20:38:42 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.6 2005-12-09 17:15:43 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
+
+  // Public Class Constants
+  public static final String ID   = "g:isa";
+  public static final String NAME = "Grouper: Internal Source Adapter";
+
 
   // Private Instance Variables
   private Set types = new LinkedHashSet();
@@ -54,12 +59,12 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   /**
    * Allocates new InternalSourceAdapter.
    * <pre class="eg">
-   * SourceAdapter sa = new InternalSourceAdapter(name, id);
+   * SourceAdapter sa = new InternalSourceAdapter(id, name);
    * </pre>
-   * @param name  Name of the adapter.
    * @param id    Identity of the adapter.
+   * @param name  Name of the adapter.
    */
-  public InternalSourceAdapter(String name, String id) {
+  public InternalSourceAdapter(String id, String name) {
     super(id, name);
   } // public InternalSourceAdapter(name, id)
 

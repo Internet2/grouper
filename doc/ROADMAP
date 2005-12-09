@@ -3,16 +3,14 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.102 2005-12-09 07:35:38 blair Exp $
+$Id: ROADMAP,v 1.103 2005-12-09 17:15:43 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Rename subjectIDs in local subject<=>member mapping (#133)
 * Update Subject API jar
-* normalize source adapter id + name conventions
 * wheel group
 * ALL toggle switches 
 * Finish refactoring _MembershipFinder_ to apply READ + VIEW filtering
@@ -22,19 +20,27 @@ $Id: ROADMAP,v 1.102 2005-12-09 07:35:38 blair Exp $
     * Subject cache(s)
     * Attribute cache
     * List cache
+  * Lazy + batch collection fetching
 * Review files and add TODO items to this list
 * Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
-
-## Later - pre-code freeze
+* Have sessions close themselves automatically
 * Review generated SQL
   * Including my twisty column names
   * Add 
     * create member + time to memberships 
     * factor type
     * status + ttl?
+* Configurability
+  * Configurable options for logging adding/granting/deleting/revoking
+    immediate and effective memberships and privs
+  * What triggers a "modified" update?
+    * possibly make configurable to avoid bikeshedding?
+
+## Later - pre-code freeze
 * Test
   * Review old _*.todo_ test classes (and then remove)
   * Test concurrence and persistence  
+    * Versioning
   * Test with Pg and Oracle and review generated SQL
     * ship with generated schema?
   * What happens when you delete a group and then attempt to perform
@@ -45,13 +51,19 @@ $Id: ROADMAP,v 1.102 2005-12-09 07:35:38 blair Exp $
     * Naming privs
     * Access privs
   * _AccessPrivilege_ and _NamingPrivilege_ objects
-* Configurability
-  * Configurable options for logging adding/granting/deleting/revoking
-    immediate and effective memberships and privs
-  * What triggers a "modified" update?
-    * possibly make configurable to avoid bikeshedding?
+  * creator + modifier
+  * deletion (group + mship + priv) in _TestMemberOf_
+  * renaming "root" subject?  this probably shouldn't be allowed.
 * Review thrown exceptions, especially runtime exceptions
+  * Only public methods should adjust the exception messages
 * General code review
+  * more complete session validation
+* Bugs
+  * Minor
+    * modify* attrs set on groups and stems at creation due to granting
+      of privs to creator
+    * _Membership_ child_memberships mapping
+
 
 ## Later - post-code freeze
 * Event logging
