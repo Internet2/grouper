@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test open bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsOpen.java,v 1.3 2005-12-06 17:40:21 blair Exp $
+ * @version $Id: TestBugsOpen.java,v 1.4 2005-12-09 07:35:38 blair Exp $
  */
 public class TestBugsOpen extends TestCase {
 
@@ -118,6 +118,7 @@ public class TestBugsOpen extends TestCase {
       // TODO test
 
       staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
+      // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testImm(s, admins, subj, "admins");
       MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
@@ -128,11 +129,16 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
       MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
       MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
+
       MembershipHelper.testImm(s, staff, iata , "members");
       MembershipHelper.testImm(s, staff, iawi , "members");
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipHelper.testImm(s, staff, all_staff.toSubject(), "readers");
+      MembershipHelper.testEff(s, staff, iata, "readers", staff, 2);
+      MembershipHelper.testEff(s, staff, iawi, "readers", staff, 2);
 
       staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
+      // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testImm(s, admins, subj, "admins");
       MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
@@ -151,6 +157,7 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
 
       all_staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
+      // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testImm(s, admins, subj, "admins");
       MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
@@ -167,6 +174,7 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testEff(s, all_staff, iata, "readers", staff, 2);
       MembershipHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
       MembershipHelper.testNumMship(all_staff, "readers", 4, 1, 3);
+
       MembershipHelper.testImm(s, staff, iata , "members");
       MembershipHelper.testImm(s, staff, iawi , "members");
       MembershipHelper.testImm(s, staff, admins.toSubject(), "admins");
@@ -175,6 +183,7 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
 
       all_staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
+      // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testImm(s, admins, subj, "admins");
       MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
@@ -202,7 +211,11 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
       MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
 
-      // TODO s.stopSession();
+      GroupHelper.delete(s, admins, admins.getName());
+      GroupHelper.delete(s, staff, staff.getName());
+      GroupHelper.delete(s, all_staff, all_staff.getName());
+
+      s.stop();
     }
     catch (Exception e) {
       Assert.fail("exception: " + e.getMessage());

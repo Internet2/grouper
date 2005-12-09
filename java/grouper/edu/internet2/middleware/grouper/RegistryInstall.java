@@ -17,19 +17,25 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.8 2005-12-01 03:12:24 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.9 2005-12-09 07:35:38 blair Exp $    
  */
 public class RegistryInstall {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(RegistryInstall.class);
+
 
   // Public Class Methods
 
@@ -42,128 +48,134 @@ public class RegistryInstall {
 
   // Private Class Methods
   private static void _installFieldsAndTypes() {
-    Set fields  = new LinkedHashSet();
-    Set types   = new LinkedHashSet();
+    Set base_f    = new LinkedHashSet();
+    Set fields    = new LinkedHashSet();
+    Set naming_f  = new LinkedHashSet();
+    Set types     = new LinkedHashSet();
    
-    // TODO GroupType base    = new GroupType("base");
+    // Base Attributes
+    base_f.add(
+      new Field(
+        "description"       , FieldType.ATTRIBUTE,
+        AccessPrivilege.READ, AccessPrivilege.ADMIN,
+        true
+      )
+    );
+    base_f.add(
+      new Field(
+        "displayName"       , FieldType.ATTRIBUTE,
+        AccessPrivilege.VIEW, AccessPrivilege.SYSTEM,
+        false
+      )
+    );
+    base_f.add(
+      new Field(
+        "displayExtension"  , FieldType.ATTRIBUTE,
+        AccessPrivilege.VIEW, AccessPrivilege.ADMIN,
+        false
+      )
+    );
+    base_f.add(
+      new Field(
+        "extension"         , FieldType.ATTRIBUTE,
+        AccessPrivilege.VIEW, AccessPrivilege.ADMIN,
+        false
+      )
+    );
+    base_f.add(
+      new Field(
+        "name"              , FieldType.ATTRIBUTE,
+        AccessPrivilege.VIEW, AccessPrivilege.SYSTEM,
+        false
+      )
+    );
+    // Base Access Privileges
+    base_f.add(
+      new Field(
+        "admins"                , FieldType.ACCESS,
+        AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
+        true
+      )
+    );
+    base_f.add(
+      new Field(
+        "members"               , FieldType.LIST,
+        AccessPrivilege.READ    , AccessPrivilege.UPDATE,
+        true
+      )
+    );
+    base_f.add(
+      new Field(
+        "optins"                , FieldType.ACCESS,
+        AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE,
+        true
+      )
+    );
+    base_f.add(
+      new Field(
+        "optouts"               , FieldType.ACCESS,
+        AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE,
+        true
+      )
+    );
+    base_f.add(
+      new Field(
+        "readers"               , FieldType.ACCESS,
+        AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
+        true
+      )
+    );
+    base_f.add(
+      new Field(
+        "updaters"              , FieldType.ACCESS,
+        AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
+        true
+      )
+    );
+    base_f.add(
+      new Field(
+        "viewers"               , FieldType.ACCESS,
+        AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
+        true
+      )
+    );
+    // Naming Privileges
+    naming_f.add(
+      new Field(
+        "creators"              , FieldType.NAMING,
+        NamingPrivilege.STEM    , NamingPrivilege.STEM,
+        true
+      )
+    );
+    naming_f.add(
+      new Field(
+        "stemmers"              , FieldType.NAMING,
+        NamingPrivilege.STEM    , NamingPrivilege.STEM,
+        true
+      )
+    );
 
-    Field description = new Field(
-      "description"       , FieldType.ATTRIBUTE,
-      AccessPrivilege.READ, AccessPrivilege.ADMIN,
-      true
-    );
-    // TODO Remove?
-    Field displayName = new Field(
-      "displayName"       , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW, AccessPrivilege.SYSTEM,
-      false
-    );
-    Field displayExtn = new Field(
-      "displayExtension"  , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW, AccessPrivilege.ADMIN,
-      false
-    );
-    Field extension   = new Field(
-      "extension"         , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW, AccessPrivilege.ADMIN,
-      false
-    );
-    // TODO Remove?
-    Field name        = new Field(
-      "name"              , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW, AccessPrivilege.SYSTEM,
-      false
-    );
-
-    fields.add(description);
-    fields.add(displayName);
-    fields.add(displayExtn);
-    fields.add(extension);
-    fields.add(name);
-
-    Field admins    = new Field(
-      "admins"                , FieldType.ACCESS,
-      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
-      true
-    );
-    // TODO Not needed?  Or maybe just reserve it?
-    Field creators  = new Field(
-      "creators"              , FieldType.NAMING,
-      NamingPrivilege.STEM    , NamingPrivilege.STEM,
-      true
-    );
-    Field members   = new Field(
-      "members"               , FieldType.LIST,
-      AccessPrivilege.READ    , AccessPrivilege.UPDATE,
-      true
-    );
-    Field optins    = new Field(
-      "optins"                , FieldType.ACCESS,
-      AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE,
-      true
-    );
-    Field optouts   = new Field(
-      "optouts"               , FieldType.ACCESS,
-      AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE,
-      true
-    );
-    Field readers   = new Field(
-      "readers"               , FieldType.ACCESS,
-      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
-      true
-    );
-    // TODO Not needed?  Or maybe just reserve it?
-    Field stemmers  = new Field(
-      "stemmers"              , FieldType.NAMING,
-      NamingPrivilege.STEM    , NamingPrivilege.STEM,
-      true
-    );
-    Field updaters  = new Field(
-      "updaters"              , FieldType.ACCESS,
-      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
-      true
-    );
-    Field viewers   = new Field(
-      "viewers"               , FieldType.ACCESS,
-      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
-      true
-    );
-
-    fields.add(admins);
-    fields.add(creators);
-    fields.add(members);
-    fields.add(optins);
-    fields.add(optouts);
-    fields.add(readers);
-    fields.add(stemmers);
-    fields.add(updaters);
-    fields.add(viewers); 
-
-/* TODO
+    GroupType base    = new GroupType("base", base_f);
     types.add(base);
-
-    Iterator iter = fields.iterator();
-    while (iter.hasNext()) {
-      Field f = (Field) iter.next();
-      f.getGroupTypes().add(base);
-      base.getFields().add(f);
-    }
-*/
+    GroupType naming  = new GroupType("naming", naming_f);
+    types.add(naming);
+  
+    fields.addAll(base_f);
+    fields.addAll(naming_f);
 
     try {
       Session hs = HibernateHelper.getSession();
       Set objects = new LinkedHashSet();
-      objects.addAll(fields);
-      // TODO objects.addAll(types);
+      objects.addAll(types);
       HibernateHelper.save(objects);
       hs.close();
-      System.err.println("fields installed: " + fields.size());
-      System.err.println("types installed : " + types.size());
+      LOG.info("group types installed: " + types.size());
+      LOG.info("fields installed     : " + fields.size());
     }
     catch (HibernateException eH) {
-      throw new RuntimeException(
-        "error installing schema: " + eH.getMessage()
-      );
+      String err = "error installing schema: " + eH.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
   } // private static void _installFieldsAndTypes()
 
@@ -175,12 +187,12 @@ public class RegistryInstall {
         )
       );
       Stem.addRootStem(s);
-      System.err.println("root stem installed");
+      LOG.info("root stem installed");
     }
-    catch (Exception e) {
-      throw new RuntimeException(
-        "unable to install root stem: " + e.getMessage()
-      );
+    catch (Exception e) { 
+      String err = "error installing root stem: " + e.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
   } // private static void _installRootStem()
 

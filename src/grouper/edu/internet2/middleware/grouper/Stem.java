@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.30 2005-12-06 19:42:19 blair Exp $
+ * @version $Id: Stem.java,v 1.31 2005-12-09 07:35:38 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -55,6 +55,7 @@ public class Stem implements Serializable {
   private String  stem_extension;
   private String  stem_id;
   private String  stem_name;
+  private int     version;
 
 
   // Transient Instance Variables
@@ -137,7 +138,14 @@ public class Stem implements Serializable {
       Set children  = this.getChild_groups();
       children.add(child);
       this.setChild_groups(children);
-      HibernateHelper.save(this);
+      // Attach group type
+      child.addType( GroupTypeFinder.find("base") );
+      // And save
+      Set objects = new LinkedHashSet();
+      objects.add(child);
+      objects.add(this);
+      HibernateHelper.save(objects);
+      //HibernateHelper.save(this);
       try {
         // Now grant ADMIN (as root) to the creator of the child group.
         //
@@ -252,15 +260,19 @@ public class Stem implements Serializable {
   } // public Stem addChildStem(extension, displayExtension)
 
   public boolean equals(Object other) {
-    if ( (this == other ) ) return true;
-    if ( !(other instanceof Stem) ) return false;
-    Stem castOther = (Stem) other;
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Stem)) {
+      return false;
+    }
+    Stem otherStem = (Stem) other;
     return new EqualsBuilder()
-           .append(this.getStem_id(), castOther.getStem_id())
-           .append(this.getCreator_id(), castOther.getCreator_id())
-           .append(this.getModifier_id(), castOther.getModifier_id())
-           .isEquals();
-  }
+      .append(this.getStem_id()     , otherStem.getStem_id()    )
+      .append(this.getCreator_id()  , otherStem.getCreator_id() )
+      .append(this.getStem_id()     , otherStem.getStem_id()    )
+      .isEquals();
+  } // public boolean equals(other)
 
   /**
    * Get child groups of this stem.
@@ -623,11 +635,11 @@ public class Stem implements Serializable {
  
   public int hashCode() {
     return new HashCodeBuilder()
-           .append(getUuid()        )
-           .append(getCreator_id()  )
-           .append(getModifier_id() )
-           .toHashCode()
-           ;
+      .append(this.getStem_id()     )
+      .append(this.getCreator_id()  )
+      .append(this.getStem_id()     )
+      .toHashCode()
+      ;
   } // public int hashCode()
 
   /**
@@ -647,10 +659,12 @@ public class Stem implements Serializable {
    * @param   priv  Revoke this privilege.
    * @throws  InsufficientPrivilegeException
    * @throws  RevokePrivilegeException
+   * @throws  SchemaException
    */
   public void revokePriv(Privilege priv) 
     throws  InsufficientPrivilegeException,
-            RevokePrivilegeException
+            RevokePrivilegeException,
+            SchemaException
   {
     PrivilegeResolver.getInstance().revokePriv(
       this.s, this, priv
@@ -675,10 +689,12 @@ public class Stem implements Serializable {
    * @param   priv  Revoke this privilege.
    * @throws  InsufficientPrivilegeException
    * @throws  RevokePrivilegeException
+   * @throws  SchemaException
    */
   public void revokePriv(Subject subj, Privilege priv)
     throws  InsufficientPrivilegeException,
-            RevokePrivilegeException
+            RevokePrivilegeException,
+            SchemaException
   {
     PrivilegeResolver.getInstance().revokePriv(
       this.s, this, subj, priv
@@ -976,6 +992,14 @@ public class Stem implements Serializable {
 
   private void setChild_stems(Set child_stems) {
     this.child_stems = child_stems;
+  }
+
+  private int getVersion() {
+    return this.version;
+  }
+
+  private void setVersion(int version) {
+    this.version = version;
   }
 
 }

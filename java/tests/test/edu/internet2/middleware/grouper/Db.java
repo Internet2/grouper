@@ -28,7 +28,7 @@ import  java.util.*;
  * DbUnit did earlier.  Oh well.
  * </p>
  * @author  blair christensen.
- * @version $Id: Db.java,v 1.7 2005-12-06 17:40:21 blair Exp $
+ * @version $Id: Db.java,v 1.8 2005-12-09 07:35:38 blair Exp $
  */
 class Db {
 
@@ -56,7 +56,8 @@ class Db {
         "Error disabling autocommit: " + e.getMessage()
       );
     }
-    _emptyTable("grouper_memberships");
+    _emptyTable("grouper_groups_types");
+    _emptyTableGrouperMemberships();
     _emptyTable("grouper_sessions");
     _emptyTable("grouper_attributes");
     _emptyTableGrouperGroups();
@@ -197,6 +198,22 @@ class Db {
       );
     }
     _emptyTable("grouper_groups");
+  } // private static void _emptyTableGrouperGroups()
+
+  private static void _emptyTableGrouperMemberships() {
+    PreparedStatement del = null;
+    try {
+      del = conn.prepareStatement(
+        "UPDATE grouper_memberships SET parent_membership = null"
+      );
+      del.executeUpdate();
+    }
+    catch (SQLException eSQL) {
+      throw new RuntimeException(
+        "unable to delete various parent mships: " + eSQL.getMessage()
+      );
+    }
+    _emptyTable("grouper_memberships");
   } // private static void _emptyTableGrouperGroups()
 
   private static void _emptyTableGrouperStems() {

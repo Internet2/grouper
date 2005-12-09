@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A group attribute within the Groups registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.4 2005-12-05 18:34:21 blair Exp $
+ * @version $Id: Attribute.java,v 1.5 2005-12-09 07:35:38 blair Exp $
  */
 class Attribute implements Serializable {
 
@@ -35,6 +35,7 @@ class Attribute implements Serializable {
   private Group   group;
   private String  id;
   private String  value;
+  private int     version;
 
 
   // Constructors
@@ -111,6 +112,14 @@ class Attribute implements Serializable {
 
   private void setField(Field field) {
     this.field = field;
+  }
+
+  private int getVersion() {
+    return this.version;
+  }
+
+  private void setVersion(int version) {
+    this.version = version;
   }
 
 }

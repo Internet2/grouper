@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.22 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.23 2005-12-09 07:35:38 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -313,7 +313,7 @@ class PrivilegeResolver {
     // TODO This is ugly
     boolean   can   = false;
     Privilege priv  = AccessPrivilege.VIEW;
-    String    msg   = "canVIEW: ";
+    String    msg   = "canVIEW ";
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
       msg += "VIEW";
       can = true;
@@ -405,6 +405,69 @@ class PrivilegeResolver {
     return m;
   } // protected Member canViewSubject(s, subj, msg)
 
+  protected void canWriteField(
+    GrouperSession s, Group g, Subject subj, Field f, FieldType type
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    GrouperSession.validate(s);
+    String msg = "canWriteField '" + f + "' '" + type + "'";
+    GrouperLog.debug(LOG, s, msg);
+
+    // Validate field type
+    if (f.getType().equals(type)) {
+      GrouperLog.debug(LOG, s, msg + " right type");
+    }
+    else {
+      String err = msg + " wrong type";
+      GrouperLog.debug(LOG, s, err);
+      throw new SchemaException(err);
+    }
+
+    try {
+      PrivilegeResolver.getInstance().canPrivDispatch(
+        s, g, subj, f.getWritePriv()
+      );
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, s, eIP.getMessage());
+      throw new InsufficientPrivilegeException(eIP.getMessage());
+    }
+  } // protected static void canWriteField(s, g, subj, f, type)
+
+  protected void canWriteField(
+    GrouperSession s, Stem ns, Subject subj, Field f, FieldType type
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    GrouperSession.validate(s);
+    String msg = "canWriteField '" + f + "' '" + type + "'";
+    GrouperLog.debug(LOG, s, msg);
+
+    // Validate field type
+    // TODO extract
+    if (f.getType().equals(type)) {
+      GrouperLog.debug(LOG, s, msg + " right type");
+    }
+    else {
+      String err = msg + " wrong type";
+      GrouperLog.debug(LOG, s, err);
+      throw new SchemaException(err);
+    }
+
+    try {
+      PrivilegeResolver.getInstance().canPrivDispatch(
+        s, ns, subj, f.getWritePriv()
+      );
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, s, eIP.getMessage());
+      throw new InsufficientPrivilegeException(eIP.getMessage());
+    }
+  } // protected static void canWriteField(s, ns, subj, f, type)
+
   protected Set getPrivs(
     GrouperSession s, Group g, Subject subj
   )
@@ -495,7 +558,7 @@ class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     String msg = "hasPriv '" + priv.getName().toUpperCase() 
-      + "' '" + subj.getId() + "': ";
+      + "' '" + subj.getId() + "' ";
     if (this._isRoot(subj)) {
       GrouperLog.debug(LOG, s, msg + "true (ROOT)");
       return true;
@@ -542,16 +605,21 @@ class PrivilegeResolver {
   } // protected boolean hasPriv(s, ns, subj, priv)
 
   protected void revokePriv(GrouperSession s, Group g, Privilege priv)
-    throws  RevokePrivilegeException,
-            InsufficientPrivilegeException
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException,
+            SchemaException
   {
     GrouperSession.validate(s);
+    String msg = "revokePriv '" + priv + "'";
+    GrouperLog.debug(LOG, s, msg);
     this.access.revokePriv(s, g, priv);
+    GrouperLog.debug(LOG, s, msg + " revoked");
   } // protected void revokePriv(s, g, priv)
 
   protected void revokePriv(GrouperSession s, Stem ns, Privilege priv)
-    throws  RevokePrivilegeException,
-            InsufficientPrivilegeException
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException,
+            SchemaException
   {
     GrouperSession.validate(s);
     this.naming.revokePriv(s, ns, priv);
@@ -560,8 +628,9 @@ class PrivilegeResolver {
   protected void revokePriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
-    throws  RevokePrivilegeException,
-            InsufficientPrivilegeException
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException,
+            SchemaException
   {
     GrouperSession.validate(s);
     this.access.revokePriv(s, g, subj, priv);
@@ -570,8 +639,9 @@ class PrivilegeResolver {
   protected void revokePriv(
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
-    throws  RevokePrivilegeException,
-            InsufficientPrivilegeException
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException,
+            SchemaException
   {
     GrouperSession.validate(s);
     this.naming.revokePriv(s, ns, subj, priv);

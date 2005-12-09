@@ -17,26 +17,37 @@
 
 package edu.internet2.middleware.grouper;
 
+
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.9 2005-12-06 17:40:21 blair Exp $
+ * @version $Id: Membership.java,v 1.10 2005-12-09 07:35:38 blair Exp $
  */
 public class Membership implements Serializable {
 
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(Membership.class);
+
+
   // Hibernate Properties
-  private int       depth;
-  private Field     field;
-  private String    id;
-  private Member    member_id;
-  private String    owner_id;
-  private String    via_id;
+  private Set         children            = new LinkedHashSet();
+  private int         depth;
+  private Field       field;
+  private String      id;
+  private Member      member_id;
+  private String      owner_id;
+  private Membership  parent_membership;
+  private String      via_id;
 
   
   // Private Transient Instance Variables
@@ -90,24 +101,40 @@ public class Membership implements Serializable {
     }
     Membership otherMembership = (Membership) other;
     return new EqualsBuilder()
-           .append(this.getDepth()    , otherMembership.getDepth()    )
-           .append(this.getOwner_id() , otherMembership.getOwner_id() )
-           .append(this.getMember_id(), otherMembership.getMember_id())
-           .append(this.getField()    , otherMembership.getField()    )
-           .append(this.getVia_id()   , otherMembership.getVia_id()   )
-           .isEquals();
+      .append(this.getOwner_id()  , otherMembership.getOwner_id() )
+      .append(this.getMember_id() , otherMembership.getMember_id())
+      .append(this.getField()     , otherMembership.getField()    )
+      .append(this.getVia_id()    , otherMembership.getVia_id()   )
+      .append(this.getDepth()     , otherMembership.getDepth()    )
+      .isEquals();
   } // public boolean equals(other)
 
-  /**
-   * Get child memberships of this membership.
-   * <pre class="eg">
+  /** 
+   * Get child memberships of this membership. 
+   * <pre class="eg"> 
    * Set children = ms.getChildMemberships();
    * </pre>
    * @return  Set of {@link Membership} objects.
    */
   public Set getChildMemberships() {
-    throw new RuntimeException("Not implemented");
-  }
+    // TODO Filter based upon view?  Of both group and via group?
+    GrouperSession.validate(this.s);
+/* TODO Save for the filtering and attachments of session I shouldn't
+        need to do this manually.  And yet... There is undoubtably something
+        wacky with my mapping file.
+    Set children = new LinkedHashSet();
+    // TODO Don't I have a bulk operation for this?
+    Iterator iter = this.getChild_memberships().iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      ms.setSession(this.s);
+      children.add(ms);
+    }
+    return children;
+*/
+    return MembershipFinder.findChildMemberships(this.s, this);
+  } // public Set getChildMemberships()
+
 
   /**
    * Get this membership's group.
@@ -121,6 +148,7 @@ public class Membership implements Serializable {
   {
     // TODO Cache group?
     // TODO Check field
+    GrouperSession.validate(this.s);
     return GroupFinder.findByUuid(this.s, this.getOwner_id());
   } // public Group getGroup()
 
@@ -146,8 +174,15 @@ public class Membership implements Serializable {
   public Member getMember() 
     throws MemberNotFoundException
   {
-    return this.getMember_id();
-    //return MemberFinder.findByUuid(this.s, this.getMember_id());
+    GrouperSession.validate(this.s);
+    Member m = this.getMember_id();
+    if (m == null) {
+      String msg = "unable to get member";
+      GrouperLog.debug(LOG, this.s, msg);
+      throw new MemberNotFoundException(msg);
+    }
+    m.setSession(this.s);
+    return m;
   } // public Member getMember()
 
   /**
@@ -166,8 +201,13 @@ public class Membership implements Serializable {
   public Membership getParentMembership() 
     throws MembershipNotFoundException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    Membership parent = this.getParent_membership();
+    if (parent == null) {
+      throw new MembershipNotFoundException("no parent");
+    }
+    parent.setSession(this.s);
+    return parent;
+  } // public Membership getParentMembership()
  
   /**
    * Get this membership's via group.
@@ -195,15 +235,16 @@ public class Membership implements Serializable {
 
   public int hashCode() {
     return new HashCodeBuilder()
-           .append(getDepth()     )
-           .append(getOwner_id()  )
-           .append(getMember_id() )
-           .append(getField()     )
-           .append(getVia_id()    )
-           .toHashCode();
+      .append(this.getOwner_id()  )
+      .append(this.getMember_id() )
+      .append(this.getField()     )
+      .append(this.getVia_id()    )
+      .append(this.getDepth()     )
+      .toHashCode();
   } // public int hashCode()
 
   public String toString() {
+    GrouperSession.validate(this.s);
     Object  owner = this.getOwner_id();
     Object  via   = this.getVia_id();
     try {
@@ -238,19 +279,388 @@ public class Membership implements Serializable {
 
   // Protected Class Methods
 
-  private static String _getOid(Object o) {
-    if      (o.getClass().equals(Group.class)) {
-      return ( (Group) o ).getUuid();
-    }
-    else if (o.getClass().equals(Stem.class)) {
-      return ( (Stem) o ).getUuid();
-    }
-    throw new RuntimeException(
-      "class cannot contain membership: " + o.getClass()
-    );
-  } // private static String _getOid(o)
+  // TODO REFACTOR/DRY
+  protected static void addImmediateMembership(
+    GrouperSession s, Group g, Subject subj, Field f
+  )
+    throws  InsufficientPrivilegeException,
+            MemberAddException,
+            SchemaException
+  {
+    GrouperSession.validate(s);
+    String msg = "addImmediateMembership '" + f + "'";
+    GrouperLog.debug(LOG, s, msg);
+    try {
+      // The objects that will need saving
+      Set     objects = new LinkedHashSet();
+      // Who we're adding
+      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
+        s, subj, msg
+      );
+      objects.add(m);
 
-  protected static Membership addMembership(
+      g.setModified();
+      objects.add(g);
+
+      // Create the immediate membership
+      Membership imm = _addMembership(s, g, m, f);
+      objects.add(imm);
+
+      // Find effective memberships
+      objects.addAll( _findEffectiveMemberships(s, imm) );
+
+      // And then save group and memberships
+      HibernateHelper.save(objects);
+    }
+    catch (GroupNotFoundException eGNF) {
+      msg += ": " + eGNF.getMessage();
+      GrouperLog.debug(LOG, s, msg);
+      throw new MemberAddException(msg);
+    }
+    catch (HibernateException eH) {
+      msg += ": " + eH.getMessage();
+      GrouperLog.debug(LOG, s, msg);
+      throw new MemberAddException(msg);
+    }
+    catch (MemberNotFoundException eMNF) {
+      msg += ": " + eMNF.getMessage();
+      GrouperLog.debug(LOG, s, msg);
+      throw new MemberAddException(msg);
+    }
+  } // protected static void addImmediateMembership(s, g, subj, f)
+
+  // TODO REFACTOR/DRY
+  protected static void addImmediateMembership(
+    GrouperSession s, Stem ns, Subject subj, Field f
+  )
+    throws  InsufficientPrivilegeException,
+            MemberAddException,
+            SchemaException
+  {
+    GrouperSession.validate(s);
+    String msg = "addImmediateMembership '" + f + "'";
+    GrouperLog.debug(LOG, s, msg);
+    try {
+      // The objects that will need saving
+      Set     objects = new LinkedHashSet();
+      // Who we're adding
+      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
+        s, subj, msg
+      );
+      objects.add(m);
+
+      ns.setModified();
+      objects.add(ns);
+
+      // Create the immediate membership
+      Membership imm = _addMembership(s, ns, m, f);
+      objects.add(imm);
+
+      // Find effective memberships
+      objects.addAll( _findEffectiveMemberships(s, imm) );
+
+      // And then save group and memberships
+      HibernateHelper.save(objects);
+    }
+    catch (GroupNotFoundException eGNF) {
+      msg += ": " + eGNF.getMessage();
+      GrouperLog.debug(LOG, s, msg);
+      throw new MemberAddException(msg);
+    }
+    catch (HibernateException eH) {
+      msg += ": " + eH.getMessage();
+      GrouperLog.debug(LOG, s, msg);
+      throw new MemberAddException(msg);
+    }
+    catch (MemberNotFoundException eMNF) {
+      msg += ": " + eMNF.getMessage();
+      GrouperLog.debug(LOG, s, msg);
+      throw new MemberAddException(msg);
+    }
+  } // protected static void addImmediateMembership(s, ns, subj, f)
+
+  // TODO REFACTOR/DRY
+  protected static void delImmediateMembership(
+    GrouperSession s, Group g, Subject subj, Field f
+  )
+    throws  InsufficientPrivilegeException,
+            MemberDeleteException,
+            SchemaException
+  {
+    GrouperSession.validate(s);
+    String msg = "delImmediateMembership '" + f + "'";
+    GrouperLog.debug(LOG, s, msg);
+    try {
+      // The objects that will need deleting and saving
+      Set     deletes = new LinkedHashSet();
+      Set     saves   = new LinkedHashSet();
+      // Who we're deleting
+      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
+        s, subj, msg
+      );
+
+      g.setModified();
+      saves.add(g);
+
+      // Find memberships to delete
+      Set effs = _membershipsToDelete(s, g, subj, f);
+      deletes.addAll(effs);
+
+      // And then commit changes to registry
+      HibernateHelper.saveAndDelete(saves, deletes);
+      GrouperLog.debug(
+        LOG, s, 
+        "deleted members from '"+ g.getName() + "'/'" + f.getName() 
+        + "': " + SubjectHelper.getPretty(subj) + " and " + effs.size() 
+        + " effs"
+      );
+    }
+    catch (HibernateException eH) {
+      msg += ": " + eH.getMessage();
+      GrouperLog.debug(LOG, s, msg);
+      throw new MemberDeleteException(msg);
+    }
+    catch (MemberNotFoundException eMNF) {
+      msg += ": " + eMNF.getMessage();
+      GrouperLog.debug(LOG, s, msg);
+      throw new MemberDeleteException(msg);
+    }
+  } // protected static void delImmediateMembership(s, g, subj, f
+
+  // TODO REFACTOR/DRY
+  protected static void delImmediateMembership(
+    GrouperSession s, Stem ns, Subject subj, Field f
+  )
+    throws  InsufficientPrivilegeException,
+            MemberDeleteException,
+            SchemaException
+  {
+    GrouperSession.validate(s);
+    String msg = "delImmediateMembership '" + f + "'";
+    GrouperLog.debug(LOG, s, msg);
+    try {
+      // The objects that will need deleting and saving
+      Set     deletes = new LinkedHashSet();
+      Set     saves   = new LinkedHashSet();
+      // Who we're deleting
+      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
+        s, subj, msg
+      );
+
+      ns.setModified();
+      saves.add(ns);
+
+      // Find memberships to delete
+      Set effs = _membershipsToDelete(s, ns, subj, f);
+      deletes.addAll(effs);
+
+      // And then commit changes to registry
+      HibernateHelper.saveAndDelete(saves, deletes);
+      GrouperLog.debug(
+        LOG, s, 
+        "deleted members from '"+ ns.getName() + "'/'" + f.getName() 
+        + "': " + SubjectHelper.getPretty(subj) + " and " + effs.size() 
+        + " effs"
+      );
+    }
+    catch (HibernateException eH) {
+      msg += ": " + eH.getMessage();
+      GrouperLog.debug(LOG, s, msg);
+      throw new MemberDeleteException(msg);
+    }
+    catch (MemberNotFoundException eMNF) {
+      msg += ": " + eMNF.getMessage();
+      GrouperLog.debug(LOG, s, msg);
+      throw new MemberDeleteException(msg);
+    }
+  } // protected static void delImmediateMembership(s, ns, subj, f
+
+  protected static Set deleteAllField(GrouperSession s, Group g, Field f) 
+    throws  GroupNotFoundException,
+            MemberDeleteException,
+            MemberNotFoundException,
+            SubjectNotFoundException
+  {
+    GrouperSession.validate(s);
+    String msg = "deleteAllField '" + f + "'";
+    GrouperLog.debug(LOG, s, msg);
+
+    GrouperSession orig = s;
+    GrouperSession root = GrouperSessionFinder.getRootSession();
+    g.setSession(root);
+
+    Set deletes = new LinkedHashSet();
+
+    // Remove where this group is an immediate member
+    GrouperLog.debug(LOG, s, msg + " finding isMember");
+    Iterator iterIS = g.toMember().getImmediateMemberships(f).iterator();
+    while (iterIS.hasNext()) {
+      Membership  msIS  = (Membership) iterIS.next();
+      Set         effs  = _membershipsToDelete(
+        s, msIS.getGroup(), msIS.getMember().getSubject(), msIS.getList()
+      );
+      GrouperLog.debug(
+        LOG, orig, msg + " found isMember: " + effs.size()
+      );
+      deletes.addAll(effs);
+    }
+    // ... and then deal with this group's immediate members
+    GrouperLog.debug(LOG, s, msg + " finding hasMembers");
+    Iterator iterHAS = g.getImmediateMemberships(f).iterator();
+    while (iterHAS.hasNext()) {
+      Membership  msHAS = (Membership) iterHAS.next();
+      Set         effs  = _membershipsToDelete(
+        s, msHAS.getGroup(), msHAS.getMember().getSubject(), msHAS.getList()
+      );
+      GrouperLog.debug(
+        LOG, orig, msg + " found hasMembers: " + effs.size()
+      );
+      deletes.addAll(effs);
+    }
+
+    g.setSession(orig);
+    GrouperLog.debug(LOG, orig, msg + " total: " + deletes.size());
+    return deletes;
+  } // protected static Set deleteAllField(s, g, f)
+
+  // TODO REFACTOR/DRY
+  protected static Set deleteAllField(GrouperSession s, Stem ns, Field f) 
+    throws  GroupNotFoundException,
+            MemberDeleteException,
+            MemberNotFoundException,
+            StemNotFoundException,
+            SubjectNotFoundException
+  {
+    GrouperSession.validate(s);
+    String msg = "deleteAllField '" + f + "'";
+    GrouperLog.debug(LOG, s, msg);
+
+    GrouperSession orig = s;
+    GrouperSession root = GrouperSessionFinder.getRootSession();
+    ns.setSession(root);
+
+    Set deletes = new LinkedHashSet();
+
+    // Remove this stem's immediate members
+    GrouperLog.debug(LOG, s, msg + " finding hasMembers");
+    Iterator iterHAS = MembershipFinder.findImmediateMemberships(s, ns, f).iterator();
+    while (iterHAS.hasNext()) {
+      Membership  msHAS = (Membership) iterHAS.next();
+      Set         effs  = _membershipsToDelete(
+        s, msHAS.getStem(), msHAS.getMember().getSubject(), msHAS.getList()
+      );
+      GrouperLog.debug(
+        LOG, orig, msg + " found hasMembers: " + effs.size()
+      );
+      deletes.addAll(effs);
+    }
+
+    ns.setSession(orig);
+    GrouperLog.debug(LOG, orig, msg + " total: " + deletes.size());
+    return deletes;
+  } // protected static Set deleteAllField(s, ns, f)
+
+  protected static Set deleteAllFieldType(
+    GrouperSession s, Group g, FieldType type
+  ) 
+    throws  GroupNotFoundException,
+            MemberDeleteException,
+            MemberNotFoundException,
+            SubjectNotFoundException
+  {
+    GrouperSession.validate(s);
+    String msg = "deleteAllFieldType '" + type + "'";
+    GrouperLog.debug(LOG, s, msg);
+
+    GrouperSession orig = s;
+    GrouperSession root = GrouperSessionFinder.getRootSession();
+    g.setSession(root);
+
+    Set deletes = new LinkedHashSet();
+
+    // Find all fields of type list
+    Iterator iter = FieldFinder.findAllByType(type).iterator();
+    while (iter.hasNext()) {
+      Field f     = (Field) iter.next();
+      GrouperLog.debug(LOG, orig, msg + " finding '" + f + "'");
+      Set   found = deleteAllField(s, g, f);
+      GrouperLog.debug(LOG, s, msg + " found: " + found.size());
+      deletes.addAll(found);
+    }
+
+    g.setSession(orig);
+    GrouperLog.debug(LOG, orig, msg + " total: " + deletes.size());
+    return deletes;
+  } // protected static Set deleteAllFieldType(s, g, type)
+
+  protected static List setSession(GrouperSession s, List l) {
+    List      mships  = new ArrayList();
+    Iterator  iter    = l.iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      ms.setSession(s);
+      mships.add(ms);
+    }
+    return mships;
+  } // protected static List setSession(s, l)
+
+
+  // Protected Instance Methods
+
+  protected Stem getStem() 
+    throws StemNotFoundException
+  {
+    // TODO Cache stem?
+    // TODO Check field
+    GrouperSession.validate(this.s);
+    return StemFinder.findByUuid(this.s, this.getOwner_id());
+  } // public Stem getStem()
+
+  protected static Membership newEffectiveMembership(
+    GrouperSession s, Membership ms, Membership hasMS, int offset
+  )
+    throws  GroupNotFoundException,
+            MemberNotFoundException
+  { 
+    Membership eff = new Membership();
+    eff.s = s;
+    try {
+      eff.setOwner_id(  ms.getGroup().getUuid()       );  // original g
+    }
+    catch (GroupNotFoundException eGNF) {
+      try {
+        eff.setOwner_id( ms.getStem().getUuid()       );
+      }
+      catch (StemNotFoundException eNSNF) {
+        throw new RuntimeException("membership has no owner: " + ms);
+      }
+    }
+    eff.setMember_id( hasMS.getMember()             );  // hasMember m
+    eff.setField(     ms.getList()                  );  // original f
+    eff.setDepth(                                       // increment the depth
+      ms.getDepth() + hasMS.getDepth() + offset         
+    );
+    if (hasMS.getDepth() == 0) {
+      eff.setVia_id(  hasMS.getGroup().getUuid()    );  // hasMember m was immediate
+    }
+    else {
+      eff.setVia_id(  hasMS.getViaGroup().getUuid() );  // hasMember m was effective
+    } 
+    eff.setParent_membership(ms);                       // ms is parent membership
+    GrouperLog.debug(LOG, s, "newEffectiveMembership: " + eff);
+    return eff;       
+  } // protected static Membership newEffectiveMembership(s, ms, hasMS)
+
+
+  protected void setSession(GrouperSession s) {
+    GrouperSession.validate(s);
+    this.s = s;
+  } // protected void setSession(s)
+
+
+  // Private Class Methods
+
+  private static Membership _addMembership(
     GrouperSession s, Object o, Member m, Field f
   )
     throws MemberAddException
@@ -273,39 +683,125 @@ public class Membership implements Serializable {
       throw new MemberAddException("unable to add member");
     }
     return ms;
-  } // protected static Membership addMembership(s, o, m, f)
+  } // private static Membership _addMembership(s, o, m, f)
     
-  protected static List setSession(GrouperSession s, List l) {
-    List      mships  = new ArrayList();
-    Iterator  iter    = l.iterator();
+  // Find effective memberships
+  private static Set _findEffectiveMemberships(
+    GrouperSession s, Membership imm
+  )
+    throws  GroupNotFoundException,
+            MemberNotFoundException
+  {
+    GrouperSession.validate(s);
+    Set       effs  = new LinkedHashSet();
+    Iterator  iter  = MemberOf.doMemberOf(s, imm).iterator();
     while (iter.hasNext()) {
       Membership ms = (Membership) iter.next();
-      ms.setSession(s);
-      mships.add(ms);
+      effs.add(ms.getMember());
+      effs.add(ms);
+    }
+    return effs;
+  } // private static _findEffectiveMemberships(s, imm)
+
+  private static String _getOid(Object o) {
+    if      (o.getClass().equals(Group.class)) {
+      return ( (Group) o ).getUuid();
+    }
+    else if (o.getClass().equals(Stem.class)) {
+      return ( (Stem) o ).getUuid();
+    }
+    throw new RuntimeException(
+      "class cannot contain membership: " + o.getClass()
+    );
+  } // private static String _getOid(o)
+
+  // TODO Take a membership object?
+  // TODO REFACTOR/DRY
+  private static Set _membershipsToDelete(
+    GrouperSession s, Group g, Subject subj, Field f
+  ) 
+    throws  MemberDeleteException
+  {
+    GrouperSession.validate(s);
+    Set     mships  = new LinkedHashSet();
+    String  msg     = "_membershipsToDelete '" + f + "'";
+    GrouperLog.debug(LOG, s, msg);
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      // Find the immediate membership that is to be deleted
+      Membership imm = MembershipFinder.findImmediateMembership(s, g, subj, f);
+      GrouperLog.debug(LOG, s, msg + " immediate member: " + imm);
+      // Find effective memberships
+      // As many of the memberships are likely to be transient, we
+      // need to retrieve the persistent version of each before
+      // passing it along to be deleted by HibernateHelper.  
+      Session   hs    = HibernateHelper.getSession();
+      Iterator  iter  = MemberOf.doMemberOf(s, imm).iterator();
+      while (iter.hasNext()) {
+        Membership  ms  = (Membership) iter.next();
+        Membership  eff = MembershipFinder.findEffectiveMembership(
+          ms.getOwner_id(), ms.getMember().getId(), 
+          ms.getList(), ms.getVia_id(), ms.getDepth()
+        );
+        eff.setSession(s);
+        GrouperLog.debug(LOG, s, msg + " effective member: " + eff);
+        mships.add(eff);
+      }
+      mships.add(imm);
+      hs.close();
+    }
+    catch (Exception e) {
+      GrouperLog.debug(LOG, s, msg + ": " + e.getMessage());
+      throw new MemberDeleteException(e.getMessage());
     }
     return mships;
-  } // protected static List setSession(s, l)
+  } // private static Set _membershipsToDelete(s, g, subj, f)
 
-
-  // Protected Instance Methods
-
-  protected Stem getStem() 
-    throws StemNotFoundException
+  // TODO REFACTOR/DRY
+  private static Set _membershipsToDelete(
+    GrouperSession s, Stem ns, Subject subj, Field f
+  ) 
+    throws  MemberDeleteException
   {
-    // TODO Cache stem?
-    // TODO Check field
-    return StemFinder.findByUuid(this.s, this.getOwner_id());
-  } // public Stem getStem()
-
-  protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
-    this.s = s;
-  } // protected void setSession(s)
+    Set     mships  = new LinkedHashSet();
+    String  msg     = "_membershipsToDelete '" + f + "'";
+    GrouperLog.debug(LOG, s, msg);
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      // Find the immediate membership that is to be deleted
+      Membership imm = MembershipFinder.findImmediateMembership(s, ns, subj, f);
+      mships.add(imm);
+      GrouperLog.debug(LOG, s, msg + " immediate member: " + imm);
+      // Find effective memberships
+      // As many of the memberships are likely to be transient, we
+      // need to retrieve the persistent version of each before
+      // passing it along to be deleted by HibernateHelper.  
+      Session   hs    = HibernateHelper.getSession();
+      Iterator  iter  = MemberOf.doMemberOf(s, imm).iterator();
+      while (iter.hasNext()) {
+        Membership  ms  = (Membership) iter.next();
+        Membership  eff = MembershipFinder.findEffectiveMembership(
+          ms.getOwner_id(), ms.getMember().getId(), 
+          ms.getList(), ms.getVia_id(), ms.getDepth()
+        );
+        eff.setSession(s);
+        GrouperLog.debug(LOG, s, msg + " effective member: " + eff);
+        mships.add(eff);
+      }
+      hs.close();
+    }
+    catch (Exception e) {
+      GrouperLog.debug(LOG, s, msg + ": " + e.getMessage());
+      throw new MemberDeleteException(e.getMessage());
+    }
+    return mships;
+  } // private static Set _membershipsToDelete(s, ns, subj, f)
 
-
+  
   // Hibernate Accessors
 
-  private String getId() {
+  public String getId() {
     return this.id;
   }
 
@@ -358,6 +854,22 @@ public class Membership implements Serializable {
 
   private void setVia_id(String via_id) {
     this.via_id = via_id;
+  }
+
+  private Membership getParent_membership() {
+    return this.parent_membership;
+  }
+
+  private void setParent_membership(Membership parent) {
+    this.parent_membership = parent;
+  }
+
+  private Set getChild_memberships() {
+    return this.children;
+  }
+
+  private void setChild_memberships(Set children) {
+    this.children = children;
   }
 
 }

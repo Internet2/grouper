@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: GrouperSession.hbm.xml,v 1.2 2005-11-11 18:32:07 blair Exp $ -->
+<!-- $Id: GrouperSession.hbm.xml,v 1.3 2005-12-09 07:35:38 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="GrouperSession" table="grouper_sessions">
@@ -38,7 +38,6 @@ Grouper API session.
         unsaved-value="null"
     >
       <meta attribute="use-in-tostring">false</meta>
-      <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
@@ -55,7 +54,7 @@ Get member.
       </meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="member_id" sql-type="char(64)"/>
+      <column name="member_id"/>
     </many-to-one>
     <!-- member_id -->
 

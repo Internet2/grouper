@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.2 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.3 2005-12-09 07:35:38 blair Exp $
  */
 public class TestPrivSTEM extends TestCase {
 
@@ -133,12 +133,17 @@ public class TestPrivSTEM extends TestCase {
   public void testRevokeAllCreateFail() {
     LOG.info("testRevokeAllCreateFail");
     // Get root and !root sessions
+    LOG.debug("testRevokeAllCreateFail.0");
     GrouperSession  s       = SessionHelper.getRootSession();
+    LOG.debug("testRevokeAllCreateFail.1");
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
+    LOG.info("testRevokeAllCreateFail.2");
     // Now get root as !root subject 
     Stem            nrroot  = StemHelper.findRootStem(nrs);
+    LOG.debug("testRevokeAllCreateFail.3");
     // Now fail to revoke priv as !root 
     PrivHelper.revokePrivFail(nrs, nrroot, NamingPrivilege.CREATE); 
+    LOG.debug("testRevokeAllCreateFail.4");
   } // public void testRevokeCreateFail()
 
   // Revoke all CREATE with STEM 

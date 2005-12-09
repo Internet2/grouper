@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test memberOf calculations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberOf.java,v 1.2 2005-12-06 17:40:21 blair Exp $
+ * @version $Id: TestMemberOf.java,v 1.3 2005-12-09 07:35:38 blair Exp $
  */
 public class TestMemberOf extends TestCase {
 
@@ -83,7 +83,7 @@ public class TestMemberOf extends TestCase {
     LOG.info("testNoEffMshipsCustomList");
     MembershipHelper.testNumMship(i2, "members", 0, 0, 0);
     MembershipHelper.testNumMship(i2, "readers", 0, 0, 0);
-    GroupHelper.addMember(i2, subj0, "readers");
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.READ);
     MembershipHelper.testImm(s, i2, subj0, "readers");
     MembershipHelper.testNumMship(i2, "members", 0, 0, 0);
     MembershipHelper.testNumMship(i2, "readers", 1, 1, 0);
@@ -111,7 +111,7 @@ public class TestMemberOf extends TestCase {
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
     MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
-    GroupHelper.addMember(i2, subj0, "readers");
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.READ);
     MembershipHelper.testImm(s, i2, subj0, "readers");
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
@@ -148,7 +148,7 @@ public class TestMemberOf extends TestCase {
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
     MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
-    GroupHelper.addMember(uofc, i2.toSubject(), "readers");
+    PrivHelper.grantPriv(s, uofc, i2.toSubject(), AccessPrivilege.READ);
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "readers"); 
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
@@ -191,7 +191,7 @@ public class TestMemberOf extends TestCase {
     MembershipHelper.testNumMship(uofc , "members", 1, 1, 0);
     MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
-    GroupHelper.addMember(i2, subj0, "readers");
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.READ);
     MembershipHelper.testImm(s, i2   , subj0         , "readers");
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "members"); 
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
@@ -206,13 +206,13 @@ public class TestMemberOf extends TestCase {
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
     MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
-    GroupHelper.addMember(uofc, i2.toSubject(), "readers");
+    PrivHelper.grantPriv(s, uofc, i2.toSubject(), AccessPrivilege.READ);
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "readers"); 
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
     MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
-    GroupHelper.addMember(i2, subj0, "readers");
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.READ);
     MembershipHelper.testImm(s, i2   , subj0         , "readers");
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "readers"); 
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
@@ -228,7 +228,7 @@ public class TestMemberOf extends TestCase {
     GroupHelper.addMember(i2, subj0, "members");
     MembershipHelper.testNumMship(i2  , "members" , 1, 1, 0);
     MembershipHelper.testNumMship(i2  , "readers" , 0, 0, 0);
-    GroupHelper.addMember(i2, i2.toSubject(), "readers");
+    PrivHelper.grantPriv(s, i2, i2.toSubject(), AccessPrivilege.READ);
     MembershipHelper.testNumMship(i2  , "members" , 1, 1, 0);
     MembershipHelper.testNumMship(i2  , "readers" , 2, 1, 1);
   } // public void testHasMemberDefaultListIsMemberCustomListSelf()

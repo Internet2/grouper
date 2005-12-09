@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.7 2005-12-06 20:38:42 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.8 2005-12-09 07:35:38 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
@@ -123,14 +123,19 @@ public class SubjectFinder implements Serializable {
   public static Subject findById(String id, String type) 
     throws SubjectNotFoundException
   {
+    String msg = "findById '" + id + "'/'" + type + "'";
+    LOG.debug(msg);
     List subjects  = SubjectFinder._findById(
       id, MGR.getSources(SubjectTypeEnum.valueOf(type)).iterator()
     );
+    LOG.debug(msg + " found: " + subjects.size());
     if (subjects.size() == 1) {
       return (Subject) subjects.get(0);
     }
-    throw new SubjectNotFoundException("subject not found: " + id);
-  }
+    String err = msg + " subject not found";
+    LOG.debug(err);
+    throw new SubjectNotFoundException(err);
+  } // public static Subject findById(id, type)
 
   /**
    * Get a subject by a well-known identifier.
@@ -233,19 +238,23 @@ public class SubjectFinder implements Serializable {
  
   // Find subjects by id 
   private static List _findById(String id, Iterator iter) {
+    String msg = "_findById '" + id + "'";
+    LOG.debug(msg);
     Subject subj      = null;
     List    subjects  = new ArrayList();
     while (iter.hasNext()) {
-      Source sa = (Source) iter.next();
+      Source  sa    = (Source) iter.next();
+      String  _msg  = msg + " searching '" + sa.getId() + "'";
       try {
         subj = sa.getSubject(id);
-        LOG.debug("Found subject in " + sa.getId() + ": " + id);
+        LOG.debug(_msg + " found: " + subj);
         subjects.add(subj);
       }
       catch (SubjectNotFoundException e) {
-        LOG.debug("Subject not found in " + sa.getId() + ": " + id);
+        LOG.debug(_msg + " not found");
       }
     }
+    LOG.debug(msg + " found: " + subjects.size());
     return subjects;
   } // private static List _findById(id, iter) 
 

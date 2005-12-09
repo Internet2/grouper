@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.6 2005-12-06 18:48:22 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.7 2005-12-09 07:35:38 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -222,20 +222,26 @@ public class GrouperSession implements Serializable {
 
   // Protected Static Methods
   protected static void validate(GrouperSession s) {
-    if (s == null) {
-      throw new RuntimeException("null session");
+    try {
+      if (s == null) {
+        throw new RuntimeException("null session object");
+      }
+      if (s.id == null) {
+        throw new RuntimeException("null session identity");
+      }
+      if (s.member_id == null) {
+        throw new RuntimeException("null session member");
+      }
+      if (s.session_id == null) {
+        throw new RuntimeException("null session id");
+      }
+      if (s.start_time == null) {
+        throw new RuntimeException("null session start time");
+      }
     }
-    if (s.id == null) {
-      throw new RuntimeException("null session");
-    }
-    if (s.member_id == null) {
-      throw new RuntimeException("null session member");
-    }
-    if (s.session_id == null) {
-      throw new RuntimeException("null session id");
-    }
-    if (s.start_time == null) {
-      throw new RuntimeException("null session start time");
+    catch (RuntimeException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e.getMessage());
     }
   } // protected static void validate(s)
 

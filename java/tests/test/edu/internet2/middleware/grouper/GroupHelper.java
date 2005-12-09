@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.13 2005-12-06 19:42:19 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.14 2005-12-09 07:35:38 blair Exp $
  */
 public class GroupHelper {
 
@@ -194,11 +194,11 @@ public class GroupHelper {
     }
     catch (GroupDeleteException eGD) {
       LOG.debug("delete.3");
-      Assert.fail("failed to delete group: " + eGD.getMessage());
+      Assert.fail(eGD.getMessage());
     }
     catch (InsufficientPrivilegeException eIP) {
-      LOG.debug("delete.4");
-      Assert.fail("failed to delete group: " + eIP.getMessage());
+      LOG.debug("delete.4: " + eIP.getMessage());
+      Assert.fail(eIP.getMessage());
     }
   } // protected static void delete(s, g, name)
 

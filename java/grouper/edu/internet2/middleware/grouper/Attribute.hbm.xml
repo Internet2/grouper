@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Attribute.hbm.xml,v 1.3 2005-12-01 03:12:24 blair Exp $ -->
+<!-- $Id: Attribute.hbm.xml,v 1.4 2005-12-09 07:35:38 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Attribute" table="grouper_attributes">
@@ -38,10 +38,10 @@ A group attribute within the Groups registry.
         unsaved-value="null"
     >
       <meta attribute="use-in-tostring">false</meta>
-      <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
+    <version name="version" column="version"/>
 
 
     <!-- group_id -->
@@ -51,7 +51,6 @@ A group attribute within the Groups registry.
       not-null="true"
     >
       <column name="group_id"
-              sql-type="char(64)" 
               unique-key="group_field_idx"
       />
     </many-to-one>

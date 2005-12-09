@@ -27,7 +27,7 @@ import  net.sf.hibernate.type.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.7 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: StemFinder.java,v 1.8 2005-12-09 07:35:38 blair Exp $
  */
 public class StemFinder {
 
@@ -241,7 +241,7 @@ public class StemFinder {
         "error finding stem: " + eH.getMessage()
       );  
     }
-  } // protected static Stem findByUuid(s, uuid)
+  } // protected static Stem findByUuid(uuid)
 
   // TODO Is this the right location for this method?
   // TODO Would a top-down rather than bottom-up approach work better?

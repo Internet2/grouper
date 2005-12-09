@@ -17,21 +17,156 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.9 2005-12-06 17:40:21 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.10 2005-12-09 07:35:38 blair Exp $
  */
 public class MembershipHelper {
 
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(MembershipHelper.class);
+
+
   // Protected Class Methods
+
+  protected static Membership getEff(
+    GrouperSession s, Group g, Subject subj, String list, int depth, Group via
+  )
+  {
+    String msg = "getEff: ";
+    LOG.debug(msg);
+    try {
+      Field       f   = FieldFinder.find(list);
+      Member      m   = MemberFinder.findBySubject(s, subj);
+      Membership  ms  = MembershipFinder.findEffectiveMembership(
+        s, g, subj, f, via, depth
+      );
+      Assert.assertNotNull(msg + "found ms", ms);
+      Assert.assertTrue(msg + "ms group   " , ms.getGroup().equals(g) );
+      Assert.assertTrue(msg + "ms member"   , ms.getMember().equals(m));
+      Assert.assertTrue(msg + "ms list"     , ms.getList().equals(f)  );
+      Assert.assertTrue(msg + "ms depth"    , ms.getDepth() == depth  );
+      try {
+        Group v = ms.getViaGroup();
+        Assert.assertTrue(msg + "ms via group", v.equals(via));
+      }
+      catch (GroupNotFoundException eGNF) {
+        Assert.fail(msg + "eff ms has no via group");
+      }
+      return ms;
+    }
+    catch (Exception e) {
+      Assert.fail("eff mship not found: " + e.getMessage());
+    }
+    throw new RuntimeException("eff mship not found");
+  } // protected static Membership getImm(s, g, subj, list, depth, via)
+
+  protected static Membership getImm(
+    GrouperSession s, Group g, Subject subj, String list
+  )
+  {
+    String msg = "getImm ";
+    try {
+      Field       f   = FieldFinder.find(list);
+      Member      m   = MemberFinder.findBySubject(s, subj);
+      Membership  ms  = MembershipFinder.findImmediateMembership(
+        s, g, subj, f
+      );
+      Assert.assertNotNull(msg + "found ms", ms);
+      Assert.assertTrue(msg + "ms group   " , ms.getGroup().equals(g) );
+      Assert.assertTrue(msg + "ms member"   , ms.getMember().equals(m));
+      Assert.assertTrue(msg + "ms list"     , ms.getList().equals(f)  );
+      Assert.assertTrue(msg + "ms depth"    , ms.getDepth() == 0      );
+      try {
+        Group via = ms.getViaGroup();
+        Assert.fail(msg + "imm ms has via group");
+      }
+      catch (GroupNotFoundException eGNF) {
+        Assert.assertTrue(msg + "imm ms has no via group", true);
+      }
+      return ms;
+    }
+    catch (Exception e) {
+      Assert.fail("imm mship not found: " + e.getMessage());
+    }
+    throw new RuntimeException("imm mship not found");
+  } // protected static Membership getImm(s, g, subj, list)
+
+  protected static void testChildren(Membership parent, Set children) {
+    try {
+      Set got = parent.getChildMemberships();
+      Assert.assertTrue(
+        "children == " + got.size() + " (exp " + children.size() + ")",
+        children.size() == got.size()
+      );
+      Iterator iterA = children.iterator();
+      while (iterA.hasNext()) {
+        Membership child = (Membership) iterA.next();
+        if (got.contains(child)) {
+          Assert.assertTrue("found child: " + child, true);
+        }
+        else {
+        } 
+      }
+      Iterator iterB = got.iterator();
+      while (iterB.hasNext()) {
+        Membership child = (Membership) iterB.next();
+        try {
+          Assert.assertTrue(
+            child + " parent", child.getParentMembership().equals(parent)
+          );
+        }
+        catch (Exception e) {
+          Assert.fail(child + " parent: " + e.getMessage());
+        } 
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("testChildren: " + e.getMessage());
+    }
+  } // protected static void testChildren(parent, children)
+
+  protected static void testParent(Membership parent, Membership child) {
+    try {
+      Membership ms = child.getParentMembership();
+      Assert.assertTrue("got parent ms", true);
+      Assert.assertNotNull("parent ms !null", ms);
+      Assert.assertTrue(
+        "parent instanceof Membership", ms instanceof Membership
+      );
+      Assert.assertTrue("right parent", parent.equals(ms));
+    }
+    catch (Exception e) {
+      Assert.fail("testParent: " + e.getMessage());
+    }
+  } // protected static void testParent(parent, child)
+
+  protected static void testNoParent(Membership ms) {
+    try {
+      Membership parent = ms.getParentMembership();
+      Assert.fail(ms + " has parent mship: " + parent);
+    }
+    catch (MembershipNotFoundException eMNF) {
+      Assert.assertTrue("no parent mship", true);
+    }
+  } // protected static void testNoParent(ms)
+
+  protected static void testNoChildren(Membership ms) {
+    Assert.assertTrue(
+      ms + " has no children mships", ms.getChildMemberships().size() == 0
+    );
+  } // protected static void testNoChildren(ms)
 
   protected static void testImm(
     GrouperSession s, Group g, Subject subj, String list
@@ -47,21 +182,7 @@ public class MembershipHelper {
       Assert.assertTrue(msg + "g hasImmMember", g.hasImmediateMember(subj, f));
       Assert.assertTrue(msg + "m isMember"    , m.isMember(g, f));
       Assert.assertTrue(msg + "m isImmMember" , m.isImmediateMember(g, f));
-      Membership ms = MembershipFinder.findImmediateMembership(
-        s, g, subj, f
-      );
-      Assert.assertNotNull(msg + "found ms", ms);
-      Assert.assertTrue(msg + "ms group   " , ms.getGroup().equals(g) );
-      Assert.assertTrue(msg + "ms member"   , ms.getMember().equals(m));
-      Assert.assertTrue(msg + "ms list"     , ms.getList().equals(f)  );
-      Assert.assertTrue(msg + "ms depth"    , ms.getDepth() == 0      );
-      try {
-        Group via = ms.getViaGroup();
-        Assert.fail(msg + "imm ms has via group");
-      }
-      catch (GroupNotFoundException eGNF) {
-        Assert.assertTrue(msg + "imm ms has no via group", true);
-      }
+      Membership ms = getImm(s, g, subj, list);
     }
     catch (Exception e) {
       Assert.fail(msg + e.getMessage());
@@ -83,21 +204,7 @@ public class MembershipHelper {
       Assert.assertTrue(msg + "g hasEffMember", g.hasEffectiveMember(subj, f));
       Assert.assertTrue(msg + "m isMember"    , m.isMember(g, f));
       Assert.assertTrue(msg + "m isEffMember" , m.isEffectiveMember(g, f));
-      Membership ms = MembershipFinder.findEffectiveMembership(
-        s, g, subj, f, via, depth
-      );
-      Assert.assertNotNull(msg + "found ms", ms);
-      Assert.assertTrue(msg + "ms group   " , ms.getGroup().equals(g) );
-      Assert.assertTrue(msg + "ms member"   , ms.getMember().equals(m));
-      Assert.assertTrue(msg + "ms list"     , ms.getList().equals(f)  );
-      Assert.assertTrue(msg + "ms depth"    , ms.getDepth() == depth  );
-      try {
-        Group v = ms.getViaGroup();
-        Assert.assertTrue(msg + "ms via group", v.equals(via));
-      }
-      catch (GroupNotFoundException eGNF) {
-        Assert.fail(msg + "eff ms has no via group");
-      }
+      Membership ms = getEff(s, g, subj, list, depth, via);
     }
     catch (Exception e) {
       Assert.fail(msg + e.getMessage());

@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.6 2005-12-06 18:11:56 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.7 2005-12-09 07:35:38 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -106,8 +106,8 @@ public class GrouperSubject implements Subject {
     ) 
     {
       this.attrs.put(attr, value);
-      GrouperLog.debug(
-        LOG, this.name, "attached attribute: '" + attr + "' = '" + value + "'"
+      LOG.debug(
+        "[" + this.name + "] attached attribute: '" + attr + "' = '" + value + "'"
       );
     }
   } // private void _addAttr(attr, value)
@@ -145,7 +145,7 @@ public class GrouperSubject implements Subject {
       String key = (String) iter.next();
       this._addAttr(key, (String) attrs.get(key));
     }
-    GrouperLog.debug(LOG, this.name, "attached attributes: " + this.attrs.size());
+    LOG.debug("[" + this.name + "] attached attributes: " + this.attrs.size());
   } // private void _addAttrs(g)
 }
 

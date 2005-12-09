@@ -3,49 +3,35 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.101 2005-12-06 18:48:22 blair Exp $
+$Id: ROADMAP,v 1.102 2005-12-09 07:35:38 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Implement remaining unimplemented methods
 * Rename subjectIDs in local subject<=>member mapping (#133)
 * Update Subject API jar
 * normalize source adapter id + name conventions
-* Add "base" group type
-  * Map _GroupType_
-  * many-to-many mapping between _Field_ and _GroupType_
 * wheel group
 * ALL toggle switches 
-* Review files and add TODO items to this list
-* What triggers a "modified" update?
-  * possibly make configurable to avoid bikeshedding?
-* Refactor membership adding and removing into _Membership_.  There is
-  too much duplicated and inconsistent code right now.
-  * _Group_
-  * _GrouperAccessAdapter_
-  * _GrouperNamingAdapter_
-
-## Later - pre-code freeze
-* Finish refactoring _MembershipFinder_ to apply READ filtering
+* Finish refactoring _MembershipFinder_ to apply READ + VIEW filtering
 * Profiling and benchmarking
   * Areas that probably need tweaking
     * Privilege cache(s)
     * Subject cache(s)
     * Attribute cache
     * List cache
+* Review files and add TODO items to this list
 * Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
+
+## Later - pre-code freeze
 * Review generated SQL
   * Including my twisty column names
   * Add 
     * create member + time to memberships 
     * factor type
     * status + ttl?
-  * Remove column size constraints on ids and uuids
-* Configurable options for logging adding/granting/deleting/revoking
-  immediate and effective memberships and privs
 * Test
   * Review old _*.todo_ test classes (and then remove)
   * Test concurrence and persistence  
@@ -59,6 +45,11 @@ $Id: ROADMAP,v 1.101 2005-12-06 18:48:22 blair Exp $
     * Naming privs
     * Access privs
   * _AccessPrivilege_ and _NamingPrivilege_ objects
+* Configurability
+  * Configurable options for logging adding/granting/deleting/revoking
+    immediate and effective memberships and privs
+  * What triggers a "modified" update?
+    * possibly make configurable to avoid bikeshedding?
 * Review thrown exceptions, especially runtime exceptions
 * General code review
 
