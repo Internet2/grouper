@@ -17,9 +17,11 @@
 
 package test.edu.internet2.middleware.grouper;
 
+import  edu.internet2.middleware.grouper.*;
 import  java.io.*;
 import  java.sql.*;
 import  java.util.*;
+
 
 /**
  * Refresh the Groups Registry database and schema.
@@ -28,7 +30,7 @@ import  java.util.*;
  * DbUnit did earlier.  Oh well.
  * </p>
  * @author  blair christensen.
- * @version $Id: Db.java,v 1.8 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: Db.java,v 1.9 2005-12-09 20:40:44 blair Exp $
  */
 class Db {
 

@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.9 2005-12-09 07:35:38 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.10 2005-12-09 20:40:44 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -42,7 +42,7 @@ public class RegistryInstall {
   public static void main(String[] args) {
     // Install group types, fields and privileges
     _installFieldsAndTypes();
-    _installRootStem();
+    _installGroupsAndStems();
   } // public static void main(args)
 
 
@@ -179,22 +179,26 @@ public class RegistryInstall {
     }
   } // private static void _installFieldsAndTypes()
 
-  private static void _installRootStem() {
+  private static void _installGroupsAndStems() {
     try {
       GrouperSession s = GrouperSession.startSession(
         SubjectFinder.findById(
           "GrouperSystem", "application"
         )
       );
-      Stem.addRootStem(s);
+      Stem  root    = Stem.addRootStem(s);
       LOG.info("root stem installed");
+      Stem  grouper = root.addChildStem("grouper", "grouper");
+      LOG.info("installed grouper stem: " + grouper.getName());
+      Group wheel   = grouper.addChildGroup("wheel", "wheel");
+      LOG.info("install wheel group: " + wheel.getName());
     }
     catch (Exception e) { 
-      String err = "error installing root stem: " + e.getMessage();
+      String err = "error installing stems and groups: " + e.getMessage();
       LOG.fatal(err);
       throw new RuntimeException(err);
     }
-  } // private static void _installRootStem()
+  } // private static void _installGroupsAndStems()
 
 }
 
