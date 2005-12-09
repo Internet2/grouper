@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.52 2005-12-09 22:26:33 acohen Exp $
-  $Date: 2005-12-09 22:26:33 $
+  $Id: Common.java,v 1.53 2005-12-09 23:42:15 acohen Exp $
+  $Date: 2005-12-09 23:42:15 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -192,8 +192,12 @@ public class Common
     StringBuffer description = new StringBuffer();
 
     // Include the simple "!=" test to account for two null Date values.
+    // I found an interesting bug: newer.equals(older) always works fine,
+    // but older.equals(newer) sometimes returned a false negative, because
+    // the "older" value was a JDBC-vendor-specific subclass of Date
+    // which didn't like comparing to a plain old Date.
     if ((older != newer)
-        && ((older == null) || (newer == null) || !older.equals(newer)))
+        && ((older == null) || (newer == null) || !newer.equals(older)))
     {
       description.append("<p>\n");
       description.append("  <span class=\"status\">\n");
