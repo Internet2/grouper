@@ -108,11 +108,9 @@
 			not-null="true"/>
 		<property
 			name="effectiveDate"
-			type="timestamp"
 			not-null="true"/>
 		<property
 			name="expirationDate"
-			type="timestamp"
 			not-null="false"/>
 		<property
 			name="historyDatetime"

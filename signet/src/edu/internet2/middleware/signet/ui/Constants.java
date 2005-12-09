@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.19 2005-12-06 22:34:51 acohen Exp $
-$Date: 2005-12-06 22:34:51 $
+$Id: Constants.java,v 1.20 2005-12-09 19:16:04 acohen Exp $
+$Date: 2005-12-09 19:16:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -136,6 +136,7 @@ public final class Constants
   
   public static final String DATETIME_FORMAT_24_SECOND = "dd-MMM-yyyy kk:mm:ss";
   public static final String DATETIME_FORMAT_12_MINUTE = "MMM d, yyyy hh:mmaa";
+  public static final String DATETIME_FORMAT_24_DAY = "MMM d, yyyy";
   
   public static final Subsystem WILDCARD_SUBSYSTEM
     = new Subsystem()

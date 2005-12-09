@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.50 2005-12-07 21:51:30 acohen Exp $
-  $Date: 2005-12-07 21:51:30 $
+  $Id: Common.java,v 1.51 2005-12-09 19:16:04 acohen Exp $
+  $Date: 2005-12-09 19:16:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -148,7 +148,7 @@ public class Common
     (AssignmentHistory[]  historyArray,
      int                  historyIndex)
   {
-    String changeStr = null;
+    StringBuffer changeStr = new StringBuffer();
     AssignmentHistory newerHistoryRecord = historyArray[historyIndex];
     AssignmentHistory olderHistoryRecord = null;
     
@@ -157,40 +157,141 @@ public class Common
       olderHistoryRecord = historyArray[historyIndex + 1];
     }
 
-    String editorDescription = describeEditor(newerHistoryRecord);
+    StringBuffer editorDescription = describeEditor(newerHistoryRecord);
     
     Difference diff = diff(newerHistoryRecord, olderHistoryRecord);
     
     if (diff.equals(Difference.GRANT))
     {
-      changeStr = "Granted by " + editorDescription;
+      changeStr.append("Granted by ");
+      changeStr.append(editorDescription);
     }
     else if (diff.equals(Difference.REVOKE))
     {
-      changeStr = "Revoked by " + editorDescription;
+      changeStr.append("Revoked by ");
+      changeStr.append(editorDescription);
     }
     else
     {
-      changeStr = "Modified by " + editorDescription;
+      changeStr.append("Modified by ");
+      changeStr.append(editorDescription);
+      changeStr.append
+        (describeModifications(newerHistoryRecord, olderHistoryRecord));
     }
     
-    return changeStr;
+    return changeStr.toString();
   }
   
-  private static String describeEditor(History history)
+  private static StringBuffer describeDateChange
+    (String label,
+     String timeWord,
+     String nullDescription,
+     Date   newer,
+     Date   older)
   {
-    String description;
+    StringBuffer description = new StringBuffer();
+
+    // Include the simple "!=" test to account for two null Date values.
+    if ((older != newer)
+        && ((older == null) || (newer == null) || !older.equals(newer)))
+    {
+      description.append("<p>\n");
+      description.append("  <span class=\"status\">\n");
+      description.append("    changed\n");
+      description.append("  </span>\n");
+      description.append("  <span class=\"label\">\n");
+      description.append(     label);
+      description.append(     " from\n");
+      description.append("  </span>\n");
+      description.append(     "'");
+      description.append(     timeWord);
+      description.append(     " ");
+      description.append(     older == null
+                                ? nullDescription
+                                : displayDatetime
+                                    (Constants.DATETIME_FORMAT_24_DAY,
+                                     older));
+      description.append(     "'\n");
+      description.append("  <span class=\"label\">\n");
+      description.append("    to\n");
+      description.append("  </span>\n");
+      description.append(     "'");
+      description.append(     timeWord);
+      description.append(     " ");
+      description.append(     newer == null
+                                ? nullDescription
+                                : displayDatetime
+                                    (Constants.DATETIME_FORMAT_24_DAY,
+                                     newer));
+      description.append(     "'\n");
+      description.append("</p>\n");
+    }
+    
+    return description;
+  }
+  
+  private static StringBuffer describeModifications
+    (AssignmentHistory newer,
+     AssignmentHistory older)
+  {
+    StringBuffer description = new StringBuffer();
+    description.append
+      (describeDateChange
+        ("Effective Date",
+         "",
+         "immediate",
+         newer.getEffectiveDate(),
+         older.getEffectiveDate()));
+    description.append
+      (describeDateChange
+        ("Duration",
+         "until",
+         "revoked",
+         newer.getExpirationDate(),
+         older.getExpirationDate()));
+//    description.append
+//      (describeLimitChanges
+//        (newer.getLimitValues(), older.getLimitValues()));
+    
+    return description;
+  }
+  
+  private static StringBuffer describeModifications
+    (ProxyHistory newer,
+     ProxyHistory older)
+  {
+    StringBuffer description = new StringBuffer();
+    description.append
+      (describeDateChange
+        ("Effective Date",
+         "",
+         "immediate",
+         newer.getEffectiveDate(),
+         older.getEffectiveDate()));
+    description.append
+      (describeDateChange
+        ("Duration",
+         "until",
+         "revoked",
+         newer.getExpirationDate(),
+         older.getExpirationDate()));
+    
+    return description;
+  }
+  
+  private static StringBuffer describeEditor(History history)
+  {
+    StringBuffer description = new StringBuffer();
     
     if (history.getProxySubject() == null)
     {
-      description = history.getGrantor().getName();
+      description.append(history.getGrantor().getName());
     }
     else
     {
-      description
-        = history.getProxySubject().getName()
-          + ", acting as "
-          + history.getGrantor().getName();
+      description.append(history.getProxySubject().getName());
+      description.append(", acting as ");
+      description.append(history.getGrantor().getName());
     }
     
     return description;
@@ -200,7 +301,7 @@ public class Common
     (ProxyHistory[]  historyArray,
      int             historyIndex)
   {
-    String changeStr = null;
+    StringBuffer changeStr = new StringBuffer();
     ProxyHistory newerHistoryRecord = historyArray[historyIndex];
     ProxyHistory olderHistoryRecord = null;
     
@@ -209,24 +310,29 @@ public class Common
       olderHistoryRecord = historyArray[historyIndex + 1];
     }
     
-    String editorDescription = describeEditor(newerHistoryRecord);
+    StringBuffer editorDescription = describeEditor(newerHistoryRecord);
     
     Difference diff = diff(newerHistoryRecord, olderHistoryRecord);
     
     if (diff.equals(Difference.GRANT))
     {
-      changeStr = "Granted by " + editorDescription;
+      changeStr.append("Granted by ");
+      changeStr.append(editorDescription);
     }
     else if (diff.equals(Difference.REVOKE))
     {
-      changeStr = "Revoked by " + editorDescription;
+      changeStr.append("Revoked by ");
+      changeStr.append(editorDescription);
     }
     else
     {
-      changeStr = "Modified by " + editorDescription;
+      changeStr.append("Modified by ");
+      changeStr.append(editorDescription);
+      changeStr.append
+        (describeModifications(newerHistoryRecord, olderHistoryRecord));
     }
     
-    return changeStr;
+    return changeStr.toString();
   }
   
   static private Difference diff

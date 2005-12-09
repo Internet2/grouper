@@ -1,6 +1,6 @@
 /*--
- $Id: History.java,v 1.5 2005-12-06 22:34:51 acohen Exp $
- $Date: 2005-12-06 22:34:51 $
+ $Id: History.java,v 1.6 2005-12-09 19:16:04 acohen Exp $
+ $Date: 2005-12-09 19:16:04 $
 
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -87,6 +87,13 @@ public interface History
    * @return the effective-date associated with this historical record.
    */
   public Date getEffectiveDate();
+
+  /**
+   * Returns the expiration-date associated with this historical record.
+   * 
+   * @return the expiration-date associated with this historical record.
+   */
+  public Date getExpirationDate();
   
   /**
    * Returns the date and time this historical event occurred.
