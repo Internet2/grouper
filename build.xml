@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.67 2005-12-09 07:35:38 blair Exp $ -->
+<!-- $Id: build.xml,v 1.68 2005-12-09 21:40:29 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -230,7 +230,7 @@
           failonerror="true"
     >
       <arg    value="test.edu.internet2.middleware.grouper.${test}"/>
-      <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=4"/>
+      <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=15"/>
       <classpath refid="project.classpath"/>
     </java>
   </target>
