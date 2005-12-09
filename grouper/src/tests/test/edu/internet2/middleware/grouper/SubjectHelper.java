@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.7 2005-12-06 20:38:43 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.8 2005-12-09 21:26:01 blair Exp $
  */
 public class SubjectHelper {
 
@@ -66,6 +66,19 @@ public class SubjectHelper {
 
 
   // Protected Class Methods
+
+  protected static boolean eq(Subject a, Subject b) {
+    if 
+    ( 
+      a.getId().equals(b.getId())
+      && a.getType().equals(b.getType())
+      && a.getSource().equals(b.getSource())
+    )
+    {
+      return true;
+    }
+    return false;
+  } // protected static boolean eq(a, b)
 
   // Don't get a subject by bad id
   protected static void getSubjectByBadId(String id) { 

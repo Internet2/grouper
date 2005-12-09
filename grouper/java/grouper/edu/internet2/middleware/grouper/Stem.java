@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.32 2005-12-09 20:40:44 blair Exp $
+ * @version $Id: Stem.java,v 1.33 2005-12-09 21:26:01 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -112,7 +112,6 @@ public class Stem implements Serializable {
             InsufficientPrivilegeException
   {
     PrivilegeResolver.getInstance().canCREATE(
-      //GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
       this.s, this, this.s.getSubject()
     );
     if (this.equals(StemFinder.findRootStem(this.s))) {
@@ -145,30 +144,7 @@ public class Stem implements Serializable {
       objects.add(child);
       objects.add(this);
       HibernateHelper.save(objects);
-      //HibernateHelper.save(this);
-      try {
-        // Now grant ADMIN (as root) to the creator of the child group.
-        //
-        // Ideally this would be wrapped up in the broader transaction
-        // of adding the child stem but as the interfaces may be
-        // outside of our control, I don't think we can do that.  
-        //
-        // TODO Unfortunately this sets the modify* attrs
-        child.setSession(GrouperSessionFinder.getRootSession());
-        PrivilegeResolver.getInstance().grantPriv(
-          GrouperSessionFinder.getRootSession(), child, 
-          s.getSubject(), AccessPrivilege.ADMIN
-        );
-        child.setSession(this.s);
-      }
-      catch (Exception e) {
-        throw new GroupAddException(
-          "group created but unable to grant ADMIN to creator: " + e.getMessage()
-        );
-      }
-
-
-      return child;
+      return _grantDefaultPrivsUponCreate(child);
     }
     catch (Exception e) {
       throw new GroupAddException(
@@ -200,7 +176,8 @@ public class Stem implements Serializable {
             StemAddException 
   {
     PrivilegeResolver.getInstance().canSTEM(
-      GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
+      //GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
+      this.s, this, this.s.getSubject()
     );
     try {
       Stem ns = StemFinder.findByName(
@@ -231,25 +208,7 @@ public class Stem implements Serializable {
     this.setChild_stems(children);
     try {
       HibernateHelper.save(this);
-      try {
-        // Now grant STEM (as root) to the creator on the child stem.
-        //
-        // Ideally this would be wrapped up in the broader transaction
-        // of adding the child stem but as the interfaces may be
-        // outside of our control, I don't think we can do that.  
-        //
-        // TODO Unfortunately this sets the modify* attrs
-        PrivilegeResolver.getInstance().grantPriv(
-          GrouperSessionFinder.getRootSession(), child, 
-          s.getSubject(), NamingPrivilege.STEM
-        );
-      }
-      catch (Exception e) {
-        throw new StemAddException(
-          "stem created but unable to grant STEM to creator: " + e.getMessage()
-        );
-      }
-      return child;
+      return _grantDefaultPrivsUponCreate(child);
     }
     catch (HibernateException eH) {
       throw new StemAddException(
@@ -853,6 +812,62 @@ public class Stem implements Serializable {
 
 
   // Private Instance Methods
+  private Group _grantDefaultPrivsUponCreate(Group g)
+    throws  GroupAddException
+  {
+    // Now grant ADMIN (as root) to the creator of the child group.
+    //
+    // Ideally this would be wrapped up in the broader transaction
+    // of adding the child stem but as the interfaces may be
+    // outside of our control, I don't think we can do that.  
+    //
+    // TODO Unfortunately this sets the modify* attrs
+    try {
+      GrouperSession  orig  = this.s;
+      GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+      g.setSession(root);
+      PrivilegeResolver.getInstance().grantPriv(
+        root, g, orig.getSubject(), AccessPrivilege.ADMIN
+      );
+      g.setSession(orig);
+      root.stop();
+      return g;
+    }
+    catch (Exception e) {
+      throw new GroupAddException(
+        "group created but unable to grant ADMIN to creator: " + e.getMessage()
+      );
+    }
+  } // private Group _grantDefaultPrivsUponCreate(g)
+
+  private Stem _grantDefaultPrivsUponCreate(Stem ns)
+    throws  StemAddException
+  {
+    // Now grant STEM (as root) to the creator of the child stem.
+    //
+    // Ideally this would be wrapped up in the broader transaction
+    // of adding the child stem but as the interfaces may be
+    // outside of our control, I don't think we can do that.  
+    //
+    // TODO Unfortunately this sets the modify* attrs
+    try {
+      GrouperSession  orig  = this.s;
+      GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+      ns.setSession(root);
+      PrivilegeResolver.getInstance().grantPriv(
+        root, ns, orig.getSubject(), NamingPrivilege.STEM
+      );
+      ns.setSession(orig);
+      root.stop();
+      return ns;
+    }
+    catch (Exception e) {
+      throw new StemAddException(
+        "stem created but unable to grant STEM to creator: " + e.getMessage()
+      );
+    }
+  } // private void _grantDefaultPrivsUponCreate(ns)
+
   private void _setCreated() {
     this.setCreator_id( s.getMember()         );
     this.setCreate_time( new Date().getTime() );
