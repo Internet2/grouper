@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.35 2005-12-10 22:31:36 blair Exp $
+ * @version $Id: Stem.java,v 1.36 2005-12-10 23:09:05 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -137,7 +137,12 @@ public class Stem implements Serializable {
     catch (GroupNotFoundException eGNF) {
       // Ignore.  This is what we want.
     }
-
+    try {
+      _initializeChildGroups(this);
+    }
+    catch (HibernateException eH) {
+      throw new GroupAddException(eH.getMessage());
+    }
     try {
       Group child = new Group(this.s, this, extension, displayExtension);
       // Set parent
@@ -198,24 +203,32 @@ public class Stem implements Serializable {
       // Ignore.  This is what we want.
     }
 
-    Stem child = new Stem(this.s);
-
-    // Set naming attributes
-    child.setStem_extension(extension);
-    child.setDisplay_extension(displayExtension);
-    child.setStem_name( 
-      constructName(this.getName(), extension)
-    );
-    child.setDisplay_name( 
-      constructName(this.getDisplayName(), displayExtension)
-    );
-    // Set parent
-    child.setParent_stem(this);
-    // Add to children 
-    Set children  = this.getChild_stems();
-    children.add(child);
-    this.setChild_stems(children);
     try {
+      _initializeChildStems(this);
+    }
+    catch (HibernateException eH) {
+      throw new StemAddException(eH.getMessage());
+    }
+
+    try {
+      Stem child = new Stem(this.s);
+
+      // Set naming attributes
+      child.setStem_extension(extension);
+      child.setDisplay_extension(displayExtension);
+      child.setStem_name( 
+        constructName(this.getName(), extension)
+      );
+      child.setDisplay_name( 
+        constructName(this.getDisplayName(), displayExtension)
+      );
+      // Set parent
+      child.setParent_stem(this);
+      // Add to children 
+      Set children  = this.getChild_stems();
+      children.add(child);
+      this.setChild_stems(children);
+      // Now commit to registry
       HibernateHelper.save(this);
       return _grantDefaultPrivsUponCreate(child);
     }
@@ -251,25 +264,32 @@ public class Stem implements Serializable {
    * @return  Set of {@link Group} objects
    */
   public Set getChildGroups() {
-    Set       children  = new LinkedHashSet();
-    Iterator  iter      = this.getChild_groups().iterator();
-    // Perform check as root
-    GrouperSession root = GrouperSessionFinder.getTransientRootSession();
-    while (iter.hasNext()) {
-      Group child = (Group) iter.next();
-      child.setSession(root);
-      try {
-        PrivilegeResolver.getInstance().canVIEW(
-          root, child, s.getSubject()
-        );
-        child.setSession(this.s);
-        children.add(child);
+    GrouperSession.validate(this.s);
+    Set children  = new LinkedHashSet();
+    try {
+      _initializeChildGroups(this);
+      Iterator iter = this.getChild_groups().iterator();
+      // Perform check as root
+      GrouperSession root = GrouperSessionFinder.getTransientRootSession();
+      while (iter.hasNext()) {
+        Group child = (Group) iter.next();
+        child.setSession(root);
+        try {
+          PrivilegeResolver.getInstance().canVIEW(
+            root, child, s.getSubject()
+          );
+          child.setSession(this.s);
+          children.add(child);
+        }
+        catch (InsufficientPrivilegeException eIP) {
+          // ignore
+        }
       }
-      catch (InsufficientPrivilegeException eIP) {
-        // ignore
-      }
+      root.stop();
     }
-    root.stop();
+    catch (HibernateException eH) {
+      LOG.error(eH.getMessage());
+    }
     return children;
   } // public Set getChildGroups()
 
@@ -825,6 +845,30 @@ public class Stem implements Serializable {
     this.s = s;
   } // protected void setSession(s)
 
+
+  // Private Class Methods
+
+  // The child_groups collection has a lazy association so we need to
+  // manually initialize it where needed.
+  private static void _initializeChildGroups(Stem ns) 
+    throws  HibernateException
+  {
+    Session hs = HibernateHelper.getSession();
+    hs.load(ns, ns.getId());
+    Hibernate.initialize( ns.getChild_groups() ); 
+    hs.close();
+  } // private void Stem _initializeChildGroups()
+
+  // The child_stems collection has a lazy association so we need to
+  // manually initialize it where needed.
+  private static void _initializeChildStems(Stem ns) 
+    throws  HibernateException
+  {
+    Session hs = HibernateHelper.getSession();
+    hs.load(ns, ns.getId());
+    Hibernate.initialize( ns.getChild_stems() ); 
+    hs.close();
+  } // private void _initializeChildStems()
 
   // Private Instance Methods
   private Group _grantDefaultPrivsUponCreate(Group g)

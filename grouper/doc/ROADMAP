@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.109 2005-12-10 22:31:36 blair Exp $
+$Id: ROADMAP,v 1.110 2005-12-10 23:09:05 blair Exp $
 
 ---
 
@@ -15,14 +15,12 @@ $Id: ROADMAP,v 1.109 2005-12-10 22:31:36 blair Exp $
   * GrouperSession: throw SessionException, !RTE
   * GrouperSession: getSubject() should throw SNFE
   * GrouperSession: rename startSession() to start()
-* Stem: make child_groups mapping lazy
 * Profiling
 * DDL
   * Column names
   * Membership: Add create member, create time and status
   * Factors: DDL and how will they **actually** work
 * _AccessPrivilege_ and _NamingPrivilege_ objects
-* Stem: make child_stems mapping lazyA
 * Replace contrib items with updated cdg
 
 ## Incomplete (Desired)
@@ -161,6 +159,7 @@ $Id: ROADMAP,v 1.109 2005-12-10 22:31:36 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 
