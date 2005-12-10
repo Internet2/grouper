@@ -3,93 +3,129 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.105 2005-12-09 20:40:44 blair Exp $
+$Id: ROADMAP,v 1.106 2005-12-10 02:50:36 blair Exp $
 
 ---
 
 # Grouper 0.9
 
-## Next Actions
-* ALL toggle switches 
-* Finish refactoring _MembershipFinder_ to apply READ + VIEW filtering
-* Profiling and benchmarking
-  * Areas that probably need tweaking
-    * Privilege cache(s)
-    * Subject cache(s)
-    * Attribute cache
-    * List cache
-  * Lazy + batch collection fetching
-* Review files and add TODO items to this list
+## Incomplete 
+* Stem: ALL toggle switches
+* MembershipFinder: filtering, session attachment and DRY of EVERYTHING
+* Membership: filter getChildMemberships()
+* Stem: filter getChildGroups()
+* Stem: update name and displayName of child stems and groups
+* thrown RTEs
+* Profiling
+* DDL
+  * Column names
+  * Membership: Add create member, create time and status
+  * Factors: DDL and how will they **actually** work
+* _AccessPrivilege_ and _NamingPrivilege_ objects
+
+## Incomplete (Desired)
+* PrivilegeFinder: remove
+* Group: toMember() is public
+* Privilege: getInstance() is public
+* GrouperSession: throw SessionException, !RTE
+* GrouperSession: getSubject() should throw SNFE
+* GrouperSession: rename startSession() to start()
+* GrouperAttribute: attribute methods should throw ANFE + SE
+* Rename access + naming interface properties
 * Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
-* Review generated SQL
-  * Including my twisty column names
-  * Add 
-    * create member + time to memberships 
-    * factor type
-    * status + ttl?
-* Configurability
-  * Configurable options for logging adding/granting/deleting/revoking
-    immediate and effective memberships and privs
-  * What triggers a "modified" update?
-    * possibly make configurable to avoid bikeshedding?
+* Membership: map via_id to Group
+* Cache
+  * access privs
+  * naming privs
+  * subjects
+* Stem: make child_groups mapping lazy
+* Stem: make child_stems mapping lazyA
+* Membership: (DISABLE?) make child_memberships mapping lazy (and functional)
+* PrivilegeResolver: log if wheel group configured but missing
+* Event logging
+  * Clean up returned error messages when exceptions thrown
+* GrouperNamingAdapter: hasPriv() should take ALL into account
+* GrouperSession: automatic proxying
+  * GroupFinder.findByName() is candidate
+  * GroupFinder.findByUuid() is candidate
+* Configurable options for logging adding/granting/deleting/revoking
+  immediate and effective memberships and privs
+
+## Unknown
+* GrouperAccessAdapter: getPrivs()
+* GrouperNamingAdapter: getPrivs()
+
+## Peformance (Unknown)
+* FieldFinder: cache findAll()
+* GrouperSessionFinder: make internal root sessions !hibernated
+* InternalSourceAdapter: don't recreate ALL and ROOT everytime
+* PrivilegeResolver: isRoot and wheel group
+
+## Performance (Minor)
+* Group: cache attributes
+* Membership: cache getGroup()
+* Membership: cache getStem()
+
+## Tests
+* empty config options for granting all, wheel group, interfaces, etc
+* privs with groups
 * Test field validation
   * Attributes
   * Lists
   * Naming privs
   * Access privs
 * Test create + modify subject when !root
-* Test _AccessPrivilege_ and _NamingPrivilege_ objects
+* renaming "root" subject?  this probably shouldn't be allowed.
+* review old memberof tests 
+* concurrence, persistence and versioning
+* Review old _*.todo_ test classes (and then remove)
+* Test with Pg and Oracle and review generated SQL
+  * ship with generated schema?
+* deletion (group + mship + priv) in _TestMemberOf_
+* What happens when you delete a group and then attempt to perform
+  further operations on it?
 
-## Later - pre-code freeze
-* Test
-  * Review old _*.todo_ test classes (and then remove)
-  * Test concurrence and persistence  
-    * Versioning
-  * Test with Pg and Oracle and review generated SQL
-    * ship with generated schema?
-  * deletion (group + mship + priv) in _TestMemberOf_
-  * What happens when you delete a group and then attempt to perform
-    further operations on it?
-  * renaming "root" subject?  this probably shouldn't be allowed.
-* Review thrown exceptions, especially runtime exceptions
-  * Only public methods should adjust the exception messages
-* General code review
-  * more complete session validation
-* Bugs
-  * Minor
-    * modify* attrs set on groups and stems at creation due to granting
-      of privs to creator
-    * _Membership_ child_memberships mapping
+## DRY
+* Member: isMember(), isImmediateMember() and isEffectiveMember()
+* Membership: addImmediateMembership()
+* Membership: delImmediateMembership()
+* Membership: deleteAllField()
+* Membership: _membershipsToDelete()
+* Privilege: canWriteField()
 
+## Aesthetics
+* Group: _deleteAttribute() naming attr handling
+* GrouperSubject: _addAttr() attr + value validation
+* Member: toGroup()
+* PrivilegeResolver: canVIEW()
+* Stem: addChildGroup() updates modify* attrs of child
+* Stem: addChildStem() updates modify* attrs of child
+* Stem: constructName()
+* StemFinder: isChild()
+* Test helper methods
 
-## Later - post-code freeze
-* Event logging
-* record where each *Finder method is called from
+## Visibility (Minor)
+* Member: getId() is protected
+* Membership: getOwner_id() is protected
+* Membership: getVia_id() is protected
+* SubjectFinder: make ALL public
+* SubjectFinder: make ROOT public
+
+## Document
+* What triggers modified updates?
 * Replace contrib items with updated cdg
-* Document
+* record where each *Finder method is called from
+* wheel group
+* ALL toggles
+* query api javadoc
+* _doc/CHANGES_
+  * public api
+  * query api
+  * ALL subject
   * wheel group
-  * ALL subject toggle switches
-  * query api javadoc
-  * caching
-    * privileges
-    * subjects
-  * _doc/CHANGES_
-    * public api
-    * query api
-    * ALL subject
-    * wheel group
 * Attempt to normalize API debug logging
   * Include method names
   * Use constants
-
-## Probably 1.0
-* Additional query filters
-* Custom group types
-  * Custom group attributes
-    * setting, unsetting, nullable, etc
-  * Custom group lists
-    * add to group subjects
-    * removing upon group deletion
 
 ---
 
@@ -100,6 +136,8 @@ $Id: ROADMAP,v 1.105 2005-12-09 20:40:44 blair Exp $
 * Group math
 * XML import and export
 * _Programming The Grouper API_ guide
+* Additional query filters
+* Custom group types
 
 ---
 
