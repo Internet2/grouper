@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test use of the VIEW {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivVIEW.java,v 1.3 2005-12-10 16:06:06 blair Exp $
+ * @version $Id: TestPrivVIEW.java,v 1.4 2005-12-10 22:31:36 blair Exp $
  */
 public class TestPrivVIEW extends TestCase {
 
@@ -158,6 +158,44 @@ public class TestPrivVIEW extends TestCase {
     Group a = GroupHelper.findByName(nrs, i2.getName());
     Group b = GroupHelper.findByUuid(nrs, i2.getUuid());
   } // public void testFindGroupWithAllUPDATE()
+
+  public void testFindChildGroupWithoutVIEW() {
+    LOG.info("testFindChildGroupWithoutVIEW");
+    // Revoke ALL VIEW + READ
+    PrivHelper.revokePriv(s, i2,    SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    PrivHelper.revokePriv(s, i2,    SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    PrivHelper.revokePriv(s, uofc,  SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    PrivHelper.revokePriv(s, uofc,  SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    // Now get parent stem
+    Stem  parent    = StemHelper.findByName(nrs, edu.getName());
+    Set   children  = parent.getChildGroups();
+    Assert.assertTrue(
+      "children == " + children.size() + " (exp 0)",
+      children.size() == 0
+    );
+  } // public void testFindGroupWithoutVIEW()
+
+  public void testFindChildGroupWithVIEW() {
+    LOG.info("testFindChildGroupWithVIEW");
+    // Now get parent stem
+    Stem  parent    = StemHelper.findByName(nrs, edu.getName());
+    Set   children  = parent.getChildGroups();
+    Assert.assertTrue(
+      "children == " + children.size() + " (exp 2)",
+      children.size() == 2
+    );
+  } // public void testFindGroupWithVIEW()
+
+  public void testFindChildGroupWithAllVIEW() {
+    LOG.info("testFindChildGroupWithAllVIEW");
+    // Now get parent stem
+    Stem  parent    = StemHelper.findByName(nrs, edu.getName());
+    Set   children  = parent.getChildGroups();
+    Assert.assertTrue(
+      "children == " + children.size() + " (exp 2)",
+      children.size() == 2
+    );
+  } // public void testFindGroupWithAllVIEW()
 
   public void testFindGroupWithoutVIEW() {
     LOG.info("testFindGroupWithoutVIEW");

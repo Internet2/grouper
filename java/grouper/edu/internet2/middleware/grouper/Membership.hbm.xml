@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.6 2005-12-10 16:06:06 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.7 2005-12-10 22:31:36 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -116,18 +116,6 @@ A list membership in the Groups Registry.
       <column name="parent_membership"/>
     </many-to-one>
     <!-- parent_membership -->
-
-    <!-- child_memberships -->
-    <!-- TODO lazy? -->
-    <set  name="child_memberships"
-          table="grouper_memberships"
-          cascade="none"
-          inverse="true"
-    >
-      <key column="parent_membership"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Membership" />
-    </set>
-    <!-- child_memberships -->
 
   </class>
 </hibernate-mapping>

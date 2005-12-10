@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.38 2005-12-09 21:26:01 blair Exp $
+ * @version $Id: Group.java,v 1.39 2005-12-10 22:31:36 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -776,7 +776,7 @@ public class Group implements Serializable {
    */
   public Set getImmediateMemberships(Field f) {
     GrouperSession.validate(this.s);
-    return MembershipFinder.findImmediateMemberships(this.s, this, f);
+    return MembershipFinder.findImmediateMemberships(this.s, this.getUuid(), f);
   } // public Set getImmediateMemberships(f)
 
   /**
@@ -822,7 +822,7 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getMemberships(Field f) {
-    return MembershipFinder.findMemberships(this.s, this, f);
+    return MembershipFinder.findMemberships(this.s, this.getUuid(), f);
   } // public Set getMemberships(f)
 
   /**

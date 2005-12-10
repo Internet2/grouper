@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.23 2005-12-09 17:15:43 blair Exp $
+ * @version $Id: Member.java,v 1.24 2005-12-10 22:31:36 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -675,7 +675,7 @@ public class Member implements Serializable {
     boolean rv  = false;
     String  msg = "isEffectiveMember '" + f.getName() + "' '";
     if (
-      MembershipFinder.findEffectiveMemberships(g, this, f).size() > 0
+      MembershipFinder.findEffectiveMemberships(g.getUuid(), this, f).size() > 0
     ) 
     {
       rv = true;
@@ -683,7 +683,7 @@ public class Member implements Serializable {
     }
     else if (
       MembershipFinder.findEffectiveMemberships(
-        g, MemberFinder.findAllMember(), f
+        g.getUuid(), MemberFinder.findAllMember(), f
       ).size() > 0
     )
     {
@@ -945,7 +945,7 @@ public class Member implements Serializable {
   // @filtered  no
   // @session   yes
   protected Set getAllMemberships() {
-    return MembershipFinder.findMemberships(this.s, this);
+    return MembershipFinder.findAllMemberships(this.s, this);
   } // protected Set getAllMemberships()
 
   // Assign Session
