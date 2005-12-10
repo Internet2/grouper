@@ -29,13 +29,22 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.33 2005-12-09 21:26:01 blair Exp $
+ * @version $Id: Stem.java,v 1.34 2005-12-10 16:06:06 blair Exp $
  *     
 */
 public class Stem implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(Stem.class);
+  private static final String BT          = "true";
+  private static final String CFG_GCGAA   = "groups.create.grant.all.admin";
+  private static final String CFG_GCGAOI  = "groups.create.grant.all.optin";
+  private static final String CFG_GCGAOO  = "groups.create.grant.all.optout";
+  private static final String CFG_GCGAR   = "groups.create.grant.all.read";
+  private static final String CFG_GCGAU   = "groups.create.grant.all.update";
+  private static final String CFG_GCGAV   = "groups.create.grant.all.view";
+  private static final String CFG_SCGAC   = "stems.create.grant.all.create";
+  private static final String CFG_SCGAS   = "stems.create.grant.all.stem";
+  private static final Log    LOG         = LogFactory.getLog(Stem.class);
 
 
   // Hibernate Properties
@@ -682,11 +691,6 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
-/* TODO
-    if (!this.hasStem(this.s.getSubject())) {
-      throw new InsufficientPrivilegeException("does not have STEM");
-    }
-*/
     PrivilegeResolver.getInstance().canSTEM(
       GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
     );
@@ -829,6 +833,27 @@ public class Stem implements Serializable {
       PrivilegeResolver.getInstance().grantPriv(
         root, g, orig.getSubject(), AccessPrivilege.ADMIN
       );
+
+      // Now optionally grant other privs
+      this._grantOptionalPrivUponCreate(
+        orig, root, g, AccessPrivilege.ADMIN  , CFG_GCGAA
+      );
+      this._grantOptionalPrivUponCreate(
+        orig, root, g, AccessPrivilege.OPTIN  , CFG_GCGAOI
+      );
+      this._grantOptionalPrivUponCreate(
+        orig, root, g, AccessPrivilege.OPTOUT , CFG_GCGAOO
+      );
+      this._grantOptionalPrivUponCreate(
+        orig, root, g, AccessPrivilege.READ   , CFG_GCGAR
+      );
+      this._grantOptionalPrivUponCreate(
+        orig, root, g, AccessPrivilege.UPDATE , CFG_GCGAU
+      );
+      this._grantOptionalPrivUponCreate(
+        orig, root, g, AccessPrivilege.VIEW   , CFG_GCGAV
+      );
+
       g.setSession(orig);
       root.stop();
       return g;
@@ -857,6 +882,15 @@ public class Stem implements Serializable {
       PrivilegeResolver.getInstance().grantPriv(
         root, ns, orig.getSubject(), NamingPrivilege.STEM
       );
+
+      // Now optionally grant other privs
+      this._grantOptionalPrivUponCreate(
+        orig, root, ns, NamingPrivilege.CREATE, CFG_SCGAC
+      );
+      this._grantOptionalPrivUponCreate(
+        orig, root, ns, NamingPrivilege.STEM  , CFG_SCGAS
+      );
+
       ns.setSession(orig);
       root.stop();
       return ns;
@@ -867,6 +901,28 @@ public class Stem implements Serializable {
       );
     }
   } // private void _grantDefaultPrivsUponCreate(ns)
+
+  private void _grantOptionalPrivUponCreate(
+    GrouperSession orig, GrouperSession root, Object o, Privilege p, String opt
+  ) 
+    throws  Exception
+  {
+    GrouperConfig cfg = GrouperConfig.getInstance();
+    Subject       all = SubjectFinder.findAllSubject();
+    if (cfg.getProperty(opt).equals(BT)) {
+      String msg = " granted " + p.getName() + " to " + SubjectHelper.getPretty(all);
+      if      (o.getClass().equals(Group.class)) {
+        Group g = (Group) o;
+        PrivilegeResolver.getInstance().grantPriv(root, g, all, p);
+        GrouperLog.info(LOG, orig, g.getName() + msg);
+      }
+      else if (o.getClass().equals(Stem.class)) {
+        Stem ns = (Stem) o;
+        PrivilegeResolver.getInstance().grantPriv(root, ns, all, p);
+        GrouperLog.info(LOG, orig, ns.getName() + msg);
+      }
+    }
+  } // private void _grantOptionalPrivUponCreate(orig, root, o, p, opt)
 
   private void _setCreated() {
     this.setCreator_id( s.getMember()         );
@@ -958,14 +1014,7 @@ public class Stem implements Serializable {
   private String getStem_id() {
     return this.stem_id;
   }
-/* TODO
-  private Stem getStem() {
-    return this.stem;
-  }
-  private void setStem(Stem stem) {
-    this.stem = stem;
-  }
-*/
+  
   private void setStem_id(String stem_id) {
     this.stem_id = stem_id;
   }

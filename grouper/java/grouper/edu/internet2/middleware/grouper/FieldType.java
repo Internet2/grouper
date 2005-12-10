@@ -26,12 +26,11 @@ import  java.util.*;
  * Field Type.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldType.java,v 1.3 2005-11-16 16:59:11 blair Exp $    
+ * @version $Id: FieldType.java,v 1.4 2005-12-10 16:06:06 blair Exp $    
  */
 public class FieldType implements Serializable {
 
   // Public Class Constants
-  // TODO Do I need a "trait" (or whatever) type?
   public static final FieldType ACCESS    = new FieldType("access");
   public static final FieldType ATTRIBUTE = new FieldType("attribute");
   public static final FieldType LIST      = new FieldType("list");

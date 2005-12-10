@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test memberOf calculations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberOf.java,v 1.3 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: TestMemberOf.java,v 1.4 2005-12-10 16:06:06 blair Exp $
  */
 public class TestMemberOf extends TestCase {
 
@@ -82,11 +82,11 @@ public class TestMemberOf extends TestCase {
   public void testNoEffMshipsCustomList() {
     LOG.info("testNoEffMshipsCustomList");
     MembershipHelper.testNumMship(i2, "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2, "readers", 0, 0, 0);
+    MembershipHelper.testNumMship(i2, "readers", 1, 1, 0);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.READ);
     MembershipHelper.testImm(s, i2, subj0, "readers");
     MembershipHelper.testNumMship(i2, "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2, "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(i2, "readers", 2, 2, 0);
   } // public void testNoEffMshipsCustomList()    
 
   public void testHasMemberDefaultList() {
@@ -109,21 +109,21 @@ public class TestMemberOf extends TestCase {
     LOG.info("testHasMemberCustomList");
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.READ);
     MembershipHelper.testImm(s, i2, subj0, "readers");
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 2, 2, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
     GroupHelper.addMember(uofc, i2.toSubject(), "members");
     MembershipHelper.testImm(s, i2   , subj0         , "readers");
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "members"); 
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 1, 1, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 2, 2, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
   } // public void testHasMemberCustomList()
 
   public void testIsMemberDefaultList() {
@@ -146,21 +146,21 @@ public class TestMemberOf extends TestCase {
     LOG.info("testIsMemberCustomList");
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
     PrivHelper.grantPriv(s, uofc, i2.toSubject(), AccessPrivilege.READ);
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "readers"); 
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 2, 2, 0);
     GroupHelper.addMember(i2, subj0, "members");
     MembershipHelper.testImm(s, i2   , subj0         , "members");
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "readers"); 
     MembershipHelper.testNumMship(i2   , "members", 1, 1, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 2, 1, 1);
+    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 3, 2, 1);
   } // public void testIsMemberCustomList()
 
   public void testIsMemberDefaultListHasMemberDefaultList() {
@@ -183,54 +183,54 @@ public class TestMemberOf extends TestCase {
     LOG.info("testIsMemberDefaultListHasMemberCustomList");
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
     GroupHelper.addMember(uofc, i2.toSubject(), "members");
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "members"); 
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 1, 1, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.READ);
     MembershipHelper.testImm(s, i2   , subj0         , "readers");
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "members"); 
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 1, 1, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 2, 2, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
   } // public void testIsMemberDefaultListHasMemberCustomList()
 
   public void testIsMemberCustomListHasMemberCustomList() {
     LOG.info("testIsMemberCustomListHasMemberCustomList");
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 0, 0, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
     PrivHelper.grantPriv(s, uofc, i2.toSubject(), AccessPrivilege.READ);
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "readers"); 
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 0, 0, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 2, 2, 0);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.READ);
     MembershipHelper.testImm(s, i2   , subj0         , "readers");
     MembershipHelper.testImm(s, uofc , i2.toSubject(), "readers"); 
     MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
     MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
-    MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
+    MembershipHelper.testNumMship(i2   , "readers", 2, 2, 0);
+    MembershipHelper.testNumMship(uofc , "readers", 2, 2, 0);
   } // public void testIsMemberCustomListHasMemberCustomList()
 
   public void testHasMemberDefaultListIsMemberCustomListSelf() {
     LOG.info("testHasMemberDefaultListIsMemberCustomListSelf");
     MembershipHelper.testNumMship(i2  , "members" , 0, 0, 0);
-    MembershipHelper.testNumMship(i2  , "readers" , 0, 0, 0);
+    MembershipHelper.testNumMship(i2  , "readers" , 1, 1, 0);
     GroupHelper.addMember(i2, subj0, "members");
     MembershipHelper.testNumMship(i2  , "members" , 1, 1, 0);
-    MembershipHelper.testNumMship(i2  , "readers" , 0, 0, 0);
+    MembershipHelper.testNumMship(i2  , "readers" , 1, 1, 0);
     PrivHelper.grantPriv(s, i2, i2.toSubject(), AccessPrivilege.READ);
     MembershipHelper.testNumMship(i2  , "members" , 1, 1, 0);
-    MembershipHelper.testNumMship(i2  , "readers" , 2, 1, 1);
+    MembershipHelper.testNumMship(i2  , "readers" , 3, 2, 1);
   } // public void testHasMemberDefaultListIsMemberCustomListSelf()
 
 }

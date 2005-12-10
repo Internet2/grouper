@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.11 2005-12-09 17:15:43 blair Exp $
+ * @version $Id: Membership.java,v 1.12 2005-12-10 16:06:06 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -147,7 +147,6 @@ public class Membership implements Serializable {
     throws GroupNotFoundException
   {
     // TODO Cache group?
-    // TODO Check field
     GrouperSession.validate(this.s);
     return GroupFinder.findByUuid(this.s, this.getOwner_id());
   } // public Group getGroup()
@@ -611,7 +610,6 @@ public class Membership implements Serializable {
     throws StemNotFoundException
   {
     // TODO Cache stem?
-    // TODO Check field
     GrouperSession.validate(this.s);
     return StemFinder.findByUuid(this.s, this.getOwner_id());
   } // public Stem getStem()
@@ -694,16 +692,6 @@ public class Membership implements Serializable {
   {
     GrouperSession.validate(s);
     return MemberOf.doMemberOf(s, imm);
-/*
-    Set       effs  = new LinkedHashSet();
-    Iterator  iter  = MemberOf.doMemberOf(s, imm).iterator();
-    // TODO What's the point of iterating?
-    while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
-      effs.add(ms);
-    }
-    return effs;
-*/
   } // private static _findEffectiveMemberships(s, imm)
 
   private static String _getOid(Object o) {
@@ -812,7 +800,6 @@ public class Membership implements Serializable {
     this.id = id;
   }
 
-  // TODO private int getDepth() {
   public int getDepth() {
     return this.depth;
   }
@@ -830,8 +817,6 @@ public class Membership implements Serializable {
     this.owner_id = owner_id;
   }
 
-  // TODO private String getMember_id() {
-  //protected String getMember_id() {
   private Member getMember_id() {
     return this.member_id;
   }
@@ -850,7 +835,6 @@ public class Membership implements Serializable {
   }
 
   // TODO private String getVia_id() {
-  // TODO Map to _Group_?
   protected String getVia_id() {
     return this.via_id;
   }

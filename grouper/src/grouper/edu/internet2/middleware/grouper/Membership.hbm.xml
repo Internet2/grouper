@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.5 2005-12-09 07:35:38 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.6 2005-12-10 16:06:06 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -54,7 +54,6 @@ A list membership in the Groups Registry.
     <!-- owner_id -->
 
     <!-- member_id -->
-    <!-- TODO cascade? -->
     <many-to-one
       name="member_id"
       class="edu.internet2.middleware.grouper.Member" 
@@ -109,7 +108,6 @@ A list membership in the Groups Registry.
 
     <!-- parent_membership -->
     <!-- TODO Don't allow updates? -->
-    <!-- TODO What cascade level do I want? -->
     <many-to-one
       name="parent_membership"
       class="edu.internet2.middleware.grouper.Membership"
@@ -120,7 +118,7 @@ A list membership in the Groups Registry.
     <!-- parent_membership -->
 
     <!-- child_memberships -->
-    <!-- TODO What cascade level do I want? -->
+    <!-- TODO lazy? -->
     <set  name="child_memberships"
           table="grouper_memberships"
           cascade="none"

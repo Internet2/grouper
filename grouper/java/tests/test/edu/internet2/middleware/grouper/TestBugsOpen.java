@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test open bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsOpen.java,v 1.4 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: TestBugsOpen.java,v 1.5 2005-12-10 16:06:06 blair Exp $
  */
 public class TestBugsOpen extends TestCase {
 
@@ -62,22 +62,29 @@ public class TestBugsOpen extends TestCase {
       Subject iata = SubjectHelper.SUBJ1;
       Subject iawi = SubjectHelper.SUBJ2;
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.0");
       Subject subj = SubjectFinder.findById("GrouperSystem");
       GrouperSession s = GrouperSession.startSession(subj);
       Stem root = StemFinder.findRootStem(s);
 			Stem qsuob = root.addChildStem("qsuob","qsuob");
       Group admins = qsuob.addChildGroup("admins","admins");
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.0");
       admins.addMember(kebe);
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.1");
       Group staff = qsuob.addChildGroup("staff","staff");
+
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.2");
       staff.addMember(iata);
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
       MembershipHelper.testImm(s, staff, iata , "members");
       MembershipHelper.testNumMship(staff, "members", 1, 1, 0);
+
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.3");
       staff.addMember(iawi);
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
@@ -85,7 +92,10 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testImm(s, staff, iawi , "members");
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.4");
       Group all_staff = qsuob.addChildGroup("all_staff","all staff");
+
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.5");
       all_staff.addMember(staff.toSubject());
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
@@ -97,6 +107,7 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testImm(s, staff, iawi , "members");
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.6");
       admins.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testImm(s, admins, subj, "admins");
@@ -112,11 +123,15 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testImm(s, staff, iawi , "members");
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.7");
       qsuob.grantPriv(admins.toSubject(),Privilege.getInstance("create"));
       // TODO test
+
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.8");
       qsuob.grantPriv(admins.toSubject(),Privilege.getInstance("stem"));
       // TODO test
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.9");
       staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
       // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
@@ -137,6 +152,7 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testEff(s, staff, iata, "readers", staff, 2);
       MembershipHelper.testEff(s, staff, iawi, "readers", staff, 2);
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.10");
       staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
       // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
@@ -156,6 +172,7 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
       MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.11");
       all_staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
       // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
@@ -164,6 +181,7 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
       MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
       MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.11.0");
 
       MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
       MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
@@ -173,7 +191,8 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testEff(s, all_staff, staff.toSubject(), "readers", all_staff, 1);
       MembershipHelper.testEff(s, all_staff, iata, "readers", staff, 2);
       MembershipHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
-      MembershipHelper.testNumMship(all_staff, "readers", 4, 1, 3);
+      MembershipHelper.testNumMship(all_staff, "readers", 5, 2, 3);
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.11.1");
 
       MembershipHelper.testImm(s, staff, iata , "members");
       MembershipHelper.testImm(s, staff, iawi , "members");
@@ -182,6 +201,7 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
       MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.12");
       all_staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
       // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
@@ -199,7 +219,7 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testEff(s, all_staff, staff.toSubject(), "readers", all_staff, 1);
       MembershipHelper.testEff(s, all_staff, iata, "readers", staff, 2);
       MembershipHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
-      MembershipHelper.testNumMship(all_staff, "readers", 4, 1, 3);
+      MembershipHelper.testNumMship(all_staff, "readers", 5, 2, 3);
       MembershipHelper.testImm(s, all_staff, subj, "admins");
       MembershipHelper.testImm(s, all_staff, admins.toSubject(), "admins");
       MembershipHelper.testEff(s, all_staff, kebe, "admins", admins, 1);
@@ -211,8 +231,13 @@ public class TestBugsOpen extends TestCase {
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
       MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
 
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.13");
       GroupHelper.delete(s, admins, admins.getName());
+
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.14");
       GroupHelper.delete(s, staff, staff.getName());
+
+      LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.15");
       GroupHelper.delete(s, all_staff, all_staff.getName());
 
       s.stop();
