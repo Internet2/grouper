@@ -29,9 +29,10 @@ import  org.apache.commons.logging.*;
  * Test use of the wheel group.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestWheelGroup.java,v 1.1 2005-12-09 20:40:44 blair Exp $
+ * @version $Id: TestWheelGroup.java,v 1.2 2005-12-10 16:31:21 blair Exp $
  */
 public class TestWheelGroup extends TestCase {
+  // @test  MANUAL
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestWheelGroup.class);

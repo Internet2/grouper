@@ -30,13 +30,16 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.25 2005-12-09 20:40:44 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.26 2005-12-10 16:31:21 blair Exp $
  *     
 */
 class PrivilegeResolver {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(PrivilegeResolver.class);
+  private static final String BT      = "true";
+  private static final String CFG_GWG = "groups.wheel.group";
+  private static final String CFG_GWU = "groups.wheel.use";
+  private static final Log    LOG     = LogFactory.getLog(PrivilegeResolver.class);
 
 
   // Private Class Variables
@@ -564,23 +567,24 @@ class PrivilegeResolver {
     {
       rv = true;
     }  
-    else if (
-      GrouperConfig.getInstance().getProperty("groups.wheel.use").equals("true")
-    )
-    { 
-      // TODO This has to be a performance killer
-      GrouperSession  root = GrouperSessionFinder.getTransientRootSession();
-      String          name = GrouperConfig.getInstance().getProperty("groups.wheel.group");
-      try {
-        Group wheel = GroupFinder.findByName(root, name);
-        rv = wheel.hasMember(subj);
+    // TODO REFACTOR/EXTRACT
+    else {
+      GrouperConfig cfg = GrouperConfig.getInstance();
+      if (cfg.getProperty(CFG_GWU).equals(BT)) {
+        // TODO This has to be a performance killer
+        GrouperSession  root = GrouperSessionFinder.getTransientRootSession();
+        String          name = cfg.getProperty(CFG_GWG);
+        try {
+          Group wheel = GroupFinder.findByName(root, name);
+          rv = wheel.hasMember(subj);
+        }
+        catch (GroupNotFoundException eGNF) {
+          // Group not found.  Oh well.
+          // TODO The problem is that the test suite deletes it.  
+          LOG.error("wheel group enabled but not found: " + name);
+        }
+        root.stop();
       }
-      catch (GroupNotFoundException eGNF) {
-        // Group not found.  Oh well.
-        // TODO The problem is that the test suite deletes it.  
-        // LOG.error("wheel group enabled not found: " + name);
-      }
-      root.stop();
     }
     return rv;
   } // protected boolean isRoot(subj)
