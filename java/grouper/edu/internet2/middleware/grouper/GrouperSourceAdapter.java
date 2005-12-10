@@ -41,10 +41,9 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.6 2005-12-09 17:15:43 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.7 2005-12-10 16:06:06 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
-  // TODO Is configuration necessary if used within Grouper?
 
   // Public Class Constants
   public static final String ID   = "g:gsa";

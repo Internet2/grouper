@@ -56,6 +56,7 @@ public class SuiteAll extends TestCase {
     // TODO Are the _TestGrouperAccess*_ and _TestGrouperNaming*_
     //      classes still relevant now that I have the _TestPriv*_ 
     //      classes?
+/*
     suite.addTestSuite(TestGrouperAccessADMIN.class);
     suite.addTestSuite(TestGrouperAccessOPTIN.class);
     suite.addTestSuite(TestGrouperAccessOPTOUT.class);
@@ -64,6 +65,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGrouperAccessVIEW.class);
     suite.addTestSuite(TestGrouperNamingCREATE.class);
     suite.addTestSuite(TestGrouperNamingSTEM.class);
+*/
     suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestGrouperSourceAdapter.class);
     suite.addTestSuite(TestGrouperSubject.class);

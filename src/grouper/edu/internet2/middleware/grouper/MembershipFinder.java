@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.17 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.18 2005-12-10 16:06:06 blair Exp $
  */
 public class MembershipFinder {
 
@@ -429,7 +429,6 @@ public class MembershipFinder {
   {
     // TODO Switch to criteria queries?
     // TODO Filter
-    // FIXME Why does this return a Set?  That makes no sense.
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();

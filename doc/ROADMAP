@@ -3,14 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.106 2005-12-10 02:50:36 blair Exp $
+$Id: ROADMAP,v 1.107 2005-12-10 16:06:06 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Incomplete 
-* Stem: ALL toggle switches
 * MembershipFinder: filtering, session attachment and DRY of EVERYTHING
 * Membership: filter getChildMemberships()
 * Stem: filter getChildGroups()
@@ -22,6 +21,9 @@ $Id: ROADMAP,v 1.106 2005-12-10 02:50:36 blair Exp $
   * Membership: Add create member, create time and status
   * Factors: DDL and how will they **actually** work
 * _AccessPrivilege_ and _NamingPrivilege_ objects
+* Stem: make child_groups mapping lazy
+* Stem: make child_stems mapping lazyA
+* Membership: (DISABLE?) make child_memberships mapping lazy (and functional)
 
 ## Incomplete (Desired)
 * PrivilegeFinder: remove
@@ -38,9 +40,6 @@ $Id: ROADMAP,v 1.106 2005-12-10 02:50:36 blair Exp $
   * access privs
   * naming privs
   * subjects
-* Stem: make child_groups mapping lazy
-* Stem: make child_stems mapping lazyA
-* Membership: (DISABLE?) make child_memberships mapping lazy (and functional)
 * PrivilegeResolver: log if wheel group configured but missing
 * Event logging
   * Clean up returned error messages when exceptions thrown
@@ -78,6 +77,7 @@ $Id: ROADMAP,v 1.106 2005-12-10 02:50:36 blair Exp $
 * renaming "root" subject?  this probably shouldn't be allowed.
 * review old memberof tests 
 * concurrence, persistence and versioning
+* can i delete TestGrouperAccess* and TestGrouperNaming* tests?
 * Review old _*.todo_ test classes (and then remove)
 * Test with Pg and Oracle and review generated SQL
   * ship with generated schema?
@@ -166,6 +166,7 @@ $Id: ROADMAP,v 1.106 2005-12-10 02:50:36 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

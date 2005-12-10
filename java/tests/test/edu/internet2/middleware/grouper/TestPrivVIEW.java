@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test use of the VIEW {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivVIEW.java,v 1.2 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: TestPrivVIEW.java,v 1.3 2005-12-10 16:06:06 blair Exp $
  */
 public class TestPrivVIEW extends TestCase {
 
@@ -76,8 +76,9 @@ public class TestPrivVIEW extends TestCase {
 
   public void testFindGroupWithoutADMIN() { 
     LOG.info("testFindGroupWithoutADMIN");
-    GroupHelper.findByNameFail(nrs, i2.getName());
-    GroupHelper.findByUuidFail(nrs, i2.getUuid());
+    // ALL has VIEW 
+    GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.findByUuid(nrs, i2.getUuid());
   } // public void testFindGroupWithoutADMIN()
 
   public void testFindGroupWithADMIN() {
@@ -96,8 +97,9 @@ public class TestPrivVIEW extends TestCase {
 
   public void testFindGroupWithoutOPTIN() {
     LOG.info("testFindGroupWithoutOPTIN");
-    GroupHelper.findByNameFail(nrs, i2.getName());
-    GroupHelper.findByUuidFail(nrs, i2.getUuid());
+    // ALL has VIEW
+    GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.findByUuid(nrs, i2.getUuid());
   } // public void testFindGroupWithoutOPTIN()
 
   public void testFindGroupWithOPTIN() {
@@ -116,8 +118,9 @@ public class TestPrivVIEW extends TestCase {
 
   public void testFindGroupWithoutREAD() {
     LOG.info("testFindGroupWithoutREAD");
-    GroupHelper.findByNameFail(nrs, i2.getName());
-    GroupHelper.findByUuidFail(nrs, i2.getUuid());
+    // ALL has VIEW
+    GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.findByUuid(nrs, i2.getUuid());
   } // public void testFindGroupWithoutREAD()
 
   public void testFindGroupWithREAD() {
@@ -129,15 +132,17 @@ public class TestPrivVIEW extends TestCase {
 
   public void testFindGroupWithAllREAD() {
     LOG.info("testFindGroupWithAllREAD");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    // Already exists
+    // PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.READ);
     Group a = GroupHelper.findByName(nrs, i2.getName());
     Group b = GroupHelper.findByUuid(nrs, i2.getUuid());
   } // public void testFindGroupWithAllREAD()
 
   public void testFindGroupWithoutUPDATE() {
     LOG.info("testFindGroupWithoutUPDATE");
-    GroupHelper.findByNameFail(nrs, i2.getName());
-    GroupHelper.findByUuidFail(nrs, i2.getUuid());
+    // ALL has VIEW
+    GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.findByUuid(nrs, i2.getUuid());
   } // public void testFindGroupWithoutUPDATE()
 
   public void testFindGroupWithUPDATE() {
@@ -156,8 +161,9 @@ public class TestPrivVIEW extends TestCase {
 
   public void testFindGroupWithoutVIEW() {
     LOG.info("testFindGroupWithoutVIEW");
-    GroupHelper.findByNameFail(nrs, i2.getName());
-    GroupHelper.findByUuidFail(nrs, i2.getUuid());
+    // ALL has VIEW
+    GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.findByUuid(nrs, i2.getUuid());
   } // public void testFindGroupWithoutVIEW()
 
   public void testFindGroupWithVIEW() {
@@ -169,7 +175,8 @@ public class TestPrivVIEW extends TestCase {
 
   public void testFindGroupWithAllVIEW() {
     LOG.info("testFindGroupWithAllVIEW");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    // Already exists
+    // PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
     Group b = GroupHelper.findByUuid(nrs, i2.getUuid());
   } // public void testFindGroupWithAllVIEW()
@@ -274,7 +281,8 @@ public class TestPrivVIEW extends TestCase {
 
   public void testAddGroupAsMemberWithAllREAD() {
     LOG.info("testAddGroupAsMemberWithAllREAD");
-    PrivHelper.grantPriv(s, uofc, SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    // Already exists
+    // PrivHelper.grantPriv(s, uofc, SubjectFinder.findAllSubject(), AccessPrivilege.READ);
     PrivHelper.grantPriv(s, i2,   subj0, AccessPrivilege.ADMIN);
     GroupHelper.addMember(uofc, subj1, m);
     Group a = GroupHelper.findByName(nrs, uofc.getName());
@@ -330,8 +338,10 @@ public class TestPrivVIEW extends TestCase {
 
   public void testAddGroupAsMemberWithAllVIEW() {
     LOG.info("testAddGroupAsMemberWithAllVIEW");
-    PrivHelper.grantPriv(s, uofc, SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    // Already exists
+    // PrivHelper.grantPriv(s, uofc, SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
     PrivHelper.grantPriv(s, i2,   subj0, AccessPrivilege.ADMIN);
+    // Already exists
     GroupHelper.addMember(uofc, subj1, m);
     Group a = GroupHelper.findByName(nrs, uofc.getName());
     Group b = GroupHelper.findByName(nrs, i2.getName());

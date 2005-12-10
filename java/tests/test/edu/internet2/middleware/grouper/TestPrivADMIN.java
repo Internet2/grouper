@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.5 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.6 2005-12-10 16:06:06 blair Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -65,8 +65,10 @@ public class TestPrivADMIN extends TestCase {
     uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     subj0 = SubjectHelper.SUBJ0;
     subj1 = SubjectHelper.SUBJ1;
+/*
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     PrivHelper.grantPriv(s, uofc, subj0, AccessPrivilege.VIEW);
+*/
     m     = Helper.getMemberBySubject(nrs, subj1);
   }
 

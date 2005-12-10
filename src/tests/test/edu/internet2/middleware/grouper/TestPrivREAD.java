@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Test use of the READ {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivREAD.java,v 1.2 2005-12-06 19:42:19 blair Exp $
+ * @version $Id: TestPrivREAD.java,v 1.3 2005-12-10 16:06:06 blair Exp $
  */
 public class TestPrivREAD extends TestCase {
 
@@ -78,7 +78,8 @@ public class TestPrivREAD extends TestCase {
     LOG.info("testReadAttrsWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.testAttrsFail(i2, a);
+    // Succeeds because ALL has READ by default
+    GroupHelper.testAttrs(i2, a);
   } // public void testReadAttrsWithoutADMIN()
 
   public void testReadAttrsWithADMIN() {
@@ -99,7 +100,8 @@ public class TestPrivREAD extends TestCase {
     LOG.info("testReadAttrsWithoutREAD");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.testAttrsFail(i2, a);
+    // Succeeds because ALL has READ by default
+    GroupHelper.testAttrs(i2, a);
   } // public void testReadAttrsWithoutREAD()
 
   public void testReadAttrsWithREAD() {
@@ -111,7 +113,8 @@ public class TestPrivREAD extends TestCase {
 
   public void testReadAttrsWithAllREAD() {
     LOG.info("testReadAttrsWithAllREAD");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    // Created by default 
+    // PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.READ);
     Group a = GroupHelper.findByName(nrs, i2.getName());
     GroupHelper.testAttrs(i2, a);
   } // public void testReadAttrsWithAllREAD()
@@ -120,11 +123,11 @@ public class TestPrivREAD extends TestCase {
     LOG.info("testReadMembersWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    Assert.assertTrue("members",      a.getMembers().size()               == 0);
-    Assert.assertTrue("imm members",  a.getImmediateMembers().size()      == 0);
+    Assert.assertTrue("members",      a.getMembers().size()               == 1);
+    Assert.assertTrue("imm members",  a.getImmediateMembers().size()      == 1);
     Assert.assertTrue("eff members",  a.getEffectiveMembers().size()      == 0);
-    Assert.assertTrue("mships",       a.getMemberships().size()           == 0);
-    Assert.assertTrue("imm mships",   a.getImmediateMemberships().size()  == 0);
+    Assert.assertTrue("mships",       a.getMemberships().size()           == 1);
+    Assert.assertTrue("imm mships",   a.getImmediateMemberships().size()  == 1);
     Assert.assertTrue("eff mships",   a.getEffectiveMemberships().size()  == 0);
   } // public void testReadMembersWithoutADMIN()
 
@@ -156,11 +159,11 @@ public class TestPrivREAD extends TestCase {
     LOG.info("testReadMembersWithoutREAD");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    Assert.assertTrue("members",      a.getMembers().size()               == 0);
-    Assert.assertTrue("imm members",  a.getImmediateMembers().size()      == 0);
+    Assert.assertTrue("members",      a.getMembers().size()               == 1);
+    Assert.assertTrue("imm members",  a.getImmediateMembers().size()      == 1);
     Assert.assertTrue("eff members",  a.getEffectiveMembers().size()      == 0);
-    Assert.assertTrue("mships",       a.getMemberships().size()           == 0);
-    Assert.assertTrue("imm mships",   a.getImmediateMemberships().size()  == 0);
+    Assert.assertTrue("mships",       a.getMemberships().size()           == 1);
+    Assert.assertTrue("imm mships",   a.getImmediateMemberships().size()  == 1);
     Assert.assertTrue("eff mships",   a.getEffectiveMemberships().size()  == 0);
   } // public void testReadMembersWithoutREAD()
 
@@ -178,7 +181,8 @@ public class TestPrivREAD extends TestCase {
 
   public void testReadMembersWithAllREAD() {
     LOG.info("testReadMembersWithAllREAD");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    // Already exists
+    // PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.READ);
     Group a = GroupHelper.findByName(nrs, i2.getName());
     Assert.assertTrue("members",      a.getMembers().size()               == 1);
     Assert.assertTrue("imm members",  a.getImmediateMembers().size()      == 1);

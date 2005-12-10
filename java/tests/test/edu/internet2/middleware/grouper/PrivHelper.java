@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.15 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.16 2005-12-10 16:06:06 blair Exp $
  */
 public class PrivHelper {
 
@@ -165,22 +165,16 @@ public class PrivHelper {
         LOG.debug("grantPrivFail.4 " + priv.getName());
         Assert.assertTrue("failed to grant " + priv + " (exists)", true);
         LOG.debug("grantPrivFail.5 " + priv.getName());
-        hasPriv(g, subj, m, priv, true);
-        LOG.debug("grantPrivFail.6 " + priv.getName());
       }
       catch (InsufficientPrivilegeException eIP) {
         LOG.debug("grantPrivFail.7 " + priv.getName());
         Assert.assertTrue("failed to grant " + priv + " (privs)", true);
         LOG.debug("grantPrivFail.8 " + priv.getName());
-        hasPriv(g, subj, m, priv, false);
-        LOG.debug("grantPrivFail.9 " + priv.getName());
       }
       catch (SchemaException eS) {
         LOG.debug("grantPrivFail.10 " + priv.getName());
         Assert.assertTrue("failed to grant " + priv + " (privs)", true);
         LOG.debug("grantPrivFail.11 " + priv.getName());
-        hasPriv(g, subj, m, priv, false);
-        LOG.debug("grantPrivFail.12 " + priv.getName());
       }
     }
     catch (MemberNotFoundException eMNF) {
@@ -342,7 +336,16 @@ public class PrivHelper {
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       g.revokePriv(subj, priv);  
-      hasPriv(g, subj, m, priv, false);
+      // Grant to ALL by default
+      if      (priv.equals(AccessPrivilege.READ)) {  
+        hasPriv(g, subj, m, priv, true);
+      }
+      else if (priv.equals(AccessPrivilege.VIEW)) {
+        hasPriv(g, subj, m, priv, true);
+      }
+      else {
+        hasPriv(g, subj, m, priv, false);
+      }
     }
     catch (Exception e) {
       Assert.fail("failed to revoke priv: " + e.getMessage());
@@ -532,49 +535,6 @@ public class PrivHelper {
       Assert.fail(eMNF.getMessage());
     }
   } // protected static void subjInStems(s, subj, stems, priv)
-
-  // TODO Genericize?
-/* TODO
-  public void testGetPrivs() {
-    Subject subj = SubjectHelper.SUBJ0;
-    PrivHelper.grantPriv( s, edu, subj , PRIV);      
-    List  creators  = new ArrayList( edu.getCreators() );
-    List  stemmers  = new ArrayList( edu.getStemmers() );
-    Assert.assertTrue("creators: 0", creators.size() == 0);
-    Assert.assertTrue("stemmers: 1", stemmers.size() == 1);
-    NamingPrivilege np = (NamingPrivilege) stemmers.get(0);
-    Assert.assertNotNull("np !null", np);
-    Assert.assertTrue(
-      "np instanceof NamingPrivilege", np instanceof NamingPrivilege
-    );
-    Assert.assertTrue(
-      "np implementation name",
-      np.getImplementationName().equals(
-        "edu.internet2.middleware.grouper.GrouperNamingAdapter"
-      )
-    );  
-    Assert.assertTrue("np revokable", np.isRevokable());
-    Assert.assertTrue("np name", np.getName().equals(PRIV.toString()));
-    Assert.assertTrue(
-      "np object instanceof Stem", np.getObject() instanceof Stem
-    );
-    Assert.assertTrue(
-      "np object == edu", 
-      ( (Stem) np.getObject() ).equals(edu)
-    );
-    try {
-      Assert.assertTrue(
-        "np owner == subj", np.getOwner().equals(subj)
-      );
-    }
-    catch (SubjectNotFoundException eSNF) {
-      Assert.fail("np has no owner");
-    }
-    Assert.assertTrue(
-      "np subject", np.getSubject().equals(subj)
-    );
-  } // public void testGrantPrivs()
-*/
 
   // Private Class Methods
   private static void _compareCollections(String msg, Set exp, Set got) {

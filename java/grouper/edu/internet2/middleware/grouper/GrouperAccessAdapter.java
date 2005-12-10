@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.23 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.24 2005-12-10 16:06:06 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -265,8 +265,6 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     GrouperSession.validate(s);
     boolean rv = g.hasMember(subj, this._getField(priv));
-    // TODO info?
-    // TODO log group name
     GrouperLog.debug(
       LOG, s, 
       "hasPriv '" + priv.getName().toUpperCase() + "' " 
