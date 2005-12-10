@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.26 2005-12-10 16:31:21 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.27 2005-12-10 22:31:36 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -368,6 +368,7 @@ class PrivilegeResolver {
   } // protected void canVIEW(s, g, subj)
   // TODO Can I remove s or subj?
 
+  // TODO Deprecate?
   protected Set canVIEW(GrouperSession s, Set candidates) {
     Set             groups  = new LinkedHashSet();
     Iterator        iter    = candidates.iterator();
@@ -375,6 +376,7 @@ class PrivilegeResolver {
       Group g = (Group) iter.next();
       g.setSession(s);
       try {
+        // Can we view the group
         this.canVIEW(s, g, s.getSubject());
         groups.add(g);
       }

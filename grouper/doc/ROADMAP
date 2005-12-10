@@ -3,35 +3,32 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.108 2005-12-10 16:31:21 blair Exp $
+$Id: ROADMAP,v 1.109 2005-12-10 22:31:36 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Incomplete 
-* MembershipFinder: filtering, session attachment and DRY of EVERYTHING
-* Membership: filter getChildMemberships()
-* Stem: filter getChildGroups()
 * Stem: update name and displayName of child stems and groups
 * thrown RTEs
+  * GrouperSession: throw SessionException, !RTE
+  * GrouperSession: getSubject() should throw SNFE
+  * GrouperSession: rename startSession() to start()
+* Stem: make child_groups mapping lazy
 * Profiling
 * DDL
   * Column names
   * Membership: Add create member, create time and status
   * Factors: DDL and how will they **actually** work
 * _AccessPrivilege_ and _NamingPrivilege_ objects
-* Stem: make child_groups mapping lazy
 * Stem: make child_stems mapping lazyA
-* Membership: (DISABLE?) make child_memberships mapping lazy (and functional)
+* Replace contrib items with updated cdg
 
 ## Incomplete (Desired)
 * PrivilegeFinder: remove
 * Group: toMember() is public
 * Privilege: getInstance() is public
-* GrouperSession: throw SessionException, !RTE
-* GrouperSession: getSubject() should throw SNFE
-* GrouperSession: rename startSession() to start()
 * GrouperAttribute: attribute methods should throw ANFE + SE
 * Rename access + naming interface properties
 * Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
@@ -112,7 +109,6 @@ $Id: ROADMAP,v 1.108 2005-12-10 16:31:21 blair Exp $
 
 ## Document
 * What triggers modified updates?
-* Replace contrib items with updated cdg
 * record where each *Finder method is called from
 * wheel group
 * ALL toggles

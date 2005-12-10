@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.34 2005-12-10 16:06:06 blair Exp $
+ * @version $Id: Stem.java,v 1.35 2005-12-10 22:31:36 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -251,14 +251,25 @@ public class Stem implements Serializable {
    * @return  Set of {@link Group} objects
    */
   public Set getChildGroups() {
-    // TODO Filter through canVIEW()
     Set       children  = new LinkedHashSet();
     Iterator  iter      = this.getChild_groups().iterator();
+    // Perform check as root
+    GrouperSession root = GrouperSessionFinder.getTransientRootSession();
     while (iter.hasNext()) {
       Group child = (Group) iter.next();
-      child.setSession(this.s);
-      children.add(child);
+      child.setSession(root);
+      try {
+        PrivilegeResolver.getInstance().canVIEW(
+          root, child, s.getSubject()
+        );
+        child.setSession(this.s);
+        children.add(child);
+      }
+      catch (InsufficientPrivilegeException eIP) {
+        // ignore
+      }
     }
+    root.stop();
     return children;
   } // public Set getChildGroups()
 

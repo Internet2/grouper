@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.12 2005-12-10 16:06:06 blair Exp $
+ * @version $Id: Membership.java,v 1.13 2005-12-10 22:31:36 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -117,21 +117,12 @@ public class Membership implements Serializable {
    * @return  Set of {@link Membership} objects.
    */
   public Set getChildMemberships() {
-    // TODO Filter based upon view?  Of both group and via group?
+    // TODO Ideally I would use a Hibernate mapping for this, but...
+    //      * It wasn't working and I didn't have time to debug at the
+    //        moment
+    //      * I still need to attach sessions
+    //      * I still need to filter
     GrouperSession.validate(this.s);
-/* TODO Save for the filtering and attachments of session I shouldn't
-        need to do this manually.  And yet... There is undoubtably something
-        wacky with my mapping file.
-    Set children = new LinkedHashSet();
-    // TODO Don't I have a bulk operation for this?
-    Iterator iter = this.getChild_memberships().iterator();
-    while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
-      ms.setSession(this.s);
-      children.add(ms);
-    }
-    return children;
-*/
     return MembershipFinder.findChildMemberships(this.s, this);
   } // public Set getChildMemberships()
 
@@ -542,7 +533,9 @@ public class Membership implements Serializable {
 
     // Remove this stem's immediate members
     GrouperLog.debug(LOG, s, msg + " finding hasMembers");
-    Iterator iterHAS = MembershipFinder.findImmediateMemberships(s, ns, f).iterator();
+    Iterator iterHAS = MembershipFinder.findImmediateMemberships(
+      root, ns.getUuid(), f
+    ).iterator();
     while (iterHAS.hasNext()) {
       Membership  msHAS = (Membership) iterHAS.next();
       Set         effs  = _membershipsToDelete(
@@ -668,10 +661,8 @@ public class Membership implements Serializable {
     Membership ms = null;
     try {
       // Does the membership already exist?
-      ms = MembershipFinder.findImmediateMembership(s, oid, m, f);
-      throw new MemberAddException(
-        "membership already exists"
-      );
+      ms = MembershipFinder.findImmediateMembership(oid, m, f);
+      throw new MemberAddException("membership already exists");
     }
     catch (MembershipNotFoundException eMNF) {
       // Membership doesn't exist.  Create it.
@@ -761,7 +752,8 @@ public class Membership implements Serializable {
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       // Find the immediate membership that is to be deleted
-      Membership imm = MembershipFinder.findImmediateMembership(s, ns, subj, f);
+      Membership imm = MembershipFinder.findImmediateMembership(ns.getUuid(), m, f);
+      imm.setSession(s);
       mships.add(imm);
       GrouperLog.debug(LOG, s, msg + " immediate member: " + imm);
       // Find effective memberships
