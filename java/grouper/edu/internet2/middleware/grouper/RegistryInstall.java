@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.10 2005-12-09 20:40:44 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.11 2005-12-10 16:31:21 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -188,10 +188,12 @@ public class RegistryInstall {
       );
       Stem  root    = Stem.addRootStem(s);
       LOG.info("root stem installed");
+/* TODO Should I or shouldn't I?
       Stem  grouper = root.addChildStem("grouper", "grouper");
       LOG.info("installed grouper stem: " + grouper.getName());
       Group wheel   = grouper.addChildGroup("wheel", "wheel");
       LOG.info("install wheel group: " + wheel.getName());
+*/
     }
     catch (Exception e) { 
       String err = "error installing stems and groups: " + e.getMessage();

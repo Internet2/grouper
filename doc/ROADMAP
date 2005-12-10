@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.107 2005-12-10 16:06:06 blair Exp $
+$Id: ROADMAP,v 1.108 2005-12-10 16:31:21 blair Exp $
 
 ---
 
@@ -40,7 +40,6 @@ $Id: ROADMAP,v 1.107 2005-12-10 16:06:06 blair Exp $
   * access privs
   * naming privs
   * subjects
-* PrivilegeResolver: log if wheel group configured but missing
 * Event logging
   * Clean up returned error messages when exceptions thrown
 * GrouperNamingAdapter: hasPriv() should take ALL into account
