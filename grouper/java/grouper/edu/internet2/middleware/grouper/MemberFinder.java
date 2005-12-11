@@ -30,12 +30,13 @@ import  org.apache.commons.logging.*;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.6 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.7 2005-12-11 06:28:39 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(MemberFinder.class);
+  private static final String ERR_FAM = "unable to find ALL subject as member: ";
+  private static final Log    LOG     = LogFactory.getLog(MemberFinder.class);
 
 
   // Public Class Methods
@@ -121,9 +122,9 @@ public class MemberFinder implements Serializable {
       return MemberFinder.findBySubject(SubjectFinder.findAllSubject()); 
     }
     catch (MemberNotFoundException eMNF) {
-      throw new RuntimeException(
-        "unable to find ALL subject as member: " + eMNF.getMessage()
-      );
+      String err = ERR_FAM + eMNF.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
   } // protected static Member findAllMember()
 

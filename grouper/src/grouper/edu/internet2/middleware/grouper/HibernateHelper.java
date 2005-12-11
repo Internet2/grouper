@@ -30,19 +30,20 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.7 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.8 2005-12-11 06:28:39 blair Exp $
  */
 class HibernateHelper {
 
   // Private Class Constants
-	private static final SessionFactory factory;
+  private static final String         ERR_GP    = "attempt to delete transient object ";
+	private static final SessionFactory FACTORY;
 	private static final Log            LOG       = LogFactory.getLog(HibernateHelper.class);
 
 
-  // Create the static session factory 
+  // Create the static session FACTORY 
 	static {
 		try {
-      factory = new Configuration()
+      FACTORY = new Configuration()
         .addClass(Attribute.class)
         .addClass(Field.class)
         .addClass(Group.class)
@@ -116,7 +117,7 @@ class HibernateHelper {
 	protected static Session getSession()
     throws HibernateException
   {
-		return factory.openSession();
+		return FACTORY.openSession();
 	} // protected static Session getSession()
 
   // Save an object
@@ -220,7 +221,6 @@ class HibernateHelper {
   // Private Class Methods
   private static Object _getPersistent(Session hs, Object o) {
     boolean persistent  = false;
-    String  msg         = "attempt to delete transient object: " + o;
     if (hs.contains(o)) {
       persistent = true;
     }
@@ -237,11 +237,13 @@ class HibernateHelper {
     }
     if (persistent == false) {
       try {
-        throw new RuntimeException(msg);
+        throw new RuntimeException();
       }
       catch (RuntimeException eR) {
+        String err = ERR_GP + o + ":" + eR.getMessage();
+        LOG.fatal(err);
         eR.printStackTrace();
-        throw new RuntimeException(eR.getMessage());
+        throw new RuntimeException(err);
       }
     }
     return o;

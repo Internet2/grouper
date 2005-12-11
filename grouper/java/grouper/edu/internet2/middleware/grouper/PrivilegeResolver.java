@@ -30,13 +30,14 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.28 2005-12-11 04:38:57 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.29 2005-12-11 06:28:39 blair Exp $
  *     
 */
 class PrivilegeResolver {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(PrivilegeResolver.class);
+  private static final String ERR_CI  = "unable to instantiate interface ";  
+  private static final Log    LOG     = LogFactory.getLog(PrivilegeResolver.class);
 
 
   // Private Class Variables
@@ -492,47 +493,33 @@ class PrivilegeResolver {
   protected Set getGroupsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
   ) 
+    throws  SchemaException
   {
     GrouperSession.validate(s);
-    try {
-      return this.access.getGroupsWhereSubjectHasPriv(s, subj, priv);
-    }
-    catch (SchemaException eS) {
-      throw new RuntimeException(eS.getMessage());
-    }
+    return this.access.getGroupsWhereSubjectHasPriv(s, subj, priv);
   } // protected Set getGroupsWhereSubjectHasPriv(s, subj, priv)
 
   protected Set getStemsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
   ) 
+    throws  SchemaException
   {
     GrouperSession.validate(s);
-    try {
-      return this.naming.getStemsWhereSubjectHasPriv(s, subj, priv);
-    }
-    catch (SchemaException eS) {
-      throw new RuntimeException(eS.getMessage());
-    }
+    return this.naming.getStemsWhereSubjectHasPriv(s, subj, priv);
   } // protected Set getStemsWhereSubjectHasPriv(s, subj, priv)
 
-  protected Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) {
+  protected Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
+    throws  SchemaException
+  {
     GrouperSession.validate(s);
-    try {
-      return this.access.getSubjectsWithPriv(s, g, priv);
-    }
-    catch (SchemaException eS) {
-      throw new RuntimeException(eS.getMessage());
-    }
+    return this.access.getSubjectsWithPriv(s, g, priv);
   } // protected Set getSubjectsWithPriv(s, g, priv)
 
-  protected Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) {
+  protected Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
+    throws SchemaException
+  {
     GrouperSession.validate(s);
-    try {
-      return this.naming.getSubjectsWithPriv(s, ns, priv);
-    }
-    catch (SchemaException eS) {
-      throw new RuntimeException(eS.getMessage());
-    }
+    return this.naming.getSubjectsWithPriv(s, ns, priv);
   } // protected Set getSubjectsWithPriv(s, ns, priv)
 
   protected void grantPriv(
@@ -584,7 +571,12 @@ class PrivilegeResolver {
           // TODO The problem is that the test suite deletes it.  
           LOG.error("wheel group enabled but not found: " + name);
         }
-        root.stop();
+        try {
+          root.stop();
+        }
+        catch (SessionException eS) {
+          LOG.error(eS.getMessage());
+        }
       }
     }
     return rv;
@@ -691,26 +683,14 @@ class PrivilegeResolver {
     try {
       Class   classType     = Class.forName(name);
       Class[] paramsClass   = new Class[] { };
-      try {
-        Constructor con = 
-          classType.getDeclaredConstructor(paramsClass);
-        Object[] params = new Object[] { };
-        try {
-          return con.newInstance(params);
-        } 
-        catch (Exception e) {
-          throw new RuntimeException(
-            "Unable to instantiate class: " + name 
-          );
-        }
-      } 
-      catch (NoSuchMethodException eNSM) {
-        throw new RuntimeException(
-          "Unable to find constructor for class: " + name);
-      }
-    } 
-    catch (ClassNotFoundException eCNF) {
-      throw new RuntimeException("Unable to find class: " + name);
+      Constructor con = classType.getDeclaredConstructor(paramsClass);
+      Object[] params = new Object[] { };
+      return con.newInstance(params);
+    }
+    catch (Exception e) {
+      String err = ERR_CI + name + ": " + e.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
   } // private static Object _createInterface(name)
 

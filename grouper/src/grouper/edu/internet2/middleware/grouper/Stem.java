@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.37 2005-12-11 04:16:31 blair Exp $
+ * @version $Id: Stem.java,v 1.38 2005-12-11 06:28:39 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -44,6 +44,8 @@ public class Stem implements Serializable {
   private static final String CFG_GCGAV   = "groups.create.grant.all.view";
   private static final String CFG_SCGAC   = "stems.create.grant.all.create";
   private static final String CFG_SCGAS   = "stems.create.grant.all.stem";
+  private static final String ERR_ARS     = "unable to install root stem: ";
+  private static final String ERR_FNF     = "field not found: ";
   private static final Log    LOG         = LogFactory.getLog(Stem.class);
 
 
@@ -287,8 +289,10 @@ public class Stem implements Serializable {
       }
       root.stop();
     }
-    catch (HibernateException eH) {
-      LOG.error(eH.getMessage());
+    catch (Exception e) {
+      // @exception HibernateException
+      // @exception SessionException
+      LOG.error(e.getMessage());
     }
     return children;
   } // public Set getChildGroups()
@@ -371,9 +375,16 @@ public class Stem implements Serializable {
    * @return  Set of {@link Subject} objects
    */
   public Set getCreators() {
-    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-      this.s, this, NamingPrivilege.CREATE
-    );
+    try {
+      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+        this.s, this, NamingPrivilege.CREATE
+      );
+    }
+    catch (SchemaException eS) {
+      String err = ERR_FNF + NamingPrivilege.CREATE;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getCreators()
 
   /**
@@ -538,9 +549,16 @@ public class Stem implements Serializable {
    * @return  Set of {@link Subject} objects
    */
   public Set getStemmers() {
-    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-      this.s, this, NamingPrivilege.STEM
-    );
+    try {
+      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+        this.s, this, NamingPrivilege.STEM
+      );
+    }
+    catch (SchemaException eS) {
+      String err = ERR_FNF + NamingPrivilege.STEM;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getStemmers()
 
   /**
@@ -815,9 +833,9 @@ public class Stem implements Serializable {
       HibernateHelper.save(root);
     }
     catch (HibernateException eH) {
-      throw new RuntimeException(
-        "unable to add root stem: " + eH.getMessage()
-      );
+      String err = ERR_ARS + eH.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
     return root;
   } // protected static Stem addRootStem(GrouperSession s)
@@ -1003,7 +1021,7 @@ public class Stem implements Serializable {
       objects.addAll(this._renameChildGroups());
     }
     catch (HibernateException eH) {
-      String err = "unable to initialize child stems and groups: " + eH.getMessage();
+      String err = eH.getMessage();
       GrouperLog.error(LOG, this.s, err); 
       throw new StemModifyException(err);
     }

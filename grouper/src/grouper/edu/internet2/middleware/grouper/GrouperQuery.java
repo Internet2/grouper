@@ -17,17 +17,28 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.io.Serializable;
 import  java.util.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * Perform arbitrary queries against the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.6 2005-12-01 03:43:10 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.7 2005-12-11 06:28:39 blair Exp $
  */
 public class GrouperQuery implements Serializable {
+
+  // Private Class Constants
+  private static final String ERR_G   = "getting groups from ";
+  private static final String ERR_M   = "getting members from ";
+  private static final String ERR_MS  = "getting memberships from ";
+  private static final String ERR_S   = "getting stems from ";
+  private static final String ERR_NI  = "not implemented: ";
+  private static final Log    LOG     = LogFactory.getLog(GrouperQuery.class);
+
 
   // Private Instance Variables
   private GrouperSession  s;
@@ -114,9 +125,7 @@ public class GrouperQuery implements Serializable {
         // Nothing
       }
       else {
-        throw new RuntimeException(
-          "Getting groups from " + o.getClass() + " not implemented"
-        );
+        LOG.error(ERR_NI + ERR_G + o.getClass());
       }
     }
     return groups;
@@ -145,9 +154,7 @@ public class GrouperQuery implements Serializable {
         // Nothing
       }
       else {
-        throw new RuntimeException(
-          "Getting members from " + o.getClass() + " not implemented"
-        );
+        LOG.error(ERR_NI + ERR_M + o.getClass());
       }
     }
     // Now extract members from any memberships we found
@@ -188,9 +195,7 @@ public class GrouperQuery implements Serializable {
         // Nothing
       }
       else {
-        throw new RuntimeException(
-          "Getting memberships from " + o.getClass() + " not implemented"
-        );
+        LOG.error(ERR_NI + ERR_MS + o.getClass());
       }
     }
     return mships;
@@ -221,9 +226,7 @@ public class GrouperQuery implements Serializable {
         stems.add( (Stem) o );
       }
       else {
-        throw new RuntimeException(
-          "Getting stems from " + o.getClass() + " not implemented"
-        );
+        LOG.error(ERR_NI + ERR_S + o.getClass());
       }
     }
     return stems;

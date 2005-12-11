@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.1 2005-12-06 17:40:21 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.2 2005-12-11 06:28:39 blair Exp $
  */
 public class TestBugsClosed extends TestCase {
 
@@ -57,7 +57,7 @@ public class TestBugsClosed extends TestCase {
   public void testGrantStemToGroup() {
     try {
       // Setup
-      GrouperSession  s     = GrouperSession.startSession(
+      GrouperSession  s     = GrouperSession.start(
         SubjectFinder.findById("GrouperSystem", "application")
       );
       Stem            root  = StemFinder.findRootStem(s);

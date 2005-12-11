@@ -30,12 +30,14 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.24 2005-12-10 22:31:36 blair Exp $
+ * @version $Id: Member.java,v 1.25 2005-12-11 06:28:39 blair Exp $
  */
 public class Member implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(Member.class);
+  private static final String ERR_FNF   = "field not found: ";
+  private static final String ERR_SNF = "unable to find member as subject: ";
+  private static final Log    LOG     = LogFactory.getLog(Member.class);
 
 
   // Hibernate Properties
@@ -235,17 +237,16 @@ public class Member implements Serializable {
    * @return  A set of {@link AccessPrivilege} objects.
    */
   public Set getPrivs(Group g) {
+    Set privs = new LinkedHashSet();
     try {
-      return PrivilegeResolver.getInstance().getPrivs(
+      privs = PrivilegeResolver.getInstance().getPrivs(
         this.s, g, this.getSubject()
       );
     }
     catch (SubjectNotFoundException eSNF) {
-      // TODO Bah
-      throw new RuntimeException(
-        "unable to get privs on " + g.getName() + ": " + eSNF.getMessage()
-      );
+      LOG.error(ERR_SNF + eSNF.getMessage());
     }
+    return privs;
   } // public Set getPrivs(g)
 
   /**
@@ -257,17 +258,16 @@ public class Member implements Serializable {
    * @return  A set of {@link NamingPrivilege} objects.
    */
   public Set getPrivs(Stem ns) {
+    Set privs = new LinkedHashSet();
     try {
-      return PrivilegeResolver.getInstance().getPrivs(
+      privs = PrivilegeResolver.getInstance().getPrivs(
         this.s, ns, this.getSubject()
       );
     }
     catch (SubjectNotFoundException eSNF) {
-      // TODO Bah
-      throw new RuntimeException(
-        "unable to get privs on " + ns.getName() + ": " + eSNF.getMessage()
-      );
+      LOG.error(ERR_SNF + eSNF.getMessage());
     }
+    return privs;
   } // public Set getPrivs(ns)
 
   /**
@@ -320,9 +320,9 @@ public class Member implements Serializable {
       return this.getSubject().getSource();
     }
     catch (SubjectNotFoundException eSNF) {
-      throw new RuntimeException(
-        "unable to retrieve source: " + eSNF.getMessage()
-      );
+      String err = ERR_SNF + eSNF.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
   } // public Source getSubjectSource()
 
@@ -382,14 +382,21 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasAdmin() {
+    Set privs = new LinkedHashSet();
     try {
-      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
         this.s, this.getSubject(), AccessPrivilege.ADMIN
       );
     }
-    catch (SubjectNotFoundException eSNF) {
-      throw new RuntimeException(eSNF.getMessage());
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.ADMIN;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error(ERR_SNF + eSNF.getMessage());
+    }
+    return privs;
   } // public Set hasAdmin()
 
   /**
@@ -416,14 +423,21 @@ public class Member implements Serializable {
    * @return  Set of {@link Stem} objects.
    */
   public Set hasCreate() {
+    Set privs = new LinkedHashSet();
     try {
-      return PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
         this.s, this.getSubject(), NamingPrivilege.CREATE
       );
     } 
-    catch (SubjectNotFoundException eSNF) {
-      throw new RuntimeException(eSNF.getMessage());
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + NamingPrivilege.CREATE;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error(ERR_SNF + eSNF.getMessage());
+    }
+    return privs;
   } // public Set hasCreate()
 
   /**
@@ -450,14 +464,21 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasOptin() {
+    Set privs = new LinkedHashSet();
     try {
-      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
         this.s, this.getSubject(), AccessPrivilege.OPTIN
       );
     }
-    catch (SubjectNotFoundException eSNF) {
-      throw new RuntimeException(eSNF.getMessage());
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.OPTIN;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error(ERR_SNF + eSNF.getMessage());
+    }
+    return privs;
   } // public Set hasOptin()
 
   /**
@@ -484,14 +505,21 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasOptout() {
+    Set privs = new LinkedHashSet();
     try {
-      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
         this.s, this.getSubject(), AccessPrivilege.OPTOUT
       );
     }
-    catch (SubjectNotFoundException eSNF) {
-      throw new RuntimeException(eSNF.getMessage());
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.OPTOUT;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error(ERR_SNF + eSNF.getMessage());
+    }
+    return privs;
   } // public Set hasOptout()
 
   /**
@@ -518,14 +546,21 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasRead() {
+    Set privs = new LinkedHashSet();
     try {
-      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
         this.s, this.getSubject(), AccessPrivilege.READ
       );
     }
-    catch (SubjectNotFoundException eSNF) {
-      throw new RuntimeException(eSNF.getMessage());
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.READ;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error(ERR_SNF + eSNF.getMessage());
+    }
+    return privs;
   } // public Set hasRead()
 
   /**
@@ -552,14 +587,21 @@ public class Member implements Serializable {
    * @return  Set of {@link Stem} objects.
    */
   public Set hasStem() {
+    Set privs = new LinkedHashSet();
     try {
-      return PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
         this.s, this.getSubject(), NamingPrivilege.STEM
       );
     }
-    catch (SubjectNotFoundException eSNF) {
-      throw new RuntimeException(eSNF.getMessage());
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + NamingPrivilege.STEM;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error(ERR_SNF + eSNF.getMessage());
+    }
+    return privs;
   } // public Set hasStem()
 
   /**
@@ -585,14 +627,21 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasUpdate() {
+    Set privs = new LinkedHashSet();
     try {
-      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
         this.s, this.getSubject(), AccessPrivilege.UPDATE
       );
     }
-    catch (SubjectNotFoundException eSNF) {
-      throw new RuntimeException(eSNF.getMessage());
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.UPDATE;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error(ERR_SNF + eSNF.getMessage());
+    }
+    return privs;
   } // public Set hasUpdate()
 
   /**
@@ -619,14 +668,21 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasView() {
+    Set privs = new LinkedHashSet();
     try {
-      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
         this.s, this.getSubject(), AccessPrivilege.VIEW
       );
     }
-    catch (SubjectNotFoundException eSNF) {
-      throw new RuntimeException(eSNF.getMessage());
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.VIEW;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error(ERR_SNF + eSNF.getMessage());
+    }
+    return privs;
   } // public Set hasView()
 
   /**
@@ -962,31 +1018,29 @@ public class Member implements Serializable {
 
   // Private Instance Methods
   private boolean _hasPriv(Group g, Privilege priv) {
+    boolean rv = false;
     try {
-      return PrivilegeResolver.getInstance().hasPriv(
+      rv = PrivilegeResolver.getInstance().hasPriv(
         this.s, g, this.getSubject(), priv
       );
     }
     catch (SubjectNotFoundException eSNF) {
-      // TODO Bah
-      throw new RuntimeException(
-        "unable to get privs on " + g.getName() + ": " + eSNF.getMessage()
-      );
+      LOG.error(ERR_SNF + eSNF.getMessage());
     }
+    return rv;
   } // private boolean _hasPriv(g, priv)
 
   private boolean _hasPriv(Stem ns, Privilege priv) {
+    boolean rv = false;
     try {
-      return PrivilegeResolver.getInstance().hasPriv(
+      rv = PrivilegeResolver.getInstance().hasPriv(
         this.s, ns, this.getSubject(), priv
       );
     }
     catch (SubjectNotFoundException eSNF) {
-      // TODO Bah
-      throw new RuntimeException(
-        "unable to get privs on " + ns.getName() + ": " + eSNF.getMessage()
-      );
+      LOG.error(ERR_SNF + eSNF.getMessage());
     }
+    return rv;
   } // private boolean _hasPriv(ns, priv)
 
 

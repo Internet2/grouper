@@ -31,12 +31,14 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.13 2005-12-10 22:31:36 blair Exp $
+ * @version $Id: Membership.java,v 1.14 2005-12-11 06:28:39 blair Exp $
  */
 public class Membership implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(Membership.class);
+  private static final String ERR_IO  = "class cannot contain membership: ";
+  private static final String ERR_NO  = "membership has no owner: ";
+  private static final Log    LOG     = LogFactory.getLog(Membership.class);
 
 
   // Hibernate Properties
@@ -558,6 +560,7 @@ public class Membership implements Serializable {
     throws  GroupNotFoundException,
             MemberDeleteException,
             MemberNotFoundException,
+            SchemaException,
             SubjectNotFoundException
   {
     GrouperSession.validate(s);
@@ -623,7 +626,9 @@ public class Membership implements Serializable {
         eff.setOwner_id( ms.getStem().getUuid()       );
       }
       catch (StemNotFoundException eNSNF) {
-        throw new RuntimeException("membership has no owner: " + ms);
+        String err = ERR_NO + ms;
+        LOG.fatal(err);
+        throw new RuntimeException(err);
       }
     }
     eff.setMember_id( hasMS.getMember()             );  // hasMember m
@@ -685,16 +690,18 @@ public class Membership implements Serializable {
     return MemberOf.doMemberOf(s, imm);
   } // private static _findEffectiveMemberships(s, imm)
 
-  private static String _getOid(Object o) {
+  private static String _getOid(Object o) 
+    throws  MemberAddException
+  {
     if      (o.getClass().equals(Group.class)) {
       return ( (Group) o ).getUuid();
     }
     else if (o.getClass().equals(Stem.class)) {
       return ( (Stem) o ).getUuid();
     }
-    throw new RuntimeException(
-      "class cannot contain membership: " + o.getClass()
-    );
+    String err = ERR_IO + o.getClass();
+    LOG.error(err);
+    throw new MemberAddException(err);
   } // private static String _getOid(o)
 
   // TODO Take a membership object?

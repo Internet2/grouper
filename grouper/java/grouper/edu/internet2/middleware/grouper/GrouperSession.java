@@ -31,13 +31,16 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.10 2005-12-11 04:38:57 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.11 2005-12-11 06:28:39 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(GrouperSession.class);
+  private static final String ERR_GS    = "unable to get subject associated with session";
+  private static final String ERR_START = "unable to start session: ";
+  private static final String ERR_STOP  = "unable to stop session: ";
+  private static final Log    LOG       = LogFactory.getLog(GrouperSession.class);
 
 
   // Hibernate Properties
@@ -69,31 +72,33 @@ public class GrouperSession implements Serializable {
    * Start a session for interacting with the Grouper API.
    * <pre class="eg">
    * // Start a Grouper API session.
-   * GrouperSession s = GrouperSession.startSession(subject);
+   * GrouperSession s = GrouperSession.start(subject);
    * </pre>
    * @param   subject   Start session as this {@link Subject}.
    * @return  A Grouper API session.
    * @throws  SessionException
    */
   // TODO Rename: getSession
-  public static GrouperSession startSession(Subject subject) 
+  public static GrouperSession start(Subject subject) 
     throws SessionException
   {
-    GrouperSession s = _getSession(subject);
     try {
       // No cascading so save everything myself
+      GrouperSession s = _getSession(subject);
       Set objects = new LinkedHashSet();
       objects.add(s.getMember_id());
       objects.add(s);
       HibernateHelper.save(objects);
+      return s;
     }
-    catch (HibernateException e) {
-      throw new SessionException(
-        "Unable to start session: " + e.getMessage()
-      );
+    catch (Exception e) {
+      // @exception HibernateException
+      // @MemberNotFoundException
+      String err = ERR_START + e.getMessage();
+      LOG.fatal(err);
+      throw new SessionException(err);
     }
-    return s;
-  } // public static GrouperSession startSession(subject)
+  } // public static GrouperSession start(subject)
 
 
   // Public instance methods
@@ -173,8 +178,6 @@ public class GrouperSession implements Serializable {
    * @return  A {@link Subject} object.
    */
   public Subject  getSubject() {
-    // DESIGN What exception?
-    // TODO What exception?
     if (this.subj == null) {
       try {
         this.subj = this.getMember_id().getSubject();
@@ -184,7 +187,8 @@ public class GrouperSession implements Serializable {
       }
     }
     if (this.subj == null) {
-      throw new RuntimeException("unable to get subject");
+      LOG.fatal(ERR_GS);
+      throw new RuntimeException(ERR_GS);
     }
     return this.subj;
   } // public Subject getSubject()
@@ -202,7 +206,9 @@ public class GrouperSession implements Serializable {
    * s.stop();
    * </pre>
    */
-  public void stop() {
+  public void stop() 
+    throws  SessionException
+  {
     try {
       HibernateHelper.delete(this);
       this.setId(null);
@@ -212,7 +218,9 @@ public class GrouperSession implements Serializable {
       this.subj = null;
     }
     catch (HibernateException eH) {
-      throw new RuntimeException("unable to stop session: " + eH.getMessage());
+      String err = ERR_STOP + eH.getMessage();
+      LOG.error(err);
+      throw new SessionException(err);
     }
   } // public void stop()
 
@@ -252,28 +260,22 @@ public class GrouperSession implements Serializable {
 
 
   // Private Static Methods
-  private static GrouperSession _getSession(Subject subj) {
-    try {
-      GrouperSession s = new GrouperSession();
-      // Transient
-      s.subj  = subj;
-      s.who   = subj.getId();
-      s.type  = subj.getType().getName();
-      if (s.type.equals(SubjectTypeEnum.valueOf("group"))) {
-        s.who = subj.getName();
-      }
-      // Persistent
-      s.setMember_id(MemberFinder.findBySubject(subj));
-      s.setStart_time( new Date() );
-      s.setSession_id( GrouperUuid.getUuid() );
-      return s;
+  private static GrouperSession _getSession(Subject subj) 
+    throws  MemberNotFoundException
+  {
+    GrouperSession s = new GrouperSession();
+    // Transient
+    s.subj  = subj;
+    s.who   = subj.getId();
+    s.type  = subj.getType().getName();
+    if (s.type.equals(SubjectTypeEnum.valueOf("group"))) {
+      s.who = subj.getName();
     }
-    catch (MemberNotFoundException e) {
-      // TODO What to do|throw here?
-      throw new RuntimeException(
-        "member error: " + e.getMessage()
-      );
-    }
+    // Persistent
+    s.setMember_id(MemberFinder.findBySubject(subj));
+    s.setStart_time( new Date() );
+    s.setSession_id( GrouperUuid.getUuid() );
+    return s;
   } // private GrouperSession(subj) 
 
 

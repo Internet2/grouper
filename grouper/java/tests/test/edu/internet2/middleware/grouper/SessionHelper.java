@@ -26,7 +26,7 @@ import  junit.framework.*;
  * {@link GrouperSession} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SessionHelper.java,v 1.2 2005-11-15 19:06:39 blair Exp $
+ * @version $Id: SessionHelper.java,v 1.3 2005-12-11 06:28:39 blair Exp $
  */
 public class SessionHelper {
 
@@ -41,7 +41,7 @@ public class SessionHelper {
   // @return  A {@link GrouperSession}
   protected static GrouperSession getSession(String id) {
     try {
-      GrouperSession s = GrouperSession.startSession(
+      GrouperSession s = GrouperSession.start(
         SubjectFinder.findById(id)
       );
       Assert.assertNotNull("s !null", s);
@@ -77,7 +77,7 @@ public class SessionHelper {
   // @return  A {@link GrouperSession}
   protected static GrouperSession getSession(String id, String type) {
     try {
-      GrouperSession s = GrouperSession.startSession(
+      GrouperSession s = GrouperSession.start(
         SubjectFinder.findById(id, type)
       );
       Assert.assertNotNull("s !null", s);

@@ -29,18 +29,19 @@ import  org.apache.commons.logging.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.9 2005-12-09 17:15:43 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.10 2005-12-11 06:28:39 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
   // Private Class Constants
-  private static final Log            LOG;
+  private static final String         ERR_IAS   = "unable to initialize ALL subject: ";
+  private static final String         ERR_INIT  = "failed to initialize source manager: ";
+  private static final Log            LOG       = LogFactory.getLog(SubjectFinder.class);
   private static final SourceManager  MGR;
-  private static final Subject        ALL; // TODO Make public?
+  private static final Subject        ALL; 
 
 
   static {
-    LOG = LogFactory.getLog(SubjectFinder.class);
     LOG.debug("Initializing source manager");
     try {
       MGR = SourceManager.getInstance();
@@ -63,13 +64,15 @@ public class SubjectFinder implements Serializable {
         LOG.info("ALL subject initialized");
       }
       catch (SubjectNotFoundException eSNF) {
-        String msg = "unable to initialize ALL subject: " + eSNF.getMessage();
-        LOG.fatal(msg);
-        throw new RuntimeException(msg);
+        String err = ERR_IAS + eSNF.getMessage();
+        LOG.fatal(err);
+        throw new RuntimeException(err);
       }
     } 
     catch (Exception e) {
-      throw new RuntimeException("failed to initialize: " + e.getMessage()); 
+      String err = ERR_INIT + e.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
   } // static
 
