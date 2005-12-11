@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.3 2005-12-09 17:15:43 blair Exp $
+ * @version $Id: TestMember.java,v 1.4 2005-12-11 06:28:39 blair Exp $
  */
 public class TestMember extends TestCase {
 
@@ -71,8 +71,8 @@ public class TestMember extends TestCase {
 
   public void testSetSubjectIdNotRoot() {
     LOG.info("testSetSubjectIdNotRoot");
-    GrouperSession nrs = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
     try {
+      GrouperSession nrs = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
       Member  m     = MemberFinder.findBySubject(nrs, SubjectHelper.SUBJ1);
       String  orig  = m.getSubjectId();
       try {
@@ -83,17 +83,17 @@ public class TestMember extends TestCase {
         Assert.assertTrue(eIP.getMessage(), true);
         Assert.assertTrue("unchanged", m.getSubjectId().equals(orig));
       }
+      nrs.stop();
     }
     catch (Exception e) {
       Assert.fail("could not get: " + e.getMessage());
     }
-    nrs.stop();
   } // public void testSetSubjectIdNotRoot
 
   public void testSetSubjectIdRoot() {
     LOG.info("testSetSubjectIdRoot");
-    GrouperSession s = SessionHelper.getRootSession();
     try {
+      GrouperSession s = SessionHelper.getRootSession();
       Member  m     = MemberFinder.findBySubject(s, SubjectHelper.SUBJ1);
       String  orig  = m.getSubjectId();
       try {
@@ -105,11 +105,11 @@ public class TestMember extends TestCase {
       catch (InsufficientPrivilegeException eIP) {
         Assert.fail("not set: " + eIP.getMessage());
       }
+      s.stop();
     }
     catch (Exception e) {
       Assert.fail("could not get: " + e.getMessage());
     }
-    s.stop();
   } // public void testSetSubjectIdRoot
 
 }

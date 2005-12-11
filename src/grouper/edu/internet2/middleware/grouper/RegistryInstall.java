@@ -29,12 +29,14 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.11 2005-12-10 16:31:21 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.12 2005-12-11 06:28:39 blair Exp $    
  */
 public class RegistryInstall {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(RegistryInstall.class);
+  private static final String ERR_IS  = "unable to install schema: ";
+  private static final String ERR_ISG = "unable to install base stems and groups: ";
+  private static final Log    LOG     = LogFactory.getLog(RegistryInstall.class);
 
 
   // Public Class Methods
@@ -173,7 +175,7 @@ public class RegistryInstall {
       LOG.info("fields installed     : " + fields.size());
     }
     catch (HibernateException eH) {
-      String err = "error installing schema: " + eH.getMessage();
+      String err = ERR_IS + eH.getMessage();
       LOG.fatal(err);
       throw new RuntimeException(err);
     }
@@ -181,7 +183,7 @@ public class RegistryInstall {
 
   private static void _installGroupsAndStems() {
     try {
-      GrouperSession s = GrouperSession.startSession(
+      GrouperSession s = GrouperSession.start(
         SubjectFinder.findById(
           "GrouperSystem", "application"
         )
@@ -196,7 +198,7 @@ public class RegistryInstall {
 */
     }
     catch (Exception e) { 
-      String err = "error installing stems and groups: " + e.getMessage();
+      String err = ERR_ISG + e.getMessage();
       LOG.fatal(err);
       throw new RuntimeException(err);
     }

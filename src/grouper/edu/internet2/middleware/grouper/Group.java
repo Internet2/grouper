@@ -30,20 +30,28 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.40 2005-12-11 04:16:31 blair Exp $
+ * @version $Id: Group.java,v 1.41 2005-12-11 06:28:39 blair Exp $
  */
 public class Group implements Serializable {
 
   // Private Class Constants
-  private static final String ERR_AM  = "unable to add member: ";
-  private static final String ERR_DG  = "unable to delete group: ";
-  private static final String ERR_DM  = "unable to delete member: ";
-  private static final String ERR_GA  = "attribute not found: ";
-  private static final String ERR_S2G = "could not convert subject to group: ";
-  private static final Log    LOG     = LogFactory.getLog(Group.class);
-  private static final String MSG_AM  = "add member ";
-  private static final String MSG_DG  = "group deleted: ";
-  private static final String MSG_DM  = "revoke member ";
+  private static final String ERR_AM    = "unable to add member: ";
+  private static final String ERR_DG    = "unable to delete group: ";
+  private static final String ERR_GDL   = "members list does not exist: ";
+  private static final String ERR_G2M   = "could not convert group to member: ";
+  private static final String ERR_G2S   = "could not convert group to subject: ";
+  private static final String ERR_DM    = "unable to delete member: ";
+  private static final String ERR_FNF   = "field not found: ";
+  private static final String ERR_GA    = "attribute not found: ";
+  private static final String ERR_NODE  = "group without displayExtension";
+  private static final String ERR_NODN  = "group without displayName";
+  private static final String ERR_NOE   = "group without extension";
+  private static final String ERR_NON   = "group without name";
+  private static final String ERR_S2G   = "could not convert subject to group: ";
+  private static final Log    LOG       = LogFactory.getLog(Group.class);
+  private static final String MSG_AM    = "add member ";
+  private static final String MSG_DG    = "group deleted: ";
+  private static final String MSG_DM    = "revoke member ";
 
 
   // Hibernate Properties
@@ -130,7 +138,9 @@ public class Group implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      throw new RuntimeException(eS.getMessage());
+      String err = ERR_GDL + eS.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
   } // public static Field getDefaultList()
 
@@ -199,7 +209,8 @@ public class Group implements Serializable {
         this.s, this, this.s.getSubject(), f, FieldType.LIST
       );
       GrouperLog.debug(LOG, s, msg + " can write list");
-    } catch (InsufficientPrivilegeException eIP) {
+    } 
+    catch (InsufficientPrivilegeException eIP) {
       GrouperLog.debug(LOG, s, msg + " cannot write list");
       try {
         this._canOPTIN(subj, f);
@@ -477,9 +488,16 @@ public class Group implements Serializable {
    * @return  Set of subjects with ADMIN
    */
   public Set getAdmins() {
-    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-      this.s, this, AccessPrivilege.ADMIN
-    );
+    try {
+      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+        this.s, this, AccessPrivilege.ADMIN
+      );
+    }
+    catch (SchemaException eS) {
+      String err = ERR_FNF + AccessPrivilege.ADMIN;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getAdmins()
 
   /**
@@ -628,9 +646,8 @@ public class Group implements Serializable {
         GrouperLog.debug(LOG, this.s, msg + " fetched");
       }
       catch (AttributeNotFoundException eANF) {
-        String err = "group without displayExtension";
-        GrouperLog.error(LOG, this.s, err);
-        throw new RuntimeException(err);
+        GrouperLog.fatal(LOG, this.s, ERR_NODE);
+        throw new RuntimeException(ERR_NODE);
       }
     }
     return attr_de;
@@ -653,9 +670,8 @@ public class Group implements Serializable {
         GrouperLog.debug(LOG, this.s, msg + " fetched");
       }
       catch (AttributeNotFoundException eANF) {
-        String err = "group without displayName";
-        GrouperLog.error(LOG, this.s, err);
-        throw new RuntimeException(err);
+        GrouperLog.fatal(LOG, this.s, ERR_NODN);
+        throw new RuntimeException(ERR_NODN);
       }
     }
     return attr_dn;
@@ -724,9 +740,8 @@ public class Group implements Serializable {
         GrouperLog.debug(LOG, this.s, msg + " fetched");
       }
       catch (AttributeNotFoundException eANF) {
-        String err = "group without extension";
-        GrouperLog.error(LOG, this.s, err);
-        throw new RuntimeException(err);
+        GrouperLog.fatal(LOG, this.s, ERR_NOE);
+        throw new RuntimeException(ERR_NOE);
       }
     }
     return attr_e;
@@ -899,9 +914,8 @@ public class Group implements Serializable {
         GrouperLog.debug(LOG, this.s, msg + " fetched");
       }
       catch (AttributeNotFoundException eANF) {
-        String err = "group without name";
-        GrouperLog.error(LOG, this.s, err);
-        throw new RuntimeException(err);
+        GrouperLog.fatal(LOG, this.s, ERR_NON);
+        throw new RuntimeException(ERR_NON);
       }
     }
     return attr_n;
@@ -915,9 +929,16 @@ public class Group implements Serializable {
    * @return  Set of subjects with OPTIN
    */
   public Set getOptins() {
-    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-      this.s, this, AccessPrivilege.OPTIN
-    );
+    try {
+      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+        this.s, this, AccessPrivilege.OPTIN
+      );
+    } 
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.OPTIN;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getOptins()
 
   /**
@@ -928,9 +949,16 @@ public class Group implements Serializable {
    * @return  Set of subjects with OPTOUT
    */
   public Set getOptouts() {
-    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-      this.s, this, AccessPrivilege.OPTOUT
-    );
+    try {
+      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+        this.s, this, AccessPrivilege.OPTOUT
+      );
+    } 
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.OPTOUT;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getOptouts()
 
   /**
@@ -969,9 +997,16 @@ public class Group implements Serializable {
    * @return  Set of subjects with READ
    */
   public Set getReaders() {
-    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-      this.s, this, AccessPrivilege.READ
-    );
+    try {
+      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+        this.s, this, AccessPrivilege.READ
+      );
+    } 
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.READ;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getReaders()
 
   /**
@@ -993,9 +1028,16 @@ public class Group implements Serializable {
    * @return  Set of subjects with UPDATE
    */
   public Set getUpdaters() {
-    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-      this.s, this, AccessPrivilege.UPDATE
-    );
+    try {
+      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+        this.s, this, AccessPrivilege.UPDATE
+      );
+    } 
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.UPDATE;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public set getUpdateres()
 
   /**
@@ -1017,9 +1059,16 @@ public class Group implements Serializable {
    * @return  Set of subjects with VIEW
    */
   public Set getViewers() {
-    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-      this.s, this, AccessPrivilege.VIEW
-    );
+    try {
+      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+        this.s, this, AccessPrivilege.VIEW
+      );
+    } 
+    catch (SchemaException eS) { 
+      String err = ERR_FNF + AccessPrivilege.VIEW;
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getViewers()
 
   /**
@@ -1562,7 +1611,7 @@ public class Group implements Serializable {
       catch (MemberNotFoundException eMNF) {
         // If we can't convert a group to a member we have major issues
         // and should probably just give up
-        String err = msg + " could not convert group to member: " + eMNF.getMessage();
+        String err = ERR_G2M + eMNF.getMessage();
         GrouperLog.error(LOG, s, err);
         throw new RuntimeException(err);
       }
@@ -1591,7 +1640,7 @@ public class Group implements Serializable {
       catch (SubjectNotFoundException eSNF) {
         // If we can't find an existing group as a subject we have
         // major issues and shoudl probably just give up
-        String err = msg + " could not find group as subject: " + eSNF.getMessage();
+        String err = ERR_G2S + eSNF.getMessage();
         GrouperLog.error(LOG, s, err);
         throw new RuntimeException(err);
       }

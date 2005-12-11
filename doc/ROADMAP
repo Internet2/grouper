@@ -3,17 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.115 2005-12-11 04:38:57 blair Exp $
+$Id: ROADMAP,v 1.116 2005-12-11 06:28:38 blair Exp $
 
 ---
 
 # Grouper 0.9
 
-## Incomplete 
-* thrown RTEs
-  * GrouperSession: throw SessionException, !RTE
-  * GrouperSession: getSubject() should throw SNFE
-  * GrouperSession: rename startSession() to start()
+## Incomplete - Required
 * Profiling
 * DDL
   * Column names
@@ -22,26 +18,27 @@ $Id: ROADMAP,v 1.115 2005-12-11 04:38:57 blair Exp $
 * _AccessPrivilege_ and _NamingPrivilege_ objects
 * Replace contrib items with updated cdg
 
-## Incomplete (Desired)
-* GrouperAttribute: attribute methods should throw ANFE + SE
-* Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
+## Incomplete - Desired
 * Membership: map via_id to Group
 * Cache
   * access privs
   * naming privs
   * subjects
+* Configurable options for logging adding/granting/deleting/revoking
+  immediate and effective memberships and privs
 * Event logging
   * Clean up returned error messages when exceptions thrown
-* GrouperNamingAdapter: hasPriv() should take ALL into account
+* Methods that look like they need some love
+  * GrouperAccessAdapter: getPrivs()
+  * GrouperNamingAdapter: getPrivs()
+  * GrouperNamingAdapter: hasPriv() should take ALL into account
+* Exceptions
+  * Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
+  * Review RTEs in _GrouperAccessAdapter_ and _GrouperNamingAdapter_
+  * GrouperAttribute: attribute methods should throw ANFE + SE
 * GrouperSession: automatic proxying
   * GroupFinder.findByName() is candidate
   * GroupFinder.findByUuid() is candidate
-* Configurable options for logging adding/granting/deleting/revoking
-  immediate and effective memberships and privs
-
-## Unknown
-* GrouperAccessAdapter: getPrivs()
-* GrouperNamingAdapter: getPrivs()
 
 ## Peformance (Unknown)
 * FieldFinder: cache findAll()
@@ -94,11 +91,8 @@ $Id: ROADMAP,v 1.115 2005-12-11 04:38:57 blair Exp $
 * Test helper methods
 
 ## Visibility (Minor)
-* Member: getId() is protected
 * Membership: getOwner_id() is protected
 * Membership: getVia_id() is protected
-* SubjectFinder: make ALL public
-* SubjectFinder: make ROOT public
 
 ## Document
 * What triggers modified updates?

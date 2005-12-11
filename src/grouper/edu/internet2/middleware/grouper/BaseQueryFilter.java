@@ -17,19 +17,24 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.util.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * Base {@link QueryFilter} that all other query filters should extend.
  * <p />
  * @author  blair christensen.
- * @version $Id: BaseQueryFilter.java,v 1.3 2005-11-28 18:13:18 blair Exp $
+ * @version $Id: BaseQueryFilter.java,v 1.4 2005-12-11 06:28:39 blair Exp $
  */
 public class BaseQueryFilter implements QueryFilter {
 
   // Private Class Constants
-  private static final Set RESULTS = new LinkedHashSet();
+  private static final String ERR_FBS = "class cannot be filtered by scope: ";
+  private static final Log    LOG     = LogFactory.getLog(BaseQueryFilter.class);
+  private static final Set    RESULTS = new LinkedHashSet();
+
 
   // Constructors
 
@@ -67,9 +72,7 @@ public class BaseQueryFilter implements QueryFilter {
         }
       }
       else {
-        throw new RuntimeException(
-          "Class " + o.getClass() + " cannot be filtered by scope"
-        );
+        LOG.error(ERR_FBS + o.getClass());
       }
     }
     return filtered;

@@ -20,13 +20,14 @@ package edu.internet2.middleware.grouper;
 
 import  java.io.*;
 import  java.util.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.4 2005-12-11 04:38:57 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.5 2005-12-11 06:28:39 blair Exp $
  *     
 */
 class GrouperConfig {
@@ -40,7 +41,9 @@ class GrouperConfig {
 
 
   // Private Class Constants
-  private static final String CF = "/grouper.properties";
+  private static final String CF      = "/grouper.properties";
+  private static final String ERR_GC  = "unable to read grouper configuration file: ";
+  private static final Log    LOG     = LogFactory.getLog(GrouperConfig.class);
 
 
   // Private Class Variables
@@ -80,9 +83,9 @@ class GrouperConfig {
       cfg.properties.load(in);
     }
     catch (IOException eIOE) {
-      throw new RuntimeException(
-        "unable to read grouper configuration: " + eIOE.getMessage()
-      );
+      String err = ERR_GC + eIOE.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
     return cfg;     
   } // private static GrouperConfig _getConfiguration()

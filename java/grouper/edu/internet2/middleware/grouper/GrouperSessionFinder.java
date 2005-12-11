@@ -26,12 +26,13 @@ import  org.apache.commons.logging.*;
  * Find sessions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionFinder.java,v 1.4 2005-12-09 20:40:44 blair Exp $
+ * @version $Id: GrouperSessionFinder.java,v 1.5 2005-12-11 06:28:39 blair Exp $
  */
 class GrouperSessionFinder implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(GrouperSessionFinder.class);
+  private static final String ERR_GRS = "unable to start root session: ";
+  private static final Log    LOG     = LogFactory.getLog(GrouperSessionFinder.class);
 
 
   // Private Class Variables
@@ -51,14 +52,14 @@ class GrouperSessionFinder implements Serializable {
 
   protected static GrouperSession getTransientRootSession() {
     try {
-      return GrouperSession.startSession(
+      return GrouperSession.start(
         SubjectFinder.findById("GrouperSystem", "application")
       );
     }
     catch (Exception e) {
-      throw new RuntimeException(
-        "unable to start root session: " + e.getMessage()
-      );
+      String err = ERR_GRS + e.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
   } // protected static GrouperSession getTransientRootSession()
 

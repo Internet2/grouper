@@ -17,20 +17,26 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.util.*;
-import net.sf.hibernate.*;
-import net.sf.hibernate.type.Type;
+
+import  java.util.*;
+import  net.sf.hibernate.*;
+import  net.sf.hibernate.type.Type;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.4 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.5 2005-12-11 06:28:39 blair Exp $
  */
 public class FieldFinder {
 
-  // Private Static Variables
-  private static final Map FIELDS = new HashMap();
+  // Private Class Constants
+  private static final String ERR_FA  = "unable to find all fields: "; 
+  private static final String ERR_FAT = "unable to find all fields by type: "; 
+  private static final Map    FIELDS  = new HashMap();
+  private static final Log    LOG     = LogFactory.getLog(FieldFinder.class);    
 
   static {
     Iterator iter = findAll().iterator();
@@ -77,9 +83,9 @@ public class FieldFinder {
       hs.close();  
     }
     catch (HibernateException eH) {
-      throw new RuntimeException(
-        "unable to find fields: " + eH.getMessage()
-      );
+      String err = ERR_FA + eH.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
     }
     return fields;
   } // public Static Set findAll()
@@ -90,7 +96,9 @@ public class FieldFinder {
    * Set types = FieldFinder.findAllByType(type);
    * </pre>
    */
-  public static Set findAllByType(FieldType type) {
+  public static Set findAllByType(FieldType type) 
+    throws  SchemaException
+  {
     Set fields = new LinkedHashSet();
     try {
       Session hs = HibernateHelper.getSession();
@@ -104,9 +112,9 @@ public class FieldFinder {
       hs.close();  
     }
     catch (HibernateException eH) {
-      throw new RuntimeException(
-        "unable to find fields: " + eH.getMessage()
-      );
+      String err = ERR_FAT + eH.getMessage();
+      LOG.error(err);
+      throw new SchemaException(err);
     }
     return fields;
   } // public static Set fieldAllByType(type)

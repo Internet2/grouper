@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test open bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsOpen.java,v 1.5 2005-12-10 16:06:06 blair Exp $
+ * @version $Id: TestBugsOpen.java,v 1.6 2005-12-11 06:28:39 blair Exp $
  */
 public class TestBugsOpen extends TestCase {
 
@@ -64,7 +64,7 @@ public class TestBugsOpen extends TestCase {
 
       LOG.debug("testGrantNamingPrivsToGroupAndAccessPrivsToSelf.0");
       Subject subj = SubjectFinder.findById("GrouperSystem");
-      GrouperSession s = GrouperSession.startSession(subj);
+      GrouperSession s = GrouperSession.start(subj);
       Stem root = StemFinder.findRootStem(s);
 			Stem qsuob = root.addChildStem("qsuob","qsuob");
       Group admins = qsuob.addChildGroup("admins","admins");
