@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.68 2005-12-09 21:40:29 blair Exp $ -->
+<!-- $Id: build.xml,v 1.69 2005-12-11 07:51:44 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -36,7 +36,9 @@
     <delete dir="${build}"/>
     <delete dir="${dist}"/>
     <delete dir="clover"/>
-    <delete file="clover.db"/>
+    <delete>
+      <fileset dir="." includes="clover.db*"/>
+    </delete>
   </target>
   <!-- clean -->
 
