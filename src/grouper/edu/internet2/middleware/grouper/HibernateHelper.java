@@ -23,6 +23,7 @@ import  net.sf.hibernate.*;
 import  net.sf.hibernate.cfg.*;
 import  org.apache.commons.logging.*;
 
+
 /**
  * Hibernate utility helper class.
  * <p/>
@@ -30,19 +31,20 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.8 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.9 2005-12-11 21:50:16 blair Exp $
  */
 class HibernateHelper {
 
   // Private Class Constants
   private static final String         ERR_GP    = "attempt to delete transient object ";
-	private static final SessionFactory FACTORY;
-	private static final Log            LOG       = LogFactory.getLog(HibernateHelper.class);
+  private static final String         ERR_INIT  = "unable to initialize hibernate: ";
+  private static final SessionFactory FACTORY;
+  private static final Log            LOG       = LogFactory.getLog(HibernateHelper.class);
 
 
   // Create the static session FACTORY 
-	static {
-		try {
+  static {
+    try {
       FACTORY = new Configuration()
         .addClass(Attribute.class)
         .addClass(Field.class)
@@ -54,15 +56,14 @@ class HibernateHelper {
         .addClass(Stem.class)
         .buildSessionFactory()
         ;
-		} 
+    } 
     catch (Throwable e) {
       // Catch *all* the errors
-      LOG.fatal(
-        "Unable to build HibernateSessionFactory: " + e.getMessage()
-      );
-			throw new ExceptionInInitializerError(e.getMessage());
-		}
-	}
+      String err = ERR_INIT + e.getMessage();
+      LOG.fatal(err);
+      throw new ExceptionInInitializerError(err);
+    }
+  } // static
 
 
   // Protected Class Methods
