@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.69 2005-12-11 07:51:44 blair Exp $ -->
+<!-- $Id: build.xml,v 1.70 2005-12-11 21:56:01 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -160,6 +160,12 @@
   </target>
   <!-- dist-lib -->
 
+  <!-- ensure-stress-name -->
+  <target name="ensure-stress-name" unless="name">
+    <fail message="You must run this target with -Dname=StressName"/>
+  </target>
+  <!-- ensure-stress-name -->
+
   <!-- ensure-test-name -->
   <target name="ensure-test-name" unless="test">
     <fail message="You must run this target with -Dtest=TestName"/>
@@ -259,6 +265,44 @@
     </schemaexport>
   </target>
   <!-- schemaexport -->
+
+  <!-- stress -->
+  <target name="stress" 
+          description="Runs the stress case specified on the command line with -Dname="
+          depends="test-build, ensure-stress-name">
+    <java fork="yes"
+          maxmemory="${max.memory}"
+          classname="edu.internet2.middleware.grouper.stress.${name}"
+          failonerror="true"
+    >
+      <classpath refid="project.classpath"/>
+    </java>
+  </target>
+  <!-- stress -->
+
+  <!-- stressclean -->
+  <target name="stressclean" 
+          description="clean up stress output" >
+    <delete>
+      <fileset dir="." includes="stress-*-*.txt"/>
+    </delete>
+  </target>
+  <!-- stressclean -->
+
+  <!-- stressprof -->
+  <target name="stressprof" 
+          description="Runs and profiles the stress case specified on the command line with -Dname="
+          depends="test-build, ensure-stress-name">
+    <java fork="yes"
+          maxmemory="${max.memory}"
+          classname="edu.internet2.middleware.grouper.stress.${name}"
+          failonerror="true"
+    >
+      <jvmarg value="-Xrunhprof:cpu=samples,file=stress-${name}-${DSTAMP}${TSTAMP}.txt,depth=15"/>
+      <classpath refid="project.classpath"/>
+    </java>
+  </target>
+  <!-- stressprof -->
 
   <!-- test-build -->
   <target name="test-build" depends="build">

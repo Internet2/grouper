@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.119 2005-12-11 21:41:53 blair Exp $
+$Id: ROADMAP,v 1.120 2005-12-11 21:56:01 blair Exp $
 
 ---
 
@@ -132,4 +132,5 @@ $Id: ROADMAP,v 1.119 2005-12-11 21:41:53 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
