@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingSTEM.java,v 1.13 2005-12-01 19:38:51 blair Exp $
+ * @version $Id: TestGrouperNamingSTEM.java,v 1.14 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGrouperNamingSTEM extends TestCase {
 
@@ -48,7 +48,7 @@ public class TestGrouperNamingSTEM extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");

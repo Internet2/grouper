@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Test use of the READ {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivREAD.java,v 1.3 2005-12-10 16:06:06 blair Exp $
+ * @version $Id: TestPrivREAD.java,v 1.4 2005-12-11 09:36:05 blair Exp $
  */
 public class TestPrivREAD extends TestCase {
 
@@ -53,7 +53,7 @@ public class TestPrivREAD extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     nrs   = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
     root  = StemHelper.findRootStem(s);

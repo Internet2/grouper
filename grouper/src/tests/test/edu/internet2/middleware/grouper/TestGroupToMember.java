@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.toMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupToMember.java,v 1.4 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestGroupToMember.java,v 1.5 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGroupToMember extends TestCase {
 
@@ -35,7 +35,7 @@ public class TestGroupToMember extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

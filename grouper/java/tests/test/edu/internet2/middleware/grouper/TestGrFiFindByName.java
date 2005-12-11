@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GroupFinder.findByName()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrFiFindByName.java,v 1.4 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestGrFiFindByName.java,v 1.5 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGrFiFindByName extends TestCase {
 
@@ -35,7 +35,7 @@ public class TestGrFiFindByName extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

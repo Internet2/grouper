@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link SubjectFinder.findById()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindById.java,v 1.7 2005-12-06 19:42:19 blair Exp $
+ * @version $Id: TestSuFiGrSoAdFindById.java,v 1.8 2005-12-11 09:36:05 blair Exp $
  */
 public class TestSuFiGrSoAdFindById extends TestCase {
 
@@ -50,7 +50,7 @@ public class TestSuFiGrSoAdFindById extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");

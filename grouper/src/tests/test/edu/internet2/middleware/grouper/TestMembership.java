@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Membership}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMembership.java,v 1.1 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: TestMembership.java,v 1.2 2005-12-11 09:36:05 blair Exp $
  */
 public class TestMembership extends TestCase {
 
@@ -54,7 +54,7 @@ public class TestMembership extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");

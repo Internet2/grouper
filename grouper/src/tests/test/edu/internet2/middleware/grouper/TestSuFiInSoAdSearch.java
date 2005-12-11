@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link SubjectFinder.findAll()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdSearch.java,v 1.1 2005-12-06 20:38:43 blair Exp $
+ * @version $Id: TestSuFiInSoAdSearch.java,v 1.2 2005-12-11 09:36:05 blair Exp $
  */
 public class TestSuFiInSoAdSearch extends TestCase {
 
@@ -44,7 +44,7 @@ public class TestSuFiInSoAdSearch extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

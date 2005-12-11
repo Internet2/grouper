@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSession.java,v 1.4 2005-12-06 18:48:22 blair Exp $
+ * @version $Id: TestGrouperSession.java,v 1.5 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGrouperSession extends TestCase {
 
@@ -48,7 +48,7 @@ public class TestGrouperSession extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

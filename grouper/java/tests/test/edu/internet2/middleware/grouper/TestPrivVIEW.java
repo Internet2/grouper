@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test use of the VIEW {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivVIEW.java,v 1.5 2005-12-11 04:16:31 blair Exp $
+ * @version $Id: TestPrivVIEW.java,v 1.6 2005-12-11 09:36:05 blair Exp $
  */
 public class TestPrivVIEW extends TestCase {
 
@@ -55,7 +55,7 @@ public class TestPrivVIEW extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s       = SessionHelper.getRootSession();
     nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
     root    = StemHelper.findRootStem(s);

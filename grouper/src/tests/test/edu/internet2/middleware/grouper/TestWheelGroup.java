@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the wheel group.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestWheelGroup.java,v 1.2 2005-12-10 16:31:21 blair Exp $
+ * @version $Id: TestWheelGroup.java,v 1.3 2005-12-11 09:36:05 blair Exp $
  */
 public class TestWheelGroup extends TestCase {
   // @test  MANUAL
@@ -59,7 +59,7 @@ public class TestWheelGroup extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     nrs   = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
     root  = StemHelper.findRootStem(s);

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test use of the CREATE {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivCREATE.java,v 1.3 2005-12-06 05:35:03 blair Exp $
+ * @version $Id: TestPrivCREATE.java,v 1.4 2005-12-11 09:36:05 blair Exp $
  */
 public class TestPrivCREATE extends TestCase {
 
@@ -55,7 +55,7 @@ public class TestPrivCREATE extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     a     = null;
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);

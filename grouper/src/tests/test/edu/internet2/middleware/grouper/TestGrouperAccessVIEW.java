@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperAccessVIEW.java,v 1.9 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: TestGrouperAccessVIEW.java,v 1.10 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGrouperAccessVIEW extends TestCase {
 
@@ -54,7 +54,7 @@ public class TestGrouperAccessVIEW extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s       = SessionHelper.getRootSession();
     root    = StemHelper.findRootStem(s);
     edu     = StemHelper.addChildStem(root, "edu", "education");

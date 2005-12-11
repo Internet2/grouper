@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link UnionFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQUnionFilter.java,v 1.4 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestGQUnionFilter.java,v 1.5 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGQUnionFilter extends TestCase {
 
@@ -36,7 +36,7 @@ public class TestGQUnionFilter extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {
