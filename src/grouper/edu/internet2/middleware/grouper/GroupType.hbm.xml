@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: GroupType.hbm.xml,v 1.3 2005-12-09 07:35:38 blair Exp $ -->
+<!-- $Id: GroupType.hbm.xml,v 1.4 2005-12-11 07:02:38 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="GroupType" table="grouper_types">
@@ -44,7 +44,6 @@ Schema specification for a Group type.
     <!-- name -->
     <property name="name"
               type="string"
-              length="255"
               not-null="true"
               unique="true"
     />

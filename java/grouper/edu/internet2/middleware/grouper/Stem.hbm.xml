@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.8 2005-12-10 23:09:05 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.9 2005-12-11 07:02:38 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -79,7 +79,6 @@ A namespace within the Groups Registry.
     <property 
       name="create_source"
       type="string"
-      length="255"
     />
     <!-- create_source -->
 
@@ -102,9 +101,7 @@ A namespace within the Groups Registry.
       type="string"
       length="1024"
     >
-      <meta attribute="field-description">
-Get description.
-      </meta>
+      <column name="description"/>
     </property>
     <!-- description -->
 
@@ -112,36 +109,25 @@ Get description.
     <property
       name="display_extension"
       type="string"
-      length="255"
-    >
-      <column name="display_extension"
-              not-null="true"
-      />
-    </property>
+      not-null="true"
+    />
     <!-- display_extension -->
 
     <!-- display_name -->
     <property
       name="display_name"
       type="string"
-      length="255"
-    >
-      <column name="display_name"
-              not-null="true"
-              unique="true"
-      />
-    </property>
+      not-null="true"
+    />
     <!-- display_name -->
 
     <!-- extension -->
     <property
       name="stem_extension"
       type="string"
-      length="255"
+      not-null="true"
     >
-      <column name="stem_extension"
-              not-null="true"
-      />
+      <column name="extension"/>
     </property>
     <!-- extension -->
 
@@ -157,7 +143,6 @@ Get description.
     <property 
       name="modify_source"
       type="string"
-      length="255"
     />
     <!-- modify_source -->
 
@@ -172,13 +157,8 @@ Get description.
     <property
       name="stem_name"
       type="string"
-      length="255"
-    >
-      <column name="stem_name"
-              not-null="true"
-              unique="true"
-      />
-    </property>
+      not-null="true"
+    />
     <!-- name -->
 
     <!-- parent_stem -->
@@ -186,9 +166,7 @@ Get description.
       name="parent_stem"
       class="edu.internet2.middleware.grouper.Stem"
       cascade="none"
-    >
-      <column name="parent_stem"/>
-    </many-to-one>
+    />
     <!-- parent_stem -->
 
     <!-- stem_id -->
@@ -197,7 +175,9 @@ Get description.
       type="string"
       not-null="true"
       unique="true"
-    />
+    >
+      <column name="stem_uuid"/>
+    </property>
     <!-- stem_id -->
 
   </class>
