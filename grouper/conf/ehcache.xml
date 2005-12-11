@@ -28,7 +28,7 @@
                         the maxInMemory limit.
   -->
   <defaultCache
-    maxElementsInMemory="10000"
+    maxElementsInMemory="50000"
     eternal="false"
     timeToIdleSeconds="120"
     timeToLiveSeconds="120"
@@ -41,115 +41,7 @@
     will be issued when the CacheManager starts
   -->
 
-  <!-- NOTE These are not optimal settings -->
-  <cache name="edu.internet2.middleware.group.GrouperAttribute"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- Non-mutable table with few items -->
-  <cache name="edu.internet2.middleware.grouper.GrouperField"
-    maxElementsInMemory="100"
-    eternal="true"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- NOTE These are not optimal settings -->
-  <cache name="edu.internet2.middleware.group.GrouperGroup"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- NOTE These are not optimal settings -->
-  <cache name="edu.internet2.middleware.group.GrouperList"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- NOTE These are not optimal settings -->
-  <cache name="edu.internet2.middleware.group.GrouperMember"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- NOTE These are not optimal settings -->
-  <cache name="edu.internet2.middleware.group.GrouperSchema"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- Non-mutable table with few items -->
-  <cache name="edu.internet2.middleware.grouper.GrouperType"
-    maxElementsInMemory="100"
-    eternal="true"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- Non-mutable table with few items -->
-  <cache name="edu.internet2.middleware.grouper.GrouperTypeDef"
-    maxElementsInMemory="100"
-    eternal="true"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- NOTE These are not optimal settings -->
-  <cache name="edu.internet2.middleware.group.SubjectImpl"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- Non-mutable table with few items -->
-  <cache name="edu.internet2.middleware.grouper.SubjectTypeImpl"
-    maxElementsInMemory="100"
-    eternal="true"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- NOTE These are not optimal settings -->
-  <cache name="edu.internet2.middleware.group.ViaElement"
-    maxElementsInMemory="25000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- NOTE These are not optimal settings -->
-  <cache name="edu.internet2.middleware.group.ViaPath"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- NOTE These are not optimal settings -->
+  <!-- NOTE These are probably not optimal settings -->
   <cache name="net.sf.hibernate.cache.QueryCache"
     maxElementsInMemory="10000"
     eternal="false"
@@ -158,7 +50,7 @@
     overflowToDisk="true"
   />
 
-  <!-- NOTE These are not optimal settings -->
+  <!-- NOTE These are probably not optimal settings -->
   <cache name="net.sf.hibernate.cache.StandardQueryCache"
     maxElementsInMemory="10000"
     eternal="false"
@@ -167,7 +59,7 @@
     overflowToDisk="true"
   />
 
-  <!-- NOTE These are not optimal settings -->
+  <!-- NOTE These are probably not optimal settings -->
   <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
     maxElementsInMemory="10000"
     eternal="false"
