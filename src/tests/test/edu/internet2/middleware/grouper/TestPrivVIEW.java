@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test use of the VIEW {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivVIEW.java,v 1.4 2005-12-10 22:31:36 blair Exp $
+ * @version $Id: TestPrivVIEW.java,v 1.5 2005-12-11 04:16:31 blair Exp $
  */
 public class TestPrivVIEW extends TestCase {
 
@@ -184,6 +184,19 @@ public class TestPrivVIEW extends TestCase {
       "children == " + children.size() + " (exp 2)",
       children.size() == 2
     );
+    Iterator iter = children.iterator();
+    while (iter.hasNext()) {
+      Group child = (Group) iter.next();
+      if      (child.getName().equals(i2.getName())) {
+        Assert.assertTrue("i2", true);
+      } 
+      else if (child.getName().equals(uofc.getName())) {
+        Assert.assertTrue("uofc", true);
+      }
+      else {
+        Assert.fail("unknown child: " + child.getName());
+      }
+    }
   } // public void testFindGroupWithVIEW()
 
   public void testFindChildGroupWithAllVIEW() {
@@ -195,6 +208,21 @@ public class TestPrivVIEW extends TestCase {
       "children == " + children.size() + " (exp 2)",
       children.size() == 2
     );
+    Iterator iter = children.iterator();
+    while (iter.hasNext()) {
+      Group child = (Group) iter.next();
+      if      (child.getName().equals(i2.getName())) {
+        Assert.assertTrue("i2", true);
+        Assert.assertTrue("i2 parent", child.getParentStem().equals(parent));
+      } 
+      else if (child.getName().equals(uofc.getName())) {
+        Assert.assertTrue("uofc", true);
+        Assert.assertTrue("uofc parent", child.getParentStem().equals(parent));
+      }
+      else {
+        Assert.fail("unknown child: " + child.getName());
+      }
+    }
   } // public void testFindGroupWithAllVIEW()
 
   public void testFindGroupWithoutVIEW() {

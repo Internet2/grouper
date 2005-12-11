@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.36 2005-12-10 23:09:05 blair Exp $
+ * @version $Id: Stem.java,v 1.37 2005-12-11 04:16:31 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -138,7 +138,7 @@ public class Stem implements Serializable {
       // Ignore.  This is what we want.
     }
     try {
-      _initializeChildGroups(this);
+      _initializeChildGroupsAndStems(this);
     }
     catch (HibernateException eH) {
       throw new GroupAddException(eH.getMessage());
@@ -204,7 +204,7 @@ public class Stem implements Serializable {
     }
 
     try {
-      _initializeChildStems(this);
+      _initializeChildGroupsAndStems(this);
     }
     catch (HibernateException eH) {
       throw new StemAddException(eH.getMessage());
@@ -267,7 +267,7 @@ public class Stem implements Serializable {
     GrouperSession.validate(this.s);
     Set children  = new LinkedHashSet();
     try {
-      _initializeChildGroups(this);
+      _initializeChildGroupsAndStems(this);
       Iterator iter = this.getChild_groups().iterator();
       // Perform check as root
       GrouperSession root = GrouperSessionFinder.getTransientRootSession();
@@ -764,6 +764,7 @@ public class Stem implements Serializable {
     );
     try {
       Set objects = new HashSet();
+      _initializeChildGroupsAndStems(this);
       this.setDisplay_extension(value);
       this.setModified();
       try {
@@ -772,18 +773,25 @@ public class Stem implements Serializable {
             this.getParentStem().getDisplayName(), value
           )
         );
-        // TODO Iterate through child stems + groups. Ugh.
       }
       catch (StemNotFoundException eSNF) {
         // I guess we're the root stem
         this.setDisplay_name(value);
       }
+      // Now iterate through all child groups and stems (as root),
+      // renaming each.
+      GrouperSession orig = this.s;
+      GrouperSession root = GrouperSessionFinder.getTransientRootSession();
+      this.setSession(root);
+      objects.addAll( this._renameChildren() );
       objects.add(this);
       HibernateHelper.save(objects);
+      this.setSession(orig);
+      root.stop();
     }
     catch (Exception e) {
       throw new StemModifyException(
-        "unable to set description: " + e.getMessage()
+        "unable to set displayExtension: " + e.getMessage()
       );
     }
   } // public void setDisplayExtension(value)
@@ -848,27 +856,17 @@ public class Stem implements Serializable {
 
   // Private Class Methods
 
-  // The child_groups collection has a lazy association so we need to
-  // manually initialize it where needed.
-  private static void _initializeChildGroups(Stem ns) 
+  // The child_groups and child_stems collections have lazy
+  // associations so we need to manually initialize as needed.
+  private static void _initializeChildGroupsAndStems(Stem ns) 
     throws  HibernateException
   {
     Session hs = HibernateHelper.getSession();
     hs.load(ns, ns.getId());
-    Hibernate.initialize( ns.getChild_groups() ); 
+    Hibernate.initialize( ns.getChild_stems() );
+    Hibernate.initialize( ns.getChild_groups() );
     hs.close();
-  } // private void Stem _initializeChildGroups()
-
-  // The child_stems collection has a lazy association so we need to
-  // manually initialize it where needed.
-  private static void _initializeChildStems(Stem ns) 
-    throws  HibernateException
-  {
-    Session hs = HibernateHelper.getSession();
-    hs.load(ns, ns.getId());
-    Hibernate.initialize( ns.getChild_stems() ); 
-    hs.close();
-  } // private void _initializeChildStems()
+  } // private static void _initializeChildGroupsAndStems(ns) 
 
   // Private Instance Methods
   private Group _grantDefaultPrivsUponCreate(Group g)
@@ -978,6 +976,59 @@ public class Stem implements Serializable {
       }
     }
   } // private void _grantOptionalPrivUponCreate(orig, root, o, p, opt)
+
+  private Set _renameChildGroups() 
+    throws  HibernateException
+  {
+    Set objects = new LinkedHashSet();
+    Iterator iter = this.getChild_groups().iterator();
+    while (iter.hasNext()) {
+      Group child = (Group) iter.next();
+      child.setSession(this.s);
+      child.setDisplayName(
+        constructName( this.getDisplayName(), child.getDisplayExtension() )
+      );
+      child.setModified();
+      objects.add(child);
+    }
+    return objects;
+  } // private Set _renameChildGroups()
+
+  private Set _renameChildren() 
+    throws  StemModifyException
+  {
+    Set objects = new LinkedHashSet();
+    try {
+      objects.addAll(this._renameChildStemsAndGroups());
+      objects.addAll(this._renameChildGroups());
+    }
+    catch (HibernateException eH) {
+      String err = "unable to initialize child stems and groups: " + eH.getMessage();
+      GrouperLog.error(LOG, this.s, err); 
+      throw new StemModifyException(err);
+    }
+    return objects;
+  } // private Set _renameChildren()
+
+  private Set _renameChildStemsAndGroups() 
+    throws  HibernateException
+  {
+    Set objects = new LinkedHashSet();
+    Iterator iter = this.getChild_stems().iterator();
+    while (iter.hasNext()) {
+      Stem child = (Stem) iter.next();    
+      child.setSession(this.s);
+      _initializeChildGroupsAndStems(child);
+      child.setDisplay_name(
+        constructName( this.getDisplayName(), child.getDisplayExtension() )
+      );
+      objects.addAll( child._renameChildGroups() );
+      child.setModified();
+      objects.add(child);
+      objects.addAll( child._renameChildStemsAndGroups() );
+    }
+    return objects;
+  } // private Set _renameChildStemsAndGroups()
 
   private void _setCreated() {
     this.setCreator_id( s.getMember()         );
