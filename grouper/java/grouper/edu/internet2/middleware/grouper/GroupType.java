@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.4 2005-12-11 04:16:31 blair Exp $
+ * @version $Id: GroupType.java,v 1.5 2005-12-11 21:41:53 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -39,9 +39,12 @@ public class GroupType implements Serializable {
 
 
   // Hibernate Properties
-  private Set     fields  = new LinkedHashSet();
+  private Member  creator_id;
+  private long    create_time;
+  private Set     fields        = new LinkedHashSet();
   private String  id;
   private String  name;
+  private Status  status;
 
 
   // Constructors
@@ -136,5 +139,25 @@ public class GroupType implements Serializable {
   private void setName(String name) {
     this.name = name;
   } // private void setName(name)
+
+  private Status getStatus() {
+    return this.status;
+  }
+  private void setStatus(Status s) {
+    this.status = s;
+  }
+
+  private Member getCreator_id() {
+    return this.creator_id;
+  }
+  private void setCreator_id(Member m) {
+    this.creator_id = m;
+  }
+  private long getCreate_time() {
+    return this.create_time;
+  }
+  private void setCreate_time(long time) {
+    this.create_time = time;
+  }
 
 }

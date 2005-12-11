@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.38 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: Stem.java,v 1.39 2005-12-11 21:41:53 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -62,6 +62,7 @@ public class Stem implements Serializable {
   private String  modify_source;
   private long    modify_time;
   private Stem    parent_stem;
+  private Status  status;
   private String  stem_description;
   private String  stem_extension;
   private String  stem_id;
@@ -1189,6 +1190,13 @@ public class Stem implements Serializable {
 
   private void setVersion(int version) {
     this.version = version;
+  }
+
+  private Status getStatus() {
+    return this.status;
+  }
+  private void setStatus(Status s) {
+    this.status = s;
   }
 
 }

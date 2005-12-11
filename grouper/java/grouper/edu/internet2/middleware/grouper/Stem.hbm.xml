@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.9 2005-12-11 07:02:38 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.10 2005-12-11 21:41:53 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -68,10 +68,10 @@ A namespace within the Groups Registry.
     <!-- child_stems -->
 
     <!-- creator_id -->
-    <many-to-one
-      name="creator_id"
-      class="edu.internet2.middleware.grouper.Member" 
-      not-null="true"
+    <many-to-one  name="creator_id"
+                  class="edu.internet2.middleware.grouper.Member" 
+                  not-null="true"
+                  index="stem_creator_idx"
     />
     <!-- creator_id -->
 
@@ -83,11 +83,11 @@ A namespace within the Groups Registry.
     <!-- create_source -->
 
     <!-- create_time -->
-    <property 
-      name="create_time"
-      type="long"
-      not-null="true"
-      update="false"
+    <property name="create_time"
+              type="long"
+              not-null="true"
+              update="false"
+              index="stem_createtime_idx" 
     >
       <column name="create_time"
               not-null="true"
@@ -106,36 +106,36 @@ A namespace within the Groups Registry.
     <!-- description -->
 
     <!-- display_extension -->
-    <property
-      name="display_extension"
-      type="string"
-      not-null="true"
+    <property name="display_extension"
+              type="string"
+              not-null="true"
+              index="stem_displayextn_idx"
     />
     <!-- display_extension -->
 
     <!-- display_name -->
-    <property
-      name="display_name"
-      type="string"
-      not-null="true"
+    <property name="display_name"
+              type="string"
+              not-null="true"
+              index="stem_displayname_idx"
     />
     <!-- display_name -->
 
     <!-- extension -->
-    <property
-      name="stem_extension"
-      type="string"
-      not-null="true"
+    <property name="stem_extension"
+              type="string"
+              not-null="true"
+              index="stem_extn_idx"
     >
       <column name="extension"/>
     </property>
     <!-- extension -->
 
     <!-- modifier_id -->
-    <many-to-one
-      name="modifier_id"
-      class="edu.internet2.middleware.grouper.Member" 
-      cascade="none"
+    <many-to-one  name="modifier_id"
+                  class="edu.internet2.middleware.grouper.Member" 
+                  cascade="none"
+                  index="stem_modifier_idx"
     />
     <!-- modifier_id -->
 
@@ -147,9 +147,9 @@ A namespace within the Groups Registry.
     <!-- modify_source -->
 
     <!-- modify_time -->
-    <property 
-      name="modify_time"
-      type="long"
+    <property name="modify_time"
+              type="long"
+              index="stem_modifytime_idx" 
     />
     <!-- modify_time -->
 
@@ -158,6 +158,7 @@ A namespace within the Groups Registry.
       name="stem_name"
       type="string"
       not-null="true"
+      index="stem_name_idx"
     />
     <!-- name -->
 
@@ -170,15 +171,28 @@ A namespace within the Groups Registry.
     <!-- parent_stem -->
 
     <!-- stem_id -->
-    <property 
-      name="stem_id"
-      type="string"
-      not-null="true"
-      unique="true"
+    <property name="stem_id"
+              type="string"
+              not-null="true"
+              unique="true"
+              index="stem_uuid_idx"
     >
       <column name="stem_uuid"/>
     </property>
     <!-- stem_id -->
+
+    <!-- status -->
+    <property name="status"
+              type="edu.internet2.middleware.grouper.StatusUserType"
+              update="false"
+              index="stem_status_idx"
+    >
+      <column name="status_name"/>
+      <column name="status_ttl"
+              sql-type="bigint"
+      />
+    </property>
+    <!-- status -->
 
   </class>
 </hibernate-mapping>

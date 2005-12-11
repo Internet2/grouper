@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Factor.hbm.xml,v 1.3 2005-12-09 07:35:38 blair Exp $ -->
+<!-- $Id: Factor.hbm.xml,v 1.4 2005-12-11 21:41:53 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Factor" table="grouper_factors">
@@ -44,39 +44,68 @@ Group math factors.
     <discriminator column="klass" type="string"/>
     <!-- discriminator -->
 
-
-    <!-- node_a_id -->
-    <many-to-one
-      name="node_a_id"
-      class="edu.internet2.middleware.grouper.Member" 
+    <!-- uuid -->
+    <property name="uuid"
+              type="string"
+              not-null="true"
+              unique="true"
+              index="factor_uuid_idx"
     >
-      <meta attribute="field-description">
-Get node a.
-      </meta>
-      <meta attribute="scope-get">protected</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
+      <column name="factor_uuid"/>
+    </property>
+    <!-- uuid -->
+
+    <!-- creator_id -->
+    <many-to-one  name="creator_id"
+                  class="edu.internet2.middleware.grouper.Member" 
+                  index="factor_creator_idx"
+    />
+    <!-- creator_id -->
+
+    <!-- create_time -->
+    <property name="create_time"
+              type="long"
+              not-null="true"
+              update="false"
+              index="factor_createtime_idx"
+    />
+    <!-- create_time -->
+
+    <!-- node_a -->
+    <!-- TODO Don't allow updates? -->
+    <many-to-one  name="node_a"
+                  class="edu.internet2.middleware.grouper.Membership"
+                  cascade="none"
+    >
       <column name="node_a_id"/>
     </many-to-one>
-    <!-- node_a_id -->
+    <!-- node_a -->
 
-    <!-- node_b_id -->
-    <many-to-one
-      name="node_b_id"
-      class="edu.internet2.middleware.grouper.Member" 
+    <!-- node_b -->
+    <!-- TODO Don't allow updates? -->
+    <many-to-one  name="node_b"
+                  class="edu.internet2.middleware.grouper.Membership"
+                  cascade="none"
     >
-      <meta attribute="field-description">
-Get node b.
-      </meta>
-      <meta attribute="scope-get">protected</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
       <column name="node_b_id"/>
     </many-to-one>
-    <!-- node_b_id -->
+    <!-- node_b -->
+
+    <!-- status -->
+    <property name="status"
+              type="edu.internet2.middleware.grouper.StatusUserType"
+              update="false"
+              index="factor_status_idx"
+    >
+      <column name="status_name"/>
+      <column name="status_ttl"
+              sql-type="bigint"
+      />
+    </property>
+    <!-- status -->
 
     <!-- complement -->
-    <subclass name="ComplementFactor" discriminator-value="complement"/>
+    <subclass name="ComplementFactor"   discriminator-value="complement"/>
     <!-- complement -->
 
     <!-- intersection -->

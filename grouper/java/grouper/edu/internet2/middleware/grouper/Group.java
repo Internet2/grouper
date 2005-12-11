@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.41 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: Group.java,v 1.42 2005-12-11 21:41:53 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -66,6 +66,7 @@ public class Group implements Serializable {
   private String  modify_source;
   private long    modify_time;
   private Stem    parent_stem;
+  private Status  status;
   private int     version;
 
 
@@ -1955,6 +1956,13 @@ public class Group implements Serializable {
 
   private void setVersion(int version) {
     this.version = version;
+  }
+
+  private Status getStatus() {
+    return this.status;
+  }
+  private void setStatus(Status s) {
+    this.status = s;
   }
 
 }

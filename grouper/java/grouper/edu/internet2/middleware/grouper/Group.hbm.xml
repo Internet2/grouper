@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.8 2005-12-11 07:02:38 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.9 2005-12-11 21:41:53 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -54,46 +54,44 @@ A group within the Groups Registry.
     <!-- attributes -->
 
     <!-- creator_id -->
-    <many-to-one
-      name="creator_id"
-      class="edu.internet2.middleware.grouper.Member" 
+    <many-to-one  name="creator_id"
+                  class="edu.internet2.middleware.grouper.Member" 
+                  index="group_creator_idx"
     />
     <!-- creator_id -->
 
     <!-- create_source -->
-    <property 
-      name="create_source"
-      type="string"
+    <property name="create_source"
+              type="string"
     />
     <!-- create_source -->
 
     <!-- create_time -->
-    <property 
-      name="create_time"
-      type="long"
-      not-null="true"
-      update="false"
+    <property name="create_time"
+              type="long"
+              not-null="true"
+              update="false"
+              index="group_createtime_idx"
     />
     <!-- create_time -->
 
     <!-- modifier_id -->
-    <many-to-one
-      name="modifier_id"
-      class="edu.internet2.middleware.grouper.Member" 
+    <many-to-one  name="modifier_id"
+                  class="edu.internet2.middleware.grouper.Member" 
+                  index="group_modifier_idx"
     />
     <!-- modifier_id -->
 
     <!-- modify_source -->
-    <property 
-      name="modify_source"
-      type="string"
+    <property name="modify_source"
+              type="string"
     />
     <!-- modify_source -->
 
     <!-- modify_time -->
-    <property 
-      name="modify_time"
-      type="long"
+    <property name="modify_time"
+              type="long"
+              index="group_modifytime_idx"
     />
     <!-- modify_time -->
 
@@ -111,6 +109,7 @@ A group within the Groups Registry.
       type="string"
       not-null="true"
       unique="true"
+      index="group_uuid_idx"
     >
       <column name="group_uuid"/>
     </property>
@@ -127,6 +126,19 @@ A group within the Groups Registry.
       />
     </set>
     <!-- group_types -->
+
+    <!-- status -->
+    <property name="status"
+              type="edu.internet2.middleware.grouper.StatusUserType"
+              update="false"
+              index="group_status_idx"
+    >
+      <column name="status_name"/>
+      <column name="status_ttl"
+              sql-type="bigint"
+      />
+    </property>
+    <!-- status -->
 
   </class>
 </hibernate-mapping>
