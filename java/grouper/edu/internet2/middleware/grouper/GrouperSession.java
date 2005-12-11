@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.9 2005-12-09 20:40:44 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.10 2005-12-11 04:38:57 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -116,7 +116,7 @@ public class GrouperSession implements Serializable {
    * @return  Name of class implementing naming privileges.
    */
   public String getAccessClass() {
-    return GrouperConfig.getInstance().getProperty("interface.access"); 
+    return GrouperConfig.getInstance().getProperty(GrouperConfig.PAI);
   } // public String getAccessClass()
 
    /**
@@ -139,7 +139,7 @@ public class GrouperSession implements Serializable {
    * @return  Name of class implementing naming privileges.
    */
   public String getNamingClass() {
-    return GrouperConfig.getInstance().getProperty("interface.naming"); 
+    return GrouperConfig.getInstance().getProperty(GrouperConfig.PNI);
   } // public String getNamingClass()
 
   /**

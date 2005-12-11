@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.114 2005-12-11 04:18:45 blair Exp $
+$Id: ROADMAP,v 1.115 2005-12-11 04:38:57 blair Exp $
 
 ---
 
@@ -24,7 +24,6 @@ $Id: ROADMAP,v 1.114 2005-12-11 04:18:45 blair Exp $
 
 ## Incomplete (Desired)
 * GrouperAttribute: attribute methods should throw ANFE + SE
-* Rename access + naming interface properties
 * Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
 * Membership: map via_id to Group
 * Cache
@@ -155,6 +154,7 @@ $Id: ROADMAP,v 1.114 2005-12-11 04:18:45 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

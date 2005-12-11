@@ -26,10 +26,18 @@ import  java.util.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.3 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.4 2005-12-11 04:38:57 blair Exp $
  *     
 */
 class GrouperConfig {
+
+  // Protected Class Constants
+  protected static final String BT  = "true";
+  protected static final String GWG = "groups.wheel.group";
+  protected static final String GWU = "groups.wheel.use";
+  protected static final String PAI = "privileges.access.interface";
+  protected static final String PNI = "privileges.naming.interface";
+
 
   // Private Class Constants
   private static final String CF = "/grouper.properties";
