@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.5 2005-12-09 17:15:43 blair Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.6 2005-12-11 09:36:05 blair Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
@@ -50,7 +50,7 @@ public class TestInternalSourceAdapter extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     sa = new InternalSourceAdapter(ID, NAME);
   }
 

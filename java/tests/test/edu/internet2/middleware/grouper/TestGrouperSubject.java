@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSubject} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSubject.java,v 1.1 2005-12-06 18:11:56 blair Exp $
+ * @version $Id: TestGrouperSubject.java,v 1.2 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGrouperSubject extends TestCase {
 
@@ -55,7 +55,7 @@ public class TestGrouperSubject extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s         = SessionHelper.getRootSession();
     root      = StemHelper.findRootStem(s);
     edu       = StemHelper.addChildStem(root, "edu", "education");

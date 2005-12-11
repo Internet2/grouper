@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.6 2005-12-10 16:06:06 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.7 2005-12-11 09:36:05 blair Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -56,7 +56,7 @@ public class TestPrivADMIN extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     nrs   = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
     root  = StemHelper.findRootStem(s);

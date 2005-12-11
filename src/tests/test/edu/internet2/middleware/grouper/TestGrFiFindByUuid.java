@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GroupFinder.findByUuid()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrFiFindByUuid.java,v 1.5 2005-12-01 03:12:24 blair Exp $
+ * @version $Id: TestGrFiFindByUuid.java,v 1.6 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGrFiFindByUuid extends TestCase {
 
@@ -35,7 +35,7 @@ public class TestGrFiFindByUuid extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

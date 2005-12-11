@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the UPDATE {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivUPDATE.java,v 1.2 2005-12-05 05:48:35 blair Exp $
+ * @version $Id: TestPrivUPDATE.java,v 1.3 2005-12-11 09:36:05 blair Exp $
  */
 public class TestPrivUPDATE extends TestCase {
 
@@ -55,7 +55,7 @@ public class TestPrivUPDATE extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     nrs   = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
     root  = StemHelper.findRootStem(s);

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.6 2005-12-11 04:16:31 blair Exp $
+ * @version $Id: TestStem.java,v 1.7 2005-12-11 09:36:05 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -44,7 +44,7 @@ public class TestStem extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

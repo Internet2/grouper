@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link MemberFinder.findBySubject()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMeFiFindBySubject.java,v 1.4 2005-11-30 21:23:23 blair Exp $
+ * @version $Id: TestMeFiFindBySubject.java,v 1.5 2005-12-11 09:36:05 blair Exp $
  */
 public class TestMeFiFindBySubject extends TestCase {
 
@@ -35,7 +35,7 @@ public class TestMeFiFindBySubject extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

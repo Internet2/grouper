@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GroupNameFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupName.java,v 1.2 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestGQGroupName.java,v 1.3 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGQGroupName extends TestCase {
 
@@ -36,7 +36,7 @@ public class TestGQGroupName extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

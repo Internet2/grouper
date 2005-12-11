@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Stem.addChildGroup()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildGroup.java,v 1.6 2005-12-02 17:50:46 blair Exp $
+ * @version $Id: TestStemAddChildGroup.java,v 1.7 2005-12-11 09:36:05 blair Exp $
  */
 public class TestStemAddChildGroup extends TestCase {
 
@@ -35,7 +35,7 @@ public class TestStemAddChildGroup extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

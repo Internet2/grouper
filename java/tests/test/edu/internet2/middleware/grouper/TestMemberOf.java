@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test memberOf calculations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberOf.java,v 1.4 2005-12-10 16:06:06 blair Exp $
+ * @version $Id: TestMemberOf.java,v 1.5 2005-12-11 09:36:05 blair Exp $
  */
 public class TestMemberOf extends TestCase {
 
@@ -54,7 +54,7 @@ public class TestMemberOf extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");

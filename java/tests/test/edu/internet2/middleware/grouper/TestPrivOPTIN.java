@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the OPTIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivOPTIN.java,v 1.3 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: TestPrivOPTIN.java,v 1.4 2005-12-11 09:36:05 blair Exp $
  */
 public class TestPrivOPTIN extends TestCase {
 
@@ -52,7 +52,7 @@ public class TestPrivOPTIN extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     nrs   = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
     root  = StemHelper.findRootStem(s);

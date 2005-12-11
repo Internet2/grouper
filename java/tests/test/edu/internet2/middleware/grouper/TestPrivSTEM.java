@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.4 2005-12-10 22:31:36 blair Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.5 2005-12-11 09:36:05 blair Exp $
  */
 public class TestPrivSTEM extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestPrivSTEM extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

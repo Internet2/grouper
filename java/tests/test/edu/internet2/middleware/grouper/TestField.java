@@ -25,7 +25,7 @@ import  junit.framework.*;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.4 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: TestField.java,v 1.5 2005-12-11 09:36:05 blair Exp $
  */
 public class TestField extends TestCase {
 
@@ -34,7 +34,7 @@ public class TestField extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

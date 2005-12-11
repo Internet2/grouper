@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link GrouperSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSourceAdapter.java,v 1.3 2005-12-09 17:15:43 blair Exp $
+ * @version $Id: TestGrouperSourceAdapter.java,v 1.4 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGrouperSourceAdapter extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestGrouperSourceAdapter extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
     sa = new GrouperSourceAdapter(ID, NAME);
   }
 

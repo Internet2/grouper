@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.deleteMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDeleteMemberGroup.java,v 1.7 2005-12-02 17:17:01 blair Exp $
+ * @version $Id: TestGroupDeleteMemberGroup.java,v 1.8 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGroupDeleteMemberGroup extends TestCase {
 
@@ -35,7 +35,7 @@ public class TestGroupDeleteMemberGroup extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

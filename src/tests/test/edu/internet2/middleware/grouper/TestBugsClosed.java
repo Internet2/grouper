@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.2 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.3 2005-12-11 09:36:05 blair Exp $
  */
 public class TestBugsClosed extends TestCase {
 
@@ -43,7 +43,7 @@ public class TestBugsClosed extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

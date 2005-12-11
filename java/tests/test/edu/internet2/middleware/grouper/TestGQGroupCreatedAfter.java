@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GroupCreatedAfterFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupCreatedAfter.java,v 1.4 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestGQGroupCreatedAfter.java,v 1.5 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGQGroupCreatedAfter extends TestCase {
 
@@ -36,7 +36,7 @@ public class TestGQGroupCreatedAfter extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

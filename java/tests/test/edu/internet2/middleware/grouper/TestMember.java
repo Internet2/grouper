@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.4 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: TestMember.java,v 1.5 2005-12-11 09:36:05 blair Exp $
  */
 public class TestMember extends TestCase {
 
@@ -44,7 +44,7 @@ public class TestMember extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

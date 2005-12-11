@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GroupAnyAttributeFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupAnyAttribute.java,v 1.1 2005-12-01 03:43:10 blair Exp $
+ * @version $Id: TestGQGroupAnyAttribute.java,v 1.2 2005-12-11 09:36:05 blair Exp $
  */
 public class TestGQGroupAnyAttribute extends TestCase {
 
@@ -36,7 +36,7 @@ public class TestGQGroupAnyAttribute extends TestCase {
   }
 
   protected void setUp () {
-    Db.refreshDb();
+    RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {
