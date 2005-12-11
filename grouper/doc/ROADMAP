@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.117 2005-12-11 07:02:38 blair Exp $
+$Id: ROADMAP,v 1.118 2005-12-11 07:08:16 blair Exp $
 
 ---
 
@@ -96,10 +96,6 @@ $Id: ROADMAP,v 1.117 2005-12-11 07:02:38 blair Exp $
 * StemFinder: isChild()
 * Test helper methods
 
-## Visibility (Minor)
-* Membership: getOwner_id() is protected
-* Membership: getVia_id() is protected
-
 ---
 
 # Grouper 1.0
@@ -139,16 +135,4 @@ $Id: ROADMAP,v 1.117 2005-12-11 07:02:38 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
-
-
-
-
-
-
-
-
-
-
-
-
 
