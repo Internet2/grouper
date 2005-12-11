@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.logging.*;
 
@@ -28,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.3 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: GroupType.java,v 1.4 2005-12-11 04:16:31 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -81,6 +82,20 @@ public class GroupType implements Serializable {
       .append("name",   this.getName()  )
       .toString();
   } // public String toString()
+
+
+  // Protected Class Methods
+  // When retrieving groups via the parent stem we need to manually
+  // initialize the types - which means we then need to manually
+  // initialize the fields..
+  protected static void initializeGroupType(GroupType type) 
+    throws  HibernateException
+  {
+    Session hs = HibernateHelper.getSession();
+    hs.load(type, type.getId());
+    Hibernate.initialize( type.getFields() );
+    hs.close();
+  } // protected void initializeGroupType()
 
 
   // Hibernate Accessors

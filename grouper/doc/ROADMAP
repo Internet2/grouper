@@ -3,14 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.110 2005-12-10 23:09:05 blair Exp $
+$Id: ROADMAP,v 1.111 2005-12-11 04:16:31 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Incomplete 
-* Stem: update name and displayName of child stems and groups
 * thrown RTEs
   * GrouperSession: throw SessionException, !RTE
   * GrouperSession: getSubject() should throw SNFE
@@ -159,6 +158,7 @@ $Id: ROADMAP,v 1.110 2005-12-10 23:09:05 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

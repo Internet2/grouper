@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.39 2005-12-10 22:31:36 blair Exp $
+ * @version $Id: Group.java,v 1.40 2005-12-11 04:16:31 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -1611,6 +1611,24 @@ public class Group implements Serializable {
 
 
   // Protected Class Methods
+  
+  // When retrieving groups via the parent stem we need to manually
+  // initialize the attributes and types.
+  protected static void initializeGroup(Group g) 
+    throws  HibernateException
+  {
+    Session hs = HibernateHelper.getSession();
+    hs.load(g, g.getId());
+    Hibernate.initialize( g.getGroup_attributes() );
+    Hibernate.initialize( g.getGroup_types()      );
+    Iterator iter = g.getGroup_types().iterator();
+    while (iter.hasNext()) {
+      GroupType type = (GroupType) iter.next();
+      GroupType.initializeGroupType(type);
+    }
+    hs.close();
+  } // protected void initializeGroup()
+
   protected static List setSession(GrouperSession s, List l) {
     List      groups  = new ArrayList();
     Iterator  iter    = l.iterator();
@@ -1632,6 +1650,20 @@ public class Group implements Serializable {
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
   } // private void setModified()
+
+  protected void setDisplayName(String value) {
+    Set       attrs = new LinkedHashSet();
+    Iterator  iter  = this.getGroup_attributes().iterator();
+    while (iter.hasNext()) {
+      Attribute a = (Attribute) iter.next();
+      if (a.getField().getName().equals("displayName")) {
+        a.setValue(value);
+      }
+      attrs.add(a);
+      this.attr_dn = value;
+    }
+    this.setGroup_attributes(attrs);
+  } // protected void setDisplayName(value)
 
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
