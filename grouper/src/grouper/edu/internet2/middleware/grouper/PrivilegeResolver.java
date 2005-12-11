@@ -30,16 +30,13 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.27 2005-12-10 22:31:36 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.28 2005-12-11 04:38:57 blair Exp $
  *     
 */
 class PrivilegeResolver {
 
   // Private Class Constants
-  private static final String BT      = "true";
-  private static final String CFG_GWG = "groups.wheel.group";
-  private static final String CFG_GWU = "groups.wheel.use";
-  private static final Log    LOG     = LogFactory.getLog(PrivilegeResolver.class);
+  private static final Log LOG = LogFactory.getLog(PrivilegeResolver.class);
 
 
   // Private Class Variables
@@ -61,12 +58,14 @@ class PrivilegeResolver {
   // Protected Class Methods
   protected static PrivilegeResolver getInstance() {
     if (pr == null) {
+      GrouperConfig cfg = GrouperConfig.getInstance();
       pr = new PrivilegeResolver();
+    
       pr.access = (AccessAdapter) _createInterface(
-        GrouperConfig.getInstance().getProperty("interface.access")
+        cfg.getProperty(GrouperConfig.PAI)
       );
       pr.naming = (NamingAdapter) _createInterface(
-        GrouperConfig.getInstance().getProperty("interface.naming")
+        cfg.getProperty(GrouperConfig.PNI)
       );
     }
     return pr;
@@ -572,10 +571,10 @@ class PrivilegeResolver {
     // TODO REFACTOR/EXTRACT
     else {
       GrouperConfig cfg = GrouperConfig.getInstance();
-      if (cfg.getProperty(CFG_GWU).equals(BT)) {
+      if (cfg.getProperty(GrouperConfig.GWU).equals(GrouperConfig.BT)) {
         // TODO This has to be a performance killer
         GrouperSession  root = GrouperSessionFinder.getTransientRootSession();
-        String          name = cfg.getProperty(CFG_GWG);
+        String          name = cfg.getProperty(GrouperConfig.GWG);
         try {
           Group wheel = GroupFinder.findByName(root, name);
           rv = wheel.hasMember(subj);
