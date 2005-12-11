@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.7 2005-12-10 22:31:36 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.8 2005-12-11 21:41:53 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -45,6 +45,7 @@ A list membership in the Groups Registry.
     <!-- owner_id -->
     <property name="owner_id"
               type="string"
+              index="membership_owner_idx"
     >
       <column name="owner_id" 
               unique-key="members_idx"
@@ -58,6 +59,7 @@ A list membership in the Groups Registry.
       name="member_id"
       class="edu.internet2.middleware.grouper.Member" 
       cascade="none"
+      index="membership_member_idx"
     >
       <column name="member_id" 
               unique-key="members_idx"
@@ -70,6 +72,7 @@ A list membership in the Groups Registry.
     <property name="field"
               type="edu.internet2.middleware.grouper.FieldUserType"
               update="false"
+              index="membership_field_idx"
     >
       <column name="list_name"
               not-null="true"
@@ -86,6 +89,7 @@ A list membership in the Groups Registry.
 <!-- TODO I'll resolve this later -->
     <property name="via_id"
               type="string"
+              index="membership_via_idx"
     >
       <column name="via_id" 
               unique-key="members_idx"
@@ -94,10 +98,10 @@ A list membership in the Groups Registry.
     <!-- via_id -->
 
     <!-- depth -->
-    <property
-      name="depth"
-      type="integer"
-      not-null="true"
+    <property name="depth"
+              type="integer"
+              not-null="true"
+              index="membership_depth_idx"
     >
       <column name="depth"
               sql-type="int"
@@ -112,10 +116,40 @@ A list membership in the Groups Registry.
       name="parent_membership"
       class="edu.internet2.middleware.grouper.Membership"
       cascade="none"
+      index="membership_parent_idx"
     >
       <column name="parent_membership"/>
     </many-to-one>
     <!-- parent_membership -->
+
+    <!-- creator_id -->
+    <many-to-one  name="creator_id"
+                  class="edu.internet2.middleware.grouper.Member" 
+                  index="membership_creator_idx" 
+    />
+    <!-- creator_id -->
+
+    <!-- create_time -->
+    <property name="create_time"
+              type="long"
+              not-null="true"
+              update="false"
+              index="membership_createtime_idx"
+    />
+    <!-- create_time -->
+
+    <!-- status -->
+    <property name="status"
+              type="edu.internet2.middleware.grouper.StatusUserType"
+              update="false"
+              index="membership_status_idx"
+    >
+      <column name="status_name"/>
+      <column name="status_ttl"
+              sql-type="bigint"
+      />
+    </property>
+    <!-- status -->
 
   </class>
 </hibernate-mapping>

@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.15 2005-12-11 07:08:16 blair Exp $
+ * @version $Id: Membership.java,v 1.16 2005-12-11 21:41:53 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -43,12 +43,15 @@ public class Membership implements Serializable {
 
   // Hibernate Properties
   private Set         children            = new LinkedHashSet();
+  private Member      creator_id;
+  private long        create_time;
   private int         depth;
   private Field       field;
   private String      id;
   private Member      member_id;
   private String      owner_id;
   private Membership  parent_membership;
+  private Status      status;
   private String      via_id;
 
   
@@ -854,6 +857,26 @@ public class Membership implements Serializable {
 
   private void setChild_memberships(Set children) {
     this.children = children;
+  }
+
+  private Status getStatus() {
+    return this.status;
+  }
+  private void setStatus(Status s) {
+    this.status = s;
+  }
+
+  private Member getCreator_id() {
+    return this.creator_id;
+  }
+  private void setCreator_id(Member m) {
+    this.creator_id = m;
+  }
+  private long getCreate_time() {
+    return this.create_time;
+  }
+  private void setCreate_time(long time) {
+    this.create_time = time;
   }
 
 }

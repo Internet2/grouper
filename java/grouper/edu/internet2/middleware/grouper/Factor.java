@@ -17,10 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+
+import  java.io.Serializable;
+import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
@@ -30,91 +30,84 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 */
 class Factor implements Serializable {
 
-    /** identifier field */
-    private String id;
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(Factor.class);
 
-    /** nullable persistent field */
-    private Integer version;
+  
+  // Hibernate Properties
+  private String      id;
+  private String      klass;
+  private Member      creator_id;
+  private long        create_time;
+  private Membership  node_a;
+  private Membership  node_b;
+  private Status      status;
+  private String      uuid;
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Member node_a_id;
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Member node_b_id;
+  // Constructors
 
-    /** full constructor */
-    public Factor(Integer version, edu.internet2.middleware.grouper.Member node_a_id, edu.internet2.middleware.grouper.Member node_b_id) {
-        this.version = version;
-        this.node_a_id = node_a_id;
-        this.node_b_id = node_b_id;
-    }
+  // For Hibernate
+  public Factor() { 
+    super();
+  }
 
-    /** default constructor */
-    public Factor() {
-    }
 
-    private String getId() {
-        return this.id;
-    }
+  // Hibernate Accessors
+  private String getId() {
+    return this.getId();
+  }
+  private void setId(String id) {
+    this.id = id;
+  }
 
-    private void setId(String id) {
-        this.id = id;
-    }
+  private String getKlass() {
+    return this.klass;
+  }
+  private void setKlass(String klass) {
+    this.klass = klass;
+  }
 
-    private Integer getVersion() {
-        return this.version;
-    }
+  private Member getCreator_id() {
+    return this.creator_id;
+  }
+  private void setCreator_id(Member m) {
+    this.creator_id = m;
+  }
 
-    private void setVersion(Integer version) {
-        this.version = version;
-    }
+  private long getCreate_time() {
+    return this.create_time;
+  }
+  private void setCreate_time(long time) {
+    this.create_time = time;
+  }
+ 
+  private Membership getNode_a() {
+    return this.node_a;
+  }
+  private void setNode_a(Membership ms) {
+    this.node_a = ms;
+  }
+ 
+  private Membership getNode_b() {
+    return this.node_b;
+  }
+  private void setNode_b(Membership ms) {
+    this.node_b = ms;
+  }
 
-    /** 
-     * Get node a.
-     *       
-     */
-    protected edu.internet2.middleware.grouper.Member getNode_a_id() {
-        return this.node_a_id;
-    }
+  private Status getStatus() {
+    return this.status;
+  }
+  private void setStatus(Status s) {
+    this.status = s;
+  }
 
-    private void setNode_a_id(edu.internet2.middleware.grouper.Member node_a_id) {
-        this.node_a_id = node_a_id;
-    }
-
-    /** 
-     * Get node b.
-     *       
-     */
-    protected edu.internet2.middleware.grouper.Member getNode_b_id() {
-        return this.node_b_id;
-    }
-
-    private void setNode_b_id(edu.internet2.middleware.grouper.Member node_b_id) {
-        this.node_b_id = node_b_id;
-    }
-
-    public String toString() {
-        return new ToStringBuilder(this)
-            .append("node_a_id", getNode_a_id())
-            .append("node_b_id", getNode_b_id())
-            .toString();
-    }
-
-    public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( !(other instanceof Factor) ) return false;
-        Factor castOther = (Factor) other;
-        return new EqualsBuilder()
-            .append(this.getNode_a_id(), castOther.getNode_a_id())
-            .append(this.getNode_b_id(), castOther.getNode_b_id())
-            .isEquals();
-    }
-
-    public int hashCode() {
-        return new HashCodeBuilder()
-            .append(getNode_a_id())
-            .append(getNode_b_id())
-            .toHashCode();
-    }
+  private String getUuid() {
+    return this.uuid;
+  }
+  private void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
 
 }

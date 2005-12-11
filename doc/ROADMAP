@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.118 2005-12-11 07:08:16 blair Exp $
+$Id: ROADMAP,v 1.119 2005-12-11 21:41:53 blair Exp $
 
 ---
 
@@ -11,32 +11,28 @@ $Id: ROADMAP,v 1.118 2005-12-11 07:08:16 blair Exp $
 
 ## @next actions
 * Profiling
-* DDL: Membership: Add create member, create time and status
-* DDL: Factors: DDL and how will they **actually** work
-* Test: _AccessPrivilege_ and _NamingPrivilege_ objects
-* Membership: map via_id to Group
 * Cache access and naming privs
+* Membership: cache getGroup()
+* Membership: cache getStem()
+* InternalSourceAdapter: don't recreate ALL and ROOT everytime
 * Configurable options for logging adding/granting/deleting/revoking
   immediate and effective memberships and privs
+* Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
+* GrouperAttribute: attribute methods should throw ANFE + SE
 * Methods that look like they need some love
   * GrouperAccessAdapter: getPrivs()
   * GrouperNamingAdapter: getPrivs()
   * GrouperNamingAdapter: hasPriv() should take ALL into account
-* Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
 * Review RTEs in _GrouperAccessAdapter_ and _GrouperNamingAdapter_
 
 ## @later
-* GrouperAttribute: attribute methods should throw ANFE + SE
-* InternalSourceAdapter: don't recreate ALL and ROOT everytime
-* Membership: cache getGroup()
-* Membership: cache getStem()
 * Event logging
   * Clean up returned error messages when exceptions thrown
-* DDL: review schema, constraints and indexing
 * Replace contrib items with updated cdg
 
 ## @maybe
 * PrivilegeResolver: isRoot and wheel group
+* Membership: map via_id to Group (will factors break this?)
 * GrouperSessionFinder: make internal root sessions !hibernated
 * Cache subjects
 * GrouperSession: automatic proxying
@@ -46,6 +42,7 @@ $Id: ROADMAP,v 1.118 2005-12-11 07:08:16 blair Exp $
 * Group: cache attributes
 
 ## @testing
+* _AccessPrivilege_ and _NamingPrivilege_ objects
 * invalid group + stem names
 * empty config options for granting all, wheel group, interfaces, etc
 * privs with groups
