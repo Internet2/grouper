@@ -27,11 +27,10 @@ create table grouper_members (
    id varchar(255) not null,
    subject_id varchar(255),
    subject_source varchar(255),
-   subject_type varchar(255),
-   member_id varchar(255) not null,
+   subject_type varchar(255) not null,
+   member_uuid varchar(255),
    primary key (id),
-   unique (member_id),
-   unique (subject_id, subject_source, subject_type)
+   unique (subject_id, subject_source)
 );
 create table grouper_memberships (
    id varchar(255) not null,
@@ -49,9 +48,8 @@ create table grouper_sessions (
    id varchar(255) not null,
    member_id varchar(255),
    start_time timestamp not null,
-   session_id varchar(64) not null,
-   primary key (id),
-   unique (session_id)
+   session_uuid varchar(255),
+   primary key (id)
 );
 create table grouper_groups_types (
    group_id varchar(255) not null,
@@ -64,20 +62,17 @@ create table grouper_stems (
    creator_id varchar(255) not null,
    create_source varchar(255),
    create_time bigint not null,
-   stem_description varchar(1024),
+   description varchar(255),
    display_extension varchar(255) not null,
    display_name varchar(255) not null,
-   stem_extension varchar(255) not null,
+   extension varchar(255),
    modifier_id varchar(255),
    modify_source varchar(255),
    modify_time bigint,
    stem_name varchar(255) not null,
    parent_stem varchar(255),
-   stem_id varchar(255) not null,
-   primary key (id),
-   unique (display_name),
-   unique (stem_name),
-   unique (stem_id)
+   stem_uuid varchar(255),
+   primary key (id)
 );
 create table grouper_types (
    id varchar(255) not null,
@@ -95,9 +90,8 @@ create table grouper_groups (
    modify_source varchar(255),
    modify_time bigint,
    parent_stem varchar(255),
-   group_id varchar(64) not null,
-   primary key (id),
-   unique (group_id)
+   group_uuid varchar(255),
+   primary key (id)
 );
 create table grouper_fields (
    id varchar(255) not null,

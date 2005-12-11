@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.7 2005-12-09 07:35:38 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.8 2005-12-11 07:02:38 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -57,21 +57,14 @@ A group within the Groups Registry.
     <many-to-one
       name="creator_id"
       class="edu.internet2.middleware.grouper.Member" 
-    >
-      <column name="creator_id"/>
-    </many-to-one>
+    />
     <!-- creator_id -->
 
     <!-- create_source -->
     <property 
       name="create_source"
       type="string"
-      length="255"
-    >
-      <meta attribute="field-description">
-Get create source.
-      </meta>
-    </property>
+    />
     <!-- create_source -->
 
     <!-- create_time -->
@@ -80,11 +73,7 @@ Get create source.
       type="long"
       not-null="true"
       update="false"
-    >
-      <meta attribute="field-description">
-Get create time.
-      </meta>
-    </property>
+    />
     <!-- create_time -->
 
     <!-- modifier_id -->
@@ -98,23 +87,14 @@ Get create time.
     <property 
       name="modify_source"
       type="string"
-      length="255"
-    >
-      <meta attribute="field-description">
-Get modify source.
-      </meta>
-    </property>
+    />
     <!-- modify_source -->
 
     <!-- modify_time -->
     <property 
       name="modify_time"
       type="long"
-    >
-      <meta attribute="class-description">
-Get last modify time.
-      </meta>
-    </property>
+    />
     <!-- modify_time -->
 
     <!-- parent_stem -->
@@ -129,10 +109,11 @@ Get last modify time.
     <property 
       name="group_id"
       type="string"
-      length="64"
       not-null="true"
       unique="true"
-    />
+    >
+      <column name="group_uuid"/>
+    </property>
     <!-- group_id -->
 
     <!-- group_types -->

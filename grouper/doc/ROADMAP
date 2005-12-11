@@ -3,73 +3,79 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.116 2005-12-11 06:28:38 blair Exp $
+$Id: ROADMAP,v 1.117 2005-12-11 07:02:38 blair Exp $
 
 ---
 
 # Grouper 0.9
 
-## Incomplete - Required
+## @next actions
 * Profiling
-* DDL
-  * Column names
-  * Membership: Add create member, create time and status
-  * Factors: DDL and how will they **actually** work
-* _AccessPrivilege_ and _NamingPrivilege_ objects
-* Replace contrib items with updated cdg
-
-## Incomplete - Desired
+* DDL: Membership: Add create member, create time and status
+* DDL: Factors: DDL and how will they **actually** work
+* Test: _AccessPrivilege_ and _NamingPrivilege_ objects
 * Membership: map via_id to Group
-* Cache
-  * access privs
-  * naming privs
-  * subjects
+* Cache access and naming privs
 * Configurable options for logging adding/granting/deleting/revoking
   immediate and effective memberships and privs
-* Event logging
-  * Clean up returned error messages when exceptions thrown
 * Methods that look like they need some love
   * GrouperAccessAdapter: getPrivs()
   * GrouperNamingAdapter: getPrivs()
   * GrouperNamingAdapter: hasPriv() should take ALL into account
-* Exceptions
-  * Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
-  * Review RTEs in _GrouperAccessAdapter_ and _GrouperNamingAdapter_
-  * GrouperAttribute: attribute methods should throw ANFE + SE
+* Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
+* Review RTEs in _GrouperAccessAdapter_ and _GrouperNamingAdapter_
+
+## @later
+* GrouperAttribute: attribute methods should throw ANFE + SE
+* InternalSourceAdapter: don't recreate ALL and ROOT everytime
+* Membership: cache getGroup()
+* Membership: cache getStem()
+* Event logging
+  * Clean up returned error messages when exceptions thrown
+* DDL: review schema, constraints and indexing
+* Replace contrib items with updated cdg
+
+## @maybe
+* PrivilegeResolver: isRoot and wheel group
+* GrouperSessionFinder: make internal root sessions !hibernated
+* Cache subjects
 * GrouperSession: automatic proxying
   * GroupFinder.findByName() is candidate
   * GroupFinder.findByUuid() is candidate
-
-## Peformance (Unknown)
 * FieldFinder: cache findAll()
-* GrouperSessionFinder: make internal root sessions !hibernated
-* InternalSourceAdapter: don't recreate ALL and ROOT everytime
-* PrivilegeResolver: isRoot and wheel group
-
-## Performance (Minor)
 * Group: cache attributes
-* Membership: cache getGroup()
-* Membership: cache getStem()
 
-## Tests
+## @testing
+* invalid group + stem names
 * empty config options for granting all, wheel group, interfaces, etc
 * privs with groups
-* Test field validation
-  * Attributes
-  * Lists
-  * Naming privs
-  * Access privs
+* field validation: fields (attrs, lists, naming and access)
 * Test create + modify subject when !root
 * renaming "root" subject?  this probably shouldn't be allowed.
 * review old memberof tests 
-* concurrence, persistence and versioning
-* can i delete TestGrouperAccess* and TestGrouperNaming* tests?
 * Review old _*.todo_ test classes (and then remove)
+* concurrence, persistence and versioning
 * Test with Pg and Oracle and review generated SQL
   * ship with generated schema?
 * deletion (group + mship + priv) in _TestMemberOf_
 * What happens when you delete a group and then attempt to perform
   further operations on it?
+* can i delete TestGrouperAccess* and TestGrouperNaming* tests?
+
+## @document
+* What triggers modified updates?
+* record where each *Finder method is called from
+* wheel group
+* ALL toggles
+* query api javadoc
+* _doc/CHANGES_
+  * public api
+  * query api
+  * ALL subject
+  * wheel group
+* Attempt to normalize API debug logging
+  * Include method names
+  * Use constants
 
 ## DRY
 * Member: isMember(), isImmediateMember() and isEffectiveMember()
@@ -93,21 +99,6 @@ $Id: ROADMAP,v 1.116 2005-12-11 06:28:38 blair Exp $
 ## Visibility (Minor)
 * Membership: getOwner_id() is protected
 * Membership: getVia_id() is protected
-
-## Document
-* What triggers modified updates?
-* record where each *Finder method is called from
-* wheel group
-* ALL toggles
-* query api javadoc
-* _doc/CHANGES_
-  * public api
-  * query api
-  * ALL subject
-  * wheel group
-* Attempt to normalize API debug logging
-  * Include method names
-  * Use constants
 
 ---
 
@@ -148,6 +139,7 @@ $Id: ROADMAP,v 1.116 2005-12-11 06:28:38 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 
