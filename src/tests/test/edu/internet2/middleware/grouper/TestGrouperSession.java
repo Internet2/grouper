@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSession.java,v 1.5 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestGrouperSession.java,v 1.6 2005-12-12 01:12:41 blair Exp $
  */
 public class TestGrouperSession extends TestCase {
 
@@ -72,7 +72,7 @@ public class TestGrouperSession extends TestCase {
     GrouperSession s = SessionHelper.getRootSession();
     Date d = s.getStartTime();
     Assert.assertNotNull("start time !null", d);
-    Assert.assertTrue("start time != epoch", !d.equals(new Date()));
+    Assert.assertTrue("start time != epoch (" + d + ")", !d.equals(new Date()));
   } // public void testGetStartTime()
 
   public void testStopSession() {
