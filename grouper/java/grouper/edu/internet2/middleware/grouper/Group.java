@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.43 2005-12-12 05:52:02 blair Exp $
+ * @version $Id: Group.java,v 1.44 2005-12-12 19:54:04 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -1589,6 +1589,10 @@ public class Group implements Serializable {
       GrouperLog.debug(LOG, this.s, msg + eH.getMessage());
       throw new AttributeNotFoundException(msg + eH.getMessage());
     }
+    catch (IllegalArgumentException eIA) {
+      GrouperLog.debug(LOG, this.s, eIA.getMessage());
+      throw new GroupModifyException(eIA.getMessage());
+    }
     catch (SchemaException eS) {
       GrouperLog.debug(LOG, this.s, msg + eS.getMessage());
       throw new AttributeNotFoundException(msg + eS.getMessage());
@@ -1922,13 +1926,16 @@ public class Group implements Serializable {
     this.setCreate_time( new Date().getTime() );
   } // private void _setCreated()
 
-  private Set _updateSystemAttrs(Field f, String value, Set attrs) {
+  private Set _updateSystemAttrs(Field f, String value, Set attrs) 
+    throws  IllegalArgumentException
+  {
     Set updated = new LinkedHashSet();
     if      (f.getName().equals("extension")) {
       Iterator iter = attrs.iterator();
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().getName().equals("name")) {
+          Stem.validateName(value);
           String newVal = Stem.constructName(
             this.getParentStem().getName(), value
           );
@@ -1945,6 +1952,7 @@ public class Group implements Serializable {
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().getName().equals("displayName")) {
+          Stem.validateName(value);
           String newVal = Stem.constructName(
             this.getParentStem().getDisplayName(), value
           );

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.3 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestGroup.java,v 1.4 2005-12-12 19:54:04 blair Exp $
  */
 public class TestGroup extends TestCase {
 
@@ -151,6 +151,117 @@ public class TestGroup extends TestCase {
       );
     }
   } // public void testGetTypes()
+
+  public void testAddChildGroupWithBadExtnOrDisplayExtn() {
+    LOG.info("testAddChildGroupWithBadExtnOrDisplayExtn");
+    try {
+      try {
+        Group badE = edu.addChildGroup(null, "test");
+        Assert.fail("added group with null extn");
+      }
+      catch (GroupAddException eSA) {
+        Assert.assertTrue("null extn", true);
+      }
+      try {
+        Group badE = edu.addChildGroup("", "test");
+        Assert.fail("added group with empty extn");
+      }
+      catch (GroupAddException eSA) {
+        Assert.assertTrue("empty extn", true);
+      }
+      try {
+        Group badE = edu.addChildGroup("a:test", "test");
+        Assert.fail("added group with colon-containing extn");
+      }
+      catch (GroupAddException eSA) {
+        Assert.assertTrue("colon-containing extn", true);
+      }
+      try {
+        Group badE = edu.addChildGroup("test", null);
+        Assert.fail("added group with null displayExtn");
+      }
+      catch (GroupAddException eSA) {
+        Assert.assertTrue("null displayExtn", true);
+      }
+      try {
+        Group badE = edu.addChildGroup("test", "");
+        Assert.fail("added group with empty displayextn");
+      }
+      catch (GroupAddException eSA) {
+        Assert.assertTrue("empty displayExtn", true);
+      }
+      try {
+        Group badE = edu.addChildGroup("test", "a:test");
+        Assert.fail("added group with colon-containing displayExtn");
+      }
+      catch (GroupAddException eSA) {
+        Assert.assertTrue("colon-containing displayExtn", true);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testAddChildGroupWithBadExtnOrDisplayExtn()
+
+  public void testSetBadGroupExtension() {
+    LOG.info("testSetBadGroupExtension");
+    try {
+      try {
+        i2.setExtension(null);
+        Assert.fail("set null extn");
+      }
+      catch (GroupModifyException eSA) {
+        Assert.assertTrue("null extn", true);
+      }
+      try {
+        i2.setExtension("");
+        Assert.fail("set empty extn");
+      }
+      catch (GroupModifyException eSA) {
+        Assert.assertTrue("empty extn", true);
+      }
+      try {
+        i2.setExtension("a:test");
+        Assert.fail("set colon-containing extn");
+      }
+      catch (GroupModifyException eSA) {
+        Assert.assertTrue("colon-containing extn", true);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testSetBadGroupExtension()
+
+  public void testSetBadGroupDisplayExtension() {
+    LOG.info("testSetBadGroupDisplayExtension");
+    try {
+      try {
+        i2.setDisplayExtension(null);
+        Assert.fail("set null displayExtn");
+      }
+      catch (GroupModifyException eSA) {
+        Assert.assertTrue("null displayExtn", true);
+      }
+      try {
+        i2.setDisplayExtension("");
+        Assert.fail("set empty displayExtn");
+      }
+      catch (GroupModifyException eSA) {
+        Assert.assertTrue("empty displayExtn", true);
+      }
+      try {
+        i2.setDisplayExtension("a:test");
+        Assert.fail("set colon-containing displayExtn");
+      }
+      catch (GroupModifyException eSA) {
+        Assert.assertTrue("colon-containing displayExtn", true);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testSetBadGroupDisplayExtension()
 
 }
 

@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
+import  java.util.regex.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.logging.*;
@@ -29,24 +30,28 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.40 2005-12-12 14:43:11 blair Exp $
+ * @version $Id: Stem.java,v 1.41 2005-12-12 19:54:04 blair Exp $
  *     
 */
 public class Stem implements Serializable {
 
   // Private Class Constants
-  private static final String BT          = "true";
-  private static final String CFG_GCGAA   = "groups.create.grant.all.admin";
-  private static final String CFG_GCGAOI  = "groups.create.grant.all.optin";
-  private static final String CFG_GCGAOO  = "groups.create.grant.all.optout";
-  private static final String CFG_GCGAR   = "groups.create.grant.all.read";
-  private static final String CFG_GCGAU   = "groups.create.grant.all.update";
-  private static final String CFG_GCGAV   = "groups.create.grant.all.view";
-  private static final String CFG_SCGAC   = "stems.create.grant.all.create";
-  private static final String CFG_SCGAS   = "stems.create.grant.all.stem";
-  private static final String ERR_ARS     = "unable to install root stem: ";
-  private static final String ERR_FNF     = "field not found: ";
-  private static final Log    LOG         = LogFactory.getLog(Stem.class);
+  // TODO use one in GrouperConfig
+  private static final String   BT          = "true";
+  // TODO move to GrouperConfig
+  private static final String   CFG_GCGAA   = "groups.create.grant.all.admin";
+  private static final String   CFG_GCGAOI  = "groups.create.grant.all.optin";
+  private static final String   CFG_GCGAOO  = "groups.create.grant.all.optout";
+  private static final String   CFG_GCGAR   = "groups.create.grant.all.read";
+  private static final String   CFG_GCGAU   = "groups.create.grant.all.update";
+  private static final String   CFG_GCGAV   = "groups.create.grant.all.view";
+  private static final String   CFG_SCGAC   = "stems.create.grant.all.create";
+  private static final String   CFG_SCGAS   = "stems.create.grant.all.stem";
+  private static final String   ERR_ARS     = "unable to install root stem: ";
+  private static final String   ERR_FNF     = "field not found: ";
+  private static final Log      LOG         = LogFactory.getLog(Stem.class);
+  private static final Pattern  RE_COLON    = Pattern.compile(":");
+  private static final Pattern  RE_WS       = Pattern.compile("^\\s*$");
 
 
   // Hibernate Properties
@@ -123,6 +128,13 @@ public class Stem implements Serializable {
     throws  GroupAddException,
             InsufficientPrivilegeException
   {
+    try {
+      validateName(extension);
+      validateName(displayExtension);
+    }
+    catch (IllegalArgumentException eIA) {
+      throw new GroupAddException(eIA.getMessage());
+    }
     PrivilegeResolver.getInstance().canCREATE(
       this.s, this, this.s.getSubject()
     );
@@ -192,6 +204,13 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemAddException 
   {
+    try {
+      validateName(extension);
+      validateName(displayExtension);
+    }
+    catch (IllegalArgumentException eIA) {
+      throw new StemAddException(eIA.getMessage());
+    }
     PrivilegeResolver.getInstance().canSTEM(
       //GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
       this.s, this, this.s.getSubject()
@@ -785,6 +804,14 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
+    try {
+      validateName(value);
+    }
+    catch (IllegalArgumentException eIA) {
+      if (!(this.getName().equals("") && value.equals(""))) {
+        throw new StemModifyException(eIA.getMessage());
+      }
+    }
     PrivilegeResolver.getInstance().canSTEM(
       GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
     );
@@ -872,6 +899,23 @@ public class Stem implements Serializable {
     return stems;
   } // protected static List setSession(s, l)
 
+  protected static void validateName(String name)  
+    throws  IllegalArgumentException
+  {
+    // TODO I should reuse the same patterns
+    if (name == null) {
+      throw new IllegalArgumentException("null name");
+    }
+    Matcher m = RE_COLON.matcher(name);
+    if (m.find()) {
+      throw new IllegalArgumentException("name contains colon");
+    }
+    m = RE_WS.matcher(name);
+    if (m.find()) {
+      throw new IllegalArgumentException("empty name");
+    }
+  } // protected static void validateName(name)
+    
 
   // Protected Instance Methods
   protected void setSession(GrouperSession s) {
