@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.125 2005-12-12 05:52:01 blair Exp $
+$Id: ROADMAP,v 1.126 2005-12-12 06:14:52 blair Exp $
 
 ---
 
@@ -13,7 +13,6 @@ $Id: ROADMAP,v 1.125 2005-12-12 05:52:01 blair Exp $
 * Methods that look like they need some love
   * GrouperAccessAdapter: getPrivs()
   * GrouperNamingAdapter: getPrivs()
-  * GrouperNamingAdapter: hasPriv() should take ALL into account
 * Configurable options for logging adding/granting/deleting/revoking
   immediate and effective memberships and privs
 * Event logging
@@ -27,13 +26,14 @@ $Id: ROADMAP,v 1.125 2005-12-12 05:52:01 blair Exp $
 * field validation: fields (attrs, lists, naming and access)
 * Test create + modify subject when !root
 * Replace contrib items with updated cdg
+* Review old _*.todo_ test classes (and then remove)
 * Test with Pg and Oracle and review generated SQL
   * ship with generated schema?
 
 ## @testing
+* GrouperNamingAdapter.hasPriv() and ALL 
 * deletion (group + mship + priv) in _TestMemberOf_
 * privs with groups
-* Review old _*.todo_ test classes (and then remove)
 * concurrence, persistence and versioning
 * What happens when you delete a group and then attempt to perform
   further operations on it?
