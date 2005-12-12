@@ -31,6 +31,8 @@ public class SuiteAll extends TestCase {
 
     suite.addTestSuite(TestBugsClosed.class);
     suite.addTestSuite(TestBugsOpen.class);
+
+    suite.addTestSuite(TestAccessPrivilege.class);
     suite.addTestSuite(TestField.class);
     suite.addTestSuite(TestGrFiFindByName.class);
     suite.addTestSuite(TestGrFiFindByUuid.class);
@@ -75,6 +77,7 @@ public class SuiteAll extends TestCase {
     // TODO suite.addTestSuite(TestMemberOfAccessPrivs.class);
     // TODO suite.addTestSuite(TestMemberOfNamingPrivs.class);
     suite.addTestSuite(TestMembership.class);
+    suite.addTestSuite(TestNamingPrivilege.class);
     suite.addTestSuite(TestPrivADMIN.class);    // TODO group-with-priv checks
     suite.addTestSuite(TestPrivCREATE.class);  
     suite.addTestSuite(TestPrivOPTIN.class);    // TODO group-with-priv checks

@@ -3,16 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.127 2005-12-12 16:07:24 blair Exp $
+$Id: ROADMAP,v 1.128 2005-12-12 16:53:57 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## @next actions
-* Methods that look like they need some love
-  * GrouperAccessAdapter: getPrivs()
-  * GrouperNamingAdapter: getPrivs()
 * Configurable options for logging adding/granting/deleting/revoking
   immediate and effective memberships and privs
 * Event logging

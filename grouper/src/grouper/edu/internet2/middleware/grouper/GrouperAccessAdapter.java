@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.27 2005-12-12 06:14:52 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.28 2005-12-12 16:53:57 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -145,44 +145,23 @@ public class GrouperAccessAdapter implements AccessAdapter {
     GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
-      Member    m     = MemberFinder.findBySubject(s, subj);
+      Member    m   = MemberFinder.findBySubject(s, subj);
+      Member    all = MemberFinder.findAllMember();     
       Iterator  iterP = Privilege.getAccessPrivs().iterator();
       while (iterP.hasNext()) {
         Privilege p = (Privilege) iterP.next();
-        Iterator  iterM = MembershipFinder.findMemberships(
-          g.getUuid(), m, 
-          (Field) FieldFinder.find( (String) priv2list.get(p) )
-        ).iterator();
-        while (iterM.hasNext()) {
-          Membership  ms      = (Membership) iterM.next();
-          Subject     owner   = subj;
-          // TODO Should take privs into account as well
-          boolean     revoke  = true;
-          ms.setSession(s);
-          try {
-            owner   = ms.getViaGroup().toSubject();
-            revoke  = false;
-          }
-          catch (GroupNotFoundException eGNF) {
-            // Ignore
-          }
-          privs.add(
-            new AccessPrivilege(
-              ms.getGroup(),  subj,               owner,
-              p           ,   s.getAccessClass(), revoke
-            )
-          );
-        }
+        Field     f = this._getField(p);   
+        Iterator  iterM = MembershipFinder.findMemberships(g.getUuid(), m, f).iterator();
+        privs.addAll( this._getPrivs(s, g, subj, m, p, iterM) );
+        Iterator  iterA = MembershipFinder.findMemberships(g.getUuid(), all, f).iterator();
+        privs.addAll( this._getPrivs(s, g, subj, all, p, iterA) );
       }
     }
-    catch (GroupNotFoundException eGNF) {
-      LOG.error(ERR_MGNF + eGNF.getMessage());
-    }
     catch (MemberNotFoundException eMNF) {
-      LOG.error(ERR_MMNF + eMNF.getMessage());
+      GrouperLog.error(LOG, s, ERR_MMNF + eMNF.getMessage());
     }
     catch (SchemaException eS) {
-      // Ignore
+      // Well, this is strange.  Ignore.
     }
     return privs;
   } // public Set getPrivs(s, g, subj)
@@ -408,6 +387,49 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     return FieldFinder.find( (String) priv2list.get(priv) );
   } // private Field _getField(priv)
+
+  // Return appropriate _AccessPrivilege_ objects 
+  private Set _getPrivs(
+    GrouperSession s, Group g, Subject subj, Member m, Privilege p, Iterator iter
+  )
+    throws  SchemaException
+  {
+    Set privs = new LinkedHashSet();
+    while (iter.hasNext()) {
+      Membership  ms      = (Membership) iter.next();
+      ms.setSession(s);
+      Subject     owner   = subj;
+      boolean     revoke  = true;
+      try {
+        if (!SubjectHelper.eq(m.getSubject(), subj)) {
+          owner   = m.getSubject();
+          revoke  = false;
+        }
+      }
+      catch (SubjectNotFoundException eSNF) {
+        // bloody odd
+      }
+      try {
+        owner   = ms.getViaGroup().toSubject();
+        revoke  = false;
+      }
+      catch (GroupNotFoundException eGNF) {
+        // ignore
+      }
+      try {
+        privs.add(
+          new AccessPrivilege(
+            ms.getGroup() , subj              , owner,
+            p             , s.getAccessClass(), revoke
+          )
+        );
+      }
+      catch (GroupNotFoundException eGNF) {
+        // this is also bloody odd
+      }
+    }
+    return privs;
+  } // private Set _get(s, g, subj, m, p, iter)
 
 }
 
