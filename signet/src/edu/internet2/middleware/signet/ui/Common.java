@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.53 2005-12-09 23:42:15 acohen Exp $
-  $Date: 2005-12-09 23:42:15 $
+  $Id: Common.java,v 1.54 2005-12-12 21:26:21 acohen Exp $
+  $Date: 2005-12-12 21:26:21 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -46,6 +46,7 @@ import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.ProxyHistory;
+import edu.internet2.middleware.signet.SelectionType;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
@@ -145,12 +146,12 @@ public class Common
   }
   
   public static String describeChange
-    (AssignmentHistory[]  historyArray,
-     int                  historyIndex)
+    (History[]  historyArray,
+     int        historyIndex)
   {
     StringBuffer changeStr = new StringBuffer();
-    AssignmentHistory newerHistoryRecord = historyArray[historyIndex];
-    AssignmentHistory olderHistoryRecord = null;
+    History newerHistoryRecord = historyArray[historyIndex];
+    History olderHistoryRecord = null;
     
     if (historyIndex != (historyArray.length - 1))
     {
@@ -261,15 +262,17 @@ public class Common
           ("Can Use",
            ((AssignmentHistory)newer).canUse(),
            ((AssignmentHistory)older).canUse()));
+      
       description.append
         (describeChange
           ("Can Grant",
            ((AssignmentHistory)newer).canGrant(),
            ((AssignmentHistory)older).canGrant()));
 
-//      description.append
-//        (describeLimitChanges
-//          (newer.getLimitValues(), older.getLimitValues()));
+      description.append
+        (describeLimitChanges
+          (((AssignmentHistory)newer).getLimitValues(),
+           ((AssignmentHistory)older).getLimitValues()));
     }
     else
     {
@@ -283,6 +286,122 @@ public class Common
           ("Can Extend",
            ((ProxyHistory)newer).canExtend(),
            ((ProxyHistory)older).canExtend()));
+    }
+    
+    return description;
+  }
+  
+  private static StringBuffer describeLimitChanges
+    (Set newerLimitValues,
+     Set olderLimitValues)
+  {
+    StringBuffer description = new StringBuffer();
+    
+    Set newerSingleChoiceLimitValues
+      = getSubset(newerLimitValues, SelectionType.SINGLE);
+    Set olderSingleChoiceLimitValues
+      = getSubset(olderLimitValues, SelectionType.SINGLE);
+    description.append
+      (describeSingleChoiceLimitChanges
+        (newerSingleChoiceLimitValues, olderSingleChoiceLimitValues));
+    
+    Set newerMultiChoiceLimitValues
+      = getSubset(newerLimitValues, SelectionType.MULTIPLE);
+    Set olderMultiChoiceLimitValues
+      = getSubset(olderLimitValues, SelectionType.MULTIPLE);
+    Set deletedLimitValues
+      = subtractIntersection
+          (olderMultiChoiceLimitValues, newerMultiChoiceLimitValues);
+    description.append(describeMultiChoiceLimitChanges("deleted", deletedLimitValues));
+    
+    Set addedLimitValues
+      = subtractIntersection
+          (newerMultiChoiceLimitValues, olderMultiChoiceLimitValues);
+    description.append(describeMultiChoiceLimitChanges("added", addedLimitValues));
+    
+    return description;
+  }
+  
+  private static StringBuffer describeSingleChoiceLimitChanges
+    (Set newerLimitValues,
+     Set olderLimitValues)
+  {
+    StringBuffer description = new StringBuffer();
+    
+    Iterator olderLimitValuesIterator = olderLimitValues.iterator();
+    while (olderLimitValuesIterator.hasNext())
+    {
+      LimitValue olderLimitValue
+        = (LimitValue)(olderLimitValuesIterator.next());
+      
+      LimitValue newerLimitValue = null;
+      Iterator newerLimitValuesIterator = newerLimitValues.iterator();
+      while (newerLimitValuesIterator.hasNext())
+      {
+        LimitValue candidate = (LimitValue)(newerLimitValuesIterator.next());
+        if (candidate.getLimit().equals(olderLimitValue.getLimit()))
+        {
+          newerLimitValue = candidate;
+        }
+      }
+      
+      description.append(describeChange(newerLimitValue, olderLimitValue));
+    }
+    
+    return description;
+  }
+  
+  private static Set getSubset
+    (Set            limitValues,
+     SelectionType  selectionType)
+  {
+    Set subset = new HashSet();
+    
+    Iterator limitValuesIterator = limitValues.iterator();
+    while (limitValuesIterator.hasNext())
+    {
+      LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+      if (limitValue.getLimit().getSelectionType().equals(selectionType))
+      {
+        subset.add(limitValue);
+      }
+    }
+      
+    return subset;
+  }
+  
+  private static Set subtractIntersection(Set set1, Set set2)
+  {
+    Set difference = new HashSet(set1.size());
+    difference.addAll(set1);
+    difference.removeAll(set2);
+    
+    return difference;
+  }
+   
+  private static StringBuffer describeMultiChoiceLimitChanges
+    (String label,
+     Set    limitValues)
+  {
+    StringBuffer description = new StringBuffer();
+    
+    Iterator limitValuesIterator = limitValues.iterator();
+    while (limitValuesIterator.hasNext())
+    {
+      LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+      
+      description.append("<p>\n");
+      description.append("  <span class=\"status\">\n");
+      description.append(     label);
+      description.append(     "\n");
+      description.append("  </span>\n");
+      description.append("  <span class=\"label\">\n");
+      description.append(     limitValue.getLimit().getName());
+      description.append(     "\n");
+      description.append("  </span>\n");
+      description.append(     limitValue.getDisplayValue());
+      description.append(     "\n");
+      description.append("</p>\n");
     }
     
     return description;
@@ -320,6 +439,37 @@ public class Common
     return description;
   }
 
+  private static StringBuffer describeChange
+    (LimitValue newer,
+     LimitValue older)
+  {
+    StringBuffer description = new StringBuffer();
+    
+    if (!newer.getValue().equals(older.getValue()))
+    {
+      description.append("<p>\n");
+      description.append("  <span class=\"status\">\n");
+      description.append("    changed\n");
+      description.append("  </span>\n");
+      description.append("  <span class=\"label\">\n");
+      description.append(     older.getLimit().getName());
+      description.append("    from\n");
+      description.append("  </span>\n");
+      description.append("    '");
+      description.append(     older.getValue());
+      description.append(     "'\n");
+      description.append("  <span class=\"label\">\n");
+      description.append("    to\n");
+      description.append("  </span>\n");
+      description.append("    '");
+      description.append(     newer.getValue());
+      description.append(     "'\n");
+      description.append("</p>\n");
+    }
+    
+    return description;
+  }
+
   private static StringBuffer describeEditor(History history)
   {
     StringBuffer description = new StringBuffer();
@@ -336,44 +486,6 @@ public class Common
     }
     
     return description;
-  }
-  
-  public static String describeChange
-    (ProxyHistory[]  historyArray,
-     int             historyIndex)
-  {
-    StringBuffer changeStr = new StringBuffer();
-    ProxyHistory newerHistoryRecord = historyArray[historyIndex];
-    ProxyHistory olderHistoryRecord = null;
-    
-    if (historyIndex != (historyArray.length - 1))
-    {
-      olderHistoryRecord = historyArray[historyIndex + 1];
-    }
-    
-    StringBuffer editorDescription = describeEditor(newerHistoryRecord);
-    
-    Difference diff = diff(newerHistoryRecord, olderHistoryRecord);
-    
-    if (diff.equals(Difference.GRANT))
-    {
-      changeStr.append("Granted by ");
-      changeStr.append(editorDescription);
-    }
-    else if (diff.equals(Difference.REVOKE))
-    {
-      changeStr.append("Revoked by ");
-      changeStr.append(editorDescription);
-    }
-    else
-    {
-      changeStr.append("Modified by ");
-      changeStr.append(editorDescription);
-      changeStr.append
-        (describeModifications(newerHistoryRecord, olderHistoryRecord));
-    }
-    
-    return changeStr.toString();
   }
   
   static private Difference diff
