@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the wheel group.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestWheelGroup.java,v 1.3 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestWheelGroup.java,v 1.4 2005-12-12 21:25:28 blair Exp $
  */
 public class TestWheelGroup extends TestCase {
   // @test  MANUAL
@@ -51,6 +51,7 @@ public class TestWheelGroup extends TestCase {
   private static Subject        subj1;
   private static Group          uofc;
   private static Group          wheel;
+  private static  Stem          your;
 
 
   public TestWheelGroup(String name) {
@@ -61,9 +62,9 @@ public class TestWheelGroup extends TestCase {
     LOG.debug("setUp");
     RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
-    nrs   = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
     root  = StemHelper.findRootStem(s);
-    grpr  = StemHelper.addChildStem(root, "grouper", "grouper");
+    your  = StemHelper.addChildStem(root, "your", "your");
+    grpr  = StemHelper.addChildStem(your, "grouper", "grouper");
     wheel = StemHelper.addChildGroup(grpr, "wheel", "wheel");
     edu   = StemHelper.addChildStem(root, "edu", "educational");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -72,7 +73,6 @@ public class TestWheelGroup extends TestCase {
     subj1 = SubjectHelper.SUBJ1;
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     PrivHelper.grantPriv(s, uofc, subj0, AccessPrivilege.VIEW);
-    m     = Helper.getMemberBySubject(nrs, subj1);
   }
 
   protected void tearDown () {
@@ -84,7 +84,8 @@ public class TestWheelGroup extends TestCase {
 
   public void testGrantAdminWithoutWHEEL() {
     LOG.info("testGrantAdminWithoutWHEEL");
-    a = GroupHelper.findByName(nrs, i2.getName());
+    nrs = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
+    a   = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.grantPrivFail(nrs, a, subj1, AccessPrivilege.ADMIN);     
   } // public void testGrantAdminWithoutWHEEL()
 
@@ -92,14 +93,16 @@ public class TestWheelGroup extends TestCase {
     LOG.info("testGrantAdminWithWHEEL");
     GroupHelper.addMember(wheel, subj0, "members");
     MembershipHelper.testImm(s, wheel, subj0, "members");
-    a = GroupHelper.findByName(nrs, i2.getName());
+    nrs = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
+    a   = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.ADMIN);     
   } // public void testGrantAdminWithWHEEL()
 
   public void testGrantAdminWithAllWHEEL() {
     LOG.info("testGrantAdminWithAllWHEEL");
     GroupHelper.addMember(wheel, SubjectFinder.findAllSubject(), "members");    
-    a = GroupHelper.findByName(nrs, i2.getName());
+    nrs = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
+    a   = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.ADMIN);     
   } // public void testGrantAdminWithWHEEL()
 

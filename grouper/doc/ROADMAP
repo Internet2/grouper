@@ -3,14 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.130 2005-12-12 20:45:05 blair Exp $
+$Id: ROADMAP,v 1.131 2005-12-12 21:25:28 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## @next actions
-* PrivilegeResolver: isRoot and wheel group
 * empty config options for granting all, wheel group, interfaces, etc
 * renaming "root" subject?  this probably shouldn't be allowed.
 * review old memberof tests 
@@ -117,6 +116,7 @@ $Id: ROADMAP,v 1.130 2005-12-12 20:45:05 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 
