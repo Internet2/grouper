@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.29 2005-12-12 06:14:52 blair Exp $
+ * @version $Id: Member.java,v 1.30 2005-12-12 22:18:45 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -958,8 +958,23 @@ public class Member implements Serializable {
     throws  InsufficientPrivilegeException
   {
     GrouperSession.validate(this.s);
+    // Don't let ALL and root be updated
+    if (this.subject_type.equals(GrouperConfig.IST)) {
+      if (this.subject_source.equals(InternalSourceAdapter.ID)) {
+        if (this.subject_id.equals(GrouperConfig.ROOT)) {
+          String err = "cannot change root subject id";
+          GrouperLog.debug(LOG, s, err);
+          throw new InsufficientPrivilegeException(err);
+        }
+        if (this.subject_id.equals(GrouperConfig.ALL)) {
+          String err = "cannot change ALL subject id";
+          GrouperLog.debug(LOG, s, err);
+          throw new InsufficientPrivilegeException(err);
+        }
+      }
+    } 
     String  oid = this.getSubject_id();
-    String  err = "not privileged to change subjectId";
+    String err = "not privileged to change subjectId";
     if (PrivilegeResolver.getInstance().isRoot(this.s.getSubject())) {
       try {
         this.setSubject_id(id);
