@@ -3,17 +3,16 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.134 2005-12-12 21:52:09 blair Exp $
+$Id: ROADMAP,v 1.135 2005-12-12 22:18:45 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## @next actions
-* renaming "root" subject?  this probably shouldn't be allowed.
-* review old memberof tests 
 * field validation: fields (attrs, lists, naming and access)
 * Test create + modify subject when !root
+* review old memberof tests 
 * Event logging
   * Clean up returned error messages when exceptions thrown
 * Replace contrib items with updated cdg
@@ -33,6 +32,7 @@ $Id: ROADMAP,v 1.134 2005-12-12 21:52:09 blair Exp $
 * can i delete TestGrouperAccess* and TestGrouperNaming* tests?
 
 ## @document
+* impl guide
 * What triggers modified updates?
 * record where each *Finder method is called from
 * wheel group
@@ -43,6 +43,7 @@ $Id: ROADMAP,v 1.134 2005-12-12 21:52:09 blair Exp $
   * query api
   * ALL subject
   * wheel group
+  * rename subjects
 * privilege cache
 * Attempt to normalize API debug logging
   * Include method names
@@ -114,6 +115,7 @@ $Id: ROADMAP,v 1.134 2005-12-12 21:52:09 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 
