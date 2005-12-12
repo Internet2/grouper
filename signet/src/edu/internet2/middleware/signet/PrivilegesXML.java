@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegesXML.java,v 1.3 2005-07-14 20:24:02 lmcrae Exp $
-$Date: 2005-07-14 20:24:02 $
+$Id: PrivilegesXML.java,v 1.4 2005-12-12 18:27:29 lmcrae Exp $
+$Date: 2005-12-12 18:27:29 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,6 +13,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 import javax.xml.stream.*;
+import edu.internet2.middleware.signet.tree.*;
 
 public class PrivilegesXML
 {
@@ -98,6 +99,28 @@ public class PrivilegesXML
          xmlw.writeAttribute("id",permissionID);
          xmlw.writeCharacters("\n");
     
+         // -------- Scope --------
+         TreeNode scope = privilege.getScope();
+         String scopeId = scope.getId();
+         String scopeName = scope.getName();
+    
+         xmlw.writeCharacters("      ");
+         xmlw.writeStartElement("Scope");
+         xmlw.writeAttribute("id",scopeId);
+         xmlw.writeCharacters("\n");
+      
+         xmlw.writeCharacters("         ");
+         xmlw.writeStartElement("ScopeName");
+         xmlw.writeCharacters(scopeName);
+         xmlw.writeEndElement();
+         xmlw.writeCharacters("\n");
+    
+         // -------- End Scope --------
+         xmlw.writeCharacters("      ");
+         xmlw.writeEndElement();
+         xmlw.writeCharacters("\n");
+      
+         // -------- Limits --------
          Set limitValues = privilege.getLimitValues();
          Iterator limitValuesIter = limitValues.iterator();
     
@@ -137,29 +160,31 @@ public class PrivilegesXML
             xmlw.writeCharacters("      ");
             xmlw.writeEndElement();
             xmlw.writeCharacters("\n");
-      
-            // -------- End Permission -------- 
-            xmlw.writeCharacters("   ");
-            xmlw.writeEndElement();
-            xmlw.writeCharacters("\n");
-      
+
          }
       
-         // -------- End Privileges --------
+         // -------- End Permission -------- 
+         xmlw.writeCharacters("   ");
          xmlw.writeEndElement();
          xmlw.writeCharacters("\n");
       
-         // End the XML document
-         xmlw.writeEndDocument();
-
-         Date date = new Date();
-         DateFormat df = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss z");
-
-         xmlw.writeComment("datastore='jdbc:sybase:Tds:renoir.stanford.edu:1025/dsignet' version='1.0' timestamp='" + df.format(date) + "'");
-      
-         // Close the XMLStreamWriter to free up resources
-         xmlw.close();
       }
+      
+      // -------- End Privileges --------
+      xmlw.writeEndElement();
+      xmlw.writeCharacters("\n");
+      
+      // End the XML document
+      xmlw.writeEndDocument();
+
+      Date date = new Date();
+      DateFormat df = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss z");
+
+      xmlw.writeComment("datastore='jdbc:sybase:Tds:renoir.stanford.edu:1025/dsignet' version='1.0' timestamp='" + df.format(date) + "'\n");
+      
+      // Close the XMLStreamWriter to free up resources
+      xmlw.close();
+  
    }
    
    public static void main(String args[]) throws Exception {
