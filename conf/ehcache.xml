@@ -28,7 +28,7 @@
                         the maxInMemory limit.
   -->
   <defaultCache
-    maxElementsInMemory="50000"
+    maxElementsInMemory="25000"
     eternal="false"
     timeToIdleSeconds="120"
     timeToLiveSeconds="120"
@@ -42,12 +42,92 @@
   -->
 
 <!--
-  Privilege Resolver Caches
+  Grouper Caches
 -->
+
+  <!-- Group Attributes-->
+  <cache  name="edu.internet2.middleware.grouper.Attribute"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"  
+  />
+  <!-- Group Attributes -->
+
+  <!-- Factors-->
+  <cache  name="edu.internet2.middleware.grouper.Factor"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"  
+  />
+  <!-- Factor -->
+
+  <!-- Group Field Definitions -->
+  <cache  name="edu.internet2.middleware.grouper.Field"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"  
+  />
+  <!-- Group Field Definitions -->
+
+  <!-- Groups -->
+  <cache  name="edu.internet2.middleware.grouper.Group"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"  
+  />
+  <!-- Groups -->
+
+  <!-- Group Type Definitions -->
+  <cache  name="edu.internet2.middleware.grouper.GroupType"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"  
+  />
+  <!-- Group Type Definitions -->
+
+  <!-- Grouper Sessions -->
+  <cache  name="edu.internet2.middleware.grouper.GrouperSession"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="60"
+          overflowToDisk="false"  
+  />
+  <!-- Grouper Sessions -->
+
+  <!-- Members -->
+  <cache  name="edu.internet2.middleware.grouper.Member"
+          maxElementsInMemory="2500"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"  
+  />
+  <!-- Members -->
+
+  <!-- Memberships-->
+  <cache  name="edu.internet2.middleware.grouper.Membership"
+          maxElementsInMemory="10000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"  
+  />
+  <!-- Memberships -->
 
   <!-- Access Privileges -->
   <cache  name="edu.internet2.middleware.grouper.PrivilegeCache.Access"
-          maxElementsInMemory="10000"
+          maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="300"
           timeToLiveSeconds="600"
@@ -57,42 +137,39 @@
 
   <!-- Naming Privileges -->
   <cache  name="edu.internet2.middleware.grouper.PrivilegeCache.Naming"
-          maxElementsInMemory="10000"
+          maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="300"
           timeToLiveSeconds="600"
           overflowToDisk="false"
   />
 
+  <!-- Stems-->
+  <cache  name="edu.internet2.middleware.grouper.Stem"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"  
+  />
+  <!-- Stems -->
+
 
 <!--
   Hibernate Query Caches
 -->
 
-  <!-- NOTE These are probably not optimal settings -->
-  <cache name="net.sf.hibernate.cache.QueryCache"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- NOTE These are probably not optimal settings -->
   <cache name="net.sf.hibernate.cache.StandardQueryCache"
-    maxElementsInMemory="10000"
+    maxElementsInMemory="500"
     eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
+    timeToIdleSeconds="60"
+    timeToLiveSeconds="120"
+    overflowToDisk="false"
   />
 
-  <!-- NOTE These are probably not optimal settings -->
   <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
+    maxElementsInMemory="50000"
+    eternal="true"
     overflowToDisk="true"
   />
 

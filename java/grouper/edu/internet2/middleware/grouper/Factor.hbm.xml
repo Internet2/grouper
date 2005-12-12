@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Factor.hbm.xml,v 1.5 2005-12-12 04:54:09 blair Exp $ -->
+<!-- $Id: Factor.hbm.xml,v 1.6 2005-12-12 16:07:24 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Factor" table="grouper_factors">
@@ -31,6 +31,8 @@ Group math factors.
     </meta>
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateHelper.getSession();</meta>
+
+    <cache usage="read-write"/>
 
     <!-- id -->
     <id name="id" 
