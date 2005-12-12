@@ -41,6 +41,34 @@
     will be issued when the CacheManager starts
   -->
 
+<!--
+  Privilege Resolver Caches
+-->
+
+  <!-- Access Privileges -->
+  <cache  name="edu.internet2.middleware.grouper.PrivilegeCache.Access"
+          maxElementsInMemory="10000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"  
+  />
+  <!-- Access Privileges -->
+
+  <!-- Naming Privileges -->
+  <cache  name="edu.internet2.middleware.grouper.PrivilegeCache.Naming"
+          maxElementsInMemory="10000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+
+
+<!--
+  Hibernate Query Caches
+-->
+
   <!-- NOTE These are probably not optimal settings -->
   <cache name="net.sf.hibernate.cache.QueryCache"
     maxElementsInMemory="10000"
