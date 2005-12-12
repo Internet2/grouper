@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.70 2005-12-11 21:56:01 blair Exp $ -->
+<!-- $Id: build.xml,v 1.71 2005-12-12 01:09:08 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -19,6 +19,7 @@
   <property name="build.test"             location="${build}/test"/>
   <property name="src.grouper"            location="${src}/grouper"/>
   <property name="src.test"               location="${src}/tests"/>
+  <property name="hprof.depth"            value="20"/>
   <property name="max.memory"             value="256m"/>
   <!-- Global Properties -->
 
@@ -238,7 +239,7 @@
           failonerror="true"
     >
       <arg    value="test.edu.internet2.middleware.grouper.${test}"/>
-      <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=15"/>
+      <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=${hprof.depth}"/>
       <classpath refid="project.classpath"/>
     </java>
   </target>
@@ -269,7 +270,7 @@
   <!-- stress -->
   <target name="stress" 
           description="Runs the stress case specified on the command line with -Dname="
-          depends="test-build, ensure-stress-name">
+          depends="build, ensure-stress-name">
     <java fork="yes"
           maxmemory="${max.memory}"
           classname="edu.internet2.middleware.grouper.stress.${name}"
@@ -292,13 +293,13 @@
   <!-- stressprof -->
   <target name="stressprof" 
           description="Runs and profiles the stress case specified on the command line with -Dname="
-          depends="test-build, ensure-stress-name">
+          depends="build, ensure-stress-name">
     <java fork="yes"
           maxmemory="${max.memory}"
           classname="edu.internet2.middleware.grouper.stress.${name}"
           failonerror="true"
     >
-      <jvmarg value="-Xrunhprof:cpu=samples,file=stress-${name}-${DSTAMP}${TSTAMP}.txt,depth=15"/>
+      <jvmarg value="-Xrunhprof:cpu=samples,file=stress-${name}-${DSTAMP}${TSTAMP}.txt,depth=${hprof.depth}"/>
       <classpath refid="project.classpath"/>
     </java>
   </target>
