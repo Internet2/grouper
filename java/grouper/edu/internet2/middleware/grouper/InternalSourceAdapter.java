@@ -31,7 +31,7 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.6 2005-12-09 17:15:43 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.7 2005-12-12 04:03:42 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -41,7 +41,9 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
 
 
   // Private Instance Variables
-  private Set types = new LinkedHashSet();
+  private Subject all   = null;
+  private Set     types = new LinkedHashSet();
+  private Subject root  = null;
 
 
   // Constructors
@@ -167,14 +169,18 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   private Subject _resolveSubject(String qry) 
     throws  SubjectNotFoundException
   {
-    // TODO What attributes do I need to set?  Check with Gary at some
-    // point.
-    // TODO Stop creating a new object each time
+    // TODO What attributes do I need to set?  Check with Gary at some point.
     if      (qry.equals("GrouperAll"))    {
-      return new InternalSubject(qry, qry, this);
+      if (this.all == null) {
+        this.all = new InternalSubject(qry, qry, this);
+      }
+      return this.all;
     }
     else if (qry.equals("GrouperSystem")) {
-      return new InternalSubject(qry, qry, this);
+      if (this.root == null) {
+        this.root = new InternalSubject(qry, qry, this);
+      }
+      return this.root;
     }
     throw new SubjectNotFoundException("subject not found: " + qry);
   } // private Subject _resolveSubject(qry)

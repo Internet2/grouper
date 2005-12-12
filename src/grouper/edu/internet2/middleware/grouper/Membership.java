@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.16 2005-12-11 21:41:53 blair Exp $
+ * @version $Id: Membership.java,v 1.17 2005-12-12 04:03:42 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -56,7 +56,9 @@ public class Membership implements Serializable {
 
   
   // Private Transient Instance Variables
-  private transient GrouperSession s;
+  private transient Group           group;
+  private transient GrouperSession  s;
+  private transient Stem            stem;
 
 
   // Constructors
@@ -140,11 +142,13 @@ public class Membership implements Serializable {
    * @return  A {@link Group}
    */
   public Group getGroup() 
-    throws GroupNotFoundException
+    throws  GroupNotFoundException
   {
-    // TODO Cache group?
-    GrouperSession.validate(this.s);
-    return GroupFinder.findByUuid(this.s, this.getOwner_id());
+    if (this.group == null) {
+      GrouperSession.validate(this.s);
+      this.group = GroupFinder.findByUuid(this.s, this.getOwner_id());
+    }
+    return this.group;
   } // public Group getGroup()
 
   /**
@@ -608,9 +612,11 @@ public class Membership implements Serializable {
   protected Stem getStem() 
     throws StemNotFoundException
   {
-    // TODO Cache stem?
-    GrouperSession.validate(this.s);
-    return StemFinder.findByUuid(this.s, this.getOwner_id());
+    if (this.stem == null) {
+      GrouperSession.validate(this.s);
+      this.stem = StemFinder.findByUuid(this.s, this.getOwner_id());
+    }
+    return this.stem;
   } // public Stem getStem()
 
   protected static Membership newEffectiveMembership(

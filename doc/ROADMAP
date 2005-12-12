@@ -3,19 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.122 2005-12-12 03:47:32 blair Exp $
+$Id: ROADMAP,v 1.123 2005-12-12 04:03:42 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## @next actions
-* Membership: cache getGroup()
-* Membership: cache getStem()
-* InternalSourceAdapter: don't recreate ALL and ROOT everytime
-* Profiling
-* Configurable options for logging adding/granting/deleting/revoking
-  immediate and effective memberships and privs
 * Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
 * GrouperAttribute: attribute methods should throw ANFE + SE
 * Methods that look like they need some love
@@ -23,37 +17,31 @@ $Id: ROADMAP,v 1.122 2005-12-12 03:47:32 blair Exp $
   * GrouperNamingAdapter: getPrivs()
   * GrouperNamingAdapter: hasPriv() should take ALL into account
 * Review RTEs in _GrouperAccessAdapter_ and _GrouperNamingAdapter_
+* Profiling
+* Configurable options for logging adding/granting/deleting/revoking
+  immediate and effective memberships and privs
 * Event logging
   * Clean up returned error messages when exceptions thrown
+* PrivilegeResolver: isRoot and wheel group
+* GrouperSessionFinder: make internal root sessions !hibernated
+* _AccessPrivilege_ and _NamingPrivilege_ objects
 
 ## @later
 * Replace contrib items with updated cdg
 
-## @maybe
-* PrivilegeResolver: isRoot and wheel group
-* Membership: map via_id to Group (will factors break this?)
-* GrouperSessionFinder: make internal root sessions !hibernated
-* Cache subjects
-* GrouperSession: automatic proxying
-  * GroupFinder.findByName() is candidate
-  * GroupFinder.findByUuid() is candidate
-* FieldFinder: cache findAll()
-* Group: cache attributes
-
 ## @testing
-* _AccessPrivilege_ and _NamingPrivilege_ objects
 * invalid group + stem names
 * empty config options for granting all, wheel group, interfaces, etc
-* privs with groups
-* field validation: fields (attrs, lists, naming and access)
-* Test create + modify subject when !root
 * renaming "root" subject?  this probably shouldn't be allowed.
 * review old memberof tests 
-* Review old _*.todo_ test classes (and then remove)
-* concurrence, persistence and versioning
+* field validation: fields (attrs, lists, naming and access)
+* Test create + modify subject when !root
 * Test with Pg and Oracle and review generated SQL
   * ship with generated schema?
 * deletion (group + mship + priv) in _TestMemberOf_
+* privs with groups
+* Review old _*.todo_ test classes (and then remove)
+* concurrence, persistence and versioning
 * What happens when you delete a group and then attempt to perform
   further operations on it?
 * can i delete TestGrouperAccess* and TestGrouperNaming* tests?
@@ -69,9 +57,18 @@ $Id: ROADMAP,v 1.122 2005-12-12 03:47:32 blair Exp $
   * query api
   * ALL subject
   * wheel group
+* privilege cache
 * Attempt to normalize API debug logging
   * Include method names
   * Use constants
+
+## @maybe
+* Membership: map via_id to Group (will factors break this?)
+* Cache subjects
+* Group: cache attributes
+* GrouperSession: automatic proxying
+  * GroupFinder.findByName() is candidate
+  * GroupFinder.findByUuid() is candidate
 
 ## DRY
 * Member: isMember(), isImmediateMember() and isEffectiveMember()
@@ -82,6 +79,7 @@ $Id: ROADMAP,v 1.122 2005-12-12 03:47:32 blair Exp $
 * Privilege: canWriteField()
 
 ## Aesthetics
+* FieldFinder: cache findAll()
 * Group: _deleteAttribute() naming attr handling
 * GrouperSubject: _addAttr() attr + value validation
 * Member: toGroup()
@@ -131,6 +129,7 @@ $Id: ROADMAP,v 1.122 2005-12-12 03:47:32 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 
