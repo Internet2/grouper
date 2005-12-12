@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.28 2005-12-12 06:14:52 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.29 2005-12-12 16:53:57 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -145,43 +145,23 @@ public class GrouperNamingAdapter implements NamingAdapter {
     GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
-      Member    m     = MemberFinder.findBySubject(s, subj);
+      Member    m   = MemberFinder.findBySubject(s, subj);
+      Member    all = MemberFinder.findAllMember();     
       Iterator  iterP = Privilege.getNamingPrivs().iterator();
       while (iterP.hasNext()) {
-        Privilege priv = (Privilege) iterP.next();
-        Iterator  iterM = MembershipFinder.findMemberships(
-          ns.getUuid(), m, this._getField(priv)
-        ).iterator();
-        while (iterM.hasNext()) {
-          Membership  ms      = (Membership) iterM.next();
-          Subject     owner   = subj;
-          // TODO Should take privs into account as well
-          boolean     revoke  = true;
-          ms.setSession(s);
-          try {
-            owner   = ms.getViaGroup().toSubject();
-            revoke  = false;
-          }
-          catch (GroupNotFoundException eGNF) {
-            // Ignore
-          }
-          privs.add(
-            new NamingPrivilege(
-              ms.getStem(), subj,               owner,
-              priv        , s.getNamingClass(), revoke
-            )
-          );
-        }
+        Privilege p = (Privilege) iterP.next();
+        Field     f = this._getField(p);   
+        Iterator  iterM = MembershipFinder.findMemberships(ns.getUuid(), m, f).iterator();
+        privs.addAll( this._getPrivs(s, ns, subj, m, p, iterM) );
+        Iterator  iterA = MembershipFinder.findMemberships(ns.getUuid(), all, f).iterator();
+        privs.addAll( this._getPrivs(s, ns, subj, all, p, iterA) );
       }
     }
     catch (MemberNotFoundException eMNF) {
       GrouperLog.error(LOG, s, ERR_MMNF + eMNF.getMessage());
     }
     catch (SchemaException eS) {
-      // Ignore
-    }
-    catch (StemNotFoundException eSNF) {
-      GrouperLog.error(LOG, s, ERR_MSNF + eSNF.getMessage());
+      // Well, this is strange.  Ignore.
     }
     return privs;
   } // public Set getPrivs(s, ns, subj)
@@ -425,6 +405,49 @@ public class GrouperNamingAdapter implements NamingAdapter {
   {
     return FieldFinder.find( (String) priv2list.get(priv) );
   } // private Field _getField(priv)
+
+  // Return appropriate _NamingPrivilege_ objects 
+  private Set _getPrivs(
+    GrouperSession s, Stem ns, Subject subj, Member m, Privilege p, Iterator iter
+  )
+    throws  SchemaException
+  {
+    Set privs = new LinkedHashSet();
+    while (iter.hasNext()) {
+      Membership  ms      = (Membership) iter.next();
+      ms.setSession(s);
+      Subject     owner   = subj;
+      boolean     revoke  = true;
+      try {
+        if (!SubjectHelper.eq(m.getSubject(), subj)) {
+          owner   = m.getSubject();
+          revoke  = false;
+        }
+      }
+      catch (SubjectNotFoundException eSNF) {
+        // bloody odd
+      }
+      try {
+        owner   = ms.getViaGroup().toSubject();
+        revoke  = false;
+      }
+      catch (GroupNotFoundException eGNF) {
+        // ignore
+      }
+      try {
+        privs.add(
+          new NamingPrivilege(
+            ms.getStem()  , subj              , owner,
+            p             , s.getNamingClass(), revoke
+          )
+        );
+      }
+      catch (StemNotFoundException eGNF) {
+        // this is also bloody odd
+      }
+    }
+    return privs;
+  } // private Set _get(s, g, subj, m, p, iter)
 
 }
 
