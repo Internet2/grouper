@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.7 2005-12-12 20:45:05 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.8 2005-12-12 21:26:21 blair Exp $
  *     
 */
 class GrouperConfig {
@@ -82,7 +82,11 @@ class GrouperConfig {
 
   // Protected Instance Methods
   protected String getProperty(String property) {
-    return this.properties.getProperty(property);
+    String value = new String();
+    if (this.properties.containsKey(property)) {
+      value = this.properties.getProperty(property);
+    }
+    return value;
   } // protected String getProperty(property)
 
 
