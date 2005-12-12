@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.17 2005-12-12 04:03:42 blair Exp $
+ * @version $Id: Membership.java,v 1.18 2005-12-12 06:24:25 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -478,6 +478,7 @@ public class Membership implements Serializable {
     throws  GroupNotFoundException,
             MemberDeleteException,
             MemberNotFoundException,
+            SchemaException,
             SubjectNotFoundException
   {
     GrouperSession.validate(s);
