@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: GroupType.hbm.xml,v 1.5 2005-12-11 21:41:53 blair Exp $ -->
+<!-- $Id: GroupType.hbm.xml,v 1.6 2005-12-12 04:54:09 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="GroupType" table="grouper_types">
@@ -80,7 +80,7 @@ Schema specification for a Group type.
               update="false"
               index="grouptype_status_idx" 
     >
-      <column name="status_name"/>
+      <column name="status_type"/>
       <column name="status_ttl"
               sql-type="bigint"
       />

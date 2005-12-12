@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege resolution class.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.30 2005-12-12 03:47:32 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.31 2005-12-12 04:54:09 blair Exp $
  *     
 */
 public class PrivilegeResolver {
@@ -598,9 +598,9 @@ public class PrivilegeResolver {
     boolean rv = false;
     // First check to see if this is GrouperSystem
     if (
-      (subj.getId().equals("GrouperSystem"))
+      (subj.getId().equals(GrouperConfig.ROOT))
       && (subj.getSource().getId().equals(InternalSourceAdapter.ID))
-      && (subj.getType().getName().equals("application"))
+      && (subj.getType().getName().equals(GrouperConfig.IST))
     )
     {
       rv = true;

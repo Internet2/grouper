@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.26 2005-12-11 21:41:53 blair Exp $
+ * @version $Id: Member.java,v 1.27 2005-12-12 04:54:09 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -746,7 +746,7 @@ public class Member implements Serializable {
     {
       // TODO I wonder about this.
       rv = true;
-      GrouperLog.debug(LOG, this.s, msg + "GrouperAll': " + rv);
+      GrouperLog.debug(LOG, this.s, msg + GrouperConfig.ALL + "': " + rv);
     }
     else {
       GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
@@ -799,7 +799,7 @@ public class Member implements Serializable {
             g.getUuid(), MemberFinder.findAllMember(), f
           );
           rv = true;
-          GrouperLog.debug(LOG, this.s, msg + "GrouperAll': " + rv);
+          GrouperLog.debug(LOG, this.s, msg + GrouperConfig.ALL + "': " + rv);
         }
         catch (MembershipNotFoundException anotherMNF) {
           // ignore
@@ -860,7 +860,7 @@ public class Member implements Serializable {
     {
       // TODO I wonder about this.
       rv = true;
-      GrouperLog.debug(LOG, this.s, msg + "GrouperAll': " + rv);
+      GrouperLog.debug(LOG, this.s, msg + GrouperConfig.ALL + "': " + rv);
     }
     else {
       GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);

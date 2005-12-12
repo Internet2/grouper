@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Find sessions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionFinder.java,v 1.5 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: GrouperSessionFinder.java,v 1.6 2005-12-12 04:54:09 blair Exp $
  */
 class GrouperSessionFinder implements Serializable {
 
@@ -53,7 +53,7 @@ class GrouperSessionFinder implements Serializable {
   protected static GrouperSession getTransientRootSession() {
     try {
       return GrouperSession.start(
-        SubjectFinder.findById("GrouperSystem", "application")
+        SubjectFinder.findById(GrouperConfig.ROOT, GrouperConfig.IST)
       );
     }
     catch (Exception e) {
@@ -74,7 +74,7 @@ class GrouperSessionFinder implements Serializable {
       }
     }
     catch (Exception e) {
-      LOG.error("EXCEPTION WHILE STOPPING PERSISTENT ROOT SESSION: " + e.getMessage());
+      LOG.error("exception while stopping persistent root session: " + e.getMessage());
     }
     finally {
       super.finalize();

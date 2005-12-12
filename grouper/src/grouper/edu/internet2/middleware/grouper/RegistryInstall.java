@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.12 2005-12-11 06:28:39 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.13 2005-12-12 04:54:09 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -184,9 +184,7 @@ public class RegistryInstall {
   private static void _installGroupsAndStems() {
     try {
       GrouperSession s = GrouperSession.start(
-        SubjectFinder.findById(
-          "GrouperSystem", "application"
-        )
+        SubjectFinder.findById(GrouperConfig.ROOT, GrouperConfig.IST)
       );
       Stem  root    = Stem.addRootStem(s);
       LOG.info("root stem installed");

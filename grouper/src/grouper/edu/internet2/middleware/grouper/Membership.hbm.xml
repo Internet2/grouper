@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.8 2005-12-11 21:41:53 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.9 2005-12-12 04:54:09 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -144,7 +144,7 @@ A list membership in the Groups Registry.
               update="false"
               index="membership_status_idx"
     >
-      <column name="status_name"/>
+      <column name="status_type"/>
       <column name="status_ttl"
               sql-type="bigint"
       />

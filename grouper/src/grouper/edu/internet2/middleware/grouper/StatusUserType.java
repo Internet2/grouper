@@ -29,7 +29,7 @@ import  net.sf.hibernate.type.*;
  * Custom {@link Status} user type.
  * <p />
  * @author  blair christensen.
- * @version $Id: StatusUserType.java,v 1.1 2005-12-11 21:41:53 blair Exp $    
+ * @version $Id: StatusUserType.java,v 1.2 2005-12-12 04:54:09 blair Exp $    
  */
 public class StatusUserType implements CompositeUserType {
 
@@ -63,7 +63,7 @@ public class StatusUserType implements CompositeUserType {
   } // public boolean equals(x, y)
 
   public String[] getPropertyNames() {
-    return new String[] { "name", "ttl" };
+    return new String[] { "type", "ttl" };
   } // public String[] getPropertyNames()
 
   public Type[] getPropertyTypes() {
@@ -75,7 +75,7 @@ public class StatusUserType implements CompositeUserType {
   {
     Status s = (Status) component;
     if (property == 0) {
-      return s.getName();
+      return s.getType();
     }
     else {
       return new Long( s.getTTL() );
@@ -94,9 +94,9 @@ public class StatusUserType implements CompositeUserType {
     if (resultSet.wasNull()) {
       return null;
     }
-    String name = resultSet.getString( names[0] );
+    String type = resultSet.getString( names[0] );
     long   ttl  = resultSet.getLong( names[1] );
-    return new Status(name, ttl);
+    return new Status(type, ttl);
   } // public Object nullSafeGet(resultSet, types, session, owner)
      
   public void nullSafeSet(
@@ -110,7 +110,7 @@ public class StatusUserType implements CompositeUserType {
     } 
     else {
       Status s = (Status) value;
-      statement.setString(index,    s.getName() );
+      statement.setString(index,    s.getType() );
       statement.setLong(  index+1,  s.getTTL()  );
     }
   } // public void nullSafeSet(statement, value, index, session)

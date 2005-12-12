@@ -25,13 +25,13 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for an object status.
  * <p />
  * @author  blair christensen.
- * @version $Id: Status.java,v 1.1 2005-12-11 21:41:53 blair Exp $    
+ * @version $Id: Status.java,v 1.2 2005-12-12 04:54:09 blair Exp $    
  */
 public class Status implements Serializable {
 
   // Hibernate Properties
   private String    id;
-  private String    status_name;
+  private String    status_type;
   private long      status_ttl;
 
     
@@ -42,8 +42,8 @@ public class Status implements Serializable {
     super();
   }
 
-  protected Status(String name, long ttl) {
-    this.setStatus_name(name);
+  protected Status(String type, long ttl) {
+    this.setStatus_type(type);
     this.setStatus_ttl(ttl);
   } // protected Status(name, ttl)
 
@@ -58,14 +58,14 @@ public class Status implements Serializable {
     }
     Status otherStatus = (Status) other;
     return new EqualsBuilder()
-           .append(this.getStatus_name(),  otherStatus.getStatus_name())
-           .append(this.getStatus_ttl() ,  otherStatus.getStatus_ttl() )
-           .isEquals();
+      .append(this.getStatus_type(),  otherStatus.getStatus_type())
+      .append(this.getStatus_ttl() ,  otherStatus.getStatus_ttl() )
+      .isEquals();
   } // public boolean equals(other)
 
-  public String getName() {
-    return this.getStatus_name();
-  } // public String getName()
+  public String getType() {
+    return this.getStatus_type();
+  } // public String getType()
 
   public long getTTL() {
     return this.getStatus_ttl();
@@ -73,14 +73,14 @@ public class Status implements Serializable {
 
   public int hashCode() {
     return new HashCodeBuilder()
-           .append(getStatus_name() )
+           .append(getStatus_type() )
            .append(getStatus_ttl()  )
            .toHashCode();
   } // public int hashCode()
 
   public String toString() {
     return new ToStringBuilder(this)
-      .append("name"  , this.getStatus_name()  )
+      .append("type"  , this.getStatus_type()  )
       .append("ttl"   , this.getStatus_ttl()  )
       .toString();
   } // public String toString()
@@ -95,12 +95,12 @@ public class Status implements Serializable {
     this.id = id;
   }
 
-  private String getStatus_name() {
-    return this.status_name;
+  private String getStatus_type() {
+    return this.status_type;
   }
 
-  private void setStatus_name(String status_name) {
-    this.status_name = status_name;
+  private void setStatus_type(String status_type) {
+    this.status_type = status_type;
   }
 
   private long getStatus_ttl() {
