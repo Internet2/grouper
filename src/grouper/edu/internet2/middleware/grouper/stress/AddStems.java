@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Add stems to the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: AddStems.java,v 1.1 2005-12-11 21:56:01 blair Exp $
+ * @version $Id: AddStems.java,v 1.2 2005-12-12 01:10:47 blair Exp $
  */
 public class AddStems {
 
@@ -73,7 +73,6 @@ public class AddStems {
     Iterator iter = parents.iterator();
     while (iter.hasNext()) {
       Stem parent = (Stem) iter.next();
-      LOG.info(msg + "adding " + per + " child stems to " + parent.getName());
       for (int i=0; i <= per; i++) {
         try {
           String  extn    = "d/" + depth + "/stem/" + i;
