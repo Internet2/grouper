@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.8 2005-12-12 14:43:11 blair Exp $
+ * @version $Id: TestStem.java,v 1.9 2005-12-12 14:54:34 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -486,6 +486,11 @@ public class TestStem extends TestCase {
         Assert.assertTrue("child has no child stems", stems.size() == 0);
         Set  groups = child.getChildGroups();
         Assert.assertTrue("child has child groups", groups.size() == 1);
+        Iterator gIter = groups.iterator();
+        while (gIter.hasNext()) {
+          Group g = (Group) gIter.next();
+          Assert.assertNotNull("group name", g.getName());
+        }
       }
       s.stop();
 
@@ -534,6 +539,11 @@ public class TestStem extends TestCase {
             "child of child of parent has child groups",
             c.getChildGroups().size() == 1
           );
+          Iterator gIter = c.getChildGroups().iterator();
+          while (gIter.hasNext()) {
+            Group g = (Group) gIter.next();
+            Assert.assertNotNull("group name", g.getName());
+          }
         }
         Set  groups = child.getChildGroups();
         Assert.assertTrue(
