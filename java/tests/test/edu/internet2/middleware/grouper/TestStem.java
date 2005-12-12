@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.9 2005-12-12 14:54:34 blair Exp $
+ * @version $Id: TestStem.java,v 1.10 2005-12-12 19:54:04 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -558,5 +558,94 @@ public class TestStem extends TestCase {
       Assert.fail(e.getMessage());
     }
   } // public void testChildStemsAndGroupsLazyInitialization() 
+
+  public void testAddChildStemWithBadExtnOrDisplayExtn() {
+    LOG.info("testAddChildStemWithBadExtnOrDisplayExtn");
+    try {
+      GrouperSession  s     = SessionHelper.getRootSession();
+      Stem            root  = StemFinder.findRootStem(s);
+      try {
+        Stem badE = root.addChildStem(null, "test");
+        Assert.fail("added stem with null extn");
+      }
+      catch (StemAddException eSA) {
+        Assert.assertTrue("null extn", true);
+      }
+      try {
+        Stem badE = root.addChildStem("", "test");
+        Assert.fail("added stem with empty extn");
+      }
+      catch (StemAddException eSA) {
+        Assert.assertTrue("empty extn", true);
+      }
+      try {
+        Stem badE = root.addChildStem("a:test", "test");
+        Assert.fail("added stem with colon-containing extn");
+      }
+      catch (StemAddException eSA) {
+        Assert.assertTrue("colon-containing extn", true);
+      }
+      try {
+        Stem badE = root.addChildStem("test", null);
+        Assert.fail("added stem with null displayExtn");
+      }
+      catch (StemAddException eSA) {
+        Assert.assertTrue("null displayExtn", true);
+      }
+      try {
+        Stem badE = root.addChildStem("test", "");
+        Assert.fail("added stem with empty displayextn");
+      }
+      catch (StemAddException eSA) {
+        Assert.assertTrue("empty displayExtn", true);
+      }
+      try {
+        Stem badE = root.addChildStem("test", "a:test");
+        Assert.fail("added stem with colon-containing displayExtn");
+      }
+      catch (StemAddException eSA) {
+        Assert.assertTrue("colon-containing displayExtn", true);
+      }
+      s.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testAddChildStemWithBadExtnOrDisplayExtn()
+
+  public void testSetBadStemDisplayExtension() {
+    LOG.info("testSetBadStemDisplayExtension");
+    try {
+      GrouperSession  s     = SessionHelper.getRootSession();
+      Stem            root  = StemFinder.findRootStem(s);
+      Stem            edu   = root.addChildStem("edu", "edu");
+      try {
+        edu.setDisplayExtension(null);
+        Assert.fail("set null displayExtn");
+      }
+      catch (StemModifyException eSA) {
+        Assert.assertTrue("null displayExtn", true);
+      }
+      try {
+        edu.setDisplayExtension("");
+        Assert.fail("set empty displayExtn");
+      }
+      catch (StemModifyException eSA) {
+        Assert.assertTrue("empty displayExtn", true);
+      }
+      try {
+        edu.setDisplayExtension("a:test");
+        Assert.fail("set colon-containing displayExtn");
+      }
+      catch (StemModifyException eSA) {
+        Assert.assertTrue("colon-containing displayExtn", true);
+      }
+      s.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testSetBadStemDisplayExtension()
+
 }
 

@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.128 2005-12-12 16:53:57 blair Exp $
+$Id: ROADMAP,v 1.129 2005-12-12 19:54:04 blair Exp $
 
 ---
 
@@ -15,7 +15,6 @@ $Id: ROADMAP,v 1.128 2005-12-12 16:53:57 blair Exp $
 * Event logging
   * Clean up returned error messages when exceptions thrown
 * PrivilegeResolver: isRoot and wheel group
-* invalid group + stem names
 * empty config options for granting all, wheel group, interfaces, etc
 * renaming "root" subject?  this probably shouldn't be allowed.
 * review old memberof tests 
