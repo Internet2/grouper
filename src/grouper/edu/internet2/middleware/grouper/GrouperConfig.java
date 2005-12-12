@@ -27,17 +27,20 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.5 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.6 2005-12-12 04:54:09 blair Exp $
  *     
 */
 class GrouperConfig {
 
   // Protected Class Constants
-  protected static final String BT  = "true";
-  protected static final String GWG = "groups.wheel.group";
-  protected static final String GWU = "groups.wheel.use";
-  protected static final String PAI = "privileges.access.interface";
-  protected static final String PNI = "privileges.naming.interface";
+  protected static final String ALL   = "GrouperAll";
+  protected static final String BT    = "true";
+  protected static final String GWG   = "groups.wheel.group";
+  protected static final String GWU   = "groups.wheel.use";
+  protected static final String IST   = "application";
+  protected static final String PAI   = "privileges.access.interface";
+  protected static final String PNI   = "privileges.naming.interface";
+  protected static final String ROOT  = "GrouperSystem";
 
 
   // Private Class Constants

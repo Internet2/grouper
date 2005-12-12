@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.9 2005-12-11 21:41:53 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.10 2005-12-12 04:54:09 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -133,7 +133,7 @@ A group within the Groups Registry.
               update="false"
               index="group_status_idx"
     >
-      <column name="status_name"/>
+      <column name="status_type"/>
       <column name="status_ttl"
               sql-type="bigint"
       />

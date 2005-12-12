@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.10 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.11 2005-12-12 04:54:09 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
@@ -60,7 +60,7 @@ public class SubjectFinder implements Serializable {
       LOG.debug("Added source: " + gsa.getId());
       LOG.info("Subject finder initialized");
       try {
-        ALL = SubjectFinder.findById("GrouperAll", "application");
+        ALL = SubjectFinder.findById(GrouperConfig.ALL, GrouperConfig.IST);
         LOG.info("ALL subject initialized");
       }
       catch (SubjectNotFoundException eSNF) {

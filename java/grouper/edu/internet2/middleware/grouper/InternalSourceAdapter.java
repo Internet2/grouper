@@ -31,7 +31,7 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.7 2005-12-12 04:03:42 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.8 2005-12-12 04:54:09 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -119,7 +119,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    */
   public Set getSubjectTypes() {
     if (types.size() != 1) {
-      types.add( SubjectTypeEnum.valueOf("application") );
+      types.add( SubjectTypeEnum.valueOf(GrouperConfig.IST) );
     }
     return types;
   } // public Set getSubjectTypes()
@@ -170,13 +170,13 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
     throws  SubjectNotFoundException
   {
     // TODO What attributes do I need to set?  Check with Gary at some point.
-    if      (qry.equals("GrouperAll"))    {
+    if      (qry.equals(GrouperConfig.ALL)) {
       if (this.all == null) {
         this.all = new InternalSubject(qry, qry, this);
       }
       return this.all;
     }
-    else if (qry.equals("GrouperSystem")) {
+    else if (qry.equals(GrouperConfig.ROOT)) {
       if (this.root == null) {
         this.root = new InternalSubject(qry, qry, this);
       }

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.3 2005-11-28 19:21:48 blair Exp $
+ * @version $Id: InternalSubject.java,v 1.4 2005-12-12 04:54:09 blair Exp $
  */
 public class InternalSubject implements Subject {
 
@@ -37,7 +37,7 @@ public class InternalSubject implements Subject {
   private String      desc    = new String();
   private String      id      = new String();
   private String      name    = new String();
-  private SubjectType type    = SubjectTypeEnum.valueOf("application");
+  private SubjectType type    = SubjectTypeEnum.valueOf(GrouperConfig.IST);
 
 
   // Constructors
