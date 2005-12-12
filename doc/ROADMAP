@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.133 2005-12-12 21:50:49 blair Exp $
+$Id: ROADMAP,v 1.134 2005-12-12 21:52:09 blair Exp $
 
 ---
 
@@ -49,7 +49,6 @@ $Id: ROADMAP,v 1.133 2005-12-12 21:50:49 blair Exp $
   * Use constants
 
 ## @maybe
-* GrouperSessionFinder: make internal root sessions !hibernated
 * Membership: map via_id to Group (will factors break this?)
 * Cache subjects
 * Group: cache attributes
@@ -115,6 +114,7 @@ $Id: ROADMAP,v 1.133 2005-12-12 21:50:49 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

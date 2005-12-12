@@ -26,13 +26,12 @@ import  org.apache.commons.logging.*;
  * Find sessions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionFinder.java,v 1.6 2005-12-12 04:54:09 blair Exp $
+ * @version $Id: GrouperSessionFinder.java,v 1.7 2005-12-12 21:52:09 blair Exp $
  */
 class GrouperSessionFinder implements Serializable {
 
   // Private Class Constants
-  private static final String ERR_GRS = "unable to start root session: ";
-  private static final Log    LOG     = LogFactory.getLog(GrouperSessionFinder.class);
+  private static final Log LOG = LogFactory.getLog(GrouperSessionFinder.class);
 
 
   // Private Class Variables
@@ -41,8 +40,7 @@ class GrouperSessionFinder implements Serializable {
 
   // Protected Class Methods
 
-  // TODO I'd like to move away from this method and to the transient
-  //      root sessions.  That'll take some work, however.
+  // TODO Deprecate
   protected static GrouperSession getRootSession() {
     if (root == null) {
       root = getTransientRootSession();
@@ -50,17 +48,9 @@ class GrouperSessionFinder implements Serializable {
     return root;
   } // protected static GrouperSession getRootSession()
 
+  // TODO Deprecate
   protected static GrouperSession getTransientRootSession() {
-    try {
-      return GrouperSession.start(
-        SubjectFinder.findById(GrouperConfig.ROOT, GrouperConfig.IST)
-      );
-    }
-    catch (Exception e) {
-      String err = ERR_GRS + e.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err);
-    }
+    return GrouperSession.startTransient();
   } // protected static GrouperSession getTransientRootSession()
 
 

@@ -29,13 +29,14 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.7 2005-12-12 20:45:05 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.8 2005-12-12 21:52:09 blair Exp $
  *     
 */
 class GrouperLog implements Serializable {
 
   // Protected Class Constants
   protected static final String ERR_CMGR  = "unable to get cache manager: ";
+  protected static final String ERR_GRS   = "unable to start root session: ";
   protected static final String ERR_LOG   = "error logging: ";
   protected static final String MSG_EC    = "emptied cache ";
 

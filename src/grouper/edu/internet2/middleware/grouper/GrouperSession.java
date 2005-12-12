@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.12 2005-12-12 16:07:24 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.13 2005-12-12 21:52:09 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -49,6 +49,10 @@ public class GrouperSession implements Serializable {
   private Member  member_id;
   private String  session_id;
   private Date    start_time;
+
+
+  // Private Class Variables
+  private static Subject root = null;
 
 
   // Private Transient Instance Variables
@@ -100,6 +104,29 @@ public class GrouperSession implements Serializable {
       throw new SessionException(err);
     }
   } // public static GrouperSession start(subject)
+
+  protected static GrouperSession startTransient() {
+    if (root == null) {
+      try {
+        root = SubjectFinder.findById(
+          GrouperConfig.ROOT, GrouperConfig.IST
+        );
+      }
+      catch (Exception e) {
+        String err = GrouperLog.ERR_GRS + e.getMessage();
+        LOG.fatal(err);
+        throw new RuntimeException(err);
+      }
+    }
+    try {
+      return _getSession(root);
+    }
+    catch (Exception e) {
+      String err = GrouperLog.ERR_GRS + e.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
+  } // protected static GrouperSession startTransient()
 
 
   // Public instance methods
@@ -178,7 +205,7 @@ public class GrouperSession implements Serializable {
    * </pre>
    * @return  A {@link Subject} object.
    */
-  public Subject  getSubject() {
+  public Subject getSubject() {
     if (this.subj == null) {
       try {
         this.subj = this.getMember_id().getSubject();
@@ -211,8 +238,10 @@ public class GrouperSession implements Serializable {
     throws  SessionException
   {
     try {
-      HibernateHelper.delete(this);
-      this.setId(null);
+      if (this.getId() != null) {
+        HibernateHelper.delete(this);
+        this.setId(null);
+      }
       this.setMember_id(null);
       this.setSession_id(null);
       this.setStart_time(null);
@@ -260,10 +289,6 @@ public class GrouperSession implements Serializable {
     try {
       if (s == null) {
         throw new RuntimeException("null session object");
-      }
-      if (s.id == null) {
-        throw new RuntimeException("null session identity");
-      }
       if (s.member_id == null) {
         throw new RuntimeException("null session member");
       }
