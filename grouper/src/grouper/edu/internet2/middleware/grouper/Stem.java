@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.39 2005-12-11 21:41:53 blair Exp $
+ * @version $Id: Stem.java,v 1.40 2005-12-12 14:43:11 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -307,12 +307,19 @@ public class Stem implements Serializable {
    * @return  Set of {@link Stem} objects
    */
   public Set getChildStems() {
-    Set       children  = new LinkedHashSet();
-    Iterator  iter      = this.getChild_stems().iterator();
-    while (iter.hasNext()) {
-      Stem child = (Stem) iter.next();
-      child.setSession(this.s);
-      children.add(child);
+    GrouperSession.validate(s);
+    Set children = new LinkedHashSet();
+    try {
+      _initializeChildGroupsAndStems(this); 
+      Iterator iter = this.getChild_stems().iterator();
+      while (iter.hasNext()) {
+        Stem child = (Stem) iter.next();
+        child.setSession(this.s);
+        children.add(child);
+      }
+    }
+    catch (HibernateException eH) {
+      GrouperLog.error(LOG, s, eH.getMessage());
     }
     return children;
   } // public Set getChildStems()

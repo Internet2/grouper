@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.7 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestStem.java,v 1.8 2005-12-12 14:43:11 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -460,5 +460,93 @@ public class TestStem extends TestCase {
     );
   } // public void testPropagateExtensionChangeAsNonRoot()
 
+  public void testChildStemsAndGroupsLazyInitialization() {
+    LOG.info("testChildStemsAndGroupsLazyInitialization");
+    try {
+      String          edu   = "edu";
+      String          uofc  = "uofc";
+      String          bsd   = "bsd";
+
+      Subject         subj  = SubjectFinder.findById("GrouperSystem");
+      GrouperSession  s     = GrouperSession.start(subj);
+      Stem            root  = StemFinder.findRootStem(s);
+      Stem            ns0   = root.addChildStem(edu, edu);
+      Stem            ns1   = ns0.addChildStem(uofc, uofc);
+      Group           g0    = ns1.addChildGroup(bsd, bsd);
+      s.stop();
+
+      s = GrouperSession.start(subj);
+      Stem  a         = StemFinder.findByName(s, edu);
+      Set   children  = a.getChildStems();
+      Assert.assertTrue("has child stems", children.size() > 0);
+      Iterator iter = children.iterator();
+      while (iter.hasNext()) {
+        Stem child  = (Stem) iter.next();
+        Set  stems  = child.getChildStems();
+        Assert.assertTrue("child has no child stems", stems.size() == 0);
+        Set  groups = child.getChildGroups();
+        Assert.assertTrue("child has child groups", groups.size() == 1);
+      }
+      s.stop();
+
+      Assert.assertTrue("no exceptions", true);
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testChildStemsAndGroupsLazyInitialization() 
+
+  public void testParentChildStemsAndGroupsLazyInitialization() {
+    LOG.info("testParentChildStemsAndGroupsLazyInitialization");
+    try {
+      String          edu   = "edu";
+      String          uofc  = "uofc";
+      String          bsd   = "bsd";
+
+      Subject         subj  = SubjectFinder.findById("GrouperSystem");
+      GrouperSession  s     = GrouperSession.start(subj);
+      Stem            root  = StemFinder.findRootStem(s);
+      Stem            ns0   = root.addChildStem(edu, edu);
+      Stem            ns1   = ns0.addChildStem(uofc, uofc);
+      Group           g0    = ns1.addChildGroup(bsd, bsd);
+      s.stop();
+
+      s = GrouperSession.start(subj);
+      Stem  a         = StemFinder.findByName(s, edu);
+      Stem  parent    = a.getParentStem();
+      Set   children  = parent.getChildStems();
+      Assert.assertTrue("parent has child stems", children.size() > 0);
+      Iterator iter = children.iterator();
+      while (iter.hasNext()) {
+        Stem child  = (Stem) iter.next();
+        Set  stems  = child.getChildStems();
+        Assert.assertTrue(
+          "child of parent has child stems", stems.size() == 1
+        );
+        Iterator childIter = stems.iterator();
+        while (childIter.hasNext()) {
+          Stem c = (Stem) childIter.next();
+          Assert.assertTrue(
+            "child of child of parent has no child stems",
+            c.getChildStems().size() == 0
+          );
+          Assert.assertTrue(
+            "child of child of parent has child groups",
+            c.getChildGroups().size() == 1
+          );
+        }
+        Set  groups = child.getChildGroups();
+        Assert.assertTrue(
+          "child of parent has no child groups", groups.size() == 0
+        );
+      }
+      s.stop();
+
+      Assert.assertTrue("no exceptions", true);
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testChildStemsAndGroupsLazyInitialization() 
 }
 
