@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.10 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.11 2005-12-12 06:24:25 blair Exp $
  */
 public class MembershipHelper {
 
@@ -223,19 +223,24 @@ public class MembershipHelper {
   } // protected static void testNumMship(g, list, m, i, e)
   
   protected static void testNumMship(Group g, Field f, int m, int i, int e) {
-    int gotM = g.getMemberships(f).size();
-    int gotI = g.getImmediateMemberships(f).size();
-    int gotE = g.getEffectiveMemberships(f).size();
-    String msg = " mships '" + f.getName() + "' == ";
-    Assert.assertTrue(
-      g.getName() + msg + gotM + " (exp " + m + ")", gotM == m
-    );
-    Assert.assertTrue(
-      g.getName() + " imm" + msg + gotI + " (exp " + i + ")", gotI == i
-    );
-    Assert.assertTrue(
-      g.getName() + " eff" + msg + gotE + " (exp " + e + ")", gotE == e
-    );
+    try {
+      int gotM = g.getMemberships(f).size();
+      int gotI = g.getImmediateMemberships(f).size();
+      int gotE = g.getEffectiveMemberships(f).size();
+      String msg = " mships '" + f.getName() + "' == ";
+      Assert.assertTrue(
+        g.getName() + msg + gotM + " (exp " + m + ")", gotM == m
+      );
+      Assert.assertTrue(
+        g.getName() + " imm" + msg + gotI + " (exp " + i + ")", gotI == i
+      );
+      Assert.assertTrue(
+        g.getName() + " eff" + msg + gotE + " (exp " + e + ")", gotE == e
+      );
+    }
+    catch (SchemaException eS) {
+      Assert.fail(eS.getMessage());
+    }
   } // protected static void testNumMship(g, f, m, i, e) 
   
 
@@ -284,6 +289,9 @@ public class MembershipHelper {
         + "/" + f.getName() + "/" + d + "/" + v.getName() + "'"
       );
     }
+    catch (SchemaException eS) {
+      Assert.fail(eS.getMessage());
+    }
   } // protected static void testEffMship(s, g, subj, f, v, d)
 
   protected static void testImmMship(GrouperSession s, Group g, Group m, Field f) {
@@ -300,6 +308,9 @@ public class MembershipHelper {
         "imm membership not found: '" + g.getName() + "/" + subj.getName() 
         + "/" + f.getName() + "'"
       );
+    }
+    catch (SchemaException eS) {
+      Assert.fail(eS.getMessage());
     }
   } // protected static void testImmMship(s, g, subj, f)
 
