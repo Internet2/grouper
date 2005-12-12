@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test open bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsOpen.java,v 1.7 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestBugsOpen.java,v 1.8 2005-12-12 14:43:11 blair Exp $
  */
 public class TestBugsOpen extends TestCase {
 
@@ -53,8 +53,7 @@ public class TestBugsOpen extends TestCase {
   // Tests
 
   // @source  Gary Brown, 20051206, <6513d0390512060544q3fff7944vb8e1cedae7d4f92c@mail.gmail.com>
-  // @status  awaiting fixed confirmation
-  // TODO Convert into _TestMemberOf_ test case
+  // @status  fixed/move to _TestBugsClosed_ and add _TestMemberOf_ case(s)
   public void testGrantNamingPrivsToGroupAndAccessPrivsToSelf() {
     LOG.info("testGrantNamingPrivsToGroupAndAccessPrivsToSelf");
     try {
@@ -246,6 +245,29 @@ public class TestBugsOpen extends TestCase {
       Assert.fail("exception: " + e.getMessage());
     }
   } // public void testGrantNamingPrivsToGroupAndAccessPrivsToSelf() 
+
+  // @source  Gary Brown, 20051212, <04A762113806B3F6EDBFD2F8@cse-gwb.cse.bris.ac.uk>>
+  // @status  awaiting fix confirmation
+  public void testChildStemsLazyInitializationException() {
+    LOG.info("testChildStemsLazyInitializationException");
+    try {
+      Subject         subj  = SubjectFinder.findById("GrouperSystem");
+      GrouperSession  s     = GrouperSession.start(subj);
+      Stem  root  = StemFinder.findRootStem(s);
+      Stem  qsuob = root.addChildStem("qsuob", "qsuob");
+      s.stop();
+
+      s = GrouperSession.start(subj);
+      Stem  a         = StemFinder.findByName(s,"qsuob");
+      Set   children  = a.getChildStems();
+      s.stop();
+
+      Assert.assertTrue("no exceptions", true);
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testChildStemsLazyInitializationException() 
 
 }
 
