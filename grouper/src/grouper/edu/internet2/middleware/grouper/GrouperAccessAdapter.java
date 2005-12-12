@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.26 2005-12-12 05:52:02 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.27 2005-12-12 06:14:52 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -260,12 +260,14 @@ public class GrouperAccessAdapter implements AccessAdapter {
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    boolean rv = g.hasMember(subj, this._getField(priv));
-    GrouperLog.debug(
-      LOG, s, 
-      "hasPriv '" + priv.getName().toUpperCase() + "' " 
-      + SubjectHelper.getPretty(subj) + ": " + rv
-    );
+    boolean rv = false;
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      rv = m.isMember(g, this._getField(priv));
+    }
+    catch (MemberNotFoundException eMNF) {
+      LOG.error(ERR_MMNF + eMNF.getMessage());
+    }
     return rv;
   } // public boolean hasPriv(s, g, subj, priv)
 

@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.27 2005-12-12 05:52:02 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.28 2005-12-12 06:14:52 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -258,24 +258,16 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws  SchemaException 
   {
-    // TODO Use a _hasMember()_ or _isMember()_ variant?
     GrouperSession.validate(s);
+    boolean rv = false;
     try {
-      if (
-        MembershipFinder.findMemberships(
-          ns.getUuid(), MemberFinder.findBySubject(s, subj), this._getField(priv)
-        ).size() > 0
-      ) 
-      {
-        return true;
-      }
-      return false;
+      Member m = MemberFinder.findBySubject(s, subj);
+      rv = m.isMember(ns, this._getField(priv));
     }
     catch (MemberNotFoundException eMNF) {
-      throw new RuntimeException(
-        "could not convert subject to member: " + eMNF.getMessage()
-      );  
+      LOG.error(ERR_MMNF + eMNF.getMessage());
     }
+    return rv;
   } // public boolean hasPriv(s, ns, subj, priv) 
 
   /**

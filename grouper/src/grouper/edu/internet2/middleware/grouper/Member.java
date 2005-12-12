@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.28 2005-12-12 05:52:02 blair Exp $
+ * @version $Id: Member.java,v 1.29 2005-12-12 06:14:52 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -910,6 +910,8 @@ public class Member implements Serializable {
   public boolean isMember(Group g, Field f) 
     throws  SchemaException
   {
+    return this._isMember(g.getUuid(), f);
+/*
     boolean rv  = false;
     String  msg = "isMember '" + f.getName() + "' '";
     if (
@@ -933,6 +935,7 @@ public class Member implements Serializable {
       GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
     }
     return rv;
+*/
   } // public boolean isMember(g, f)
 
   /**
@@ -1072,6 +1075,12 @@ public class Member implements Serializable {
     return MembershipFinder.findAllMemberships(this.s, this);
   } // protected Set getAllMemberships()
 
+  protected boolean isMember(Stem ns, Field f) 
+    throws  SchemaException
+  {
+    return this._isMember(ns.getUuid(), f);
+  } // protected boolean isMember(ns, f)
+
   // Assign Session
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
@@ -1110,6 +1119,25 @@ public class Member implements Serializable {
     }
     return rv;
   } // private boolean _hasPriv(ns, priv)
+
+  private boolean _isMember(String oid, Field f)
+    throws  SchemaException
+  {
+    boolean rv  = false;
+    Set mships = MembershipFinder.findMemberships(oid, this, f);
+    if (mships.size() > 0) {
+      rv = true;
+    }
+    else {
+      mships = MembershipFinder.findMemberships(
+        oid, MemberFinder.findAllMember(), f
+      );
+      if (mships.size() > 0) {
+        rv = true;
+      }
+    }
+    return rv;
+  } // private boolean _isMember(oid, f);
 
 
   // Hibernate Accessors
