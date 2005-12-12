@@ -32,16 +32,18 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.25 2005-12-10 22:31:36 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.26 2005-12-12 05:52:02 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
   // Private Class Constants
-  private static final String ERR_GP  = "unable to grant priv: ";
-  private static final String ERR_RP  = "unable to revoke priv: ";
-  private static final Log    LOG     = LogFactory.getLog(GrouperAccessAdapter.class);
-  private static final String MSG_GP  = "grant priv ";
-  private static final String MSG_RP  = "revoke priv ";
+  private static final String ERR_GP    = "unable to grant priv: ";
+  private static final String ERR_MGNF  = "membership group not found: ";
+  private static final String ERR_MMNF  = "membership member not found: ";
+  private static final String ERR_RP    = "unable to revoke priv: ";
+  private static final Log    LOG       = LogFactory.getLog(GrouperAccessAdapter.class);
+  private static final String MSG_GP    = "grant priv ";
+  private static final String MSG_RP    = "revoke priv ";
 
 
   // Private Class Variables
@@ -121,10 +123,10 @@ public class GrouperAccessAdapter implements AccessAdapter {
       }
     }
     catch (GroupNotFoundException eGNF) {
-      throw new RuntimeException(eGNF.getMessage());
+      LOG.error(ERR_MGNF + eGNF.getMessage());
     }
     catch (MemberNotFoundException eMNF) {
-      throw new RuntimeException(eMNF.getMessage());
+      LOG.error(ERR_MMNF + eMNF.getMessage());
     }
     return groups;
   } // public Set getGroupsWhereSubjectHasPriv(s, subj, priv)
@@ -174,19 +176,13 @@ public class GrouperAccessAdapter implements AccessAdapter {
       }
     }
     catch (GroupNotFoundException eGNF) {
-      throw new RuntimeException(
-        "error getting privs: " + eGNF.getMessage()
-      );
+      LOG.error(ERR_MGNF + eGNF.getMessage());
     }
     catch (MemberNotFoundException eMNF) {
-      throw new RuntimeException(
-        "could not convert subject to member: " + eMNF.getMessage()
-      );  
+      LOG.error(ERR_MMNF + eMNF.getMessage());
     }
     catch (SchemaException eS) {
-      throw new RuntimeException(
-        "error getting privs: " + eS.getMessage()
-      );
+      // Ignore
     }
     return privs;
   } // public Set getPrivs(s, g, subj)

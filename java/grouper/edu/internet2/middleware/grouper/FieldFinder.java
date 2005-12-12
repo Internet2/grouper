@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.5 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.6 2005-12-12 05:52:02 blair Exp $
  */
 public class FieldFinder {
 
@@ -54,9 +54,10 @@ public class FieldFinder {
    * <pre class="eg">
    * Field f = FieldFinder.find(field);
    * </pre>
+   * @throws  SchemaException
    */
   public static Field find(String field) 
-    throws SchemaException
+    throws  SchemaException
   {
     if (FIELDS.containsKey(field)) {
       return (Field) FIELDS.get(field);

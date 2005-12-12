@@ -32,15 +32,17 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.26 2005-12-10 22:31:36 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.27 2005-12-12 05:52:02 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
   // Private Class Constants
-  private static final String ERR_GP  = "grantPriv: unable to grant priv: ";
-  private static final String ERR_RP  = "revokePriv: unable to revoke priv: ";
-  private static final Log    LOG     = LogFactory.getLog(GrouperNamingAdapter.class);
-  private static final String MSG_GP  = "grantPriv: ";
+  private static final String ERR_GP    = "grantPriv: unable to grant priv: ";
+  private static final String ERR_MMNF  = "membership member not found: ";
+  private static final String ERR_MSNF  = "membership stem not found: ";
+  private static final String ERR_RP    = "revokePriv: unable to revoke priv: ";
+  private static final Log    LOG       = LogFactory.getLog(GrouperNamingAdapter.class);
+  private static final String MSG_GP    = "grantPriv: ";
 
 
   // Private Class Variables
@@ -114,10 +116,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
       }
     }
     catch (MemberNotFoundException eMNF) {
-      throw new RuntimeException(eMNF.getMessage());
+      GrouperLog.error(LOG, s, ERR_MMNF + eMNF.getMessage());
     }
     catch (StemNotFoundException eSNF) {
-      throw new RuntimeException(eSNF.getMessage());
+      GrouperLog.error(LOG, s, ERR_MSNF + eSNF.getMessage());
     }
     return stems;
   } // public Set getStemsWhereSubjectHasPriv(s, subj, priv)
@@ -173,19 +175,13 @@ public class GrouperNamingAdapter implements NamingAdapter {
       }
     }
     catch (MemberNotFoundException eMNF) {
-      throw new RuntimeException(
-        "could not convert subject to member: " + eMNF.getMessage()
-      );  
+      GrouperLog.error(LOG, s, ERR_MMNF + eMNF.getMessage());
     }
     catch (SchemaException eS) {
-      throw new RuntimeException(
-        "error getting privs: " + eS.getMessage()
-      );
+      // Ignore
     }
     catch (StemNotFoundException eSNF) {
-      throw new RuntimeException(
-        "error getting privs: " + eSNF.getMessage()
-      );
+      GrouperLog.error(LOG, s, ERR_MSNF + eSNF.getMessage());
     }
     return privs;
   } // public Set getPrivs(s, ns, subj)
@@ -260,7 +256,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @throws  SchemaException
    */
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
-    throws SchemaException 
+    throws  SchemaException 
   {
     // TODO Use a _hasMember()_ or _isMember()_ variant?
     GrouperSession.validate(s);
@@ -279,9 +275,6 @@ public class GrouperNamingAdapter implements NamingAdapter {
       throw new RuntimeException(
         "could not convert subject to member: " + eMNF.getMessage()
       );  
-    }
-    catch (SchemaException eS) {
-      throw new SchemaException("invalid privilege: " + priv);
     }
   } // public boolean hasPriv(s, ns, subj, priv) 
 

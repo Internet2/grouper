@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.19 2005-12-10 22:31:36 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.20 2005-12-12 05:52:02 blair Exp $
  */
 public class MembershipFinder {
 
@@ -70,11 +70,13 @@ public class MembershipFinder {
    * @param   depth Effective membership has this depth.
    * @return  A {@link Membership} object
    * @throws  MembershipNotFoundException 
+   * @throws  SchemaException
    */
   public static Membership findEffectiveMembership(
     GrouperSession s, Group g, Subject subj, Field f, Group via, int depth
   )
-    throws  MembershipNotFoundException
+    throws  MembershipNotFoundException,
+            SchemaException
   {
     /* 
      * @caller    PUBLIC
@@ -115,11 +117,13 @@ public class MembershipFinder {
    * @param   f     Immediate membership has this list.
    * @return  A {@link Membership} object
    * @throws  MembershipNotFoundException 
+   * @throws  SchemaException
    */
   public static Membership findImmediateMembership(
     GrouperSession s, Group g, Subject subj, Field f
   )
-    throws  MembershipNotFoundException
+    throws  MembershipNotFoundException,
+            SchemaException
   {
     /* 
      * @caller    PUBLIC

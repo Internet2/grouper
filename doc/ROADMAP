@@ -3,39 +3,34 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.124 2005-12-12 04:54:09 blair Exp $
+$Id: ROADMAP,v 1.125 2005-12-12 05:52:01 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## @next actions
-* Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
-* GrouperAttribute: attribute methods should throw ANFE + SE
-* Review RTEs in _GrouperAccessAdapter_ and _GrouperNamingAdapter_
 * Methods that look like they need some love
   * GrouperAccessAdapter: getPrivs()
   * GrouperNamingAdapter: getPrivs()
   * GrouperNamingAdapter: hasPriv() should take ALL into account
 * Configurable options for logging adding/granting/deleting/revoking
   immediate and effective memberships and privs
+* Event logging
+  * Clean up returned error messages when exceptions thrown
 * PrivilegeResolver: isRoot and wheel group
 * _AccessPrivilege_ and _NamingPrivilege_ objects
 * invalid group + stem names
 * empty config options for granting all, wheel group, interfaces, etc
 * renaming "root" subject?  this probably shouldn't be allowed.
-
-## @later
-* Event logging
-  * Clean up returned error messages when exceptions thrown
-* Replace contrib items with updated cdg
-
-## @testing
 * review old memberof tests 
 * field validation: fields (attrs, lists, naming and access)
 * Test create + modify subject when !root
+* Replace contrib items with updated cdg
 * Test with Pg and Oracle and review generated SQL
   * ship with generated schema?
+
+## @testing
 * deletion (group + mship + priv) in _TestMemberOf_
 * privs with groups
 * Review old _*.todo_ test classes (and then remove)
