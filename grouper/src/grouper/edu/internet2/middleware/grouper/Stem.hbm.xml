@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.12 2005-12-12 16:07:24 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.13 2005-12-12 21:50:49 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -51,6 +51,7 @@ A namespace within the Groups Registry.
           cascade="none"
           inverse="true"
           lazy="true"
+          batch-size="10"
     >
       <key column="parent_stem"/>
       <one-to-many class="edu.internet2.middleware.grouper.Group" />
@@ -63,6 +64,7 @@ A namespace within the Groups Registry.
           cascade="save-update"
           inverse="true"
           lazy="true"
+          batch-size="10"
     >
       <key column="parent_stem"/>
       <one-to-many class="edu.internet2.middleware.grouper.Stem" />
