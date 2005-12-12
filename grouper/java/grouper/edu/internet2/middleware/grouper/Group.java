@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.42 2005-12-11 21:41:53 blair Exp $
+ * @version $Id: Group.java,v 1.43 2005-12-12 05:52:02 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -686,8 +686,17 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getEffectiveMembers() {
-    return this.getEffectiveMembers(getDefaultList());
-  }  // public Set getEffectiveMembers()
+    try {
+      return this.getEffectiveMembers(getDefaultList());
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String err = ERR_GDL + eS.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
+  } // public Set getEffectiveMembership()
+
 
   /**
    * Get effective members of this group.
@@ -696,8 +705,11 @@ public class Group implements Serializable {
    * </pre>
    * @param   f Get members in this list field.
    * @return  A set of {@link Member} objects.
+   * @throws  SchemaException
    */
-  public Set getEffectiveMembers(Field f) {
+  public Set getEffectiveMembers(Field f) 
+    throws  SchemaException
+  {
     return MembershipFinder.findEffectiveMembers(this.s, this, f);
   }  // public Set getEffectiveMembers(f)
 
@@ -709,7 +721,15 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getEffectiveMemberships() {
-    return this.getEffectiveMemberships(getDefaultList());
+    try {
+      return this.getEffectiveMemberships(getDefaultList());
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String err = ERR_GDL + eS.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getEffectiveMembership()
 
   /**
@@ -719,8 +739,11 @@ public class Group implements Serializable {
    * </pre>
    * @param   f Get memberships in this list field.
    * @return  A set of {@link Membership} objects.
+   * @throws  SchemaException
    */
-  public Set getEffectiveMemberships(Field f) {
+  public Set getEffectiveMemberships(Field f) 
+    throws  SchemaException
+  {
     return MembershipFinder.findEffectiveMemberships(this.s, this, f);
   } // public Set getEffectiveMemberships(f)
 
@@ -756,7 +779,15 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getImmediateMembers() {
-    return this.getImmediateMembers(getDefaultList());
+    try {
+      return this.getImmediateMembers(getDefaultList());
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String err = ERR_GDL + eS.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getImmediateMembers()
 
   /**
@@ -766,8 +797,11 @@ public class Group implements Serializable {
    * </pre>
    * @param   f Get members in this list field.
    * @return  A set of {@link Member} objects.
+   * @throws  SchemaException
    */
-  public Set getImmediateMembers(Field f) {
+  public Set getImmediateMembers(Field f) 
+    throws  SchemaException
+  {
     return MembershipFinder.findImmediateMembers(this.s, this, f);
   } // public Set getImmediateMembers(f)
 
@@ -779,7 +813,15 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getImmediateMemberships() {
-    return this.getImmediateMemberships(getDefaultList());
+    try {
+      return this.getImmediateMemberships(getDefaultList());
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String err = ERR_GDL + eS.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getImmediateMemberships()
 
   /**
@@ -789,8 +831,11 @@ public class Group implements Serializable {
    * </pre>
    * @param   f Get memberships in this list field.
    * @return  A set of {@link Membership} objects.
+   * @throws  SchemaException
    */
-  public Set getImmediateMemberships(Field f) {
+  public Set getImmediateMemberships(Field f) 
+    throws  SchemaException
+  {
     GrouperSession.validate(this.s);
     return MembershipFinder.findImmediateMemberships(this.s, this.getUuid(), f);
   } // public Set getImmediateMemberships(f)
@@ -803,7 +848,15 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getMembers() {
-    return this.getMembers(getDefaultList());
+    try {
+      return this.getMembers(getDefaultList());
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String err = ERR_GDL + eS.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getMembers()
 
   /**
@@ -813,8 +866,11 @@ public class Group implements Serializable {
    * </pre>
    * @param   f Get members in this list field.
    * @return  A set of {@link Member} objects.
+   * @throws  SchemaException
    */
-  public Set getMembers(Field f) {
+  public Set getMembers(Field f) 
+    throws  SchemaException
+  {
     return MembershipFinder.findMembers(this.s, this, f);
   } // public Set getMembers(f)
 
@@ -826,7 +882,15 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getMemberships() {
-    return this.getMemberships(getDefaultList());
+    try {
+      return this.getMemberships(getDefaultList());
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String err = ERR_GDL + eS.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public Set getMemberships()
 
   /**
@@ -836,8 +900,11 @@ public class Group implements Serializable {
    * </pre>
    * @param   f Get memberships in this list field.
    * @return  A set of {@link Membership} objects.
+   * @throws  SchemaException
    */
-  public Set getMemberships(Field f) {
+  public Set getMemberships(Field f) 
+    throws  SchemaException
+  {
     return MembershipFinder.findMemberships(this.s, this.getUuid(), f);
   } // public Set getMemberships(f)
 
@@ -1134,7 +1201,15 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasEffectiveMember(Subject subj) {
-    return this.hasEffectiveMember(subj, getDefaultList());
+    try {
+      return this.hasEffectiveMember(subj, getDefaultList());
+    } 
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String err = ERR_GDL + eS.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public boolean hasEffectiveMember(Subject subj)
 
   /**
@@ -1150,8 +1225,11 @@ public class Group implements Serializable {
    * @param   subj  Check this subject.
    * @param   f     Check for membership in this list field.
    * @return  Boolean true if subject belongs to this group.
+   * @throws  SchemaException
    */
-  public boolean hasEffectiveMember(Subject subj, Field f) {
+  public boolean hasEffectiveMember(Subject subj, Field f) 
+    throws  SchemaException
+  {
     boolean rv  = false;
     String  msg = "hasEffectiveMember " + SubjectHelper.getPretty(subj) + " '" 
       + f.getName() + "': ";
@@ -1181,7 +1259,15 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasImmediateMember(Subject subj) {
-    return this.hasImmediateMember(subj, getDefaultList());
+    try {
+      return this.hasImmediateMember(subj, getDefaultList());
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String err = ERR_GDL + eS.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public boolean hasImmediateMember(subj)
 
   /**
@@ -1197,8 +1283,11 @@ public class Group implements Serializable {
    * @param   subj  Check this subject.
    * @param   f     Check for membership in this list field.
    * @return  Boolean true if subject belongs to this group.
+   * @throws  SchemaException
    */
-  public boolean hasImmediateMember(Subject subj, Field f) {
+  public boolean hasImmediateMember(Subject subj, Field f) 
+    throws  SchemaException
+  {
     boolean rv  = false;
     String  msg = "hasImmediateMember " + SubjectHelper.getPretty(subj) + " '" 
       + f.getName() + "': ";
@@ -1274,7 +1363,15 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasMember(Subject subj) {
-    return this.hasMember(subj, getDefaultList());
+    try {
+      return this.hasMember(subj, getDefaultList());
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String err = ERR_GDL + eS.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
   } // public boolean hasMember(subj)
 
   /**
@@ -1290,8 +1387,11 @@ public class Group implements Serializable {
    * @param   subj  Check this subject.
    * @param   f     Is subject a member of this list {@link Field}.
    * @return  Boolean true if subject belongs to this group.
+   * @throws  SchemaException
    */
-  public boolean hasMember(Subject subj, Field f) {
+  public boolean hasMember(Subject subj, Field f) 
+    throws  SchemaException
+  {
     // TODO I should probably have _Member_ call _Group_ and not the inverse
     boolean rv  = false;
     String  msg = "hasMember " + SubjectHelper.getPretty(subj) + " '" 
