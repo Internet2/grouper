@@ -22,6 +22,7 @@ import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.*;
+import  net.sf.ehcache.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.logging.*;
@@ -31,7 +32,7 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.11 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.12 2005-12-12 16:07:24 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -233,7 +234,28 @@ public class GrouperSession implements Serializable {
   } // public String toString()
 
 
-  // Protected Static Methods
+  // Protected Class Methods
+
+  protected static void resetAllCaches() {
+    try {
+      CacheManager  mgr       = CacheManager.create();
+      String        caches[]  = mgr.getCacheNames();
+      for (int i=0; i<caches.length; i++) {
+        Cache cache = mgr.getCache(caches[i]);
+        int   size  = cache.getSize();
+        if (size > 0) {
+          cache.removeAll();
+          LOG.info(GrouperLog.MSG_EC + caches[i] + ": " + size);
+        }
+      }
+    }
+    catch (Exception e) {
+      String err = GrouperLog.ERR_CMGR + e.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
+  } // static
+
   protected static void validate(GrouperSession s) {
     try {
       if (s == null) {

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege cache provider.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.1 2005-12-12 03:47:32 blair Exp $
+ * @version $Id: PrivilegeCache.java,v 1.2 2005-12-12 16:07:24 blair Exp $
  *     
 */
 class PrivilegeCache {
@@ -41,10 +41,9 @@ class PrivilegeCache {
 
 
   // Private Class Constants
-  private static final String       ERR_CMGR  = "unable to get cache manager: ";
-  private static final String       ERR_CNF   = "cache not found: ";
+  private static final String       ERR_CNF = "cache not found: ";
   private static final CacheManager MGR;
-  private static final Log          LOG       = LogFactory.getLog(PrivilegeCache.class);
+  private static final Log          LOG     = LogFactory.getLog(PrivilegeCache.class);
 
 
   static {
@@ -52,7 +51,7 @@ class PrivilegeCache {
       MGR = CacheManager.create();
     }
     catch (CacheException eC) {
-      String err = ERR_CMGR + eC.getMessage();
+      String err = GrouperLog.ERR_CMGR + eC.getMessage();
       LOG.fatal(err);
       throw new RuntimeException(err);
     }
@@ -148,7 +147,7 @@ class PrivilegeCache {
     int size = this.cache.getSize();
     if (size > 0) {
       this.cache.removeAll();
-      LOG.info("emptied cache " + this.name + ": " + size);
+      LOG.info(GrouperLog.MSG_EC + this.name + ": " + size);
     }
   } // protected void removeAll() 
 

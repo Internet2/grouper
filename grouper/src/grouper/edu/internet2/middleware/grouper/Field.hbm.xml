@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Field.hbm.xml,v 1.7 2005-12-11 21:41:53 blair Exp $ -->
+<!-- $Id: Field.hbm.xml,v 1.8 2005-12-12 16:07:24 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Field" table="grouper_fields">
@@ -31,6 +31,8 @@ Schema specification for a Group attribute or list.
     </meta>
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateHelper.getSession();</meta>
+
+    <cache usage="read-write"/>
 
     <!-- id -->
     <id name="id" 
