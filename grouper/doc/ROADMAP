@@ -3,18 +3,17 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.121 2005-12-11 22:11:40 blair Exp $
+$Id: ROADMAP,v 1.122 2005-12-12 03:47:32 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## @next actions
-* Profiling
-* Cache access and naming privs
 * Membership: cache getGroup()
 * Membership: cache getStem()
 * InternalSourceAdapter: don't recreate ALL and ROOT everytime
+* Profiling
 * Configurable options for logging adding/granting/deleting/revoking
   immediate and effective memberships and privs
 * Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
@@ -24,10 +23,10 @@ $Id: ROADMAP,v 1.121 2005-12-11 22:11:40 blair Exp $
   * GrouperNamingAdapter: getPrivs()
   * GrouperNamingAdapter: hasPriv() should take ALL into account
 * Review RTEs in _GrouperAccessAdapter_ and _GrouperNamingAdapter_
-
-## @later
 * Event logging
   * Clean up returned error messages when exceptions thrown
+
+## @later
 * Replace contrib items with updated cdg
 
 ## @maybe

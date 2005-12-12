@@ -22,22 +22,24 @@ import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.lang.reflect.*;
 import  java.util.*;
+import  net.sf.ehcache.*;
 import  org.apache.commons.logging.*;
 
 
 /** 
  * Privilege resolution class.
- * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.29 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.30 2005-12-12 03:47:32 blair Exp $
  *     
 */
-class PrivilegeResolver {
+public class PrivilegeResolver {
 
   // Private Class Constants
-  private static final String ERR_CI  = "unable to instantiate interface ";  
-  private static final Log    LOG     = LogFactory.getLog(PrivilegeResolver.class);
+  private static final String ERR_CI    = "unable to instantiate interface ";  
+  private static final String ERR_RPC   = "unable to reset privilege caches: ";
+  private static final Log    LOG       = LogFactory.getLog(PrivilegeResolver.class);
+  private static final String MSG_RPC   = "reset privilege cache: ";
 
 
   // Private Class Variables
@@ -45,9 +47,11 @@ class PrivilegeResolver {
 
 
   // Private Instance Variables
-  private AccessAdapter access;
-  private Group         wheel     = null;
-  private NamingAdapter naming;
+  private PrivilegeCache  ac;
+  private AccessAdapter   access; 
+  private PrivilegeCache  nc;
+  private Group           wheel     = null;
+  private NamingAdapter   naming;
 
 
   // Constructors
@@ -55,6 +59,34 @@ class PrivilegeResolver {
     // nothing
   } // private PrivilegeResolver()
 
+
+  // Public Class Methods
+
+  /**
+   * Remove all entries from the access and naming privilege caches.
+   * <pre class="eg">
+   * PrivilegeResolver.resetPrivilegeCaches();
+   * </pre>
+   * @throws  RuntimeException 
+   */
+  public static void resetPrivilegeCaches() {
+    try {
+      PrivilegeResolver pr = PrivilegeResolver.getInstance();
+      if (pr.ac != null) {
+        pr.ac.removeAll();
+        LOG.info(MSG_RPC + PrivilegeCache.ACCESS);
+      }
+      if (pr.nc != null) {
+        pr.nc.removeAll();
+        LOG.info(MSG_RPC + PrivilegeCache.NAMING);
+      }
+    }
+    catch (Exception e) {
+      String err = ERR_RPC + e.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
+  } // public static void resetPrivilegeCaches()
 
   // Protected Class Methods
   protected static PrivilegeResolver getInstance() {
@@ -68,6 +100,10 @@ class PrivilegeResolver {
       pr.naming = (NamingAdapter) _createInterface(
         cfg.getProperty(GrouperConfig.PNI)
       );
+      // Get access and naming privilege classes
+      // TODO Make configurable
+      pr.ac = PrivilegeCache.getCache(PrivilegeCache.ACCESS);
+      pr.nc = PrivilegeCache.getCache(PrivilegeCache.NAMING);
     }
     return pr;
   } // protected static PrivilegeResolver getInstance()
@@ -531,6 +567,13 @@ class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     this.access.grantPriv(s, g, subj, priv);
+    // FIXME
+    try {
+      this.ac.removeAll();
+    }
+    catch (Exception e) {
+      LOG.error(ERR_RPC + e.getMessage());
+    }
   } // protected void grantPriv(s, g, subj, priv)
 
   protected void grantPriv(
@@ -542,6 +585,13 @@ class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     this.naming.grantPriv(s, ns, subj, priv);
+    // FIXME
+    try {
+      this.nc.removeAll();
+    }
+    catch (Exception e) {
+      LOG.error(ERR_RPC + e.getMessage());
+    }
   } // protected void grantPriv(s, ns, subj, priv)
 
   protected boolean isRoot(Subject subj) {
@@ -587,25 +637,40 @@ class PrivilegeResolver {
   )
   {
     GrouperSession.validate(s);
-    String msg = "hasPriv '" + priv.getName().toUpperCase() 
-      + "' '" + subj.getId() + "' ";
-    if (this.isRoot(subj)) {
-      GrouperLog.debug(LOG, s, msg + "true (ROOT)");
-      return true;
+    boolean rv = false;
+    String  msg = "hasPriv: " + SubjectHelper.getPretty(subj) 
+      + " " + priv + ": ";
+    GrouperLog.debug(LOG, s, msg + "checking");
+    Element el = this.ac.get(g, subj, priv);
+    if (el != null) {
+      if (el.getValue().equals(GrouperConfig.BT)) {
+        rv = true;
+      }
+      GrouperLog.debug(LOG, s, msg + rv + " (cached)");
     }
-    try {
-      boolean rv = access.hasPriv(s, g, subj, priv);
-      GrouperLog.debug(LOG, s, msg + rv);
-      if (rv == false) {
-        rv = this._isAll(s, g, priv);
-        GrouperLog.debug(LOG, s, msg + rv + " (ALL)");
-      } 
-      return rv;
+    else if (this.isRoot(subj)) {
+      rv = true;  
+      GrouperLog.debug(LOG, s, msg + rv + " (isRoot)");
     }
-    catch (SchemaException ePNF) {
-      GrouperLog.debug(LOG, s, msg + "false (" + ePNF.getMessage() + ")");
-      return false;
+    else {
+      try {
+        rv = access.hasPriv(s, g, subj, priv);
+        GrouperLog.debug(LOG, s, msg + rv);
+        if (rv == false) {
+          rv = this._isAll(s, g, priv);
+          GrouperLog.debug(LOG, s, msg + rv + " (ALL)");
+        } 
+      }
+      catch (SchemaException eS) {
+        rv = false;
+        GrouperLog.debug(LOG, s, msg + rv + "(" + eS.getMessage() + ")");
+        return rv;
+      }
     }
+    if (el == null) {
+      ac.put(g, subj, priv, rv);
+    }
+    return rv;
   } // protected boolean hasPriv(s, g, subj, priv)
 
   protected boolean hasPriv(
@@ -613,25 +678,40 @@ class PrivilegeResolver {
   )
   {
     GrouperSession.validate(s);
-    String msg = "hasPriv '" + priv.getName().toUpperCase() 
-      + "' '" + subj.getId() + "': ";
-    if (this.isRoot(subj)) {
-      GrouperLog.debug(LOG, s, msg + "true (ROOT)");
-      return true;
+    boolean rv = false;
+    String  msg = "hasPriv: " + SubjectHelper.getPretty(subj) 
+      + " " + priv + ": ";
+    GrouperLog.debug(LOG, s, msg + "checking");
+    Element el = this.nc.get(ns, subj, priv);
+    if (el != null) {
+      if (el.getValue().equals(GrouperConfig.BT)) {
+        rv = true;
+      }
+      GrouperLog.debug(LOG, s, msg + rv + " (cached)");
     }
-    try {
-      boolean rv = naming.hasPriv(s, ns, subj, priv);
-      GrouperLog.debug(LOG, s, msg + rv);
-      if (rv == false) {
-        rv = this._isAll(s, ns, priv);
-        GrouperLog.debug(LOG, s, msg + rv + " (ALL)");
-      } 
-      return rv;
+    else if (this.isRoot(subj)) {
+      rv = true;  
+      GrouperLog.debug(LOG, s, msg + rv + " (isRoot)");
     }
-    catch (SchemaException ePNF) {
-      GrouperLog.debug(LOG, s, msg + "false (" + ePNF.getMessage() + ")");
-      return false;
+    else {
+      try {
+        rv = naming.hasPriv(s, ns, subj, priv);
+        GrouperLog.debug(LOG, s, msg + rv);
+        if (rv == false) {
+          rv = this._isAll(s, ns, priv);
+          GrouperLog.debug(LOG, s, msg + rv + " (ALL)");
+        } 
+      }
+      catch (SchemaException eS) {
+        rv = false;
+        GrouperLog.debug(LOG, s, msg + rv + "(" + eS.getMessage() + ")");
+        return rv;
+      }
     }
+    if (el == null) {
+      nc.put(ns, subj, priv, rv);
+    }
+    return rv;
   } // protected boolean hasPriv(s, ns, subj, priv)
 
   protected void revokePriv(GrouperSession s, Group g, Privilege priv)
@@ -644,6 +724,13 @@ class PrivilegeResolver {
     GrouperLog.debug(LOG, s, msg);
     this.access.revokePriv(s, g, priv);
     GrouperLog.debug(LOG, s, msg + " revoked");
+    // FIXME
+    try {
+      this.ac.removeAll();
+    }
+    catch (Exception e) {
+      LOG.error(ERR_RPC + e.getMessage());
+    }
   } // protected void revokePriv(s, g, priv)
 
   protected void revokePriv(GrouperSession s, Stem ns, Privilege priv)
@@ -653,6 +740,13 @@ class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     this.naming.revokePriv(s, ns, priv);
+    // FIXME
+    try {
+      this.nc.removeAll();
+    }
+    catch (Exception e) {
+      LOG.error(ERR_RPC + e.getMessage());
+    }
   } // protected void revokePriv(s, ns, priv)
 
   protected void revokePriv(
@@ -664,6 +758,13 @@ class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     this.access.revokePriv(s, g, subj, priv);
+    // FIXME
+    try {
+      this.ac.removeAll();
+    }
+    catch (Exception e) {
+      LOG.error(ERR_RPC + e.getMessage());
+    }
   } // protected void revokePriv(s, g, subj, priv)
 
   protected void revokePriv(
@@ -675,6 +776,13 @@ class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     this.naming.revokePriv(s, ns, subj, priv);
+    // FIXME
+    try {
+      this.nc.removeAll();
+    }
+    catch (Exception e) {
+      LOG.error(ERR_RPC + e.getMessage());
+    }
   } // protected void revokePriv(s, ns, subj, priv)
 
 
