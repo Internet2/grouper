@@ -25,12 +25,12 @@ import  org.apache.commons.logging.*;
 
 
 /** 
- * Add stems to the Groups Registry.
+ * Add stems and groups to the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: AddStems.java,v 1.3 2005-12-12 06:37:22 blair Exp $
+ * @version $Id: AddStemsAndGroups.java,v 1.1 2005-12-12 06:37:22 blair Exp $
  */
-public class AddStems {
+public class AddStemsAndGroups {
 
   /*
    * TODO
@@ -39,7 +39,7 @@ public class AddStems {
    */
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(AddStems.class);
+  private static final Log LOG = LogFactory.getLog(AddStemsAndGroups.class);
 
 
   // Private Class Variables
@@ -66,8 +66,31 @@ public class AddStems {
     throw new RuntimeException(err);
   } // private static void _abort(err)
 
+  private static Set _addGroups(int depth, int per, Set parents) {
+    String msg = "add groups at depth " + depth + ": ";
+    LOG.info(msg + "adding per parent " + per);
+    Set groups = new LinkedHashSet();
+    Iterator iter = parents.iterator();
+    while (iter.hasNext()) {
+      Stem parent = (Stem) iter.next();
+      for (int i=0; i <= per; i++) {
+        try {
+          String  extn    = "d/" + depth + "/group/" + i;
+          String  display = "depth " + depth + " group " + i;
+          Group   child   = parent.addChildGroup(extn, display);
+          groups.add(child);
+        }
+        catch (Exception e) {
+          _abort(e.getMessage());
+        }
+      }
+    }
+    LOG.info(msg + "added " + groups.size());
+    return groups;
+  } // private static Set _addGroups(depth, per, parents)
+
   private static Set _addStems(int depth, int per, Set parents) {
-    String msg = "depth " + depth + ": ";
+    String msg = "add stems at depth " + depth + ": ";
     LOG.info(msg + "adding per parent " + per);
     Set stems = new LinkedHashSet();
     Iterator iter = parents.iterator();
@@ -85,7 +108,7 @@ public class AddStems {
         }
       }
     }
-    LOG.info("added " + stems.size());
+    LOG.info(msg + "added " + stems.size());
     return stems;
   } // private static Set _addStems(depth, per, parents)
 
@@ -116,15 +139,20 @@ public class AddStems {
 
   private static void _run() {
     LOG.info("adding stems: max depth=" + max_depth);
-    Set   stems = new LinkedHashSet();
-    Set   last  = new LinkedHashSet();
-    Stem  root  = StemFinder.findRootStem(s);
-    last.add(root);
+    Set   stems       = new LinkedHashSet();
+    Set   groups      = new LinkedHashSet();
+    Set   last_stems  = new LinkedHashSet();
+    Set   last_groups = new LinkedHashSet();
+    Stem  root        = StemFinder.findRootStem(s);
+    last_stems.add(root);
     for (int i=1; i <= max_depth; i++) {
-      last = _addStems(i, (i * 2), last);
-      stems.addAll(last);
+      last_stems = _addStems(i, i + 1, last_stems);
+      stems.addAll(last_stems);
+      last_groups = _addGroups(i, (i * 2), last_stems);
+      groups.addAll(last_groups);
     }
     LOG.info("stems added: " + stems.size());
+    LOG.info("groups added: " + groups.size());
   } // private static void _run()
 
   private static void _setUp() {

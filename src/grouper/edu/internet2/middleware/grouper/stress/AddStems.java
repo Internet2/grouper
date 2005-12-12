@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Add stems to the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: AddStems.java,v 1.2 2005-12-12 01:10:47 blair Exp $
+ * @version $Id: AddStems.java,v 1.3 2005-12-12 06:37:22 blair Exp $
  */
 public class AddStems {
 
@@ -44,7 +44,7 @@ public class AddStems {
 
   // Private Class Variables
   private static GrouperSession s;
-  private static int            max_depth = 5;
+  private static int            max_depth = 4;
 
 
   // Main
