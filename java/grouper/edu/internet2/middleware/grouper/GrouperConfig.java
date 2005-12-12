@@ -27,20 +27,28 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.6 2005-12-12 04:54:09 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.7 2005-12-12 20:45:05 blair Exp $
  *     
 */
 class GrouperConfig {
 
   // Protected Class Constants
-  protected static final String ALL   = "GrouperAll";
-  protected static final String BT    = "true";
-  protected static final String GWG   = "groups.wheel.group";
-  protected static final String GWU   = "groups.wheel.use";
-  protected static final String IST   = "application";
-  protected static final String PAI   = "privileges.access.interface";
-  protected static final String PNI   = "privileges.naming.interface";
-  protected static final String ROOT  = "GrouperSystem";
+  protected static final String ALL     = "GrouperAll";
+  protected static final String BT      = "true";
+  protected static final String GWG     = "groups.wheel.group";
+  protected static final String GWU     = "groups.wheel.use";
+  protected static final String IST     = "application";
+  protected static final String MSLGEA  = "memberships.log.group.effective.add";
+  protected static final String MSLGED  = "memberships.log.group.effective.del";
+  protected static final String MSLGIA  = "memberships.log.group.immediate.add";
+  protected static final String MSLGID  = "memberships.log.group.immediate.del";
+  protected static final String MSLSEA  = "memberships.log.stem.effective.add";
+  protected static final String MSLSED  = "memberships.log.stem.effective.del";
+  protected static final String MSLSIA  = "memberships.log.stem.immediate.add";
+  protected static final String MSLSID  = "memberships.log.stem.immediate.del";
+  protected static final String PAI     = "privileges.access.interface";
+  protected static final String PNI     = "privileges.naming.interface";
+  protected static final String ROOT    = "GrouperSystem";
 
 
   // Private Class Constants

@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.29 2005-12-12 16:53:57 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.30 2005-12-12 20:45:05 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -394,6 +394,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
     catch (MemberDeleteException eMD) {
       GrouperLog.debug(LOG, s, msg + ": " + eMD.getMessage());
       throw new RevokePrivilegeException(eMD.getMessage());
+    }
+    catch (MembershipNotFoundException eMNF) {
+      GrouperLog.debug(LOG, s, msg + ": " + eMNF.getMessage());
+      throw new RevokePrivilegeException(eMNF.getMessage());
     }
     GrouperLog.debug(LOG, s, msg + ": revoked");
   } // public void revokePriv(s, ns, subj, priv)
