@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.13 2005-12-12 21:52:09 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.14 2005-12-12 22:00:58 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -289,6 +289,7 @@ public class GrouperSession implements Serializable {
     try {
       if (s == null) {
         throw new RuntimeException("null session object");
+      }
       if (s.member_id == null) {
         throw new RuntimeException("null session member");
       }
