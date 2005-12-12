@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.18 2005-12-12 06:24:25 blair Exp $
+ * @version $Id: Membership.java,v 1.19 2005-12-12 20:45:05 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -306,10 +306,18 @@ public class Membership implements Serializable {
       objects.add(imm);
 
       // Find effective memberships
-      objects.addAll( _findEffectiveMemberships(s, imm) );
+      Set effs = _findEffectiveMemberships(s, imm);
+      objects.addAll(effs);
 
       // And then save group and memberships
       HibernateHelper.save(objects);
+      GrouperConfig cfg = GrouperConfig.getInstance();
+      if (cfg.getProperty(GrouperConfig.MSLGIA).equals(GrouperConfig.BT)) {
+        GrouperLog.addImmMS(LOG, s, imm);
+      }
+      if (cfg.getProperty(GrouperConfig.MSLGEA).equals(GrouperConfig.BT)) {
+        GrouperLog.addEffMS(LOG, s, effs);
+      }
     }
     catch (GroupNotFoundException eGNF) {
       msg += ": " + eGNF.getMessage();
@@ -356,10 +364,18 @@ public class Membership implements Serializable {
       objects.add(imm);
 
       // Find effective memberships
-      objects.addAll( _findEffectiveMemberships(s, imm) );
+      Set effs = _findEffectiveMemberships(s, imm);
+      objects.addAll(effs);
 
       // And then save group and memberships
       HibernateHelper.save(objects);
+      GrouperConfig cfg = GrouperConfig.getInstance();
+      if (cfg.getProperty(GrouperConfig.MSLSIA).equals(GrouperConfig.BT)) {
+        GrouperLog.addImmMS(LOG, s, imm);
+      }
+      if (cfg.getProperty(GrouperConfig.MSLSEA).equals(GrouperConfig.BT)) {
+        GrouperLog.addEffMS(LOG, s, effs);
+      }
     }
     catch (GroupNotFoundException eGNF) {
       msg += ": " + eGNF.getMessage();
@@ -384,6 +400,7 @@ public class Membership implements Serializable {
   )
     throws  InsufficientPrivilegeException,
             MemberDeleteException,
+            MembershipNotFoundException,
             SchemaException
   {
     GrouperSession.validate(s);
@@ -402,17 +419,20 @@ public class Membership implements Serializable {
       saves.add(g);
 
       // Find memberships to delete
-      Set effs = _membershipsToDelete(s, g, subj, f);
+      Membership imm = MembershipFinder.findImmediateMembership(s, g, subj, f);
+      Set effs = _membershipsToDelete(s, imm);
       deletes.addAll(effs);
+      deletes.add(imm);
 
       // And then commit changes to registry
       HibernateHelper.saveAndDelete(saves, deletes);
-      GrouperLog.debug(
-        LOG, s, 
-        "deleted members from '"+ g.getName() + "'/'" + f.getName() 
-        + "': " + SubjectHelper.getPretty(subj) + " and " + effs.size() 
-        + " effs"
-      );
+      GrouperConfig cfg = GrouperConfig.getInstance();
+      if (cfg.getProperty(GrouperConfig.MSLGID).equals(GrouperConfig.BT)) {
+        GrouperLog.delImmMS(LOG, s, imm);
+      }
+      if (cfg.getProperty(GrouperConfig.MSLGED).equals(GrouperConfig.BT)) {
+        GrouperLog.delEffMS(LOG, s, effs);
+      }
     }
     catch (HibernateException eH) {
       msg += ": " + eH.getMessage();
@@ -432,6 +452,7 @@ public class Membership implements Serializable {
   )
     throws  InsufficientPrivilegeException,
             MemberDeleteException,
+            MembershipNotFoundException,
             SchemaException
   {
     GrouperSession.validate(s);
@@ -450,17 +471,21 @@ public class Membership implements Serializable {
       saves.add(ns);
 
       // Find memberships to delete
-      Set effs = _membershipsToDelete(s, ns, subj, f);
+      Membership imm = MembershipFinder.findImmediateMembership(ns.getUuid(), m, f);
+      imm.setSession(s);
+      deletes.add(imm);
+      Set effs = _membershipsToDelete(s, imm);
       deletes.addAll(effs);
 
       // And then commit changes to registry
       HibernateHelper.saveAndDelete(saves, deletes);
-      GrouperLog.debug(
-        LOG, s, 
-        "deleted members from '"+ ns.getName() + "'/'" + f.getName() 
-        + "': " + SubjectHelper.getPretty(subj) + " and " + effs.size() 
-        + " effs"
-      );
+      GrouperConfig cfg = GrouperConfig.getInstance();
+      if (cfg.getProperty(GrouperConfig.MSLSID).equals(GrouperConfig.BT)) {
+        GrouperLog.delImmMS(LOG, s, imm);
+      }
+      if (cfg.getProperty(GrouperConfig.MSLSED).equals(GrouperConfig.BT)) {
+        GrouperLog.delEffMS(LOG, s, effs);
+      }
     }
     catch (HibernateException eH) {
       msg += ": " + eH.getMessage();
@@ -496,26 +521,24 @@ public class Membership implements Serializable {
     Iterator iterIS = g.toMember().getImmediateMemberships(f).iterator();
     while (iterIS.hasNext()) {
       Membership  msIS  = (Membership) iterIS.next();
-      Set         effs  = _membershipsToDelete(
-        s, msIS.getGroup(), msIS.getMember().getSubject(), msIS.getList()
-      );
+      Set         effs  = _membershipsToDelete(s, msIS);
       GrouperLog.debug(
         LOG, orig, msg + " found isMember: " + effs.size()
       );
       deletes.addAll(effs);
+      deletes.add(msIS);
     }
     // ... and then deal with this group's immediate members
     GrouperLog.debug(LOG, s, msg + " finding hasMembers");
     Iterator iterHAS = g.getImmediateMemberships(f).iterator();
     while (iterHAS.hasNext()) {
       Membership  msHAS = (Membership) iterHAS.next();
-      Set         effs  = _membershipsToDelete(
-        s, msHAS.getGroup(), msHAS.getMember().getSubject(), msHAS.getList()
-      );
+      Set         effs  = _membershipsToDelete(s, msHAS);
       GrouperLog.debug(
         LOG, orig, msg + " found hasMembers: " + effs.size()
       );
       deletes.addAll(effs);
+      deletes.add(msHAS);
     }
 
     g.setSession(orig);
@@ -548,13 +571,12 @@ public class Membership implements Serializable {
     ).iterator();
     while (iterHAS.hasNext()) {
       Membership  msHAS = (Membership) iterHAS.next();
-      Set         effs  = _membershipsToDelete(
-        s, msHAS.getStem(), msHAS.getMember().getSubject(), msHAS.getList()
-      );
+      Set         effs  = _membershipsToDelete(s, msHAS);
       GrouperLog.debug(
         LOG, orig, msg + " found hasMembers: " + effs.size()
       );
       deletes.addAll(effs);
+      deletes.add(msHAS);
     }
 
     ns.setSession(orig);
@@ -661,6 +683,12 @@ public class Membership implements Serializable {
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
     this.s = s;
+    if (this.group != null) {
+      this.group.setSession(s);
+    }
+    if (this.stem != null) {
+      this.stem.setSession(s);
+    }
   } // protected void setSession(s)
 
 
@@ -714,64 +742,17 @@ public class Membership implements Serializable {
     throw new MemberAddException(err);
   } // private static String _getOid(o)
 
-  // TODO Take a membership object?
   // TODO REFACTOR/DRY
-  private static Set _membershipsToDelete(
-    GrouperSession s, Group g, Subject subj, Field f
-  ) 
+  private static Set _membershipsToDelete(GrouperSession s, Membership imm) 
     throws  MemberDeleteException
   {
     GrouperSession.validate(s);
     Set     mships  = new LinkedHashSet();
+    Field   f       = imm.getList();
     String  msg     = "_membershipsToDelete '" + f + "'";
     GrouperLog.debug(LOG, s, msg);
     try {
-      Member m = MemberFinder.findBySubject(s, subj);
-      // Find the immediate membership that is to be deleted
-      Membership imm = MembershipFinder.findImmediateMembership(s, g, subj, f);
-      GrouperLog.debug(LOG, s, msg + " immediate member: " + imm);
-      // Find effective memberships
-      // As many of the memberships are likely to be transient, we
-      // need to retrieve the persistent version of each before
-      // passing it along to be deleted by HibernateHelper.  
-      Session   hs    = HibernateHelper.getSession();
-      Iterator  iter  = MemberOf.doMemberOf(s, imm).iterator();
-      while (iter.hasNext()) {
-        Membership  ms  = (Membership) iter.next();
-        Membership  eff = MembershipFinder.findEffectiveMembership(
-          ms.getOwner_id(), ms.getMember().getId(), 
-          ms.getList(), ms.getVia_id(), ms.getDepth()
-        );
-        eff.setSession(s);
-        GrouperLog.debug(LOG, s, msg + " effective member: " + eff);
-        mships.add(eff);
-      }
-      mships.add(imm);
-      hs.close();
-    }
-    catch (Exception e) {
-      GrouperLog.debug(LOG, s, msg + ": " + e.getMessage());
-      throw new MemberDeleteException(e.getMessage());
-    }
-    return mships;
-  } // private static Set _membershipsToDelete(s, g, subj, f)
-
-  // TODO REFACTOR/DRY
-  private static Set _membershipsToDelete(
-    GrouperSession s, Stem ns, Subject subj, Field f
-  ) 
-    throws  MemberDeleteException
-  {
-    GrouperSession.validate(s);
-    Set     mships  = new LinkedHashSet();
-    String  msg     = "_membershipsToDelete '" + f + "'";
-    GrouperLog.debug(LOG, s, msg);
-    try {
-      Member m = MemberFinder.findBySubject(s, subj);
-      // Find the immediate membership that is to be deleted
-      Membership imm = MembershipFinder.findImmediateMembership(ns.getUuid(), m, f);
-      imm.setSession(s);
-      mships.add(imm);
+      Member m = imm.getMember();
       GrouperLog.debug(LOG, s, msg + " immediate member: " + imm);
       // Find effective memberships
       // As many of the memberships are likely to be transient, we
@@ -796,7 +777,7 @@ public class Membership implements Serializable {
       throw new MemberDeleteException(e.getMessage());
     }
     return mships;
-  } // private static Set _membershipsToDelete(s, ns, subj, f)
+  } // private static Set _membershipsToDelete(s, imm)
 
   
   // Hibernate Accessors

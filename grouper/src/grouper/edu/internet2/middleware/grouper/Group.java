@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.44 2005-12-12 19:54:04 blair Exp $
+ * @version $Id: Group.java,v 1.45 2005-12-12 20:45:05 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -462,8 +462,14 @@ public class Group implements Serializable {
         throw new InsufficientPrivilegeException(err);
       }
     }
-    Membership.delImmediateMembership(this.s, this, subj, f);
-    GrouperLog.debug(LOG, this.s, msg + ": deleted");
+    try {
+      Membership.delImmediateMembership(this.s, this, subj, f);
+      GrouperLog.debug(LOG, this.s, msg + ": deleted");
+    }
+    catch (MembershipNotFoundException eMNF) {
+      // TODO Why don't I throw this directly?
+      throw new MemberDeleteException(eMNF.getMessage());
+    }
   } // public void deleteMember(subj, f)
 
   public boolean equals(Object other) {

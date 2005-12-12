@@ -3,23 +3,21 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.129 2005-12-12 19:54:04 blair Exp $
+$Id: ROADMAP,v 1.130 2005-12-12 20:45:05 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## @next actions
-* Configurable options for logging adding/granting/deleting/revoking
-  immediate and effective memberships and privs
-* Event logging
-  * Clean up returned error messages when exceptions thrown
 * PrivilegeResolver: isRoot and wheel group
 * empty config options for granting all, wheel group, interfaces, etc
 * renaming "root" subject?  this probably shouldn't be allowed.
 * review old memberof tests 
 * field validation: fields (attrs, lists, naming and access)
 * Test create + modify subject when !root
+* Event logging
+  * Clean up returned error messages when exceptions thrown
 * Replace contrib items with updated cdg
 * Review old _*.todo_ test classes (and then remove)
 * Test with Pg and Oracle and review generated SQL
@@ -66,7 +64,6 @@ $Id: ROADMAP,v 1.129 2005-12-12 19:54:04 blair Exp $
 * Membership: addImmediateMembership()
 * Membership: delImmediateMembership()
 * Membership: deleteAllField()
-* Membership: _membershipsToDelete()
 * Privilege: canWriteField()
 
 ## Aesthetics

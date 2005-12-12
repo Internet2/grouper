@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.28 2005-12-12 16:53:57 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.29 2005-12-12 20:45:05 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -372,6 +372,10 @@ public class GrouperAccessAdapter implements AccessAdapter {
     }
     try {
       Membership.delImmediateMembership(s, g, subj, f);
+    }
+    catch (MembershipNotFoundException eMNF) {
+      GrouperLog.debug(LOG, s, msg + ": " + eMNF.getMessage());
+      throw new RevokePrivilegeException(eMNF.getMessage());
     }
     catch (MemberDeleteException eMD) {
       GrouperLog.debug(LOG, s, msg + ": " + eMD.getMessage());
