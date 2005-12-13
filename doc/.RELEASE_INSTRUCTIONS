@@ -3,7 +3,7 @@
 
 Instructions for preparing a Grouper release.
 
-$Id: .RELEASE_INSTRUCTIONS,v 1.1 2005-12-13 04:50:36 blair Exp $
+$Id: .RELEASE_INSTRUCTIONS,v 1.2 2005-12-13 04:51:11 blair Exp $
 
 ---
 
@@ -30,6 +30,7 @@ $Id: .RELEASE_INSTRUCTIONS,v 1.1 2005-12-13 04:50:36 blair Exp $
 * Test tarball
 ** OSX: HSQLDB and PostgreSQL
 ** Solaris: HSQLDB and Oracle
+* Branch CVS
 * Pass tarball along to the appropriate parties
 * Notify grouper-dev
 
