@@ -1,20 +1,46 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.81 2005-11-11 17:42:13 blair Exp $
+$Id: NEWS,v 1.82 2005-12-13 04:50:36 blair Exp $
 
 ---
 
 # Version 0.9
 
+Released: December 2005
+
 ## Changes
+* NEW: New public API.
+* NEW: New query API.  This includes the ability for sites to create
+  their own custom query filters for use within the query API.
+* NEW: New access and naming adapter APIs and interfaces.
+* NEW: "all" subject that can be assigned memberships and granted
+  privileges that maps to all subjects that are identifiable by
+  Grouper's Subject API configuration.
+* NEW: Configuration options for controlling what privileges, if any,
+  are granted to the "all" subject whenever a new group or stem is
+  created.  By default, _READ_ and _VIEW_ are granted to "all" upon
+  group creation and no privileges are granted to "all" upon stem
+  creation.
+* NEW: Subject IDs associated with _Member_ objects within the Groups
+  Registry can now be changed with the _Member.setSubjectId()_ method.
+* NEW: Internal source adapter for resolving the "root" (_GrouperSystem_)
+  and "all" (_GrouperAll_) subjects.  No configuration is necessary to use
+  this adapter within Grouper.
+* NEW: Experimental wheel-group support.  This is disabled by default.
+  If enabled, all members of the group are treated as root-like
+  subjects with all access and naming privileges.
+* UPDATE: New internals.
+* UPDATE: ehcache-based caches for access and naming privilege resolution.
+* UPDATE: Grouper source adapter no longer needs to be configured
+  within _conf/sources.xml_.
 * UPDATE: License changed to Apache License, Version 2.0
-* UPDATE: _GrouperSystem_ subject now resolved via an internal source
-  adapter and does not need to be externally defined.
 
 ---
 
 # Version 0.6
+
+Released 20050916
 
 ## Changes
 

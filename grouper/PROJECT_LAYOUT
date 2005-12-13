@@ -4,13 +4,17 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: LAYOUT,v 1.15 2005-09-07 22:13:48 blair Exp $
+$Id: PROJECT_LAYOUT,v 1.1 2005-12-13 04:50:36 blair Exp $
 
 ---
 
 ## LICENSE
 
 Grouper licensing information.
+
+## PROJECT_LAYOUT
+
+This file.
 
 ## README
 
@@ -108,10 +112,6 @@ Generated API javadoc.
 
 Known issues with the Grouper API and Groups Registry.
 
-### LAYOUT
-
-This file.
-
 ### NEWS
 
 Release Notes.
@@ -120,18 +120,23 @@ Release Notes.
 
 Grouper development roadmap for future releases.
 
+### TODO
+
+A more detailed list what needs to be done, not necessarily tied to any
+particular future release.
+
 ---
 
 ## java/
+
+### grouper/
+
+Grouper's Java source code.  
 
 ### lib/
 
 Third-party jar files included with Grouper.  See _java/lib/README_ for
 more details on the jar files included.
-
-### src/
-
-Grouper's Java source code.  
 
 ### tests/
 
@@ -141,35 +146,11 @@ Java source used for testing Grouper.
 
 ## sql/
 
-### sql/generate-schema.sh
+### jdbc_source.sql
 
-Generate SQL data files from the .m4 source files.
+JDBC Source Adapter DDL.
 
-### sql/schema.m4
+### schema-export.sql
 
-m4 source file used to generate database-specific schema files.
-
-### sql/schema-hsqldb.sql
-
-HSQLDB database schema specification.
-
-### sql/schema-oracle.sql
-
-Oracle database schema specification.
-
-### sql/init.sql
-
-Default Grouper schema.  Needed to use Grouper.
-
-### sql/test-data.m4
-
-m4 source file used to generate the test sql data.
-
-### sql/test-data-hsqldb.sql
-
-Test data needed for running the test harness with HSQLDB.
-
-### sql/test-data-oracle.sql
-
-Test data needed for running the test harness with Oracle.
+Hibernate-generated DDL for your configured database type.
 
