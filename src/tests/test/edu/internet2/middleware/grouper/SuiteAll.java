@@ -98,6 +98,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestSuFiGrSoAdFindByIdentifier.class);
     suite.addTestSuite(TestSuFiGrSoAdSearch.class);
     suite.addTestSuite(TestSubjectFinderInternal.class);  // TODO Hrm...
+    suite.addTestSuite(TestWrongFieldType.class); 
     // MANUAL suite.addTestSuite(TestWheelGroup.class); 
 
     return suite;

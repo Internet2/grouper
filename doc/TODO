@@ -4,16 +4,13 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.5 2005-12-13 19:04:16 blair Exp $
+$Id: TODO,v 1.6 2005-12-13 19:54:31 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Post-Code Freeze
-
-* test field validation: fields (attrs, lists, naming and access)
-* test create + modify subject when !root
 
 * Test with Pg and Oracle and review generated SQL
   * ship with generated schema?
@@ -37,6 +34,7 @@ $Id: TODO,v 1.5 2005-12-13 19:04:16 blair Exp $
 ## @maybe
 
 * Profile
+  * <http://jakarta.apache.org/commons/lang/api/org/apache/commons/lang/time/StopWatch.html>
   * Gary: "By using GrouperAll instead of qsuob:all for assigning 'global'
     privs fewer effective grants are required, but if I grant access
     privs to qsuob:all_students which has 6 groups of 12 subjects as
@@ -97,6 +95,7 @@ $Id: TODO,v 1.5 2005-12-13 19:04:16 blair Exp $
 * Group Hierarchy depth restrictions
 * Improved, expanded and more consistent logging policy (#226)
 * Search limits
+
 
 
 

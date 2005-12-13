@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.29 2005-12-12 20:45:05 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.30 2005-12-13 19:54:31 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -389,7 +389,10 @@ public class GrouperAccessAdapter implements AccessAdapter {
   private Field _getField(Privilege priv) 
     throws  SchemaException
   {
-    return FieldFinder.find( (String) priv2list.get(priv) );
+    if (priv2list.containsKey(priv)) {
+      return FieldFinder.find( (String) priv2list.get(priv) );
+    }
+    throw new SchemaException("invalid access privilege");
   } // private Field _getField(priv)
 
   // Return appropriate _AccessPrivilege_ objects 
