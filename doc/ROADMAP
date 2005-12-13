@@ -3,125 +3,35 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.135 2005-12-12 22:18:45 blair Exp $
+$Id: ROADMAP,v 1.136 2005-12-13 04:50:36 blair Exp $
 
 ---
 
 # Grouper 0.9
 
-## @next actions
-* field validation: fields (attrs, lists, naming and access)
-* Test create + modify subject when !root
-* review old memberof tests 
-* Event logging
-  * Clean up returned error messages when exceptions thrown
-* Replace contrib items with updated cdg
-* Review old _*.todo_ test classes (and then remove)
-* Test with Pg and Oracle and review generated SQL
-  * ship with generated schema?
-
-## @testing
-* GrouperNamingAdapter.hasPriv() and ALL 
-* Review clover reports
-* Review TestBugsOpen
-* deletion (group + mship + priv) in _TestMemberOf_
-* privs with groups
-* concurrence, persistence and versioning
-* What happens when you delete a group and then attempt to perform
-  further operations on it?
-* can i delete TestGrouperAccess* and TestGrouperNaming* tests?
-
-## @document
-* impl guide
-* What triggers modified updates?
-* record where each *Finder method is called from
-* wheel group
-* ALL toggles
-* query api javadoc
-* _doc/CHANGES_
-  * public api
-  * query api
-  * ALL subject
-  * wheel group
-  * rename subjects
-* privilege cache
-* Attempt to normalize API debug logging
-  * Include method names
-  * Use constants
-
-## @maybe
-* Membership: map via_id to Group (will factors break this?)
-* Cache subjects
-* Group: cache attributes
-* GrouperSession: automatic proxying
-  * GroupFinder.findByName() is candidate
-  * GroupFinder.findByUuid() is candidate
-
-## DRY
-* Member: isMember(), isImmediateMember() and isEffectiveMember()
-* Membership: addImmediateMembership()
-* Membership: delImmediateMembership()
-* Membership: deleteAllField()
-* Privilege: canWriteField()
-
-## Aesthetics
-* FieldFinder: cache findAll()
-* Group: _deleteAttribute() naming attr handling
-* GrouperSubject: _addAttr() attr + value validation
-* Member: toGroup()
-* PrivilegeResolver: canVIEW()
-* Stem: addChildGroup() updates modify* attrs of child
-* Stem: addChildStem() updates modify* attrs of child
-* Stem: constructName()
-* StemFinder: isChild()
-* Test helper methods
+Estimated release: December 2005
 
 ---
 
 # Grouper 1.0
+
+Estimated release: Spring 2006
 
 ## Features
 * Switch to Hibernate 3.x
 * Group math
 * XML import and export
 * _Programming The Grouper API_ guide
-* Additional query filters
-* Custom group types
+* ??? Additional query filters
+* ??? Custom group types
 
 ---
 
 # Grouper 1.1
 
+Estimated release: Summer 2006
+
 ## Features
 * Aging Tasks
-* User-defined transaction scoping
-
----
-
-# Future Release
-
-* Grouper Query Language
-* has() (#334)
-* Removal of members that are no longer in use (#196)
-* Search by the set of groups or namespaces created or modified
-  by a specified subject [S&B#12]
-* Search by the set of groups to which a given subject is an immediate 
-  member can be listed [S&B#9]
-* Search by the set of groups to which a given subject is an effective 
-  member can be listed [S&B#10]
-* Configurable stem delimiter
-* Paged search results
-* Group Hierarchy depth restrictions
-* Improved, expanded and more consistent logging policy (#226)
-* Ability to rename groups (#262) 
-* Search limits
-
-
-
-
-
-
-
-
-
+* ??? User-defined transaction scoping
 

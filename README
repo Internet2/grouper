@@ -8,15 +8,15 @@ directory tree is structured and how to get started with compiling,
 testing and running Grouper.
 
 For more detailed information see:
-  _doc/grouper-impl-guide.html_
+  `doc/grouper-impl-guide.html`
 
-$Id: README,v 1.31 2005-11-17 15:47:13 blair Exp $
+$Id: README,v 1.32 2005-12-13 04:50:36 blair Exp $
 
 ---
 
 ## Project Layout
 
-See _doc/LAYOUT_ for more information.
+See `PROJECT_LAYOUT` for more information.
 
 ---
 
@@ -58,26 +58,26 @@ These are optional tasks that may make runtime invocation easier.
 
   % ant dist 
 
-Builds a _grouper.jar_ file in the _dist/lib_ directory.
+Builds a `grouper.jar` file in the `dist/lib` directory.
 
   % ant dist-lib
 
-Builds a _grouper-lib.jar_ file in the _dist/lib_ directory.  This is a
+Builds a `grouper-lib.jar` file in the `dist/lib` directory.  This is a
 rollup of all the third party .jar files that Grouper relies upon that
-are located in _java/lib_.
+are located in `java/lib`.
 
 --
 
 ## Using
 
 You may now try using any of the sample contributed programs (located
-in _contrib/_) or your own Grouper code.  You will need to add the
+in `contrib/`) or your own Grouper code.  You will need to add the
 following to your _$CLASSPATH_ to use Grouper:
 
-* Full pathname of _grouper.jar_ OR the the full pathanme of the 
-  _build/grouper_ directory
-* Full pathname of _grouper-lib.jar_ OR the full pathname of all of 
-  the .jar files in _java/lib_
+* Full pathname of `grouper.jar` OR the the full pathanme of the 
+  `build/grouper` directory
+* Full pathname of `grouper-lib.jar` OR the full pathname of all of 
+  the .jar files in `java/lib`
 * Full pathname of the Grouper configuration directory
 
 ---
@@ -87,4 +87,23 @@ following to your _$CLASSPATH_ to use Grouper:
 To build the javadoc(1) documentation:
 
   % ant html
+
+---
+
+## Getting Grouper
+
+### Releases
+
+Grouper releases (0.9, etc.) are available from Grouper's Internet2
+Middleware page:
+  <http://middleware.internet2.edu/dir/groups/grouper/>
+
+### Anonymous CVS
+
+Read-only anonymous access to the Grouper CVS repository is now
+available.  To perform a CVS checkout, run the following commands.
+When prompted for a password, hit enter.
+
+  % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
+  % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co grouper
 

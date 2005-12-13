@@ -1,0 +1,101 @@
+
+# Grouper Development TODO List
+
+This file provides more detailed information on what Grouper
+development work needs to be done.
+
+$Id: TODO,v 1.1 2005-12-13 04:50:36 blair Exp $
+
+---
+
+# Grouper 0.9
+
+## Post-Code Freeze
+
+* review old memberof tests 
+* test field validation: fields (attrs, lists, naming and access)
+* test create + modify subject when !root
+* Review old _*.todo_ test classes (and then remove)
+  * Or at least the *Bug* ones
+
+* Test with Pg and Oracle and review generated SQL
+  * ship with generated schema?
+* Replace contrib items with updated cdg
+* Event logging
+
+* Review clover reports
+* Review TestBugsOpen
+
+* update impl guide
+  * note what adjusts modified time
+  * wheel group
+  * ALL + toggles
+
+* javadoc
+  * especially query api javadoc  
+* Attempt to normalize API debug logging
+  * Include method names
+  * Use constants
+
+---
+
+# Future
+
+## Internals
+* Rework _PrivilegeCache_ so that I can expire individual entries
+  instead of the full cache
+
+## DRY
+* Member: isMember(), isImmediateMember() and isEffectiveMember()
+* Membership: addImmediateMembership()
+* Membership: delImmediateMembership()
+* Membership: deleteAllField()
+* Privilege: canWriteField()
+* GrouperSession: automatic proxying
+  * GroupFinder.findByName() is candidate
+  * GroupFinder.findByUuid() is candidate
+
+## Testing
+* deletion (group + mship + priv) in _TestMemberOf_
+* privs with members of groups-with-granted-privs
+* concurrence, persistence and versioning
+* What happens when you delete a group and then attempt to perform
+  further operations on it?
+* can i delete TestGrouperAccess* and TestGrouperNaming* tests?
+
+## Aesthetics
+* FieldFinder: cache findAll()
+* Group: _deleteAttribute() naming attr handling
+* GrouperSubject: _addAttr() attr + value validation
+* Member: toGroup()
+* PrivilegeResolver: canVIEW()
+* Stem: addChildGroup() updates modify* attrs of child
+* Stem: addChildStem() updates modify* attrs of child
+* Stem: constructName()
+* StemFinder: isChild()
+* Test helper methods
+
+## Maybe
+* Membership: map via_id to Group.  Factors may break this.
+* Cache subjects
+* Removal of members that are no longer in use (#196)
+* Search by the set of groups or namespaces created or modified
+  by a specified subject [S&B#12]
+* Search by the set of groups to which a given subject is an immediate 
+  member can be listed [S&B#9]
+* Search by the set of groups to which a given subject is an effective 
+  member can be listed [S&B#10]
+* Paged search results
+* Group Hierarchy depth restrictions
+* Improved, expanded and more consistent logging policy (#226)
+* Search limits
+
+
+
+
+
+
+
+
+
+
