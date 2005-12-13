@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.45 2005-12-12 20:45:05 blair Exp $
+ * @version $Id: Group.java,v 1.46 2005-12-13 19:54:31 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -1564,6 +1564,9 @@ public class Group implements Serializable {
     }
     try {
       Field f = FieldFinder.find(attr);
+      if (!f.getType().equals(FieldType.ATTRIBUTE)) {
+        throw new AttributeNotFoundException("not a group attribute");
+      }
       PrivilegeResolver.getInstance().canPrivDispatch(
         this.s, this, this.s.getSubject(), f.getWritePriv()
       );

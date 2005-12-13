@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege resolution class.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.32 2005-12-12 21:25:28 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.33 2005-12-13 19:54:31 blair Exp $
  *     
 */
 public class PrivilegeResolver {
@@ -462,7 +462,7 @@ public class PrivilegeResolver {
       GrouperLog.debug(LOG, s, msg + " right type");
     }
     else {
-      String err = msg + " wrong type";
+      String err = f.getName() + " is not type " + type;
       GrouperLog.debug(LOG, s, err);
       throw new SchemaException(err);
     }
@@ -494,7 +494,7 @@ public class PrivilegeResolver {
       GrouperLog.debug(LOG, s, msg + " right type");
     }
     else {
-      String err = msg + " wrong type";
+      String err = f.getName() + " is not type " + type;
       GrouperLog.debug(LOG, s, err);
       throw new SchemaException(err);
     }
