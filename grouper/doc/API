@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.124 2005-12-09 17:15:43 blair Exp $
+$Id: API,v 1.125 2005-12-13 18:00:57 blair Exp $
 
 ---
 
@@ -239,7 +239,7 @@ $Id: API,v 1.124 2005-12-09 17:15:43 blair Exp $
 * Group               getViaGroup()
 
 ## MembershipFinder
-* Membership          MembershipFinder.findEffectiveMembership(session, group, subject, field, group, depth)
+* Set                 MembershipFinder.findEffectiveMemberships(session, group, subject, field, group, depth)
 * Membership          MembershipFinder.findImmediateMembership(session, group, subject, field)
 
 ## NamingPrivilege 

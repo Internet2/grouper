@@ -39,6 +39,7 @@ create table grouper_members (
 );
 create table grouper_memberships (
    id varchar(255) not null,
+   membership_uuid varchar(255),
    owner_id varchar(255) not null,
    member_id varchar(255) not null,
    list_name varchar(255) not null,
@@ -51,7 +52,7 @@ create table grouper_memberships (
    status_type varchar(255),
    status_ttl bigint,
    primary key (id),
-   unique (owner_id, member_id, list_name, list_type, via_id, depth)
+   unique (membership_uuid, owner_id, member_id, list_name, list_type, via_id, depth)
 );
 create table grouper_sessions (
    id varchar(255) not null,

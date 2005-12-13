@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.11 2005-12-12 06:24:25 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.12 2005-12-13 18:00:57 blair Exp $
  */
 public class MembershipHelper {
 
@@ -40,31 +40,38 @@ public class MembershipHelper {
 
   // Protected Class Methods
 
-  protected static Membership getEff(
+  protected static Set getEff(
     GrouperSession s, Group g, Subject subj, String list, int depth, Group via
   )
   {
     String msg = "getEff: ";
     LOG.debug(msg);
     try {
-      Field       f   = FieldFinder.find(list);
-      Member      m   = MemberFinder.findBySubject(s, subj);
-      Membership  ms  = MembershipFinder.findEffectiveMembership(
+      Field   f     = FieldFinder.find(list);
+      Member  m     = MemberFinder.findBySubject(s, subj);
+      Set     effs  = MembershipFinder.findEffectiveMemberships(
         s, g, subj, f, via, depth
       );
-      Assert.assertNotNull(msg + "found ms", ms);
-      Assert.assertTrue(msg + "ms group   " , ms.getGroup().equals(g) );
-      Assert.assertTrue(msg + "ms member"   , ms.getMember().equals(m));
-      Assert.assertTrue(msg + "ms list"     , ms.getList().equals(f)  );
-      Assert.assertTrue(msg + "ms depth"    , ms.getDepth() == depth  );
-      try {
-        Group v = ms.getViaGroup();
-        Assert.assertTrue(msg + "ms via group", v.equals(via));
+      if (effs.size() == 0) {
+        Assert.fail("eff ms not found");
       }
-      catch (GroupNotFoundException eGNF) {
-        Assert.fail(msg + "eff ms has no via group");
+      Iterator iter = effs.iterator();
+      while (iter.hasNext()) {
+        Membership ms = (Membership) iter.next();
+        Assert.assertNotNull(msg + "found ms", ms);
+        Assert.assertTrue(msg + "ms group   " , ms.getGroup().equals(g) );
+        Assert.assertTrue(msg + "ms member"   , ms.getMember().equals(m));
+        Assert.assertTrue(msg + "ms list"     , ms.getList().equals(f)  );
+        Assert.assertTrue(msg + "ms depth"    , ms.getDepth() == depth  );
+        try {
+          Group v = ms.getViaGroup();
+          Assert.assertTrue(msg + "ms via group", v.equals(via));
+        }
+        catch (GroupNotFoundException eGNF) {
+          Assert.fail(msg + "eff ms has no via group");
+        }
       }
-      return ms;
+      return effs;
     }
     catch (Exception e) {
       Assert.fail("eff mship not found: " + e.getMessage());
@@ -204,7 +211,7 @@ public class MembershipHelper {
       Assert.assertTrue(msg + "g hasEffMember", g.hasEffectiveMember(subj, f));
       Assert.assertTrue(msg + "m isMember"    , m.isMember(g, f));
       Assert.assertTrue(msg + "m isEffMember" , m.isEffectiveMember(g, f));
-      Membership ms = getEff(s, g, subj, list, depth, via);
+      Set effs = getEff(s, g, subj, list, depth, via);
     }
     catch (Exception e) {
       Assert.fail(msg + e.getMessage());
@@ -278,10 +285,15 @@ public class MembershipHelper {
   ) 
   {
     try {
-      Membership  ms  = MembershipFinder.findEffectiveMembership(
+      Set effs = MembershipFinder.findEffectiveMemberships(
         s, g, subj, f, v, d
       );
-      Assert.assertTrue("eff mship found", true);
+      if (effs.size() > 0) {
+        Assert.assertTrue("eff mship found", true);
+      }
+      else {
+        Assert.fail("eff mship not found");
+      }
     }
     catch (MembershipNotFoundException eMNF) {
       Assert.fail(

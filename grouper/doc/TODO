@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.1 2005-12-13 04:50:36 blair Exp $
+$Id: TODO,v 1.2 2005-12-13 18:00:57 blair Exp $
 
 ---
 
@@ -17,6 +17,7 @@ $Id: TODO,v 1.1 2005-12-13 04:50:36 blair Exp $
 * test create + modify subject when !root
 * Review old _*.todo_ test classes (and then remove)
   * Or at least the *Bug* ones
+* make _GrouperConfig_ public
 
 * Test with Pg and Oracle and review generated SQL
   * ship with generated schema?
@@ -36,6 +37,15 @@ $Id: TODO,v 1.1 2005-12-13 04:50:36 blair Exp $
 * Attempt to normalize API debug logging
   * Include method names
   * Use constants
+
+## @maybe
+
+* Profile
+  * Gary: "By using GrouperAll instead of qsuob:all for assigning 'global'
+    privs fewer effective grants are required, but if I grant access
+    privs to qsuob:all_students which has 6 groups of 12 subjects as
+    immediate members, assignment is still quite slow."
+* Filter by specific stem-attributes
 
 ---
 

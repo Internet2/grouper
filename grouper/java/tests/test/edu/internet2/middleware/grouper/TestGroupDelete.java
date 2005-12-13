@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Group.delete()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDelete.java,v 1.8 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestGroupDelete.java,v 1.9 2005-12-13 18:00:57 blair Exp $
  */
 public class TestGroupDelete extends TestCase {
 
@@ -70,54 +70,81 @@ public class TestGroupDelete extends TestCase {
 
   public void testGroupDeleteWhenMemberAndHasMembers() {
     LOG.info("testGroupDeleteWhenMemberAndHasMembers");
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.0");
     GrouperSession  s     = SessionHelper.getRootSession();
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.1");
     Stem            root  = StemHelper.findRootStem(s);
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.2");
     Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.3");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.4");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.5");
     Member          m     = Helper.getMemberBySubject(s, SubjectHelper.SUBJ0);
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.6");
     GroupHelper.addMember(uofc, SubjectHelper.SUBJ0, m);
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.7");
     MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.8");
     MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.9");
     MembershipHelper.testImmMship(s, uofc, SubjectHelper.SUBJ0, Group.getDefaultList());
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.10");
     GroupHelper.addMember(i2, uofc);
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.11");
     MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.12");
     MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.13");
     MembershipHelper.testImmMship(s, uofc, SubjectHelper.SUBJ0, Group.getDefaultList());
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.14");
     MembershipHelper.testImmMship(s, i2,   uofc,                Group.getDefaultList());
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.15");
     MembershipHelper.testEffMship(
       s, i2, SubjectHelper.SUBJ0, Group.getDefaultList(), uofc, 1
     );
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.16");
     try {
       uofc.delete();
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.17");
       Assert.assertTrue("group deleted", true);
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.18");
       MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.19");
     }
     catch (Exception e) {
-    LOG.debug("testGroupDeleteWhenMemberAndHasMembers.20");
       Assert.fail(e.getMessage());
     }
   } // public void testGroupDeleteWhenMemberAndHasMembers()
+
+  public void testGroupDeleteWhenHasMemberViaTwoPaths() {
+    LOG.info("testGroupDeleteWhenHasMemberViaTwoPaths");
+
+    Stem  root  = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    Subject         subj0 = SubjectHelper.SUBJ0;
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uofc");
+    Group           ub    = StemHelper.addChildGroup(edu, "ub", "ub");
+    Group           uw    = StemHelper.addChildGroup(edu, "uw", "uw");
+
+    // 0 -> I2^M
+    GroupHelper.addMember(i2, subj0, "members");
+
+    // I2 -> UOFC^M
+    GroupHelper.addMember(uofc, i2.toSubject(), "members");
+
+    // I2 -> UB^M
+    GroupHelper.addMember(ub, i2.toSubject(), "members");
+
+    // UOFC -> UW^M
+    GroupHelper.addMember(uw, uofc.toSubject(), "members");
+
+    // UB -> UW^M
+    GroupHelper.addMember(uw, ub.toSubject(), "members");
+
+    try {
+      i2.delete();
+      Assert.assertTrue("group deleted", true);
+
+      MembershipHelper.testNumMship(i2,   "members",  0, 0, 0);
+
+      MembershipHelper.testNumMship(uofc, "members",  0, 0, 0);
+
+      MembershipHelper.testNumMship(ub, "members",  0, 0, 0);
+
+      MembershipHelper.testNumMship(uw, "members",  2, 2, 0);
+      MembershipHelper.testImm(s, uw, uofc.toSubject(), "members");
+      MembershipHelper.testImm(s, uw, ub.toSubject(), "members");
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testGroupDeleteWhenHasMemberViaTwoPaths()
 
 }
 

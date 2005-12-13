@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.19 2005-12-12 20:45:05 blair Exp $
+ * @version $Id: Membership.java,v 1.20 2005-12-13 18:00:57 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -52,6 +52,7 @@ public class Membership implements Serializable {
   private String      owner_id;
   private Membership  parent_membership;
   private Status      status;
+  private String      uuid;
   private String      via_id;
 
   
@@ -83,18 +84,9 @@ public class Membership implements Serializable {
     this.setMember_id(m);
     // Set field  
     this.setField(f);
+    // Set UUID
+    this.setUuid( GrouperUuid.getUuid() );
   } // protected Membership(s, oid, m, f)
-
-  // Creating a new (effective) membership
-  protected Membership(
-    GrouperSession s, String gid, Member m,
-    Field f         , String vid, int depth
-  )
-  {
-    this(s, gid, m, f);
-    this.setVia_id(vid);
-    this.setDepth(depth); 
-  } // protected Membership(s, gid, m, f, vid, depth)
 
 
   // Public Instance Methods
@@ -108,6 +100,7 @@ public class Membership implements Serializable {
     }
     Membership otherMembership = (Membership) other;
     return new EqualsBuilder()
+      .append(this.getUuid()      , otherMembership.getUuid()     )
       .append(this.getOwner_id()  , otherMembership.getOwner_id() )
       .append(this.getMember_id() , otherMembership.getMember_id())
       .append(this.getField()     , otherMembership.getField()    )
@@ -650,6 +643,8 @@ public class Membership implements Serializable {
   { 
     Membership eff = new Membership();
     eff.s = s;
+    // Set UUID
+    eff.setUuid( GrouperUuid.getUuid() );
     try {
       eff.setOwner_id(  ms.getGroup().getUuid()       );  // original g
     }
@@ -761,14 +756,18 @@ public class Membership implements Serializable {
       Session   hs    = HibernateHelper.getSession();
       Iterator  iter  = MemberOf.doMemberOf(s, imm).iterator();
       while (iter.hasNext()) {
-        Membership  ms  = (Membership) iter.next();
-        Membership  eff = MembershipFinder.findEffectiveMembership(
+        Membership  ms    = (Membership) iter.next();
+        Set         effs  = MembershipFinder.findEffectiveMemberships(
           ms.getOwner_id(), ms.getMember().getId(), 
           ms.getList(), ms.getVia_id(), ms.getDepth()
         );
-        eff.setSession(s);
-        GrouperLog.debug(LOG, s, msg + " effective member: " + eff);
-        mships.add(eff);
+        Iterator effsIter = effs.iterator();
+        while (effsIter.hasNext()) {
+          Membership eff = (Membership) effsIter.next();
+          eff.setSession(s);
+          GrouperLog.debug(LOG, s, msg + " effective member: " + eff);
+          mships.add(eff);
+        }
       }
       hs.close();
     }
@@ -865,6 +864,13 @@ public class Membership implements Serializable {
   }
   private void setCreate_time(long time) {
     this.create_time = time;
+  }
+
+  private String getUuid() {
+    return this.uuid;
+  }
+  private void setUuid(String uuid) {
+    this.uuid = uuid;
   }
 
 }

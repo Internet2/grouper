@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Membership}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMembership.java,v 1.2 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestMembership.java,v 1.3 2005-12-13 18:00:57 blair Exp $
  */
 public class TestMembership extends TestCase {
 
@@ -104,10 +104,14 @@ public class TestMembership extends TestCase {
     Membership i2_subj0 = MembershipHelper.getImm(s, i2, subj0, "members");
     MembershipHelper.testNoParent(i2_subj0);
     MembershipHelper.testNoChildren(i2_subj0);
-    Membership uofc_i2_subj0 = MembershipHelper.getEff(s, uofc, subj0, "members", 1, i2);
-    MembershipHelper.testParent(uofc_i2, uofc_i2_subj0);
-    Set children = new LinkedHashSet();
-    children.add(uofc_i2_subj0);
+    Set uofc_i2_subj0 = MembershipHelper.getEff(s, uofc, subj0, "members", 1, i2);
+    Set children      = new LinkedHashSet();
+    Iterator iter = uofc_i2_subj0.iterator();
+    while (iter.hasNext()) {
+      Membership eff = (Membership) iter.next();
+      MembershipHelper.testParent(uofc_i2, eff);
+      children.add(eff);
+    }
     MembershipHelper.testChildren(uofc_i2, children);
   } // public void testParentAndChildMemberships()
 

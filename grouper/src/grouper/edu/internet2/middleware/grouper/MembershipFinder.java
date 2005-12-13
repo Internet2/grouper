@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.20 2005-12-12 05:52:02 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.21 2005-12-13 18:00:57 blair Exp $
  */
 public class MembershipFinder {
 
@@ -68,11 +68,11 @@ public class MembershipFinder {
    * @param   f     Effective membership has this list.
    * @param   via   Effective membership has this via group.
    * @param   depth Effective membership has this depth.
-   * @return  A {@link Membership} object
-   * @throws  MembershipNotFoundException 
+   * @return  A set of {@link Membership} objects.
+   * @throws  MembershipNotFoundException
    * @throws  SchemaException
    */
-  public static Membership findEffectiveMembership(
+  public static Set findEffectiveMemberships(
     GrouperSession s, Group g, Subject subj, Field f, Group via, int depth
   )
     throws  MembershipNotFoundException,
@@ -80,30 +80,38 @@ public class MembershipFinder {
   {
     /* 
      * @caller    PUBLIC
-     * @caller    protected Membership.addImmediateMembership(s, g, subj, f)
-     * @caller    protected Membership.addImmediateMembership(s, ns, subj, f)
      * @filtered  true
      * @session   true
      */
     GrouperSession.validate(s);
     GrouperLog.debug(LOG, s, MSG_FEMSHIP_PUB);
+    Set mships = new LinkedHashSet();
     try {
-      Member      m   = MemberFinder.findBySubject(s, subj);
-      Membership  ms  = findEffectiveMembership(
+      Member      m     = MemberFinder.findBySubject(s, subj);
+      Set         effs  = findEffectiveMemberships(
         g.getUuid(), m.getId(), f, via.getUuid(), depth
       );
-      ms.setSession(s);
-      PrivilegeResolver.getInstance().canPrivDispatch(
-        s, ms.getGroup(), s.getSubject(), f.getReadPriv()
-      );
-      return ms;
+      if (effs.size() > 0) {
+        try {
+          PrivilegeResolver.getInstance().canPrivDispatch(
+            s, g, s.getSubject(), f.getReadPriv()
+          );
+          Iterator effsIter = effs.iterator();
+          while (effsIter.hasNext()) {
+            Membership eff = (Membership) effsIter.next();
+            eff.setSession(s);
+            mships.add(eff);
+          }
+        }
+        catch (InsufficientPrivilegeException eIP) {
+          // ignore
+        }
+      }
     }
-    catch (Exception e) {
-      // @exception GroupNotFoundException
-      // @exception InsufficientPrivilegeException
-      // @exception MemberNotFoundException
-      throw new MembershipNotFoundException(e.getMessage());
+    catch (MemberNotFoundException eMNF) {
+      throw new MembershipNotFoundException(eMNF.getMessage());
     }
+    return mships;
   } // public static Membership findEffectiveMembership(s, g, subj, f, via, depth)
 
   /**
@@ -231,20 +239,19 @@ public class MembershipFinder {
     return members;
   } // protected static Set findEffectiveMembers(s, g, f)
 
-  protected static Membership findEffectiveMembership(
+  protected static Set findEffectiveMemberships(
     String oid, String mid, Field f, String vid, int depth
   )
     throws MembershipNotFoundException
   {
     /*
-     * @caller    private Membership._membershipsToDelete(s, g, subj, f)
-     * @caller    private Membership._membershipsToDelete(s, ns, subj, f)
-     * @caller    public  MembershipFinder.findEffectiveMembership(s, g, subj, f, via, depth) 
+     * @caller    private Membership._membershipsToDelete(s, imm)
+     * @caller    public  MembershipFinder.findEffectiveMemberships(s, g, subj, f, via, depth) 
      * @filtered  false
      * @session   false
      */
     LOG.debug(MSG_FEMSHIP_PRO);
-    List mships = new ArrayList();
+    Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
       mships.addAll(
@@ -271,12 +278,8 @@ public class MembershipFinder {
     catch (HibernateException eH) {
       throw new MembershipNotFoundException(eH.getMessage());
     }
-    if (mships.size() == 1) {
-      Membership ms = (Membership) mships.get(0);
-      return ms;
-    }
-    throw new MembershipNotFoundException();
-  } // protected static Membership findEffectiveMembership(oid, mid, field, vid, depth)
+    return mships;
+  } // protected static Set findEffectiveMembership(oid, mid, field, vid, depth)
 
   protected static Set findEffectiveMemberships(
     GrouperSession s, Group g, Field f
