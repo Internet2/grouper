@@ -43,6 +43,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGroupDeleteMember.class);
     suite.addTestSuite(TestGroupDeleteMemberGroup.class);
     suite.addTestSuite(TestGroupToMember.class);
+    suite.addTestSuite(TestGrouperConfig.class);
     suite.addTestSuite(TestGQComplementFilter.class);
     suite.addTestSuite(TestGQGroupAnyAttribute.class);
     suite.addTestSuite(TestGQGroupAttribute.class);

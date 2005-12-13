@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper;
 
 import  java.io.*;
 import  java.util.*;
+import  org.apache.commons.lang.*;
 import  org.apache.commons.logging.*;
 
 
@@ -27,10 +28,10 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.8 2005-12-12 21:26:21 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.9 2005-12-13 19:04:02 blair Exp $
  *     
 */
-class GrouperConfig {
+public class GrouperConfig {
 
   // Protected Class Constants
   protected static final String ALL     = "GrouperAll";
@@ -71,23 +72,34 @@ class GrouperConfig {
   } // private GrouperConfig()
 
 
-  // Protected Class Methods
-  protected static GrouperConfig getInstance() {
+  // Public Class Methods
+
+  /**
+   * Get Grouper configuration instance.
+   * @returns {@link GrouperConfig} singleton.
+   */
+  public static GrouperConfig getInstance() {
     if (cfg == null) {
       cfg = _getConfiguration();
     }
     return cfg;
-  } // protected static GrouperConfig getInstance()
+  } // public static GrouperConfig getInstance()
 
 
-  // Protected Instance Methods
-  protected String getProperty(String property) {
+  // Public Instance Methods
+
+  /**
+   * Get a Grouper configuration parameter.
+   * @returns Value of configuration parameter or an empty string if
+   *   parameter is invalid.
+   */
+  public String getProperty(String property) {
     String value = new String();
-    if (this.properties.containsKey(property)) {
-      value = this.properties.getProperty(property);
+    if ( (property != null) && (this.properties.containsKey(property)) ) {
+      value = StringUtils.strip( this.properties.getProperty(property) );
     }
     return value;
-  } // protected String getProperty(property)
+  } // public String getProperty(property)
 
 
   // Private Class Methods
