@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.12 2005-12-13 18:00:57 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.13 2005-12-13 18:36:20 blair Exp $
  */
 public class MembershipHelper {
 
@@ -235,9 +235,19 @@ public class MembershipHelper {
       int gotI = g.getImmediateMemberships(f).size();
       int gotE = g.getEffectiveMemberships(f).size();
       String msg = " mships '" + f.getName() + "' == ";
-      Assert.assertTrue(
-        g.getName() + msg + gotM + " (exp " + m + ")", gotM == m
-      );
+      if (gotM == m) {
+        Assert.assertTrue(
+          g.getName() + msg + gotM + " (exp " + m + ")", gotM == m
+        );
+      }
+      else {
+        Iterator iter = g.getMemberships(f).iterator();
+        while (iter.hasNext()) {
+          Membership ms = (Membership) iter.next();
+          System.err.println("GOT: " + ms);
+        }
+        Assert.fail("GOT: " + gotM + " EXP: " + m);
+      }
       Assert.assertTrue(
         g.getName() + " imm" + msg + gotI + " (exp " + i + ")", gotI == i
       );
