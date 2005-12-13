@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test memberOf calculations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberOf.java,v 1.5 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestMemberOf.java,v 1.6 2005-12-13 18:00:57 blair Exp $
  */
 public class TestMemberOf extends TestCase {
 
@@ -46,6 +46,9 @@ public class TestMemberOf extends TestCase {
   private static Subject        subj0;
   private static Subject        subj1;
   private static Group          uofc;
+  private static Group          ub;
+  private static Group          uw;
+  
 
 
   public TestMemberOf(String name) {
@@ -60,6 +63,8 @@ public class TestMemberOf extends TestCase {
     edu   = StemHelper.addChildStem(root, "edu", "education");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    ub    = StemHelper.addChildGroup(edu, "ub", "ub");
+    uw    = StemHelper.addChildGroup(edu, "uw", "uw");
     subj0 = SubjectHelper.SUBJ0;
     subj1 = SubjectHelper.SUBJ1;
   }
@@ -232,6 +237,83 @@ public class TestMemberOf extends TestCase {
     MembershipHelper.testNumMship(i2  , "members" , 1, 1, 0);
     MembershipHelper.testNumMship(i2  , "readers" , 3, 2, 1);
   } // public void testHasMemberDefaultListIsMemberCustomListSelf()
+
+  public void testHasMemberViaTwoPaths() {
+    LOG.info("testHasMemberViaTwoPaths");
+
+    MembershipHelper.testNumMship(i2,   "members",  0, 0, 0);
+    MembershipHelper.testNumMship(uofc, "members",  0, 0, 0);
+    MembershipHelper.testNumMship(ub,   "members",  0, 0, 0);
+    MembershipHelper.testNumMship(uw,   "members",  0, 0, 0);
+
+    // 0 -> I2^M
+    GroupHelper.addMember(i2, subj0, "members");
+    MembershipHelper.testNumMship(i2,   "members",  1, 1, 0);
+    MembershipHelper.testImm(s, i2 , subj0, "members");
+    MembershipHelper.testNumMship(uofc, "members",  0, 0, 0);
+    MembershipHelper.testNumMship(ub,   "members",  0, 0, 0);
+    MembershipHelper.testNumMship(uw,   "members",  0, 0, 0);
+
+    // I2 -> UOFC^M
+    GroupHelper.addMember(uofc, i2.toSubject(), "members");
+    MembershipHelper.testNumMship(i2,   "members",  1, 1, 0);
+    MembershipHelper.testImm(s, i2 , subj0, "members");
+    MembershipHelper.testNumMship(uofc, "members",  2, 1, 1);
+    MembershipHelper.testImm(s, uofc , i2.toSubject(), "members");
+    MembershipHelper.testEff(s, uofc,  subj0, "members", i2, 1);
+    MembershipHelper.testNumMship(ub,   "members",  0, 0, 0);
+    MembershipHelper.testNumMship(uw,   "members",  0, 0, 0);
+
+    // I2 -> UB^M
+    GroupHelper.addMember(ub, i2.toSubject(), "members");
+    MembershipHelper.testNumMship(i2,   "members",  1, 1, 0);
+    MembershipHelper.testImm(s, i2 , subj0, "members");
+    MembershipHelper.testNumMship(uofc, "members",  2, 1, 1);
+    MembershipHelper.testImm(s, uofc , i2.toSubject(), "members");
+    MembershipHelper.testEff(s, uofc,  subj0, "members", i2, 1);
+    MembershipHelper.testNumMship(ub, "members",  2, 1, 1);
+    MembershipHelper.testImm(s, ub , i2.toSubject(), "members");
+    MembershipHelper.testEff(s, ub,  subj0, "members", i2, 1);
+    MembershipHelper.testNumMship(uw,   "members",  0, 0, 0);
+
+    // UOFC -> UW^M
+    GroupHelper.addMember(uw, uofc.toSubject(), "members");
+    MembershipHelper.testNumMship(i2,   "members",  1, 1, 0);
+    MembershipHelper.testImm(s, i2 , subj0, "members");
+    MembershipHelper.testNumMship(uofc, "members",  2, 1, 1);
+    MembershipHelper.testImm(s, uofc , i2.toSubject(), "members");
+    MembershipHelper.testEff(s, uofc,  subj0, "members", i2, 1);
+    MembershipHelper.testNumMship(ub, "members",  2, 1, 1);
+    MembershipHelper.testImm(s, ub , i2.toSubject(), "members");
+    MembershipHelper.testEff(s, ub,  subj0, "members", i2, 1);
+    MembershipHelper.testNumMship(uw,   "members",  3, 1, 2);
+    MembershipHelper.testImm(s, uw, uofc.toSubject(), "members");
+    MembershipHelper.testEff(s, uw, i2.toSubject(), "members", uofc, 1);
+    MembershipHelper.testEff(s, uw, subj0, "members", i2, 2);
+
+    // UB -> UW^M
+    GroupHelper.addMember(uw, ub.toSubject(), "members");
+
+    MembershipHelper.testNumMship(i2,   "members",  1, 1, 0);
+    MembershipHelper.testImm(s, i2 , subj0, "members");
+
+    MembershipHelper.testNumMship(uofc, "members",  2, 1, 1);
+    MembershipHelper.testImm(s, uofc , i2.toSubject(), "members");
+    MembershipHelper.testEff(s, uofc,  subj0, "members", i2, 1);
+
+    MembershipHelper.testNumMship(ub, "members",  2, 1, 1);
+    MembershipHelper.testImm(s, ub , i2.toSubject(), "members");
+    MembershipHelper.testEff(s, ub,  subj0, "members", i2, 1);
+
+    MembershipHelper.testNumMship(uw, "members",  6, 2, 4);
+    MembershipHelper.testImm(s, uw, uofc.toSubject(), "members");
+    MembershipHelper.testImm(s, uw, ub.toSubject(), "members");
+    MembershipHelper.testEff(s, uw, i2.toSubject(), "members", uofc, 1);
+    MembershipHelper.testEff(s, uw, subj0, "members", i2, 2);
+    MembershipHelper.testEff(s, uw, i2.toSubject(), "members", ub, 1);
+    MembershipHelper.testEff(s, uw, subj0, "members", i2, 2);
+
+  } // public void testHasMemberViaTwoPaths()
 
 }
 
