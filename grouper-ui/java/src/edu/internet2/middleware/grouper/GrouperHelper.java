@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.3 2005-12-08 15:29:33 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.4 2005-12-14 14:48:39 isgwb Exp $
  */
 
 public class GrouperHelper {
@@ -103,16 +103,19 @@ public class GrouperHelper {
 
 	public static void main(String args[]) throws Exception{
 		Subject subj = SubjectFinder.findById("GrouperSystem");
-		GrouperSession s = GrouperSession.startSession(subj);
+		GrouperSession s = GrouperSession.start(subj);
 
-		Member member = MemberFinder.findBySubject(s,subj);
-		Date bef = new Date();
-		member.hasAdmin();
-		member.hasAdmin();
-		member.hasAdmin();
-		member.hasAdmin();
-		Date aft = new Date();
-		System.out.println("TIME:" + (aft.getTime()-bef.getTime()));
+		Group g = GroupFinder.findByName(s,"qsuob:faculties:engf:students");
+		Stem stem = g.getParentStem();
+		Group newgroup = stem.addChildGroup("test","test");
+		Subject elco = SubjectFinder.findById("elco");
+		newgroup.addMember(elco);
+		g.addMember(newgroup.toSubject());
+
+		
+		
+		
+		
 		
 		
 		s.stop();
@@ -388,11 +391,15 @@ public class GrouperHelper {
 				privs = superPrivs;
 			return privs;
 		}
-		if(groupOrStem==null && "GrouperSystem".equals(s.getSubject().getId())) {
+		if("GrouperSystem".equals(s.getSubject().getId())) {
 			privs = new HashMap();
 			privs.put("STEM",Boolean.TRUE);
+			if(groupOrStem!=null && groupOrStem.isStem()&& !"".equals(groupOrStem.getStem().getName())) {
+				privs.put("CREATE",Boolean.TRUE);
+			}
 			return privs;
 		}
+		
 		if(groupOrStem==null) return new HashMap();
 		
 			g = groupOrStem.getGroup();
@@ -671,11 +678,11 @@ public class GrouperHelper {
 				list = (Membership) listItem;
 				try{
 					via = (Group) list.getViaGroup();
-				}catch(GroupNotFoundException e){}
-				//XXXchain = list.getChildMemberships();
+				}catch(GroupNotFoundException e){via=null;}
+				chain = list.getChildMemberships();
 
 				if (chain != null && chain.size() > 0) {
-					chainGroupIds = getChainGroupIds(s,list);
+					//chainGroupIds = getChainGroupIds(s,list);
 					
 				} else {
 					firstInChain = null;
@@ -741,9 +748,10 @@ public class GrouperHelper {
 			}
 			if (chain != null) {
 				subjMap.put("chain", chain);
-				subjMap.put("chainSize", new Integer(chain.size()));
-				subjMap.put("chainGroupIds", chainGroupIds);
+				//subjMap.put("chainSize", new Integer(chain.size()));
+				//subjMap.put("chainGroupIds", chainGroupIds);
 			}
+			if(via!=null)subjMap.put("via", via);
 
 			maps.add(subjMap);
 		}
@@ -976,9 +984,11 @@ public class GrouperHelper {
 	 * @param name of attribute to search
 	 * @return List of groups matched
 	 */
-	public static List searchGroupsByAttribute(GrouperSession s, String query, String from,String attr) {
+	public static List searchGroupsByAttribute(GrouperSession s, String query, String from,String attr) throws QueryException,StemNotFoundException{
 
-		return new ArrayList();
+		GrouperQuery q = GrouperQuery.createQuery(s,new GroupAttributeFilter(attr,query,StemFinder.findByName(s,from)));
+		Set res = q.getGroups();
+		return new ArrayList(res);
 			/*String type = null;
 
 			GrouperQuery grouperQuery = new GrouperQuery(s);
@@ -1008,7 +1018,8 @@ public class GrouperHelper {
 	 * @param searchInNameOrExtension name=name / extemsion=extension
 	 * @return List of groups matched
 	 */
-	public static List searchGroups(GrouperSession s, String query, String from,String searchInDisplayNameOrExtension,String searchInNameOrExtension) {
+	public static List searchGroups(GrouperSession s, String query, String from,String searchInDisplayNameOrExtension,String searchInNameOrExtension) 
+	throws StemNotFoundException,QueryException{
 		List displayResults = null;
 		List nonDisplayResults=null; 
 		String attr = null;
@@ -1109,7 +1120,7 @@ public class GrouperHelper {
 	 * @return List of stems matched
 	 */
 	public static List searchStemsByAttribute(GrouperSession s, String query, String from,String attr) {
-
+			
 			return new ArrayList();
 			/*String type = null;
 
@@ -1140,9 +1151,11 @@ public class GrouperHelper {
 	 * @param searchInNameOrExtension name=name / extemsion=extension
 	 * @return List of stems matched
 	 */
-	public static List searchStems(GrouperSession s, String query, String from,String searchInDisplayNameOrExtension,String searchInNameOrExtension) {
-		List displayResults = null;
-		List nonDisplayResults=null; 
+	public static List searchStems(GrouperSession s, String query, String from,String searchInDisplayNameOrExtension,String searchInNameOrExtension) throws StemNotFoundException,QueryException{
+		GrouperQuery q = GrouperQuery.createQuery(s,new StemNameFilter(query,StemFinder.findByName(s,from)));
+		Set res = q.getStems();
+		List displayResults = new ArrayList(res);
+		/*List nonDisplayResults=null; 
 		String attr = null;
 		if(!"".equals(searchInDisplayNameOrExtension)) {
 			if("name".equals(searchInDisplayNameOrExtension)) {
@@ -1168,8 +1181,9 @@ public class GrouperHelper {
 			obj = nonDisplayResults.get(i);
 			if(!displayResults.contains(obj)) displayResults.add(obj);
 		}
-			
+		*/
 		return displayResults;
+		
 		
 	}
 
@@ -1403,7 +1417,7 @@ public class GrouperHelper {
 		boolean deleted = true;
 		GrouperSession sysSession = null;
 		try {
-			sysSession = GrouperSession.startSession(SubjectFinder.findById("GrouperSystem"));
+			sysSession = GrouperSession.start(SubjectFinder.findById("GrouperSystem"));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -1429,7 +1443,7 @@ public class GrouperHelper {
 	 */
 	public static boolean groupDelete(GrouperSession s, GroupOrStem groupOrStem) 
 		throws InsufficientPrivilegeException,MemberNotFoundException,
-		SubjectNotFoundException,MemberDeleteException{
+		SubjectNotFoundException,MemberDeleteException,SessionException{
 		Group group = groupOrStem.getGroup();
 		Stem stem = groupOrStem.getStem();
 		boolean deleted = true;
@@ -1448,7 +1462,7 @@ public class GrouperHelper {
 			return deleted;
 		} else {
 			
-			if (group.hasAdmin(s.getSubject())) {
+			if (!group.hasAdmin(s.getSubject())) {
 				return false;
 			}
 		}
@@ -1478,7 +1492,7 @@ public class GrouperHelper {
 		 */
 		GrouperSession sysSession = null;
 		try {
-			sysSession = GrouperSession.startSession(SubjectFinder.findById("GrouperSystem"));
+			sysSession = GrouperSession.start(SubjectFinder.findById("GrouperSystem"));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -1526,18 +1540,25 @@ public class GrouperHelper {
 			PersonalStem ps) throws Exception {
 		if (s == null)
 			return null;
+		GrouperSession sysSession = null;
+		try {
+			sysSession = GrouperSession.start(SubjectFinder.findById("GrouperSystem"));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
 		String stemName = ps.getPersonalStemId(s.getSubject());
 		String parentName=ps.getPersonalStemRoot(s.getSubject());
 		Stem parent = null;
 		String childName = null;
 		if(NS_ROOT.equals(parentName)||"".equals(parentName)) {
-			parent = StemFinder.findRootStem(s);
+			parent = StemFinder.findRootStem(sysSession);
 			childName=stemName;
 		}else{
 			try{
-				parent = StemFinder.findByName(s,parentName);
-				childName=parent.getName() + HIER_DELIM + stemName;
+				childName=parentName + HIER_DELIM + stemName;
+				parent = StemFinder.findByName(sysSession,parentName);
+				
 			}catch(StemNotFoundException e){
 				throw new IllegalStateException("Cannot find parent stem for personal stem: " + childName);
 			}
@@ -1546,16 +1567,11 @@ public class GrouperHelper {
 		Stem stem = null;
 		
 		try{
-			stem=StemFinder.findByName(s, childName);
+			stem=StemFinder.findByName(sysSession, childName);
 		}catch(Exception e){}
 		
 		if (stem == null) {
-			GrouperSession sysSession = null;
-			try {
-				sysSession = GrouperSession.startSession(SubjectFinder.findById("GrouperSystem"));
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			
 			stem = parent.addChildStem(stemName,ps.getPersonalStemDisplayName(s
 					.getSubject()));
 			
@@ -1627,6 +1643,7 @@ public class GrouperHelper {
 		return (Map)map.get("subject");
 		
 	}
+	
 	private static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member) {
 		Set allPrivs = null;
 		if(groupOrStem.isGroup()) {
@@ -1732,21 +1749,34 @@ public class GrouperHelper {
 		return new HashSet();
 	}
 	
-	public static boolean hasSubjectPrivForGroup(Subject subject,Group group,String privilege) {
-		privilege=privilege.toLowerCase();
-		if(privilege.equals("admin")) return group.hasAdmin(subject);
-		if(privilege.equals("update")) return group.hasUpdate(subject);
-		if(privilege.equals("read")) return group.hasRead(subject);
-		if(privilege.equals("view")) return group.hasView(subject);
-		if(privilege.equals("optin")) return group.hasOptin(subject);
-		if(privilege.equals("optout")) return group.hasOptout(subject);
-		return false;
+	public static boolean hasSubjectImmPrivForGroup(GrouperSession s,Subject subject,Group group,String privilege) throws MemberNotFoundException{
+		Map privs = getImmediateHas(s,GroupOrStem.findByGroup(s,group),MemberFinder.findBySubject(s,subject));
+		return privs.containsKey(privilege.toUpperCase());
 	}
-	public static boolean hasSubjectPrivForStem(Subject subject,Stem stem,String privilege) {
-		privilege=privilege.toLowerCase();
-		if(privilege.equals("stem")) return stem.hasStem(subject);
-		if(privilege.equals("create")) return stem.hasCreate(subject);
-		return false;
+	public static boolean hasSubjectImmPrivForStem(GrouperSession s,Subject subject,Stem stem,String privilege) throws MemberNotFoundException{
+		Map privs = getImmediateHas(s,GroupOrStem.findByStem(s,stem),MemberFinder.findBySubject(s,subject));
+		return privs.containsKey(privilege.toUpperCase());
+	}
+	
+	public static List getChain(GrouperSession s,Membership m)throws GroupNotFoundException,MembershipNotFoundException,
+	MemberNotFoundException{
+		List chain = new ArrayList();
+		Group via = m.getViaGroup();
+		chain.add(GrouperHelper.group2Map(s,via));
+		Membership pm = null;
+		Group g=null;
+		pm=m.getParentMembership();
+		while(pm!=null) {
+			if(pm.getMember().getSubjectId()!=via.getUuid()) {
+				g = GroupFinder.findByUuid(s,pm.getMember().getSubjectId());
+				chain.add(GrouperHelper.group2Map(s,g));	
+			}
+			try {
+			pm=pm.getParentMembership();
+			}catch(MembershipNotFoundException e){break;}
+		}
+		return chain;
 	}
 }
+
 
