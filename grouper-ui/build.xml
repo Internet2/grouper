@@ -324,9 +324,9 @@
 	-->
 	<target name="-compileGrouper" if="grouper.compile.api">
 		<echo message="Compiling the Grouper api"/>
-		<javac srcdir="${grouper.folder}/java/grouper" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="${debug}"/>
+		<javac srcdir="${grouper.folder}/src/grouper" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="${debug}"/>
 		<copy todir="${webapp.class.folder}">
-			<fileset dir="${grouper.folder}/java/grouper">
+			<fileset dir="${grouper.folder}/src/grouper">
 				<include name="**/*.xml"/>
 			</fileset>
 		</copy>
@@ -351,7 +351,8 @@
 	-->
 	<target name="-additional-build" if="additional.build">
 		<echo message="Calling site specific build script - '${additional.build}' - target=${target}"/>
-		<ant antfile="${additional.build}" target="${target}" inheritrefs="true"/>
+		<dirname property="additional.build.dir" file="${additional.build}"/>
+		<ant antfile="${additional.build}" target="${target}" inheritrefs="true" dir="${additional.build.dir}"/>
 	</target>
 	
 
@@ -584,7 +585,7 @@
 		
 		</path> 
 		<property name="cp" refid="ui.class.path"/>
-		<available file="${grouper.folder}/java/grouper" property="exists.grouper.src"/>
+		<available file="${grouper.folder}/src/grouper" property="exists.grouper.src"/>
 		<antcall target="-create-if-absent-grouper-src"/>
 		  <antcall target="-html-with-subject" inheritrefs="true"/>
 		  <antcall target="-html-without-subject" inheritrefs="true"/>
@@ -592,11 +593,11 @@
   </target>
 	
 			<target name="-create-if-absent-grouper-src" unless="exists.grouper.src">
-				<mkdir dir="${grouper.folder}/java/grouper"/>
+				<mkdir dir="${grouper.folder}/src/grouper"/>
 			</target>
 			
 			<target name="-remove-if-created-grouper-src" unless="exists.grouper.src">
-				<delete dir="${grouper.folder}/java/grouper"/>
+				<delete dir="${grouper.folder}/src/grouper"/>
 			</target>
 			
 	
@@ -612,7 +613,7 @@
       <include name="edu/internet2/middleware/grouper/**"/>
       
     </packageset>
-    <packageset dir="${grouper.folder}/java/grouper" defaultexcludes="yes">
+    <packageset dir="${grouper.folder}/src/grouper" defaultexcludes="yes">
       <include name="edu/internet2/middleware/grouper/**"/>
     </packageset>
        <packageset dir="${subject.folder}/src" defaultexcludes="yes">
@@ -638,7 +639,7 @@
       <include name="edu/internet2/middleware/grouper/**"/>
       
     </packageset>
-    <packageset dir="${grouper.folder}/java/grouper" defaultexcludes="yes">
+    <packageset dir="${grouper.folder}/src/grouper" defaultexcludes="yes">
       <include name="edu/internet2/middleware/grouper/**"/>
     </packageset>
 
@@ -652,7 +653,7 @@
 	  <target name="-ensure-grouper-libs">
 		  <available property="grouper-lib.dist.available" file="${grouper.folder}/dist/lib/grouper-lib.jar"/>
 		  <available property="grouper-libs.dist.available" file="${grouper.folder}/dist/lib/junit.jar"/>
-		  <available property="grouper-libs.available" file="${grouper.folder}/java/lib"/>
+		  <available property="grouper-libs.available" file="${grouper.folder}/lib"/>
 		  <condition property="no.grouper-libs.available">
 			  <and>
 				  <not><isset property="grouper-lib.dist.available"/></not>
@@ -687,9 +688,9 @@
 		 <echo>grouper-lib.jar available</echo> 
 	  </target>
 	  <target name="-only-grouper-libs-available" if="only.grouper-libs.available">
-		<echo>Copy jar files from java/lib</echo>
+		<echo>Copy jar files from lib</echo>
 		<copy todir="${grouper.folder}/dist/lib" overwrite="true">
-			<fileset dir="${grouper.folder}/java/lib">
+			<fileset dir="${grouper.folder}/lib">
 				<include name="**/*.jar"/>
 			</fileset>
 		</copy>   
@@ -699,6 +700,6 @@
 		<echo>JAR files already available</echo>
 	  </target>
 	  <target name="-no-grouper-libs-available" if="no.grouper-libs.available">
-			 <fail message="Unable to find ${grouper.folder}/dist/lib/grouper-lib.jar or ${grouper.folder}/java/lib or individual jar files in ${grouper.folder}/dist/lib"/>
+			 <fail message="Unable to find ${grouper.folder}/dist/lib/grouper-lib.jar or ${grouper.folder}/lib or individual jar files in ${grouper.folder}/dist/lib"/>
 	  </target>
 </project>
