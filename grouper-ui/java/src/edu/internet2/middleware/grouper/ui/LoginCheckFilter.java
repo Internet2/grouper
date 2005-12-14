@@ -56,7 +56,7 @@ import edu.internet2.middleware.subject.Source;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.3 2005-12-08 15:30:19 isgwb Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.4 2005-12-14 14:51:15 isgwb Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -196,7 +196,7 @@ public class LoginCheckFilter implements Filter {
 		// GrouperSubject.load(remoteUser, Grouper.DEF_SUBJ_TYPE);
 		GrouperSession s = null;
 		try {
-			s=GrouperSession.startSession(subj);
+			s=GrouperSession.start(subj);
 		}catch(Exception e) {
 			throw new ServletException(e);
 		}
