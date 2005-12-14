@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -35,8 +36,10 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Top level Strut's action which retrieves and makes available subjects with 
@@ -77,7 +80,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
-   <tr bgcolor="#FFFFFF"> 
+  <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current stem</font></td>
@@ -114,36 +117,17 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Used to give context to UI</font></td>
   </tr>
-  <tr bgcolor="#CCCCCC"> 
-    <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
-    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
-    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
-  </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">subtitle=groups.action.show-privilegees</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">memberLinkMode</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Key resolved in nav ResourceBundle 
-      </font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">findForNode</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Use if groupId not set</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Set to privilege so that can 
+      be distinguished from list of group members</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
-    <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
-    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
-    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
-  </tr>
-  <tr> 
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-  </tr>
-  </table>
+    <
 
   * @author Gary Brown.
- * @version $Id: PopulateGroupPriviligeesAction.java,v 1.4 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateGroupPriviligeesAction.java,v 1.5 2005-12-14 15:03:23 isgwb Exp $
  */
 public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 
@@ -180,9 +164,20 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 		List membersMaps = GrouperHelper.groupList2SubjectsMaps(
 				grouperSession, new ArrayList(members),groupId);
 		Map tmpMap;
+		Subject tmpSubj=null;
+		Map tmpPrivMap=null;
+		Object tmpObj=null;
 		for(int i=0;i<membersMaps.size();i++) {
 			tmpMap = (Map) membersMaps.get(i);
 			tmpMap.put("privilege",privilege);
+			tmpObj=tmpMap.get("wrappedObject");
+			if(tmpObj instanceof Group) {
+				tmpSubj = ((Group)tmpObj).toSubject();
+			}else{
+				tmpSubj = (Subject)tmpObj;
+			}
+			tmpPrivMap = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,tmpSubj));
+			tmpMap.put("isDirect",new Boolean(tmpPrivMap.containsKey(privilege.toUpperCase())));
 		}
 		//Set up CollectionPager for th eview
 		String startStr = request.getParameter("start");
@@ -212,6 +207,7 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, group));
 		request.setAttribute("groupMembership", membership);
+		request.setAttribute("memberLinkMode", "privilege");
 		
 		request.setAttribute("allGroupPrivs", GrouperHelper
 				.getGroupPrivs(grouperSession));
