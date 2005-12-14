@@ -2,7 +2,7 @@
 			Form for creating new groups or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.2 2005-11-08 15:57:01 isgwb Exp $
+  @version $Id: EditGroup.jsp,v 1.3 2005-12-14 15:08:45 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -34,7 +34,18 @@
 		<html:text property="groupDescription" size="50" maxlength="100" styleId="groupDescription"/>
 	</div>
 </div>
-
+<c:if test="${empty GroupFormBean.map.groupId}">
+<div class="formRow">
+<fmt:message bundle="${nav}" key="groups.create.privs-for-all"/>
+</div><div class="formRow">
+<c:forEach var="priv" items="${privileges}">
+<span class="checkbox">
+	<input <c:if test="${!empty preSelected[priv]}">checked="checked"</c:if> type="checkbox" name="privileges" value="<c:out value="${priv}"/>"  id="priv<c:out value="${priv}"/>"/> 
+					<label for="priv<c:out value="${priv}"/>"><fmt:message bundle="${nav}" key="priv.${priv}"/></label></span>
+</c:forEach>
+					
+</div>
+</c:if>
 <!--<tr>
     <td valign="top"><fmt:message bundle="${nav}" key="groups.edit.type"/></td>
     <td valign="top"><html:select property="groupType" disabled="${editMode}">
