@@ -56,7 +56,12 @@
         alt="" />
       Printable version
     </A>
-    <H2>
+  <a href="PrivilegesXML.do">
+                <img
+                	src="images/xml.gif"
+                    alt="" />
+                View XML
+               </a>    <H2 class="inlinecontrol">
       <%=privDisplayType.getDescription()%>
 	</H2>
 	<DIV class="inlinecontrol">
@@ -167,12 +172,12 @@
         || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
     {
 %>
-          <TD class="sorted"> <!-- person -->
+          <TD> <!-- subject -->
             <A
               href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystemFilter == null ? "" : ("&subsystemId=" + subsystemFilter.getId()))%>">
               <%=grantee.getName()%>
             </A>
-          </TD> <!-- person -->
+          </TD> <!-- subject -->
 <%
     }
 %>

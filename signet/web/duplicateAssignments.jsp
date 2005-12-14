@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateAssignments.jsp,v 1.13 2005-12-06 05:57:59 jvine Exp $
-  $Date: 2005-12-06 05:57:59 $
+  $Id: duplicateAssignments.jsp,v 1.14 2005-12-14 22:01:52 jvine Exp $
+  $Date: 2005-12-14 22:01:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -122,13 +122,13 @@
 
 <div class="section">
 <h2>Review your New assignment<span class="status"> (not yet complete)</span></h2>
-	<table class="full">
+	<table class="full" style="margin-left: 75px;">
 	<tr>
-		<th width="37%">Privilege</th>
-		<th width="19%">Scope</th>
+		<th>Privilege</th>
+		<th>Scope</th>
 
-		<th width="32%">Limits</th>
-		<th width="12%">Status</th>
+		<th>Limits</th>
+		<th>Status</th>
 		</tr>
     <tr >
       <td>
@@ -155,11 +155,11 @@
     <h2>check any Existing assignment(s) you want to replace</h2>
     <table class="full">
       <tr>
-        <th width="7%" align="center"> Replace</th>
-        <th width="30%">Privilege</th>
-        <th width="19%">Scope</th>
-        <th width="32%">Limits</th>
-        <th width="12%">Status</th>
+        <th width="50" align="center"> Replace</th>
+        <th>Privilege</th>
+        <th>Scope</th>
+        <th>Limits</th>
+        <th>Status</th>
       </tr>
       
 <%

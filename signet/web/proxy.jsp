@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: proxy.jsp,v 1.7 2005-12-07 21:51:30 acohen Exp $
-  $Date: 2005-12-07 21:51:30 $
+  $Id: proxy.jsp,v 1.8 2005-12-14 22:01:52 jvine Exp $
+  $Date: 2005-12-14 22:01:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -107,12 +107,22 @@
         </td>
       </tr>
 
+	<!-- removed to history section
+       <tr>
+        <th class="label" scope="row">
+          Effective:
+        </th>
+        <td>
+          <%//=dateFormat.format(currentProxy.getEffectiveDate())%>
+        </td>
+      </tr> -->
+ 
       <tr>
         <th class="label" scope="row">
           Duration:
         </th>
         <td>
-          Until
+          until
           <%=currentProxy.getExpirationDate() == null
              ? "revoked"
              : dateFormat.format(currentProxy.getExpirationDate())%>
@@ -128,23 +138,17 @@
         </td>
       </tr>
       
-      <tr>
-        <th class="label" scope="row">
-          Effective:
-        </th>
-        <td>
-          <%=dateFormat.format(currentProxy.getEffectiveDate())%>
-        </td>
-      </tr>
+
         
-      <tr>
+      <!-- removed to history section
+	  <tr>
         <th class="label" scope="row">
           Designated on:
         </th>
-        <td>
-          <!-- time of last proxy-edit goes here -->
+        <td> 
+          <!-- time of last proxy-edit goes here -- removed to history section -- >
         </td>
-      </tr>
+      </tr> -->
         
       <tr>
         <th class="label" scope="row">
@@ -177,7 +181,7 @@
     ProxyHistory historyRecord = historyArray[i];
 %>
       <tr>
-        <td nowrap="nowrap" class="label">
+        <th class="label" scope="row">
           <%=Common.displayDatetime(Constants.DATETIME_FORMAT_12_MINUTE, historyRecord.getDate())%>
         </td>
         <td>

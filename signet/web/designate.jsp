@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.15 2005-12-06 05:57:59 jvine Exp $
-  $Date: 2005-12-06 05:57:59 $
+  $Id: designate.jsp,v 1.16 2005-12-14 22:01:52 jvine Exp $
+  $Date: 2005-12-14 22:01:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -324,9 +324,9 @@
               <%=Common.dateSelection
                 (request,
                  Constants.EXPIRATION_DATE_PREFIX,
-                 "Ends:",
-                 "when revoked",
-                 "on",
+                 "Duration:",
+                 "until revoked",
+                 "until",
                  currentProxy == null
                    ? null
                    : currentProxy.getExpirationDate())%>

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.39 2005-12-06 23:14:22 acohen Exp $
-  $Date: 2005-12-06 23:14:22 $
+  $Id: confirm.jsp,v 1.40 2005-12-14 22:01:52 jvine Exp $
+  $Date: 2005-12-14 22:01:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -221,7 +221,7 @@
 				  </td>
 			  </tr>
 			  <tr>
-			    <th class="label" scope="row">Expires:</th>
+			    <th class="label" scope="row">Duration:</th>
 			    <td><!-- DATE (or condition) GOES HERE --></td>
 			    </tr>
 

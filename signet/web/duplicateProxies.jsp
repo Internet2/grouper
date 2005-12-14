@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateProxies.jsp,v 1.9 2005-12-06 05:57:59 jvine Exp $
-  $Date: 2005-12-06 05:57:59 $
+  $Id: duplicateProxies.jsp,v 1.10 2005-12-14 22:01:52 jvine Exp $
+  $Date: 2005-12-14 22:01:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -119,10 +119,10 @@
 
 <div class="section">
 <h2>Review your new proxy designation<span class="status"> (not yet complete)</span></h2>
-	<table class="full">
+	<table class="full" style="margin-left: 75px;">
 	<tr>
-		<th width="37%">Subsystem</th>
-		<th width="12%">Status</th>
+		<th>Subsystem</th>
+		<th>Status</th>
 		</tr>
     <tr >
       <td>
@@ -145,9 +145,9 @@
     <h2>check any Existing proxy designation(s) you want to replace</h2>
     <table class="full">
       <tr>
-        <th width="7%" align="center"> Replace</th>
-        <th width="30%">Subsystem</th>
-        <th width="12%">Status</th>
+        <th width="50" align="center"> Replace</th>
+        <th>Subsystem</th>
+        <th>Status</th>
       </tr>
       
 <%

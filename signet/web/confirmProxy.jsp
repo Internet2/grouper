@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.9 2005-12-06 22:36:48 acohen Exp $
-  $Date: 2005-12-06 22:36:48 $
+  $Id: confirmProxy.jsp,v 1.10 2005-12-14 22:01:52 jvine Exp $
+  $Date: 2005-12-14 22:01:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -131,7 +131,7 @@
                 <td><!-- DATE (or condition) GOES HERE --></td>
               </tr>
               <tr>
-        		<th class="label" scope="row">Ends:</th>
+        		<th class="label" scope="row">Duration:</th>
         		<td><!-- DATE (or condition) GOES HERE --></td>
       		  </tr>
             </table>            

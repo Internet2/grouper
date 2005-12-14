@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: conditions.jsp,v 1.41 2005-12-06 05:57:59 jvine Exp $
-  $Date: 2005-12-06 05:57:59 $
+  $Id: conditions.jsp,v 1.42 2005-12-14 22:01:52 jvine Exp $
+  $Date: 2005-12-14 22:01:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -390,7 +390,7 @@
                     <%=Common.dateSelection
                       (request,
                        Constants.EFFECTIVE_DATE_PREFIX,
-                       "Designation will take effect:",
+                       "Effective:",
                        "immediately",
                        "on",
                        currentAssignment == null
@@ -402,8 +402,8 @@
                     <%=Common.dateSelection
                       (request,
                        Constants.EXPIRATION_DATE_PREFIX,
-                       "...and will remain in effect:",
-                       "until I revoke it",
+                       "Duration:",
+                       "until revoked",
                        "until",
                        currentAssignment == null
                          ? null

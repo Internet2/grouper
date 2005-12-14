@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.26 2005-12-06 22:34:51 acohen Exp $
-  $Date: 2005-12-06 22:34:51 $
+  $Id: assignment.jsp,v 1.27 2005-12-14 22:01:52 jvine Exp $
+  $Date: 2005-12-14 22:01:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -165,12 +165,21 @@
   }
 %>
 
+   <!-- removed to history section 
       <tr>
+        <th class="label" scope="row">
+          Effective:
+        </th>
+        <td>
+          <%//=dateFormat.format(currentAssignment.getEffectiveDate())%>
+        </td>
+      </tr>  -->
+      <tr> 
         <th class="label" scope="row">
           Duration:
         </th>
         <td>
-          Until
+          until
           <%=currentAssignment.getExpirationDate() == null
              ? "revoked"
              : dateFormat.format(currentAssignment.getExpirationDate())%>
@@ -179,29 +188,13 @@
 
       <tr>
         <th class="label" scope="row">
-          Extensibility:
-        </th>
-        <td>
-          <%=canUse?"can use":""%><%=(canUse && canGrant ? ", " : "")%><%=canGrant?"can grant":""%>
-        </td>
-      </tr>
-
-      <tr>
-        <th class="label" scope="row">
           Status:
         </th>
         <td>
-          <%=Common.displayStatusForDetailPopup(currentAssignment)%>
+          <%=Common.displayStatusForDetailPopup(currentAssignment)%><br /><%=canUse?"can use":""%><%=(canUse && canGrant ? ", " : "")%><%=canGrant?"can grant":""%>
         </td>
       </tr>
-      <tr>
-        <th class="label" scope="row">
-          Effective:
-        </th>
-        <td>
-          <%=dateFormat.format(currentAssignment.getEffectiveDate())%>
-        </td>
-      </tr>    
+  
     </table>
     
     <div class="section">
@@ -224,7 +217,7 @@
     AssignmentHistory historyRecord = historyArray[i];
 %>
       <tr>
-        <td nowrap="nowrap" class="label">
+        <th class="label" scope="row">
           <%=Common.displayDatetime(Constants.DATETIME_FORMAT_12_MINUTE, historyRecord.getDate())%>
         </td>
         <td>
@@ -236,120 +229,6 @@
   }
 %>
 
-
-
-<!--  
-      <tr>
-        <td nowrap="nowrap" class="label">
-          Oct 25, 2005 3:15pm
-        </td>
-        <td>
-          Revoked by  Doe, Jane
-        </td>
-      </tr>
-      <tr>
-        <td nowrap="nowrap" class="label">
-          Oct 16, 2005 3:15pm
-        </td>
-        <td>
-          Revoked (expiration date)
-        </td>
-      </tr>
-      <tr>
-        <td nowrap="nowrap" class="label">
-          Sep 25, 2005 3:15pm
-        </td>
-        <td>
-          Revoked (conditions no longer satisfied)
-        </td>
-      </tr>
-      <tr>
-        <td nowrap="nowrap" class="label">
-          Sep 25, 2005 9:23am
-        </td>
-        <td>
-          <p>
-            Modified by  Doe, Jane
-          </p>
-          <p>
-            <span class="status">
-              added
-            </span>
-            <span class="label">
-              Laboratory:
-            </span>
-            Nyman Research Center
-          </p>
-        </td>
-      </tr>
-      <tr>
-        <td nowrap="nowrap" class="label">
-          Sep 25, 2005 9:23am
-        </td>
-        <td>
-          <p>
-            Modified by  Doe, Jane
-          </p>
-          <p>
-            <span class="status">
-              deleted
-            </span>
-            <span class="label">
-              Laboratory:
-            </span>
-            Lawrence Livermore
-          </p>
-          <p>
-            <span class="status">
-              added
-            </span> 
-            <span class="label">
-              Laboratory:
-            </span>
-            Higgins Laboratory
-          </p>
-        </td>
-      </tr>
-      <tr>
-        <td nowrap="nowrap" class="label">
-          Aug 25, 2005 3:15pm
-        </td>
-        <td>
-          <p>
-            Modified by  Poole, Jean, acting as  Doe, Jane
-          </p>
-          <p>
-            <span class="status">
-              changed
-            </span>
-            <span class="label">
-              Duration from
-            </span>
-            'until Oct 2, 2005'
-            <span class="label">
-              to
-            </span>
-            'while employed at KITN'
-          </p>
-        </td>
-      </tr>
-      <tr>
-        <td nowrap="nowrap" class="label">Aug 25, 2005 2:12pm</td>
-        <td>Activated (effective date) </td>
-      </tr>
-      <tr>
-        <td nowrap="nowrap" class="label"> Jul 25, 2005 3:15pm<br /></td>
-        <td>Granted by  Doe, Jane      <!-- limits --></td>
-      </tr>
-      <tr>
-        <td nowrap="nowrap" class="label">Jun 25, 2005 3:15pm</td>
-        <td>Granted by  Doe, Jane (pending effective date) </td>
-      </tr>
-      <tr>
-        <td nowrap="nowrap" class="label"> Jun 25, 2005 11:30am<br /></td>
-        <td>Granted by  Doe, Jane (pending conditions) </td>
-      </tr>
--->
     </table>
   </body>
 </html>
