@@ -17,6 +17,11 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -56,13 +61,24 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Indicates a new group</font></td>
   </tr>
-
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current group 
       <br>
       or stem</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">privileges</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of privileges which can 
+      be assigned to GrouperAll</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">preSelected</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Map indicating which privileges 
+      should be pre-selected</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -87,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateCreateGroupAction.java,v 1.4 2005-12-14 14:59:24 isgwb Exp $
  */
 public class PopulateCreateGroupAction extends GrouperCapableAction {
 
@@ -111,6 +127,18 @@ public class PopulateCreateGroupAction extends GrouperCapableAction {
 		request.setAttribute("editMode", Boolean.FALSE);
 		GroupOrStem groupOrStem = getCurrentGroupOrStem(grouperSession,session);
 		Stem stem = groupOrStem.getStem();
+		List privileges = new ArrayList();
+		privileges.add("admin");
+		privileges.add("update");
+		privileges.add("read");
+		privileges.add("view");
+		privileges.add("optin");
+		privileges.add("optout");
+		Map selected = new HashMap();
+		selected.put("read",Boolean.TRUE);
+		selected.put("view",Boolean.TRUE);
+		request.setAttribute("privileges",privileges);
+		request.setAttribute("preSelected",selected);
 		request.setAttribute("browseParent", GrouperHelper.stem2Map(
 				grouperSession, stem));
 		return mapping.findForward(FORWARD_CreateGroup);
