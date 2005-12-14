@@ -9,7 +9,7 @@
 			
 			  <echo message="Copying custom resource files"/>
 		  	  <copy toDir="${webapp.class.folder}/resources" overwrite="true">
-		  	  	<fileset dir="../custom-grouper-ui/resources"></fileset>
+		  	  	<fileset dir="resources"></fileset>
 		  	  </copy>
 		  </target>
 		  
@@ -20,22 +20,22 @@
 			  in folder which contains their site specific files - therefore no need to copy content files 
 			  if we are working here-->
 			  <condition property="custom-webapp-folder-is-build-folder">
-            	<equals arg1="${webapp.folder}" arg2="../custom-grouper-ui/webapp"/>
+            	<equals arg1="${webapp.folder}" arg2="webapp"/>
               </condition>
 		       <antcall target="copyContent"/>
 		       
-		  	  <mkdir dir="../custom-grouper-ui/java/lib"/>
-			  <mkdir dir="../custom-grouper-ui/java/src"/>
+		  	  <mkdir dir="java/lib"/>
+			  <mkdir dir="java/src"/>
 		  	  <path id="custom.ui.class.path">
 		  	  <!-- Add any site specific jar files to class path -->
-		  	  	<fileset dir="../custom-grouper-ui/java/lib">
+		  	  	<fileset dir="java/lib">
 		  	  		<include name="**/*.jar"/>
 		  	  	</fileset>
 		  	  	<!-- leverage the class path used for the core UI -->
 		  	  	<path refid="ui.class.path"/>	
 		  	  </path>
 		  	  <javac 
-			    srcdir="../custom-grouper-ui/java/src"
+			    srcdir="java/src"
                 destdir="${webapp.class.folder}"
                 classpathref="custom.ui.class.path"
                 debuglevel="${debug.level}"
@@ -43,7 +43,7 @@
               />
               <!-- make site specific jar files available to webapp -->
               <copy toDir="${webapp.folder}/WEB-INF/lib" overwrite="true">
-		  	  	<fileset dir="../custom-grouper-ui/java/lib">
+		  	  	<fileset dir="java/lib">
 		  	  		<include name="**/*.jar"/>
 		  	  	</fileset>
 		  	  </copy>
@@ -58,8 +58,8 @@
 
 				  <!--copy web.uob.xml and filter tokens
 				  <filter filtersfile="${basedir}/../custom-grouper-ui/build.properties"/>-->
-				  <copy file="../custom-grouper-ui/webapp/WEB-INF/web.custom.xml" tofile="${temp.dir}/00.web.custom.filtered.xml" filtering="true" overwrite="true"/>
-				  <copy file="../custom-grouper-ui/webapp/WEB-INF/web.custom1.xml" tofile="${temp.dir}/80.web.custom.filtered.xml" filtering="true" overwrite="true"/>
+				  <copy file="webapp/WEB-INF/web.custom.xml" tofile="${temp.dir}/00.web.custom.filtered.xml" filtering="true" overwrite="true"/>
+				  <copy file="webapp/WEB-INF/web.custom1.xml" tofile="${temp.dir}/80.web.custom.filtered.xml" filtering="true" overwrite="true"/>
 		  	  
 		  	  
 		  </target>
@@ -67,7 +67,7 @@
 		  <target name="copyContent" unless="custom-webapp-folder-is-build-folder">
 		  	<echo message="Copying custom UI files to ${webapp.folder}"/>
 		  	<copy todir="${webapp.folder}">
-		  		<fileset dir="../custom-grouper-ui/webapp">     
+		  		<fileset dir="webapp">     
 		  			<exclude name="WEB-INF/classes/**/*.*"/>
 		  			<exclude name="WEB-INF/lib/**/*.*"/>
 		  		</fileset>	
