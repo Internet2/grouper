@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.74 2005-12-14 02:29:06 blair Exp $ -->
+<!-- $Id: build.xml,v 1.75 2005-12-14 02:59:13 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -19,13 +19,13 @@
   <property name="src.test"               location="${src}/tests"/>
 
   <property name="build"                  location="${basedir}/build"/>
+  <property name="dist"                   location="${basedir}/dist"/>
   <property name="build.grouper"          location="${build}/grouper"/>
   <property name="build.javadoc"          location="${dist}/api"/>
   <property name="build.lib"              location="${build}/lib"/>
   <property name="build.test"             location="${build}/test"/>
 
   <property name="lib"                    location="${basedir}/lib"/>
-  <property name="dist"                   location="${basedir}/dist"/>
 
   <property name="log.build"              location="${basedir}/build.log"/>
   <property name="log.test.build"         location="${basedir}/test-build.log"/>
@@ -362,7 +362,11 @@
   <target name="with.clover" depends="init">
     <taskdef resource="clovertasks"/>
     <clover-setup initString="clover.db">
-      <fileset dir="${src.grouper}"/>
+      <fileset dir="${src.grouper}">
+        <exclude name="**/stress/*"/>
+        <exclude name="**/*Factor*.java"/>
+        <exclude name="**/*Status*.java"/>
+      </fileset>
     </clover-setup>
   </target> 
 
