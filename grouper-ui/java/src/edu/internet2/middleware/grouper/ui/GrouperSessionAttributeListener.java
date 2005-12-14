@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperSessionAttributeListener.java,v 1.2 2005-12-08 15:30:19 isgwb Exp $
+ * @version $Id: GrouperSessionAttributeListener.java,v 1.3 2005-12-14 14:50:53 isgwb Exp $
  */
 public class GrouperSessionAttributeListener implements
 		HttpSessionAttributeListener {
@@ -51,8 +51,11 @@ public class GrouperSessionAttributeListener implements
 		if ("edu.intenet2.middleware.grouper.ui.GrouperSession".equals(event
 				.getName())) {
 			GrouperSession s = (GrouperSession) event.getValue();
-			if (s != null)
+			if (s != null){
+				try {
 				s.stop();
+				}catch(Exception e){}
+			}
 		}
 
 	}
