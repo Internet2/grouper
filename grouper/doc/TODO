@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.6 2005-12-13 19:54:31 blair Exp $
+$Id: TODO,v 1.7 2005-12-14 19:09:08 blair Exp $
 
 ---
 
@@ -14,8 +14,14 @@ $Id: TODO,v 1.6 2005-12-13 19:54:31 blair Exp $
 
 * Test with Pg and Oracle and review generated SQL
   * ship with generated schema?
-* Replace contrib items with updated cdg
 * Event logging
+* Profile
+  * <http://jakarta.apache.org/commons/lang/api/org/apache/commons/lang/time/StopWatch.html>
+  * Gary: "By using GrouperAll instead of qsuob:all for assigning 'global'
+    privs fewer effective grants are required, but if I grant access
+    privs to qsuob:all_students which has 6 groups of 12 subjects as
+    immediate members, assignment is still quite slow."
+* Replace contrib items with updated cdg
 
 * Review clover reports
 * Review TestBugsOpen
@@ -33,12 +39,6 @@ $Id: TODO,v 1.6 2005-12-13 19:54:31 blair Exp $
 
 ## @maybe
 
-* Profile
-  * <http://jakarta.apache.org/commons/lang/api/org/apache/commons/lang/time/StopWatch.html>
-  * Gary: "By using GrouperAll instead of qsuob:all for assigning 'global'
-    privs fewer effective grants are required, but if I grant access
-    privs to qsuob:all_students which has 6 groups of 12 subjects as
-    immediate members, assignment is still quite slow."
 * Filter by specific stem-attributes
 
 ---

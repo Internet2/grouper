@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.75 2005-12-14 02:59:13 blair Exp $ -->
+<!-- $Id: build.xml,v 1.76 2005-12-14 19:09:08 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -27,12 +27,14 @@
 
   <property name="lib"                    location="${basedir}/lib"/>
 
+  <property name="log.schema"             location="${basedir}/schemaexport.log"/>
+  <property name="log.dbinit"             location="${basedir}/db-init.log"/>
   <property name="log.build"              location="${basedir}/build.log"/>
   <property name="log.test.build"         location="${basedir}/test-build.log"/>
   <property name="log.test.run"           location="${basedir}/test.log"/>
 
   <property name="hprof.depth"            value="20"/>
-  <property name="max.memory"             value="256m"/>
+  <property name="max.memory"             value="192m"/>
   <!-- Global Properties -->
 
   <!-- build -->
@@ -67,7 +69,8 @@
           depends="init"
   >
     <dirname property="filter.base" file="build.xml"/>
-    <filter token="base" value="${filter.base}"/>
+    <filter token="base"  value="${filter.base}"/>
+    <filter token="slash" value="${file.separator}"/>
     <copy todir="${conf}" filtering="true">
       <fileset dir="${src.conf}"/>
     </copy>
@@ -96,9 +99,14 @@
 
   <!-- db-init -->
   <target name="db-init" 
-          depends="build, conf-init, db-init-registryinstall, db-init-jdbcsource"
+          depends="build, conf-init"
           description="initialize database"
-  />
+  >
+    <record name="${log.dbinit}" action="start"/>
+    <antcall target="db-init-registryinstall"/>
+    <antcall target="db-init-jdbcsource"/>
+    <record name="${log.dbinit}" action="stop"/>
+  </target>
   <!-- db-init -->
 
   <!-- db-init-jdbcsource -->
@@ -260,6 +268,7 @@
 
   <!-- schemaexport -->
   <target name="schemaexport" depends="conf-init, build">
+    <record name="${log.schema}" action="start"/>
     <mkdir dir="${dist}" />
     <mkdir dir="${dist}/run" />
     <taskdef name="schemaexport"
@@ -277,6 +286,7 @@
         <include name="**/*.hbm.xml"/>
       </fileset>
     </schemaexport>
+    <record name="${log.schema}" action="stop"/>
   </target>
   <!-- schemaexport -->
 
