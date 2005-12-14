@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.73 2005-12-14 01:38:41 blair Exp $ -->
+<!-- $Id: build.xml,v 1.74 2005-12-14 02:29:06 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -10,18 +10,27 @@
   <property name="impl.vendor"            value="Internet2"/>
   <property name="impl.version"           value="0.9"/>
 
-  <property name="src"                    location="java"/>
-  <property name="src.conf"               location="src/conf"/>
-  <property name="dist"                   location="dist"/>
-  <property name="build"                  location="build"/>
+  <property name="conf"                   location="${basedir}/conf"/>
+  <property name="sql"                    location="${basedir}/sql"/>
+
+  <property name="src"                    location="${basedir}/src"/>
+  <property name="src.conf"               location="${src}/conf"/>
+  <property name="src.grouper"            location="${src}/grouper"/>
+  <property name="src.test"               location="${src}/tests"/>
+
+  <property name="build"                  location="${basedir}/build"/>
   <property name="build.grouper"          location="${build}/grouper"/>
   <property name="build.javadoc"          location="${dist}/api"/>
   <property name="build.lib"              location="${build}/lib"/>
   <property name="build.test"             location="${build}/test"/>
-  <property name="src.grouper"            location="${src}/grouper"/>
-  <property name="src.test"               location="${src}/tests"/>
-  <property name="conf"                   location="conf"/>
-  <property name="sql"                    location="sql"/>
+
+  <property name="lib"                    location="${basedir}/lib"/>
+  <property name="dist"                   location="${basedir}/dist"/>
+
+  <property name="log.build"              location="${basedir}/build.log"/>
+  <property name="log.test.build"         location="${basedir}/test-build.log"/>
+  <property name="log.test.run"           location="${basedir}/test.log"/>
+
   <property name="hprof.depth"            value="20"/>
   <property name="max.memory"             value="256m"/>
   <!-- Global Properties -->
@@ -29,9 +38,11 @@
   <!-- build -->
   <target name="build" depends="init"
         description="compile the source " >
+    <record name="${log.build}" action="start"/>
     <javac srcdir="${src.grouper}" destdir="${build.grouper}">
       <classpath refid="project.classpath"/>
     </javac>
+    <record name="${log.build}" action="stop"/>
     <!-- include hibernate mappings -->
     <copy todir="${build.grouper}">
       <fileset dir="${src.grouper}" includes="**/*.hbm.xml"/>
@@ -146,14 +157,13 @@
     >
     <!-- ugly, i know -->
     <unzip dest="${build.lib}">
-      <fileset dir="java/lib">
+      <fileset dir="${lib}">
         <include name="*.jar"/>
-        <exclude name="**/cdg-mock.jar"/>
         <exclude name="**/junit.jar"/>
       </fileset>
     </unzip>
     <!-- be sure to include _java/lib/README_ -->
-    <copy file="java/lib/README" 
+    <copy file="${lib}/README" 
           tofile="${build.lib}/README"
     />
     <jar  jarfile="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" 
@@ -205,7 +215,7 @@
       <pathelement path="${classpath}"/>
       <!-- for configuration files -->
       <pathelement location="${conf}"/>
-      <fileset dir="java/lib">
+      <fileset dir="${lib}">
         <include name="**/*.jar"/>
       </fileset>
       <pathelement  location="${build.grouper}"/>
@@ -310,15 +320,18 @@
 
   <!-- test-build -->
   <target name="test-build" depends="build">
+    <record name="${log.test.build}" action="start"/>
     <javac srcdir="${src.test}" destdir="${build.test}">
       <classpath  refid="project.classpath"/>
       <include name="**/*.java" />
     </javac>
+    <record name="${log.test.build}" action="stop"/>
   </target>
   <!-- test-build -->
 
   <!-- test -->
   <target name="test" depends="test-build">
+    <record name="${log.test.run}" action="start"/>
     <java fork="yes" 
           maxmemory="${max.memory}"
           classname="junit.textui.TestRunner"
@@ -327,6 +340,7 @@
       <arg value="test.edu.internet2.middleware.grouper.SuiteAll"/>
       <classpath refid="project.classpath"/>
     </java>
+    <record name="${log.test.run}" action="stop"/>
   </target>
   <!-- test -->
 
