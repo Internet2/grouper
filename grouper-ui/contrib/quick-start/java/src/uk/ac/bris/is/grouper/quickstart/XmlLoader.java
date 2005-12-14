@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Utility class which reads an XML file representing all or part of a Grouper repository. 
@@ -65,7 +66,7 @@ import edu.internet2.middleware.subject.Subject;
       &lt;access priv=&quot;UPDATE&quot; group=&quot;*SELF*&quot;/&gt;
       &lt;access priv=&quot;READ&quot; group=&quot;*SELF*&quot;/&gt;
       &lt;access priv=&quot;ADMIN&quot; group=&quot;..:admins&quot;/&gt;
-      &lt;access priv=&quot;ADMIN&quot; person=&quot;kebe&quot;/&gt;<br>      &lt;subject id=&quot;kebe&quot; name=&quot;Keith Porter&quot; /&gt;
+      &lt;access priv=&quot;ADMIN&quot; subject=&quot;kebe&quot;/&gt;<br>      &lt;subject id=&quot;kebe&quot; name=&quot;Keith Porter&quot; /&gt;
       &lt;subject group=&quot;faculties:artf:staff&quot; location=&quot;relative&quot;/&gt;<br>    &lt;/group&gt;
     &lt;path extension=&quot;faulties&quot; displayExtension=&quot;Faculties&quot;&gt;
       &lt;path extension=&quot;artf&quot; displayExtension=&quot;Art faculty&quot;&gt;
@@ -103,7 +104,7 @@ import edu.internet2.middleware.subject.Subject;
 <p></p>
  * 
  * @author Gary Brown.
- * @version $Id: XmlLoader.java,v 1.2 2005-12-08 15:26:48 isgwb Exp $
+ * @version $Id: XmlLoader.java,v 1.3 2005-12-14 14:46:21 isgwb Exp $
  */
 public class XmlLoader {
 	private final static String sep=":";
@@ -119,7 +120,7 @@ public class XmlLoader {
 	 */
 	public static void main(String[] args) throws Exception{
 		Subject sys = SubjectFinder.findById("GrouperSystem");
-		GrouperSession s = GrouperSession.startSession(sys);
+		GrouperSession s = GrouperSession.start(sys);
 		String dataFile=args[0];
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
@@ -181,7 +182,7 @@ public class XmlLoader {
 		Stem grouperStem;
 		Map map;
 		String group;
-		String person;
+		String subject;
 		String priv;
 		Subject subj;
 		String absoluteGroup;
@@ -193,7 +194,7 @@ public class XmlLoader {
 			naming = (Element)map.get("naming");
 			stem = (String) map.get("stem");
 			group=naming.getAttribute("group");
-			person=naming.getAttribute("person");
+			subject=naming.getAttribute("subject");
 			priv=naming.getAttribute("priv").toLowerCase();
 			if(!isEmpty(group)) {
 				absoluteGroup = getAbsoluteName(group,stem);
@@ -201,14 +202,18 @@ public class XmlLoader {
 				member = MemberFinder.findBySubject(s,SubjectFinder.findById(privGroup.getUuid(),"group"));
 				
 				System.out.println("Assigning " + priv + " to " + absoluteGroup + " for " + stem);
-			}else if(!isEmpty(person)) {
-				subj = SubjectFinder.findByIdentifier(person,"person");
+			}else if(!isEmpty(subject)) {
+				try {
+					subj = SubjectFinder.findByIdentifier(subject);
+				}catch(SubjectNotFoundException e){
+					subj = SubjectFinder.findById(subject);
+				}
 				member = MemberFinder.findBySubject(s,subj);
 				System.out.println("Assigning " + priv + " to " + subj.getName() + " for " + stem);
 			}
 			
 			grouperStem = StemFinder.findByName(s,stem);
-			if(!GrouperHelper.hasSubjectPrivForStem(member.getSubject(),grouperStem,priv)) {
+			if(!GrouperHelper.hasSubjectImmPrivForStem(s,member.getSubject(),grouperStem,priv)) {
 				grouperStem.grantPriv(member.getSubject(),Privilege.getInstance(priv));
 			}
 		}
@@ -221,7 +226,7 @@ public class XmlLoader {
 		Group grouperGroup;
 		Map map;
 		String group;
-		String person;
+		String subject;
 		String priv;
 		String absoluteGroup;
 		Group privGroup;
@@ -232,7 +237,7 @@ public class XmlLoader {
 			access = (Element)map.get("access");
 			stem = (String) map.get("stem");
 			group=access.getAttribute("group");
-			person = access.getAttribute("person");
+			subject = access.getAttribute("subject");
 			priv=access.getAttribute("priv").toLowerCase();
 			grouperGroup = GroupFinder.findByName(s,stem);
 			if(!isEmpty(group)) {
@@ -241,12 +246,16 @@ public class XmlLoader {
 				member = MemberFinder.findBySubject(s,SubjectFinder.findById(privGroup.getUuid(),"group"));
 				
 				System.out.println("Assigning " + priv + " to " + absoluteGroup + " for " + stem);
-			}else if(!isEmpty(person)) {
-				subj = SubjectFinder.findByIdentifier(person,"person");
+			}else if(!isEmpty(subject)) { 
+				try {
+					subj = SubjectFinder.findByIdentifier(subject);
+				}catch(SubjectNotFoundException e){
+					subj = SubjectFinder.findById(subject);
+				}
 				member = MemberFinder.findBySubject(s,subj);
 				System.out.println("Assigning " + priv + " to " + subj.getName() + " for " + stem);
 			}
-			if(!GrouperHelper.hasSubjectPrivForGroup(member.getSubject(),grouperGroup,priv)) {
+			if(!GrouperHelper.hasSubjectImmPrivForGroup(s,member.getSubject(),grouperGroup,priv)) {
 				grouperGroup.grantPriv(member.getSubject(),Privilege.getInstance(priv));
 			}
 		}
