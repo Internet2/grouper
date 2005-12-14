@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.10 2005-12-09 17:15:43 blair Exp $
+$Id: sources.xml,v 1.1 2005-12-14 01:38:41 blair Exp $
 -->
 
 <sources>
@@ -31,7 +31,7 @@ $Id: sources.xml,v 1.10 2005-12-09 17:15:43 blair Exp $
     </init-param>
     <init-param>
       <param-name>dbUrl</param-name>
-      <param-value>jdbc:hsqldb:dist/run/grouper</param-value>
+      <param-value>jdbc:hsqldb:@base@/dist/run/grouper</param-value>
     </init-param>
 
     <!-- PostgreSQL -->
