@@ -97,7 +97,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.2 2005-12-08 15:30:19 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.3 2005-12-14 14:50:27 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	protected String prefix = null;
@@ -364,7 +364,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		String searchInDisplayNameOrExtension = (String) attr.get("searchInDisplayNameOrExtension");
 		String searchInNameOrExtension = (String) attr.get("searchInNameOrExtension");
 		if(browseMode.equals("Create")) {
-			GrouperHelper.searchStems(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension);
+			return GrouperHelper.searchStems(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension);
 		}
 		return GrouperHelper.searchGroups(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension,browseMode);
 	}
