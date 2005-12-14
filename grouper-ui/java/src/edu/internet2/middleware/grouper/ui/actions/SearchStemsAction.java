@@ -110,7 +110,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SearchStemsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: SearchStemsAction.java,v 1.3 2005-12-14 15:06:58 isgwb Exp $
  */
 public class SearchStemsAction extends GrouperCapableAction {
 
@@ -168,7 +168,7 @@ public class SearchStemsAction extends GrouperCapableAction {
 		pager.setTarget(mapping.getPath());
 		request.setAttribute("pager", pager);
 		if (!isEmpty(searchFrom)) {
-			Stem fromStem = StemFinder.findByUuid(grouperSession,
+			Stem fromStem = StemFinder.findByName(grouperSession,
 					searchFrom);
 			pager.setParam("searchFromDisplay", fromStem.getDisplayExtension());
 		}
