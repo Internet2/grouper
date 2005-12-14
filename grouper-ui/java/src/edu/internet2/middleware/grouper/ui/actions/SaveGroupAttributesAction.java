@@ -23,14 +23,16 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import edu.internet2.middleware.grouper.ui.*;
+
+
+import edu.internet2.middleware.grouper.ui.Message;
 
 /**
  * Not used yet. 
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: SaveGroupAttributesAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: SaveGroupAttributesAction.java,v 1.3 2005-12-14 15:06:01 isgwb Exp $
  */
 public class SaveGroupAttributesAction extends org.apache.struts.action.Action {
 
