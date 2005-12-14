@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.7 2005-12-14 19:09:08 blair Exp $
+$Id: TODO,v 1.8 2005-12-14 19:32:15 blair Exp $
 
 ---
 
@@ -12,8 +12,7 @@ $Id: TODO,v 1.7 2005-12-14 19:09:08 blair Exp $
 
 ## Post-Code Freeze
 
-* Test with Pg and Oracle and review generated SQL
-  * ship with generated schema?
+* Test with Oracle and review generated SQL
 * Event logging
 * Profile
   * <http://jakarta.apache.org/commons/lang/api/org/apache/commons/lang/time/StopWatch.html>
