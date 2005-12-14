@@ -18,7 +18,7 @@ bulk update capability?). Also link to find new members --%>
 	<tiles:insert definition="dynamicTileDef">
 		<tiles:put name="viewObject" beanName="chainPath"/>
 		<tiles:put name="view" value="chain"/>
-		<tiles:put name="currentSubject" beanName="chainSubject"/>
+		<tiles:put name="currentSubject" beanName="subject"/>
 		<tiles:put name="currentGroup" beanName="browseParent"/>
 	</tiles:insert>
 </c:forEach>
