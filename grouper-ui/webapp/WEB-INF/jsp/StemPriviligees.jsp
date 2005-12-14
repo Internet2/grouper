@@ -3,7 +3,7 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: StemPriviligees.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: StemPriviligees.jsp,v 1.2 2005-12-14 15:14:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -37,7 +37,7 @@
 <html:link page="/populate${browseMode}Groups.do" >
 	<fmt:message bundle="${nav}" key="priv.stems.list.cancel"/>
 </html:link>
-<c:if test="${isNewStem}">
+<c:if test="${isNewStem && !empty findForNode}">
 <html:link page="/populate${browseMode}Groups.do" paramId="currentNode" paramName="findForNode">
 	<fmt:message bundle="${nav}" key="priv.stems.list.cancel-and-work-in-new"/>
 </html:link>
