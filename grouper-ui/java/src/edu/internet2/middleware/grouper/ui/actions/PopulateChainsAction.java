@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.subject.Subject;
 
@@ -228,7 +229,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainsAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateChainsAction.java,v 1.4 2005-12-14 14:54:15 isgwb Exp $
  */
 public class PopulateChainsAction extends GrouperCapableAction {
 
@@ -262,23 +263,19 @@ public class PopulateChainsAction extends GrouperCapableAction {
 		if (groupId == null)
 			groupId = request.getParameter("asMemberOf");
 		Group group = GroupFinder.findByUuid(grouperSession,groupId);
-		
 		List ways = GrouperHelper.getAllWaysInWhichSubjectIsMemberOFGroup(grouperSession,subject,group);
-		List chains = GrouperHelper.groupList2SubjectsMaps(grouperSession,ways);
-		Group chainGroup = null;
-		List groupChain = new ArrayList();
-		Map chain;
-		List chainPath;
-		for(int j=0;j<chains.size();j++) {
-			chainPath = new ArrayList();
-			chain = (Map) chains.get(j);
-			String[] chainGroupIds = (String[]) chain.get("chainGroupIds");
-			for(int i=0;i<chainGroupIds.length;i++) {
-				chainGroup = GroupFinder.findByUuid(grouperSession,chainGroupIds[i]);
-				chainPath.add(GrouperHelper.group2Map(grouperSession,chainGroup));
-			}
-			chain.put("chainPath",chainPath);
+		Group g = null;
+		Membership m = null;
+		Map gMap = null;
+		List chains=new ArrayList();
+		for(int i=0;i<ways.size();i++) {
+			m = (Membership)ways.get(i);
+			g=m.getGroup();
+			gMap = GrouperHelper.group2Map(grouperSession,g);
+			gMap.put("chainPath",GrouperHelper.getChain(grouperSession,m));
+			chains.add(gMap);
 		}
+		
 		
 		request.setAttribute("chainPaths", chains);
 	
