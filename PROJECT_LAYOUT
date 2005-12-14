@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: PROJECT_LAYOUT,v 1.1 2005-12-13 04:50:36 blair Exp $
+$Id: PROJECT_LAYOUT,v 1.2 2005-12-14 02:29:06 blair Exp $
 
 ---
 
@@ -38,11 +38,11 @@ Configuration directory.
 
 ### conf/ehcache.xml
 
-Hibernate cache configuration file.
+Hibernate cache configuration file.  
 
 ### conf/hibernate.properties
 
-Hibernate configuration file.
+Hibernate configuration file.  This file is generated at build.
 
 ### conf/Grouper.hbm.xml
 
@@ -54,11 +54,11 @@ Grouper configuration file.
 
 ### conf/log4j.properties
 
-Logging configuration file.
+Logging configuration file.  This file is generated at build.
 
 ### conf/sources.xml
 
-Subject API resolver configuration file.
+Subject API resolver configuration file.  This file is generated at build.
 
 ---
 
@@ -127,20 +127,10 @@ particular future release.
 
 ---
 
-## java/
-
-### grouper/
-
-Grouper's Java source code.  
-
-### lib/
+## lib/
 
 Third-party jar files included with Grouper.  See _java/lib/README_ for
 more details on the jar files included.
-
-### tests/
-
-Java source used for testing Grouper.
 
 ---
 
@@ -152,5 +142,22 @@ JDBC Source Adapter DDL.
 
 ### schema-export.sql
 
-Hibernate-generated DDL for your configured database type.
+Hibernate-generated DDL for your configured database type.  This
+file is generated at build.
+
+---
+
+## src/
+
+### conf/ 
+
+Configuration files filtered by Ant.
+
+### grouper/
+
+Grouper's Java source code.  
+
+### tests/
+
+Java source used for testing Grouper.
 
