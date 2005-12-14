@@ -204,7 +204,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.4 2005-12-14 15:04:20 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -270,7 +270,8 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		listViews.put("titleKey","subject.summary.memberships");
 		listViews.put("noResultsKey","subject.list-membership.none");
 		listViews.put("view","whereSubjectsAreMembers");
-		listViews.put("itemView","whereIsMemberLink");
+		//listViews.put("itemView","whereIsMemberLink");
+		listViews.put("itemView","subjectMembership");
 		listViews.put("headerView","genericListHeader");
 		listViews.put("footerView","genericListFooter");
 		
@@ -285,7 +286,6 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			
 			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,accessPriv);
 			subjectScopeMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,new ArrayList(subjectScopes),subjectId);
-			
 			listViews.put("titleKey","subject.summary.access-privs");
 			listViews.put("noResultsKey","subject.list-access.none");
 			listViews.put("view","subjectAccessPrivs");
