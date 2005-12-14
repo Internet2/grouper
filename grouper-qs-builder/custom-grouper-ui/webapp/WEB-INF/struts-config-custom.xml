@@ -15,7 +15,7 @@
     </action>
 	<!--Example of adding a completely new action-->
      <action path="/easyLogin" scope="request"
-            type="edu.internet2.middleware.grouper.ui.actions.EasyLoginAction"
+            type="edu.internet2.middleware.grouper.customqs.ui.actions.EasyLoginAction"
             unknown="false" validate="false">
 
       <forward name="easyLoginForm" path="EasyLoginFormDef" redirect="true"/>
