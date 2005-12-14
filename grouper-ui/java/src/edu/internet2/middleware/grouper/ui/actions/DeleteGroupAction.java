@@ -86,7 +86,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DeleteGroupAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: DeleteGroupAction.java,v 1.3 2005-12-14 14:52:54 isgwb Exp $
  */
 public class DeleteGroupAction extends GrouperCapableAction {
 
@@ -124,18 +124,21 @@ public class DeleteGroupAction extends GrouperCapableAction {
 		//Obtain the stem for the group we are removing
 		
 		Stem parent = group.getParentStem();
-		//Try and remove th egroup
-		boolean deleted = GrouperHelper.groupDelete(grouperSession, GroupOrStem.findByGroup(grouperSession,group));
-		if (!deleted) {
-			//Change message since it didn't work
+		//Try and remove the group
+		
+		try{
+			group.delete();
+			setBrowseNode(parent.getUuid(),session);
+		}catch(GroupDeleteException e){
 			message = new Message("groups.message.group-fail-delete",
 					displayExtn, true);
 		}
+		
 		request.setAttribute("message", message);
 		
 		//If group was deleted cannot leave it as the current node
 		//so set to parent instead
-		if(deleted) setBrowseNode(parent.getUuid(),session);
+		 
 		
 		return mapping.findForward(getBrowseMode(session) + "Groups");
 
