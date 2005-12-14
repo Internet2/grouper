@@ -287,7 +287,7 @@
 		<naming priv="CREATE" group="qsuob:su:admins"/>
 		<naming priv="STEM" group="qsuob:su:admins"/>
 		<group extension="admins" displayExtension="Student Union Admins">
-			<access priv="READ" group="qsuob:all"/>
+			<access priv="READ" subject="GrouperAll"/>
 			<access priv="ADMIN" group="*SELF*"/>
 			<subject id="jabl" name="Jane Blair" />
 		</group>
@@ -296,7 +296,7 @@
 				<naming priv="STEM" group="qsuob:su:admins"/>
 			<group extension="finance" displayExtension="Finance Committee">
 				<access priv="READ" group="*SELF*"/>
-				<access priv="VIEW" group="qsuob:all"/>
+				<access priv="VIEW" subject="GrouperAll"/>
 				<access priv="ADMIN" group="..:..:admins"/>
 				<subject id="jabl" name="Jane Blair" />
 				<subject id="jabr" name="Jane Brooks" />
@@ -304,7 +304,7 @@
 			</group>
 			<group extension="rag" displayExtension="Rag Committee">
 				<access priv="READ" group="*SELF*"/>
-				<access priv="VIEW" group="qsuob:all"/>
+				<access priv="VIEW" subject="GrouperAll"/>
 				<access priv="ADMIN" group="..:..:admins"/>
 				<subject id="bama" name="Barry Masterson" />
 				<subject id="keco" name="Keith Collins" />
@@ -312,7 +312,7 @@
 			</group>
 			<group extension="elections" displayExtension="Elections Committee">
 				<access priv="READ" group="*SELF*"/>
-				<access priv="VIEW" group="qsuob:all"/>
+				<access priv="VIEW" subject="GrouperAll"/>
 				<access priv="ADMIN" group="..:..:admins"/>
 				<subject id="joco" name="John Collins" />
 				<subject id="elto" name="Elizabeth Townsend" />
@@ -323,7 +323,7 @@
 				<naming priv="CREATE" group="qsuob:su:admins"/>
 				<naming priv="STEM" group="qsuob:su:admins"/>
 			<group extension="gliding" displayExtension="Gliding Club">
-				<access priv="READ" group="qsuob:all"/>
+				<access priv="READ" subject="GrouperAll"/>
 				<access priv="ADMIN" group="..:..:admins"/>
 				<access priv="OPTIN" group="qsuob:all_students"/>
 				<access priv="OPTOUT" group="*SELF*"/>
@@ -334,7 +334,7 @@
 				<subject id="jabl" name="Jane Blair" />
 			</group>
 			<group extension="sailing" displayExtension="Sailing Club">
-				<access priv="READ" group="qsuob:all"/>
+				<access priv="READ" subject="GrouperAll"/>
 				<access priv="ADMIN" group="..:..:admins"/>
 				<access priv="OPTIN" group="qsuob:all_students"/>
 				<access priv="OPTOUT" group="*SELF*"/>
@@ -342,7 +342,7 @@
 					<subject id="joto" name="John Townsend" />
 			</group>
 			<group extension="real_ale" displayExtension="Real Ale Society">
-				<access priv="READ" group="qsuob:all"/>
+				<access priv="READ" subject="GrouperAll"/>
 				<access priv="ADMIN" group="..:..:admins"/>
 				<access priv="OPTIN" group="qsuob:all_students"/>
 				<access priv="OPTOUT" group="*SELF*"/>
@@ -370,22 +370,22 @@
 		<naming priv="STEM" group="qsuob:admins"/>
 			<group extension="bch" displayExtension="Bristol Children's Hospital Support">
 			<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="VIEW" group="qsuob:all"/>
-				<access priv="OPTIN" group="qsuob:all"/>
+				<access priv="VIEW" subject="GrouperAll"/>
+				<access priv="OPTIN" subject="GrouperAll"/>
 				<access priv="OPTOUT" group="*SELF*"/>
 					<subject id="jodo" name="John Dolphin" />
 			</group>
 			<group extension="music" displayExtension="Music Appreciation Society">
 				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="VIEW" group="qsuob:all"/>
-				<access priv="OPTIN" group="qsuob:all"/>
+				<access priv="VIEW" subject="GrouperAll"/>
+				<access priv="OPTIN" subject="GrouperAll"/>
 				<access priv="OPTOUT" group="*SELF*"/>
 					<subject id="fibu" name="Fiona Bush" />
 			</group>
 			<group extension="friends" displayExtension="Friends of University of Bristol">
 				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="VIEW" group="qsuob:all"/>
-				<access priv="OPTIN" group="qsuob:all"/>
+				<access priv="VIEW" subject="GrouperAll"/>
+				<access priv="OPTIN" subject="GrouperAll"/>
 				<access priv="OPTOUT" group="*SELF*"/>
 					<subject id="fibu" name="Fiona Bush" />
 			</group>

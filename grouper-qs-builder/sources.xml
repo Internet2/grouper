@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Grouper's subject resolver configuration
+$Id: sources.xml,v 1.2 2005-12-14 16:19:04 isgwb Exp $
+-->
+
 <sources>
-  <source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter">
-    <id>grouperAdapter</id>
-    <name>Grouper Adapter</name>
-    <type>group</type>
-  </source>
-    <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
-    <id>personQS</id>
-    <name>UOB QuickStart</name>
+
+  <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
+    <id>jdbc</id>
+    <name>JDBC Source Adapter</name>
     <type>person</type>
     <init-param>
       <param-name>maxActive</param-name>
-      <param-value>50</param-value>
-    </init-param>
-    <init-param>
-      <param-name>readOnly</param-name>
-      <param-value>true</param-value>
+      <param-value>4</param-value>
     </init-param>
     <init-param>
       <param-name>maxIdle</param-name>
-      <param-value>5</param-value>
+      <param-value>2</param-value>
     </init-param>
     <init-param>
       <param-name>maxWait</param-name>
       <param-value>5</param-value>
     </init-param>
+
+    <!-- HSQLDB -->
     <init-param>
       <param-name>dbDriver</param-name>
       <param-value>org.hsqldb.jdbcDriver</param-value>
@@ -33,10 +33,41 @@
       <param-name>dbUrl</param-name>
       <param-value>jdbc:hsqldb:hsql://localhost:9001</param-value>
     </init-param>
+
+    <!-- PostgreSQL -->
+<!--
+    <init-param>
+      <param-name>dbDriver</param-name>
+      <param-value>org.postgresql.Driver</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbUrl</param-name>
+      <param-value>jdbc:postgresql:...</param-value>
+    </init-param>
+-->
+
+    <!-- Oracle -->
+<!--
+    <init-param>
+      <param-name>dbDriver</param-name>
+      <param-value>oracle.jdbc.driver.OracleDriver</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbUrl</param-name>
+      <param-value>jdbc:oracle:...</param-value>
+    </init-param>
+-->
+
     <init-param>
       <param-name>dbUser</param-name>
       <param-value>sa</param-value>
     </init-param>
+    <init-param>
+      <param-name>dbPwd</param-name>
+      <param-value></param-value>
+    </init-param>
+
   </source>
+
 </sources>
 
