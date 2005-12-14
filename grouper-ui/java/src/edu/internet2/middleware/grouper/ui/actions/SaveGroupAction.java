@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.ui.actions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -28,9 +29,12 @@ import org.apache.struts.action.DynaActionForm;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Top level Strut's action which saves a group - creating it first if it does not 
@@ -108,7 +112,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.3 2005-12-14 15:05:04 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -172,10 +176,18 @@ public class SaveGroupAction extends GrouperCapableAction {
 		} else {
 			Stem parent = StemFinder.findByUuid(grouperSession,
 					curNode);
-			group = parent.addChildGroup( 
-						(String) groupForm.get("groupName"), (String) groupForm
-							.get("displayExtension"));
+			String extension = (String) groupForm.get("groupName");
+			String displayExtension = (String) groupForm.get("groupDisplayName");
+			if(isEmpty(displayExtension))displayExtension=extension;
+			group = parent.addChildGroup(extension,displayExtension );
 			groupForm.set("groupId", group.getUuid());
+			String [] privileges = request.getParameterValues("privileges");
+			if(privileges!=null) {
+				Subject grouperAll = SubjectFinder.findById("GrouperAll");
+				for(int i=0;i<privileges.length;i++) {
+					group.grantPriv(grouperAll,Privilege.getInstance(privileges[i]));
+				}
+			}
 		}
 		//TODO: are both these necessary?
 		request.setAttribute("groupId", group.getUuid());
@@ -184,7 +196,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 		String val  =(String) groupForm.get("groupDescription");
 		if("".equals(val)) val=null;
 
-		group.setDescription(val);	
+		if(val!=null)group.setDescription(val);	
 
 		request.setAttribute("message", new Message(
 				"groups.message.group-saved", (String) groupForm
