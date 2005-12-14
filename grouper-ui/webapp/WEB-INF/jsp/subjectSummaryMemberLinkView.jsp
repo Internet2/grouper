@@ -3,7 +3,7 @@
 		  render memberships from Subject perspective
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectSummaryMemberLinkView.jsp,v 1.1 2005-11-08 15:37:12 isgwb Exp $
+  @version $Id: subjectSummaryMemberLinkView.jsp,v 1.2 2005-12-14 15:15:47 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -23,7 +23,7 @@
   </tiles:insert></c:set>
   <c:choose>
 
-  	<c:when test="${!empty viewObject.chain}">
+  	<c:when test="${!empty viewObject.via}">
 		<html:link page="/populateChains.do" name="pagerParams" title="${navMap['groups.membership.chain.title']} ${viewObject.desc}">
 		 <fmt:message bundle="${nav}" key="groups.membership.chain.indirect-member-of"/></html:link> :
 		
