@@ -22,6 +22,7 @@ import  java.io.Serializable;
 import  java.util.*;
 import  java.util.regex.*;
 import  net.sf.hibernate.*;
+import  org.apache.commons.lang.time.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.logging.*;
 
@@ -30,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.42 2005-12-15 01:32:39 blair Exp $
+ * @version $Id: Stem.java,v 1.43 2005-12-15 06:31:11 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -52,6 +53,7 @@ public class Stem implements Serializable {
   private static final String   CFG_GCGAV   = "groups.create.grant.all.view";
   private static final String   CFG_SCGAC   = "stems.create.grant.all.create";
   private static final String   CFG_SCGAS   = "stems.create.grant.all.stem";
+  private static final EventLog EL          = new EventLog();
   private static final String   ERR_ARS     = "unable to install root stem: ";
   private static final String   ERR_FNF     = "field not found: ";
   private static final Log      LOG         = LogFactory.getLog(Stem.class);
@@ -133,6 +135,8 @@ public class Stem implements Serializable {
     throws  GroupAddException,
             InsufficientPrivilegeException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     try {
       validateName(extension);
       validateName(displayExtension);
@@ -178,7 +182,10 @@ public class Stem implements Serializable {
       objects.add(child);
       objects.add(this);
       HibernateHelper.save(objects);
-      return _grantDefaultPrivsUponCreate(child);
+      sw.stop();
+      EL.stemAddChildGroup(this.s, child.getName(), sw);
+      _grantDefaultPrivsUponCreate(child);
+      return child;
     }
     catch (Exception e) {
       throw new GroupAddException(
@@ -209,6 +216,8 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemAddException 
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     try {
       validateName(extension);
       validateName(displayExtension);
@@ -257,7 +266,10 @@ public class Stem implements Serializable {
       this.setChild_stems(children);
       // Now commit to registry
       HibernateHelper.save(this);
-      return _grantDefaultPrivsUponCreate(child);
+      sw.stop();
+      EL.stemAddChildStem(this.s, child.getName(), sw);
+      _grantDefaultPrivsUponCreate(child);
+      return child;
     }
     catch (HibernateException eH) {
       throw new StemAddException(
@@ -643,6 +655,8 @@ public class Stem implements Serializable {
             InsufficientPrivilegeException,
             SchemaException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     String msg = "grantPriv: " + SubjectHelper.getPretty(subj) 
       + " '" + priv.toString().toUpperCase() + "'";
     GrouperLog.debug(LOG, this.s, msg);
@@ -650,7 +664,8 @@ public class Stem implements Serializable {
       PrivilegeResolver.getInstance().grantPriv(
         this.s, this, subj, priv
       );
-      GrouperLog.debug(LOG, this.s, msg + ": granted");
+      sw.stop();
+      EL.stemGrantPriv(this.s, this.getName(), subj, priv, sw);
     }
     catch (GrantPrivilegeException eGP) {
       GrouperLog.debug(LOG, this.s, eGP.getMessage());
@@ -731,9 +746,13 @@ public class Stem implements Serializable {
             RevokePrivilegeException,
             SchemaException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     PrivilegeResolver.getInstance().revokePriv(
       this.s, this, priv
     );
+    sw.stop();
+    EL.stemRevokePriv(this.s, this.getName(), priv, sw);
   } // public void revokePriv(priv)
  
   /**
@@ -761,9 +780,13 @@ public class Stem implements Serializable {
             RevokePrivilegeException,
             SchemaException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     PrivilegeResolver.getInstance().revokePriv(
       this.s, this, subj, priv
     );
+    sw.stop();
+    EL.stemRevokePriv(this.s, this.getName(), subj, priv, sw);
   } // public void revokePriv(subj, priv)
  
   /**
@@ -788,6 +811,8 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     PrivilegeResolver.getInstance().canSTEM(
       GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
     );
@@ -801,6 +826,8 @@ public class Stem implements Serializable {
         "unable to set description: " + e.getMessage()
       );
     }
+    sw.stop();
+    EL.stemSetAttr(this.s, this.getName(), "description", value, sw);
   } // public void setDescription(value)
 
   /**
@@ -825,6 +852,8 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     try {
       validateName(value);
     }
@@ -870,6 +899,12 @@ public class Stem implements Serializable {
         "unable to set displayExtension: " + e.getMessage()
       );
     }
+    sw.stop();
+    // Reset for logging purposes
+    if (value.equals(ROOT_INT)) {
+      value = ROOT_EXT;
+    }
+    EL.stemSetAttr(this.s, this.getName(), "displayExtension", value, sw);
   } // public void setDisplayExtension(value)
 
   public String toString() {
@@ -963,7 +998,7 @@ public class Stem implements Serializable {
   } // private static void _initializeChildGroupsAndStems(ns) 
 
   // Private Instance Methods
-  private Group _grantDefaultPrivsUponCreate(Group g)
+  private void _grantDefaultPrivsUponCreate(Group g)
     throws  GroupAddException
   {
     // Now grant ADMIN (as root) to the creator of the child group.
@@ -1003,16 +1038,15 @@ public class Stem implements Serializable {
 
       g.setSession(orig);
       root.stop();
-      return g;
     }
     catch (Exception e) {
       throw new GroupAddException(
         "group created but unable to grant ADMIN to creator: " + e.getMessage()
       );
     }
-  } // private Group _grantDefaultPrivsUponCreate(g)
+  } // private void _grantDefaultPrivsUponCreate(g)
 
-  private Stem _grantDefaultPrivsUponCreate(Stem ns)
+  private void _grantDefaultPrivsUponCreate(Stem ns)
     throws  StemAddException
   {
     // Now grant STEM (as root) to the creator of the child stem.
@@ -1040,7 +1074,6 @@ public class Stem implements Serializable {
 
       ns.setSession(orig);
       root.stop();
-      return ns;
     }
     catch (Exception e) {
       throw new StemAddException(
@@ -1057,16 +1090,20 @@ public class Stem implements Serializable {
     GrouperConfig cfg = GrouperConfig.getInstance();
     Subject       all = SubjectFinder.findAllSubject();
     if (cfg.getProperty(opt).equals(BT)) {
+      StopWatch sw = new StopWatch();
+      sw.start();
       String msg = " granted " + p.getName() + " to " + SubjectHelper.getPretty(all);
       if      (o.getClass().equals(Group.class)) {
         Group g = (Group) o;
         PrivilegeResolver.getInstance().grantPriv(root, g, all, p);
-        GrouperLog.info(LOG, orig, g.getName() + msg);
+        sw.stop();
+        EL.groupGrantPriv(this.s, g.getName(), all, p, sw);
       }
       else if (o.getClass().equals(Stem.class)) {
         Stem ns = (Stem) o;
         PrivilegeResolver.getInstance().grantPriv(root, ns, all, p);
-        GrouperLog.info(LOG, orig, ns.getName() + msg);
+        sw.stop();
+        EL.stemGrantPriv(this.s, ns.getName(), all, p, sw);
       }
     }
   } // private void _grantOptionalPrivUponCreate(orig, root, o, p, opt)

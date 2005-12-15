@@ -25,6 +25,7 @@ import  java.util.*;
 import  net.sf.ehcache.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;
 
 
@@ -32,16 +33,17 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.14 2005-12-12 22:00:58 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.15 2005-12-15 06:31:11 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
 
   // Private Class Constants
-  private static final String ERR_GS    = "unable to get subject associated with session";
-  private static final String ERR_START = "unable to start session: ";
-  private static final String ERR_STOP  = "unable to stop session: ";
-  private static final Log    LOG       = LogFactory.getLog(GrouperSession.class);
+  private static final EventLog EL        = new EventLog();
+  private static final String   ERR_GS    = "unable to get subject associated with session";
+  private static final String   ERR_START = "unable to start session: ";
+  private static final String   ERR_STOP  = "unable to stop session: ";
+  private static final Log      LOG       = LogFactory.getLog(GrouperSession.class);
 
 
   // Hibernate Properties
@@ -89,11 +91,15 @@ public class GrouperSession implements Serializable {
   {
     try {
       // No cascading so save everything myself
+      StopWatch sw = new StopWatch();
+      sw.start();
       GrouperSession s = _getSession(subject);
       Set objects = new LinkedHashSet();
       objects.add(s.getMember_id());
       objects.add(s);
       HibernateHelper.save(objects);
+      sw.stop();
+      EL.sessionStart(s.toString(), sw);
       return s;
     }
     catch (Exception e) {
@@ -239,8 +245,16 @@ public class GrouperSession implements Serializable {
   {
     try {
       if (this.getId() != null) {
+        StopWatch sw = new StopWatch();
+        sw.start();
+        // So we don't log transient sessions
+        String sessionToString = this.toString();
+        // For logging session duration
+        long   start  = this.getStart_time().getTime();
         HibernateHelper.delete(this);
         this.setId(null);
+        sw.stop();
+        EL.sessionStop(sessionToString, start, sw);
       }
       this.setMember_id(null);
       this.setSession_id(null);

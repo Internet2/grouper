@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege resolution class.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.33 2005-12-13 19:54:31 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.34 2005-12-15 06:31:11 blair Exp $
  *     
 */
 public class PrivilegeResolver {
@@ -808,8 +808,7 @@ public class PrivilegeResolver {
         // Group not found.  Oh well.
         // TODO The problem is that the test suite deletes it.  
         LOG.error(
-          "disabling wheel group.  enabled but found found: "
-          + GrouperLog.q(name)
+          "disabling wheel group.  enabled but found found: " + name
         );
         this.use_wheel = false;
       }

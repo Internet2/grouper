@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.4 2005-12-12 20:45:05 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.5 2005-12-15 06:31:11 blair Exp $
  */
 class SubjectHelper {
 
@@ -54,7 +54,7 @@ class SubjectHelper {
     if (subj.getType().equals(SubjectTypeEnum.valueOf("group"))) {
       pretty = subj.getName();
     }
-    pretty = pretty + "/" + subj.getType().getName();
+    pretty = pretty + "," + subj.getType().getName();
     return pretty;
   } // protected static String getPretty(subj)
 

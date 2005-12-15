@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.9 2005-12-15 01:33:28 blair Exp $
+$Id: TODO,v 1.10 2005-12-15 06:31:11 blair Exp $
 
 ---
 
@@ -12,17 +12,14 @@ $Id: TODO,v 1.9 2005-12-15 01:33:28 blair Exp $
 
 ## Post-Code Freeze
 
-* Event logging
+* Review TestBugsOpen
+* Review clover reports
 * Profile
-  * <http://jakarta.apache.org/commons/lang/api/org/apache/commons/lang/time/StopWatch.html>
   * Gary: "By using GrouperAll instead of qsuob:all for assigning 'global'
     privs fewer effective grants are required, but if I grant access
     privs to qsuob:all_students which has 6 groups of 12 subjects as
     immediate members, assignment is still quite slow."
 * Replace contrib items with updated cdg
-
-* Review clover reports
-* Review TestBugsOpen
 
 * update impl guide
   * note what adjusts modified time

@@ -1,13 +1,13 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.82 2005-12-13 04:50:36 blair Exp $
+$Id: NEWS,v 1.83 2005-12-15 06:31:11 blair Exp $
 
 ---
 
 # Version 0.9
 
-Released: December 2005
+Released: December ??? 2005
 
 ## Changes
 * NEW: New public API.
@@ -17,6 +17,7 @@ Released: December 2005
 * NEW: "all" subject that can be assigned memberships and granted
   privileges that maps to all subjects that are identifiable by
   Grouper's Subject API configuration.
+* NEW: Event logging
 * NEW: Configuration options for controlling what privileges, if any,
   are granted to the "all" subject whenever a new group or stem is
   created.  By default, _READ_ and _VIEW_ are granted to "all" upon
