@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.10 2005-12-15 01:32:39 blair Exp $
+ * @version $Id: StemFinder.java,v 1.11 2005-12-15 01:37:47 blair Exp $
  */
 public class StemFinder {
 
@@ -97,7 +97,7 @@ public class StemFinder {
   public static Stem findRootStem(GrouperSession s) {
     GrouperSession.validate(s);
     try {
-      return StemFinder.findByName(s, Stem.ROOT);
+      return StemFinder.findByName(s, Stem.ROOT_INT);
     }
     catch (StemNotFoundException eSNF) {
       GrouperLog.fatal(LOG, s, ERR_FRS);
