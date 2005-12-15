@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.10 2005-12-15 06:31:11 blair Exp $
+$Id: TODO,v 1.11 2005-12-15 06:35:09 blair Exp $
 
 ---
 
@@ -19,6 +19,12 @@ $Id: TODO,v 1.10 2005-12-15 06:31:11 blair Exp $
     privs fewer effective grants are required, but if I grant access
     privs to qsuob:all_students which has 6 groups of 12 subjects as
     immediate members, assignment is still quite slow."
+    * Metrics
+    * Switch from `find()` to `iterate()`
+    * Cache queries
+    * Subjects
+      * Add more
+      * Remove upon completion of test suite
 * Replace contrib items with updated cdg
 
 * update impl guide
@@ -28,17 +34,21 @@ $Id: TODO,v 1.10 2005-12-15 06:31:11 blair Exp $
 
 * javadoc
   * especially query api javadoc  
-* Attempt to normalize API debug logging
-  * Include method names
-  * Use constants
-
-## @maybe
-
-* Filter by specific stem-attributes
+* Logging
+  * _ErrorLog_
+  * _DebugLog_
+* EXPLAIN sql queries
+* Consolidate _Membership_ index (or will Oracle kvetch about that one
+  as well?
+* _Membership_: Set via to null on immediate members
+* _Membership_: Map child memberships to enable batch fetching
 
 ---
 
 # Future
+
+## Features
+* Filter by specific stem-attributes
 
 ## Internals
 * Stem: _addChildGroup()_ and _addChildStems()_ should take an optional
