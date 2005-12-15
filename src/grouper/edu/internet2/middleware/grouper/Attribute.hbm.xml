@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Attribute.hbm.xml,v 1.6 2005-12-12 16:07:24 blair Exp $ -->
+<!-- $Id: Attribute.hbm.xml,v 1.7 2005-12-15 01:32:39 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Attribute" table="grouper_attributes">
@@ -46,15 +46,18 @@ A group attribute within the Groups registry.
     <version name="version" column="version"/>
 
 
+<!--
+  I had a unique index across `group_id`, `field_name` and `field_type` but
+  Oracle did **not** like it one bit.
+-->
+
     <!-- group_id -->
     <many-to-one
       name="group"
       class="edu.internet2.middleware.grouper.Group" 
       not-null="true"
     >
-      <column name="group_id"
-              unique-key="group_field_idx"
-      />
+      <column name="group_id"/>
     </many-to-one>
     <!-- group_id -->
 
@@ -66,11 +69,9 @@ A group attribute within the Groups registry.
     > 
       <column name="field_name"
               not-null="true"
-              unique-key="group_field_idx"
       />
       <column name="field_type"
               not-null="true"
-              unique-key="group_field_idx"
       />
     </property>
     <!-- field -->

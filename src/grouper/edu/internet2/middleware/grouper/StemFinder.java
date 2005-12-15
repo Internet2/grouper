@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.9 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: StemFinder.java,v 1.10 2005-12-15 01:32:39 blair Exp $
  */
 public class StemFinder {
 
@@ -62,8 +62,7 @@ public class StemFinder {
     try {
       Session hs  = HibernateHelper.getSession();
       List    l   = hs.find( 
-        "from Stem as ns where  "
-        + "ns.stem_name = ?     ",
+        "from Stem as ns where ns.stem_name = ?",
         name,
         Hibernate.STRING
       );
@@ -71,7 +70,7 @@ public class StemFinder {
       if (l.size() == 1) {
         ns = (Stem) l.get(0);
         ns.setSession(s);
-      }
+      } 
     }
     catch (HibernateException eH) {
       throw new StemNotFoundException(
@@ -98,7 +97,7 @@ public class StemFinder {
   public static Stem findRootStem(GrouperSession s) {
     GrouperSession.validate(s);
     try {
-      return StemFinder.findByName(s, "");
+      return StemFinder.findByName(s, Stem.ROOT);
     }
     catch (StemNotFoundException eSNF) {
       GrouperLog.fatal(LOG, s, ERR_FRS);

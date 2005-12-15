@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.13 2005-12-12 21:50:49 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.14 2005-12-15 01:32:39 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -112,26 +112,27 @@ A namespace within the Groups Registry.
     <!-- display_extension -->
     <property name="display_extension"
               type="string"
-              not-null="true"
               index="stem_displayextn_idx"
+              not-null="true"
     />
     <!-- display_extension -->
 
     <!-- display_name -->
     <property name="display_name"
               type="string"
-              not-null="true"
               index="stem_displayname_idx"
+              not-null="true"
     />
     <!-- display_name -->
 
     <!-- extension -->
     <property name="stem_extension"
               type="string"
-              not-null="true"
               index="stem_extn_idx"
     >
-      <column name="extension"/>
+      <column name="extension"
+              not-null="true"
+      />
     </property>
     <!-- extension -->
 
@@ -161,9 +162,11 @@ A namespace within the Groups Registry.
     <property
       name="stem_name"
       type="string"
-      not-null="true"
       index="stem_name_idx"
-    />
+    >
+      <column name="name"
+              not-null="true"/>
+    </property>
     <!-- name -->
 
     <!-- parent_stem -->
@@ -192,9 +195,7 @@ A namespace within the Groups Registry.
               index="stem_status_idx"
     >
       <column name="status_type"/>
-      <column name="status_ttl"
-              sql-type="bigint"
-      />
+      <column name="status_ttl"/>
     </property>
     <!-- status -->
 

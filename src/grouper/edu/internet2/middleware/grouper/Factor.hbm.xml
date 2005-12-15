@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Factor.hbm.xml,v 1.6 2005-12-12 16:07:24 blair Exp $ -->
+<!-- $Id: Factor.hbm.xml,v 1.7 2005-12-15 01:32:39 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Factor" table="grouper_factors">
@@ -100,9 +100,7 @@ Group math factors.
               index="factor_status_idx"
     >
       <column name="status_type"/>
-      <column name="status_ttl"
-              sql-type="bigint"
-      />
+      <column name="status_ttl"/>
     </property>
     <!-- status -->
 

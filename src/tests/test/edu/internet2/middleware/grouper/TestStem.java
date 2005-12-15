@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.10 2005-12-12 19:54:04 blair Exp $
+ * @version $Id: TestStem.java,v 1.11 2005-12-15 01:32:39 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -240,11 +240,22 @@ public class TestStem extends TestCase {
     Group           psd   = StemHelper.addChildGroup(uofc, "psd", "physical sciences division");
 
     String exp = "";
-    Assert.assertTrue("root displayExtn", root.getDisplayExtension().equals(exp));
-    Assert.assertTrue("root displayName", root.getDisplayName().equals(exp));
-    exp = root.getDisplayName() + "education";
-    Assert.assertTrue("edu displayExtn" , edu.getDisplayExtension().equals(exp));
-    Assert.assertTrue("edu displayName" , edu.getDisplayName().equals(exp));
+    Assert.assertTrue(
+      "root displayExtn exp(" + exp + ") got(" + root.getDisplayExtension() + ")", 
+      root.getDisplayExtension().equals(exp)
+    );
+    Assert.assertTrue(
+      "root displayName exp(" + exp + ") got(" + root.getDisplayName() + ")", 
+      root.getDisplayName().equals(exp));
+    exp = "education";
+    Assert.assertTrue(
+      "edu displayExtn exp(" + exp + ") got(" + edu.getDisplayExtension() + ")",
+      edu.getDisplayExtension().equals(exp)
+    );
+    Assert.assertTrue(
+      "edu displayName exp(" + exp + ") got(" + edu.getDisplayName() + ")",
+      edu.getDisplayName().equals(exp)
+    );
     exp = edu.getDisplayName() + ":internet2";
     Assert.assertTrue("i2 displayName", i2.getDisplayName().equals(exp));
     exp = edu.getDisplayName() + ":uchicago";
@@ -252,8 +263,8 @@ public class TestStem extends TestCase {
     exp = uofc.getDisplayName() + ":biological sciences division";
     Assert.assertTrue("bsd displayName" , bsd.getDisplayName().equals(exp));
     exp = uofc.getDisplayName() + ":physical sciences division";
-    Assert.assertTrue("bsd displayName" , psd.getDisplayName().equals(exp));
-   
+    Assert.assertTrue("psd displayName" , psd.getDisplayName().equals(exp));
+
     // Now rename
     exp = "root stem";
     try {
@@ -272,7 +283,6 @@ public class TestStem extends TestCase {
     }
     
     // Now retrieve the children and check them 
-
     Stem eduR = StemHelper.findByName(s, edu.getName());
     exp = root.getDisplayName() + ":education";
     Assert.assertTrue(
@@ -311,11 +321,11 @@ public class TestStem extends TestCase {
       exp = "";
       root.setDisplayExtension(exp);
       Assert.assertTrue(
-        "mod'd root displayExtension=(" + root.getDisplayExtension() + ") (" + exp + ")", 
+        "re-mod'd root displayExtension=(" + root.getDisplayExtension() + ") (" + exp + ")", 
         root.getDisplayExtension().equals(exp)
       );
       Assert.assertTrue(
-        "mod'd root displayName (" + root.getDisplayName() + ") (" + exp + ")", 
+        "re-mod'd root displayName (" + root.getDisplayName() + ") (" + exp + ")", 
         root.getDisplayName().equals(exp)
       );
     }
@@ -345,7 +355,7 @@ public class TestStem extends TestCase {
     exp = uofc.getDisplayName() + ":biological sciences division";
     Assert.assertTrue("bsd displayName" , bsd.getDisplayName().equals(exp));
     exp = uofc.getDisplayName() + ":physical sciences division";
-    Assert.assertTrue("bsd displayName" , psd.getDisplayName().equals(exp));
+    Assert.assertTrue("psd displayName" , psd.getDisplayName().equals(exp));
    
     // Now rename
     exp = "higher ed";

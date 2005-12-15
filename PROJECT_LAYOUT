@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: PROJECT_LAYOUT,v 1.4 2005-12-14 19:32:15 blair Exp $
+$Id: PROJECT_LAYOUT,v 1.5 2005-12-15 01:32:39 blair Exp $
 
 ---
 
@@ -148,6 +148,10 @@ file is generated at build.
 ### schema-export-hsqldb.sql
 
 A pre-generated DDL for HSQLDB.
+
+### schema-export-oracle9i.sql
+
+A pre-generated DDL for Oracle 9i.
 
 ### schema-export-pg8.sql
 

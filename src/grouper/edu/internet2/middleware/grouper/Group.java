@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.46 2005-12-13 19:54:31 blair Exp $
+ * @version $Id: Group.java,v 1.47 2005-12-15 01:32:39 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -1821,9 +1821,9 @@ public class Group implements Serializable {
       Attribute a = (Attribute) iter.next();
       if (a.getField().getName().equals("displayName")) {
         a.setValue(value);
+        this.attr_dn = value;
       }
       attrs.add(a);
-      this.attr_dn = value;
     }
     this.setGroup_attributes(attrs);
   } // protected void setDisplayName(value)

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.76 2005-12-14 19:09:08 blair Exp $ -->
+<!-- $Id: build.xml,v 1.77 2005-12-15 01:32:39 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -38,8 +38,9 @@
   <!-- Global Properties -->
 
   <!-- build -->
-  <target name="build" depends="init"
-        description="compile the source " >
+  <target name="build" 
+          depends="init, conf-init"
+          description="compile the source " >
     <record name="${log.build}" action="start"/>
     <javac srcdir="${src.grouper}" destdir="${build.grouper}">
       <classpath refid="project.classpath"/>
@@ -99,7 +100,7 @@
 
   <!-- db-init -->
   <target name="db-init" 
-          depends="build, conf-init"
+          depends="build"
           description="initialize database"
   >
     <record name="${log.dbinit}" action="start"/>
@@ -267,7 +268,7 @@
   <!-- runtestprof -->
 
   <!-- schemaexport -->
-  <target name="schemaexport" depends="conf-init, build">
+  <target name="schemaexport" depends="build">
     <record name="${log.schema}" action="start"/>
     <mkdir dir="${dist}" />
     <mkdir dir="${dist}/run" />
