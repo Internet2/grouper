@@ -72,8 +72,8 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGrouperSubject.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);
     suite.addTestSuite(TestMember.class);
+    suite.addTestSuite(TestMemberFinder.class);
     suite.addTestSuite(TestMemberToGroup.class);
-    suite.addTestSuite(TestMeFiFindBySubject.class);
     suite.addTestSuite(TestMemberOf.class);
     // TODO suite.addTestSuite(TestMemberOfAccessPrivs.class);
     // TODO suite.addTestSuite(TestMemberOfNamingPrivs.class);

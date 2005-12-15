@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Membership}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMembership.java,v 1.3 2005-12-13 18:00:57 blair Exp $
+ * @version $Id: TestMembership.java,v 1.4 2005-12-15 18:44:45 blair Exp $
  */
 public class TestMembership extends TestCase {
 
@@ -114,6 +114,18 @@ public class TestMembership extends TestCase {
     }
     MembershipHelper.testChildren(uofc_i2, children);
   } // public void testParentAndChildMemberships()
+
+  public void testEqualNotEqual() {
+    LOG.info("testEqualNotEqual");
+    MembershipHelper.testNumMship(i2, "members", 0, 0, 0);
+    GroupHelper.addMember(i2, subj0, "members");
+    GroupHelper.addMember(i2, subj1, "members");
+    Membership imm0 = MembershipHelper.getImm(s, i2, subj0, "members");
+    Membership imm1 = MembershipHelper.getImm(s, i2, subj1, "members");
+    Membership imm2 = MembershipHelper.getImm(s, i2, subj0, "members");
+    Assert.assertTrue("equal",      imm0.equals(imm2));
+    Assert.assertTrue("not equal",  !imm0.equals(imm1));
+  } // public void testEqualNotEqual()
 
 }
 

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.4 2005-12-12 19:54:04 blair Exp $
+ * @version $Id: TestGroup.java,v 1.5 2005-12-15 18:44:45 blair Exp $
  */
 public class TestGroup extends TestCase {
 
@@ -262,6 +262,107 @@ public class TestGroup extends TestCase {
       Assert.fail(e.getMessage());
     }
   } // public void testSetBadGroupDisplayExtension()
+
+  public void testGetAndHasPrivs() {
+    LOG.info("testGetAndHasPrivs");
+    try {
+      Subject         subj  = SubjectHelper.SUBJ0;
+      Subject         subj1 = SubjectHelper.SUBJ1;
+      Subject         all   = SubjectHelper.SUBJA;
+      GrouperSession  s     = SessionHelper.getRootSession();
+      Group           uofc  = edu.addChildGroup("uofc", "uofc");
+      GroupHelper.addMember(uofc, subj, "members");
+      GroupHelper.addMember(i2, uofc.toSubject(), "members");
+      Member          m     = MemberFinder.findBySubject(s, subj);
+      PrivHelper.grantPriv(s, i2,   all,  AccessPrivilege.OPTIN);
+      PrivHelper.grantPriv(s, uofc, subj, AccessPrivilege.UPDATE);
+
+      // Get access privs
+      Assert.assertTrue("admins/i2      == 1",  i2.getAdmins().size()   == 1);
+      Assert.assertTrue("optins/i2      == 1",  i2.getOptins().size()   == 1);
+      Assert.assertTrue("optouts/i2     == 0",  i2.getOptouts().size()  == 0);
+      Assert.assertTrue("readers/i2     == 1",  i2.getReaders().size()  == 1);
+      Assert.assertTrue("updaters/i2    == 0",  i2.getUpdaters().size() == 0);
+      Assert.assertTrue("viewers/i2     == 1",  i2.getViewers().size()  == 1);
+
+      Assert.assertTrue("admins/uofc    == 1",  uofc.getAdmins().size()   == 1);
+      Assert.assertTrue("optins/uofc    == 0",  uofc.getOptins().size()   == 0);
+      Assert.assertTrue("optouts/uofc   == 0",  uofc.getOptouts().size()  == 0);
+      Assert.assertTrue("readers/uofc   == 1",  uofc.getReaders().size()  == 1);
+      Assert.assertTrue("updaters/uofc  == 1",  uofc.getUpdaters().size() == 1);
+      Assert.assertTrue("viewers/uofc   == 1",  uofc.getViewers().size()  == 1);
+
+      // Has access privs
+      Assert.assertTrue("admin/i2/subj0",     !i2.hasAdmin(subj)      );
+      Assert.assertTrue("admin/i2/subj1",     !i2.hasAdmin(subj1)     );
+      Assert.assertTrue("admin/i2/subjA",     !i2.hasAdmin(all)       );
+
+      Assert.assertTrue("optin/i2/subj0",     i2.hasOptin(subj)       );
+      Assert.assertTrue("optin/i2/subj1",     i2.hasOptin(subj1)      );
+      Assert.assertTrue("optin/i2/subjA",     i2.hasOptin(all)        );
+
+      Assert.assertTrue("optout/i2/subj0",    !i2.hasOptout(subj)     );
+      Assert.assertTrue("optout/i2/subj1",    !i2.hasOptout(subj1)    );
+      Assert.assertTrue("optout/i2/subjA",    !i2.hasOptout(all)      );
+
+      Assert.assertTrue("read/i2/subj0",      i2.hasRead(subj)        );
+      Assert.assertTrue("read/i2/subj1",      i2.hasRead(subj1)       );
+      Assert.assertTrue("read/i2/subjA",      i2.hasRead(all)         );
+
+      Assert.assertTrue("update/i2/subj0",    !i2.hasUpdate(subj)     );
+      Assert.assertTrue("update/i2/subj1",    !i2.hasUpdate(subj1)    );
+      Assert.assertTrue("update/i2/subjA",    !i2.hasUpdate(all)      );
+
+      Assert.assertTrue("view/i2/subj0",      i2.hasView(subj)        );
+      Assert.assertTrue("view/i2/subj1",      i2.hasView(subj1)       );
+      Assert.assertTrue("view/i2/subjA",      i2.hasView(all)         );
+
+      Assert.assertTrue("admin/uofc/subj0",   !uofc.hasAdmin(subj)    );
+      Assert.assertTrue("admin/uofc/subj1",   !uofc.hasAdmin(subj1)   );
+      Assert.assertTrue("admin/uofc/subjA",   !uofc.hasAdmin(all)     );
+
+      Assert.assertTrue("optin/uofc/subj0",   !uofc.hasOptin(subj)    );
+      Assert.assertTrue("optin/uofc/subj1",   !uofc.hasOptin(subj1)   );
+      Assert.assertTrue("optin/uofc/subjA",   !uofc.hasOptin(all)     );
+
+      Assert.assertTrue("optout/uofc/subj0",  !uofc.hasOptout(subj)   );
+      Assert.assertTrue("optout/uofc/subj1",  !uofc.hasOptout(subj1)  );
+      Assert.assertTrue("optout/uofc/subjA",  !uofc.hasOptout(all)    );
+
+      Assert.assertTrue("read/uofc/subj0",    uofc.hasRead(subj)      );
+      Assert.assertTrue("read/uofc/subj1",    uofc.hasRead(subj1)     );
+      Assert.assertTrue("read/uofc/subjA",    uofc.hasRead(all)       );
+
+      Assert.assertTrue("update/uofc/subj0",  uofc.hasUpdate(subj)    );
+      Assert.assertTrue("update/uofc/subj1",  !uofc.hasUpdate(subj1)  );
+      Assert.assertTrue("update/uofc/subjA",  !uofc.hasUpdate(all)    );
+
+      Assert.assertTrue("view/uofc/subj0",    uofc.hasView(subj)      );
+      Assert.assertTrue("view/uofc/subj1",    uofc.hasView(subj1)     );
+      Assert.assertTrue("view/uofc/subjA",    uofc.hasView(all)       );
+
+      s.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testGetAndHasPrivs()
+
+  public void testSetDescription() {
+    LOG.info("testSetDescription");
+    try {
+      GrouperSession  s     = SessionHelper.getRootSession();
+      String          orig  = i2.getDescription(); 
+      String          set   = "this is a group"; 
+      i2.setDescription(set);
+      Assert.assertTrue("!orig",  !i2.getDescription().equals(orig));
+      Assert.assertTrue("set",    i2.getDescription().equals(set));
+      s.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testSetDescription()
 
 }
 
