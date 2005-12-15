@@ -30,10 +30,15 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.41 2005-12-12 19:54:04 blair Exp $
+ * @version $Id: Stem.java,v 1.42 2005-12-15 01:32:39 blair Exp $
  *     
 */
 public class Stem implements Serializable {
+
+  // Protected Class Constants
+  protected static final String ROOT_EXT  = "";   // Appease Oracle
+  protected static final String ROOT_INT  = ":";  // Appease Oracle
+
 
   // Private Class Constants
   // TODO use one in GrouperConfig
@@ -95,10 +100,10 @@ public class Stem implements Serializable {
     this.s = s;
     this._setCreated();
     this.setStem_id(          GrouperUuid.getUuid() );
-    this.setStem_name(        ""                    );
-    this.setDisplay_name(     ""                    );
-    this.setStem_extension(   ""                    );
-    this.setDisplay_extension(""                    );
+    this.setStem_name(        ROOT_INT              );
+    this.setDisplay_name(     ROOT_INT              );
+    this.setStem_extension(   ROOT_INT              );
+    this.setDisplay_extension(ROOT_INT              );
   } // protected Stem(s)
   
 
@@ -439,7 +444,11 @@ public class Stem implements Serializable {
    * @return  Stem displayExtension.
    */
   public String getDisplayExtension() {
-    return this.getDisplay_extension();
+    String val = this.getDisplay_extension();
+    if (val.equals(ROOT_INT)) {
+      return ROOT_EXT;
+    }
+    return val;
   }
  
   /**
@@ -451,7 +460,11 @@ public class Stem implements Serializable {
    * @return  Stem displayName.
    */
   public String getDisplayName() {
-    return this.getDisplay_name();
+    String val = this.getDisplay_name();
+    if (val.equals(ROOT_INT)) {
+      return ROOT_EXT;
+    }
+    return val;
   }
  
   /**
@@ -463,7 +476,11 @@ public class Stem implements Serializable {
    * @return  Stem extension.
    */
   public String getExtension() {
-    return this.getStem_extension();
+    String val = this.getStem_extension();
+    if (val.equals(ROOT_INT)) {
+      return ROOT_EXT;
+    }
+    return val;
   }
  
   /**
@@ -532,7 +549,11 @@ public class Stem implements Serializable {
    * @return  Stem name.
    */ 
   public String getName() {
-    return this.getStem_name();
+    String val = this.getStem_name();
+    if (val.equals(ROOT_INT)) {
+      return ROOT_EXT;
+    }
+    return val;
   }
 
   /**
@@ -808,9 +829,11 @@ public class Stem implements Serializable {
       validateName(value);
     }
     catch (IllegalArgumentException eIA) {
-      if (!(this.getName().equals("") && value.equals(""))) {
+      if (!(this.getStem_name().equals(ROOT_INT) && value.equals(ROOT_EXT))) {
         throw new StemModifyException(eIA.getMessage());
       }
+      // Appease Oracle
+      value = ROOT_INT;
     }
     PrivilegeResolver.getInstance().canSTEM(
       GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
@@ -877,7 +900,8 @@ public class Stem implements Serializable {
 
   protected static String constructName(String stem, String extn) {
     // TODO This should probably end up in a "naming" utility class
-    if (stem.equals("")) {
+    // TODO Why don't I do validation here?
+    if (stem.equals(ROOT_EXT)) {
       return extn;
     }
     return stem + ":" + extn;

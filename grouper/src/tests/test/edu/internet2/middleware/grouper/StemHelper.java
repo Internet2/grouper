@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.11 2005-12-06 05:35:03 blair Exp $
+ * @version $Id: StemHelper.java,v 1.12 2005-12-15 01:32:39 blair Exp $
  */
 public class StemHelper {
 
@@ -166,17 +166,22 @@ public class StemHelper {
     );
     Assert.assertNotNull("root uuid !null", root.getUuid());
     Assert.assertTrue("root has uuid",      !root.getUuid().equals(""));
+    String val = "";
     Assert.assertTrue(
-      "root extn", root.getExtension().equals("")
+      "root extn (" + root.getExtension() + ")", 
+      root.getExtension().equals(val)
     );
     Assert.assertTrue(
-      "root displayExtn", root.getDisplayExtension().equals("")
+      "root displayExtn (" + root.getDisplayExtension() + ")", 
+      root.getDisplayExtension().equals(val)
     );
     Assert.assertTrue(
-      "root name", root.getName().equals("")
+      "root name (" + root.getName() + ")", 
+      root.getName().equals(val)
     );
     Assert.assertTrue(
-      "root displayName", root.getDisplayName().equals("")
+      "root displayName (" + root.getDisplayName() + ")", 
+      root.getDisplayName().equals(val)
     );
     return root;
   } // protected static Stem findRootStem(s)

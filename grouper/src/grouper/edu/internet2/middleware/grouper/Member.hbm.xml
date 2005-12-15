@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Member.hbm.xml,v 1.7 2005-12-12 16:07:24 blair Exp $ -->
+<!-- $Id: Member.hbm.xml,v 1.8 2005-12-15 01:32:39 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Member" table="grouper_members">
@@ -44,14 +44,21 @@ A member within the Groups Registry.
     <!-- id -->
 
 
+<!--
+  I had an index across `subject_id`, `subject_source` and
+  `subject_type` but Oracle did **not** like it.
+-->
+
     <!-- subject_id -->
     <property 
       name="subject_id"
       type="string"
-      not-null="true"
-      index="member_subject_idx"
     >
-      <column name="subject_id" unique-key="subject_idx"/>
+      <column name="subject_id" 
+              not-null="true"
+              index="member_subjectid_idx"
+              unique-key="subject_idx"
+      />
     </property>
     <!-- subject_id -->
 
@@ -59,10 +66,12 @@ A member within the Groups Registry.
     <property 
       name="subject_source"
       type="string"
-      not-null="true"
-      index="member_subject_idx"
     >
-      <column name="subject_source" unique-key="subject_idx"/>
+      <column name="subject_source" 
+              not-null="true"
+              index="member_subjectsource_idx"
+              unique-key="subject_idx"
+      />
     </property>
     <!-- subject_source -->
 
@@ -70,20 +79,25 @@ A member within the Groups Registry.
     <property 
       name="subject_type"
       type="string"
-      not-null="true"
-      index="member_subject_idx"
-    />
+    >
+      <column name="subject_type" 
+              not-null="true"
+              index="member_subjecttype_idx"
+              unique-key="subject_idx"
+      />
+    </property>
     <!-- subject_type -->
 
     <!-- member_id -->
     <property 
       name="member_id"
       type="string"
-      not-null="true"
       unique="true"
       index="member_uuid_idx"
     >
-      <column name="member_uuid"/>
+      <column name="member_uuid"
+              not-null="true"
+      />
     </property>
     <!-- member_id -->
 
@@ -94,9 +108,7 @@ A member within the Groups Registry.
               index="member_status_idx"
     >
       <column name="status_type"/>
-      <column name="status_ttl"
-              sql-type="bigint"
-      />
+      <column name="status_ttl"/>
     </property>
     <!-- status -->
 
