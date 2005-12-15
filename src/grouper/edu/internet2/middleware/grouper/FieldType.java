@@ -26,7 +26,7 @@ import  java.util.*;
  * Field Type.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldType.java,v 1.5 2005-12-15 06:31:11 blair Exp $    
+ * @version $Id: FieldType.java,v 1.6 2005-12-15 18:44:45 blair Exp $    
  */
 public class FieldType implements Serializable {
 
@@ -66,10 +66,6 @@ public class FieldType implements Serializable {
 
 
   // Public Instance Methods
-  public String getType() {
-    return this.type;
-  } // public String getType() 
-
   public String toString() {
     return this.type;
   } // public String toString()

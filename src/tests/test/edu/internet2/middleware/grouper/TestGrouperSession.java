@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSession.java,v 1.6 2005-12-12 01:12:41 blair Exp $
+ * @version $Id: TestGrouperSession.java,v 1.7 2005-12-15 18:44:45 blair Exp $
  */
 public class TestGrouperSession extends TestCase {
 
@@ -108,6 +108,20 @@ public class TestGrouperSession extends TestCase {
       Assert.fail("failed to stop session: " + e.getMessage());
     }
   } // public void testUseStoppedSession()
+
+  public void testNotEqual() {
+    LOG.info("testNotEqual");
+    try {
+      GrouperSession  a = SessionHelper.getRootSession();
+      GrouperSession  b = SessionHelper.getRootSession();
+      Assert.assertFalse("a != b", a.equals(b));
+      a.stop();
+      b.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testNotEqual()
 
 }
 
