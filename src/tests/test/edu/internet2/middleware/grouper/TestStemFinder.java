@@ -17,40 +17,63 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
- * Test {@link StemFinder.findRootStem}.
+ * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStFiFindRootStem.java,v 1.5 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestStemFinder.java,v 1.1 2005-12-15 17:51:03 blair Exp $
  */
-public class TestStFiFindRootStem extends TestCase {
+public class TestStemFinder extends TestCase {
 
-  public TestStFiFindRootStem(String name) {
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(TestStemFinder.class);
+
+
+  public TestStemFinder(String name) {
     super(name);
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
   }
+
 
   // Tests
 
   public void testFindRootStem() {
+    LOG.info("testFindRootStem");
     Stem  root  = StemHelper.findRootStem(
       SessionHelper.getRootSession()
     );
   } // public void testFindRootStem()
+
+  public void testFindRootByName() {
+    LOG.info("testFindRootByName");
+    try {
+      GrouperSession  s   = SessionHelper.getRootSession();
+      Stem            frs = StemHelper.findRootStem(s);
+      Stem            fbn = StemHelper.findByName(s, "");
+      Assert.assertTrue("frs == fbn", frs.equals(fbn));
+      s.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testFindRootByName()
 
 }
 

@@ -90,7 +90,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestStem.class);
     suite.addTestSuite(TestStemAddChildGroup.class);
     suite.addTestSuite(TestStemAddChildStem.class);
-    suite.addTestSuite(TestStFiFindRootStem.class);
+    suite.addTestSuite(TestStemFinder.class);
     suite.addTestSuite(TestSuFiInSoAdFindById.class);
     suite.addTestSuite(TestSuFiInSoAdFindByIdentifier.class);
     suite.addTestSuite(TestSuFiInSoAdSearch.class);
