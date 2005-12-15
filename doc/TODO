@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.16 2005-12-15 18:44:45 blair Exp $
+$Id: TODO,v 1.17 2005-12-15 19:21:30 blair Exp $
 
 ---
 
@@ -31,7 +31,6 @@ $Id: TODO,v 1.16 2005-12-15 18:44:45 blair Exp $
   * ALL + toggles
 
 * Config options for cache flushing (and do I flush on revoke all?)
-* Record individual test runs
 * javadoc
   * especially query api javadoc  
 * Logging
@@ -39,7 +38,7 @@ $Id: TODO,v 1.16 2005-12-15 18:44:45 blair Exp $
   * _DebugLog_
 * EXPLAIN sql queries
 * Consolidate _Membership_ index (or will Oracle kvetch about that one
-  as well?
+  as well?)
 * _Membership_: Set via to null on immediate members
 * _Membership_: Map child memberships to enable batch fetching
 
@@ -100,6 +99,7 @@ $Id: TODO,v 1.16 2005-12-15 18:44:45 blair Exp $
 * Group Hierarchy depth restrictions
 * Improved, expanded and more consistent logging policy (#226)
 * Search limits
+
 
 
 

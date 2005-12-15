@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.77 2005-12-15 01:32:39 blair Exp $ -->
+<!-- $Id: build.xml,v 1.78 2005-12-15 19:21:30 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -238,6 +238,7 @@
   <target name="runtest" 
           description="Runs the test you specify on the command line with -Dtest=" 
           depends="test-build, ensure-test-name">
+    <record name="${log.test.run}" action="start"/>
     <junit printsummary="withOutAndErr" fork="yes"> 
         <classpath    refid="project.classpath" />
         <formatter    type="plain" usefile="false"/>
@@ -247,6 +248,7 @@
         </fileset>
       </batchtest>
     </junit>
+    <record name="${log.test.run}" action="stop"/>
   </target>
   <!-- runtest -->
 
@@ -254,6 +256,7 @@
   <target name="runtestprof" 
           description="Runs and profiles the test case you specify on the command line with -Dtest=" 
           depends="test-build, ensure-test-name">
+    <record name="${log.test.run}" action="start"/>
     <java fork="yes"
           maxmemory="${max.memory}"
           classname="junit.textui.TestRunner"
@@ -264,6 +267,7 @@
       <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=${hprof.depth}"/>
       <classpath refid="project.classpath"/>
     </java>
+    <record name="${log.test.run}" action="stop"/>
   </target>
   <!-- runtestprof -->
 
