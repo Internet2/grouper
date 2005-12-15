@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.22 2005-12-14 19:32:15 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.23 2005-12-15 17:38:33 blair Exp $
  */
 public class MembershipFinder {
 
@@ -378,7 +378,7 @@ public class MembershipFinder {
           + "and ms.member_id   = ?     "
           + "and ms.field.name  = ?     "
           + "and ms.field.type  = ?     "
-          + "and ms.depth       >= 0    ", 
+          + "and ms.depth       > 0     ", 
           new Object[] {
             oid, m.getId(), f.getName(), f.getType().toString(), 
           },
