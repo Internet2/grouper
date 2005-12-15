@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.4 2005-12-15 01:32:39 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.5 2005-12-15 01:37:47 blair Exp $
  */
 public class RegistryReset {
 
@@ -224,7 +224,7 @@ public class RegistryReset {
     String  sqlNoParent   = "update " + table + " set "
       + " parent_stem = null";
     String sqlSaveRoot    = "delete from " + table + " where "
-      + "name != '" + Stem.ROOT + "'";
+      + "name != '" + Stem.ROOT_INT + "'";
     this._emptyTable(table, sqlNoModifier);
     this._emptyTable(table, sqlNoParent);
     this._emptyTable(table, sqlSaveRoot);
