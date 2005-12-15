@@ -10,7 +10,13 @@ testing and running Grouper.
 For more detailed information see:
   `doc/grouper-impl-guide.html`
 
-$Id: README,v 1.32 2005-12-13 04:50:36 blair Exp $
+$Id: README,v 1.33 2005-12-15 14:47:49 blair Exp $
+
+---
+
+## Reporting Problems
+
+Please send email to <grouper-dev@internet2.edu>.
 
 ---
 
