@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.78 2005-12-15 19:21:30 blair Exp $ -->
+<!-- $Id: build.xml,v 1.79 2005-12-15 19:42:25 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -137,6 +137,20 @@
     </java>
   </target>
   <!-- db-init-registryinstall -->
+
+  <!-- db-reset -->
+  <target name="db-reset"
+          description="reset the db"
+          depends="build"
+  >
+    <java fork="yes"
+          maxmemory="${max.memory}"
+          classname="edu.internet2.middleware.grouper.RegistryReset"
+    >
+      <classpath refid="project.classpath"/>
+    </java>
+  </target>
+  <!-- db-reset -->
 
   <!-- dist -->
   <target name="dist" 
@@ -347,6 +361,7 @@
   <!-- test -->
   <target name="test" depends="test-build">
     <record name="${log.test.run}" action="start"/>
+    <!-- Run the test suite -->
     <java fork="yes" 
           maxmemory="${max.memory}"
           classname="junit.textui.TestRunner"

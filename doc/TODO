@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.17 2005-12-15 19:21:30 blair Exp $
+$Id: TODO,v 1.18 2005-12-15 19:42:25 blair Exp $
 
 ---
 
@@ -20,9 +20,6 @@ $Id: TODO,v 1.17 2005-12-15 19:21:30 blair Exp $
     * Metrics
     * Switch from `find()` to `iterate()`
     * Cache queries
-    * Subjects
-      * Add more
-      * Remove upon completion of test suite
 * Replace contrib items with updated cdg
 
 * update impl guide

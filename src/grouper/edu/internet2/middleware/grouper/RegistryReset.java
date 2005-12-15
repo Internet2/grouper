@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.5 2005-12-15 01:37:47 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.6 2005-12-15 19:42:26 blair Exp $
  */
 public class RegistryReset {
 
@@ -52,12 +52,6 @@ public class RegistryReset {
   // Private Class Constants
   private static final Log    LOG         = LogFactory.getLog(RegistryReset.class);
   private static final String SUBJ_TYPE   = "person"; 
-  private static final String SUBJ0_ID    = "test.subject.0";
-  private static final String SUBJ0_NAME  = "my name is " + SUBJ0_ID;
-  private static final String SUBJ1_ID    = "test.subject.1";
-  private static final String SUBJ1_NAME  = "my name is " + SUBJ1_ID;
-  private static final String SUBJ2_ID    = "test.subject.2";
-  private static final String SUBJ2_NAME  = "my name is " + SUBJ2_ID;
 
 
   // Private Instance Variables
@@ -90,6 +84,23 @@ public class RegistryReset {
       rr._tearDown();
     } 
   } // public static void addTestSubjects()
+
+  /**
+   * Reset the Groups Registry.
+   * <p>
+   * <strong>WARNING:</strong> This is a destructive act and will
+   * delete all groups, stems, members, memberships and subjects from
+   * your Groups Registry.  Do <strong>not</strong> run this unless
+   * that is what you want.
+   * </p>
+   * <pre class="eg">
+   * % java edu.internet2.middleware.grouper.RegistryReset
+   * </pre>
+   */
+  public static void main(String[] args) {
+    RegistryReset.reset();
+    System.exit(0);
+  } // public static void main(args)
 
   /**
    * Attempt to reset the Groups Registry to a pristine state.
@@ -154,9 +165,11 @@ public class RegistryReset {
         "INSERT INTO Subject (subjectID, SubjectTypeID, name) "
         + "VALUES (?, ?, ?)"
       );
-      this._addSubject(add, SUBJ0_ID, SUBJ_TYPE, SUBJ0_NAME);
-      this._addSubject(add, SUBJ1_ID, SUBJ_TYPE, SUBJ1_NAME);
-      this._addSubject(add, SUBJ2_ID, SUBJ_TYPE, SUBJ2_NAME);
+      for (int i=0; i<100; i++) {
+        String  id    = "test.subject." + i;
+        String  name  = "my name is " + id;
+        this._addSubject(add, id, SUBJ_TYPE, name);
+      }
     }
     catch (SQLException eSQL) {
       String err = "unable to prepare statement: " + eSQL.getMessage();
