@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.4 2005-12-12 04:54:09 blair Exp $
+ * @version $Id: InternalSubject.java,v 1.5 2005-12-15 16:22:42 blair Exp $
  */
 public class InternalSubject implements Subject {
 
@@ -102,34 +102,6 @@ public class InternalSubject implements Subject {
   } // public String getAttributeValue(name)
 
   /**
-   * Returns the search value of a single-valued attribute or the "first"
-   * value of a multi-valued attribute.
-   * <p>
-   * <b>NOTE:</b> This is a {@link InternalSubject} extension to the 
-   * {@link Subject} interface.
-   * </p>
-   * <pre class="eg">
-   * // Retrieve the search value of the <i>name</i> attribute for the
-   * // subject <i>john</i>.
-   * String name = john.getAttributeSearchValue("name");
-   * </pre>
-   * @param   name  Retrieve search value of this attribute.
-   * @return  Search value of attribute.
-   */
-  public String getAttributeSearchValue(String name) {
-    if (this.attrs.containsKey(name)) {
-      Map       attr  = (Map) this.attrs.get(name);
-      Iterator  iter  = ( (Set) attr.get("sv") ).iterator(); 
-      // There may be more than one value but we don't care - return
-      // the first one
-      while (iter.hasNext()) {
-        return (String) iter.next();
-      }  
-    }
-    return new String();
-  } // public String getAttributeSearchValue(name)
-
-  /**
    * Returns the values of a multi-valued attribute.
    * <pre class="eg">
    * // Retrieve the values of the <i>isMember</i> attribute for the
@@ -146,27 +118,6 @@ public class InternalSubject implements Subject {
     }
     return new LinkedHashSet();
   } // public Set getAttributeValues(name)
-
-  /**
-   * Returns the search values of a multi-valued attribute.
-   * <b>NOTE:</b> This is a {@link InternalSubject} extension to the 
-   * {@link Subject} interface.
-   * </p>
-   * <pre class="eg">
-   * // Retrieve the search values of the <i>isMember</i> attribute for 
-   * // the subject <i>john</i>.
-   * Set isMember = john.getAttributeSearchValues("isMember");
-   * </pre>
-   * @param   name  Retrieve search values of this attribute.
-   * @return  Set of attribute search values.
-   */
-  public Set getAttributeSearchValues(String name) {
-    if (this.attrs.containsKey(name)) {
-      Map attr = (Map) this.attrs.get(name);
-      return (Set) attr.get("sv");
-    }
-    return new LinkedHashSet();
-  } // public Set getAttributeSearchValues(name)
 
   /**
    * Gets this Subject's description.

@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.6 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.7 2005-12-15 16:22:42 blair Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
@@ -234,6 +234,28 @@ public class TestInternalSourceAdapter extends TestCase {
     Set results = sa.search(id);
     Assert.assertTrue("found one", results.size() == 1);
   } // public void testAdapterGrouperSystemSubjectByIdentifier()
+
+  public void testGrouperAllAttributes() {
+    LOG.info("testGrouperAllAttributes");
+    String id = SubjectHelper.SUBJ_ALL;
+    try { 
+      Subject subj  = sa.getSubject(id);
+      Map     attrs = subj.getAttributes();
+      Assert.assertTrue("zero attrs", attrs.size() == 0);
+      String  val   = subj.getAttributeValue("foo");
+      Assert.assertTrue(
+        "no attr (" + val + ")", val.equals("")
+      );
+      Set     vals  = subj.getAttributeValues("foo");
+      Assert.assertTrue("zero values", vals.size() == 0);
+      Assert.assertTrue(
+        "desc == name", subj.getDescription().equals(subj.getName())
+      );
+    } 
+    catch (SubjectNotFoundException e) {
+      Assert.fail("failed to find subject: " + e.getMessage());
+    }
+  } // public void testGrouperAllAttributes()
 
 }
 
