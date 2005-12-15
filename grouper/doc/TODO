@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.13 2005-12-15 16:11:35 blair Exp $
+$Id: TODO,v 1.14 2005-12-15 17:38:33 blair Exp $
 
 ---
 
@@ -13,6 +13,7 @@ $Id: TODO,v 1.13 2005-12-15 16:11:35 blair Exp $
 ## Post-Code Freeze
 
 * Review clover reports
+* Test: find root stem in _StemFinder.findByName()_
 * Profile
   * Gary: "By using GrouperAll instead of qsuob:all for assigning 'global'
     privs fewer effective grants are required, but if I grant access
@@ -32,7 +33,6 @@ $Id: TODO,v 1.13 2005-12-15 16:11:35 blair Exp $
   * ALL + toggles
 
 * Member.has* and *Adapter.get*WhereSubjHasPrivs to include ALL
-* Test: find root stem in _StemFinder.findByName()_
 * Config options for cache flushing (and do I flush on revoke all?)
 * Record individual test runs
 * javadoc
@@ -103,6 +103,7 @@ $Id: TODO,v 1.13 2005-12-15 16:11:35 blair Exp $
 * Group Hierarchy depth restrictions
 * Improved, expanded and more consistent logging policy (#226)
 * Search limits
+
 
 
 

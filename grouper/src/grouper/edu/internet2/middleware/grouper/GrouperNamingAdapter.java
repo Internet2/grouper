@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.31 2005-12-13 19:54:31 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.32 2005-12-15 17:38:33 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -105,12 +105,23 @@ public class GrouperNamingAdapter implements NamingAdapter {
     GrouperSession.validate(s);
     Set stems = new LinkedHashSet();
     try {
+      // The subject
       Member    m   = MemberFinder.findBySubject(s, subj);
       Iterator iter = MembershipFinder.findMemberships(
         s, m, this._getField(priv)
       ).iterator();
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
+        ms.setSession(s);
+        stems.add( ms.getStem() );
+      }
+      // And the ALL subject
+      Member    all     = MemberFinder.findAllMember();
+      Iterator  iterAll = MembershipFinder.findMemberships(
+        s, all, this._getField(priv)
+      ).iterator();
+      while (iterAll.hasNext()) {
+        Membership ms = (Membership) iterAll.next();
         ms.setSession(s);
         stems.add( ms.getStem() );
       }

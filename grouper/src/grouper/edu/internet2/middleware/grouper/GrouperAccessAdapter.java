@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.30 2005-12-13 19:54:31 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.31 2005-12-15 17:38:33 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -112,12 +112,23 @@ public class GrouperAccessAdapter implements AccessAdapter {
     GrouperSession.validate(s);
     Set groups = new LinkedHashSet();
     try {
-      Member    m   = MemberFinder.findBySubject(s, subj);
-      Iterator iter = MembershipFinder.findMemberships(
+      // The subject
+      Member    m     = MemberFinder.findBySubject(s, subj);
+      Iterator  iter  = MembershipFinder.findMemberships(
         s, m, (Field) FieldFinder.find( (String) priv2list.get(priv) )
       ).iterator();
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
+        ms.setSession(s);
+        groups.add( ms.getGroup() );
+      }
+      // And the ALL subject
+      Member    all     = MemberFinder.findAllMember();
+      Iterator  iterAll = MembershipFinder.findMemberships(
+        s, all, this._getField(priv)
+      ).iterator();
+      while (iterAll.hasNext()) {
+        Membership ms = (Membership) iterAll.next();
         ms.setSession(s);
         groups.add( ms.getGroup() );
       }
