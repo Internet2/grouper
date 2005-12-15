@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.12 2005-12-15 14:47:49 blair Exp $
+$Id: TODO,v 1.13 2005-12-15 16:11:35 blair Exp $
 
 ---
 
@@ -12,7 +12,6 @@ $Id: TODO,v 1.12 2005-12-15 14:47:49 blair Exp $
 
 ## Post-Code Freeze
 
-* Review TestBugsOpen
 * Review clover reports
 * Profile
   * Gary: "By using GrouperAll instead of qsuob:all for assigning 'global'
