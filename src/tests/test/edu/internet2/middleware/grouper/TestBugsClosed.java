@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.3 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.4 2005-12-15 06:31:11 blair Exp $
  */
 public class TestBugsClosed extends TestCase {
 
@@ -89,6 +89,7 @@ public class TestBugsClosed extends TestCase {
       Assert.assertTrue("g (ns) has STEM", g.toMember().hasStem(ns));
       Assert.assertTrue("g (m) has STEM",  ns.hasStem(g.toSubject()));
 
+      s.stop();
     }
     catch (Exception e) {
       Assert.fail("exception: " + e.getMessage());

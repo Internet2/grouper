@@ -31,14 +31,15 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.20 2005-12-13 18:00:57 blair Exp $
+ * @version $Id: Membership.java,v 1.21 2005-12-15 06:31:11 blair Exp $
  */
 public class Membership implements Serializable {
 
   // Private Class Constants
-  private static final String ERR_IO  = "class cannot contain membership: ";
-  private static final String ERR_NO  = "membership has no owner: ";
-  private static final Log    LOG     = LogFactory.getLog(Membership.class);
+  private static final String   ERR_IO  = "class cannot contain membership: ";
+  private static final String   ERR_NO  = "membership has no owner: ";
+  private static final Log      LOG     = LogFactory.getLog(Membership.class);
+  private static final EventLog EL      = new EventLog();
 
 
   // Hibernate Properties
@@ -304,13 +305,7 @@ public class Membership implements Serializable {
 
       // And then save group and memberships
       HibernateHelper.save(objects);
-      GrouperConfig cfg = GrouperConfig.getInstance();
-      if (cfg.getProperty(GrouperConfig.MSLGIA).equals(GrouperConfig.BT)) {
-        GrouperLog.addImmMS(LOG, s, imm);
-      }
-      if (cfg.getProperty(GrouperConfig.MSLGEA).equals(GrouperConfig.BT)) {
-        GrouperLog.addEffMS(LOG, s, effs);
-      }
+      EL.addEffMembers(s, g, subj, f, effs);
     }
     catch (GroupNotFoundException eGNF) {
       msg += ": " + eGNF.getMessage();
@@ -363,12 +358,7 @@ public class Membership implements Serializable {
       // And then save group and memberships
       HibernateHelper.save(objects);
       GrouperConfig cfg = GrouperConfig.getInstance();
-      if (cfg.getProperty(GrouperConfig.MSLSIA).equals(GrouperConfig.BT)) {
-        GrouperLog.addImmMS(LOG, s, imm);
-      }
-      if (cfg.getProperty(GrouperConfig.MSLSEA).equals(GrouperConfig.BT)) {
-        GrouperLog.addEffMS(LOG, s, effs);
-      }
+      EL.addEffMembers(s, ns, subj, f, effs);
     }
     catch (GroupNotFoundException eGNF) {
       msg += ": " + eGNF.getMessage();
@@ -419,13 +409,7 @@ public class Membership implements Serializable {
 
       // And then commit changes to registry
       HibernateHelper.saveAndDelete(saves, deletes);
-      GrouperConfig cfg = GrouperConfig.getInstance();
-      if (cfg.getProperty(GrouperConfig.MSLGID).equals(GrouperConfig.BT)) {
-        GrouperLog.delImmMS(LOG, s, imm);
-      }
-      if (cfg.getProperty(GrouperConfig.MSLGED).equals(GrouperConfig.BT)) {
-        GrouperLog.delEffMS(LOG, s, effs);
-      }
+      EL.delEffMembers(s, g, subj, f, effs);
     }
     catch (HibernateException eH) {
       msg += ": " + eH.getMessage();
@@ -437,7 +421,7 @@ public class Membership implements Serializable {
       GrouperLog.debug(LOG, s, msg);
       throw new MemberDeleteException(msg);
     }
-  } // protected static void delImmediateMembership(s, g, subj, f
+  } // protected static void delImmediateMembership(s, g, subj, f)
 
   // TODO REFACTOR/DRY
   protected static void delImmediateMembership(
@@ -472,13 +456,7 @@ public class Membership implements Serializable {
 
       // And then commit changes to registry
       HibernateHelper.saveAndDelete(saves, deletes);
-      GrouperConfig cfg = GrouperConfig.getInstance();
-      if (cfg.getProperty(GrouperConfig.MSLSID).equals(GrouperConfig.BT)) {
-        GrouperLog.delImmMS(LOG, s, imm);
-      }
-      if (cfg.getProperty(GrouperConfig.MSLSED).equals(GrouperConfig.BT)) {
-        GrouperLog.delEffMS(LOG, s, effs);
-      }
+      EL.delEffMembers(s, ns, subj, f, effs);
     }
     catch (HibernateException eH) {
       msg += ": " + eH.getMessage();

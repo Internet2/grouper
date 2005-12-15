@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperConfig}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperConfig.java,v 1.1 2005-12-13 19:04:02 blair Exp $
+ * @version $Id: TestGrouperConfig.java,v 1.2 2005-12-15 06:31:11 blair Exp $
  */
 public class TestGrouperConfig extends TestCase {
 
@@ -86,25 +86,13 @@ public class TestGrouperConfig extends TestCase {
     k = "stems.create.grant.all.stem";
     v = "false";
     Assert.assertTrue(k, cfg.getProperty(k).equals(v));
-    k = "memberships.log.group.immediate.add";
-    v = "true";
-    Assert.assertTrue(k, cfg.getProperty(k).equals(v));
     k = "memberships.log.group.effective.add";
-    v = "true";
-    Assert.assertTrue(k, cfg.getProperty(k).equals(v));
-    k = "memberships.log.group.immediate.del";
     v = "true";
     Assert.assertTrue(k, cfg.getProperty(k).equals(v));
     k = "memberships.log.group.effective.del";
     v = "true";
     Assert.assertTrue(k, cfg.getProperty(k).equals(v));
-    k = "memberships.log.stem.immediate.add";
-    v = "true";
-    Assert.assertTrue(k, cfg.getProperty(k).equals(v));
     k = "memberships.log.stem.effective.add";
-    v = "true";
-    Assert.assertTrue(k, cfg.getProperty(k).equals(v));
-    k = "memberships.log.stem.immediate.del";
     v = "true";
     Assert.assertTrue(k, cfg.getProperty(k).equals(v));
     k = "memberships.log.stem.effective.del";

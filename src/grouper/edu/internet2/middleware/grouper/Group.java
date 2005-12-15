@@ -23,6 +23,7 @@ import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;
 
 
@@ -30,28 +31,29 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.47 2005-12-15 01:32:39 blair Exp $
+ * @version $Id: Group.java,v 1.48 2005-12-15 06:31:11 blair Exp $
  */
 public class Group implements Serializable {
 
   // Private Class Constants
-  private static final String ERR_AM    = "unable to add member: ";
-  private static final String ERR_DG    = "unable to delete group: ";
-  private static final String ERR_GDL   = "members list does not exist: ";
-  private static final String ERR_G2M   = "could not convert group to member: ";
-  private static final String ERR_G2S   = "could not convert group to subject: ";
-  private static final String ERR_DM    = "unable to delete member: ";
-  private static final String ERR_FNF   = "field not found: ";
-  private static final String ERR_GA    = "attribute not found: ";
-  private static final String ERR_NODE  = "group without displayExtension";
-  private static final String ERR_NODN  = "group without displayName";
-  private static final String ERR_NOE   = "group without extension";
-  private static final String ERR_NON   = "group without name";
-  private static final String ERR_S2G   = "could not convert subject to group: ";
-  private static final Log    LOG       = LogFactory.getLog(Group.class);
-  private static final String MSG_AM    = "add member ";
-  private static final String MSG_DG    = "group deleted: ";
-  private static final String MSG_DM    = "revoke member ";
+  private static final EventLog EL        = new EventLog();
+  private static final String   ERR_AM    = "unable to add member: ";
+  private static final String   ERR_DG    = "unable to delete group: ";
+  private static final String   ERR_GDL   = "members list does not exist: ";
+  private static final String   ERR_G2M   = "could not convert group to member: ";
+  private static final String   ERR_G2S   = "could not convert group to subject: ";
+  private static final String   ERR_DM    = "unable to delete member: ";
+  private static final String   ERR_FNF   = "field not found: ";
+  private static final String   ERR_GA    = "attribute not found: ";
+  private static final String   ERR_NODE  = "group without displayExtension";
+  private static final String   ERR_NODN  = "group without displayName";
+  private static final String   ERR_NOE   = "group without extension";
+  private static final String   ERR_NON   = "group without name";
+  private static final String   ERR_S2G   = "could not convert subject to group: ";
+  private static final Log      LOG       = LogFactory.getLog(Group.class);
+  private static final String   MSG_AM    = "add member ";
+  private static final String   MSG_DG    = "group deleted: ";
+  private static final String   MSG_DM    = "revoke member ";
 
 
   // Hibernate Properties
@@ -203,6 +205,8 @@ public class Group implements Serializable {
             MemberAddException,
             SchemaException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     String  msg = MSG_AM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
     GrouperLog.debug(LOG, this.s, msg);
     try {
@@ -224,8 +228,9 @@ public class Group implements Serializable {
       }
     }
     Membership.addImmediateMembership(this.s, this, subj, f);
-    GrouperLog.debug(LOG, this.s, msg + ": added");
-  } // public void addMember(subj, f)
+    sw.stop();
+    EL.groupAddMember(this.s, this.getName(), subj, f, sw);
+  } // protected void stemAddChildGroup(s, name, sw)
 
   /**
    * Delete this group from the Groups Registry.
@@ -248,6 +253,8 @@ public class Group implements Serializable {
             InsufficientPrivilegeException
   {
     // TODO Refactor into smaller components
+    StopWatch sw = new StopWatch();
+    sw.start();
     GrouperSession.validate(this.s);
     String msg = "delete";
     GrouperLog.debug(LOG, this.s, msg);
@@ -286,10 +293,14 @@ public class Group implements Serializable {
       // Add the group last for good luck    
       deletes.add(this);
 
+      // Preserve name for logging
+      String name = this.getName();
+
       // And then commit changes to registry
       HibernateHelper.delete(deletes);
       // TODO info
-      GrouperLog.debug(LOG, this.s, msg + " deleted");
+      sw.stop();
+      EL.groupDelete(this.s, name, sw);
     }
     catch (InsufficientPrivilegeException eIP) {
       LOG.debug(ERR_DG + eIP.getMessage());
@@ -326,7 +337,10 @@ public class Group implements Serializable {
   {
     // TODO This needs some refactoring.  Definitely some duplicate
     //      code between here and setAttribute() if nothing else.
-    String msg = "deleteAttribute: ";
+    StopWatch sw = new StopWatch();
+    sw.start();
+    String  val = new String(); // For logging
+    String  msg = "deleteAttribute: ";
     if ( (attr == null) || (attr.equals("")) ) {
       GrouperLog.debug(LOG, this.s, msg + "no attr");
       throw new GroupModifyException(msg + "no attr");
@@ -355,6 +369,7 @@ public class Group implements Serializable {
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().equals(f)) {
+          val = a.getValue();
           GrouperLog.debug(LOG, this.s, msg + "will delete '" + attr + "'");
           deletes.add(a);
           found = true;
@@ -387,6 +402,8 @@ public class Group implements Serializable {
       GrouperLog.debug(LOG, this.s, msg + eS.getMessage());
       throw new AttributeNotFoundException(msg + eS.getMessage());
     }
+    sw.stop();
+    EL.groupDelAttr(this.s, this.getName(), attr, val, sw);
   } // public void deleteAttribute(attr)
 
   /** 
@@ -443,6 +460,8 @@ public class Group implements Serializable {
             MemberDeleteException,
             SchemaException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     String  msg = MSG_DM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
     GrouperLog.debug(LOG, this.s, msg);
     try {
@@ -464,12 +483,13 @@ public class Group implements Serializable {
     }
     try {
       Membership.delImmediateMembership(this.s, this, subj, f);
-      GrouperLog.debug(LOG, this.s, msg + ": deleted");
     }
     catch (MembershipNotFoundException eMNF) {
       // TODO Why don't I throw this directly?
       throw new MemberDeleteException(eMNF.getMessage());
     }
+    sw.stop();
+    EL.groupDelMember(this.s, this.getName(), subj, f, sw);
   } // public void deleteMember(subj, f)
 
   public boolean equals(Object other) {
@@ -1169,9 +1189,13 @@ public class Group implements Serializable {
             InsufficientPrivilegeException,
             SchemaException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     PrivilegeResolver.getInstance().grantPriv(
       this.s, this, subj, priv
     );
+    sw.stop();
+    EL.groupGrantPriv(this.s, this.getName(), subj, priv, sw);
   }  // public void grantPriv(subj, priv)
 
   /**
@@ -1494,9 +1518,13 @@ public class Group implements Serializable {
             RevokePrivilegeException,
             SchemaException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     PrivilegeResolver.getInstance().revokePriv(
       this.s, this, priv
     );
+    sw.stop();
+    EL.groupRevokePriv(this.s, this.getName(), priv, sw);
   } // public void revokePriv(priv)
 
   /**
@@ -1523,9 +1551,13 @@ public class Group implements Serializable {
             RevokePrivilegeException,
             SchemaException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
     PrivilegeResolver.getInstance().revokePriv(
       this.s, this, subj, priv
     );
+    sw.stop();
+    EL.groupRevokePriv(this.s, this.getName(), subj, priv, sw);
   } // public void revokePriv(subj, priv)
 
   /**
@@ -1557,6 +1589,8 @@ public class Group implements Serializable {
   {
     // TODO s,AttributeNotFoundException,SchemaException,?
     //      Or both?
+    StopWatch sw = new StopWatch();
+    sw.start();
     String msg = "setAttribute: ";
     if ( (value == null) || (value.equals("")) ) {
       GrouperLog.debug(LOG, this.s, msg + "no value");
@@ -1606,6 +1640,8 @@ public class Group implements Serializable {
       GrouperLog.debug(LOG, this.s, msg + eS.getMessage());
       throw new AttributeNotFoundException(msg + eS.getMessage());
     }
+    sw.stop();
+    EL.groupSetAttr(this.s, this.getName(), attr, value, sw);
   } // public void setAttribute(attr, value)
 
   /**
