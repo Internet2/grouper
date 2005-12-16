@@ -168,7 +168,7 @@
   />
 
   <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
-    maxElementsInMemory="50000"
+    maxElementsInMemory="5000"
     eternal="true"
     overflowToDisk="true"
   />
