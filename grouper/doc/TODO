@@ -4,13 +4,21 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.18 2005-12-15 19:42:25 blair Exp $
+$Id: TODO,v 1.19 2005-12-16 21:48:00 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Post-Code Freeze
+
+* update impl guide
+  * note what adjusts modified time
+  * wheel group
+  * ALL + toggles
+  * contrib
+* javadoc
+  * especially query api javadoc  
 
 * Profile
   * Gary: "By using GrouperAll instead of qsuob:all for assigning 'global'
@@ -20,19 +28,10 @@ $Id: TODO,v 1.18 2005-12-15 19:42:25 blair Exp $
     * Metrics
     * Switch from `find()` to `iterate()`
     * Cache queries
-* Replace contrib items with updated cdg
-
-* update impl guide
-  * note what adjusts modified time
-  * wheel group
-  * ALL + toggles
-
-* Config options for cache flushing (and do I flush on revoke all?)
-* javadoc
-  * especially query api javadoc  
 * Logging
   * _ErrorLog_
   * _DebugLog_
+* Config options for cache flushing (and do I flush on revoke all?)
 * EXPLAIN sql queries
 * Consolidate _Membership_ index (or will Oracle kvetch about that one
   as well?)
@@ -45,6 +44,7 @@ $Id: TODO,v 1.18 2005-12-15 19:42:25 blair Exp $
 
 ## Features
 * Filter by specific stem-attributes
+* XML Import|Export (XStream?)
 
 ## Internals
 * Stem: _addChildGroup()_ and _addChildStems()_ should take an optional
@@ -96,6 +96,7 @@ $Id: TODO,v 1.18 2005-12-15 19:42:25 blair Exp $
 * Group Hierarchy depth restrictions
 * Improved, expanded and more consistent logging policy (#226)
 * Search limits
+
 
 
 
