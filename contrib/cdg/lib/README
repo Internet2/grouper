@@ -1,0 +1,18 @@
+
+# README
+
+This file provides information on the third party libraries that ship
+with this distribution.
+
+$Id: README,v 1.1 2005-12-16 21:48:00 blair Exp $
+
+---
+
+## ostermillerutils.jar
+
+CSV parsing library.
+
+* Version:  1_05_00 for Java 1.4
+* Source:   <http://ostermiller.org/utils/>
+* License:  GPL, Version 2.0+
+

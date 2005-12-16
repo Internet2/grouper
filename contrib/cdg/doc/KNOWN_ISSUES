@@ -1,0 +1,13 @@
+
+# com.devclue.grouper Known Issues
+
+This file provides information on known issues with the
+com.devclue.grouper package.
+
+$Id: KNOWN_ISSUES,v 1.1 2005-12-16 21:48:00 blair Exp $
+
+---
+
+* All interactions with the Grouper API run within the same
+  root-session and the session is never closed.
+

@@ -1,0 +1,56 @@
+
+# com.devclue.grouper NEWS
+
+This file provides information on com.devclue.grouper releases.
+
+$Id: NEWS,v 1.1 2005-12-16 21:48:00 blair Exp $
+
+---
+
+## com.devclue.grouper 0.2
+
+Released: 20051219
+
+### Changes
+
+* UPDATE: Now uses the Grouper 0.9 API.
+
+---
+
+## com.devclue.grouper 0.1
+
+Released: 20051027
+
+### Changes
+
+* NEW: _cdg.group.GroupAdd_ class for adding groups to the Groups
+  Registry.
+* NEW: _cdg.group.GroupQ_ class for querying groups in the Groups
+  Registry.
+* NEW: _cdg.registry.GroupRegistry_ class for interacting with the
+  Groups Registry outside of the Grouper API.
+* NEW: _cdg.registry.Reset_ class for resetting the Groups Registry as
+  an application.
+* NEW: _cdg.member.MemberAdd_ class for adding subjects to groups as
+  members.
+* NEW: _cdg.member.MemberQ_ class for querying what groups a subject
+  belongs to.
+* NEW: _cdg.member.MemberAdd_
+* NEW: _cdg.member.MemberQ_
+* NEW: _cdg.stem.StemAdd_ class for adding stems to the Groups
+  Registry.
+* NEW: _cdg.stem.StemQ_ class for querying stems in the Groups
+  Registry.
+* NEW: _cdg.subject.CSV2JDBC_ class for adding I2MI Subjects to the
+  Groups Registry for use with the JDBCSourceAdapter.
+* NEW: _cdg.subject.MockSourceAdapter_ class implementing the I2MI
+  Subject API _Source_ interface.
+* NEW: _cdg.subject.MockSubject_ class implementing the I2MI
+  Subject API _Subject_ interface.
+* NEW: _cdg.subject.SubjectAdd_ class for adding I2MI Subjects to the
+  Groups Registry for use with the JDBCSourceAdapter.
+* NEW: _cdg.subject.SubjectQ_ class that allows I2MI Subjects known to
+  Grouper to be queried by _subjectID_ or other well-known identifiers.
+* NEW: grouper-cli.sh shell script for running cdg classes as
+  applications
+
