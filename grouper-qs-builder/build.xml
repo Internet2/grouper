@@ -115,7 +115,7 @@
 			  </copy>
 			  <copy todir="${quickstart.dir}" file="doc/README.html"/>
 			  <copy tofile="${quickstart.dir}/build.xml" file="build-db.xml"/>
-			  <copy tofile="${quickstart.dir}/grouper/build.xml" file="grouper-bin-build.xml"/>
+			 <!-- <copy tofile="${quickstart.dir}/grouper/build.xml" file="grouper-bin-build.xml"/>-->
 			  <copy tofile="${quickstart.dir}/grouper-ui/contrib/quick-start/build.properties" file="quickstart-contrib-build.properties"/>
 			  <chmod dir="${quickstart.dir}" perm="+x" includes="*.sh"/>
 	 </target>
