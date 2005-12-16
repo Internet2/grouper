@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.23 2005-12-15 17:38:33 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.24 2005-12-16 21:53:35 blair Exp $
  */
 public class MembershipFinder {
 
@@ -617,6 +617,7 @@ public class MembershipFinder {
         );
       hs.close();
       GrouperLog.debug(LOG, s, MSG_FMSHIPSM_PRO + " unfiltered: " + l.size());
+      // TODO If field is a priv switch f to VIEW?
       mships.addAll( _filterMemberships(s, f, l) );
     }
     catch (HibernateException eH) {
