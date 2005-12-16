@@ -1,19 +1,30 @@
-<project name="local" default="help" basedir=".">
+<project name="local" default="help" basedir="../../">
 	<!-- Builds XmlLoader and allows you to run it -->
+	<property name="here" value="${basedir}/contrib/quick-start/"/>
+	<property file="${here}build.properties"/>
 	<property file="build.properties"/>
-	<property file="../../build.properties"/>
 	<target name="build">
 		<fail unless="grouper.folder">grouper.folder must be set</fail>
 		<echo message="Working with grouper.folder=${grouper.folder}"/>
-		<mkdir dir="bin"/>
+		<mkdir dir="${here}bin"/>
 		<path id="contrib.class.path">
 			<fileset dir="${grouper.folder}/dist/lib">
 				<include name="**/*.jar"/>
 			</fileset>
+			<fileset dir="java/lib">
+				<include name="**/*.jar"/>
+			</fileset>
 		</path>
-		<javac srcdir="java/src" destdir="bin" classpathref="contrib.class.path" debuglevel="${debug.level}" debug="${debug}"/>
+		<echo>Compiling UI code</echo>
+		<javac srcdir="java/src" destdir="${here}bin" classpathref="contrib.class.path" debuglevel="${debug.level}" debug="${debug}">
+		<include name="edu/internet2/middleware/grouper/*"/>
+		<include name="edu/internet2/middleware/grouper/ui/*"/>
+		<include name="edu/internet2/middleware/grouper/ui/util/*"/>
+		</javac>
+		<echo>Compiling XML Loader</echo>
+		<javac srcdir="${here}java/src" destdir="${here}bin" classpathref="contrib.class.path" debuglevel="${debug.level}" debug="${debug}"/>
 		<!-- make site specific jar files available to webapp -->
-		<copy toDir="bin" overwrite="true">
+		<copy toDir="${here}bin" overwrite="true">
 			<fileset dir="${grouper.folder}/conf"/>
 		</copy>
 	</target>
@@ -22,27 +33,27 @@
 		<antcall target="-load-ask-xml"/>
 	</target>
 	<target name="-load-with-xml" if="load.xml">
-		<available property="xml.available" file="${load.xml}"/>
-		<fail unless="xml.available" message="The file [${load.xml}] does not exist"/>
+		<available property="xml.available" file="${here}${load.xml}"/>
+		<fail unless="xml.available" message="The file [${here}${load.xml}] does not exist"/>
 		<echo message="Loading ${load.xml}"/>
 		<path id="contrib.class.path">
 			<!-- Add any site specific jar files to class path -->
 			<fileset dir="${grouper.folder}/dist/lib">
 				<include name="**/*.jar"/>
 			</fileset>
-			<fileset dir="../../java/lib">
+			<fileset dir="java/lib">
 				<include name="**/*.jar"/>
 			</fileset>
-			<pathelement path="bin"/>
+			<pathelement path="${here}bin"/>
 		</path>
 		<java classname="uk.ac.bris.is.grouper.quickstart.XmlLoader" classpathref="contrib.class.path">
-			<arg value="${load.xml}"/>
+			<arg value="${here}${load.xml}"/>
 		</java>
 	</target>
 	<target name="-load-ask-xml" unless="load.xml">
 		<input addproperty="load.xml" message="Enter Xml filename to load:"/>
 		<antcall target="-load-with-xml">
-			<param name="load.xml" value="${load.xml}"/>
+			<param name="load.xml" value="${here}${load.xml}"/>
 		</antcall>
 	</target>
 	<target name="help">
@@ -53,7 +64,9 @@ The 'load' target attemps to load an Xml file
 the property load.xml. This property can be
 set on the command line, in a build.properties file in this
 directory, or in the main grouper-ui build.properties file. 
-If none is specified you will be prompted to enter a file name.
+If none is specified you will be prompted to enter a file name. 
+You must use a relative path to identify the file. An absolute 
+path will not work.
 			  
 The grouper.folder property must be set - can be set as for load.xml
 except you won't be prompted for a value.  The Grouper and Subject
@@ -68,7 +81,7 @@ connections.
 			 classpath="bin"    
 			 access="public"     
 		  > 
-			<packageset dir="java/src" defaultexcludes="yes">
+			<packageset dir="${here}java/src" defaultexcludes="yes">
 			  <include name="*/**"/>
 			  </packageset>
 		   </javadoc> 
