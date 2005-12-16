@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.19 2005-12-16 21:48:00 blair Exp $
+$Id: TODO,v 1.20 2005-12-16 21:59:29 blair Exp $
 
 ---
 
@@ -12,6 +12,7 @@ $Id: TODO,v 1.19 2005-12-16 21:48:00 blair Exp $
 
 ## Post-Code Freeze
 
+* BUG: hasmember/optin
 * update impl guide
   * note what adjusts modified time
   * wheel group
