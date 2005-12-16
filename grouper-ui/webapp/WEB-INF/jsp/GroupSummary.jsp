@@ -3,7 +3,7 @@
 			the maintenance of the group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupSummary.jsp,v 1.4 2005-12-08 15:33:28 isgwb Exp $
+  @version $Id: GroupSummary.jsp,v 1.5 2005-12-16 11:26:39 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -51,9 +51,7 @@
 
 		<div class="linkButton">
 		<tiles:insert definition="callerPageButtonDef"/>
-		<!--html:link page="/populateSubjectSummary.do">
-					<fmt:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
-		</html:link-->
+
 		<html:link page="/populateGroupSummary.do" name="browseParent">
 					<fmt:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
 		</html:link>
