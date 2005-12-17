@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.43 2005-12-15 06:31:11 blair Exp $
+ * @version $Id: Stem.java,v 1.44 2005-12-17 18:17:53 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -264,8 +264,11 @@ public class Stem implements Serializable {
       Set children  = this.getChild_stems();
       children.add(child);
       this.setChild_stems(children);
-      // Now commit to registry
-      HibernateHelper.save(this);
+      // And save
+      Set objects = new LinkedHashSet();
+      objects.add(child);
+      objects.add(this);
+      HibernateHelper.save(objects);
       sw.stop();
       EL.stemAddChildStem(this.s, child.getName(), sw);
       _grantDefaultPrivsUponCreate(child);
@@ -909,13 +912,13 @@ public class Stem implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("display_name", getDisplay_name())
-           .append("name", getName())
-           .append("uuid", getStem_id())
-           .append("creator_id", getCreator_id())
-           .append("modifier_id", getModifier_id())
-           .toString();
-  }
+      .append("displayName" , getDisplay_name() )
+      .append("name"        , getName()         )
+      .append("uuid"        , getStem_id()      )
+      .append("creator"     , getCreator_id()   )
+      .append("modifier"    , getModifier_id()  )
+      .toString();
+  } // public String toString()
 
 
   // Protected Class Methods

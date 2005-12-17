@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.30 2005-12-12 22:18:45 blair Exp $
+ * @version $Id: Member.java,v 1.31 2005-12-17 18:17:53 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -258,6 +258,9 @@ public class Member implements Serializable {
     throws  SchemaException
   {
     GrouperSession.validate(this.s);
+    if (!f.getType().equals(FieldType.LIST)) {
+      throw new SchemaException(f + " is not type " + FieldType.LIST);
+    }
     return MembershipFinder.findMemberships(
       this.s, this, f
     );
@@ -884,7 +887,7 @@ public class Member implements Serializable {
    */
   public boolean isMember(Group g) {
     try {
-      return this.isMember(g, Group.getDefaultList());
+      return this._isMember(g.getUuid(), Group.getDefaultList());
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
@@ -911,31 +914,6 @@ public class Member implements Serializable {
     throws  SchemaException
   {
     return this._isMember(g.getUuid(), f);
-/*
-    boolean rv  = false;
-    String  msg = "isMember '" + f.getName() + "' '";
-    if (
-      MembershipFinder.findMemberships(g.getUuid(), this, f).size() > 0
-    ) 
-    {
-      rv = true;
-      GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
-    }
-    else if (
-      MembershipFinder.findMemberships(
-        g.getUuid(), MemberFinder.findAllMember(), f
-      ).size() > 0
-    )
-    {
-      // TODO I wonder about this.
-      rv = true;
-      GrouperLog.debug(LOG, this.s, msg + GrouperConfig.ALL + "': " + rv);
-    }
-    else {
-      GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
-    }
-    return rv;
-*/
   } // public boolean isMember(g, f)
 
   /**
