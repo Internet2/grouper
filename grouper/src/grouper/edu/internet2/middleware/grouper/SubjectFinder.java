@@ -29,13 +29,15 @@ import  org.apache.commons.logging.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.11 2005-12-12 04:54:09 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.12 2005-12-17 18:29:30 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
   // Private Class Constants
   private static final String         ERR_IAS   = "unable to initialize ALL subject: ";
   private static final String         ERR_INIT  = "failed to initialize source manager: ";
+  private static final String         ERR_SNF   = "subject not found: ";
+  private static final String         ERR_SNU   = "subject not unique: ";
   private static final Log            LOG       = LogFactory.getLog(SubjectFinder.class);
   private static final SourceManager  MGR;
   private static final Subject        ALL; 
@@ -103,8 +105,11 @@ public class SubjectFinder implements Serializable {
     if (subjects.size() == 1) {
       return (Subject) subjects.get(0);
     }
-    throw new SubjectNotFoundException("subject not found: " + id);
-  }
+    else if (subjects.size() > 1) {
+      throw new SubjectNotFoundException(ERR_SNU + id); 
+    }
+    throw new SubjectNotFoundException(ERR_SNF + id);
+  } 
 
   /**
    * Get a subject by id and the specified type.
@@ -126,18 +131,16 @@ public class SubjectFinder implements Serializable {
   public static Subject findById(String id, String type) 
     throws SubjectNotFoundException
   {
-    String msg = "findById '" + id + "'/'" + type + "'";
-    LOG.debug(msg);
     List subjects  = SubjectFinder._findById(
       id, MGR.getSources(SubjectTypeEnum.valueOf(type)).iterator()
     );
-    LOG.debug(msg + " found: " + subjects.size());
     if (subjects.size() == 1) {
       return (Subject) subjects.get(0);
     }
-    String err = msg + " subject not found";
-    LOG.debug(err);
-    throw new SubjectNotFoundException(err);
+    else if (subjects.size() > 1) {
+      throw new SubjectNotFoundException(ERR_SNU + id + "," + type); 
+    }
+    throw new SubjectNotFoundException(ERR_SNF + id + "," + type);
   } // public static Subject findById(id, type)
 
   /**
@@ -165,7 +168,10 @@ public class SubjectFinder implements Serializable {
     if (subjects.size() == 1) {
       return (Subject) subjects.get(0);
     }
-    throw new SubjectNotFoundException("subject not found: " + id);
+    else if (subjects.size() > 1) {
+      throw new SubjectNotFoundException(ERR_SNU + id);
+    }
+    throw new SubjectNotFoundException(ERR_SNF + id);
   }
 
   /**
@@ -194,7 +200,10 @@ public class SubjectFinder implements Serializable {
     if (subjects.size() == 1) {
       return (Subject) subjects.get(0);
     }
-    throw new SubjectNotFoundException("subject not found: " + id);
+    else if (subjects.size() > 1) {
+      throw new SubjectNotFoundException(ERR_SNU + id + "," + type); 
+    }
+    throw new SubjectNotFoundException(ERR_SNF + id + "," + type);
   }
 
   /**
