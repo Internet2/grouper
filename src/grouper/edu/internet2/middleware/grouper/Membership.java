@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.22 2005-12-15 18:44:45 blair Exp $
+ * @version $Id: Membership.java,v 1.23 2005-12-17 18:17:53 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -86,6 +86,12 @@ public class Membership implements Serializable {
     this.setField(f);
     // Set UUID
     this.setUuid( GrouperUuid.getUuid() );
+    // Set depth
+    this.setDepth(0);
+    // Set via
+    this.setVia_id(null);
+    // Set parent membership
+    this.setParent_membership(null);
   } // protected Membership(s, oid, m, f)
 
 
@@ -271,9 +277,9 @@ public class Membership implements Serializable {
 
   // Protected Class Methods
 
-  // TODO REFACTOR/DRY
+
   protected static void addImmediateMembership(
-    GrouperSession s, Group g, Subject subj, Field f
+    GrouperSession s, Object o, Subject subj, Field f
   )
     throws  InsufficientPrivilegeException,
             MemberAddException,
@@ -291,90 +297,34 @@ public class Membership implements Serializable {
       );
       objects.add(m);
 
-      g.setModified();
-      objects.add(g);
+      if (o.getClass().equals(Group.class)) {
+        ( (Group) o).setModified();
+      }
+      else {
+        ( (Stem) o).setModified();
+      }
 
       // Create the immediate membership
-      Membership imm = _addMembership(s, g, m, f);
-      objects.add(imm);
+      Membership imm = _addMembership(s, o, m, f);
 
       // Find effective memberships
       Set effs = _findEffectiveMemberships(s, imm);
       objects.addAll(effs);
 
-      // And then save group and memberships
+      // And then save owner and memberships
+      objects.add(imm);
+      objects.add(o);
       HibernateHelper.save(objects);
-      EL.addEffMembers(s, g, subj, f, effs);
+      EL.addEffMembers(s, o, subj, f, effs);
     }
-    catch (GroupNotFoundException eGNF) {
-      msg += ": " + eGNF.getMessage();
-      GrouperLog.debug(LOG, s, msg);
-      throw new MemberAddException(msg);
+    catch (MemberAddException eMA) {
+      throw eMA;
     }
-    catch (HibernateException eH) {
-      msg += ": " + eH.getMessage();
-      GrouperLog.debug(LOG, s, msg);
-      throw new MemberAddException(msg);
-    }
-    catch (MemberNotFoundException eMNF) {
-      msg += ": " + eMNF.getMessage();
-      GrouperLog.debug(LOG, s, msg);
-      throw new MemberAddException(msg);
+    catch (Exception e) {
+      throw new MemberAddException(e.getMessage());
     }
   } // protected static void addImmediateMembership(s, g, subj, f)
 
-  // TODO REFACTOR/DRY
-  protected static void addImmediateMembership(
-    GrouperSession s, Stem ns, Subject subj, Field f
-  )
-    throws  InsufficientPrivilegeException,
-            MemberAddException,
-            SchemaException
-  {
-    GrouperSession.validate(s);
-    String msg = "addImmediateMembership '" + f + "'";
-    GrouperLog.debug(LOG, s, msg);
-    try {
-      // The objects that will need saving
-      Set     objects = new LinkedHashSet();
-      // Who we're adding
-      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
-        s, subj, msg
-      );
-      objects.add(m);
-
-      ns.setModified();
-      objects.add(ns);
-
-      // Create the immediate membership
-      Membership imm = _addMembership(s, ns, m, f);
-      objects.add(imm);
-
-      // Find effective memberships
-      Set effs = _findEffectiveMemberships(s, imm);
-      objects.addAll(effs);
-
-      // And then save group and memberships
-      HibernateHelper.save(objects);
-      GrouperConfig cfg = GrouperConfig.getInstance();
-      EL.addEffMembers(s, ns, subj, f, effs);
-    }
-    catch (GroupNotFoundException eGNF) {
-      msg += ": " + eGNF.getMessage();
-      GrouperLog.debug(LOG, s, msg);
-      throw new MemberAddException(msg);
-    }
-    catch (HibernateException eH) {
-      msg += ": " + eH.getMessage();
-      GrouperLog.debug(LOG, s, msg);
-      throw new MemberAddException(msg);
-    }
-    catch (MemberNotFoundException eMNF) {
-      msg += ": " + eMNF.getMessage();
-      GrouperLog.debug(LOG, s, msg);
-      throw new MemberAddException(msg);
-    }
-  } // protected static void addImmediateMembership(s, ns, subj, f)
 
   // TODO REFACTOR/DRY
   protected static void delImmediateMembership(

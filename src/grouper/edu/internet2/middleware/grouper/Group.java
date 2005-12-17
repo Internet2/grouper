@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.48 2005-12-15 06:31:11 blair Exp $
+ * @version $Id: Group.java,v 1.49 2005-12-17 18:17:53 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -1800,12 +1800,12 @@ public class Group implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("name"         , this.getName()        )
-           .append("displayName"  , this.getDisplayName() )
-           .append("uuid"         , this.getUuid()        )
-           .append("creator_id"   , getCreator_id()       )
-           .append("modifier_id"  , getModifier_id()      )
-           .toString();
+      .append("name"        , this.getName()        )
+      .append("displayName" , this.getDisplayName() )
+      .append("uuid"        , this.getUuid()        )
+      .append("creator"     , getCreator_id()       )
+      .append("modifier"    , getModifier_id()      )
+      .toString();
   } // public String toString()
 
 

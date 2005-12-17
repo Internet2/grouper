@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.24 2005-12-16 21:53:35 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.25 2005-12-17 18:17:53 blair Exp $
  */
 public class MembershipFinder {
 
@@ -614,11 +614,35 @@ public class MembershipFinder {
         new Type[] {
           Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
         }
-        );
+      );
+      Member all = MemberFinder.findAllMember();
+      l.addAll( 
+        hs.find(
+          "from Membership as ms where  "
+          + "ms.member_id       = ?     "
+          + "and ms.field.name  = ?     " 
+          + "and ms.field.type  = ?     ",
+          new Object[] {
+            all.getId(), f.getName(), f.getType().toString()
+          },
+          new Type[] {
+            Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+          }
+        )
+      );
       hs.close();
       GrouperLog.debug(LOG, s, MSG_FMSHIPSM_PRO + " unfiltered: " + l.size());
-      // TODO If field is a priv switch f to VIEW?
-      mships.addAll( _filterMemberships(s, f, l) );
+
+      // If the session's member is equivalent to the member that we
+      // are searching for, don't filter the results, otherwise a
+      // member that has OPTIN, OPTOUT, etc will have those results
+      // filtered out.
+      if (s.getMember().equals(m)) {
+        mships.addAll(l);
+      }
+      else {
+        mships.addAll( _filterMemberships(s, f, l) );
+      }
     }
     catch (HibernateException eH) {
       GrouperLog.error(LOG, s, MSG_FMSHIPSM_PRO + ": " + eH.getMessage());

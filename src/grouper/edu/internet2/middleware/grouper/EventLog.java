@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.1 2005-12-15 06:31:11 blair Exp $
+ * @version $Id: EventLog.java,v 1.2 2005-12-17 18:17:53 blair Exp $
  *     
 */
 class EventLog implements Serializable {
@@ -95,27 +95,25 @@ class EventLog implements Serializable {
 
 
   // Protected Instance Methods
- 
+
   protected void addEffMembers(
-    GrouperSession s, Group g, Subject subj, Field f, Set effs
-  ) 
+    GrouperSession s, Object o, Subject subj, Field f, Set effs
+  )
   {
-    if (this.log_eff_group_add == true) {
+    if 
+    ( o.getClass().equals(Group.class) && this.log_eff_group_add == true ) 
+    {
+      Group g = (Group) o;
       this._addEffs(s, "group=" + g.getName(), subj, f, effs);
     }
-    else {
-    }
-  } // protected void addEffMembers(s, g, subj, f, effs)
-
-  protected void addEffMembers(
-    GrouperSession s, Stem ns, Subject subj, Field f, Set effs
-  ) 
-  {
-    if (this.log_eff_stem_add == true) {
+    else if
+    ( o.getClass().equals(Group.class) && this.log_eff_group_add == true ) 
+    {
+      Stem ns = (Stem) o;
       this._addEffs(s, "stem=" + ns.getName(), subj, f, effs);
     }
-  } // protected void addEffMembers(s, ns, subj, f, effs)
-
+  } // protected void addEffMembers(s, o, subj, f, effs)
+ 
   protected void delEffMembers(
     GrouperSession s, Group g, Subject subj, Field f, Set effs
   ) 
