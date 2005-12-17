@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.21 2005-12-17 18:17:53 blair Exp $
+$Id: TODO,v 1.22 2005-12-17 18:29:30 blair Exp $
 
 ---
 
@@ -96,6 +96,7 @@ $Id: TODO,v 1.21 2005-12-17 18:17:53 blair Exp $
 * Group Hierarchy depth restrictions
 * Improved, expanded and more consistent logging policy (#226)
 * Search limits
+
 
 
 
