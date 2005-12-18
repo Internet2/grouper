@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.22 2005-12-17 18:29:30 blair Exp $
+$Id: TODO,v 1.23 2005-12-18 20:01:23 blair Exp $
 
 ---
 
@@ -12,14 +12,8 @@ $Id: TODO,v 1.22 2005-12-17 18:29:30 blair Exp $
 
 ## Post-Code Freeze
 
-* update impl guide
-  * note what adjusts modified time
-  * wheel group
-  * ALL + toggles
-  * contrib
 * javadoc
   * especially query api javadoc  
-
 * Profile
   * Gary: "By using GrouperAll instead of qsuob:all for assigning 'global'
     privs fewer effective grants are required, but if I grant access
@@ -31,26 +25,35 @@ $Id: TODO,v 1.22 2005-12-17 18:29:30 blair Exp $
 * Logging
   * _ErrorLog_
   * _DebugLog_
-* Config options for cache flushing (and do I flush on revoke all?)
-* EXPLAIN sql queries
-* Consolidate _Membership_ index (or will Oracle kvetch about that one
-  as well?)
-* _Membership_: Set via to null on immediate members
-* _Membership_: Map child memberships to enable batch fetching
 
 ---
 
 # Future
 
+## Documentation
+* API programming guide
+* Updated ERD
+
 ## Features
 * Filter by specific stem-attributes
-* XML Import|Export (XStream?)
+* XML Import|Export (using XStream?)
 
 ## Internals
 * Stem: _addChildGroup()_ and _addChildStems()_ should take an optional
   Properties arg that would override configuration defaults
 * Rework _PrivilegeCache_ so that I can expire individual entries
   instead of the full cache
+
+## Configuration
+* Config options for cache flushing (and do I flush on revoke all?)
+
+## Performance
+* EXPLAIN sql queries
+* _Membership_: Map child memberships to enable batch fetching
+
+## DDL
+* Consolidate _Membership_ index (or will Oracle kvetch about that one
+  as well?)
 
 ## DRY
 * Member: isMember(), isImmediateMember() and isEffectiveMember()
