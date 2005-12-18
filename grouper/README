@@ -10,7 +10,7 @@ testing and running Grouper.
 For more detailed information see:
   `doc/grouper-impl-guide.html`
 
-$Id: README,v 1.33 2005-12-15 14:47:49 blair Exp $
+$Id: README,v 1.34 2005-12-18 20:06:20 blair Exp $
 
 ---
 
@@ -43,8 +43,8 @@ applies it to the database
 
     % ant db-init
 
-This initializes the Groups Registry with Grouper's default tables
-and schema.
+This initializes the Groups Registry with Grouper's default schema and
+installs the root stem.
 
 ---
 
