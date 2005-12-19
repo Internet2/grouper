@@ -42,8 +42,8 @@ create table grouper_memberships (
    membership_uuid varchar(128),
    owner_id varchar(128) not null,
    member_id varchar(128) not null,
-   list_name varchar(128) not null,
-   list_type varchar(128) not null,
+   list_name varchar(32) not null,
+   list_type varchar(32) not null,
    via_id varchar(128),
    depth int,
    parent_membership varchar(128),
@@ -114,8 +114,8 @@ create table grouper_groups (
 create table grouper_fields (
    id varchar(128) not null,
    group_type varchar(128) not null,
-   field_type varchar(128) not null,
-   field_name varchar(128) not null,
+   field_type varchar(32) not null,
+   field_name varchar(32) not null,
    read_priv varchar(128) not null,
    write_priv varchar(128) not null,
    nullable bit,
@@ -138,8 +138,8 @@ create table grouper_attributes (
    id varchar(128) not null,
    version integer not null,
    group_id varchar(128),
-   field_name varchar(128) not null,
-   field_type varchar(128) not null,
+   field_name varchar(32) not null,
+   field_type varchar(32) not null,
    value varchar(1024) not null,
    primary key (id)
 );
