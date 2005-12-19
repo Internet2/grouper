@@ -1,13 +1,13 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.83 2005-12-15 06:31:11 blair Exp $
+$Id: NEWS,v 1.84 2005-12-19 19:11:18 blair Exp $
 
 ---
 
 # Version 0.9
 
-Released: December ??? 2005
+Released: 20051219
 
 ## Changes
 * NEW: New public API.
