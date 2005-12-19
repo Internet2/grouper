@@ -27,117 +27,117 @@ drop table grouper_fields cascade constraints;
 drop table grouper_factors cascade constraints;
 drop table grouper_attributes cascade constraints;
 create table grouper_members (
-   id varchar2(255) not null,
+   id varchar2(128) not null,
    subject_id varchar2(255) not null,
    subject_source varchar2(255) not null,
    subject_type varchar2(255) not null,
-   member_uuid varchar2(255) not null,
-   status_type varchar2(255),
+   member_uuid varchar2(128) not null,
+   status_type varchar2(128),
    status_ttl number(19,0),
    primary key (id),
    unique (subject_id, subject_source, subject_type)
 );
 create table grouper_memberships (
-   id varchar2(255) not null,
-   membership_uuid varchar2(255),
-   owner_id varchar2(255) not null,
-   member_id varchar2(255) not null,
-   list_name varchar2(255) not null,
-   list_type varchar2(255) not null,
-   via_id varchar2(255),
+   id varchar2(128) not null,
+   membership_uuid varchar2(128),
+   owner_id varchar2(128) not null,
+   member_id varchar2(128) not null,
+   list_name varchar2(32) not null,
+   list_type varchar2(32) not null,
+   via_id varchar2(128),
    depth int,
-   parent_membership varchar2(255),
-   creator_id varchar2(255),
+   parent_membership varchar2(128),
+   creator_id varchar2(128),
    create_time number(19,0) not null,
-   status_type varchar2(255),
+   status_type varchar2(128),
    status_ttl number(19,0),
    primary key (id),
    unique (membership_uuid, owner_id, member_id, list_name, list_type, via_id, depth)
 );
 create table grouper_sessions (
-   id varchar2(255) not null,
-   member_id varchar2(255),
+   id varchar2(128) not null,
+   member_id varchar2(128),
    start_time date not null,
-   session_uuid varchar2(255),
+   session_uuid varchar2(128),
    primary key (id)
 );
 create table grouper_groups_types (
-   group_id varchar2(255) not null,
-   type_id varchar2(255) not null,
+   group_id varchar2(128) not null,
+   type_id varchar2(128) not null,
    primary key (group_id, type_id)
 );
 create table grouper_stems (
-   id varchar2(255) not null,
+   id varchar2(128) not null,
    version number(10,0) not null,
-   creator_id varchar2(255) not null,
+   creator_id varchar2(128) not null,
    create_source varchar2(255),
    create_time number(19,0) not null,
    description varchar2(255),
    display_extension varchar2(255) not null,
    display_name varchar2(255) not null,
    extension varchar2(255) not null,
-   modifier_id varchar2(255),
+   modifier_id varchar2(128),
    modify_source varchar2(255),
    modify_time number(19,0),
    name varchar2(255) not null,
-   parent_stem varchar2(255),
-   stem_uuid varchar2(255),
-   status_type varchar2(255),
+   parent_stem varchar2(128),
+   stem_uuid varchar2(128),
+   status_type varchar2(128),
    status_ttl number(19,0),
    primary key (id)
 );
 create table grouper_types (
-   id varchar2(255) not null,
+   id varchar2(128) not null,
    name varchar2(255) not null unique,
-   creator_id varchar2(255),
+   creator_id varchar2(128),
    create_time number(19,0) not null,
-   status_type varchar2(255),
+   status_type varchar2(128),
    status_ttl number(19,0),
    primary key (id)
 );
 create table grouper_groups (
-   id varchar2(255) not null,
+   id varchar2(128) not null,
    version number(10,0) not null,
-   creator_id varchar2(255),
+   creator_id varchar2(128),
    create_source varchar2(255),
    create_time number(19,0) not null,
-   modifier_id varchar2(255),
+   modifier_id varchar2(128),
    modify_source varchar2(255),
    modify_time number(19,0),
-   parent_stem varchar2(255),
-   group_uuid varchar2(255),
-   status_type varchar2(255),
+   parent_stem varchar2(128),
+   group_uuid varchar2(128),
+   status_type varchar2(128),
    status_ttl number(19,0),
    primary key (id)
 );
 create table grouper_fields (
-   id varchar2(255) not null,
-   group_type varchar2(255) not null,
-   field_type varchar2(255) not null,
-   field_name varchar2(255) not null unique,
-   read_priv varchar2(255) not null,
-   write_priv varchar2(255) not null,
+   id varchar2(128) not null,
+   group_type varchar2(128) not null,
+   field_type varchar2(32) not null,
+   field_name varchar2(32) not null unique,
+   read_priv varchar2(128) not null,
+   write_priv varchar2(128) not null,
    nullable number(1,0),
    primary key (id)
 );
 create table grouper_factors (
-   id varchar2(255) not null,
+   id varchar2(128) not null,
    klass varchar2(255) not null,
-   factor_uuid varchar2(255),
-   creator_id varchar2(255),
+   factor_uuid varchar2(128),
+   creator_id varchar2(128),
    create_time number(19,0) not null,
-   node_a_id varchar2(255),
-   node_b_id varchar2(255),
-   status_type varchar2(255),
+   node_a_id varchar2(128),
+   node_b_id varchar2(128),
+   status_type varchar2(128),
    status_ttl number(19,0),
    primary key (id)
 );
 create table grouper_attributes (
-   id varchar2(255) not null,
+   id varchar2(128) not null,
    version number(10,0) not null,
-   group_id varchar2(255),
-   field_name varchar2(255) not null,
-   field_type varchar2(255) not null,
+   group_id varchar2(128),
+   field_name varchar2(32) not null,
+   field_type varchar2(32) not null,
    value varchar2(1024) not null,
    primary key (id)
 );
