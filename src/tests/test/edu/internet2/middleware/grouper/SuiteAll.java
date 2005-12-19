@@ -92,10 +92,10 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestStemAddChildStem.class);
     suite.addTestSuite(TestStemFinder.class);
     suite.addTestSuite(TestSuFiInSoAdFindById.class);
-    suite.addTestSuite(TestSuFiInSoAdFindByIdentifier.class);
+    suite.addTestSuite(TestSuFiInSoAdFindByIdfr.class);
     suite.addTestSuite(TestSuFiInSoAdSearch.class);
     suite.addTestSuite(TestSuFiGrSoAdFindById.class);
-    suite.addTestSuite(TestSuFiGrSoAdFindByIdentifier.class);
+    suite.addTestSuite(TestSuFiGrSoAdFindByIdfr.class);
     suite.addTestSuite(TestSuFiGrSoAdSearch.class);
     suite.addTestSuite(TestSubjectFinderInternal.class);  // TODO Hrm...
     suite.addTestSuite(TestWrongFieldType.class); 

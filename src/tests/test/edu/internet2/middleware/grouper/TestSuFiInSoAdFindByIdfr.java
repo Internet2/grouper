@@ -27,11 +27,11 @@ import  junit.framework.*;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdFindByIdentifier.java,v 1.4 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestSuFiInSoAdFindByIdfr.java,v 1.1 2005-12-19 20:40:21 blair Exp $
  */
-public class TestSuFiInSoAdFindByIdentifier extends TestCase {
+public class TestSuFiInSoAdFindByIdfr extends TestCase {
 
-  public TestSuFiInSoAdFindByIdentifier(String name) {
+  public TestSuFiInSoAdFindByIdfr(String name) {
     super(name);
   }
 

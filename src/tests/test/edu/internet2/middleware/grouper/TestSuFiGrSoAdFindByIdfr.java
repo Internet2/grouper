@@ -30,12 +30,12 @@ import  org.apache.commons.logging.*;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindByIdentifier.java,v 1.8 2005-12-11 09:36:05 blair Exp $
+ * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.1 2005-12-19 20:40:21 blair Exp $
  */
-public class TestSuFiGrSoAdFindByIdentifier extends TestCase {
+public class TestSuFiGrSoAdFindByIdfr extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestSuFiGrSoAdFindByIdentifier.class);
+  private static final Log LOG = LogFactory.getLog(TestSuFiGrSoAdFindByIdfr.class);
 
 
   // Private Class Variables
@@ -44,7 +44,7 @@ public class TestSuFiGrSoAdFindByIdentifier extends TestCase {
   private Group           i2;
 
 
-  public TestSuFiGrSoAdFindByIdentifier(String name) {
+  public TestSuFiGrSoAdFindByIdfr(String name) {
     super(name);
   }
 
