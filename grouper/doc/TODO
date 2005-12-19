@@ -4,56 +4,37 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.23 2005-12-18 20:01:23 blair Exp $
-
----
-
-# Grouper 0.9
-
-## Post-Code Freeze
-
-* javadoc
-  * especially query api javadoc  
-* Profile
-  * Gary: "By using GrouperAll instead of qsuob:all for assigning 'global'
-    privs fewer effective grants are required, but if I grant access
-    privs to qsuob:all_students which has 6 groups of 12 subjects as
-    immediate members, assignment is still quite slow."
-    * Metrics
-    * Switch from `find()` to `iterate()`
-    * Cache queries
-* Logging
-  * _ErrorLog_
-  * _DebugLog_
+$Id: TODO,v 1.24 2005-12-19 19:09:25 blair Exp $
 
 ---
 
 # Future
 
 ## Documentation
+* javadoc
+  * especially query api
 * API programming guide
 * Updated ERD
+
+## Performance
+* TestPerfBristol
+* EXPLAIN sql queries
+* _Membership_: Map child memberships to enable batch fetching
 
 ## Features
 * Filter by specific stem-attributes
 * XML Import|Export (using XStream?)
 
 ## Internals
+* _ErrorLog_
 * Stem: _addChildGroup()_ and _addChildStems()_ should take an optional
   Properties arg that would override configuration defaults
 * Rework _PrivilegeCache_ so that I can expire individual entries
   instead of the full cache
+* _DebugLog_
 
 ## Configuration
 * Config options for cache flushing (and do I flush on revoke all?)
-
-## Performance
-* EXPLAIN sql queries
-* _Membership_: Map child memberships to enable batch fetching
-
-## DDL
-* Consolidate _Membership_ index (or will Oracle kvetch about that one
-  as well?)
 
 ## DRY
 * Member: isMember(), isImmediateMember() and isEffectiveMember()
@@ -87,7 +68,6 @@ $Id: TODO,v 1.23 2005-12-18 20:01:23 blair Exp $
 
 ## Maybe
 * Membership: map via_id to Group.  Factors may break this.
-* Cache subjects
 * Removal of members that are no longer in use (#196)
 * Search by the set of groups or namespaces created or modified
   by a specified subject [S&B#12]
@@ -97,23 +77,5 @@ $Id: TODO,v 1.23 2005-12-18 20:01:23 blair Exp $
   member can be listed [S&B#10]
 * Paged search results
 * Group Hierarchy depth restrictions
-* Improved, expanded and more consistent logging policy (#226)
 * Search limits
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
