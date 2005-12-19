@@ -155,6 +155,7 @@
 			the maintenance of the group
 	</description>
     <put name="content" type="page" value="/WEB-INF/jsp/GroupSummary.jsp"/>
+	<put name="browseLocation" type="page" value="/WEB-INF/jsp/browseStemsLocation.jsp"/>
   </definition>
   
     <definition extends="BaseDef" name="SubjectSummaryDef">
@@ -420,6 +421,13 @@
 	  <description>
 		Tile which displays a  list of parent stems to show the location of the current group
 		or stem. The stem names are not links
+	  </description>
+ </definition>
+ 
+   <definition name="browseStemsLocationDef" path="/WEB-INF/jsp/browseStemsLocation.jsp" controllerUrl="/prepareBrowsePath.do">
+	  <description>
+		Tile which displays a  list of parent stems to show the location of the current group
+		or stem. The stem names are links
 	  </description>
  </definition>
  
