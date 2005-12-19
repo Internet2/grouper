@@ -163,7 +163,7 @@ import edu.internet2.middleware.grouper.*;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.4 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.5 2005-12-19 14:21:27 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -218,7 +218,9 @@ public abstract class GrouperCapableAction
 				request.setAttribute("timingsMS",new Long(diff+mss));
 			}
 			if(forward.getRedirect()&& !isEmpty(request.getAttribute("message"))) {
+				try {
 				session.setAttribute("sessionMessage",request.getAttribute("message"));
+				}catch(IllegalStateException e){}
 			}
 			if(Boolean.TRUE.equals(request.getAttribute("loggedOut"))) {
 				return forward;
