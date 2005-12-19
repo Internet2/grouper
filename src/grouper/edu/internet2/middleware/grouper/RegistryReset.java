@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.6 2005-12-15 19:42:26 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.7 2005-12-19 16:49:01 blair Exp $
  */
 public class RegistryReset {
 
@@ -117,7 +117,7 @@ public class RegistryReset {
     finally {
       rr._tearDown();
     } 
-    GrouperSession.resetAllCaches();
+    CacheMgr.resetAllCaches();
   } // public static void reset()
 
   /**
@@ -137,7 +137,7 @@ public class RegistryReset {
     finally {
       rr._tearDown();
     } 
-    GrouperSession.resetAllCaches();
+    CacheMgr.resetAllCaches();
   } // public static void resetRegistryAndAddTestSubjects()
 
 

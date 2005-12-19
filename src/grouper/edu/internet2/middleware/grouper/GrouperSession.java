@@ -33,7 +33,7 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.15 2005-12-15 06:31:11 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.16 2005-12-19 16:49:01 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -278,27 +278,6 @@ public class GrouperSession implements Serializable {
 
 
   // Protected Class Methods
-
-  protected static void resetAllCaches() {
-    try {
-      CacheManager  mgr       = CacheManager.create();
-      String        caches[]  = mgr.getCacheNames();
-      for (int i=0; i<caches.length; i++) {
-        Cache cache = mgr.getCache(caches[i]);
-        int   size  = cache.getSize();
-        if (size > 0) {
-          cache.removeAll();
-          LOG.info(GrouperLog.MSG_EC + caches[i] + ": " + size);
-        }
-      }
-    }
-    catch (Exception e) {
-      String err = GrouperLog.ERR_CMGR + e.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err);
-    }
-  } // static
-
   protected static void validate(GrouperSession s) {
     try {
       if (s == null) {

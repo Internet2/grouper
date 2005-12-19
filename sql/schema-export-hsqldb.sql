@@ -27,126 +27,127 @@ drop table grouper_fields if exists;
 drop table grouper_factors if exists;
 drop table grouper_attributes if exists;
 create table grouper_members (
-   id varchar(255) not null,
-   subject_id varchar(255),
-   subject_source varchar(255),
+   id varchar(128) not null,
+   subject_id varchar(255) not null,
+   subject_source varchar(255) not null,
    subject_type varchar(255) not null,
-   member_uuid varchar(255),
-   status_type varchar(255),
+   member_uuid varchar(128) not null,
+   status_type varchar(128),
    status_ttl bigint,
    primary key (id),
-   unique (subject_id, subject_source)
+   unique (subject_id, subject_source, subject_type)
 );
 create table grouper_memberships (
-   id varchar(255) not null,
-   membership_uuid varchar(255),
-   owner_id varchar(255) not null,
-   member_id varchar(255) not null,
-   list_name varchar(255) not null,
-   list_type varchar(255) not null,
-   via_id varchar(255),
+   id varchar(128) not null,
+   membership_uuid varchar(128),
+   owner_id varchar(128) not null,
+   member_id varchar(128) not null,
+   list_name varchar(128) not null,
+   list_type varchar(128) not null,
+   via_id varchar(128),
    depth int,
-   parent_membership varchar(255),
-   creator_id varchar(255),
+   parent_membership varchar(128),
+   creator_id varchar(128),
    create_time bigint not null,
-   status_type varchar(255),
+   status_type varchar(128),
    status_ttl bigint,
    primary key (id),
    unique (membership_uuid, owner_id, member_id, list_name, list_type, via_id, depth)
 );
 create table grouper_sessions (
-   id varchar(255) not null,
-   member_id varchar(255),
+   id varchar(128) not null,
+   member_id varchar(128),
    start_time timestamp not null,
-   session_uuid varchar(255),
+   session_uuid varchar(128),
    primary key (id)
 );
 create table grouper_groups_types (
-   group_id varchar(255) not null,
-   type_id varchar(255) not null,
+   group_id varchar(128) not null,
+   type_id varchar(128) not null,
    primary key (group_id, type_id)
 );
 create table grouper_stems (
-   id varchar(255) not null,
+   id varchar(128) not null,
    version integer not null,
-   creator_id varchar(255) not null,
+   creator_id varchar(128) not null,
    create_source varchar(255),
    create_time bigint not null,
    description varchar(255),
    display_extension varchar(255) not null,
    display_name varchar(255) not null,
-   extension varchar(255),
-   modifier_id varchar(255),
+   extension varchar(255) not null,
+   modifier_id varchar(128),
    modify_source varchar(255),
    modify_time bigint,
-   stem_name varchar(255) not null,
-   parent_stem varchar(255),
-   stem_uuid varchar(255),
-   status_type varchar(255),
+   name varchar(255) not null,
+   parent_stem varchar(128),
+   stem_uuid varchar(128),
+   status_type varchar(128),
    status_ttl bigint,
    primary key (id)
 );
 create table grouper_types (
-   id varchar(255) not null,
+   id varchar(128) not null,
    name varchar(255) not null,
-   creator_id varchar(255),
+   creator_id varchar(128),
    create_time bigint not null,
-   status_type varchar(255),
+   status_type varchar(128),
    status_ttl bigint,
    primary key (id),
    unique (name)
 );
 create table grouper_groups (
-   id varchar(255) not null,
+   id varchar(128) not null,
    version integer not null,
-   creator_id varchar(255),
+   creator_id varchar(128),
    create_source varchar(255),
    create_time bigint not null,
-   modifier_id varchar(255),
+   modifier_id varchar(128),
    modify_source varchar(255),
    modify_time bigint,
-   parent_stem varchar(255),
-   group_uuid varchar(255),
-   status_type varchar(255),
+   parent_stem varchar(128),
+   group_uuid varchar(128),
+   status_type varchar(128),
    status_ttl bigint,
    primary key (id)
 );
 create table grouper_fields (
-   id varchar(255) not null,
-   group_type varchar(255) not null,
-   field_type varchar(255) not null,
-   field_name varchar(255) not null,
-   read_priv varchar(255) not null,
-   write_priv varchar(255) not null,
+   id varchar(128) not null,
+   group_type varchar(128) not null,
+   field_type varchar(128) not null,
+   field_name varchar(128) not null,
+   read_priv varchar(128) not null,
+   write_priv varchar(128) not null,
    nullable bit,
    primary key (id),
    unique (field_name)
 );
 create table grouper_factors (
-   id varchar(255) not null,
+   id varchar(128) not null,
    klass varchar(255) not null,
-   factor_uuid varchar(255),
-   creator_id varchar(255),
+   factor_uuid varchar(128),
+   creator_id varchar(128),
    create_time bigint not null,
-   node_a_id varchar(255),
-   node_b_id varchar(255),
-   status_type varchar(255),
+   node_a_id varchar(128),
+   node_b_id varchar(128),
+   status_type varchar(128),
    status_ttl bigint,
    primary key (id)
 );
 create table grouper_attributes (
-   id varchar(255) not null,
+   id varchar(128) not null,
    version integer not null,
-   group_id varchar(255),
-   field_name varchar(255) not null,
-   field_type varchar(255) not null,
+   group_id varchar(128),
+   field_name varchar(128) not null,
+   field_type varchar(128) not null,
    value varchar(1024) not null,
-   primary key (id),
-   unique (group_id, field_name, field_type)
+   primary key (id)
 );
+create index member_subjectsource_idx on grouper_members (subject_source);
+create index member_subjectid_idx on grouper_members (subject_id);
 create index member_status_idx on grouper_members (status_type, status_ttl);
 create index member_uuid_idx on grouper_members (member_uuid);
-create index member_subject_idx on grouper_members (subject_id, subject_source);
+create index member_subjecttype_idx on grouper_members (subject_type);
 create index membership_depth_idx on grouper_memberships (depth);
 create index membership_owner_idx on grouper_memberships (owner_id);
 create index membership_status_idx on grouper_memberships (status_type, status_ttl);
@@ -162,6 +163,7 @@ alter table grouper_groups_types add constraint FKFBD60411E2E76DB foreign key (g
 alter table grouper_groups_types add constraint FKFBD6041CD26E040 foreign key (type_id) references grouper_types;
 create index stem_status_idx on grouper_stems (status_type, status_ttl);
 create index stem_extn_idx on grouper_stems (extension);
+create index stem_name_idx on grouper_stems (name);
 create index stem_createtime_idx on grouper_stems (create_time);
 create index stem_uuid_idx on grouper_stems (stem_uuid);
 alter table grouper_stems add constraint FKA98254373C82913E foreign key (parent_stem) references grouper_stems;

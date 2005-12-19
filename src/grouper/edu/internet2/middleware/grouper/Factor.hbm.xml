@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Factor.hbm.xml,v 1.7 2005-12-15 01:32:39 blair Exp $ -->
+<!-- $Id: Factor.hbm.xml,v 1.8 2005-12-19 16:49:01 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Factor" table="grouper_factors">
@@ -38,6 +38,7 @@ Group math factors.
     <id name="id" 
         type="string"
         unsaved-value="null"
+        length="128"
     >
       <generator class="uuid.hex"/>
     </id>
@@ -53,7 +54,9 @@ Group math factors.
               unique="true"
               index="factor_uuid_idx"
     >
-      <column name="factor_uuid"/>
+      <column name="factor_uuid"
+              length="128"
+      />
     </property>
     <!-- uuid -->
 
@@ -99,7 +102,9 @@ Group math factors.
               update="false"
               index="factor_status_idx"
     >
-      <column name="status_type"/>
+      <column name="status_type"
+              length="128"
+      />
       <column name="status_ttl"/>
     </property>
     <!-- status -->

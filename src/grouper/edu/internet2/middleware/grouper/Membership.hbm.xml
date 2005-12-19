@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.12 2005-12-15 01:32:39 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.13 2005-12-19 16:49:01 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -38,6 +38,7 @@ A list membership in the Groups Registry.
     <id name="id" 
         type="string"
         unsaved-value="null"
+        length="128"
     >
       <generator class="uuid.hex"/>
     </id>
@@ -52,6 +53,7 @@ A list membership in the Groups Registry.
     >
       <column name="membership_uuid"
               unique-key="members_idx"
+              length="128"
       />
     </property>
     <!-- group_id -->
@@ -65,6 +67,7 @@ A list membership in the Groups Registry.
       <column name="owner_id" 
               unique-key="members_idx"
               not-null="true"
+              length="128"
       />
     </property>
     <!-- owner_id -->
@@ -92,10 +95,12 @@ A list membership in the Groups Registry.
       <column name="list_name"
               not-null="true"
               unique-key="members_idx"
+              length="128"
       />
       <column name="list_type"
               not-null="true"
               unique-key="members_idx"
+              length="128"
       />
     </property>
     <!-- field -->
@@ -108,6 +113,7 @@ A list membership in the Groups Registry.
     >
       <column name="via_id" 
               unique-key="members_idx"
+              length="128"
       />
     </property>
     <!-- via_id -->
@@ -159,7 +165,9 @@ A list membership in the Groups Registry.
               update="false"
               index="membership_status_idx"
     >
-      <column name="status_type"/>
+      <column name="status_type"
+              length="128"
+      />
       <column name="status_ttl"/>
     </property>
     <!-- status -->

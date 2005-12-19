@@ -22,6 +22,7 @@ import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.*;
+import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;
 
 
@@ -29,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.12 2005-12-17 18:29:30 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.13 2005-12-19 16:49:01 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
@@ -131,6 +132,10 @@ public class SubjectFinder implements Serializable {
   public static Subject findById(String id, String type) 
     throws SubjectNotFoundException
   {
+    Subject subj = SubjectCache.getCache(SubjectCache.ID).get(id, type);
+    if (subj != null) {
+      return subj;
+    }
     List subjects  = SubjectFinder._findById(
       id, MGR.getSources(SubjectTypeEnum.valueOf(type)).iterator()
     );
@@ -194,6 +199,10 @@ public class SubjectFinder implements Serializable {
   public static Subject findByIdentifier(String id, String type) 
     throws SubjectNotFoundException
   {
+    Subject subj = SubjectCache.getCache(SubjectCache.IDFR).get(id, type);
+    if (subj != null) {
+      return subj;
+    }
     List subjects  = SubjectFinder._findByIdentifier(
       id, MGR.getSources(SubjectTypeEnum.valueOf(type)).iterator()
     );
@@ -260,6 +269,7 @@ public class SubjectFinder implements Serializable {
       try {
         subj = sa.getSubject(id);
         LOG.debug(_msg + " found: " + subj);
+        SubjectCache.getCache(SubjectCache.ID).put(subj);
         subjects.add(subj);
       }
       catch (SubjectNotFoundException e) {
@@ -279,6 +289,7 @@ public class SubjectFinder implements Serializable {
       try {
         subj = sa.getSubjectByIdentifier(id);
         LOG.debug("Found subject in " + sa.getId() + ": " + id);
+        SubjectCache.getCache(SubjectCache.IDFR).put(subj);
         subjects.add(subj);
       }
       catch (SubjectNotFoundException e) {

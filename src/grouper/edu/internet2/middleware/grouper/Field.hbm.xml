@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Field.hbm.xml,v 1.8 2005-12-12 16:07:24 blair Exp $ -->
+<!-- $Id: Field.hbm.xml,v 1.9 2005-12-19 16:49:01 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Field" table="grouper_fields">
@@ -38,6 +38,7 @@ Schema specification for a Group attribute or list.
     <id name="id" 
         type="string"
         unsaved-value="null"
+        length="128"
     >
       <generator class="uuid.hex"/>
     </id>
@@ -62,6 +63,7 @@ Schema specification for a Group attribute or list.
       type="edu.internet2.middleware.grouper.FieldTypeUserType"
       not-null="true"
       index="field_type_idx"
+      length="128"
     />
     <!-- field_type -->
 
@@ -71,6 +73,7 @@ Schema specification for a Group attribute or list.
       type="string"
       not-null="true"
       unique="true"
+      length="128"
     />
     <!-- field_name -->
 
@@ -79,6 +82,7 @@ Schema specification for a Group attribute or list.
       name="read_priv"
       type="edu.internet2.middleware.grouper.PrivilegeUserType"
       not-null="true"
+      length="128"
     />
     <!-- read_priv -->
 
@@ -87,6 +91,7 @@ Schema specification for a Group attribute or list.
       name="write_priv"
       type="edu.internet2.middleware.grouper.PrivilegeUserType"
       not-null="true"
+      length="128"
     />
     <!-- write_priv -->
   

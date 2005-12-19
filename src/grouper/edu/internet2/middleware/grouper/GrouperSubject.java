@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.logging.*;
 
 
@@ -28,7 +29,7 @@ import  org.apache.commons.logging.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.7 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.8 2005-12-19 16:49:01 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -37,9 +38,10 @@ public class GrouperSubject implements Subject {
   private static final Log  LOG         = LogFactory.getLog(GrouperSubject.class);
 
 
-  // Private Instance Methods
+  // Private Instance Variables
   private GrouperSourceAdapter  adapter = null;
   private Map                   attrs   = new HashMap(); 
+  private Group                 g       = null;
   private String                id      = null;
   private String                name    = null;
   private SubjectType           type    = SubjectTypeEnum.valueOf("group");
@@ -47,20 +49,23 @@ public class GrouperSubject implements Subject {
 
   // Constructors
   protected GrouperSubject(Group g, GrouperSourceAdapter sa) {
+    this.g        = g;
     this.id       = g.getUuid();
     this.name     = g.getName();
     this.adapter  = sa;
     // Attach attributes
-    this._addAttrs(g);
+    this._addAttrs();
   } // protected GrouperSubject(g, sa)
 
 
   // Public Instance Methods
   public Map getAttributes() {
+    this._addAttrs();
     return this.attrs;
   } // public Map getAttributes()
 
   public String getAttributeValue(String name) {
+    this._addAttrs();
     if (this.attrs.containsKey(name)) {
       return (String) this.attrs.get(name);
     }
@@ -112,18 +117,26 @@ public class GrouperSubject implements Subject {
     }
   } // private void _addAttr(attr, value)
 
-  private void _addAttrs(Group g) {
+  private void _addAttrs() {
     // TODO Ideally I wouldn't just iterate through the appropriate items in
     //      the fields list but I think I need more logic than that
     // TODO Attach lists.  Maybe.  Aren't there security issues with
     //      that?  We're already ignoring them when it comes to attributes.
     try {
+      Session hs = HibernateHelper.getSession();
+      hs.refresh(this.g);
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      LOG.error("unable to refresh group subject: " + this.name);
+    }
+    try {
       // Don't bother with any of the create* attrs unless we can find
       // the creating subject
-      Subject creator = g.getCreateSubject();
-      this._addAttr("createSubjectId"   , creator.getId()               );
-      this._addAttr("createSubjectType" , creator.getType().getName()   );
-      this._addAttr("createTime"        , g.getCreateTime().toString()  ); 
+      Subject creator = this.g.getCreateSubject();
+      this._addAttr("createSubjectId"   , creator.getId()                   );
+      this._addAttr("createSubjectType" , creator.getType().getName()       );
+      this._addAttr("createTime"        , this.g.getCreateTime().toString() ); 
     }
     catch (SubjectNotFoundException eSNF0) {
       // No creator?
@@ -131,15 +144,15 @@ public class GrouperSubject implements Subject {
     try {
       // Don't bother with any of the modify* attrs unless we can find
       // the modifying subject
-      Subject modifier = g.getModifySubject();
-      this._addAttr("modifySubjectId"   , modifier.getId()              );
-      this._addAttr("modifySubjectType" , modifier.getType().getName()  );
-      this._addAttr("modifyTime"        , g.getModifyTime().toString()  ); 
+      Subject modifier = this.g.getModifySubject();
+      this._addAttr("modifySubjectId"   , modifier.getId()                  );
+      this._addAttr("modifySubjectType" , modifier.getType().getName()      );
+      this._addAttr("modifyTime"        , this.g.getModifyTime().toString() ); 
     }
     catch (SubjectNotFoundException eSNF1) {
       // No modifier?
     }
-    Map       attrs = g.getAttributes();
+    Map       attrs = this.g.getAttributes();
     Iterator  iter  = attrs.keySet().iterator();
     while (iter.hasNext()) {
       String key = (String) iter.next();
