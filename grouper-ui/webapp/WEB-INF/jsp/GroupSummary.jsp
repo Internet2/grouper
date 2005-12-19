@@ -3,7 +3,7 @@
 			the maintenance of the group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupSummary.jsp,v 1.5 2005-12-16 11:26:39 isgwb Exp $
+  @version $Id: GroupSummary.jsp,v 1.6 2005-12-19 14:25:47 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -69,7 +69,7 @@
 			<h2 class="actionheader">
 				<fmt:message bundle="${nav}" key="groups.heading.select-other"/>
 			</h2>
-			<tiles:insert definition="browseStemsDef"/>
+			<tiles:insert definition="browseStemsLocationDef" />
 		</c:if>
 	</c:otherwise>
 </c:choose>
