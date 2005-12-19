@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.49 2005-12-17 18:17:53 blair Exp $
+ * @version $Id: Group.java,v 1.50 2005-12-19 19:02:03 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -133,7 +133,7 @@ public class Group implements Serializable {
    * <pre class="eg">
    * Field members = Group.getDefaultList();
    * </pre>
-   * @return  
+   * @return  The "members" {@link Field}
    */
   public static Field getDefaultList() {
     try {

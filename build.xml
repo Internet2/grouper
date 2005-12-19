@@ -1,10 +1,9 @@
-<!-- $Id: build.xml,v 1.80 2005-12-19 17:36:09 blair Exp $ -->
+<!-- $Id: build.xml,v 1.81 2005-12-19 19:02:03 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
   <!-- Global Properties -->
   <property name="app.name"               value="grouper"/>
-  <property name="javadoc.packages"       value="edu.internet2.middleware.grouper.*"/>
   <property name="impl.url" 
     value="http://middleware.internet2.edu/dir/groups/grouper/"/>
   <property name="impl.vendor"            value="Internet2"/>
@@ -221,15 +220,17 @@
   <target name="html" depends="build" description="generate public api docs" >
     <delete dir="${build.javadoc}"/>
     <mkdir  dir="${build.javadoc}"/>
-    <javadoc 
-      packagenames="${javadoc.packages}" 
-      sourcepath="${src.grouper}"
-      destdir="${build.javadoc}"
-      classpathref="project.classpath" 
-      access="public"
-      author="true"
-      stylesheetfile="${basedir}/doc/stylesheet.css"
-    />
+    <javadoc  destdir="${build.javadoc}"
+              author="true"
+              version="true"
+              access="public"
+              stylesheetfile="${basedir}/doc/stylesheet.css"
+              classpathref="project.classpath" 
+    >
+    <packageset dir="${src.grouper}" defaultexcludes="yes">
+      <exclude name="edu/internet2/middleware/grouper/stress/**"/>
+    </packageset>
+    </javadoc>
   </target>
   <!-- html -->
 
@@ -382,19 +383,6 @@
   <!-- test -->
 
   <target name="jar" depends="dist" />
-
-  <target name="all" depends="dist,test,html" />
-
-  <target name="html-internal" depends="init" description="generate internal api docs" >
-    <!-- Let's be sure we clear out old cruft first... -->
-    <delete dir="${javadoc.dest.internal}" />
-    <javadoc sourcepath="${javadoc.source}" 
-      destdir="${javadoc.dest.internal}" 
-      packagenames="${javadoc.packages}" 
-      classpathref="project.classpath" 
-      access="protected"
-      author="true"/>
-  </target>
 
   <target name="with.clover" depends="init">
     <taskdef resource="clovertasks"/>
