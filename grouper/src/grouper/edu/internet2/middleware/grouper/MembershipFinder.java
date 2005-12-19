@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.25 2005-12-17 18:17:53 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.26 2005-12-19 13:55:54 blair Exp $
  */
 public class MembershipFinder {
 
@@ -634,11 +634,16 @@ public class MembershipFinder {
       GrouperLog.debug(LOG, s, MSG_FMSHIPSM_PRO + " unfiltered: " + l.size());
 
       // If the session's member is equivalent to the member that we
-      // are searching for, don't filter the results, otherwise a
-      // member that has OPTIN, OPTOUT, etc will have those results
-      // filtered out.
+      // are searching for, don't filter the results - but still attach
+      // session, otherwise a member that has OPTIN, OPTOUT, etc
+      // will have those results filtered out.
       if (s.getMember().equals(m)) {
-        mships.addAll(l);
+        Iterator iter = l.iterator();
+        while (iter.hasNext()) {
+          Membership ms = (Membership) iter.next();
+          ms.setSession(s);
+          mships.add(ms);
+        }
       }
       else {
         mships.addAll( _filterMemberships(s, f, l) );
