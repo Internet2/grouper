@@ -9,20 +9,11 @@ This is a modified version of cdg for inclusion with Grouper.
 
 See <http://grouper.devclue.com/> for the original version and updates.
 
-$Id: README,v 1.1 2005-12-16 21:47:59 blair Exp $
+$Id: README,v 1.2 2005-12-19 20:16:04 blair Exp $
 
 ---
 
 ## Build
-
-Checkout Grouper from anonymous CVS, build the source and export the
-database schema.
-
-    % ant grouper
-
-Initialize the Groups Registry.
-
-    % ant grouper-cvs-db-init
 
 Build cdg.
 
