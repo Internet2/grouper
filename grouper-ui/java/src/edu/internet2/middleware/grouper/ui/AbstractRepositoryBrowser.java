@@ -44,6 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * repository.browser.create.hide-pre-root-node=true
  * repository.browser.create.flat-privs=CREATE STEM
  * repository.browser.create.flat-type=stem
+ * repository.browser.create.search=stems
  * <table width="100%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td><font face="Arial, Helvetica, sans-serif">Property</font></td>
@@ -89,6 +90,11 @@ import edu.internet2.middleware.subject.Subject;
       root node. This feature can be used to present a restricted view of the 
       hierarchy within the repository</font></td>
   </tr>
+   <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">search</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">groups / stems</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates what to search</font></td>
+  </tr>
 </table>
  * <p>By modifying these properties or writing new implementations sites can
  * customize the behaviour of existing browse modes, and create their own. Coupled
@@ -97,7 +103,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.3 2005-12-14 14:50:27 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.4 2005-12-19 14:22:56 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	protected String prefix = null;
@@ -111,6 +117,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	private String[] flatPrivs = {};
 	private String flatType = null;
 	private Subject subject = null;
+	protected String search=null;
 	protected Map savedValidStems=null;
 	
 	/**
@@ -134,6 +141,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		hidePreRootNode="true".equals(getProperty("hide-pre-root-node"));
 		flatType = getProperty("flat-type");
 		flatPrivs = getProperty("flat-privs").split(" ");
+		search = getProperty("search");
 	}
 
 	/**
@@ -363,10 +371,19 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	public List search(GrouperSession s, String query,String from, Map attr) throws Exception {
 		String searchInDisplayNameOrExtension = (String) attr.get("searchInDisplayNameOrExtension");
 		String searchInNameOrExtension = (String) attr.get("searchInNameOrExtension");
-		if(browseMode.equals("Create")) {
-			return GrouperHelper.searchStems(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension);
+		List results = null;
+		if("stems".equals(search)) {
+			results = GrouperHelper.searchStems(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension);
+		}else{
+			results = GrouperHelper.searchGroups(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension,browseMode);
 		}
-		return GrouperHelper.searchGroups(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension,browseMode);
+		List filtered = new ArrayList();
+		Object obj = null;
+		for(int i=0;i<results.size();i++) {
+			obj=results.get(i);
+			if(isValidSearchResult(obj)) filtered.add(obj);
+		}
+		return filtered;
 	}
 
 	
@@ -378,6 +395,41 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	 * @throws Exception
 	 */
 	protected abstract boolean isValidChild(Map child) throws Exception;
+	
+	/**
+	 * In order to have a generic search method, the decision to keep, or
+	 * not, a result has been factored out
+	 * @param searchResult
+	 * @return
+	 * @throws Exception
+	 */
+	protected boolean isValidSearchResult(Object searchResult) throws Exception {
+		if(searchResult instanceof Group) return isValidSearchResult((Group)searchResult);
+		if(searchResult instanceof Stem) return isValidSearchResult((Stem)searchResult);
+		throw new IllegalArgumentException("Only understand Groups or Stems");
+	}
+	
+	/**
+	 * In order to have a generic search method, the decision to keep, or
+	 * not, a result has been factored out
+	 * @param searchResult
+	 * @return
+	 * @throws Exception
+	 */
+	protected boolean isValidSearchResult(Group searchResult) throws Exception {
+		return false;
+	}
+	
+	/**
+	 * In order to have a generic search method, the decision to keep, or
+	 * not, a result has been factored out
+	 * @param searchResult
+	 * @return
+	 * @throws Exception
+	 */
+	protected boolean isValidSearchResult(Stem searchResult) throws Exception {
+		return false;
+	}
 	/**
 	 * @return Returns the browseMode.
 	 */

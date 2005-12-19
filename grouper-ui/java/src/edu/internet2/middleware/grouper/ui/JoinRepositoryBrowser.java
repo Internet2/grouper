@@ -19,22 +19,26 @@ package edu.internet2.middleware.grouper.ui;
 
 import java.util.Map;
 import java.util.Set;
+
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Implementation of RepositoryBrowser responsible for 'Join' browse mode
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: JoinRepositoryBrowser.java,v 1.2 2005-12-08 15:30:19 isgwb Exp $
+ * @version $Id: JoinRepositoryBrowser.java,v 1.3 2005-12-19 14:22:56 isgwb Exp $
  */
 
 public class JoinRepositoryBrowser extends AbstractRepositoryBrowser{
 	
 	
-	private Map savedValidStems=null;
+	
 
 	public JoinRepositoryBrowser(){
 		prefix = "repository.browser.join.";
@@ -51,6 +55,18 @@ public class JoinRepositoryBrowser extends AbstractRepositoryBrowser{
 		if(validStems.containsKey(name)) return true;
 		return false;
 	}
+	
+	/**
+	 * In order to have a generic search method, the decision to keep, or
+	 * not, a result has been factored out
+	 * @param searchResult
+	 * @return getGrouperSession().getSubject()
+	 * @throws Exception
+	 */
+	protected boolean isValidSearchResult(Group searchResult) throws Exception {
+		Subject subj = getGrouperSession().getSubject();
+		return (searchResult.hasOptin(subj));
+	}
 
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#getValidStems()
@@ -62,7 +78,7 @@ public class JoinRepositoryBrowser extends AbstractRepositoryBrowser{
 		GrouperSession s = getGrouperSession();
 		Member member = MemberFinder.findBySubject(s,s.getSubject());
 		groups = member.hasOptin();
-		
+				
 		validStems= getStems(groups);
 		return validStems;
 	}

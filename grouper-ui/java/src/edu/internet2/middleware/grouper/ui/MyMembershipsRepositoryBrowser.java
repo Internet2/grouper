@@ -19,9 +19,12 @@ package edu.internet2.middleware.grouper.ui;
 
 import java.util.Map;
 import java.util.Set;
+
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -29,7 +32,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.2 2005-12-08 15:30:19 isgwb Exp $
+ * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.3 2005-12-19 14:22:56 isgwb Exp $
  */
 
 public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
@@ -39,6 +42,16 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
 		browseMode = "";
 	}
 	
+	/**
+	 * In order to have a generic search method, the decision to keep, or
+	 * not, a result has been factored out
+	 * @param searchResult
+	 * @return
+	 * @throws Exception
+	 */
+	protected boolean isValidSearchResult(Group searchResult) throws Exception {
+		return searchResult.hasMember(getGrouperSession().getSubject());
+	}
 
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#isValidChild(java.util.Map)

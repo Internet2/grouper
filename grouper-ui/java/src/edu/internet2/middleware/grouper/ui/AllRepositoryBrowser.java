@@ -17,12 +17,14 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
+
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.subject.Subject;
+
 
 
 /**
@@ -30,7 +32,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AllRepositoryBrowser.java,v 1.2 2005-12-08 15:30:19 isgwb Exp $
+ * @version $Id: AllRepositoryBrowser.java,v 1.3 2005-12-19 14:22:56 isgwb Exp $
  */
 
 
@@ -61,19 +63,29 @@ public class AllRepositoryBrowser extends AbstractRepositoryBrowser{
 	
 		return false;
 	}
+	
+	/**
+	 * In order to have a generic search method, the decision to keep, or
+	 * not, a result has been factored out
+	 * @param searchResult
+	 * @return getGrouperSession().getSubject()
+	 * @throws Exception
+	 */
+	protected boolean isValidSearchResult(Group searchResult) throws Exception {
+		Subject subj = getGrouperSession().getSubject();
+		return (searchResult.hasView(subj)|| 
+				searchResult.hasRead(subj)||
+				searchResult.hasUpdate(subj)||
+				searchResult.hasAdmin(subj)||
+				searchResult.hasOptin(subj)||
+				searchResult.hasOptout(subj));
+	}
 
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#getValidStems()
 	 */
 	protected Map getValidStems() throws Exception{
-		Map validStems = savedValidStems;
-		if(validStems !=null) return validStems;
-		Set groups = null;
-		GrouperSession s = getGrouperSession();
-		Member member = MemberFinder.findBySubject(s,s.getSubject());
-		groups = member.getGroups();
-		
-		validStems= getStems(groups);
-		return validStems;
+
+		return new HashMap();
 	}
 }

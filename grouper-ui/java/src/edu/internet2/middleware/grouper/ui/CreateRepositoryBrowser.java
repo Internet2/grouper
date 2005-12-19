@@ -21,9 +21,12 @@ package edu.internet2.middleware.grouper.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.subject.Subject;
 
 
 
@@ -32,7 +35,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: CreateRepositoryBrowser.java,v 1.2 2005-12-08 15:30:19 isgwb Exp $
+ * @version $Id: CreateRepositoryBrowser.java,v 1.3 2005-12-19 14:22:56 isgwb Exp $
  */
 
 
@@ -66,6 +69,18 @@ public class CreateRepositoryBrowser extends AbstractRepositoryBrowser{
 		}catch(Exception e) {throw new RuntimeException(e);}
 		return (validStems.get(name)!=null);
 		
+	}
+	
+	/**
+	 * In order to have a generic search method, the decision to keep, or
+	 * not, a result has been factored out
+	 * @param searchResult
+	 * @return getGrouperSession().getSubject()
+	 * @throws Exception
+	 */
+	protected boolean isValidSearchResult(Stem searchResult) throws Exception {
+		Subject subj = getGrouperSession().getSubject();
+		return (searchResult.hasStem(subj)|| searchResult.hasCreate(subj));
 	}
 
 	/* (non-Javadoc)
