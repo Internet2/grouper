@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.5 2005-12-15 06:31:11 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.6 2005-12-19 16:49:01 blair Exp $
  */
 class SubjectHelper {
 
@@ -37,6 +37,9 @@ class SubjectHelper {
   // Protected Class Methods
 
   protected static boolean eq(Subject a, Subject b) {
+    if ( (a == null) || (b == null) ) {
+      return false;
+    }
     if 
     (
       a.getId().equals(b.getId())

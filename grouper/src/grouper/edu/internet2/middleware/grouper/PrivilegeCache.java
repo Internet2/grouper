@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege cache provider.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.2 2005-12-12 16:07:24 blair Exp $
+ * @version $Id: PrivilegeCache.java,v 1.3 2005-12-19 16:49:01 blair Exp $
  *     
 */
 class PrivilegeCache {
@@ -41,21 +41,7 @@ class PrivilegeCache {
 
 
   // Private Class Constants
-  private static final String       ERR_CNF = "cache not found: ";
-  private static final CacheManager MGR;
-  private static final Log          LOG     = LogFactory.getLog(PrivilegeCache.class);
-
-
-  static {
-    try {
-      MGR = CacheManager.create();
-    }
-    catch (CacheException eC) {
-      String err = GrouperLog.ERR_CMGR + eC.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err);
-    }
-  } // static
+  private static final Log LOG = LogFactory.getLog(PrivilegeCache.class);
 
 
   // Private Class Variables
@@ -86,21 +72,18 @@ class PrivilegeCache {
   // Hibernate Accessors
 
   // Protected Class Methods
-  protected static PrivilegeCache getCache(String name) {
+  protected static PrivilegeCache getCache(String name) 
+    throws  RuntimeException
+  {
     if (caches.containsKey(name)) {
       return (PrivilegeCache) caches.get(name);
     }
     else {
-      if (MGR.cacheExists(name)) {
-        Cache cache = MGR.getCache(name);
-        PrivilegeCache pc = new PrivilegeCache(cache);
-        caches.put(name, pc);
-        return pc;
-      }
+      Cache           cache = CacheMgr.getCache(name);
+      PrivilegeCache  pc    = new PrivilegeCache(cache);
+      caches.put(name, pc);
+      return pc;
     }
-    String err = ERR_CNF + NAMING;
-    LOG.fatal(err);
-    throw new RuntimeException(err);
   } // protected static PrivilegeCache getCache(name)
 
 

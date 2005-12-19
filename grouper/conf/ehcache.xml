@@ -28,7 +28,7 @@
                         the maxInMemory limit.
   -->
   <defaultCache
-    maxElementsInMemory="25000"
+    maxElementsInMemory="1000"
     eternal="false"
     timeToIdleSeconds="120"
     timeToLiveSeconds="120"
@@ -57,7 +57,7 @@
 
   <!-- Factors-->
   <cache  name="edu.internet2.middleware.grouper.Factor"
-          maxElementsInMemory="100"
+          maxElementsInMemory="25"
           eternal="false"
           timeToIdleSeconds="300"
           timeToLiveSeconds="600"
@@ -67,7 +67,7 @@
 
   <!-- Group Field Definitions -->
   <cache  name="edu.internet2.middleware.grouper.Field"
-          maxElementsInMemory="100"
+          maxElementsInMemory="25"
           eternal="false"
           timeToIdleSeconds="300"
           timeToLiveSeconds="600"
@@ -87,7 +87,7 @@
 
   <!-- Group Type Definitions -->
   <cache  name="edu.internet2.middleware.grouper.GroupType"
-          maxElementsInMemory="100"
+          maxElementsInMemory="25"
           eternal="false"
           timeToIdleSeconds="300"
           timeToLiveSeconds="600"
@@ -107,7 +107,7 @@
 
   <!-- Members -->
   <cache  name="edu.internet2.middleware.grouper.Member"
-          maxElementsInMemory="2500"
+          maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="300"
           timeToLiveSeconds="600"
@@ -117,7 +117,7 @@
 
   <!-- Memberships-->
   <cache  name="edu.internet2.middleware.grouper.Membership"
-          maxElementsInMemory="10000"
+          maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="300"
           timeToLiveSeconds="600"
@@ -127,7 +127,7 @@
 
   <!-- Access Privileges -->
   <cache  name="edu.internet2.middleware.grouper.PrivilegeCache.Access"
-          maxElementsInMemory="5000"
+          maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="300"
           timeToLiveSeconds="600"
@@ -137,7 +137,7 @@
 
   <!-- Naming Privileges -->
   <cache  name="edu.internet2.middleware.grouper.PrivilegeCache.Naming"
-          maxElementsInMemory="5000"
+          maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="300"
           timeToLiveSeconds="600"
