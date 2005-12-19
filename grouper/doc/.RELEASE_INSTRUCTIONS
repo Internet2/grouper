@@ -3,34 +3,40 @@
 
 Instructions for preparing a Grouper release.
 
-$Id: .RELEASE_INSTRUCTIONS,v 1.2 2005-12-13 04:51:11 blair Exp $
+$Id: .RELEASE_INSTRUCTIONS,v 1.3 2005-12-19 21:45:30 blair Exp $
 
 ---
 
 ## To Prepare For A Release:
 
-* Perform a fresh CVS checkout on OSX and Solaris
-* Successfully run test harness against HSQLDB and PostgreSQL on OSX
-* Successfully run test harness against HSQLDB and Oracle on Solaris
-* TODO Test contrib code
-* Review open grouperzilla tickets for this release
-* Review and update _doc/NEWS_, including version number
-* Review and update _doc/grouper-impl-guide.html_, including version
-  number and date
-* Update _impl.version_ in _build.xml_
+* Test CVS
+  * OSX/HSQLDB
+  * OSX/Postgres
+  * Solaris/HSQLDB
+  * Solaris/Oracle
+  * `contrib/cdg`
+* Document
+  * `doc/NEWS`, including version number and release date
+* Update `impl.version` in `build.xml`
+* Tag, branch and tarball
 
-* Tag and tarball
-  % cvs tag GROUPER_MAJOR_MINOR[_PATCH]
-  % cvs co -r$TAG grouper
-  % cvs export -r$TAG -d ./grouper-api-$VERSION grouper
-  % changelog > grouper-api-$VERSION/doc/CHANGES
-  % ant html
-  % mv dist/api grouper-api-$VERSION/doc/javadoc
-  % tar czvf ./grouper-api-$VERSION.tgz ./grouper-$VERSION
+    % cvs tag GROUPER_$MAJOR_$MINOR_[PATCH]
+    % cvs up -A
+    % cd $ELSEWHERE
+    % cvs co -r$TAG grouper
+    % cvs tag -b GROUPER_$MAJOR_$MINOR_BRANCH
+    % cvs export -r $TAG -d ./grouper-api-$VERSION grouper
+    % changelog > grouper-api-$VERSION/doc/CHANGES
+    % ant html
+    % mv dist/api grouper-api-$VERSION/doc/javadoc
+    % tar czvf ./grouper-api-$VERSION.tgz ./grouper-$VERSION
+
 * Test tarball
-** OSX: HSQLDB and PostgreSQL
-** Solaris: HSQLDB and Oracle
-* Branch CVS
-* Pass tarball along to the appropriate parties
+  * OSX/HSQLDB
+  * OSX/Postgres
+  * Solaris/HSQLDB
+  * Solaris/Oracle
+  * `contrib/cdg`
+* Pass along tarball
 * Notify grouper-dev
 
