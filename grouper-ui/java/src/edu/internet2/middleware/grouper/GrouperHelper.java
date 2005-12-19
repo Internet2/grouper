@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.4 2005-12-14 14:48:39 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.5 2005-12-19 14:22:20 isgwb Exp $
  */
 
 public class GrouperHelper {
@@ -1623,6 +1623,7 @@ public class GrouperHelper {
 		Iterator it = memberships.iterator();
 		while(it.hasNext()) {
 			gl = (Membership) it.next();
+			//gl.setSession(s);
 			if(gl.getGroup().getUuid().equals(group.getUuid())) {
 				ways.add(gl);
 			}
@@ -1767,7 +1768,7 @@ public class GrouperHelper {
 		Group g=null;
 		pm=m.getParentMembership();
 		while(pm!=null) {
-			if(pm.getMember().getSubjectId()!=via.getUuid()) {
+			if(!pm.getMember().getSubjectId().equals(via.getUuid())) {
 				g = GroupFinder.findByUuid(s,pm.getMember().getSubjectId());
 				chain.add(GrouperHelper.group2Map(s,g));	
 			}
