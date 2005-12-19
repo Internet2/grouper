@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.12 2005-12-09 07:35:38 blair Exp $
+ * @version $Id: MemberOf.java,v 1.13 2005-12-19 16:50:47 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -41,7 +41,6 @@ class MemberOf implements Serializable {
   private Group           g;
   private Member          m;
   private Membership      ms;
-  private String          msg;
   private Stem            ns;
   private GrouperSession  root;
   private GrouperSession  s;
@@ -49,9 +48,8 @@ class MemberOf implements Serializable {
 
   // Constructors
   private MemberOf(GrouperSession s, Membership ms) {
-    this.s    = s;
-    this.ms   = ms;
-    this.msg  = "doMemberOf for " + ms;
+    this.s  = s;
+    this.ms = ms;
   }
 
   // Protected Class Methods
@@ -74,19 +72,14 @@ class MemberOf implements Serializable {
             MemberNotFoundException
   {
     Set     mships  = new LinkedHashSet();
-    String  _msg    = this.msg + " addHasMembersToGroup";
-    GrouperLog.debug(LOG, this.s, _msg);
     Iterator iter = hasMembers.iterator();
     while (iter.hasNext()) {
       Membership hasMS = (Membership) iter.next();
-      GrouperLog.debug(LOG, this.s, _msg + " hasMember: " + hasMS);
       Membership  eff = Membership.newEffectiveMembership(
         this.s, this.ms, hasMS, 1
       );
       mships.add(eff);
-      GrouperLog.debug(LOG, this.s, _msg + " found: " + eff);
     }
-    GrouperLog.debug(LOG, this.s, _msg + ": " + mships.size());
     return mships;
   } // private Set _addHasMembersToGroup(hasMembers)
 
@@ -96,29 +89,23 @@ class MemberOf implements Serializable {
             MemberNotFoundException
   {
     Set     mships  = new LinkedHashSet();
-    String  _msg    = this.msg + " addHasMembersToWhereGroupIsMember";
-    GrouperLog.debug(LOG, this.s, _msg);
 
     // Add the members of m to where g is a member but only if f == "members"
     if (this.f.equals(Group.getDefaultList())) {
       Iterator isIter = isMember.iterator();
       while (isIter.hasNext()) {
         Membership isMS = (Membership) isIter.next();
-        GrouperLog.debug(LOG, this.s, _msg + " isMember: " + isMS);
         Iterator hasIter = hasMembers.iterator();
         while (hasIter.hasNext()) {
           Membership  hasMS = (Membership) hasIter.next();
-          GrouperLog.debug(LOG, this.s, _msg + " hasMembers: " + hasMS);
           Membership  eff   = Membership.newEffectiveMembership(
             this.s, isMS, hasMS, 2
           );
           mships.add(eff);
-          GrouperLog.debug(LOG, this.s, _msg + " found: " + eff);
         }
       }
     }
 
-    GrouperLog.debug(LOG, this.s, _msg + ": " + mships.size());
     return mships;
   } // private Set _addHasMembersToWhereGroupIsMember(isMember, hasMembers)
 
@@ -128,24 +115,19 @@ class MemberOf implements Serializable {
             MemberNotFoundException
   {
     Set     mships  = new LinkedHashSet();
-    String  _msg    = this.msg + " addMemberToWhereGroupIsMember";
-    GrouperLog.debug(LOG, this.s, _msg);
 
     // Add m to where g is a member if f == "members"
     if (this.f.equals(Group.getDefaultList())) {
       Iterator isIter = isMember.iterator();
       while (isIter.hasNext()) {
         Membership  isMS  = (Membership) isIter.next();
-        GrouperLog.debug(LOG, this.s, _msg + " isMember: " + isMS);
         Membership  eff   = Membership.newEffectiveMembership(
           this.s, isMS, this.ms, 1
         );
         mships.add(eff);
-        GrouperLog.debug(LOG, this.s, _msg + " found: " + eff);
       }
     }
 
-    GrouperLog.debug(LOG, this.s, _msg + ": " + mships.size());
     return mships;
   } // private Set _addHasMembersToWhereGroupIsMember(isMember, hasMembers)
 
@@ -155,7 +137,6 @@ class MemberOf implements Serializable {
             MemberNotFoundException
   {
     this._extractObjects();
-    GrouperLog.debug(LOG, s, msg);
 
     Set mships  = new LinkedHashSet();
 
@@ -164,11 +145,9 @@ class MemberOf implements Serializable {
     if (this.g != null) {
       isMember = this.g.toMember().getAllMemberships();
     }
-    GrouperLog.debug(LOG, this.s, this.msg + " g isMember: " + isMember.size());
 
     // Members of m if m is a group
     Set hasMembers  = this._findMembersOfMember();
-    GrouperLog.debug(LOG, this.s, this.msg + " m hasMembers: " + hasMembers.size());
 
     // Add m to where g is a member if f == "members"
     mships.addAll( this._addMemberToWhereGroupIsMember(isMember) );
@@ -180,7 +159,6 @@ class MemberOf implements Serializable {
     mships.addAll( this._addHasMembersToWhereGroupIsMember(isMember, hasMembers) );
 
     Set results = this._resetObjects(mships);
-    GrouperLog.debug(LOG, this.s, this.msg + " total: " + results.size());
     return results;
   } // private Set _calculate()
 
@@ -213,20 +191,16 @@ class MemberOf implements Serializable {
     throws  GroupNotFoundException
   {
     Set     hasMembers  = new LinkedHashSet();
-    String  _msg        = this.msg + " findMembersOfMember " + m;
-    GrouperLog.debug(LOG, this.s, _msg);
 
     // If member is a group, convert to group and find its members.
     if (this.m.getSubjectTypeId().equals("group")) {
       // Convert member back to a group
       Group gAsM = this.m.toGroup();
-      GrouperLog.debug(LOG, this.s, _msg + " is group");
       // And attach root session for better looking up of memberships
       gAsM.setSession(this.root);
       // Find members of m 
       hasMembers = gAsM.getMemberships();
     }
-    GrouperLog.debug(LOG, this.s, _msg + " found: " + hasMembers.size());
     return hasMembers;
   } // private Set _findMembersOfMember()
 
@@ -249,7 +223,6 @@ class MemberOf implements Serializable {
       Membership found = (Membership) iter.next();    
       found.setSession(this.s);
       results.add(found);
-      GrouperLog.debug(LOG, this.s, this.msg + " found: " + found);
     }
     return results;
   } // private Set _resetObjects(mships)
