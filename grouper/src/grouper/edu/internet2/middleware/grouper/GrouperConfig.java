@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.10 2005-12-15 06:31:11 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.11 2005-12-19 19:02:03 blair Exp $
  *     
 */
 public class GrouperConfig {
@@ -72,7 +72,7 @@ public class GrouperConfig {
 
   /**
    * Get Grouper configuration instance.
-   * @returns {@link GrouperConfig} singleton.
+   * @return  {@link GrouperConfig} singleton.
    */
   public static GrouperConfig getInstance() {
     if (cfg == null) {
@@ -86,7 +86,7 @@ public class GrouperConfig {
 
   /**
    * Get a Grouper configuration parameter.
-   * @returns Value of configuration parameter or an empty string if
+   * @return  Value of configuration parameter or an empty string if
    *   parameter is invalid.
    */
   public String getProperty(String property) {
