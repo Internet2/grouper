@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.79 2005-12-15 19:42:25 blair Exp $ -->
+<!-- $Id: build.xml,v 1.80 2005-12-19 17:36:09 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -69,8 +69,15 @@
           description="applies filter to several configuration files to set full paths"
           depends="init"
   >
-    <dirname property="filter.base" file="build.xml"/>
-    <filter token="base"  value="${filter.base}"/>
+    <dirname  property="base" 
+              file="build.xml"
+    />
+    <pathconvert  targetos="unix"
+                  property="converted.base"
+    >
+        <path path="${base}"/>
+    </pathconvert>
+    <filter token="base"  value="${converted.base}"/>
     <filter token="slash" value="${file.separator}"/>
     <copy todir="${conf}" filtering="true">
       <fileset dir="${src.conf}"/>
