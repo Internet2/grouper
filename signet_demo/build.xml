@@ -2,14 +2,14 @@
 <!-- ====================================================================== 
      Dec 19, 2005 3:47:02 PM                                                        
 
-     signet_quickstart    
+     signet_demo    
      This build-file creates a complete Signet webapp installation, complete
      with database server and webserver, and then packages that installation
      into a zip-file.
                    
      Andy Cohen                                                                
      ====================================================================== -->
-<project name="signet_quickstart" default="build">
+<project name="signet_demo" default="build">
 	
   <description>
     This build-file creates a complete Signet webapp installation, complete
