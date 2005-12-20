@@ -95,11 +95,11 @@
   <li><a href="#emptyHsqldb">start with an empty HSQLDB database</a>, or</li>
   <li><a href="#emptyAlternative">an empty supported database from another vendor</a></li>
 </ol>
-<p>*running <font face="Courier New, Courier, mono">ant db-init</font> (see instructions 
-  below) creates the database tables and essential data for Grouper to work, including 
-  a <font face="Courier New, Courier, mono">GrouperSystem</font> subject. The 
-  Grouper UI allows you to create new stems and groups, but not subjects. See 
-  <a href="#loadingData">Loading your own data</a> for details on how to batch load data.</p>
+<p>*running <font face="Courier New, Courier, mono">ant schemaexport </font>and<font face="Courier New, Courier, mono"> 
+  ant db-init</font> (see instructions below) creates the database tables and 
+  essential data for Grouper to work. The Grouper UI allows you to create new 
+  stems and groups, but not subjects. See <a href="#loadingData">Loading your 
+  own data</a> for details on how to batch load data.</p>
 <h3 id="emptyHsqldb" name="emptyHsqldb">Setting up the QuickStart with an empty 
   HSQLDB database</h3>
 <ol>
@@ -108,6 +108,8 @@
   <li>copy <font face="Courier New, Courier, mono">grouper-qs/grouper/dist/run/grouper.script.empty</font> 
     to <font face="Courier New, Courier, mono">grouper-qs/grouper/dist/run/grouper.script</font> 
   </li>
+  <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
+    <font face="Courier New, Courier, mono">ant schemaexport</font></li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
     <font face="Courier New, Courier, mono">ant db-init</font></li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs</font> type <font face="Courier New, Courier, mono">ant 
@@ -125,13 +127,12 @@
     by uncommenting the same keys under their chosen database, ensuring a valid 
     conection url and correct<font face="Courier New, Courier, mono"> hibernate.connection.username</font> 
     and <font face="Courier New, Courier, mono">hibernate.connection.password 
-    </font>values</li>
-  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/build.xml</font> 
-    - <font face="Courier New, Courier, mono">&lt;property name=&quot;sql.type&quot; 
-    value=&quot;hsqldb&quot;/&gt;</font> - such that<font face="Courier New, Courier, mono"> 
-    hsqldb</font> becomes <font face="Courier New, Courier, mono">oracle</font> 
-    or <font face="Courier New, Courier, mono">postgress </font>(see <a href="grouper/doc/grouper-impl-guide.html#config_db">Grouper implementation 
-    guide</a> if you want to use a different database)</li>
+    </font>values. Check and comply with any database specific instructions in 
+    <font face="Courier New, Courier, mono">hibernate.properties</font> </li>
+  <li>Copy any required Jar files for your JDBC drivers to <font face="Courier New, Courier, mono">grouper-qs/grouper/lib 
+    </font></li>
+  <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
+    <font face="Courier New, Courier, mono">ant schemaexport</font></li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
     <font face="Courier New, Courier, mono">ant db-init</font></li>
   <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/</font>sources.xml 
@@ -151,13 +152,19 @@
   directly using a tool which executes SQL statements.<font face="Courier New, Courier, mono"> 
   grouper-qs/subjects.sql</font> shows a SQL script which was used to create the 
   subjects in the demo database. Additional attributes may be added.</p>
+<p>For Grouper 0.6 it was necessary to include a subject <font face="Courier New, Courier, mono">GrouperSystem</font>. 
+  This is no longer a requirement and, in fact, defining <font face="Courier New, Courier, mono">GrouperSystem</font> 
+  will cause errors.</p>
 <p>When loading subjects who you want to be able to login to the Grouper UI, you 
   must specify a loginid.</p>
-<p>You may use the <font face="Courier New, Courier, mono">ant</font> script in 
-  <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start</font> 
+<p>You may use the <font face="Courier New, Courier, mono">ant</font> script* 
+  in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start</font> 
   to load groups, stems, access and naming privileges into the Grouper repository 
-  from an XML file. grouper-qs/quickstart.xml was used to define the repository 
-  used in the demo database.</p>
+  from an XML file. <font face="Courier New, Courier, mono">grouper-qs/quickstart.xml</font> 
+  was used to define the repository used in the demo database.</p>
+<p>*If you type <font face="Courier New, Courier, mono">ant</font> with no parameters, 
+  the values in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start/build.properties</font> 
+  will be used.</p>
 <p>&nbsp;</p>
 </body>
 </html>
