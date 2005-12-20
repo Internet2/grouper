@@ -93,7 +93,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareSubjectSearchFormAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PrepareSubjectSearchFormAction.java,v 1.3 2005-12-20 11:47:49 isgwb Exp $
  */
 public class PrepareSubjectSearchFormAction extends LowLevelGrouperCapableAction {
 
@@ -110,8 +110,8 @@ public class PrepareSubjectSearchFormAction extends LowLevelGrouperCapableAction
 		}else if(!isEmpty(session.getAttribute("lastSubjectSource"))) {
 			request.setAttribute("subjectSource",session.getAttribute("lastSubjectSource"));
 		}else {
-			Source firstSource = (Source)sources.iterator().next();
-			request.setAttribute("subjectSource",firstSource.getId());
+			
+			request.setAttribute("subjectSource","all");
 		}
 		request.setAttribute("subjectSources",sources);
 		return null;
