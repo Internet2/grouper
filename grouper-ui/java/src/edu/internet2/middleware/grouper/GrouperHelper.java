@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.5 2005-12-19 14:22:20 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.6 2005-12-20 11:45:07 isgwb Exp $
  */
 
 public class GrouperHelper {
@@ -1614,6 +1614,15 @@ public class GrouperHelper {
 		return personSources;
 	}
 	
+	/**
+	 * API lets you get all memberships - this filters them for a specific group
+	 * @param s
+	 * @param subject
+	 * @param group
+	 * @return
+	 * @throws MemberNotFoundException
+	 * @throws GroupNotFoundException
+	 */
 	public static List getAllWaysInWhichSubjectIsMemberOFGroup(GrouperSession s,Subject subject,Group group) 
 		throws MemberNotFoundException,GroupNotFoundException{
 		List ways = new ArrayList();
@@ -1631,6 +1640,13 @@ public class GrouperHelper {
 		return ways;
 	}
 	
+	/**
+	 * Returns indirect privileges for member on the group or stem
+	 * @param s
+	 * @param groupOrStem
+	 * @param member
+	 * @return
+	 */
 	public static Map getExtendedHas(GrouperSession s,GroupOrStem groupOrStem,Member member) {
 		Map map  =getAllHas(s,groupOrStem,member);
 		
@@ -1638,6 +1654,14 @@ public class GrouperHelper {
 		return map;
 		
 	}
+	
+	/**
+	 * Returns direct privileges for member on group or stem
+	 * @param s
+	 * @param groupOrStem
+	 * @param member
+	 * @return
+	 */
 	public static Map getImmediateHas(GrouperSession s,GroupOrStem groupOrStem,Member member) {
 		Map map = getAllHas(s,groupOrStem,member);
 		
@@ -1645,6 +1669,13 @@ public class GrouperHelper {
 		
 	}
 	
+	/**
+	 * Returns all privileges, direct and indirect, that member has for group or stem
+	 * @param s
+	 * @param groupOrStem
+	 * @param member
+	 * @return
+	 */
 	private static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member) {
 		Set allPrivs = null;
 		if(groupOrStem.isGroup()) {
@@ -1719,6 +1750,13 @@ public class GrouperHelper {
 		return results;
 		
 	}
+	
+	/**
+	 * Given priv name return subjects with that privilege for group
+	 * @param group
+	 * @param privilege
+	 * @return
+	 */
 	public static Set getSubjectsWithPriv(Group group,String privilege) {
 		privilege = privilege.toLowerCase();
 		if(privilege.equals("admin")) return group.getAdmins();
@@ -1730,6 +1768,12 @@ public class GrouperHelper {
 		return new HashSet();
 	}
 	
+	/**
+	 * Given a privilege return all the groups or stems where member has that privilege
+	 * @param member
+	 * @param privilege
+	 * @return
+	 */
 	public static Set getGroupsOrStemsWhereMemberHasPriv(Member member,String privilege) {
 		privilege=privilege.toLowerCase();
 		if(privilege.equals("admin")) return member.hasAdmin();
@@ -1743,6 +1787,12 @@ public class GrouperHelper {
 		return new HashSet();
 	}
 	
+	/**
+	 * Given priv name return subjects with that privilege for stem
+	 * @param stem
+	 * @param privilege
+	 * @return
+	 */
 	public static Set getSubjectsWithPriv(Stem stem,String privilege) {
 		privilege=privilege.toLowerCase();
 		if(privilege.equals("stem")) return stem.getStemmers();
@@ -1750,19 +1800,54 @@ public class GrouperHelper {
 		return new HashSet();
 	}
 	
+	/**
+	 * Determine if a given subject has been granted an Access privilege through direct assignment
+	 * @param s
+	 * @param subject
+	 * @param group
+	 * @param privilege
+	 * @return
+	 * @throws MemberNotFoundException
+	 */
 	public static boolean hasSubjectImmPrivForGroup(GrouperSession s,Subject subject,Group group,String privilege) throws MemberNotFoundException{
 		Map privs = getImmediateHas(s,GroupOrStem.findByGroup(s,group),MemberFinder.findBySubject(s,subject));
 		return privs.containsKey(privilege.toUpperCase());
 	}
+	
+	/**
+	 * Determine if a given subject has been granted a Naming privilege through direct assignment
+	 * @param s
+	 * @param subject
+	 * @param stem
+	 * @param privilege
+	 * @return
+	 * @throws MemberNotFoundException
+	 */
 	public static boolean hasSubjectImmPrivForStem(GrouperSession s,Subject subject,Stem stem,String privilege) throws MemberNotFoundException{
 		Map privs = getImmediateHas(s,GroupOrStem.findByStem(s,stem),MemberFinder.findBySubject(s,subject));
 		return privs.containsKey(privilege.toUpperCase());
 	}
 	
+	/**
+	 * Return the path by which this Membership is derived
+	 * @param s
+	 * @param m
+	 * @return
+	 * @throws GroupNotFoundException
+	 * @throws MembershipNotFoundException
+	 * @throws MemberNotFoundException
+	 */
 	public static List getChain(GrouperSession s,Membership m)throws GroupNotFoundException,MembershipNotFoundException,
 	MemberNotFoundException{
 		List chain = new ArrayList();
-		Group via = m.getViaGroup();
+		Group via = null;
+		
+		try {
+			via = m.getViaGroup();
+		}catch(GroupNotFoundException e) {
+			//Should be an immediate member
+			return chain;
+		}
 		chain.add(GrouperHelper.group2Map(s,via));
 		Membership pm = null;
 		Group g=null;
@@ -1777,6 +1862,80 @@ public class GrouperHelper {
 			}catch(MembershipNotFoundException e){break;}
 		}
 		return chain;
+	}
+	
+	/**
+	 * Trims down input so that the 'same' membership does not occur twice
+	 * @param memberships
+	 * @param type
+	 * @param count - keeps track of the numbe rof times a membership occurred
+	 * @return
+	 * @throws MemberNotFoundException
+	 * @throws GroupNotFoundException
+	 */
+	public static List getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count) 
+		throws MemberNotFoundException,GroupNotFoundException{
+		//won't pass back values but will give 'unique' list
+		if(count==null) count=new HashMap();
+		List res = new ArrayList();
+		Iterator it = memberships.iterator();
+		Membership m;
+		String id=null;
+		Integer curCount;
+		while(it.hasNext()) {
+			m = (Membership)it.next();
+			if("subject".equals(type)){
+				id = m.getGroup().getUuid();
+			}else if("group".equals(type)) {
+				id =m.getMember().getSubjectId();
+			}else{
+				throw new IllegalArgumentException("type must be 'subject' or 'group'");
+			}
+			curCount=(Integer)count.get(id);
+			if(curCount==null) {
+				curCount = new Integer(1);
+				res.add(m);
+			}else{
+				curCount = new Integer(curCount.intValue()+1);
+			}
+			count.put(id,curCount);
+		}
+		return res;
+	}
+	
+	/**
+	 * Given a trimmed list of memberships which are now Maps, add noWays -> number of
+	 * direct and indirect memberships
+	 * @param membershipMaps
+	 * @param type
+	 * @param count
+	 * @throws GroupNotFoundException
+	 * @throws MemberNotFoundException
+	 */
+	public static void setMembershipCountPerSubjectOrGroup(List membershipMaps,String type,Map count)
+		throws GroupNotFoundException,MemberNotFoundException{
+		if(count==null) return;
+		Map mMap;
+		
+		String id;
+		Integer curCount;
+		for(int i=0;i<membershipMaps.size();i++) {
+			mMap = (Map)membershipMaps.get(i);
+		
+			if("subject".equals(type)){
+				id = (String)mMap.get("asMemberOf");
+			}else if("group".equals(type)) {
+				id = (String)mMap.get("subjectId");
+			}else{
+				throw new IllegalArgumentException("type must be 'subject' or 'group'");
+			}
+			curCount = (Integer)count.get(id);
+			if(curCount!=null) {
+				mMap.put("noWays",curCount);
+			}
+			
+		}
+		
 	}
 }
 
