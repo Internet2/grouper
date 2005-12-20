@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.2 2005-12-14 16:19:04 isgwb Exp $
+$Id: sources.xml,v 1.3 2005-12-20 14:34:16 isgwb Exp $
 -->
 
 <sources>
@@ -55,6 +55,10 @@ $Id: sources.xml,v 1.2 2005-12-14 16:19:04 isgwb Exp $
     <init-param>
       <param-name>dbUrl</param-name>
       <param-value>jdbc:oracle:...</param-value>
+    </init-param>
+	<init-param>
+      <param-name>readOnly</param-name>
+      <param-value>false</param-value>
     </init-param>
 -->
 
