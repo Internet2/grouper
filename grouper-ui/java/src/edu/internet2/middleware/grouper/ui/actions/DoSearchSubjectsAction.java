@@ -34,6 +34,7 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -98,7 +99,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DoSearchSubjectsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: DoSearchSubjectsAction.java,v 1.3 2005-12-20 11:45:47 isgwb Exp $
  */
 public class DoSearchSubjectsAction extends GrouperCapableAction {
 
@@ -131,14 +132,20 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 			}
 			sourceId = (String)searchForm.get("subjectSource");
 		}
+
 		Map lastSearch = new HashMap();
 		lastSearch.putAll(searchForm.getMap());
 		session.setAttribute("lastSubjectSearch",lastSearch);
-		
+		Set results = null;
 		session.setAttribute("lastSubjectSource",sourceId);
-		Source source = sm.getSource(sourceId);
+		
 		String searchTerm = (String) searchForm.get("searchTerm");
-		Set results = source.search(searchTerm);
+		if("all".equals(sourceId)) {
+			results=SubjectFinder.findAll(searchTerm);
+		}else{
+			Source source = sm.getSource(sourceId);
+			results = source.search(searchTerm);
+		}
 		Map addAttr = new HashMap();
 		addAttr.put("returnTo","/doSearchSubjects.do");
 		addAttr.put("returnToLinkKey","subject.action.return-results");
