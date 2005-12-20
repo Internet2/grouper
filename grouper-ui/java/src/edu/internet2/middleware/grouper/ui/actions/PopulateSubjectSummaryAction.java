@@ -204,7 +204,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.4 2005-12-14 15:04:20 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.5 2005-12-20 11:46:55 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -299,7 +299,12 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			listViews.put("itemView","subjectNamingPriv");
 		}
 		request.setAttribute("scopeListData",listViews);
-		if(subjectScopeMaps==null) subjectScopeMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,new ArrayList(subjectScopes));
+		if(subjectScopeMaps==null) {
+			Map countMap = new HashMap();
+			List uniqueSubjectScopes = GrouperHelper.getOneMembershipPerSubjectOrGroup(subjectScopes,"subject",countMap);
+			subjectScopeMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,uniqueSubjectScopes);
+			GrouperHelper.setMembershipCountPerSubjectOrGroup(subjectScopeMaps,"subject",countMap);
+		}
 		
 		String startStr = (String)subjectForm.get("start");
 		if (startStr == null || "".equals(startStr))

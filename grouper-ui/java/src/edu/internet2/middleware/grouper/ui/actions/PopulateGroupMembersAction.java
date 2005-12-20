@@ -146,7 +146,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.4 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.5 2005-12-20 11:46:55 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -199,7 +199,8 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		} else {
 			members = group.getMemberships();
 		}
-		
+		Map countMap = new HashMap();
+		List uniqueMemberships = GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap);
 		//Set up CollectionPager for view
 		String startStr = request.getParameter("start");
 		if (startStr == null || "".equals(startStr))
@@ -208,11 +209,13 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		int start = Integer.parseInt(startStr);
 		int pageSize = getPageSize(session);
 		int end = start + pageSize;
-		if (end > members.size())
-			end = members.size();
+		if (end > uniqueMemberships.size())
+			end = uniqueMemberships.size();
+		
 		List membersMaps = GrouperHelper.groupList2SubjectsMaps(
-				grouperSession, (new ArrayList(members)).subList(start, end), groupId);
-		CollectionPager pager = new CollectionPager(membersMaps, members
+				grouperSession, uniqueMemberships.subList(start, end), groupId);
+		GrouperHelper.setMembershipCountPerSubjectOrGroup(membersMaps,"group",countMap);
+		CollectionPager pager = new CollectionPager(membersMaps,uniqueMemberships
 				.size(), null, start, null, pageSize);
 		pager.setParam("groupId", groupId);
 		pager.setTarget(mapping.getPath());
