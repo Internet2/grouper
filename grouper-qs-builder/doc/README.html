@@ -118,6 +118,7 @@
 </ol>
 <h3 id="emptyAlternative" name="emptyAlternative">Settng up the QuickStart with an alternative supported database</h3>
 <ol>
+  <li>stop the HSQLDB database if it is running</li>
   <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/hibernate.properties</font> 
     by commenting out the default <font face="Courier New, Courier, mono">hibernate.dialect</font>, 
     <font face="Courier New, Courier, mono">hibernate.connection.driver_class</font> 
@@ -138,12 +139,14 @@
   <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/</font>sources.xml 
     to specify an appropriate subject source. You may implement your own source 
     or specify appropriate JDBC connection parameters (see <a href="http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/*checkout*/subject/doc/jdbc-adapter-user-guide.html?rev=HEAD&cvsroot=I2MI&content-type=text/html">JDBCSourceAdapter 
-    documentation</a>). Step 4 automatically creates <font face="Courier New, Courier, mono">subject</font> 
+    documentation</a>). Step 5 automatically creates <font face="Courier New, Courier, mono">subject</font> 
     and <font face="Courier New, Courier, mono">subjectattribute</font> tables 
     required by the JDBCSourceAdapter, so you may use the same database connection 
     url, username and password as you specified in <font face="Courier New, Courier, mono">hibernate.properties</font></li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs</font> type <font face="Courier New, Courier, mono">ant 
     ui</font></li>
+  <li>from <font face="Courier New, Courier, mono">grouper-qs</font> type <font face="Courier New, Courier, mono">ant 
+    db</font></li>
   <li>restart the grouper web application</li>
 </ol>
 
@@ -156,14 +159,14 @@
   This is no longer a requirement and, in fact, defining <font face="Courier New, Courier, mono">GrouperSystem</font> 
   will cause errors.</p>
 <p>When loading subjects who you want to be able to login to the Grouper UI, you 
-  must specify a loginid.</p>
+  must specify a loginid attribute.</p>
 <p>You may use the <font face="Courier New, Courier, mono">ant</font> script* 
   in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start</font> 
   to load groups, stems, access and naming privileges into the Grouper repository 
   from an XML file. <font face="Courier New, Courier, mono">grouper-qs/quickstart.xml</font> 
   was used to define the repository used in the demo database.</p>
-<p>*If you type <font face="Courier New, Courier, mono">ant</font> with no parameters, 
-  the values in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start/build.properties</font> 
+<p>*If you type <font face="Courier New, Courier, mono">ant load</font> with no 
+  other parameters, the values in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start/build.properties</font> 
   will be used.</p>
 <p>&nbsp;</p>
 </body>
