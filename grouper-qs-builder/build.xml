@@ -78,6 +78,7 @@
 					<include name="sql/**/*"/>
 					<include name="LICENSE"/>
 					<include name="README"/>
+					<include name="build.xml"/>
 					<exclude name="src"/>
 					<exclude name="lib"/>
 				</fileset>
@@ -98,7 +99,7 @@
 					<fileset dir="${grouper-ui.folder}">
 						
 						<include name="**/*"/>
-						<exclude name="**/*.class"/>
+						<exclude name="classes/"/>
 					</fileset>
 				</copy>
 			 </target>
