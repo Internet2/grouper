@@ -1,11 +1,15 @@
 <project name="local" default="help" basedir="../../">
 	<!-- Builds XmlLoader and allows you to run it -->
 	<property name="here" value="${basedir}/contrib/quick-start/"/>
-	<property file="${here}build.properties"/>
 	<property file="build.properties"/>
+	<property file="${here}build.properties"/>
+	
 	<target name="build">
 		<fail unless="grouper.folder">grouper.folder must be set</fail>
 		<echo message="Working with grouper.folder=${grouper.folder}"/>
+		<copy toDir="${grouper.folder}/dist/lib" overwrite="true">
+			<fileset dir="${grouper.folder}/lib"/>
+		</copy>
 		<mkdir dir="${here}bin"/>
 		<path id="contrib.class.path">
 			<fileset dir="${grouper.folder}/dist/lib">
