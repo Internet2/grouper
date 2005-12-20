@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!-- ====================================================================== 
+     Dec 19, 2005 3:47:02 PM                                                        
+
+     signet_quickstart    
+     This build-file creates a complete Signet webapp installation, complete
+     with database server and webserver, and then packages that installation
+     into a zip-file.
+                   
+     Andy Cohen                                                                
+     ====================================================================== -->
+<project name="signet_quickstart" default="build">
+	
+  <description>
+    This build-file creates a complete Signet webapp installation, complete
+    with database server and webserver.
+  </description>
+
+  <property name="tomcat_version" value="5.0.28"/>
+	
+  <property name="lib.dir" value="lib"/>
+  <property name="scripts.dir" value="scripts"/>
+	
+  <property name="hsqldb_zipfile" value="hsqldb_1_8_0_1.zip"/>
+  <property name="tomcat_zipfile" value="jakarta-tomcat-${tomcat_version}.zip"/>
+
+  <property name="dist.dir" value="dist"/>
+  <property name="dist_demo.dir" value="${dist.dir}/demo"/>
+
+  <!-- ================================= 
+        target: default              
+       ================================= -->
+  <target name="build-clean" depends="clean, build"/>
+	
+  <target name="build" depends="tomcat, scripts">
+  </target>
+	
+  <target name="clean">
+    <delete dir="${dist.dir}" />
+  </target>
+	
+  <target name="tomcat">
+    <unzip src="${lib.dir}/${tomcat_zipfile}" dest="${dist_demo.dir}"/>
+  </target>
+	
+  <target name="scripts">
+    <copy file="${scripts.dir}/startup.bat" todir="${dist_demo.dir}/"/>
+    <copy file="${scripts.dir}/startup.sh" todir="${dist_demo.dir}/"/>
+    <copy file="${scripts.dir}/shutdown.bat" todir="${dist_demo.dir}/"/>
+    <copy file="${scripts.dir}/shutdown.sh" todir="${dist_demo.dir}/"/>
+  </target>
+
+</project>
+
