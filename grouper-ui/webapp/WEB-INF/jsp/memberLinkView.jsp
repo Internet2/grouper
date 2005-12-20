@@ -3,7 +3,7 @@
 		  render individual group members
 --%><%--
   @author Gary Brown.
-  @version $Id: memberLinkView.jsp,v 1.3 2005-12-14 15:11:47 isgwb Exp $
+  @version $Id: memberLinkView.jsp,v 1.4 2005-12-20 11:49:28 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -43,6 +43,13 @@
 		<c:if test="${!viewObject.isDirect}"><c:set var="linkText" value="groups.privilege.indirect"/></c:if>
 		<html:link page="/populateGroupMember.do" name="pagerParams" title="${linkTitle}">
  		<fmt:message bundle="${nav}" key="${linkText}"/></html:link>  
+	</c:when>
+	<c:when test="${viewObject.noWays gt 1}">
+		<html:link page="/populateChains.do" name="pagerParams" title="${linkTitle}">
+		 <fmt:message bundle="${nav}" key="groups.membership.chain.multiple">
+		 	<fmt:param value="${viewObject.noWays}"/>
+		 </fmt:message></html:link> 
+		
 	</c:when>
   	<c:when test="${!empty viewObject.via}">
 		<html:link page="/populateChains.do" name="pagerParams" title="${linkTitle}">
