@@ -5,7 +5,6 @@ bulk update capability?). Also link to find new members --%>
 
 <tiles:insert definition="showStemsLocationDef"/>
 
-
 <h2 class="actionheader">
 	<fmt:message bundle="${nav}" key="groups.heading.show-chain">
 		<fmt:param value="${subject.desc}"/>
@@ -18,12 +17,11 @@ bulk update capability?). Also link to find new members --%>
 	<tiles:insert definition="dynamicTileDef">
 		<tiles:put name="viewObject" beanName="chainPath"/>
 		<tiles:put name="view" value="chain"/>
+		<tiles:put name="chainSize" value="${chainSubject.chainPathSize}"/>
 		<tiles:put name="currentSubject" beanName="subject"/>
 		<tiles:put name="currentGroup" beanName="browseParent"/>
 	</tiles:insert>
 </c:forEach>
-
-
 <br/>
 <div class="linkButton">
 <c:choose>
@@ -38,7 +36,6 @@ bulk update capability?). Also link to find new members --%>
 		</html:link>
 	</c:otherwise>
 </c:choose>
-
 </div>
 <br/>
 

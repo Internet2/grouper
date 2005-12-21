@@ -23,7 +23,7 @@
 <c:set target="${membershipMap}" property="subjectId" value="${group.id}"/>
 <c:set target="${membershipMap}" property="subjectType" value="group"/>
 <c:choose>
-	<c:when test="${currentSubject.chainSize > 0 && status.count < (currentSubject.chainSize+1)}">
+	<c:when test="${chainSize > 0 && status.count lt (chainSize+1)}">
 		<c:set target="${membershipMap}" property="asMemberOf" value="${viewObject[status.count].id}"/>
 	</c:when>
 	<c:otherwise>
