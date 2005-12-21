@@ -3,45 +3,57 @@ if "%OS%" == "Windows_NT" setlocal
 rem ---------------------------------------------------------------------------
 rem Start script for the Signet demo system
 rem
-rem $Id: shutdown.bat,v 1.1 2005-12-20 21:46:32 acohen Exp $
+rem $Id: shutdown.bat,v 1.2 2005-12-21 20:59:35 acohen Exp $
 rem ---------------------------------------------------------------------------
 
+if exist "%JAVA_HOME%\bin\java.exe" goto okJavaHome
+echo This script requires that the JAVA_HOME environment variable be properly
+echo set. That means that it must name a directory which contains
+echo "bin\java.exe".
+goto end
+
+:okJavaHome
 set TOMCAT_DIR=jakarta-tomcat-5.0.28
 set HSQLDB_DIR=hsqldb_1_8_0_1
 
-rem Guess SIGNET_DEMO_HOME if not defined
-set INITIAL_DIR=%cd%
+if exist "%TOMCAT_DIR%" goto okTomcatHome
+echo This script must be run from the signet_demo home directory. That's the
+echo directory that contains the "%TOMCAT_DIR%" and "%HSQLDB_DIR" directories.
+goto end
 
-if not "%SIGNET_DEMO_HOME%" == "" goto gotHome
-
-set SIGNET_DEMO_HOME=%INITIAL_DIR%
-
-if exist "%SIGNET_DEMO_HOME%\%TOMCAT_DIR%" goto okHome
-
-cd ..
-set SIGNET_DEMO_HOME=%cd%
-cd %INITIAL_DIR%
-
-:gotHome
-if exist "%SIGNET_DEMO_HOME%\%TOMCAT_DIR%" goto okHome
-echo The SIGNET_DEMO_HOME environment variable is not defined correctly
-echo This environment variable is needed to run this program
+:okTomcatHome
+if exist "%HSQLDB_DIR%" goto okHome
+echo This script must be run from the signet_demo home directory. That's the
+echo directory that contains the "%TOMCAT_DIR%" and "%HSQLDB_DIR" directories.
 goto end
 
 :okHome
-set TOMCAT_HOME=%SIGNET_DEMO_HOME%\%TOMCAT_DIR%
-set TOMCAT_EXECUTABLE_DIR=%TOMCAT_HOME%\bin
-set TOMCAT_EXECUTABLE=%TOMCAT_EXECUTABLE_DIR%\shutdown.bat
+set TOMCAT_EXECUTABLE_DIR=%TOMCAT_DIR%\bin
+set TOMCAT_EXECUTABLE=shutdown.bat
+set HSQLDB_EXECUTABLE_DIR=%HSQLDB_DIR%\lib
+set HSQLDB_EXECUTABLE=hsqldb.jar
 
-rem Check that target executable exists
-if exist "%TOMCAT_EXECUTABLE%" goto okExec
-echo Cannot find %TOMCAT_EXECUTABLE%
+rem Check that target executables exist
+
+if exist "%TOMCAT_EXECUTABLE_DIR%\%TOMCAT_EXECUTABLE%" goto okTomcatExec
+echo Cannot find %TOMCAT_EXECUTABLE_DIR%\%TOMCAT_EXECUTABLE%
+echo This file is needed to run this program
+goto end
+
+:okTomcatExec
+if exist "%HSQLDB_EXECUTABLE_DIR%\%HSQLDB_EXECUTABLE%" goto okExec
+echo Cannot find %HSQLDB_EXECUTABLE_DIR%\%HSQLDB_EXECUTABLE%
 echo This file is needed to run this program
 goto end
 
 :okExec
 
-cd %TOMCAT_EXECUTABLE_DIR%
+pushd %TOMCAT_EXECUTABLE_DIR%
 call "%TOMCAT_EXECUTABLE%"
+popd
+
+echo DEBUG: HSQLDB_EXECUTABLE_DIR=%HSQLDB_EXECUTABLE_DIR%
+cd %HSQLDB_EXECUTABLE_DIR%
+start "Shutting down HSQLDB database server for Signet demo" %JAVA_HOME%\bin\java.exe -jar hsqldb.jar --rcfile ..\..\config\sqltool.rc --sql "SHUTDOWN" localhost-sa
 
 :end

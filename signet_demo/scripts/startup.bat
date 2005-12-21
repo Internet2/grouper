@@ -3,12 +3,14 @@ if "%OS%" == "Windows_NT" setlocal
 rem ---------------------------------------------------------------------------
 rem Start script for the Signet demo system
 rem
-rem $Id: startup.bat,v 1.2 2005-12-21 02:02:07 acohen Exp $
+rem $Id: startup.bat,v 1.3 2005-12-21 20:59:35 acohen Exp $
 rem ---------------------------------------------------------------------------
 
-if exist "%JAVA_HOME%" goto okJavaHome
+if exist "%JAVA_HOME%\bin\java.exe" goto okJavaHome
 echo This script requires that the JAVA_HOME environment variable be properly
-echo set.
+echo set. That means that it must name a directory which contains
+echo "bin\java.exe".
+goto end
 
 :okJavaHome
 set TOMCAT_DIR=jakarta-tomcat-5.0.28
