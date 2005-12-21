@@ -184,7 +184,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.3 2005-12-21 15:39:56 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -347,6 +347,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 		}
 		request.setAttribute("browsePrivs", privs);
 		request.setAttribute("browseParent", parent);
+		if(isEmpty(getBrowseNode(session))) setBrowseNode(curNodeStem.getUuid(),session);
 	
 
 		browseForm.set("pageSize", "" + pageSize);
