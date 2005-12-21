@@ -20,9 +20,8 @@
   <li><a href="#Modifying">Modifying existing Struts actions, adding new
     actions and making new Tiles definitions available</a></li>
   <li><a href="#Customisin">Customising authentication</a></li>
-  <li><a href="#Customisin1">Customising the Root node of the Grouper
-    repository*</a></li>
-  <li><a href="#Creating">Creating an <em>InitialStems</em> view*</a></li>
+    <li><a href="#Customisin1">Customising the Root node of the Grouper repository</a></li>
+    <li><a href="#Creating">Creating an <em>InitialStems</em> view</a></li>
   <li><a href="#Browse-search">Customising browsing and searching</a></li>
   <li><a href="#customMenu">Customising the menu</a></li>
   <li><a href="#Customisin2">Customising the build process</a></li>
@@ -261,26 +260,24 @@ used.</p>
 
 <h2 id="Customisin">Customising authentication</h2>
 
-<p>The standard UI uses basic HTTP authentication configuerd through Tomcat
-and the web application web.xml file. A Filter <em>LoginCheckFilter</em>
-checks if you are logged in before allowing access to the application. It
-checks the<strong><font face="Courier New, Courier, mono">
-javax.servlet.http.HttpServletRequest.getRemoteUser()</font></strong>. If not
-set the user is redirected to the splash page, otherwise, access is granted,
-and if necessary, the user session initialised.</p>
+<p>The standard UI uses basic HTTP authentication configured through Tomcat and 
+  the web application web.xml file. A Filter <em>LoginCheckFilter</em> checks 
+  if you are logged in before allowing access to the application. It checks the<strong><font face="Courier New, Courier, mono"> 
+  javax.servlet.http.HttpServletRequest.getRemoteUser()</font></strong>. If not 
+  set the user is redirected to the splash page, otherwise, access is granted, 
+  and if necessary, the user session initialised.</p>
 
-<p>In the custom UI, when a user clicks the <em>Login</em> link on the splash
-page, the <em>/callLogin</em> action is requested. This forwards the user to
-the<em> /easyLogin </em>action which displays the template named
-<em>EasyLoginFormDef, </em>which is a simple form allowing a username to be
-entered. The custom UI also defines a Filter <em>EasyLoginFilter</em> which
-is called prior to <em><a
-href="api/edu/internet2/middleware/grouper/ui/LoginCheckFilter.html">LoginCheckFilter</a></em>.
-If it <em>sees</em> a request parameter called username, it attempts to load
-a Subject (through <em>Source.getSubjectByIdentifier</em>). If successful, it
-stores the username in the HttpSession and calls the next Filter in sequence
-with a modified <em>HttpServletRequest</em>, which responds to
-getRemoteUser() by returning the stored username.</p>
+<p>In the custom UI, when a user clicks the <em>Login</em> link on the splash 
+  page, the <em>/callLogin</em> action is requested. This forwards the user to 
+  the<em> /easyLogin </em>action which displays the template named <em>EasyLoginFormDef, 
+  </em>which is a simple form allowing a username to be entered. The custom UI 
+  also defines a Filter <em>EasyLoginFilter</em> which is called prior to <em><a
+href="api/edu/internet2/middleware/grouper/ui/LoginCheckFilter.html">LoginCheckFilter</a></em>. 
+  If it <em>sees</em> a request parameter called username, it attempts to load 
+  a Subject (through <em>SubjectFinder.findByIdentifier</em>). If successful, 
+  it stores the username in the HttpSession and calls the next Filter in sequence 
+  with a modified <em>HttpServletRequest</em>, which responds to getRemoteUser() 
+  by returning the stored username.</p>
 
 <p>This section shows how new authentication schemes can be introduced. A
 more serious scheme which allows Yale CAS authentication has been <a
@@ -325,11 +322,14 @@ Three scenarios are possible</p>
 </ol>
 
 <p>If <font
-face="Courier New, Courier, mono"><strong>default.browse.stem</strong></font>
-is defined, the UI will default to that stem for browsing. If <font
-face="Courier New, Courier, mono"><strong>stem.root.display-name</strong></font>
-is defined as anything other than *, a root node will be displayed - with the
-value assigned to the key.</p>
+face="Courier New, Courier, mono"><strong>default.browse.stem</strong></font> 
+  is defined, the UI will default to that stem for browsing. If <font
+face="Courier New, Courier, mono"><strong>stem.root.display-name</strong></font> 
+  is defined as anything other than *, a root node will be displayed - with the 
+  value assigned to the key.</p>
+<p>As of Grouper 0.9 it is possible to specify a different root node per browse 
+  mode (see <a href="api/edu/internet2/middleware/grouper/ui/AbstractRepositoryBrowser.html">AbstractRepositoryBrowser</a>). 
+</p>
 
 <h2 id="Creating">Creating an <em>InitialStems</em> view*</h2>
 
@@ -357,8 +357,10 @@ A site might also provide a means for a user to edit their list of quick
 links.</p>
 
 <p>See Javadoc for <em><a
-href="api/edu/internet2/middleware/grouper/ui/InitialStems.html">InitialStems</a></em>
-interface.</p>
+href="api/edu/internet2/middleware/grouper/ui/InitialStems.html">InitialStems</a></em> 
+  interface.</p>
+<p>As of Grouper 0.9 it is possible to define a different InitialStems implementation 
+  for each browse mode (see <a href="api/edu/internet2/middleware/grouper/ui/AbstractRepositoryBrowser.html">AbstractRepositoryBrowser.getInitialStems()</a></p>
 
 <h2 id="Browse-search">Customising browsing and searching</h2>
 
@@ -409,6 +411,17 @@ face="Courier New, Courier, mono">menu.resource.files.</font></p>
   the <font face="Courier New, Courier, mono">protected boolean isValidMenuItem(Map 
   item,GrouperSession grouperSession,HttpServletRequest request)</font> method. 
   You will also need to override the Strut's action <font face="Courier New, Courier, mono">prepareMenu.do</font>.</p>
+<h2>Personal groups</h2>
+<p>Grouper has no specific support for personal groups, however, by implementing 
+  the <a href="api/edu/internet2/middleware/grouper/ui/PersonalStem.html"><em>PersonalStem</em></a> 
+  interface, the Grouper UI will create a 'personal stem' for a user (if one does 
+  not exist) at login. An implementation of <em>PersonalStem</em> is provided 
+  at <font face="Courier New, Courier, mono">grouper-qs/custom-grouper-ui/java/src/edu/internet2/middleware/grouper/customqs/ui/CustomQSPresonalStem.java</font>. 
+  This implementation creates a stem (extension=subject id) as a child of /qsuob/personal. 
+  Currently any user who is logged in can see personal stems. Whether they can 
+  see groups in the personal stem will depend upon Access privileges. Sites could 
+  use custom implementations of RepositoryBrowsers to implement their own business 
+  rules around personal stems and groups.</p>
 
 <h2 id="Customisin2">Customising the build process</h2>
 
