@@ -29,6 +29,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
+import org.apache.struts.config.ModuleConfig;
 import org.apache.struts.tiles.ComponentContext;
 
 import java.io.File;
@@ -50,7 +51,7 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.3 2005-12-21 15:44:01 isgwb Exp $
  */
 
 /**
@@ -306,6 +307,16 @@ public abstract class LowLevelGrouperCapableAction
 		String browseMode = getBrowseMode(session);
 		RepositoryBrowser rb = RepositoryBrowserFactory.getInstance(browseMode,s,getMediaResources(session));
 		return rb;
+	}
+	
+	protected String getModulePrefix(HttpServletRequest request) {
+		String prefix = (String)request.getAttribute("modulePrefix");
+		if(prefix ==null) {
+			ModuleConfig modConfig = (ModuleConfig)request.getAttribute("org.apache.struts.action.MODULE");
+			if(modConfig!=null) prefix = modConfig.getPrefix();
+		}
+		if(prefix==null) prefix="";
+		return prefix;
 	}
 	
 }
