@@ -18,21 +18,25 @@
 
   <property name="tomcat_version" value="5.0.28"/>
 	
+  <!-- Here are the places where things will come from: -->
   <property name="lib.dir" value="lib"/>
   <property name="scripts.dir" value="scripts"/>
+  <property name="config.dir" value="config"/>
 	
   <property name="hsqldb_zipfile" value="hsqldb_1_8_0_1.zip"/>
   <property name="tomcat_zipfile" value="jakarta-tomcat-${tomcat_version}.zip"/>
 
+  <!-- Here are the places where things will go: -->
   <property name="dist.dir" value="dist"/>
   <property name="dist_demo.dir" value="${dist.dir}/demo"/>
+  <property name="dist_demo_config.dir" value="${dist_demo.dir}/config"/>
 
   <!-- ================================= 
         target: default              
        ================================= -->
   <target name="build-clean" depends="clean, build"/>
 	
-  <target name="build" depends="tomcat, hsqldb, scripts">
+  <target name="build" depends="tomcat, hsqldb, scripts, config">
   </target>
 	
   <target name="clean">
@@ -52,6 +56,10 @@
     <copy file="${scripts.dir}/startup.sh" todir="${dist_demo.dir}/"/>
     <copy file="${scripts.dir}/shutdown.bat" todir="${dist_demo.dir}/"/>
     <copy file="${scripts.dir}/shutdown.sh" todir="${dist_demo.dir}/"/>
+  </target>
+	
+  <target name="config">
+    <copy file="${config.dir}/sqltool.rc" todir="${dist_demo_config.dir}/"/>
   </target>
 
 </project>
