@@ -4,7 +4,7 @@
 			overridden
 --%><%--
   @author Gary Brown.
-  @version $Id: head.jsp,v 1.3 2005-12-08 15:33:28 isgwb Exp $
+  @version $Id: head.jsp,v 1.4 2005-12-21 15:51:38 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -35,8 +35,18 @@ base.append("/");
 <link href="grouper/grouper.css" rel="stylesheet" type="text/css" />
 </c:if>
 <c:if test="${!empty mediaMap['css.additional']}">
+	<%
+		String css;
+		String modulePrefix = (String)request.getAttribute("modulePrefix");
+	%>
+	<!-- modulePrefix=<%=modulePrefix%>-->
 	<c:forTokens var="cssRef" items="${mediaMap['css.additional']}" delims=" ">
+	<%
+		css = (String)pageContext.findAttribute("cssRef");
+		if(modulePrefix == null || "".equals(modulePrefix) ||(css !=null && css.startsWith(modulePrefix))) {
+	%>
 	<link href="<c:out value="${cssRef}"/>" rel="stylesheet" type="text/css" />
+	<%}%>
 	</c:forTokens>
 </c:if>
 </c:if>
