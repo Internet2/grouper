@@ -30,6 +30,14 @@
   file for your Tomcat installation.</p>
 <p>Restart Tomcat.</p>
 <h2>Building the UI</h2>
+<p>Review <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/log4j.properties</font> 
+  and modify the values fo the keys:</p>
+<ul>
+  <li>log4j.appender.rfile.File</li>
+  <li>log4j.appender.event.File </li>
+</ul>
+<p>to valid paths on your system. Use / as a directory separator whichever operating 
+  system you are using.</p>
 <p>Review <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/build.properties</font>. 
   If you want the build script to automatically install the UI in your Tomcat 
   instance uncomment and set the appropriate value for deploy.home. If you do 
@@ -130,7 +138,7 @@
     and <font face="Courier New, Courier, mono">hibernate.connection.password 
     </font>values. Check and comply with any database specific instructions in 
     <font face="Courier New, Courier, mono">hibernate.properties</font> </li>
-  <li>Copy any required Jar files for your JDBC drivers to <font face="Courier New, Courier, mono">grouper-qs/grouper/dist/lib 
+  <li>Copy any required Jar files for your JDBC drivers to <font face="Courier New, Courier, mono">grouper-qs/grouper/lib 
     </font></li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
     <font face="Courier New, Courier, mono">ant schemaexport</font></li>
@@ -145,8 +153,6 @@
     url, username and password as you specified in <font face="Courier New, Courier, mono">hibernate.properties</font></li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs</font> type <font face="Courier New, Courier, mono">ant 
     ui</font></li>
-  <li>from <font face="Courier New, Courier, mono">grouper-qs</font> type <font face="Courier New, Courier, mono">ant 
-    db</font></li>
   <li>restart the grouper web application</li>
 </ol>
 
@@ -154,9 +160,11 @@
 <p>You may load Subject data, into the tables specified by the JDBCSourceAdapter, 
   directly using a tool which executes SQL statements.<font face="Courier New, Courier, mono"> 
   grouper-qs/subjects.sql</font> shows a SQL script which was used to create the 
-  subjects in the demo database. Additional attributes may be added.</p>
+  subjects in the demo database. Additional attributes may be added. Ensure that 
+  you <font face="Courier New, Courier, mono">commit</font> any subjects you add 
+  before using them.</p>
 <p>For Grouper 0.6 it was necessary to include a subject <font face="Courier New, Courier, mono">GrouperSystem</font>. 
-  This is no longer a requirement and, in fact, defining <font face="Courier New, Courier, mono">GrouperSystem</font> 
+  This is no longer a requirement, and, in fact, defining <font face="Courier New, Courier, mono">GrouperSystem</font> 
   will cause errors.</p>
 <p>When loading subjects who you want to be able to login to the Grouper UI, you 
   must specify a loginid attribute.</p>
@@ -165,6 +173,8 @@
   to load groups, stems, access and naming privileges into the Grouper repository 
   from an XML file. <font face="Courier New, Courier, mono">grouper-qs/quickstart.xml</font> 
   was used to define the repository used in the demo database.</p>
+<p><font face="Courier New, Courier, mono">ant html</font> will build the Javadoc 
+  for the XmlLoader class and this explains the XML format.</p>
 <p>*If you type <font face="Courier New, Courier, mono">ant load</font> with no 
   other parameters, the values in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start/build.properties</font> 
   will be used.</p>
