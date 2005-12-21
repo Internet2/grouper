@@ -35,7 +35,9 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
+import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -157,7 +159,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SearchNewMembersAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: SearchNewMembersAction.java,v 1.4 2005-12-21 15:37:08 isgwb Exp $
  */
 public class SearchNewMembersAction extends GrouperCapableAction {
 
@@ -232,26 +234,31 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			targetId = (String) session.getAttribute("findForNode");
 		
 		//Did we search for people?
-		if (!"grouperAdapter".equals(subjectSource)) {
+		if (!"g:gsa".equals(subjectSource)) {
 			searchedPeople = Boolean.TRUE;
 			StringBuffer tmp = new StringBuffer();
 			//TODO: implement true subject interface when available
 			//Do search  + get page worth of results
-			SourceManager sm= SourceManager.getInstance();
-			Source personSourceImpl = sm.getSource(subjectSource);
-			Set results = personSourceImpl.search(query);
+			Set results = null;
+			if("all".equals(subjectSource)) {
+				results = SubjectFinder.findAll(query);
+			}else{
+				SourceManager sm= SourceManager.getInstance();
+				Source personSourceImpl = sm.getSource(subjectSource);
+				
+				results = personSourceImpl.search(query);
+			}
 			subjectRes = GrouperHelper.subjects2Maps(results.toArray());
 			resultSize = results.size();
 		}
 		Boolean searchedGroups = Boolean.FALSE;
 		
 		//Did we search for groups
-		if ("grouperAdapter".equals(subjectSource)) {
+		if ("g:gsa".equals(subjectSource)) {
 			searchedGroups = Boolean.TRUE;
-			Stem searchFromStem = StemFinder.findByUuid(
-					grouperSession, searchFrom);
+			
 			//Do search + get page worth of results
-			RepositoryBrowser repositoryBrowser = getRepositoryBrowser(grouperSession,session);
+			RepositoryBrowser repositoryBrowser = RepositoryBrowserFactory.getInstance("all",grouperSession,getMediaResources(request));
 			Map attr = new HashMap();
 			attr.put("searchInDisplayNameOrExtension",searchInDisplayNameOrExtension);
 			attr.put("searchInNameOrExtension",searchInNameOrExtension);
