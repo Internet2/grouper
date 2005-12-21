@@ -229,7 +229,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainsAction.java,v 1.4 2005-12-14 14:54:15 isgwb Exp $
+ * @version $Id: PopulateChainsAction.java,v 1.5 2005-12-21 11:27:43 isgwb Exp $
  */
 public class PopulateChainsAction extends GrouperCapableAction {
 
@@ -268,11 +268,14 @@ public class PopulateChainsAction extends GrouperCapableAction {
 		Membership m = null;
 		Map gMap = null;
 		List chains=new ArrayList();
+		List chain;
 		for(int i=0;i<ways.size();i++) {
 			m = (Membership)ways.get(i);
 			g=m.getGroup();
 			gMap = GrouperHelper.group2Map(grouperSession,g);
-			gMap.put("chainPath",GrouperHelper.getChain(grouperSession,m));
+			chain=GrouperHelper.getChain(grouperSession,m);
+			gMap.put("chainPath",chain);
+			gMap.put("chainPathSize",new Integer(chain.size()));
 			chains.add(gMap);
 		}
 		
