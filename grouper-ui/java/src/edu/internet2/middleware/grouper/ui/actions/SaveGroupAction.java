@@ -112,7 +112,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.3 2005-12-14 15:05:04 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.4 2005-12-21 15:39:06 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -169,16 +169,18 @@ public class SaveGroupAction extends GrouperCapableAction {
 			groupForm.set("groupDisplayName", groupName);
 		Group group = null;
 		String id = curNode;
-		
+		String extension = (String) groupForm.get("groupName");
+		String displayExtension = (String) groupForm.get("groupDisplayName");
+		if(isEmpty(displayExtension))displayExtension=extension;
 		//TODO: should be transactional - so add map or List of attributes
 		if (groupExists) {
 			group = GroupFinder.findByUuid(grouperSession, curNode);
+			group.setDisplayExtension(displayExtension);
 		} else {
 			Stem parent = StemFinder.findByUuid(grouperSession,
 					curNode);
-			String extension = (String) groupForm.get("groupName");
-			String displayExtension = (String) groupForm.get("groupDisplayName");
-			if(isEmpty(displayExtension))displayExtension=extension;
+			
+			
 			group = parent.addChildGroup(extension,displayExtension );
 			groupForm.set("groupId", group.getUuid());
 			String [] privileges = request.getParameterValues("privileges");
