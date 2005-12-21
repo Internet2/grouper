@@ -860,3 +860,5 @@ insert into subject values('mabl','person','Margaret Blair');
 insert into subjectattribute values('mabl','loginid','mabl','mabl');
 insert into subjectattribute values('mabl','name','Margaret Blair',lower('Margaret Blair'));
 insert into subjectattribute values('mabl','description','Margaret Blair',lower('Margaret Blair'));
+
+commit;
