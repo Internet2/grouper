@@ -86,7 +86,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DeleteGroupAction.java,v 1.3 2005-12-14 14:52:54 isgwb Exp $
+ * @version $Id: DeleteGroupAction.java,v 1.4 2005-12-21 15:45:53 isgwb Exp $
  */
 public class DeleteGroupAction extends GrouperCapableAction {
 
@@ -135,12 +135,11 @@ public class DeleteGroupAction extends GrouperCapableAction {
 		}
 		
 		request.setAttribute("message", message);
-		
-		//If group was deleted cannot leave it as the current node
-		//so set to parent instead
-		 
-		
-		return mapping.findForward(getBrowseMode(session) + "Groups");
 
+		 
+		//Do redirect else advanced search link breaks
+		//return mapping.findForward(getBrowseMode(session) + "Groups");
+		ActionForward forward = new ActionForward("/browseStems" + getBrowseMode(session) + ".do",true);
+		return forward;
 	}
 }
