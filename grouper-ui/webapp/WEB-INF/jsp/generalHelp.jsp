@@ -2,7 +2,7 @@
 			Tile which displays general help about the UI
 --%><%--
   @author Gary Brown.
-  @version $Id: generalHelp.jsp,v 1.6 2005-12-08 15:33:28 isgwb Exp $
+  @version $Id: generalHelp.jsp,v 1.7 2005-12-21 15:50:35 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
@@ -75,4 +75,14 @@ both be found by:<br/>
 </dl>
 
 
-</grouper:recordTile>
+</grouper:recordTile> 
+<h2>Direct vs indirect</h2>
+<p>Privileges and membership of a subject for a group (Group A) may be granted 
+  <em>directly</em> to the subject, or may be <em>indirectly</em> derived because 
+  the subject is a member of a group which has been granted a privilege for Group 
+  A, or is, itself, a member of Group A. </p>
+<p>The Grouper UI indicates whether a membership is direct, indirect or may, in 
+  fact, have more than one source e.g. if subject A is a member of Group A and 
+  Group B and both Group A and Group B are members of Group C, then subject A 
+  has two memberships for Group C.</p>
+<p>&nbsp;</p>
