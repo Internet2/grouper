@@ -1,9 +1,12 @@
 #!/bin/sh
 # -----------------------------------------------------------------------------
-# Start Script for the CATALINA Server
+# Start Script for the Signet demo system
 #
-# $Id: startup.sh,v 1.1 2005-12-20 21:46:32 acohen Exp $
+# $Id: startup.sh,v 1.2 2005-12-21 02:02:07 acohen Exp $
 # -----------------------------------------------------------------------------
+
+TOMCAT_BIN_DIR="jakarta-tomcat-5.0.28/bin"
+HSQLDB_BIN_DIR="hsqldb/bin"
 
 # resolve links - $0 may be a softlink
 PRG="$0"
@@ -19,7 +22,8 @@ while [ -h "$PRG" ] ; do
 done
  
 PRGDIR=`dirname "$PRG"`
-EXECUTABLE=catalina.sh
+PRGDIR="$PRGDIR/$TOMCAT_BIN_DIR"
+EXECUTABLE=startup.sh
 
 # Check that target executable exists
 if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
@@ -28,4 +32,4 @@ if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
   exit 1
 fi
 
-exec "$PRGDIR"/"$EXECUTABLE" start "$@"
+exec "$PRGDIR"/"$EXECUTABLE"

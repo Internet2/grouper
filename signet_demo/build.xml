@@ -32,7 +32,7 @@
        ================================= -->
   <target name="build-clean" depends="clean, build"/>
 	
-  <target name="build" depends="tomcat, scripts">
+  <target name="build" depends="tomcat, hsqldb, scripts">
   </target>
 	
   <target name="clean">
@@ -41,6 +41,10 @@
 	
   <target name="tomcat">
     <unzip src="${lib.dir}/${tomcat_zipfile}" dest="${dist_demo.dir}"/>
+  </target>
+	
+  <target name="hsqldb">
+    <unzip src="${lib.dir}/${hsqldb_zipfile}" dest="${dist_demo.dir}"/>
   </target>
 	
   <target name="scripts">
