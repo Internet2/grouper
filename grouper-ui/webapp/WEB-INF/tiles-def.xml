@@ -336,6 +336,7 @@
 		 Standard tile used in baseDef which appears at the left, by default,
 		 of all pages unless otherwise configured. Can be 'relocated' to the menu bar by CSS 
 	  </description>
+	  <put name="maintainModule" type="String" value="y"/>
  </definition>
  
  
@@ -422,6 +423,7 @@
 		Tile which displays a  list of parent stems to show the location of the current group
 		or stem. The stem names are not links
 	  </description>
+	  <put name="maintainModule" type="String" value="y"/>
  </definition>
  
    <definition name="browseStemsLocationDef" path="/WEB-INF/jsp/browseStemsLocation.jsp" controllerUrl="/prepareBrowsePath.do">
