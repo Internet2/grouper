@@ -25,6 +25,9 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.config.ActionConfig;
+import org.apache.struts.config.ModuleConfig;
+import org.apache.struts.util.ModuleUtils;
+
 import java.util.*;
 
 import edu.internet2.middleware.grouper.*;
@@ -163,7 +166,7 @@ import edu.internet2.middleware.grouper.*;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.5 2005-12-19 14:21:27 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.6 2005-12-21 15:44:54 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -184,6 +187,11 @@ public abstract class GrouperCapableAction
 		      HttpServletRequest request, HttpServletResponse response) throws Exception{
 			GrouperSession grouperSession = (GrouperSession) request.getSession().getAttribute("edu.intenet2.middleware.grouper.ui.GrouperSession");
 			//if(grouperSession == null && !"/populateIndex.do".equals(request.getServletPath())) return mapping.findForward("Index");
+			
+			ModuleConfig modConfig = (ModuleConfig)request.getAttribute("org.apache.struts.action.MODULE");
+			String modulePrefix = modConfig.getPrefix();
+			if(modulePrefix==null) modulePrefix="";
+			request.setAttribute("modulePrefix",modulePrefix);
 			HttpSession session = request.getSession();
 			String pageSize = request.getParameter("pageSize");
 			if(pageSize !=null && pageSize.length() > 0) {
