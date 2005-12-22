@@ -46,7 +46,7 @@
 					<include name="hibernate.properties"/>
 				</fileset>
 			</copy>
-			<copy tofile="${grouper.folder}/conf/grouper.properties}" file="grouper.app.properties"/>
+			<copy tofile="${grouper.folder}/conf/grouper.properties" file="grouper.app.properties"/>
 		</target>
 
 	 <target name="-make-quickstart-grouper" description="Builds QuickStart. Assumes that database is OK in grouper.folder/dist/run" if="grouper.folder">
@@ -99,7 +99,9 @@
 					<fileset dir="${grouper-ui.folder}">
 						
 						<include name="**/*"/>
-						<exclude name="classes/"/>
+						<exclude name="**/classes/"/>
+						<exclude name="webapp/**/lib/"/>
+						<exclude name="webapp/**/web.xml"/>
 					</fileset>
 				</copy>
 			 </target>
