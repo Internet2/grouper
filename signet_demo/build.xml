@@ -38,13 +38,17 @@
   <property name="dist_demo_signet.dir"  value="${dist_demo.dir}/signet"/>
   <property name="dist_demo_tomcat.dir"  value="${dist_demo.dir}/jakarta-tomcat-${tomcat_version}"/>
   <property name="dist_demo_webapps.dir" value="${dist_demo_tomcat.dir}/webapps"/>
+	
+  <property name="zipfile" value="signet-demo-${signet_version}-bin.zip"/>
+  <property name="tarfile" value="signet-demo-${signet_version}-bin.tar"/>
+  <property name="gzipfile" value="signet-demo-${signet_version}-bin.tar.gz"/>
 
   <!-- ================================= 
         target: default              
        ================================= -->
   <target name="build-clean" depends="clean, build"/>
 	
-  <target name="build" depends="tomcat, hsqldb, signet, scripts, config">
+  <target name="build" depends="tomcat, hsqldb, signet, scripts, config, pack">
   </target>
 	
   <target name="clean">
@@ -95,6 +99,21 @@
   	<copy
       file="${dist_demo.dir}/hsqldb/lib/hsqldb.jar"
       todir="${dist_demo_webapps.dir}/signet/WEB-INF/lib"/>
+  </target>
+	
+  <target name="pack">
+    <zip destfile="${zipfile}">
+      <fileset dir="${dist.dir}">
+        <include name="**/*" />
+      </fileset>
+    </zip>
+    <tar destfile="${tarfile}">
+      <tarfileset dir="${dist.dir}">
+        <include name="**/*" />
+      </tarfileset>
+    </tar>
+    <gzip src="${tarfile}" destfile="${gzipfile}"/>
+    <delete file="${tarfile}"/>
   </target>
 
 </project>
