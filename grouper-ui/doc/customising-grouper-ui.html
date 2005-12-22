@@ -24,6 +24,7 @@
     <li><a href="#Creating">Creating an <em>InitialStems</em> view</a></li>
   <li><a href="#Browse-search">Customising browsing and searching</a></li>
   <li><a href="#customMenu">Customising the menu</a></li>
+  <li><a href="#personal">Personal groups</a></li>
   <li><a href="#Customisin2">Customising the build process</a></li>
   <li><a href="#Customisin3">Customising web.xml</a></li>
   <li><a href="#applicatio">Running the standard UI at the same time as the
@@ -298,11 +299,10 @@ when an HttpSession is invalidated, so a logout link is provided.</p>
 <p>*see also <a href="#Browse-search"><em>Customizing browsing and
 searching</em></a></p>
 
-<p>The Grouper API defines a notional root stem <em>Grouper.NS_ROOT</em>. In
-the standard UI the <strong>Current location</strong> begins with
-<em>Root</em> whereas in the custom UI it starts with <em>QS University of
-Bristol.</em> Both screen shots are views of the same Grouper repository.
-Three scenarios are possible</p>
+<p>The Grouper API defines a root stem<em></em>. In the standard UI the <strong>Current 
+  location</strong> begins with <em>Root</em> whereas in the custom UI it starts 
+  with <em>QS University of Bristol.</em> Both screen shots are views of the same 
+  Grouper repository. Three scenarios are possible</p>
 <ol>
   <li>Root is visible, and browsing starts at Root,</li>
   <li>Root is visible but browsing starts at a defined stem e.g. <em>QS
@@ -311,25 +311,20 @@ Three scenarios are possible</p>
     <em>QS University of Bristol.</em></em></li>
 </ol>
 
-<p>Which scenario is used depends on two different properties:</p>
-<ol>
-  <li><font
-    face="Courier New, Courier, mono"><strong>default.browse.stem</strong></font>
-    from media.properties</li>
-  <li><font
-    face="Courier New, Courier, mono"><strong>stem.root.display-name</strong></font>
-    from nav.properties</li>
-</ol>
-
-<p>If <font
-face="Courier New, Courier, mono"><strong>default.browse.stem</strong></font> 
-  is defined, the UI will default to that stem for browsing. If <font
-face="Courier New, Courier, mono"><strong>stem.root.display-name</strong></font> 
-  is defined as anything other than *, a root node will be displayed - with the 
-  value assigned to the key.</p>
-<p>As of Grouper 0.9 it is possible to specify a different root node per browse 
-  mode (see <a href="api/edu/internet2/middleware/grouper/ui/AbstractRepositoryBrowser.html">AbstractRepositoryBrowser</a>). 
-</p>
+<p>As of Grouper 0.9 it is possible to specify a root node per browse mode (see 
+  <a href="api/edu/internet2/middleware/grouper/ui/AbstractRepositoryBrowser.html">AbstractRepositoryBrowser</a>). 
+  If none is specified, <font
+    face="Courier New, Courier, mono"><strong>default.browse.stem</strong></font> 
+  from media.properties is used. If this is not set the the root node is used 
+  and scenario 1 occurs. If the root node is displayed, its name is determined 
+  by <font
+    face="Courier New, Courier, mono"><strong>stem.root.display-name</strong></font> 
+  from nav.properties. If this is not set 'Root is used by default.</p>
+<p>By default, the <font face="Courier New, Courier, mono">hide-pre-root-node</font> 
+  value for each <em>RepositoryBrowser</em> defined in <font face="Courier New, Courier, mono">media.properties</font>, 
+  is set to <em>true</em>. This leads to scenario 3.</p>
+<p>If <font face="Courier New, Courier, mono">hide-pre-root-node</font> is set 
+  to false then scenario 2 occurs.</p>
 
 <h2 id="Creating">Creating an <em>InitialStems</em> view*</h2>
 
@@ -411,7 +406,7 @@ face="Courier New, Courier, mono">menu.resource.files.</font></p>
   the <font face="Courier New, Courier, mono">protected boolean isValidMenuItem(Map 
   item,GrouperSession grouperSession,HttpServletRequest request)</font> method. 
   You will also need to override the Strut's action <font face="Courier New, Courier, mono">prepareMenu.do</font>.</p>
-<h2>Personal groups</h2>
+<h2 id="personal">Personal groups</h2>
 <p>Grouper has no specific support for personal groups, however, by implementing 
   the <a href="api/edu/internet2/middleware/grouper/ui/PersonalStem.html"><em>PersonalStem</em></a> 
   interface, the Grouper UI will create a 'personal stem' for a user (if one does 
