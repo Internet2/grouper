@@ -45,7 +45,8 @@ import edu.internet2.middleware.subject.Subject;
  * repository.browser.create.flat-privs=CREATE STEM
  * repository.browser.create.flat-type=stem
  * repository.browser.create.search=stems
- * <table width="100%" border="1">
+ * repository.browser.create.initial-stems=edu...InitialStemsImpl
+ *<table width="100%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td><font face="Arial, Helvetica, sans-serif">Property</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Value</font></td>
@@ -80,7 +81,8 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">root-node</font></td>
     <td><font face="Arial, Helvetica, sans-serif">&nbsp;</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Name of a stem where browsing 
-      starts. Defaults to Grouper.NS_ROOT, but could be at any level in the hierarchy</font></td>
+      starts. Defaults to empty = root node, but could be at any level in the hierarchy. If not specified
+      will look at media.properties:default.browse.stem</font></td>
   </tr>
   <tr> 
     <td><font face="Arial, Helvetica, sans-serif">hide-pre-root-node</font></td>
@@ -90,10 +92,16 @@ import edu.internet2.middleware.subject.Subject;
       root node. This feature can be used to present a restricted view of the 
       hierarchy within the repository</font></td>
   </tr>
-   <tr> 
+  <tr> 
     <td><font face="Arial, Helvetica, sans-serif">search</font></td>
     <td><font face="Arial, Helvetica, sans-serif">groups / stems</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Indicates what to search</font></td>
+  </tr>
+  <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">initial-stems</font></td>
+    <td>edu...InitialStemsImpl</td>
+    <td><font face="Arial, Helvetica, sans-serif">class name for an InitialStems 
+      implementation. Defaults to media.properties:plugin.initialstems value </font></td>
   </tr>
 </table>
  * <p>By modifying these properties or writing new implementations sites can
@@ -103,7 +111,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.4 2005-12-19 14:22:56 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.5 2005-12-22 10:48:28 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	protected String prefix = null;
@@ -138,10 +146,15 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		
 		isFlatCapable = "true".equals(getProperty("flat-capable"));
 		rootNode = getProperty("root-node");
+		if("".equals(rootNode)){
+			rootNode=mediaBundle.getString("default.browse.stem");
+			if(rootNode.startsWith("@"))rootNode="";
+		}
 		hidePreRootNode="true".equals(getProperty("hide-pre-root-node"));
 		flatType = getProperty("flat-type");
 		flatPrivs = getProperty("flat-privs").split(" ");
 		search = getProperty("search");
+		initialStems = getProperty("initial-stems");
 	}
 
 	/**
@@ -325,7 +338,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#getInitialStems()
 	 */
 	public String getInitialStems() {
-		if(initialStems!=null) return initialStems;
+		if(initialStems!=null && !"".equals(initialStems)) return initialStems;
 		try {
 			String tmp = getMediaBundle().getString("plugin.initialstems");
 			return tmp;
@@ -350,7 +363,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			if(map.get("name").equals(endPoint)) isEndPointReached=true;
 		}
 
-		while (!isEndPointReached && !GrouperHelper.NS_ROOT.equals(map.get("stem"))) {
+		while (!isEndPointReached && !"".equals(map.get("stem")) && !GrouperHelper.NS_ROOT.equals(map.get("stem"))) {
 			curStem = StemFinder.findByName(s, (String) map.get("stem"));
 			if (curStem != null) {
 				map = GrouperHelper.stem2Map(s, curStem);
