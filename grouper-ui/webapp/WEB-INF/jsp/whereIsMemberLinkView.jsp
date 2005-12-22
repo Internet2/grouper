@@ -3,13 +3,12 @@
 		  render individual group memberships from subject perspective
 --%><%--
   @author Gary Brown.
-  @version $Id: whereIsMemberLinkView.jsp,v 1.1 2005-11-08 15:38:12 isgwb Exp $
+  @version $Id: whereIsMemberLinkView.jsp,v 1.2 2005-12-22 13:54:43 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <div class="memberLink">
 <c:set target="${viewObject}" property="callerPageId" value="${thisPageId}"/>
-<c:set target="${pagerParams}" property="chainGroupIds" value="${viewObject.chainGroupIds}"/>
 <c:set target="${pagerParams}" property="groupId" value="${viewObject.asMemberOf}"/>
 <c:set target="${pagerParams}" property="subjectId" value="${viewObject.id}"/>
 <c:set target="${pagerParams}" property="subjectType" value="${viewObject.subjectType}"/>

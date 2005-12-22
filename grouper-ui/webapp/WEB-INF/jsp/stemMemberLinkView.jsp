@@ -4,12 +4,11 @@
 			active stem
 --%><%--
   @author Gary Brown.
-  @version $Id: stemMemberLinkView.jsp,v 1.2 2005-11-08 16:25:06 isgwb Exp $
+  @version $Id: stemMemberLinkView.jsp,v 1.3 2005-12-22 13:54:43 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <c:set target="${viewObject}" property="callerPageId" value="${thisPageId}"/>
-<c:set target="${pagerParams}" property="chainGroupIds" value="${viewObject.chainGroupIds}"/>
 <c:set target="${pagerParams}" property="stemId" value="${viewObject.asMemberOf}"/>
 <c:set target="${pagerParams}" property="subjectId" value="${viewObject.id}"/>
 <c:set target="${pagerParams}" property="subjectType" value="${viewObject.subjectType}"/>

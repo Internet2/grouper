@@ -3,11 +3,10 @@
 		  render memberships from Subject perspective
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectSummaryMemberLinkView.jsp,v 1.3 2005-12-20 11:49:28 isgwb Exp $
+  @version $Id: subjectSummaryMemberLinkView.jsp,v 1.4 2005-12-22 13:54:43 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
-<c:set target="${pagerParams}" property="chainGroupIds" value="${viewObject.chainGroupIds}"/>
 <c:set target="${pagerParams}" property="groupId" value="${viewObject.asMemberOf}"/>
 <c:set target="${pagerParams}" property="asMemberOf" value="${viewObject.asMemberOf}"/>
 <c:set target="${pagerParams}" property="subjectId" value="${viewObject.id}"/>

@@ -3,13 +3,12 @@
 		  render individual Access privileges for current subject
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectAccessPrivView.jsp,v 1.1 2005-11-08 15:27:34 isgwb Exp $
+  @version $Id: subjectAccessPrivView.jsp,v 1.2 2005-12-22 13:54:43 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <div class="subjectAccessPriv">
 <%-- Set up parameters for link to maintain context --%>
-<c:set target="${pagerParams}" property="chainGroupIds" value="${viewObject.chainGroupIds}"/>
 <c:set target="${pagerParams}" property="groupId" value="${viewObject.asMemberOf}"/>
 <c:set target="${pagerParams}" property="contextGroup" value="${viewObject.asMemberOf}"/>
 <c:set target="${pagerParams}" property="asMemberOf" value="${viewObject.asMemberOf}"/>
