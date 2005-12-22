@@ -4,7 +4,7 @@
 			active group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMember.jsp,v 1.2 2005-11-08 16:08:28 isgwb Exp $
+  @version $Id: GroupMember.jsp,v 1.3 2005-12-22 13:53:58 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:if test="${!empty failedRevocations}">
@@ -79,6 +79,12 @@
 			</c:when>
 			<c:when test="${!empty GroupOrStemMemberFormBean.map.callerPageId}">
 				<tiles:insert definition="callerPageButtonDef" flush="false"/>
+			</c:when>
+			<c:when test="${!empty GroupOrStemMemberFormBean.map.contextSubjectId}">
+					<html:link page="/populateSubjectSummary.do">
+						<fmt:message bundle="${nav}" key="members.return-to-subject-summary"/>
+					</html:link>
+				
 			</c:when>
 			<c:otherwise>
 				<html:link page="/populateGroupMembers.do" paramName="GroupOrStemMemberFormBean" paramProperty="asMemberOf" paramId="groupId">
