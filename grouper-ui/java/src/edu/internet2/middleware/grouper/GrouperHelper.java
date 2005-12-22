@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.6 2005-12-20 11:45:07 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.7 2005-12-22 11:06:46 isgwb Exp $
  */
 
 public class GrouperHelper {
@@ -102,15 +102,11 @@ public class GrouperHelper {
 	private static String[] stemPrivs = { "STEM", "CREATE" };
 
 	public static void main(String args[]) throws Exception{
-		Subject subj = SubjectFinder.findById("GrouperSystem");
+		Subject subj = SubjectFinder.findById("kebe");
 		GrouperSession s = GrouperSession.start(subj);
 
-		Group g = GroupFinder.findByName(s,"qsuob:faculties:engf:students");
-		Stem stem = g.getParentStem();
-		Group newgroup = stem.addChildGroup("test","test");
-		Subject elco = SubjectFinder.findById("elco");
-		newgroup.addMember(elco);
-		g.addMember(newgroup.toSubject());
+		Stem stem = StemFinder.findByName(s,"qsuob");
+		stem.setDisplayExtension("QS University of Bristol");
 
 		
 		
