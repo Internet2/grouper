@@ -56,11 +56,23 @@
   </target>
 	
   <target name="tomcat">
-    <unzip src="${lib.dir}/${tomcat_zipfile}" dest="${dist_demo.dir}"/>
+    <unzip src="${lib.dir}/${tomcat_zipfile}" dest="${dist_demo.dir}">
+      <patternset>
+        <exclude name="**/webapps/balancer/**"/>
+        <exclude name="**/webapps/jsp-examples/**"/>
+        <exclude name="**/webapps/servlets-examples/**"/>
+        <exclude name="**/webapps/tomcat-docs/**"/>
+        <exclude name="**/webapps/webdav/**"/>
+      </patternset>
+	</unzip>
   </target>
 	
   <target name="hsqldb">
-    <unzip src="${lib.dir}/${hsqldb_zipfile}" dest="${dist_demo.dir}"/>
+    <unzip src="${lib.dir}/${hsqldb_zipfile}" dest="${dist_demo.dir}">
+      <patternset>
+        <include name="**/hsqldb.jar"/>
+      </patternset>
+  	</unzip>
   	<copy file="${data.dir}/mydb.properties" todir="${dist_demo_data.dir}"/>
   	<copy file="${data.dir}/mydb.script" todir="${dist_demo_data.dir}"/>
   </target>
