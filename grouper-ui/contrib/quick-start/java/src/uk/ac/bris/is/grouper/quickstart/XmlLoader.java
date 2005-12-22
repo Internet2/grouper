@@ -104,7 +104,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 <p></p>
  * 
  * @author Gary Brown.
- * @version $Id: XmlLoader.java,v 1.3 2005-12-14 14:46:21 isgwb Exp $
+ * @version $Id: XmlLoader.java,v 1.4 2005-12-22 10:50:18 isgwb Exp $
  */
 public class XmlLoader {
 	private final static String sep=":";
@@ -215,6 +215,9 @@ public class XmlLoader {
 			grouperStem = StemFinder.findByName(s,stem);
 			if(!GrouperHelper.hasSubjectImmPrivForStem(s,member.getSubject(),grouperStem,priv)) {
 				grouperStem.grantPriv(member.getSubject(),Privilege.getInstance(priv));
+				System.out.println("...assigned");
+			}else{
+				System.out.println("...already assigned - skiping");
 			}
 		}
 	}
@@ -257,6 +260,9 @@ public class XmlLoader {
 			}
 			if(!GrouperHelper.hasSubjectImmPrivForGroup(s,member.getSubject(),grouperGroup,priv)) {
 				grouperGroup.grantPriv(member.getSubject(),Privilege.getInstance(priv));
+				System.out.println("...assigned");
+			}else{
+				System.out.println("...already assigned - skiping");
 			}
 		}
 	}
@@ -290,18 +296,30 @@ public class XmlLoader {
 			String id = subject.getAttribute("id");
 			group = GroupFinder.findByName(s,stem);
 			if(id !=null && id.length()!=0) {
+				System.out.println("Making " + id + " a member of " + group.getName());
 				member = MemberFinder.findBySubject(s,SubjectFinder.findById(id,"person"));
 				
-				if(group!=null && !group.hasMember(member.getSubject())) group.addMember(member.getSubject());
+				if(group!=null && !group.hasMember(member.getSubject())) {
+					group.addMember(member.getSubject());
+					System.out.println("...added");
+				}else{
+					System.out.println("...already a member - skipping");
+				}
 			}else{
 				String groupName = subject.getAttribute("group");
 				if(groupName!=null && groupName.length()!=0) {
 					if("relative".equals(subject.getAttribute("location"))) {
 						groupName = group.getParentStem().getName() + sep + groupName;	
 					}
+					System.out.println("Making [" + groupName + "] a member of " + group.getName());
 					Group groupSubj = GroupFinder.findByName(s,groupName);
 					member = MemberFinder.findBySubject(s,SubjectFinder.findById(groupSubj.getUuid(),"group"));
-					if(group!=null && !group.hasMember(member.getSubject())) group.addMember(member.getSubject());
+					if(group!=null && !group.hasMember(member.getSubject())) {
+						group.addMember(member.getSubject());
+						System.out.println("...added");
+					}else{
+						System.out.println("...already a member - skipping");
+					}
 				}
 			}
 		}
@@ -312,9 +330,11 @@ public class XmlLoader {
 		String displayExtension = e.getAttribute("displayExtension");
 		String description = e.getAttribute("description");
 		String newStem = joinStem(stem,extension);
+		System.out.println("Creating stem " + newStem);
 		Stem existingStem = null;
 		try {
 			existingStem = StemFinder.findByName(s,newStem);
+			System.out.println("...already exists - skipping");
 		}catch(StemNotFoundException ex) {}
 		if(existingStem==null) {
 			Stem parent = null;
@@ -324,6 +344,7 @@ public class XmlLoader {
 				if(GrouperHelper.NS_ROOT.equals(stem)) parent = StemFinder.findRootStem(s);
 			}
 			Stem gs = parent.addChildStem(extension,displayExtension);
+			System.out.println("...added");
 			if(description!=null && description.length()!=0) gs.setDescription(description);
 		}
 		processNaming(e,newStem.replaceAll(GrouperHelper.NS_ROOT + sep,""));
@@ -335,13 +356,16 @@ public class XmlLoader {
 		String displayExtension = e.getAttribute("displayExtension");
 		String description = e.getAttribute("description");
 		String newGroup = joinStem(stem,extension);
+		System.out.println("Creating group [" + newGroup + "]");
 		Group existingGroup=null;
 		try {
 			existingGroup=GroupFinder.findByName(s,newGroup);
+			System.out.println("...already exists - skipping");
 		}catch(GroupNotFoundException ex){}
 		if(existingGroup==null) {
 			Stem parent = StemFinder.findByName(s,stem);
 			Group gg = parent.addChildGroup(extension,displayExtension);
+			System.out.println("...added");
 			if(description!=null && description.length()!=0) gg.setDescription(description);		}
 		processSubjects(e,newGroup);
 		processAccess(e,newGroup);
