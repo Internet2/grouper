@@ -17,6 +17,8 @@
   </description>
 
   <property name="tomcat_version" value="5.0.28"/>
+  <property name="hsqldb_version" value="1_8_0_1"/>
+  <property name="signet_version" value="0.6"/>
 	
   <!-- Here are the places where things will come from: -->
   <property name="lib.dir" value="lib"/>
@@ -24,21 +26,25 @@
   <property name="config.dir" value="config"/>
   <property name="data.dir" value="data"/>
 	
-  <property name="hsqldb_zipfile" value="hsqldb_1_8_0_1.zip"/>
+  <property name="hsqldb_zipfile" value="hsqldb_${hsqldb_version}.zip"/>
   <property name="tomcat_zipfile" value="jakarta-tomcat-${tomcat_version}.zip"/>
+  <property name="signet_zipfile" value="signet-${signet_version}-bin.zip"/>
 
   <!-- Here are the places where things will go: -->
-  <property name="dist.dir" value="dist"/>
-  <property name="dist_demo.dir" value="${dist.dir}/demo"/>
-  <property name="dist_demo_config.dir" value="${dist_demo.dir}/config"/>
-  <property name="dist_demo_data.dir" value="${dist_demo.dir}/hsqldb/lib"/>
+  <property name="dist.dir"              value="dist"/>
+  <property name="dist_demo.dir"         value="${dist.dir}/demo"/>
+  <property name="dist_demo_config.dir"  value="${dist_demo.dir}/config"/>
+  <property name="dist_demo_data.dir"    value="${dist_demo.dir}/hsqldb/lib"/>
+  <property name="dist_demo_signet.dir"  value="${dist_demo.dir}/signet"/>
+  <property name="dist_demo_tomcat.dir"  value="${dist_demo.dir}/jakarta-tomcat-${tomcat_version}"/>
+  <property name="dist_demo_webapps.dir" value="${dist_demo_tomcat.dir}/webapps"/>
 
   <!-- ================================= 
         target: default              
        ================================= -->
   <target name="build-clean" depends="clean, build"/>
 	
-  <target name="build" depends="tomcat, hsqldb, scripts, config">
+  <target name="build" depends="tomcat, hsqldb, signet, scripts, config">
   </target>
 	
   <target name="clean">
@@ -55,15 +61,40 @@
   	<copy file="${data.dir}/mydb.script" todir="${dist_demo_data.dir}"/>
   </target>
 	
+  <target name="signet">
+    <unzip src="${lib.dir}/${signet_zipfile}" dest="${dist_demo_signet.dir}"/>
+  </target>
+	
   <target name="scripts">
-    <copy file="${scripts.dir}/startup.bat" todir="${dist_demo.dir}/"/>
-    <copy file="${scripts.dir}/startup.sh" todir="${dist_demo.dir}/"/>
-    <copy file="${scripts.dir}/shutdown.bat" todir="${dist_demo.dir}/"/>
-    <copy file="${scripts.dir}/shutdown.sh" todir="${dist_demo.dir}/"/>
+    <copy file="${scripts.dir}/startup.bat" todir="${dist_demo.dir}"/>
+    <copy file="${scripts.dir}/startup.sh" todir="${dist_demo.dir}"/>
+    <copy file="${scripts.dir}/shutdown.bat" todir="${dist_demo.dir}"/>
+    <copy file="${scripts.dir}/shutdown.sh" todir="${dist_demo.dir}"/>
   </target>
 	
   <target name="config">
-    <copy file="${config.dir}/sqltool.rc" todir="${dist_demo_config.dir}/"/>
+    <copy file="${config.dir}/sqltool.rc" todir="${dist_demo_config.dir}"/>
+  	
+  	<copy
+      file="${config.dir}/tomcat-users.xml"
+      todir="${dist_demo_tomcat.dir}/conf"/>
+  	
+    <copy todir="${dist_demo_webapps.dir}/signet">
+      <fileset dir="${dist_demo_signet.dir}/webapp/signet">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
+  	
+  	<copy toDir="${dist_demo_webapps.dir}/signet/WEB-INF/classes">
+      <fileset dir="${config.dir}">
+        <include name="hibernate.cfg"/>
+        <include name="sources.xml"/>
+      </fileset>
+  	</copy>
+  	
+  	<copy
+      file="${dist_demo.dir}/hsqldb/lib/hsqldb.jar"
+      todir="${dist_demo_webapps.dir}/signet/WEB-INF/lib"/>
   </target>
 
 </project>

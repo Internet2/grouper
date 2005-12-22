@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<tomcat-users>
+  <role rolename="tomcat"/>
+  <role rolename="signet_user"/>
+  <role rolename="role1"/>
+  <role rolename="manager"/>
+  <role rolename="admin"/>
+  <user username="tomcat" password="tomcat" roles="tomcat"/>
+  <user username="acohen" password="" roles="signet_user,admin,manager,tomcat,role1"/>
+  <user username="jvine" password="" roles="signet_user"/>
+  <user username="SUBJECT_1_DISPLAYID" password="" roles="signet_user,admin,manager,tomcat,role1"/>
+  <user username="SUBJECT_1001_DISPLAYID" password="" roles="signet_user,admin,manager,tomcat,role1"/>
+  <user username="jklemm" password="" roles="signet_user"/>
+  <user username="role1" password="tomcat" roles="role1"/>
+  <user username="SUBJECT_1000_DISPLAYID" password="" roles="signet_user,admin,manager,tomcat,role1"/>
+  <user username="shelley" password="" roles="signet_user"/>
+  <user username="SignetSuperSubject" password="" roles="signet_user"/>
+  <user username="tcramer" password="" roles="signet_user"/>
+  <user username="mnguyen" password="" roles="signet_user"/>
+  <user username="tbarton" password="" roles="signet_user"/>
+  <user username="both" password="tomcat" roles="tomcat,role1"/>
+  <user username="hazelton" password="" roles="signet_user"/>
+  <user username="morgan" password="" roles="signet_user"/>
+  <user username="albertwu" password="" roles="signet_user"/>
+  <user username="kkatz" password="" roles="signet_user"/>
+  <user username="wjones" password="" roles="signet_user"/>
+  <user username="steveo" password="" roles="signet_user"/>
+  <user username="tgarons" password="" roles="signet_user"/>
+  <user username="SUBJECT_0_DISPLAYID" password="" roles="signet_user,admin,manager,tomcat,role1"/>
+  <user username="SUBJECT_5_DISPLAYID" password="" roles="signet_user,admin,manager,tomcat,role1"/>
+  <user username="lmcrae" password="" roles="signet_user"/>
+  <user username="rwfrost" password="" roles="signet_user"/>
+</tomcat-users>
