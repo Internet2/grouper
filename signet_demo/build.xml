@@ -22,6 +22,7 @@
   <property name="lib.dir" value="lib"/>
   <property name="scripts.dir" value="scripts"/>
   <property name="config.dir" value="config"/>
+  <property name="data.dir" value="data"/>
 	
   <property name="hsqldb_zipfile" value="hsqldb_1_8_0_1.zip"/>
   <property name="tomcat_zipfile" value="jakarta-tomcat-${tomcat_version}.zip"/>
@@ -30,6 +31,7 @@
   <property name="dist.dir" value="dist"/>
   <property name="dist_demo.dir" value="${dist.dir}/demo"/>
   <property name="dist_demo_config.dir" value="${dist_demo.dir}/config"/>
+  <property name="dist_demo_data.dir" value="${dist_demo.dir}/hsqldb/lib"/>
 
   <!-- ================================= 
         target: default              
@@ -49,6 +51,8 @@
 	
   <target name="hsqldb">
     <unzip src="${lib.dir}/${hsqldb_zipfile}" dest="${dist_demo.dir}"/>
+  	<copy file="${data.dir}/mydb.properties" todir="${dist_demo_data.dir}"/>
+  	<copy file="${data.dir}/mydb.script" todir="${dist_demo_data.dir}"/>
   </target>
 	
   <target name="scripts">
