@@ -2,8 +2,12 @@
 # -----------------------------------------------------------------------------
 # Start Script for the Signet demo system
 #
-# $Id: startup.sh,v 1.3 2005-12-22 13:16:56 acohen Exp $
+# $Id: startup.sh,v 1.4 2005-12-27 20:54:47 acohen Exp $
 # -----------------------------------------------------------------------------
+
+# Make sure we're not using some other, pre-existing Tomcat installation
+# on this machine.
+unsetenv CATALINA_HOME
 
 TOMCAT_DIR="jakarta-tomcat-5.0.28"
 HSQLDB_DIR="hsqldb"

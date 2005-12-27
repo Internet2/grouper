@@ -48,7 +48,7 @@
        ================================= -->
   <target name="build-clean" depends="clean, build"/>
 	
-  <target name="build" depends="tomcat, hsqldb, signet, scripts, config, pack">
+  <target name="build" depends="tomcat, hsqldb, signet, scripts, config, fixFileFormats, pack">
   </target>
 	
   <target name="clean">
@@ -113,17 +113,28 @@
       todir="${dist_demo_webapps.dir}/signet/WEB-INF/lib"/>
   </target>
 	
+  <target name="fixFileFormats">
+    <fixcrlf srcdir="${dist.dir}"
+         eol="unix" 
+         eof="remove"
+         includes="**/*.sh"
+    />
+  </target>
+	
   <target name="pack">
+  	
     <zip destfile="${zipfile}">
       <fileset dir="${dist.dir}">
         <include name="**/*" />
       </fileset>
     </zip>
+  	
     <tar destfile="${tarfile}">
-      <tarfileset dir="${dist.dir}">
+      <tarfileset dir="${dist.dir}" mode="755">
         <include name="**/*" />
       </tarfileset>
     </tar>
+  	
     <gzip src="${tarfile}" destfile="${gzipfile}"/>
     <delete file="${tarfile}"/>
   </target>
