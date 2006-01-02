@@ -1,53 +1,60 @@
 #!/bin/sh
-# -----------------------------------------------------------------------------
-# Start Script for the Signet demo system
-#
-# $Id: startup.sh,v 1.4 2005-12-27 20:54:47 acohen Exp $
-# -----------------------------------------------------------------------------
 
 # Make sure we're not using some other, pre-existing Tomcat installation
 # on this machine.
-unsetenv CATALINA_HOME
+unset CATALINA_HOME
 
-TOMCAT_DIR="jakarta-tomcat-5.0.28"
-HSQLDB_DIR="hsqldb"
-
-# resolve links - $0 may be a softlink
-PRG="$0"
-
-while [ -h "$PRG" ] ; do
-  ls=`ls -ld "$PRG"`
-  link=`expr "$ls" : '.*-> \(.*\)$'`
-  if expr "$link" : '.*/.*' > /dev/null; then
-    PRG="$link"
-  else
-    PRG=`dirname "$PRG"`/"$link"
-  fi
-done
- 
-PRGDIR=`dirname "$PRG"`
-PRGDIR="$PRGDIR/$TOMCAT_DIR/bin"
-EXECUTABLE=startup.sh
-
-# Check that target executable exists
-if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
-  echo "Cannot find $PRGDIR/$EXECUTABLE"
-  echo "This file is needed to run this program"
+if [ ! -x "$JAVA_HOME"/bin/java ]; then
+  echo This script requires that the JAVA_HOME environment variable be
+properly
+  echo set. That means that it must name a directory which contains
+  echo "bin/java".
   exit 1
 fi
 
-exec "$PRGDIR"/"$EXECUTABLE"
+TOMCAT_DIR=jakarta-tomcat-5.0.28
 
-PRGDIR=`dirname "$PRG"`
-PRGDIR="$PRGDIR/$HSQLDB_DIR/lib"
-EXECUTABLE=hsqldb.jar
-
-# Check that target executable exists
-if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
-  echo "Cannot find $PRGDIR/$EXECUTABLE"
-  echo "This file is needed to run this program"
+if [ ! -x "$TOMCAT_DIR" ]; then
+  echo This script must be run from the signet_demo home directory. That\'s
+the
+  echo "directory that contains the $TOMCAT_DIR and $HSQLDB_DIR
+directories."
   exit 1
 fi
 
-cd "$PRGDIR"
-exec "$JAVA_HOME/bin/java -classpath hsqldb.jar org.hsqldb.Server -database.0 mydb -dbname.0 xdb &
+HSQLDB_DIR=hsqldb
+
+if [ ! -x "$HSQLDB_DIR" ]; then
+  echo This script must be run from the signet_demo home directory. That\'s
+the
+  echo "directory that contains the $TOMCAT_DIR and $HSQLDB_DIR
+directories."
+  exit 1
+fi
+
+TOMCAT_EXECUTABLE_DIR="$TOMCAT_DIR"/bin
+TOMCAT_EXECUTABLE=startup.sh
+
+if [ ! -x "$TOMCAT_EXECUTABLE_DIR"/"$TOMCAT_EXECUTABLE" ]; then
+  echo Cannot find "$TOMCAT_EXECUTABLE_DIR"/"$TOMCAT_EXECUTABLE"
+  echo This file is needed to run this program.
+  exit 1
+fi
+
+HSQLDB_EXECUTABLE_DIR="$HSQLDB_DIR"/lib
+HSQLDB_EXECUTABLE=hsqldb.jar
+
+if [ ! -x "$HSQLDB_EXECUTABLE_DIR"/"$HSQLDB_EXECUTABLE" ]; then
+  echo Cannot find "$HSQLDB_EXECUTABLE_DIR"/"$HSQLDB_EXECUTABLE"
+  echo This file is needed to run this program.
+  exit 1
+fi
+
+pushd $TOMCAT_EXECUTABLE_DIR
+./"$TOMCAT_EXECUTABLE"
+popd
+
+cd $HSQLDB_EXECUTABLE_DIR
+"$JAVA_HOME"/bin/java -classpath hsqldb.jar org.hsqldb.Server -database.0
+mydb -dbname.0 xdb >! hsqldb.out &
+

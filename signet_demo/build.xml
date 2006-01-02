@@ -58,7 +58,6 @@
   <target name="tomcat">
     <unzip src="${lib.dir}/${tomcat_zipfile}" dest="${dist_demo.dir}">
       <patternset>
-        <exclude name="**/webapps/balancer/**"/>
         <exclude name="**/webapps/jsp-examples/**"/>
         <exclude name="**/webapps/servlets-examples/**"/>
         <exclude name="**/webapps/tomcat-docs/**"/>
