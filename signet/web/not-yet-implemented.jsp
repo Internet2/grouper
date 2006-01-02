@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: not-yet-implemented.jsp,v 1.14 2005-12-06 05:57:59 jvine Exp $
-  $Date: 2005-12-06 05:57:59 $
+  $Id: not-yet-implemented.jsp,v 1.15 2006-01-02 04:59:07 acohen Exp $
+  $Date: 2006-01-02 04:59:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -71,7 +71,7 @@
         </span> <!-- Navbar -->
         <span class="select">
           <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
-            <%=Constants.HOMEPAGE_NAME%>
+            <%=Common.homepageName(loggedInPrivilegedSubject)%>
           </a>
             > Logging out </span> <!-- select -->
       </div> 

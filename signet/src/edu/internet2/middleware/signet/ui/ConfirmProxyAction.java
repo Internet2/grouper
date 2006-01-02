@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.11 2005-10-25 22:57:07 acohen Exp $
-$Date: 2005-10-25 22:57:07 $
+$Id: ConfirmProxyAction.java,v 1.12 2006-01-02 04:59:07 acohen Exp $
+$Date: 2006-01-02 04:59:07 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -101,11 +101,8 @@ public final class ConfirmProxyAction extends BaseAction
     if (proxy == null)
     {
       currentGrantee
-        = Common.getSubjectFromSelectList
-            (signet,
-             request,
-             Constants.SUBJECT_SELECTLIST_ID,
-             Constants.CURRENTPSUBJECT_ATTRNAME);
+        = (PrivilegedSubject)
+            (session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
     
       subsystem
         = Common.getSubsystem

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.64 2005-12-06 05:57:59 jvine Exp $
-  $Date: 2005-12-06 05:57:59 $
+  $Id: main.jsp,v 1.65 2006-01-02 04:59:07 acohen Exp $
+  $Date: 2006-01-02 04:59:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -193,6 +193,8 @@
          (request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
          
    DateFormat dateFormat = DateFormat.getDateInstance();
+   
+   boolean displayedFirstDesignationPrompt = false;
 %>
 
     <tiles:insert page="/tiles/header.jsp" flush="true" />
@@ -206,14 +208,14 @@
   if (currentPSubject.equals(loggedInPrivilegedSubject.getEffectiveEditor()))
   { 
 %>
-        <%=Constants.HOMEPAGE_NAME%>
+        <%=Common.homepageName(loggedInPrivilegedSubject)%>
 <%
   }
   else
   {
 %>
       <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
-        <%=Constants.HOMEPAGE_NAME%>
+        <%=Common.homepageName(loggedInPrivilegedSubject)%>
       </a>
       &gt; Subject View [<%=currentPSubject.getName()%>]
 <%
@@ -290,6 +292,58 @@
           
         </form> <!-- grantForm -->
       </div> <!-- grant -->
+      
+      <div class="findperson"> 
+        <h2>
+          Designated driver
+        </h2>
+<%
+  if (!Common.isSystemAdministrator(signet, loggedInPrivilegedSubject))
+  {
+    displayedFirstDesignationPrompt = true;
+%>
+        <!-- Display this if the logged-in user is anyone other than a
+             System Administrator.
+         -->
+        <p>
+          <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">
+            <img src="images/arrow_right.gif">
+            Designate
+            <%=currentPSubject.getName()%>
+            to act as
+            <%=loggedInPrivilegedSubject.getEffectiveEditor().getName()%>
+            to grant privileges
+          </a>
+        </p>
+<%
+  }
+  else
+  {
+    if (displayedFirstDesignationPrompt)
+    {
+%>
+        <p>
+          or
+        </p>
+<%
+    }
+%>
+	    <!-- Display this if the logged-in user is a System Administrator.
+	         That's a user who has a non-Subsystem-specific Proxy from the
+	         Signet subject, and is currently "acting as" the Signet subject.
+	         It's not good enough to be some other user who's "acting as" the
+	         System Administrator.
+	     -->
+        <p>
+          <a href="Designate.do?<%=Constants.SUBSYSTEM_OWNER_HTTPPARAMNAME%>=true">
+            <img src="images/arrow_right.gif">
+            Designate <%=currentPSubject.getName()%> as a subsystem owner
+          </a>
+        </p>
+<%
+  }
+%>
+      </div>
           
 <%
   }
@@ -300,32 +354,29 @@
       method="post"
       action="" 
       onsubmit ="return checkForCursorInPersonSearch('personQuickSearch.jsp', 'words', 'PersonSearchResults')">
-        <div class="findperson">
+
+      <div class="findperson">
         <h2>
           find a subject
         </h2> 
-        <p>
-          <input
-            name="words"
-            type="text"
-            class="long"
-            id="words"
-            size="15"
-            maxlength="500"
-            onfocus="personSearchFieldHasFocus=true;"
-            onblur="personSearchFieldHasFocus=false;" />
-          <input
-            name="searchbutton"
-            type="submit"
-            class="button1"
-            value="Search"
-            onclick="personSearchButtonHasFocus=true;"
-            onfocus="personSearchButtonHasFocus=true;"
-            onblur="personSearchButtonHasFocus=false;" />
-          </p>
-        <p class="dropback">
-          <label for="words">Enter a person's or a group's name, then click Search.</label>
-         </p>
+        <input
+          name="words"
+          type="text"
+          id="words"
+          maxlength="500"
+          onfocus="personSearchFieldHasFocus=true;"
+          onblur="personSearchFieldHasFocus=false;" />
+        <input
+          name="searchbutton"
+          type="submit"
+          class="button1"
+          value="Search"
+          onclick="personSearchButtonHasFocus=true;"
+          onfocus="personSearchButtonHasFocus=true;"
+          onblur="personSearchButtonHasFocus=false;" />
+        <div id="dropback">
+          Enter a person's or a group's name, then click Search.
+        </div>
         <div id="PersonSearchResults" style="display:none">
         </div> <!-- PersonSearchResults -->
       </div><!-- findperson -->    
@@ -333,26 +384,30 @@
 
       
 <% 
-  if (currentPSubject.equals(loggedInPrivilegedSubject.getEffectiveEditor()))
+  if (Common.hasUsableProxies(loggedInPrivilegedSubject)
+      || Common.hasExtensibleProxies(loggedInPrivilegedSubject))
   {
-    Set grantableSubsystems
-      = loggedInPrivilegedSubject.getGrantableSubsystemsForAssignment();
 %>
     <div class="findperson"> 
       <form
         name="actAsForm"
         method="post"
         action="ActAs.do">
-        <h2>Designated Drivers</h2>
-        <p><%=Common.displayActingForOptions
-             (loggedInPrivilegedSubject,
-              Constants.ACTING_FOR_SELECT_ID,
-              "actAsChange")%></p>
+        <h2>Act As</h2>
         <p>
-        <a href='Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true'>
-          <img src="images/arrow_right.gif" alt="" />Designate a granting proxy
-        </a>
+          <%=Common.displayActingForOptions
+               (loggedInPrivilegedSubject,
+                Constants.ACTING_FOR_SELECT_ID,
+                "actAsChange")%>
+        </p>
+        <!--
+        <p>
+          <a href='Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true'>
+            <img src="images/arrow_right.gif" alt="" />
+              Designate a granting proxy
+          </a>
 		</p>
+		-->
       </form>
     </div> <!-- findperson -->        
 <%

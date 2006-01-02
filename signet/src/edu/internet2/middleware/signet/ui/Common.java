@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.54 2005-12-12 21:26:21 acohen Exp $
-  $Date: 2005-12-12 21:26:21 $
+  $Id: Common.java,v 1.55 2006-01-02 04:59:07 acohen Exp $
+  $Date: 2006-01-02 04:59:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -2027,6 +2027,34 @@ public class Common
     return proxies;
   }
   
+  public static boolean hasUsableProxies(PrivilegedSubject pSubject)
+  {
+    Set usableProxies = pSubject.getProxiesReceived();
+    usableProxies = filterProxies(usableProxies, Status.ACTIVE);
+    usableProxies = filterProxiesByUsable(usableProxies);
+    
+    if (usableProxies.size() > 0)
+    {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  public static boolean hasExtensibleProxies(PrivilegedSubject pSubject)
+  {
+    Set extensibleProxies = pSubject.getProxiesReceived();
+    extensibleProxies = filterProxies(extensibleProxies, Status.ACTIVE);
+    extensibleProxies = filterProxiesByExtensible(extensibleProxies);
+    
+    if (extensibleProxies.size() > 0)
+    {
+      return true;
+    }
+    
+    return false;
+  }
+  
   private static Set getProxiesReceivedForReport
     (PrivilegedSubject  pSubject,
      Subsystem          subsystem,
@@ -2132,7 +2160,68 @@ public class Common
     
     return displayName;
   }
+  /*
+   * A System Administrator is a user who has an extensible, non-usable,
+   * non-Subsystem-specific Proxy from the Signet subject, and is currently
+   * "acting as" the Signet subject.
+   * 
+   * It's not good enough to be some other user who's "acting as" the
+   * System Administrator.
+   */
+  public static boolean isSystemAdministrator
+    (Signet             signet,
+     PrivilegedSubject  pSubject)
+  {
+    PrivilegedSubject effectiveEditor = pSubject.getEffectiveEditor();
+
+    if (effectiveEditor.equals(signet.getSignetSubject()))
+    {
+      Set proxiesReceived = pSubject.getProxiesReceived();
+      proxiesReceived = filterProxies(proxiesReceived, Status.ACTIVE);
+      proxiesReceived
+        = filterProxiesByGrantor(proxiesReceived, signet.getSignetSubject());
+      Iterator proxiesReceivedIterator = proxiesReceived.iterator();
+      while (proxiesReceivedIterator.hasNext())
+      {
+        Proxy proxyReceived = (Proxy)(proxiesReceivedIterator.next());
+        if (proxyReceived.getSubsystem() == null)
+        {
+          // Yes, we have an active, non-Subsystem-specific Proxy from
+          // the Signet subject.
+          if ((proxyReceived.canExtend() == true)
+              && (proxyReceived.canUse() == false))
+          {
+            // Yes that active, non-Subsystem-specific Proxy is extensible,
+            // and non-usable.
+            return true;
+          }
+        }
+      }
+    }
+    
+    // If we've gotten this far, we didn't pass the test.
+    return false;
+  }
   
+  private static Set filterProxiesByGrantor
+    (Set               proxies,
+     PrivilegedSubject grantor)
+  {
+    Set filteredSet = new HashSet();
+    
+    Iterator proxiesIterator = proxies.iterator();
+    while (proxiesIterator.hasNext())
+    {
+      Proxy candidate = (Proxy)(proxiesIterator.next());
+      if (grantor.equals(candidate.getGrantor()))
+      {
+        filteredSet.add(candidate);
+      }
+    }
+    
+    return filteredSet;
+  }
+
   private static String timeWord
     (PrivDisplayType  type,
      boolean          initialCap)
@@ -2297,6 +2386,38 @@ public class Common
     return subset;
   }
   
+  private static Set filterProxiesByUsable(Set all)
+  {
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy)(iterator.next());
+      if (candidate.canUse())
+      {
+        subset.add(candidate);
+      }
+    }
+    
+    return subset;
+  }
+  
+  private static Set filterProxiesByExtensible(Set all)
+  {
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy)(iterator.next());
+      if (candidate.canExtend())
+      {
+        subset.add(candidate);
+      }
+    }
+    
+    return subset;
+  }
+  
   public static String privilegeStr
     (Signet     signet,
      Grantable  grantable)
@@ -2340,6 +2461,26 @@ public class Common
     }
       
     return scopeStr;
+  }
+  
+  public static String homepageName(PrivilegedSubject loggedInUser)
+  {
+    StringBuffer homePageName = new StringBuffer();
+    
+    homePageName.append("My View [");
+    homePageName.append(loggedInUser.getName());
+    homePageName.append("]");
+    
+    if (!loggedInUser.getEffectiveEditor().equals(loggedInUser))
+    {
+      homePageName.append
+        ("<span class=\"actingas\" style=\"display: inline;\" id=\"ActingAs\">\n");
+      homePageName.append("acting as ");
+      homePageName.append(loggedInUser.getEffectiveEditor().getName());
+      homePageName.append("\n</span>\n");
+    }
+    
+    return homePageName.toString();
   }
   
 //  public static Set getExtensibleProxies

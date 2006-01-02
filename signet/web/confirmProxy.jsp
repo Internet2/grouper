@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.10 2005-12-14 22:01:52 jvine Exp $
-  $Date: 2005-12-14 22:01:52 $
+  $Id: confirmProxy.jsp,v 1.11 2006-01-02 04:59:07 acohen Exp $
+  $Date: 2006-01-02 04:59:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -50,31 +50,37 @@
      = (PrivilegedSubject)
          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
    
-   PrivilegedSubject currentGranteePrivilegedSubject
-     = (PrivilegedSubject)
-         (request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
+  PrivilegedSubject currentGranteePrivilegedSubject
+    = (PrivilegedSubject)
+        (request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
          
-   Subsystem currentSubsystem
-     = (Subsystem)
-         (request.getSession().getAttribute(Constants.SUBSYSTEM_ATTRNAME));
+  Subsystem currentSubsystem
+    = (Subsystem)
+        (request.getSession().getAttribute(Constants.SUBSYSTEM_ATTRNAME));
          
-   Proxy currentProxy
-     = (Proxy)
-         (request.getSession().getAttribute(Constants.PROXY_ATTRNAME));
+  Proxy currentProxy
+    = (Proxy)
+        (request.getSession().getAttribute(Constants.PROXY_ATTRNAME));
          
-   PrivilegedSubject proxySubject = currentProxy.getProxy();
+  PrivilegedSubject proxySubject = currentProxy.getProxy();
    
-   PrivilegedSubject grantor = currentProxy.getGrantor();
+  PrivilegedSubject grantor = currentProxy.getGrantor();
          
-   DateFormat dateFormat = DateFormat.getDateInstance();
+  DateFormat dateFormat = DateFormat.getDateInstance();
    
-   String personViewHref
-     = "PersonView.do?granteeSubjectTypeId="
-       + currentGranteePrivilegedSubject.getSubjectTypeId()
-       + "&granteeSubjectId="
-       + currentGranteePrivilegedSubject.getSubjectId()
-       + "&subsystemId="
-       + currentSubsystem.getId();
+  String personViewHref
+    = "PersonView.do?granteeSubjectTypeId="
+      + currentGranteePrivilegedSubject.getSubjectTypeId()
+      + "&granteeSubjectId="
+      + currentGranteePrivilegedSubject.getSubjectId()
+      + "&subsystemId="
+      + currentSubsystem.getId();
+       
+  boolean isSubsystemOwner
+    = ((Boolean)
+          (request.getSession().getAttribute
+            (Constants.SUBSYSTEM_OWNER_ATTRNAME)))
+        .booleanValue();
 %>
     
     <tiles:insert page="/tiles/header.jsp" flush="true" />
@@ -84,7 +90,7 @@
       </span> <!-- logout -->
       <span class="select">
         <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
-          <%=Constants.HOMEPAGE_NAME%>
+          <%=Common.homepageName(loggedInPrivilegedSubject)%>
         </a>
         &gt; <!-- displays as text right-angle bracket -->
         <a href="<%=personViewHref%>">Subject View 
@@ -97,11 +103,13 @@
     <div id="Layout">
       <div id="Content">
         <div id="ViewHead">
-          <span class="dropback">Designating a granting proxy for</span>
+          <span class="dropback">Designated a <%=isSubsystemOwner ? "subsystem owner" : "granting proxy"%>:</span>
           <h1>
-            <%=loggedInPrivilegedSubject.getName()%>
+            <%=currentGranteePrivilegedSubject.getName()%>
           </h1>
-          <span class="ident"><%=loggedInPrivilegedSubject.getDescription()%></span>
+          <span class="ident">
+            <%=currentGranteePrivilegedSubject.getDescription()%>
+          </span>
         </div> <!-- ViewHead -->
            
         <div class="section">

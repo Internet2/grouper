@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.20 2005-12-09 19:16:04 acohen Exp $
-$Date: 2005-12-09 19:16:04 $
+$Id: Constants.java,v 1.21 2006-01-02 04:59:07 acohen Exp $
+$Date: 2006-01-02 04:59:07 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -124,6 +124,9 @@ public final class Constants
   
   public static final String NEW_PROXY_HTTPPARAMNAME = "newProxy";
   
+  public static final String SUBSYSTEM_OWNER_HTTPPARAMNAME = "isSubsystemOwner";
+  public static final String SUBSYSTEM_OWNER_ATTRNAME = "isSubsystemOwner";
+  
   public static final String SUBJECT_SELECTLIST_ID = "subjectSelectList";
   public static final String ACTING_FOR_SELECT_ID = "selectActingFor";
   
@@ -131,8 +134,6 @@ public final class Constants
   
   public static final String ACTAS_BUTTON_NAME = "actAsButton";
   public static final String ACTAS_BUTTON_ID = "actAsButton";
-  
-  public static final String HOMEPAGE_NAME = "My Overview";
   
   public static final String DATETIME_FORMAT_24_SECOND = "dd-MMM-yyyy kk:mm:ss";
   public static final String DATETIME_FORMAT_12_MINUTE = "MMM d, yyyy hh:mmaa";

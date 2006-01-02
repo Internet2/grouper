@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: error.jsp,v 1.9 2005-10-27 17:49:42 acohen Exp $
-  $Date: 2005-10-27 17:49:42 $
+  $Id: error.jsp,v 1.10 2006-01-02 04:59:07 acohen Exp $
+  $Date: 2006-01-02 04:59:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -41,7 +41,7 @@
         </span> <!-- Navbar -->
         <span class="select">
           <a href="Start.do">
-            <%=Constants.HOMEPAGE_NAME%>
+            <%=Common.homepageName(loggedInPrivilegedSubject)%>
           </a>
             > Unexpected Error
         </span> <!-- select -->

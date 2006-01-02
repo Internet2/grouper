@@ -1,6 +1,6 @@
 /*--
-  $Id: DesignateAction.java,v 1.3 2005-10-11 03:40:00 acohen Exp $
-  $Date: 2005-10-11 03:40:00 $
+  $Id: DesignateAction.java,v 1.4 2006-01-02 04:59:07 acohen Exp $
+  $Date: 2006-01-02 04:59:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -19,6 +19,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 
+import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
 
 /**
@@ -84,9 +85,24 @@ public final class DesignateAction extends BaseAction
     String proxyIdStr = request.getParameter(Constants.PROXYID_HTTPPARAMNAME);
     if ((proxyIdStr != null) && (!proxyIdStr.equals("")))
     {
+      Proxy currentProxy = signet.getProxy(Integer.parseInt(proxyIdStr));
+      session.setAttribute(Constants.PROXY_ATTRNAME, currentProxy);
       session.setAttribute
-        (Constants.PROXY_ATTRNAME,
-         signet.getProxy(Integer.parseInt(proxyIdStr)));
+        (Constants.CURRENTPSUBJECT_ATTRNAME, currentProxy.getGrantee());
+
+    }
+    
+    // Set the "subsystemOwner" attribute if we're designating a subsystem
+    // owner.
+    String subsystemOwnerStr
+      = request.getParameter(Constants.SUBSYSTEM_OWNER_HTTPPARAMNAME);
+    if ((subsystemOwnerStr != null) && (!subsystemOwnerStr.equals("")))
+    {
+      session.setAttribute(Constants.SUBSYSTEM_OWNER_ATTRNAME, Boolean.TRUE);
+    }
+    else
+    {
+      session.setAttribute(Constants.SUBSYSTEM_OWNER_ATTRNAME, Boolean.FALSE);
     }
 
     // Forward to our success page

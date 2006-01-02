@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.16 2005-12-14 22:01:52 jvine Exp $
-  $Date: 2005-12-14 22:01:52 $
+  $Id: designate.jsp,v 1.17 2006-01-02 04:59:07 acohen Exp $
+  $Date: 2006-01-02 04:59:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -22,21 +22,6 @@
 <body>
 
   <script type="text/javascript">
-
-    var subjectSelected            = false;
-
-    function showSubjectSearchResult(divId)
-    {
-      // Fill the specified DIV with the result of the person search.
-      loadXMLDoc
-        ('personForProxySearch.jsp?searchString='
-         + document.getElementById('subjectSearchString').value,
-         divId);
-       
-      // Make that DIV visible.
-      var divToShow = document.getElementById(divId);
-      divToShow.style.display = 'block';
-    }
     
     function subsystemSelected(subsystemSelectId, subsystemPromptValue)
     {
@@ -56,7 +41,7 @@
     
     function setContinueButtonStatus(subsystemSelectId, subsystemPromptValue)
     {
-      if (subjectSelected && subsystemSelected(subsystemSelectId, subsystemPromptValue))
+      if (subsystemSelected(subsystemSelectId, subsystemPromptValue))
       {
         document.form1.continueButton.disabled=false;
       }
@@ -64,76 +49,6 @@
       {
         document.form1.continueButton.disabled=true;
       }
-    }
-    
-    function selectSubject(subsystemSelectId, subsystemPromptValue)
-    {
-      var selectSubjectCompositeId
-        = document.getElementById("<%=Constants.SUBJECT_SELECTLIST_ID%>").value;
-          
-      var subjectNameDivId = "SUBJECT_NAME:" + selectSubjectCompositeId;
-      var subjectName = document.getElementById(subjectNameDivId).innerHTML;
-          
-      var subjectDescriptionDivId = "SUBJECT_DESCRIPTION:" + selectSubjectCompositeId;
-      var subjectDescription = document.getElementById(subjectDescriptionDivId).innerHTML;
-          
-      var subjectWarningDivId = "SUBJECT_WARNING:" + selectSubjectCompositeId;
-      var subjectWarning
-        = document.getElementById(subjectWarningDivId).innerHTML;
-        
-      var subjectNameElement = document.getElementById("subjectName");
-      var subjectDescriptionElement = document.getElementById("subjectDescription");
-      var subjectWarningElement = document.getElementById("subjectWarning");
-        
-      subjectNameElement.firstChild.nodeValue=subjectName;
-      subjectDescriptionElement.firstChild.nodeValue=subjectDescription;
-      subjectWarningElement.firstChild.nodeValue=subjectWarning;
-      
-      subjectSelected = true;
-      setContinueButtonStatus(subsystemSelectId, subsystemPromptValue);
-    }
-    
-    // return TRUE if the form should be submitted, FALSE otherwise.
-    function submitOrSearch()
-    {
-      if (cursorInPersonSearch())
-      {
-        if (!personSearchStrIsEmpty('subjectSearchString'))
-        {
-          subjectSelected=false;
-          document.getElementById('SubjectResultDiv').style.display
-            ='display:none;';
-          document.getElementById('subjectName').firstChild.nodeValue
-            ='';
-          document.getElementById('subjectDescription').firstChild.nodeValue
-            ='';
-        
-          // Someday, we'll start displaying these warnings, and then we'll have
-          // to start erasing them, as well.
-          // document.getElementById('subjectWarning').style.firstChild.nodeValue
-          //   ='';
-
-          setContinueButtonStatus
-            ('<%=Constants.SUBSYSTEM_HTTPPARAMNAME%>',
-             '<%=Constants.SUBSYSTEM_PROMPTVALUE%>');
-         
-          performPersonSearch
-            ('personForProxySearch.jsp',
-             'subjectSearchString',
-             'SubjectResultDiv');
-        }
-         
-         return false;
-      }
-      else
-      {
-        return true;
-      }
-         
-//      return checkForCursorInPersonSearch
-//        ('personForProxySearch.jsp',
-//         'subjectSearchString',
-//         'SubjectResultDiv');
     }
     
   </script>
@@ -157,6 +72,10 @@
   PrivilegedSubject loggedInPrivilegedSubject
     = (edu.internet2.middleware.signet.PrivilegedSubject)
         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
+         
+  PrivilegedSubject currentPSubject
+    = (PrivilegedSubject)
+        (request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
 
   Set grantableSubsystems
     = loggedInPrivilegedSubject.getGrantableSubsystemsForProxy();
@@ -166,6 +85,12 @@
   // new one.
   Proxy currentProxy
     = (Proxy)(request.getSession().getAttribute(Constants.PROXY_ATTRNAME));
+    
+  boolean isSubsystemOwner
+    = ((Boolean)
+          (request.getSession().getAttribute
+            (Constants.SUBSYSTEM_OWNER_ATTRNAME)))
+        .booleanValue();
 %>
 
   <tiles:insert page="/tiles/header.jsp" flush="true" />
@@ -176,7 +101,7 @@
     </span> <!-- logout -->
     <span class="select">
       <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
-        <%=Constants.HOMEPAGE_NAME%>
+        <%=Common.homepageName(loggedInPrivilegedSubject)%>
       </a>
       &gt; <%=currentProxy==null?"":"Edit"%> Designated Driver
     </span> <!-- select -->
@@ -185,20 +110,20 @@
   <form
     name="form1"
     method="post"
-    action="ConfirmProxy.do" 
-    onsubmit="return submitOrSearch();"> <!-- TRUE if submit -->
+    action="ConfirmProxy.do">
 
     <div id="Layout">
       <div id="Content">
         <div id="ViewHead">
           <span class="dropback">
-            <%=currentProxy==null?"Designating a":"Editing"%> granting proxy for
+            <%=currentProxy==null?"Designating as":"Editing"%>
+            <%=isSubsystemOwner ? "subsystem owner" : "proxy"%>
           </span>             
           <h1>
-            <%=loggedInPrivilegedSubject.getEffectiveEditor().getName()%>
+            <%=currentPSubject.getName()%>
           </h1>
           <span class="ident">
-            <%=loggedInPrivilegedSubject.getEffectiveEditor().getDescription()%>
+            <%=currentPSubject.getDescription()%>
           </span>
         </div> <!-- ViewHead -->
  
@@ -253,50 +178,6 @@
                     "setContinueButtonStatus('" + Constants.SUBSYSTEM_HTTPPARAMNAME + "', '" + Constants.SUBSYSTEM_PROMPTVALUE+ "');",
                     grantableSubsystems,
                     (currentProxy == null ? null : currentProxy.getSubsystem()))%>
-          </div>
-        </div> <!-- section -->
-      
-        <div class="section">    
-          <h2>
-            Find a person </h2>
-          <div style="margin-left: 25px;">
-            <input
-                name="subjectSearchString"
-                type="text"
-                id="subjectSearchString"
-                class="long"
-                maxlength="500"
-                onfocus="personSearchFieldHasFocus=true;"
-                onblur="personSearchFieldHasFocus=false;" />
-
-            <input
-                name="subjectSearchbutton"
-                type="submit"
-                class="button1"
-                value="Search"
-                onclick="personSearchButtonHasFocus=true;"
-                onfocus="personSearchButtonHasFocus=true;"
-                onblur="personSearchButtonHasFocus=false;" />
-              
-            <div id="SubjectResultDiv" style="display:none;">
-              <!-- The contents of this DIV will be inserted by JavaScript. -->
-            </div>
-
-  
-     
-            <div id="subjectDetails" style="float: left; padding-left: 10px; width: 400px;">
-              <span class="category" id="subjectName">
-                <!-- subject name gets inserted by Javascript at subject-selection time -->
-              </span> <!-- subjectName -->
-              <br />        
-              <span class="dropback" id="subjectDescription">
-                <!-- subject description gets inserted by Javascript at subject-selection time -->
-              </span> <!-- subjectDescription -->
-              <br />
-              <span class="status" id="subjectWarning">
-                <!-- subject warning gets inserted by Javascript at subject-selection time -->
-              </span>
-            </div>  <!-- subjectDetails -->
           </div>
         </div> <!-- section -->
 <%
