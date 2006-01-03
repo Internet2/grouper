@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
@@ -49,7 +50,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.7 2005-12-22 11:06:46 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.8 2006-01-03 11:17:23 isgwb Exp $
  */
 
 public class GrouperHelper {
@@ -1932,6 +1933,45 @@ public class GrouperHelper {
 			
 		}
 		
+	}
+	
+	/**
+	 * Checks key groups.create.grant.all to determine pre-selected privs to
+	 * be checked in the UI. If not set, checks default assignments in the Grouper API
+	 * @param mediaBundle
+	 * @return
+	 */
+	public static Map getDefaultAccessPrivsForUI(ResourceBundle mediaBundle){
+		String privStr = null;
+		try {
+			privStr = mediaBundle.getString("groups.create.grant.all");
+		}catch(Exception e){}
+		if(privStr==null || "".equals(privStr)) return getDefaultAccessPrivsForGrouperAPI();
+		Map privs = new HashMap();
+		if("none".equals(privStr)) return privs;
+		String[] privArr = privStr.split(" ");
+		for(int i=0;i<privArr.length;i++) {
+			privs.put(privArr[i].toLowerCase(),Boolean.TRUE);
+		}
+		return privs;
+	}
+	
+	/**
+	 * Queries GrouperConfig - grouper.properties - to determine which Access
+	 * privs are granted to GrouperAll on group creation
+	 * @return
+	 */
+	public static Map getDefaultAccessPrivsForGrouperAPI() {
+		Map privs = new HashMap();
+		String priv;
+		GrouperConfig config = GrouperConfig.getInstance();
+		for(int i=0;i<groupPrivs.length;i++){
+			priv = groupPrivs[i].toLowerCase();
+			if("true".equals(config.getProperty("groups.create.grant.all." + priv))){
+				privs.put(priv,Boolean.TRUE);
+			}
+		}
+		return privs;
 	}
 }
 
