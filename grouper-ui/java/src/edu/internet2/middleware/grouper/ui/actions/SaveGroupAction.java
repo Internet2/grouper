@@ -17,6 +17,10 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -28,6 +32,7 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.Stem;
@@ -112,7 +117,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.4 2005-12-21 15:39:06 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.5 2006-01-03 11:06:45 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -179,17 +184,30 @@ public class SaveGroupAction extends GrouperCapableAction {
 		} else {
 			Stem parent = StemFinder.findByUuid(grouperSession,
 					curNode);
-			
-			
 			group = parent.addChildGroup(extension,displayExtension );
 			groupForm.set("groupId", group.getUuid());
 			String [] privileges = request.getParameterValues("privileges");
-			if(privileges!=null) {
+			Map apiAssignedPrivs = GrouperHelper.getDefaultAccessPrivsForGrouperAPI();
+			Map selectedPrivs = new HashMap();
+			if(privileges==null) privileges = new String[]{};
+			
 				Subject grouperAll = SubjectFinder.findById("GrouperAll");
 				for(int i=0;i<privileges.length;i++) {
-					group.grantPriv(grouperAll,Privilege.getInstance(privileges[i]));
+					selectedPrivs.put(privileges[i],Boolean.TRUE);
+					//Check if priv was automatically assigned...
+					if(!Boolean.TRUE.equals(apiAssignedPrivs.get(privileges[i]))){
+						group.grantPriv(grouperAll,Privilege.getInstance(privileges[i]));
+					}
 				}
-			}
+				Map.Entry entry = null;
+				Iterator it = apiAssignedPrivs.entrySet().iterator();
+				while(it.hasNext()) {
+					entry = (Map.Entry)it.next();
+					if(!Boolean.TRUE.equals(selectedPrivs.get(entry.getKey()))) {
+						group.revokePriv(grouperAll,Privilege.getInstance((String)entry.getKey()));
+					}
+				}
+			
 		}
 		//TODO: are both these necessary?
 		request.setAttribute("groupId", group.getUuid());
