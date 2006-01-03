@@ -20,6 +20,7 @@
 <p><a href="grouper/doc/">Release documentation for the Grouper API</a>.</p>
 <p><a href="grouper-ui/doc/index.html">Grouper UI specific documentation</a>.</p>
 <p><a href="#otherDatabase">Using the QuickStart instance with a different database</a></p>
+<p><a href="#trouble">Troubleshooting SubjectNotFoundExceptions</a></p>
 <h2>Preparing Tomcat</h2>
 <p>This document assumes you are familiar with Tomcat. </p>
 <p>The Grouper UI requires that users authenticate themselves and this QuickStart 
@@ -178,6 +179,16 @@
 <p>*If you type <font face="Courier New, Courier, mono">ant load</font> with no 
   other parameters, the values in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start/build.properties</font> 
   will be used.</p>
-<p>&nbsp;</p>
+<h2 id="trouble">Troubleshooting SubjectNotFoundExceptions</h2>
+<p>SubjectNotFoundExceptions may occur because a subject is not available through 
+  any of the sources configured in sources.xml, however, this, in itself, may 
+  be due to a failure of the Subject API to initialise, or due to the failure 
+  of a source to connect to a database. If you suspect such a problem update <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/log4j.properties</font> 
+  - the section ## Subject API to:</p>
+<pre>## Subject API
+   log4j.logger.edu.internet2.middleware.subject = DEBUG, rfile, stderr
+   log4j.logger.edu.internet2.middleware.subject.provider = DEBUG, rfile, stderr
+</pre>
+<p>Relevant error messages should now appear in the log file defined for <font face="Courier New, Courier, mono">log4j.appender.rfile.File</font></p>
 </body>
 </html>
