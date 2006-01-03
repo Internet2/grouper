@@ -517,6 +517,10 @@
     <action path="/prepareStems" scope="request" name="BrowseFormBean"
             type="edu.internet2.middleware.grouper.ui.actions.PrepareRepositoryBrowserStemsAction"
             unknown="false" validate="false"/>
+            
+    <action path="/prepareFlatten" scope="request" 
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareFlattenAction"
+            unknown="false" validate="false"/>
 			
 	<action path="/prepareBrowsePath" scope="request" name="BrowseFormBean"
             type="edu.internet2.middleware.grouper.ui.actions.PrepareBrowsePathAction"

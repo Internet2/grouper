@@ -13,7 +13,6 @@
     <put name="contentwrapper" type="definition" value="contentDef"/>
     <put name="left" type="definition" value="leftDef"/>
      <put name="menu" type="definition" value="menuDef"/>
-	<put name="flatten" type="definition" value="flattenDef"/>
     <put name="right" type="definition" value="rightDef"/>
     <put name="head" type="definition" value="headDef"/>
     <put name="messageArea" type="definition" value="messageDef"/>
@@ -403,7 +402,7 @@
 	  </description>
  </definition>
  
-  <definition name="flattenDef" path="/WEB-INF/jsp/flatten.jsp">
+  <definition controllerUrl="/prepareFlatten.do" name="flattenDef" path="/WEB-INF/jsp/flatten.jsp">
 	  <description>
 		 Standard tile which displays links which allow a user to show
 		 initial stems (if configured) and toggle whether to show the group 
