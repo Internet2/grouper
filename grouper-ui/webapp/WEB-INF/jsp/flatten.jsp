@@ -4,20 +4,12 @@
 		 	hierarchy or a flat list of groups or stems
 --%><%--
   @author Gary Brown.
-  @version $Id: flatten.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: flatten.jsp,v 1.2 2006-01-03 13:31:27 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <tiles:importAttribute />
 <div class="linkButton">
-	<c:choose>
-		<c:when test="${browseMode=='Create'}">
-			<c:set var="flattenType" value="stems"/>
-		</c:when>
-		<c:otherwise>
-			<c:set var="flattenType" value="groups"/>
-		</c:otherwise>
-	</c:choose>
 	<%--<c:choose>
 		<c:when test="${empty initialStems}">--%>
 			<c:choose>
