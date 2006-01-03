@@ -111,9 +111,10 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.5 2005-12-22 10:48:28 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.6 2006-01-03 13:29:19 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
+	
 	protected String prefix = null;
 	protected String initialStems = null;
 	protected String browseMode=null;
@@ -155,6 +156,14 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		flatPrivs = getProperty("flat-privs").split(" ");
 		search = getProperty("search");
 		initialStems = getProperty("initial-stems");
+	}
+	
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#getFlattenType()
+	 */
+	public String getFlattenType() {
+		// TODO Auto-generated method stub
+		return flatType + "s";
 	}
 
 	/**
