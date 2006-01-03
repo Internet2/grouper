@@ -2,7 +2,7 @@
 		  Main page for the 'Join' browse mode
 --%><%--
   @author Gary Brown.
-  @version $Id: JoinGroups.jsp,v 1.2 2005-09-13 12:18:29 isgwb Exp $
+  @version $Id: JoinGroups.jsp,v 1.3 2006-01-03 13:30:13 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:choose>
@@ -14,9 +14,7 @@
 	<fmt:message bundle="${nav}" key="groups.heading.browse"/>
 </h2>
 <tiles:insert definition="browseStemsDef"/>
-<tiles:insert definition="flattenDef">
-	<tiles:put name="pageName" value="populateJoinGroups"/>
-</tiles:insert>
+<tiles:insert definition="flattenDef"/>
 
 <tiles:insert definition="simpleSearchGroupsDef"/>
 </c:when>
