@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Low level Strut's action which acts as a controller to do any necessary setup 
- * for the subject search 
+ * for the template which allows a browse tree to be flattened and unflattened
  * 
  * 
  * <p/>
@@ -50,9 +50,9 @@ import edu.internet2.middleware.subject.provider.SourceManager;
     <td width="37%"><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
   <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">subjectSource</font></p></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Name of source to use</font></td>
+    <td><p>&nbsp;</p></td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
@@ -60,15 +60,16 @@ import edu.internet2.middleware.subject.provider.SourceManager;
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">subjectSource</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">pageName</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Source object loaded based on 
-      subjectSource parameter</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Appropriate action for links 
+      - based on browse mode</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">subjectSources</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">flattenType</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">List of available subject sources</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">groups / stems - used so that 
+      correct link text can be displayed</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -76,10 +77,9 @@ import edu.internet2.middleware.subject.provider.SourceManager;
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">lastSubjectSource</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Read if subjectSource parameter 
-      not present</font></td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
@@ -94,7 +94,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareFlattenAction.java,v 1.1 2006-01-03 13:32:56 isgwb Exp $
+ * @version $Id: PrepareFlattenAction.java,v 1.2 2006-01-04 10:43:54 isgwb Exp $
  */
 public class PrepareFlattenAction extends LowLevelGrouperCapableAction {
 
