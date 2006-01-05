@@ -45,9 +45,10 @@ if [ ! -x "$HSQLDB_EXECUTABLE_DIR"/"$HSQLDB_EXECUTABLE" ]; then
   exit 1
 fi
 
-pushd $TOMCAT_EXECUTABLE_DIR
+WORKINGDIR=`pwd`
+cd $TOMCAT_EXECUTABLE_DIR
 ./"$TOMCAT_EXECUTABLE"
-popd
+cd $WORKINGDIR
 
 cd $HSQLDB_EXECUTABLE_DIR
 "$JAVA_HOME"/bin/java -jar hsqldb.jar --rcfile ../../config/sqltool.rc --sql "SHUTDOWN" localhost-sa

@@ -45,9 +45,10 @@ if [ ! -x "$HSQLDB_EXECUTABLE_DIR"/"$HSQLDB_EXECUTABLE" ]; then
   exit 1
 fi
 
-pushd $TOMCAT_EXECUTABLE_DIR
+WORKINGDIR=`pwd`
+cd $TOMCAT_EXECUTABLE_DIR
 ./"$TOMCAT_EXECUTABLE"
-popd
+cd $WORKINGDIR
 
 cd $HSQLDB_EXECUTABLE_DIR
 "$JAVA_HOME"/bin/java -classpath hsqldb.jar org.hsqldb.Server -database.0 mydb -dbname.0 xdb >! hsqldb.out &
