@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.50 2005-12-19 19:02:03 blair Exp $
+ * @version $Id: Group.java,v 1.50.2.1 2006-01-09 16:42:02 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -83,6 +83,7 @@ public class Group implements Serializable {
   private transient Subject         creator;
   private transient Subject         modifier;
   private transient GrouperSession  s;
+  private transient Set             types     = null;
 
 
   // Constructors
@@ -1819,12 +1820,6 @@ public class Group implements Serializable {
     Session hs = HibernateHelper.getSession();
     hs.load(g, g.getId());
     Hibernate.initialize( g.getGroup_attributes() );
-    Hibernate.initialize( g.getGroup_types()      );
-    Iterator iter = g.getGroup_types().iterator();
-    while (iter.hasNext()) {
-      GroupType type = (GroupType) iter.next();
-      GroupType.initializeGroupType(type);
-    }
     hs.close();
   } // protected void initializeGroup()
 
@@ -2072,7 +2067,23 @@ public class Group implements Serializable {
   }
 
   private Set getGroup_types() {
-    return this.group_types;
+    // We only want to return the singleton instances of each group
+    // type.  This saves from potential catastrophe when saving objects
+    // as well as (hopefully) being more efficient.
+    if (this.types == null) {
+      types         = new LinkedHashSet();
+      Iterator iter = this.group_types.iterator();
+      while (iter.hasNext()) {
+        try {
+          GroupType type = (GroupType) iter.next();
+          types.add( GroupTypeFinder.find( type.toString() ) );
+        }
+        catch (SchemaException eS) {
+          LOG.error(eS.getMessage()); // TODO
+        }
+      }
+    }
+    return this.types;
   }
 
   private void setGroup_types(Set types) {
