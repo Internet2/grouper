@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test open bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsOpen.java,v 1.9 2005-12-15 16:11:35 blair Exp $
+ * @version $Id: TestBugsOpen.java,v 1.10 2006-01-09 16:42:00 blair Exp $
  */
 public class TestBugsOpen extends TestCase {
 
@@ -56,6 +56,44 @@ public class TestBugsOpen extends TestCase {
     LOG.info("testNoOpenBugs");
     Assert.assertTrue("to keep junit from kvetching about no tests", true);
   } // public void testNoOpenBugs()
+
+  // @source  Gary Brown, 20051221, <B96A40BBB6DC736573C06C6D@cse-gwb.cse.bris.ac.uk>
+  // @status  potentially confirmed, potentially fixed
+  public void testSetStemDisplayName() {
+    LOG.info("testSetStemDisplayName");
+    // Setup
+    Subject subj0 = SubjectHelper.SUBJ0;
+    try {
+      GrouperSession  s     = SessionHelper.getRootSession();
+      Stem            root  = StemFinder.findRootStem(s);
+      Stem            qsuob = root.addChildStem("qsuob", "qsuob");
+      qsuob.grantPriv(subj0, NamingPrivilege.STEM);
+      Stem            cs    = qsuob.addChildStem("cs", "child stem");
+      // These weren't explicitly listed in the test report but I can't
+      // replicate unless I have at least two groups.
+      Group           cg    = qsuob.addChildGroup("cg", "child group");
+      Group           gcg   = cs.addChildGroup("gcg", "grandchild group");
+      s.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+    // Test
+    try {
+      GrouperSession  nrs   = GrouperSession.start(subj0);
+      Stem            qsuob = StemFinder.findByName(nrs, "qsuob");
+      String          de    = "QS University of Bristol";
+      qsuob.setDisplayExtension(de);
+      String          val   = qsuob.getDisplayExtension();
+      Assert.assertTrue("updated displayExtn: " + val, de.equals(val));
+      val                   = qsuob.getDisplayName();
+      Assert.assertTrue("updated displayName: " + val, de.equals(val));
+      nrs.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testStemDisplayName()
 
 }
 
