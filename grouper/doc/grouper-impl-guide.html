@@ -54,7 +54,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-12-18 20:01:23 $
+$Date: 2006-01-09 17:31:09 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -964,20 +964,27 @@ first.
     and install the tables.</p>
   </li>
   <li><p><tt>ant db-init</tt></p>
-    <p>This will install Grouper schema information into your RDBMS,
-    install the root stem and create tables for using the JDBC
-    Source Adapter.  If using the defeault HSQLDB RDBMS this will
-    create the registry in the <tt>$GROUPER/dist/run</tt> directory.</p>
+    <p>This will install Grouper schema information and the root stem
+    of the Groups Registry into your RDBMS.  If using the defeault
+    HSQLDB RDBMS this will create the registry in the
+    <tt>$GROUPER/dist/run</tt> directory.</p>
+  </li>
+  <li><p><tt>ant db-init-jdbcsource</tt> [optional]</p>
+    <p>This will install tables require by the I2MI Subject interface's
+    JDBC source adapter.</p>
   </li>
   <li><p><tt>ant build</tt></p>
     <p>This will compile Grouper and place the class files under
     the <tt>$GROUPER/build</tt> directory.</p></li>
-  <li><p><tt>ant test</tt></p>
+  <li><p><tt>ant test</tt> [optional]</p>
     <p>This will compile and run the Grouper test suite to exercise the
     API and ensure that Grouper is properly configured.</p>
     <p><b>Note: Running the test suite is destructive and will
     delete all groups and memberships in the Groups Registry.  Do
-    not run the test suite against production data.</b></p></li>
+    not run the test suite against production data.</b></p>
+    <p><b>Note:</b> <tt>ant db-init-jdbcsource</tt> must have been
+    run to run the test suite.</p>
+  </li>
   <li><p><tt>ant db</tt> [optional]</p>
     <p>This will launch HSQLDB's GUI database manager.  From within the
     manager you can run SQL queries against the Groups Registry.</p></li>

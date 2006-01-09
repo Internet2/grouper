@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.81 2005-12-19 19:02:03 blair Exp $ -->
+<!-- $Id: build.xml,v 1.81.2.1 2006-01-09 17:31:09 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -28,6 +28,7 @@
 
   <property name="log.schema"             location="${basedir}/schemaexport.log"/>
   <property name="log.dbinit"             location="${basedir}/db-init.log"/>
+  <property name="log.dbinit.jdbcsource"  location="${basedir}/db-init-jdbcsource.log"/>
   <property name="log.build"              location="${basedir}/build.log"/>
   <property name="log.test.build"         location="${basedir}/test-build.log"/>
   <property name="log.test.run"           location="${basedir}/test.log"/>
@@ -110,8 +111,11 @@
           description="initialize database"
   >
     <record name="${log.dbinit}" action="start"/>
-    <antcall target="db-init-registryinstall"/>
-    <antcall target="db-init-jdbcsource"/>
+    <java classname="edu.internet2.middleware.grouper.RegistryInstall"
+          fork="yes"
+    >
+      <classpath refid="project.classpath"/>
+    </java>
     <record name="${log.dbinit}" action="stop"/>
   </target>
   <!-- db-init -->
@@ -120,6 +124,7 @@
   <target name="db-init-jdbcsource"
           description="install jdbc source ddl"
   >
+    <record name="${log.dbinit.jdbcsource}" action="start"/>
     <property file="${conf}/hibernate.properties"/>
     <sql
       classpathref="project.classpath"
@@ -129,21 +134,10 @@
       password="${hibernate.connection.password}"
       src="${sql}/jdbc_source.sql"
     />
+    <record name="${log.dbinit.jdbcsource}" action="stop"/>
   </target>
   <!-- db-init-jdbcsource -->
   
-  <!-- db-init-registryinstall -->
-  <target name="db-init-registryinstall"
-          description="install groups registry"
-  >
-    <java classname="edu.internet2.middleware.grouper.RegistryInstall"
-          fork="yes"
-    >
-      <classpath refid="project.classpath"/>
-    </java>
-  </target>
-  <!-- db-init-registryinstall -->
-
   <!-- db-reset -->
   <target name="db-reset"
           description="reset the db"
