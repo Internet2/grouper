@@ -7,7 +7,7 @@
 		  the generated XHTML.
 --%><%--
   @author Gary Brown.
-  @version $Id: template.jsp,v 1.4 2005-12-08 15:33:28 isgwb Exp $
+  @version $Id: template.jsp,v 1.5 2006-01-10 12:33:51 isgwb Exp $
 --%><?xml version="1.0" encoding="iso-8859-1"?>
 
 <!DOCTYPE html 
@@ -18,7 +18,8 @@
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <grouper:recordTile key="Not dynamic" tile="/WEB-INF/jsp/template.jsp">
-
+<html:html lang="en" xhtml="true">
+<html:xhtml/>
 <%@page import="java.io.PrintWriter"%>
 <%
 StringBuffer pageUrl = request.getRequestURL();
@@ -38,8 +39,7 @@ request.setAttribute("pageUrlWithDelim",pageUrl.toString());
     <tiles:insert attribute="head"/>
 </head>
 <tiles:insert attribute="init"/>
-<html:html lang="en" xhtml="true">
-<html:xhtml/>
+
 <% try {
 	
 ComponentContext tContext = ComponentContext.getContext(request);
