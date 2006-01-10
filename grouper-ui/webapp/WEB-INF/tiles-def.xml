@@ -225,6 +225,14 @@
     <put name="content" type="page" value="/WEB-INF/jsp/SearchStemResults.jsp"/>
   </definition>
   
+  <definition extends="BaseDef" name="UploadTestFormDef">
+   	 <description>
+			Form which allows user to upload the results of unit tests. The
+			format is important - but allows the pages produced by testing to be viewed 
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/UploadTestForm.jsp"/>
+  </definition>
+  
   <definition extends="BaseDef" name="StemMemberDef">
    	 <description>
 			Form which allows user to change an individual
@@ -587,5 +595,17 @@
 			defaults to : to separate links. Made a tile to allow it to be easily changed - possibly with graphic
 	  </description>
 	 </definition>
+	 
+ <definition name="TestUploadFramesetDef" path="/WEB-INF/jsp/TestUploadFrameset.jsp">
+ 	  <description>
+		Frameset for turning test results into a slideshow
+	  </description>
+   </definition>
+   
+    <definition name="TestUploadFramesetControlsDef" path="/WEB-INF/jsp/TestUploadFramesetControls.jsp">
+ 	  <description>
+		Page which controls slideshow of test results
+	  </description>
+   </definition>
 
 </tiles-definitions> 

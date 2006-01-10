@@ -7,6 +7,10 @@
 
 <struts-config>
   <form-beans>
+   <form-bean dynamic="true" name="UploadTestFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="testData" type="org.apache.struts.upload.FormFile"/>
+    </form-bean>
   <form-bean dynamic="true" name="DebugPrefsFormBean"
                type="org.apache.struts.action.DynaActionForm">
       <form-property name="isActive" type="java.lang.Boolean"/>
@@ -204,6 +208,25 @@
             type="edu.internet2.middleware.grouper.ui.actions.SaveDebugPrefsAction"
             unknown="false" validate="false">
       <forward name="DebugPrefs" path="DebugPrefsDef" redirect="false"/>
+    </action>
+    
+       <action path="/populateUploadTest"  scope="request" name="UploadTestFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateUploadTestAction"
+            unknown="false" validate="false">
+      <forward name="UploadForm" path="UploadTestFormDef" redirect="false"/>
+    </action>
+    
+     <action path="/processUploadTest"  scope="request" name="UploadTestFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.ProcessUploadTestAction"
+            unknown="false" validate="false">
+		   <forward name="frameset" path="TestUploadFramesetDef" redirect="false"/>
+
+    </action>
+    
+     <action path="/populateUploadTestSlideController"  scope="request" name="UploadTestFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.ProcessUploadTestAction" parameter="slides"
+            unknown="false" validate="false">
+		   <forward name="framesetControl" path="TestUploadFramesetControlsDef" redirect="false"/>
     </action>
   
     <action name="BrowseFormBean" parameter="MyGroups" path="/browseStems"
