@@ -3,21 +3,23 @@
 	name="Signet Web Application"
 	default="build" basedir=".">
 
-	<property name="webapp.dir"     location="${dist.dir}/webapp" />
+	<property name="dist.dir"       value="../dist" />
+	<property name="dist_webapp.dir"  value="${dist.dir}/webapp" />
+
 	<property name="webapp.name"    value="signet" />
 	
 	<!-- =================== BUILD: Create Directories ===================== --> 
 	<target name="prepare">
-		<mkdir dir="${webapp.dir}" /> 
-		<mkdir dir="${webapp.dir}/${webapp.name}" /> 
-		<mkdir dir="${webapp.dir}/${webapp.name}/WEB-INF" /> 
-		<mkdir dir="${webapp.dir}/${webapp.name}/WEB-INF/classes" /> 
-		<mkdir dir="${webapp.dir}/${webapp.name}/WEB-INF/lib" /> 
+		<mkdir dir="${dist_webapp.dir}" /> 
+		<mkdir dir="${dist_webapp.dir}/${webapp.name}" /> 
+		<mkdir dir="${dist_webapp.dir}/${webapp.name}/WEB-INF" /> 
+		<mkdir dir="${dist_webapp.dir}/${webapp.name}/WEB-INF/classes" /> 
+		<mkdir dir="${dist_webapp.dir}/${webapp.name}/WEB-INF/lib" /> 
 	</target>
 
 	<!-- ================ BUILD: Copy JSPs and Static Files ================ --> 
 	<target name="copy-static" depends="prepare">
-		<copy todir="${webapp.dir}/${webapp.name}">
+		<copy todir="${dist_webapp.dir}/${webapp.name}">
 			<fileset dir=".">
 				<include name="**/*" />
 				<exclude name="config" />
@@ -33,9 +35,9 @@
 	<target name="copy-config" depends="prepare">
 		<!-- Webapp deployment descriptor file -->
 		<copy file="config/web.xml"
-			todir="${webapp.dir}/${webapp.name}/WEB-INF" />
+			todir="${dist_webapp.dir}/${webapp.name}/WEB-INF" />
 		<!-- Struts config and tag library descriptors -->
-		<copy todir="${webapp.dir}/${webapp.name}/WEB-INF">
+		<copy todir="${dist_webapp.dir}/${webapp.name}/WEB-INF">
 			<fileset dir="config">
 			<include name="web.xml" />
 			<include name="struts-*.xml" />
@@ -48,15 +50,17 @@
 
 	<!-- ================== BUILD: Clean Directory ========================= --> 
 	<target name="clean">
-		<delete dir="${webapp.dir}" />
+		<delete dir="${dist_webapp.dir}" />
 	</target>
 
 	<!-- ================= BUILD: Build Webapp ========================== -->
-	<target name="build" depends="clean, prepare, copy-static, copy-config"
+	<target
+		name="build"
+		depends="clean, prepare, copy-static, copy-config"
 		description="Build Signet web app">
-
+		
 		<!-- Copy our property files and O/R mappings for use at runtime -->
-		<copy todir="${webapp.dir}/${webapp.name}/WEB-INF/classes">
+		<copy todir="${dist_webapp.dir}/${webapp.name}/WEB-INF/classes">
 			<fileset dir="${source_config.dir}">
 				<include name="**/*.cfg.xml"/>
 				<include name="**/*.properties"/>
@@ -66,7 +70,7 @@
 			</fileset>
 		</copy>
 		
-		<copy todir="${webapp.dir}/${webapp.name}/WEB-INF/lib">
+		<copy todir="${dist_webapp.dir}/${webapp.name}/WEB-INF/lib">
 			<fileset dir="${source_lib.dir}">
 				<include name="**/*" /> 
 				<exclude name="**/servlet-api.jar" />
@@ -77,6 +81,7 @@
 				<include name="${signet_ui_jarfile}" />
 			</fileset>
 		</copy>
+
 	</target>
 
 </project>

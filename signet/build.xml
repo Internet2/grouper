@@ -206,8 +206,8 @@
 				<include name="**/*" />
 			</fileset>
 		</copy>
-		
-		<ant dir="web" target="build" inheritAll="true" />
+
+		<ant dir="web"  target="build" inheritAll="true" />
 		<ant dir="util" target="build" inheritAll="true" />
 		
 		<zip destfile="${zipfile}">

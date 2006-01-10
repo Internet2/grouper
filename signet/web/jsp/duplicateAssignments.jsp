@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateAssignments.jsp,v 1.15 2006-01-02 04:59:07 acohen Exp $
-  $Date: 2006-01-02 04:59:07 $
+  $Id: duplicateAssignments.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
+  $Date: 2006-01-10 22:37:02 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,

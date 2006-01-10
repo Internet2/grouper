@@ -117,6 +117,8 @@ function loadXMLDoc(url, destDivId)
   // Set the cursor to an hourglass, to show we're really doing some serious
   // computin'.
   document.body.style.cursor = "wait";
+
+  url = "jsp/" + url;
   
   destinationDivId = destDivId;
   
