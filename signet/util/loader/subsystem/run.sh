@@ -8,10 +8,8 @@
 #   JAVA_HOME     Must point to your JDK.
 # -----------------------------------------------------------------------------
 
-JAVA_HOME=/usr/java
-
-BASEDIR=../
-CLASSPATH=$BASEDIR/classes
+BASEDIR=../..
+CLASSPATH=$BASEDIR/config
 
 for file in `ls $BASEDIR/lib/*.jar`;
 do

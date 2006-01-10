@@ -202,7 +202,7 @@
 			<fileset dir="${source_lib.dir}">
 				<include name="**/*" />
 			</fileset>
-			<fileset dir="${dist_lib.dir}">
+			<fileset dir="${work_lib.dir}">
 				<include name="**/*" />
 			</fileset>
 		</copy>

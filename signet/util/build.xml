@@ -4,48 +4,23 @@
 	default="build" basedir=".">
 
 	<property name="dist.dir"       value="../dist" />
-	<property name="util.dir"       value="${dist.dir}/util" />
+	<property name="dist_util.dir"  value="${dist.dir}/util" />
 	
 	<!-- =================== BUILD: Create Directories ===================== --> 
 	<target name="prepare">
-		<mkdir dir="${util.dir}" /> 
-		<mkdir dir="${util.dir}/classes" /> 
-		<mkdir dir="${util.dir}/lib" /> 
+		<mkdir dir="${dist_util.dir}" /> 
 	</target>
 
 	<!-- ================== BUILD: Clean Directory ========================= --> 
 	<target name="clean">
-		<delete dir="${util.dir}" />
+		<delete dir="${dist_util.dir}" />
 	</target>
 
 	<!-- ======================= BUILD: Build  =========================== -->
-	<target name="build" depends="clean, prepare">
-		
-		<copy todir="${util.dir}/classes">
-			<fileset dir="${source_config.dir}">
-				<include name="**/*.cfg.xml"/>
-				<include name="**/*.properties"/>
-			</fileset>
-			<fileset dir="${source_java.dir}">
-				<include name="**/*.properties"/>
-			</fileset>
-		</copy>
-		
-		<copy todir="${util.dir}/lib">
-			<fileset dir="${source_lib.dir}">
-				<include name="**/*" /> 
-				<exclude name="**/servlet-api.jar" />
-				<exclude name="**/jconn2.jar" />
-			</fileset>
-			<fileset dir="${work_lib.dir}">
-				<include name="${signet_jarfile}" />
-				<include name="${signet_util_jarfile}" />
-			</fileset>
-		</copy>
-		
-		<ant dir="loader/subsystem" target="build" inheritAll="false" />
-		<ant dir="loader/subject" target="build" inheritAll="false" />
-		<ant dir="loader/tree" target="build" inheritAll="false" />
+	<target name="build" depends="clean, prepare">		
+		<ant dir="loader/subsystem"  target="build" inheritAll="false" />
+		<ant dir="loader/subject"    target="build" inheritAll="false" />
+		<ant dir="loader/tree"       target="build" inheritAll="false" />
 		<ant dir="admin/SignetProxy" target="build" inheritAll="false" />
 	</target>
 
