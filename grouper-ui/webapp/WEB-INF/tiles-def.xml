@@ -416,6 +416,7 @@
 		 initial stems (if configured) and toggle whether to show the group 
 		 hierarchy or a flat list of groups or stems
 	  </description>
+	  <put name="maintainModule" type="String" value="y"/>
  </definition>
  
   <definition name="searchFromDef" path="/WEB-INF/jsp/searchFrom.jsp">
@@ -438,6 +439,7 @@
 		Tile which displays a  list of parent stems to show the location of the current group
 		or stem. The stem names are links
 	  </description>
+	  	  <put name="maintainModule" type="String" value="y"/>
  </definition>
  
   <definition name="simpleSearchGroupsDef" path="/WEB-INF/jsp/simpleSearchGroups.jsp"  controllerUrl="/prepareGroupOrStemSearch.do"><put name="maintainModule" type="String" value="y"/>
