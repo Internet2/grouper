@@ -2,11 +2,11 @@
 		 Stanard tile which displays a menu bar below the header
 --%><%--
   @author Gary Brown.
-  @version $Id: subheader.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: subheader.jsp,v 1.2 2006-01-10 12:33:25 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<div id="LeftInNav" ></div>
+<div id="LeftInNav" ><span/></div>
 <div id="RightInNav" >
 	<c:if test="${!empty AuthSubject}">
 		<fmt:message bundle="${nav}" key="auth.message.login-welcome"/> <tiles:insert definition="dynamicTileDef" flush="false">
