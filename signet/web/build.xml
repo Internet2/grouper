@@ -3,8 +3,7 @@
 	name="Signet Web Application"
 	default="build" basedir=".">
 
-	<property name="dist.dir"       value="../dist" />
-	<property name="webapp.dir"     value="${dist.dir}/webapp" />
+	<property name="webapp.dir"     location="${dist.dir}/webapp" />
 	<property name="webapp.name"    value="signet" />
 	
 	<!-- =================== BUILD: Create Directories ===================== --> 
@@ -20,10 +19,12 @@
 	<target name="copy-static" depends="prepare">
 		<copy todir="${webapp.dir}/${webapp.name}">
 			<fileset dir=".">
-			<include name="**/*" />
-			<exclude name="config" />
-			<exclude name="config/*" />
-			<exclude name="build.xml" />
+				<include name="**/*" />
+				<exclude name="config" />
+				<exclude name="config/*" />
+				<exclude name="build.xml" />
+				<exclude name="dist" />
+				<exclude name="dist/**/*" />
 			</fileset>
 		</copy>
 	</target>
@@ -53,16 +54,27 @@
 	<!-- ================= BUILD: Build Webapp ========================== -->
 	<target name="build" depends="clean, prepare, copy-static, copy-config"
 		description="Build Signet web app">
+
+		<!-- Copy our property files and O/R mappings for use at runtime -->
 		<copy todir="${webapp.dir}/${webapp.name}/WEB-INF/classes">
-			<fileset dir="../classes">
-			<include name="**/*" /> 
+			<fileset dir="${source_config.dir}">
+				<include name="**/*.cfg.xml"/>
+				<include name="**/*.properties"/>
+			</fileset>
+			<fileset dir="${source_java.dir}">
+				<include name="**/*.properties"/>
 			</fileset>
 		</copy>
+		
 		<copy todir="${webapp.dir}/${webapp.name}/WEB-INF/lib">
-			<fileset dir="../lib">
-			<include name="**/*" /> 
-			<exclude name="**/servlet-api.jar" />
-			<exclude name="**/jconn2.jar" />
+			<fileset dir="${source_lib.dir}">
+				<include name="**/*" /> 
+				<exclude name="**/servlet-api.jar" />
+				<exclude name="**/jconn2.jar" />
+			</fileset>
+			<fileset dir="${work_lib.dir}">
+				<include name="${signet_jarfile}" />
+				<include name="${signet_ui_jarfile}" />
 			</fileset>
 		</copy>
 	</target>

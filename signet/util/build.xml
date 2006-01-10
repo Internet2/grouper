@@ -20,16 +20,26 @@
 
 	<!-- ======================= BUILD: Build  =========================== -->
 	<target name="build" depends="clean, prepare">
+		
 		<copy todir="${util.dir}/classes">
-			<fileset dir="../classes">
-			<include name="**/*" /> 
+			<fileset dir="${source_config.dir}">
+				<include name="**/*.cfg.xml"/>
+				<include name="**/*.properties"/>
+			</fileset>
+			<fileset dir="${source_java.dir}">
+				<include name="**/*.properties"/>
 			</fileset>
 		</copy>
+		
 		<copy todir="${util.dir}/lib">
-			<fileset dir="../lib">
-			<include name="**/*" /> 
-			<exclude name="**/servlet-api.jar" />
-			<exclude name="**/jconn2.jar" />
+			<fileset dir="${source_lib.dir}">
+				<include name="**/*" /> 
+				<exclude name="**/servlet-api.jar" />
+				<exclude name="**/jconn2.jar" />
+			</fileset>
+			<fileset dir="${work_lib.dir}">
+				<include name="${signet_jarfile}" />
+				<include name="${signet_util_jarfile}" />
 			</fileset>
 		</copy>
 		
