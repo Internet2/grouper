@@ -54,7 +54,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2006-01-09 17:31:14 $
+$Date: 2006-01-12 14:05:19 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -984,6 +984,14 @@ first.
     not run the test suite against production data.</b></p>
     <p><b>Note:</b> <tt>ant db-init-jdbcsource</tt> must have been
     run to run the test suite.</p>
+    <p><b>Note:</b> If all of the tests succeed you will see a
+      <b>single</b> message like this in the test output:
+    </p>
+    <blockquote>
+      <tt>FATAL GrouperSession: unable to get subject associated with session</tt>
+    </blockquote>
+    <p>This is testing an error condition, is expected and indicates
+    success.</p>
   </li>
   <li><p><tt>ant db</tt> [optional]</p>
     <p>This will launch HSQLDB's GUI database manager.  From within the

@@ -10,7 +10,7 @@ testing and running Grouper.
 For more detailed information see:
   `doc/grouper-impl-guide.html`
 
-$Id: README,v 1.35 2006-01-09 17:31:14 blair Exp $
+$Id: README,v 1.36 2006-01-12 14:05:19 blair Exp $
 
 ---
 
@@ -62,6 +62,13 @@ Grouper test suite.  This is a *destructive* action and will destroy
 any data within the configured database.
 
 `ant db-init-jdbcsource` must have been run to run the test suite.
+
+If all of the tests succeed you will see a **single** message
+like this in the test output:
+
+    FATAL GrouperSession: unable to get subject associated with session
+
+This is testing an error condition, is expected and indicates success.
 
 ---
 
