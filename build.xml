@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.82 2006-01-09 17:31:14 blair Exp $ -->
+<!-- $Id: build.xml,v 1.83 2006-01-12 14:25:34 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -362,6 +362,10 @@
 
   <!-- test -->
   <target name="test" depends="test-build">
+    <echo message="A single 'FATAL GrouperSession: unable to get subject
+associated with session' message is expected and does not indicate any
+errors"
+    />
     <record name="${log.test.run}" action="start"/>
     <!-- Run the test suite -->
     <java fork="yes" 
