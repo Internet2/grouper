@@ -90,10 +90,6 @@
   <target name="config">
     <copy file="${config.dir}/sqltool.rc" todir="${dist_demo_config.dir}"/>
   	
-  	<copy
-      file="${config.dir}/tomcat-users.xml"
-      todir="${dist_demo_tomcat.dir}/conf"/>
-  	
     <move todir="${dist_demo_webapps.dir}/signet">
       <fileset dir="${dist_demo_signet.dir}/webapp/signet">
         <include name="**/*"/>
