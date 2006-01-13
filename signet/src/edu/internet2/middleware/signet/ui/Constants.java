@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.21 2006-01-02 04:59:07 acohen Exp $
-$Date: 2006-01-02 04:59:07 $
+$Id: Constants.java,v 1.22 2006-01-13 19:01:12 acohen Exp $
+$Date: 2006-01-13 19:01:12 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -56,6 +56,13 @@ public final class Constants
    * application.
    */
   public static final String DATA_ENTRY_ERRORS = "dataEntryErrors";
+  
+  /**
+   * This token exists only for Signet demo installations.
+   * In the case of a normal production system, user authentication would
+   * occur before any Signet action is accessed.
+   */
+  public static final String DEMO_LOGIN = "demoLogin";
 
 
   /**
@@ -138,6 +145,10 @@ public final class Constants
   public static final String DATETIME_FORMAT_24_SECOND = "dd-MMM-yyyy kk:mm:ss";
   public static final String DATETIME_FORMAT_12_MINUTE = "MMM d, yyyy hh:mmaa";
   public static final String DATETIME_FORMAT_24_DAY = "MMM d, yyyy";
+  
+  public static final String DEMO_USERNAME_HTTPPARAMNAME = "username";
+  public static final String DEMO_PASSWORD_HTTPPARAMNAME = "password";
+  public static final String DEMO_PASSWORD = "signet";
   
   public static final Subsystem WILDCARD_SUBSYSTEM
     = new Subsystem()

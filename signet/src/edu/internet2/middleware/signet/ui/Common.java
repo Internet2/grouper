@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.55 2006-01-02 04:59:07 acohen Exp $
-  $Date: 2006-01-02 04:59:07 $
+  $Id: Common.java,v 1.56 2006-01-13 19:01:12 acohen Exp $
+  $Date: 2006-01-13 19:01:12 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1785,7 +1785,7 @@ public class Common
       = (PrivilegedSubject)
           (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
     
-    outStr.append("<a href=\"NotYetImplemented.do\">\n");
+    outStr.append("<a href=\"DemoLogout.do\">\n");
     outStr.append(loggedInPrivilegedSubject.getName());
 
     if (!loggedInPrivilegedSubject.equals

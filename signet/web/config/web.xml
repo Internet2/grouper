@@ -66,40 +66,6 @@
 		<taglib-uri>/WEB-INF/struts-tiles.tld</taglib-uri>
 		<taglib-location>/WEB-INF/struts-tiles.tld</taglib-location>
 	</taglib>
-
-
-	<security-constraint>
-		<display-name>Signet Security Constraint</display-name>
-
-		<web-resource-collection>
-			<web-resource-name>Protected Area</web-resource-name>
-
-			<!--  Define the context-relative URL(s) to be protected -->
-			<url-pattern>/*</url-pattern>
-
-			<!--  If you list http methods, only those methods are protected -->
-			<http-method>DELETE</http-method>
-			<http-method>GET</http-method>
-			<http-method>POST</http-method>
-			<http-method>PUT</http-method>
-		</web-resource-collection>
-
-		<auth-constraint>
-			<!--  Anyone with one of the listed roles may access this area -->
-			<role-name>signet_user</role-name>
-		</auth-constraint>
-
-	</security-constraint>
-
-	<login-config>
-		<auth-method>BASIC</auth-method>
-		<realm-name>Signet UI Authentication Area</realm-name>
-	</login-config>
-
-	<!--  Security roles referenced by this web application -->
-	<security-role>
-		<role-name>signet_user</role-name>
-	</security-role>
 		
 	<resource-ref>
 		<description>DB Connection</description>

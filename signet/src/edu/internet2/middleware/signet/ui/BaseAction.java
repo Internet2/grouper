@@ -1,6 +1,6 @@
 /*--
-$Id: BaseAction.java,v 1.4 2005-09-01 17:59:58 acohen Exp $
-$Date: 2005-09-01 17:59:58 $
+$Id: BaseAction.java,v 1.5 2006-01-13 19:01:12 acohen Exp $
+$Date: 2006-01-13 19:01:12 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -69,6 +69,21 @@ public class BaseAction extends Action
   protected ActionForward findDataEntryErrors(ActionMapping mapping)
   {
       return (mapping.findForward(Constants.DATA_ENTRY_ERRORS));
+  }
+
+  /**
+   * This mapping exists only for Signet demo installations.
+   * In the case of a normal production system, user authentication would
+   * occur before any Signet page is accessed.
+   * 
+   * Return the mapping labeled "demoLogin" or null if there is no such mapping.
+   * @param mapping Our ActionMapping
+   * @return Return the mapping named "demoLogin" or null if there is no
+   * such mapping.
+   */
+  protected ActionForward findDemoLogin(ActionMapping mapping)
+  {
+      return (mapping.findForward(Constants.DEMO_LOGIN));
   }
 
 }

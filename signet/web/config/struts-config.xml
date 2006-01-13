@@ -49,6 +49,48 @@
                  type="edu.internet2.middleware.signet.ui.StartAction">
           <forward name="failure" path="/jsp/error.jsp" />
           <forward name="success" path="/jsp/main.jsp" />
+          <forward name="demoLogin" path="/DemoLogin.do" />
+      </action>
+      
+      <!-- Signet demo-login page - this page exists only for Signet demo
+           installations. In the case of a normal production system, user
+           authentication would occur before the "Start" action is accessed.
+      -->
+      <action
+        path="/DemoLogin"
+        type="edu.internet2.middleware.signet.ui.DemoLoginAction">
+        
+        <forward name="failure" path="/jsp/error.jsp" />
+        <forward name="success" path="/jsp/demoLogin.jsp" />
+
+      </action>
+      
+      <!-- Signet demo-login-check - this action exists only for Signet demo
+           installations. In the case of a normal production system, user
+           authentication would occur before the "Start" action is accessed.
+      -->
+      <action
+        path="/DemoLoginCheck"
+        type="edu.internet2.middleware.signet.ui.DemoLoginCheckAction">
+        
+        <forward name="failure" path="/jsp/demoLoginFailed.jsp" />
+        <forward name="success" path="/Start.do" />
+
+      </action>
+      
+      <!-- Signet demo-logout - this action exists only for Signet demo
+           installations. In the case of a normal production system, user
+           authentication would occur before the "Start" action is accessed,
+           and this action would need to be altered in order to perform some
+           installation-specific logout operation.
+      -->
+      <action
+        path="/DemoLogout"
+        type="edu.internet2.middleware.signet.ui.DemoLogoutAction">
+        
+        <forward name="failure" path="/jsp/error.jsp" />
+        <forward name="success" path="/Start.do" />
+
       </action>
 
       <!-- Signet person-view page -->

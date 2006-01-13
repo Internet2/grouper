@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.13 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: StartAction.java,v 1.14 2006-01-13 19:01:12 acohen Exp $
+  $Date: 2006-01-13 19:01:12 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -83,6 +83,14 @@ public final class StartAction extends BaseAction
     	= (PrivilegedSubject)(session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
     if (loggedInUser == null)
     {
+      // This getRemoteUser() check exists only for Signet demo installations.
+      // In the case of a normal production system, user authentication would
+      // occur before this "Start" action is accessed.
+      if (request.getRemoteUser() == null)
+      {
+        return findDemoLogin(mapping);
+      }
+      
       // Find the PrivilegedSubject associated with the logged-in
       // user, and stash it in the Session.
       Set userMatches
