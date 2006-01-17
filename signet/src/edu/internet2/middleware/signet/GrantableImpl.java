@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.12 2005-11-24 00:02:53 acohen Exp $
- $Date: 2005-11-24 00:02:53 $
+ $Id: GrantableImpl.java,v 1.13 2006-01-17 19:42:44 acohen Exp $
+ $Date: 2006-01-17 19:42:44 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -400,22 +400,28 @@ implements Grantable
     throw new UnsupportedOperationException
       ("This method is not yet implemented");
   }
+  
+  public boolean evaluate()
+  {
+    Date now = new Date();
+    return this.evaluate(now);
+  }
 
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#evaluate()
    */
-  public Status evaluate()
+  public boolean evaluate(Date date)
   {
-    Date now = new Date();
-    Status newStatus;
+    Status  newStatus;
+    boolean statusChanged = false;
     
-    if (now.compareTo(this.effectiveDate) < 0)
+    if (date.compareTo(this.effectiveDate) < 0)
     {
       // The effectiveDate has not yet arrived.
       newStatus = Status.PENDING;
     }
     else if ((this.expirationDate != null)
-             && (now.compareTo(this.expirationDate) > 0))
+             && (date.compareTo(this.expirationDate) > 0))
     {
       // The expirationDate has already passed.
       newStatus = Status.INACTIVE;
@@ -425,9 +431,13 @@ implements Grantable
       newStatus = Status.ACTIVE;
     }
     
-    this.setStatus(newStatus);
+    if (!newStatus.equals(this.getStatus()))
+    {
+      this.setStatus(newStatus);
+      statusChanged = true;
+    }
     
-    return newStatus;
+    return statusChanged;
   }
   
   protected void save(PrivilegedSubject pSubject)

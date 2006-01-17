@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.21 2005-12-02 18:36:53 acohen Exp $
-$Date: 2005-12-02 18:36:53 $
+$Id: AssignmentTest.java,v 1.22 2006-01-17 19:42:44 acohen Exp $
+$Date: 2006-01-17 19:42:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -518,15 +518,18 @@ public class AssignmentTest extends TestCase
     
     assignment.setEffectiveDate(grantor, lastWeek);
     assignment.setExpirationDate(grantor, Constants.YESTERDAY);
-    assertEquals(Status.INACTIVE, assignment.evaluate());
+    assignment.evaluate();
+    assertEquals(Status.INACTIVE, assignment.getStatus());
     
     assignment.setEffectiveDate(grantor, Constants.YESTERDAY);
     assignment.setExpirationDate(grantor, Constants.TOMORROW);
-    assertEquals(Status.ACTIVE, assignment.evaluate());
+    assignment.evaluate();
+    assertEquals(Status.ACTIVE, assignment.getStatus());
     
     assignment.setEffectiveDate(grantor, Constants.TOMORROW);
     assignment.setExpirationDate(grantor, nextWeek);
-    assertEquals(Status.PENDING, assignment.evaluate());
+    assignment.evaluate();
+    assertEquals(Status.PENDING, assignment.getStatus());
   }
 
   public final void testSetGrantable()

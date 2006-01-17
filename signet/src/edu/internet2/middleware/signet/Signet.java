@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.47 2005-12-02 20:57:05 acohen Exp $
-$Date: 2005-12-02 20:57:05 $
+$Id: Signet.java,v 1.48 2006-01-17 19:42:44 acohen Exp $
+$Date: 2006-01-17 19:42:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -616,60 +616,41 @@ public final class Signet
  
  
   Set findDuplicates(Proxy proxy)
-  {
-    Query query;
-    List resultList;
-
-    try
+  {    
+    Set candidates = proxy.getGrantee().getProxiesReceived();
+    Set duplicates = new HashSet();
+    
+    Iterator candidatesIterator = candidates.iterator();
+    while (candidatesIterator.hasNext())
     {
-      query
-        = session.createQuery
-            ("from edu.internet2.middleware.signet.ProxyImpl"
-             + " as proxy"
-             + " where grantorKey = :grantorKey"
-             + " and granteeKey = :granteeKey"
-             + " and subsystemID = :subsystemId"
-             + " and proxyID != :proxyId");
-
-      query.setParameter
-        ("grantorKey", proxy.getGrantor().getId(), Hibernate.INTEGER);
-      query.setParameter
-        ("granteeKey", proxy.getGrantee().getId(), Hibernate.INTEGER);
-      query.setParameter
-        ("subsystemId",
-         proxy.getSubsystem() == null ? null : proxy.getSubsystem().getId(),
-         Hibernate.STRING);
+      Proxy candidate = (Proxy)(candidatesIterator.next());
+      boolean subsystemsMatch = false;
       
-      query.setParameter("proxyId", proxy.getId(), Hibernate.INTEGER);
-
-      resultList = query.list();
-    }
-    catch (HibernateException e)
-    {
-      throw new SignetRuntimeException(e);
-    }
-
-    Set resultSet = new HashSet(resultList);
-    Set editedSet = new HashSet();
-    editedSet.addAll(resultSet);
-
-    Iterator resultSetIterator = resultSet.iterator();
-    while (resultSetIterator.hasNext())
-    {
-      Proxy matchedProxy = (Proxy) (resultSetIterator.next());
-      
-      if (matchedProxy.getStatus() == Status.INACTIVE)
+      if (candidate.getSubsystem() == null)
       {
-        // We don't consider inactive Proxies when hunting for duplicates.
-        editedSet.remove(matchedProxy);
+        if (proxy.getSubsystem() == null)
+        {
+          subsystemsMatch = true;
+        }
       }
       else
       {
-        ((ProxyImpl) matchedProxy).setSignet(this);
+        if (candidate.getSubsystem().equals(proxy.getSubsystem()))
+        {
+          subsystemsMatch = true;
+        }
+      }
+      
+      if (subsystemsMatch
+          && !(candidate.getStatus().equals(Status.INACTIVE))
+          && candidate.getGrantor().equals(proxy.getGrantor())
+          && !(candidate.getId().equals(proxy.getId())))
+      {
+        duplicates.add(candidate);
       }
     }
 
-    return editedSet;
+    return duplicates;
   }
 
  // I really want to do away with this method, having the

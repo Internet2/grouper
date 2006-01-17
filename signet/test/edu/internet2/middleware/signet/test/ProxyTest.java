@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyTest.java,v 1.1 2005-12-02 18:36:53 acohen Exp $
-$Date: 2005-12-02 18:36:53 $
+$Id: ProxyTest.java,v 1.2 2006-01-17 19:42:44 acohen Exp $
+$Date: 2006-01-17 19:42:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -158,7 +158,7 @@ public class ProxyTest extends TestCase
                  Constants.TOMORROW); // considered when finding duplicates.
         duplicateProxy.save();
         
-        // At this point, there shoule be exactly one duplicate Proxy.
+        // At this point, there should be exactly one duplicate Proxy.
         assertEquals(1, proxyReceived.findDuplicates().size());
       }
     }
@@ -325,15 +325,18 @@ public class ProxyTest extends TestCase
     
     proxy.setEffectiveDate(grantor, lastWeek);
     proxy.setExpirationDate(grantor, Constants.YESTERDAY);
-    assertEquals(Status.INACTIVE, proxy.evaluate());
+    proxy.evaluate();
+    assertEquals(Status.INACTIVE, proxy.getStatus());
     
     proxy.setEffectiveDate(grantor, Constants.YESTERDAY);
     proxy.setExpirationDate(grantor, Constants.TOMORROW);
-    assertEquals(Status.ACTIVE, proxy.evaluate());
+    proxy.evaluate();
+    assertEquals(Status.ACTIVE, proxy.getStatus());
     
     proxy.setEffectiveDate(grantor, Constants.TOMORROW);
     proxy.setExpirationDate(grantor, nextWeek);
-    assertEquals(Status.PENDING, proxy.evaluate());
+    proxy.evaluate();
+    assertEquals(Status.PENDING, proxy.getStatus());
   }
 
   public final void testSetGrantable()

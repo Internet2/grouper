@@ -1,6 +1,6 @@
 /*--
-$Id: Grantable.java,v 1.5 2005-11-24 00:02:53 acohen Exp $
-$Date: 2005-11-24 00:02:53 $
+$Id: Grantable.java,v 1.6 2006-01-17 19:42:44 acohen Exp $
+$Date: 2006-01-17 19:42:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -165,13 +165,27 @@ extends Entity, Comparable
   throws SignetAuthorityException;
   
   /**
-   * Evaluate the conditions and pre-requisites associated with this grantable entity
-   * relationship (including effectiveDate and expirationDate) to update the
+   * Evaluate the conditions and pre-requisites associated with this grantable
+   * entity (including effectiveDate and expirationDate) to update the
    * <code>Status</code> of this grantable-entity relationship.
    * 
-   * @return the new <code>Status</code> value
+   * @return <code>true</code> if the <code>Status</code> value of this
+   * <code>Assignment</code> was changed, and <code>false</code> otherwise.
    */
-  public Status evaluate();
+  public boolean evaluate();
+  
+  /**
+   * Evaluate the conditions and pre-requisites associated with this grantable
+   * entity (including effectiveDate and expirationDate) to update the
+   * <code>Status</code> of this grantable-entity relationship.
+   * 
+   * @param date the <code>Date</code> value to use as the current date and time
+   * when evaluating effectiveDate and expirationDate.
+   * 
+   * @return <code>true</code> if the <code>Status</code> value of this
+   * <code>Assignment</code> was changed, and <code>false</code> otherwise.
+   */
+  public boolean evaluate(Date date);
   
   /**
    * Finds all pending and active Proxies in the database which are
