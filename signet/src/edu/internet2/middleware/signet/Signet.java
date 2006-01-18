@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.48 2006-01-17 19:42:44 acohen Exp $
-$Date: 2006-01-17 19:42:44 $
+$Id: Signet.java,v 1.49 2006-01-18 17:11:59 acohen Exp $
+$Date: 2006-01-18 17:11:59 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,6 +9,7 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2245,4 +2246,109 @@ public final class Signet
    // If we've gotten this far, none of our Proxies can do the job.
    return false;
  }
+ 
+
+ 
+ /**
+  * Evaluate the conditions and pre-requisites associated with all Grantable
+  * entities (including effectiveDate and expirationDate) to update the
+  * <code>Status</code> of those entities.
+  * 
+  * @return a <code>Set</code> of all Grantable entities whose
+  * <code>Status</code> values were changed by this method.
+  */
+ public Set reconcile()
+ {
+   Date now = new Date();
+   return this.reconcile(now);
+ }
+ 
+  /**
+   * Evaluate the conditions and pre-requisites associated with all Grantable
+   * entities (including effectiveDate and expirationDate) to update the
+    * <code>Status</code> of those entities.
+   * 
+   * @param date the <code>Date</code> value to use as the current date and time
+   * when evaluating effectiveDate and expirationDate.
+   * 
+   * @return a <code>Set</code> of all Grantable entities whose
+   * <code>Status</code> values were changed by this method.
+   */
+  public Set reconcile(Date date)
+  {
+    // We don't have to evaluate every single Grantable. We can exclude these:
+    //
+    //  a) Those whose Status values are INACTIVE. We won't be bringing anything
+    //     back from the dead.
+    //
+    //  b) Those whose effective-dates are later than the current Date.
+   
+    Query assignmentQuery;
+    List  assignmentResultList;
+    Query proxyQuery;
+    List  proxyResultList;
+   
+    Set   changedGrantables = new HashSet();
+   
+    try
+    {
+      assignmentQuery
+        = session
+            .createQuery
+              ("from edu.internet2.middleware.signet.AssignmentImpl"
+                 + " as assignment" + " where status != :inactiveStatus"
+                 + " and effectiveDate <= :currentDate");
+
+      assignmentQuery.setParameter("inactiveStatus", Status.INACTIVE);
+      assignmentQuery.setParameter("currentDate", date);
+
+      assignmentResultList = assignmentQuery.list();
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
+    
+    reconcileGrantables(assignmentResultList, date, changedGrantables);
+   
+    try
+    {
+      proxyQuery
+        = session
+            .createQuery
+              ("from edu.internet2.middleware.signet.ProxyImpl"
+                 + " as proxy" + " where status != :inactiveStatus"
+                 + " and effectiveDate <= :currentDate");
+
+      proxyQuery.setParameter("inactiveStatus", Status.INACTIVE);
+      proxyQuery.setParameter("currentDate", date);
+
+      proxyResultList = proxyQuery.list();
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
+    
+    reconcileGrantables(proxyResultList, date, changedGrantables);
+    
+    return changedGrantables;
+  }
+  
+  void reconcileGrantables
+    (Collection grantables,
+     Date       date,
+     Set        changedGrantables)
+  {
+    Iterator grantablesIterator = grantables.iterator();
+    while (grantablesIterator.hasNext())
+    {
+      Grantable grantable = (Grantable)(grantablesIterator.next());
+      if (grantable.evaluate(date))
+      {
+        changedGrantables.add(grantable);
+      }
+    }    
+  }
+ 
 }

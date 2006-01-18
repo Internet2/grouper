@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubject.java,v 1.23 2005-11-11 00:24:01 acohen Exp $
-$Date: 2005-11-11 00:24:01 $
+$Id: PrivilegedSubject.java,v 1.24 2006-01-18 17:11:59 acohen Exp $
+$Date: 2006-01-18 17:11:59 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -318,5 +318,36 @@ public interface PrivilegedSubject extends Comparable
  throws SignetAuthorityException;
  
  PrivilegedSubject getEffectiveEditor();
+ 
+
+ 
+
+ 
+ /**
+   * Evaluate the conditions and pre-requisites associated with all of this
+   * <code>PrivilegedSubject</code>'s {@link Assignment}s and {@link Proxy}s
+   * (including effectiveDate and expirationDate) to update the
+   * <code>Status</code> of those <code>Assignment</code>s and
+   * <code>Proxy</code>s.
+  * 
+  * @return a <code>Set</code> of all Grantable entities whose
+  * <code>Status</code> values were changed by this method.
+  */
+ public Set reconcile();
+ 
+  /**
+   * Evaluate the conditions and pre-requisites associated with all of this
+   * <code>PrivilegedSubject</code>'s {@link Assignment}s and {@link Proxy}s
+   * (including effectiveDate and expirationDate) to update the
+   * <code>Status</code> of those <code>Assignment</code>s and
+   * <code>Proxy</code>s.
+   * 
+   * @param date the <code>Date</code> value to use as the current date and time
+   * when evaluating effectiveDate and expirationDate.
+   * 
+   * @return a <code>Set</code> of all Grantable entities whose
+   * <code>Status</code> values were changed by this method.
+   */
+  public Set reconcile(Date date);
 }
 

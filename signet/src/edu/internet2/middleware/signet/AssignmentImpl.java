@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.36 2005-12-07 19:51:11 acohen Exp $
- $Date: 2005-12-07 19:51:11 $
+ $Id: AssignmentImpl.java,v 1.37 2006-01-18 17:11:59 acohen Exp $
+ $Date: 2006-01-18 17:11:59 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -12,9 +12,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
 
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.tree.TreeNode;
@@ -177,9 +174,14 @@ implements Assignment
    * @return
    */
   private boolean limitValueExists
-  	(Limit	limit,
-  	 Set		limitValues)
+  	(Limit limit,
+  	 Set   limitValues)
   {
+    if (limitValues == null)
+    {
+      return false;
+    }
+    
     Iterator limitValuesIterator = limitValues.iterator();
     while (limitValuesIterator.hasNext())
     {

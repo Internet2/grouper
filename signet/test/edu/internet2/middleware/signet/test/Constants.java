@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.10 2005-12-02 18:36:53 acohen Exp $
-$Date: 2005-12-02 18:36:53 $
+$Id: Constants.java,v 1.11 2006-01-18 17:11:59 acohen Exp $
+$Date: 2006-01-18 17:11:59 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -56,6 +56,8 @@ public class Constants
     = Common.getDate(-2);
   public static final Date DAY_AFTER_TOMORROW
     = Common.getDate(2);
+  public static final Date NEXT_WEEK
+  = Common.getDate(7);
 
   public static final boolean ASSIGNMENT_CANUSE = true;
   public static final boolean ASSIGNMENT_CANGRANT  = true;

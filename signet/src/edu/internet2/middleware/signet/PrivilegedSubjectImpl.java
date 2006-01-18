@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.36 2005-11-17 19:08:40 acohen Exp $
- $Date: 2005-11-17 19:08:40 $
+ $Id: PrivilegedSubjectImpl.java,v 1.37 2006-01-18 17:11:59 acohen Exp $
+ $Date: 2006-01-18 17:11:59 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -1543,5 +1543,22 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   {
     this.setModifyDatetime(new Date());
     this.getSignet().save(this);
+  }
+
+  public Set reconcile()
+  {
+    Date now = new Date();
+    return this.reconcile(now);
+  }
+
+  public Set reconcile(Date date)
+  {
+    Set changedGrantables = new HashSet();
+    this.getSignet().reconcileGrantables
+      (this.getAssignmentsReceived(), date, changedGrantables);
+    this.getSignet().reconcileGrantables
+      (this.getProxiesReceived(), date, changedGrantables);
+    
+    return changedGrantables;
   }
 }

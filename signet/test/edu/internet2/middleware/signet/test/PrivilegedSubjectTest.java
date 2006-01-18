@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.17 2005-12-02 18:36:53 acohen Exp $
-$Date: 2005-12-02 18:36:53 $
+$Id: PrivilegedSubjectTest.java,v 1.18 2006-01-18 17:11:59 acohen Exp $
+$Date: 2006-01-18 17:11:59 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,12 +8,13 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
 
-import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
@@ -458,5 +459,79 @@ public class PrivilegedSubjectTest extends TestCase
     pSubject1.setActingAs(null);
     
     assertNotNull(newProxyFrom1to2);
+  }
+  
+  public final void testReconcile()
+  throws
+    ObjectNotFoundException,
+    SignetAuthorityException
+  {
+    // Here's a picture of the Assignments which this test expects to find:
+    //
+    // Subject 0
+    //   Function 0
+    //     Permission 0
+    //   Function 2
+    //     Permission 2
+    //  Subject 1
+    //    Function 1
+    //      Permission 1
+    //  Subject 2
+    //    Function 2
+    //      Permission 2
+    
+    Subject subject0
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           Common.makeSubjectId(0));
+    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+  
+    Subject subject1
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           Common.makeSubjectId(1));
+    PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
+    
+    // Initially, three of those Grantables should be expected to change Status
+    // the day after tomorrow.
+    Set changedGrantables = pSubject0.reconcile(Constants.DAY_AFTER_TOMORROW);
+    assertEquals(3, changedGrantables.size());
+    
+    // If we run reconcile() again, there should be no more changes.
+    changedGrantables = pSubject0.reconcile(Constants.DAY_AFTER_TOMORROW);
+    assertEquals(0, changedGrantables.size());
+    
+    // Let's grant a new Assignment which should become active at some point
+    // in the future:
+    Tree tree = signet.getTree(Constants.TREE_ID);
+    TreeNode treeNode = fixtures.getRoot(tree);
+    Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+    Function function1
+      = subsystem.getFunction(fixtures.makeFunctionId(1));
+    Limit[] limitsInDisplayOrder
+    = Common.getLimitsInDisplayOrder(function1.getLimits());
+  
+    Set limitValues = new HashSet();
+    for (int i = 0; i < 2; i++)
+    {
+      Limit limit = limitsInDisplayOrder[i];
+      String value = "CHOICE_" + i + "_VALUE";
+      LimitValue limitValue = new LimitValue(limit, value);
+      limitValues.add(limitValue);
+    }
+
+    Assignment assignmentFrom1to0
+      = pSubject1.grant
+          (pSubject0,
+           treeNode,
+           function1,
+           limitValues,
+           true,
+           true,
+           Constants.TOMORROW,
+           Constants.NEXT_WEEK);
+    
+    changedGrantables = pSubject0.reconcile(Constants.DAY_AFTER_TOMORROW);
+    assertEquals(1, changedGrantables.size());
   }
 }
