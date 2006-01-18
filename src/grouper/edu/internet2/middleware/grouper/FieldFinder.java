@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.6 2005-12-12 05:52:02 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.7 2006-01-18 20:23:29 blair Exp $
  */
 public class FieldFinder {
 
@@ -77,10 +77,11 @@ public class FieldFinder {
     //      exist?
     Set fields = new LinkedHashSet();
     try {
-      Session hs = HibernateHelper.getSession();
-      fields.addAll(
-        hs.find("from Field order by field_name asc")
-      );
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery("from Field order by field_name asc");
+      qry.setCacheable(GrouperConfig.QRY_FF_FA);
+      qry.setCacheRegion(GrouperConfig.QCR_FF_FA);
+      fields.addAll(qry.list());
       hs.close();  
     }
     catch (HibernateException eH) {
@@ -102,15 +103,15 @@ public class FieldFinder {
   {
     Set fields = new LinkedHashSet();
     try {
-      Session hs = HibernateHelper.getSession();
-      fields.addAll(
-        hs.find(
-          "from Field where field_type = ? order by field_name asc",
-          type.toString(),
-          Hibernate.STRING
-        )
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Field where field_type = :type order by field_name asc"
       );
-      hs.close();  
+      qry.setCacheable(GrouperConfig.QRY_FF_FABT);
+      qry.setCacheRegion(GrouperConfig.QCR_FF_FABT);
+      qry.setString("type", type.toString());
+      fields.addAll(qry.list());
+      hs.close();
     }
     catch (HibernateException eH) {
       String err = ERR_FAT + eH.getMessage();

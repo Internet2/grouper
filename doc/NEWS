@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.87 2006-01-12 14:16:34 blair Exp $
+$Id: NEWS,v 1.88 2006-01-18 20:23:29 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS,v 1.87 2006-01-12 14:16:34 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW: Converted all Hibernate `find()` queries into `createQuery()` queries
 * BUGFIX: Clarify expected error output in test results
 * BUGFIX: Eliminate Hibernate exception when renaming stems with
   multiple child groups

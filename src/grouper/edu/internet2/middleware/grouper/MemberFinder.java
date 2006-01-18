@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.7 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.8 2006-01-18 20:23:29 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
@@ -92,13 +92,13 @@ public class MemberFinder implements Serializable {
     try {
       Member  m       = null;
       Session hs      = HibernateHelper.getSession();
-      List    members = hs.find(
-                          "from Member as m where       "
-                          + "m.member_id           = ?  ",
-                          uuid,
-                          Hibernate.STRING
-                        )
-                        ;
+      Query   qry     = hs.createQuery(
+        "from Member as m where m.member_id = :uuid"
+      );
+      qry.setCacheable(GrouperConfig.QRY_MF_FBU);
+      qry.setCacheRegion(GrouperConfig.QCR_MF_FBU);
+      qry.setString("uuid", uuid);
+      List    members = qry.list();
       if (members.size() == 1) {
         // Member exists
         m = (Member) members.get(0);
@@ -141,18 +141,18 @@ public class MemberFinder implements Serializable {
     try {
       Member  m       = null;
       Session hs      = HibernateHelper.getSession();
-      List    members = hs.find(
-        "from Member as m where       "
-        + "m.subject_id          = ?  "
-        + "and m.subject_type    = ?  "
-        + "and m.subject_source  = ?",
-        new Object[] { 
-          subj.getId(), subj.getType().getName(), subj.getSource().getId()
-        },
-        new Type[] {
-          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-        }
-        );
+      Query   qry     = hs.createQuery(
+        "from Member as m where "
+        + "     m.subject_id      = :sid "  
+        + "and  m.subject_type    = :type "
+        + "and  m.subject_source  = :source"
+      );
+      qry.setCacheable(GrouperConfig.QRY_MF_FBS);
+      qry.setCacheRegion(GrouperConfig.QCR_MF_FBS);
+      qry.setString("sid",    subj.getId()            );
+      qry.setString("type",   subj.getType().getName());
+      qry.setString("source", subj.getSource().getId());
+      List    members = qry.list();
       LOG.debug(msg + " found: " + members.size());
       if (members.size() == 1) {
         // The member already exists

@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.5 2005-12-11 06:28:39 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.6 2006-01-18 20:23:29 blair Exp $
  */
 class GroupTypeFinder {
 
@@ -67,10 +67,11 @@ class GroupTypeFinder {
   private static Set _findAll() {
     Set types = new LinkedHashSet();
     try {
-      Session hs = HibernateHelper.getSession();
-      types.addAll(
-        hs.find("from GroupType order by name asc")
-      );
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery("from GroupType order by name asc");
+      qry.setCacheable(GrouperConfig.QRY_GTF_FA);
+      qry.setCacheRegion(GrouperConfig.QCR_GTF_FA);
+      types.addAll(qry.list());
       hs.close();  
     }
     catch (HibernateException eH) {
