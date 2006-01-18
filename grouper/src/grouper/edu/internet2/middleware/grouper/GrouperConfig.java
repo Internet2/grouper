@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.12 2006-01-18 20:23:29 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.13 2006-01-18 21:32:33 blair Exp $
  *     
 */
 public class GrouperConfig {
@@ -49,63 +49,63 @@ public class GrouperConfig {
 
   // Protected Class Constants - Queries
   protected static final String   QCR_FF_FA     = "edu.internet2.middleware.grouper.FieldFinder.FindAll";
-  protected static final boolean  QRY_FF_FA     = false;
+  protected static final boolean  QRY_FF_FA     = true;
   protected static final String   QCR_FF_FABT   = "edu.internet2.middleware.grouper.FieldFinder.FindAllByType";
-  protected static final boolean  QRY_FF_FABT   = false;
+  protected static final boolean  QRY_FF_FABT   = true;
   protected static final String   QCR_GF_FBAA   = "edu.internet2.middleware.grouper.GroupFinder.FindByApproximateAttr";
-  protected static final boolean  QRY_GF_FBAA   = false;
+  protected static final boolean  QRY_GF_FBAA   = true;
   protected static final String   QCR_GF_FBAN   = "edu.internet2.middleware.grouper.GroupFinder.FindByApproximateName";
-  protected static final boolean  QRY_GF_FBAN   = false;
+  protected static final boolean  QRY_GF_FBAN   = true;
   protected static final String   QCR_GF_FBAAA  = "edu.internet2.middleware.grouper.GroupFinder.FindByAnyApproximateAttr";
-  protected static final boolean  QRY_GF_FBAAA  = false;
+  protected static final boolean  QRY_GF_FBAAA  = true;
   protected static final String   QCR_GF_FBCA   = "edu.internet2.middleware.grouper.GroupFinder.FindByCreatedAfter";
-  protected static final boolean  QRY_GF_FBCA   = false;
+  protected static final boolean  QRY_GF_FBCA   = true;
   protected static final String   QCR_GF_FBCB   = "edu.internet2.middleware.grouper.GroupFinder.FindByCreatedBefore";
-  protected static final boolean  QRY_GF_FBCB   = false;
+  protected static final boolean  QRY_GF_FBCB   = true;
   protected static final String   QCR_GF_FBN    = "edu.internet2.middleware.grouper.GroupFinder.FindByName";
-  protected static final boolean  QRY_GF_FBN    = false;
+  protected static final boolean  QRY_GF_FBN    = true;
   protected static final String   QCR_GF_FBU    = "edu.internet2.middleware.grouper.GroupFinder.FindByUuid";
-  protected static final boolean  QRY_GF_FBU    = false;
+  protected static final boolean  QRY_GF_FBU    = true;
   protected static final String   QCR_GTF_FA    = "edu.internet2.middleware.grouper.GroupTypeFinder.FindAll";
-  protected static final boolean  QRY_GTF_FA    = false; 
+  protected static final boolean  QRY_GTF_FA    = true; 
   protected static final String   QCR_MF_FBS    = "edu.internet2.middleware.grouper.MemberFinder.FindBySubject";
-  protected static final boolean  QRY_MF_FBS    = false;
+  protected static final boolean  QRY_MF_FBS    = true;
   protected static final String   QCR_MF_FBU    = "edu.internet2.middleware.grouper.MemberFinder.FindByUuid";
-  protected static final boolean  QRY_MF_FBU    = false;
+  protected static final boolean  QRY_MF_FBU    = true;
   protected static final String   QCR_MSF_FAM    = "edu.internet2.middleware.grouper.MembershipFinder.FindAllMemberships";
-  protected static final boolean  QRY_MSF_FAM   = false;
+  protected static final boolean  QRY_MSF_FAM   = true;
   protected static final String   QCR_MSF_FCM   = "edu.internet2.middleware.grouper.MembershipFinder.FindChildMemberships";
-  protected static final boolean  QRY_MSF_FCM   = false;
+  protected static final boolean  QRY_MSF_FCM   = true;
   protected static final String   QCR_MSF_FEM   = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMemberships";
-  protected static final boolean  QRY_MSF_FEM   = false;
-  protected static final String   QCR_MSF_FEMG  = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsGroup";
-  protected static final boolean  QRY_MSF_FEMG  = false;
+  protected static final boolean  QRY_MSF_FEM   = true;
   protected static final String   QCR_MSF_FEMM  = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsMember";
-  protected static final boolean  QRY_MSF_FEMM  = false;
+  protected static final boolean  QRY_MSF_FEMM  = true;
+  protected static final String   QCR_MSF_FEMO  = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsOwner";
+  protected static final boolean  QRY_MSF_FEMO  = true;
   protected static final String   QCR_MSF_FEMOM = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsOwnerMember";
-  protected static final boolean  QRY_MSF_FEMOM = false;
+  protected static final boolean  QRY_MSF_FEMOM = true;
   protected static final String   QCR_MSF_FIM   = "edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMemberships";
-  protected static final boolean  QRY_MSF_FIM   = false;
+  protected static final boolean  QRY_MSF_FIM   = true;
   protected static final String   QCR_MSF_FIMM  = "edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMembershipsMember";
-  protected static final boolean  QRY_MSF_FIMM  = false;
+  protected static final boolean  QRY_MSF_FIMM  = true;
   protected static final String   QCR_MSF_FIMO  = "edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMembershipsOwner";
-  protected static final boolean  QRY_MSF_FIMO  = false;
+  protected static final boolean  QRY_MSF_FIMO  = true;
   protected static final String   QCR_MSF_FM    = "edu.internet2.middleware.grouper.MembershipFinder.FindMemberships";
-  protected static final boolean  QRY_MSF_FM    = false;
+  protected static final boolean  QRY_MSF_FM    = true;
   protected static final String   QCR_MSF_FMO   = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwner";
-  protected static final boolean  QRY_MSF_FMO   = false;
+  protected static final boolean  QRY_MSF_FMO   = true;
   protected static final String   QCR_MSF_FMOM  = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwnerMember";
-  protected static final boolean  QRY_MSF_FMOM  = false;
+  protected static final boolean  QRY_MSF_FMOM  = true;
   protected static final String   QCR_SF_FBAN   = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateName";
-  protected static final boolean  QRY_SF_FBAN   = false;
+  protected static final boolean  QRY_SF_FBAN   = true;
   protected static final String   QCR_SF_FBCA   = "edu.internet2.middleware.grouper.StemFinder.FindByCreatedAfter";
-  protected static final boolean  QRY_SF_FBCA   = false;
+  protected static final boolean  QRY_SF_FBCA   = true;
   protected static final String   QCR_SF_FBCB   = "edu.internet2.middleware.grouper.StemFinder.FindByCreatedBefore";
-  protected static final boolean  QRY_SF_FBCB   = false;
+  protected static final boolean  QRY_SF_FBCB   = true;
   protected static final String   QCR_SF_FBN    = "edu.internet2.middleware.grouper.StemFinder.FindByName";
-  protected static final boolean  QRY_SF_FBN    = false;
+  protected static final boolean  QRY_SF_FBN    = true;
   protected static final String   QCR_SF_FBU    = "edu.internet2.middleware.grouper.StemFinder.FindByUuid";
-  protected static final boolean  QRY_SF_FBU    = false;
+  protected static final boolean  QRY_SF_FBU    = true;
 
 
   // Private Class Constants
