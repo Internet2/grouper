@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubject.java,v 1.24 2006-01-18 17:11:59 acohen Exp $
-$Date: 2006-01-18 17:11:59 $
+$Id: PrivilegedSubject.java,v 1.25 2006-01-18 18:49:16 acohen Exp $
+$Date: 2006-01-18 18:49:16 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -329,10 +329,15 @@ public interface PrivilegedSubject extends Comparable
    * (including effectiveDate and expirationDate) to update the
    * <code>Status</code> of those <code>Assignment</code>s and
    * <code>Proxy</code>s.
-  * 
-  * @return a <code>Set</code> of all Grantable entities whose
-  * <code>Status</code> values were changed by this method.
-  */
+   * <p />
+   * Please note that this method, like every other method that modifies
+   * a Signet object, will not have its changes persisted until the
+   * {@link save()}
+   * method is called on each of the modified Grantable entities. 
+   * 
+   * @return a <code>Set</code> of all Grantable entities whose
+   * <code>Status</code> values were changed by this method.
+   */
  public Set reconcile();
  
   /**
@@ -341,6 +346,11 @@ public interface PrivilegedSubject extends Comparable
    * (including effectiveDate and expirationDate) to update the
    * <code>Status</code> of those <code>Assignment</code>s and
    * <code>Proxy</code>s.
+   * <p />
+   * Please note that this method, like every other method that modifies
+   * a Signet object, will not have its changes persisted until the
+   * {@link save()}
+   * method is called on each of the modified Grantable entities. 
    * 
    * @param date the <code>Date</code> value to use as the current date and time
    * when evaluating effectiveDate and expirationDate.

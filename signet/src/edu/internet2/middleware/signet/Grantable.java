@@ -1,6 +1,6 @@
 /*--
-$Id: Grantable.java,v 1.6 2006-01-17 19:42:44 acohen Exp $
-$Date: 2006-01-17 19:42:44 $
+$Id: Grantable.java,v 1.7 2006-01-18 18:49:16 acohen Exp $
+$Date: 2006-01-18 18:49:16 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -198,7 +198,9 @@ extends Entity, Comparable
   public Set findDuplicates();
   
   /**
-   * Persists the current state of this grantable entity.
+   * Persists the current state of this grantable entity. Calling this method
+   * generates a History record containing the current state of this entity.
+   * In this way, you can regulate the "granularity" of Signet history records.
    *
    */
   public void save();
