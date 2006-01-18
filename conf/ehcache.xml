@@ -154,6 +154,242 @@
   />
   <!-- Stems -->
 
+  <!-- Queries -->
+
+  <cache  name="edu.internet2.middleware.grouper.FieldFinder.FindAll"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.FieldFinder.FindAllByType"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.GroupFinder.FindByApproximateAttr"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.GroupFinder.FindByApproximateName"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.GroupFinder.FindByAnyApproximateAttr"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.GroupFinder.FindByCreatedAfter"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.GroupFinder.FindByCreatedBefore"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.GroupFinder.FindByName"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.GroupFinder.FindByUuid"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.GroupTypeFinder.FindAll"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.MemberFinder.FindBySubject"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.MemberFinder.FindByUuid"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+       
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindAllMemberships"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+       
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindChildMemberships"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+       
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMemberships"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+       
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsMember"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+       
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsOwner"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+       
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsOwnerMember"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+      
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMemberships"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+      
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMembershipsMember"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+      
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMembershipsOwner"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+      
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindMemberships"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+      
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwner"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+      
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwnerMember"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+ 
+  <cache  name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateName"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.StemFinder.FindByCreatedAfter"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.StemFinder.FindByCreatedBefore"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.StemFinder.FindByName"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.StemFinder.FindByUuid"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+
+  <!-- Queries -->
 
 <!--
   Hibernate Query Caches

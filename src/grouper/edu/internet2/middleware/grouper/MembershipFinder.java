@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.27 2006-01-18 20:23:29 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.28 2006-01-18 21:32:33 blair Exp $
  */
 public class MembershipFinder {
 
@@ -307,8 +307,8 @@ public class MembershipFinder {
         + "and  ms.field.type = :ftype  "
         + "and  ms.depth      > 0" 
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FEMG);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMG);
+      qry.setCacheable(GrouperConfig.QRY_MSF_FEMO);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMO);
       qry.setString("oid"   ,  g.getUuid()          );
       qry.setString("fname" , f.getName()           );
       qry.setString("ftype" , f.getType().toString());
