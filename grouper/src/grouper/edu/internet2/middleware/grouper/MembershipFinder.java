@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.26 2005-12-19 13:55:54 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.27 2006-01-18 20:23:29 blair Exp $
  */
 public class MembershipFinder {
 
@@ -173,10 +173,13 @@ public class MembershipFinder {
     Set mships  = new LinkedHashSet();
     try {
       Session   hs    = HibernateHelper.getSession();
-      Iterator  iter  = hs.find(
-        "from Membership as ms where ms.member_id = ?",
-        m.getId(), Hibernate.STRING
-      ).iterator();
+      Query     qry   = hs.createQuery(
+        "from Membership as ms where ms.member_id = :mid"
+      );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FAM);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FAM);
+      qry.setString("mid", m.getId());
+      Iterator  iter  = qry.iterate();
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
         ms.setSession(s);
@@ -201,11 +204,13 @@ public class MembershipFinder {
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-        "from Membership as ms where ms.parent_membership = ?",
-        ms.getId(),
-        Hibernate.STRING
+      Query   qry = hs.createQuery(
+        "from Membership as ms where ms.parent_membership = :msid"
       );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FCM);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FCM);
+      qry.setString("msid", ms.getId());
+      List    l   = qry.list();
       hs.close();
       GrouperLog.debug(LOG, s, MSG_FCMSHIPS_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, ms.getList(), l) );
@@ -254,25 +259,24 @@ public class MembershipFinder {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      mships.addAll(
-        hs.find(
-          "from Membership as ms where  "
-          + "ms.owner_id        = ?     "
-          + "and ms.member_id   = ?     "
-          + "and ms.field.name  = ?     "
-          + "and ms.field.type  = ?     "
-          + "and ms.via_id      = ?     "
-          + "and ms.depth       = ?     ", 
-          new Object[] {
-            oid, mid, f.getName(), f.getType().toString(), 
-            vid, new Integer(depth)
-          },
-          new Type[] {
-            Hibernate.STRING, Hibernate.STRING, Hibernate.STRING,
-            Hibernate.STRING, Hibernate.STRING, Hibernate.INTEGER
-          }
-        )
+      Query   qry = hs.createQuery(
+        "from Membership as ms where      "
+        + "     ms.owner_id     = :oid    "
+        + "and  ms.member_id    = :mid    "
+        + "and  ms.field.name   = :fname  "
+        + "and  ms.field.type   = :ftype  "
+        + "and  ms.via_id       = :vid    "
+        + "and  ms.depth        = :depth"
       );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FEM);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FEM);
+      qry.setString("oid"     , oid);
+      qry.setString("mid"     , mid                   );
+      qry.setString("fname"   , f.getName()           );
+      qry.setString("ftype"   , f.getType().toString());
+      qry.setString("vid"     , vid                   );
+      qry.setInteger("depth"  , depth                 );
+      mships.addAll(qry.list());
       hs.close();
     }
     catch (HibernateException eH) {
@@ -296,19 +300,19 @@ public class MembershipFinder {
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-        "from Membership as ms where  "
-        + "ms.owner_id        = ?     "
-        + "and ms.field.name  = ?     " 
-        + "and ms.field.type  = ?     "
-        + "and ms.depth       > 0     ", 
-        new Object[] {
-          g.getUuid(), f.getName(), f.getType().toString()
-        },
-        new Type[] {
-          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-        }
-        );
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :oid    "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.depth      > 0" 
+      );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FEMG);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMG);
+      qry.setString("oid"   ,  g.getUuid()          );
+      qry.setString("fname" , f.getName()           );
+      qry.setString("ftype" , f.getType().toString());
+      List    l     = qry.list();
       hs.close();
       GrouperLog.debug(LOG, s, MSG_FEMSHIPSG_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
@@ -334,19 +338,19 @@ public class MembershipFinder {
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-        "from Membership as ms where  "
-        + "ms.member_id       = ?     "
-        + "and ms.field.name  = ?     " 
-        + "and ms.field.type  = ?     "
-        + "and ms.depth       > 0     ", 
-        new Object[] {
-          m.getId(), f.getName(), f.getType().toString()
-        },
-        new Type[] {
-          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-        }
-        );
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.member_id  = :mid    "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.depth      > 0"
+      );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FEMM);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMM);
+      qry.setString("mid"   , m.getId()             );
+      qry.setString("fname" , f.getName()           );
+      qry.setString("ftype" , f.getType().toString());
+      List    l   = qry.list();
       hs.close();
       GrouperLog.debug(LOG, s, MSG_FEMSHIPSM_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
@@ -371,23 +375,21 @@ public class MembershipFinder {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      mships.addAll(
-        hs.find(
-          "from Membership as ms where  "
-          + "ms.owner_id        = ?     "
-          + "and ms.member_id   = ?     "
-          + "and ms.field.name  = ?     "
-          + "and ms.field.type  = ?     "
-          + "and ms.depth       > 0     ", 
-          new Object[] {
-            oid, m.getId(), f.getName(), f.getType().toString(), 
-          },
-          new Type[] {
-            Hibernate.STRING, Hibernate.STRING, 
-            Hibernate.STRING, Hibernate.STRING
-          }
-        )
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :oid    "
+        + "and  ms.member_id  = :mid    "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.depth      > 0"
       );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FEMOM);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMOM);
+      qry.setString("oid"   , oid                   );
+      qry.setString("mid"   , m.getId()             );
+      qry.setString("fname" , f.getName()           );
+      qry.setString("ftype" , f.getType().toString());
+      mships.addAll(qry.list());
       hs.close();
     }
     catch (HibernateException eH) {
@@ -433,23 +435,21 @@ public class MembershipFinder {
     List mships = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
-      mships.addAll(
-        hs.find(
-          "from Membership as ms where  "
-          + "ms.owner_id        = ?     "
-          + "and ms.member_id   = ?     "
-          + "and ms.field.name  = ?     "
-          + "and ms.field.type  = ?     "
-          + "and ms.depth       = 0     ", 
-          new Object[] {
-            oid, m.getId(), f.getName(), f.getType().toString()
-          },
-          new Type[] {
-            Hibernate.STRING, Hibernate.STRING, 
-            Hibernate.STRING, Hibernate.STRING
-          }
-        )
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :oid    "
+        + "and  ms.member_id  = :mid    "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.depth      = 0"
       );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FIM);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FIM);
+      qry.setString("oid"   , oid                   );
+      qry.setString("mid"   , m.getId()             );
+      qry.setString("fname" , f.getName()           );
+      qry.setString("ftype" , f.getType().toString()); 
+      mships.addAll(qry.list());
       hs.close();
     }
     catch (HibernateException eH) {
@@ -478,19 +478,19 @@ public class MembershipFinder {
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-        "from Membership as ms where  "
-        + "ms.owner_id        = ?     "
-        + "and ms.field.name  = ?     " 
-        + "and ms.field.type  = ?     "
-        + "and ms.depth       = 0     ", 
-        new Object[] {
-          oid, f.getName(), f.getType().toString()
-        },
-        new Type[] {
-          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-        }
-        );
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :oid    "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.depth      = 0"
+      );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FIMO);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FIMO);
+      qry.setString("oid"   , oid);
+      qry.setString("fname" , f.getName());
+      qry.setString("ftype" , f.getType().toString());
+      List    l   = qry.list();
       hs.close();
       GrouperLog.debug(LOG, s, MSG_FIMSHIPSO_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
@@ -516,19 +516,19 @@ public class MembershipFinder {
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-        "from Membership as ms where  "
-        + "ms.member_id       = ?     "
-        + "and ms.field.name  = ?     " 
-        + "and ms.field.type  = ?     "
-        + "and ms.depth       = 0     ", 
-        new Object[] {
-          m.getId(), f.getName(), f.getType().toString()
-        },
-        new Type[] {
-          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-        }
-        );
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.member_id  = :mid    "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.depth      = 0"
+      );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FIMM);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FIMM);      
+      qry.setString("mid"   , m.getId()             );
+      qry.setString("fname" , f.getName()           );
+      qry.setString("ftype" , f.getType().toString());
+      List    l   = qry.list();
       hs.close();
       GrouperLog.debug(LOG, s, MSG_FIMSHIPSM_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
@@ -603,33 +603,22 @@ public class MembershipFinder {
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-        "from Membership as ms where  "
-        + "ms.member_id       = ?     "
-        + "and ms.field.name  = ?     " 
-        + "and ms.field.type  = ?     ",
-        new Object[] {
-          m.getId(), f.getName(), f.getType().toString()
-        },
-        new Type[] {
-          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-        }
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.member_id  = :mid    "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype"
       );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FM);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FM);
+      qry.setString("mid"   , m.getId()             );
+      qry.setString("fname" , f.getName()           );
+      qry.setString("ftype" , f.getType().toString());
+      List    l   = qry.list();
+
       Member all = MemberFinder.findAllMember();
-      l.addAll( 
-        hs.find(
-          "from Membership as ms where  "
-          + "ms.member_id       = ?     "
-          + "and ms.field.name  = ?     " 
-          + "and ms.field.type  = ?     ",
-          new Object[] {
-            all.getId(), f.getName(), f.getType().toString()
-          },
-          new Type[] {
-            Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-          }
-        )
-      );
+      qry.setString("mid", all.getId());
+      l.addAll(qry.list());
       hs.close();
       GrouperLog.debug(LOG, s, MSG_FMSHIPSM_PRO + " unfiltered: " + l.size());
 
@@ -668,18 +657,18 @@ public class MembershipFinder {
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-        "from Membership as ms where  "
-        + "ms.owner_id        = ?     "
-        + "and ms.field.name  = ?     " 
-        + "and ms.field.type  = ?     ",
-        new Object[] {
-          oid, f.getName(), f.getType().toString()
-        },
-        new Type[] {
-          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-        }
-        );
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :oid    "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype"
+      );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FMO);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FMO);
+      qry.setString("oid"   , oid                   );
+      qry.setString("fname" , f.getName()           );
+      qry.setString("ftype" , f.getType().toString());
+      List    l   = qry.list();
       hs.close();
       GrouperLog.debug(LOG, s, MSG_FMSHIPSO_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
@@ -706,22 +695,20 @@ public class MembershipFinder {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      mships.addAll(
-        hs.find(
-          "from Membership as ms where  "
-          + "ms.owner_id        = ?     "
-          + "and ms.member_id   = ?     "
-          + "and ms.field.name  = ?     "
-          + "and ms.field.type  = ?     ",
-          new Object[] {
-            oid, m.getId(), f.getName(), f.getType().toString(), 
-          },
-          new Type[] {
-            Hibernate.STRING, Hibernate.STRING, 
-            Hibernate.STRING, Hibernate.STRING
-          }
-        )
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :oid    " 
+        + "and  ms.member_id  = :mid    "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype"
       );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FMOM);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FMOM);
+      qry.setString("oid"   , oid                   );
+      qry.setString("mid"   , m.getId()             );
+      qry.setString("fname" , f.getName()           );
+      qry.setString("ftype" , f.getType().toString());
+      mships.addAll(qry.list());
       hs.close();
     }
     catch (HibernateException eH) {

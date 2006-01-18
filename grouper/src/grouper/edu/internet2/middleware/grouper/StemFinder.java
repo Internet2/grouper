@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.12 2005-12-15 17:51:03 blair Exp $
+ * @version $Id: StemFinder.java,v 1.13 2006-01-18 20:23:29 blair Exp $
  */
 public class StemFinder {
 
@@ -60,20 +60,22 @@ public class StemFinder {
     GrouperSession.validate(s);
     Stem ns = null;
     try {
-      Session hs  = HibernateHelper.getSession();
       if (name.equals(Stem.ROOT_EXT)) {
         name = Stem.ROOT_INT;
       }
-      List    l   = hs.find( 
-        "from Stem as ns where ns.stem_name = ?",
-        name,
-        Hibernate.STRING
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Stem as ns where ns.stem_name = :name"
       );
-      hs.close();
+      qry.setCacheable(GrouperConfig.QRY_SF_FBN);
+      qry.setCacheRegion(GrouperConfig.QCR_SF_FBN);
+      qry.setString("name", name);
+      List    l   = qry.list();
       if (l.size() == 1) {
         ns = (Stem) l.get(0);
         ns.setSession(s);
       } 
+      hs.close();
     }
     catch (HibernateException eH) {
       throw new StemNotFoundException(
@@ -139,29 +141,26 @@ public class StemFinder {
   protected static Set findByApproximateName(GrouperSession s, String name) 
     throws  QueryException
   {
-    String    approx  = "%" + name.toLowerCase() + "%";
-    Set       stems   = new LinkedHashSet();
+    Set stems = new LinkedHashSet();
     try {
       Session   hs      = HibernateHelper.getSession();
-      Iterator  iter    = hs.find(
-        "from Stem as ns where                    "
-        + "lower(ns.stem_name)            like  ? "
-        + "or lower(ns.display_name)      like  ? "
-        + "or lower(ns.stem_extension)    like  ? "
-        + "or lower(ns.display_extension) like  ? ",
-        new Object[] {
-          approx, approx, approx, approx
-        },
-        new Type[] {
-          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-        }
-      ).iterator();
-      hs.close();
+      Query     qry     = hs.createQuery(
+        "from Stem as ns where "
+        + "   lower(ns.stem_name)         like :name "
+        + "or lower(ns.display_name)      like :name "
+        + "or lower(ns.stem_extension)    like :name "
+        + "or lower(ns.display_extension) like :name" 
+      );
+      qry.setCacheable(GrouperConfig.QRY_SF_FBAN);
+      qry.setCacheRegion(GrouperConfig.QCR_SF_FBAN);
+      qry.setString("name", "%" + name.toLowerCase() + "%");
+      Iterator  iter    = qry.iterate();
       while (iter.hasNext()) {
         Stem ns = (Stem) iter.next();
         ns.setSession(s);
         stems.add(ns);
       }
+      hs.close();
     }
     catch (HibernateException eH) {
       throw new QueryException(
@@ -178,13 +177,13 @@ public class StemFinder {
     List stems = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-                      "from Stem as ns where  "
-                      + "ns.create_time > ?   ",
-                      new Long(d.getTime()),
-                      Hibernate.LONG
-                    )
-                    ;
+      Query   qry = hs.createQuery(
+        "from Stem as ns where ns.create_time > :time"
+      );
+      qry.setCacheable(GrouperConfig.QRY_SF_FBCA);
+      qry.setCacheRegion(GrouperConfig.QCR_SF_FBCA);
+      qry.setLong("time", d.getTime());
+      List    l   = qry.list();
       hs.close();
       stems.addAll( Stem.setSession(s, l) );
     }
@@ -203,13 +202,13 @@ public class StemFinder {
     List stems = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-                      "from Stem as ns where  "
-                      + "ns.create_time < ?   ",
-                      new Long(d.getTime()),
-                      Hibernate.LONG
-                      )
-                      ;
+      Query   qry = hs.createQuery(
+        "from Stem as ns where ns.create_time < :time"
+      );
+      qry.setCacheable(GrouperConfig.QRY_SF_FBCB);
+      qry.setCacheRegion(GrouperConfig.QCR_SF_FBCB);
+      qry.setLong("time", d.getTime());
+      List    l   = qry.list();
       hs.close();
       stems.addAll( Stem.setSession(s, l) );
     }
@@ -227,13 +226,13 @@ public class StemFinder {
     try {
       Stem    ns    = null;
       Session hs    = HibernateHelper.getSession();
-      List    stems = hs.find(
-                        "from Stem as ns where  "
-                        + "ns.stem_id = ?       ",
-                        uuid,
-                        Hibernate.STRING
-                      )
-                      ;
+      Query   qry   = hs.createQuery(
+        "from Stem as ns where ns.stem_id = :uuid"
+      );
+      qry.setCacheable(GrouperConfig.QRY_SF_FBU);
+      qry.setCacheRegion(GrouperConfig.QCR_SF_FBU);
+      qry.setString("uuid", uuid);
+      List    stems = qry.list();
       if (stems.size() == 1) {
         ns = (Stem) stems.get(0);
       }

@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.8 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.9 2006-01-18 20:23:29 blair Exp $
  */
 public class GroupFinder {
 
@@ -123,13 +123,13 @@ public class GroupFinder {
     List groups = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-                      "from Group as g where  "
-                      + "g.create_time > ?    ",
-                      new Long(d.getTime()),
-                      Hibernate.LONG
-                    )
-                    ;
+      Query   qry = hs.createQuery(
+        "from Group as g where g.create_time > :time"
+      );
+      qry.setCacheable(GrouperConfig.QRY_GF_FBCA);
+      qry.setCacheRegion(GrouperConfig.QCR_GF_FBCA);
+      qry.setLong("time", d.getTime());
+      List    l   = qry.list();
       hs.close();
       groups.addAll( Group.setSession(s, l) );
     }
@@ -148,13 +148,13 @@ public class GroupFinder {
     List groups = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
-      List    l   = hs.find(
-                      "from Group as g where  "
-                      + "g.create_time < ?    ",
-                      new Long(d.getTime()),
-                      Hibernate.LONG
-                      )
-                      ;
+      Query   qry = hs.createQuery(
+        "from Group as g where g.create_time < :time"
+      );
+      qry.setCacheable(GrouperConfig.QRY_GF_FBCB);
+      qry.setCacheRegion(GrouperConfig.QCR_GF_FBCB);
+      qry.setLong("time", d.getTime());
+      List    l   = qry.list();
       hs.close();
       groups.addAll( Group.setSession(s, l) );
     }
@@ -172,18 +172,20 @@ public class GroupFinder {
     GrouperSession.validate(s);
     Set groups = new LinkedHashSet();
     try {
-      Session   hs    = HibernateHelper.getSession();
-      Iterator  iter  = hs.find(
-        "from Attribute as a where lower(a.value) like  ?",
-        "%" + val.toLowerCase() + "%",
-        Hibernate.STRING
-      ).iterator();
-      hs.close();
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Attribute as a where lower(a.value) like :value"
+      );
+      qry.setCacheable(GrouperConfig.QRY_GF_FBAAA);
+      qry.setCacheRegion(GrouperConfig.QCR_GF_FBAAA);
+      qry.setString("value", "%" + val.toLowerCase() + "%");
+      Iterator  iter  = qry.iterate();
       while (iter.hasNext()) {
         Group g = ( (Attribute) iter.next() ).getGroup();
         g.setSession(s);
         groups.add(g);
       }
+      hs.close();
     }
     catch (HibernateException eH) {
       throw new QueryException(
@@ -200,24 +202,21 @@ public class GroupFinder {
     Set groups = new LinkedHashSet();
     try {
       Session   hs    = HibernateHelper.getSession();
-      Iterator  iter  = hs.find(
-        "from Attribute as a where    "
-        + "a.field.name       =     ? "
-        + "and lower(a.value) like  ? "
-        ,
-        new Object[] {
-          attr, "%" + val.toLowerCase() + "%"
-        },
-        new Type[] {
-          Hibernate.STRING, Hibernate.STRING
-        }
-      ).iterator();
-      hs.close();
+      Query     qry   = hs.createQuery(
+        "from Attribute as a where "
+        + "a.field.name = :field and lower(a.value) like :value"
+      );
+      qry.setCacheable(GrouperConfig.QRY_GF_FBAA);
+      qry.setCacheRegion(GrouperConfig.QCR_GF_FBAA);
+      qry.setString("field", attr);
+      qry.setString("value", "%" + val.toLowerCase() + "%");
+      Iterator  iter  = qry.iterate();
       while (iter.hasNext()) {
         Group g = ( (Attribute) iter.next() ).getGroup();
         g.setSession(s);
         groups.add(g);
       }
+      hs.close();
     }
     catch (HibernateException eH) {
       throw new QueryException(
@@ -231,33 +230,26 @@ public class GroupFinder {
     throws  QueryException
   {
     GrouperSession.validate(s);
-    String    approx  = "%" + name.toLowerCase() + "%";
-    Set       groups  = new LinkedHashSet();
+    Set groups = new LinkedHashSet();
     try {
-      Session   hs      = HibernateHelper.getSession();
-      Iterator  iter    = hs.find(
-        "from Attribute as a where                                      "
-        + "( a.field.name = 'name'              and lower(a.value) like ? )"
-        + " or "
-        + "( a.field.name = 'displayName'       and lower(a.value) like ? )"
-        + " or "
-        + "( a.field.name = 'extension'         and lower(a.value) like ? )"
-        + " or " 
-        + "( a.field.name = 'displayExtension'  and lower(a.value) like ? )"
-        ,
-        new Object[] {
-          approx, approx, approx, approx
-        },
-        new Type[] {
-          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-        }
-      ).iterator();
-      hs.close();
+      Session   hs    = HibernateHelper.getSession();
+      Query     qry   = hs.createQuery(
+        "from Attribute as a where "
+        + "   (a.field.name = 'name'              and lower(a.value) like :value) "
+        + "or (a.field.name = 'displayName'       and lower(a.value) like :value) "
+        + "or (a.field.name = 'extension'         and lower(a.value) like :value) "
+        + "or (a.field.name = 'displayExtension'  and lower(a.value) like :value)"
+      );
+      qry.setCacheable(GrouperConfig.QRY_GF_FBAN);
+      qry.setCacheRegion(GrouperConfig.QCR_GF_FBAN);
+      qry.setString("value", "%" + name.toLowerCase() + "%");
+      Iterator  iter  = qry.iterate();
       while (iter.hasNext()) {
         Group g = ( (Attribute) iter.next() ).getGroup();
         g.setSession(s);
         groups.add(g);
       }
+      hs.close();
     }
     catch (HibernateException eH) {
       throw new QueryException(
@@ -274,16 +266,16 @@ public class GroupFinder {
     throws  GroupNotFoundException
   {
     try {
-      Group   g       = null;
-      Session hs      = HibernateHelper.getSession();
-      List    attrs   = hs.find(
-                          "from Attribute as a where  "
-                          + "a.field.name = 'name'    "
-                          + "and a.value  = ?         ",
-                          name,
-                          Hibernate.STRING
-                        )
-                        ;
+      Group   g     = null;
+      Session hs    = HibernateHelper.getSession();
+      Query   qry   = hs.createQuery(
+        "from Attribute as a where "
+        + "a.field.name = 'name' and a.value = :value"
+      );
+      qry.setCacheable(GrouperConfig.QRY_GF_FBN);
+      qry.setCacheRegion(GrouperConfig.QCR_GF_FBN);
+      qry.setString("value", name);
+      List    attrs = qry.list();
       if (attrs.size() == 1) {
         g = ( (Attribute) attrs.get(0) ).getGroup();
       }
@@ -308,13 +300,13 @@ public class GroupFinder {
     try {
       Group   g       = null;
       Session hs      = HibernateHelper.getSession();
-      List    groups  = hs.find(
-        "from Group as g where  "
-        + "g.group_id = ?       ",
-        uuid,
-        Hibernate.STRING
-        )
-        ;
+      Query   qry   = hs.createQuery(
+        "from Group as g where g.group_id = :value"
+      );
+      qry.setCacheable(GrouperConfig.QRY_GF_FBU);
+      qry.setCacheRegion(GrouperConfig.QCR_GF_FBU);
+      qry.setString("value", uuid);
+      List    groups  = qry.list();
       if (groups.size() == 1) {
         g = (Group) groups.get(0);
       }

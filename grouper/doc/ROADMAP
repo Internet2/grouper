@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.136 2005-12-13 04:50:36 blair Exp $
+$Id: ROADMAP,v 1.137 2006-01-18 20:23:29 blair Exp $
 
 ---
 
@@ -18,12 +18,7 @@ Estimated release: December 2005
 Estimated release: Spring 2006
 
 ## Features
-* Switch to Hibernate 3.x
-* Group math
-* XML import and export
-* _Programming The Grouper API_ guide
-* ??? Additional query filters
-* ??? Custom group types
+* TODO Move items from my whiteboard into this file
 
 ---
 
