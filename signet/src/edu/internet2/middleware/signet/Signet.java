@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.51 2006-01-19 00:19:25 acohen Exp $
-$Date: 2006-01-19 00:19:25 $
+$Id: Signet.java,v 1.52 2006-01-19 02:01:25 acohen Exp $
+$Date: 2006-01-19 02:01:25 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -645,6 +645,7 @@ public final class Signet
       if (subsystemsMatch
           && !(candidate.getStatus().equals(Status.INACTIVE))
           && candidate.getGrantor().equals(proxy.getGrantor())
+          && (candidate.getId() != null)
           && !(candidate.getId().equals(proxy.getId())))
       {
         duplicates.add(candidate);
