@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubject.java,v 1.25 2006-01-18 18:49:16 acohen Exp $
-$Date: 2006-01-18 18:49:16 $
+$Id: PrivilegedSubject.java,v 1.26 2006-01-19 00:19:25 acohen Exp $
+$Date: 2006-01-19 00:19:25 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -332,8 +332,8 @@ public interface PrivilegedSubject extends Comparable
    * <p />
    * Please note that this method, like every other method that modifies
    * a Signet object, will not have its changes persisted until the
-   * {@link save()}
-   * method is called on each of the modified Grantable entities. 
+   * <code>save()</code> method is called on each of the modified Grantable
+   * entities. 
    * 
    * @return a <code>Set</code> of all Grantable entities whose
    * <code>Status</code> values were changed by this method.
@@ -349,8 +349,8 @@ public interface PrivilegedSubject extends Comparable
    * <p />
    * Please note that this method, like every other method that modifies
    * a Signet object, will not have its changes persisted until the
-   * {@link save()}
-   * method is called on each of the modified Grantable entities. 
+   * <code>save</code> method is called on each of the modified Grantable
+   * entities. 
    * 
    * @param date the <code>Date</code> value to use as the current date and time
    * when evaluating effectiveDate and expirationDate.

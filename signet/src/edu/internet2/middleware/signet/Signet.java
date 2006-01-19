@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.50 2006-01-18 18:49:16 acohen Exp $
-$Date: 2006-01-18 18:49:16 $
+$Id: Signet.java,v 1.51 2006-01-19 00:19:25 acohen Exp $
+$Date: 2006-01-19 00:19:25 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -2249,34 +2249,34 @@ public final class Signet
  
 
  
- /**
-  * Evaluate the conditions and pre-requisites associated with all Grantable
-  * entities (including effectiveDate and expirationDate) to update the
-  * <code>Status</code> of those entities.
+  /**
+   * Evaluate the conditions and pre-requisites associated with all Grantable
+   * entities (including effectiveDate and expirationDate) to update the
+   * <code>Status</code> of those entities.
    * <p />
    * Please note that this method, like every other method that modifies
    * a Signet object, will not have its changes persisted until the
-   * {@link save()}
-   * method is called on each of the modified Grantable entities. 
-  * 
-  * @return a <code>Set</code> of all Grantable entities whose
-  * <code>Status</code> values were changed by this method.
-  */
- public Set reconcile()
- {
-   Date now = new Date();
-   return this.reconcile(now);
- }
+   * <code>save()</code> method is called on each of the modified Grantable
+   * entities. 
+   * 
+   * @return a <code>Set</code> of all Grantable entities whose
+   * <code>Status</code> values were changed by this method.
+   */
+  public Set reconcile()
+  {
+    Date now = new Date();
+    return this.reconcile(now);
+  }
  
   /**
    * Evaluate the conditions and pre-requisites associated with all Grantable
    * entities (including effectiveDate and expirationDate) to update the
-    * <code>Status</code> of those entities.
+   * <code>Status</code> of those entities.
    * <p />
    * Please note that this method, like every other method that modifies
    * a Signet object, will not have its changes persisted until the
-   * {@link save()}
-   * method is called on each of the modified Grantable entities. 
+   * <code>save()</code> method is called on each of the modified Grantable
+   * entities. 
    * 
    * @param date the <code>Date</code> value to use as the current date and time
    * when evaluating effectiveDate and expirationDate.
