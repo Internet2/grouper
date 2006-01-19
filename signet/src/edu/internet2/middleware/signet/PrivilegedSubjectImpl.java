@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.37 2006-01-18 17:11:59 acohen Exp $
- $Date: 2006-01-18 17:11:59 $
+ $Id: PrivilegedSubjectImpl.java,v 1.38 2006-01-19 20:38:56 acohen Exp $
+ $Date: 2006-01-19 20:38:56 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -121,10 +121,17 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   public Decision canEdit
     (Grantable grantableInstance)
   {
+    if (grantableInstance.getStatus().equals(Status.INACTIVE))
+    {
+      // This thing has had a long and happy life. No posthumous editing
+      // allowed.
+      return new DecisionImpl(false, Reason.STATUS, null);
+    }
+    
     PrivilegedSubject effectiveEditor = this.getEffectiveEditor();
     boolean sufficientScopeFound = false;
     
-    // First, check to see if this editor and the grantee are the same.
+    // Check to see if this editor and the grantee are the same.
     // No one, not even the Signet application subject, is allowed to grant
     // privileges to herself.
     if (effectiveEditor.equals(grantableInstance.getGrantee()))

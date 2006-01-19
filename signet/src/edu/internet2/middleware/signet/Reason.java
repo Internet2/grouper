@@ -1,6 +1,6 @@
 /*--
-$Id: Reason.java,v 1.5 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: Reason.java,v 1.6 2006-01-19 20:38:56 acohen Exp $
+$Date: 2006-01-19 20:38:56 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -16,6 +16,11 @@ package edu.internet2.middleware.signet;
 public class Reason extends TypeSafeEnumeration
 {
   /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Constructor is private to prevent instantiation except during
    * class loading.
    * 
@@ -29,6 +34,17 @@ public class Reason extends TypeSafeEnumeration
   {
     super(name, description);
   }
+
+  /**
+   * The instance that describes an attempt to modify an INACTIVE
+   * {@link Assignment} or {@link Proxy}.
+   */
+  public static final Reason STATUS
+    = new Reason
+        ("status",
+         "It is illegal to grant, modify or revoke an assignment or proxy which"
+         + " has a Status value of INACTIVE. Only PENDING or ACTIVE assignments"
+         + " and proxies may be edited.");
 
   /**
    * The instance that describes an attempt to modify one's own

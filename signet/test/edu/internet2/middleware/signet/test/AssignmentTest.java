@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.22 2006-01-17 19:42:44 acohen Exp $
-$Date: 2006-01-17 19:42:44 $
+$Id: AssignmentTest.java,v 1.23 2006-01-19 20:38:56 acohen Exp $
+$Date: 2006-01-19 20:38:56 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -510,16 +510,12 @@ public class AssignmentTest extends TestCase
     }
     
     assertNotNull(assignment);
+    assertNotSame(Status.INACTIVE, assignment.getStatus());
     
     Date lastWeek  = Common.getDate(-7);
     Date nextWeek = Common.getDate(7);
     
     PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
-    
-    assignment.setEffectiveDate(grantor, lastWeek);
-    assignment.setExpirationDate(grantor, Constants.YESTERDAY);
-    assignment.evaluate();
-    assertEquals(Status.INACTIVE, assignment.getStatus());
     
     assignment.setEffectiveDate(grantor, Constants.YESTERDAY);
     assignment.setExpirationDate(grantor, Constants.TOMORROW);
@@ -530,6 +526,11 @@ public class AssignmentTest extends TestCase
     assignment.setExpirationDate(grantor, nextWeek);
     assignment.evaluate();
     assertEquals(Status.PENDING, assignment.getStatus());
+    
+    assignment.setEffectiveDate(grantor, lastWeek);
+    assignment.setExpirationDate(grantor, Constants.YESTERDAY);
+    assignment.evaluate();
+    assertEquals(Status.INACTIVE, assignment.getStatus());
   }
 
   public final void testSetGrantable()

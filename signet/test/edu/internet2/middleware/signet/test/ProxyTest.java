@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyTest.java,v 1.2 2006-01-17 19:42:44 acohen Exp $
-$Date: 2006-01-17 19:42:44 $
+$Id: ProxyTest.java,v 1.3 2006-01-19 20:38:56 acohen Exp $
+$Date: 2006-01-19 20:38:56 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -317,16 +317,12 @@ public class ProxyTest extends TestCase
     }
     
     assertNotNull(proxy);
+    assertNotSame(Status.INACTIVE, proxy.getStatus());
     
     Date lastWeek  = Common.getDate(-7);
     Date nextWeek = Common.getDate(7);
     
     PrivilegedSubject grantor = Common.getOriginalGrantor(proxy);
-    
-    proxy.setEffectiveDate(grantor, lastWeek);
-    proxy.setExpirationDate(grantor, Constants.YESTERDAY);
-    proxy.evaluate();
-    assertEquals(Status.INACTIVE, proxy.getStatus());
     
     proxy.setEffectiveDate(grantor, Constants.YESTERDAY);
     proxy.setExpirationDate(grantor, Constants.TOMORROW);
@@ -337,6 +333,11 @@ public class ProxyTest extends TestCase
     proxy.setExpirationDate(grantor, nextWeek);
     proxy.evaluate();
     assertEquals(Status.PENDING, proxy.getStatus());
+    
+    proxy.setEffectiveDate(grantor, lastWeek);
+    proxy.setExpirationDate(grantor, Constants.YESTERDAY);
+    proxy.evaluate();
+    assertEquals(Status.INACTIVE, proxy.getStatus());
   }
 
   public final void testSetGrantable()

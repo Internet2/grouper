@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubject.java,v 1.26 2006-01-19 00:19:25 acohen Exp $
-$Date: 2006-01-19 00:19:25 $
+$Id: PrivilegedSubject.java,v 1.27 2006-01-19 20:38:56 acohen Exp $
+$Date: 2006-01-19 20:38:56 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -38,6 +38,10 @@ public interface PrivilegedSubject extends Comparable
   * grantee matches this PrivilegedSubject, then <code>canEdit()</code> would
   * return a negatuve <code>Decision</code>, since in most situations it does
   * not make sense to attempt to extend or modify your own authority.
+  * 
+  * Any <code>Grantable</code> object whose {@link Status} is
+  * <code>INACTIVE</code> has reached the end of its life, and is no longer
+  * editable.
   */
  public Decision canEdit
    (Grantable grantableInstance);
