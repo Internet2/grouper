@@ -108,6 +108,11 @@
   	<copy
       file="${dist_demo.dir}/hsqldb/lib/hsqldb.jar"
       todir="${dist_demo_webapps.dir}/signet/WEB-INF/lib"/>
+  	
+  	<copy overwrite="true"
+  	  file="${config.dir}/footer.jsp"
+  	  todir="${dist_demo_webapps.dir}/signet/tiles"/>
+  	
   </target>
 	
   <target name="fixFileFormats">
