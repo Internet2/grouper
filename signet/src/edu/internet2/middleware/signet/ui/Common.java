@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.56 2006-01-13 19:01:12 acohen Exp $
-  $Date: 2006-01-13 19:01:12 $
+  $Id: Common.java,v 1.57 2006-01-20 19:24:18 acohen Exp $
+  $Date: 2006-01-20 19:24:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1779,28 +1779,7 @@ public class Common
   
   static public String displayLogoutHref(HttpServletRequest request)
   {
-    StringBuffer outStr = new StringBuffer();
-    
-    PrivilegedSubject loggedInPrivilegedSubject
-      = (PrivilegedSubject)
-          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
-    
-    outStr.append("<a href=\"DemoLogout.do\">\n");
-    outStr.append(loggedInPrivilegedSubject.getName());
-
-    if (!loggedInPrivilegedSubject.equals
-          (loggedInPrivilegedSubject.getEffectiveEditor()))
-    {
-      outStr.append
-        (" <span id=\"actingas\" class=\"actingas\">acting as "
-         + loggedInPrivilegedSubject.getEffectiveEditor().getName()
-         + "</span>");
-    }
-    
-    outStr.append(" : Logout\n");
-    outStr.append("</a>\n");
-    
-    return outStr.toString();
+    return "<a href=\"Logout.do\">Logout</a>\n";
   }
   
   static public String displayOption

@@ -85,7 +85,7 @@
            installation-specific logout operation.
       -->
       <action
-        path="/DemoLogout"
+        path="/Logout"
         type="edu.internet2.middleware.signet.ui.DemoLogoutAction">
         
         <forward name="failure" path="/jsp/error.jsp" />
