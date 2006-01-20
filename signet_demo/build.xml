@@ -98,9 +98,11 @@
   	
   	<delete dir="${dist_demo_signet.dir}/webapp" />
   	
-  	<copy toDir="${dist_demo_webapps.dir}/signet/WEB-INF/classes">
+  	<copy 
+  	 overwrite="true"
+	 toDir="${dist_demo_webapps.dir}/signet/WEB-INF/classes">
       <fileset dir="${config.dir}">
-        <include name="hibernate.cfg"/>
+        <include name="hibernate.cfg.xml"/>
         <include name="sources.xml"/>
       </fileset>
   	</copy>
