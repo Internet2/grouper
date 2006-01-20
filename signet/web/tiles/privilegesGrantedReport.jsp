@@ -73,10 +73,10 @@
           name="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>"
           id="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>">
 		  <OPTION value="" selected>change the view to show...</OPTION>
-          <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, privDisplayType)%>
-          <%=Common.displayOption(PrivDisplayType.FORMER_RECEIVED, privDisplayType)%>
-          <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, privDisplayType)%>
-          <%=Common.displayOption(PrivDisplayType.FORMER_GRANTED, privDisplayType)%>
+          <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, null)%>
+          <%=Common.displayOption(PrivDisplayType.FORMER_RECEIVED, null)%>
+          <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, null)%>
+          <%=Common.displayOption(PrivDisplayType.FORMER_GRANTED, null)%>
         </SELECT>
         <INPUT
           name="Button"
