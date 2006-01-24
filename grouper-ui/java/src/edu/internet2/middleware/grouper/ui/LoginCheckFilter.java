@@ -56,7 +56,7 @@ import edu.internet2.middleware.subject.Source;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.4 2005-12-14 14:51:15 isgwb Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.5 2006-01-24 14:17:48 isgwb Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -117,7 +117,12 @@ public class LoginCheckFilter implements Filter {
 				UIThreadLocal.put("doShowResourcesInSitu", Boolean.FALSE);
 			}
 		}
-
+		StringBuffer requestUrl = (StringBuffer) request.getAttribute("_pageUrl");
+		if(requestUrl==null || requestUrl.length()==0) { 
+			requestUrl=request.getRequestURL();
+			request.setAttribute("_pageUrl",requestUrl);
+		}
+			
 		Cookie[] cookies = request.getCookies();
 		boolean loggedOut = false;
 		if (cookies != null) {
