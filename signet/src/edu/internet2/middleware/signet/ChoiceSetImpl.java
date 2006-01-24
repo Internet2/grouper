@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetImpl.java,v 1.6 2005-06-24 01:32:23 acohen Exp $
-$Date: 2005-06-24 01:32:23 $
+$Id: ChoiceSetImpl.java,v 1.7 2006-01-24 19:23:03 acohen Exp $
+$Date: 2006-01-24 19:23:03 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,15 +8,10 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-
-import javax.naming.OperationNotSupportedException;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 
@@ -24,7 +19,6 @@ import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
-import edu.internet2.middleware.signet.tree.TreeAdapter;
 
 /**
  * @author acohen
@@ -34,12 +28,15 @@ import edu.internet2.middleware.signet.tree.TreeAdapter;
  */
 class ChoiceSetImpl implements ChoiceSet
 {
-  private Signet						signet;
-  private String						id;
-  private Subsystem					subsystem;
-  private ChoiceSetAdapter	choiceSetAdapter;
-  private Set								choices;
-  private String						adapterClassName;
+  // This field is a simple synthetic key for this record in the database.
+  private Integer         key;
+
+  private Signet           signet;
+  private String           id;
+  private Subsystem        subsystem;
+  private ChoiceSetAdapter choiceSetAdapter;
+  private Set              choices;
+  private String           adapterClassName;
   
   /* The date and time this ChoiceSet was last modified. */
   private Date	modifyDatetime;
@@ -61,17 +58,17 @@ class ChoiceSetImpl implements ChoiceSet
    * @param choices
    */
   ChoiceSetImpl
-  	(Signet						signet,
-  	 Subsystem				subsystem,
-     ChoiceSetAdapter	choiceSetAdapter,
-  	 String						id)
+  	(Signet           signet,
+     Subsystem        subsystem,
+     ChoiceSetAdapter choiceSetAdapter,
+  	 String           id)
   {
     super();
+    this.setSignet(signet);
     this.id = id;
     this.subsystem = subsystem;
     this.setChoiceSetAdapter(choiceSetAdapter);
     this.choices = new HashSet();
-    this.signet = signet;
     
     ((SubsystemImpl)subsystem).add(this);
   }
@@ -105,20 +102,6 @@ class ChoiceSetImpl implements ChoiceSet
    */
   public Set getChoices()
   {
-    // Let's make sure that each of these Choice objects contains a
-    // valid Signet reference before we let them  out into the wider
-    // world.
-    
-    Iterator choicesIterator = this.choices.iterator();
-    while (choicesIterator.hasNext())
-    {
-      Choice choice = (Choice)(choicesIterator.next());
-      if (choice instanceof ChoiceImpl)
-      {
-        ((ChoiceImpl)choice).setSignet(this.signet);
-      }
-    }
-    
     return this.choices;
   }
 
@@ -130,12 +113,10 @@ class ChoiceSetImpl implements ChoiceSet
   	 String displayValue,
   	 int 		displayOrder,
   	 int 		rank)
-  throws OperationNotSupportedException
   {
     Choice choice
     	= new ChoiceImpl
-    			(this.signet,
-    			 this,
+    			(this,
     			 choiceValue,
     			 displayValue,
     			 displayOrder,
@@ -165,16 +146,7 @@ class ChoiceSetImpl implements ChoiceSet
     {
       Choice candidate = (Choice)(choicesIterator.next());
       if (candidate.getValue().equals(value))
-      {
-        // Let's make sure that each of this Choice object contains a
-        // valid Signet reference before we let it out into the wider
-        // world.
-        
-        if (candidate instanceof ChoiceImpl)
-        {
-          ((ChoiceImpl)candidate).setSignet(this.signet);
-        }
-      
+      {      
         return candidate;
       }
     }
@@ -242,16 +214,6 @@ class ChoiceSetImpl implements ChoiceSet
   void setChoices(Set choices)
   {
     this.choices = choices;
-    
-    Iterator choiceIterator = choices.iterator();
-    while (choiceIterator.hasNext())
-    {
-      Choice choice = (Choice)(choiceIterator.next());
-      if (choice instanceof ChoiceImpl)
-      {
-        ((ChoiceImpl)choice).setSignet(this.signet);
-      }
-    }
   }
 
   void setAdapterClassName(String name)
@@ -291,5 +253,21 @@ class ChoiceSetImpl implements ChoiceSet
   public void save()
   {
     this.signet.save(this);
+  }
+  
+  /* This method is for use only by Hibernate.
+   * 
+   */
+  private Integer getKey()
+  {
+    return this.key;
+  }
+
+  /* This method is for use only by Hibernate.
+   * 
+   */
+  private void setKey(Integer key)
+  {
+    this.key = key;
   }
 }

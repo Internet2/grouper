@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.52 2006-01-19 02:01:25 acohen Exp $
-$Date: 2006-01-19 02:01:25 $
+$Id: Signet.java,v 1.53 2006-01-24 19:23:03 acohen Exp $
+$Date: 2006-01-24 19:23:03 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -421,29 +421,56 @@ public final class Signet
    }
  }
 
- /**
-  * Gets a single ChoiceSet by ID.
-  * 
-  * @param id
-  * @return the specified ChoiceSet
-  * @throws ObjectNotFoundException
-  */
- public final ChoiceSet getChoiceSet(String id)
+ public final ChoiceSet getChoiceSet(String choiceSetId)
  throws ObjectNotFoundException
  {
+   ChoiceSetImpl choiceSet;
+   Query         query;
+   List          resultList;
+
    try
    {
-     return (ChoiceSet) (session.load(ChoiceSetImpl.class, id));
-   }
-   catch (net.sf.hibernate.ObjectNotFoundException onfe)
-   {
-     throw new
-      edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
-   }
-   catch (HibernateException e)
-   {
-     throw new SignetRuntimeException(e);
-   }
+     query
+       = session
+           .createQuery
+             ("from edu.internet2.middleware.signet.ChoiceSetImpl"
+              + " as choiceSet" + " where choiceSetID = :id");
+
+      query.setString("id", choiceSetId);
+
+      resultList = query.list();
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
+    
+    if (resultList.size() > 1)
+    {
+      throw new SignetRuntimeException
+        ("Found "
+         + resultList.size()
+         + " ChoiceSet instances in the database matching choiceSetId '"
+         + choiceSetId
+         + "'. This value should be unique.");
+    }
+    
+    if (resultList.size() == 0)
+    {
+      throw new ObjectNotFoundException
+        ("Unable to fetch ChoiceSet with choiceSetId '"
+         + choiceSetId
+         + "'.");
+    } 
+
+    // If we've gotten this far, then resultList.size() must be equal to 1.
+
+    Set resultSet = new HashSet(resultList);
+    Iterator resultSetIterator = resultSet.iterator();
+    choiceSet= (ChoiceSetImpl)(resultSetIterator.next());
+    choiceSet.setSignet(this);
+    
+    return choiceSet;
  }
 
  /**

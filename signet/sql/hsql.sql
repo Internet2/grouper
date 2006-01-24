@@ -169,23 +169,27 @@ foreign key (treeID) references signet_tree (treeID)
 --
 create table signet_choiceSet
 (
-choiceSetID         varchar(64)         NOT NULL,
-adapterClass        varchar(255)        NOT NULL,
-subsystemID         varchar(64)         NULL,
-modifyDatetime      datetime            NOT NULL,
-primary key (choiceSetID)
+choiceSetKey		int          NOT NULL IDENTITY,
+choiceSetID         varchar(64)  NOT NULL,
+adapterClass        varchar(255) NOT NULL,
+subsystemID         varchar(64)  NULL,
+modifyDatetime      datetime     NOT NULL,
+primary key (choiceSetKey),
+unique (choiceSetId, subsystemID)
 )
 ;
 create table signet_choice
 (
-choiceSetID         varchar(64)         NOT NULL,
-value               varchar(32)         NOT NULL,
-label               varchar(64)         NOT NULL,
-rank                smallint            NOT NULL,
-displayOrder        smallint            NOT NULL,
-modifyDatetime      datetime            NOT NULL,
-primary key (choiceSetID, value),
-foreign key (choiceSetID) references signet_choiceSet (choiceSetID)
+choiceKey			int          NOT NULL IDENTITY,
+choiceSetKey        int          NOT NULL,
+value               varchar(32)  NOT NULL,
+label               varchar(64)  NOT NULL,
+rank                smallint     NOT NULL,
+displayOrder        smallint     NOT NULL,
+modifyDatetime      datetime     NOT NULL,
+primary key (choiceKey),
+unique (choiceSetKey, value),
+foreign key (choiceSetKey) references signet_choiceSet (choiceSetKey)
 )
 ;
 --

@@ -6,11 +6,16 @@
 		name="edu.internet2.middleware.signet.ChoiceSetImpl"
 		table="signet_choiceSet">
 		
-		<id name="id" type="string" column="choiceSetID">
-			<generator class="assigned"/>
+		<id name="key" type="int" column="choiceSetKey">
+			<generator class="native"/>
 		</id>
+		
 		<timestamp name="modifyDatetime"/>
-	
+		
+		<property
+			name="id"
+			column="choiceSetID"/>
+
 		<property
 			name="adapterClassName"
 			column="adapterClass"
@@ -24,7 +29,7 @@
 			not-null="true"/>
 		
 		<set name="choices" inverse="true" cascade="save-update">
-			<key column="choiceSetID"/>
+			<key column="choiceSetKey"/>
 			<one-to-many
 				class="edu.internet2.middleware.signet.ChoiceImpl"/>
 		</set>

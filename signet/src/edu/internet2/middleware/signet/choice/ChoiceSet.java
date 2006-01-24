@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSet.java,v 1.9 2005-10-28 18:09:58 acohen Exp $
-$Date: 2005-10-28 18:09:58 $
+$Id: ChoiceSet.java,v 1.10 2006-01-24 19:23:03 acohen Exp $
+$Date: 2006-01-24 19:23:03 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -10,7 +10,6 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet.choice;
 
 import java.util.Set;
-import java.util.SortedSet;
 
 import javax.naming.OperationNotSupportedException;
 

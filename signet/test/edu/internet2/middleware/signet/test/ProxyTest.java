@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyTest.java,v 1.3 2006-01-19 20:38:56 acohen Exp $
-$Date: 2006-01-19 20:38:56 $
+$Id: ProxyTest.java,v 1.4 2006-01-24 19:23:03 acohen Exp $
+$Date: 2006-01-24 19:23:03 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -108,8 +108,12 @@ public class ProxyTest extends TestCase
         revoker.setActingAs(proxy.getGrantor());
       }
       
-      proxy.revoke(revoker);
-      proxy.save();
+      // We can't alter an already-inactive Proxy, but we can alter any others.
+      if (!(proxy.getStatus().equals(Status.INACTIVE)))
+      {
+        proxy.revoke(revoker);
+        proxy.save();
+      }
     }
   }
   

@@ -6,15 +6,20 @@
 		name="edu.internet2.middleware.signet.ChoiceImpl"
 		table="signet_choice">
 		
-		<composite-id
-			name="fullyQualifiedId"
-			class="edu.internet2.middleware.signet.ChoiceFullyQualifiedId">
-			<key-property name="choiceSetId" column="choiceSetID" />
-			<key-property name="choiceValue" column="value" />
-		</composite-id>
+		<id name="key" type="int" column="choiceKey">
+			<generator class="native"/>
+		</id>
 		
 		<timestamp name="modifyDatetime"/>
+		
+		<many-to-one 
+			name="choiceSet"
+			column="choiceSetKey"
+			class="edu.internet2.middleware.signet.ChoiceSetImpl"
+			not-null="true"/>
 	
+		<property
+			name="value" column="value" type="string" not-null="true"/>
 		<property
 			name="displayValue" column="label" type="string" not-null="true"/>
 		<property

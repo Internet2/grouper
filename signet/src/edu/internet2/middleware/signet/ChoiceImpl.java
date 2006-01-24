@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceImpl.java,v 1.7 2005-07-13 23:28:42 acohen Exp $
-$Date: 2005-07-13 23:28:42 $
+$Id: ChoiceImpl.java,v 1.8 2006-01-24 19:23:03 acohen Exp $
+$Date: 2006-01-24 19:23:03 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -25,13 +25,14 @@ import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
  */
 class ChoiceImpl implements Choice
 {
-  private Signet		signet;
+  // This field is a simple synthetic key for this record in the database.
+  private Integer   key;
+  
   private ChoiceSet choiceSet;
-  private String		choiceSetId;
-  private int		 		displayOrder;
-  private String 		displayValue;
-  private int		 		rank;
-  private String 		value;
+  private int       displayOrder;
+  private String    displayValue;
+  private int       rank;
+  private String    value;
   
   /* The date and time this Choice was last modified. */
   private Date	modifyDatetime;
@@ -68,25 +69,16 @@ class ChoiceImpl implements Choice
   {
     this.rank = rank;
   }
-  
-  /**
-   * @param id
-   * @param value
-   * @param displayValue
-   * @param displayOrder
-   * @param rank
-   */
+
   ChoiceImpl
-  	(Signet			signet,
-  	 ChoiceSet	choiceSet,
-  	 String 		value,
-     String 		displayValue,
-     int 				displayOrder,
-     int 				rank)
+  	(ChoiceSet choiceSet,
+  	 String    value,
+     String    displayValue,
+     int       displayOrder,
+     int       rank)
   {
     super();
     this.choiceSet = choiceSet;
-    this.choiceSetId = choiceSet.getId();
     this.displayOrder = displayOrder;
     this.displayValue = displayValue;
     this.rank = rank;
@@ -97,23 +89,7 @@ class ChoiceImpl implements Choice
    * @see edu.internet2.middleware.signet.choice.Choice#getChoiceSet()
    */
   public ChoiceSet getChoiceSet()
-  throws ChoiceSetNotFound
   {
-    if ((this.choiceSet == null) && (this.choiceSetId != null)
-        && (this.getSignet() != null))
-    {
-      try
-      {
-        this.choiceSet
-        	= (ChoiceSetImpl)
-        			(this.getSignet().getChoiceSet(this.choiceSetId));
-      }
-      catch (ObjectNotFoundException onfe)
-      {
-        throw new ChoiceSetNotFound(onfe);
-      }
-    }
-
     return this.choiceSet;
   }
 
@@ -122,26 +98,7 @@ class ChoiceImpl implements Choice
    */
   void setChoiceSet(ChoiceSet choiceSet)
   {
-    this.choiceSet = (ChoiceSetImpl) choiceSet;
-    this.choiceSetId = choiceSet.getId();
-  }
-
-  String getChoiceSetId()
-  {
-    return this.choiceSetId;
-  }
-
-  void setChoiceSetId(String choiceSetId)
-  throws ObjectNotFoundException
-  {
-    this.choiceSetId = choiceSetId;
-
-    if (this.getSignet() != null)
-    {
-      this.choiceSet
-      	= (ChoiceSetImpl)
-      			(this.getSignet().getChoiceSet(choiceSetId));
-    }
+    this.choiceSet = choiceSet;
   }
 
   /* (non-Javadoc)
@@ -182,46 +139,6 @@ class ChoiceImpl implements Choice
   public int getRank()
   {
     return this.rank;
-  }
-
-  /* This method exists only for use by Hibernate.
-   */
-  public ChoiceFullyQualifiedId getFullyQualifiedId()
-  {
-    return new ChoiceFullyQualifiedId
-    	(this.getChoiceSetId(), this.getValue());
-  }
-
-  /*
-   * This method exists only for use by Hibernate.
-   */
-  void setFullyQualifiedId(ChoiceFullyQualifiedId cfqId)
-      throws ObjectNotFoundException
-  {
-    this.choiceSetId = cfqId.getChoiceSetId();
-    this.value = cfqId.getChoiceValue();
-
-    if (this.getSignet() != null)
-    {
-      this.choiceSet
-      	= (ChoiceSetImpl)
-      			(this.getSignet().getChoiceSet(cfqId.getChoiceSetId()));
-    }
-  }
-
-  /**
-   * @return Returns the signet.
-   */
-  Signet getSignet()
-  {
-    return this.signet;
-  }
-  /**
-   * @param signet The signet to set.
-   */
-  void setSignet(Signet signet)
-  {
-    this.signet = signet;
   }
   
   /**
@@ -300,5 +217,21 @@ class ChoiceImpl implements Choice
     Choice choice = (Choice)o;
 
     return (this.getDisplayOrder() - choice.getDisplayOrder());
+  }
+  
+  /* This method is for use only by Hibernate.
+   * 
+   */
+  private Integer getKey()
+  {
+    return this.key;
+  }
+
+  /* This method is for use only by Hibernate.
+   * 
+   */
+  private void setKey(Integer key)
+  {
+    this.key = key;
   }
 }

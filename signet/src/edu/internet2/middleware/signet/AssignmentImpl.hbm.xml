@@ -60,7 +60,7 @@
 		<many-to-one
 			name="function"
 			class="edu.internet2.middleware.signet.FunctionImpl"
-			cascade="save-update"
+			cascade="none"
 			not-null="true">
 			
 			<column name="functionID"/>
