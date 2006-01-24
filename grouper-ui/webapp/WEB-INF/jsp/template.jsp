@@ -7,7 +7,7 @@
 		  the generated XHTML.
 --%><%--
   @author Gary Brown.
-  @version $Id: template.jsp,v 1.5 2006-01-10 12:33:51 isgwb Exp $
+  @version $Id: template.jsp,v 1.6 2006-01-24 14:17:12 isgwb Exp $
 --%><?xml version="1.0" encoding="iso-8859-1"?>
 
 <!DOCTYPE html 
@@ -22,10 +22,9 @@
 <html:xhtml/>
 <%@page import="java.io.PrintWriter"%>
 <%
-StringBuffer pageUrl = request.getRequestURL();
+StringBuffer pageUrl = (StringBuffer) request.getAttribute("_pageUrl");
 String pageUrlMinusQuery = pageUrl.toString();
-//OK so Tomcat 4 and 5 do things differently
-if(!pageUrlMinusQuery.endsWith(".do")) pageUrlMinusQuery = (String)request.getAttribute( "javax.servlet.forward.request_uri" );
+
 request.setAttribute("pageUrlMinusQueryString", pageUrlMinusQuery); 
 char delim = '?';
 if(request.getQueryString()!=null) {
@@ -35,10 +34,13 @@ if(request.getQueryString()!=null) {
 request.setAttribute("pageUrl",pageUrl.toString());
 pageUrl.append(delim);
 request.setAttribute("pageUrlWithDelim",pageUrl.toString());
-%><head>
+%>
+<!--init-->
+<tiles:insert attribute="init"/>
+<!--/init--><head>
     <tiles:insert attribute="head"/>
 </head>
-<tiles:insert attribute="init"/>
+
 
 <% try {
 	
@@ -65,7 +67,8 @@ request.setAttribute("modulePrefix",prefix);
     <c:if test="${!empty templateException && debugPrefs.isActive}">
 
 
-		<pre>
+		
+<pre>
 		<%
 			Exception te = (Exception)pageContext.getAttribute("templateException");
 			if(te.getMessage()!=null) out.write("\n" + te.getMessage() + "\n");
