@@ -85,7 +85,7 @@ create sequence permissionSerial START 1;
 
 create table signet_permission
 (
-permissionKey		int                 DEFAULT nextval('permissionSerial'),
+permissionKey       integer             DEFAULT nextval('permissionSerial'),
 subsystemID         varchar(64)         NOT NULL,
 permissionID        varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -101,7 +101,7 @@ create sequence limitSerial START 1;
 
 create table signet_limit
 (
-limitKey			int                 DEFAULT nextval('limitSerial'),
+limitKey            integer         DEFAULT nextval('limitSerial'),
 subsystemID         varchar(64)         NOT NULL,
 limitID             varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -125,7 +125,7 @@ create table signet_function_permission
 (
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
-permissionKey       int                 NOT NULL,
+permissionKey       integer             NOT NULL,
 
 primary key (subsystemID, functionID, permissionKey),
 foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID),
@@ -135,8 +135,8 @@ foreign key (subsystemID, permissionKey) references signet_permission (subsystem
 
 create table signet_permission_limit
 (
-permissionKey       int                 NOT NULL,
-limitKey            int                 NOT NULL,
+permissionKey       integer             NOT NULL,
+limitKey            integer             NOT NULL,
 defaultLimitValueValue  varchar(64)     NULL,
 
 primary key (permissionKey, limitKey),
@@ -256,7 +256,7 @@ primary key (assignmentID)
 create table signet_assignmentLimit
 (
 assignmentID        integer             NOT NULL,
-limitKey    		int                 NOT NULL,
+limitKey            integer             NOT NULL,
 value               varchar(32)         NOT NULL,
 primary key (assignmentID, limitKey, value),
 foreign key (assignmentID) references signet_assignment (assignmentID)
@@ -297,8 +297,8 @@ primary key (assignmentID, instanceNumber)
 
 create table signet_assignmentLimit_history
 (
-historyID           int                 NOT NULL,
-assignmentID        int                 NOT NULL,
+historyID           integer             NOT NULL,
+assignmentID        integer             NOT NULL,
 limitSubsystemID    varchar(64)         NOT NULL,
 limitType           varchar(32)         NOT NULL,
 limitTypeID         varchar(64)         NOT NULL,
@@ -336,7 +336,7 @@ create sequence proxyHistorySerial START 1;
 
 create table signet_proxy_history
 (
-historyID           integer             DEFAULT nextval('proxyHistoySerial'),
+historyID           integer             DEFAULT nextval('proxyHistorySerial'),
 proxyID             integer             NOT NULL,
 instanceNumber      integer             NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -363,20 +363,20 @@ primary key (proxyID, instanceNumber)
 -- Subject tables (optional, for local subject tables)
 
 create table SubjectType (
-  subjectTypeID     varchar(32)     NOT NULL,
-  name              varchar(120)    NOT NULL,
-  adapterClass      varchar(255)    NOT NULL,
+  subjectTypeID     varchar(32)         NOT NULL,
+  name              varchar(120)        NOT NULL,
+  adapterClass      varchar(255)        NOT NULL,
   modifyDateTime    timestamp           NOT NULL,
   primary key (subjectTypeID)
   );
 
 
 create table Subject (
-  subjectTypeID     varchar(32)     NOT NULL,
-  subjectID         varchar(64)     NOT NULL,
-  name              varchar(120)    NOT NULL,
-  description       varchar(255)    NOT NULL,
-  displayId         varchar(64)     NOT NULL,
+  subjectTypeID     varchar(32)         NOT NULL,
+  subjectID         varchar(64)         NOT NULL,
+  name              varchar(120)        NOT NULL,
+  description       varchar(255)        NOT NULL,
+  displayId         varchar(64)         NOT NULL,
   modifyDateTime    timestamp           NOT NULL,
   primary key (subjectTypeID, subjectID),
   foreign key (subjectTypeID) references signet_subjectType (subjectTypeID)
@@ -384,13 +384,13 @@ create table Subject (
 
 
 create table SubjectAttribute (
-  subjectTypeID     varchar(32)     NOT NULL,
-  subjectID         varchar(64)     NOT NULL,
-  name              varchar(32)     NOT NULL,
-  instance          smallint        NOT NULL,
-  value             varchar(255)    NOT NULL,
-  searchValue       varchar(255)    NOT NULL,
-  modifyDateTime    timestamp        NOT NULL,
+  subjectTypeID     varchar(32)         NOT NULL,
+  subjectID         varchar(64)         NOT NULL,
+  name              varchar(32)         NOT NULL,
+  instance          smallint            NOT NULL,
+  value             varchar(255)        NOT NULL,
+  searchValue       varchar(255)        NOT NULL,
+  modifyDateTime    timestamp           NOT NULL,
   primary key (subjectTypeID, subjectID, name, instance),
   foreign key (subjectTypeID,subjectID) references signet_subject (subjectTypeID,subjectID)
   );
