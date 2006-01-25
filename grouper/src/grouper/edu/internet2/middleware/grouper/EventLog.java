@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.2 2005-12-17 18:17:53 blair Exp $
+ * @version $Id: EventLog.java,v 1.3 2006-01-25 18:55:33 blair Exp $
  *     
 */
 class EventLog implements Serializable {
@@ -57,6 +57,7 @@ class EventLog implements Serializable {
   private static final String G_SA        = "set group attr: group=";
   private static final String GS_START    = "session started";
   private static final String GS_STOP     = "session stopped: duration=";
+  private static final String GT_AT       = "add group type: ";
   private static final String S_ACG       = "add group: ";  
   private static final String S_ACS       = "add stem: ";  
   private static final String S_GP        = "grant naming priv: stem=";
@@ -113,7 +114,7 @@ class EventLog implements Serializable {
       this._addEffs(s, "stem=" + ns.getName(), subj, f, effs);
     }
   } // protected void addEffMembers(s, o, subj, f, effs)
- 
+
   protected void delEffMembers(
     GrouperSession s, Group g, Subject subj, Field f, Set effs
   ) 
@@ -184,6 +185,13 @@ class EventLog implements Serializable {
   {
     this._setAttr(s, G_SA, group, attr, val, sw);
   } // protected void groupSetAttr(s, group, attr, val, sw);
+
+  protected void groupTypeAdd(
+    GrouperSession s, String type, StopWatch sw
+  )
+  {
+    GrouperLog.info(LOG, s.toString(), GT_AT + type, sw);
+  } // protected void groupDelAttr(s, group, attr, val, sw);
 
   protected void sessionStart(String sessionToString, StopWatch sw) {
     GrouperLog.info(LOG, sessionToString, GS_START, sw);

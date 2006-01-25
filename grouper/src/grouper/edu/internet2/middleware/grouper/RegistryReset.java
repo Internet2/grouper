@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.7 2005-12-19 16:49:01 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.8 2006-01-25 18:55:33 blair Exp $
  */
 public class RegistryReset {
 
@@ -243,6 +243,13 @@ public class RegistryReset {
     this._emptyTable(table, sqlSaveRoot);
   } // private void _emptyTableGrouperStems()
 
+  private void _emptyTableGrouperTypes() {
+    String  table         = "grouper_types";
+    String  sqlSaveTypes  = "delete from " + table + " where "
+      + "(name != 'base' and name != 'naming')";
+    this._emptyTable(table, sqlSaveTypes);
+  } // private void _emptyTableGrouperTypes()
+
   private void _emptyTables() {
     this._emptyTable("grouper_groups_types");
     this._emptyTableGrouperMemberships();
@@ -252,6 +259,7 @@ public class RegistryReset {
     this._emptyTableGrouperStems();
     this._emptyTable("grouper_factors");
     this._emptyTableGrouperMembers();
+    this._emptyTableGrouperTypes();
     this._emptyTable("SubjectAttribute");
     this._emptyTable("Subject");
   } // private void _emptyTables()

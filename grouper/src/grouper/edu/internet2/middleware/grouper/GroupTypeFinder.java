@@ -28,39 +28,77 @@ import  org.apache.commons.logging.*;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.6 2006-01-18 20:23:29 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.7 2006-01-25 18:55:33 blair Exp $
  */
-class GroupTypeFinder {
+public class GroupTypeFinder {
 
   // Private Class Constants
   private static final String ERR_NF  = "unable to find group types: ";
   private static final String ERR_TNF = "invalid group type: ";
-  private static final Log    LOG;    
-  private static final Map    TYPES   = new HashMap();
+  private static final Log    LOG; //     = LogFactory.getLog(GroupTypeFinder.class);    
+
+  // Private Class Variables
+  private static Map types = new HashMap();
+
 
   static {
     LOG = LogFactory.getLog(GroupTypeFinder.class);
     LOG.debug("finding group types");
+    // We need to initialize the known types at this point to try and
+    // avoid running into Hibernate exceptions later on when attempting
+    // to save objects.
     Iterator iter = _findAll().iterator();
     while (iter.hasNext()) {
       GroupType t = (GroupType) iter.next();
-      TYPES.put(t.getName(), t);
+      types.put(t.getName(), t);
       LOG.debug("found group type '" + t.getName() + "': " + t);
     }
-  } // static 
+  } // static
 
 
-  // Protected Class Methods
+  // Public Class Methods
 
-  protected static GroupType find(String type) 
-    throws SchemaException
+  /** 
+   * Find a {@link GroupType}.
+   * <p/>
+   * A {@link SchemaException} will be thrown if the type is not found.
+   * <pre class="eg">
+   * try {
+   *   GroupType type = GroupTypeFinder.find(name);
+   * }
+   * catch (SchemaException eS) {
+   *   // type does not exist
+   * }
+   * </pre>
+   * @param   name  Find {@link GroupType} with this name.
+   * @return  {@link GroupType}
+   * @throws  SchemaException
+   */
+  public static GroupType find(String name) 
+    throws  SchemaException
   {
-    if (TYPES.containsKey(type)) {
-      return (GroupType) TYPES.get(type);
+    // I was running into problems when caching these in a HashMap.
+    // Given that I am now caching query results, I probably don't need
+    // the second cache.
+    //
+    // But I need to somewhat cache types to avoid Hibernate errors
+    // that appear while saving objects.  *sigh*
+    if (types.containsKey(name)) { 
+      return (GroupType) types.get(name);
+    } 
+    // Type not cached.  Try to find it as it may be new.
+    Iterator iter = _findAll().iterator();
+    while (iter.hasNext()) {
+      GroupType t = (GroupType) iter.next();
+      if (t.getName().equals(name)) {
+        // Add it to the map of known types
+        types.put(name, t);
+        return t;
+      }
     }
-    LOG.debug(ERR_TNF + type);
-    throw new SchemaException(ERR_TNF + type);
-  } // public static GroupType find(type)
+    LOG.debug(ERR_TNF + name);
+    throw new SchemaException(ERR_TNF + name);
+  } // public static GroupType find(name)
 
 
   // Private Class Methods

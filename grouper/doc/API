@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.128 2006-01-17 16:50:55 blair Exp $
+$Id: API,v 1.129 2006-01-25 18:55:33 blair Exp $
 
 ---
 
@@ -177,6 +177,12 @@ $Id: API,v 1.128 2006-01-17 16:50:55 blair Exp $
 * void                stop()
 
 ## GroupNameFilter extends BaseQueryFilter
+
+## GroupType
+* GroupType           GroupType.createType(session, name)
+
+## GroupTypeFinder
+* GroupType           GroupTypeFinder.find(name)
 
 ## IntersectionFilter extends BaseQueryFilter
 
