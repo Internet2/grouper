@@ -28,21 +28,25 @@ import  org.apache.commons.logging.*;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.7 2006-01-18 20:23:29 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.8 2006-01-25 22:27:09 blair Exp $
  */
 public class FieldFinder {
 
   // Private Class Constants
   private static final String ERR_FA  = "unable to find all fields: "; 
   private static final String ERR_FAT = "unable to find all fields by type: "; 
-  private static final Map    FIELDS  = new HashMap();
   private static final Log    LOG     = LogFactory.getLog(FieldFinder.class);    
+
+
+  // Private Class Variables
+  private static final Map fields  = new HashMap();
+
 
   static {
     Iterator iter = findAll().iterator();
     while (iter.hasNext()) {
       Field f = (Field) iter.next();
-      FIELDS.put(f.getName(), f);
+      fields.put(f.getName(), f);
     }
   } // static 
 
@@ -59,8 +63,16 @@ public class FieldFinder {
   public static Field find(String field) 
     throws  SchemaException
   {
-    if (FIELDS.containsKey(field)) {
-      return (Field) FIELDS.get(field);
+    if (fields.containsKey(field)) {
+      return (Field) fields.get(field);
+    }
+    Iterator iter = findAll().iterator();
+    while (iter.hasNext()) {
+      Field f = (Field) iter.next();
+      if (f.getName().equals(field)) {
+        fields.put(field, f);
+        return f;
+      }
     }
     throw new SchemaException("invalid field: " + field);
   } // public static Field find(field)
@@ -72,9 +84,6 @@ public class FieldFinder {
    * </pre>
    */
   public static Set findAll() {
-    // TODO Should this return the cached results if they exist?
-    //      Likewise, should it update the cached results if they
-    //      exist?
     Set fields = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();

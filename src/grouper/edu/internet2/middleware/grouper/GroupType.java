@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.6 2006-01-25 18:55:33 blair Exp $
+ * @version $Id: GroupType.java,v 1.7 2006-01-25 22:27:09 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -127,6 +127,113 @@ public class GroupType implements Serializable {
   } // public static GroupType createType(s, name)
 
   // Public Instance Methods
+
+  /**
+   * Add a custom {@link Field} to a custom {@link GroupType}.
+   * <p/>
+   * Create a new custom field that can be used with this group type.
+   * If the field already exists, is one of the reserved system field
+   * types (<i>base</i> and <i>naming</i>), the type is neither an
+   * <i>attribute</i> nor a <i>list</i> or if the read and write
+   * privileges are not access privileges a {@link SchemaException}
+   * will be thrown.  If the subject is not root-like, an 
+   * {@link InsufficientPrivilegeException} will be thrown.
+   * <pre class="eg">
+   * try {
+   *   type.addField(
+   *     "my field", FieldType.LIST, AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
+   *   );
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add field
+   * }
+   * catch (SchemaException eS) {
+   *   // Invalid schema
+   * }
+   * </pre>
+   * @param   name      Name of field.
+   * @param   type      {@link FieldType} of this {@link Field}.
+   * @param   read      {@link Privilege} required to write to this {@link Field}.
+   * @param   write     {@link Privilege} required to write to this {@link Field}.
+   * @param   required  Is this field required.
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   */
+  public void addField(
+      GrouperSession s, String name, FieldType type, Privilege read, 
+      Privilege write, boolean required
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    Field     f   = null;
+    StopWatch sw    = new StopWatch();
+    sw.start();
+    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
+      String msg = "subject not privileged to add fields";
+      LOG.error(msg);
+      throw new InsufficientPrivilegeException(msg);
+    }
+    try {
+      f = FieldFinder.find(name);  
+      // field already exists.  
+    }
+    catch (SchemaException eS) {
+      // Ignore
+    } 
+    if (f != null) {
+      String msg = "field already exists: " + name;
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+    if ( (this.getName().equals("base")) || (this.getName().equals("naming")) ) {
+      String msg = "cannot add fields to system group types";
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+    if 
+    (
+      !(
+        (type.toString().equals(FieldType.ATTRIBUTE.toString()) ) 
+        || 
+        (type.toString().equals(FieldType.LIST.toString())      ) 
+      )
+    )
+    {
+      String msg = "invalid field type: " + type;
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+    if (!Privilege.isAccess(read)) {
+      String msg = "read privilege not access privilege: " + read;
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+    if (!Privilege.isAccess(write)) {
+      String msg = "write privilege not access privilege: " + write;
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+    try {
+      boolean nullable = true;
+      if (required == true) {
+        nullable = false;
+      }
+      Set fields = this.getFields();
+      f = new Field(name, type, read, write, nullable);
+      fields.add(f);
+      this.setFields(fields);
+      HibernateHelper.save(this);
+      sw.stop();
+      EL.groupTypeAddField(s, this.getName(), name, sw);
+    }
+    catch (HibernateException eS) {
+      String msg = "unable to add field: " + name + ": " + eS.getMessage();
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+  } // public void addField(s, name, type, read, write, required)
+
   public boolean equals(Object other) {
     if (this == other) {
       return true;

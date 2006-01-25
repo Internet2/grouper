@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.3 2006-01-25 18:55:33 blair Exp $
+ * @version $Id: EventLog.java,v 1.4 2006-01-25 22:27:09 blair Exp $
  *     
 */
 class EventLog implements Serializable {
@@ -57,6 +57,7 @@ class EventLog implements Serializable {
   private static final String G_SA        = "set group attr: group=";
   private static final String GS_START    = "session started";
   private static final String GS_STOP     = "session stopped: duration=";
+  private static final String GT_AF       = "add group field: ";
   private static final String GT_AT       = "add group type: ";
   private static final String S_ACG       = "add group: ";  
   private static final String S_ACS       = "add stem: ";  
@@ -191,6 +192,13 @@ class EventLog implements Serializable {
   )
   {
     GrouperLog.info(LOG, s.toString(), GT_AT + type, sw);
+  } // protected void groupDelAttr(s, group, attr, val, sw);
+
+  protected void groupTypeAddField(
+    GrouperSession s, String type, String name, StopWatch sw
+  )
+  {
+    GrouperLog.info(LOG, s.toString(), GT_AF + name + " to " + type, sw);
   } // protected void groupDelAttr(s, group, attr, val, sw);
 
   protected void sessionStart(String sessionToString, StopWatch sw) {

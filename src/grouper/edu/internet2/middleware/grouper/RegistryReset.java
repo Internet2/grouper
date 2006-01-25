@@ -32,12 +32,13 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.8 2006-01-25 18:55:33 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.9 2006-01-25 22:27:09 blair Exp $
  */
 public class RegistryReset {
 
   /*
    * TODO
+   * * Use HQL
    * * Make SQL and table names class constants
    * * Preserve root stem based upon query for stem id
    * * Preserve grouper stem based upon query for stem id
@@ -46,7 +47,6 @@ public class RegistryReset {
    * * Preserve creator-of-root-stem, create-of-grouper-stem and
    *   creator-of-wheel-group
    * * Move subject adding to a different class?
-   * * Use HQL?
    */
 
   // Private Class Constants
@@ -244,10 +244,18 @@ public class RegistryReset {
   } // private void _emptyTableGrouperStems()
 
   private void _emptyTableGrouperTypes() {
-    String  table         = "grouper_types";
-    String  sqlSaveTypes  = "delete from " + table + " where "
-      + "(name != 'base' and name != 'naming')";
-    this._emptyTable(table, sqlSaveTypes);
+    // TODO This should be part of a larger, all HQL transaction
+    try {
+      Transaction tx  = this.hs.beginTransaction();
+      hs.delete(
+        "from GroupType as t where "
+        + "(t.name != 'base' and t.name != 'naming')"
+      );
+      tx.commit();
+    }
+    catch (Exception e) {
+      this._abort(e.getMessage());    
+    }
   } // private void _emptyTableGrouperTypes()
 
   private void _emptyTables() {

@@ -26,7 +26,7 @@ import  java.util.*;
  * Privilege schema specification.
  * <p />
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.10 2005-12-02 19:28:46 blair Exp $
+ * @version $Id: Privilege.java,v 1.11 2006-01-25 22:27:09 blair Exp $
  */
 public class Privilege implements Serializable {
 
@@ -82,7 +82,7 @@ public class Privilege implements Serializable {
   // Public Class Methods
   public static Set getAccessPrivs() {
     return ACCESS;
-  } // pubilc static Set getAccessPrivs()
+  } // public static Set getAccessPrivs()
 
   // TODO Should this be public?
   public static Privilege getInstance(String name) {
@@ -92,6 +92,20 @@ public class Privilege implements Serializable {
   public static Set getNamingPrivs() {
     return NAMING;
   } // pubilc static Set getNamingPrivs()
+
+  public static boolean isAccess(Privilege p) {
+    if (ACCESS.contains(p)) {
+      return true;
+    }
+    return false;
+  } // public static boolean isAccess(p)
+
+  public static boolean isNaming(Privilege p) {
+    if (NAMING.contains(p)) {
+      return true;
+    }
+    return false;
+  } // public static boolean isNaming(p)
 
 
   // Public Instance Methods
@@ -108,7 +122,6 @@ public class Privilege implements Serializable {
   Object readResolve() {
     return getInstance(name);
   } // Object readResolve()
-
 
 }
 

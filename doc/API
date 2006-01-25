@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.129 2006-01-25 18:55:33 blair Exp $
+$Id: API,v 1.130 2006-01-25 22:27:09 blair Exp $
 
 ---
 
@@ -180,6 +180,7 @@ $Id: API,v 1.129 2006-01-25 18:55:33 blair Exp $
 
 ## GroupType
 * GroupType           GroupType.createType(session, name)
+* void                addField(session, name, FieldType, ReadAccessPrivilege, WriteAccessPrivilege, required)
 
 ## GroupTypeFinder
 * GroupType           GroupTypeFinder.find(name)
@@ -262,6 +263,8 @@ $Id: API,v 1.129 2006-01-25 18:55:33 blair Exp $
 * Privilege           Privilege.getInstance(name)
 * Set                 Privilege.getNamingPrivs()
 * String              getName()
+* boolean             isAccess()
+* boolean             isNaming()
 
 ## QueryFilter extends BaseQueryFilter
 
