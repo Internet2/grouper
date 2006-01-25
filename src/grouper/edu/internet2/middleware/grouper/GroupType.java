@@ -22,6 +22,7 @@ import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;
 
 
@@ -29,13 +30,14 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.5 2005-12-11 21:41:53 blair Exp $
+ * @version $Id: GroupType.java,v 1.6 2006-01-25 18:55:33 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(GroupType.class);
+  private static final EventLog EL  = new EventLog();
+  private static final Log      LOG = LogFactory.getLog(GroupType.class);
 
 
   // Hibernate Properties
@@ -59,6 +61,70 @@ public class GroupType implements Serializable {
     this.setFields(fields); 
   } // protected GroupType(name, fields)
 
+
+  // Public Class Methods
+
+  /*
+   * Create a new {@link GroupType}.  
+   * <p/>
+   * Create a new custom group type that can be assigned to existing or
+   * new groups.  If the type already exists, a {@link SchemaException}
+   * will be thrown.  If the subject is not root-like, an 
+   * {@link InsufficientPrivilegeException} will be thrown.
+   * <pre class="eg">
+   * try {
+   *   GroupType type = GroupType.createType(s, "my custom type");
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Subject not privileged to add group types.
+   * }
+   * catch (SchemaException eS) {
+   *   // Type not created
+   * }
+   * </pre>
+   * @param   s     Create type within this session context.
+   * @param   name  Create type with this name.
+   * @return  New {@link GroupType}.
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   */
+  public static GroupType createType(GrouperSession s, String name) 
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    GroupType type  = null;
+    StopWatch sw    = new StopWatch();
+    sw.start();
+    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
+      String msg = "subject not privileged to add group types";
+      LOG.error(msg);
+      throw new InsufficientPrivilegeException(msg);
+    }
+    try {
+      type = GroupTypeFinder.find(name);  
+      // type already exists.  
+    }
+    catch (SchemaException eS) {
+      // Ignore
+    } 
+    if (type != null) {
+      String msg = "type already exists: " + name;
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+    try {
+      type = new GroupType(name, new HashSet());
+      HibernateHelper.save(type);
+      sw.stop();
+      EL.groupTypeAdd(s, name, sw);
+      return type;
+    }
+    catch (HibernateException eH) {
+      String msg = "unable to add type: " + name + ": " + eH.getMessage();
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+  } // public static GroupType createType(s, name)
 
   // Public Instance Methods
   public boolean equals(Object other) {
