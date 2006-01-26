@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
-  $Date: 2006-01-26 02:06:28 $
+  $Id: confirm.jsp,v 1.3 2006-01-26 02:48:05 jvine Exp $
+  $Date: 2006-01-26 02:48:05 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -233,13 +233,16 @@
              Continue</h2>
              <p class="default">
                <a href="<%=personViewHref%>">
-                 <img src="images/arrow_right.gif" alt="" />Subject view [<%=currentGranteePrivilegedSubject.getName()%>]
-               </a>
+                 <img src="images/arrow_right.gif" alt="" />Subject view [<%=currentGranteePrivilegedSubject.getName()%>]</a>
              </p>
              <p>
                <a href="Functions.do?grantableSubsystems=<%=currentSubsystem.getId()%>">
                  <img src="images/arrow_right.gif" alt="" />Grant another <%=currentSubsystem.getName()%> privilege</a> to <%=currentGranteePrivilegedSubject.getName()%>
              </p>
+			 <p>
+                <img src="images/arrow_right.gif" alt="" />
+                Edit this assignment
+            </p>		
              <p>
                <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
                  <img src="images/arrow_right.gif" alt="" />

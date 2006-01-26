@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
-  $Date: 2006-01-26 02:06:28 $
+  $Id: confirmProxy.jsp,v 1.3 2006-01-26 02:48:05 jvine Exp $
+  $Date: 2006-01-26 02:48:05 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -145,20 +145,24 @@
             <h2>
               Continue
             </h2>
-			<p>
-              <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
-                <img src="images/arrow_right.gif" alt="" />
-            <span class="default">My View </span> : Current assignments to others</a></p>
-            <p>
-              <a href="Designate.do">
-                <img src="images/arrow_right.gif" alt="" />
-                Edit this designation</a>
-            </p>
+			<p class="default">
+				<img src="images/arrow_right.gif" alt="" />
+				Subject view [name]
+			</p>
             <p>
               <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">
                 <img src="images/arrow_right.gif" alt="" />
                 Designate another granting proxy</a>
             </p>
+            <p>
+              <a href="Designate.do">
+                <img src="images/arrow_right.gif" alt="" />
+                Edit this designation</a>
+            </p>			
+			<p>
+              <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
+                <img src="images/arrow_right.gif" alt="" />
+            <span class="default">My View </span> : Current assignments to others</a></p>
           
           </div>
         </div> <!-- Content -->    
