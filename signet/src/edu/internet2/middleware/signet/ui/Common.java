@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.57 2006-01-20 19:24:18 acohen Exp $
-  $Date: 2006-01-20 19:24:18 $
+  $Id: Common.java,v 1.58 2006-01-26 02:06:28 jvine Exp $
+  $Date: 2006-01-26 02:06:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1113,7 +1113,7 @@ public class Common
     outStr.append("         'scrollbars=yes,\n");
     outStr.append("          resizable=yes,\n");
     outStr.append("          width=500,\n");
-    outStr.append("          height=250');\">\n");
+    outStr.append("          height=350');\">\n");
     outStr.append("  <img\n");
     outStr.append("   src=\"images/maglass.gif\"\n");
     outStr.append("   alt=\"More info about this assignment...\" />\n");

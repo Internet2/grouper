@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: functions.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: functions.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
+  $Date: 2006-01-26 02:06:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -125,13 +125,13 @@
 		  </div> 
           <!-- ViewHead -->
          
-         <div class="section">
+         <div class="section" id="summary">
 				 		<h2>New assignment details</h2>
 							<table>
               	<tr>
               		<th class="label" scope="row">Type:</th>
-              		<td><%=currentSubsystem.getName()%></td>
-              		<td nowrap="nowrap">
+              		<td class="data"><%=currentSubsystem.getName()%></td>
+              		<td class="control">
 										<a href="<%=personViewHref%>">
 		               	<img src="images/arrow_left.gif" alt="" />change
     			         	</a>

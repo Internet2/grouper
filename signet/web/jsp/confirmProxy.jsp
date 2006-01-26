@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: confirmProxy.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
+  $Date: 2006-01-26 02:06:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -112,35 +112,31 @@
           </span>
         </div> <!-- ViewHead -->
            
-        <div class="section">
+        <div class="section" id="summary">
           <h2>Completed Designated Driver</h2>
-            <table>
+            <table>       
               <tr>
-                <th class="label" scope="row">Designated:</th>
-                <td><%=currentGranteePrivilegedSubject.getName()%></td>
-              </tr>          
-              <tr>
-                <th class="label" scope="row">As:</th>
-                <td><span class="function">
+                <th class="label" scope="row">Designated as:</th>
+                <td class="content"><span class="function">
                       Granting Proxy
                     </span>
                 </td>
               </tr>
               <tr>
                 <th class="label" scope="row"><%=Common.displayLimitType(currentProxy)%>:</th>
-                <td><%=Common.displaySubsystem(currentProxy)%></td>
+                <td class="content"><%=Common.displaySubsystem(currentProxy)%></td>
               </tr>
               <tr>
                 <th class="label" scope="row">Status:</th>
-                <td><%=Common.displayStatus(currentProxy)%></td>
+                <td class="content"><%=Common.displayStatus(currentProxy)%></td>
               </tr>
               <tr>
                 <th class="label" scope="row">Effective:</th>
-                <td><!-- DATE (or condition) GOES HERE --></td>
+                <td class="content"><!-- DATE (or condition) GOES HERE --></td>
               </tr>
               <tr>
         		<th class="label" scope="row">Duration:</th>
-        		<td><!-- DATE (or condition) GOES HERE --></td>
+        		<td class="content"><!-- DATE (or condition) GOES HERE --></td>
       		  </tr>
             </table>            
         </div><!-- section -->
@@ -156,14 +152,12 @@
             <p>
               <a href="Designate.do">
                 <img src="images/arrow_right.gif" alt="" />
-                Edit this designation
-              </a>
+                Edit this designation</a>
             </p>
             <p>
               <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">
                 <img src="images/arrow_right.gif" alt="" />
-                Designate another granting proxy
-              </a>
+                Designate another granting proxy</a>
             </p>
           
           </div>

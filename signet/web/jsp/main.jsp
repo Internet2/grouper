@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: main.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
+  $Date: 2006-01-26 02:06:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -246,13 +246,13 @@
       = loggedInPrivilegedSubject.getGrantableSubsystemsForAssignment();
 %>
 
+
+        <form name="grantForm" id="grantForm" action="Functions.do">
       <div class="grant">
         <h2>
           Grant a privilege
         </h2>
-        <p>to <%=currentPSubject.getName()%>
-        <form name="grantForm" id="grantForm" action="Functions.do">
-          
+        <p>...to <%=currentPSubject.getName()%>:<br />
             <select
               id="grantableSubsystems"
               name="grantableSubsystems"
@@ -309,11 +309,9 @@
           <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">
             <img src="images/arrow_right.gif">
             Designate
-            <%=currentPSubject.getName()%>
-            to act as
-            <%=loggedInPrivilegedSubject.getEffectiveEditor().getName()%>
-            to grant privileges
-          </a>
+            <%=currentPSubject.getName()%></a>	<!-- keep closing 'a' tag on same line -->
+            to grant privileges as
+            <%=loggedInPrivilegedSubject.getEffectiveEditor().getName()%>       
         </p>
 <%
   }
@@ -337,13 +335,14 @@
         <p>
           <a href="Designate.do?<%=Constants.SUBSYSTEM_OWNER_HTTPPARAMNAME%>=true">
             <img src="images/arrow_right.gif">
-            Designate <%=currentPSubject.getName()%> as a subsystem owner
-          </a>
+            Designate <%=currentPSubject.getName()%></a>	<!-- keep closing 'a' tag on same line -->
+			 as a subsystem owner
         </p>
 <%
   }
 %>
       </div>
+	  <br />
           
 <%
   }
@@ -359,6 +358,7 @@
         <h2>
           find a subject
         </h2> 
+		<p>
         <input
           name="words"
           type="text"
@@ -374,9 +374,10 @@
           onclick="personSearchButtonHasFocus=true;"
           onfocus="personSearchButtonHasFocus=true;"
           onblur="personSearchButtonHasFocus=false;" />
-        <div id="dropback">
-          Enter a person's or a group's name, then click Search.
-        </div>
+        </p>
+		<p class="dropback">
+          <label for="words">Enter a person's or a group's name, then click Search.</label>
+        </p>
         <div id="PersonSearchResults" style="display:none">
         </div> <!-- PersonSearchResults -->
       </div><!-- findperson -->    

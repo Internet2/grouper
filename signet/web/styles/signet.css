@@ -1,6 +1,6 @@
 /*
-   $Id: signet.css,v 1.21 2005-12-14 22:01:52 jvine Exp $
-   $Date: 2005-12-14 22:01:52 $
+   $Id: signet.css,v 1.22 2006-01-26 02:06:28 jvine Exp $
+   $Date: 2006-01-26 02:06:28 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1,
@@ -165,7 +165,7 @@ td {
 	font-weight: normal;
 	padding: 3px;
 	vertical-align: top;
-	border-bottom: 1px solid #CCC;	
+	border-bottom: 1px solid #CCC;
 }
 
 td.sorted {
@@ -174,6 +174,15 @@ td.sorted {
 
 td.date {
   white-space: nowrap;
+}
+
+#summary td.data {
+	width: auto;
+}
+
+#summary td.control {
+	width: 75px;
+	white-space: nowrap;
 }
 
 table.invis {
@@ -215,7 +224,9 @@ th.label {
 	margin: 0px;
 	white-space: nowrap;
 	border-bottom: 1px solid #CCC;
-	width: 30%;	
+}
+#summary th.label {
+	width: 75px;
 }
 
 th a{ /* 3-D header for sortable columns */

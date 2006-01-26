@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: confirm.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
+  $Date: 2006-01-26 02:06:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -123,14 +123,14 @@
             <span class="ident"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,  Technology Strategy and Support Operations-->
           </div> <!-- ViewHead -->
            
-          <div class="section">
+          <div class="section" id="summary">
             <h2>Completed assignment</h2>
 			<table>
               <tr>
                 <th class="label" scope="row">
                   Type:
                 </th>
-                <td>
+                <td class="data">
                   <%=currentSubsystem.getName()%>
                 </td>
               </tr>								
@@ -138,7 +138,7 @@
                 <th class="label" scope="row">
                   Privilege:
                 </th>
-                <td>
+                <td class="data">
                   <span class="category">
                     <%=currentCategory.getName()%>
                   </span>
@@ -151,7 +151,7 @@
               	</tr>
               	<tr>
               		<th class="label" scope="row">Scope:</th>               
-              		<td>
+              		<td class="data">
               <%=signet.displayAncestry
                     (currentScope,
                      " : ",  // childSeparatorPrefix
@@ -177,7 +177,7 @@
                 <th class="label" scope="row">
                   <%=limit.getName()%>:
                 </th>
-                <td>
+                <td class="data">
 <%
     int limitValuesPrinted = 0;
     for (int limitValueIndex = 0;
@@ -207,7 +207,7 @@
                 <th class="label" scope="row">
                   Status:
                 </th>
-                <td>
+                <td class="data">
                   <%=(currentAssignment.canUse() ? "use this privilege" : "")%>
                   <br />
                   <%=(currentAssignment.canGrant() ? "grant this privilege to others" : "")%>
@@ -217,12 +217,12 @@
 				  <th class="label" scope="row">
 				  	Effective:
 				  </th>
-				  <td><%=dateFormat.format(currentAssignment.getEffectiveDate())%>
+				  <td class="data"><%=dateFormat.format(currentAssignment.getEffectiveDate())%>
 				  </td>
 			  </tr>
 			  <tr>
 			    <th class="label" scope="row">Duration:</th>
-			    <td><!-- DATE (or condition) GOES HERE --></td>
+			    <td class="data"><!-- DATE (or condition) GOES HERE --></td>
 			    </tr>
 
 			</table>						
@@ -238,8 +238,7 @@
              </p>
              <p>
                <a href="Functions.do?grantableSubsystems=<%=currentSubsystem.getId()%>">
-                 <img src="images/arrow_right.gif" alt="" />Grant another <%=currentSubsystem.getName()%> privilege to <%=currentGranteePrivilegedSubject.getName()%>
-               </a>
+                 <img src="images/arrow_right.gif" alt="" />Grant another <%=currentSubsystem.getName()%> privilege</a> to <%=currentGranteePrivilegedSubject.getName()%>
              </p>
              <p>
                <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">

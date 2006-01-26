@@ -56,16 +56,16 @@
         alt="" />
       Printable version
     </A>
-  <a href="PrivilegesXML.do">
-                <img
+  <A href="PrivilegesXML.do" target="_blank">
+                <IMG
                 	src="images/xml.gif"
                     alt="" />
                 View XML
-               </a>    <H2 class="inlinecontrol">
+               </A>    
+  <H2 class="inlinecontrol">
       <%=privDisplayType.getDescription()%>
 	</H2>
-	<DIV class="inlinecontrol">
-	<FORM
+	<FORM class="inlinecontrol"
       name="personSearchForm"
       method="post"
       action="PersonView.do">
@@ -84,7 +84,6 @@
           type="submit"
           class="button1" />
     </FORM>
-	</DIV>
   </DIV> <!-- tableheader -->
   
   <DIV class="tablecontrols">

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: designate.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
+  $Date: 2006-01-26 02:06:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -131,7 +131,7 @@
   if (currentProxy != null)
   {
 %>
-        <div class="section">
+        <div class="section" id="summary">
           <h2>
             Editing proxy
           </h2>
@@ -140,10 +140,10 @@
           <table>
             <tbody>
               <tr>
-                <td class="label" width="15%">
+                <td class="label">
                   Granted to:
                 </td>
-                <td width="85%">
+                <td class="content">
                   <%=currentProxy.getGrantee().getName()%>
                   <span class="ident">
                     <%=currentProxy.getGrantee().getDescription()%>
@@ -154,7 +154,7 @@
                 <td class="label">
                   Privilege Type:
                 </td>
-                <td>
+                <td class="content">
                   <%=currentProxy.getSubsystem().getName()%>
                 </td>
               </tr>
