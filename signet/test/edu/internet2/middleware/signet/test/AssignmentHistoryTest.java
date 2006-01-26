@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentHistoryTest.java,v 1.1 2005-12-02 18:36:53 acohen Exp $
-$Date: 2005-12-02 18:36:53 $
+$Id: AssignmentHistoryTest.java,v 1.2 2006-01-26 01:39:29 acohen Exp $
+$Date: 2006-01-26 01:39:29 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -235,7 +235,7 @@ public class AssignmentHistoryTest extends TestCase
     
     String functionId = fixtures.makeFunctionId(functionIndex);
     Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
-    Function function = subsystem.getFunction(functionId);
+    Function function = Common.getFunction(subsystem, functionId);
     
     // Let's see if this PrivilegedSubject has at least one AssignmentHistory
     // record for the specified Function.

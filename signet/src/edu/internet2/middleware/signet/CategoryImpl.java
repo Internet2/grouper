@@ -1,6 +1,6 @@
 /*--
-$Id: CategoryImpl.java,v 1.6 2005-10-31 18:31:44 acohen Exp $
-$Date: 2005-10-31 18:31:44 $
+$Id: CategoryImpl.java,v 1.7 2006-01-26 01:39:29 acohen Exp $
+$Date: 2006-01-26 01:39:29 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -30,8 +30,8 @@ class CategoryImpl
 extends EntityImpl
 implements Category
 {
-  private Subsystem 	subsystem;
-  private Set					functions;
+  private Subsystem subsystem;
+  private Set       functions;
 
   /**
    * Hibernate requires that each persistable entity have a default

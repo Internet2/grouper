@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.19 2006-01-26 00:32:32 acohen Exp $
-$Date: 2006-01-26 00:32:32 $
+$Id: PrivilegedSubjectTest.java,v 1.20 2006-01-26 01:39:29 acohen Exp $
+$Date: 2006-01-26 01:39:29 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -142,7 +142,7 @@ public class PrivilegedSubjectTest extends SignetTestCase
       
       Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
       Function function
-        = subsystem.getFunction(fixtures.makeFunctionId(subjectIndex));
+        = Common.getFunction(subsystem, fixtures.makeFunctionId(subjectIndex));
       Tree tree = signet.getTree(Constants.TREE_ID);
       TreeNode treeNode = fixtures.getRoot(tree);
       Limit limit = subsystem.getLimit(fixtures.makeLimitId(subjectIndex));
@@ -491,7 +491,7 @@ public class PrivilegedSubjectTest extends SignetTestCase
     TreeNode treeNode = fixtures.getRoot(tree);
     Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
     Function function1
-      = subsystem.getFunction(fixtures.makeFunctionId(1));
+      = Common.getFunction(subsystem, fixtures.makeFunctionId(1));
     Limit[] limitsInDisplayOrder
     = Common.getLimitsInDisplayOrder(function1.getLimits());
   

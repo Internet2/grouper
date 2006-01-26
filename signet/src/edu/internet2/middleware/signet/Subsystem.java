@@ -1,6 +1,6 @@
 /*--
-$Id: Subsystem.java,v 1.9 2005-11-01 00:07:33 acohen Exp $
-$Date: 2005-11-01 00:07:33 $
+$Id: Subsystem.java,v 1.10 2006-01-26 01:39:29 acohen Exp $
+$Date: 2006-01-26 01:39:29 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -75,22 +75,6 @@ extends HelpText, NonGrantable, Name, Comparable
    *    Subsystem.
    */
   public Set getFunctions();
-  
-  /**
-   * Sets the Functions that should be associated with this Subsystem.
-   * 
-   * @param categories the functions that should be associated with
-   *    this Subsystem.
-   */
-  public void setFunctionsArray(Function[] categories);
-
-  /**
-   * Gets a single Function associated with this Subsystem by its ID.
-   * @param functionId
-   * @return the specified Function
-   */
-  public Function getFunction(String functionId)
-  throws ObjectNotFoundException;
 
   /**
    * Gets the Tree currently associated with this Subsystem.

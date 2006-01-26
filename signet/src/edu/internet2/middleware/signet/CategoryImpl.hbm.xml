@@ -25,7 +25,7 @@
 
 		<property name="name" type="string" not-null="true"/>
 		
-		<set name="functions" inverse="true" cascade="save-update">
+		<set name="functions" inverse="true" cascade="none">
 			<key column="categoryID"/>
 			<one-to-many class="edu.internet2.middleware.signet.FunctionImpl"/>
 		</set>

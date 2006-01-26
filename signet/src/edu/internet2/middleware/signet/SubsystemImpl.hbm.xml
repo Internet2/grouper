@@ -33,6 +33,11 @@
 			<one-to-many class="edu.internet2.middleware.signet.CategoryImpl"/>
 		</set>
 		
+		<set name="functions" inverse="true" cascade="save-update">
+			<key column="subsystemID"/>
+			<one-to-many class="edu.internet2.middleware.signet.FunctionImpl"/>
+		</set>
+		
 		<set name="choiceSets" inverse="true" cascade="save-update">
 			<key column="subsystemID"/>
 			<one-to-many class="edu.internet2.middleware.signet.ChoiceSetImpl"/>

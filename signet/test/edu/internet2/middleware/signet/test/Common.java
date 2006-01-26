@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.13 2005-12-02 18:36:53 acohen Exp $
-$Date: 2005-12-02 18:36:53 $
+$Id: Common.java,v 1.14 2006-01-26 01:39:29 acohen Exp $
+$Date: 2006-01-26 01:39:29 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -366,7 +366,7 @@ public class Common extends TestCase
   {
     Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
     String functionId = makeFunctionId(functionNumber);
-    Function function = subsystem.getFunction(functionId);
+    Function function = getFunction(subsystem, functionId);
     
     return function;
   }
@@ -379,5 +379,26 @@ public class Common extends TestCase
       + functionNumber
       + Constants.DELIMITER
       + "ID";
+  }
+
+  public static Function getFunction
+    (Subsystem subsystem,
+     String    functionId) throws ObjectNotFoundException
+  {
+    Iterator functionsIterator = subsystem.getFunctions().iterator();
+    while (functionsIterator.hasNext())
+    {
+      Function candidate = (Function)(functionsIterator.next());
+      if (candidate.getId().equals(functionId))
+      {
+        return candidate;
+      }
+    }
+    
+    throw new ObjectNotFoundException
+      ("Unable to find function with ID '"
+       + functionId
+       + "' in subsystem '"
+       + subsystem + "'");
   }
 }

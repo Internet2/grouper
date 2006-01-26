@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionTest.java,v 1.6 2005-11-24 00:02:53 acohen Exp $
-$Date: 2005-11-24 00:02:53 $
+$Id: PermissionTest.java,v 1.7 2006-01-26 01:39:29 acohen Exp $
+$Date: 2006-01-26 01:39:29 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -131,9 +131,9 @@ public class PermissionTest extends TestCase
 
       assertEquals
       	(Common.getSingleSetMember(functions),
-      	 signet
-      	 	.getSubsystem(Constants.SUBSYSTEM_ID)
-      	 		.getFunction(fixtures.makeFunctionId(permissionIndex)));
+      	 Common.getFunction
+           (signet.getSubsystem(Constants.SUBSYSTEM_ID),
+            fixtures.makeFunctionId(permissionIndex)));
     }
   }
 }

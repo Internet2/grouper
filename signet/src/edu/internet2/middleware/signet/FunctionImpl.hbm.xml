@@ -27,8 +27,8 @@
 			name="category"
 			column="categoryID"
 			class="edu.internet2.middleware.signet.CategoryImpl"
-			not-null="true"
-			cascade="save-update"/>
+			not-null="false"
+			cascade="none"/>
 		
 		<set
 			name="permissions"

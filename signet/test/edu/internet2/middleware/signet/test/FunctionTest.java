@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionTest.java,v 1.5 2005-08-16 20:51:03 acohen Exp $
-$Date: 2005-08-16 20:51:03 $
+$Id: FunctionTest.java,v 1.6 2006-01-26 01:39:29 acohen Exp $
+$Date: 2006-01-26 01:39:29 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -84,10 +84,9 @@ public class FunctionTest extends TestCase
 		 		 functionIndex++)
     {
       Function function
-      	= signet
-      			.getSubsystem(Constants.SUBSYSTEM_ID)
-      				.getFunction
-      					(fixtures.makeFunctionId(functionIndex));
+        = Common.getFunction
+            (signet.getSubsystem(Constants.SUBSYSTEM_ID),
+             fixtures.makeFunctionId(functionIndex));
 
       // Function 0 contains limit 0, Function 1 contains Limits 0 and 1,
       // and so forth.
@@ -100,12 +99,12 @@ public class FunctionTest extends TestCase
       {
         assertEquals
         	(Common.getLimitsInDisplayOrder
-             (signet
-        	      .getSubsystem(Constants.SUBSYSTEM_ID)
-        	        .getFunction(fixtures.makeFunctionId(functionIndex))
-      	 		  	    .getLimits())
-                      [limitIndex],
-      	   sortedLimits[limitIndex]);
+              (Common.getFunction
+                (signet.getSubsystem(Constants.SUBSYSTEM_ID), 
+        	     fixtures.makeFunctionId(functionIndex))
+      	 		  .getLimits())
+                    [limitIndex],
+      	     sortedLimits[limitIndex]);
       }
     }
   }
@@ -119,10 +118,9 @@ public class FunctionTest extends TestCase
 		 		 functionIndex++)
     {
       Function function
-      	= signet
-      			.getSubsystem(Constants.SUBSYSTEM_ID)
-      				.getFunction
-      					(fixtures.makeFunctionId(functionIndex));
+      	= Common.getFunction
+            (signet.getSubsystem(Constants.SUBSYSTEM_ID),
+             fixtures.makeFunctionId(functionIndex));
 
       // Function 0 contains Permission 0, Function 1 Permission Limit 1,
       // and so forth.

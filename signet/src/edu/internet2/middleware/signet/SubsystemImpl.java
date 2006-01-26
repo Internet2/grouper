@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.12 2005-10-12 23:08:52 acohen Exp $
- $Date: 2005-10-12 23:08:52 $
+ $Id: SubsystemImpl.java,v 1.13 2006-01-26 01:39:29 acohen Exp $
+ $Date: 2006-01-26 01:39:29 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -35,18 +35,16 @@ class SubsystemImpl
   
   private Set     categories;
   private Set     functions;
-  private Set			choiceSets;
+  private Set     choiceSets;
 
-  private Map			limits;
+  private Map     limits;
   private Map     permissions;
-  private Map     functionsMap;
   
   private Tree    tree;
 
-  private boolean choiceSetsNotYetFetched 	= true;
-  private boolean functionsNotYetFetched		= true;
-  private boolean limitsNotYetFetched				= true;
-  private boolean permissionsNotYetFetched 	= true;
+  private boolean choiceSetsNotYetFetched  = true;
+  private boolean limitsNotYetFetched      = true;
+  private boolean permissionsNotYetFetched = true;
 
   /**
    * Hibernate requires that each persistable entity have a default
@@ -61,7 +59,6 @@ class SubsystemImpl
 
     this.limits = new HashMap();
     this.permissions = new HashMap();
-    this.functionsMap = new HashMap();
   }
 
   /**
@@ -88,7 +85,6 @@ class SubsystemImpl
     
     this.limits = new HashMap();
     this.permissions = new HashMap();
-    this.functionsMap = buildMap(this.functions);
   }
 
   /* This method exists only for use by Hibernate. */
@@ -103,24 +99,10 @@ class SubsystemImpl
     this.choiceSets = choiceSets;
   }
 
-  public void setFunctionsArray(Function[] functions)
-  {
-    int functionCount = (functions == null ? 0 : functions.length);
-    this.functions = new HashSet(functionCount);
-
-    for (int i = 0; i < functionCount; i++)
-    {
-      this.functions.add(functions[i]);
-    }
-
-    this.functionsMap = buildMap(this.functions);
-  }
-
   /* This method exists only for use by Hibernate. */
   public void setFunctions(Set functions)
   {
     this.functions = functions;
-    this.functionsMap = buildMap(this.functions);
   }
 
   /* (non-Javadoc)
@@ -238,29 +220,7 @@ class SubsystemImpl
    */
   public Set getFunctions()
   {
-    // I really want to handle this purely through Hibernate mappings, but
-    // I haven't figured out how yet.
-
-    if (this.functionsNotYetFetched == true)
-    {
-      // We have not yet fetched the Functions associated with this
-      // Subsystem from the database. Let's make a copy of
-      // whatever in-memory Functions we DO have, because they represent
-      // defined-but-not-necessarily-yet-persisted Functions.
-      Set unsavedFunctions = this.functions;
-
-      this.functions = this.getSignet().getFunctionsBySubsystem(this);
-
-      this.functions.addAll(unsavedFunctions);
-
-      this.functionsMap = buildMap(this.functions);
-
-      this.functionsNotYetFetched = false;
-    }
-
-    Set resultSet = UnmodifiableSet.decorate(this.functions);
-
-    return resultSet;
+    return this.functions;
   }
   
   public ChoiceSet getChoiceSet(String id)
@@ -362,41 +322,9 @@ class SubsystemImpl
     return map;
   }
 
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Subsystem#getFunction(java.lang.String)
-   */
-  public Function getFunction(String functionId)
-  throws ObjectNotFoundException
-  {
-    // First, let's make sure the Functions are loaded from the
-    // database.
-    this.getFunctions();
-
-    FunctionImpl function
-    	= (FunctionImpl) (this.functionsMap.get(functionId));
-
-    if (function == null)
-    {
-      throw new ObjectNotFoundException
-      	("Unable to find the Function with ID '"
-         + functionId
-         + "' in the Subsystem '"
-         + this.getId()
-         + "'.");
-    }
-
-    if (this.getSignet() != null)
-    {
-      function.setSignet(this.getSignet());
-    }
-
-    return function;
-  }
-
   void add(Function function)
   {
     this.functions.add(function);
-    this.functionsMap.put(function.getId(), function);
   }
   
   void add(ChoiceSet choiceSet)

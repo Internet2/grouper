@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.32 2006-01-26 00:32:32 acohen Exp $
-$Date: 2006-01-26 00:32:32 $
+$Id: Fixtures.java,v 1.33 2006-01-26 01:39:29 acohen Exp $
+$Date: 2006-01-26 01:39:29 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -877,8 +877,7 @@ public class Fixtures
       // This step is not really necessary, but exercises a little
       // more code.
       function
-       	= this.subsystem.getFunction
-       			(makeFunctionId(functionNumber));
+        = Common.getFunction(this.subsystem, makeFunctionId(functionNumber));
     }
     
     return function;
