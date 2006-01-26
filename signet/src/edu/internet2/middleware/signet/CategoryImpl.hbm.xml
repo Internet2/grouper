@@ -5,12 +5,16 @@
 	<class
 		name="edu.internet2.middleware.signet.CategoryImpl"
 		table="signet_category">
-
-		<id name="id" type="string" column="categoryID">
-			<generator class="assigned"/>
+		
+		<id name="key" type="int" column="categoryKey">
+			<generator class="native"/>
 		</id>
-
+		
 		<timestamp name="modifyDatetime"/>
+		
+		<property
+			name="id"
+			column="categoryID"/>
 		
 		<many-to-one 
 			name="subsystem"

@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.12 2006-01-26 00:32:32 acohen Exp $
-$Date: 2006-01-26 00:32:32 $
+$Id: FunctionImpl.java,v 1.13 2006-01-26 02:30:02 acohen Exp $
+$Date: 2006-01-26 02:30:02 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -123,31 +123,6 @@ implements Function
   public Set getPermissions()
   {    
     return this.permissions;
-  }
-
-
-  /* This method exists only for use by Hibernate.
-   */
-  public FunctionFullyQualifiedId getFullyQualifiedId()
-  {
-    return new FunctionFullyQualifiedId
-    	(this.getSubsystemId(), this.getId());
-  }
-  
-  /*
-   * This method exists only for use by Hibernate.
-   */
-  void setFullyQualifiedId(FunctionFullyQualifiedId ffqId)
-  throws ObjectNotFoundException
-  {
-    this.subsystemId = ffqId.getSubsystemId();
-    this.setId(ffqId.getFunctionId());
-    
-    if (this.getSignet() != null)
-    {
-      this.subsystem
-      	= this.getSignet().getSubsystem(ffqId.getSubsystemId());
-    }
   }
   
   /**

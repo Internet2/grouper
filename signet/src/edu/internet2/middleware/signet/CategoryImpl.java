@@ -1,6 +1,6 @@
 /*--
-$Id: CategoryImpl.java,v 1.7 2006-01-26 01:39:29 acohen Exp $
-$Date: 2006-01-26 01:39:29 $
+$Id: CategoryImpl.java,v 1.8 2006-01-26 02:30:02 acohen Exp $
+$Date: 2006-01-26 02:30:02 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -30,6 +30,9 @@ class CategoryImpl
 extends EntityImpl
 implements Category
 {
+  // This field is a simple synthetic key for this record in the database.
+  private Integer   key;
+
   private Subsystem subsystem;
   private Set       functions;
 
@@ -191,5 +194,18 @@ implements Category
   {
     throw new UnsupportedOperationException
       ("This method is not yet implemented");
+  }
+  
+  Integer getKey()
+  {
+    return this.key;
+  }
+
+  /* This method is for use only by Hibernate.
+   * 
+   */
+  private void setKey(Integer key)
+  {
+    this.key = key;
   }
 }

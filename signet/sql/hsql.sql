@@ -43,12 +43,14 @@ primary key (subsystemID)
 ;
 create table signet_category
 (
+categoryKey         int                 NOT NULL IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 categoryID          varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
 modifyDatetime      datetime            NOT NULL,
-primary key (subsystemID, categoryID),
+primary key (categoryKey),
+unique (subsystemID, categoryID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
