@@ -6,18 +6,22 @@
 		name="edu.internet2.middleware.signet.FunctionImpl"
 		table="signet_function">
 		
-		<meta attribute="class-description">
-			@author Andy Cohen
-		</meta>
-
-		<composite-id
-			name="fullyQualifiedId"
-			class="edu.internet2.middleware.signet.FunctionFullyQualifiedId">
-			<key-property name="functionId" column="functionID" />
-			<key-property name="subsystemId" column="subsystemID" />
-		</composite-id>
+		<id name="key" type="int" column="functionKey">
+			<generator class="native"/>
+		</id>
 		
 		<timestamp name="modifyDatetime"/>
+		
+		<property
+			name="id"
+			column="functionID"/>
+		
+		<many-to-one
+			name="subsystem"
+			column="subsystemID"
+			class="edu.internet2.middleware.signet.SubsystemImpl"
+			not-null="true"
+			cascade="none"/>
 		
 		<many-to-one
 			name="category"
@@ -32,8 +36,7 @@
 			cascade="save-update"
 			lazy="false">
 			<key>
-				 <column name="functionID"/>
-				 <column name="subsystemID"/>
+				 <column name="functionKey"/>
 			</key>
 			<many-to-many
 				class="edu.internet2.middleware.signet.PermissionImpl"

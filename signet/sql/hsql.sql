@@ -54,6 +54,7 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 ;
 create table signet_function
 (
+functionKey         int                 NOT NULL IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
 categoryID          varchar(64)         NULL,
@@ -61,7 +62,8 @@ status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
 helpText            varchar(2000)       NOT NULL,
 modifyDatetime      datetime            NOT NULL,
-primary key (subsystemID, functionID),
+primary key (functionKey),
+unique (subsystemID, functionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
@@ -99,11 +101,10 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 ;
 create table signet_function_permission
 (
-subsystemID         varchar(64)         NOT NULL,
-functionID          varchar(64)         NOT NULL,
+functionKey         int                 NOT NULL,
 permissionKey       int                 NOT NULL,
-primary key (subsystemID, functionID, permissionKey),
-foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID),
+primary key (functionKey, permissionKey),
+foreign key (functionKey) references signet_function (functionKey),
 foreign key (permissionKey) references signet_permission (permissionKey)
 )
 ;
@@ -200,8 +201,7 @@ create table signet_assignment
 assignmentID        int                 NOT NULL IDENTITY,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
-subsystemID         varchar(64)         NOT NULL,
-functionID          varchar(64)         NOT NULL,
+functionKey         int                 NOT NULL,
 grantorKey          int                 NOT NULL,
 granteeKey          int                 NOT NULL,
 proxyKey            int                 NULL,
@@ -236,8 +236,7 @@ historyID           int                 NOT NULL IDENTITY,
 assignmentID        int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
-subsystemID         varchar(64)         NOT NULL,
-functionID          varchar(64)         NOT NULL,
+functionKey         int                 NOT NULL,
 grantorKey          int                 NOT NULL,
 granteeKey          int                 NOT NULL,
 proxyKey            int                 NULL,

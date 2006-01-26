@@ -47,12 +47,9 @@
 		<many-to-one
 			name="function"
 			class="edu.internet2.middleware.signet.FunctionImpl"
+			column="functionKey"
 			cascade="none"
-			not-null="true">
-			
-			<column name="functionID"/>
-			<column name="subsystemID"/>
-		</many-to-one>
+			not-null="true"/>
 
 		<many-to-one
 			name="scope"

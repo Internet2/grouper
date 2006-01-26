@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.53 2006-01-24 19:23:03 acohen Exp $
-$Date: 2006-01-24 19:23:03 $
+$Id: Signet.java,v 1.54 2006-01-26 00:32:32 acohen Exp $
+$Date: 2006-01-26 00:32:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -583,19 +583,18 @@ public final class Signet
          .createQuery
            ("from edu.internet2.middleware.signet.AssignmentImpl"
             + " as assignment"
-            + " where granteeKey = :granteeKey"
-            + " and functionID = :functionId"
-            + " and subsystemID = :subsystemId"
-            + " and scopeID = :scopeId"
-            + " and scopeNodeID = :scopeNodeId"
+            + " where granteeKey  = :granteeKey"
+            + " and functionKey   = :functionKey"
+            + " and scopeID       = :scopeId"
+            + " and scopeNodeID   = :scopeNodeId"
             + " and assignmentID != :assignmentId");
 
       query.setParameter
         ("granteeKey", assignment.getGrantee().getId(), Hibernate.INTEGER);
-      query.setString
-        ("functionId", assignment.getFunction().getId());
-      query.setString
-        ("subsystemId", assignment.getFunction().getSubsystem().getId());
+      query.setParameter
+        ("functionKey",
+         ((FunctionImpl)(assignment.getFunction())).getKey(),
+         Hibernate.INTEGER);
       query.setString
         ("scopeId", assignment.getScope().getTree().getId());
       query.setString

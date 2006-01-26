@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.31 2005-12-02 18:36:53 acohen Exp $
-$Date: 2005-12-02 18:36:53 $
+$Id: Fixtures.java,v 1.32 2006-01-26 00:32:32 acohen Exp $
+$Date: 2006-01-26 00:32:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -137,50 +137,18 @@ public class Fixtures
     // while testing Assignment.findDuplicates().
     deleteAssignmentsAndProxies();
     
-    this.subsystem = getOrCreateSubsystem();
+    signet.beginTransaction();
+    createMetadata(signet);
+    signet.commit();
     
-    tree = this.signet.getTree(Constants.TREE_ID);
-    this.subsystem.setTree(this.tree);
-    
-    for (int i = 0; i < Constants.MAX_CATEGORIES; i++)
-    {
-      Category category = getOrCreateCategory(i); 
-    }
-    
-    for (int i = 0; i < Constants.MAX_CHOICE_SETS; i++)
-    {
-      ChoiceSet choiceSet = getOrCreateChoiceSet(i); 
-    }
-    
-    for (int i = 0; i < Constants.MAX_LIMITS; i++)
-    {
-      Limit limit = getOrCreateLimit(i);
-    }
-    
-    for (int i = 0; i < Constants.MAX_FUNCTIONS; i++)
-    {
-      Function function = getOrCreateFunction(i);
-    }
-    
-    for (int permissionNum = 0;
-         permissionNum < Constants.MAX_PERMISSIONS;
-         permissionNum++)
-    {
-      Permission permission = getOrCreatePermission(permissionNum);
-      
-      // Permission 0 is associated with Limit 0 and Function 0,
-      // Permission 1 is associated with Limits 0 and 1 and Function 1,
-      // and so on.
-      getOrCreateFunction(permissionNum).addPermission(permission);
-      
-      for (int limitNum = 0; limitNum <= permissionNum; limitNum++)
-      {
-        permission.addLimit(getOrCreateLimit(limitNum));
-      }
-    }
-    
-    this.subsystem.save();
-    
+    signet.beginTransaction();
+    createGrantables(signet);
+    signet.commit();
+  }
+  
+  private void createGrantables(Signet signet)
+  throws SignetAuthorityException, ObjectNotFoundException
+  {
     PrivilegedSubject sysAdmin
       = designateSysAdmin(SYSADMIN_SUBJECT_NUMBER);
     
@@ -234,11 +202,11 @@ public class Fixtures
     // Subject 2.
     int[] limitChoiceNumbers = {0, 0, 0};
     Assignment assignment
-    	= getOrCreateAssignment
-    			(subsystemOwner,
+        = getOrCreateAssignment
+                (subsystemOwner,
            0,  // subject-number
-    			 2,  // function-number
-    			 limitChoiceNumbers);
+                 2,  // function-number
+                 limitChoiceNumbers);
     assignment.save();
     
     // Grant and immediately revoke an Assignment from subject0 to subject2.
@@ -268,7 +236,59 @@ public class Fixtures
     proxyForRevocation.revoke(pSubject0);
     proxyForRevocation.save();
   }
-  
+
+  private void createMetadata(Signet signet2)
+  throws
+    ObjectNotFoundException,
+    OperationNotSupportedException
+  {
+
+    
+    this.subsystem = getOrCreateSubsystem();
+    
+    tree = this.signet.getTree(Constants.TREE_ID);
+    this.subsystem.setTree(this.tree);
+    
+    for (int i = 0; i < Constants.MAX_CATEGORIES; i++)
+    {
+      Category category = getOrCreateCategory(i); 
+    }
+    
+    for (int i = 0; i < Constants.MAX_CHOICE_SETS; i++)
+    {
+      ChoiceSet choiceSet = getOrCreateChoiceSet(i); 
+    }
+    
+    for (int i = 0; i < Constants.MAX_LIMITS; i++)
+    {
+      Limit limit = getOrCreateLimit(i);
+    }
+    
+    for (int i = 0; i < Constants.MAX_FUNCTIONS; i++)
+    {
+      Function function = getOrCreateFunction(i);
+    }
+    
+    for (int permissionNum = 0;
+         permissionNum < Constants.MAX_PERMISSIONS;
+         permissionNum++)
+    {
+      Permission permission = getOrCreatePermission(permissionNum);
+      
+      // Permission 0 is associated with Limit 0 and Function 0,
+      // Permission 1 is associated with Limits 0 and 1 and Function 1,
+      // and so on.
+      getOrCreateFunction(permissionNum).addPermission(permission);
+      
+      for (int limitNum = 0; limitNum <= permissionNum; limitNum++)
+      {
+        permission.addLimit(getOrCreateLimit(limitNum));
+      }
+    }
+    
+    this.subsystem.save();
+  }
+
   private PrivilegedSubject designateSubsystemOwner
     (PrivilegedSubject  sysAdmin,
      int                subjectNumber,
@@ -354,25 +374,42 @@ public class Fixtures
        + " WHERE assignment_historyID IN"
        + "   (SELECT historyID"
        + "    FROM signet_assignment_history"
+       + "    WHERE functionKey IN"
+       + "      (SELECT functionKey"
+       + "       FROM signet_function"
+       + "       WHERE subsystemID='"
+       + Constants.SUBSYSTEM_ID
+       + "'))");
+    stmt.executeUpdate
+      ("DELETE"
+       + " FROM signet_assignment_history"
+       + " WHERE functionKey IN"
+       + "   (SELECT functionKey"
+       + "    FROM signet_function"
        + "    WHERE subsystemID='"
        + Constants.SUBSYSTEM_ID
        + "')");
     stmt.executeUpdate
-      ("DELETE FROM signet_assignment_history WHERE subsystemID='"
+      ("DELETE"
+       + " FROM signet_assignmentLimit"
+       + " WHERE assignmentID IN"
+       + "   (SELECT assignmentID"
+       + "    FROM signet_assignment"
+       + "    WHERE functionKey IN"
+       + "      (SELECT functionKey"
+       + "       FROM signet_function"
+       + "       WHERE subsystemID='"
        + Constants.SUBSYSTEM_ID
-       + "'");
+       + "'))");
     stmt.executeUpdate
-      ("DELETE FROM"
-       + "   signet_assignmentLimit"
-       + " WHERE"
-       + "   assignmentID IN"
-       + "    (SELECT assignmentID FROM signet_assignment WHERE subsystemID='"
+      ("DELETE"
+       + " FROM signet_assignment"
+       + "    WHERE functionKey IN"
+       + "      (SELECT functionKey"
+       + "       FROM signet_function"
+       + "       WHERE subsystemID='"
        + Constants.SUBSYSTEM_ID
        + "')");
-    stmt.executeUpdate
-      ("DELETE FROM signet_assignment WHERE subsystemID='"
-       + Constants.SUBSYSTEM_ID
-       + "'");
     stmt.executeUpdate
       ("DELETE FROM signet_proxy_history WHERE subsystemID='"
        + Constants.SUBSYSTEM_ID
@@ -445,7 +482,7 @@ public class Fixtures
     TreeNode rootNode = getRoot(tree);
     Subject subject = Common.getSubject(signet, subjectNumber);
     PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
-    Function function = getOrCreateFunction(functionNumber);
+    Function function = Common.getFunction(signet, functionNumber);
     Limit[] limitsInDisplayOrder
       = Common.getLimitsInDisplayOrder(function.getLimits());
     

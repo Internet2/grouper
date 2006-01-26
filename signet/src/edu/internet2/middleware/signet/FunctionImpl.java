@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.11 2005-11-11 00:24:01 acohen Exp $
-$Date: 2005-11-11 00:24:01 $
+$Id: FunctionImpl.java,v 1.12 2006-01-26 00:32:32 acohen Exp $
+$Date: 2006-01-26 00:32:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -30,11 +30,14 @@ class FunctionImpl
 extends EntityImpl
 implements Function
 {
+  // This field is a simple synthetic key for this record in the database.
+  private Integer   key;
+
   private Subsystem	subsystem;
-  private String		subsystemId;
+  private String	subsystemId;
   private Category  category;
-  private Set		  	permissions;
-  private String 		helpText;
+  private Set		permissions;
+  private String 	helpText;
 
   /**
    * Hibernate requires that each persistable entity have a default
@@ -240,9 +243,9 @@ implements Function
     
     FunctionImpl rhs = (FunctionImpl) o;
     return new EqualsBuilder()
-    								.append(this.getSubsystemId(), rhs.getSubsystemId())
-                    .append(this.getId(), rhs.getId())
-                    .isEquals();
+                 .append(this.getSubsystemId(), rhs.getSubsystemId())
+                 .append(this.getId(), rhs.getId())
+                 .isEquals();
   }
 
   
@@ -253,10 +256,11 @@ implements Function
   {
     // you pick a hard-coded, randomly chosen, non-zero, odd number
     // ideally different for each class
-    return new HashCodeBuilder(17, 37).   
-       append(this.getId()).
-       toHashCode();
-   }
+    return new HashCodeBuilder(17, 37)
+                 .append(this.getSubsystemId())
+                 .append(this.getId())
+                 .toHashCode();
+  }
 
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Function#addPermission(edu.internet2.middleware.signet.Permission)
@@ -353,5 +357,18 @@ implements Function
   {
     throw new UnsupportedOperationException
       ("This method is not yet implemented");
+  }
+  
+  Integer getKey()
+  {
+    return this.key;
+  }
+
+  /* This method is for use only by Hibernate.
+   * 
+   */
+  private void setKey(Integer key)
+  {
+    this.key = key;
   }
 }

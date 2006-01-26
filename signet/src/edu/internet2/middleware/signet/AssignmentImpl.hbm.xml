@@ -60,12 +60,9 @@
 		<many-to-one
 			name="function"
 			class="edu.internet2.middleware.signet.FunctionImpl"
+			column="functionKey"
 			cascade="none"
-			not-null="true">
-			
-			<column name="functionID"/>
-			<column name="subsystemID"/>
-		</many-to-one>
+			not-null="true"/>
 
 		<many-to-one
 			name="scope"
@@ -127,16 +124,10 @@
 				 not-null="true"/>
 				 
 				<many-to-one
-				 name="subsystem"
-				 cascade="none"
-				 class="edu.internet2.middleware.signet.SubsystemImpl"
-				 column="subsystemID"/>
-				 
-				<many-to-one
 				 name="function"
 				 cascade="none"
 				 class="edu.internet2.middleware.signet.FunctionImpl"
-				 column="functionID"/>
+				 column="functionKey"/>
 			
 				<many-to-one
 				 name="grantor"

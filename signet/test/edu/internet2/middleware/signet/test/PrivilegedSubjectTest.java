@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.18 2006-01-18 17:11:59 acohen Exp $
-$Date: 2006-01-18 17:11:59 $
+$Id: PrivilegedSubjectTest.java,v 1.19 2006-01-26 00:32:32 acohen Exp $
+$Date: 2006-01-26 00:32:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -27,12 +27,8 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
 import junit.framework.TestCase;
 
-public class PrivilegedSubjectTest extends TestCase
+public class PrivilegedSubjectTest extends SignetTestCase
 {
-
-  private Signet		signet;
-  private Fixtures	fixtures;
-  
   public static void main(String[] args)
   {
     junit.textui.TestRunner.run(PrivilegedSubjectTest.class);
@@ -44,17 +40,6 @@ public class PrivilegedSubjectTest extends TestCase
   protected void setUp() throws Exception
   {
     super.setUp();
-    
-    signet = new Signet();
-    signet.beginTransaction();
-    fixtures = new Fixtures(signet);
-    signet.commit();
-    signet.close();
-    
-    // Let's use a new Signet session, to make sure we're actually
-    // pulling data from the database, and not just referring to in-memory
-    // structures.
-    signet = new Signet();
   }
 
   /*
@@ -63,7 +48,6 @@ public class PrivilegedSubjectTest extends TestCase
   protected void tearDown() throws Exception
   {
     super.tearDown();
-    signet.close();
   }
 
   /**
