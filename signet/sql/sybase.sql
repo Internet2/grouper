@@ -59,7 +59,7 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 ;
 create table signet_function
 (
-functionKey         numeric(12,0)       NOT NULL IDENTITY,
+functionKey         numeric(12,0)       IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
 categoryID          varchar(64)         NULL,
@@ -175,7 +175,7 @@ adapterClass        varchar(255)        NOT NULL,
 subsystemID         varchar(64)         NULL,
 modifyDatetime      smalldatetime       NOT NULL,
 primary key (choiceSetKey),
-unique (choiceSetId, subsystemID)
+unique (choiceSetID, subsystemID)
 )
 ;
 create table signet_choice
