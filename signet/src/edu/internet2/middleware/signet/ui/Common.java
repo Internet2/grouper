@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.58 2006-01-26 02:06:28 jvine Exp $
-  $Date: 2006-01-26 02:06:28 $
+  $Id: Common.java,v 1.59 2006-01-26 02:36:03 acohen Exp $
+  $Date: 2006-01-26 02:36:03 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -38,6 +38,7 @@ import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentHistory;
 import edu.internet2.middleware.signet.Decision;
+import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Grantable;
 import edu.internet2.middleware.signet.History;
 import edu.internet2.middleware.signet.Limit;
@@ -2460,6 +2461,28 @@ public class Common
     }
     
     return homePageName.toString();
+  }
+
+  static Function getFunction
+    (Subsystem subsystem,
+     String    functionId)
+  throws ObjectNotFoundException
+  {
+    Iterator functionsIterator = subsystem.getFunctions().iterator();
+    while (functionsIterator.hasNext())
+    {
+      Function candidate = (Function)(functionsIterator.next());
+      if (candidate.getId().equals(functionId))
+      {
+        return candidate;
+      }
+    }
+    
+    throw new ObjectNotFoundException
+      ("Unable to find function with ID '"
+       + functionId
+       + "' in subsystem '"
+       + subsystem + "'");
   }
   
 //  public static Set getExtensibleProxies

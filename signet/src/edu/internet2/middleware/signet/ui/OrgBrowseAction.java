@@ -1,6 +1,6 @@
 /*--
-$Id: OrgBrowseAction.java,v 1.4 2005-09-09 20:49:46 acohen Exp $
-$Date: 2005-09-09 20:49:46 $
+$Id: OrgBrowseAction.java,v 1.5 2006-01-26 02:36:03 acohen Exp $
+$Date: 2006-01-26 02:36:03 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -87,8 +87,7 @@ throws Exception
   {
     return (mapping.findForward("notInitialized"));
   }
-  currentFunction
-  	= currentSubsystem.getFunction(currentFunctionId);
+  currentFunction = Common.getFunction(currentSubsystem, currentFunctionId);
   currentCategory = currentFunction.getCategory();
 
   session.setAttribute("currentFunction", currentFunction);
