@@ -46,17 +46,20 @@ primary key clustered (subsystemID)
 ;
 create table signet_category
 (
+categoryKey         numeric(12,0)       IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 categoryID          varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
 modifyDatetime      smalldatetime       NOT NULL,
-primary key (subsystemID, categoryID),
+primary key (categoryKey),
+unique (subsystemID, categoryID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
 create table signet_function
 (
+functionKey         numeric(12,0)       NOT NULL IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
 categoryID          varchar(64)         NULL,
@@ -64,7 +67,8 @@ status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
 helpText            text                NOT NULL,
 modifyDatetime      smalldatetime       NOT NULL,
-primary key (subsystemID, functionID),
+primary key (functionKey),
+unique (subsystemID, functionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
@@ -102,11 +106,10 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 ;
 create table signet_function_permission
 (
-subsystemID         varchar(64)         NOT NULL,
-functionID          varchar(64)         NOT NULL,
+functionKey         numeric(12,0)       NOT NULL,
 permissionKey       numeric(12,0)       NOT NULL,
-primary key (subsystemID, functionID, permissionKey),
-foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID),
+primary key (functionKey, permissionKey),
+foreign key (functionKey) references signet_function (functionKey),
 foreign key (permissionKey) references signet_permission (permissionKey)
 )
 ;
@@ -195,8 +198,7 @@ create table signet_assignment
 assignmentID        numeric(12,0)       IDENTITY,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
-subsystemID         varchar(64)         NOT NULL,
-functionID          varchar(64)         NOT NULL,
+functionKey         numeric(12,0)       NOT NULL,
 grantorKey          numeric(12,0)       NOT NULL,
 granteeKey          numeric(12,0)       NOT NULL,
 proxyKey            numeric(12,0)       NULL,
@@ -231,8 +233,7 @@ historyID           numeric(12,0)       IDENTITY,
 assignmentID        numeric(12,0)       NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
-subsystemID         varchar(64)         NOT NULL,
-functionID          varchar(64)         NOT NULL,
+functionKey         numeric(12,0)       NOT NULL,
 grantorKey          numeric(12,0)       NOT NULL,
 granteeKey          numeric(12,0)       NOT NULL,
 proxyKey            numeric(12,0)       NULL,
