@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.38 2006-01-19 20:38:56 acohen Exp $
- $Date: 2006-01-19 20:38:56 $
+ $Id: PrivilegedSubjectImpl.java,v 1.39 2006-01-27 06:44:06 acohen Exp $
+ $Date: 2006-01-27 06:44:06 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -492,7 +492,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
         }
       }
     }
-    
+
     return grantableSubsystems;
   }
 

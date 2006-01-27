@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.20 2006-01-26 01:39:29 acohen Exp $
-$Date: 2006-01-26 01:39:29 $
+$Id: PrivilegedSubjectTest.java,v 1.21 2006-01-27 06:44:06 acohen Exp $
+$Date: 2006-01-27 06:44:06 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -27,7 +27,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
 import junit.framework.TestCase;
 
-public class PrivilegedSubjectTest extends SignetTestCase
+public class PrivilegedSubjectTest extends BaseTestCase
 {
   public static void main(String[] args)
   {
@@ -345,6 +345,26 @@ public class PrivilegedSubjectTest extends SignetTestCase
       assertEquals(grantee, proxyReceived.getGrantee());
       assertNull(proxyReceived.getRevoker());
     }
+  }
+  
+  public final void testGetGrantableSubsystemsForProxy()
+  throws
+    ObjectNotFoundException,
+    SignetAuthorityException
+  {
+    Subject sysAdminSubject
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           Common.makeSubjectId(Constants.SYSADMIN_SUBJECT_NUMBER));
+    
+    PrivilegedSubject sysAdminPSubject
+      = signet.getPrivilegedSubject(sysAdminSubject);
+    
+    sysAdminPSubject.setActingAs(signet.getSignetSubject());
+    
+    Set grantableSubsystems = sysAdminPSubject.getGrantableSubsystemsForProxy();
+    
+    assertEquals(1, grantableSubsystems.size());
   }
 
   public final void testGetPrivileges()

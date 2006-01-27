@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
-  $Date: 2006-01-26 02:06:28 $
+  $Id: designate.jsp,v 1.3 2006-01-27 06:44:06 acohen Exp $
+  $Date: 2006-01-27 06:44:06 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -79,7 +79,7 @@
 
   Set grantableSubsystems
     = loggedInPrivilegedSubject.getGrantableSubsystemsForProxy();
-         
+    
   // If the session contains a "currentProxy" attribute, then we're
   // editing an existing Proxy. Otherwise, we're attempting to create a
   // new one.

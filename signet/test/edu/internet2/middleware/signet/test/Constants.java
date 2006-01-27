@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.11 2006-01-18 17:11:59 acohen Exp $
-$Date: 2006-01-18 17:11:59 $
+$Id: Constants.java,v 1.12 2006-01-27 06:44:06 acohen Exp $
+$Date: 2006-01-27 06:44:06 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -28,6 +28,9 @@ public class Constants
 		= "testSubsystemName";
   public static final String SUBSYSTEM_HELPTEXT
 		= "testSubsystemHelptext";
+  
+
+  public static final int SYSADMIN_SUBJECT_NUMBER        = 1001;
   
 
   public static final String TREE_ID		= "testTreeId";

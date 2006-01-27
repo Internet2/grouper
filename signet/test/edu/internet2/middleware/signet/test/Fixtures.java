@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.33 2006-01-26 01:39:29 acohen Exp $
-$Date: 2006-01-26 01:39:29 $
+$Id: Fixtures.java,v 1.34 2006-01-27 06:44:06 acohen Exp $
+$Date: 2006-01-27 06:44:06 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -54,7 +54,6 @@ public class Fixtures
   Tree			tree;
   
   private static final int SUBSYSTEM_OWNER_SUBJECT_NUMBER = 1000;
-  private static final int SYSADMIN_SUBJECT_NUMBER        = 1001;
   
   /**
    * @throws OperationNotSupportedException
@@ -150,7 +149,7 @@ public class Fixtures
   throws SignetAuthorityException, ObjectNotFoundException
   {
     PrivilegedSubject sysAdmin
-      = designateSysAdmin(SYSADMIN_SUBJECT_NUMBER);
+      = designateSysAdmin(Constants.SYSADMIN_SUBJECT_NUMBER);
     
     sysAdmin.setActingAs(signet.getSignetSubject());
     

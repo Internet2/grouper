@@ -1,6 +1,6 @@
 /*--
-$Id: NullTest.java,v 1.2 2006-01-26 00:32:32 acohen Exp $
-$Date: 2006-01-26 00:32:32 $
+$Id: NullTest.java,v 1.3 2006-01-27 06:44:06 acohen Exp $
+$Date: 2006-01-27 06:44:06 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,7 +14,7 @@ package edu.internet2.middleware.signet.test;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class NullTest extends SignetTestCase
+public class NullTest extends BaseTestCase
 {  
   public static void main(String[] args)
   {
