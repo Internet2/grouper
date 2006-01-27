@@ -103,9 +103,9 @@
 		
 		<!-- Delete all the files that we just jarred up. -->
 		
-		<deltree
+		<delete
 			dir="${work_classes.dir}/edu/internet2/middleware/signet/choice"/>
-		<deltree
+		<delete
 			dir="${work_classes.dir}/edu/internet2/middleware/signet/tree"/>
 		
 		<delete>
@@ -127,7 +127,7 @@
 		
 		<!-- Delete all the files we just jarred up. -->
 		
-		<deltree dir="${work_classes.dir}/edu/internet2/middleware/signet/ui"/>
+		<delete dir="${work_classes.dir}/edu/internet2/middleware/signet/ui"/>
 
 		<jar destfile="${work_lib.dir}/${signet_util_jarfile}" >
 			<fileset dir="${work_classes.dir}">
@@ -137,7 +137,7 @@
 		
 		<!-- Delete all the files we just jarred up. -->
 		
-		<deltree dir="${work_classes.dir}/edu/internet2/middleware/signet/util"/>
+		<delete dir="${work_classes.dir}/edu/internet2/middleware/signet/util"/>
 
 	</target>
 	
