@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubject.java,v 1.27 2006-01-19 20:38:56 acohen Exp $
-$Date: 2006-01-19 20:38:56 $
+$Id: PrivilegedSubject.java,v 1.28 2006-01-27 16:49:12 acohen Exp $
+$Date: 2006-01-27 16:49:12 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -334,9 +334,9 @@ public interface PrivilegedSubject extends Comparable
    * <code>Status</code> of those <code>Assignment</code>s and
    * <code>Proxy</code>s.
    * <p />
-   * Please note that this method, like every other method that modifies
-   * a Signet object, will not have its changes persisted until the
-   * <code>save()</code> method is called on each of the modified Grantable
+   * Please note that this method, unlike most other methods that modify
+   * Signet objects, will have its changes persisted without having to call the
+   * <code>save()</code> method on each of the modified Grantable
    * entities. 
    * 
    * @return a <code>Set</code> of all Grantable entities whose
@@ -351,10 +351,10 @@ public interface PrivilegedSubject extends Comparable
    * <code>Status</code> of those <code>Assignment</code>s and
    * <code>Proxy</code>s.
    * <p />
-   * Please note that this method, like every other method that modifies
-   * a Signet object, will not have its changes persisted until the
-   * <code>save</code> method is called on each of the modified Grantable
-   * entities. 
+   * Please note that this method, unlike most other methods that modify
+   * Signet objects, will  have its changes persisted without having to call the
+   * <code>save()</code> method on each of the modified Grantable
+   * entities. s
    * 
    * @param date the <code>Date</code> value to use as the current date and time
    * when evaluating effectiveDate and expirationDate.

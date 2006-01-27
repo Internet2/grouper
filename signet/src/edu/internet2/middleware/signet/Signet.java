@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.54 2006-01-26 00:32:32 acohen Exp $
-$Date: 2006-01-26 00:32:32 $
+$Id: Signet.java,v 1.55 2006-01-27 16:49:12 acohen Exp $
+$Date: 2006-01-27 16:49:12 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -2281,9 +2281,9 @@ public final class Signet
    * entities (including effectiveDate and expirationDate) to update the
    * <code>Status</code> of those entities.
    * <p />
-   * Please note that this method, like every other method that modifies
-   * a Signet object, will not have its changes persisted until the
-   * <code>save()</code> method is called on each of the modified Grantable
+   * Please note that this method, unlike most other methods that modify
+   * Signet objects, will  have its changes persisted without having to call the
+   * <code>save()</code> method on each of the modified Grantable
    * entities. 
    * 
    * @return a <code>Set</code> of all Grantable entities whose
@@ -2300,9 +2300,9 @@ public final class Signet
    * entities (including effectiveDate and expirationDate) to update the
    * <code>Status</code> of those entities.
    * <p />
-   * Please note that this method, like every other method that modifies
-   * a Signet object, will not have its changes persisted until the
-   * <code>save()</code> method is called on each of the modified Grantable
+   * Please note that this method, unlike most other methods that modify
+   * Signet objects, will  have its changes persisted without having to call the
+   * <code>save()</code> method on each of the modified Grantable
    * entities. 
    * 
    * @param date the <code>Date</code> value to use as the current date and time
@@ -2383,6 +2383,7 @@ public final class Signet
       Grantable grantable = (Grantable)(grantablesIterator.next());
       if (grantable.evaluate(date))
       {
+        grantable.save();
         changedGrantables.add(grantable);
       }
     }    
