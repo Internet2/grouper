@@ -30,7 +30,7 @@
 		<property name="name" type="string" not-null="true"/>
 		
 		<set name="functions" inverse="true" cascade="none">
-			<key column="categoryID"/>
+			<key column="categoryKey"/>
 			<one-to-many class="edu.internet2.middleware.signet.FunctionImpl"/>
 		</set>
 

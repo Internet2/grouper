@@ -59,7 +59,7 @@ create table signet_function
 functionKey         int                 NOT NULL IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
-categoryID          varchar(64)         NULL,
+categoryKey         int                 NULL,
 status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
 helpText            varchar(2000)       NOT NULL,
