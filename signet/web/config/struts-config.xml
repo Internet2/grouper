@@ -199,7 +199,7 @@
       <!-- Signet page for display of raw Privileges XML
        -->
       <action    path="/PrivilegesXML"
-                 type="edu.internet2.middleware.signet.ui.PrivilegesXMLAction">
+                 type="edu.internet2.middleware.signet.ui.PermissionsXMLAction">
           <forward name="notInitialized" path="/Start.do" />
           <forward name="failure" path="/jsp/error.jsp" />
           <forward name="success" path="/privilegesXML" />

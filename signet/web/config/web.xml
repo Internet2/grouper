@@ -13,7 +13,7 @@
 	<!--  PrivilegesXML Servlet Configuration -->
 	<servlet>
 		<servlet-name>privilegesXMLServlet</servlet-name>
-		<servlet-class>edu.internet2.middleware.signet.ui.PrivilegesXMLServlet</servlet-class>
+		<servlet-class>edu.internet2.middleware.signet.ui.PermissionsXMLServlet</servlet-class>
 
 		<init-param>
 			<param-name>config</param-name>

@@ -1,6 +1,6 @@
 /*--
-  $Id: PrivilegesXMLAction.java,v 1.2 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: PermissionsXMLAction.java,v 1.1 2006-01-27 17:07:50 acohen Exp $
+  $Date: 2006-01-27 17:07:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -37,7 +37,7 @@ import edu.internet2.middleware.signet.Signet;
  * </p>
  *
  */
-public final class PrivilegesXMLAction extends BaseAction
+public final class PermissionsXMLAction extends BaseAction
 {
   // ---------------------------------------------------- Public Methods
   // See superclass for Javadoc

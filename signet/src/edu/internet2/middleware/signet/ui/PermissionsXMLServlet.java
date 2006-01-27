@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegesXMLServlet.java,v 1.2 2005-10-06 15:20:00 acohen Exp $
-$Date: 2005-10-06 15:20:00 $
+$Id: PermissionsXMLServlet.java,v 1.1 2006-01-27 17:07:50 acohen Exp $
+$Date: 2006-01-27 17:07:50 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -18,7 +18,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.signet.PrivilegedSubject;
-import edu.internet2.middleware.signet.PrivilegesXML;
+import edu.internet2.middleware.signet.PermissionsXML;
 import edu.internet2.middleware.signet.Signet;
 
 /**
@@ -27,7 +27,7 @@ import edu.internet2.middleware.signet.Signet;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class PrivilegesXMLServlet implements Servlet {
+public class PermissionsXMLServlet implements Servlet {
 
   /* (non-Javadoc)
    * @see javax.servlet.Servlet#init(javax.servlet.ServletConfig)
@@ -64,13 +64,13 @@ public class PrivilegesXMLServlet implements Servlet {
               .getAttribute
                 (Constants.CURRENTPSUBJECT_ATTRNAME));
         
-    PrivilegesXML privilegesXML;
+    PermissionsXML permissionsXML;
     
     try
     {
-      privilegesXML = new PrivilegesXML();
+      permissionsXML = new PermissionsXML();
       response.setContentType("text/xml");
-      privilegesXML.generateXML
+      permissionsXML.generateXML
         (currentGranteePrivilegedSubject, response.getOutputStream());
     }
     catch (Exception e)
