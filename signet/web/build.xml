@@ -2,9 +2,8 @@
 <project
 	name="Signet Web Application"
 	default="build" basedir=".">
-
-	<property name="dist.dir"       value="../dist" />
-	<property name="dist_webapp.dir"  value="${dist.dir}/webapp" />
+	
+	<property name="dist_webapp.dir"  value="${toplevel.dir}/webapp" />
 
 	<property name="webapp.name"    value="signet" />
 	
