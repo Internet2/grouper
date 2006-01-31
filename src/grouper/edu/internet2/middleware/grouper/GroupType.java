@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.7 2006-01-25 22:27:09 blair Exp $
+ * @version $Id: GroupType.java,v 1.8 2006-01-31 20:44:05 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -186,7 +186,7 @@ public class GroupType implements Serializable {
       LOG.error(msg);
       throw new SchemaException(msg);
     }
-    if ( (this.getName().equals("base")) || (this.getName().equals("naming")) ) {
+    if (GroupType.isSystemType(this)) {
       String msg = "cannot add fields to system group types";
       LOG.error(msg);
       throw new SchemaException(msg);
@@ -273,6 +273,13 @@ public class GroupType implements Serializable {
     hs.close();
   } // protected void initializeGroupType()
 
+  protected static boolean isSystemType(GroupType type) {
+    String name = type.getName();
+    if ( (name.equals("base")) || (name.equals("naming")) ) {
+      return true;
+    }
+    return false;
+  } // protected static boolean isSystemType(type)
 
   // Hibernate Accessors
 
