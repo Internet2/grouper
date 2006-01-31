@@ -21,23 +21,41 @@
   <property name="signet_version" value="0.6"/>
 	
   <!-- Here are the places where things will come from: -->
-  <property name="lib.dir" value="lib"/>
-  <property name="scripts.dir" value="scripts"/>
-  <property name="config.dir" value="config"/>
-  <property name="data.dir" value="data"/>
+  <property name="lib.dir"     location="lib"/>
+  <property name="scripts.dir" location="scripts"/>
+  <property name="config.dir"  location="config"/>
+  <property name="data.dir"    location="data"/>
 	
-  <property name="hsqldb_zipfile" value="hsqldb_${hsqldb_version}.zip"/>
-  <property name="tomcat_zipfile" value="jakarta-tomcat-${tomcat_version}.zip"/>
-  <property name="signet_zipfile" value="signet-${signet_version}-bin.zip"/>
+  <property name="hsqldb_zipfile"    value="hsqldb_${hsqldb_version}.zip"/>
+  <property name="tomcat_zipfile"    value="jakarta-tomcat-${tomcat_version}.zip"/>
+  <property name="signet_zipfile"    value="signet-${signet_version}-bin.zip"/>
+  <property name="signet.dir"        location="signet-${signet_version}"/>
+  <property name="signet_config.dir" location="${signet.dir}/config"/>
+	
+  <!-- We'll need a temporary workspace to build intermediate files in -->
+  <property name="work.dir"               location="work"/>
+  <property name="work_signet.dir"        location="${work.dir}/signet-${signet_version}"/>
+  <property name="work_signet_config.dir" location="${work_signet.dir}/config"/>
+  <property name="work_signet_doc.dir"    location="${work_signet.dir}/doc"/>
+  <property name="work_signet_lib.dir"    location="${work_signet.dir}/lib"/>
+  <property name="work_signet_sql.dir"    location="${work_signet.dir}/sql"/>
+  <property name="work_signet_util.dir"   location="${work_signet.dir}/util"/>
 
   <!-- Here are the places where things will go: -->
-  <property name="dist.dir"              value="dist"/>
-  <property name="dist_demo.dir"         value="${dist.dir}/demo"/>
-  <property name="dist_demo_config.dir"  value="${dist_demo.dir}/config"/>
-  <property name="dist_demo_data.dir"    value="${dist_demo.dir}/hsqldb/lib"/>
-  <property name="dist_demo_signet.dir"  value="${dist_demo.dir}/signet"/>
-  <property name="dist_demo_tomcat.dir"  value="${dist_demo.dir}/jakarta-tomcat-${tomcat_version}"/>
-  <property name="dist_demo_webapps.dir" value="${dist_demo_tomcat.dir}/webapps"/>
+  <property name="dist.dir"              location="dist"/>
+  <property name="toplevel.dir"          location="${dist.dir}/signet-${signet_version}"/>
+  <property name="dist_demo.dir"         location="${toplevel.dir}/demo"/>
+  <property name="dist_demo_config.dir"  location="${dist_demo.dir}/config"/>
+  <property name="dist_demo_data.dir"    location="${dist_demo.dir}/hsqldb/lib"/>
+  <property name="dist_config.dir"       location="${toplevel.dir}/config"/>
+  <property name="dist_doc.dir"          location="${toplevel.dir}/doc"/>
+  <property name="dist_lib.dir"          location="${toplevel.dir}/lib"/>
+  <property name="dist_sql.dir"          location="${toplevel.dir}/sql"/>
+  <property name="dist_util.dir"         location="${toplevel.dir}/util"/>
+	
+  <property name="dist_demo_signet.dir"  location="${dist_demo.dir}/signet-${signet_version}"/>
+  <property name="dist_demo_tomcat.dir"  location="${dist_demo.dir}/jakarta-tomcat-${tomcat_version}"/>
+  <property name="dist_demo_webapps.dir" location="${dist_demo_tomcat.dir}/webapps"/>
 	
   <property name="zipfile" value="signet-demo-${signet_version}-bin.zip"/>
   <property name="tarfile" value="signet-demo-${signet_version}-bin.tar"/>
@@ -77,7 +95,12 @@
   </target>
 	
   <target name="signet">
-    <unzip src="${lib.dir}/${signet_zipfile}" dest="${dist_demo_signet.dir}"/>
+    <unzip src="${lib.dir}/${signet_zipfile}" dest="${work.dir}"/>
+  	<move file="${work_signet_config.dir}" tofile="${dist_config.dir}"/>
+  	<move file="${work_signet_doc.dir}"    tofile="${dist_doc.dir}"/>
+  	<move file="${work_signet_lib.dir}"    tofile="${dist_lib.dir}"/>
+  	<move file="${work_signet_sql.dir}"    tofile="${dist_sql.dir}"/>
+  	<move file="${work_signet_util.dir}"   tofile="${dist_util.dir}"/>  	
   </target>
 	
   <target name="scripts">
@@ -91,7 +114,7 @@
     <copy file="${config.dir}/sqltool.rc" todir="${dist_demo_config.dir}"/>
   	
     <move todir="${dist_demo_webapps.dir}/signet">
-      <fileset dir="${dist_demo_signet.dir}/webapp/signet">
+      <fileset dir="${work_signet.dir}/webapp/signet">
         <include name="**/*"/>
       </fileset>
     </move>
@@ -133,7 +156,7 @@
       </fileset>
     </zip>
   	
-    <tar destfile="${tarfile}">
+    <tar destfile="${tarfile}" longfile="gnu">
       <tarfileset dir="${dist.dir}" mode="755">
         <include name="**/*" />
       </tarfileset>
