@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.130 2006-01-25 22:27:09 blair Exp $
+$Id: API,v 1.131 2006-01-31 20:44:05 blair Exp $
 
 ---
 
@@ -72,9 +72,11 @@ $Id: API,v 1.130 2006-01-25 22:27:09 blair Exp $
 ## ComplementFilter extends BaseQueryFilter
 
 ## Field
-* FieldType           getType()
+* GroupType           getGroupType()
 * String              getName()
 * Privilege           getReadPriv()
+* boolean             getRequired()
+* FieldType           getType()
 * Privilege           getWritePriv()
 
 ## FieldFinder
@@ -86,10 +88,12 @@ $Id: API,v 1.130 2006-01-25 22:27:09 blair Exp $
 * Field               Group.getDefaultList()
 * void                addMember(subject)
 * void                addMember(subject, field)
+* void                addType(type)
 * void                delete()
 * void                deleteAttribute(attr)
 * void                deleteMember(subject)
 * void                deleteMember(subject, field)
+* void                deleteType(type)
 * Set                 getAdmins()
 * String              getAttribute(attr)
 * Map                 getAttributes()
@@ -136,6 +140,7 @@ $Id: API,v 1.130 2006-01-25 22:27:09 blair Exp $
 * boolean             hasMember(subject)
 * boolean             hasMember(subject, field)
 * boolean             hasRead(subject)
+* boolean             hasType(type)
 * boolean             hasUpdate(subject)
 * boolean             hasView(subject)
 * void                revokePriv(access priv)

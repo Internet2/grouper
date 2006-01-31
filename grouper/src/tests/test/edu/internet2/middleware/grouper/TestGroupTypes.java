@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.2 2006-01-25 22:27:10 blair Exp $
+ * @version $Id: TestGroupTypes.java,v 1.3 2006-01-31 20:44:05 blair Exp $
  */
 public class TestGroupTypes extends TestCase {
 
@@ -486,6 +486,226 @@ public class TestGroupTypes extends TestCase {
       SessionHelper.stop(s);
     }
   } // public void testFindCustomField()
+
+  public void testUseCustomList() {
+    GrouperSession  s     = null;
+    String          type  = "customType.TUCL";
+    String          name  = "customField.TUCL";
+    FieldType       ft    = FieldType.LIST; 
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    boolean         req   = false;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      custom.addField(s, name, ft, read, write, req);
+      Assert.assertTrue("added LIST field", true);
+      try {
+        Field f     = FieldFinder.find(name);
+        Stem  root  = StemFinder.findRootStem(s);
+        Stem  edu   = root.addChildStem("edu", "edu");
+        Group g     = edu.addChildGroup("g", "g");
+
+        Assert.assertTrue("no custom type", !g.hasType(custom));
+
+        g.addType(custom);
+        Assert.assertTrue("custom type", g.hasType(custom));
+
+        g.addMember(SubjectHelper.SUBJ0, f);
+        Assert.assertTrue("has member", g.hasMember(SubjectHelper.SUBJ0, f));
+
+        g.deleteMember(SubjectHelper.SUBJ0, f);
+
+        g.deleteType(custom);
+        Assert.assertTrue("custom type removed", !g.hasType(custom));
+
+        try {
+          g.addMember(SubjectHelper.SUBJ0, f);
+          Assert.fail("added field without type");
+        }
+        catch (Exception e) {
+          Assert.assertTrue("could not add field without type", true);
+        }
+      }
+      catch (Exception e) {
+        Assert.fail(e.getMessage());
+      }
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail("unexpected exception: " + eIP.getMessage());
+    }
+    catch (SchemaException eS) {
+      Assert.fail("unexpected exception: " + eS.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testUseCustomList()
+
+  public void testUseCustomAttribute() {
+    GrouperSession  s     = null;
+    String          type  = "customType.TUCA";
+    String          name  = "customField.TUCA";
+    FieldType       ft    = FieldType.ATTRIBUTE; 
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    boolean         req   = false;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      custom.addField(s, name, ft, read, write, req);
+      Assert.assertTrue("added ATTRIBUTE field", true);
+      try {
+        Field f     = FieldFinder.find(name);
+        Stem  root  = StemFinder.findRootStem(s);
+        Stem  edu   = root.addChildStem("edu", "edu");
+        Group g     = edu.addChildGroup("g", "g");
+
+        Assert.assertTrue("no custom type", !g.hasType(custom));
+
+        g.addType(custom);
+        Assert.assertTrue("custom type", g.hasType(custom));
+
+        g.setAttribute(name, name);
+        Assert.assertTrue(
+          "has attribute", 
+          g.getAttribute(name).equals(name)
+        );
+
+        g.deleteAttribute(name);
+
+        g.deleteType(custom);
+        Assert.assertTrue("custom type removed", !g.hasType(custom));
+
+        try {
+          g.setAttribute(name, name);
+          Assert.fail("added field without type");
+        }
+        catch (Exception e) {
+          Assert.assertTrue("could not add field without type", true);
+        }
+      }
+      catch (Exception e) {
+        Assert.fail(e.getMessage());
+      }
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail("unexpected exception: " + eIP.getMessage());
+    }
+    catch (SchemaException eS) {
+      Assert.fail("unexpected exception: " + eS.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testUseCustomAttribute()
+
+  public void testUseCustomAttributeRequired() {
+    GrouperSession  s     = null;
+    String          type  = "customType.TUCAR";
+    String          name  = "customField.TUCAR";
+    FieldType       ft    = FieldType.ATTRIBUTE; 
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    boolean         req   = true;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      custom.addField(s, name, ft, read, write, req);
+      Assert.assertTrue("added ATTRIBUTE field", true);
+      try {
+        Field f     = FieldFinder.find(name);
+        Stem  root  = StemFinder.findRootStem(s);
+        Stem  edu   = root.addChildStem("edu", "edu");
+        Group g     = edu.addChildGroup("g", "g");
+
+        Assert.assertTrue("no custom type", !g.hasType(custom));
+
+        g.addType(custom);
+        Assert.assertTrue("custom type", g.hasType(custom));
+
+        g.setAttribute(name, name);
+        Assert.assertTrue(
+          "has attribute", 
+          g.getAttribute(name).equals(name)
+        );
+
+        try {
+          g.deleteAttribute(name);
+          Assert.fail("deleted required attribute");
+        }
+        catch (Exception e) {
+          Assert.assertTrue("cannot delete required attribute", true);
+        }
+
+      }
+      catch (Exception e) {
+        Assert.fail(e.getMessage());
+      }
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail("unexpected exception: " + eIP.getMessage());
+    }
+    catch (SchemaException eS) {
+      Assert.fail("unexpected exception: " + eS.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testUseCustomAttributeRequired()
+
+  public void testGetAttributeReturnTypes() {
+    GrouperSession s = null;
+    try {
+      s = SessionHelper.getRootSession();
+      String    type    = "customType.TGART";
+      GroupType custom  = GroupType.createType(s, type);
+      String    name    = "customField.TGART";
+      FieldType ft      = FieldType.ATTRIBUTE; 
+      Privilege read    = AccessPrivilege.VIEW;
+      Privilege write   = AccessPrivilege.UPDATE;
+      boolean   req     = false;
+      custom.addField(s, name, ft, read, write, req);
+      Field     f       = FieldFinder.find(name);
+
+      Stem      root    = StemFinder.findRootStem(s);
+      Stem      edu     = root.addChildStem("edu", "edu");
+      Group     g       = edu.addChildGroup("g", "g");
+
+      try {
+        Assert.assertTrue(
+          "name", g.getAttribute("name").equals("edu:g")
+        );
+      }
+      catch (Exception e) {
+        Assert.fail("unexpected exception (name): " + e.getMessage());
+      }
+
+      try {
+        Assert.assertTrue(
+          "description", g.getAttribute("description").equals( new String() )
+        );
+      }
+      catch (Exception e) {
+        Assert.fail("unexpected exception (desc): " + e.getMessage());
+      }
+
+      try {
+        String fail = g.getAttribute(f.getName());
+        Assert.fail("retrieved schema-violating attribute");
+      }
+      catch (Exception e) {
+        Assert.assertTrue("failed to retrieve schema-violating attribute", true);
+      }
+
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testGetAttributeReturnTypes() 
 
 }
 

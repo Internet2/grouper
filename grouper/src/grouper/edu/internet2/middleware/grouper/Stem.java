@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.44 2005-12-17 18:17:53 blair Exp $
+ * @version $Id: Stem.java,v 1.45 2006-01-31 20:44:05 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -175,8 +175,6 @@ public class Stem implements Serializable {
       Set children  = this.getChild_groups();
       children.add(child);
       this.setChild_groups(children);
-      // Attach group type
-      child.addType( GroupTypeFinder.find("base") );
       // And save
       Set objects = new LinkedHashSet();
       objects.add(child);

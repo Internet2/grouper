@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group attribute or list.
  * <p />
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.6 2005-12-09 07:35:38 blair Exp $    
+ * @version $Id: Field.java,v 1.7 2006-01-31 20:44:05 blair Exp $    
  */
 public class Field implements Serializable {
 
@@ -73,6 +73,10 @@ public class Field implements Serializable {
            .isEquals();
   } // public boolean equals(other)
 
+  public GroupType getGroupType() {
+    return this.getGroup_type();
+  } // public GroupType getGroupType()
+
   public FieldType getType() {
     return this.getField_type();
   } // public FieldType getType()
@@ -84,6 +88,13 @@ public class Field implements Serializable {
   public Privilege getReadPriv() {
     return this.getRead_priv();
   } // public Privilege getReadPriv()
+
+  public boolean getRequired() {
+    if (this.getNullable() == true) {
+      return false;
+    }
+    return true;
+  } // public boolean isRequired()
 
   public Privilege getWritePriv() {
     return this.getWrite_priv();

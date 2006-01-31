@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.4 2006-01-25 22:27:09 blair Exp $
+ * @version $Id: EventLog.java,v 1.5 2006-01-31 20:44:05 blair Exp $
  *     
 */
 class EventLog implements Serializable {
@@ -46,10 +46,12 @@ class EventLog implements Serializable {
   // event log messages
   private static final String G_AM        = "add member: group=";
   private static final String G_AM_E      = "add effective member: group=";
+  private static final String G_AT        = "add type: group=";
   private static final String G_D         = "group delete: ";
   private static final String G_DA        = "delete group attr: group=";
   private static final String G_DM        = "delete member: group=";
   private static final String G_DM_E      = "delete effective member: group=";
+  private static final String G_DT        = "delete type: group=";
   private static final String G_GP        = "grant access priv: group=";
   private static final String G_GP_E      = "grant effective access priv: group=";
   private static final String G_RP        = "revoke access priv: group=";
@@ -141,6 +143,13 @@ class EventLog implements Serializable {
     this._member(s, G_AM, group, subj, f, sw);
   } // protected void groupAddMember(s, group, subj, f, sw)
 
+  protected void groupAddType(
+    GrouperSession s, String group, GroupType type, StopWatch sw
+  ) 
+  {
+    GrouperLog.info(LOG, s.toString(), G_AT + group + " " + type, sw);
+  }
+
   protected void groupDelAttr(
     GrouperSession s, String group, String attr, String val, StopWatch sw
   )
@@ -158,6 +167,13 @@ class EventLog implements Serializable {
   {
     this._member(s, G_DM, group, subj, f, sw);
   } // protected void groupDelMember(s, group, subj, f, sw)
+
+  protected void groupDelType(
+    GrouperSession s, String group, GroupType type, StopWatch sw
+  ) 
+  {
+    GrouperLog.info(LOG, s.toString(), G_DT + group + " " + type, sw);
+  }
 
   protected void groupGrantPriv(
     GrouperSession s, String group, Subject subj, Privilege p, StopWatch sw

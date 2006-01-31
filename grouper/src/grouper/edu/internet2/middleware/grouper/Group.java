@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.51 2006-01-09 16:42:00 blair Exp $
+ * @version $Id: Group.java,v 1.52 2006-01-31 20:44:05 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -102,6 +102,10 @@ public class Group implements Serializable {
     throws SchemaException
   {
     this.s = s;
+    // Attach group type
+    Set types = this.getGroup_types();
+    types.add( GroupTypeFinder.find("base") );
+    this.setGroup_types(types);
     // Set create information
     this._setCreated();
     // Assign UUID
@@ -234,6 +238,52 @@ public class Group implements Serializable {
   } // protected void stemAddChildGroup(s, name, sw)
 
   /**
+   * Add an additional group type.
+   * <pre class="eg">
+   * try {
+   *   GroupType custom = GroupTypeFinder.find("custom type");
+   *   g.addType(custom);
+   * }
+   * catch (GroupModifyException eGM) {
+   *   // Unable to add type 
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add type
+   * }
+   * </pre>
+   * @param   type  The {@link GroupType} to add.
+   * @throws  GroupModifyException if unable to add type.
+   * @throws  InsufficientPrivilegeException if subject not root-like.
+   */
+  public void addType(GroupType type) 
+    throws  GroupModifyException,
+            InsufficientPrivilegeException
+  {
+    if (this.hasType(type)) {
+      throw new GroupModifyException("group already has type: " + type);
+    }
+    if (!PrivilegeResolver.getInstance().isRoot(this.s.getSubject())) {
+      throw new InsufficientPrivilegeException("subject cannot add types");
+    }
+    try {
+      StopWatch sw    = new StopWatch();
+      Session   hs    = HibernateHelper.getSession();
+      Set       types = this.getGroup_types();
+      types.add(type);
+      this.setGroup_types(types);
+      HibernateHelper.save(this);
+      hs.close();
+      sw.stop();
+      EL.groupAddType(this.s, this.getName(), type, sw);
+    }
+    catch (Exception e) {
+      String msg = "unable to add type: " + type + ": " + e.getMessage();
+      LOG.error(msg);
+      throw new GroupModifyException(msg); 
+    }
+  } // public void addType(type)
+
+  /**
    * Delete this group from the Groups Registry.
    * <pre class="eg">
    * try {
@@ -346,19 +396,11 @@ public class Group implements Serializable {
       GrouperLog.debug(LOG, this.s, msg + "no attr");
       throw new GroupModifyException(msg + "no attr");
     }
-    // TODO Yuck
-    if (
-      attr.equals("displayExtension")
-      || attr.equals("displayName")
-      || attr.equals("extension")
-      || attr.equals("name")
-    )
-    {
-      GrouperLog.debug(LOG, this.s, msg + "cannot delete '" + attr + "'");
-      throw new GroupModifyException(msg + "cannot delete '" + attr + "'");
-    }
     try {
       Field f = FieldFinder.find(attr);
+      if (f.getRequired()) {
+        throw new GroupModifyException("cannot delete require attribute: " + attr);
+      }
       PrivilegeResolver.getInstance().canPrivDispatch(
         this.s, this, this.s.getSubject(), f.getWritePriv()
       );
@@ -493,6 +535,60 @@ public class Group implements Serializable {
     EL.groupDelMember(this.s, this.getName(), subj, f, sw);
   } // public void deleteMember(subj, f)
 
+  /**
+   * Delete a group type.
+   * <pre class="eg">
+   * try {
+   *   GroupType custom = GroupTypeFinder.find("custom type");
+   *   g.deleteType(custom);
+   * }
+   * catch (GroupModifyException eGM) {
+   *   // Unable to delete type 
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add type
+   * }
+   * catch (SchemaException eS) {
+   *   // Cannot delete system-maintained types
+   * }
+   * </pre>
+   * @param   type  The {@link GroupType} to add.
+   * @throws  GroupModifyException if unable to delete type.
+   * @throws  InsufficientPrivilegeException if subject not root-like.
+   * @throws  SchemaException if attempting to delete a system group type.
+   */
+  public void deleteType(GroupType type) 
+    throws  GroupModifyException,
+            InsufficientPrivilegeException,
+            SchemaException
+  {
+    if (!this.hasType(type)) {
+      throw new SchemaException("group does not have type: " + type);
+    }
+    if (!PrivilegeResolver.getInstance().isRoot(this.s.getSubject())) {
+      throw new InsufficientPrivilegeException("subject cannot add types");
+    }
+    if (GroupType.isSystemType(type)) {
+      throw new SchemaException("cannot delete system group types");
+    }
+    try {
+      StopWatch sw    = new StopWatch();
+      Session   hs    = HibernateHelper.getSession();
+      Set       types = this.getGroup_types();
+      types.remove(type);
+      this.setGroup_types(types);
+      HibernateHelper.save(this);
+      hs.close();
+      sw.stop();
+      EL.groupDelType(this.s, this.getName(), type, sw);
+    }
+    catch (Exception e) {
+      String msg = "unable to delete type: " + type + ": " + e.getMessage();
+      LOG.error(msg);
+      throw new GroupModifyException(msg); 
+    }
+  } // public void deleteType(type)
+
   public boolean equals(Object other) {
     if (this == other) {
       return true;
@@ -545,19 +641,36 @@ public class Group implements Serializable {
   public String getAttribute(String attr) 
     throws  AttributeNotFoundException
   {
-    String val = null;
+    String val = new String();
     try {
-      Attribute a = (Attribute) this._getAttributes().get(attr);
-      PrivilegeResolver.getInstance().canPrivDispatch(
-        this.s, this, this.s.getSubject(), a.getField().getReadPriv()
-      );
-      val = a.getValue();
+      Field f = FieldFinder.find(attr);
+      if (!f.getType().equals(FieldType.ATTRIBUTE)) {
+        String err = "not an attribute: " + attr;
+        throw new SchemaException(err);
+      }
+      if (!this.hasType( f.getGroupType() ) ) {
+        String err = "does not have group type: " + f.getGroupType().toString();
+        throw new SchemaException(err);
+      }
     }
-    catch (Exception e) {
+    catch (SchemaException eS) {
+      throw new AttributeNotFoundException(eS.getMessage());
+    }
+    try {
+      Map attrs = this._getAttributes();
+      if (attrs.containsKey(attr)) {
+        Attribute a = (Attribute) attrs.get(attr);
+        PrivilegeResolver.getInstance().canPrivDispatch(
+          this.s, this, this.s.getSubject(), a.getField().getReadPriv()
+        );
+        val = a.getValue();
+      }
+    }
+    catch (InsufficientPrivilegeException eIP) {
       // Ignore
     }
-    if (val == null) {
-      throw new AttributeNotFoundException(ERR_GA + attr);  
+    catch (SchemaException eS) {
+      // Ignore
     }
     return val;
   } // public String getAttribute(attr)
@@ -1459,6 +1572,25 @@ public class Group implements Serializable {
   } // public boolean hasRead(subj)
 
   /**
+   * Check whether group has the specified type.
+   * <pre class="eg">
+   * GroupType custom = GroupTypeFinder.find("custom type");
+   * if (g.hasType(custom)) {
+   *   // Group has type
+   * }
+   * </pre>
+   * @param   type  The {@link GroupType} to check.
+   */
+  public boolean hasType(GroupType type) {
+    // if (this.getGroup_types().contains(type)) {
+    Set types = this.getGroup_types();
+    if (types.contains(type)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Check whether the subject has UPDATE on this group.
    * <pre class="eg">
    * if (g.hasUpdate(subj)) {
@@ -1599,12 +1731,10 @@ public class Group implements Serializable {
     }
     try {
       Field f = FieldFinder.find(attr);
-      if (!f.getType().equals(FieldType.ATTRIBUTE)) {
-        throw new AttributeNotFoundException("not a group attribute");
-      }
-      PrivilegeResolver.getInstance().canPrivDispatch(
-        this.s, this, this.s.getSubject(), f.getWritePriv()
+      PrivilegeResolver.getInstance().canWriteField(
+        this.s, this, this.s.getSubject(), f, FieldType.ATTRIBUTE
       );
+      GrouperLog.debug(LOG, s, msg + " can write attr");
       Set       attrs = new LinkedHashSet();
       boolean   found = false;
       Iterator  iter  = this.getGroup_attributes().iterator();
@@ -1627,22 +1757,16 @@ public class Group implements Serializable {
       this.setGroup_attributes( this._updateSystemAttrs(f, value, attrs) );
       this.setModified();
       HibernateHelper.save(this);
-      GrouperLog.debug(LOG, this.s, "saved " + attrs.size() + " attributes");
-    }
-    catch (HibernateException eH) {
-      GrouperLog.debug(LOG, this.s, msg + eH.getMessage());
-      throw new AttributeNotFoundException(msg + eH.getMessage());
-    }
-    catch (IllegalArgumentException eIA) {
-      GrouperLog.debug(LOG, this.s, eIA.getMessage());
-      throw new GroupModifyException(eIA.getMessage());
+      sw.stop();
+      EL.groupSetAttr(this.s, this.getName(), attr, value, sw);
     }
     catch (SchemaException eS) {
       GrouperLog.debug(LOG, this.s, msg + eS.getMessage());
       throw new AttributeNotFoundException(msg + eS.getMessage());
     }
-    sw.stop();
-    EL.groupSetAttr(this.s, this.getName(), attr, value, sw);
+    catch (Exception e) {
+      throw new GroupModifyException(e.getMessage());
+    }
   } // public void setAttribute(attr, value)
 
   /**
@@ -1836,10 +1960,6 @@ public class Group implements Serializable {
 
 
   // Protected Instance Methods
-  protected void addType(GroupType type) {
-    this.getGroup_types().add(type);
-  } // protected void addType(type)
-
   protected void setModified() {
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
