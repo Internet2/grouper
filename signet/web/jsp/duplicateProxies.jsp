@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateProxies.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: duplicateProxies.jsp,v 1.2 2006-02-01 23:47:31 jvine Exp $
+  $Date: 2006-02-01 23:47:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -98,7 +98,10 @@
   <div id="Layout"> 
     <div id="Content">
       <div id="ViewHead">
-		<span class="dropback">Designating a granting proxy for</span>           	
+		   <span class="dropback">
+            <%=currentProxy==null?"Designating":"Editing"%>
+			proxy or subsystem owner
+          </span>            	
         <h1>
           <%=currentGranteePrivilegedSubject.getName()%>
        	</h1>
@@ -106,7 +109,7 @@
       </div>  <!-- ViewHead -->
 			
 <div class="alert">
-<p><img src="images/caution.gif" align="left" />Your new proxy designation is very similar to the others shown below. Review these designations, then: </p>
+<p><img src="images/caution.gif" align="left" />This proxy designation is very similar to the others shown below. Review these designations, then: </p>
 
 <ul>
 	<li>check, under &quot;Replace&quot;, any proxy designations to be replaced by your new designation (equivalent to revoking and reassigning authority), and </li>
@@ -118,7 +121,7 @@
 </div>
 
 <div class="section">
-<h2>Review your new proxy designation<span class="status"> (not yet complete)</span></h2>
+<h2>Review your current proxy designation<span class="status"> (not yet complete)</span></h2>
 	<table class="full" style="margin-left: 75px;">
 	<tr>
 		<th>Subsystem</th>
@@ -142,7 +145,7 @@
   id="dupForm">
   
   <div class="section">
-    <h2>check any Existing proxy designation(s) you want to replace</h2>
+    <h2>Check any existing proxy designation(s) you want to replace</h2>
     <table class="full">
       <tr>
         <th width="50" align="center"> Replace</th>

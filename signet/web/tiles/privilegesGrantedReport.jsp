@@ -66,12 +66,14 @@
       <%=privDisplayType.getDescription()%>
 	</H2>
 	<FORM class="inlinecontrol"
-      name="personSearchForm"
+      id="personViewForm"
+      name="personViewForm"
       method="post"
       action="PersonView.do">
         <SELECT
-          name="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>"
-          id="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>">
+          name="privDisplayType"
+          id="privDisplayType"
+		  onChange="setShowButtonStatus()">
 		  <OPTION value="" selected>change the view to show...</OPTION>
           <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, null)%>
           <%=Common.displayOption(PrivDisplayType.FORMER_RECEIVED, null)%>
@@ -79,9 +81,11 @@
           <%=Common.displayOption(PrivDisplayType.FORMER_GRANTED, null)%>
         </SELECT>
         <INPUT
-          name="Button"
+          name="showButton"
+          id="showButton"	  
           value="Show"
           type="submit"
+              <%="disabled=\"disabled\""%>	  
           class="button1" />
     </FORM>
   </DIV> <!-- tableheader -->
@@ -106,35 +110,24 @@
       name="checkform"
       id="checkform">
 
-    <DIV class="tablecontent"> 
-      <TABLE>            
-        <TR class="columnhead"> 
-<%
+    <DIV class="tablecontent">    
+      <TABLE>
+        <TR class="columnhead">
+          <%
   if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED)
       || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
   {
 %>
-          <TH>
-            Subject
-          </TH>
-<%
+          <TH> Subject </TH>
+          <%
   }
 %>
-          <TH width="40%">
-            Privilege
-          </TH>
-          <TH>
-            Scope
-          </TH>
-          <TH>
-            Limits
-          </TH>
-          <TH>
-            Status
-          </TH>
-          <TH width="60">
-            All:
-            <INPUT
+          <TH width="40%"> Privilege </TH>
+          <TH> Scope </TH>
+          <TH> Limits </TH>
+          <TH> Status </TH>
+          <TH width="60"> All:
+              <INPUT
                name="checkAll"
                type="checkbox"
                id="checkAll"
@@ -142,8 +135,7 @@
                value="Check All" />
           </TH>
         </TR>
-    
-<%
+        <%
   Set assignmentSet;
   Set proxySet;
   Subsystem subsystemFilter = null;
@@ -166,74 +158,61 @@
     PrivilegedSubject grantee = grantable.getGrantee();
 %>
         <TR>
-<%
+          <%
     if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED)
         || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
     {
 %>
-          <TD> <!-- subject -->
-            <A
-              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystemFilter == null ? "" : ("&subsystemId=" + subsystemFilter.getId()))%>">
-              <%=grantee.getName()%>
-            </A>
-          </TD> <!-- subject -->
-<%
+          <TD><!-- subject -->
+              <A
+              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystemFilter == null ? "" : ("&subsystemId=" + subsystemFilter.getId()))%>"> <%=grantee.getName()%> </A> </TD>
+          <!-- subject -->
+          <%
     }
 %>
-              
-          <TD> <!-- privilege -->
-            <%=Common.popupIcon(grantable)%>
-            <%=Common.privilegeStr(signet, grantable)%>
-          </TD> <!-- privilege -->
-              
-          <TD> <!-- scope -->
-            <%=Common.scopeStr(grantable)%>
-          </TD> <!-- scope -->
-              
-          <TD> <!-- limits -->
-            <%=Common.editLink(loggedInPrivilegedSubject, grantable)%>
-            <%=Common.displayLimitValues(grantable)%>
-          </TD> <!-- limits -->
-              
-          <TD> <!-- status -->
-            <%=Common.displayStatus(grantable)%>
-          </TD> <!-- status -->
-
+          <TD><!-- privilege -->
+              <%=Common.popupIcon(grantable)%> <%=Common.privilegeStr(signet, grantable)%> </TD>
+          <!-- privilege -->
+          <TD><!-- scope -->
+              <%=Common.scopeStr(grantable)%> </TD>
+          <!-- scope -->
+          <TD><!-- limits -->
+              <%=Common.editLink(loggedInPrivilegedSubject, grantable)%> <%=Common.displayLimitValues(grantable)%> </TD>
+          <!-- limits -->
+          <TD><!-- status -->
+              <%=Common.displayStatus(grantable)%> </TD>
+          <!-- status -->
           <%=Common.revokeBox
                (loggedInPrivilegedSubject,
                 grantable,
-                UnusableStyle.DIM)%>
-        </TR>
-    
-<% 
+                UnusableStyle.DIM)%> </TR>
+        <% 
   }
 %>
-  
-       
-  
         <TR >
-<%
-  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+          <%
+    if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED)
+      || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
   {
 %>
           <TD>&nbsp;</TD>
-<%
+          <%
   }
 %>
           <TD>&nbsp;</TD>
           <TD>&nbsp;</TD>
           <TD>&nbsp;</TD>
           <TD>&nbsp;</TD>
-          <TD width="60" align="center" >
-            <INPUT
+          <TD width="60" align="center" ><INPUT
               name="revokeButton"
               type="submit"
               disabled="true"
               class="button1"
               value="Revoke" />
           </TD>
-        </TR>     
+        </TR>
       </TABLE>
-    </DIV> <!-- tablecontent -->
+    </DIV> 
+    <!-- tablecontent -->
   </FORM> <!-- checkform -->
 </DIV> <!-- Content -->

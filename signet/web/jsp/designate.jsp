@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.3 2006-01-27 06:44:06 acohen Exp $
-  $Date: 2006-01-27 06:44:06 $
+  $Id: designate.jsp,v 1.4 2006-02-01 23:47:31 jvine Exp $
+  $Date: 2006-02-01 23:47:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -116,7 +116,7 @@
       <div id="Content">
         <div id="ViewHead">
           <span class="dropback">
-            <%=currentProxy==null?"Designating as":"Editing"%>
+            <%=currentProxy==null ? "Designating" : "Editing"%>
             <%=isSubsystemOwner ? "subsystem owner" : "proxy"%>
           </span>             
           <h1>
@@ -127,49 +127,61 @@
           </span>
         </div> <!-- ViewHead -->
  
-<%
-  if (currentProxy != null)
-  {
-%>
         <div class="section" id="summary">
-          <h2>
-            Editing proxy
-          </h2>
-          <span style="font-weight: bold;" id="categoryName">
-          </span>
+		
+<% if (currentProxy == null)
+   {
+%>
+            <h2>New designated driver details</h2>
+<%
+   }
+   else
+   {
+%>
+            <h2>Current designated driver details</h2>
+<%
+   }
+%>
+
           <table>
             <tbody>
               <tr>
                 <td class="label">
-                  Granted to:
+                  Privilege:
                 </td>
                 <td class="content">
-                  <%=currentProxy.getGrantee().getName()%>
-                  <span class="ident">
-                    <%=currentProxy.getGrantee().getDescription()%>
-                  </span>
+				<!-- if this is a standard granting proxy, then -->
+				   <span class="category">Signet</span> : 
+				   <span class="function">
+					<%=isSubsystemOwner ? "Subsystem owner" : "Proxy"%>				   
+				   </span> :
+					<%=isSubsystemOwner ? "Act as Signet to grant top-level privileges" : "Grant privileges as " + loggedInPrivilegedSubject.getName()%>				   
                 </td>
               </tr>
+<% if (currentProxy != null)
+   {
+%>			  
               <tr>
                 <td class="label">
-                  Privilege Type:
+                  For privilege type:
                 </td>
                 <td class="content">
                   <%=currentProxy.getSubsystem().getName()%>
                 </td>
               </tr>
+<%
+  }
+%>			  
             </tbody>
           </table>
         </div> <!-- section -->
-<%
-  }
-  else
-  {
+
+<% if (currentProxy == null)
+   {
 %>
         <div class="section">
           <h2>
-            select a privilege type...
-          </h2>
+            Select a privilege type</h2>
           <div style="margin-left: 25px;">
             <%=Common.subsystemSelectionSingle
                    (Constants.SUBSYSTEM_HTTPPARAMNAME,
@@ -219,7 +231,7 @@
         
         <div class="section">
         
-          <h2>Complete this designation </h2>  
+          <h2>Complete this designation</h2>  
           <input
             name="continueButton"
 <%
@@ -239,7 +251,7 @@
           <br />
           <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
             <img src="images/arrow_left.gif" />
-            CANCEL and return to My View </a>
+            CANCEL and return to My View</a>
         </div>
       </div>
   
@@ -248,16 +260,37 @@
           <h2>
             help
           </h2>
-            <p>The proxy you designate will be able to grant all of your <b>grantable</b> privileges, within the privilege type you select.</p>
-            <p>The proxy <i>will not have</i> your <b>usable</b> privileges.</p>
-            <p>Steps to designate a proxy:</p>
-            <ol>
-              <li>Select the privilege type. <i><br />
-              (Only the types in which you have grantable authority are listed.)</i></li>
-              <li>Search for and select the person you want to be your proxy.</li>
-              <li>Set a start and/or end date for the proxy, or leave it open-ended.</li>
-              <li>Click Complete designation. </li>
-            </ol>
+		  
+		 <%
+  if (isSubsystemOwner)
+  {
+%>
+   <p>The designated subsystem owner will have unlimited granting powers in the selected subsystem (privilege type).    </p>
+   <p>The subsystem owner then acts as Signet to assign specific grantable privileges to the individuals who will manage authority for their group or department.</p>
+   <p>To designate a subsystem owner:</p>
+     <ol>
+     <li>Select the privilege type (subsystem).</li>
+     <li>Set a start and/or end date for the proxy, or leave it open-ended.</li>
+     <li>Click Complete designation.</li>
+     </ol>     
+<%
+  }else{
+%>
+   <p>The designated proxy will be able to grant all of your <b>grantable</b> privileges in the selected privilege type, up to your assigned limits. </p>
+   <p>The proxy will not inherit your <b>usable</b> privileges by this designation. </p>
+   <p>Steps to designate a proxy:</p>
+     <ol>
+     <li>Select the privilege type in which the proxy will grant privileges.<br />
+        <span class="dropback">(Only the types in which you have grantable authority are listed.)</span></li>
+     <li>Set a start and/or end date for the proxy, or leave it open-ended.</li>
+     <li>Click Complete designation. </li>
+     </ol>          
+<%
+  }
+%>
+		  
+		  
+
         </div>
       </div>
   

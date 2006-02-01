@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.3 2006-01-26 02:48:05 jvine Exp $
-  $Date: 2006-01-26 02:48:05 $
+  $Id: confirmProxy.jsp,v 1.4 2006-02-01 23:47:31 jvine Exp $
+  $Date: 2006-02-01 23:47:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -103,7 +103,7 @@
     <div id="Layout">
       <div id="Content">
         <div id="ViewHead">
-          <span class="dropback">Designated a <%=isSubsystemOwner ? "subsystem owner" : "granting proxy"%>:</span>
+          <span class="dropback">Designated <%=isSubsystemOwner ? "subsystem owner" : "proxy"%></span>
           <h1>
             <%=currentGranteePrivilegedSubject.getName()%>
           </h1>
@@ -113,17 +113,15 @@
         </div> <!-- ViewHead -->
            
         <div class="section" id="summary">
-          <h2>Completed Designated Driver</h2>
+          <h2>Designated Driver Summary </h2>
             <table>       
               <tr>
-                <th class="label" scope="row">Designated as:</th>
-                <td class="content"><span class="function">
-                      Granting Proxy
-                    </span>
-                </td>
+                <th class="label" scope="row">Privilege:</th>
+                <td class="content"><!-- if this is a standard granting proxy, then -->
+                    <span class="category">Signet</span> : <span class="function"> <%=isSubsystemOwner ? "Subsystem owner" : "Proxy"%> </span> : <%=isSubsystemOwner ? "Act as Signet to grant top-level privileges" : "Grant privileges as " + loggedInPrivilegedSubject.getName()%> </td>
               </tr>
               <tr>
-                <th class="label" scope="row"><%=Common.displayLimitType(currentProxy)%>:</th>
+                <th class="label" scope="row">In:</th>
                 <td class="content"><%=Common.displaySubsystem(currentProxy)%></td>
               </tr>
               <tr>
@@ -131,12 +129,19 @@
                 <td class="content"><%=Common.displayStatus(currentProxy)%></td>
               </tr>
               <tr>
-                <th class="label" scope="row">Effective:</th>
-                <td class="content"><!-- DATE (or condition) GOES HERE --></td>
+                <th class="label" scope="row">First effective:</th>
+                <td class="content">
+					<%=dateFormat.format(currentProxy.getEffectiveDate())%>
+				</td>
               </tr>
               <tr>
         		<th class="label" scope="row">Duration:</th>
-        		<td class="content"><!-- DATE (or condition) GOES HERE --></td>
+        		<td class="content">
+				  until
+	        	  <%=currentProxy.getExpirationDate() == null
+    	         ? "revoked"
+        	     : dateFormat.format(currentProxy.getExpirationDate())%>
+			 </td>
       		  </tr>
             </table>            
         </div><!-- section -->
@@ -145,9 +150,11 @@
             <h2>
               Continue
             </h2>
-			<p class="default">
-				<img src="images/arrow_right.gif" alt="" />
-				Subject view [name]
+			<p>
+				<a href="<%=personViewHref%>"><img src="images/arrow_right.gif" alt="" />
+				<span class="default">Subject View</span> 
+          [<%=currentGranteePrivilegedSubject.getName()%>]
+        </a>
 			</p>
             <p>
               <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">

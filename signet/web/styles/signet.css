@@ -1,8 +1,8 @@
 /*
-   $Id: signet.css,v 1.22 2006-01-26 02:06:28 jvine Exp $
-   $Date: 2006-01-26 02:06:28 $
+   $Id: signet.css,v 1.23 2006-02-01 23:47:31 jvine Exp $
+   $Date: 2006-02-01 23:47:31 $
 
-   Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
+   Copyright 2004, 2005, 2006 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1,
    see doc/license.txt in this distribution.
 */ 
@@ -227,6 +227,7 @@ th.label {
 }
 #summary th.label {
 	width: 75px;
+	white-space: nowrap;
 }
 
 th a{ /* 3-D header for sortable columns */

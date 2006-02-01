@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: assignment.jsp,v 1.2 2006-02-01 23:47:31 jvine Exp $
+  $Date: 2006-02-01 23:47:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -76,6 +76,8 @@
          
   DateFormat dateFormat = DateFormat.getDateInstance();
 %>
+
+  <div id="summary">
     <div class="section">
       <h2>Assignment details</h2>
     </div>
@@ -174,6 +176,10 @@
           <%//=dateFormat.format(currentAssignment.getEffectiveDate())%>
         </td>
       </tr>  -->
+      <tr>
+        <th class="label" scope="row"> First effective: </th>
+        <td class="data"><%=dateFormat.format(currentAssignment.getEffectiveDate())%> </td>
+      </tr>
       <tr> 
         <th class="label" scope="row">
           Duration:
@@ -230,5 +236,6 @@
 %>
 
     </table>
+  </div>
   </body>
 </html>

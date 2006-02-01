@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
-  $Date: 2006-01-26 02:06:28 $
+  $Id: main.jsp,v 1.3 2006-02-01 23:47:31 jvine Exp $
+  $Date: 2006-02-01 23:47:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -48,6 +48,22 @@
       }
     }
     
+	function setShowButtonStatus()
+    {
+      var theDisplayList = document.personViewForm.privDisplayType;
+      var theShowButton = document.personViewForm.showButton;
+      
+      if (theDisplayList.selectedIndex < 1)
+      {
+        theShowButton.disabled = true;
+      }
+      else
+      {
+        theShowButton.disabled = false;
+      }
+    }
+
+	
     function initRevokeAllCheckbox()
     {
       // If there are no revocable Assignments on this page, then it makes
@@ -252,7 +268,7 @@
         <h2>
           Grant a privilege
         </h2>
-        <p>...to <%=currentPSubject.getName()%>:<br />
+        <p>to <%=currentPSubject.getName()%>:<br />
             <select
               id="grantableSubsystems"
               name="grantableSubsystems"
@@ -293,7 +309,7 @@
         </form> <!-- grantForm -->
       </div> <!-- grant -->
       
-      <div class="findperson"> 
+      <div class="actionbox"> 
         <h2>
           Designated driver
         </h2>
@@ -341,7 +357,7 @@
 <%
   }
 %>
-      </div>
+      </div> <!-- actionbox -->
 	  <br />
           
 <%
@@ -389,7 +405,7 @@
       || Common.hasExtensibleProxies(loggedInPrivilegedSubject))
   {
 %>
-    <div class="findperson"> 
+    <div class="actionbox"> 
       <form
         name="actAsForm"
         method="post"
@@ -401,16 +417,9 @@
                 Constants.ACTING_FOR_SELECT_ID,
                 "actAsChange")%>
         </p>
-        <!--
-        <p>
-          <a href='Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true'>
-            <img src="images/arrow_right.gif" alt="" />
-              Designate a granting proxy
-          </a>
-		</p>
-		-->
+
       </form>
-    </div> <!-- findperson -->        
+    </div> <!-- actionbox -->        
 <%
   }
 %>

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: proxy.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: proxy.jsp,v 1.2 2006-02-01 23:47:31 jvine Exp $
+  $Date: 2006-02-01 23:47:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -59,12 +59,12 @@
          
   DateFormat dateFormat = DateFormat.getDateInstance();
 %>
+<div id="summary">
     <div class="section">
       <h2>
         Proxy details
       </h2>
-    </div>
-      
+    </div>    
     <table>
     
       <tr>
@@ -78,45 +78,28 @@
         
       <tr>
         <th class="label" scope="row">
-          As:
+          Privilege:
         </th>
         <td>
-          <span class="function">
-            Granting Proxy
-          </span>
+          <span class="category">Signet</span> :
+		  <span class="function">Proxy</span> : 
+		  Act as <%=grantor.getName()%> to grant privileges
         </td>
       </tr>
         
       <tr>
         <th class="label" scope="row">
-          Scope:
-        </th>
-        <td>
-           <span class="label">
-             acting as
-           </span><%=grantor.getName()%>
-        </td>
-      </tr>
-
-      <tr>
-        <th class="label" scope="row">
-          <%=Common.displayLimitType(currentProxy)%>:
+          In:
         </th>
         <td>
           <%=Common.displaySubsystem(currentProxy)%>
         </td>
       </tr>
-
-	<!-- removed to history section
-       <tr>
-        <th class="label" scope="row">
-          Effective:
-        </th>
-        <td>
-          <%//=dateFormat.format(currentProxy.getEffectiveDate())%>
-        </td>
-      </tr> -->
  
+      <tr>
+        <th class="label" scope="row">First effective:</th>
+        <td class="content"><%=dateFormat.format(currentProxy.getEffectiveDate())%> </td>
+      </tr>
       <tr>
         <th class="label" scope="row">
           Duration:
@@ -138,39 +121,19 @@
         </td>
       </tr>
       
-
-        
-      <!-- removed to history section
-	  <tr>
-        <th class="label" scope="row">
-          Designated on:
-        </th>
-        <td> 
-          <!-- time of last proxy-edit goes here -- removed to history section -- >
-        </td>
-      </tr> -->
-        
-      <tr>
-        <th class="label" scope="row">
-          Designated by:
-        </th>
-        <td>
-          <%=(proxySubject==null ? "" : (proxySubject.getName() + ", acting as ")) + grantor.getName()%>
-        </td>
-      </tr>
-      
     </table>
-    
+ 
+	    
     <div class="section">
       <h2>
         <a name="history" id="history">
         </a>
         History
       </h2>
-    </div>
+	</div>
 
     <table>
-    
+  
 <%
   Set historySet = currentProxy.getHistory();
   ProxyHistory[] historyArray = new ProxyHistory[1];
@@ -193,5 +156,6 @@
   }
 %>
     </table>
+  </div>
   </body>
 </html>
