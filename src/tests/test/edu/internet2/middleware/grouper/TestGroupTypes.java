@@ -21,6 +21,7 @@ package test.edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
+import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
@@ -29,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.3 2006-01-31 20:44:05 blair Exp $
+ * @version $Id: TestGroupTypes.java,v 1.4 2006-02-02 16:56:46 blair Exp $
  */
 public class TestGroupTypes extends TestCase {
 
@@ -706,6 +707,222 @@ public class TestGroupTypes extends TestCase {
       SessionHelper.stop(s);
     }
   } // public void testGetAttributeReturnTypes() 
+
+  public void testDeleteFromBase() {
+    GrouperSession  s     = null;
+    String          type  = "base";
+    String          name  = "description";
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType base = GroupTypeFinder.find(type);
+      try {
+        base.deleteField(s, name);  
+        Assert.fail("deleted field from BASE");
+      }
+      catch (Exception e) {
+        Assert.assertTrue("could not delete attr", true);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testDeleteFromBase() 
+
+  public void testDeleteFromNaming() {
+    GrouperSession  s     = null;
+    String          type  = "naming";
+    String          name  = "creators";
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType naming = GroupTypeFinder.find(type);
+      try {
+        naming.deleteField(s, name);  
+        Assert.fail("deleted field from NAMING");
+      }
+      catch (Exception e) {
+        Assert.assertTrue("could not delete attr", true);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testDeleteFromNaming() 
+
+  public void testDeleteAsNonRoot() {
+    GrouperSession  s     = null;
+    String          type  = "customType.TDANR";
+    String          name  = "customField.TDANR";
+    FieldType       ft    = FieldType.ATTRIBUTE; 
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    boolean         req   = false;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      custom.addField(s, name, ft, read, write, req);
+      Assert.assertTrue("added ATTRIBUTE field", true);
+      GrouperSession nrs = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
+      try {
+        custom.deleteField(nrs, name);
+        Assert.fail("deleted as !root");
+      }
+      catch (Exception e) {
+        Assert.assertTrue("could not delete as !root", true);
+      }
+      finally {
+        nrs.stop();
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testDeleteAsNonRoot()
+
+  public void testDeleteUnusedCustomAttribute() {
+    GrouperSession  s     = null;
+    String          type  = "customType.TDUCA";
+    String          name  = "customField.TDUCA";
+    FieldType       ft    = FieldType.ATTRIBUTE; 
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    boolean         req   = false;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      custom.addField(s, name, ft, read, write, req);
+      Assert.assertTrue("added ATTRIBUTE field", true);
+      Field f = FieldFinder.find(name);
+      try {
+        custom.deleteField(s, name);  
+        Assert.assertTrue("deleted unused ATTRIBUTE", true);
+        Set fields = custom.getFields();
+        if (fields.contains(f)) {
+          Assert.fail("deleted ATTRIBUTE still exists");
+        } 
+      }
+      catch (Exception e) {
+        Assert.fail("could not delete ATTRIBUTE: " + e.getMessage());
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testDeleteUnusedCustomAttribute() 
+
+  public void testDeleteUnusedCustomList() {
+    GrouperSession  s     = null;
+    String          type  = "customType.TDUCL";
+    String          name  = "customField.TDUCL";
+    FieldType       ft    = FieldType.LIST; 
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    boolean         req   = false;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      custom.addField(s, name, ft, read, write, req);
+      Assert.assertTrue("added LIST field", true);
+      Field f = FieldFinder.find(name);
+      try {
+        custom.deleteField(s, name);  
+        Assert.assertTrue("deleted unused LIST", true);
+        Set fields = custom.getFields();
+        if (fields.contains(f)) {
+          Assert.fail("deleted LIST still exists");
+        } 
+      }
+      catch (Exception e) {
+        Assert.fail("could not delete LIST: " + e.getMessage());
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testDeleteUnusedCustomList() 
+
+  public void testFailToDeleteUsedCustomAttribute() {
+    GrouperSession  s     = null;
+    String          type  = "customType.FTTDUCA";
+    String          name  = "customField.FTTDUCA";
+    FieldType       ft    = FieldType.ATTRIBUTE; 
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    boolean         req   = false;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      custom.addField(s, name, ft, read, write, req);
+      Assert.assertTrue("added ATTRIBUTE field", true);
+      Stem  root  = StemFinder.findRootStem(s);
+      Stem  ns    = root.addChildStem("ns", "ns");
+      Group g     = ns.addChildGroup("g", "g");
+      g.addType(custom);
+      g.setAttribute(name, name);
+      try {
+        custom.deleteField(s, name);  
+        Assert.fail("deleted in-use ATTRIBUTE");
+      }
+      catch (Exception e) {
+        Assert.assertTrue("could not delete in-use ATTRIBUTE", true);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testFailToDeleteUsedCustomAttribute()
+
+  public void testFailToDeleteUsedCustomList() {
+    GrouperSession  s     = null;
+    String          type  = "customType.FTDUCL";
+    String          name  = "customField.FTTDUCL";
+    FieldType       ft    = FieldType.LIST; 
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    boolean         req   = false;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      custom.addField(s, name, ft, read, write, req);
+      Assert.assertTrue("added LIST field", true);
+      Stem  root  = StemFinder.findRootStem(s);
+      Stem  ns    = root.addChildStem("ns", "ns");
+      Group g     = ns.addChildGroup("g", "g");
+      g.addType(custom);
+      Field f     = FieldFinder.find(name);
+      g.addMember(SubjectHelper.SUBJ0, f);
+      try {
+        custom.deleteField(s, name);  
+        Assert.fail("deleted in-use LIST");
+      }
+      catch (Exception e) {
+        Assert.assertTrue("could not delete in-use LIST", true);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testFailToDeleteUsedCustomList()
 
 }
 
