@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.60 2006-02-01 23:47:31 jvine Exp $
-  $Date: 2006-02-01 23:47:31 $
+  $Id: Common.java,v 1.61 2006-02-02 21:52:16 acohen Exp $
+  $Date: 2006-02-02 21:52:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -969,6 +969,19 @@ public class Common
     (PrivilegedSubject  loggedInPrivilegedSubject,
      Grantable          grantable)
   {
+    return editLink
+      (loggedInPrivilegedSubject,
+       grantable,
+       "Edit",
+       "float: right;");
+  }
+  
+  public static String editLink
+    (PrivilegedSubject  loggedInPrivilegedSubject,
+     Grantable          grantable,
+     String             prompt,
+     String             style)
+  {
     StringBuffer outStr = new StringBuffer();
     String editAction
       = (grantable instanceof Proxy ? "Designate.do" : "Conditions.do");
@@ -992,12 +1005,15 @@ public class Common
     if (canEdit == true)
     {
       outStr.append("<a\n");
-      outStr.append("  style=\"float: right;\"\n");
+      if (style != null)
+      {
+        outStr.append("  style=\"" + style + "\"\n");
+      }
       outStr.append("  href=\"" + editAction + "?" + paramName + "=" + grantable.getId() + "\">\n");
       outStr.append("  <img\n");
       outStr.append("    src=\"images/arrow_right.gif\"\n");
       outStr.append("      alt=\"\" />\n");
-      outStr.append("Edit\n");
+      outStr.append(     prompt + "\n");
       outStr.append("</a>");
     }
     

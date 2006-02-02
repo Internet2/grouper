@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.4 2006-02-01 23:47:31 jvine Exp $
-  $Date: 2006-02-01 23:47:31 $
+  $Id: confirm.jsp,v 1.5 2006-02-02 21:52:16 acohen Exp $
+  $Date: 2006-02-02 21:52:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -246,9 +246,14 @@
 				 Grant another <%=currentSubsystem.getName()%> privilege</a> to <%=currentGranteePrivilegedSubject.getName()%>
              </p>
 			 <p>
-			 	<!-- Needs an edit link around this placeholder -->
-                <img src="images/arrow_right.gif" alt="" />
-				Edit this assignment</p>		
+                <%=
+                  Common.editLink
+                    (loggedInPrivilegedSubject,
+                     currentAssignment,
+                     "Edit this assignment",
+                     null)
+                %>
+				</p>		
              <p>
                <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
                  <img src="images/arrow_right.gif" alt="" />
