@@ -204,7 +204,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.5 2005-12-20 11:46:55 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.6 2006-02-02 16:33:52 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -271,7 +271,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		listViews.put("noResultsKey","subject.list-membership.none");
 		listViews.put("view","whereSubjectsAreMembers");
 		//listViews.put("itemView","whereIsMemberLink");
-		listViews.put("itemView","subjectMembership");
+		listViews.put("itemView","subjectSummary");
 		listViews.put("headerView","genericListHeader");
 		listViews.put("footerView","genericListFooter");
 		
@@ -285,24 +285,24 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		}else if("access".equals(membershipListScope)) {
 			
 			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,accessPriv);
-			subjectScopeMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,new ArrayList(subjectScopes),subjectId);
+			subjectScopeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,subjectScopes,subject,accessPriv);
 			listViews.put("titleKey","subject.summary.access-privs");
 			listViews.put("noResultsKey","subject.list-access.none");
-			listViews.put("view","subjectAccessPrivs");
-			listViews.put("itemView","subjectAccessPriv");
+			listViews.put("view","subjectSummaryPrivileges");
+			listViews.put("itemView","subjectSummaryPrivilege");
 		}else {
 			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,namingPriv);
-			subjectScopeMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,new ArrayList(subjectScopes),subjectId);
+			subjectScopeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,subjectScopes,subject,namingPriv);
 			listViews.put("titleKey","subject.summary.naming-privs");
 			listViews.put("noResultsKey","subject.list-naming.none");
-			listViews.put("view","subjectNamingPrivs");
-			listViews.put("itemView","subjectNamingPriv");
+			listViews.put("view","subjectSummaryPrivileges");
+			listViews.put("itemView","subjectSummaryPrivilege");
 		}
 		request.setAttribute("scopeListData",listViews);
 		if(subjectScopeMaps==null) {
 			Map countMap = new HashMap();
 			List uniqueSubjectScopes = GrouperHelper.getOneMembershipPerSubjectOrGroup(subjectScopes,"subject",countMap);
-			subjectScopeMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,uniqueSubjectScopes);
+			subjectScopeMaps = GrouperHelper.memberships2Maps(grouperSession,uniqueSubjectScopes);
 			GrouperHelper.setMembershipCountPerSubjectOrGroup(subjectScopeMaps,"subject",countMap);
 		}
 		
@@ -324,7 +324,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		pager.setParam("returnToLinkKey", subjectForm.get("returnToLinkKey"));
 		pager.setTarget(mapping.getPath());
 		request.setAttribute("pager", pager);
-		request.setAttribute("pagerParams", pager.getParams().clone());
+		request.setAttribute("linkParams", pager.getParams().clone());
 		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
 		String[] namingPrivs = GrouperHelper.getStemPrivs(grouperSession);
 		request.setAttribute("allAccessPrivs",accessPrivs);
