@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.61 2006-02-02 21:52:16 acohen Exp $
-  $Date: 2006-02-02 21:52:16 $
+  $Id: Common.java,v 1.62 2006-02-02 22:50:33 acohen Exp $
+  $Date: 2006-02-02 22:50:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -2499,6 +2499,20 @@ public class Common
        + functionId
        + "' in subsystem '"
        + subsystem + "'");
+  }
+  
+  public static boolean isSubsystemOwner
+    (Signet signet,
+     Proxy  proxy)
+  {
+    if ((proxy.getGrantor().equals(signet.getSignetSubject()))
+        && (proxy.canUse() == true)
+        && (proxy.getSubsystem() != null))
+    {
+      return true;
+    }
+    
+    return false;
   }
   
 //  public static Set getExtensibleProxies

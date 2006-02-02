@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.4 2006-02-01 23:47:31 jvine Exp $
-  $Date: 2006-02-01 23:47:31 $
+  $Id: designate.jsp,v 1.5 2006-02-02 22:50:33 acohen Exp $
+  $Date: 2006-02-02 22:50:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -86,11 +86,20 @@
   Proxy currentProxy
     = (Proxy)(request.getSession().getAttribute(Constants.PROXY_ATTRNAME));
     
-  boolean isSubsystemOwner
-    = ((Boolean)
-          (request.getSession().getAttribute
-            (Constants.SUBSYSTEM_OWNER_ATTRNAME)))
-        .booleanValue();
+  boolean isSubsystemOwner;
+  
+  if (currentProxy == null)
+  {
+    isSubsystemOwner
+      = ((Boolean)
+            (request.getSession().getAttribute
+              (Constants.SUBSYSTEM_OWNER_ATTRNAME)))
+          .booleanValue();
+  }
+  else
+  {
+    isSubsystemOwner = Common.isSubsystemOwner(signet, currentProxy);
+  }
 %>
 
   <tiles:insert page="/tiles/header.jsp" flush="true" />
