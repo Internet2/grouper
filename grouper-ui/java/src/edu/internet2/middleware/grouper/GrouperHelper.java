@@ -33,9 +33,11 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
+import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 import edu.internet2.middleware.grouper.ui.util.StemAsMap;
 import edu.internet2.middleware.grouper.ui.util.SubjectAsMap;
+import edu.internet2.middleware.grouper.ui.util.SubjectPrivilegeAsMap;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -50,9 +52,15 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.8 2006-01-03 11:17:23 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.9 2006-02-02 16:30:02 isgwb Exp $
  */
 
+/**
+ * @author isgwb
+ *
+ * TODO To change the template for this generated type comment go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
 public class GrouperHelper {
 	public static HashMap list2privMap;
 	static {
@@ -1913,16 +1921,20 @@ public class GrouperHelper {
 		throws GroupNotFoundException,MemberNotFoundException{
 		if(count==null) return;
 		Map mMap;
+		Map gMap;
+		Map sMap;
 		
 		String id;
 		Integer curCount;
 		for(int i=0;i<membershipMaps.size();i++) {
 			mMap = (Map)membershipMaps.get(i);
+			gMap = (Map)mMap.get("group");
+			sMap = (Map)mMap.get("subject");
 		
 			if("subject".equals(type)){
-				id = (String)mMap.get("asMemberOf");
+				id = (String)gMap.get("id");
 			}else if("group".equals(type)) {
-				id = (String)mMap.get("subjectId");
+				id = (String)sMap.get("id");
 			}else{
 				throw new IllegalArgumentException("type must be 'subject' or 'group'");
 			}
@@ -1972,6 +1984,109 @@ public class GrouperHelper {
 			}
 		}
 		return privs;
+	}
+	
+	
+	/**
+	 * Use to get SubjectPrivilegeMaps rather than SubjectMaps. Relevant UI now
+	 * uses these objects which can be used for more fine-grained template resolution
+	 * @param s
+	 * @param subjects
+	 * @param group
+	 * @param privilege
+	 * @return
+	 */
+	public static List subjects2SubjectPrivilegeMaps(GrouperSession s,Collection subjects,Group group, String privilege) {
+		return subjects2SubjectPrivilegeMaps(s,subjects,GroupOrStem.findByGroup(s,group),privilege);
+	}
+	
+	/**
+	 * Use to get SubjectPrivilegeMaps rather than SubjectMaps. Relevant UI now
+	 * uses these objects which can be used for more fine-grained template resolution
+	 * @param s
+	 * @param subjects
+	 * @param stem
+	 * @param privilege
+	 * @return
+	 */
+	public static List subjects2SubjectPrivilegeMaps(GrouperSession s,Collection subjects,Stem stem, String privilege) {
+		return subjects2SubjectPrivilegeMaps(s,subjects,GroupOrStem.findByStem(s,stem),privilege);	
+	}
+	
+	/**
+	 * Use to get SubjectPrivilegeMaps rather than SubjectMaps. Relevant UI now
+	 * uses these objects which can be used for more fine-grained template resolution
+	 * @param s
+	 * @param subjects
+	 * @param groupOrStem
+	 * @param privilege
+	 * @return
+	 */
+	public static List subjects2SubjectPrivilegeMaps(GrouperSession s,Collection subjects,GroupOrStem groupOrStem, String privilege) {
+		List res = new ArrayList();
+		Subject subject;
+		Iterator it = subjects.iterator();
+		while(it.hasNext()) {
+			subject = (Subject)it.next();
+			res.add(new SubjectPrivilegeAsMap(s,subject,groupOrStem,privilege));
+		}
+		return res;
+	}
+	
+	/**
+	 * Use to get SubjectPrivilegeMaps rather than SubjectMaps. Relevant UI now
+	 * uses these objects which can be used for more fine-grained template resolution
+	 * @param s
+	 * @param groupsOrStems
+	 * @param subject
+	 * @param privilege
+	 * @return
+	 */
+	public static List subjects2SubjectPrivilegeMaps(GrouperSession s,Collection groupsOrStems,Subject subject, String privilege) {
+		List res = new ArrayList();
+		GroupOrStem groupOrStem;
+		Iterator it = groupsOrStems.iterator();
+		Object obj;
+		while(it.hasNext()) {
+			obj = it.next();
+			if(obj instanceof Group){
+				res.add(new SubjectPrivilegeAsMap(s,subject,GroupOrStem.findByGroup(s,(Group)obj),privilege));
+			}else{
+				res.add(new SubjectPrivilegeAsMap(s,subject,GroupOrStem.findByStem(s,(Stem)obj),privilege));
+			}
+		}
+		return res;
+	}
+	
+	/**
+	 * Use to get MembershipMaps rather than SubjectMaps. Relevant UI now
+	 * uses these objects which can be used for more fine-grained template resolution
+	 * @param s
+	 * @param memberships
+	 * @return
+	 */
+	public static List memberships2Maps(GrouperSession s,Collection memberships) {
+		return memberships2Maps(s,memberships,false);
+	
+	}
+	
+	/**
+	 * Use to get MembershipMaps rather than SubjectMaps. Relevant UI now
+	 * uses these objects which can be used for more fine-grained template resolution
+	 * @param s
+	 * @param memberships
+	 * @param withParents
+	 * @return
+	 */
+	public static List memberships2Maps(GrouperSession s,Collection memberships,boolean withParents) {
+		List res = new ArrayList();
+		Membership membership;
+		Iterator it = memberships.iterator();
+		while(it.hasNext()) {
+			membership = (Membership)it.next();
+			res.add(new MembershipAsMap(membership,withParents)); 
+		}
+		return res;
 	}
 }
 
