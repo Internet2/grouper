@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.62 2006-02-02 22:50:33 acohen Exp $
-  $Date: 2006-02-02 22:50:33 $
+  $Id: Common.java,v 1.63 2006-02-02 23:28:28 acohen Exp $
+  $Date: 2006-02-02 23:28:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -657,9 +657,7 @@ public class Common
     {
       Proxy proxy = (Proxy)grantable;
       outStr
-        = "<span class=\"label\">"
-          + displayLimitType(proxy)
-          + " </span>"
+        = "<span class=\"label\">In </span>"
           + displaySubsystem(proxy);
     }
     
@@ -682,7 +680,8 @@ public class Common
    *   A String which represents this SELECT element in HTML.
    */
   public static String displayActingForOptions
-    (PrivilegedSubject  currentLoggedInPrivilegedSubject,
+    (Signet             signet,
+     PrivilegedSubject  currentLoggedInPrivilegedSubject,
      String             htmlSelectId,
      String             onChange)
   {
@@ -703,7 +702,7 @@ public class Common
       outStr.append("  onchange=\"" + onChange + "('" + htmlSelectId  + "', '" + Common.buildCompoundId(currentLoggedInPrivilegedSubject.getEffectiveEditor()) + "');" + "\"\n");
       outStr.append("  class=\"long\">\n");
         
-      outStr.append(Common.displayProxyOptions(currentLoggedInPrivilegedSubject));
+      outStr.append(Common.displayProxyOptions(signet, currentLoggedInPrivilegedSubject));
 
       outStr.append("</SELECT>\n");
       outStr.append("<INPUT\n");
@@ -729,7 +728,8 @@ public class Common
    * @return
    */
   private static String displayProxyOptions
-    (PrivilegedSubject pSubject)
+    (Signet            signet,
+     PrivilegedSubject pSubject)
   {
     StringBuffer outStr = new StringBuffer();
     
@@ -772,9 +772,14 @@ public class Common
         outStr.append(" SELECTED\n");
       }
       
+      String grantorName = grantor.getName();
+      if (grantor.equals(signet.getSignetSubject()))
+      {
+        grantorName += " (admin/owner)";
+      }
       outStr.append("  value=\"" + Common.buildCompoundId(grantor) + "\"\n");
       outStr.append(">\n");
-      outStr.append("  " + grantor.getName() + "\n");
+      outStr.append("  " + grantorName + "\n");
       outStr.append("</OPTION>\n");
     }
     
@@ -1950,26 +1955,6 @@ public class Common
     return subsystems;
   }
   
-  public static String displayLimitType(Proxy proxy)
-  {
-    String displayStr;
-    
-    if (proxy.canExtend() && proxy.canUse())
-    {
-      displayStr = "Extend proxy for and grant privileges in";
-    }
-    else if (proxy.canExtend())
-    {
-      displayStr = "Extend proxy for";
-    }
-    else
-    {
-      displayStr = "Grant privileges in";
-    }
-    
-    return displayStr;
-  }
-  
   public static String displaySubsystem(Proxy proxy)
   {
     String    displayStr;
@@ -2140,21 +2125,26 @@ public class Common
   
   public static String proxyPrivilegeDisplayName(Signet signet, Proxy proxy)
   {
-    String displayName = "Proxy";
+    StringBuffer displayName = new StringBuffer("Signet : ");
     
     if (proxy.getGrantor().equals(signet.getSignetSubject()))
     {
       if (proxy.getSubsystem() == null)
       {
-        displayName = "System Administrator";
+        displayName.append("System Administrator : Act as Signet to designate subsystem owners");
       }
       else
       {
-        displayName = "Subsystem Owner";
+        displayName.append("Subsystem Owner : Act as Signet to grant top-level privileges");
       }
     }
+    else
+    {
+      displayName.append("Proxy : Grant privileges as ");
+      displayName.append(proxy.getGrantor().getName());
+    }
     
-    return displayName;
+    return displayName.toString();
   }
   /*
    * A System Administrator is a user who has an extensible, non-usable,
@@ -2450,10 +2440,7 @@ public class Common
     }
     else
     {
-      Proxy proxy = (Proxy)grantable;
-      scopeStr
-        = "<span class=\"label\">acting as </span>"
-          + proxy.getGrantor().getName();
+      scopeStr = "";
     }
       
     return scopeStr;

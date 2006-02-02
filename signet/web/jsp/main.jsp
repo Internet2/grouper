@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.3 2006-02-01 23:47:31 jvine Exp $
-  $Date: 2006-02-01 23:47:31 $
+  $Id: main.jsp,v 1.4 2006-02-02 23:28:28 acohen Exp $
+  $Date: 2006-02-02 23:28:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -413,7 +413,8 @@
         <h2>Act As</h2>
         <p>
           <%=Common.displayActingForOptions
-               (loggedInPrivilegedSubject,
+               (signet,
+                loggedInPrivilegedSubject,
                 Constants.ACTING_FOR_SELECT_ID,
                 "actAsChange")%>
         </p>
