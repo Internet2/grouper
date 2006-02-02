@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.8 2006-01-31 20:44:05 blair Exp $
+ * @version $Id: GroupType.java,v 1.9 2006-02-02 16:56:46 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -151,6 +151,7 @@ public class GroupType implements Serializable {
    *   // Invalid schema
    * }
    * </pre>
+   * @param   s         Add field within this session context.
    * @param   name      Name of field.
    * @param   type      {@link FieldType} of this {@link Field}.
    * @param   read      {@link Privilege} required to write to this {@link Field}.
@@ -166,6 +167,7 @@ public class GroupType implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
+    // TODO DRY with deleteField()
     Field     f   = null;
     StopWatch sw    = new StopWatch();
     sw.start();
@@ -231,6 +233,113 @@ public class GroupType implements Serializable {
       String msg = "unable to add field: " + name + ": " + eS.getMessage();
       LOG.error(msg);
       throw new SchemaException(msg);
+    }
+  } // public void addField(s, name, type, read, write, required)
+
+  /**
+   * Delete a custom {@link Field} from a custom {@link GroupType}.
+   * <p/>
+   * Delete a field from this group type.  If the field does not exist
+   * in this type a {@link SchemaException} will be thrown.  If the
+   * subject is not root-like, an {@link InsufficientPrivilegeException}
+   * will be thrown.
+   * <pre class="eg">
+   * try {
+   *   type.deleteField("my field");
+   *   );
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete field
+   * }
+   * catch (SchemaException eS) {
+   *   // Invalid schema
+   * }
+   * </pre>
+   * @param   s         Delete field within this session context.
+   * @param   name      Name of field to delete.
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   */
+  public void deleteField(GrouperSession s, String name)
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    // TODO DRY with addField()
+    StopWatch sw    = new StopWatch();
+    sw.start();
+    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
+      String msg = "subject not privileged to delete fields";
+      LOG.error(msg);
+      throw new InsufficientPrivilegeException(msg);
+    }
+    if (GroupType.isSystemType(this)) {
+      String msg = "cannot delete fields from system group types";
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+    Field f = FieldFinder.find(name);  
+    if (!f.getGroupType().equals(this)) {
+      String msg = "field does not belong to this group type";
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+    // Now see if the field is in use
+    Session hs = null;
+    try {
+      int size  = 0;
+      hs        = HibernateHelper.getSession();
+      if      (f.getType().equals(FieldType.ATTRIBUTE)) {
+        Query qry = hs.createQuery(
+          "from Attribute as a where a.field.name = :name"
+        );
+        qry.setCacheable(false);
+        qry.setString("name", name);
+        size = qry.list().size();
+      }
+      else if (f.getType().equals(FieldType.LIST))      {
+        Query qry = hs.createQuery(
+          "from Membership as ms where ms.field.name = :name"
+        );
+        qry.setCacheable(false);
+        qry.setString("name", name);
+        size = qry.list().size();
+      }
+      else {
+        String msg = "cannot delete field of type: " + f.getType().toString();
+        LOG.error(msg);
+        throw new SchemaException(msg);
+      }
+      if (size > 0) {
+        String msg = "cannot field that is in use";
+        LOG.error(msg);
+        throw new SchemaException(msg);
+      }
+      // And now all validation complete, delete the field
+      Set fields = this.getFields();
+      if (fields.remove(f)) {
+        this.setFields(fields);
+        HibernateHelper.save(this);
+        sw.stop();
+        EL.groupTypeDelField(s, this.getName(), name, sw);
+      }
+      else {
+        String msg = "type unexpectedly does not have field";
+        LOG.error(msg);
+        throw new SchemaException(msg);
+      }
+    }
+    catch (HibernateException eH) {
+      String msg = "cannot delete field: " + eH.getMessage();
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+    finally {
+      try {
+        if (hs != null) { hs.close(); }
+      }
+      catch (HibernateException eH) {
+        throw new SchemaException(eH.getMessage());
+      }
     }
   } // public void addField(s, name, type, read, write, required)
 

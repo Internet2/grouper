@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.5 2006-01-31 20:44:05 blair Exp $
+ * @version $Id: EventLog.java,v 1.6 2006-02-02 16:56:46 blair Exp $
  *     
 */
 class EventLog implements Serializable {
@@ -61,6 +61,7 @@ class EventLog implements Serializable {
   private static final String GS_STOP     = "session stopped: duration=";
   private static final String GT_AF       = "add group field: ";
   private static final String GT_AT       = "add group type: ";
+  private static final String GT_DF       = "delete group field: ";
   private static final String S_ACG       = "add group: ";  
   private static final String S_ACS       = "add stem: ";  
   private static final String S_GP        = "grant naming priv: stem=";
@@ -208,14 +209,21 @@ class EventLog implements Serializable {
   )
   {
     GrouperLog.info(LOG, s.toString(), GT_AT + type, sw);
-  } // protected void groupDelAttr(s, group, attr, val, sw);
+  } // protected void groupTypeAdd(s, group, attr, val, sw);
 
   protected void groupTypeAddField(
     GrouperSession s, String type, String name, StopWatch sw
   )
   {
     GrouperLog.info(LOG, s.toString(), GT_AF + name + " to " + type, sw);
-  } // protected void groupDelAttr(s, group, attr, val, sw);
+  } // protected void groupAddField(s, group, attr, val, sw);
+
+  protected void groupTypeDelField(
+    GrouperSession s, String type, String name, StopWatch sw
+  )
+  {
+    GrouperLog.info(LOG, s.toString(), GT_DF + name + " from " + type, sw);
+  } // protected void groupDelField(s, group, attr, val, sw);
 
   protected void sessionStart(String sessionToString, StopWatch sw) {
     GrouperLog.info(LOG, sessionToString, GS_START, sw);

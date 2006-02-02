@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.131 2006-01-31 20:44:05 blair Exp $
+$Id: API,v 1.132 2006-02-02 16:56:46 blair Exp $
 
 ---
 
@@ -186,6 +186,8 @@ $Id: API,v 1.131 2006-01-31 20:44:05 blair Exp $
 ## GroupType
 * GroupType           GroupType.createType(session, name)
 * void                addField(session, name, FieldType, ReadAccessPrivilege, WriteAccessPrivilege, required)
+* void                deleteField(session, name)
+* Set                 getFields()
 
 ## GroupTypeFinder
 * GroupType           GroupTypeFinder.find(name)
