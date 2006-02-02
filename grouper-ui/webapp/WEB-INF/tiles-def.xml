@@ -573,6 +573,12 @@
 	  </description>
 	 </definition>
 	 
+	 <definition name="effectivePrivDef" path="/WEB-INF/jsp/effectivePriv.jsp">
+		<description>
+			Tile which displays one effective priv on priv assignment screen
+	  </description>
+	 </definition>
+	 
 	<definition name="groupStuffDef" path="/WEB-INF/jsp/empty.jsp">
 		<description>
 			Placeholder sites can redefine to add their own content e.g. links
@@ -595,6 +601,12 @@
 	 	<definition name="linkSeparatorDef" path="/WEB-INF/jsp/linkSeparator.jsp">
 		<description>
 			defaults to : to separate links. Made a tile to allow it to be easily changed - possibly with graphic
+	  </description>
+	 </definition>
+	 
+	 <definition name="singleChainPath" path="/WEB-INF/jsp/singleChainPath.jsp">
+		<description>
+			called in loop in view chainPath
 	  </description>
 	 </definition>
 	 
