@@ -25,9 +25,12 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
+
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
+import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.StemAsMap;
 import edu.internet2.middleware.grouper.ui.util.SubjectAsMap;
+import edu.internet2.middleware.grouper.ui.util.SubjectPrivilegeAsMap;
 
 /**
  * Default implementation of the Grouper TemplateResolver interface. Deals with
@@ -210,6 +213,71 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 			tName = getResource(mediaResources, "stem.view.default");
 		}
 
+		return tName;
+	}
+	
+	/**
+	 * Get template name for a Membership. Look for:
+	 * <ul>
+	 *     <li>membership.view.&lt;view&gt;</li>
+	 *     <li>membership.view.default</li>
+	 * </ul>
+	 * 
+	 * @param object to find template for 
+	 * @param view name of template to find
+	 * @param mediaResources ResourceBundle containing template names and values
+	 * @param request HttpServletRequest 
+	 * @return name of template
+	 */
+
+	public String getMembershipTemplateName(Object obj, String view,
+			ResourceBundle mediaResources, HttpServletRequest request) {
+
+		MembershipAsMap group = (MembershipAsMap) obj;
+		String tName = null;
+		
+
+		tName = getResource(mediaResources, "membership.view." + view);
+
+		if (tName == null) {
+			tName = getResource(mediaResources, "membership.view.default");
+		}
+
+		return tName;
+	}
+
+	/**
+	 * Get template name for a SubjectPrivilege (type=access/naming). Look for:
+	 * <ul>
+	 *     <li>subjectprivilege.&lt;type&gt;.view.&lt;view&gt;</li>
+	 *     <li>subjectprivilege.&lt;type&gt;.view.default</li>
+	 *     <li>subjectprivilege.view.&lt;view&gt;</li>
+	 *     <li>subjectprivilege.view.default</li>
+	 * </ul>
+	 * 
+	 * @param object to find template for 
+	 * @param view name of template to find
+	 * @param mediaResources ResourceBundle containing template names and values
+	 * @param request HttpServletRequest 
+	 * @return name of template
+	 */
+
+	public String getSubjectPrivilegeTemplateName(Object obj, String view,
+			ResourceBundle mediaResources, HttpServletRequest request) {
+
+		SubjectPrivilegeAsMap sPriv = (SubjectPrivilegeAsMap) obj;
+		String tName = null;
+		tName = getResource(mediaResources, "subjectprivilege." + sPriv.get("type") + ".view." + view);
+		if(tName==null){
+			tName = getResource(mediaResources, "subjectprivilege." + sPriv.get("type") + ".view.default");
+		}
+		if(tName==null){
+			tName = getResource(mediaResources, "subjectprivilege.view." + view);
+		}
+
+		if (tName == null) {
+			tName = getResource(mediaResources, "subjectprivilege.view.default");
+		}
 		return tName;
 	}
 
