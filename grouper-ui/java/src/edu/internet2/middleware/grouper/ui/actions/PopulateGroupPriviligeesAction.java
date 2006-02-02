@@ -127,7 +127,7 @@ import edu.internet2.middleware.subject.Subject;
     <
 
   * @author Gary Brown.
- * @version $Id: PopulateGroupPriviligeesAction.java,v 1.5 2005-12-14 15:03:23 isgwb Exp $
+ * @version $Id: PopulateGroupPriviligeesAction.java,v 1.6 2006-02-02 16:33:32 isgwb Exp $
  */
 public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 
@@ -160,25 +160,8 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 				
 		//Determine who has privilege selected by user
 		group = GroupFinder.findByUuid(grouperSession, groupId);
-		Set members = GrouperHelper.getSubjectsWithPriv(group,privilege);
-		List membersMaps = GrouperHelper.groupList2SubjectsMaps(
-				grouperSession, new ArrayList(members),groupId);
-		Map tmpMap;
-		Subject tmpSubj=null;
-		Map tmpPrivMap=null;
-		Object tmpObj=null;
-		for(int i=0;i<membersMaps.size();i++) {
-			tmpMap = (Map) membersMaps.get(i);
-			tmpMap.put("privilege",privilege);
-			tmpObj=tmpMap.get("wrappedObject");
-			if(tmpObj instanceof Group) {
-				tmpSubj = ((Group)tmpObj).toSubject();
-			}else{
-				tmpSubj = (Subject)tmpObj;
-			}
-			tmpPrivMap = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,tmpSubj));
-			tmpMap.put("isDirect",new Boolean(tmpPrivMap.containsKey(privilege.toUpperCase())));
-		}
+		Set subjects = GrouperHelper.getSubjectsWithPriv(group,privilege);
+		List subjectPrivilegeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,subjects,group,privilege);
 		//Set up CollectionPager for th eview
 		String startStr = request.getParameter("start");
 		if (startStr == null || "".equals(startStr))
@@ -186,13 +169,13 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 
 		int start = Integer.parseInt(startStr);
 		int pageSize = getPageSize(session);
-		CollectionPager pager = new CollectionPager(membersMaps,
-				membersMaps.size(), null, start, null, pageSize);
+		CollectionPager pager = new CollectionPager(subjectPrivilegeMaps,
+				subjectPrivilegeMaps.size(), null, start, null, pageSize);
 		pager.setParam("groupId", groupId);
 		pager.setParam("privilege", privilege);
 		pager.setTarget(mapping.getPath());
 		request.setAttribute("pager", pager);
-		request.setAttribute("pagerParams", pager.getParams().clone());
+		request.setAttribute("linkParams", pager.getParams().clone());
 		
 
 		Map membership = new HashMap();

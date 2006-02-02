@@ -171,7 +171,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateStemPriviligeesAction.java,v 1.4 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateStemPriviligeesAction.java,v 1.5 2006-02-02 16:33:32 isgwb Exp $
  */
 
 public class PopulateStemPriviligeesAction extends GrouperCapableAction {
@@ -227,9 +227,10 @@ public class PopulateStemPriviligeesAction extends GrouperCapableAction {
 		
 		stem = StemFinder.findByUuid(grouperSession, stemId);
 		//Retrieve privilegees
-		Set members = GrouperHelper.getSubjectsWithPriv(stem,privilege);
-		List membersMaps = GrouperHelper.groupList2SubjectsMaps(grouperSession,
-				new ArrayList(members), stemId);
+		Set subjects = GrouperHelper.getSubjectsWithPriv(stem,privilege);
+		List subjectPrivilegeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(
+					grouperSession,subjects,stem,privilege);
+		
 
 		//Set up CollectionPager for view
 		String startStr = request.getParameter("start");
@@ -238,14 +239,14 @@ public class PopulateStemPriviligeesAction extends GrouperCapableAction {
 
 		int start = Integer.parseInt(startStr);
 		int pageSize = getPageSize(session);
-		CollectionPager pager = new CollectionPager(membersMaps, membersMaps
+		CollectionPager pager = new CollectionPager(subjectPrivilegeMaps, subjectPrivilegeMaps
 				.size(), null, start, null, pageSize);
 		pager.setParam("stemId", stemId);
 		pager.setParam("privilege", privilege);
 
 		pager.setTarget(mapping.getPath());
 		request.setAttribute("pager", pager);
-		request.setAttribute("pagerParams", pager.getParams().clone());
+		request.setAttribute("linkParams", pager.getParams().clone());
 
 		Map membership = new HashMap();
 		
