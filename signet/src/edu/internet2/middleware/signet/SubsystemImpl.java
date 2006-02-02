@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.13 2006-01-26 01:39:29 acohen Exp $
- $Date: 2006-01-26 01:39:29 $
+ $Id: SubsystemImpl.java,v 1.14 2006-02-02 21:23:48 acohen Exp $
+ $Date: 2006-02-02 21:23:48 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -220,6 +220,14 @@ class SubsystemImpl
    */
   public Set getFunctions()
   {
+    // Let's make sure all of these Functions have a live Signet reference.
+    Iterator functionsIterator = this.functions.iterator();
+    while (functionsIterator.hasNext())
+    {
+      FunctionImpl function = (FunctionImpl)(functionsIterator.next());
+      function.setSignet(this.getSignet());
+    }
+    
     return this.functions;
   }
   
