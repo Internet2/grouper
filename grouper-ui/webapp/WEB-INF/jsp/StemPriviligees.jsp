@@ -3,7 +3,7 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: StemPriviligees.jsp,v 1.3 2005-12-22 14:53:41 isgwb Exp $
+  @version $Id: StemPriviligees.jsp,v 1.4 2006-02-02 16:38:08 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -17,11 +17,14 @@
 	<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
 	<tiles:put name="view" value="privilegeLinks"/>
 	<tiles:put name="headerView" value="privilegeLinksHeader"/>
-	<tiles:put name="itemView" value="stemMemberLink"/>
+	<tiles:put name="itemView" value="privilegeLink"/>
 	<tiles:put name="footerView" value="privilegeLinksFooter"/>
 	<tiles:put name="pager" beanName="pager"/>
 	<tiles:put name="noResultsMsg" value="${navMap['stems.list-privilegees.none']}"/>
 	<tiles:put name="listInstruction" value="list.instructions.privilege-links"/> 
+	<tiles:put name="linkSeparator">  
+		<tiles:insert definition="linkSeparatorDef" flush="false"/>
+	</tiles:put>
 </tiles:insert>
 <div class="linkButton">
 <%--<c:if test="${!empty searchObj && searchObj.trueSearch}">

@@ -3,7 +3,7 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupPriviligees.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: GroupPriviligees.jsp,v 1.2 2006-02-02 16:38:08 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -23,6 +23,9 @@
 	<tiles:put name="pager" beanName="pager"/>
 	<tiles:put name="noResultsMsg" value="${navMap['groups.list-privilegees.none']}"/>
 	<tiles:put name="listInstruction" value="list.instructions.privilege-links"/> 
+	<tiles:put name="linkSeparator">  
+		<tiles:insert definition="linkSeparatorDef" flush="false"/>
+	</tiles:put>
 </tiles:insert>
 
 <div class="linkButton">

@@ -17,7 +17,12 @@
 	  <tiles:put name="view" value="chainSubject"/>
   </tiles:insert>
  </div>
- <span class="chainLinkText"><html:link page="/populateGroupMember.do" name="membershipMap" title="${navMap['groups.membership.through.title']} ${viewObject[0].desc}"><fmt:message bundle="${nav}" key="groups.membership.chain.member-of"/></html:link></span>
+ 	<tiles:insert definition="dynamicTileDef" flush="false">
+		<tiles:put name="viewObject" beanName="currentSubject"/>
+		<tiles:put name="view" value="isMemberOf"/>
+		<tiles:put name="params" beanName="membershipMap"/>
+	  	<tiles:put name="linkTitle" value="${navMap['groups.membership.through.title']} ${viewObject[0].desc}"/>
+	</tiles:insert>
 <ul>
 <c:forEach items="${viewObject}" var="group" varStatus="status">
 <c:set target="${membershipMap}" property="subjectId" value="${group.id}"/>
@@ -35,10 +40,15 @@
 <c:set target="${group}" property="contextSubjectId" value="${currentSubject.id}"/>
 <c:set target="${group}" property="contextSubjectType" value="${currentSubject.subjectType}"/>
 <c:set target="${group}" property="callerPageId" value="${thisPageId}"/>
-<li><tiles:insert definition="dynamicTileDef" flush="false">
-	  <tiles:put name="viewObject" beanName="group"/>
-	  <tiles:put name="view" value="chainPath"/>
-  </tiles:insert> <span class="chainLinkText"><html:link page="/populateGroupMember.do" name="membershipMap" title="${navMap['groups.membership.through.title']} ${group.desc}"><fmt:message bundle="${nav}" key="groups.membership.chain.member-of"/></html:link></span></li>
+
+  
+   	<tiles:insert definition="singleChainPath" flush="false">
+		<tiles:put name="params" beanName="membershipMap"/>
+		<tiles:put name="group" beanName="group"/>
+		<tiles:put name="currentSubject" beanName="currentSubject"/>
+		<tiles:put name="linkSeparator" beanName="linkSeparator"/>
+
+	</tiles:insert>
 </c:forEach>
 <li><tiles:insert definition="dynamicTileDef" flush="false">
 	  <tiles:put name="viewObject" beanName="currentGroup"/>

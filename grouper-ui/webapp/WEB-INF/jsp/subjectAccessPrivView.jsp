@@ -3,7 +3,7 @@
 		  render individual Access privileges for current subject
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectAccessPrivView.jsp,v 1.2 2005-12-22 13:54:43 isgwb Exp $
+  @version $Id: subjectAccessPrivView.jsp,v 1.3 2006-02-02 16:38:08 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -37,7 +37,7 @@
 <c:set target="${group}" property="contextSubjectId" value="${currentSubject.id}"/>
 <c:set target="${group}" property="contextSubjectType" value="${currentSubject.subjectType}"/>
  <span class="groupSummaryLink">
- <tiles:insert definition="dynamicTileDef" flush="false">
+  <tiles:insert definition="dynamicTileDef" flush="false">
 	  <tiles:put name="viewObject" beanName="group"/>
 	  <tiles:put name="view" value="subjectSummaryGroupLink"/>
   </tiles:insert>

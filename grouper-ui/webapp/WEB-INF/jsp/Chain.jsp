@@ -20,6 +20,9 @@ bulk update capability?). Also link to find new members --%>
 		<tiles:put name="chainSize" value="${chainSubject.chainPathSize}"/>
 		<tiles:put name="currentSubject" beanName="subject"/>
 		<tiles:put name="currentGroup" beanName="browseParent"/>
+		<tiles:put name="linkSeparator">  
+			<tiles:insert definition="linkSeparatorDef" flush="false"/>
+		</tiles:put>
 	</tiles:insert>
 </c:forEach>
 <br/>
