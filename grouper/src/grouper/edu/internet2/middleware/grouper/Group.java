@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.52 2006-01-31 20:44:05 blair Exp $
+ * @version $Id: Group.java,v 1.53 2006-02-03 18:54:28 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -262,8 +262,12 @@ public class Group implements Serializable {
     if (this.hasType(type)) {
       throw new GroupModifyException("group already has type: " + type);
     }
-    if (!PrivilegeResolver.getInstance().isRoot(this.s.getSubject())) {
-      throw new InsufficientPrivilegeException("subject cannot add types");
+    try {
+      PrivilegeResolver.getInstance().canADMIN(this.s, this, this.s.getSubject());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, this.s, eIP.getMessage());
+      throw eIP;
     }
     try {
       StopWatch sw    = new StopWatch();
@@ -565,8 +569,12 @@ public class Group implements Serializable {
     if (!this.hasType(type)) {
       throw new SchemaException("group does not have type: " + type);
     }
-    if (!PrivilegeResolver.getInstance().isRoot(this.s.getSubject())) {
-      throw new InsufficientPrivilegeException("subject cannot add types");
+    try {
+      PrivilegeResolver.getInstance().canADMIN(this.s, this, this.s.getSubject());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, this.s, eIP.getMessage());
+      throw eIP;
     }
     if (GroupType.isSystemType(type)) {
       throw new SchemaException("cannot delete system group types");

@@ -4,15 +4,15 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.26 2006-02-03 18:33:16 blair Exp $
+$Id: TODO,v 1.27 2006-02-03 18:54:28 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### BUGS
-* ADMIN on group should be able to adjust group types (@doc) [DEBUGGING@SCHEDULE]
 * Do not allow assignment of _naming_ group type [DEBUGGING@SCHEDULE]
+* Return created fields [DEBUGGING@SCHEDULE]
 
 ### Improved update performance through introduction of grouperd
 * Create grouperd daemon process
@@ -35,6 +35,9 @@ $Id: TODO,v 1.26 2006-02-03 18:33:16 blair Exp $
 
 ### Basic XML export-and-import of Groups Registry
 Right now it looks like Gary is handling (all|most) of this for 1.0.
+
+### Documentation
+* Group Types [BUFFER@SCHEDULE]
 
 ### Filler
 * _ErrorLog_

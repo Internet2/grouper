@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.4 2006-02-02 16:56:46 blair Exp $
+ * @version $Id: TestGroupTypes.java,v 1.5 2006-02-03 18:54:28 blair Exp $
  */
 public class TestGroupTypes extends TestCase {
 
@@ -542,6 +542,57 @@ public class TestGroupTypes extends TestCase {
       SessionHelper.stop(s);
     }
   } // public void testUseCustomList()
+
+  public void testAddDeleteTypeNonRoot() {
+    GrouperSession  s     = null;
+    String          type  = "customType.TADTNR";
+    String          name  = "customField.TADTNR";
+    FieldType       ft    = FieldType.LIST; 
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    boolean         req   = false;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      custom.addField(s, name, ft, read, write, req);
+      Assert.assertTrue("added LIST field", true);
+      try {
+        Field f     = FieldFinder.find(name);
+        Stem  root  = StemFinder.findRootStem(s);
+        Stem  edu   = root.addChildStem("edu", "edu");
+        Group g     = edu.addChildGroup("g", "g");
+        PrivHelper.grantPriv(s, g, SubjectHelper.SUBJ0, AccessPrivilege.ADMIN);
+
+        try {
+          GrouperSession nrs = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
+          Group gNRS = GroupHelper.findByName(nrs, g.getName());
+          Assert.assertTrue("no custom type", !gNRS.hasType(custom));
+
+          gNRS.addType(custom);
+          Assert.assertTrue("custom type", gNRS.hasType(custom));
+
+          gNRS.deleteType(custom);
+          Assert.assertTrue("custom type removed", !gNRS.hasType(custom));
+        }
+        catch (Exception e) {
+          Assert.fail("could not edit type as !root");
+        }
+
+      }
+      catch (Exception e) {
+        Assert.fail(e.getMessage());
+      }
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail("unexpected exception: " + eIP.getMessage());
+    }
+    catch (SchemaException eS) {
+      Assert.fail("unexpected exception: " + eS.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testAddDeleteTypeNonRoot()
 
   public void testUseCustomAttribute() {
     GrouperSession  s     = null;
