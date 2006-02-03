@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.12 2006-01-02 04:59:07 acohen Exp $
-$Date: 2006-01-02 04:59:07 $
+$Id: ConfirmProxyAction.java,v 1.13 2006-02-03 01:57:48 acohen Exp $
+$Date: 2006-02-03 01:57:48 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -166,6 +166,7 @@ public final class ConfirmProxyAction extends BaseAction
       // We're editing an existing Proxy.
       proxy.setEffectiveDate(loggedInUser, effectiveDate);
       proxy.setExpirationDate(loggedInUser, expirationDate);
+      proxy.evaluate();
     }
     else
     {

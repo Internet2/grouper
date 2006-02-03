@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.5 2006-02-02 22:50:33 acohen Exp $
-  $Date: 2006-02-02 22:50:33 $
+  $Id: designate.jsp,v 1.6 2006-02-03 01:57:48 acohen Exp $
+  $Date: 2006-02-03 01:57:48 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -27,7 +27,7 @@
     {
       var theForm = document.form1;
       var subsystemSelect = document.getElementById(subsystemSelectId);
-      if (subsystemSelect.value == subsystemPromptValue)
+      if (subsystemSelect.selectedIndex < 1)
       {
         // Choosing "please choose a subsystem" doesn't really count as a
         // selection.
@@ -60,6 +60,8 @@
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Proxy" %>
+<%@ page import="edu.internet2.middleware.signet.Status" %>
+
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -219,7 +221,9 @@
                  currentProxy == null
                    ? null
                    : currentProxy.getEffectiveDate(),
-                 (currentProxy == null))%>
+                 currentProxy == null
+                   ? true
+                   : currentProxy.getStatus().equals(Status.PENDING))%>
             </tr>
             
             <tr>

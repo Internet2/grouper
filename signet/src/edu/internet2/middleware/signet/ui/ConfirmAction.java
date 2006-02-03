@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.15 2005-10-25 22:57:07 acohen Exp $
-$Date: 2005-10-25 22:57:07 $
+$Id: ConfirmAction.java,v 1.16 2006-02-03 01:57:48 acohen Exp $
+$Date: 2006-02-03 01:57:48 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -197,6 +197,7 @@ throws Exception
     assignment.setCanUse(grantor, canUse);
     assignment.setEffectiveDate(grantor, effectiveDate);
     assignment.setExpirationDate(grantor, expirationDate);
+    assignment.evaluate();
   }
   else
   {
