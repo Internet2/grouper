@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.5 2006-02-03 18:54:28 blair Exp $
+ * @version $Id: TestGroupTypes.java,v 1.6 2006-02-03 19:22:43 blair Exp $
  */
 public class TestGroupTypes extends TestCase {
 
@@ -974,6 +974,54 @@ public class TestGroupTypes extends TestCase {
       SessionHelper.stop(s);
     }
   } // public void testFailToDeleteUsedCustomList()
+
+  public void testAddBaseType() {
+    GrouperSession  s = null;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType type = GroupTypeFinder.find("base");
+      Stem  root  = StemFinder.findRootStem(s);
+      Stem  edu   = root.addChildStem("edu", "edu");
+      Group g     = edu.addChildGroup("g", "g");
+      try {
+        g.addType(type);
+        Assert.fail("added base type");
+      }
+      catch (Exception e) {
+        Assert.assertTrue("cannot add base type", true);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testAddBaseType()
+
+  public void testAddNamingType() {
+    GrouperSession  s = null;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType type = GroupTypeFinder.find("naming");
+      Stem  root  = StemFinder.findRootStem(s);
+      Stem  edu   = root.addChildStem("edu", "edu");
+      Group g     = edu.addChildGroup("g", "g");
+      try {
+        g.addType(type);
+        Assert.fail("added naming type");
+      }
+      catch (Exception e) {
+        Assert.assertTrue("cannot add naming type", true);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+    finally {
+      SessionHelper.stop(s);
+    }
+  } // public void testAddNamingType()
 
 }
 
