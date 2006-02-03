@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.92 2006-02-02 16:56:46 blair Exp $
+$Id: NEWS,v 1.93 2006-02-03 18:54:28 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS,v 1.92 2006-02-02 16:56:46 blair Exp $
 Released: TBD
 
 ## Changes
+* BUGFIX: Subjects with ADMIN can now add-or-remove group types from a group
 * NEW: Delete custom fields from custom group types with the API
 * NEW: Add custom fields (attributes and lists) to custom group types 
   with the API
