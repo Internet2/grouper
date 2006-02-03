@@ -1,6 +1,6 @@
 /*--
-  $Id: PersonViewAction.java,v 1.7 2005-10-14 22:34:53 acohen Exp $
-  $Date: 2005-10-14 22:34:53 $
+  $Id: PersonViewAction.java,v 1.8 2006-02-03 00:01:52 acohen Exp $
+  $Date: 2006-02-03 00:01:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -82,15 +82,10 @@ public final class PersonViewAction extends BaseAction
            Constants.SUBSYSTEM_HTTPPARAMNAME, // paramName
            Constants.SUBSYSTEM_ATTRNAME,      // attributeName
            Constants.WILDCARD_SUBSYSTEM);     // default value
-    
-    PrivDisplayType currentPrivDisplayType
-      = Common.getAndSetPrivDisplayType
-          (request,
-           Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME, // paramName
-           Constants.PRIVDISPLAYTYPE_ATTRNAME,      // attributeName
-           PrivDisplayType.CURRENT_GRANTED);        // default value
-    
 
+    session.setAttribute
+      (Constants.PRIVDISPLAYTYPE_ATTRNAME, PrivDisplayType.CURRENT_RECEIVED);
+    
     // Forward to our success page
     return findSuccess(mapping);
   }

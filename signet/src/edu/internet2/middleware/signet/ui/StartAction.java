@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.14 2006-01-13 19:01:12 acohen Exp $
-  $Date: 2006-01-13 19:01:12 $
+  $Id: StartAction.java,v 1.15 2006-02-03 00:01:52 acohen Exp $
+  $Date: 2006-02-03 00:01:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -135,12 +135,8 @@ public final class StartAction extends BaseAction
            Constants.CURRENTPSUBJECT_ATTRNAME,      // attrName
            loggedInUser.getEffectiveEditor());      // defaultValue
     
-    PrivDisplayType currentPrivDisplayType
-      = Common.getAndSetPrivDisplayType
-          (request,
-           Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME, // paramName
-           Constants.PRIVDISPLAYTYPE_ATTRNAME,      // attributeName
-           PrivDisplayType.CURRENT_GRANTED);        // default value
+    session.setAttribute
+      (Constants.PRIVDISPLAYTYPE_ATTRNAME, PrivDisplayType.CURRENT_GRANTED);
     
     Subsystem currentSubsystem
       = Common.getAndSetSubsystem
