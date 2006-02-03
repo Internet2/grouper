@@ -4,14 +4,13 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.29 2006-02-03 19:38:53 blair Exp $
+$Id: TODO,v 1.30 2006-02-03 20:20:15 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### BUGS
-* Return created fields [DEBUGGING@SCHEDULE]
 
 ### Improved update performance through introduction of grouperd
 * Create grouperd daemon process

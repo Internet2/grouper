@@ -27,11 +27,47 @@ import  java.util.*;
  * Validator Utility Class.
  * <p />
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.1 2006-02-03 19:39:52 blair Exp $
+ * @version $Id: Validator.java,v 1.2 2006-02-03 20:20:15 blair Exp $
  */
 class Validator implements Serializable {
 
   // Protected Class Methods
+
+  protected static void canAddFieldToType(
+    GrouperSession s, GroupType gt, String name, FieldType ft, Privilege read, Privilege write
+  ) 
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    _canModifyField(s, gt);
+    Field f = null;
+    try {
+      f = FieldFinder.find(name);  
+    }
+    catch (SchemaException eS) {
+      // Ignore
+    } 
+    if (f != null) {
+      throw new SchemaException("field already exists");
+    }
+    if 
+    (
+      !(
+        (ft.toString().equals(FieldType.ATTRIBUTE.toString()) ) 
+        || 
+        (ft.toString().equals(FieldType.LIST.toString())      ) 
+      )
+    )
+    {
+      throw new SchemaException("invalid field type");
+    }
+    if (!Privilege.isAccess(read)) {
+      throw new SchemaException("read privilege not access privilege");
+    }
+    if (!Privilege.isAccess(write)) {
+      throw new SchemaException("write privilege not access privilege");
+    }
+  } // protected static void canAddFieldToType(s, gt, name, ft, read, write)
 
   protected static void canAddGroupType(GrouperSession s, Group g, GroupType type) 
     throws  GroupModifyException,
@@ -41,8 +77,20 @@ class Validator implements Serializable {
     if (g.hasType(type)) {
       throw new GroupModifyException("already has type");
     }
-    _canEditGroupType(s, g, type);
+    _canModifyGroupType(s, g, type);
   } // protected static void canAddGroupType(s, g, type)
+
+  protected static void canDeleteFieldFromType(
+    GrouperSession s, GroupType type, Field f
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    _canModifyField(s, type);
+    if (!f.getGroupType().equals(type)) {
+      throw new SchemaException("field does not belong to this group type");
+    }
+  } // protected static void canDeleteFieldFromType(s, type, f)
 
   protected static void canDeleteGroupType(GrouperSession s, Group g, GroupType type) 
     throws  GroupModifyException,
@@ -52,13 +100,25 @@ class Validator implements Serializable {
     if (!g.hasType(type)) {
       throw new GroupModifyException("does not have type");
     }
-    _canEditGroupType(s, g, type);
+    _canModifyGroupType(s, g, type);
   } // protected static void canAddGroupType(s, g, type)
 
 
   // Private Class Methods
 
-  private static void _canEditGroupType(GrouperSession s, Group g, GroupType type) 
+  private static void _canModifyField(GrouperSession s, GroupType type) 
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
+      throw new InsufficientPrivilegeException("not privileged to modify fields");
+    }
+    if (GroupType.isSystemType(type)) {
+      throw new SchemaException("cannot modify fields on system-maintained groups");
+    }
+  } // private static void _canModifyField(s, type)
+
+  private static void _canModifyGroupType(GrouperSession s, Group g, GroupType type) 
     throws  GroupModifyException,
             InsufficientPrivilegeException,
             SchemaException
@@ -67,7 +127,7 @@ class Validator implements Serializable {
       throw new SchemaException("cannot edit system group types");
     }
     PrivilegeResolver.getInstance().canADMIN(s, g, s.getSubject());
-  } // private static void _canEditGroupType(s, g, type)
+  } // private static void _canModifyGroupType(s, g, type)
 
 }
 
