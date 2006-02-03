@@ -4,14 +4,13 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.27 2006-02-03 18:54:28 blair Exp $
+$Id: TODO,v 1.28 2006-02-03 19:22:43 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### BUGS
-* Do not allow assignment of _naming_ group type [DEBUGGING@SCHEDULE]
 * Return created fields [DEBUGGING@SCHEDULE]
 
 ### Improved update performance through introduction of grouperd
@@ -50,6 +49,7 @@ Right now it looks like Gary is handling (all|most) of this for 1.0.
 ---
 
 ## Future Releases
+* Expand _Validator_ class
 * Stem: _addChildGroup()_ and _addChildStems()_ should take an optional
   Properties arg that would override configuration defaults
 * Rework _PrivilegeCache_ so that I can expire individual entries
@@ -86,4 +86,5 @@ Right now it looks like Gary is handling (all|most) of this for 1.0.
 * Stem: constructName()
 * StemFinder: isChild()
 * Test helper methods
+
 

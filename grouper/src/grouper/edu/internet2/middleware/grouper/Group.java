@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.53 2006-02-03 18:54:28 blair Exp $
+ * @version $Id: Group.java,v 1.54 2006-02-03 19:22:43 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -250,25 +250,21 @@ public class Group implements Serializable {
    * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to add type
    * }
+   * catch (SchemaException eS) {
+   *   // Cannot add system-maintained types
+   * }
    * </pre>
    * @param   type  The {@link GroupType} to add.
    * @throws  GroupModifyException if unable to add type.
    * @throws  InsufficientPrivilegeException if subject not root-like.
+   * @throws  SchemaException if attempting to add a system group type.
    */
   public void addType(GroupType type) 
     throws  GroupModifyException,
-            InsufficientPrivilegeException
+            InsufficientPrivilegeException,
+            SchemaException
   {
-    if (this.hasType(type)) {
-      throw new GroupModifyException("group already has type: " + type);
-    }
-    try {
-      PrivilegeResolver.getInstance().canADMIN(this.s, this, this.s.getSubject());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, this.s, eIP.getMessage());
-      throw eIP;
-    }
+    Validator.canAddGroupType(this.s, this, type);
     try {
       StopWatch sw    = new StopWatch();
       Session   hs    = HibernateHelper.getSession();
@@ -566,19 +562,7 @@ public class Group implements Serializable {
             InsufficientPrivilegeException,
             SchemaException
   {
-    if (!this.hasType(type)) {
-      throw new SchemaException("group does not have type: " + type);
-    }
-    try {
-      PrivilegeResolver.getInstance().canADMIN(this.s, this, this.s.getSubject());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, this.s, eIP.getMessage());
-      throw eIP;
-    }
-    if (GroupType.isSystemType(type)) {
-      throw new SchemaException("cannot delete system group types");
-    }
+    Validator.canDeleteGroupType(this.s, this, type);
     try {
       StopWatch sw    = new StopWatch();
       Session   hs    = HibernateHelper.getSession();
