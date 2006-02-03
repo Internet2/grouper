@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.6 2006-02-03 01:57:48 acohen Exp $
-  $Date: 2006-02-03 01:57:48 $
+  $Id: designate.jsp,v 1.7 2006-02-03 21:54:11 acohen Exp $
+  $Date: 2006-02-03 21:54:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -23,10 +23,10 @@
 
   <script type="text/javascript">
     
-    function subsystemSelected(subsystemSelectId, subsystemPromptValue)
+    function subsystemSelected()
     {
       var theForm = document.form1;
-      var subsystemSelect = document.getElementById(subsystemSelectId);
+      var subsystemSelect = document.form1.<%=Constants.SUBSYSTEM_HTTPPARAMNAME%>;
       if (subsystemSelect.selectedIndex < 1)
       {
         // Choosing "please choose a subsystem" doesn't really count as a
@@ -39,9 +39,9 @@
       }
     }
     
-    function setContinueButtonStatus(subsystemSelectId, subsystemPromptValue)
+    function setContinueButtonStatus()
     {
-      if (subsystemSelected(subsystemSelectId, subsystemPromptValue))
+      if (subsystemSelected())
       {
         document.form1.continueButton.disabled=false;
       }
@@ -198,7 +198,7 @@
                    (Constants.SUBSYSTEM_HTTPPARAMNAME,
                     Constants.SUBSYSTEM_PROMPTVALUE,
                     "select a privilege type...",
-                    "setContinueButtonStatus('" + Constants.SUBSYSTEM_HTTPPARAMNAME + "', '" + Constants.SUBSYSTEM_PROMPTVALUE+ "');",
+                    "setContinueButtonStatus();",
                     grantableSubsystems,
                     (currentProxy == null ? null : currentProxy.getSubsystem()))%>
           </div>

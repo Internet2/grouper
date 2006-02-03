@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.63 2006-02-02 23:28:28 acohen Exp $
-  $Date: 2006-02-02 23:28:28 $
+  $Id: Common.java,v 1.64 2006-02-03 21:54:11 acohen Exp $
+  $Date: 2006-02-03 21:54:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1751,7 +1751,7 @@ public class Common
     (String     selectName,
      String     promptValue,
      String     promptText,
-     String     onClickScript,
+     String     onChangeScript,
      Set        subsystems,
      Subsystem  selectedSubsystem)
   {
@@ -1761,7 +1761,8 @@ public class Common
     outStr.append("  <!-- keep select & button together -->\n");
     outStr.append("  <select\n");
     outStr.append("    name=\"" + selectName + "\"\n");
-    outStr.append("    id=\"" + selectName + "\">\n");
+    outStr.append("    id=\"" + selectName + "\"\n");
+    outStr.append("    onchange=\"" + onChangeScript + "\">\n");
 
     outStr.append("    <option\n");
     
@@ -1770,8 +1771,7 @@ public class Common
       outStr.append("      selected=\"selected\"\n");
     }
     
-    outStr.append("      value=\"" + promptValue + "\"\n");
-    outStr.append("      onclick=\"" + onClickScript + "\">\n");
+    outStr.append("      value=\"" + promptValue + "\">\n");
     outStr.append("      " + promptText + "\n");
     outStr.append("    </option>\n");
 
@@ -1787,8 +1787,7 @@ public class Common
         outStr.append("      selected=\"selected\"\n");
       }
       
-      outStr.append("      value=\"" + subsystem.getId() + "\"\n");
-      outStr.append("      onclick=\"" + onClickScript + "\">\n");
+      outStr.append("      value=\"" + subsystem.getId() + "\">\n");
       outStr.append("      " + subsystem.getName() + "\n");
       outStr.append("    </option>\n");
     }
