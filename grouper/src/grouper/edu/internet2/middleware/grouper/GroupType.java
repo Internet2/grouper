@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.10 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GroupType.java,v 1.11 2006-02-03 20:20:15 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -140,7 +140,7 @@ public class GroupType implements Serializable {
    * {@link InsufficientPrivilegeException} will be thrown.
    * <pre class="eg">
    * try {
-   *   type.addField(
+   *   Field myField = type.addField(
    *     "my field", FieldType.LIST, AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
    *   );
    * }
@@ -160,62 +160,17 @@ public class GroupType implements Serializable {
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
-  public void addField(
+  public Field addField(
       GrouperSession s, String name, FieldType type, Privilege read, 
       Privilege write, boolean required
   )
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    // TODO DRY with deleteField()
     Field     f   = null;
-    StopWatch sw    = new StopWatch();
+    StopWatch sw  = new StopWatch();
     sw.start();
-    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
-      String msg = "subject not privileged to add fields";
-      LOG.error(msg);
-      throw new InsufficientPrivilegeException(msg);
-    }
-    try {
-      f = FieldFinder.find(name);  
-      // field already exists.  
-    }
-    catch (SchemaException eS) {
-      // Ignore
-    } 
-    if (f != null) {
-      String msg = "field already exists: " + name;
-      LOG.error(msg);
-      throw new SchemaException(msg);
-    }
-    if (GroupType.isSystemType(this)) {
-      String msg = "cannot add fields to system group types";
-      LOG.error(msg);
-      throw new SchemaException(msg);
-    }
-    if 
-    (
-      !(
-        (type.toString().equals(FieldType.ATTRIBUTE.toString()) ) 
-        || 
-        (type.toString().equals(FieldType.LIST.toString())      ) 
-      )
-    )
-    {
-      String msg = "invalid field type: " + type;
-      LOG.error(msg);
-      throw new SchemaException(msg);
-    }
-    if (!Privilege.isAccess(read)) {
-      String msg = "read privilege not access privilege: " + read;
-      LOG.error(msg);
-      throw new SchemaException(msg);
-    }
-    if (!Privilege.isAccess(write)) {
-      String msg = "write privilege not access privilege: " + write;
-      LOG.error(msg);
-      throw new SchemaException(msg);
-    }
+    Validator.canAddFieldToType(s, this, name, type, read, write);
     try {
       boolean nullable = true;
       if (required == true) {
@@ -228,6 +183,7 @@ public class GroupType implements Serializable {
       HibernateHelper.save(this);
       sw.stop();
       EL.groupTypeAddField(s, this.getName(), name, sw);
+      return f;
     }
     catch (HibernateException eS) {
       String msg = "unable to add field: " + name + ": " + eS.getMessage();
@@ -264,25 +220,11 @@ public class GroupType implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    // TODO DRY with addField()
-    StopWatch sw    = new StopWatch();
+    // TODO I should still move more of this to _Validator_
+    StopWatch sw  = new StopWatch();
     sw.start();
-    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
-      String msg = "subject not privileged to delete fields";
-      LOG.error(msg);
-      throw new InsufficientPrivilegeException(msg);
-    }
-    if (GroupType.isSystemType(this)) {
-      String msg = "cannot delete fields from system group types";
-      LOG.error(msg);
-      throw new SchemaException(msg);
-    }
-    Field f = FieldFinder.find(name);  
-    if (!f.getGroupType().equals(this)) {
-      String msg = "field does not belong to this group type";
-      LOG.error(msg);
-      throw new SchemaException(msg);
-    }
+    Field     f   = FieldFinder.find(name);  
+    Validator.canDeleteFieldFromType(s, this, f);
     // Now see if the field is in use
     Session hs = null;
     try {
