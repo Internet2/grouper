@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.28 2006-02-03 19:22:43 blair Exp $
+$Id: TODO,v 1.29 2006-02-03 19:38:53 blair Exp $
 
 ---
 
@@ -86,5 +86,4 @@ Right now it looks like Gary is handling (all|most) of this for 1.0.
 * Stem: constructName()
 * StemFinder: isChild()
 * Test helper methods
-
 

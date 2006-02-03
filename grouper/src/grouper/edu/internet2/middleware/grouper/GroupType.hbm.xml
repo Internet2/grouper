@@ -4,8 +4,8 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
 <!--
-  Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2005 The University Of Chicago
+  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2006 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: GroupType.hbm.xml,v 1.9 2005-12-19 16:49:01 blair Exp $ -->
+<!-- $Id: GroupType.hbm.xml,v 1.10 2006-02-03 19:38:53 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="GroupType" table="grouper_types" >
