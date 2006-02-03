@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2005 The University Of Chicago
+  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2006 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.1 2005-12-19 20:40:21 blair Exp $
+ * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.2 2006-02-03 19:38:53 blair Exp $
  */
 public class TestSuFiGrSoAdFindByIdfr extends TestCase {
 

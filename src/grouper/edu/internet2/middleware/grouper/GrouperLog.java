@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2005 The University Of Chicago
+  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2006 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.9 2005-12-15 06:31:11 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.10 2006-02-03 19:38:53 blair Exp $
  *     
 */
 class GrouperLog implements Serializable {

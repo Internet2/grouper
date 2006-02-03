@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2005 The University Of Chicago
+  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2006 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import  net.sf.hibernate.type.*;
  * Custom {@link Field} user type.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldUserType.java,v 1.3 2005-11-28 18:33:22 blair Exp $    
+ * @version $Id: FieldUserType.java,v 1.4 2006-02-03 19:38:53 blair Exp $    
  */
 public class FieldUserType implements CompositeUserType {
 

@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2005 The University Of Chicago
+  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2006 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.6 2006-02-03 19:22:43 blair Exp $
+ * @version $Id: TestGroupTypes.java,v 1.7 2006-02-03 19:38:53 blair Exp $
  */
 public class TestGroupTypes extends TestCase {
 

@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2005 The University Of Chicago
+  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2006 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.8 2005-12-12 04:54:09 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.9 2006-02-03 19:38:53 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 

@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2005 The University Of Chicago
+  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2006 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.33 2005-12-17 18:17:53 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.34 2006-02-03 19:38:53 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
