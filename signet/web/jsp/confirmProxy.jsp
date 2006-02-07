@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.4 2006-02-01 23:47:31 jvine Exp $
-  $Date: 2006-02-01 23:47:31 $
+  $Id: confirmProxy.jsp,v 1.5 2006-02-07 19:52:03 jvine Exp $
+  $Date: 2006-02-07 19:52:03 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -153,19 +153,18 @@
 			<p>
 				<a href="<%=personViewHref%>"><img src="images/arrow_right.gif" alt="" />
 				<span class="default">Subject View</span> 
-          [<%=currentGranteePrivilegedSubject.getName()%>]
-        </a>
+          [<%=currentGranteePrivilegedSubject.getName()%>]</a>
 			</p>
             <p>
               <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">
                 <img src="images/arrow_right.gif" alt="" />
-                Designate another granting proxy</a>
+                Designate <%=currentGranteePrivilegedSubject.getName()%> again</a>
+				(different privilege type or conditions)
             </p>
             <p>
               <a href="Designate.do">
                 <img src="images/arrow_right.gif" alt="" />
-                Edit this designation</a>
-            </p>			
+                Edit this designation</a></p>			
 			<p>
               <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
                 <img src="images/arrow_right.gif" alt="" />

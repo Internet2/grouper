@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateProxies.jsp,v 1.2 2006-02-01 23:47:31 jvine Exp $
-  $Date: 2006-02-01 23:47:31 $
+  $Id: duplicateProxies.jsp,v 1.3 2006-02-07 19:52:03 jvine Exp $
+  $Date: 2006-02-07 19:52:03 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -77,6 +77,21 @@
       + currentGranteePrivilegedSubject.getSubjectId()
       + "&subsystemId="
       + currentProxy.getSubsystem().getId();
+
+  boolean isSubsystemOwner;
+  
+  if (currentProxy == null)
+  {
+    isSubsystemOwner
+      = ((Boolean)
+            (request.getSession().getAttribute
+              (Constants.SUBSYSTEM_OWNER_ATTRNAME)))
+          .booleanValue();
+  }
+  else
+  {
+    isSubsystemOwner = Common.isSubsystemOwner(signet, currentProxy);
+  }
 %>
 
       <div id="Navbar">
@@ -89,8 +104,8 @@
           </a>
           &gt; <!-- displays as text right-angle bracket -->
           <a href="<%=personViewHref%>">Subject View 
-            [<%=currentGranteePrivilegedSubject.getName()%>]
-          </a>          
+            [<%=currentGranteePrivilegedSubject.getName()%>]</a>
+		  &gt; Duplicate Designated Driver          
         </span> <!-- select -->
       </div>  <!-- Navbar -->
 
@@ -99,8 +114,8 @@
     <div id="Content">
       <div id="ViewHead">
 		   <span class="dropback">
-            <%=currentProxy==null?"Designating":"Editing"%>
-			proxy or subsystem owner
+            Duplicate
+			<%=isSubsystemOwner ? "subsystem owner" : "proxy"%>				   
           </span>            	
         <h1>
           <%=currentGranteePrivilegedSubject.getName()%>
@@ -109,23 +124,23 @@
       </div>  <!-- ViewHead -->
 			
 <div class="alert">
-<p><img src="images/caution.gif" align="left" />This proxy designation is very similar to the others shown below. Review these designations, then: </p>
+<p><img src="images/caution.gif" align="left" />This  designated driver is very similar to one or more that already exists. Compare them below, then: </p>
 
 <ul>
-	<li>check, under &quot;Replace&quot;, any proxy designations to be replaced by your new designation (equivalent to revoking and reassigning authority), and </li>
-  <li>complete this transaction using the &quot;COMPLETE&quot; button at the bottom 
+	<li>in the &quot;Replace&quot; column, check any  existing designated driver(s) you want to replace with this one, then </li>
+    <li>click the &quot;COMPLETE&quot; button at the bottom 
   	of the page.</li>
   </ul>
-<p>Or cancel your assignment by clicking the &quot;CANCEL&quot; link at the bottom of the page. </p>
+<p>Or cancel this designated driver by clicking the &quot;CANCEL&quot; link at the bottom of the page.</p>
 
 </div>
 
 <div class="section">
-<h2>Review your current proxy designation<span class="status"> (not yet complete)</span></h2>
+<h2>Review your current  designated driver <span class="status"> (not yet complete)</span></h2>
 	<table class="full" style="margin-left: 75px;">
 	<tr>
-		<th>Subsystem</th>
-		<th>Status</th>
+		<th width="300">Subsystem</th>
+		<th width="100">Status</th>
 		</tr>
     <tr >
       <td>
@@ -145,12 +160,12 @@
   id="dupForm">
   
   <div class="section">
-    <h2>Check any existing proxy designation(s) you want to replace</h2>
+    <h2>Check any existing  designated driver(s) you want to replace</h2>
     <table class="full">
       <tr>
         <th width="50" align="center"> Replace</th>
-        <th>Subsystem</th>
-        <th>Status</th>
+        <th width="300">Subsystem</th>
+        <th width="100">Status</th>
       </tr>
       
 <%
@@ -179,8 +194,7 @@
   <div class="section">
     <h2>
       <a name="complete" id="complete"></a>
-      Complete this proxy designation
-    </h2>
+      Complete this  designated driver </h2>
 
     <input
       name="complButton"
@@ -194,8 +208,8 @@
     
     <a href="<%=personViewHref%>">
       <img src="images/arrow_left.gif" />
-      CANCEL this proxy designation and return to Subject View [<%=currentGranteePrivilegedSubject.getName()%>]
-    </a>
+      CANCEL this designated driver</a> and return to Subject View [<%=currentGranteePrivilegedSubject.getName()%>]
+    
   </div>
 
      	</form>
@@ -207,12 +221,11 @@
 
       <div id="Sidebar">
       	<div class="helpbox">
-      		<h2>help</h2>
+      		<h2>Help</h2>
       		<div class="actionbox">
-      			<p>This proxy designation has been determined to be very similar to one or more existing proxies.</p>
-<p>The subject's actual proxy conditions will be the most lenient of any specified conditions. If your intent is to restrict the conditions of this proxy, you should replace any proxies with more lenient conditions.</p>
-
-<p>You can find out who originally granted the proxy by clicking on the <img src="images/maglass.gif" alt="" style="vertical-align:top;" /> icon. </p>
+   			  <p>In cases where there is more than one designation for a specific privilege type, the subject's actual  conditions (effective date and duration) will be the most lenient of any specified conditions. </p>
+   			  <p>If your intent is to restrict conditions, you should replace any designations with more lenient conditions.</p>
+			  <p>Find out more details about the existing designations  by clicking on the <img src="images/maglass.gif" alt="" style="vertical-align:top;" /> icon. </p>
 
 		  </div>
      		</div>

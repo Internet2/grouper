@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.7 2006-02-03 21:54:11 acohen Exp $
-  $Date: 2006-02-03 21:54:11 $
+  $Id: designate.jsp,v 1.8 2006-02-07 19:52:03 jvine Exp $
+  $Date: 2006-02-07 19:52:03 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -244,7 +244,7 @@
         
         <div class="section">
         
-          <h2>Complete this designation</h2>  
+          <h2>Complete designated driver </h2>  
           <input
             name="continueButton"
 <%
@@ -271,7 +271,7 @@
       <div id="Sidebar">      
         <div class="helpbox">
           <h2>
-            help
+            Help
           </h2>
 		  
 		 <%
