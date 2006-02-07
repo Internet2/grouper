@@ -13,9 +13,6 @@
 /
 /     [attributename] [attributevalue]
 /   
-/ Note: "SignetSuperSubject" is a temporary highly-privileged user for
-/        bootstrapping privileges in the demo system.
-/   
 / Note: The attribute named "all" with a value of "all" in each person is for
 /       the demo system, to allow a search on "all" to fetch all subhjects.
 /
