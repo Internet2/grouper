@@ -80,6 +80,13 @@
 			deprecation="on">
 			<classpath refid="source.class.path"/>
 		</javac>
+	</target>
+
+	<!-- Compile the java source of the project -->
+	<target
+		name="build"
+		depends="compile"
+		description="Builds Signet release">
 		
 		<!-- Copy the Hibernate mapping-files into the work-classes directory.
 		-->
@@ -165,7 +172,7 @@
 			classpathref="source.class.path" /> 
 	</target>
 
-	<target name="create-dist" depends="clean, compile, javadoc">
+	<target name="create-dist" depends="clean, build, javadoc">
 		<copy todir="${toplevel.dir}">
 			<fileset dir=".">
 				<include name="README" />
