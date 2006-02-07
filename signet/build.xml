@@ -18,6 +18,12 @@
 	<property name="source_sql.dir"       location="sql"/>
 	<property name="source_config.dir"    location="config"/>
 	
+	<!-- This folder exists only for the convenience of some developers who
+	     like to compile into a "classes" directory for iterative development.
+	     It is not used when building a Signet release.
+	-->
+	<property name="classes.dir"          location="classes"/>
+	
 	<!-- We'll need a temporary workspace to build intermediate files in -->
 	<property name="work.dir"          location="work"/>
 	<property name="work_classes.dir"  location="${work.dir}/classes"/>
@@ -66,11 +72,30 @@
 		<mkdir dir="${dist_lib.dir}"/>
 	</target>
 
-	<!-- Compile the java source of the project -->
+	<!-- Compile the java source of the project.
+	     This task exists only for the convenience of some developers who
+	     like to compile into a "classes" directory for iterative development.
+	     It is not used when building a Signet release.
+	-->
 	<target
 		name="compile"
 		depends="prepare"
 		description="Compiles all Java classes">
+		
+		<javac
+			srcdir="${source_java.dir}"
+			destdir="${classes.dir}"
+			debug="on"
+			optimize="off"
+			deprecation="on">
+			<classpath refid="source.class.path"/>
+		</javac>
+	</target>
+
+	<target
+		name="build"
+		depends="prepare"
+		description="Builds Signet release">
 		
 		<javac
 			srcdir="${source_java.dir}"
@@ -80,13 +105,6 @@
 			deprecation="on">
 			<classpath refid="source.class.path"/>
 		</javac>
-	</target>
-
-	<!-- Compile the java source of the project -->
-	<target
-		name="build"
-		depends="compile"
-		description="Builds Signet release">
 		
 		<!-- Copy the Hibernate mapping-files into the work-classes directory.
 		-->
