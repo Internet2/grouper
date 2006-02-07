@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.5 2006-02-07 19:52:03 jvine Exp $
-  $Date: 2006-02-07 19:52:03 $
+  $Id: confirmProxy.jsp,v 1.6 2006-02-07 21:19:50 acohen Exp $
+  $Date: 2006-02-07 21:19:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -156,7 +156,7 @@
           [<%=currentGranteePrivilegedSubject.getName()%>]</a>
 			</p>
             <p>
-              <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">
+              <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true<%=Common.isSystemAdministrator(signet, loggedInPrivilegedSubject) ? "&" + Constants.SUBSYSTEM_OWNER_HTTPPARAMNAME + "=true" : ""%>">
                 <img src="images/arrow_right.gif" alt="" />
                 Designate <%=currentGranteePrivilegedSubject.getName()%> again</a>
 				(different privilege type or conditions)
