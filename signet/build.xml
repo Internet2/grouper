@@ -79,7 +79,6 @@
 	-->
 	<target
 		name="compile"
-		depends="prepare"
 		description="Compiles all Java classes">
 		
 		<mkdir dir="${classes.dir}"/>
