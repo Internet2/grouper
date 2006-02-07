@@ -22,6 +22,8 @@
 		description="Build Signet Proxy Utility">
 		<copy file="run.sh"
 			todir="${dist_util.dir}/${util.name}" />
+		<copy file="run.bat"
+			todir="${dist_util.dir}/${util.name}" />
 
 	</target>
 
