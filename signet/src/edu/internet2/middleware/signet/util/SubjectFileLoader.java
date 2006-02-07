@@ -1,5 +1,5 @@
 /*
-SubsystemFileLoader.java
+SubjectFileLoader.java
 Created on Feb 22, 2005
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
@@ -616,6 +616,5 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
         //trim the leading/trailing whitespace
         return buf.toString().trim();
     }
-
 
 }
