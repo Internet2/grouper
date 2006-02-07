@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.8 2006-02-07 19:52:03 jvine Exp $
-  $Date: 2006-02-07 19:52:03 $
+  $Id: designate.jsp,v 1.9 2006-02-07 20:24:50 acohen Exp $
+  $Date: 2006-02-07 20:24:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -102,6 +102,12 @@
   {
     isSubsystemOwner = Common.isSubsystemOwner(signet, currentProxy);
   }
+   
+  String personViewHref
+    = "PersonView.do?granteeSubjectTypeId="
+      + currentPSubject.getSubjectTypeId()
+      + "&granteeSubjectId="
+      + currentPSubject.getSubjectId();
 %>
 
   <tiles:insert page="/tiles/header.jsp" flush="true" />
@@ -113,6 +119,10 @@
     <span class="select">
       <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
         <%=Common.homepageName(loggedInPrivilegedSubject)%>
+      </a>
+      &gt; <!-- displays as text right-angle bracket -->
+      <a href="<%=personViewHref%>">Subject View 
+        [<%=currentPSubject.getName()%>]
       </a>
       &gt; <%=currentProxy==null?"":"Edit"%> Designated Driver
     </span> <!-- select -->
