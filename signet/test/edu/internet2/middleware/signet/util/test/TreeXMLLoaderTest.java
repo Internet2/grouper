@@ -1,6 +1,6 @@
 /*--
-$Id: TreeXMLLoaderTest.java,v 1.1 2005-05-12 22:04:35 acohen Exp $
-$Date: 2005-05-12 22:04:35 $
+$Id: TreeXMLLoaderTest.java,v 1.2 2006-02-07 20:12:14 acohen Exp $
+$Date: 2006-02-07 20:12:14 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -16,9 +16,7 @@ import edu.internet2.middleware.signet.Status;
 
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.signet.util.TreeXMLLoader;
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.signet.util.TreeXmlLoader;
 import junit.framework.TestCase;
 
 /**
@@ -29,7 +27,7 @@ import junit.framework.TestCase;
  */
 public class TreeXMLLoaderTest extends TestCase
 {
-  private TreeXMLLoader  treeLoader;
+  private TreeXmlLoader  treeLoader;
   private Signet          signet;
   
   public static void main(String[] args)
@@ -43,7 +41,7 @@ public class TreeXMLLoaderTest extends TestCase
   protected void setUp() throws Exception
   {
     super.setUp();
-    treeLoader = new TreeXMLLoader();
+    treeLoader = new TreeXmlLoader();
     signet = new Signet();
   }
 
