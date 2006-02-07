@@ -1,6 +1,6 @@
 /*--
-  $Id: PersonViewAction.java,v 1.8 2006-02-03 00:01:52 acohen Exp $
-  $Date: 2006-02-03 00:01:52 $
+  $Id: PersonViewAction.java,v 1.9 2006-02-07 17:47:13 acohen Exp $
+  $Date: 2006-02-07 17:47:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -82,9 +82,19 @@ public final class PersonViewAction extends BaseAction
            Constants.SUBSYSTEM_HTTPPARAMNAME, // paramName
            Constants.SUBSYSTEM_ATTRNAME,      // attributeName
            Constants.WILDCARD_SUBSYSTEM);     // default value
-
+    
+    PrivDisplayType privDisplayType = PrivDisplayType.CURRENT_RECEIVED;
+    String privDisplayTypeName
+      = request.getParameter(Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME);
+    if (privDisplayTypeName != null)
+    {
+      privDisplayType
+        = (PrivDisplayType)
+            (PrivDisplayType.getInstanceByName(privDisplayTypeName));
+    }
+    
     session.setAttribute
-      (Constants.PRIVDISPLAYTYPE_ATTRNAME, PrivDisplayType.CURRENT_RECEIVED);
+      (Constants.PRIVDISPLAYTYPE_ATTRNAME, privDisplayType);
     
     // Forward to our success page
     return findSuccess(mapping);
