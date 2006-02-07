@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.64 2006-02-03 21:54:11 acohen Exp $
-  $Date: 2006-02-03 21:54:11 $
+  $Id: Common.java,v 1.65 2006-02-07 22:08:51 acohen Exp $
+  $Date: 2006-02-07 22:08:51 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1157,7 +1157,7 @@ public class Common
     outStr.append("         'scrollbars=yes,\n");
     outStr.append("          resizable=yes,\n");
     outStr.append("          width=500,\n");
-    outStr.append("          height=250');\">\n");
+    outStr.append("          height=450');\">\n");
     outStr.append("  <img\n");
     outStr.append("   src=\"images/maglass.gif\"\n");
     outStr.append("   alt=\"More info about this proxy designation...\" />\n");
