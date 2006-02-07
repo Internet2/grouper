@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.84 2006-01-18 19:31:18 blair Exp $ -->
+<!-- $Id: build.xml,v 1.85 2006-02-07 20:46:44 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -210,6 +210,34 @@
   </target>
   <!-- ensure-test-name -->
 
+  <!-- grouperd -->
+  <target name="grouperd"
+          depends="build"
+          description="run grouperd process"
+  >
+    <java classname="edu.internet2.middleware.grouper.grouperd"
+          fork="yes"
+    >
+      <classpath refid="project.classpath"/>
+      <arg value="start"/>
+    </java>
+  </target>
+  <!-- grouperd -->
+
+  <!-- grouperd-stop -->
+  <target name="grouperd-stop"
+          depends="build"
+          description="stop grouperd process"
+  >
+    <java classname="edu.internet2.middleware.grouper.grouperd"
+          fork="yes"
+    >
+      <classpath refid="project.classpath"/>
+      <arg value="stop"/>
+    </java>
+  </target>
+  <!-- grouperd-stop -->
+
   <!-- html -->
   <target name="html" depends="build" description="generate public api docs" >
     <delete dir="${build.javadoc}"/>
@@ -241,6 +269,9 @@
       <!-- for configuration files -->
       <pathelement location="${conf}"/>
       <fileset dir="${lib}">
+        <include name="**/*.jar"/>
+      </fileset>
+      <fileset dir="webapps/axis/WEB-INF/lib">
         <include name="**/*.jar"/>
       </fileset>
       <pathelement  location="${build.grouper}"/>
