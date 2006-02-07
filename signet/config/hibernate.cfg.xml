@@ -8,43 +8,13 @@
   
 <hibernate-configuration>
   <session-factory>
-    <!-- connection properties for HypersonicSQL via Tomcat
-       connection-pooling. -->
-<!--
-    <property name="hibernate.connection.datasource">
-	  java:/comp/env/jdbc/signet_via_admintool
-	</property>
-    <property name="hibernate.transaction.factory_class">
-      net.sf.hibernate.transaction.JTATransactionFactory
-    </property>
--->
     
-    <!-- local connection properties for HypersonicSQL -->
-<!--
+    <!-- Database connection properties -->
     <property name="hibernate.dialect">
-	  net.sf.hibernate.dialect.HSQLDialect
+	  @DB_DIALECT@
 	</property>
     <property name="hibernate.connection.driver_class">
-	  org.hsqldb.jdbcDriver
-	</property>
-    <property name="hibernate.connection.url">
-	  jdbc:hsqldb:data/signet
-	</property>
-    <property name="hibernate.connection.username">
-	  sa
-	</property>
-    <property name="hibernate.connection.password">
-	  passwd
-	</property>
--->
-
-    <!-- connection properties for Sybase -->
-<!--
-    <property name="hibernate.dialect">
-	  net.sf.hibernate.dialect.Sybase11_9_2Dialect
-	</property>
-    <property name="hibernate.connection.driver_class">
-	  com.sybase.jdbc2.jdbc.SybDriver
+	  @DB_DRIVER@
 	</property>
     <property name="hibernate.connection.url">
 	  @DB_URL@
@@ -55,8 +25,6 @@
     <property name="hibernate.connection.password">
 	  @DB_PASSWORD@
 	</property>
--->
-
     
     <!-- general connection properties -->
     <property name="hibernate.show_sql">false</property>
