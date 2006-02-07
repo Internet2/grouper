@@ -142,6 +142,11 @@
   	  file="${config.dir}/footer.jsp"
   	  todir="${dist_demo_webapps.dir}/signet/tiles"/>
   	
+  	<copy
+  		overwrite="true"
+  		file="${config.dir}/KITN.gif"
+  		tofile="${dist_demo_webapps.dir}/signet/images/organisation-logo.gif"/>
+  	
   </target>
 	
   <target name="fixFileFormats">
