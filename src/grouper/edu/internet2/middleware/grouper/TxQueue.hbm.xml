@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<!--
+  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2006 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Id: TxQueue.hbm.xml,v 1.1 2006-02-07 20:46:44 blair Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper">
+  <class name="TxQueue" table="grouper_queue">
+
+    <meta attribute="class-description">
+Grouper Transaction Queue.
+@author blair christensen.
+    </meta>
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">HibernateHelper.getSession();</meta>
+
+    <cache usage="read-write"/>
+
+    <!-- id -->
+    <id name="id" 
+        type="string"
+        unsaved-value="null"
+        length="128"
+    >
+      <generator class="uuid.hex"/>
+    </id>
+    <!-- id -->
+    <!-- discriminator -->
+    <discriminator column="klass" type="string"/>
+    <!-- discriminator -->
+
+    <!-- uuid -->
+    <property name="uuid"
+              type="string"
+    >
+      <column name="queue_uuid"
+              length="128"
+              not-null="true"
+              unique="true"
+      />
+    </property>
+    <!-- uuid -->
+
+    <!-- queueTime -->
+    <property name="queueTime"
+              type="long"
+              update="false"
+    >
+      <column name="queue_time"
+              not-null="true"
+      />
+    </property>
+    <!-- queueTime -->
+
+    <!-- sessionId -->
+    <property name="sessionId"
+              type="string"
+              not-null="true"
+    >
+      <column name="session_id"
+              length="128"
+      />
+    </property>
+    <!-- sessionId -->
+
+    <!-- member -->
+    <many-to-one  name="member"
+                  class="edu.internet2.middleware.grouper.Member" 
+                  not-null="true"
+    >
+      <column     name="member"
+                  not-null="true"
+      />
+    </many-to-one>
+    <!-- member -->
+
+    <!-- status -->
+    <property name="status"
+              type="edu.internet2.middleware.grouper.QueueStatusUserType"
+    >
+      <column name="status_type"
+              length="128"
+              not-null="true"
+      />
+    </property>
+    <!-- status -->
+
+    <!-- args -->
+    <list name="args"
+          table="grouper_queue_args"
+          lazy="true"
+    >
+      <key                    column="queue_id"                 />
+      <index                  column="idx"                      /> 
+      <element  type="string" column="uuid"     not-null="true" />
+    </list>
+    <!-- args -->
+
+    <!-- dirty -->
+    <list name="dirty"
+          table="grouper_queue_dirty"
+          lazy="true"
+    >
+      <key                    column="queue_id"                 />
+      <index                  column="idx"                      /> 
+      <element  type="string" column="uuid"     not-null="true" />
+    </list>
+    <!-- dirty -->
+
+    <!-- TxQueueStop -->
+    <subclass name="TxQueueStop"  discriminator-value="stop"/>
+    <!-- TxQueueStop -->
+
+  </class>
+</hibernate-mapping>
+
