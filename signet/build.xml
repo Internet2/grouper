@@ -82,6 +82,8 @@
 		depends="prepare"
 		description="Compiles all Java classes">
 		
+		<mkdir dir="${classes.dir}"/>
+		
 		<javac
 			srcdir="${source_java.dir}"
 			destdir="${classes.dir}"
