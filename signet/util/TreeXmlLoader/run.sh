@@ -20,6 +20,4 @@ else
 fi
 done
 
-echo "Using classpath: "$CLASSPATH
-
 $JAVA_HOME/bin/java -cp $CLASSPATH edu.internet2.middleware.signet.util.TreeXMLLoader $1
