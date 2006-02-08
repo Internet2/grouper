@@ -48,70 +48,65 @@ Quick Start
 (3) Point the web application context to the webapp/signet directory in this
     distribution.
 
-(4) If you are using some database other than the default HSQL database supplied
-    with this Signet distribution, copy your JDBC driver to two directories:
-    webapp/signet/WEB-INF/lib and util/lib.
+(4) Copy your JDBC driver to two directories: webapp/signet/WEB-INF/lib (for
+    use by the Web application) and lib (for use by the utility programs).
 
-(5) Configure your database connection in two places:
-    webapp/signet/WEB-INF/classes/hibernate.cfg.xml and
-    util/classes/hibernate.cfg.xml. Uncomment or add a database section
-    and set the connection parameters (hibernate.connection.url,
-    hibernate.connection.username, hibernate.connection.password).
+(5) Configure your database connection by editing the config/hibernate.cfg.xml
+    file. Uncomment or add a database section and set the connection parameters
+    (hibernate.dialect, hibernate.connection.driver_class,
+    hibernate.connection.url, hibernate.connection.username, and
+    hibernate.connection.password). Copy this edited file to
+    webapp/signet/WEB-INF/classes/hibernate.cfg.xml.
 
-(6) Set your preferred hibernate logging level in two places:
-    webapp/signet/WEB-INF/classes/log4j.properties and
-    util/classes/log4j.properties.
+(6) Set your preferred hibernate logging level by editing the
+    config/log4j.properties file. Copy this edited file to
+    webapp/signet/WEB-INF/classes/log4j.properties.
 
 (7) Change the feedback href (@FEEDBACK_URL@) in webapp/signet/tiles/footer.jsp
     to point to your preferred email address.
 
-(8) Configure your subject sources in webapp/signet/WEB-INF/classes/sources.xml.
-    If you are using the local subject adapter, add or uncomment a database
-    section, and set the database connection parameters (@DB_URL@,
-    @DB_USERNAME@, @DB_PASSWORD@).
-
-(9) Note: if you are using Tomcat for authenticating users, you will need to add
-    them to your conf/tomcat-users.xml file.  These users will need to be the
-    same as the subject IDs of users identified as Subjects within Signet.
+(8) Configure your subject sources in config/sources.xml. If you are using the
+    local subject adapter, add or uncomment a database section, and set the
+    database connection parameters (@DB_DRIVER@, @DB_URL@, @DB_USERNAME@, and
+    @DB_PASSWORD@). Copy this edited file to
+    webapp/signet/WEB-INF/classes/sources.xml.
 
 To populate the Signet demo application with sample data:
+
+  (1) Set your JAVA_HOME environment variable to the location of your JDK.
         
-  (1) Load the sample organization-tree data:
-    (a) Update the sample shell script util/treeloader/run.sh to point
-        JAVA_HOME to the location of your JDK.
-    (b) Use the TreeXMLLoader to create the demo sample organization-tree
-        by executing the util/treeloader/run.sh script with the sample
-        demo/Tree.xml file, e.g., > run.sh ../../demo/data/Tree.xml
+  (2) Load the sample organization-tree data:
+    Use the TreeXMLLoader to create the demo sample organization-tree
+    by executing the util/TreeXmlLoader/run.sh script with the sample
+    demo_tree.xml file, e.g.,
+      > run.sh demo_tree.xml
 
-  (2) Load the sample Subsystem data:
-    (a) Update the sample shell script util/subsystemloader/run.sh to point
-        JAVA_HOME to the location of your JDK.
-    (b) Use the SubsystemXmlLoader to create the demo sample Subsystem by
-        executing the util/subsystemloader/run.sh script with the sample
-        demo/data/Subsystem.xml file, e.g.,
-        > run.sh ../../demo/data/Subsystem.xml
+  (3) Load the sample Subsystem data:
+    Use the SubsystemXmlLoader to create the demo sample Subsystem by
+    executing the util/SubsystemXmlLoader/run.sh script with the sample
+    demo_subsystem.xml file, e.g.,
+      > run.sh demo_subsystem.xml
 
-  (3) Load the sample Subject data:
-    (a) Update the sample shell script util/subjectloader/run.sh to point
-        JAVA_HOME to the location of your JDK.
-    (b) Modify the demo/data/Subject.txt file with any additional local Subject
-        identities for your site.
-    (c) Use the SubjectFileLoader to to load that sample person data by executing
-        the util/personloader/run.sh script with the sample demo/Subject.txt
-        file, e.g., > run.sh ../../demo/data/subject.txt
+  (4) Load the sample Subject data:
+    (a) Modify the util/SubjectFileLoader/demo_subject.txt file with any
+        additional local Subject identities for your site.
+    (b) Use the SubjectFileLoader to load that sample person data by
+        executing the util/SubjectFileLoader/run.sh script with the sample
+        demo_subject.txt file, e.g.,
+          > run.sh demo_subject.txt
 
-  (4) Add login-names to your web server's authentication mechanism, with any
+  (5) Add login-names to your web server's authentication mechanism, with any
       passwords you like. Login names must correspond to the principal
       identifier (e.g., "demo" in the sample data) of one or more Subjects
       loaded above.
 
-  (5) Establish System Administrator and Subsystem Owner roles
-    (a) Update the sample shell script util/SignetProxy/run.sh to point
-        JAVA_HOME to the location of your JDK.
-    (b) Use the run.sh script to designate online System Administrator(s). The
-        acript takes two arguments
+  (6) Establish System Administrator and Subsystem Owner roles
+    (b) Use the util/SignetProxy/run.sh script to designate online System
+        Administrator(s). The script takes two arguments:
+        
           1 - Action to take -- grant | revoke | list
           2 - For grant or revoke, a login ID from the subject table
+          
     (c) Someone designated thusly as a System Administrator can log into the UI,
         "act for" Signet (the control to switch identities is on the right of
         the main interface page), an use the Designated Driver feature to 

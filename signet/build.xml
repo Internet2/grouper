@@ -229,6 +229,11 @@
 		<ant dir="web"  target="build" inheritAll="true" />
 		<ant dir="util" target="build" inheritAll="true" />
 		
+		<fixcrlf srcdir="${dist.dir}"
+			eol="unix" 
+			eof="remove"
+			includes="**/*.sh" />
+		
 		<zip destfile="${zipfile}">
 			<fileset dir="${dist.dir}">
 				<include name="**/*" />
@@ -236,8 +241,8 @@
 		</zip>
 		
 		<tar destfile="${tarfile}" longfile="gnu">
-			<tarfileset dir="${dist.dir}">
-			<include name="**/*" />
+			<tarfileset dir="${dist.dir}" mode="755">
+				<include name="**/*" />
 			</tarfileset>
 		</tar>
 		<gzip src="${tarfile}" destfile="${gzipfile}"/>

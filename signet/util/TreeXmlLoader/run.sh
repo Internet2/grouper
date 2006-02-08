@@ -20,4 +20,4 @@ else
 fi
 done
 
-$JAVA_HOME/bin/java -cp $CLASSPATH edu.internet2.middleware.signet.util.TreeXMLLoader $1
+$JAVA_HOME/bin/java -cp $CLASSPATH edu.internet2.middleware.signet.util.TreeXmlLoader $1
