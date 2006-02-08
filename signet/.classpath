@@ -9,7 +9,6 @@
 	<classpathentry kind="lib" path="lib/hibernate2.jar"/>
 	<classpathentry kind="lib" path="lib/struts.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.1.jar"/>
-	<classpathentry kind="lib" path="lib/jconn2.jar"/>
 	<classpathentry kind="lib" path="lib/jTDS2.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.4.jar"/>
