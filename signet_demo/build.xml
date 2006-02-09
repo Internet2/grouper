@@ -18,7 +18,7 @@
 
   <property name="tomcat_version" value="5.0.28"/>
   <property name="hsqldb_version" value="1_8_0_1"/>
-  <property name="signet_version" value="0.6"/>
+  <property name="signet_version" value="1.0"/>
 	
   <!-- Here are the places where things will come from: -->
   <property name="lib.dir"     location="lib"/>
@@ -100,7 +100,7 @@
   	<move file="${work_signet_doc.dir}"    tofile="${dist_doc.dir}"/>
   	<move file="${work_signet_lib.dir}"    tofile="${dist_lib.dir}"/>
   	<move file="${work_signet_sql.dir}"    tofile="${dist_sql.dir}"/>
-  	<move file="${work_signet_util.dir}"   tofile="${dist_util.dir}"/>  	
+  	<move file="${work_signet_util.dir}"   tofile="${dist_util.dir}"/>
   </target>
 	
   <target name="scripts">
@@ -110,8 +110,16 @@
     <copy file="${scripts.dir}/shutdown.sh" todir="${dist_demo.dir}"/>
   </target>
 	
-  <target name="config">
+  <target name="config" depends="signet">
     <copy file="${config.dir}/sqltool.rc" todir="${dist_demo_config.dir}"/>
+    <copy
+      overwrite="true"
+      file="${config.dir}/hibernate.cfg.xml"
+      todir="${dist_config.dir}"/>
+    <copy
+      overwrite="true"
+      file="${config.dir}/sources.xml"
+      todir="${dist_config.dir}"/>
   	
     <move todir="${dist_demo_webapps.dir}/signet">
       <fileset dir="${work_signet.dir}/webapp/signet">
