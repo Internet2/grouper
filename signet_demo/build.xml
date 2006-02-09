@@ -43,7 +43,7 @@
 
   <!-- Here are the places where things will go: -->
   <property name="dist.dir"              location="dist"/>
-  <property name="toplevel.dir"          location="${dist.dir}/signet-${signet_version}"/>
+  <property name="toplevel.dir"          location="${dist.dir}/signet-qs-${signet_version}"/>
   <property name="dist_demo.dir"         location="${toplevel.dir}/demo"/>
   <property name="dist_demo_config.dir"  location="${dist_demo.dir}/config"/>
   <property name="dist_demo_data.dir"    location="${dist_demo.dir}/hsqldb/lib"/>
@@ -57,9 +57,9 @@
   <property name="dist_demo_tomcat.dir"  location="${dist_demo.dir}/jakarta-tomcat-${tomcat_version}"/>
   <property name="dist_demo_webapps.dir" location="${dist_demo_tomcat.dir}/webapps"/>
 	
-  <property name="zipfile" value="signet-demo-${signet_version}-bin.zip"/>
-  <property name="tarfile" value="signet-demo-${signet_version}-bin.tar"/>
-  <property name="gzipfile" value="signet-demo-${signet_version}-bin.tar.gz"/>
+  <property name="zipfile" value="signet-qs-${signet_version}-bin.zip"/>
+  <property name="tarfile" value="signet-qs-${signet_version}-bin.tar"/>
+  <property name="gzipfile" value="signet-qs-${signet_version}-bin.tar.gz"/>
 
   <!-- ================================= 
         target: default              
