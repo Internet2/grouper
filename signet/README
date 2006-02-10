@@ -1,71 +1,69 @@
-Signet version 0.6 - October, 2005
+Signet version 1.0 - February, 2006
 
 What's New
 ----------
+    
+Signet is distributed in two forms: A "regular" distribution, which can be
+configured according to your own needs, and a "quickstart" distribution,
+which provides a pre-configured Signet web application, complete with Tomcat
+server and pre-populated HSQLDB database. The "quickstart" distribution is
+much easier to get started with.
 
-(1)  Date conditions added to Assignments -- future effective date and 
-     expiration date.
-
-(2)  Designated Driver support for Privilege granting
-
-     - You can enable one or more individuals to act as you in a Signet session,
-       giving them the right to grant those privileges to others that you
-       yourself can give.
-     - Designated driver assignments are per-subsystem and can have future
-       effective and expiration date conditions.
-
-(2) Support for System Administrator and Subsystem Owner roles
-
-     - Established "Signet" as an internally supplied subject with a subject
-       type of "application".  This entity has broad initial granting powers,
-       but being non-human and non-sentient cannot use the UI to wield them.
-     - A SignetProxy utility script is used to designate those in the Signet
-       System Admministrator role.
-     - System Administrator can proxy Signet to establish Subsystem Owners.
-     - Subsystem Owners can grant proxy Signet to grant any initial assignments
-       to key individuals to boostrap a chain of delegation.
-     - These roles replace the transitional "SignetSuperSubject" entity defined
-       in prior releases.
-     
-(3) The view of your own privileges and of others is now unified, with the same
-    columns and contols, consistent avalability of edit/revoke, etc.
-
-(4) Added View controls to switch between "privileges held" and "privileges
-    given" for all subject-specific views, including yourself.
-
-    One problem remains from prior releases -- showing lists with disabled
-    (non-selectable) items in Mac/Safari simply doesn't work.  This limits the
-    UI's ability to enable only appropriate scope items during an assignment.
-
-Quick Start
+To use the "quickstart" distribution:
 ------------------------
 
-(1) Execute the DDL (sql/hsql.sql or sql/sybase.sql) on your database server to
+(1) Unpack the signet-qs-1.0-bin.tar.gz file if you're using Unix (including
+    Mac), or the signet-qs-1.0-bin.zip file, if you're using Windows.
+
+(2) Navigate into the resulting signet-qs-1.0/demo directory.
+
+(3) Set your JAVA_HOME environment variable to the location of your JDK. Note
+    that it must point to a JDK - a JRE is not sufficient.
+
+(4) Run the "startup.sh" script, if you're using Unix (including Mac), or
+    the "startup.bat" script, if you're using Windows.
+
+(5) After waiting a few moments for Tomcat to start up, you should be
+    able to connect to your own personal Signet instance, at this URL:
+
+      http://localhost:8080/signet
+
+(6) When you're finished using your Signet instance, run the "shutdown.sh"
+    script, if you're using Unix (including Mac), or the "shutdown.bat"
+    script, if you're using Windows.
+
+To deploy the "regular", "non-quickstart" Signet web application:
+------------------------
+
+(1) Unpack the signet-1.0-bin.tar.gz file if you're using Unix (including
+    Mac), or the signet-1.0-bin.zip file, if you're using Windows.
+
+(2) Execute the DDL (sql/hsql.sql or sql/sybase.sql) on your database server to
     create the Signet database.
 
-(2) Create a "signet" web application context in your servlet container.
+(3) Create a "signet" web application context in your servlet container.
 
-(3) Point the web application context to the webapp/signet directory in this
+(4) Point the web application context to the webapp/signet directory in this
     distribution.
 
-(4) Copy your JDBC driver to two directories: webapp/signet/WEB-INF/lib (for
+(5) Copy your JDBC driver to two directories: webapp/signet/WEB-INF/lib (for
     use by the Web application) and lib (for use by the utility programs).
 
-(5) Configure your database connection by editing the config/hibernate.cfg.xml
+(6) Configure your database connection by editing the config/hibernate.cfg.xml
     file. Uncomment or add a database section and set the connection parameters
     (hibernate.dialect, hibernate.connection.driver_class,
     hibernate.connection.url, hibernate.connection.username, and
     hibernate.connection.password). Copy this edited file to
     webapp/signet/WEB-INF/classes/hibernate.cfg.xml.
 
-(6) Set your preferred hibernate logging level by editing the
+(7) Set your preferred hibernate logging level by editing the
     config/log4j.properties file. Copy this edited file to
     webapp/signet/WEB-INF/classes/log4j.properties.
 
 (7) Change the feedback href (@FEEDBACK_URL@) in webapp/signet/tiles/footer.jsp
     to point to your preferred email address.
 
-(8) Configure your subject sources in config/sources.xml. If you are using the
+(9) Configure your subject sources in config/sources.xml. If you are using the
     local subject adapter, add or uncomment a database section, and set the
     database connection parameters (@DB_DRIVER@, @DB_URL@, @DB_USERNAME@, and
     @DB_PASSWORD@). Copy this edited file to
