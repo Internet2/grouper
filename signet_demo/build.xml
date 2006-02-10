@@ -101,6 +101,8 @@
   	<move file="${work_signet_lib.dir}"    tofile="${dist_lib.dir}"/>
   	<move file="${work_signet_sql.dir}"    tofile="${dist_sql.dir}"/>
   	<move file="${work_signet_util.dir}"   tofile="${dist_util.dir}"/>
+  	<move file="${work_signet.dir}/LICENSE" todir="${toplevel.dir}"/>
+  	<move file="${work_signet.dir}/README"  todir="${toplevel.dir}"/>
   </target>
 	
   <target name="scripts">
@@ -151,9 +153,9 @@
   	  todir="${dist_demo_webapps.dir}/signet/tiles"/>
   	
   	<copy
-  		overwrite="true"
-  		file="${config.dir}/KITN.gif"
-  		tofile="${dist_demo_webapps.dir}/signet/images/organisation-logo.gif"/>
+      overwrite="true"
+  	  file="${config.dir}/KITN.gif"
+  	  tofile="${dist_demo_webapps.dir}/signet/images/organisation-logo.gif"/>
   	
   </target>
 	
