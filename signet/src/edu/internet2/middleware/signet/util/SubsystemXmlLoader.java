@@ -20,7 +20,7 @@ limitations under the License.
 package edu.internet2.middleware.signet.util;
 
 /**
- * @author lmcrae
+ * @author lmcrae@stanford.edu
  *
  */
 import edu.internet2.middleware.signet.*;
