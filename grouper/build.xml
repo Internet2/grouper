@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.85 2006-02-07 20:46:44 blair Exp $ -->
+<!-- $Id: build.xml,v 1.86 2006-02-10 17:07:46 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -269,9 +269,6 @@
       <!-- for configuration files -->
       <pathelement location="${conf}"/>
       <fileset dir="${lib}">
-        <include name="**/*.jar"/>
-      </fileset>
-      <fileset dir="webapps/axis/WEB-INF/lib">
         <include name="**/*.jar"/>
       </fileset>
       <pathelement  location="${build.grouper}"/>
