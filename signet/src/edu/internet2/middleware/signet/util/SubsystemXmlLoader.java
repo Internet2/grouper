@@ -28,6 +28,9 @@ import edu.internet2.middleware.signet.choice.*;
 import edu.internet2.middleware.signet.tree.*;
 
 import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.SessionFactory;
+import net.sf.hibernate.cfg.Configuration;
 
 import org.jdom.*;
 import org.jdom.input.SAXBuilder;
@@ -38,7 +41,10 @@ import java.io.*;
 import java.lang.Integer.*;
 import java.lang.Exception.*;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -107,17 +113,13 @@ public class SubsystemXmlLoader {
         Element subsystemHelpTextElem = rootElem.getChild("HelpText");
         String subsystemHelpText = subsystemHelpTextElem.getTextTrim();
 
-        Signet signet = new Signet();
-
         // -- Check for existence of subsystem
-        try {
-            Subsystem tempSubsystem = signet.getSubsystem(subsystemId);
-            if (tempSubsystem != null) {
-            	removeSubsystem(subsystemId);
-            }
-        } catch (ObjectNotFoundException e) {
-            // Skip all processing
+        if (subsystemExists(subsystemId))
+        {
+          removeSubsystem(subsystemId);
         }
+
+        Signet signet = new Signet();
 
         System.out.println("+ " + rootElem.getName());
         System.out.println("- " + subsystemIdElem.getName() + " = " + subsystemId);
@@ -159,6 +161,41 @@ public class SubsystemXmlLoader {
         } catch (NumberFormatException e) {
             throw new NumberFormatException(e.getMessage());
         }
+    }
+
+    private boolean subsystemExists(String subsystemId)
+    {
+      Configuration  cfg = new Configuration();
+      SessionFactory sessionFactory;
+      Session        session;
+      Connection     conn;
+      int            subsystemCount = 0;
+
+      try
+      {
+        // Read the "hibernate.cfg.xml" file.
+        cfg.configure();
+        sessionFactory = cfg.buildSessionFactory();
+        session = sessionFactory.openSession();
+        conn = session.connection();
+        
+        Statement stmt = conn.createStatement();
+        ResultSet results
+          = stmt.executeQuery
+              ("select count(*) from signet_subsystem where subsystemID='"
+               + subsystemId
+               + "'");
+        while (results.next())
+        {
+          subsystemCount = results.getInt(1);
+        }
+      }
+      catch (Exception e)
+      {
+        throw new RuntimeException(e);
+      }
+      
+      return (subsystemCount > 0);
     }
 
     private void processChoiceSet(Signet signet, Subsystem subsystem, Element rootElem)
