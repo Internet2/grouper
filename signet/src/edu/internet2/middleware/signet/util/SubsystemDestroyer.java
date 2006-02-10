@@ -53,6 +53,26 @@ public class SubsystemDestroyer {
 		"delete from signet_category            where subsystemID = ?",
 		"delete from signet_subsystem           where subsystemID = ?"
 	};
+    
+    private String[] tables = new String[] {
+        "signet_assignmentLimit_history",
+        "signet_assignmentLimit",
+        "signet_assignment_history",
+        "signet_assignment",
+        "signet_proxy_history",
+        "signet_proxy",
+    	"signet_choice",
+		"signet_choiceSet",
+		"signet_function_permission",
+		"signet_permission_limit",
+		"signet_permission",
+        "signet_assignmentLimit_history",
+        "signet_assignmentLimit",
+		"signet_limit",
+		"signet_function",
+		"signet_category",
+		"signet_subsystem"
+	};
 	
     static
     /* runs at class load time */
@@ -96,7 +116,7 @@ public class SubsystemDestroyer {
 	    try {
 	        //conn.setAutoCommit(true);
 	        for (int i = 0; i < this.statements.length; i++) {
-	        	execute(conn, this.statements[i]);
+	        	execute(conn, this.statements[i], this.tables[i]);
 	    	}
 	    	conn.commit();
 	    }
@@ -110,12 +130,12 @@ public class SubsystemDestroyer {
 
 	}
 	
-	private void execute(Connection conn, String sql)
+	private void execute(Connection conn, String sql, String table)
 		throws SQLException {
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setString(1, this.subsystemId);
 		int rows = ps.executeUpdate();
-	    System.out.println("Number of rows deleted: " + rows);
+	    System.out.println("Delete from " + table + " -- " + rows + " rows affected");
 	}
 	
     public static void main(String[] args) {
