@@ -12,11 +12,9 @@
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.SubjectNameComparator" %>
 
-
-    <DIV>
       <LINK href="styles/signet.css" rel="stylesheet" type="text/css" />
-      <SCRIPT language="JavaScript" type="text/javascript" src="scripts/signet.js">
-      </SCRIPT>
+    <DIV>
+
       
 <% 
   Signet signet
