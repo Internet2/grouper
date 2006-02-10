@@ -22,16 +22,9 @@ package edu.internet2.middleware.signet.util;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import edu.internet2.middleware.signet.*;
-import edu.internet2.middleware.signet.choice.*;
-import edu.internet2.middleware.signet.tree.*;
-
 import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.Transaction;
 import net.sf.hibernate.cfg.Configuration;
 
 public class SubsystemDestroyer {
@@ -42,16 +35,23 @@ public class SubsystemDestroyer {
     private String subsystemId = null;
     
     private String[] statements = new String[] {
-    	"delete signet_choice from signet_choice, signet_choiceSet where signet_choice.choiceSetID = signet_choiceSet.choiceSetID and signet_choiceSet.subsystemID = ?",
+        "delete from signet_assignmentLimit_history  where assignment_historyID in (select signet_assignment_history.historyID from signet_assignment_history, signet_assignment, signet_function where signet_assignment_history.assignmentID = signet_assignment.assignmentId and signet_assignment.functionKey = signet_function.functionKey and signet_function.subsystemID=?)",
+        "delete from signet_assignmentLimit     where assignmentId in (select signet_assignment.assignmentId from signet_assignment, signet_function where signet_assignment.functionKey=signet_function.functionKey and signet_function.subsystemID=?)",
+        "delete from signet_assignment_history  where assignmentId in (select signet_assignment.assignmentId from signet_assignment, signet_function where signet_assignment.functionKey = signet_function.functionKey and signet_function.subsystemID=?)",
+        "delete from signet_assignment          where functionKey in (select signet_function.functionKey from signet_function where signet_function.subsystemID = ?)",
+        "delete from signet_proxy_history       where proxyId in (select signet_proxy.proxyId from signet_proxy where signet_proxy.subsystemID=?)",
+        "delete from signet_proxy               where subsystemID=?",
+    	"delete from signet_choice              where signet_choice.choiceSetKey in (select signet_choiceSet.choiceSetKey from signet_choiceSet where signet_choiceSet.subsystemID = ?)",
 		"delete from signet_choiceSet           where subsystemID = ?",
-		"delete from signet_function_permission where subsystemID = ?",
-		"delete from signet_permission_limit    where subsystemID = ?",
+		"delete from signet_function_permission where signet_function_permission.functionKey in (select signet_function.functionKey from signet_function where signet_function.subsystemId=?)",
+		"delete from signet_permission_limit    where signet_permission_limit.permissionKey in (select signet_permission.permissionKey from signet_permission where subsystemID = ?)",
 		"delete from signet_permission          where subsystemID = ?",
+        "delete from signet_assignmentLimit_history  where assignment_historyID in (select signet_assignment_history.historyID from signet_assignment_history, signet_assignment, signet_function where signet_assignment_history.assignmentID = signet_assignment.assignmentId and signet_assignment.functionKey = signet_function.functionKey and signet_function.subsystemID=?)",
+        "delete from signet_assignmentLimit     where assignmentId in (select signet_assignment.assignmentId from signet_assignment, signet_function where signet_assignment.functionKey=signet_function.functionKey and signet_function.subsystemID=?)",
 		"delete from signet_limit               where subsystemID = ?",
 		"delete from signet_function            where subsystemID = ?",
 		"delete from signet_category            where subsystemID = ?",
-		"delete from signet_subsystem           where subsystemID = ?",
-		"delete from signet_assignment          where subsystemID = ?"
+		"delete from signet_subsystem           where subsystemID = ?"
 	};
 	
     static
