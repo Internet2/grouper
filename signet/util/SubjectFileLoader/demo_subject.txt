@@ -16,98 +16,548 @@
 / Note: The attribute named "all" with a value of "all" in each person is for
 /       the demo system, to allow a search on "all" to fetch all subhjects.
 /
-source demo
-+person K0000001 McRae, Lynn
-description Chair, Signet Working Group
-loginid lmcrae
++person SD00001 O'Malley, Chris
+description President
 all all
-+person K0000002 Nguyen, Minh
-description Signet Application Architect
-loginid mnguyen
+loginid comalley
++person SD00002 Worthington, Pat
+description Chief Financial Officer
 all all
-+person K0000003 Cohen, Andy
-description Signet, Principal Developer
-loginid acohen
+loginid patworth
++person SD00003 McNee, Lou
+description Registrar
 all all
-+person K0000004 Vine, Jennifer
-description Signet, UI Design
-loginid jvine
+loginid lmcnee
++person SD00004 Saito, Lee
+description Dean, School of Arts and Sciences
 all all
-+person K0000005 Morgan, R.L. 'Bob'
-description Washington, Wise guy
-loginid morgan
+loginid lsaito
++person SD00005 Michaels, Terry
+description Chair, Biology Department
 all all
-+person K0000006 Barton, Tom
-description Chicago, Grouper project
-loginid tbarton
+loginid tmichaels
++person SD00006 Dewey, Francis
+description Head of Libraries
 all all
-+person K0000007 Hazelton, Keith
-description Wisconson, MACE-DIR
-loginid hazelton
+loginid fdewey
++person SD00007 Poole, Jean
+description Professor, Principal Investigator, Bio-X project
 all all
-+person K0000008 Jones, Wendy
-description Stanford ITSS, Development Manager
-loginid wjones
-all all
-+person K0000009 Cramer, Tom
-description Stanford Libraries, Digital Services
-loginid tcramer
-all all
-+person K0000010 Klemm, John Norman
-description Stanford, KM Video Production
-loginid jklemm
-all all
-+person K0000011 Katz, P. "Kitty"
-description Founder, KITN Cat Network
-loginid kkatz
-all all
-+person K0000012 Henderson, Shelley
-description USC Special Projects Development
-loginid shelley
-all all
-+person K0000013 Arons, Tom
-description UC Davis, Information and Educational Technology
-loginid tgarons
-all all
-+person K0000014 Olshansky, Steve
-description Internet2 Middleware Flywheel
-loginid steveo
-all all
-+person K0000015 Wu, Albert
-description UCLA, Technology Infrastructure Group
-loginid albertwu
-all all
-+person K0000016 Frost, Renee
-description Internet2, Middleware and Security
-loginid rwfrost
-all all
-+person K0000017 Poole, Jean
-description VO Principal Investigator
+loginid jpoole
 loginid demo
++person SD00008 Davidov, Ari
+description Administrator, Biology Department
 all all
-+person K0000018 Rhys-Davies, John
-description Actor
-loginid jrdavis
+loginid adavidov
++person SD00009 Cohen, Andy 
+description Professor
 all all
-+person K0000019 Cohen, Leonard Norman
-description Poet, Songwriter
-loginid lcohen
+loginid acohen                                    
++person SD00010 Wu, Albert 
+description Professor
 all all
-+person K0000020 Cohen, Herman
-description Producer, writer
-loginid hcohen
+loginid albertwu                                   
++person SD000101 Alexander, Anne Marie 
+description Professor
 all all
-+person K0000021 Cohen, Myron
-description Comedian
-loginid mcohen
+loginid alexander                       
++person SD00012 Beesing, Andrea
+description Professor
 all all
-+person K0000022 Bibbee, Jessica
-description Tech Writer
-loginid jbibbee
+loginid amb3                                  
++person SD00013 Dudler, Andreas 
+description Professor
 all all
-+group GangOfFour Gang of Four
-description Signet's Gang of Four
+loginid andreas.dudler                        
++person SD00014 Pouncey, Alton 
+description Professor
 all all
-+group imternet2:signet:wg Signet Working Group
-description Signet's Working Group members
+loginid arpouncey                              
++person SD00015 West, Ann 
+description Professor
 all all
+loginid awest                                       
++person SD00016 Bellina, Brendan 
+description Professor
+all all
+loginid bbellina                             
++person SD00017 Keepers, Brandon
+description Professor
+all all
+loginid bkeepers                             
++person SD00018 Christensen, Blair 
+description Professor
+all all
+loginid blair                              
++person SD00019 Liong, Bruc 
+description Professor
+all all
+loginid bliong                                    
++person SD00020 Ribbeck, Barry
+description Professor
+all all
+loginid bribbeck                               
++person SD00021 Jolliffe, Bruce
+description Professor
+all all
+loginid bruce.jolliffe                        
++person SD00022 Burns, Mike 
+description Professor
+all all
+loginid burns                                     
++person SD00023 Vincent, Bruce 
+description Professor
+all all
+loginid bvincent                               
++person SD00024 Hancock, Craig 
+description Professor
+all all
+loginid chancock                               
++person SD00025 Hoffman, Chris 
+description Professor
+all all
+loginid chris_h                                
++person SD00026 Chadwick, David 
+description Professor
+all all
+loginid d.w.chadwick                          
++person SD00027 Arrasjid, Daniel 
+description Professor
+all all
+loginid daniel                               
++person SD00028 Damassa, David 
+description Professor
+all all
+loginid david.damassa                          
++person SD00029 Walker, David
+description Professor
+all all
+loginid david.walker                            
++person SD00030 Latimer, Dewitt 
+description Professor
+all all
+loginid dewitt                                
++person SD00031 Henry, David 
+description Professor
+all all
+loginid dhenry                                   
++person SD00032 Lopez, Diego 
+description Professor
+all all
+loginid diego.lopez                              
++person SD00033 Lane, Dean  
+description Professor
+all all
+loginid dlane                                     
++person SD00034 Mahabalagiri, Datta 
+description Professor
+all all
+loginid dmahabalagiri                     
++person SD00035 Petitpierre, Dominique 
+description Professor
+all all
+loginid dominique.petitpierre          
++person SD00036 Owens, Derek 
+description Professor
+all all
+loginid dowens                                   
++person SD00037 Feustel, Edward 
+description Professor
+all all
+loginid efeustel                              
++person SD00038 Ryazanova, Elena 
+description Professor
+all all
+loginid elena.ryazanova                      
++person SD00039 Fossa, Frank 
+description Professor
+all all
+loginid ffossa                                   
++person SD00040 Fullerton, Scott 
+description Professor
+all all
+loginid fullerton                            
++person SD00041 Brown, Gary 
+description Professor
+all all
+loginid gary.brown                                
++person SD00042 Eadie, Gavin 
+description Professor
+all all
+loginid gavin                                    
++person SD00043 Gettes, Michael R 
+description Professor
+all all
+loginid gettes                              
++person SD00044 Brett, George 
+description Professor
+all all
+loginid ghb                                     
++person SD00045 Payet, Guillermo 
+description Professor
+all all
+loginid gpayet                               
++person SD00046 Wishon, Gordon 
+description Professor
+all all
+loginid gwishon                                
++person SD00047 Hazelton, Keith 
+description Professor
+all all
+loginid hazelton                              
++person SD00048 Stearns, Howard 
+description Professor
+all all
+loginid hstearns                              
++person SD00049 Carmi, Ido 
+description Professor
+all all
+loginid icarmi                                     
++person SD00050 Kim, IJ 
+description Professor
+all all
+loginid ij                                            
++person SD00051 Bibbee, Jessica 
+description Professor
+all all
+loginid jbibbee                               
++person SD00052 Dane, Joe 
+description Professor
+all all
+loginid jdane                                       
++person SD00053 Lombardi, Julian 
+description Professor
+all all
+loginid jlombardi                            
++person SD00054 Ellis, John 
+description Professor
+all all
+loginid john.ellis                                
++person SD00055 Ball, John 
+description Professor
+all all
+loginid john                                       
++person SD00056 Polo, Julio 
+description Professor
+all all
+loginid julio                                     
++person SD00057 Veronneau, Joy 
+description Professor
+all all
+loginid jv11                                   
++person SD00058 Vine, Jennifer 
+description Professor
+all all
+loginid jvine                                  
++person SD00059 Vuccolo, James 
+description Professor
+all all
+loginid jvuccolo                               
++person SD00060 Rosenberg, Karen 
+description Professor
+all all
+loginid karen.rosenberg                      
++person SD00061 Christman, Kathryn 
+description Professor
+all all
+loginid kchristman                         
++person SD00062 Hazelton, Keith 
+description Professor
+all all
+loginid khazelton                             
++person SD00063 Klingenstein, Ken 
+description Professor
+all all
+loginid kjk                                 
++person SD00064 Wierenga, Klaas 
+description Professor
+all all
+loginid klaas.wierenga                        
++person SD00065 McKinney, Kent 
+description Professor
+all all
+loginid kmckinney                              
++person SD00066 Knight, Robert 
+description Professor
+all all
+loginid knight                                 
++person SD00067 Huneycutt, Karsten 
+description Professor
+all all
+loginid kph                                
++person SD00068 Marshall, Ken  
+description Professor
+all all
+loginid ktm                                    
++person SD00069 Sedlacek, Karel 
+description Professor
+all all
+loginid kvs1                                  
++person SD00070 Morooney, Kevin 
+description Professor
+all all
+loginid kxm                                   
++person SD00071 LaJoie, Chad 
+description Professor
+all all
+loginid lajoie                                   
++person SD00072 Langella, Steve 
+description Professor
+all all
+loginid langella                              
++person SD00073 Freshour, Lynn 
+description Professor
+all all
+loginid ldfreshour                             
++person SD00074 Lenggenhager, Thomas 
+description Professor
+all all
+loginid lenggenhager                     
++person SD00075 Hogeboom, Lisa 
+description Professor
+all all
+loginid lhogeboom                              
++person SD00076 Pham, Linh 
+description Professor
+all all
+loginid linh                                       
++person SD00077 McRae, Lynn 
+description Professor
+all all
+loginid lmcrae                                    
++person SD00078 Taylor, Luke 
+description Professor
+all all
+loginid luke.taylor                              
++person SD00079 Varian, Lee C. 
+description Professor
+all all
+loginid lvarian                                
++person SD00080 Grady, Mike 
+description Professor
+all all
+loginid -grady                                    
++person SD00081 Jones, Mark B. 
+description Professor
+all all
+loginid mark.b.jones                           
++person SD00082 Franklin, Mark 
+description Professor
+all all
+loginid mark.j.franklin                        
++person SD00083 McLaren, Mark 
+description Professor
+all all
+loginid mark.mclaren                            
++person SD00084 McGill, Michael 
+description Professor
+all all
+loginid mcgill                                
++person SD00085 Fuller, Mike 
+description Professor
+all all
+loginid mfuller                                  
++person SD00086 Hart, Michael 
+description Professor
+all all
+loginid mhart                                   
++person SD00087 Hodges, Michael 
+description Professor
+all all
+loginid mhodges                               
++person SD00088 Kruckenberg, Michael J. 
+description Professor
+all all
+loginid michael.kruckenberg           
++person SD00089 LaHaye, Mike 
+description Professor
+all all
+loginid mjl                                      
++person SD00090 Lorch, M. 
+description Professor
+all all
+loginid mlorch                                      
++person SD00091 Nguyen, Minh N. 
+description Professor
+all all
+loginid mnguyen                               
++person SD00092 Earnest, Mark 
+description Professor
+all all
+loginid mxe20                                   
++person SD00093 Klingenstein, Nate 
+description Professor
+all all
+loginid ndk                                
++person SD00094 Levitt, Noah 
+description Professor
+all all
+loginid nlevitt                                  
++person SD00095 Salaun, Olivier 
+description Professor
+all all
+loginid olivier.salaun                        
++person SD00096 Davis, Paul 
+description Professor
+all all
+loginid paul-davis                                
++person SD00097 Brantley, Peter 
+description Professor
+all all
+loginid peter.brantley                        
++person SD00098 Phelps, Jim 
+description Professor
+all all
+loginid phelps                                    
++person SD00099 Phillips, Chris 
+description Professor
+all all
+loginid phillipc                              
++person SD00100 Bibbee, Jessica 
+description Professor
+all all
+loginid philopro                              
++person SD00101 Poepping, Mark 
+description Professor
+all all
+loginid poepping                               
++person SD00102 Shuff, Pat 
+description Professor
+all all
+loginid pshuff                                     
++person SD00103 Putman, Brent 
+description Professor
+all all
+loginid putmanb                                 
++person SD00104 Davis, Rogers 
+description Professor
+all all
+loginid redavis1                                
++person SD00105 Golden, Rick 
+description Professor
+all all
+loginid rgolden                                  
++person SD00106 Guthrie, Bob 
+description Professor
+all all
+loginid rguthri1                                 
++person SD00107 Butler, Rhett 
+description Professor
+all all
+loginid rhett.butler                            
++person SD00108 Morgan, RL "Bob" 
+description Professor
+all all
+loginid rlmorgan                             
++person SD00109 Hedberg, Roland 
+description Professor
+all all
+loginid roland                                
++person SD00110 Bokenkamp, Raymond 
+description Professor
+all all
+loginid rpbokenk                           
++person SD00111 Shuey, Renee 
+description Professor
+all all
+loginid rshuey                                   
++person SD00112 Frost, Renee 
+description Professor
+all all
+loginid rwfrost                                  
++person SD00113 Williams, Ryan 
+description Professor
+all all
+loginid rwilliam                               
++person SD00114 McLeish, Simon 
+description Professor
+all all
+loginid s.mcleish                              
++person SD00115 Sandman, Todd 
+description Professor
+all all
+loginid sandmant                                
++person SD00116 Tannenbaum, Saul 
+description Professor
+all all
+loginid saul.tannenbaum                      
++person SD00117 Williams, Scott 
+description Professor
+all all
+loginid sdw                                   
++person SD00118 Henderson, Shelley 
+description Professor
+all all
+loginid shelley                            
++person SD00119 Makedanz, Siegfried 
+description Professor
+all all
+loginid smakedanz                         
++person SD00120 Barrett, Stephen 
+description Professor
+all all
+loginid smb1                                 
++person SD00121 Brandl, Stefan 
+description Professor
+all all
+loginid stefan.brandl                          
++person SD00122 Carmody, Steve 
+description Professor
+all all
+loginid steven_carmody                         
++person SD00123 Olshansky, Steve 
+description Professor
+all all
+loginid steveo                               
++person SD00124 Albright, Susan 
+description Professor
+all all
+loginid susan.albright                        
++person SD00125 Tax, Johannes 
+description Professor
+all all
+loginid tax                                     
++person SD00126 Barton, Tom 
+description Professor
+all all
+loginid tbarton                                   
++person SD00127 Poage, Tom 
+description Professor
+all all
+loginid tfpoage                                    
++person SD00128 Arons, Tom 
+description Professor
+all all
+loginid tgarons                                    
++person SD00129 Dopirak, Tom 
+description Professor
+all all
+loginid tgd                                      
++person SD00130 Jordan, Tom 
+description Professor
+all all
+loginid tjordan                                   
++person SD00131 Verschuren, Ton 
+description Professor
+all all
+loginid ton.verschuren                        
++person SD00132 Wiberg, Torbjšrn 
+description Professor
+all all
+loginid torbjorn.wiberg                      
++person SD00133 Tully, Kindra 
+description Professor
+all all
+loginid tullyk                                  
++person SD00134 Jones, Valerie 
+description Professor
+all all
+loginid vjones                                 
++person SD00135 Labrecque, Butch 
+description Professor
+all all
+loginid wcl9
++group kitn:biology:biox Bio-X project team
+description Members of the Bio-X project team
+all all
+
