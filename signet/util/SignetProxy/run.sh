@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # -----------------------------------------------------------------------------
-# Script for command line utility to assign System Administrator proxy
+# Script/command line utility to assign System Administrator proxy
 #
 # Takes two arguments
 #    1 - Action to take -- grant | revoke | list

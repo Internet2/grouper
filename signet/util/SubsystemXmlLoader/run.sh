@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # -----------------------------------------------------------------------------
-# Script for command line util to load Subystem XML
+# Script/command line utility to load Subystem XML
 #
 # Environment Variable Prequisites
 #
