@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # -----------------------------------------------------------------------------
-# Script for command line util to load Tree XML
+# Script/command line utility to load Tree XML
 #
 # Environment Variable Prequisites
 #
