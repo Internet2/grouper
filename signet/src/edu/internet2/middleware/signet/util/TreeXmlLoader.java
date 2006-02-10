@@ -30,8 +30,6 @@ import java.io.*;
 
 import org.apache.commons.collections.set.UnmodifiableSet;
 
-
-
 import javax.xml.stream.*;
 
 import edu.internet2.middleware.signet.Status;
@@ -87,7 +85,7 @@ public class TreeXmlLoader
       + " parentNodeID)"
       + "values (?, ?, ?)";
   
-  private String ELEMENTNAME_SIGNETTREE   = "SignetTree";
+  private String ELEMENTNAME_TREE         = "Tree";
   private String ELEMENTNAME_ID           = "Id";
   private String ELEMENTNAME_NAME         = "Name";
   private String ELEMENTNAME_ORGANIZATION = "Organization";
@@ -516,14 +514,14 @@ public class TreeXmlLoader
         
       if (event == XMLStreamConstants.START_ELEMENT)
       {
-        if (parser.getLocalName().equals(ELEMENTNAME_SIGNETTREE))
+        if (parser.getLocalName().equals(ELEMENTNAME_TREE))
         {
           newTree = processSignetTree(parser, loader);
         }
         else
         {
           Set expectedElementSet = new HashSet();
-          expectedElementSet.add(ELEMENTNAME_SIGNETTREE);
+          expectedElementSet.add(ELEMENTNAME_TREE);
           reportUnexpectedElement(parser, expectedElementSet);
         }
       }
@@ -569,9 +567,9 @@ public class TreeXmlLoader
           break;
         
         case XMLStreamConstants.END_ELEMENT:
-          if (parser.getLocalName().equals(ELEMENTNAME_SIGNETTREE))
+          if (parser.getLocalName().equals(ELEMENTNAME_TREE))
           {
-            // We've finished processing the "SignetTree" element.
+            // We've finished processing the "Tree" element.
             // If we failed to create a Tree, then that's an error.
             if (tree == null)
             {
@@ -585,7 +583,7 @@ public class TreeXmlLoader
           else
           {
             reportUnexpectedEndElement
-              (parser, parser.getLocalName(), ELEMENTNAME_SIGNETTREE);
+              (parser, parser.getLocalName(), ELEMENTNAME_TREE);
           }
             
           break;
@@ -652,7 +650,7 @@ public class TreeXmlLoader
         ("A '"
          + ELEMENTNAME_ORGANIZATION
          + "' element was encountered before its enclosing '"
-         + ELEMENTNAME_SIGNETTREE
+         + ELEMENTNAME_TREE
          + "' element was successfully created. This is an error.");
     }
     else
@@ -815,7 +813,7 @@ public class TreeXmlLoader
     {
       System.out.println
         ("The XML input file contained an incomplete '"
-         + ELEMENTNAME_SIGNETTREE
+         + ELEMENTNAME_TREE
          + "' definition. The required element '"
          + ELEMENTNAME_ID
          + "' was missing. This is an error.");
@@ -825,7 +823,7 @@ public class TreeXmlLoader
     {
       System.out.println
         ("The XML input file contained an incomplete '"
-         + ELEMENTNAME_SIGNETTREE
+         + ELEMENTNAME_TREE
          + "' definition. The required element '"
          + ELEMENTNAME_NAME
          + "' was missing. This is an error.");
@@ -835,7 +833,7 @@ public class TreeXmlLoader
     {
       throw new RuntimeException
         ("An incomplete '"
-         + ELEMENTNAME_SIGNETTREE
+         + ELEMENTNAME_TREE
          + "' definition was reported, but its '"
          + ELEMENTNAME_ID
          + "' and '"
