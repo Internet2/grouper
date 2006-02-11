@@ -155,7 +155,7 @@
   	<copy
       overwrite="true"
   	  file="${config.dir}/KITN.gif"
-  	  tofile="${dist_demo_webapps.dir}/signet/images/organisation-logo.gif"/>
+  	  tofile="${dist_demo_webapps.dir}/signet/images/site-logo.gif"/>
   	
   </target>
 	
