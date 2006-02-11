@@ -9,7 +9,7 @@
 	
 	
 	<!-- These are the "sources" from which we'll build our Signet
-	     distribution. They include the Java files we've written ourselves,
+	     distribution.  They include the Java files we've written ourselves,
 	     various configuration files that are used by Signet and its subsidiary
 	     components, and pre-compiled libraries provided by others.
 	-->
