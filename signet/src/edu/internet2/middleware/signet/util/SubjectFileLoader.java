@@ -189,7 +189,7 @@ public class SubjectFileLoader
   {
     PreparedStatement ps = conn.prepareStatement(sql);
     int rows = ps.executeUpdate();
-    System.out.println("Number of rows " + verb + ": " + rows);
+    System.out.println("- " + sql + ": " + rows + " rows affected");
   }
   
   /**
