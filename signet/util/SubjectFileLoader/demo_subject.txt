@@ -16,6 +16,7 @@
 / Note: The attribute named "all" with a value of "all" in each person is for
 /       the demo system, to allow a search on "all" to fetch all subhjects.
 /
+source demo
 +person SD00001 O'Malley, Chris
 description President
 all all
@@ -24,540 +25,581 @@ loginid comalley
 description Chief Financial Officer
 all all
 loginid patworth
-+person SD00003 McNee, Lou
-description Registrar
-all all
-loginid lmcnee
-+person SD00004 Saito, Lee
-description Dean, School of Arts and Sciences
-all all
-loginid lsaito
-+person SD00005 Michaels, Terry
-description Chair, Biology Department
-all all
-loginid tmichaels
-+person SD00006 Dewey, Francis
++person SD00003 Dewey, Francis
 description Head of Libraries
 all all
 loginid fdewey
++person SD00004 Page, Avery
+description Library, IT Services
+all all
+loginid apage
++person SD00005 Michaels, Terry
+description Library, Acquisitions
+all all
+loginid tmichaels
++person SD00006 McNee, Lou
+description Library, Reference Services
+all all
+loginid lmcnee
 +person SD00007 Poole, Jean
-description Professor, Principal Investigator, Bio-X project
+description Principal Investigator, Bio-X project
 all all
 loginid jpoole
 loginid demo
-+person SD00008 Davidov, Ari
++person SD00008 Petri, Dana
+description Chair, Biology Department
+all all
+loginid dpetri
++person SD00009 Saito, Lee
+description Professor, Biology Department
+all all
+loginid lsaito
++person SD00010 Davidov, Ari
 description Administrator, Biology Department
 all all
 loginid adavidov
-+person SD00009 Cohen, Andy 
-description Professor
++person SD00011 Martinez, Kai
+description Program Officer, Central IT
 all all
-loginid acohen                                    
-+person SD00010 Wu, Albert 
-description Professor
-all all
-loginid albertwu                                   
-+person SD000101 Alexander, Anne Marie 
-description Professor
-all all
-loginid alexander                       
+loginid kmart
 +person SD00012 Beesing, Andrea
-description Professor
+description Professor, Materials Science
 all all
 loginid amb3                                  
 +person SD00013 Dudler, Andreas 
-description Professor
+description Professor, Physics
 all all
 loginid andreas.dudler                        
 +person SD00014 Pouncey, Alton 
-description Professor
+description Professor, Philosophy
 all all
 loginid arpouncey                              
 +person SD00015 West, Ann 
-description Professor
+description Professor, Mathematics
 all all
 loginid awest                                       
 +person SD00016 Bellina, Brendan 
-description Professor
+description Professor, Linguistics
 all all
 loginid bbellina                             
 +person SD00017 Keepers, Brandon
-description Professor
+description Professor, Italian
 all all
 loginid bkeepers                             
 +person SD00018 Christensen, Blair 
-description Professor
+description Professor, English
 all all
 loginid blair                              
 +person SD00019 Liong, Bruc 
-description Professor
+description Professor, Electrical Engineering
 all all
 loginid bliong                                    
 +person SD00020 Ribbeck, Barry
-description Professor
+description Professor, Socialogy
 all all
 loginid bribbeck                               
 +person SD00021 Jolliffe, Bruce
-description Professor
+description Professor, Psychology
 all all
 loginid bruce.jolliffe                        
 +person SD00022 Burns, Mike 
-description Professor
+description Professor, Computer Science
 all all
 loginid burns                                     
 +person SD00023 Vincent, Bruce 
-description Professor
+description Professor, Anthropology
 all all
 loginid bvincent                               
 +person SD00024 Hancock, Craig 
-description Professor
+description Professor, Applied Physics
 all all
 loginid chancock                               
 +person SD00025 Hoffman, Chris 
-description Professor
+description Professor, Dance
 all all
 loginid chris_h                                
 +person SD00026 Chadwick, David 
-description Professor
+description Professor, Drama
 all all
 loginid d.w.chadwick                          
 +person SD00027 Arrasjid, Daniel 
-description Professor
+description Professor, Earth Sciences
 all all
 loginid daniel                               
 +person SD00028 Damassa, David 
-description Professor
+description Professor, Economics
 all all
 loginid david.damassa                          
 +person SD00029 Walker, David
-description Professor
+description Professor, Education
 all all
 loginid david.walker                            
 +person SD00030 Latimer, Dewitt 
-description Professor
+description Professor, Ethics
 all all
 loginid dewitt                                
 +person SD00031 Henry, David 
-description Professor
+description Professor, French
 all all
 loginid dhenry                                   
 +person SD00032 Lopez, Diego 
-description Professor
+description Professor, Spanish and Portuguese	
 all all
 loginid diego.lopez                              
 +person SD00033 Lane, Dean  
-description Professor
+description Professor, Italian
 all all
 loginid dlane                                     
 +person SD00034 Mahabalagiri, Datta 
-description Professor
+description Professor, Geophysics
 all all
 loginid dmahabalagiri                     
 +person SD00035 Petitpierre, Dominique 
-description Professor
+description Professor, Climate Studies
 all all
 loginid dominique.petitpierre          
 +person SD00036 Owens, Derek 
-description Professor
+description Professor, German
 all all
 loginid dowens                                   
 +person SD00037 Feustel, Edward 
-description Professor
+description Professor, History
 all all
 loginid efeustel                              
 +person SD00038 Ryazanova, Elena 
-description Professor
+description Professor, Human Biology
 all all
 loginid elena.ryazanova                      
 +person SD00039 Fossa, Frank 
-description Professor
+description Professor, Interdisciplinary Studies in Humanities
 all all
 loginid ffossa                                   
 +person SD00040 Fullerton, Scott 
-description Professor
+description Professor, International Relations
 all all
 loginid fullerton                            
 +person SD00041 Brown, Gary 
-description Professor
+description Professor, International Law
 all all
 loginid gary.brown                                
 +person SD00042 Eadie, Gavin 
-description Professor
+description Professor, Medieval Studies
 all all
 loginid gavin                                    
 +person SD00043 Gettes, Michael R 
-description Professor
+description Professor, Mediterranean Studies
 all all
 loginid gettes                              
 +person SD00044 Brett, George 
-description Professor
+description Professor, Modern Thought and Literature
 all all
 loginid ghb                                     
 +person SD00045 Payet, Guillermo 
-description Professor
+description Professor, Music
 all all
 loginid gpayet                               
 +person SD00046 Wishon, Gordon 
-description Professor
+description Professor, Overseas Studies Program -- Australia
 all all
 loginid gwishon                                
 +person SD00047 Hazelton, Keith 
-description Professor
+description Professor, Overseas Studies Program -- Berlin
 all all
 loginid hazelton                              
 +person SD00048 Stearns, Howard 
-description Professor
+description Professor, Overseas Studies Program -- Florence
 all all
 loginid hstearns                              
 +person SD00049 Carmi, Ido 
-description Professor
+description Professor, Overseas Studies Program -- Moscow
 all all
 loginid icarmi                                     
 +person SD00050 Kim, IJ 
-description Professor
+description Professor, Overseas Studies Program -- Oxford
 all all
 loginid ij                                            
 +person SD00051 Bibbee, Jessica 
-description Professor
+description Professor, Creative Writing
 all all
 loginid jbibbee                               
 +person SD00052 Dane, Joe 
-description Professor
+description Professor, Political Science
 all all
 loginid jdane                                       
 +person SD00053 Lombardi, Julian 
-description Professor
+description Professor, Public Policy
 all all
 loginid jlombardi                            
 +person SD00054 Ellis, John 
-description Professor
+description Professor, Scandinavian Studies
 all all
 loginid john.ellis                                
 +person SD00055 Ball, John 
-description Professor
+description Professor, Slavic Languages and Literature
 all all
 loginid john                                       
 +person SD00056 Polo, Julio 
-description Professor
+description Professor, Sociology
 all all
 loginid julio                                     
 +person SD00057 Veronneau, Joy 
-description Professor
+description Professor, Asian-Pacific Studies
 all all
 loginid jv11                                   
 +person SD00058 Vine, Jennifer 
-description Professor
+description Professor, Graphic Arts
 all all
 loginid jvine                                  
 +person SD00059 Vuccolo, James 
-description Professor
+description Professor, Urban Studies
 all all
 loginid jvuccolo                               
 +person SD00060 Rosenberg, Karen 
-description Professor
+description Professor, Visual Arts
 all all
 loginid karen.rosenberg                      
 +person SD00061 Christman, Kathryn 
-description Professor
+description Professor, Overseas Studies Program -- Paris
 all all
 loginid kchristman                         
 +person SD00062 Hazelton, Keith 
-description Professor
+description Professor, Overseas Studies Program -- Santiago
 all all
 loginid khazelton                             
 +person SD00063 Klingenstein, Ken 
-description Professor
+description Professor, Parapsychology
 all all
 loginid kjk                                 
 +person SD00064 Wierenga, Klaas 
-description Professor
+description Professor, Journalism
 all all
 loginid klaas.wierenga                        
 +person SD00065 McKinney, Kent 
-description Professor
+description Professor, Chemistry
 all all
 loginid kmckinney                              
 +person SD00066 Knight, Robert 
-description Professor
+description Professor, European Studies
 all all
 loginid knight                                 
 +person SD00067 Huneycutt, Karsten 
-description Professor
+description Professor, African Studies
 all all
 loginid kph                                
 +person SD00068 Marshall, Ken  
-description Professor
+description Professor, Middle Eastern Studies
 all all
 loginid ktm                                    
 +person SD00069 Sedlacek, Karel 
-description Professor
+description Professor, Comparative Literature
 all all
 loginid kvs1                                  
 +person SD00070 Morooney, Kevin 
-description Professor
+description Professor, Communication
 all all
 loginid kxm                                   
 +person SD00071 LaJoie, Chad 
-description Professor
+description Professor, Civil and Environmental Engineering
 all all
 loginid lajoie                                   
 +person SD00072 Langella, Steve 
-description Professor
+description Professor, Chemical Engineering
 all all
 loginid langella                              
 +person SD00073 Freshour, Lynn 
-description Professor
+description Professor, Feminist Studies
 all all
 loginid ldfreshour                             
 +person SD00074 Lenggenhager, Thomas 
-description Professor
+description Professor, Mechanical Engineering
 all all
 loginid lenggenhager                     
 +person SD00075 Hogeboom, Lisa 
-description Professor
+description Professor, Environmental Sciences
 all all
 loginid lhogeboom                              
 +person SD00076 Pham, Linh 
-description Professor
+description Professor, Art and Art History
 all all
 loginid linh                                       
 +person SD00077 McRae, Lynn 
-description Professor
+description Professor, Archaeology
 all all
 loginid lmcrae                                    
 +person SD00078 Taylor, Luke 
-description Professor
+description Professor, Contemporary Literature
 all all
 loginid luke.taylor                              
 +person SD00079 Varian, Lee C. 
-description Professor
+description Professor, Modern Art
 all all
 loginid lvarian                                
 +person SD00080 Grady, Mike 
-description Professor
+description Professor, Developmental Biology
 all all
-loginid -grady                                    
+loginid mgrady                                    
 +person SD00081 Jones, Mark B. 
-description Professor
+description Professor, Immunology
 all all
 loginid mark.b.jones                           
 +person SD00082 Franklin, Mark 
-description Professor
+description Professor, Molecular Biology
 all all
 loginid mark.j.franklin                        
 +person SD00083 McLaren, Mark 
-description Professor
+description Professor, Cellular Biology
 all all
 loginid mark.mclaren                            
 +person SD00084 McGill, Michael 
-description Professor
+description Professor, Neurobiology
 all all
 loginid mcgill                                
 +person SD00085 Fuller, Mike 
-description Professor
+description Professor, Neurosciences
 all all
 loginid mfuller                                  
 +person SD00086 Hart, Michael 
-description Professor
+description Professor, Psychiatry and Behavioral Sciences
 all all
 loginid mhart                                   
 +person SD00087 Hodges, Michael 
-description Professor
+description Professor, Structural Biology
 all all
 loginid mhodges                               
 +person SD00088 Kruckenberg, Michael J. 
-description Professor
+description Professor, Anatomy
 all all
 loginid michael.kruckenberg           
 +person SD00089 LaHaye, Mike 
-description Professor
+description Professor, Iranian Studies
 all all
 loginid mjl                                      
 +person SD00090 Lorch, M. 
-description Professor
+description Professor, Jewish Studies
 all all
 loginid mlorch                                      
 +person SD00091 Nguyen, Minh N. 
-description Professor
+description Professor, Architecture
 all all
 loginid mnguyen                               
 +person SD00092 Earnest, Mark 
-description Professor
+description Professor, Islamic Studies
 all all
 loginid mxe20                                   
 +person SD00093 Klingenstein, Nate 
-description Professor
+description Professor, Native American Studies
 all all
 loginid ndk                                
 +person SD00094 Levitt, Noah 
-description Professor
+description Professor, Athletics, Physical Education and Recreation
 all all
 loginid nlevitt                                  
 +person SD00095 Salaun, Olivier 
-description Professor
+description Professor, Astronomy
 all all
 loginid olivier.salaun                        
 +person SD00096 Davis, Paul 
-description Professor
+description Professor, Buddhist Studies
 all all
 loginid paul-davis                                
 +person SD00097 Brantley, Peter 
-description Professor
+description Professor, BioPhysics
 all all
 loginid peter.brantley                        
 +person SD00098 Phelps, Jim 
-description Professor
+description Professor, BioEngineering
 all all
 loginid phelps                                    
 +person SD00099 Phillips, Chris 
-description Professor
+description Professor, Biomedical Ethics
 all all
 loginid phillipc                              
-+person SD00100 Bibbee, Jessica 
-description Professor
-all all
-loginid philopro                              
-+person SD00101 Poepping, Mark 
-description Professor
++person SD00100 Poepping, Mark 
+description Professor, Business
 all all
 loginid poepping                               
-+person SD00102 Shuff, Pat 
-description Professor
++person SD00101 Shuff, Pat 
+description Professor, 
 all all
 loginid pshuff                                     
-+person SD00103 Putman, Brent 
-description Professor
++person SD00102 Putman, Brent 
+description Professor, Economic Policy
 all all
 loginid putmanb                                 
-+person SD00104 Davis, Rogers 
-description Professor
++person SD00103 Davis, Rogers 
+description Professor, Latin American Studies
 all all
 loginid redavis1                                
-+person SD00105 Golden, Rick 
-description Professor
++person SD00104 Golden, Rick 
+description Professor, South American Studies
 all all
 loginid rgolden                                  
-+person SD00106 Guthrie, Bob 
-description Professor
++person SD00105 Guthrie, Bob 
+description Professor, Telecommunications
 all all
 loginid rguthri1                                 
-+person SD00107 Butler, Rhett 
-description Professor
++person SD00106 Butler, Rhett 
+description Professor, Large Scale Computing
 all all
 loginid rhett.butler                            
-+person SD00108 Morgan, RL "Bob" 
-description Professor
++person SD00107 Morgan, RL "Bob" 
+description Professor, Classics
 all all
 loginid rlmorgan                             
-+person SD00109 Hedberg, Roland 
-description Professor
++person SD00108 Hedberg, Roland 
+description Professor, Swedish Studies
 all all
 loginid roland                                
-+person SD00110 Bokenkamp, Raymond 
-description Professor
++person SD00109 Bokenkamp, Raymond 
+description Professor, African American Studies
 all all
 loginid rpbokenk                           
-+person SD00111 Shuey, Renee 
-description Professor
++person SD00110 Shuey, Renee 
+description Professor, Modern Literary Arts
 all all
 loginid rshuey                                   
-+person SD00112 Frost, Renee 
-description Professor
++person SD00111 Frost, Renee 
+description Professor, Literature, Cultures and Languages
 all all
 loginid rwfrost                                  
-+person SD00113 Williams, Ryan 
-description Professor
++person SD00112 Williams, Ryan 
+description Professor, Nano-fabrication
 all all
 loginid rwilliam                               
-+person SD00114 McLeish, Simon 
-description Professor
++person SD00113 McLeish, Simon 
+description Professor, Slavonic and Eastern European Studies
 all all
 loginid s.mcleish                              
-+person SD00115 Sandman, Todd 
-description Professor
++person SD00114 Sandman, Todd 
+description Professor, Geomatic Engineering
 all all
 loginid sandmant                                
-+person SD00116 Tannenbaum, Saul 
-description Professor
++person SD00115 Tannenbaum, Saul 
+description Professor, Space and Climate Physics
 all all
 loginid saul.tannenbaum                      
-+person SD00117 Williams, Scott 
-description Professor
++person SD00116 Williams, Scott 
+description Professor, Statistical Sciences
 all all
 loginid sdw                                   
-+person SD00118 Henderson, Shelley 
-description Professor
++person SD00117 Henderson, Shelley 
+description Professor, Earth Sciences
 all all
 loginid shelley                            
-+person SD00119 Makedanz, Siegfried 
-description Professor
++person SD00118 Makedanz, Siegfried 
+description Professor, Computer Science
 all all
 loginid smakedanz                         
-+person SD00120 Barrett, Stephen 
-description Professor
++person SD00119 Barrett, Stephen 
+description Professor, Biology
 all all
 loginid smb1                                 
-+person SD00121 Brandl, Stefan 
-description Professor
++person SD00120 Brandl, Stefan 
+description Professor, Philosophy
 all all
 loginid stefan.brandl                          
-+person SD00122 Carmody, Steve 
-description Professor
++person SD00121 Carmody, Steve 
+description Professor, Psychology
 all all
 loginid steven_carmody                         
-+person SD00123 Olshansky, Steve 
-description Professor
++person SD00122 Olshansky, Steve 
+description Professor, Art and Architecture
 all all
 loginid steveo                               
-+person SD00124 Albright, Susan 
-description Professor
++person SD00123 Albright, Susan 
+description Professor, Ethics
 all all
 loginid susan.albright                        
-+person SD00125 Tax, Johannes 
-description Professor
++person SD00124 Tax, Johannes 
+description Professor, International Law
 all all
 loginid tax                                     
-+person SD00126 Barton, Tom 
-description Professor
++person SD00125 Barton, Tom 
+description Professor, Mathematics
 all all
 loginid tbarton                                   
-+person SD00127 Poage, Tom 
-description Professor
++person SD00126 Poage, Tom 
+description Professor, Electrical Engineering
 all all
 loginid tfpoage                                    
-+person SD00128 Arons, Tom 
-description Professor
++person SD00127 Arons, Tom 
+description Professor, Social Sciences
 all all
 loginid tgarons                                    
-+person SD00129 Dopirak, Tom 
-description Professor
++person SD00128 Dopirak, Tom 
+description Professor, Mechanical Engineering
 all all
 loginid tgd                                      
-+person SD00130 Jordan, Tom 
-description Professor
++person SD00129 Jordan, Tom 
+description Professor, Engineering
 all all
 loginid tjordan                                   
-+person SD00131 Verschuren, Ton 
-description Professor
++person SD00130 Verschuren, Ton 
+description Professor, Physics
 all all
 loginid ton.verschuren                        
-+person SD00132 Wiberg, Torbjšrn 
-description Professor
++person SD00131 Wiberg, Torbjšrn 
+description Professor, Literature
 all all
 loginid torbjorn.wiberg                      
-+person SD00133 Tully, Kindra 
-description Professor
++person SD00132 Tully, Kindra 
+description Professor, Anthropology
 all all
 loginid tullyk                                  
-+person SD00134 Jones, Valerie 
-description Professor
++person SD00133 Jones, Valerie 
+description Professor, Music
 all all
 loginid vjones                                 
-+person SD00135 Labrecque, Butch 
-description Professor
++person SD00134 Labrecque, Butch 
+description Professor, English
 all all
 loginid wcl9
++person SD00135 Cohen, Andy 
+description Professor, Chemistry
+all all
+loginid acohen                                    
++person SD00136 Wu, Albert 
+description Professor, Life Sciences
+all all
+loginid albertwu                                   
++person SD00137 Alexander, Anne Marie 
+description Professor
+all all
+loginid alexander                       
++person SD00138 Garner-Lewis, Stephanie 
+description Professor
+all all
+loginid sgl                       
++person SD00139 Cohen, Leonard Norman
+description Poet, Songwriter
+loginid lcohen
+all all
++person SD00140 Cohen, Herman
+description Producer, writer
+loginid hcohen
+all all
++person SD00141 Cohen, Myron
+description Comedian
+loginid mcohen
+all all
++person SD00142 Cohen, George M.
+description Not the famous entertainer named "Cohan"
+loginid mcohen
+all all
++person SD00143 Cohen, Richard
+description Columnist, Washington Post
+loginid mcohen
+all all
++person SD00144 Laochamroonvorapongse, Warnakulasuriya Patabendige Ushantha Joseph Chaminda Vaas
+description Professor
+all all
++person SD00145 Temple-Nugent-Chandler-Brydges-Grenville, Lady Caroline Rowena
+description Professor
+all all
 +group kitn:biology:biox Bio-X project team
 description Members of the Bio-X project team
+all all
++group kitn:libaries:acquisitions:staff Library Acquisitions staff
+description Library Acquisitions staff
 all all
 
