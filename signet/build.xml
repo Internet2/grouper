@@ -172,6 +172,7 @@
 	<target name="clean" description="Removes various generated files">
 		<delete dir="${work.dir}" />
 		<delete dir="${dist.dir}" />
+		<delete dir="${classes.dir}"/>
 	</target>
 
 	<!-- Generate Javadoc for the source files -->
