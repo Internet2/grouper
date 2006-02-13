@@ -153,6 +153,8 @@
 		<!-- Delete all the files we just jarred up. -->
 		
 		<delete dir="${work_classes.dir}/edu/internet2/middleware/signet/ui"/>
+		
+		<!-- Build the Signet Util jar -->
 
 		<jar destfile="${work_lib.dir}/${signet_util_jarfile}" >
 			<fileset dir="${work_classes.dir}">
