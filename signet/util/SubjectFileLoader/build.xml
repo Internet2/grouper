@@ -7,13 +7,13 @@
 
 	<property name="util.name"      value="SubjectFileLoader" />
 	
-	<!-- =================== BUILD: Create Directories ===================== --> 
+	<!-- =================== BUILD: Create Directories ==================== --> 
 	<target name="prepare">
 		<mkdir dir="${dist_util.dir}" /> 
 		<mkdir dir="${dist_util.dir}/${util.name}" /> 
 	</target>
 
-	<!-- ================== BUILD: Clean Directory ========================= --> 
+	<!-- ================== BUILD: Clean Directory ======================== --> 
 	<target name="clean">
 		<delete dir="${dist_util.dir}/${util.name}" />
 	</target>
