@@ -66,7 +66,7 @@
        ================================= -->
   <target name="build-clean" depends="clean, build"/>
 	
-  <target name="build" depends="tomcat, hsqldb, signet, scripts, config, fixFileFormats, pack">
+  <target name="build" depends="tomcat, hsqldb, signet, scripts, config, fixFileFormats, pack, cleanup">
   </target>
 	
   <target name="clean">
@@ -183,6 +183,10 @@
   	
     <gzip src="${tarfile}" destfile="${gzipfile}"/>
     <delete file="${tarfile}"/>
+  </target>
+
+  <target name="cleanup">
+    <delete dir="${work.dir}" />
   </target>
 
 </project>
