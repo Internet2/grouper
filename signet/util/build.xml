@@ -17,10 +17,11 @@
 
 	<!-- ======================= BUILD: Build  =========================== -->
 	<target name="build" depends="clean, prepare">		
+		<ant dir="AssignmentReconcile" target="build" inheritAll="true" />
+		<ant dir="SignetProxy"         target="build" inheritAll="true" />
 		<ant dir="SubsystemXmlLoader"  target="build" inheritAll="true" />
 		<ant dir="SubjectFileLoader"   target="build" inheritAll="true" />
 		<ant dir="TreeXmlLoader"       target="build" inheritAll="true" />
-		<ant dir="SignetProxy"         target="build" inheritAll="true" />
 	</target>
 
 </project>
