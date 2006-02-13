@@ -2,9 +2,8 @@
 -- Originally submitted by Simon McLeish, London School of Economics 
 -- modified
 --    6/20/2005 - tablename prefixes; assignment history tables; assignment expirationDate
+--    1/10/2006 - renamed signet_privilegedSubject to signet_subject
 
--- Signet Subject tables
-drop table signet_privilegedSubject;
 
 -- Tree tables
 drop table signet_treeNodeRelationship;
@@ -34,7 +33,10 @@ drop table signet_permission cascade;
 drop table signet_limit cascade;
 drop table signet_subsystem cascade;
 
--- Subject tables (optional, for local subject tables)
+-- Signet Subject table
+drop table signet_ubject;
+
+-- Local Source Subject tables (optional)
 drop table SubjectAttribute;
 drop table Subject;
 drop table SubjectType;
