@@ -22,12 +22,12 @@ drop table signet_function if exists;
 drop table signet_permission if exists;
 drop table signet_limit if exists;
 drop table signet_subsystem if exists;
--- Subject tables (optional, for local subject tables)
+-- Signet Subject table
+drop table signet_subject if exists;
+-- Local Source Subject tables (optional)
 drop table SubjectAttribute if exists;
 drop table Subject if exists;
 drop table SubjectType if exists;
--- Signet Subject tables
-drop table signet_subject if exists;
 --
 -- Subsystem tables
 create table signet_subsystem
