@@ -75,6 +75,26 @@
          <Id>LIBRARY</Id>
          <Type>division</Type>
          <Name>University Library</Name>
+         <Organization>
+            <Id>ACQUISITIONS</Id>
+            <Type>office</Type>
+            <Name>Acquisitions</Name>
+         </Organization>
+         <Organization>
+            <Id>COLLECTIONS</Id>
+            <Type>office</Type>
+            <Name>Collection Development</Name>
+         </Organization>
+         <Organization>
+            <Id>RARE</Id>
+            <Type>office</Type>
+            <Name>Rare Books</Name>
+         </Organization>
+         <Organization>
+            <Id>REFERENCE</Id>
+            <Type>office</Type>
+            <Name>Reference</Name>
+         </Organization>
       </Organization>
       <Organization>
          <Id>IT</Id>
