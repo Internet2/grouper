@@ -24,4 +24,4 @@ else
 fi
 done
 
-$JAVA_HOME/bin/java -cp $CLASSPATH edu.internet2.middleware.signet.util.SignetProxy $1 $2
+$JAVA_HOME/bin/java -cp $CLASSPATH edu.internet2.middleware.signet.util.SignetProxy $1 $2 $3
