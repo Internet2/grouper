@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.94 2006-02-03 19:22:43 blair Exp $
+$Id: NEWS,v 1.95 2006-02-13 20:15:05 blair Exp $
 
 ---
 
@@ -10,6 +10,8 @@ $Id: NEWS,v 1.94 2006-02-03 19:22:43 blair Exp $
 Released: TBD
 
 ## Changes
+* UPDATE: Consolidated `ant schemaexport`, `ant db-init` and 
+  `ant db-init-jdbcsource` into `ant setup`
 * NEW: Delete custom fields from custom group types with the API
 * NEW: Add custom fields (attributes and lists) to custom group types 
   with the API

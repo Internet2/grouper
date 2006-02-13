@@ -54,7 +54,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2006-01-12 14:05:19 $
+$Date: 2006-02-13 20:15:05 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -959,19 +959,10 @@ first.
     copy <i>tools.jar</i> from <tt>$JAVA_HOME/lib</tt> to
     <tt>$ANT_HOME/lib</tt> to get ant working properly.</p></li>
   <li>Change directory to <tt>$GROUPER</tt>.</li>
-  <li><p><tt>ant schemaexport</tt></p>
-    <p>This will generate a DDL appropriate for your configured RDBMS
-    and install the tables.</p>
-  </li>
-  <li><p><tt>ant db-init</tt></p>
-    <p>This will install Grouper schema information and the root stem
-    of the Groups Registry into your RDBMS.  If using the defeault
-    HSQLDB RDBMS this will create the registry in the
-    <tt>$GROUPER/dist/run</tt> directory.</p>
-  </li>
-  <li><p><tt>ant db-init-jdbcsource</tt> [optional]</p>
-    <p>This will install tables require by the I2MI Subject interface's
-    JDBC source adapter.</p>
+  <li><p><tt>ant setup</tt></p>
+    <p>This will create a DDL appropriate for your configurated
+      database type, initialize the Groups Registry and install tables
+      required by the I2MI Subject Interface.</p>
   </li>
   <li><p><tt>ant build</tt></p>
     <p>This will compile Grouper and place the class files under

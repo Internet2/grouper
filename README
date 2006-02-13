@@ -10,7 +10,7 @@ testing and running Grouper.
 For more detailed information see:
   `doc/grouper-impl-guide.html`
 
-$Id: README,v 1.36 2006-01-12 14:05:19 blair Exp $
+$Id: README,v 1.37 2006-02-13 20:15:05 blair Exp $
 
 ---
 
@@ -36,6 +36,12 @@ Build Grouper from source.
 
 ## Initializing Database
 
+    % ant setup
+
+This will create a DDL appropriate for your configurated database type,
+initialize the Groups Registry and install tables required by the I2MI
+Subject Interface.  These commands may also be run individually:
+
     % ant schemaexport
 
 This creates a DDL appropriate for the database you are using and
@@ -50,6 +56,7 @@ installs the root stem.
 
 This installs tables required by the I2MI Subject interface's JDBC
 source adapter.  This is an optional step.
+
 
 ---
 
