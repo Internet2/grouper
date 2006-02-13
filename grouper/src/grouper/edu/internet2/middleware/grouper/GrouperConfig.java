@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.14 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.15 2006-02-13 21:10:58 blair Exp $
  *     
 */
 public class GrouperConfig {
@@ -106,6 +106,10 @@ public class GrouperConfig {
   protected static final boolean  QRY_SF_FBN    = true;
   protected static final String   QCR_SF_FBU    = "edu.internet2.middleware.grouper.StemFinder.FindByUuid";
   protected static final boolean  QRY_SF_FBU    = true;
+  protected static final String   QCR_TQF_FA    = "edu.internet2.middleware.grouper.TxQueueFinder.FindAll";
+  protected static final boolean  QRY_TQF_FA    = false;
+  protected static final String   QCR_TQF_FBS   = "edu.internet2.middleware.grouper.TxQueueFinder.FindByStatus";
+  protected static final boolean  QRY_TQF_FBS   = false;
 
 
   // Private Class Constants
@@ -143,7 +147,6 @@ public class GrouperConfig {
 
 
   // Public Instance Methods
-
   /**
    * Get a Grouper configuration parameter.
    * @return  Value of configuration parameter or an empty string if
@@ -156,6 +159,24 @@ public class GrouperConfig {
     }
     return value;
   } // public String getProperty(property)
+
+
+  // Protected Instance Methods
+  protected Properties getProperties(String cf) {
+    try {
+      Properties  props   = new Properties();
+      InputStream in      = GrouperConfig
+                              .class
+                              .getResourceAsStream("/" + cf);
+      props.load(in);
+      return props;
+    }
+    catch (IOException eIO) {
+      String msg = "error loading: " + cf + ": " + eIO.getMessage();
+      LOG.fatal(msg);
+      throw new RuntimeException(msg);
+    }
+  } // protected Properties getProperties(cf)
 
 
   // Private Class Methods

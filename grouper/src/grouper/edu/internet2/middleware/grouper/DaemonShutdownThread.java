@@ -26,26 +26,27 @@ import  org.apache.commons.logging.*;
  * Thread run when shutting down {@link grouperd}.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperdShutdownThread.java,v 1.1 2006-02-07 20:46:44 blair Exp $    
+ * @version $Id: DaemonShutdownThread.java,v 1.1 2006-02-13 21:10:58 blair Exp $    
  */
-public class GrouperdShutdownThread extends Thread {
+public class DaemonShutdownThread extends Thread {
 
   // Private Class Constants
-  private static final Log  LOG = LogFactory.getLog(GrouperdShutdownThread.class);
+  private static final Log  LOG = LogFactory.getLog(DaemonShutdownThread.class);
+
+  // Private Instance Variables
+  private GrouperDaemon gd  = null;
 
 
   // Constructors
-  protected GrouperdShutdownThread() {
+  protected DaemonShutdownThread(GrouperDaemon gd) {
     super();
-    System.err.println(new Date().toString() + " SHUTDOWN: NEW()");
+    this.gd = gd;
   } // protected GrouperShutdownThread()
 
 
-
   // Public Instance Methods
-
   public void run( ) {
-    System.err.println(new Date().toString() + " SHUTDOWN: RUN()");
+    // Nothing
   } // public void run()
 
 }
