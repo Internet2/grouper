@@ -1,5 +1,5 @@
 -- This is the Sybase DDL for the Signet database
--- Author Lynn Mcrae, Stanford University 
+-- Author Lynn McRae, Stanford University 
 -- modified
 --    6/20/2005 - add assignment expirationDate
 --
@@ -25,12 +25,12 @@ drop table signet_function;
 drop table signet_permission;
 drop table signet_limit;
 drop table signet_subsystem;
--- Subject tables (optional, for local subject tables)
+-- Signet Subject tables
+drop table signet_subject;
+-- Local Source Subject tables (optional)
 drop table SubjectAttribute;
 drop table Subject;
 drop table SubjectType;
--- Signet Subject tables
-drop table signet_subject;
 --
 -- Subsystem tables
 create table signet_subsystem
