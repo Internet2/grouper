@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.87 2006-02-13 20:15:05 blair Exp $ -->
+<!-- $Id: build.xml,v 1.88 2006-02-13 21:10:58 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -132,7 +132,11 @@
           depends="build"
           description="run GrouperDaemon process"
   >
-    <java classname="edu.internet2.middleware.grouper.GrouperDaemon">
+    <java classname="edu.internet2.middleware.grouper.GrouperDaemon"
+          fork="true"
+          spawn="false"
+          maxmemory="${max.memory}"
+    >
       <classpath refid="project.classpath"/>
       <arg value="start"/>
     </java>
@@ -470,7 +474,8 @@ error"
           maxmemory="${max.memory}"
           classname="junit.textui.TestRunner"
           taskname="junit" 
-          failonerror="true">
+          failonerror="true"
+    >
       <arg value="test.edu.internet2.middleware.grouper.SuiteAll"/>
       <classpath refid="project.classpath"/>
     </java>

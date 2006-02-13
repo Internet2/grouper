@@ -52,8 +52,23 @@ class TxQueue implements Serializable {
   // For Hibernate
   public TxQueue() { 
     super();
+    this.setQueueTime(  new Date().getTime()            );
+    this.setStatus(     QueueStatus.getInstance("wait") );
+    this.setUuid(       GrouperUuid.getUuid()           );
   }
 
+
+  // Public Instance Methods
+  public String toString() {
+    String k = this.getKlass();
+    return new ToStringBuilder(this)
+      .append("time"        , this.getQueueTime()         )
+      .append("uuid"        , this.getUuid()              )
+      .append("status"      , this.getStatus().getName()  )
+      .append("class"       , this.getClass().getName()   )
+      .toString()
+      ;
+  } // public String toString() 
 
   // Hibernate Accessors
   private List getArgs() {

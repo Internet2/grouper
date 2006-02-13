@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 
 
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.logging.*;
 
 
@@ -26,42 +27,54 @@ import  org.apache.commons.logging.*;
  * {@link grouperd} thread for processing the transaction queue.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperdTxRunnerThread.java,v 1.1 2006-02-07 20:46:44 blair Exp $    
+ * @version $Id: DaemonTxRunnerThread.java,v 1.1 2006-02-13 21:10:58 blair Exp $    
  */
-public class GrouperdTxRunnerThread extends Thread {
+public class DaemonTxRunnerThread extends Thread {
 
   // Private Class Constants
-  private static final Log  LOG = LogFactory.getLog(GrouperdTxRunnerThread.class);
+  private static final Log  LOG = LogFactory.getLog(DaemonTxRunnerThread.class);
 
-  // Private Class Variables
-  private static boolean  stop  = false;
+  // Private Instance Variables
+  private GrouperDaemon gd  = null;
 
 
   // Constructors
-  protected GrouperdTxRunnerThread() {
+  protected DaemonTxRunnerThread(GrouperDaemon gd) {
     super();
-    System.err.println(new Date().toString() + " TXRUNNER: NEW()");
+    this.gd = gd;
   } // protected GrouperShutdownThread()
-
-
-
-  // Protected Class Methods
-  protected static void sendStopSignal() {
-    stop = true; // TODO This doesn't work
-  } // protected static void sendStopSignal()
 
 
   // Public Instance Methods
 
   public void run( ) {
-    System.err.println(new Date().toString() + " TXRUNNER: RUN() - ");
     while (true) {
-      if (stop == true) { break; }
+      if (this.gd.isStopped()) {
+        break; 
+      }
+      Set queue = TxQueueFinder.findByStatus("wait");
+      if (queue.size() > 0) {
+        String now = new Date().toString();
+        Iterator iter = queue.iterator();
+        while (iter.hasNext()) {
+          TxQueue txq = (TxQueue) iter.next();
+          if (txq.getClass() == TxQueueStop.class) {
+            try {
+              HibernateHelper.delete(txq);
+              this.gd.stopDaemon();
+            }
+            catch (HibernateException eH) {
+              String  msg = eH.getMessage();
+              LOG.fatal(msg);
+              break;
+            }
+          }
+        }
+      } 
       try {
-        System.err.println(new Date().toString() + " TXRUNNER: RUN() SLEEP - ");
         Thread.sleep( (long) (Math.random() * 1000) );
       } catch (InterruptedException e) {
-        System.err.println(new Date().toString() + " TXRUNNER: RUN() RETURN - ");
+        // Nothing
       }
     }
   } // public void run()
