@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.56 2006-02-09 10:24:42 lmcrae Exp $
-$Date: 2006-02-09 10:24:42 $
+$Id: Signet.java,v 1.57 2006-02-14 23:31:30 acohen Exp $
+$Date: 2006-02-14 23:31:30 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -2391,6 +2391,11 @@ public final class Signet
     while (grantablesIterator.hasNext())
     {
       Grantable grantable = (Grantable)(grantablesIterator.next());
+      
+      // We got these Grantables from a query, so they may not have their
+      // Signet members set yet.
+      ((GrantableImpl)grantable).setSignet(this);
+      
       if (grantable.evaluate(date))
       {
         grantable.save();
