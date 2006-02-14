@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.11 2006-02-03 20:20:15 blair Exp $
+ * @version $Id: GroupType.java,v 1.12 2006-02-14 20:30:59 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -41,12 +41,13 @@ public class GroupType implements Serializable {
 
 
   // Hibernate Properties
+  private boolean assignable    = true;
   private Member  creator_id;
   private long    create_time;
   private Set     fields        = new LinkedHashSet();
   private String  id;
+  private boolean internal      = false;
   private String  name;
-  private Status  status;
 
 
   // Constructors
@@ -114,6 +115,8 @@ public class GroupType implements Serializable {
     }
     try {
       type = new GroupType(name, new HashSet());
+      type.setCreator_id(   s.getMember()         );
+      type.setCreate_time(  new Date().getTime()  );
       HibernateHelper.save(type);
       sw.stop();
       EL.groupTypeAdd(s, name, sw);
@@ -371,13 +374,6 @@ public class GroupType implements Serializable {
     this.name = name;
   } // private void setName(name)
 
-  private Status getStatus() {
-    return this.status;
-  }
-  private void setStatus(Status s) {
-    this.status = s;
-  }
-
   private Member getCreator_id() {
     return this.creator_id;
   }
@@ -390,5 +386,21 @@ public class GroupType implements Serializable {
   private void setCreate_time(long time) {
     this.create_time = time;
   }
+
+  protected boolean getAssignable() {
+    return this.assignable;
+  } // protected boolean getAssignable()
+
+  protected void setAssignable(boolean assignable) {
+    this.assignable = assignable;
+  } // protected void setAssignable(assignable)
+
+  protected boolean getInternal() {
+    return this.internal;
+  } // protected boolean getInternal()
+
+  protected void setInternal(boolean internal) {
+    this.internal = internal;
+  } // protected void setInternal(internal)
 
 }
