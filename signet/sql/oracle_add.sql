@@ -188,6 +188,16 @@ FOREIGN KEY (proxyKey) REFERENCES signet_subject (subjectKey),
 FOREIGN KEY (revokerKey) REFERENCES signet_subject (subjectKey)
 )
 ;
+CREATE INDEX signet_assignment_1
+ON signet_assignment (
+  grantorKey
+)
+;
+CREATE INDEX signet_assignment_2
+ON signet_assignment (
+  granteeKey
+)
+;
 CREATE TABLE signet_assignmentLimit
 (
 assignmentID        NUMERIC(12)         NOT NULL,
@@ -223,6 +233,16 @@ FOREIGN KEY (grantorKey) REFERENCES signet_subject (subjectKey),
 FOREIGN KEY (granteeKey) REFERENCES signet_subject (subjectKey),
 FOREIGN KEY (proxyKey) REFERENCES signet_subject (subjectKey),
 FOREIGN KEY (revokerKey) REFERENCES signet_subject (subjectKey)
+)
+;
+CREATE INDEX signet_assignment_history_1
+ON signet_assignment_history (
+  grantorKey
+)
+;
+CREATE INDEX signet_assignment_history_2
+ON signet_assignment_history (
+  granteeKey
 )
 ;
 CREATE TABLE signet_assignmentLimit_history
@@ -314,6 +334,13 @@ modifyDatetime    TIMESTAMP         DEFAULT SYSDATE,
 PRIMARY KEY (subjectTypeID, subjectID, name, instance),
 FOREIGN KEY (subjectTypeID, subjectID)
 	REFERENCES Subject (subjectTypeID, subjectID)
+)
+;
+CREATE INDEX SubjectAttribute_1
+ON SubjectAttribute (
+  subjectID,
+  name,
+  value
 )
 ;
 
