@@ -26,12 +26,12 @@ import  org.apache.commons.logging.*;
  * Thread run when shutting down {@link grouperd}.
  * <p />
  * @author  blair christensen.
- * @version $Id: DaemonShutdownThread.java,v 1.1 2006-02-13 21:10:58 blair Exp $    
+ * @version $Id: DaemonShutdownThread.java,v 1.2 2006-02-14 18:34:29 blair Exp $    
  */
 public class DaemonShutdownThread extends Thread {
 
   // Private Class Constants
-  private static final Log  LOG = LogFactory.getLog(DaemonShutdownThread.class);
+  private static final DaemonLog  DL  = new DaemonLog();
 
   // Private Instance Variables
   private GrouperDaemon gd  = null;
@@ -46,7 +46,7 @@ public class DaemonShutdownThread extends Thread {
 
   // Public Instance Methods
   public void run( ) {
-    // Nothing
+    DL.shutdownThread();
   } // public void run()
 
 }

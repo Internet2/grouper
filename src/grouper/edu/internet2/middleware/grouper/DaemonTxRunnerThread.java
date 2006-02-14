@@ -27,12 +27,12 @@ import  org.apache.commons.logging.*;
  * {@link grouperd} thread for processing the transaction queue.
  * <p />
  * @author  blair christensen.
- * @version $Id: DaemonTxRunnerThread.java,v 1.1 2006-02-13 21:10:58 blair Exp $    
+ * @version $Id: DaemonTxRunnerThread.java,v 1.2 2006-02-14 18:34:29 blair Exp $    
  */
 public class DaemonTxRunnerThread extends Thread {
 
   // Private Class Constants
-  private static final Log  LOG = LogFactory.getLog(DaemonTxRunnerThread.class);
+  private static final DaemonLog  DL  = new DaemonLog();
 
   // Private Instance Variables
   private GrouperDaemon gd  = null;
@@ -54,18 +54,19 @@ public class DaemonTxRunnerThread extends Thread {
       }
       Set queue = TxQueueFinder.findByStatus("wait");
       if (queue.size() > 0) {
-        String now = new Date().toString();
+        DL.itemsInQueue(queue); 
         Iterator iter = queue.iterator();
         while (iter.hasNext()) {
-          TxQueue txq = (TxQueue) iter.next();
-          if (txq.getClass() == TxQueueStop.class) {
+          TxQueue tx  = (TxQueue) iter.next();
+          if (tx.getClass() == TxQueueStop.class) {
             try {
-              HibernateHelper.delete(txq);
+              HibernateHelper.delete(tx);
+              DL.deleteTx(tx);
               this.gd.stopDaemon();
             }
             catch (HibernateException eH) {
               String  msg = eH.getMessage();
-              LOG.fatal(msg);
+              DL.failToDeleteTx(tx, msg);
               break;
             }
           }

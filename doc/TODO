@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.30 2006-02-03 20:20:15 blair Exp $
+$Id: TODO,v 1.31 2006-02-14 18:34:29 blair Exp $
 
 ---
 
@@ -13,12 +13,9 @@ $Id: TODO,v 1.30 2006-02-03 20:20:15 blair Exp $
 ### BUGS
 
 ### Improved update performance through introduction of grouperd
-* Create grouperd daemon process
-* Add transaction mapping
 * Add transaction runner with support for eff mships
 * Add transaction runner with support for group math
 * Allow listing of active + failed transactions
-* Allow shutdown of grouperd
 * @doc
 
 ### Group Math
