@@ -254,6 +254,14 @@ modifyDatetime      timestamp           NOT NULL,
 primary key (assignmentID)
 );
 
+create index signet_assignment_1
+on signet_assignment (
+  grantorKey
+);
+create index signet_assignment_2
+on signet_assignment (
+  granteeKey
+);
 
 create table signet_assignmentLimit
 (
@@ -296,6 +304,14 @@ modifyDatetime      timestamp           NOT NULL,
 primary key (assignmentID, instanceNumber)
 );
 
+create index signet_assignment_history_1
+on signet_assignment_history (
+  grantorKey
+);
+create index signet_assignment_history_2
+on signet_assignment_history (
+  granteeKey
+);
 
 create table signet_assignmentLimit_history
 (
