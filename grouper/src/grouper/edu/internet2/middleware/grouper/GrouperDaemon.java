@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Persistent Grouper Process.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperDaemon.java,v 1.1 2006-02-13 21:10:58 blair Exp $    
+ * @version $Id: GrouperDaemon.java,v 1.2 2006-02-14 17:18:31 blair Exp $    
  */
 public class GrouperDaemon {
 
@@ -76,7 +76,6 @@ public class GrouperDaemon {
   } // protected boolean isStopped()
 
   protected void stopDaemon() {
-    System.err.println("GD.STOPDAEMON!");
     this.stop = true;
     DaemonHsqldbThread.stopServer();
   } // protected void stopDaemon()
@@ -85,17 +84,14 @@ public class GrouperDaemon {
   // Private Instance Methods
   private void getQueue() {
     Set         results = TxQueueFinder.findAll();
-    System.err.println("RESULTS ALL: " + results);
   } // private void getQueue()
 
   private void getQueueActive() {
     Set         results = TxQueueFinder.findByStatus("wait");
-    System.err.println("RESULTS ACTIVE: " + results);
   } // private void getQueueActive()
 
   private void getQueueFailed() {
     Set         results = TxQueueFinder.findByStatus("fail");
-    System.err.println("RESULTS FAILED: " + results);
   } // private void getQueueFailed()
  
   private String getUsage() {
