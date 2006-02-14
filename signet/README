@@ -43,31 +43,31 @@ To deploy the "regular", "non-quickstart" Signet web application:
 
 (3) Create a "signet" web application context in your servlet container.
 
-(4) Point the web application context to the webapp/signet directory in this
-    distribution.
-
-(5) Copy your JDBC driver to two directories: webapp/signet/WEB-INF/lib (for
+(4) Copy your JDBC driver to two directories: webapp/signet/WEB-INF/lib (for
     use by the Web application) and lib (for use by the utility programs).
 
-(6) Configure your database connection by editing the config/hibernate.cfg.xml
+(5) Configure your database connection by editing the config/hibernate.cfg.xml
     file. Uncomment or add a database section and set the connection parameters
     (hibernate.dialect, hibernate.connection.driver_class,
     hibernate.connection.url, hibernate.connection.username, and
     hibernate.connection.password). Copy this edited file to
     webapp/signet/WEB-INF/classes/hibernate.cfg.xml.
 
-(7) Set your preferred hibernate logging level by editing the
+(6) Set your preferred hibernate logging level by editing the
     config/log4j.properties file. Copy this edited file to
     webapp/signet/WEB-INF/classes/log4j.properties.
 
 (7) Change the feedback href (@FEEDBACK_URL@) in webapp/signet/tiles/footer.jsp
     to point to your preferred email address.
 
-(9) Configure your subject sources in config/sources.xml. If you are using the
+(8) Configure your subject sources in config/sources.xml. If you are using the
     local subject adapter, add or uncomment a database section, and set the
     database connection parameters (@DB_DRIVER@, @DB_URL@, @DB_USERNAME@, and
     @DB_PASSWORD@). Copy this edited file to
     webapp/signet/WEB-INF/classes/sources.xml.
+
+(9) Point the web application context to the webapp/signet directory in this
+    distribution.
 
 To populate the Signet demo application with sample data:
 
