@@ -29,7 +29,7 @@ import  org.hsqldb.*;
  * {@link grouperd} thread for running a HSQLB server.
  * <p />
  * @author  blair christensen.
- * @version $Id: DaemonHsqldbThread.java,v 1.1 2006-02-13 21:10:58 blair Exp $    
+ * @version $Id: DaemonHsqldbThread.java,v 1.2 2006-02-14 17:18:31 blair Exp $    
  */
 public class DaemonHsqldbThread extends Thread {
 
@@ -71,7 +71,6 @@ public class DaemonHsqldbThread extends Thread {
 
   // Protected Class Methods
   protected static void stopServer() {
-    System.err.println("DHT STOPSERVER!");
     if (server != null) {
       try {
         server.signalCloseAllServerConnections();
