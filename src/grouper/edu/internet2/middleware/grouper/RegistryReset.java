@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.10 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.11 2006-02-14 19:58:41 blair Exp $
  */
 public class RegistryReset {
 
@@ -277,13 +277,20 @@ public class RegistryReset {
   {
     this.hs   = HibernateHelper.getSession();
     this.conn = hs.connection();
+    if (this.conn == null) {
+      String msg = "null connection";
+      LOG.fatal(msg);
+      throw new HibernateException(msg);
+    }
     this.tx   = this.hs.beginTransaction();
   } // private void _setUp()
 
   private void _tearDown() {
     try {
       if (this.hs != null) {
-        this.tx.commit();
+        if (this.tx != null) {
+          this.tx.commit();
+        }
         this.hs.close();
       }
     }
