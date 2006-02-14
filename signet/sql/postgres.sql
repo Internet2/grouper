@@ -412,3 +412,10 @@ create table SubjectAttribute (
   primary key (subjectTypeID, subjectID, name, instance),
   foreign key (subjectTypeID,subjectID) references signet_subject (subjectTypeID,subjectID)
   );
+
+create index SubjectAttribute_1
+on SubjectAttribute (
+  subjectID,
+  name,
+  value
+);
