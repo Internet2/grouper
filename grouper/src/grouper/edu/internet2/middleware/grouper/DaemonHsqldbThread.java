@@ -29,13 +29,12 @@ import  org.hsqldb.*;
  * {@link grouperd} thread for running a HSQLB server.
  * <p />
  * @author  blair christensen.
- * @version $Id: DaemonHsqldbThread.java,v 1.2 2006-02-14 17:18:31 blair Exp $    
+ * @version $Id: DaemonHsqldbThread.java,v 1.3 2006-02-14 18:34:29 blair Exp $    
  */
 public class DaemonHsqldbThread extends Thread {
 
   // Private Class Constants
-  private static final Log  LOG = LogFactory.getLog(DaemonHsqldbThread.class);
-
+  private static final DaemonLog  DL  = new DaemonLog();
 
   // Private Class Variables
   private static  Properties  props   = null;
@@ -73,6 +72,7 @@ public class DaemonHsqldbThread extends Thread {
   protected static void stopServer() {
     if (server != null) {
       try {
+        DL.stopHsqldbServer();
         server.signalCloseAllServerConnections();
         Thread.sleep( (long) (Math.random() * 1000) ); 
         net.sf.hibernate.Session  hs  = HibernateHelper.getSession();
@@ -86,7 +86,7 @@ public class DaemonHsqldbThread extends Thread {
       }
       catch (Exception e) {
         String  msg   = e.getMessage();
-        LOG.fatal(msg);
+        DL.failToStopHsqldbServer(msg);
         throw new RuntimeException(msg);
       }
     }
@@ -100,30 +100,37 @@ public class DaemonHsqldbThread extends Thread {
               props = GrouperConfig.getInstance().getProperties(cf);
     }
     if (server == null) {
+      DL.startHsqldbServer();
       server  = new Server();    
       String      prop  = "server.silent";
       if (props.getProperty(prop) != null) {
         server.setSilent( Boolean.valueOf(props.getProperty(prop)).booleanValue() );
+        DL.hsqldbConfig(prop, Boolean.valueOf( server.isSilent() ).toString());
       }
       prop              = "server.trace";
       if (props.getProperty(prop) != null) {
         server.setTrace( Boolean.valueOf(props.getProperty(prop)).booleanValue() );
+        DL.hsqldbConfig(prop, Boolean.valueOf( server.isTrace() ).toString());
       }
       prop              = "server.address";
       if (props.getProperty(prop) != null) {
         server.setAddress(props.getProperty(prop));
+        DL.hsqldbConfig(prop, server.getAddress());
       }
       prop              = "server.port";
       if (props.getProperty(prop) != null) {
         server.setPort( Integer.parseInt( props.getProperty(prop)) );
+        DL.hsqldbConfig(prop, Integer.toString( server.getPort() ));
       }
       prop              = "server.dbname.0";
       if (props.getProperty(prop) != null) {
         server.setDatabaseName(0, props.getProperty(prop));
+        DL.hsqldbConfig(prop, server.getDatabaseName(0, true));
       }
       prop              = "server.database.0";
       if (props.getProperty(prop) != null) {
         server.setDatabasePath(0, props.getProperty(prop));
+        DL.hsqldbConfig(prop, server.getDatabasePath(0, true));
       }
       server.start();
     }

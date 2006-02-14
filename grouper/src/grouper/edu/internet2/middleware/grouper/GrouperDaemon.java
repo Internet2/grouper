@@ -28,12 +28,12 @@ import  org.apache.commons.logging.*;
  * Persistent Grouper Process.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperDaemon.java,v 1.2 2006-02-14 17:18:31 blair Exp $    
+ * @version $Id: GrouperDaemon.java,v 1.3 2006-02-14 18:34:29 blair Exp $    
  */
 public class GrouperDaemon {
 
   // Private Class Constants
-  private static final Log  LOG = LogFactory.getLog(GrouperDaemon.class);
+  private static final DaemonLog  DL  = new DaemonLog();
 
   // Private Instance Variables
   private boolean stop  = false;
@@ -64,7 +64,7 @@ public class GrouperDaemon {
       }
     } // if (args.length > 0) ...
     else {
-      System.err.println(d.getUsage());
+      System.out.println(d.getUsage());
       System.exit(0);
     }
   } // public static void main(args)
@@ -76,6 +76,7 @@ public class GrouperDaemon {
   } // protected boolean isStopped()
 
   protected void stopDaemon() {
+    DL.stopGrouperDaemon();
     this.stop = true;
     DaemonHsqldbThread.stopServer();
   } // protected void stopDaemon()
@@ -99,6 +100,8 @@ public class GrouperDaemon {
   } // private String getUsage()
  
   private void start() {
+    DL.startGrouperDaemon();
+
     // Create the threads.  Right now this is an extremely simplistic
     // model but at some point I'll probably move to pools, etc.
     DaemonShutdownThread    shutdown  = new DaemonShutdownThread(this);
@@ -134,7 +137,7 @@ public class GrouperDaemon {
     }
     catch (HibernateException eH) {
       String msg = eH.getMessage();
-      LOG.fatal(msg);
+      DL.failToStopGrouperDaemon(msg);
       throw new RuntimeException(msg);
     }
   } // private void stop();

@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.96 2006-02-13 20:18:05 blair Exp $
+$Id: NEWS,v 1.97 2006-02-14 18:34:29 blair Exp $
 
 ---
 
@@ -10,6 +10,8 @@ $Id: NEWS,v 1.96 2006-02-13 20:18:05 blair Exp $
 Released: TBD
 
 ## Changes
+* UPDATE: HSQLDB now runs in server mode (within GrouperDaemon) by default
+* NEW: GrouperDaemon daemon process
 * UPDATE: Updated HSQLDB (`lib/hsqldb.jar`) to 1.8.0.2
 * UPDATE: Consolidated `ant schemaexport`, `ant db-init` and 
   `ant db-init-jdbcsource` into `ant setup`
