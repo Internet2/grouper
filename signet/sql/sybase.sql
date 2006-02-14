@@ -1,7 +1,6 @@
 -- This is the Sybase DDL for the Signet database
 -- Author Lynn McRae, Stanford University 
 -- modified
---    6/20/2005 - add assignment expirationDate
 --
 -- Tree tables
 drop table signet_treeNodeRelationship;
@@ -217,6 +216,16 @@ foreign key (proxyKey) references signet_subject (subjectKey),
 foreign key (revokerKey) references signet_subject (subjectKey)
 )
 ;
+create index signet_assignment_1
+on signet_assignment (
+  grantorKey
+)
+;
+create index signet_assignment_2
+on signet_assignment (
+  granteeKey
+)
+;
 create table signet_assignmentLimit
 (
 assignmentID        numeric(12,0)       NOT NULL,
@@ -252,6 +261,16 @@ foreign key (grantorKey) references signet_subject (subjectKey),
 foreign key (granteeKey) references signet_subject (subjectKey),
 foreign key (proxyKey) references signet_subject (subjectKey),
 foreign key (revokerKey) references signet_subject (subjectKey)
+)
+;
+create index signet_assignment_history_1
+on signet_assignment_history (
+  grantorKey
+)
+;
+create index signet_assignment_history_2
+on signet_assignment_history (
+  granteeKey
 )
 ;
 create table signet_assignmentLimit_history
