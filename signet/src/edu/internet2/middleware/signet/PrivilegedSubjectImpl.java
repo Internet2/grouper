@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectImpl.java,v 1.40 2006-02-09 10:23:29 lmcrae Exp $
-$Date: 2006-02-09 10:23:29 $
+$Id: PrivilegedSubjectImpl.java,v 1.41 2006-02-15 23:44:45 acohen Exp $
+$Date: 2006-02-15 23:44:45 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -1380,6 +1380,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     (PrivilegedSubject  actingAs,
      Subsystem          subsystem)
   {
+    if (actingAs == null)
+    {
+      // Everyone can act as nobody else, i.e. himself.
+      return true;
+    }
+    
     Set proxies = this.getProxiesReceived();
     proxies = filterProxies(proxies, Status.ACTIVE);
     proxies = filterProxies(proxies, subsystem);
@@ -1456,6 +1462,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   public void setActingAs(PrivilegedSubject actingAs)
   throws SignetAuthorityException
   {
+    if (this.equals(actingAs))
+    {
+      // Acting as yourself is expressed as acting as nobody else.
+      actingAs = null;
+    }
+    
     if (this.canActAs(actingAs, null))
     {
       this.actingAs = actingAs;
