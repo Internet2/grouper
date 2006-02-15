@@ -226,6 +226,16 @@ on signet_assignment (
   granteeKey
 )
 ;
+create index signet_assignment_3
+on signet_assignment (
+  effectiveDate
+)
+;
+create index signet_assignment_4
+on signet_assignment (
+  expirationDate
+)
+;
 create table signet_assignmentLimit
 (
 assignmentID        numeric(12,0)       NOT NULL,

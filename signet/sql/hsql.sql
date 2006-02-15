@@ -221,6 +221,7 @@ foreign key (granteeKey) references signet_subject (subjectKey),
 foreign key (proxyKey) references signet_subject (subjectKey),
 foreign key (revokerKey) references signet_subject (subjectKey)
 )
+;
 create index signet_assignment_1
 on signet_assignment (
   grantorKey
@@ -231,6 +232,15 @@ on signet_assignment (
   granteeKey
 )
 ;
+create index signet_assignment_3
+on signet_assignment (
+  effectiveDate
+)
+;
+create index signet_assignment_4
+on signet_assignment (
+  expirationDate
+)
 ;
 create table signet_assignmentLimit
 (
