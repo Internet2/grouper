@@ -189,6 +189,7 @@ public class SubsystemXmlLoader {
         {
           subsystemCount = results.getInt(1);
         }
+        session.close();
       }
       catch (Exception e)
       {
