@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.logging.*;
 
@@ -36,11 +37,13 @@ class TxQueue implements Serializable {
 
   
   // Hibernate Properties
-  private List        args        = new ArrayList();
+  private Member      actor;
   private List        dirty       = new ArrayList();
+  private Field       field;
   private String      id;
   private String      klass;
   private Member      member;
+  private String      owner;      // Switch to _Owner_
   private String      sessionId;
   private long        queueTime;
   private QueueStatus status;
@@ -61,79 +64,116 @@ class TxQueue implements Serializable {
   // Public Instance Methods
   public String toString() {
     String k = this.getKlass();
-    return new ToStringBuilder(this)
-      .append("time"        , this.getQueueTime()         )
-      .append("uuid"        , this.getUuid()              )
-      .append("status"      , this.getStatus().getName()  )
-      .append("class"       , this.getClass().getName()   )
+    return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
+      .append("class"       , this.getClass().getName()                 )
+      .append("time"        , this.getQueueTime()                       )
+      .append("uuid"        , this.getUuid()                            )
+      .append("status"      , this.getStatus().getName()                )
+      .append("time"        , new Date( this.getQueueTime()).toString() )
       .toString()
       ;
   } // public String toString() 
 
+
+  // Protected Instance Methods
+  protected boolean apply(GrouperDaemon gd) {
+    return false;
+  } // protected boolean apply(gd)
+
+  protected boolean setFailed(GrouperDaemon gd) {
+    boolean rv = false;
+    try {
+      this.setStatus( QueueStatus.getInstance("fail") );
+      HibernateHelper.save(this);
+      rv = true;
+    }
+    catch (HibernateException eH) {
+      gd.getLog().error(eH.getMessage());
+    }
+    return rv;
+  } // protected boolean setFailed(gd)
+
+
   // Hibernate Accessors
-  private List getArgs() {
-    return this.args;
-  }
-  
-  private void setArgs(List args) {
-    this.args = args;
+  protected Member getActor() {
+    return this.actor;
   }
 
-  private List getDirty() {
+  protected void setActor(Member actor) {
+    this.actor = actor;
+  }
+
+  protected List getDirty() {
     return this.dirty;
   }
   
-  private void setDirty(List dirty) {
+  protected void setDirty(List dirty) {
     this.dirty = dirty;
   }
 
-  private String getId() {
+  protected Field getField() {
+    return this.field;
+  }
+
+  protected void setField(Field f) {
+    this.field = f;
+  }
+
+  protected String getId() {
     return this.id;
   }
-  private void setId(String id) {
+  protected void setId(String id) {
     this.id = id;
   }
 
-  private String getKlass() {
+  protected String getKlass() {
     return this.klass;
   }
-  private void setKlass(String klass) {
+  protected void setKlass(String klass) {
     this.klass = klass;
   }
 
-  private Member getMember() {
+  protected String getOwner() {
+    return this.owner;
+  }
+
+  protected void setOwner(String owner) {
+    this.owner = owner;
+  }
+
+  protected Member getMember() {
     return this.member;
   }
-  private void setMember(Member m) {
+  protected void setMember(Member m) {
     this.member = m;
   }
 
-  private long getQueueTime() {
+  protected long getQueueTime() {
     return this.queueTime;
   }
-  private void setQueueTime(long time) {
+  protected void setQueueTime(long time) {
     this.queueTime = time;
   }
  
-  private String getSessionId() {
+  protected String getSessionId() {
     return this.sessionId;
   }
 
-  private void setSessionId(String id) {
+  protected void setSessionId(String id) {
     this.sessionId = id;
   }
 
-  private QueueStatus getStatus() {
+  protected QueueStatus getStatus() {
     return this.status;
   }
-  private void setStatus(QueueStatus s) {
+  protected void setStatus(QueueStatus s) {
     this.status = s;
   }
 
-  private String getUuid() {
+  protected String getUuid() {
     return this.uuid;
   }
-  private void setUuid(String uuid) {
+  protected void setUuid(String uuid) {
     this.uuid = uuid;
   }
 

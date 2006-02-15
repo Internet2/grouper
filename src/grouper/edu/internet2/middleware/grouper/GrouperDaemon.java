@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Persistent Grouper Process.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperDaemon.java,v 1.3 2006-02-14 18:34:29 blair Exp $    
+ * @version $Id: GrouperDaemon.java,v 1.4 2006-02-15 23:06:49 blair Exp $    
  */
 public class GrouperDaemon {
 
@@ -71,6 +71,10 @@ public class GrouperDaemon {
 
 
   // Protected Instance Methods
+  protected DaemonLog getLog() {
+    return DL;
+  } // protected DaemonLog getLog()
+
   protected boolean isStopped() {
     return this.stop;
   } // protected boolean isStopped()
@@ -131,7 +135,7 @@ public class GrouperDaemon {
   private void stop() {
     try {
       Session hs    = HibernateHelper.getSession();
-      TxQueue stop  = new TxQueueStop();
+      TxQueue stop  = new TxStop();
       HibernateHelper.save(stop);
       hs.close();
     }

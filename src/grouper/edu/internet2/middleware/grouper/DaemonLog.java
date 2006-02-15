@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link GrouperDaemon} logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: DaemonLog.java,v 1.1 2006-02-14 18:34:29 blair Exp $
+ * @version $Id: DaemonLog.java,v 1.2 2006-02-15 23:06:49 blair Exp $
  *     
 */
 class DaemonLog implements Serializable {
@@ -41,16 +41,19 @@ class DaemonLog implements Serializable {
   // daemon errors
   private static final String ERR_GD_STOP   = "failed to signal that GrouperDaemon should stop: ";
   private static final String ERR_HS_STOP   = "failed to stop HSQLDB server: ";
-  private static final String ERR_TXQ_DT    = "failed to delete tx: ";
+  private static final String ERR_TXQ_ATX   = "failed to apply tx: ";
+  private static final String ERR_TXQ_DTX   = "failed to delete tx: ";
+  private static final String ERR_TXQ_SF    = "failed to mark failed tx: ";
 
   // daemon messages
   private static final String MSG_GD_STOP   = "stopping GrouperDaemon";
   private static final String MSG_GD_START  = "starting GrouperDaemon";
   private static final String MSG_HS_CFG    = "HSQLDB server config: ";
-  private static final String MSG_HS_STOP   = "stopping HSQLDB server";
-  private static final String MSG_HS_START  = "starting HSQLDB server";
+  private static final String MSG_HS_STOP   = "stopping embedded HSQLDB server";
+  private static final String MSG_HS_START  = "starting embedded HSQLDB server";
   private static final String MSG_ST        = "finalizing shutdown";
-  private static final String MSG_TXQ_DT    = "deleted tx: ";
+  private static final String MSG_TXQ_ATX   = "applied tx: ";
+  private static final String MSG_TXQ_DTX   = "deleted tx: ";
   private static final String MSG_TXQ_ITEMS = "items in tx queue: ";
 
 
@@ -63,12 +66,28 @@ class DaemonLog implements Serializable {
 
   // Protected Instance Methods
 
+  protected void appliedTx(TxQueue tx) {
+    LOG.info(MSG_TXQ_ATX + tx);
+  } // protected void appliedTx(tx)
+
   protected void deleteTx(TxQueue tx) {
-    LOG.info(MSG_TXQ_DT + tx.getClass().getName());
+    LOG.info(MSG_TXQ_DTX + tx);
   } // protected void deleteTx(tx)
 
+  protected void error(String msg) {
+    LOG.error(msg);
+  } // protected void err(msg)
+
+  protected void failedToApplyTx(TxQueue tx) {
+    LOG.error(ERR_TXQ_ATX + tx);
+  } // protected void failedToApplyTx(tx)
+
+  protected void failedToSetFailed(TxQueue tx) {
+    LOG.error(ERR_TXQ_SF + tx);
+  } // protected void failedToSetFailed(tx)
+
   protected void failToDeleteTx(TxQueue tx, String msg)  {
-    LOG.fatal(ERR_TXQ_DT + tx.getClass().getName() + ": " + msg);
+    LOG.fatal(ERR_TXQ_DTX + tx + ": " + msg);
   } // protected void failToDeleteTx(tx, msg)
 
   protected void failToStopGrouperDaemon(String msg) {

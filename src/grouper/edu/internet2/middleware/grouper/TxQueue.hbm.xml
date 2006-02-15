@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: TxQueue.hbm.xml,v 1.2 2006-02-13 21:10:58 blair Exp $ -->
+<!-- $Id: TxQueue.hbm.xml,v 1.3 2006-02-15 23:06:49 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="TxQueue" table="grouper_queue">
@@ -80,13 +80,13 @@ Grouper Transaction Queue.
     </property>
     <!-- sessionId -->
 
-    <!-- member -->
-    <many-to-one  name="member"
+    <!-- actor -->
+    <many-to-one  name="actor"
                   class="edu.internet2.middleware.grouper.Member" 
     >
-      <column     name="member"/>
+      <column     name="actor"/>
     </many-to-one>
-    <!-- member -->
+    <!-- actor -->
 
     <!-- status -->
     <property name="status"
@@ -99,17 +99,6 @@ Grouper Transaction Queue.
     </property>
     <!-- status -->
 
-    <!-- args -->
-    <list name="args"
-          table="grouper_queue_args"
-          lazy="true"
-    >
-      <key                    column="queue_id"                 />
-      <index                  column="idx"                      /> 
-      <element  type="string" column="uuid"     not-null="true" />
-    </list>
-    <!-- args -->
-
     <!-- dirty -->
     <list name="dirty"
           table="grouper_queue_dirty"
@@ -121,9 +110,48 @@ Grouper Transaction Queue.
     </list>
     <!-- dirty -->
 
-    <!-- TxQueueStop -->
-    <subclass name="TxQueueStop"  discriminator-value="stop"/>
-    <!-- TxQueueStop -->
+    <!-- owner -->
+    <property name="owner"
+              type="string"
+    >
+      <column name="owner"
+              length="128"
+      />
+    </property>
+    <!-- owner -->
+
+    <!-- field -->
+    <property name="field"
+              type="edu.internet2.middleware.grouper.FieldUserType"
+              update="false"
+    >
+      <column name="field_name"
+              length="32"
+      />
+      <column name="field_type"
+              length="32"
+      />
+    </property>
+    <!-- field -->
+
+    <!-- member -->
+    <many-to-one  name="member"
+                  class="edu.internet2.middleware.grouper.Member" 
+    >
+      <column     name="member"/>
+    </many-to-one>
+    <!-- member -->
+  
+
+    <!-- TxStop -->
+    <subclass name="TxStop"       discriminator-value="stop"/>
+    <!-- TxStop -->
+    <!-- TxStop -->
+    <subclass name="TxMemberAdd"  discriminator-value="memberAdd"/>
+    <!-- TxStop -->
+    <!-- TxStop -->
+    <subclass name="TxMemberDel"  discriminator-value="memberDel"/>
+    <!-- TxStop -->
 
   </class>
 </hibernate-mapping>

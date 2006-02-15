@@ -24,22 +24,49 @@ import  org.apache.commons.logging.*;
 
 
 /** 
- * Grouper Transaction Queue <b>STOP</b> command.
+ * Grouper Transaction Queue <b>MEMBER DEL</b> command.
  * @author blair christensen.
  *     
 */
-class TxQueueStop extends TxQueue implements Serializable {
+class TxMemberDel extends TxQueue implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TxQueueStop.class);
+  private static final Log LOG = LogFactory.getLog(TxMemberDel.class);
 
   
   // Constructors
 
   // For Hibernate
-  public TxQueueStop() { 
+  public TxMemberDel() { 
     super();
-  } // TxQueueStop()
+  } // TxMemberDel()
+
+  protected TxMemberDel(GrouperSession s, String owner, Member m, Field f) {
+    super();
+    this.setSessionId(s.getSessionId());
+    this.setActor(s.getMember());
+    this.setOwner(owner);
+    this.setField(f);
+    this.setMember(m); 
+  } // TxMemberDel()
+
+
+  // Public Instance Methods
+/*
+  public boolean apply(GrouperDaemon gd) {
+    boolean rv = false;
+    try {
+      HibernateHelper.delete(this);
+      gd.stopDaemon();
+      rv = true;
+    }
+    catch (HibernateException eH) {
+      String msg = eH.getMessage();
+      gd.getLog().failToDelete(this, msg);
+    }
+    return rv;
+  } // public boolean apply()
+*/
 
 }
 

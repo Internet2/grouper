@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: Group.java,v 1.56 2006-02-15 23:06:49 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -1208,6 +1208,19 @@ public class Group implements Serializable {
       throw new RuntimeException(err);
     }
   } // public Set getReaders()
+
+  /**
+   * Get {@link GrouperSession} associated with this {@link Group}.
+   * <pre class="eg">
+   * GrouperSession s = g.getSession();
+   * </pre>
+   * @return  {@GrouperSession} associated this this group.
+   * @throws  RuntimeException if session not valid.
+   */
+  public GrouperSession getSession() {
+    GrouperSession.validate(this.s);
+    return this.s;
+  } // public GrouperSession getSession()
 
   /**
    * Get group types for this group.
