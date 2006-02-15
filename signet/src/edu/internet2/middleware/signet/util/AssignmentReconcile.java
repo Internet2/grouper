@@ -24,6 +24,7 @@ import edu.internet2.middleware.signet.Status;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 
 public class AssignmentReconcile
 {
@@ -72,14 +73,16 @@ public class AssignmentReconcile
       
       if (reconcileDate.equals("")) {
    
-         signet.reconcile();
+         Set reconciledSet = signet.reconcile();
+         System.out.println("- Assignments affected: " + reconciledSet.size());
 
       } else {
 
-         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yy");
+         SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yy");
          Date theDate = dateFormatter.parse(reconcileDate);   
 
-         signet.reconcile(theDate);
+         Set reconciledSet = signet.reconcile(theDate);
+         System.out.println("- Assignments affected: " + reconciledSet.size());
  
       }
    }
