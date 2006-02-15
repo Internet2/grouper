@@ -20,7 +20,7 @@
       <param-value>5</param-value>
     </init-param>
 	
-    <!-- Database connection properties -->
+    <!--  Database connection properties  -->
     <init-param>
       <param-name>dbDriver</param-name>
       <param-value>@DB_DRIVER@</param-value>
