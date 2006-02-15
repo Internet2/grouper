@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.14 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.15 2006-02-15 23:06:49 blair Exp $
  */
 public class MembershipHelper {
 
@@ -270,10 +270,35 @@ public class MembershipHelper {
     Assert.assertTrue("m isImmMember g",  m.isImmediateMember(g));
   } // protected static TestImm(g, subj, m)
 
-  protected static void testEff(Group g, Group gm, Member m) {
+  protected static void testEff(Group g, Group via, Subject subj) {
+    try {
+      Member m = MemberFinder.findBySubject(g.getSession(), subj);
+      testEff(g, via, m);
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void testEff(g, via, subj)
+
+  // TODO DEPRECATE
+  // TODO via is wrong?  should actually be group-as-member?  or member-as-group?
+  protected static void testEff(Group g, Group via, Member m) {
+// FIXME System.err.println("testEFF/"+g.getName()+"/"+via.getName()+"/"+m.getSubjectId());
     // Get memberships
     Set isMember    = g.toMember().getMemberships();
-    Set hasMembers  = gm.getMemberships();
+/* FIXME
+System.err.println("testEFF/isMember="+isMember.size());
+    if (isMember.size() < 1) {
+      Assert.fail("group has no members");
+    }
+*/
+    Set hasMembers  = via.getMemberships();
+/* FIXME
+System.err.println("testEFF/hasMembers="+hasMembers.size());
+    if (hasMembers.size() < 1) {
+      Assert.fail("via group has no members");
+    }
+*/
     Iterator iter   = isMember.iterator();
     while (iter.hasNext()) {
       Membership is = (Membership) iter.next();
@@ -288,7 +313,7 @@ public class MembershipHelper {
         _testEff(is, hs);
       }
     }
-  } // protected static void testEff(g, gm, m)
+  } // protected static void testEff(g, via, m)
 
   protected static void testEffMship(
     GrouperSession s, Group g, Subject subj, Field f, Group v, int d

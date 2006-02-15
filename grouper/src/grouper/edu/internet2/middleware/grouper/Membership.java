@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.24 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: Membership.java,v 1.25 2006-02-15 23:06:49 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -297,25 +297,33 @@ public class Membership implements Serializable {
       );
       objects.add(m);
 
+      String oid = new String();
       if (o.getClass().equals(Group.class)) {
         ( (Group) o).setModified();
+        oid = ( (Group) o).getUuid();
       }
       else {
         ( (Stem) o).setModified();
+        oid = ( (Stem) o).getUuid();
       }
 
       // Create the immediate membership
-      Membership imm = _addMembership(s, o, m, f);
+      Membership  imm = _addMembership(s, o, m, f);
+      TxQueue     tx  = new TxMemberAdd(s, oid, m, f);
 
       // Find effective memberships
       Set effs = _findEffectiveMemberships(s, imm);
       objects.addAll(effs);
 
+
       // And then save owner and memberships
       objects.add(imm);
       objects.add(o);
+      objects.add(tx);
       HibernateHelper.save(objects);
+
       EL.addEffMembers(s, o, subj, f, effs);
+
     }
     catch (MemberAddException eMA) {
       throw eMA;
@@ -352,13 +360,19 @@ public class Membership implements Serializable {
 
       // Find memberships to delete
       Membership imm = MembershipFinder.findImmediateMembership(s, g, subj, f);
+      TxQueue     tx  = new TxMemberDel(s, g.getUuid(), m, f);
+      saves.add(tx);
+
       Set effs = _membershipsToDelete(s, imm);
       deletes.addAll(effs);
+
       deletes.add(imm);
 
       // And then commit changes to registry
       HibernateHelper.saveAndDelete(saves, deletes);
+
       EL.delEffMembers(s, g, subj, f, effs);
+
     }
     catch (HibernateException eH) {
       msg += ": " + eH.getMessage();
@@ -398,14 +412,20 @@ public class Membership implements Serializable {
 
       // Find memberships to delete
       Membership imm = MembershipFinder.findImmediateMembership(ns.getUuid(), m, f);
+      TxQueue     tx  = new TxMemberDel(s, ns.getUuid(), m, f);
+      saves.add(tx);
+
       imm.setSession(s);
       deletes.add(imm);
       Set effs = _membershipsToDelete(s, imm);
       deletes.addAll(effs);
 
+
       // And then commit changes to registry
       HibernateHelper.saveAndDelete(saves, deletes);
+
       EL.delEffMembers(s, ns, subj, f, effs);
+
     }
     catch (HibernateException eH) {
       msg += ": " + eH.getMessage();

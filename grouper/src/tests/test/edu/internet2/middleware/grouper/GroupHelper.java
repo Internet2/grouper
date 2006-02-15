@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.16 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.17 2006-02-15 23:06:49 blair Exp $
  */
 public class GroupHelper {
 
@@ -237,6 +237,26 @@ public class GroupHelper {
       Assert.fail("failed to delete member: " + eMA.getMessage());
     }
   } // protected static void deleteMember(g, gm)
+
+  // Delete a member from a group
+  protected static void deleteMember(Group g, Subject subj) {
+    try {
+      g.deleteMember(subj);
+      Assert.assertTrue("deleted member", true);
+      Member m = MemberFinder.findBySubject(g.getSession(), subj);
+      Assert.assertFalse("g !hasMember m", g.hasMember(subj));
+      Assert.assertFalse("m !isMember g", m.isMember(g));
+    }
+    catch (InsufficientPrivilegeException e0) {
+      Assert.fail("not privileged to delete member: " + e0.getMessage());
+    }
+    catch (MemberDeleteException e1) {
+      Assert.fail("failed to delete member: " + e1.getMessage());
+    }
+    catch (MemberNotFoundException e2) {
+      Assert.fail("member not found: " + e2.getMessage());
+    }
+  } // protected static void deleteMember(g, subj, m)
 
   // Delete a member from a group
   protected static void deleteMember(Group g, Subject subj, Member m) {

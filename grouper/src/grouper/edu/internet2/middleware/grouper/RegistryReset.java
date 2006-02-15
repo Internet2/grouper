@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.11 2006-02-14 19:58:41 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.12 2006-02-15 23:06:49 blair Exp $
  */
 public class RegistryReset {
 
@@ -259,6 +259,7 @@ public class RegistryReset {
   } // private void _emptyTableGrouperTypes()
 
   private void _emptyTables() {
+    this._emptyTable("grouper_queue");
     this._emptyTable("grouper_groups_types");
     this._emptyTableGrouperMemberships();
     this._emptyTable("grouper_sessions");
