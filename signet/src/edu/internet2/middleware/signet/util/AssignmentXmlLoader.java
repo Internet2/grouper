@@ -99,6 +99,10 @@ public class AssignmentXmlLoader
 
       in.close();
     }
+    catch (SignetAuthorityException auth)
+    {
+       System.out.println("Assignment authority error: " + auth.getDecision().getReason().toString());
+    }
     catch (Exception e)
     {
        e.printStackTrace();
@@ -304,6 +308,7 @@ public class AssignmentXmlLoader
         case XMLStreamConstants.END_ELEMENT:
           if (parser.getLocalName().equals(ELEMENTNAME_ASSIGNMENT))
           {
+              System.out.println("Assignment: " + grantor.getName() + " granting " + function.getName() + " to " + grantee.getName());
               assignment
                 = buildAssignmentIfComplete
                     (function, grantor, actingAs, grantee, scope, limitValues);
