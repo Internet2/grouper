@@ -45,11 +45,10 @@ To deploy the "regular", "non-quickstart" Signet web application:
     use by the Web application) and lib (for use by the utility programs).
 
 (4) Configure your database connection by editing the config/hibernate.cfg.xml
-    file. Uncomment or add a database section and set the connection parameters
-    (hibernate.dialect, hibernate.connection.driver_class,
-    hibernate.connection.url, hibernate.connection.username, and
-    hibernate.connection.password). Copy this edited file to
-    webapp/signet/WEB-INF/classes/hibernate.cfg.xml.
+    file. Set the connection parameters (hibernate.dialect,
+    hibernate.connection.driver_class, hibernate.connection.url,
+    hibernate.connection.username, and hibernate.connection.password).
+    Copy this edited file to webapp/signet/WEB-INF/classes/hibernate.cfg.xml.
 
 (5) Set your preferred hibernate logging level by editing the
     config/log4j.properties file. Copy this edited file to
@@ -57,14 +56,17 @@ To deploy the "regular", "non-quickstart" Signet web application:
 
 (6) Change the feedback href (@FEEDBACK_URL@) in webapp/signet/tiles/footer.jsp
     to point to your preferred email address.
+    
+(7) Replace the organization logo in webapp/signet/images/site-logo.gif with
+    an image of your choice.
 
-(7) Configure your subject sources in config/sources.xml. If you are using the
+(8) Configure your subject sources in config/sources.xml. If you are using the
     local subject adapter, add or uncomment a database section, and set the
     database connection parameters (@DB_DRIVER@, @DB_URL@, @DB_USERNAME@, and
     @DB_PASSWORD@). Copy this edited file to
     webapp/signet/WEB-INF/classes/sources.xml.
 
-(8) Point the web application context to the webapp/signet directory in this
+(9) Point the web application context to the webapp/signet directory in this
     distribution.
 
 To populate the Signet demo application with sample data:
@@ -81,7 +83,8 @@ To populate the Signet demo application with sample data:
     Use the SubsystemXmlLoader to create the demo sample Subsystem by
     executing the util/SubsystemXmlLoader/run.sh script with the sample
     demo_subsystem.xml file, e.g.,
-      > run.sh demo_subsystem.xml
+      > run.sh demo_biox_subsystem.xml
+      > run.sh demo_library_subsystem.xml
 
   (4) Load the sample Subject data:
     (a) Modify the util/SubjectFileLoader/demo_subject.txt file with any
@@ -91,24 +94,29 @@ To populate the Signet demo application with sample data:
         demo_subject.txt file, e.g.,
           > run.sh demo_subject.txt
 
-  (5) Add login-names to your web server's authentication mechanism, with any
-      passwords you like. Login names must correspond to the principal
-      identifier (e.g., "demo" in the sample data) of one or more Subjects
-      loaded above.
+  (5) If you're using any authentication mechanism other than the demonstration
+      mechanism that comes with Signet, add login-names to your web server's
+      authentication mechanism, with any passwords you like. Login names must
+      correspond to the principal identifier (e.g., "demo" in the sample data)
+      of one or more Subjects loaded above.
 
-  (6) Establish System Administrator and Subsystem Owner roles
-    (b) Use the util/SignetProxy/run.sh script to designate online System
-        Administrator(s). The script takes two arguments:
+  (6) Establish System Administrator and Subsystem Owner roles. Use the
+      util/SignetProxy/run.sh script to designate online System
+      Administrator(s). The script takes two arguments:
         
           1 - Action to take -- grant | revoke | list
           2 - For grant or revoke, a login ID from the subject table
           
-    (c) Someone designated thusly as a System Administrator can log into the UI,
-        "act for" Signet (the control to switch identities is on the right of
-        the main interface page), an use the Designated Driver feature to 
-        enable others to proxy Signet for an individual subsystem.  These people
-        are the "Subsystem Owners" and can do all initial granting of any
-        privileges for that subsystem. 
+      For example, this command designates Lynn McRae as a System Administrator:
+      
+          > run.sh grant lmcrae
+          
+      Someone designated thusly as a System Administrator can log into the UI,
+      "act for" Signet (the control to switch identities is on the right of
+      the main interface page), an use the Designated Driver feature to 
+      enable others to proxy Signet for an individual subsystem.  These people
+      are the "Subsystem Owners" and can do all initial granting of any
+      privileges for that subsystem. 
 
 License
 -------
