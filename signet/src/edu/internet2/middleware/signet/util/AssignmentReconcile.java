@@ -57,8 +57,10 @@ public class AssignmentReconcile
          }
 
          Signet signet = new Signet();
+         signet.beginTransaction();
 
          processReconcile (signet, reconcileDate);
+         signet.commit();
 
       } catch (java.text.ParseException exc) {
          System.out.println("Error: " + exc.getMessage());
