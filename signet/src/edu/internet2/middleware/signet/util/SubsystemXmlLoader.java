@@ -140,7 +140,7 @@ public class SubsystemXmlLoader {
                 + "\" is not a defined Tree");
         }
 
-        // Start transactiopn and process remainder of document
+        // Start transaction and process remainder of document
         signet.beginTransaction();
 
         Subsystem subsystem = signet.newSubsystem(subsystemId, subsystemName, subsystemHelpText,
