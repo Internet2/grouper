@@ -81,7 +81,7 @@ To deploy the "regular", "non-quickstart" Signet web application:
     - copy this edited file to webapp/signet/WEB-INF/classes/hibernate.cfg.xml
 
 (5) Set your preferred hibernate logging level
-    - editing the config/log4j.properties file
+    - edit the config/log4j.properties file
     - copy this edited file to webapp/signet/WEB-INF/classes/log4j.properties
 
 (6) Change the feedback href (@FEEDBACK_URL@) in webapp/signet/tiles/footer.jsp
