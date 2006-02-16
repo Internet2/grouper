@@ -12,13 +12,19 @@ which provides a pre-configured Signet web application, complete with Tomcat
 server and an HSQLDB database pre-populated with metadata, subjects and
 assignments. The "quickstart" distribution is much easier to get started with.
 
-Notable differences from 0.6 pre-release:
+Things new and different from the 0.6 pre-release:
  - Self-contained login page in the UI, used automatically in the absence of
    any encapsulating login that sets REMOTE_USER.  Password is "signet" for all
    users coming in this way -- this is NOT an offering for any production use!
+ - Added views of historical data (former assignments) and assignment history
+   to details panel.
+ - <Privileges> document renamed to <Permissions>
+ - Add Scope information to <Permissions> document.
+ - Added assigment reconcile method and associate AssignmentReconcile utility 
+   for effective/expiration dated lifecycle processing.
+ - Added Oracle DDL.
  - The XML doctype for loading an organizational tree is now <Tree>,
    not <SignetTree>
- - Added Oracle DDL
 
 Notable "demo" system changes
  - KITN is now Kern Institue of Technology, Northam, for international flair
