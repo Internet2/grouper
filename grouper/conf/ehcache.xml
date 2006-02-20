@@ -156,6 +156,7 @@
 
   <!-- Queries -->
 
+  <!-- Not Cached In Code --> 
   <cache  name="edu.internet2.middleware.grouper.FieldFinder.FindAll"
           maxElementsInMemory="100"
           eternal="false"
@@ -164,6 +165,7 @@
           overflowToDisk="false"
   />
         
+  <!-- Not Cached In Code --> 
   <cache  name="edu.internet2.middleware.grouper.FieldFinder.FindAllByType"
           maxElementsInMemory="100"
           eternal="false"
@@ -387,7 +389,8 @@
           timeToLiveSeconds="600"
           overflowToDisk="false"
   />
-        
+       
+  <!-- Not Cached In Code --> 
   <cache  name="edu.internet2.middleware.grouper.TxQueueFinder.FindAll"
           maxElementsInMemory="100"
           eternal="false"
@@ -396,6 +399,16 @@
           overflowToDisk="false"
   />
         
+  <!-- Not Cached In Code --> 
+  <cache name="edu.internet2.middleware.grouper.TxQueueFinder.FindBySession"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="5"
+          timeToLiveSeconds="15"
+          overflowToDisk="false"
+  />
+        
+  <!-- Not Cached In Code --> 
   <cache name="edu.internet2.middleware.grouper.TxQueueFinder.FindByStatus"
           maxElementsInMemory="100"
           eternal="false"
