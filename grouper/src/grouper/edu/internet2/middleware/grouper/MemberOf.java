@@ -28,12 +28,13 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: MemberOf.java,v 1.15 2006-02-21 17:11:32 blair Exp $
  */
 class MemberOf implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(MemberOf.class);
+  private static final EventLog EL  = new EventLog();
+  private static final Log      LOG = LogFactory.getLog(MemberOf.class);
 
 
   // Private Instance Variables
@@ -47,21 +48,31 @@ class MemberOf implements Serializable {
 
 
   // Constructors
-  private MemberOf(GrouperSession s, Membership ms) {
-    this.s  = s;
+  private MemberOf(Membership ms) {
+    this.s  = ms.getSession();
     this.ms = ms;
-  }
+  } // private MemberOf(ms)
+
 
   // Protected Class Methods
   
-  // Find effective memberships, whether for addition or deletion
-  protected static Set doMemberOf(GrouperSession s, Membership ms) 
+  // Find effective memberships for addition
+  protected static Set findMembersToAdd(Membership ms) 
     throws  GroupNotFoundException,
             MemberNotFoundException
   {
-    MemberOf mof = new MemberOf(s, ms);
-    return mof._calculate();
-  } // protected static Set doMemberOf(s, ms)
+    MemberOf mof = new MemberOf(ms);
+    return mof._calculateAddition();
+  } // protected static Set findMembersToAdd(ms)
+
+  // Find effective memberships for deletion
+  protected static Set findMembersToDel(Membership ms) 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
+  {
+    MemberOf mof = new MemberOf(ms);
+    return mof._calculateDeletion();
+  } // protected static Set findMembersToDel(ms)
 
 
   // Private Instance Methods
@@ -82,6 +93,44 @@ class MemberOf implements Serializable {
     }
     return mships;
   } // private Set _addHasMembersToGroup(hasMembers)
+
+  // Add m's hasMembers to g
+  // TODO @DRY
+  private Set _addHasMembersToGroupAddition(Set hasMembers) 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
+  {
+    Set     mships  = new LinkedHashSet();
+    Iterator iter = hasMembers.iterator();
+    while (iter.hasNext()) {
+      Membership hasMS = (Membership) iter.next();
+      if (hasMS.getDepth() == 0) {
+        try {
+          Set exists = MembershipFinder.findEffectiveMemberships(
+            hasMS.getSession(), ms.getGroup(), hasMS.getMember().getSubject(),
+            ms.getList(), hasMS.getGroup(), 1      
+          );
+          // This effective mship already exists so don't try to add
+          // it again.
+          if (exists.size() == 1) {
+            continue;  
+          }
+          else  if (exists.size() > 1) {
+            EL.error("AHMTGA.WTF! exists=="+ exists.size() + "/="+exists);
+          }
+        }
+        catch (Exception e) {
+          // Ignore
+          EL.error("AHMTGA.E="+e.getMessage());
+        }
+      }
+      Membership  eff = Membership.newEffectiveMembership(
+        this.s, this.ms, hasMS, 1
+      );
+      mships.add(eff);
+    }
+    return mships;
+  } // private Set _addHasMembersToGroupAddition(hasMembers)
 
   // Add m's hasMembers to where g isMember
   private Set _addHasMembersToWhereGroupIsMember(Set isMember, Set hasMembers) 
@@ -110,6 +159,7 @@ class MemberOf implements Serializable {
   } // private Set _addHasMembersToWhereGroupIsMember(isMember, hasMembers)
 
   // Add m to where g isMember
+  // TODO @DRY
   private Set _addMemberToWhereGroupIsMember(Set isMember) 
     throws  GroupNotFoundException,
             MemberNotFoundException
@@ -131,8 +181,78 @@ class MemberOf implements Serializable {
     return mships;
   } // private Set _addHasMembersToWhereGroupIsMember(isMember, hasMembers)
 
+  // Add m to where g isMember
+  // TODO @DRY
+  private Set _addMemberToWhereGroupIsMemberAddition(Set isMember) 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
+  {
+    Set     mships  = new LinkedHashSet();
+
+    // Add m to where g is a member if f == "members"
+    if (this.f.equals(Group.getDefaultList())) {
+      Iterator isIter = isMember.iterator();
+      while (isIter.hasNext()) {
+        Membership  isMS  = (Membership) isIter.next();
+        Membership  eff   = Membership.newEffectiveMembership(
+          this.s, isMS, this.ms, 1
+        );
+        mships.add(eff);
+      }
+    }
+
+    return mships;
+  } // private Set _addHasMembersToWhereGroupIsMemberAddition(isMember, hasMembers)
+
+  // Add m's hasMembers to where g isMember
+  // TODO @DRY
+  private Set _addHasMembersToWhereGroupIsMemberAddition(Set isMember, Set hasMembers) 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
+  {
+    Set     mships  = new LinkedHashSet();
+
+    // Add the members of m to where g is a member but only if f == "members"
+    if (this.f.equals(Group.getDefaultList())) {
+      Iterator isIter = isMember.iterator();
+      while (isIter.hasNext()) {
+        Membership isMS = (Membership) isIter.next();
+        Iterator hasIter = hasMembers.iterator();
+        while (hasIter.hasNext()) {
+          Membership  hasMS = (Membership) hasIter.next();
+          if (hasMS.getDepth() == 0) {
+            try {
+              Set exists = MembershipFinder.findEffectiveMemberships(
+                hasMS.getSession(), isMS.getGroup(), hasMS.getMember().getSubject(),
+                isMS.getList(), hasMS.getGroup(), 1      
+              );
+              // This effective mship already exists so don't try to add
+              // it again.
+              if (exists.size() == 1) {
+                continue;  
+              }
+              else  if (exists.size() > 1) {
+                EL.error("AHMTWGIMA.WTF! exists=="+ exists.size() + "/="+exists);
+              }
+            }
+            catch (Exception e) {
+              // Ignore
+              EL.error("AHMTWGIMA.E="+e.getMessage());
+            }
+          } 
+          Membership  eff   = Membership.newEffectiveMembership(
+            this.s, isMS, hasMS, 2
+          );
+          mships.add(eff);
+        }
+      }
+    }
+
+    return mships;
+  } // private Set _addHasMembersToWhereGroupIsMemberAddition(isMember, hasMembers)
+
   // Perform the memberOf calculation
-  private Set _calculate() 
+  private Set _calculateDeletion() 
     throws  GroupNotFoundException,
             MemberNotFoundException
   {
@@ -160,7 +280,37 @@ class MemberOf implements Serializable {
 
     Set results = this._resetObjects(mships);
     return results;
-  } // private Set _calculate()
+  } // private Set _calculateDeletion()
+
+  private Set _calculateAddition() 
+    throws  GroupNotFoundException,
+            MemberNotFoundException
+  {
+    this._extractObjects();
+
+    Set mships  = new LinkedHashSet();
+
+    // If we are working on a group, where is it a member
+    Set isMember = new LinkedHashSet();
+    if (this.g != null) {
+      isMember = this.g.toMember().getAllMemberships();
+    }
+
+    // Members of m if m is a group
+    Set hasMembers  = this._findMembersOfMember();
+
+    // Add m to where g is a member if f == "members"
+    mships.addAll( this._addMemberToWhereGroupIsMemberAddition(isMember) );
+
+    // Add members of m to g
+    mships.addAll( this._addHasMembersToGroupAddition(hasMembers) ); 
+
+    // Add members of m to where g is a member if f == "members"
+    mships.addAll( this._addHasMembersToWhereGroupIsMemberAddition(isMember, hasMembers) );
+
+    Set results = this._resetObjects(mships);
+    return results;
+  } // private Set _calculateAddition()
 
   // Setup instance variables based upon the membership passed
   private void _extractObjects() 

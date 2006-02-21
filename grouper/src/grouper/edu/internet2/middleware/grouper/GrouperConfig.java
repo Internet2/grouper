@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.15 2006-02-13 21:10:58 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.16 2006-02-21 17:11:32 blair Exp $
  *     
 */
 public class GrouperConfig {
@@ -49,9 +49,11 @@ public class GrouperConfig {
 
   // Protected Class Constants - Queries
   protected static final String   QCR_FF_FA     = "edu.internet2.middleware.grouper.FieldFinder.FindAll";
-  protected static final boolean  QRY_FF_FA     = true;
+  // Not cached as it can cause GrouperDaemon to fail to see txen
+  protected static final boolean  QRY_FF_FA     = false;
   protected static final String   QCR_FF_FABT   = "edu.internet2.middleware.grouper.FieldFinder.FindAllByType";
-  protected static final boolean  QRY_FF_FABT   = true;
+  // Not cached as it could cause GrouperDaemon to fail to see txen
+  protected static final boolean  QRY_FF_FABT   = false;
   protected static final String   QCR_GF_FBAA   = "edu.internet2.middleware.grouper.GroupFinder.FindByApproximateAttr";
   protected static final boolean  QRY_GF_FBAA   = true;
   protected static final String   QCR_GF_FBAN   = "edu.internet2.middleware.grouper.GroupFinder.FindByApproximateName";
@@ -107,9 +109,14 @@ public class GrouperConfig {
   protected static final String   QCR_SF_FBU    = "edu.internet2.middleware.grouper.StemFinder.FindByUuid";
   protected static final boolean  QRY_SF_FBU    = true;
   protected static final String   QCR_TQF_FA    = "edu.internet2.middleware.grouper.TxQueueFinder.FindAll";
+  // We always want the latest and greatest
   protected static final boolean  QRY_TQF_FA    = false;
   protected static final String   QCR_TQF_FBS   = "edu.internet2.middleware.grouper.TxQueueFinder.FindByStatus";
+  // We always want the latest and greatest
   protected static final boolean  QRY_TQF_FBS   = false;
+  protected static final String   QCR_TQF_FBGS  = "edu.internet2.middleware.grouper.TxQueueFinder.FindBySession";
+  // We always want the latest and greatest
+  protected static final boolean  QRY_TQF_FBGS  = false;
 
 
   // Private Class Constants

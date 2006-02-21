@@ -22,30 +22,38 @@ import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link ComplementFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQComplementFilter.java,v 1.6 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestGQComplementFilter.java,v 1.7 2006-02-21 17:11:33 blair Exp $
  */
 public class TestGQComplementFilter extends TestCase {
+
+  // Private Static Class Constants
+  private static final Log LOG = LogFactory.getLog(TestGQComplementFilter.class);
 
   public TestGQComplementFilter(String name) {
     super(name);
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests
 
   public void testComplementFilterNothing() {
+    LOG.info("testComplementFilterNothing");
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -72,6 +80,7 @@ public class TestGQComplementFilter extends TestCase {
   } // public void testComplementFilterNothing()
 
   public void testComplementFilterSomething() {
+    LOG.info("testComplementFilterSomething");
     Date            when  = DateHelper.getPastDate();
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
@@ -100,6 +109,7 @@ public class TestGQComplementFilter extends TestCase {
   } // public void testAnd()
 
   public void testComplementFilterSomethingScoped() {
+    LOG.info("testComplementFilterSomethingScoped");
     Date            when  = DateHelper.getPastDate();
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);

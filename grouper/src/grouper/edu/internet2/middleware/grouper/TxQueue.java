@@ -66,20 +66,34 @@ class TxQueue implements Serializable {
     String k = this.getKlass();
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append("class"       , this.getClass().getName()                 )
-      .append("time"        , this.getQueueTime()                       )
+      .append("time"        , new Date( this.getQueueTime()).toString() )
       .append("uuid"        , this.getUuid()                            )
       .append("status"      , this.getStatus().getName()                )
-      .append("time"        , new Date( this.getQueueTime()).toString() )
       .toString()
       ;
   } // public String toString() 
 
 
   // Protected Instance Methods
+
+  // Apply a tx from the queue
   protected boolean apply(GrouperDaemon gd) {
     return false;
   } // protected boolean apply(gd)
 
+  // Delete a tx from the queue
+  protected void delete(GrouperDaemon gd) {
+    try {
+      HibernateHelper.delete(this);
+      gd.getLog().deleteTx(this);
+    }
+    catch (HibernateException eH) {
+      String msg = eH.getMessage();
+      gd.getLog().failToDeleteTx(this, msg);
+    }
+  } // protected void delete(gd)
+
+  // Mark a tx as failed
   protected boolean setFailed(GrouperDaemon gd) {
     boolean rv = false;
     try {

@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Persistent Grouper Process.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperDaemon.java,v 1.4 2006-02-15 23:06:49 blair Exp $    
+ * @version $Id: GrouperDaemon.java,v 1.5 2006-02-21 17:11:32 blair Exp $    
  */
 public class GrouperDaemon {
 
@@ -88,15 +88,36 @@ public class GrouperDaemon {
 
   // Private Instance Methods
   private void getQueue() {
-    Set         results = TxQueueFinder.findAll();
+    int       idx     = 0;
+    Set       results = TxQueueFinder.findAll();
+    Iterator  iter    = results.iterator();
+    System.out.println("QUEUED TX: " + results.size());
+    while (iter.hasNext()) {
+      TxQueue tx = (TxQueue) iter.next();
+      System.out.println("[" + idx++ + "] " + tx);
+    }
   } // private void getQueue()
 
   private void getQueueActive() {
-    Set         results = TxQueueFinder.findByStatus("wait");
+    int       idx     = 0;
+    Set       results = TxQueueFinder.findByStatus("wait");
+    Iterator  iter    = results.iterator();
+    System.out.println("ACTIVE TX: " + results.size());
+    while (iter.hasNext()) {
+      TxQueue tx = (TxQueue) iter.next();
+      System.out.println("[" + idx++ + "] " + tx);
+    }
   } // private void getQueueActive()
 
   private void getQueueFailed() {
-    Set         results = TxQueueFinder.findByStatus("fail");
+    int       idx     = 0;
+    Set       results = TxQueueFinder.findByStatus("fail");
+    Iterator  iter    = results.iterator();
+    System.out.println("FAILED TX: " + results.size());
+    while (iter.hasNext()) {
+      TxQueue tx = (TxQueue) iter.next();
+      System.out.println("[" + idx++ + "] " + tx);
+    }
   } // private void getQueueFailed()
  
   private String getUsage() {

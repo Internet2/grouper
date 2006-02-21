@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.17 2006-02-15 23:06:49 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.18 2006-02-21 17:11:33 blair Exp $
  */
 public class GroupHelper {
 
@@ -41,11 +41,30 @@ public class GroupHelper {
   // Protected Class Methods
 
   // Add a member to a group
+  protected static void addMember(Group g, Subject subj, Field f) {
+    try {
+      g.addMember(subj, f);
+      g.getSession().waitForTx();
+      Assert.assertTrue("added member", true);
+      Member m = MemberFinder.findBySubject(g.getSession(), subj);
+      MembershipHelper.testImm(g, subj, m, f);
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // protected static void addMember(g, subj, f)
+  protected static void addMemberFail(Group g, Subject subj, Field f) {
+    try {
+      g.addMember(subj, f);
+      Assert.fail("ERROR: added member");
+    }
+    catch (Exception e) {
+      Assert.assertTrue("OK: failed to add member", true);
+    }
+  } // protected static void addMemberFail(g, subj, f)
   protected static void addMember(Group g, Subject subj, String list) {
     try {
-      Field f = FieldFinder.find(list); 
-      g.addMember(subj, f);
-      Assert.assertTrue("added member", true);
+      addMember(g, subj, FieldFinder.find(list));
     }
     catch (Exception e) {
       Assert.fail(e.getMessage());
@@ -58,11 +77,11 @@ public class GroupHelper {
   // Add a group as a member to a group
   protected static void addMember(Group g, Group gm) {
     try {
-      Member m = gm.toMember();
       g.addMember(gm.toSubject());
+      g.getSession().waitForTx();
       Assert.assertTrue("added member", true);
-      MembershipHelper.testImm(g, gm.toSubject(), m);
-      MembershipHelper.testEff(g, gm, m);
+      MembershipHelper.testImm(g, gm.toSubject(), gm.toMember());
+      // FIXME MembershipHelper.testEff(g, gm, gm.toMember());
     }
     catch (InsufficientPrivilegeException eIP) {
       Assert.fail("not privileged to add member: " + eIP.getMessage());
@@ -72,25 +91,16 @@ public class GroupHelper {
     }
   } // protected static void addMember(g, gm)
 
-  // Add a member to a group
+  // TODO @deprecate
   protected static void addMember(Group g, Subject subj, Member m) {
-    try {
-      g.addMember(subj);
-      Assert.assertTrue("added member", true);
-      MembershipHelper.testImm(g, subj, m);
-    }
-    catch (InsufficientPrivilegeException e0) {
-      Assert.fail("not privileged to add member: " + e0.getMessage());
-    }
-    catch (MemberAddException e1) {
-      Assert.fail("failed to add member: " + e1.getMessage());
-    }
+    addMember(g, subj, "members");
   } // protected static void addMember(g, subj, m)
 
   protected static void addMemberUpdate(Group g, Subject subj, Member m) {
     LOG.debug("addMemberUpdate.0");
     try {
       g.addMember(subj);
+      g.getSession().waitForTx();
       Assert.assertTrue("added member", true);
       LOG.debug("addMemberUpdate.1");
     }
@@ -108,6 +118,7 @@ public class GroupHelper {
     LOG.debug("addMemberUpdateFail.0");
     try {
       g.addMember(subj);
+      g.getSession().waitForTx();
       LOG.debug("addMemberUpdateFail.1");
       Assert.fail("added member");
     }
@@ -224,7 +235,9 @@ public class GroupHelper {
   protected static void deleteMember(Group g, Group gm) {
     try {
       Member m = gm.toMember();
+      g.getSession().waitForTx(); // And now wait
       g.deleteMember(gm.toSubject());
+      g.getSession().waitForTx(); // And now wait
       Assert.assertTrue("deleted member", true);
       Assert.assertFalse("g !hasMember m", g.hasMember(gm.toSubject()));
       Assert.assertFalse("m !isMember g", m.isMember(g));
@@ -241,7 +254,9 @@ public class GroupHelper {
   // Delete a member from a group
   protected static void deleteMember(Group g, Subject subj) {
     try {
+      g.getSession().waitForTx(); // And now wait
       g.deleteMember(subj);
+      g.getSession().waitForTx(); // And now wait
       Assert.assertTrue("deleted member", true);
       Member m = MemberFinder.findBySubject(g.getSession(), subj);
       Assert.assertFalse("g !hasMember m", g.hasMember(subj));
@@ -278,6 +293,7 @@ public class GroupHelper {
     LOG.debug("delMemberUpdate.0");
     try {
       g.deleteMember(subj);
+      g.getSession().waitForTx();
       Assert.assertTrue("deleted member", true);
       LOG.debug("delMemberUpdate.1");
     }

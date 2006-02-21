@@ -23,14 +23,19 @@ import  edu.internet2.middleware.subject.provider.*;
 import  java.io.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link SubjectFinder} class with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinderInternal.java,v 1.4 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestSubjectFinderInternal.java,v 1.5 2006-02-21 17:11:33 blair Exp $
  */
 public class TestSubjectFinderInternal extends TestCase {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(TestSubjectFinderInternal.class);
 
   public TestSubjectFinderInternal(String name) {
     super(name);
@@ -41,7 +46,8 @@ public class TestSubjectFinderInternal extends TestCase {
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests

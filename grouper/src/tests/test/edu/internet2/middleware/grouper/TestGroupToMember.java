@@ -21,14 +21,19 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link Group.toMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupToMember.java,v 1.6 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestGroupToMember.java,v 1.7 2006-02-21 17:11:33 blair Exp $
  */
 public class TestGroupToMember extends TestCase {
+
+  // Private Static Class Constants
+  private static final Log LOG = LogFactory.getLog(TestGroupToMember.class);
 
   public TestGroupToMember(String name) {
     super(name);
@@ -39,7 +44,8 @@ public class TestGroupToMember extends TestCase {
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests

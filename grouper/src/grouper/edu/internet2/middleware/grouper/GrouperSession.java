@@ -33,7 +33,7 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.17 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.18 2006-02-21 17:11:32 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -71,6 +71,14 @@ public class GrouperSession implements Serializable {
   public GrouperSession() { 
     // Nothing
   } // public GrouperSession()
+
+  // For internal logging purposes
+  protected GrouperSession(String uuid, Member m) {
+    this.session_id = uuid;
+    this.member_id  = m;
+    this.who        = m.getSubjectId();
+    this.type       = m.getSubjectTypeId();
+  } // protected GrouperSession(uuid, m)
 
 
   // Public class methods
@@ -111,28 +119,38 @@ public class GrouperSession implements Serializable {
     }
   } // public static GrouperSession start(subject)
 
-  protected static GrouperSession startTransient() {
-    if (root == null) {
+  /**
+   * Wait for all transactions initiated by all sessions to be
+   * completed.
+   * <p/>
+   * This method will poll every 250ms to see if there are pending
+   * transactions for this session.  The method will complete once all
+   * transactions are either complete or have failed.
+   */
+  public static void waitForAllTx() {
+    long start = new Date().getTime();
+    Set results = new HashSet();
+    while (true) {
+      results = TxQueueFinder.findByStatus("wait");
+      if (results.size() == 0) {
+        break;
+      }
       try {
-        root = SubjectFinder.findById(
-          GrouperConfig.ROOT, GrouperConfig.IST
-        );
+        // TODO What's a good time?
+        // Thread.sleep( (long) (Math.random() * 250) );
+        EL.info("WAITING FOR ALL TX: " + results.size());
+        Iterator iter = results.iterator();
+        int idx = 0;
+        while (iter.hasNext()) {
+          TxQueue tx = (TxQueue) iter.next();
+          EL.info("WAITING FOR ALL TX[" + idx++ + "] " + tx);
+        }
+        Thread.sleep(250);
+      } catch (InterruptedException e) {
+        // Nothing
       }
-      catch (Exception e) {
-        String err = GrouperLog.ERR_GRS + e.getMessage();
-        LOG.fatal(err);
-        throw new RuntimeException(err);
-      }
-    }
-    try {
-      return _getSession(root);
-    }
-    catch (Exception e) {
-      String err = GrouperLog.ERR_GRS + e.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err);
-    }
-  } // protected static GrouperSession startTransient()
+    }  
+  } // public static void waitForAllTx()
 
 
   // Public instance methods
@@ -276,8 +294,56 @@ public class GrouperSession implements Serializable {
       .toString();
   } // public String toString()
 
+  /**
+   * Wait for transactions initiated by this session to complete.
+   * <p/>
+   * This method will poll every 250ms to see if there are pending
+   * transactions for this session.  The method will complete once all
+   * transactions are either complete or have failed.
+   */
+  public void waitForTx() {
+    long start = new Date().getTime();
+    Set results = new HashSet();
+    while (true) {
+      results = TxQueueFinder.findBySession(this.getSession_id()); 
+      if (results.size() == 0) {
+        break;
+      }
+      try {
+        // TODO What's a good time?
+        // Thread.sleep( (long) (Math.random() * 250) );
+        Thread.sleep(250);
+      } catch (InterruptedException e) {
+        // Nothing
+      }
+    }  
+  } // public void waitForTx()
+
 
   // Protected Class Methods
+  protected static GrouperSession startTransient() {
+    if (root == null) {
+      try {
+        root = SubjectFinder.findById(
+          GrouperConfig.ROOT, GrouperConfig.IST
+        );
+      }
+      catch (Exception e) {
+        String err = GrouperLog.ERR_GRS + e.getMessage();
+        LOG.fatal(err);
+        throw new RuntimeException(err);
+      }
+    }
+    try {
+      return _getSession(root);
+    }
+    catch (Exception e) {
+      String err = GrouperLog.ERR_GRS + e.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err);
+    }
+  } // protected static GrouperSession startTransient()
+
   protected static void validate(GrouperSession s) {
     try {
       if (s == null) {

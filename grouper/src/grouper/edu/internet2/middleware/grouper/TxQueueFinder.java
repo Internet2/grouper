@@ -33,7 +33,8 @@ import  org.apache.commons.logging.*;
 class TxQueueFinder implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TxQueueFinder.class);
+  private static final EventLog EL  = new EventLog();
+  private static final Log      LOG = LogFactory.getLog(TxQueueFinder.class);
 
 
   // Protected Class Methods
@@ -55,13 +56,43 @@ class TxQueueFinder implements Serializable {
     return results;
   } // protected static findAll()
 
+  // How many transactions in "wait" status does this session have?
+  protected static Set findBySession(String session) {
+    Set results = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      if (hs.isConnected()) { 
+        Query   qry = hs.createQuery(
+          "from TxQueue as q where            "
+          + "         q.sessionId = :session  "
+          + "and      q.status    = :status   "
+          + "order by q.queueTime asc"
+        );
+        qry.setCacheable(   GrouperConfig.QRY_TQF_FBGS  );
+        qry.setCacheRegion( GrouperConfig.QCR_TQF_FBGS  );
+        qry.setString("session" , session );
+        qry.setString("status"  , "wait"  );
+        results.addAll( qry.list() );
+      }
+      else {
+        EL.error("NOT CONNECTED!"); 
+      }
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      String msg = eH.getMessage();
+      LOG.error(msg);
+    }
+    return results;
+  } // protected static findByStatus(status)
+  
   protected static Set findByStatus(String status) {
     Set results = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
       if (hs.isConnected()) { 
         Query   qry = hs.createQuery(
-          "from TxQueue as q where q.status = :status"
+          "from TxQueue as q where q.status = :status order by q.queueTime asc"
         );
         qry.setCacheable(GrouperConfig.QRY_TQF_FBS);
         qry.setCacheRegion(GrouperConfig.QCR_TQF_FBS);
@@ -69,13 +100,12 @@ class TxQueueFinder implements Serializable {
         results.addAll( qry.list() );
       }
       else {
-        System.err.println("NOT CONNECTED!");
+        EL.error("NOT CONNECTED!");
       }
       hs.close();
     }
     catch (HibernateException eH) {
-      String msg = eH.getMessage();
-      LOG.error(msg);
+      LOG.error(eH.getMessage());
     }
     return results;
   } // protected static findByStatus(status)

@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.33 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.34 2006-02-21 17:11:32 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -221,7 +221,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
       throw eIP;
     }
     try {
-      Membership.addImmediateMembership(s, (Object) g, subj, f);
+      Membership.addImmediateMembership(s, g, subj, f);
     }
     catch (MemberAddException eMA) {
       GrouperLog.debug(LOG, s, msg + ": " + eMA.getMessage());

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.8 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.9 2006-02-21 17:11:33 blair Exp $
  */
 public class TestBugsClosed extends TestCase {
 
@@ -47,7 +47,8 @@ public class TestBugsClosed extends TestCase {
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests
@@ -105,29 +106,24 @@ public class TestBugsClosed extends TestCase {
       Subject iata = SubjectHelper.SUBJ1;
       Subject iawi = SubjectHelper.SUBJ2;
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.0");
       Subject subj = SubjectFinder.findById("GrouperSystem");
       GrouperSession s = GrouperSession.start(subj);
       Stem root = StemFinder.findRootStem(s);
 			Stem qsuob = root.addChildStem("qsuob","qsuob");
       Group admins = qsuob.addChildGroup("admins","admins");
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.0");
       admins.addMember(kebe);
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.1");
       Group staff = qsuob.addChildGroup("staff","staff");
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.2");
       staff.addMember(iata);
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
       MembershipHelper.testImm(s, staff, iata , "members");
       MembershipHelper.testNumMship(staff, "members", 1, 1, 0);
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.3");
       staff.addMember(iawi);
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
@@ -135,11 +131,10 @@ public class TestBugsClosed extends TestCase {
       MembershipHelper.testImm(s, staff, iawi , "members");
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.4");
       Group all_staff = qsuob.addChildGroup("all_staff","all staff");
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.5");
       all_staff.addMember(staff.toSubject());
+      all_staff.getSession().waitForTx();
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
       MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
@@ -150,8 +145,8 @@ public class TestBugsClosed extends TestCase {
       MembershipHelper.testImm(s, staff, iawi , "members");
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.6");
       admins.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
+      admins.getSession().waitForTx();
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testImm(s, admins, subj, "admins");
       MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
@@ -166,16 +161,16 @@ public class TestBugsClosed extends TestCase {
       MembershipHelper.testImm(s, staff, iawi , "members");
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.7");
       qsuob.grantPriv(admins.toSubject(),Privilege.getInstance("create"));
+      qsuob.getSession().waitForTx();
       // TODO test
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.8");
       qsuob.grantPriv(admins.toSubject(),Privilege.getInstance("stem"));
+      qsuob.getSession().waitForTx();
       // TODO test
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.9");
       staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
+      staff.getSession().waitForTx();
       // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testImm(s, admins, subj, "admins");
@@ -195,8 +190,8 @@ public class TestBugsClosed extends TestCase {
       MembershipHelper.testEff(s, staff, iata, "readers", staff, 2);
       MembershipHelper.testEff(s, staff, iawi, "readers", staff, 2);
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.10");
       staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
+      staff.getSession().waitForTx();
       // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testImm(s, admins, subj, "admins");
@@ -215,8 +210,8 @@ public class TestBugsClosed extends TestCase {
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
       MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.11");
       all_staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
+      all_staff.getSession().waitForTx();
       // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testImm(s, admins, subj, "admins");
@@ -224,7 +219,6 @@ public class TestBugsClosed extends TestCase {
       MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
       MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
       MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.11.0");
 
       MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
       MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
@@ -235,7 +229,6 @@ public class TestBugsClosed extends TestCase {
       MembershipHelper.testEff(s, all_staff, iata, "readers", staff, 2);
       MembershipHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
       MembershipHelper.testNumMship(all_staff, "readers", 5, 2, 3);
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.11.1");
 
       MembershipHelper.testImm(s, staff, iata , "members");
       MembershipHelper.testImm(s, staff, iawi , "members");
@@ -244,8 +237,8 @@ public class TestBugsClosed extends TestCase {
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
       MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.12");
       all_staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
+      all_staff.getSession().waitForTx();
       // TODO test
       MembershipHelper.testImm(s, admins, kebe, "members");
       MembershipHelper.testImm(s, admins, subj, "admins");
@@ -274,13 +267,10 @@ public class TestBugsClosed extends TestCase {
       MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
       MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.13");
       GroupHelper.delete(s, admins, admins.getName());
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.14");
       GroupHelper.delete(s, staff, staff.getName());
 
-      LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.15");
       GroupHelper.delete(s, all_staff, all_staff.getName());
 
       s.stop();

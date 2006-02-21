@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Group.delete()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDelete.java,v 1.10 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestGroupDelete.java,v 1.11 2006-02-21 17:11:33 blair Exp $
  */
 public class TestGroupDelete extends TestCase {
 
@@ -48,6 +48,7 @@ public class TestGroupDelete extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests

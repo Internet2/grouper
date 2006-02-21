@@ -19,12 +19,13 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
 
 /**
 * Field-related helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldHelper.java,v 1.5 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: FieldHelper.java,v 1.6 2006-02-21 17:11:33 blair Exp $
  */
 public class FieldHelper {
 

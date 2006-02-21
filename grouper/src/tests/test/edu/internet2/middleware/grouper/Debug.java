@@ -22,13 +22,14 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
+import  org.apache.commons.logging.*;
 
 
 /**
  * A class for spewing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Debug.java,v 1.2 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: Debug.java,v 1.3 2006-02-21 17:11:33 blair Exp $
  */
 class Debug {
 
