@@ -22,23 +22,23 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
+import  junit.extensions.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 
 /**
- * Test {@link GrouperDaemon} tx queue handling.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestTxDaemon.java,v 1.2 2006-02-21 17:11:33 blair Exp $
+ * @version $Id: TestTxDaemon2.java,v 1.1 2006-02-21 20:55:46 blair Exp $
  */
-public class TestTxDaemon extends TestCase {
+public class TestTxDaemon2 extends TestCase {
 
   // Private Class Constants
-  private static final Log  LOG = LogFactory.getLog(TestTxDaemon.class); 
-
+  private static final Log  LOG = LogFactory.getLog(TestTxDaemon2.class); 
 
   // Private Class Variables
+/*
   private static Stem           edu;
   private static Group          i2;
   private static Stem           root;
@@ -46,16 +46,17 @@ public class TestTxDaemon extends TestCase {
   private static Subject        subj0;
   private static Subject        subj1;
   private static Group          uofc;
+*/
   
 
-
-  public TestTxDaemon(String name) {
+  public TestTxDaemon2(String name) {
     super(name);
   }
 
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.resetRegistryAndAddTestSubjects();
+/*
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -63,6 +64,7 @@ public class TestTxDaemon extends TestCase {
     uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     subj0 = SubjectHelper.SUBJ0;
     subj1 = SubjectHelper.SUBJ1;
+*/
   }
 
   protected void tearDown () {
@@ -70,42 +72,20 @@ public class TestTxDaemon extends TestCase {
     GrouperSession.waitForAllTx();
   }
 
+  static public Test suite() {
+    TestSuite suite = new TestSuite();
+    suite.addTestSuite(TestTxDaemon2.class);
+    return new RepeatedTest(suite, 10);
+  } // static public Test suite()
 
-  // Tests
-
-  public void testAddAndDeleteImmediateMember() {
-    LOG.info("testAddAndDeleteImmediateMember");
-    MembershipHelper.testNumMship(i2, "members", 0, 0, 0);
-    GroupHelper.addMember(i2, subj0, "members");
-    MembershipHelper.testImm(s, i2, subj0, "members");
-    MembershipHelper.testNumMship(i2, "members", 1, 1, 0);
-    GroupHelper.deleteMember(i2, subj0);
-    MembershipHelper.testNumMship(i2, "members", 0, 0, 0);
-  } // public void testAddAndDeleteImmediateMember()
-
-  public void testAddAndDeleteImmediateAndEffectiveMember() {
-    LOG.info("testAddAndDeleteImmediateAndEffectiveMember");
-
-    MembershipHelper.testNumMship(i2,   "members", 0, 0, 0);
-    GroupHelper.addMember(i2, subj0, "members");
-    MembershipHelper.testImm(s, i2, subj0, "members");
-    MembershipHelper.testNumMship(i2, "members", 1, 1, 0);
-
-    MembershipHelper.testNumMship(uofc, "members", 0, 0, 0);
-    GroupHelper.addMember(uofc, subj1, "members");
-    MembershipHelper.testImm(s, uofc, subj1, "members");
-    MembershipHelper.testNumMship(uofc, "members", 1, 1, 0);
-   
-    MembershipHelper.testNumMship(i2, "members", 1, 1, 0);
-    GroupHelper.addMember(i2, uofc.toSubject(), "members");
-    MembershipHelper.testImm(s, i2, uofc.toSubject(), "members");
-    MembershipHelper.testEff(s, i2, subj1, "members", uofc, 1);
-    MembershipHelper.testNumMship(i2, "members", 3, 2, 1);
-
-    GroupHelper.deleteMember(uofc, subj1);
-    MembershipHelper.testNumMship(uofc, "members", 0, 0, 0);
-    MembershipHelper.testNumMship(i2,   "members", 2, 2, 0);
-  } // public void testAddAndDeleteImmediateAndEffectiveMember()
+  public void testHeisenbug() {
+    LOG.info("testHeisenbug");
+    Assert.assertTrue(true);
+    // testGroupDelete(test.edu.internet2.middleware.grouper.TestGroupDelete)
+    // testDeleteGroupIsMemberWithADMIN(test.edu.internet2.middleware.grouper.TestPrivADMIN)
+    // testGroupAnyAttributeFilterSomething(test.edu.internet2.middleware.grouper.TestGQGroupAnyAttribute)
+    // testToGroup(test.edu.internet2.middleware.grouper.TestMemberToGroup)
+  } // public void testHeisenbug()
 
 }
 
