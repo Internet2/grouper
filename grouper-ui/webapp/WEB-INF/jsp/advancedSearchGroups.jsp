@@ -2,7 +2,7 @@
 		Tile which displays the advanced search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchGroups.jsp,v 1.2 2005-11-08 15:39:36 isgwb Exp $
+  @version $Id: advancedSearchGroups.jsp,v 1.3 2006-02-21 16:15:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -22,68 +22,14 @@
 	<html:form styleId="SearchFormBean" action="${submitAction}">
 	<input type="hidden" name="searchFor" value="groups"/>
 	<input type="hidden" name="newSearch" value="Y"/>
-	<fieldset>
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="searchTerm"><fmt:message bundle="${nav}" key="find.search-term"/></label>
-			</div>
-			<div class="formRight">
-				<html:text property="searchTerm" size="25" styleId="searchTerm"/>
-			</div>
-			</div>
-			<fieldset class="nested">
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInDisplayExtension"><fmt:message bundle="${nav}" key="find.search-in-display-extension"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInDisplayNameOrExtension" value="extension" styleId="formSearchInDisplayExtension"/>
-			</div>
-		</div>
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInDisplayName"><fmt:message bundle="${nav}" key="find.search-in-display-name"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInDisplayNameOrExtension" value="name" styleId="formSearchInDisplayName"/>
-			</div>
-		</div>
-				<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInDisplayNone"><fmt:message bundle="${nav}" key="find.search-in-display-none"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInDisplayNameOrExtension" value="" styleId="formSearchInDisplayNone"/>
-			</div>
-		</div>
-		</fieldset>
+	<input type="hidden" name="advSearch" value="Y"/>
+	<input type="hidden" name="subjectSource" value="g:gsa"/>
+	<fieldset>			
 		<fieldset class="nested">
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInExtension"><fmt:message bundle="${nav}" key="find.search-in-extension"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInNameOrExtension" value="extension" styleId="formSearchInExtension"/>
-			</div>
-		</div>
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInName"><fmt:message bundle="${nav}" key="find.search-in-name"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInNameOrExtension" value="name" styleId="formSearchInName"/>
-			</div>
-		</div>
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInNone"><fmt:message bundle="${nav}" key="find.search-in-none"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInNameOrExtension" value="" styleId="formSearchInNone"/>
-			</div>
-		</div>
+				<tiles:insert definition="selectGroupSearchFieldsDef"/>
 		</fieldset>
 		<div class="formRow"><tiles:insert definition="searchFromDef"/></div><br/>
+		<tiles:insert definition="searchGroupResultFieldChoiceDef"/>
 		<html:submit property="submit.search" value="${navMap['groups.action.search']}"/>
 	</fieldset>
 	</html:form>
