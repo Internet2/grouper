@@ -45,6 +45,8 @@ fieldset {
 	border: 1px solid #DDD;
 	margin: 0px 0px 20px 0px;
 	padding: 10px 10px 10px 10px;
+	display:block;
+	clear:both;
 }
 
 legend {
