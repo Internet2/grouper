@@ -27,8 +27,10 @@
     </form-bean>  
     <form-bean dynamic="true" name="BrowseFormBean"
                type="org.apache.struts.action.DynaActionForm">
+      <form-property name="groupId" type="java.lang.String"/>
       <form-property name="start" type="java.lang.String"/>
       <form-property name="currentNode" type="java.lang.String"/>
+	   <form-property name="expandListField" type="java.lang.String"/>
       <form-property name="resetBrowse" type="java.lang.String"/>
       <form-property name="hideQuickLinks" type="java.lang.String"/>
        <form-property name="flat" type="java.lang.String"/>
@@ -45,6 +47,7 @@
       <form-property name="groupId" type="java.lang.String"/>
       <form-property name="membershipListScope" type="java.lang.String"/>
       <form-property name="privilege" type="java.lang.String"/>
+	  <form-property name="listField" type="java.lang.String"/>
       <form-property name="pageSize" type="java.lang.String"/>
       <form-property name="asMemberOf" type="java.lang.String"/>
       <form-property name="contextGroup" type="java.lang.String"/>
@@ -62,6 +65,7 @@
        <form-property name="subjectsource" type="java.lang.String"/>
        <form-property name="accessPriv" type="java.lang.String"/>
        <form-property name="namingPriv" type="java.lang.String"/>
+	   <form-property name="listField" type="java.lang.String"/>
        <form-property name="returnTo" type="java.lang.String"/>
 	   <form-property name="returnToLinkKey" type="java.lang.String"/>
        <form-property name="membershipListScope" type="java.lang.String"/>
@@ -76,6 +80,7 @@
       <form-property name="stemName" type="java.lang.String"/>
       <form-property name="stemDescription" type="java.lang.String"/>
       <form-property name="stemDisplayName" type="java.lang.String"/>
+	  <form-property name="listField" type="java.lang.String"/>
       <form-property name="stemId" type="java.lang.String"/>
       <form-property name="privilege" type="java.lang.String"/>
       <form-property name="pageSize" type="java.lang.String"/>
@@ -90,6 +95,7 @@
        <form-property name="privileges" type="java.lang.String[]"/>
        <form-property name="asMemberOf" type="java.lang.String"/>
        <form-property name="pageSize" type="java.lang.String"/>
+	    <form-property name="listField" type="java.lang.String"/>
        <form-property name="groupId" type="java.lang.String"/>
 	   <form-property name="stemId" type="java.lang.String"/>
 	   <form-property name="contextGroup" type="java.lang.String"/>
@@ -114,6 +120,7 @@
 	        <form-property name="searchInNameOrExtension" type="java.lang.String"/>
 	        <form-property name="pageSize" type="java.lang.String"/>
 	        <form-property name="callerPageId" type="java.lang.String"/>
+			<form-property name="groupSearchResultField" type="java.lang.String"/>
     </form-bean>
 
     <form-bean dynamic="true" name="DummyFormBean"
@@ -151,6 +158,7 @@
       <form-property name="stemId" type="java.lang.String"/>
       <form-property name="groupId" type="java.lang.String"/>
       <form-property name="stems" type="java.lang.String"/>
+	  	  <form-property name="listField" type="java.lang.String"/>
       <form-property name="privileges" type="java.lang.String[]"/>
       <form-property name="members" type="java.lang.String[]"/>
       <form-property name="callerPageId" type="java.lang.String"/>
@@ -394,7 +402,7 @@
       <forward name="EditGroup" path="EditGroupDef" redirect="false"/>
     </action>
 
-    <action name="DummyFormBean" path="/populateEditGroupAttributes"
+    <action name="GroupFormBean" path="/populateEditGroupAttributes"
             scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateEditGroupAttributesAction"
             unknown="false" validate="false">
@@ -455,6 +463,7 @@
             unknown="false" validate="false">
      
       <forward name="GroupMembers" path="GroupMembersDef" redirect="false"/>
+	  <forward name="AddGroupMembers" path="/populateFindNewMembers.do" redirect="false"/>
     </action>
   
     <action name="GroupFormBean" path="/populateGroupSummary" scope="request"
@@ -590,7 +599,7 @@
                   
       <STRONG>TODO:</STRONG> everything
     -->
-    <action name="DummyFormBean" path="/saveGroupAttributes" scope="request"
+    <action name="GroupFormBean" path="/saveGroupAttributes" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.SaveGroupAttributesAction"
             unknown="false" validate="false">
       <forward name="FindNewMembers" path="/populateFindNewMembers.do"
