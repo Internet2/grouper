@@ -6,9 +6,7 @@
 	text-align: left;
 	text-transform: uppercase;
 	position:relative;
-	
 	display:block;
-
 }
 
 #subtitle {
@@ -61,15 +59,12 @@
 }
 
 .groupInfo {
-	//background-color:ddeeff;
+	
 }
 
-Style Information - http://www.bris.ac.uk/events/
-chrome://webdeveloper/content/stylesheets/view_style_information.css
 
-*    (line 2)
-{
-    cursor: crosshair;
+.groupLinks {
+	clear:both;
 }
 
 
@@ -146,29 +141,39 @@ chrome://webdeveloper/content/stylesheets/view_style_information.css
 }
 
 .groupInfo .formLeft {
-	background-color:#009CCE;
-	color:ffffff;
+	background-color:#6699ff;
+	color:000000;
+	font-weight:bold;
 	border-bottom-color:#ffffff;
 	border-bottom-width:1px;
 	border-bottom-style:solid;
 }
+.groupTypes .formRight .formLeft {
+	background-color:#cccccc;
+	color:000000;
+}
+.groupTypes .formLeft {
+	background-color:#99ccff;
+	color:000000;
+}
 .groupInfo .formRow {
 	border-bottom-color:#cccccc;
-	border-bottom-width:1px;
-	border-bottom-style:solid;
+	#border-bottom-width:1px;
+	#border-bottom-style:solid;
 	clear:both;
 }
 
 fieldset.nested {
-	display:block;
-	clear:left;
-	width:100%;
+	display: block;
+	clear: both;
 }
-.advancedSearchGroups .formLeft {
-	
-	width:350px;
+
+
+.multiOptionItem {
+	width:120px;
 	
 }
+
 .formLeft {
 	display:block;
 	float:left;
@@ -185,6 +190,56 @@ fieldset.nested {
 }
 
 .formRow {
+	display:block;
 	clear:both;
-	margin-top:3px;
+	margin-top:0px;
 }
+
+.advancedSearchGroups .formLeft {
+	
+	width:140px;
+	
+}
+
+.advancedSearchGroups .formRight {
+	width:260px;
+}
+
+.typesHeader .formLeft{
+	background-color:rgb(1, 87, 130);
+	color:#ffffff;
+	font-weight:bold;
+}
+.typesHeader {
+	margin-top:10px;
+}
+
+.typesHeader .formRight .formLeft {
+	background-color:rgb(1, 87, 130);
+	color:#ffffff;
+	font-weight:bold;
+}
+
+.typesHeader .formRow .formRight .formRow .formRight {
+	background-color:rgb(1, 87, 130);
+	color:#ffffff;
+	font-weight:bold;
+	width:200px;	
+}
+
+.termQuery {
+	font-weight:bold;
+}
+
+.termField {
+	font-style:italic;
+}
+
+.fieldIsList {
+	font-style:italic;
+	width:150px;
+	background-color:#cccccc;
+}
+
+
+
