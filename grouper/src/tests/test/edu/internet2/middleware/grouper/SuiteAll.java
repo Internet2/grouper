@@ -101,11 +101,12 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestSuFiGrSoAdSearch.class);
     suite.addTestSuite(TestSubjectFinderInternal.class);  // TODO Hrm...
     suite.addTestSuite(TestWrongFieldType.class); 
-    suite.addTestSuite(TestTxDaemon.class);
     // MANUAL suite.addTestSuite(TestWheelGroup.class); 
 
+    suite.addTest(SuiteTxDaemon.suite());
+
     return suite;
-  }
+  } // static public Test suite()
 
 }
 
