@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.2 2006-02-02 16:38:08 isgwb Exp $
+  @version $Id: GroupMembers.jsp,v 1.3 2006-02-21 16:25:25 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -31,14 +31,23 @@
 
 <br/>
 <div class="linkButton">
-<c:if test="${groupPrivs.ADMIN || groupPrivs.UPDATE}">
-<html:link page="/populateFindNewMembers.do" name="groupMembership">
-	<fmt:message bundle="${nav}" key="find.groups.add-new-members"/>
-</html:link>
-</c:if>
-<html:link page="/populateGroupSummary.do" name="groupMembership">
-	<fmt:message bundle="${nav}" key="find.groups.done"/>
-</html:link>
+<c:choose>
+	<c:when test="${empty GroupFormBean.map.contextSubject}">
+		<c:if test="${groupPrivs.ADMIN || groupPrivs.UPDATE}">
+		<html:link page="/populateFindNewMembers.do" name="groupMembership">
+			<fmt:message bundle="${nav}" key="find.groups.add-new-members"/>
+		</html:link>
+		</c:if>
+		<html:link page="/populateGroupSummary.do" name="groupMembership">
+			<fmt:message bundle="${nav}" key="find.groups.done"/>
+		</html:link>
+	</c:when>
+	<c:otherwise>
+		<html:link page="/populateSubjectSummary.do">
+			<fmt:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
+		</html:link>
+	</c:otherwise>
+</c:choose>
 </div>
 <br/>
 
