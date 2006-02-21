@@ -3,7 +3,7 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.3 2005-12-08 15:33:28 isgwb Exp $
+  @version $Id: groupLinks.jsp,v 1.4 2006-02-21 16:24:03 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -17,6 +17,14 @@
 		
 			<html:link page="/populateEditGroup.do" name="group">
 				<fmt:message bundle="${nav}" key="groups.action.edit"/>
+			</html:link>
+		
+	</c:if>
+	
+	<c:if test="${groupPrivs.ADMIN}">
+		
+			<html:link page="/populateEditGroupAttributes.do" name="group">
+				<fmt:message bundle="${nav}" key="groups.action.edit-attr"/>
 			</html:link>
 		
 	</c:if>
@@ -66,6 +74,7 @@
 				<fmt:message bundle="${nav}" key="groups.action.summary.goto-this-subject"/>
 			</html:link>
 </div>
+<tiles:insert definition="selectListFieldsDef"/>
 </div>
 <a name="endGroupLinks" id="endGroupLinks"></a>
 </grouper:recordTile>
