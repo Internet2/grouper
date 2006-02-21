@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link SubjectFinder.findAll()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdSearch.java,v 1.3 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestSuFiGrSoAdSearch.java,v 1.4 2006-02-21 17:11:33 blair Exp $
  */
 public class TestSuFiGrSoAdSearch extends TestCase {
 
@@ -49,6 +49,7 @@ public class TestSuFiGrSoAdSearch extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
 

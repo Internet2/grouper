@@ -3,9 +3,17 @@
 
 Known issues with the Grouper API and Groups Registry.
 
-$Id: KNOWN_ISSUES,v 1.1 2005-09-07 22:13:48 blair Exp $
+$Id: KNOWN_ISSUES,v 1.2 2006-02-21 17:11:32 blair Exp $
 
 ---
+
+## Effective Membership Heisenbug
+
+Moving the effective membership modification calculations into
+GrouperDaemon introduced a Heisenbug that can intermittently affect
+using groups as members.  Unfortunately, the failures are not
+consistent and I have not yet been able to create a reliable test to
+identify it.  I intend to do so before 1.0 is released.
 
 ## Effective Membership Performance
 
@@ -13,6 +21,10 @@ As the number of memberships in your Groups Registry grows, Grouper's
 performance whenever adding or removing a membership will degrade.
 This is especially true when the groups involved have large numbers of
 members or subgroup memberships.
+
+NOTE: This is presumably now a non-issue now that effective membership
+modification calculations have been pushed into another process.  Until
+I confirm that, however, I'll leave this here.
 
 ## Propogation of _displayName_ changes
 

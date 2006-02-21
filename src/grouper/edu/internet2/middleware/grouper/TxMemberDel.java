@@ -31,7 +31,8 @@ import  org.apache.commons.logging.*;
 class TxMemberDel extends TxQueue implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TxMemberDel.class);
+  private static final EventLog EL  = new EventLog();
+  private static final Log      LOG = LogFactory.getLog(TxMemberDel.class);
 
   
   // Constructors
@@ -52,21 +53,23 @@ class TxMemberDel extends TxQueue implements Serializable {
 
 
   // Public Instance Methods
-/*
   public boolean apply(GrouperDaemon gd) {
     boolean rv = false;
     try {
-      HibernateHelper.delete(this);
-      gd.stopDaemon();
+      GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+      GrouperSession  fake  = new GrouperSession(this.getSessionId(), this.getActor());
+      Member          m     = this.getMember();
+      m.setSession(root);
+      Membership      imm   = new Membership(root, this.getOwner(), m, this.getField());
+      Membership.delEffectiveMemberships(fake, imm);
+      root.stop();
       rv = true;
     }
-    catch (HibernateException eH) {
-      String msg = eH.getMessage();
-      gd.getLog().failToDelete(this, msg);
+    catch (Exception e) {
+      gd.getLog().failedToApplyTx(this, e.getMessage());
     }
     return rv;
   } // public boolean apply()
-*/
 
 }
 

@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.34 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.35 2006-02-21 17:11:32 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -221,7 +221,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       throw eIP;
     }
     try {
-      Membership.addImmediateMembership(s, (Object) ns, subj, f);
+      Membership.addImmediateMembership(s, ns, subj, f);
     }
     catch (MemberAddException eMA) {
       GrouperLog.debug(LOG, s, msg + ": " + eMA.getMessage());

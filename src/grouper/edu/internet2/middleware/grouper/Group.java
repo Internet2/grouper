@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.56 2006-02-15 23:06:49 blair Exp $
+ * @version $Id: Group.java,v 1.57 2006-02-21 17:11:32 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -232,7 +232,9 @@ public class Group implements Serializable {
         throw new InsufficientPrivilegeException(err);
       }
     }
-    Membership.addImmediateMembership(this.s, this, subj, f);
+    // TODO And why is this explicit cast of a `Group` object back to
+    //      `Group` necessary?
+    Membership.addImmediateMembership(this.s, (Group) this, subj, f);
     sw.stop();
     EL.groupAddMember(this.s, this.getName(), subj, f, sw);
   } // protected void stemAddChildGroup(s, name, sw)

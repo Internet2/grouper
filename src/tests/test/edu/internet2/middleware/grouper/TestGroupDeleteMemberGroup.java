@@ -21,14 +21,19 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link Group.deleteMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDeleteMemberGroup.java,v 1.9 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestGroupDeleteMemberGroup.java,v 1.10 2006-02-21 17:11:33 blair Exp $
  */
 public class TestGroupDeleteMemberGroup extends TestCase {
+
+  // Private Static Class Constants
+  private static final Log LOG = LogFactory.getLog(TestGroupDeleteMemberGroup.class);
 
   public TestGroupDeleteMemberGroup(String name) {
     super(name);
@@ -39,7 +44,8 @@ public class TestGroupDeleteMemberGroup extends TestCase {
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests
@@ -63,7 +69,7 @@ public class TestGroupDeleteMemberGroup extends TestCase {
     Subject         subj  = SubjectHelper.SUBJ0;
     Member          m     = Helper.getMemberBySubject(s, subj);
     // add subj to uofc
-    GroupHelper.addMember(uofc, subj, m);
+    GroupHelper.addMember(uofc, subj, "members");
     MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
     MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
     MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
@@ -95,14 +101,14 @@ public class TestGroupDeleteMemberGroup extends TestCase {
     MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 1, 1, 0);
     MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
     // add subj to uofc   
-    GroupHelper.addMember(uofc, subj, m);
+    GroupHelper.addMember(uofc, subj, "members");
     MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
     MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
     MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
     MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
     MembershipHelper.testEffMship(s, i2, subj, Group.getDefaultList(), uofc, 1);
     // remove subj from uofc
-    GroupHelper.deleteMember(uofc, subj, m);
+    GroupHelper.deleteMember(uofc, subj);
     MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 0, 0, 0);
     MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 1, 1, 0);
     MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());

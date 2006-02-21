@@ -20,14 +20,18 @@ package test.edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
 
 /**
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.6 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestField.java,v 1.7 2006-02-21 17:11:33 blair Exp $
  */
 public class TestField extends TestCase {
+
+  // Private Static Class Constants
+  private static final Log LOG = LogFactory.getLog(TestField.class);
 
   public TestField(String name) {
     super(name);
@@ -38,7 +42,8 @@ public class TestField extends TestCase {
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests

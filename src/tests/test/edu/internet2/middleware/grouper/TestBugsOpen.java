@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test open bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsOpen.java,v 1.12 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestBugsOpen.java,v 1.13 2006-02-21 17:11:33 blair Exp $
  */
 public class TestBugsOpen extends TestCase {
 
@@ -47,7 +47,8 @@ public class TestBugsOpen extends TestCase {
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests

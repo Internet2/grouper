@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.15 2006-02-15 23:06:49 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.16 2006-02-21 17:11:33 blair Exp $
  */
 public class MembershipHelper {
 
@@ -241,10 +241,12 @@ public class MembershipHelper {
         );
       }
       else {
+        // TODO WTF is this loop for?
         Iterator iter = g.getMemberships(f).iterator();
+        int idx = 0;
         while (iter.hasNext()) {
           Membership ms = (Membership) iter.next();
-          System.err.println("GOT: " + ms);
+          System.err.println("MS["+ idx++ + "] " + ms);
         }
         Assert.fail("GOT: " + gotM + " EXP: " + m);
       }
@@ -269,36 +271,26 @@ public class MembershipHelper {
     Assert.assertTrue("m isMember g",     m.isMember(g));
     Assert.assertTrue("m isImmMember g",  m.isImmediateMember(g));
   } // protected static TestImm(g, subj, m)
-
-  protected static void testEff(Group g, Group via, Subject subj) {
+  protected static void testImm(Group g, Subject subj, Member m, Field f) {
+    // The basics
     try {
-      Member m = MemberFinder.findBySubject(g.getSession(), subj);
-      testEff(g, via, m);
+      Assert.assertTrue("g hasMember m",    g.hasMember(subj, f));
+      Assert.assertTrue("g hasImmMember m", g.hasImmediateMember(subj, f));
+      Assert.assertTrue("m isMember g",     m.isMember(g, f));
+      Assert.assertTrue("m isImmMember g",  m.isImmediateMember(g, f));
     }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
+    catch (SchemaException eS) {
+      Assert.fail(eS.getMessage());
     }
-  } // protected static void testEff(g, via, subj)
+  } // protected static TestImm(g, subj, m)
 
-  // TODO DEPRECATE
-  // TODO via is wrong?  should actually be group-as-member?  or member-as-group?
+  // TODO @deprecate?
+  // TODO I no longer understand what this code is trying to accomplish
+  // TODO What if `isMember` or `hasMembers` are empty?
   protected static void testEff(Group g, Group via, Member m) {
-// FIXME System.err.println("testEFF/"+g.getName()+"/"+via.getName()+"/"+m.getSubjectId());
     // Get memberships
     Set isMember    = g.toMember().getMemberships();
-/* FIXME
-System.err.println("testEFF/isMember="+isMember.size());
-    if (isMember.size() < 1) {
-      Assert.fail("group has no members");
-    }
-*/
     Set hasMembers  = via.getMemberships();
-/* FIXME
-System.err.println("testEFF/hasMembers="+hasMembers.size());
-    if (hasMembers.size() < 1) {
-      Assert.fail("via group has no members");
-    }
-*/
     Iterator iter   = isMember.iterator();
     while (iter.hasNext()) {
       Membership is = (Membership) iter.next();

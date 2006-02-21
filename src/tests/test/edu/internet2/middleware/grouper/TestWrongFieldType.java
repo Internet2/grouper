@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test using the wrong field type in various operations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestWrongFieldType.java,v 1.2 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestWrongFieldType.java,v 1.3 2006-02-21 17:11:33 blair Exp $
  */
 public class TestWrongFieldType extends TestCase {
 
@@ -71,6 +71,7 @@ public class TestWrongFieldType extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
 

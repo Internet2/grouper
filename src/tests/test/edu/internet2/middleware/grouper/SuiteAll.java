@@ -18,6 +18,7 @@
 package test.edu.internet2.middleware.grouper;
 
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
 
 public class SuiteAll extends TestCase {
 

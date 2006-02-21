@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Membership}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMembership.java,v 1.5 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestMembership.java,v 1.6 2006-02-21 17:11:33 blair Exp $
  */
 public class TestMembership extends TestCase {
 
@@ -66,6 +66,7 @@ public class TestMembership extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
 

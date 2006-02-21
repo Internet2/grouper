@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.12 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestStem.java,v 1.13 2006-02-21 17:11:33 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -49,6 +49,7 @@ public class TestStem extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
 

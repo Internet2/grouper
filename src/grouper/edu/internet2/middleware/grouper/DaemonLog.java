@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link GrouperDaemon} logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: DaemonLog.java,v 1.2 2006-02-15 23:06:49 blair Exp $
+ * @version $Id: DaemonLog.java,v 1.3 2006-02-21 17:11:32 blair Exp $
  *     
 */
 class DaemonLog implements Serializable {
@@ -67,7 +67,8 @@ class DaemonLog implements Serializable {
   // Protected Instance Methods
 
   protected void appliedTx(TxQueue tx) {
-    LOG.info(MSG_TXQ_ATX + tx);
+    long delta = new Date().getTime() - tx.getQueueTime();
+    LOG.info(MSG_TXQ_ATX + tx + " delay: " + delta + "ms");
   } // protected void appliedTx(tx)
 
   protected void deleteTx(TxQueue tx) {
@@ -81,6 +82,10 @@ class DaemonLog implements Serializable {
   protected void failedToApplyTx(TxQueue tx) {
     LOG.error(ERR_TXQ_ATX + tx);
   } // protected void failedToApplyTx(tx)
+
+  protected void failedToApplyTx(TxQueue tx, String msg) {
+    LOG.error(ERR_TXQ_ATX + tx + ": " + msg);
+  } // protected void failedToApplyTx(tx, msg)
 
   protected void failedToSetFailed(TxQueue tx) {
     LOG.error(ERR_TXQ_SF + tx);
@@ -104,6 +109,12 @@ class DaemonLog implements Serializable {
 
   protected void itemsInQueue(Set queue) {
     LOG.info(MSG_TXQ_ITEMS + queue.size());
+    Iterator  iter  = queue.iterator();
+    int       i     = 0; 
+    while (iter.hasNext()) {
+      TxQueue tx = (TxQueue) iter.next();
+      LOG.info("queue[" + i++ + "] " + tx);
+    }
   } // protected void itemsInQueue(queue)
 
   protected void shutdownThread() {

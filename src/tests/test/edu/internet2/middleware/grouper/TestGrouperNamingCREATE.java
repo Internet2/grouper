@@ -22,17 +22,20 @@ import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingCREATE.java,v 1.11 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestGrouperNamingCREATE.java,v 1.12 2006-02-21 17:11:33 blair Exp $
  */
 public class TestGrouperNamingCREATE extends TestCase {
 
   // Private Class Constants
-  private static final Privilege PRIV = NamingPrivilege.CREATE;
+  private static final Log        LOG   = LogFactory.getLog(TestGrouperNamingCREATE.class);
+  private static final Privilege  PRIV  = NamingPrivilege.CREATE;
 
 
   // Private Class Variables
@@ -57,7 +60,8 @@ public class TestGrouperNamingCREATE extends TestCase {
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.8 2006-02-03 20:20:15 blair Exp $
+ * @version $Id: TestGroupTypes.java,v 1.9 2006-02-21 17:11:33 blair Exp $
  */
 public class TestGroupTypes extends TestCase {
 
@@ -49,11 +49,13 @@ public class TestGroupTypes extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests
 
   public void testCreateExistingType() {
+    LOG.info("testCreateExistingType");
     GrouperSession  s     = null;
     String          name  = "base";
     try {
@@ -73,6 +75,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testCreateExistingType()
 
   public void testCreateNewTypeAsRoot() {
+    LOG.info("testCreateNewTypeAsRoot");
     GrouperSession  s     = null;
     String          name  = "customType";
     try {
@@ -92,6 +95,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testCreateNewTypeAsRoot() 
 
   public void testCreateNewTypeAsNonRoot() {
+    LOG.info("testCreateNewTypeAsNonRoot");
     GrouperSession  s     = null;
     String          name  = "customType";
     try {
@@ -113,6 +117,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testCreateNewTypeAsNonRoot()
 
   public void testFailToFindCustomType() {
+    LOG.info("testFailToFindCustomType");
     GrouperSession  s     = null;
     String          name  = "customType";
     try {
@@ -129,6 +134,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testFailToFindCustomType()
 
   public void testFindCustomType() {
+    LOG.info("testFindCustomType");
     GrouperSession  s     = null;
     String          name  = "customType";
     try {
@@ -154,6 +160,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testFindCustomType()
 
   public void testFailToFindCustomField() {
+    LOG.info("testFailToFindCustomField");
     GrouperSession  s     = null;
     String          type  = "customType";
     String          name  = "customField";
@@ -175,6 +182,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testFailToFindCustomField()
 
   public void testAddFieldAsNonRoot() {
+    LOG.info("testAddFieldAsNonRoot");
     GrouperSession  s     = null;
     String          type  = "base";
     String          name  = "customField";
@@ -200,6 +208,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddFieldAsNonRoot()
 
   public void testAddExistingField() {
+    LOG.info("testAddExistingField");
     GrouperSession  s     = null;
     String          type  = "base";
     String          name  = "members";
@@ -225,6 +234,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddExistingField()
 
   public void testAddFieldToBase() {
+    LOG.info("testAddFieldToBase");
     GrouperSession  s     = null;
     String          type  = "base";
     String          name  = "customField";
@@ -250,6 +260,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddFieldToBase()
 
   public void testAddFieldToNaming() {
+    LOG.info("testAddFieldToNaming");
     GrouperSession  s     = null;
     String          type  = "naming";
     String          name  = "customField";
@@ -275,6 +286,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddFieldToNaming()
 
   public void testAddFieldTypeAccess() {
+    LOG.info("testAddFieldTypeAccess");
     GrouperSession  s     = null;
     String          type  = "customType";
     String          name  = "customField";
@@ -300,6 +312,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddFieldAccess()
 
   public void testAddFieldTypeNaming() {
+    LOG.info("testAddFieldTypeNaming");
     GrouperSession  s     = null;
     String          type  = "customType";
     String          name  = "customField";
@@ -325,6 +338,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddFieldNaming()
 
   public void testAddFieldReadNotAccess() {
+    LOG.info("testAddFieldReadNotAccess");
     GrouperSession  s     = null;
     String          type  = "customType";
     String          name  = "customField";
@@ -350,6 +364,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddFieldReadNotAccess()
 
   public void testAddFieldWriteNotAccess() {
+    LOG.info("testAddFieldWriteNotAccess");
     GrouperSession  s     = null;
     String          type  = "customType";
     String          name  = "customField";
@@ -375,6 +390,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddFieldWriteNotAccess()
 
   public void testAddFieldAttribute() {
+    LOG.info("testAddFieldAttribute");
     GrouperSession  s     = null;
     String          type  = "customType.0";
     String          name  = "customField";
@@ -400,6 +416,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddFieldAttribute()
 
   public void testAddFieldList() {
+    LOG.info("testAddFieldList");
     GrouperSession  s     = null;
     String          type  = "customType.1";
     String          name  = "customField";
@@ -425,6 +442,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddFieldList()
 
   public void testAddFieldDuplicateName() {
+    LOG.info("testAddFieldDuplicateName");
     GrouperSession  s     = null;
     String          type  = "customType.2";
     String          name  = "customField";
@@ -457,6 +475,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddFieldDuplicateName()
 
   public void testFindCustomField() {
+    LOG.info("testFindCustomField");
     GrouperSession  s     = null;
     String          type  = "customType.3";
     String          name  = "customField.3";
@@ -489,6 +508,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testFindCustomField()
 
   public void testUseCustomList() {
+    LOG.info("testUseCustomList");
     GrouperSession  s     = null;
     String          type  = "customType.TUCL";
     String          name  = "customField.TUCL";
@@ -511,7 +531,7 @@ public class TestGroupTypes extends TestCase {
         g.addType(custom);
         Assert.assertTrue("custom type", g.hasType(custom));
 
-        g.addMember(SubjectHelper.SUBJ0, f);
+        GroupHelper.addMember(g, SubjectHelper.SUBJ0, f);
         Assert.assertTrue("has member", g.hasMember(SubjectHelper.SUBJ0, f));
 
         g.deleteMember(SubjectHelper.SUBJ0, f);
@@ -543,6 +563,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testUseCustomList()
 
   public void testAddDeleteTypeNonRoot() {
+    LOG.info("testAddDeleteTypeNonRoot");
     GrouperSession  s     = null;
     String          type  = "customType.TADTNR";
     String          name  = "customField.TADTNR";
@@ -593,6 +614,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddDeleteTypeNonRoot()
 
   public void testUseCustomAttribute() {
+    LOG.info("testUseCustomAttribute");
     GrouperSession  s     = null;
     String          type  = "customType.TUCA";
     String          name  = "customField.TUCA";
@@ -650,6 +672,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testUseCustomAttribute()
 
   public void testUseCustomAttributeRequired() {
+    LOG.info("testUseCustomAttributeRequired");
     GrouperSession  s     = null;
     String          type  = "customType.TUCAR";
     String          name  = "customField.TUCAR";
@@ -703,6 +726,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testUseCustomAttributeRequired()
 
   public void testGetAttributeReturnTypes() {
+    LOG.info("testGetAttributeReturnTypes");
     GrouperSession s = null;
     try {
       s = SessionHelper.getRootSession();
@@ -755,6 +779,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testGetAttributeReturnTypes() 
 
   public void testDeleteFromBase() {
+    LOG.info("testDeleteFromBase");
     GrouperSession  s     = null;
     String          type  = "base";
     String          name  = "description";
@@ -778,6 +803,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testDeleteFromBase() 
 
   public void testDeleteFromNaming() {
+    LOG.info("testDeleteFromNaming");
     GrouperSession  s     = null;
     String          type  = "naming";
     String          name  = "creators";
@@ -801,6 +827,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testDeleteFromNaming() 
 
   public void testDeleteAsNonRoot() {
+    LOG.info("testDeleteAsNonRoot");
     GrouperSession  s     = null;
     String          type  = "customType.TDANR";
     String          name  = "customField.TDANR";
@@ -834,6 +861,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testDeleteAsNonRoot()
 
   public void testDeleteUnusedCustomAttribute() {
+    LOG.info("testDeleteUnusedCustomAttribute");
     GrouperSession  s     = null;
     String          type  = "customType.TDUCA";
     String          name  = "customField.TDUCA";
@@ -868,6 +896,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testDeleteUnusedCustomAttribute() 
 
   public void testDeleteUnusedCustomList() {
+    LOG.info("testDeleteUnusedCustomList");
     GrouperSession  s     = null;
     String          type  = "customType.TDUCL";
     String          name  = "customField.TDUCL";
@@ -902,6 +931,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testDeleteUnusedCustomList() 
 
   public void testFailToDeleteUsedCustomAttribute() {
+    LOG.info("testFailToDeleteUsedCustomAttribute");
     GrouperSession  s     = null;
     String          type  = "customType.FTTDUCA";
     String          name  = "customField.FTTDUCA";
@@ -936,8 +966,9 @@ public class TestGroupTypes extends TestCase {
   } // public void testFailToDeleteUsedCustomAttribute()
 
   public void testFailToDeleteUsedCustomList() {
+    LOG.info("testFailToDeleteUsedCustomList");
     GrouperSession  s     = null;
-    String          type  = "customType.FTDUCL";
+    String          type  = "customType.FTTDUCL";
     String          name  = "customField.FTTDUCL";
     FieldType       ft    = FieldType.LIST; 
     Privilege       read  = AccessPrivilege.VIEW;
@@ -953,7 +984,7 @@ public class TestGroupTypes extends TestCase {
       Group g     = ns.addChildGroup("g", "g");
       g.addType(custom);
       f = FieldFinder.find(name);
-      g.addMember(SubjectHelper.SUBJ0, f);
+      GroupHelper.addMember(g, SubjectHelper.SUBJ0, f);
       try {
         custom.deleteField(s, name);  
         Assert.fail("deleted in-use LIST");
@@ -971,6 +1002,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testFailToDeleteUsedCustomList()
 
   public void testAddBaseType() {
+    LOG.info("testAddBaseType");
     GrouperSession  s = null;
     try {
       s = SessionHelper.getRootSession();
@@ -995,6 +1027,7 @@ public class TestGroupTypes extends TestCase {
   } // public void testAddBaseType()
 
   public void testAddNamingType() {
+    LOG.info("testAddNamingType");
     GrouperSession  s = null;
     try {
       s = SessionHelper.getRootSession();

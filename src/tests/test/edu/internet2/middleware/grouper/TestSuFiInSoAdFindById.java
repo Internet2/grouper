@@ -22,14 +22,19 @@ import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link SubjectFinder.findById()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdFindById.java,v 1.5 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestSuFiInSoAdFindById.java,v 1.6 2006-02-21 17:11:33 blair Exp $
  */
 public class TestSuFiInSoAdFindById extends TestCase {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(TestSuFiInSoAdFindById.class);
 
   public TestSuFiInSoAdFindById(String name) {
     super(name);
@@ -40,7 +45,8 @@ public class TestSuFiInSoAdFindById extends TestCase {
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
   // Tests

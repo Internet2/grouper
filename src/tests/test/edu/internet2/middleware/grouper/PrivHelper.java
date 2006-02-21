@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.18 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.19 2006-02-21 17:11:33 blair Exp $
  */
 public class PrivHelper {
 
@@ -140,6 +140,7 @@ public class PrivHelper {
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       g.grantPriv(subj, priv);  
+      g.getSession().waitForTx();
       hasPriv(g, subj, m, priv, true);
     }
     catch (Exception e) {
@@ -191,6 +192,7 @@ public class PrivHelper {
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       ns.grantPriv(subj, priv);  
+      ns.getSession().waitForTx();
       hasPriv(ns, subj, m, priv, true);
     }
     catch (GrantPrivilegeException eGP) {
@@ -336,6 +338,7 @@ public class PrivHelper {
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       g.revokePriv(subj, priv);  
+      g.getSession().waitForTx();
       if      (priv.equals(AccessPrivilege.READ)) {  
         // Granted to ALL by default - but possibly revoked
         if (SubjectHelper.eq(subj, SubjectHelper.SUBJA)) { 
@@ -375,6 +378,7 @@ public class PrivHelper {
       Member m = MemberFinder.findBySubject(s, subj);
       LOG.debug("revokePrivAllHasPriv.1");
       g.revokePriv(subj, priv);  
+      g.getSession().waitForTx();
       LOG.debug("revokePrivAllHasPriv.2");
       hasPriv(g, subj, m, priv, true);
       LOG.debug("revokePrivAllHasPriv.3");
@@ -411,6 +415,7 @@ public class PrivHelper {
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       ns.revokePriv(subj, priv);  
+      ns.getSession().waitForTx();
       hasPriv(ns, subj, m, priv, false);
     }
     catch (Exception e) {
@@ -447,6 +452,7 @@ public class PrivHelper {
   {
     try {
       g.revokePriv(priv);  
+      g.getSession().waitForTx();
       getSubjsWithPriv(g, new HashSet(), priv);
     }
     catch (Exception e) {
@@ -460,6 +466,7 @@ public class PrivHelper {
   {
     try {
       ns.revokePriv(priv);  
+      ns.getSession().waitForTx();
       getSubjsWithPriv(ns, new HashSet(), priv);
     }
     catch (Exception e) {

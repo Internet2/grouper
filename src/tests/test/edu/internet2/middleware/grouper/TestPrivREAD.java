@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Test use of the READ {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivREAD.java,v 1.5 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: TestPrivREAD.java,v 1.6 2006-02-21 17:11:33 blair Exp $
  */
 public class TestPrivREAD extends TestCase {
 
@@ -69,6 +69,7 @@ public class TestPrivREAD extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
   }
 
 

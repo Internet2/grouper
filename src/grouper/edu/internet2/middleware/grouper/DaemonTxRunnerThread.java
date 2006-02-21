@@ -27,12 +27,13 @@ import  org.apache.commons.logging.*;
  * {@link grouperd} thread for processing the transaction queue.
  * <p />
  * @author  blair christensen.
- * @version $Id: DaemonTxRunnerThread.java,v 1.3 2006-02-15 23:06:49 blair Exp $    
+ * @version $Id: DaemonTxRunnerThread.java,v 1.4 2006-02-21 17:11:32 blair Exp $    
  */
 public class DaemonTxRunnerThread extends Thread {
 
   // Private Class Constants
   private static final DaemonLog  DL  = new DaemonLog();
+  private static final EventLog   EL  = new EventLog();
 
   // Private Instance Variables
   private GrouperDaemon gd  = null;
@@ -48,11 +49,12 @@ public class DaemonTxRunnerThread extends Thread {
   // Public Instance Methods
 
   public void run( ) {
+    Set queue = new LinkedHashSet();
     while (true) {
       if (this.gd.isStopped()) {
         break; 
       }
-      Set queue = TxQueueFinder.findByStatus("wait");
+      queue = TxQueueFinder.findByStatus("wait");
       if (queue.size() > 0) {
         DL.itemsInQueue(queue); 
         Iterator iter = queue.iterator();
@@ -60,32 +62,19 @@ public class DaemonTxRunnerThread extends Thread {
           TxQueue tx = (TxQueue) iter.next();
           if (tx.apply(this.gd)) {
             DL.appliedTx(tx);
+            tx.delete(this.gd);
           } 
           else {
             DL.failedToApplyTx(tx);
             if (!tx.setFailed(this.gd)) {
-              DL.failedToSetFailed(tx);
+              DL.failedToSetFailed(tx);   
             }
           }
         }
-      } 
-/*
-          TxQueue tx  = (TxQueue) iter.next();
-          if (tx.getClass() == TxStop.class) {
-            try {
-              HibernateHelper.delete(tx);
-              DL.deleteTx(tx);
-              this.gd.stopDaemon();
-            }
-            catch (HibernateException eH) {
-              String  msg = eH.getMessage();
-              DL.failToDeleteTx(tx, msg);
-              break;
-            }
-          }
-*/
+      }
       try {
-        Thread.sleep( (long) (Math.random() * 1000) );
+        // TODO What's a good time?
+        Thread.sleep( (long) (Math.random() * 500) );
       } catch (InterruptedException e) {
         // Nothing
       }

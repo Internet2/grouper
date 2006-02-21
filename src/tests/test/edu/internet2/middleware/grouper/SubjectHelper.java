@@ -21,12 +21,13 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
 
 /**
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.10 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.11 2006-02-21 17:11:33 blair Exp $
  */
 public class SubjectHelper {
 

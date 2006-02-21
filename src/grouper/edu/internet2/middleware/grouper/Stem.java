@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.46 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: Stem.java,v 1.47 2006-02-21 17:11:33 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -601,6 +601,19 @@ public class Stem implements Serializable {
       this.s, this, subj
     );
   } // public Set getPrivs(subj)
+
+  /**
+   * Get {@link GrouperSession} associated with this {@link Stem}.
+   * <pre class="eg">
+   * GrouperSession s = ns.getSession();
+   * </pre>
+   * @return  {@GrouperSession} associated this this stem.
+   * @throws  RuntimeException if session not valid.
+   */
+  public GrouperSession getSession() {
+    GrouperSession.validate(this.s);
+    return this.s;
+  } // public GrouperSession getSession()
 
   /**
    * Get subjects with STEM privilege on this stem.

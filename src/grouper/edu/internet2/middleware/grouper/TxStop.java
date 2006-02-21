@@ -48,6 +48,13 @@ class TxStop extends TxQueue implements Serializable {
     boolean rv = false;
     try {
       HibernateHelper.delete(this);
+      gd.getLog().deleteTx(this);
+      try {
+        // Sleep for a moment
+        Thread.sleep(500); 
+      } catch (InterruptedException e) {
+        // Nothing
+      }
       gd.stopDaemon();
       rv = true;
     }
@@ -57,6 +64,11 @@ class TxStop extends TxQueue implements Serializable {
     }
     return rv;
   } // public boolean apply()
+
+  // Protected Instance Methods
+  protected void delete(GrouperDaemon gd) {
+    // Handled in apply()
+  } // protected void delete(gd)
 
 }
 
