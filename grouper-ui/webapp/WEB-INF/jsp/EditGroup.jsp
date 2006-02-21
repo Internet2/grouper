@@ -2,7 +2,7 @@
 			Form for creating new groups or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.3 2005-12-14 15:08:45 isgwb Exp $
+  @version $Id: EditGroup.jsp,v 1.4 2006-02-21 16:19:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -36,8 +36,9 @@
 </div>
 <c:if test="${empty GroupFormBean.map.groupId}">
 <div class="formRow">
+<div class="formLeft">
 <fmt:message bundle="${nav}" key="groups.create.privs-for-all"/>
-</div><div class="formRow">
+</div><div class="formRight">
 <c:forEach var="priv" items="${privileges}">
 <span class="checkbox">
 	<input <c:if test="${!empty preSelected[priv]}">checked="checked"</c:if> type="checkbox" name="privileges" value="<c:out value="${priv}"/>"  id="priv<c:out value="${priv}"/>"/> 
@@ -45,7 +46,23 @@
 </c:forEach>
 					
 </div>
+</div>
 </c:if>
+<div class="formRow">
+<div class="formLeft"><fmt:message bundle="${nav}" key="groups.edit.type"/></div>
+<div class="formRight">
+<tiles:insert definition="multiOptionDef">
+	<tiles:put name="items" beanName="allGroupTypes"/>
+	<tiles:put name="selected" beanName="selectedGroupTypes"/>
+	<tiles:put name="name" value="groupTypes"/>
+	<tiles:put name="property" value="name"/>
+	<tiles:put name="columns" value="3"/>
+</tiles:insert>
+</div>
+</div>
+
+
+
 <!--<tr>
     <td valign="top"><fmt:message bundle="${nav}" key="groups.edit.type"/></td>
     <td valign="top"><html:select property="groupType" disabled="${editMode}">
