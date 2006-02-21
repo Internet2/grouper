@@ -2,7 +2,7 @@
 		Tile which displays the generic subject search functionality. Designed to be embedded in actual forms
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectSearchFragment.jsp,v 1.2 2005-12-20 11:48:56 isgwb Exp $
+  @version $Id: subjectSearchFragment.jsp,v 1.3 2006-02-21 16:36:14 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute/>
@@ -42,8 +42,11 @@
 	)</label>
 		</div>
 </div>
-<c:if test="${!empty groupInsert && source.id=='grouperAdapter'}">
-	<tiles:insert definition="${groupInsert}"/>
+<c:if test="${source.id=='g:gsa'}">
+	<c:if test="${!empty groupInsert}">
+		<tiles:insert definition="${groupInsert}"/>
+	</c:if>
+	<tiles:insert definition="searchGroupResultFieldChoiceDef"/>
 </c:if>
 <c:remove var="checked"/>
 <div class="formRow"><hr/></div>
