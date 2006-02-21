@@ -11,24 +11,39 @@ Can save and
 3) continue to add members --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
-<h3>This page does not do anything in this demo. It is a page which will need to be customised by 
-institutions to cope with the group types they choose to implement</h3>
+<tiles:insert definition="showStemsLocationDef" controllerUrl="/prepareBrowsePath.do"/>
 <html:form styleId="EditGroupAttributesForm" action="/saveGroupAttributes">
 <html:hidden property="groupId"/>
-<table border="0">
-<tr>
-    <td valign="top">Unit code</td>
-    <td valign="top"><html:text property="groupAttrUnitCode" size="50" maxlength="50"/>
-    </td>
-</tr>
-<tr>
-    <td valign="top">Faculty code</td>
-    <td valign="top"><html:text property="groupAttrFacultyCode" size="50" maxlength="50"/>
-    </td>
-</tr>
-
-</table>
+<div class="groupInfo">
+<div class="groupTypes">
+<div class="typesHeader">
+	<div class="formRow">
+		<div class="formLeft">
+			<fmt:message bundle="${nav}" key="groups.edit-attributes.types-header"/>
+		</div>
+		<div class="formRight">
+			<div class="formRow">
+				<div class="formLeft">
+					<fmt:message bundle="${nav}" key="groups.edit-attributes.attributes-header"/>
+				</div>
+				<div class="formRight">
+					<fmt:message bundle="${nav}" key="groups.edit-attributes.values-header"/>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<tiles:insert definition="dynamicTileDef">
+	<tiles:put name="viewObject" beanName="group" beanProperty="types"/>
+	<tiles:put name="view" value="editGroupAttributes"/>
+	<tiles:put name="itemView" value="editGroupAttributes"/>
+	<tiles:put name="listless" value="TRUE"/>
+</tiles:insert>
+</div>
+<div class="formRow">
  <html:submit property="submit.save" value="${navMap['groups.action.attr-save']}"/>
  <html:submit property="submit.save_add" value="${navMap['groups.action.attr-save-add']}"/>
+ </div>
+ </div>
 </html:form>
 
