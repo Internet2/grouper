@@ -2,7 +2,7 @@
 		  Shows effective privileges for subject over group or stem
 --%><%--
   @author Gary Brown.
-  @version $Id: effectivePriv.jsp,v 1.1 2006-02-02 16:40:48 isgwb Exp $
+  @version $Id: effectivePriv.jsp,v 1.2 2006-02-21 16:21:57 isgwb Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -59,6 +59,7 @@
 		</c:otherwise>
 		</c:choose>
 		<c:out value="${linkSeparator}" escapeXml="false"/>
+		<c:set target="${params}" property="listField" value="${listField}"/>
 		<tiles:insert definition="dynamicTileDef" flush="false">
 			  <tiles:put name="viewObject" beanName="subject"/>
 			  <tiles:put name="view" value="hasPrivilege"/>
@@ -68,6 +69,7 @@
 			  <tiles:put name="privMap" beanName="privMap"/>
 			  <tiles:put name="linkSeparator" beanName="linkSeparator"/>
 			</tiles:insert>
+			<c:set target="${params}" property="listField" value=""/>
 		</div>
 	</c:if>
 
