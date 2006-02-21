@@ -7,7 +7,7 @@
 		  paged, however, all the subjects will be checked.
 --%><%--
   @author Gary Brown.
-  @version $Id: AssignNewMembers.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: AssignNewMembers.jsp,v 1.2 2006-02-21 16:15:51 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%><tiles:importAttribute />
 <tiles:insert definition="showStemsLocationDef"/>
@@ -19,6 +19,7 @@
 		<c:set var="checked"></c:set>
 	</c:otherwise>
 </c:choose>
+<c:if test="${empty groupSearchResultField}"><c:set scope="request" var="groupSearchResultField" value="${mediaMap['search.group.result-field']}"/></c:if>
 
 
 	<tiles:insert definition="dynamicTileDef">
