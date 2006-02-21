@@ -3,11 +3,33 @@
 		  except 'Find' mode 
 --%><%--
   @author Gary Brown.
-  @version $Id: SearchGroupResults.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: SearchGroupResults.jsp,v 1.2 2006-02-21 16:27:16 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
+<c:set var="termMode" value="query"/>
+<c:set var="termText" value=""/>
+<c:forEach var="outTerm" items="${queryOutTerms}">
+	<c:choose>
+		<c:when test="${termMode == 'query'}">
+			<c:set var="termText"><c:out value="${termText}" escapeXml="false"/> <span class="termQuery"><c:out value="${outTerm}" escapeXml="false"/></span></c:set>
+			<c:set var="termMode" value="field"/>
+		</c:when>
+		<c:when test="${termMode == 'field'}">
+			<c:set var="termText"><c:out value="${termText}" escapeXml="false"/> 
+			<span class="termIn"><fmt:message bundle="${nav}" key="find.results.search-in"/></span> 
+				<span class="termField"><c:out value="${outTerm}" escapeXml="false"/></span></c:set>
+			<c:set var="termMode" value="andOrNot"/>
+		</c:when>
+		<c:otherwise>
+			<c:set var="termAndOrNotKey" value="find.search.${outTerm}"/>
+			<c:set var="termText"><c:out value="${termText}" escapeXml="false"/> 
+				<span class="termAndOrNot"><fmt:message bundle="${nav}" key="${termAndOrNotKey}"/></span></c:set>	
+			<c:set var="termMode" value="query"/>
+		</c:otherwise>
+	</c:choose>
+</c:forEach>
 <div class="searchedFor"><fmt:message bundle="${nav}" key="find.groups.searched-for">
-	<fmt:param value="${pager.params.searchTerm}"/>
+	<fmt:param value="${termText}"/>
 </fmt:message></div>
 <c:if test="${!empty pager.params.searchFromDisplay}">
 <div class="searchedFrom"><fmt:message bundle="${nav}" key="find.groups.searched-from">
