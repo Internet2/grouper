@@ -30,6 +30,8 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
@@ -109,6 +111,12 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Identifies the group where we 
       started out</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">listField</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List field for which member 
+      is being saved</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -143,7 +151,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupMemberAction.java,v 1.4 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: SaveGroupMemberAction.java,v 1.5 2006-02-22 13:34:13 isgwb Exp $
  */
 public class SaveGroupMemberAction extends GrouperCapableAction {
 
@@ -168,6 +176,11 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		String privilege = (String) groupOrStemMemberForm.get("privilege");
 		String subjectId = (String) groupOrStemMemberForm.get("subjectId");
 		String subjectType = (String) groupOrStemMemberForm.get("subjectType");
+		String listField = (String) groupOrStemMemberForm.get("listField");
+		String membershipField = "members";
+		
+		if(!isEmpty(listField)) membershipField=listField;
+		Field mField = FieldFinder.find(membershipField);
 		if(isEmpty(asMemberOf)&& !isEmpty(contextGroup))asMemberOf=contextGroup;
 		
 		Group curGroup = GroupFinder.findByUuid(grouperSession,
@@ -177,7 +190,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		Member member = MemberFinder.findBySubject(grouperSession, SubjectFinder.findById(subjectId,subjectType));
 		List failedRevocations=new ArrayList();
 		//Get privileges as they existed and determine new ones as Map
-		Map privs = GrouperHelper.getImmediateHas(grouperSession, GroupOrStem.findByGroup(grouperSession,curGroup), member);
+		Map privs = GrouperHelper.getImmediateHas(grouperSession, GroupOrStem.findByGroup(grouperSession,curGroup), member,mField);
 		Map newPrivs = new HashMap();
 		int newPrivsCount = 0;
 		for (int i = 0; i < privileges.length; i++) {
@@ -204,7 +217,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 			key = ((String) it.next()).toLowerCase();
 			if (!newPrivs.containsKey(key)) {
 				if (key.toLowerCase().equals("member")) {
-					curGroup.deleteMember(member.getSubject());
+					curGroup.deleteMember(member.getSubject(),mField);
 				} else {
 					try {
 						curGroup.revokePriv(member.getSubject(),Privilege.getInstance(key));
@@ -222,7 +235,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		if(failedRevocations.size()==0) {
 			GrouperHelper.assignPrivileges(grouperSession, curGroup.getUuid(),
 				new Subject[] { member.getSubject() },
-				newPrivileges, false);
+				newPrivileges, false,mField); 
 			request.setAttribute("message", new Message("priv.action.assigned"));
 		}else{
 			request.setAttribute("message", new Message("priv.action.assigned-failed",true));
