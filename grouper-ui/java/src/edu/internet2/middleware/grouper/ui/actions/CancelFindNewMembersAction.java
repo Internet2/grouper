@@ -96,7 +96,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: CancelFindNewMembersAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: CancelFindNewMembersAction.java,v 1.3 2006-02-22 12:44:02 isgwb Exp $
  */
 public class CancelFindNewMembersAction extends GrouperCapableAction {
 
@@ -118,6 +118,7 @@ public class CancelFindNewMembersAction extends GrouperCapableAction {
 		setBrowseNode(findForNode,session);
 		session.removeAttribute("findForNode");
 		session.removeAttribute("findForPriv");
+		session.removeAttribute("findForListField");
 		String forward = null;
 		GroupOrStem groupOrStem = GroupOrStem.findByID(grouperSession,findForNode);
 
