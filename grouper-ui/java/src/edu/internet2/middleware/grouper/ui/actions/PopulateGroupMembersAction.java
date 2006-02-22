@@ -17,7 +17,6 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +25,14 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
@@ -73,6 +75,23 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Used by CollectionPager</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">submit.addMembers</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates user really wants 
+      to add members rather than display members</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">contextSubject</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates we got here from SubjectSummary</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">listField</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Custom list field we should 
+      display 'members' for</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -84,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">&nbsp;Allows callerPageId to 
       be added to links/forms so this page can be returned to</font></td>
   </tr>
-   <tr bgcolor="#FFFFFF"> 
+  <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current stem</font></td>
@@ -110,6 +129,29 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map used by Strut's &lt;html:link&gt; 
       tags when generating parameters for &lt;a&gt; tags</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">contextSubject</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Makes request parameter available 
+      to JSTL</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">listField</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Current list field in scope 
+      (if any). Default is membership list</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">listFields</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of available list fields 
+      for group - to enable user to change view</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">listFieldsSize</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Number of list fields available</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -146,13 +188,14 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.6 2006-02-02 16:33:09 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.7 2006-02-22 13:01:47 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_GroupMembers = "GroupMembers";
+	static final private String FORWARD_AddGroupMembers = "AddGroupMembers";
 
 	static final private String FORWARD_StemMembers = "StemMembers";
 
@@ -164,10 +207,12 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		
+		if(!isEmpty(request.getParameter("submit.addMembers"))) return mapping.findForward(FORWARD_AddGroupMembers);
 		session.setAttribute("subtitle","groups.action.show-members");
 		
 		DynaActionForm groupForm = (DynaActionForm) form;
 		saveAsCallerPage(request,groupForm,"findForNode membershipListScope");
+		request.setAttribute("contextSubject",groupForm.get("contextSubject"));
 		//Identify the group whose membership we are showing
 		String groupId = (String)groupForm.get("groupId");
 		//TODO: check following - shouldn't I always pass parameter
@@ -176,7 +221,11 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		if (groupId == null)
 			groupId = request.getParameter("asMemberOf");
 		Group group = null;
+		String listField = request.getParameter("listField");
+		String membershipField = "members";
 		
+		if(!isEmpty(listField)) membershipField=listField;
+		Field mField = FieldFinder.find(membershipField);
 		//Determine whether to show immediate, effective only, or all memberships
 		String membershipListScope = (String) groupForm
 				.get("membershipListScope");
@@ -189,15 +238,20 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		session.setAttribute("membershipListScope", membershipListScope);
 		groupForm.set("membershipListScope", membershipListScope);
 	
-		//Retrieve the membership accirding to scope selected by user
+		//Retrieve the membership according to scope selected by user
 		group = GroupFinder.findByUuid(grouperSession, groupId);
+		
+		List listFields = GrouperHelper.getListFieldsForGroup(grouperSession,group);
+		request.setAttribute("listFields",listFields);
+		request.setAttribute("listFieldsSize",new Integer(listFields.size()));
+		
 		Set members = null;
 		if ("imm".equals(membershipListScope)) {
-			members = group.getImmediateMemberships();
+			members = group.getImmediateMemberships(mField);
 		} else if ("eff".equals(membershipListScope)) {
-			members = group.getEffectiveMemberships();
+			members = group.getEffectiveMemberships(mField);
 		} else {
-			members = group.getMemberships();
+			members = group.getMemberships(mField);
 		}
 		Map countMap = new HashMap();
 		List uniqueMemberships = GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap);
@@ -219,11 +273,14 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 				.size(), null, start, null, pageSize);
 		pager.setParam("groupId", groupId);
 		pager.setTarget(mapping.getPath());
+		if(!isEmpty(listField))pager.setParam("listField", listField);
 		request.setAttribute("pager", pager);
+		request.setAttribute("listField",listField);
 		request.setAttribute("linkParams", pager.getParams().clone());
 		Map membership = new HashMap();
 		
 		membership.put("groupId", groupId);
+		if(!isEmpty(listField)) membership.put("listField",listField);
 		//TODO: some of this looks familar  - look at refactoring
 		Map privs = GrouperHelper.hasAsMap(grouperSession, GroupOrStem.findByGroup(grouperSession, group));
 		request.setAttribute("groupPrivs", privs);
