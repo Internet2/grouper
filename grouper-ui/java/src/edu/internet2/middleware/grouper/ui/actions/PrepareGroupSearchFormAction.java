@@ -60,7 +60,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
-    <tr bgcolor="#FFFFFF"> 
+  <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Checks if browsePath iis present 
@@ -71,6 +71,12 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Checks if browsePath iis present 
       - if not derives it from current browseNode and SETs it</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">fields</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of fields (attributes) 
+      which can be searched </font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -97,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareGroupSearchFormAction.java,v 1.4 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PrepareGroupSearchFormAction.java,v 1.5 2006-02-22 13:14:04 isgwb Exp $
  */
 public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 
@@ -113,7 +119,7 @@ public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 		String searchNameOrExtension = getMediaResources(request).getString("search.default.search-in-name-or-extension");
 		searchForm.set("searchInDisplayNameOrExtension",searchDisplayNameOrExtension);
 		searchForm.set("searchInNameOrExtension",searchNameOrExtension);
-		
+		request.setAttribute("fields",GrouperHelper.getSearchableFields());
 		if(browsePath==null) {
 			GroupOrStem curGroupOrStem = getCurrentGroupOrStem(grouperSession,session);
 			if(curGroupOrStem!=null) {
