@@ -18,23 +18,91 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.actions;
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.DynaActionForm;
 
-
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.Message;
 
 /**
- * Not used yet. 
+ * Saves custom attributes 
  * <p/>
+ * <table width="75%" border="1">
+  <tr bgcolor="#CCCCCC"> 
+    <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
+      Parameter</font></strong></td>
+    <td width="12%"><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
+    <td width="37%"><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies group we are saving 
+      attributes for</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">attr.&lt;field_name&gt;</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Input value for field</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">submit.save</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates that once saved should 
+      go to GroupSummary - rather than add new members</font></td>
+  </tr>
+  <tr bgcolor="#CCCCCC"> 
+    <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">message</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">key=groups.action.saved-attr</font></td>
+  </tr>
+  <tr bgcolor="#CCCCCC"> 
+    <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">findForNode</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Use if groupId not set</font></td>
+  </tr>
+  <tr bgcolor="#CCCCCC"> 
+    <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
  * 
  * @author Gary Brown.
- * @version $Id: SaveGroupAttributesAction.java,v 1.3 2005-12-14 15:06:01 isgwb Exp $
+ * @version $Id: SaveGroupAttributesAction.java,v 1.4 2006-02-22 13:31:06 isgwb Exp $
  */
-public class SaveGroupAttributesAction extends org.apache.struts.action.Action {
+public class SaveGroupAttributesAction extends GrouperCapableAction {
 
 
   //------------------------------------------------------------ Local Forwards
@@ -44,9 +112,42 @@ public class SaveGroupAttributesAction extends org.apache.struts.action.Action {
 
   //------------------------------------------------------------ Action Methods
 
-  public ActionForward execute(ActionMapping mapping, ActionForm form,
-      HttpServletRequest request, HttpServletResponse response)
+  public ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
+      HttpServletRequest request, HttpServletResponse response,HttpSession session,
+	  GrouperSession grouperSession)
       throws Exception {
+      	DynaActionForm groupFormBean = (DynaActionForm) form;
+      	String groupId = (String)groupFormBean.get("groupId");
+      	Group group = GroupFinder.findByUuid(grouperSession,groupId);
+      	List fields = new ArrayList();
+      	Set types = group.getTypes();
+      	GroupType type;
+      	Iterator it = types.iterator();
+      	while(it.hasNext()) {
+      		type = (GroupType)it.next();
+      		if(type.getName().equals("base")) continue;
+      		Set fs = type.getFields();
+      		Iterator fieldsIterator = fs.iterator();
+      		Field field;
+      		while(fieldsIterator.hasNext()) {
+      			field = (Field)fieldsIterator.next();
+      			if(field.getType().equals(FieldType.ATTRIBUTE)) fields.add(field);
+      		}
+      	}
+      	Field field;
+      	String attr;
+      	String groupAttr;
+      	for(int i=0;i<fields.size();i++) {
+      		field = (Field)fields.get(i);
+      		attr = request.getParameter("attr." + field.getName());
+      		groupAttr = group.getAttribute(field.getName());
+      		if(attr!=null && !attr.equals(groupAttr)) {
+      			group.setAttribute(field.getName(),attr);
+      		}
+      	}
+      		
+      	
+      	
       	
 		request.setAttribute("message",new Message("groups.action.saved-attr",true));
 
@@ -55,7 +156,7 @@ public class SaveGroupAttributesAction extends org.apache.struts.action.Action {
 			if(submit!=null) {
 				return mapping.findForward(FORWARD_GroupSummary);
 			}
-			request.getSession().setAttribute("findForNode",request.getParameter("groupId"));
+			session.setAttribute("findForNode",request.getParameter("groupId"));
    return mapping.findForward(FORWARD_FindNewMembers);
 
     
