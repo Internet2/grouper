@@ -52,7 +52,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.9 2006-02-02 16:30:02 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.10 2006-02-22 12:38:02 isgwb Exp $
  */
 
 /**
@@ -107,21 +107,61 @@ public class GrouperHelper {
 	private static String[] groupPrivs = { "ADMIN", "UPDATE", "READ", "VIEW",
 			"OPTIN", "OPTOUT" };
 	
+//	Privs which relate to Groups - access privileges + member
+	private static String[] groupPrivsWithMember = { "ADMIN", "UPDATE", "READ", "VIEW",
+			"OPTIN", "OPTOUT","MEMBER" };
+	
 	//Privs which relate to Stems - naming privileges
 	private static String[] stemPrivs = { "STEM", "CREATE" };
 
 	public static void main(String args[]) throws Exception{
-		Subject subj = SubjectFinder.findById("kebe");
+		Subject subj = SubjectFinder.findById("GrouperSystem");
 		GrouperSession s = GrouperSession.start(subj);
 
-		Stem stem = StemFinder.findByName(s,"qsuob");
-		stem.setDisplayExtension("QS University of Bristol");
-
+		//GroupType type = GroupType.createType(s,"teaching");
+		GroupType type = GroupTypeFinder.find("committee");
+		/*type.addField(s,"enforcer",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		type = GroupTypeFinder.find("mailingList");
+		type.addField(s,"alias",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		type = GroupTypeFinder.find("studentUnion");
+		type.addField(s,"campus",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		type = GroupTypeFinder.find("personal");
+		type.addField(s,"proxy",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		*/
+		type = GroupTypeFinder.find("community");
+		type.addField(s,"contributors",FieldType.LIST,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		type.addField(s,"scope",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		type = GroupTypeFinder.find("staff");
+		type.addField(s,"dept",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		/*type.addField(s,"staff",FieldType.LIST,Privilege.getInstance("read"),Privilege.getInstance("update"),false);
+		type.addField(s,"clerical",FieldType.LIST,Privilege.getInstance("read"),Privilege.getInstance("update"),false);
+		type.addField(s,"faculty_code",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		type.addField(s,"org_code",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		
+		Group g = new Group(s,StemFinder.findRootStem(s),"tGroup","Teaching Group");
+		g.addType(type);
+		g.setAttribute("faculty_code","ARTF");
+		g.setAttribute("org_code","FREN");
+		Set x = SubjectFinder.findAll("keith"); 
+		Iterator it = x.iterator();
+		Subject subject;
+		while(it.hasNext()) {
+			subject=(Subject)it.next();
+			g.addMember(subject,FieldFinder.find("staff"));
+		}
+		
+		x = SubjectFinder.findAll("fiona");
+		it = x.iterator();
+		
+		while(it.hasNext()) {
+			subject=(Subject)it.next();
+			g.addMember(subject,FieldFinder.find("clerical"));
+		}
 		
 		
 		
 		
-		
+		*/
 		
 		s.stop();
 	}
@@ -449,7 +489,7 @@ public class GrouperHelper {
 	 * @return Map representing privileges
 	 */
 	public static Map hasAsMap(GrouperSession s, GroupOrStem groupOrStem,
-		Member member) throws SubjectNotFoundException{
+		Member member,Field field) throws SubjectNotFoundException,SchemaException{
 		Map privs = null;
 		if ("GrouperSystem".equals(member.getSubjectId())) {
 			//@TODO Review
@@ -473,7 +513,7 @@ public class GrouperHelper {
 			privs.put(it.next(), Boolean.TRUE);
 		}
 		if (group != null) {
-			if (group.hasMember(member.getSubject()))
+			if (group.hasMember(member.getSubject(),field))
 				privs.put("MEMBER", Boolean.TRUE);
 		}
 
@@ -806,6 +846,24 @@ public class GrouperHelper {
 			Subject[] members, String[] privileges, boolean forStems) 
 		throws SchemaException,MemberAddException,InsufficientPrivilegeException,MemberNotFoundException,
 			GrantPrivilegeException{
+		assignPrivileges(s,stemOrGroupId,members,privileges,forStems,FieldFinder.find("members"));
+	}
+	
+	/**
+	 * Given a GroupeGroup or GrouperStem id, an array of subjects and an array of 
+	 * privileges, grant the privileges to each subject for the GrouperStem or 
+	 * GrouperGroup
+	 * 
+	 * @param s GrouperSession for authenticated user
+	 * @param stemOrGroupId GrouperGroup or GrouperStem id
+	 * @param members array of Subjects
+	 * @param privileges array of privileges
+	 * @param forStems indicates GrouperStem
+	 */
+	public static void assignPrivileges(GrouperSession s, String stemOrGroupId,
+			Subject[] members, String[] privileges, boolean forStems,Field field) 
+		throws SchemaException,MemberAddException,InsufficientPrivilegeException,MemberNotFoundException,
+			GrantPrivilegeException{
 		Group group = null;
 		Stem stem = null;
 		Subject subject;
@@ -818,8 +876,8 @@ public class GrouperHelper {
 			subject = members[i];
 			for (int j = 0; j < privileges.length; j++) {
 				try {
-					if ("member".equals(privileges[j].toLowerCase()) && !group.hasImmediateMember(subject)) {
-						group.addMember(subject);						
+					if ("member".equals(privileges[j].toLowerCase()) && !group.hasImmediateMember(subject,field)) {
+						group.addMember(subject,field);						
 				
 					} else if (groupOrStem.isStem()) {
 						stem.grantPriv(subject,Privilege.getInstance(privileges[j].toLowerCase()));
@@ -961,6 +1019,16 @@ public class GrouperHelper {
 
 	}
 
+	/**
+	 * Return an array of all access privileges + member
+	 * 
+	 * @param s GrouperSession for authenticated user
+	 * @return array of privilege names
+	 */
+	public static String[] getGroupPrivsWithMember(GrouperSession s) {
+		return groupPrivsWithMember;
+	}
+	
 	/**
 	 * Return an array of all access privileges
 	 * 
@@ -1628,11 +1696,11 @@ public class GrouperHelper {
 	 * @throws MemberNotFoundException
 	 * @throws GroupNotFoundException
 	 */
-	public static List getAllWaysInWhichSubjectIsMemberOFGroup(GrouperSession s,Subject subject,Group group) 
-		throws MemberNotFoundException,GroupNotFoundException{
+	public static List getAllWaysInWhichSubjectIsMemberOFGroup(GrouperSession s,Subject subject,Group group,Field field) 
+		throws MemberNotFoundException,GroupNotFoundException,SchemaException{
 		List ways = new ArrayList();
 		Member member = MemberFinder.findBySubject(s,subject);
-		Set memberships = member.getMemberships();
+		Set memberships = member.getMemberships(field);
 		Membership gl;
 		Iterator it = memberships.iterator();
 		while(it.hasNext()) {
@@ -1652,8 +1720,19 @@ public class GrouperHelper {
 	 * @param member
 	 * @return
 	 */
-	public static Map getExtendedHas(GrouperSession s,GroupOrStem groupOrStem,Member member) {
-		Map map  =getAllHas(s,groupOrStem,member);
+	public static Map getExtendedHas(GrouperSession s,GroupOrStem groupOrStem,Member member) throws SchemaException{
+		return getExtendedHas(s,groupOrStem,member,FieldFinder.find("members"));
+	}
+	
+	/**
+	 * Returns indirect privileges for member on the group or stem
+	 * @param s
+	 * @param groupOrStem
+	 * @param member
+	 * @return
+	 */
+	public static Map getExtendedHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
+		Map map  =getAllHas(s,groupOrStem,member,field);
 		
 		map.remove("subject");
 		return map;
@@ -1667,8 +1746,15 @@ public class GrouperHelper {
 	 * @param member
 	 * @return
 	 */
-	public static Map getImmediateHas(GrouperSession s,GroupOrStem groupOrStem,Member member) {
+	public static Map getImmediateHas(GrouperSession s,GroupOrStem groupOrStem,Member member) throws SchemaException{
 		Map map = getAllHas(s,groupOrStem,member);
+		
+		return (Map)map.get("subject");
+		
+	}
+	
+	public static Map getImmediateHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
+		Map map = getAllHas(s,groupOrStem,member,field);
 		
 		return (Map)map.get("subject");
 		
@@ -1681,14 +1767,29 @@ public class GrouperHelper {
 	 * @param member
 	 * @return
 	 */
-	private static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member) {
+	private static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member) throws SchemaException{
+		return getAllHas(s,groupOrStem,member,FieldFinder.find("members"));
+	}
+	
+	/**
+	 * Returns all privileges, direct and indirect, that member has for group or stem
+	 * @param s
+	 * @param groupOrStem
+	 * @param member
+	 * @return
+	 */
+	private static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
 		Set allPrivs = null;
+		Map effectiveMemberships = new HashMap();
 		if(groupOrStem.isGroup()) {
 			allPrivs = member.getPrivs(groupOrStem.getGroup());
+			try {
+				effectiveMemberships = getEffectiveMembershipsForGroupAndSubject(s,groupOrStem.getGroup(),member.getSubject(),field);
+			}catch(Exception e){}
 		}else{
 			allPrivs = member.getPrivs(groupOrStem.getStem());
 		}
-		
+		 
 		Map results = new LinkedHashMap();
 		Map privs;
 		AccessPrivilege priv = null;
@@ -1698,11 +1799,12 @@ public class GrouperHelper {
 		List tmpList = new ArrayList();
 		Iterator it = allPrivs.iterator();
 		boolean isEffective = false;
-		if(groupOrStem.isGroup() && member.isImmediateMember(groupOrStem.getGroup())) {
+		if(groupOrStem.isGroup() && member.isImmediateMember(groupOrStem.getGroup(),field)) {
 			privs = new HashMap();
 			privs.put("MEMBER",Boolean.TRUE);
 			results.put("subject",privs);
 		}
+		
 		while(it.hasNext()) {
 			if(groupOrStem.isGroup()) {
 				priv = (AccessPrivilege)it.next();
@@ -1722,6 +1824,10 @@ public class GrouperHelper {
 					if(isEffective) {
 						try{
 							privs.put("group",group2Map(s,GroupFinder.findByUuid(s,priv.getOwner().getId())));
+							if(effectiveMemberships.containsKey(priv.getOwner())) {
+								privs.put("MEMBER",Boolean.TRUE);
+								effectiveMemberships.remove(priv.getOwner());
+							}
 						}catch(GroupNotFoundException e){}
 					}
 					
@@ -1744,6 +1850,10 @@ public class GrouperHelper {
 						results.put(key,privs);
 						if(isEffective) {
 							try{
+								if(effectiveMemberships.containsKey(priv.getOwner())) {
+									privs.put("MEMBER",Boolean.TRUE);
+									effectiveMemberships.remove(priv.getOwner());
+								}
 								privs.put("group",group2Map(s,GroupFinder.findByUuid(s,nPriv.getOwner().getId())));
 							}catch(GroupNotFoundException e){}
 						}
@@ -1752,8 +1862,33 @@ public class GrouperHelper {
 					privs.put(nPriv.getName().toUpperCase(),Boolean.TRUE);
 			}
 		}
+		Map.Entry entry;
+		it = effectiveMemberships.entrySet().iterator();
+		Group effGroup;
+		while(it.hasNext()) {
+			entry = (Map.Entry)it.next();
+			effGroup = (Group)entry.getKey();
+			privs=new HashMap();
+			privs.put("group",group2Map(s,effGroup));
+			privs.put("MEMBER",Boolean.TRUE);
+			results.put(effGroup.getUuid(),privs);
+		}
 		return results;
 		
+	}
+	
+	public static Map getEffectiveMembershipsForGroupAndSubject(GrouperSession s,Group group,Subject subject,Field field) throws Exception{
+		Member member = MemberFinder.findBySubject(s,subject);
+		Map res = new HashMap();
+		Set memberships = member.getEffectiveMemberships(field);
+		Membership m;
+		Iterator it = memberships.iterator();
+		while(it.hasNext()){
+			m = (Membership)it.next();
+			if(m.getGroup().equals(group)) res.put(m.getViaGroup(),m);
+		}
+		
+		return res;
 	}
 	
 	/**
@@ -1814,7 +1949,7 @@ public class GrouperHelper {
 	 * @return
 	 * @throws MemberNotFoundException
 	 */
-	public static boolean hasSubjectImmPrivForGroup(GrouperSession s,Subject subject,Group group,String privilege) throws MemberNotFoundException{
+	public static boolean hasSubjectImmPrivForGroup(GrouperSession s,Subject subject,Group group,String privilege) throws MemberNotFoundException,SchemaException{
 		Map privs = getImmediateHas(s,GroupOrStem.findByGroup(s,group),MemberFinder.findBySubject(s,subject));
 		return privs.containsKey(privilege.toUpperCase());
 	}
@@ -1828,7 +1963,7 @@ public class GrouperHelper {
 	 * @return
 	 * @throws MemberNotFoundException
 	 */
-	public static boolean hasSubjectImmPrivForStem(GrouperSession s,Subject subject,Stem stem,String privilege) throws MemberNotFoundException{
+	public static boolean hasSubjectImmPrivForStem(GrouperSession s,Subject subject,Stem stem,String privilege) throws MemberNotFoundException,SchemaException{
 		Map privs = getImmediateHas(s,GroupOrStem.findByStem(s,stem),MemberFinder.findBySubject(s,subject));
 		return privs.containsKey(privilege.toUpperCase());
 	}
@@ -1853,14 +1988,22 @@ public class GrouperHelper {
 			//Should be an immediate member
 			return chain;
 		}
-		chain.add(GrouperHelper.group2Map(s,via));
+		Map groupMap=GrouperHelper.group2Map(s,via);
+		Map viaMap = groupMap;
+		groupMap.put("listField","members");
+		chain.add(groupMap);
 		Membership pm = null;
 		Group g=null;
 		pm=m.getParentMembership();
+		
 		while(pm!=null) {
 			if(!pm.getMember().getSubjectId().equals(via.getUuid())) {
 				g = GroupFinder.findByUuid(s,pm.getMember().getSubjectId());
-				chain.add(GrouperHelper.group2Map(s,g));	
+				groupMap=GrouperHelper.group2Map(s,g);
+				groupMap.put("listField",pm.getList().getName());
+				chain.add(groupMap);	
+			}else{
+				viaMap.put("listField",pm.getList().getName());
 			}
 			try {
 			pm=pm.getParentMembership();
@@ -2085,6 +2228,139 @@ public class GrouperHelper {
 		while(it.hasNext()) {
 			membership = (Membership)it.next();
 			res.add(new MembershipAsMap(membership,withParents)); 
+		}
+		return res;
+	}
+	
+	
+	/**
+	 * For a given subject determine all the custom list fields they appear in
+	 * @param s
+	 * @param subject
+	 * @return
+	 * @throws Exception
+	 */
+	public static List getListFieldsForSubject(GrouperSession s,Subject subject) throws Exception{
+		Set lists = FieldFinder.findAllByType(FieldType.LIST);
+		List res = new ArrayList();
+		Iterator it = lists.iterator();
+		Field field;
+		Set memberships;
+		while(it.hasNext()) {
+			field = (Field)it.next();
+			if(!"members".equals(field.getName())) {
+				memberships = MemberFinder.findBySubject(s,subject).getMemberships(field);
+				if(memberships.size()>0) {
+					res.add(field.getName());
+				}
+			}
+		}
+		return res;
+	}
+	
+	
+	/**
+	 * For a group id, for all its types, return fields of type LIST
+	 * @param s
+	 * @param groupId
+	 * @return
+	 * @throws Exception
+	 */
+	public static List getListFieldsForGroup(GrouperSession s,String groupId) throws Exception{
+		Group g = GroupFinder.findByUuid(s,groupId);
+		return getListFieldsForGroup(s,g);
+	}
+	
+	
+	/**
+	 * For a group, for all its types, return fields of type LIST
+	 * @param s
+	 * @param g
+	 * @return
+	 */
+	public static List getListFieldsForGroup(GrouperSession s,Group g) {
+		List lists = new ArrayList();
+		Set types = g.getTypes();
+		Iterator it = types.iterator();
+		Set fields;
+		Field field;
+		Iterator fieldsIt;
+		GroupType type;
+		while(it.hasNext()) {
+			type = (GroupType)it.next();
+			fields=type.getFields();
+			fieldsIt=fields.iterator();
+			while(fieldsIt.hasNext()) {
+				field = (Field)fieldsIt.next();
+				if(field.getType().equals(FieldType.LIST)&& !"members".equals(field.getName())) {
+					if(canRead(s,field,g)) {
+						lists.add(field.getName());
+					}
+				}
+			}
+		}
+		
+		return lists;
+	}
+	
+	/**
+	 * Doesn't work - need API to expose canReadField
+	 * @param s
+	 * @param field
+	 * @param g
+	 * @return
+	 */
+	public static boolean canRead(GrouperSession s,Field field,Group g) {
+		try {
+		      PrivilegeResolver.getInstance().canWriteField(
+		        s, g, s.getSubject(), field, FieldType.LIST
+		      );
+		     
+		    } 
+		    catch (Exception e) {
+		    	return false;
+		    }
+		return true;
+	}
+	
+	/**
+	 * Need to check if this does what I want
+	 * @param s
+	 * @param field
+	 * @param g
+	 * @return
+	 */
+	public static boolean canWrite(GrouperSession s,Field field,Group g) {
+		try {
+		      PrivilegeResolver.getInstance().canWriteField(
+		        s, g, s.getSubject(), field, FieldType.LIST
+		      );
+		     
+		    } 
+		    catch (Exception e) {
+		    	return false;
+		    }
+		return true;
+	}
+	
+	
+	private static String noSearchFields="";//:name:displayName:extension:displayExtension:";
+	
+	/**
+	 * Retrieve list of attributes which can be searched
+	 * @return
+	 * @throws SchemaException
+	 */
+	public static  List getSearchableFields() throws SchemaException{
+		List res = new ArrayList();
+		Set fields = FieldFinder.findAllByType(FieldType.ATTRIBUTE);
+		Iterator it = fields.iterator();
+		Field field;
+		while(it.hasNext()) {
+			field = (Field) it.next();
+			if(noSearchFields.indexOf(":" + field.getName() + ":") == -1) {
+				res.add(field);
+			}
 		}
 		return res;
 	}
