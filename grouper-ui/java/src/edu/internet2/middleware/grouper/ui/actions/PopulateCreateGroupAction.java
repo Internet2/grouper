@@ -30,6 +30,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -103,7 +105,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupAction.java,v 1.5 2006-01-03 11:05:17 isgwb Exp $
+ * @version $Id: PopulateCreateGroupAction.java,v 1.6 2006-02-22 12:48:06 isgwb Exp $
  */
 public class PopulateCreateGroupAction extends GrouperCapableAction {
 
@@ -139,6 +141,8 @@ public class PopulateCreateGroupAction extends GrouperCapableAction {
 		request.setAttribute("preSelected",selected);
 		request.setAttribute("browseParent", GrouperHelper.stem2Map(
 				grouperSession, stem));
+		request.setAttribute("allGroupTypes",GroupTypeFinder.findAll());
+		request.setAttribute("selectedGroupTypes",new ArrayList());
 		return mapping.findForward(FORWARD_CreateGroup);
 
 	}

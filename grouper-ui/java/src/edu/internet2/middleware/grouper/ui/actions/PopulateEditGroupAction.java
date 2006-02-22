@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +30,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
@@ -109,7 +111,7 @@ import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateEditGroupAction.java,v 1.4 2006-02-22 12:48:35 isgwb Exp $
  */
 public class PopulateEditGroupAction extends GrouperCapableAction {
 
@@ -148,6 +150,8 @@ public class PopulateEditGroupAction extends GrouperCapableAction {
 
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, group));
+		request.setAttribute("allGroupTypes",GroupTypeFinder.findAll());
+		request.setAttribute("selectedGroupTypes",group.getTypes());
 		return mapping.findForward(FORWARD_EditGroup);
 
 	}
