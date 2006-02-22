@@ -32,6 +32,8 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -110,6 +112,11 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">if true then chnage browse mode 
       to Subject Search</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">listField</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">User selected list field</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -150,6 +157,23 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Array of privileges user can 
       select from</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">listFields</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of available list fields 
+      for group - to enable user to change view</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">listFieldParams</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Map used to make link parameters</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">memberOfListFields</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of list fields the subject 
+      is a member of</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><p><font face="Arial, Helvetica, sans-serif">pagerParams</font></p></td>
@@ -204,7 +228,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.6 2006-02-02 16:33:52 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.7 2006-02-22 13:11:44 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -232,6 +256,15 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 				saveAsCallerPage(request,subjectForm);
 			}
 		}
+		
+		String listField = (String) subjectForm.get("listField");
+		String membershipField = "members";
+		
+		if(!isEmpty(listField)) {
+			membershipField=listField;
+		}
+		Field mField = FieldFinder.find(membershipField);
+		
 		subjectForm.set("contextSubject","true");
 		String subjectId = (String)subjectForm.get("subjectId");
 		String subjectType = (String)subjectForm.get("subjectType");
@@ -276,12 +309,12 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		listViews.put("footerView","genericListFooter");
 		
 		if ("imm".equals(membershipListScope)) {
-			subjectScopes = member.getImmediateMemberships();
+			subjectScopes = member.getImmediateMemberships(mField);
 		} else if ("eff".equals(membershipListScope)) {
-			subjectScopes = member.getEffectiveMemberships();
+			subjectScopes = member.getEffectiveMemberships(mField);
 			listViews.put("noResultsKey","subject.list-membership.eff.none");
 		} else if ("all".equals(membershipListScope)){
-			subjectScopes = member.getMemberships();
+			subjectScopes = member.getMemberships(mField);
 		}else if("access".equals(membershipListScope)) {
 			
 			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,accessPriv);
@@ -317,7 +350,8 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			end = subjectScopeMaps.size();
 		CollectionPager pager = new CollectionPager(subjectScopeMaps, subjectScopeMaps
 				.size(), null, start, null, pageSize);
-
+		
+		if(!isEmpty(listField))pager.setParam("listField", listField);
 		pager.setParam("subjectId", subjectId);
 		pager.setParam("subjectType", subjectType);
 		pager.setParam("returnTo", subjectForm.get("returnTo"));
@@ -325,6 +359,18 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		pager.setTarget(mapping.getPath());
 		request.setAttribute("pager", pager);
 		request.setAttribute("linkParams", pager.getParams().clone());
+		request.setAttribute("listFieldParams", pager.getParams().clone());
+		
+		if(subjectType.equals("group")) {
+			List lists = GrouperHelper.getListFieldsForGroup(grouperSession,subjectId);
+			if(!lists.isEmpty()) request.setAttribute("listFields",lists);
+		}
+		
+		List memberOfListFields = GrouperHelper.getListFieldsForSubject(grouperSession,subject);
+		if(memberOfListFields.size()>0) {
+			request.setAttribute("memberOfListFields",memberOfListFields);
+		}
+		
 		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
 		String[] namingPrivs = GrouperHelper.getStemPrivs(grouperSession);
 		request.setAttribute("allAccessPrivs",accessPrivs);
