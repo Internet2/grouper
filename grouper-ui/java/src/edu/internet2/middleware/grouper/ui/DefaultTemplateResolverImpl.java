@@ -26,6 +26,8 @@ import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.StemAsMap;
@@ -143,8 +145,6 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 	 * Depending on the Group type may want to have different template. Look for
 	 * more specific keys first: 
 	 * <ul>
-	 *     <li>groupType.&lt;type&gt;.view.&lt;view&gt;</li>
-	 *     <li>groupType.&lt;type&gt;.view.default</li>
 	 *     <li>groupType.view.&lt;view&gt;</li>
 	 *     <li>groupType.view.default</li>
 	 * </ul>
@@ -160,25 +160,13 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 			ResourceBundle mediaResources, HttpServletRequest request) {
 		GroupAsMap group = (GroupAsMap) obj;
 		String tName = null;
-		String groupType = (String) group.get("type");
-		if (groupType == null || "".equals(groupType)) {
-			//groupType = Grouper.DEF_GROUP_TYPE;
-		}
-
-		tName = getResource(mediaResources, "groupType." + groupType + ".view."
-				+ view);
 
 		if (tName == null) {
-			tName = getResource(mediaResources, "groupType." + groupType
-					+ ".view.default");
+			tName = getResource(mediaResources, "group.view." + view);
 		}
 
 		if (tName == null) {
-			tName = getResource(mediaResources, "groupType.view." + view);
-		}
-
-		if (tName == null) {
-			tName = getResource(mediaResources, "groupType.view.default");
+			tName = getResource(mediaResources, "group.view.default");
 		}
 		return tName;
 	}
@@ -241,6 +229,52 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 
 		if (tName == null) {
 			tName = getResource(mediaResources, "membership.view.default");
+		}
+
+		return tName;
+	}
+	
+	public String getGroupTypeTemplateName(Object obj, String view,
+			ResourceBundle mediaResources, HttpServletRequest request) {
+
+		GroupType type = (GroupType) obj;
+		String tName = null;
+		tName = getResource(mediaResources, "groupType." + type.getName() + ".view." + view);
+		if (tName == null) {
+			tName = getResource(mediaResources, "groupType." + type.getName() + ".view.default");
+		}
+		if (tName == null) {
+			tName = getResource(mediaResources, "groupType.view." + view);
+		}
+
+		if (tName == null) {
+			tName = getResource(mediaResources, "groupType.view.default");
+		}
+
+		return tName;
+	}
+	
+	public String getFieldTemplateName(Object obj, String view,
+			ResourceBundle mediaResources, HttpServletRequest request) {
+
+		Field field = (Field) obj;
+		String tName = null;
+		tName = getResource(mediaResources, "field." + field.getName() + ".view." + view);
+		if (tName == null) {
+			tName = getResource(mediaResources, "field." + field.getName() + ".view.default");
+		}
+		if (tName == null) {
+			tName = getResource(mediaResources, "field." + field.getType() + ".view." + view);
+		}
+		if (tName == null) {
+			tName = getResource(mediaResources, "field." + field.getType() + ".view.default");
+		}
+		if (tName == null) {
+			tName = getResource(mediaResources, "field.view." + view);
+		}
+
+		if (tName == null) {
+			tName = getResource(mediaResources, "field.view.default");
 		}
 
 		return tName;
