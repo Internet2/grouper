@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +34,6 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
@@ -102,6 +101,12 @@ import edu.internet2.middleware.subject.provider.SourceManager;
       for new privilegees for a stem</font></td>
   </tr>
   <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupSearchResultField</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">The group field to display on 
+      results page</font></td>
+  </tr>
+  <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">groupId,stemId</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Indicates which stem or group 
@@ -124,6 +129,12 @@ import edu.internet2.middleware.subject.provider.SourceManager;
       results</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">queryOutTerms</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of (query,field,and / or 
+      / not) used to display what was searched for</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">thisPageId</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">The id by which this page was 
@@ -139,6 +150,11 @@ import edu.internet2.middleware.subject.provider.SourceManager;
     <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">If not new search retrieve search 
       criteria, otherwise save current criteria</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">groupSearchResultField</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Maintain user selection</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">findForNode</font></td>
@@ -159,7 +175,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SearchNewMembersAction.java,v 1.4 2005-12-21 15:37:08 isgwb Exp $
+ * @version $Id: SearchNewMembersAction.java,v 1.5 2006-02-22 13:46:32 isgwb Exp $
  */
 public class SearchNewMembersAction extends GrouperCapableAction {
 
@@ -189,6 +205,10 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		String subjectSource = (String) searchForm.get("subjectSource");
 		String searchInNameOrExtension = (String) searchForm.get("searchInNameOrExtension");
 		String searchInDisplayNameOrExtension = (String) searchForm.get("searchInDisplayNameOrExtension");
+		String groupSearchResultField = (String) searchForm.get("groupSearchResultField");
+		if(!isEmpty(groupSearchResultField)) {
+			session.setAttribute("groupSearchResultField",groupSearchResultField);
+		}
 		boolean forStem = "true".equals(searchForm.get("stems"));
 		if (searchStart == null || searchStart.length() == 0)
 			searchStart = "0";
@@ -254,6 +274,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		Boolean searchedGroups = Boolean.FALSE;
 		
 		//Did we search for groups
+		List outTerms = new ArrayList();
 		if ("g:gsa".equals(subjectSource)) {
 			searchedGroups = Boolean.TRUE;
 			
@@ -264,7 +285,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			attr.put("searchInNameOrExtension",searchInNameOrExtension);
 			
 			subjectRes = repositoryBrowser.search(grouperSession, query,
-					searchFrom, attr);
+					searchFrom, request.getParameterMap(),outTerms);
 			
 			resultSize = subjectRes.size();
 			int end = start + pageSize;
@@ -279,6 +300,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		request.setAttribute("subjectResultsSize", new Integer(resultSize));
 		request.setAttribute("searchedPeople", searchedPeople);
 		request.setAttribute("searchedGroups", searchedGroups);
+		request.setAttribute("queryOutTerms",outTerms);
 		session.setAttribute("searchObj", searchObj);
 		
 		//Another action processes results to make available for display

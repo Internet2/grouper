@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +25,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
+
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -53,13 +56,20 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">searchTerm</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">The actual query</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">The actual query (some times 
+      -if not advanced)</font></td>
   </tr>
   <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">searchFrom</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">identifies stem which scopes 
       search results</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupSearchResultField</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">The group field to display on 
+      results page</font></td>
   </tr>
   <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">searchInNameOrExtension=name 
@@ -85,6 +95,12 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">CollectionPager</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">queryOutTerms</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of (query,field,and / or 
+      / not) used to display what was searched for</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -94,6 +110,11 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">subtitle=groups.action.search</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Key resolved in nav ResourceBundle</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">groupSearchResultField</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Maintain user selection</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
@@ -107,7 +128,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table> 
  * @author Gary Brown.
- * @version $Id: SearchGroupsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: SearchGroupsAction.java,v 1.3 2006-02-22 13:43:30 isgwb Exp $
  */
 
 public class SearchGroupsAction extends GrouperCapableAction {
@@ -134,6 +155,10 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		String searchFrom = (String) searchForm.get("searchFrom");
 		String searchInNameOrExtension = (String) searchForm.get("searchInNameOrExtension");
 		String searchInDisplayNameOrExtension = (String) searchForm.get("searchInDisplayNameOrExtension");
+		String groupSearchResultField = (String) searchForm.get("groupSearchResultField");
+		if(!isEmpty(groupSearchResultField)) {
+			session.setAttribute("groupSearchResultField",groupSearchResultField);
+		}
 		
 		//Take account of paging
 		String startStr = request.getParameter("start");
@@ -148,9 +173,9 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		Map attr = new HashMap();
 		attr.put("searchInDisplayNameOrExtension",searchInDisplayNameOrExtension);
 		attr.put("searchInNameOrExtension",searchInNameOrExtension);
-		
+		List outTerms = new ArrayList();
 		List groupRes = repositoryBrowser.search(grouperSession, query,
-				searchFrom, attr);
+				searchFrom, request.getParameterMap(),outTerms);
 		int end = start + pageSize;
 		if (end > groupRes.size())
 			end = groupRes.size();
@@ -166,6 +191,7 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		pager.setParam("searchInDisplayNameOrExtension", searchInDisplayNameOrExtension);
 		pager.setTarget(mapping.getPath());
 		request.setAttribute("pager", pager);
+		request.setAttribute("queryOutTerms",outTerms);
 		
 		if (!isEmpty(searchFrom)) {
 			Stem fromStem = StemFinder.findByName(grouperSession,
