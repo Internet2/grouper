@@ -17,10 +17,13 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -102,6 +105,17 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><font face="Arial, Helvetica, sans-serif">Map of all Access privileges</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">listFields</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of available list fields 
+      for group - to enable user to change view</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">listFieldsSize</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Number of list fields available</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">subtitleArgs</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Used to give context to UI</font></td>
@@ -145,7 +159,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateGroupSummaryAction.java,v 1.4 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateGroupSummaryAction.java,v 1.5 2006-02-22 13:04:36 isgwb Exp $
  */
 public class PopulateGroupSummaryAction extends GrouperCapableAction {
 
@@ -191,7 +205,9 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 
 		String[] allGroupPrivs = GrouperHelper.getGroupPrivs(grouperSession);
 		request.setAttribute("allGroupPrivs", allGroupPrivs);
-
+		List listFields = GrouperHelper.getListFieldsForGroup(grouperSession,group);
+		request.setAttribute("listFields",listFields);
+		request.setAttribute("listFieldsSize",new Integer(listFields.size()));
 		
 
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
