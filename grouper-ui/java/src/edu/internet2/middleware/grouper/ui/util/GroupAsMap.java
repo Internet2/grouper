@@ -17,7 +17,11 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.subject.Subject;
@@ -27,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.3 2005-12-08 15:31:42 isgwb Exp $
+ * @version $Id: GroupAsMap.java,v 1.4 2006-02-22 10:17:26 isgwb Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
@@ -75,6 +79,15 @@ public class GroupAsMap extends ObjectAsMap {
 			
 		}
 		if(obj==null&& "description".equals(key)) obj = get("displayExtension");
+		if(obj==null&& "types".equals(key)) {
+			obj = group.getTypes();
+			Set set = (Set)obj;
+			try {
+			GroupType gt = GroupTypeFinder.find("base");
+				set.remove(gt);
+			}catch(Exception e) {}
+			if(set.isEmpty()) return null;
+		}
 		if(obj==null) obj="";
 		return obj;
 	}
