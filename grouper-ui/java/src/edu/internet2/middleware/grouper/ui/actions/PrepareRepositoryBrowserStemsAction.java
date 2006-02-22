@@ -90,6 +90,12 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">Indicates hierarchy should be 
       hidden </font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">expandListField</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">If looking for new members and 
+      group has list fields available, show 'members' from this list field</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -145,6 +151,17 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">If current node is a stem indicates 
       if there are children - if there are children cannot be deleted</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">listFields</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of available list fields 
+      for group - to enable user to change view</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">listFieldsSize</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Number of list fields available</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -184,7 +201,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.3 2005-12-21 15:39:56 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.4 2006-02-22 13:18:04 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -313,10 +330,15 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 					fromId = curNodeStem.getUuid();
 				}else if(curNodeGroup!=null){
 					fromId=curNodeGroup.getUuid();
+					List listFields = GrouperHelper.getListFieldsForGroup(grouperSession,curNodeGroup);
+					request.setAttribute("listFields",listFields);
+					request.setAttribute("listFieldsSize",new Integer(listFields.size()));
+					
 				}else{
 					fromId = defaultStem;
 				}
-				children = new ArrayList(repositoryBrowser.getChildren(fromId,start,pageSize,totalCount,isFlat,findForNode!=null));
+				String listField = request.getParameter("expandListField"); 
+				children = new ArrayList(repositoryBrowser.getChildren(fromId,listField,start,pageSize,totalCount,isFlat,findForNode!=null));
 				//children = GrouperHelper.groups2Maps(grouperSession, allChildren);
 				request.setAttribute("stemHasChildren",new Boolean(allChildren.size()>0));
 			
