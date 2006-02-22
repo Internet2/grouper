@@ -99,7 +99,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DoSearchSubjectsAction.java,v 1.3 2005-12-20 11:45:47 isgwb Exp $
+ * @version $Id: DoSearchSubjectsAction.java,v 1.4 2006-02-22 12:46:08 isgwb Exp $
  */
 public class DoSearchSubjectsAction extends GrouperCapableAction {
 
@@ -131,6 +131,10 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 				}
 			}
 			sourceId = (String)searchForm.get("subjectSource");
+		}
+		String groupSearchResultField = (String) searchForm.get("groupSearchResultField");
+		if(!isEmpty(groupSearchResultField)) {
+			session.setAttribute("groupSearchResultField",groupSearchResultField);
 		}
 
 		Map lastSearch = new HashMap();
