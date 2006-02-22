@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: RepositoryBrowser.java,v 1.3 2006-01-03 13:29:09 isgwb Exp $
+ * @version $Id: RepositoryBrowser.java,v 1.4 2006-02-22 12:42:01 isgwb Exp $
  */
 
 public interface RepositoryBrowser {
@@ -56,7 +56,7 @@ public interface RepositoryBrowser {
 	 * @return
 	 * @throws Exception
 	 */
-	public Set getChildren(String node, int start, int pageSize,
+	public Set getChildren(String node, String listField,int start, int pageSize,
 			StringBuffer totalCount, boolean isFlat, boolean isForAssignment)
 			throws Exception;
 
@@ -112,7 +112,19 @@ public interface RepositoryBrowser {
 	 * @return
 	 * @throws Exception
 	 */
-	public List search(GrouperSession s, String query, String from, Map attr)
+	public List search(GrouperSession s, String query, String from, Map attr,List outTerms)
+			throws Exception;
+	
+	/**
+	 * Advanced search of repository
+	 * @param s
+	 * @param from
+	 * @param attr
+	 * @param outTerms - empty list used to return info for deriving human readable query
+	 * @return
+	 * @throws Exception
+	 */
+	public List advancedSearch(GrouperSession s,String from,Map attr,List outTerms)
 			throws Exception;
 
 	

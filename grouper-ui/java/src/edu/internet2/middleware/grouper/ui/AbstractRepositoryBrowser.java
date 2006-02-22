@@ -27,11 +27,20 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
+
+import edu.internet2.middleware.grouper.ComplementFilter;
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.GrouperHelper;
+import edu.internet2.middleware.grouper.GrouperQuery;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.IntersectionFilter;
+import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.UnionFilter;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -111,7 +120,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.6 2006-01-03 13:29:19 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.7 2006-02-22 12:40:42 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -211,19 +220,20 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#getChildren(java.lang.String, int, int, java.lang.StringBuffer, boolean, boolean)
 	 */
-	public Set getChildren(String node,int start,int pageSize,StringBuffer totalCount,boolean isFlat,boolean isForAssignment) throws Exception{
+	public Set getChildren(String node,String listField,int start,int pageSize,StringBuffer totalCount,boolean isFlat,boolean isForAssignment) throws Exception{
 		if(isFlat) return getFlatChildren(start,pageSize,totalCount);
 		
 		Set results = new LinkedHashSet();
 		GroupOrStem groupOrStem = GroupOrStem.findByID(s,node);
 		Group group = groupOrStem.getGroup();
 		Stem stem = groupOrStem.getStem();
-		 
+		if(listField==null || "".equals(listField)) listField="members";
+		Field field = FieldFinder.find(listField);
 		Set allChildren = new LinkedHashSet();
 		int resultSize=0;
 		if(isForAssignment) {
 			if(group !=null) {//display immediate members
-				allChildren = group.getImmediateMemberships();
+				allChildren = group.getImmediateMemberships(field);
 				resultSize = allChildren.size();
 				results.addAll(GrouperHelper.groupList2SubjectsMaps(
 						s, new ArrayList(allChildren), start, pageSize));
@@ -390,14 +400,20 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#search(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public List search(GrouperSession s, String query,String from, Map attr) throws Exception {
-		String searchInDisplayNameOrExtension = (String) attr.get("searchInDisplayNameOrExtension");
-		String searchInNameOrExtension = (String) attr.get("searchInNameOrExtension");
+	public List search(GrouperSession s, String query,String from, Map attr,List outTerms) throws Exception {
+		String searchInDisplayNameOrExtension = getSingle("searchInDisplayNameOrExtension",attr);
+		String searchInNameOrExtension = getSingle("searchInNameOrExtension",attr);
+		boolean isAdvancedSearch = "Y".equals(getSingle("advSearch",attr));
 		List results = null;
 		if("stems".equals(search)) {
 			results = GrouperHelper.searchStems(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension);
 		}else{
-			results = GrouperHelper.searchGroups(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension,browseMode);
+			if(isAdvancedSearch) {
+				results = advancedSearch(s,from,attr,outTerms);
+			}else {
+				results = GrouperHelper.searchGroups(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension,browseMode);
+				if(outTerms!=null) outTerms.add(query);
+			}
 		}
 		List filtered = new ArrayList();
 		Object obj = null;
@@ -406,6 +422,59 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			if(isValidSearchResult(obj)) filtered.add(obj);
 		}
 		return filtered;
+	}
+	
+	public List advancedSearch(GrouperSession s,String from,Map attr,List outTerms) throws Exception{
+		List res = new ArrayList();
+		String maxCountStr = getSingle("maxFields",attr);
+		int maxCount = Integer.parseInt(maxCountStr);
+		String lastQuery = null;
+		String lastField = null;
+		String lastAndOrNot = null;
+		String field;
+		String query;
+		String andOrNot;
+		QueryFilter queryFilter = null;
+		if(outTerms==null) outTerms=new ArrayList();
+		
+		Stem fromStem = StemFinder.findByName(s,from);
+		for (int i=1;i<=maxCount;i++) {
+			field = getSingle("searchField." + i,attr);
+			query = getSingle("searchField." + i + ".query",attr);
+			if(i==1 && (field==null || query==null)) throw new IllegalArgumentException("The first search field and query value must be enetered");
+			andOrNot = getSingle("searchField." + i + ".searchAndOrNot",attr);
+			if(query==null || "".equals(query)) query = lastQuery;
+			if(i>1) {
+				if(queryFilter==null) {
+					queryFilter=new GroupAttributeFilter(lastField,lastQuery,fromStem);
+					outTerms.add(lastQuery);
+					outTerms.add(lastField);
+				}
+				if(field==null && i==2) {
+					break;
+				}
+				if(field==null && i>2) break;
+				
+				if("and".equals(lastAndOrNot)) {
+					queryFilter = new IntersectionFilter(queryFilter,new GroupAttributeFilter(field,query,fromStem));
+				}else if("or".equals(lastAndOrNot)){
+					queryFilter = new UnionFilter(queryFilter,new GroupAttributeFilter(field,query,fromStem));
+				}else{
+					queryFilter = new ComplementFilter(queryFilter,new GroupAttributeFilter(field,query,fromStem));
+				}
+				outTerms.add(andOrNot);
+				outTerms.add(query);
+				outTerms.add(field);
+				
+			}
+			lastQuery = query;
+			lastField = field;
+			lastAndOrNot = andOrNot;
+		}
+		
+		GrouperQuery q = GrouperQuery.createQuery(s,queryFilter);
+		res.addAll(q.getGroups());
+		return res;
 	}
 
 	
@@ -526,5 +595,12 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	 */
 	public boolean isHidePreRootNode() {
 		return hidePreRootNode;
+	}
+	
+	private String getSingle(String key,Map map) {
+		Object[] vals = (Object[])map.get(key);
+		if(vals==null) return null;
+		if("".equals(vals[0])) return null;
+		return vals[0].toString();
 	}
 }
