@@ -19,20 +19,27 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.DynaActionForm;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperHelper;
+import edu.internet2.middleware.grouper.GrouperSession;
 
 
 /**
- * Not currently used - waiting on custom groups. 
+ * Deal with attributes from custom types 
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAttributesAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateEditGroupAttributesAction.java,v 1.3 2006-02-22 12:49:11 isgwb Exp $
  */
-public class PopulateEditGroupAttributesAction extends org.apache.struts.action.Action {
+public class PopulateEditGroupAttributesAction extends GrouperCapableAction {
 
 
   //------------------------------------------------------------ Local Forwards
@@ -40,17 +47,21 @@ public class PopulateEditGroupAttributesAction extends org.apache.struts.action.
 
   //------------------------------------------------------------ Action Methods
 
-  public ActionForward execute(ActionMapping mapping, ActionForm form,
-      HttpServletRequest request, HttpServletResponse response)
+  public ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
+      HttpServletRequest request, HttpServletResponse response,HttpSession session,GrouperSession grouperSession)
       throws Exception {
-  		DynaActionForm dummyForm = (DynaActionForm)form;
+  		DynaActionForm groupForm = (DynaActionForm)form;
   		String groupId = request.getParameter("groupId");
-  		if("".equals(groupId) || groupId==null) {
-  			dummyForm.set("groupId",request.getAttribute("groupId"));
+  		if(isEmpty(groupId)) {
+  			groupId=(String)request.getAttribute("groupId");
+  			groupForm.set("groupId",groupId);
   		}else {
-  			dummyForm.set("groupId",groupId);
+  			groupForm.set("groupId",groupId);
   		}
-		request.getSession().setAttribute("subtitle","groups.action.edit-attr");
+  		Group group = GroupFinder.findByUuid(grouperSession,groupId);
+  		request.setAttribute("group",GrouperHelper.group2Map(grouperSession,group));
+  		request.setAttribute("browseParent",GrouperHelper.group2Map(grouperSession,group));
+		session.setAttribute("subtitle","groups.action.edit-attr");
     return mapping.findForward(FORWARD_EditGroupAttributes);
 
     
