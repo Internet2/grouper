@@ -140,7 +140,7 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateFindNewMembersAction.java,v 1.4 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateFindNewMembersAction.java,v 1.5 2006-02-22 12:49:43 isgwb Exp $
  */
 public class PopulateFindNewMembersAction extends GrouperCapableAction {
 
@@ -168,6 +168,7 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 		if(!isEmpty(privilege)) session.setAttribute("findForPriv",privilege);
 		//Determine which stem/group we are finding members for
 		String targetId = null;
+		String listField = (String) groupOrStemForm.get("listField");
 		if(forStem) {
 			session.setAttribute("subtitle","stems.action.find-new-members");
 			targetId=(String)groupOrStemForm.get("stemId");
@@ -178,11 +179,14 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 			request.setAttribute("forStems", Boolean.FALSE);
 		}
 		//TODO: What should I do about forStems?
+		if(isEmpty(listField))listField=(String) session.getAttribute("findForListField");
 		if(targetId==null) {
 			targetId = (String) session.getAttribute("findForNode");
+			
 		}else{
 			if (session.getAttribute("findForNode") == null)
 				session.setAttribute("findForNode", targetId);
+				if(!isEmpty(listField)) session.setAttribute("findForListField", listField);
 		}
 		
 		
@@ -216,10 +220,22 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 		}else{
 			group = groupOrStem.getGroup();
 			nodeMap = GrouperHelper.group2Map(grouperSession,group);
+			//List listFields = GrouperHelper.getListFieldsForGroup(grouperSession,group);
+			//request.setAttribute("listFields",listFields);
+			//request.setAttribute("listFieldsSize",new Integer(listFields.size()));
 		}
-				
-		request.setAttribute("subtitleArgs", new Object[] { nodeMap
-				.get("displayExtension") });
+		Object[] subtitleParams = null;
+		
+		if(isEmpty(listField)) {
+			subtitleParams=new Object[] { nodeMap
+				.get("displayExtension") };	
+		}else{
+			subtitleParams=new Object[] { nodeMap
+					.get("displayExtension"),listField };
+			session.setAttribute("subtitle","groups.action.find-new-list-members");
+		}
+		
+		request.setAttribute("subtitleArgs", subtitleParams);
 		
 		//Make path to current stem/group available for navigation
 

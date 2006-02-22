@@ -121,7 +121,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DoAssignNewMembersAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: DoAssignNewMembersAction.java,v 1.4 2006-02-22 12:45:10 isgwb Exp $
  */
 public class DoAssignNewMembersAction extends GrouperCapableAction {
 
@@ -149,6 +149,14 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 		String stemId = (String) assignMembersForm.get("stemId");
 		String folderId = groupId;
 		boolean forStem = "true".equals(assignMembersForm.get("stems"));
+		
+		String listField = (String) assignMembersForm.get("listField");
+		String membershipField = "members";
+		if(isEmpty(listField)) {
+			listField = (String) session.getAttribute("findForListField");
+		}
+		if(!isEmpty(listField)) membershipField=listField;
+		Field mField = FieldFinder.find(membershipField);
 		if (forStem)
 			folderId = stemId;
 		
@@ -194,7 +202,7 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 		//how and wheter to make one transaction
 		GrouperHelper.assignPrivileges(grouperSession, folderId,
 				membersAsSubjects, privileges, "true".equals(request
-						.getParameter("stems")));
+						.getParameter("stems")),mField);
 		message = new Message("priv.message.assigned");
 		request.setAttribute("message", message);
 		//Make sure we don't switch inadvertantly to group context

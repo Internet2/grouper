@@ -29,6 +29,8 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -183,7 +185,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMemberAction.java,v 1.4 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateGroupMemberAction.java,v 1.5 2006-02-22 12:49:56 isgwb Exp $
  */
 public class PopulateGroupMemberAction extends GrouperCapableAction {
 
@@ -215,6 +217,16 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		String asMemberOf = (String) groupOrStemMemberForm.get("asMemberOf");
 		String contextGroupId = (String) groupOrStemMemberForm.get("contextGroup");
 		GroupOrStem contextGroup=null;
+		
+		String listField = request.getParameter("listField");
+		String membershipField = "members";
+		
+		if(!isEmpty(listField)) {
+			membershipField=listField;
+			request.setAttribute("listField",listField);
+		}
+		Field mField = FieldFinder.find(membershipField);
+		
 		if(!isEmpty(contextGroupId)) {
 			contextGroup = GroupOrStem.findByID(grouperSession,contextGroupId);
 		}
@@ -237,17 +249,20 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		//In UI we need to display set of possible privileges - with effective ones
 		//pre-selected
 		String[] possiblePrivs = null;
+		String[] possibleEffPrivs = null;
 		
 		if(forStems) {
 			stem= groupOrStem.getStem();
 			groupOrStemMap=GrouperHelper.stem2Map(grouperSession,stem);
 			session.setAttribute("subtitle","stems.action.edit-member");
 			possiblePrivs = GrouperHelper.getStemPrivs(grouperSession);
+			possibleEffPrivs=possiblePrivs;
 		}else{
 			group=groupOrStem.getGroup();
 			groupOrStemMap=GrouperHelper.group2Map(grouperSession,group);
 			session.setAttribute("subtitle","groups.action.edit-member");
 			possiblePrivs = GrouperHelper.getGroupPrivs(grouperSession);
+			possibleEffPrivs = GrouperHelper.getGroupPrivsWithMember(grouperSession);
 		}
 		
 		
@@ -266,9 +281,9 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		//current group/stem
 		Member member = MemberFinder.findBySubject(grouperSession,SubjectFinder.findById(subjectId,subjectType));
 		Map authUserPrivs = GrouperHelper.hasAsMap(grouperSession, groupOrStem,false);
-		Map privs = GrouperHelper.hasAsMap(grouperSession, groupOrStem, member);
-		Map extendedPrivs = GrouperHelper.getExtendedHas(grouperSession,groupOrStem,member);
-		Map immediatePrivs = GrouperHelper.getImmediateHas(grouperSession,groupOrStem,member);
+		Map privs = GrouperHelper.hasAsMap(grouperSession, groupOrStem, member,mField); 
+		Map extendedPrivs = GrouperHelper.getExtendedHas(grouperSession,groupOrStem,member,mField);
+		Map immediatePrivs = GrouperHelper.getImmediateHas(grouperSession,groupOrStem,member,mField);
 		
 		
 		//The actual privileges the subject has
@@ -286,7 +301,9 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		request.setAttribute("authUserPriv", authUserPrivs);
 		request.setAttribute("subjectPriv", privs);
 		request.setAttribute("extendedSubjectPriv", extendedPrivs);
+		
 		request.setAttribute("possiblePrivs", possiblePrivs);
+		request.setAttribute("possibleEffectivePrivs", possibleEffPrivs);
 		
 		if(contextGroup==null) {
 			request.setAttribute("browseParent", groupOrStemMap);

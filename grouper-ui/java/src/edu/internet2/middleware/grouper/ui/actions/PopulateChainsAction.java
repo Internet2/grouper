@@ -30,6 +30,8 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
@@ -229,7 +231,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainsAction.java,v 1.5 2005-12-21 11:27:43 isgwb Exp $
+ * @version $Id: PopulateChainsAction.java,v 1.6 2006-02-22 12:47:17 isgwb Exp $
  */
 public class PopulateChainsAction extends GrouperCapableAction {
 
@@ -257,13 +259,19 @@ public class PopulateChainsAction extends GrouperCapableAction {
 		
 		//Identify the group whose membership we are showing
 		String groupId = (String)groupForm.get("groupId");
+		
+		String listField = (String) groupForm.get("listField");
+		String membershipField = "members";
+		
+		if(!isEmpty(listField)) membershipField=listField;
+		Field mField = FieldFinder.find(membershipField);
 		//TODO: check following - shouldn't I always pass parameter
 		if (groupId == null || groupId.length() == 0)
 			groupId = (String) session.getAttribute("findForNode");
 		if (groupId == null)
 			groupId = request.getParameter("asMemberOf");
-		Group group = GroupFinder.findByUuid(grouperSession,groupId);
-		List ways = GrouperHelper.getAllWaysInWhichSubjectIsMemberOFGroup(grouperSession,subject,group);
+		Group group = GroupFinder.findByUuid(grouperSession,groupId); 
+		List ways = GrouperHelper.getAllWaysInWhichSubjectIsMemberOFGroup(grouperSession,subject,group,mField);
 		Group g = null;
 		Membership m = null;
 		Map gMap = null;
@@ -276,6 +284,7 @@ public class PopulateChainsAction extends GrouperCapableAction {
 			chain=GrouperHelper.getChain(grouperSession,m);
 			gMap.put("chainPath",chain);
 			gMap.put("chainPathSize",new Integer(chain.size()));
+			
 			chains.add(gMap);
 		}
 		
