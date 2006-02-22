@@ -43,7 +43,6 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
  * Top level Strut's action which does any setup required for browsing / searching 
  * for new members / privilegees. 
  * <p/>
- 
  <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
@@ -69,12 +68,18 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
     <td><font face="Arial, Helvetica, sans-serif">If present identifies group 
       we are finding new members / privilegees for</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">listField</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Custom list field for which 
+      we are finfing 'members'</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
-    <tr bgcolor="#FFFFFF"> 
+  <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current stem</font></td>
@@ -115,7 +120,7 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">subtitle=groups.action.find-new-members 
-      or stems.action.find-new-members</font></td>
+      or groups.action.find-new-list-members or stems.action.find-new-members</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Key resolved in nav ResourceBundle 
       </font></td>
@@ -125,6 +130,11 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
     <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">READ if present (used if no 
       stem or group id), otherwise SET</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">findForListField</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">READ if present, otherwise SET</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
@@ -138,9 +148,10 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
       a stem</font></td>
   </tr>
 </table>
+ 
 
  * @author Gary Brown.
- * @version $Id: PopulateFindNewMembersAction.java,v 1.5 2006-02-22 12:49:43 isgwb Exp $
+ * @version $Id: PopulateFindNewMembersAction.java,v 1.6 2006-02-22 15:32:50 isgwb Exp $
  */
 public class PopulateFindNewMembersAction extends GrouperCapableAction {
 

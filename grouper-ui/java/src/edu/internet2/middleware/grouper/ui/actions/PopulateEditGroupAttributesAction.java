@@ -35,9 +35,61 @@ import edu.internet2.middleware.grouper.GrouperSession;
 /**
  * Deal with attributes from custom types 
  * <p/>
+ * <table width="75%" border="1">
+  <tr bgcolor="#CCCCCC"> 
+    <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
+      Parameter</font></strong></td>
+    <td width="12%"><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
+    <td width="37%"><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies group we want edit 
+      attributes for (if not in request parameter, check for attribute and set 
+      in Strut's form)</font></td>
+  </tr>
+  <tr bgcolor="#CCCCCC"> 
+    <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">group</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Current group</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Current group - used to display 
+      location </font></td>
+  </tr>
+  <tr bgcolor="#CCCCCC"> 
+    <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">subtitle=groups.action.edit-att</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Key resolved in nav ResourceBundle 
+      </font></td>
+  </tr>
+  <tr bgcolor="#CCCCCC"> 
+    <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAttributesAction.java,v 1.3 2006-02-22 12:49:11 isgwb Exp $
+ * @version $Id: PopulateEditGroupAttributesAction.java,v 1.4 2006-02-22 15:32:50 isgwb Exp $
  */
 public class PopulateEditGroupAttributesAction extends GrouperCapableAction {
 

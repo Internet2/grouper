@@ -63,7 +63,7 @@ import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
-    <tr bgcolor="#FFFFFF"> 
+  <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current group 
@@ -81,6 +81,18 @@ import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Allows JSP shared with populateCreateGroup 
       to behave appropriately</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">allGroupTypes</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Make all group types available 
+      for selection</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">selectedGroupTypes</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Make current group types available 
+      so check boxes can be pre-checked as appropriate</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -111,7 +123,7 @@ import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAction.java,v 1.4 2006-02-22 12:48:35 isgwb Exp $
+ * @version $Id: PopulateEditGroupAction.java,v 1.5 2006-02-22 15:32:50 isgwb Exp $
  */
 public class PopulateEditGroupAction extends GrouperCapableAction {
 

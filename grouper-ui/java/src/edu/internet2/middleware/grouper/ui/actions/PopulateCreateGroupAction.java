@@ -82,6 +82,18 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><font face="Arial, Helvetica, sans-serif">Map indicating which privileges 
       should be pre-selected</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">allGroupTypes</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Make all group types available 
+      for selection</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">selectedGroupTypes</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Empty - non selected by default 
+      - but needed by UI code</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -105,7 +117,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupAction.java,v 1.6 2006-02-22 12:48:06 isgwb Exp $
+ * @version $Id: PopulateCreateGroupAction.java,v 1.7 2006-02-22 15:32:50 isgwb Exp $
  */
 public class PopulateCreateGroupAction extends GrouperCapableAction {
 

@@ -66,6 +66,12 @@ import edu.internet2.middleware.subject.provider.SourceManager;
     <td><font face="Arial, Helvetica, sans-serif">Identifies which source adapter 
       was chosen</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupSearchResultField</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies which group field 
+      should be used for the results page</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -87,6 +93,11 @@ import edu.internet2.middleware.subject.provider.SourceManager;
     <td><font face="Arial, Helvetica, sans-serif">If not new search retrieve search 
       criteria, otherwise save current criteria</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">groupSearchResultField</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Remember user selection</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -99,7 +110,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DoSearchSubjectsAction.java,v 1.4 2006-02-22 12:46:08 isgwb Exp $
+ * @version $Id: DoSearchSubjectsAction.java,v 1.5 2006-02-22 15:32:50 isgwb Exp $
  */
 public class DoSearchSubjectsAction extends GrouperCapableAction {
 

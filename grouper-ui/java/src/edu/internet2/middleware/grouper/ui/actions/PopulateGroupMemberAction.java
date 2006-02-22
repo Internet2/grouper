@@ -91,6 +91,12 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Used when we are on a diversion 
       and the group we are modifying is not the browseParent</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">listField</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Custom list field we should 
+      display 'members' for</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -126,10 +132,10 @@ import edu.internet2.middleware.subject.Subject;
       which can be assigned</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">possiblePrivs</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">possibleEffectivePrivs</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">All privileges (Naming or Access) 
-      which can be assigned</font></td>
+      which can be assigned + MEMBER as psuedo Access priv</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">subtitleArgs</font></td>
@@ -147,6 +153,11 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Effective privileges and how 
       they are derived</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">listField</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Maintain correct list field</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -182,10 +193,11 @@ import edu.internet2.middleware.subject.Subject;
       a stem</font></td>
   </tr>
 </table>
+
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMemberAction.java,v 1.5 2006-02-22 12:49:56 isgwb Exp $
+ * @version $Id: PopulateGroupMemberAction.java,v 1.6 2006-02-22 15:32:50 isgwb Exp $
  */
 public class PopulateGroupMemberAction extends GrouperCapableAction {
 

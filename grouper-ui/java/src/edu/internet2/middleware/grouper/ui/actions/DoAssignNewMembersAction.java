@@ -80,6 +80,12 @@ import edu.internet2.middleware.grouper.ui.Message;
     <td><font face="Arial, Helvetica, sans-serif">pageId of saved page which should 
       be returned to</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">listField</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies list field we are 
+      assigning 'members' to</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -108,6 +114,13 @@ import edu.internet2.middleware.grouper.ui.Message;
     <td><font face="Arial, Helvetica, sans-serif">If present display list of privilegees, 
       otherwise display list of members</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><p><font face="Arial, Helvetica, sans-serif">findForListField</font></p>
+      <p>&nbsp;</p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">If listField not a request parameter 
+      use this</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -121,7 +134,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DoAssignNewMembersAction.java,v 1.4 2006-02-22 12:45:10 isgwb Exp $
+ * @version $Id: DoAssignNewMembersAction.java,v 1.5 2006-02-22 15:32:50 isgwb Exp $
  */
 public class DoAssignNewMembersAction extends GrouperCapableAction {
 

@@ -76,6 +76,13 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Identifiesgroup which is focus 
       of action</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">listField</font></p>
+      </td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies list field we are 
+      interested in</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -94,7 +101,6 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">List of objects representing 
       the chains</font></td>
   </tr>
-
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
@@ -134,104 +140,10 @@ import edu.internet2.middleware.subject.Subject;
     <td>&nbsp;</td>
   </tr>
 </table>
-
-<p>&nbsp;</p><table width="75%" border="1">
-  <tr bgcolor="#CCCCCC"> 
-    <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
-      Parameter</font></strong></td>
-    <td width="12%"><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
-    <td width="37%"><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
-  </tr>
-  <tr> 
-    <td><font face="Arial, Helvetica, sans-serif">stemId</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Identifies the stem (if any) 
-      to which Naming privileges will be assigned</font></td>
-  </tr>
-  <tr> 
-    <td><font face="Arial, Helvetica, sans-serif">groupId</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Identifies the group (if any) 
-      to which membership / Access privileges will be assigned</font></td>
-  </tr>
-  <tr> 
-    <td><font face="Arial, Helvetica, sans-serif">stems</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif"><em>true</em> indicates that 
-      a stemId should be expected</font></td>
-  </tr>
-  <tr> 
-    <td><font face="Arial, Helvetica, sans-serif">members</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Array of Subject Ids</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">subjectType:&lt;subjectId&gt;</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Subject type Subject ids derived 
-      from 'members'</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">privileges</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Array of privilege names to 
-      be assigned</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">callerPageId</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">pageId of saved page which should 
-      be returned to</font></td>
-  </tr>
-  <tr bgcolor="#CCCCCC"> 
-    <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
-    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
-    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
-  </tr>
-  <tr> 
-    <td><font face="Arial, Helvetica, sans-serif">&nbsp;thisPageId</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">&nbsp;OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">&nbsp;Allows callerPageId to 
-      be added to links/forms so this page can be returned to</font></td>
-  </tr>
-  <tr> 
-    <td><font face="Arial, Helvetica, sans-serif">message</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Message instance: text derived 
-      from priv.message.error.no-priv / priv.message.assigned key in nav ResourceBundle</font></td>
-  </tr>
-  <tr bgcolor="#CCCCCC"> 
-    <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
-    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
-    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">findForNode</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">If stemId and groupId are not 
-      set default to this</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">findForPriv</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">If present display list of privilegees, 
-      otherwise display list of members</font></td>
-  </tr>
-  <tr bgcolor="#CCCCCC"> 
-    <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
-    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
-    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
-  </tr>
-  <tr> 
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-  </tr>
-</table>
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainsAction.java,v 1.6 2006-02-22 12:47:17 isgwb Exp $
+ * @version $Id: PopulateChainsAction.java,v 1.7 2006-02-22 15:32:50 isgwb Exp $
  */
 public class PopulateChainsAction extends GrouperCapableAction {
 

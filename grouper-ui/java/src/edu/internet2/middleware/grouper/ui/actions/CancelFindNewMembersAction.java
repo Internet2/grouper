@@ -78,6 +78,13 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
       current search for new privilegees - removed</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
+    <td><p><font face="Arial, Helvetica, sans-serif">findForListField</font></p>
+      <p>&nbsp;</p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List field which is context 
+      for current search for new privilegees - removed</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseMode</font></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Indicates which browseStem URL 
@@ -96,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: CancelFindNewMembersAction.java,v 1.3 2006-02-22 12:44:02 isgwb Exp $
+ * @version $Id: CancelFindNewMembersAction.java,v 1.4 2006-02-22 15:32:50 isgwb Exp $
  */
 public class CancelFindNewMembersAction extends GrouperCapableAction {
 
