@@ -18,8 +18,10 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,6 +34,8 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Privilege;
@@ -58,10 +62,16 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Identifies group to save</font></td>
   </tr>
   <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">groupName,groupType,groupDisplayName,<br>
+    <td><p><font face="Arial, Helvetica, sans-serif">groupName,groupType,groupDisplayName,<br />
         groupDescription</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Values retrieved from DynaActionForm</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupTypes</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Array of group types assigned 
+      to the group</font></td>
   </tr>
   <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">submit.save</font></p></td>
@@ -117,7 +127,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.5 2006-01-03 11:06:45 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.6 2006-02-22 13:22:45 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -180,11 +190,13 @@ public class SaveGroupAction extends GrouperCapableAction {
 		//TODO: should be transactional - so add map or List of attributes
 		if (groupExists) {
 			group = GroupFinder.findByUuid(grouperSession, curNode);
+			doTypes(group,request);
 			group.setDisplayExtension(displayExtension);
 		} else {
 			Stem parent = StemFinder.findByUuid(grouperSession,
 					curNode);
 			group = parent.addChildGroup(extension,displayExtension );
+			doTypes(group,request);
 			groupForm.set("groupId", group.getUuid());
 			String [] privileges = request.getParameterValues("privileges");
 			Map apiAssignedPrivs = GrouperHelper.getDefaultAccessPrivsForGrouperAPI();
@@ -209,6 +221,9 @@ public class SaveGroupAction extends GrouperCapableAction {
 				}
 			
 		}
+		
+		
+		
 		//TODO: are both these necessary?
 		request.setAttribute("groupId", group.getUuid());
 		groupForm.set("groupId",group.getUuid());
@@ -231,6 +246,25 @@ public class SaveGroupAction extends GrouperCapableAction {
 		session.setAttribute("findForNode", group.getUuid());
 		return mapping.findForward(FORWARD_FindMembers);
 
+	}
+	
+	private void doTypes(Group group,HttpServletRequest request) throws Exception {
+		Set curGroupTypes = group.getTypes();
+		String[] selectedGroupTypes = request.getParameterValues("groupTypes");
+		Set selected = new HashSet();
+		GroupType type;
+		if(selectedGroupTypes!=null) {
+			for(int i=0;i<selectedGroupTypes.length;i++) {
+				type = GroupTypeFinder.find(selectedGroupTypes[i]);
+				selected.add(type);
+				if(!curGroupTypes.contains(selectedGroupTypes[i])) group.addType(type);
+			}
+		}
+		Iterator it = curGroupTypes.iterator();
+		while(it.hasNext()) {
+			type=(GroupType)it.next();
+			if(!selected.contains(type) && !"base".equals(type.getName())) group.deleteType(type);
+		}
 	}
 
 }
