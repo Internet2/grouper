@@ -19,10 +19,13 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 
 /**
@@ -73,10 +76,10 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateIndexAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateIndexAction.java,v 1.3 2006-02-24 13:36:33 isgwb Exp $
  */
 
-public class PopulateIndexAction extends org.apache.struts.action.Action {
+public class PopulateIndexAction extends GrouperCapableAction {
 
 	//------------------------------------------------------------ Local
 	// Forwards
@@ -87,10 +90,15 @@ public class PopulateIndexAction extends org.apache.struts.action.Action {
 	//------------------------------------------------------------ Action
 	// Methods
 
-	public ActionForward execute(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response)
+	public ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response,HttpSession session,GrouperSession grouperSession)
 			throws Exception {
-		if (SessionInitialiser.getAuthUser(request.getSession()) != null) {
+		String authUser=SessionInitialiser.getAuthUser(request.getSession());
+		if (authUser != null) {
+			if("GrouperSystem".equals(authUser)) {
+				String adminUrl=getMediaResources(request).getString("admin.browse.path");
+				return new ActionForward(adminUrl,true);	
+			}
 			return mapping.findForward(FORWARD_Home);
 		}
 
