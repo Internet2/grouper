@@ -3,7 +3,7 @@
 		  except 'Find' mode 
 --%><%--
   @author Gary Brown.
-  @version $Id: SearchGroupResults.jsp,v 1.2 2006-02-21 16:27:16 isgwb Exp $
+  @version $Id: SearchGroupResults.jsp,v 1.3 2006-02-24 13:44:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:set var="termMode" value="query"/>
@@ -49,3 +49,12 @@
 <c:if test="${pager.count==0}">
 <div class="searchCountZero"><fmt:message bundle="${nav}" key="find.groups.no-results"/></div>
 </c:if>
+<div class="linkButton">
+<tiles:insert definition="callerPageButtonDef">
+	<tiles:put name="buttonTitle"><fmt:message bundle="${nav}" key="find.results.search-again"/></tiles:put>
+	<tiles:put name="buttonText"><fmt:message bundle="${nav}" key="find.results.search-again"/></tiles:put>
+</tiles:insert>
+<c:if test="${grouperForm.map.advSearch=='Y'}">
+<a href="populate<c:out value="${browseMode}"/>Groups.do?advancedSearch=false"><fmt:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
+</c:if>
+</div>
