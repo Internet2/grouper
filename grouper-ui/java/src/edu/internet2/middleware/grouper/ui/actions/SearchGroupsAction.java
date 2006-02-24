@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.io.FilterReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 
@@ -128,7 +130,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table> 
  * @author Gary Brown.
- * @version $Id: SearchGroupsAction.java,v 1.3 2006-02-22 13:43:30 isgwb Exp $
+ * @version $Id: SearchGroupsAction.java,v 1.4 2006-02-24 13:39:37 isgwb Exp $
  */
 
 public class SearchGroupsAction extends GrouperCapableAction {
@@ -174,8 +176,14 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		attr.put("searchInDisplayNameOrExtension",searchInDisplayNameOrExtension);
 		attr.put("searchInNameOrExtension",searchInNameOrExtension);
 		List outTerms = new ArrayList();
-		List groupRes = repositoryBrowser.search(grouperSession, query,
+		List groupRes=null;
+		try {
+			groupRes = repositoryBrowser.search(grouperSession, query,
 				searchFrom, request.getParameterMap(),outTerms);
+		}catch(IllegalArgumentException e) {
+			request.setAttribute("message",new Message("find.results.empty-search",true));
+			return new ActionForward("/populate" + getBrowseMode(session) + "Groups.do");
+		}
 		int end = start + pageSize;
 		if (end > groupRes.size())
 			end = groupRes.size();
@@ -185,9 +193,19 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		CollectionPager pager = new CollectionPager(groupResMaps, groupRes
 				.size(), null, start, null, pageSize);
 
+		
 		pager.setParam("searchTerm", query);
 		pager.setParam("searchFrom", searchFrom);
 		pager.setParam("searchInNameOrExtension", searchInNameOrExtension);
+		
+		Map searchFieldParams = filterParameters(request,"searchField.");
+		if(!searchFieldParams.isEmpty()){
+			pager.setParams(searchFieldParams);
+			session.setAttribute("advancedSearchFieldParams",searchFieldParams);
+			pager.setParam("advSearch", "Y");
+			pager.setParam("callerPageId", searchForm.get("callerPageId"));
+			pager.setParam("maxFields", searchForm.get("maxFields"));
+		}
 		pager.setParam("searchInDisplayNameOrExtension", searchInDisplayNameOrExtension);
 		pager.setTarget(mapping.getPath());
 		request.setAttribute("pager", pager);

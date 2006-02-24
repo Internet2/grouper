@@ -29,6 +29,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -195,7 +196,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateAssignNewMembersAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateAssignNewMembersAction.java,v 1.4 2006-02-24 13:39:37 isgwb Exp $
  */
 public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 
@@ -210,7 +211,7 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		DynaActionForm searchForm = (DynaActionForm) form;
 		//Set to true if selected from browse list rather than search
 		String alreadyChecked = request.getParameter("alreadyChecked");
 		boolean checked = false;
@@ -316,6 +317,14 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 		int pageSize = getPageSize(session);
 		CollectionPager pager = new CollectionPager(subjectRes, total, null,
 				start, null, pageSize);
+		Map searchFieldParams = filterParameters(request,"searchField.");
+		if(!searchFieldParams.isEmpty()){
+			pager.setParams(searchFieldParams);
+			session.setAttribute("advancedSearchFieldParams",searchFieldParams);
+			pager.setParam("advSearch", "Y");
+			pager.setParam("callerPageId", searchForm.get("callerPageId"));
+			pager.setParam("maxFields", searchForm.get("maxFields"));
+		}
 		
 		if (fromSearch) {
 			pager.setTarget("/searchNewMembers");
