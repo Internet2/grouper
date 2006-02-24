@@ -2,7 +2,7 @@
 			Tile which displays debug information if dbug mode is on
 --%><%--
   @author Gary Brown.
-  @version $Id: debug.jsp,v 1.2 2005-11-08 15:54:03 isgwb Exp $
+  @version $Id: debug.jsp,v 1.3 2006-02-24 13:43:05 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -62,6 +62,8 @@ function show(id) {
 	<script type="text/javascript">debugStuff['requestParameters']=1;</script>
 <span id="requestAttributesButton"><a href="#" onclick="changeDebug('requestAttributes');return false;">Show request attributes</a></span>
 	<script type="text/javascript">debugStuff['requestAttributes']=1;</script>
+<span id="requestHeadersButton"><a href="#" onclick="changeDebug('requestHeaders');return false;">Show request headers</a></span>
+	<script type="text/javascript">debugStuff['requestHeaders']=1;</script>
 	
 <span id="sessionAttributesButton"><a href="#" onclick="changeDebug('sessionAttributes');return false;">Show session attributes</a></span>
 	<script type="text/javascript">debugStuff['sessionAttributes']=1;</script>
@@ -126,6 +128,18 @@ function show(id) {
 
 <table><tr><th align="right">Attribute</th><th align="left">Value</th></tr>
 <c:forEach var="entry" items="${requestScope}">
+<tr><td align="right"><c:out value="${entry.key}"/></td>
+<td>
+		<c:out value="${entry.value}"/><br/>
+</td></tr>
+</c:forEach>
+</table>
+</div>
+
+<div id="requestHeadersPanel" style="top:20;display:none">
+
+<table><tr><th align="right">Header</th><th align="left">Value</th></tr>
+<c:forEach var="entry" items="${header}">
 <tr><td align="right"><c:out value="${entry.key}"/></td>
 <td>
 		<c:out value="${entry.value}"/><br/>
