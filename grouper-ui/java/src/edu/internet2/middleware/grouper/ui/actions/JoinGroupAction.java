@@ -76,7 +76,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
 
  * @author Gary Brown.
- * @version $Id: JoinGroupAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: JoinGroupAction.java,v 1.3 2006-02-24 13:40:58 isgwb Exp $
  */
 public class JoinGroupAction extends GrouperCapableAction {
 
@@ -103,7 +103,7 @@ public class JoinGroupAction extends GrouperCapableAction {
 			
 		request.setAttribute("message", new Message(
 				"groups.message.join-success", group.getDisplayExtension()));
-
+		
 		return mapping.findForward(FORWARD_JoinGroups);
 
 	}

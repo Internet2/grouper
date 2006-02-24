@@ -99,7 +99,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateManageGroupsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateManageGroupsAction.java,v 1.3 2006-02-24 13:40:58 isgwb Exp $
  */
 public class PopulateManageGroupsAction extends GrouperCapableAction {
 
@@ -122,6 +122,8 @@ public class PopulateManageGroupsAction extends GrouperCapableAction {
 		setBrowseMode("Manage",session);
 		session.removeAttribute("findForNode");
 		session.removeAttribute("findForPriv");
+		session.removeAttribute("findForListField");
+		saveAsCallerPage(request,null,"");
 		return mapping.findForward(FORWARD_ManageGroups);
 	}
 }

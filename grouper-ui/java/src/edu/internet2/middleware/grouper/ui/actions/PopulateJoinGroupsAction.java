@@ -110,7 +110,7 @@ import edu.internet2.middleware.grouper.Stem;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateJoinGroupsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateJoinGroupsAction.java,v 1.3 2006-02-24 13:40:58 isgwb Exp $
  */
 public class PopulateJoinGroupsAction extends GrouperCapableAction {
 
@@ -147,6 +147,8 @@ public class PopulateJoinGroupsAction extends GrouperCapableAction {
 		//else PrepareStems will cope
 		session.removeAttribute("findForNode");
 		session.removeAttribute("findForPriv");
+		session.removeAttribute("findForListField");
+		saveAsCallerPage(request,null,"");
 		return mapping.findForward(FORWARD_JoinGroups);
 
 	}

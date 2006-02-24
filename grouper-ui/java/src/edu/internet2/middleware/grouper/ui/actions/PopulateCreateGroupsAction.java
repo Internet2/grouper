@@ -105,7 +105,7 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateCreateGroupsAction.java,v 1.3 2006-02-24 13:40:58 isgwb Exp $
  */
 public class PopulateCreateGroupsAction extends GrouperCapableAction {
 	
@@ -138,6 +138,8 @@ public class PopulateCreateGroupsAction extends GrouperCapableAction {
 		}
 		session.removeAttribute("findForNode");
 		session.removeAttribute("findForPriv");
+		
+		saveAsCallerPage(request,null,"");
 		return mapping.findForward(FORWARD_CreateGroups);
 
 	}

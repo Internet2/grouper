@@ -101,7 +101,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateAllGroupsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateAllGroupsAction.java,v 1.3 2006-02-24 13:40:58 isgwb Exp $
  */
 public class PopulateAllGroupsAction extends GrouperCapableAction {
 
@@ -119,6 +119,7 @@ public class PopulateAllGroupsAction extends GrouperCapableAction {
 		
 
 		initMode(session);
+		saveAsCallerPage(request,null,"");
 		return mapping.findForward(FORWARD_AllGroups);
 	}
 	

@@ -101,7 +101,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateMyGroupsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateMyGroupsAction.java,v 1.3 2006-02-24 13:40:58 isgwb Exp $
  */
 public class PopulateMyGroupsAction extends GrouperCapableAction {
 
@@ -124,6 +124,8 @@ public class PopulateMyGroupsAction extends GrouperCapableAction {
 		setBrowseMode("",session);
 		session.removeAttribute("findForNode");
 		session.removeAttribute("findForPriv");
+		session.removeAttribute("findForListField");
+		saveAsCallerPage(request,null,"");
 
 		return mapping.findForward(FORWARD_MyGroups);
 

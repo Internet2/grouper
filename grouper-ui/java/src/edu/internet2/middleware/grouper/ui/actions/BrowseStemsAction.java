@@ -104,7 +104,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: BrowseStemsAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: BrowseStemsAction.java,v 1.4 2006-02-24 13:40:58 isgwb Exp $
  */
 public class BrowseStemsAction extends GrouperCapableAction {
 
@@ -154,6 +154,7 @@ public class BrowseStemsAction extends GrouperCapableAction {
 			
 				if(groupOrStem.isStem()) return mapping.findForward(param + "ForStems");
 		}
+		saveAsCallerPage(request,browseForm,"");
 		return mapping.findForward(param);
 	}
 }
