@@ -2,7 +2,7 @@
 		Tile which displays the simple search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearchGroups.jsp,v 1.3 2006-02-21 16:28:08 isgwb Exp $
+  @version $Id: simpleSearchGroups.jsp,v 1.4 2006-02-24 13:44:45 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -15,6 +15,7 @@
 	<html:form styleId="SearchFormBean" action="/searchGroups${browseMode}">
 		<html:hidden property="searchInNameOrExtension"/>
 		<html:hidden property="searchInDisplayNameOrExtension"/>
+		<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 	<fieldset>
 		<label for="searchTerm" class="noCSSOnly"><fmt:message bundle="${nav}" key="find.search-term"/></label><html:text property="searchTerm" size="25" styleId="searchTerm"/><br/>
 		<tiles:insert definition="searchFromDef"/><br/>

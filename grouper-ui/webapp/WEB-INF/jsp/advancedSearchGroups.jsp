@@ -2,7 +2,7 @@
 		Tile which displays the advanced search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchGroups.jsp,v 1.3 2006-02-21 16:15:21 isgwb Exp $
+  @version $Id: advancedSearchGroups.jsp,v 1.4 2006-02-24 13:45:07 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -24,6 +24,8 @@
 	<input type="hidden" name="newSearch" value="Y"/>
 	<input type="hidden" name="advSearch" value="Y"/>
 	<input type="hidden" name="subjectSource" value="g:gsa"/>
+	<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
+	<input type="hidden" name="previousCallerPageId" value="<c:out value="${grouperForm.map.callerPageId}"/>"/>
 	<fieldset>			
 		<fieldset class="nested">
 				<tiles:insert definition="selectGroupSearchFieldsDef"/>
