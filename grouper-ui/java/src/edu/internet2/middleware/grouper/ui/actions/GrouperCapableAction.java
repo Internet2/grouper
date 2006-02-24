@@ -31,6 +31,7 @@ import org.apache.struts.util.ModuleUtils;
 import java.util.*;
 
 import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 
 /**
  * Superclass for all Actions which need to do Grouper stuff. Other handy methods 
@@ -166,7 +167,7 @@ import edu.internet2.middleware.grouper.*;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.6 2005-12-21 15:44:54 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.7 2006-02-24 13:36:43 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -207,6 +208,10 @@ public abstract class GrouperCapableAction
 					//let's just ignore it
 				}
 			}
+			isWheelGroupMember(session);
+			String wheelGroupAction = request.getParameter("wheelGroupAction");
+			if(!isEmpty(wheelGroupAction)) doWheelGroupStuff(wheelGroupAction,session);
+			UIThreadLocal.replace("isActiveWheelGroupMember",new Boolean(isActiveWheelGroupMember(session)));
 			if(form!=null)request.setAttribute("grouperForm",form);
 			Object sessionMessage = session.getAttribute("sessionMessage");
 			if(isEmpty(request.getAttribute("message")) && !isEmpty(sessionMessage)) {
@@ -214,7 +219,10 @@ public abstract class GrouperCapableAction
 				session.removeAttribute("sessionMessage");
 			}
 			Date before = new Date();
-			ActionForward forward =  grouperExecute(mapping,form,request,response,session,grouperSession);
+			ActionForward forward =  null;
+			
+			if(isEmpty(wheelGroupAction)) forward=grouperExecute(mapping,form,request,response,session,grouperSession);
+			else forward = new ActionForward(getMediaResources(session).getString("admin.browse.path"),true);
 			Date after = new Date();
 			long diff = after.getTime()-before.getTime();
 			String url = request.getServletPath();
@@ -427,10 +435,16 @@ public abstract class GrouperCapableAction
 		String callerPageId = (String) form.get("callerPageId");
 		if(isEmpty(callerPageId)) throw new IllegalStateException("No caller page id");
 		return new ActionForward("/gotoCallerPage?pageId=" + callerPageId,true);
-	
 	}
 	
-	
+	protected void doWheelGroupStuff(String action,HttpSession session) {
+		if(!isWheelGroupMember(session)) return;
+		if("toAdmin".equals(action)) {
+			session.setAttribute("activeWheelGroupMember",Boolean.TRUE);
+		}else{
+			session.setAttribute("activeWheelGroupMember",Boolean.FALSE);
+		}
+	}	
 }
 
 

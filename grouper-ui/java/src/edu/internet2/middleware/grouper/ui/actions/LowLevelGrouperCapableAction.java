@@ -17,13 +17,20 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.ResourceBundle;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
-
-
 
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -32,15 +39,18 @@ import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.config.ModuleConfig;
 import org.apache.struts.tiles.ComponentContext;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.util.*;
-
-import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.GrouperHelper;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
+import edu.internet2.middleware.grouper.ui.SessionInitialiser;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Superclass for GrouperCapableAction. This class is intended to be used by 
@@ -51,7 +61,7 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.3 2005-12-21 15:44:01 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.4 2006-02-24 13:35:46 isgwb Exp $
  */
 
 /**
@@ -317,6 +327,55 @@ public abstract class LowLevelGrouperCapableAction
 		}
 		if(prefix==null) prefix="";
 		return prefix;
+	}
+	
+	protected Map filterParameters(HttpServletRequest request,String prefix) {
+		Map map = new HashMap();
+		Enumeration names = request.getParameterNames();
+		String name;
+		while (names.hasMoreElements()) {
+			name = (String)names.nextElement();
+			if(name.startsWith(prefix)) map.put(name,request.getParameter(name));
+		}
+		return map;
+	}
+	
+	protected boolean isWheelGroupMember(HttpSession session) {
+		if(isEmpty(SessionInitialiser.getAuthUser(session))) return false;
+		if(Boolean.TRUE.equals(session.getAttribute("isWheelGroupMember"))) return true;
+		if(Boolean.FALSE.equals(session.getAttribute("isWheelGroupMember"))) return false;
+		Object obj= session.getServletContext().getAttribute("wheelGroup");
+		if(Boolean.FALSE.equals(obj)) {
+			session.setAttribute("isWheelGroupMember",Boolean.FALSE);
+			return false;
+		}
+		if(obj==null) {
+			if("true".equals(GrouperConfig.getInstance().getProperty("groups.wheel.use"))) {
+				try {
+					Subject subj = SubjectFinder.findById("GrouperSystem");
+					GrouperSession s = GrouperSession.start(subj);
+					obj=GroupFinder.findByName(s,GrouperConfig.getInstance().getProperty("groups.wheel.group"));
+					session.getServletContext().setAttribute("wheelGroup",obj);
+				}catch(Exception e) {
+					session.setAttribute("isWheelGroupMember",Boolean.TRUE);
+					return false;
+				}
+			}
+		}
+		
+		Group wheelGroup = (Group)obj;
+		GrouperSession s  =SessionInitialiser.getGrouperSession(session);
+		if(s !=null && obj!=null && wheelGroup.hasMember(s.getSubject())) {
+			session.setAttribute("isWheelGroupMember",Boolean.TRUE);
+			return true;
+		}
+		session.setAttribute("isWheelGroupMember",Boolean.FALSE);
+		return false;
+		
+	}
+	
+	protected boolean isActiveWheelGroupMember(HttpSession session) {
+		return Boolean.TRUE.equals(session.getAttribute("activeWheelGroupMember"));
 	}
 	
 }

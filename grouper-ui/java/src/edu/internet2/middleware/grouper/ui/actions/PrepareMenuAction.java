@@ -37,6 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
+import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.util.DOMHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 
@@ -56,7 +57,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareMenuAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PrepareMenuAction.java,v 1.3 2006-02-24 13:36:52 isgwb Exp $
  */
 public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 
@@ -119,6 +120,7 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 	}
 	
 	protected boolean isValidMenuItem(Map item,GrouperSession grouperSession,HttpServletRequest request) {
+		if((isActiveWheelGroupMember(request.getSession())||"GrouperSystem".equals(SessionInitialiser.getGrouperSession(request.getSession()).getSubject().getId())) && "false".equals(item.get("forAdmin"))) return false;
 		return true;
 	}
 }
