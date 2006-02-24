@@ -7,7 +7,7 @@
 		  the generated XHTML.
 --%><%--
   @author Gary Brown.
-  @version $Id: template.jsp,v 1.6 2006-01-24 14:17:12 isgwb Exp $
+  @version $Id: template.jsp,v 1.4 2005-12-08 15:33:28 isgwb Exp $
 --%><?xml version="1.0" encoding="iso-8859-1"?>
 
 <!DOCTYPE html 
@@ -18,13 +18,13 @@
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <grouper:recordTile key="Not dynamic" tile="/WEB-INF/jsp/template.jsp">
-<html:html lang="en" xhtml="true">
-<html:xhtml/>
+
 <%@page import="java.io.PrintWriter"%>
 <%
-StringBuffer pageUrl = (StringBuffer) request.getAttribute("_pageUrl");
+StringBuffer pageUrl = request.getRequestURL();
 String pageUrlMinusQuery = pageUrl.toString();
-
+//OK so Tomcat 4 and 5 do things differently
+if(!pageUrlMinusQuery.endsWith(".do")) pageUrlMinusQuery = (String)request.getAttribute( "javax.servlet.forward.request_uri" );
 request.setAttribute("pageUrlMinusQueryString", pageUrlMinusQuery); 
 char delim = '?';
 if(request.getQueryString()!=null) {
@@ -34,14 +34,12 @@ if(request.getQueryString()!=null) {
 request.setAttribute("pageUrl",pageUrl.toString());
 pageUrl.append(delim);
 request.setAttribute("pageUrlWithDelim",pageUrl.toString());
-%>
-<!--init-->
-<tiles:insert attribute="init"/>
-<!--/init--><head>
+%><head>
     <tiles:insert attribute="head"/>
 </head>
-
-
+<tiles:insert attribute="init"/>
+<html:html lang="en" xhtml="true">
+<html:xhtml/>
 <% try {
 	
 ComponentContext tContext = ComponentContext.getContext(request);
@@ -67,8 +65,7 @@ request.setAttribute("modulePrefix",prefix);
     <c:if test="${!empty templateException && debugPrefs.isActive}">
 
 
-		
-<pre>
+		<pre>
 		<%
 			Exception te = (Exception)pageContext.getAttribute("templateException");
 			if(te.getMessage()!=null) out.write("\n" + te.getMessage() + "\n");

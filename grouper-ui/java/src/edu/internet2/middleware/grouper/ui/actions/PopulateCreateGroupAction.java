@@ -103,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupAction.java,v 1.5 2006-01-03 11:05:17 isgwb Exp $
+ * @version $Id: PopulateCreateGroupAction.java,v 1.4 2005-12-14 14:59:24 isgwb Exp $
  */
 public class PopulateCreateGroupAction extends GrouperCapableAction {
 
@@ -128,13 +128,15 @@ public class PopulateCreateGroupAction extends GrouperCapableAction {
 		GroupOrStem groupOrStem = getCurrentGroupOrStem(grouperSession,session);
 		Stem stem = groupOrStem.getStem();
 		List privileges = new ArrayList();
-		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
-		for(int i=0;i<accessPrivs.length;i++) {
-			privileges.add(accessPrivs[i].toLowerCase());
-		}
-		
-		Map selected = GrouperHelper.getDefaultAccessPrivsForUI(getMediaResources(request));
-		
+		privileges.add("admin");
+		privileges.add("update");
+		privileges.add("read");
+		privileges.add("view");
+		privileges.add("optin");
+		privileges.add("optout");
+		Map selected = new HashMap();
+		selected.put("read",Boolean.TRUE);
+		selected.put("view",Boolean.TRUE);
 		request.setAttribute("privileges",privileges);
 		request.setAttribute("preSelected",selected);
 		request.setAttribute("browseParent", GrouperHelper.stem2Map(

@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: RepositoryBrowser.java,v 1.3 2006-01-03 13:29:09 isgwb Exp $
+ * @version $Id: RepositoryBrowser.java,v 1.2 2005-12-08 15:30:19 isgwb Exp $
  */
 
 public interface RepositoryBrowser {
@@ -65,12 +65,6 @@ public interface RepositoryBrowser {
 	 * @return
 	 */
 	public boolean isFlatCapable();
-	
-	/**
-	 * stems or groups - used to create correct screen text
-	 * @return
-	 */
-	public String getFlattenType();
 
 	/**
 	 * Each browse mode can have its own root node. 

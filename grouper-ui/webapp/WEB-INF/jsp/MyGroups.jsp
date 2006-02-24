@@ -2,7 +2,7 @@
 		  Main page for the 'default' browse mode - My memberships
 --%><%--
   @author Gary Brown.
-  @version $Id: MyGroups.jsp,v 1.2 2006-01-03 13:30:13 isgwb Exp $
+  @version $Id: MyGroups.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:choose>
@@ -16,7 +16,9 @@
 
 <tiles:insert definition="browseStemsDef"/>
 
-<tiles:insert definition="flattenDef"/>
+<tiles:insert definition="flattenDef">
+	<tiles:put name="pageName" value="populateMyGroups"/>
+</tiles:insert>
 
 <tiles:insert definition="simpleSearchGroupsDef"/>
  </c:when>
