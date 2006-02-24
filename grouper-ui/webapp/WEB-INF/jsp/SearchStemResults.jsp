@@ -2,7 +2,7 @@
 		  Displays search results when searching for stems
 --%><%--
   @author Gary Brown.
-  @version $Id: SearchStemResults.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: SearchStemResults.jsp,v 1.2 2006-02-24 13:46:19 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="searchedFor"><fmt:message bundle="${nav}" key="find.stems.searched-for">
@@ -20,9 +20,12 @@
 	<tiles:put name="itemView" value="stemSearchResultLink"/>
 	<tiles:put name="footerView" value="searchResultFooter"/>
 	<tiles:put name="pager" beanName="pager"/>
-	<tiles:put name="listInstruction" value="list.instructions.search-result-group"/>
+	<tiles:put name="listInstruction" value="list.instructions.search-result-stem"/>
 </tiles:insert>
 
 <c:if test="${pager.count==0}">
 <div class="searchCountZero"><fmt:message bundle="${nav}" key="find.stems.no-results"/></div>
 </c:if>
+<div class="linkButton">
+<tiles:insert definition="callerPageButtonDef"/>
+</div>
