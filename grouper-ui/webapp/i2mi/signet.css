@@ -325,6 +325,7 @@ body>#Header {width: 98%;}
 	width: 100%;
 	padding: 2px 0px 2px 2px;
 	color: #fff;
+	height:15px;
 	background-color: #015782; /* per GP; was #10104A  */
 	font-style: normal;
 	font-weight: normal;
@@ -371,7 +372,7 @@ body>#Layout {width: 98%;}
 #Sidebar {
 	position: absolute;
 	
-	margin-top:100px;
+	margin-top:105px;
 	top: 0px;
 	left: 5px;
 	width: 180px;

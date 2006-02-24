@@ -28,6 +28,9 @@
 
 #LeftInNav {float:left;}
 #RightInNav {float:right;margin-right:9px}
+
+.inNav{font-size:8pt;
+           height:1.5em;}
 #grouperIntro {
 	width:50%;
 	float:left;

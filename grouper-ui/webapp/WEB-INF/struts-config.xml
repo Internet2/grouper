@@ -121,10 +121,14 @@
 	        <form-property name="pageSize" type="java.lang.String"/>
 	        <form-property name="callerPageId" type="java.lang.String"/>
 			<form-property name="groupSearchResultField" type="java.lang.String"/>
+			<form-property name="stemSearchResultField" type="java.lang.String"/>
+			<form-property name="advSearch" type="java.lang.String"/>
+			<form-property name="maxFields" type="java.lang.String"/>
     </form-bean>
 
     <form-bean dynamic="true" name="DummyFormBean"
                type="org.apache.struts.action.DynaActionForm">
+			   <form-property name="advSearch" type="java.lang.String"/>
       <form-property name="searchTerm" type="java.lang.String"/>
 	  <form-property name="searchFrom" type="java.lang.String"/>
       <form-property name="groupName" type="java.lang.String"/>

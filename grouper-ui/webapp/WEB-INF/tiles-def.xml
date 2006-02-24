@@ -634,6 +634,12 @@
 	  </description>
 	 </definition>
 	 
+	 	 <definition name="searchStemResultFieldChoiceDef" path="/WEB-INF/jsp/searchStemResultFieldChoice.jsp">
+		<description>
+			Called from stem search pages so user can select field to show
+	  </description>
+	 </definition>
+	 
  <definition name="TestUploadFramesetDef" path="/WEB-INF/jsp/TestUploadFrameset.jsp">
  	  <description>
 		Frameset for turning test results into a slideshow
