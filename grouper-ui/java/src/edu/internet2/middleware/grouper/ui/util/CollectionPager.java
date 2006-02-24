@@ -25,7 +25,7 @@ import java.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: CollectionPager.java,v 1.2 2005-12-08 15:31:42 isgwb Exp $
+ * @version $Id: CollectionPager.java,v 1.3 2006-02-24 14:07:12 isgwb Exp $
  */
 
 public class CollectionPager {
@@ -245,6 +245,16 @@ public class CollectionPager {
 	 */
 	public void setParam(String key, Object value) {
 		this.params.put(key, value);
+	}
+	
+	/**
+	 * Adds to any existing params - used for generating links
+	 * 
+	 * @param params
+	 *            The params to set
+	 */
+	public void setParams(Map map) {
+		this.params.putAll(map);
 	}
 
 	/**
