@@ -201,7 +201,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.4 2006-02-22 13:18:04 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.5 2006-02-24 13:37:48 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -341,6 +341,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 				children = new ArrayList(repositoryBrowser.getChildren(fromId,listField,start,pageSize,totalCount,isFlat,findForNode!=null));
 				//children = GrouperHelper.groups2Maps(grouperSession, allChildren);
 				request.setAttribute("stemHasChildren",new Boolean(allChildren.size()>0));
+				resultSize=Integer.parseInt(totalCount.toString());
 			
 			
 		//Skip empty stems
@@ -382,7 +383,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 		if (session.getAttribute("findForNode") != null) {
 			pager.setTarget("/browseStemsFind");
 		} else {
-			pager.setTarget("/browseStems");
+			pager.setTarget("/browseStems" + getBrowseMode(session));
 		}
 		request.setAttribute("pager", pager);
 
