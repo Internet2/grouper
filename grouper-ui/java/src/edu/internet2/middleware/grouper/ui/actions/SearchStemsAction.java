@@ -65,9 +65,9 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
       search results</font></td>
   </tr>
   <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">groupSearchResultField</font></p></td>
+    <td><p><font face="Arial, Helvetica, sans-serif">stemSearchResultField</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">The group field to display on 
+    <td><font face="Arial, Helvetica, sans-serif">The stem field to display on 
       results page</font></td>
   </tr>
   <tr> 
@@ -100,7 +100,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">groupSearchResultField</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">stemSearchResultField</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Maintain user selection</font></td>
   </tr>
@@ -121,7 +121,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SearchStemsAction.java,v 1.4 2006-02-22 13:48:18 isgwb Exp $
+ * @version $Id: SearchStemsAction.java,v 1.5 2006-02-24 13:42:00 isgwb Exp $
  */
 public class SearchStemsAction extends GrouperCapableAction {
 
@@ -145,9 +145,9 @@ public class SearchStemsAction extends GrouperCapableAction {
 		String query = (String) searchForm.get("searchTerm");
 		String searchInNameOrExtension = (String) searchForm.get("searchInNameOrExtension");
 		String searchInDisplayNameOrExtension = (String) searchForm.get("searchInDisplayNameOrExtension");
-		String groupSearchResultField = (String) searchForm.get("groupSearchResultField");
-		if(!isEmpty(groupSearchResultField)) {
-			session.setAttribute("groupSearchResultField",groupSearchResultField);
+		String stemSearchResultField = (String) searchForm.get("stemSearchResultField");
+		if(!isEmpty(stemSearchResultField)) {
+			session.setAttribute("stemSearchResultField",stemSearchResultField);
 		}
 		
 		//Do the search		
