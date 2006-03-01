@@ -120,7 +120,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.7 2006-02-22 12:40:42 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.8 2006-03-01 16:02:24 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -220,7 +220,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#getChildren(java.lang.String, int, int, java.lang.StringBuffer, boolean, boolean)
 	 */
-	public Set getChildren(String node,String listField,int start,int pageSize,StringBuffer totalCount,boolean isFlat,boolean isForAssignment) throws Exception{
+	public Set getChildren(String node,String listField,int start,int pageSize,StringBuffer totalCount,boolean isFlat,boolean isForAssignment,String omitForAssignment) throws Exception{
 		if(isFlat) return getFlatChildren(start,pageSize,totalCount);
 		
 		Set results = new LinkedHashSet();
@@ -237,7 +237,10 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 				resultSize = allChildren.size();
 				results.addAll(GrouperHelper.groupList2SubjectsMaps(
 						s, new ArrayList(allChildren), start, pageSize));
-				
+				if(totalCount!=null) {
+					totalCount.setLength(0);
+					totalCount.append(resultSize);
+				}
 				return results;
 			}
 		} else if(group!=null) return results;
@@ -264,7 +267,11 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 
 					child = (Map) it.next();
 						if(isForAssignment) {
-							addChild=true;
+							if(omitForAssignment!=null && omitForAssignment.equals(child.get("id"))) {
+								addChild=false;
+							}else{
+								addChild=true;
+							}
 						}else{
 							addChild=isValidChild(child);
 						}
@@ -275,6 +282,10 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 								results.add(child);
 							}
 						}
+				if(totalCount!=null) {
+					totalCount.setLength(0);
+					totalCount.append(resultSize);
+				}
 		return results;
 	}
 	

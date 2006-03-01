@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: RepositoryBrowser.java,v 1.4 2006-02-22 12:42:01 isgwb Exp $
+ * @version $Id: RepositoryBrowser.java,v 1.5 2006-03-01 15:58:53 isgwb Exp $
  */
 
 public interface RepositoryBrowser {
@@ -53,11 +53,12 @@ public interface RepositoryBrowser {
 	 * @param totalCount
 	 * @param isFlat
 	 * @param isForAssignment
+	 * @param omitForAssignment
 	 * @return
 	 * @throws Exception
 	 */
 	public Set getChildren(String node, String listField,int start, int pageSize,
-			StringBuffer totalCount, boolean isFlat, boolean isForAssignment)
+			StringBuffer totalCount, boolean isFlat, boolean isForAssignment,String omitForAssignment)
 			throws Exception;
 
 	/**

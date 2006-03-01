@@ -189,6 +189,18 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">Determine if we are browsing 
       to find members / privilegees for a group or stem</font></td>
   </tr>
+   <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">findForPriv</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Determine if we are browsing 
+      to find new privilegees for a group or stem</font></td>
+  </tr>
+     <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">findListField</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Determine if we are browsing 
+      to find new members for a list field</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -201,7 +213,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.5 2006-02-24 13:37:48 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.6 2006-03-01 16:02:40 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -224,6 +236,12 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 		int resultSize = 0;
 		boolean isFlat = false;
 		String findForNode = (String) session.getAttribute("findForNode");
+		String findForPriv = (String) session.getAttribute("findForPriv");
+		String findForListField = (String) session.getAttribute("findForListField");
+		String omitForAssignment = null;
+		if(!isEmpty(findForNode) && isEmpty(findForPriv) && isEmpty(findForListField)) {
+			omitForAssignment=findForNode;
+		}
 		
 		if(repositoryBrowser.isFlatCapable()) {
 			isFlat = processFlatForMode(browseMode, request, session);
@@ -338,10 +356,10 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 					fromId = defaultStem;
 				}
 				String listField = request.getParameter("expandListField"); 
-				children = new ArrayList(repositoryBrowser.getChildren(fromId,listField,start,pageSize,totalCount,isFlat,findForNode!=null));
+				children = new ArrayList(repositoryBrowser.getChildren(fromId,listField,start,pageSize,totalCount,isFlat,findForNode!=null,omitForAssignment));
 				//children = GrouperHelper.groups2Maps(grouperSession, allChildren);
 				request.setAttribute("stemHasChildren",new Boolean(allChildren.size()>0));
-				resultSize=Integer.parseInt(totalCount.toString());
+				resultSize=Integer.parseInt(totalCount.toString()); 
 			
 			
 		//Skip empty stems
