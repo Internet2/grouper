@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.3 2005-12-14 14:52:08 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.4 2006-03-01 15:59:56 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -167,7 +167,7 @@ public class SessionInitialiser {
 				GrouperHelper.createIfAbsentPersonalStem(s,personalStemInstance);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		session.setAttribute("sessionInited", Boolean.TRUE);
 	}
