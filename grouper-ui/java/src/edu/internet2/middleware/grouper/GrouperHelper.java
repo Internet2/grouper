@@ -32,6 +32,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
+import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
@@ -52,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.10 2006-02-22 12:38:02 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.11 2006-03-01 16:08:02 isgwb Exp $
  */
 
 /**
@@ -99,8 +100,8 @@ public class GrouperHelper {
 		superPrivs.put("ADMIN", Boolean.TRUE);
 		superPrivs.put("CREATE", Boolean.TRUE);
 		superPrivs.put("STEM", Boolean.TRUE);
-		superPrivs.put("OPTIN", Boolean.TRUE);
-		superPrivs.put("OPTOUT", Boolean.TRUE);
+		//superPrivs.put("OPTIN", Boolean.TRUE);
+		//superPrivs.put("OPTOUT", Boolean.TRUE);
 	}
 	
 	//Privs which relate to Groups - access privileges
@@ -417,9 +418,11 @@ public class GrouperHelper {
 
 		Group g = null;
 		Stem stem = null;
+		boolean isActiveWheelGroupMember = Boolean.TRUE.equals(UIThreadLocal.get("isActiveWheelGroupMember"));
 		privs = new HashMap();
 		if (!isMortal
-				&& "GrouperSystem".equals(s.getSubject().getId())) {
+				&& ("GrouperSystem".equals(s.getSubject().getId())
+						|| isActiveWheelGroupMember)) {
 			privs.putAll(superPrivs);
 			if(groupOrStem==null) return privs;
 			
@@ -436,7 +439,8 @@ public class GrouperHelper {
 				privs = superPrivs;
 			return privs;
 		}
-		if("GrouperSystem".equals(s.getSubject().getId())) {
+		if("GrouperSystem".equals(s.getSubject().getId())
+				||isActiveWheelGroupMember) {
 			privs = new HashMap();
 			privs.put("STEM",Boolean.TRUE);
 			if(groupOrStem!=null && groupOrStem.isStem()&& !"".equals(groupOrStem.getStem().getName())) {
@@ -981,7 +985,7 @@ public class GrouperHelper {
 	 * @return boolean
 	 */
 	public static boolean isSuperUser(GrouperSession s) {
-		return s.getSubject().getId().equals("GrouperSystem");
+		return s.getSubject().getId().equals("GrouperSystem")||Boolean.TRUE.equals(UIThreadLocal.get("isActiveWheelGroupMember"));
 	}
 
 	/**
@@ -1850,9 +1854,9 @@ public class GrouperHelper {
 						results.put(key,privs);
 						if(isEffective) {
 							try{
-								if(effectiveMemberships.containsKey(priv.getOwner())) {
+								if(effectiveMemberships.containsKey(nPriv.getOwner())) {
 									privs.put("MEMBER",Boolean.TRUE);
-									effectiveMemberships.remove(priv.getOwner());
+									effectiveMemberships.remove(nPriv.getOwner());
 								}
 								privs.put("group",group2Map(s,GroupFinder.findByUuid(s,nPriv.getOwner().getId())));
 							}catch(GroupNotFoundException e){}
