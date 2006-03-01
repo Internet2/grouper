@@ -4,14 +4,13 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.32 2006-02-21 17:11:32 blair Exp $
+$Id: TODO,v 1.33 2006-03-01 19:52:58 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### BUGS
-* Effective membership related Heisenbug (for now) that has not yet been tracked down 
 
 ### Improved update performance through introduction of grouperd
 * Add transaction runner with support for group math
@@ -44,6 +43,7 @@ Right now it looks like Gary is handling (all|most) of this for 1.0.
 ---
 
 ## Future Releases
+* Add WS variant of GSA
 * Expand _Validator_ class
 * Stem: _addChildGroup()_ and _addChildStems()_ should take an optional
   Properties arg that would override configuration defaults

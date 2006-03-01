@@ -30,24 +30,11 @@ import  org.apache.commons.logging.*;
 /**
  * <p />
  * @author  blair christensen.
- * @version $Id: TestTxDaemon2.java,v 1.1 2006-02-21 20:55:46 blair Exp $
+ * @version $Id: TestTxDaemon2.java,v 1.2 2006-03-01 19:52:58 blair Exp $
  */
 public class TestTxDaemon2 extends TestCase {
 
-  // Private Class Constants
   private static final Log  LOG = LogFactory.getLog(TestTxDaemon2.class); 
-
-  // Private Class Variables
-/*
-  private static Stem           edu;
-  private static Group          i2;
-  private static Stem           root;
-  private static GrouperSession s;
-  private static Subject        subj0;
-  private static Subject        subj1;
-  private static Group          uofc;
-*/
-  
 
   public TestTxDaemon2(String name) {
     super(name);
@@ -56,15 +43,6 @@ public class TestTxDaemon2 extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.resetRegistryAndAddTestSubjects();
-/*
-    s     = SessionHelper.getRootSession();
-    root  = StemHelper.findRootStem(s);
-    edu   = StemHelper.addChildStem(root, "edu", "education");
-    i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    subj0 = SubjectHelper.SUBJ0;
-    subj1 = SubjectHelper.SUBJ1;
-*/
   }
 
   protected void tearDown () {
@@ -75,16 +53,31 @@ public class TestTxDaemon2 extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(TestTxDaemon2.class);
-    return new RepeatedTest(suite, 10);
+    return new RepeatedTest(suite, 150); // Failure rate: ~0.5-1.5%
   } // static public Test suite()
 
   public void testHeisenbug() {
     LOG.info("testHeisenbug");
-    Assert.assertTrue(true);
-    // testGroupDelete(test.edu.internet2.middleware.grouper.TestGroupDelete)
-    // testDeleteGroupIsMemberWithADMIN(test.edu.internet2.middleware.grouper.TestPrivADMIN)
-    // testGroupAnyAttributeFilterSomething(test.edu.internet2.middleware.grouper.TestGQGroupAnyAttribute)
-    // testToGroup(test.edu.internet2.middleware.grouper.TestMemberToGroup)
+    try {
+      GrouperSession  s     = SessionHelper.getRootSession();
+      Stem            root  = StemHelper.findRootStem(s);
+      Stem            edu   = root.addChildStem("edu" , "education");
+      Group           uc    = edu.addChildGroup("uc"  , "uchicago");
+      Subject         subj  = SubjectFinder.findById(uc.getUuid(), "group");
+      Assert.assertNotNull("TH.FIND.SUBJ.NULL!", subj);
+      //  For reasons I'm still not clear on, this would fail ~0.5-1.5%
+      //  of the time after I added the updater thread, reporting a
+      //  jdbc batch update error.  As I couldn't
+      //  identify-and-eliminate this particular Heisenbug I decided to
+      //  bypass it and all groups get created as members upon group
+      //  creation now, rather than when first referenced as a member.
+      Member            m   = MemberFinder.findBySubject(uc.getSession(), subj);
+      Assert.assertNotNull("TH.FIND.MEMBER.NULL!", m);
+      s.stop();
+    }
+    catch (Exception e) {
+      Assert.fail("fail: " + e.getMessage());
+    }
   } // public void testHeisenbug()
 
 }
