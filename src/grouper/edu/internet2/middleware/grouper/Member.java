@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.32 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: Member.java,v 1.33 2006-03-01 19:52:58 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -71,7 +71,7 @@ public class Member implements Serializable {
     this.setMember_id( GrouperUuid.getUuid() );
 
     // Transient Properties  
-    this.subj = subj;
+    this.setSubject(subj);
   } // protected Member()
 
 
@@ -1048,7 +1048,6 @@ public class Member implements Serializable {
     try {
       Member m = new Member(subj);
       HibernateHelper.save(m);
-      m.setSubject(subj);
       return m;
     }
     catch (HibernateException e) {

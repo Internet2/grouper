@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.11 2006-02-13 20:21:38 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.12 2006-03-01 19:52:58 blair Exp $
  */
 class HibernateHelper {
 
@@ -137,7 +137,7 @@ class HibernateHelper {
   protected static void save(Set objects)
     throws HibernateException
   { 
-    Object err = null;
+    Object  err = null;
     String  msg = "save";
     LOG.debug(msg + ": will save " + objects.size());
     try {
@@ -155,7 +155,8 @@ class HibernateHelper {
         tx.commit();
       }
       catch (HibernateException eH) {
-        msg += ": unable to save " + err + ": " + eH.getMessage();
+        msg += ": unable to save " + err + "[" + err.getClass().getName() 
+            + "] <<" + objects + ">>: " + eH.getMessage();
         tx.rollback();
         throw new HibernateException(msg);
       }

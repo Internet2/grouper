@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.17 2006-02-03 19:38:53 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.18 2006-03-01 19:52:58 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -43,8 +43,6 @@ A namespace within the Groups Registry.
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
-    <version name="version" column="version"/>
-
 
     <!-- child_groups -->
     <set  name="child_groups"

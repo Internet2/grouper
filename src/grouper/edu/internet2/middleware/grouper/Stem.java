@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.47 2006-02-21 17:11:33 blair Exp $
+ * @version $Id: Stem.java,v 1.48 2006-03-01 19:52:58 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -175,14 +175,20 @@ public class Stem implements Serializable {
       Set children  = this.getChild_groups();
       children.add(child);
       this.setChild_groups(children);
+      // Now create as member
+      Member  m   = new Member( new GrouperSubject(child) );
+
       // And save
       Set objects = new LinkedHashSet();
       objects.add(child);
       objects.add(this);
+      objects.add(m);
       HibernateHelper.save(objects);
+
       sw.stop();
       EL.stemAddChildGroup(this.s, child.getName(), sw);
       _grantDefaultPrivsUponCreate(child);
+      // And return the newly created group
       return child;
     }
     catch (Exception e) {

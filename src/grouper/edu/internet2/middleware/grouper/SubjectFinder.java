@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.14 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.15 2006-03-01 19:52:58 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
@@ -42,6 +42,10 @@ public class SubjectFinder implements Serializable {
   private static final Log            LOG       = LogFactory.getLog(SubjectFinder.class);
   private static final SourceManager  MGR;
   private static final Subject        ALL; 
+
+
+  // Private Class Variables
+  private static GrouperSourceAdapter _gsa      = null;
 
 
   static {
@@ -253,6 +257,23 @@ public class SubjectFinder implements Serializable {
   public static Subject findAllSubject() {
     return ALL;
   } // public static Subject findAllSubject()
+
+
+  // Protected Class Methods
+  protected static GrouperSourceAdapter getGrouperSourceAdapter() {
+    if (_gsa != null) {
+      return _gsa;
+    }
+    Iterator iter = MGR.getSources().iterator();
+    while (iter.hasNext()) {
+      Source source = (Source) iter.next();
+      if (source.getClass().equals(GrouperSourceAdapter.class)) {
+        _gsa = (GrouperSourceAdapter) source;
+        return _gsa;
+      }
+    }
+    throw new RuntimeException("could not find GSA");
+  } // protected static GrouperSourceAdapter getGrouperSourceAdapter()
 
 
   // Private class methods
