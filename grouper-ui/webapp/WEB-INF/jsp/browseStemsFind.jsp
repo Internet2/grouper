@@ -4,11 +4,12 @@
 		  memberships of the curent node
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsFind.jsp,v 1.3 2006-02-21 16:17:20 isgwb Exp $
+  @version $Id: browseStemsFind.jsp,v 1.4 2006-03-01 16:04:15 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <tiles:importAttribute />
+<c:if test="${empty groupSearchResultField}"><c:set scope="request" var="groupSearchResultField" value="${mediaMap['search.group.result-field']}"/></c:if>
 <div class="browseChildren">
 	
 		<tiles:importAttribute name="browseChildGroup"/>
