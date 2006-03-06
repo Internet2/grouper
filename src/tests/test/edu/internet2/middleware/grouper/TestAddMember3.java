@@ -26,21 +26,20 @@ import  org.apache.commons.logging.*;
 
 
 /**
- * Test {@link Group.addMember()}.
- * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMemberGroup.java,v 1.11 2006-02-21 17:11:33 blair Exp $
+ * @version $Id: TestAddMember3.java,v 1.1 2006-03-06 20:21:50 blair Exp $
  */
-public class TestGroupAddMemberGroup extends TestCase {
+public class TestAddMember3 extends TestCase {
 
   // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestGroupAddMemberGroup.class);
+  private static final Log LOG = LogFactory.getLog(TestAddMember3.class);
 
-  public TestGroupAddMemberGroup(String name) {
+  public TestAddMember3(String name) {
     super(name);
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     RegistryReset.resetRegistryAndAddTestSubjects();
   }
 
@@ -48,43 +47,6 @@ public class TestGroupAddMemberGroup extends TestCase {
     LOG.debug("tearDown");
     GrouperSession.waitForAllTx();
   }
-
-  // Tests
-
-  public void testAddMember() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    GroupHelper.addMember(i2, uofc);
-    // mships
-    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 1,    1, 0);
-    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 0,    0, 0);
-    MembershipHelper.testImmMship(s, i2, uofc, Group.getDefaultList());
-  } // public void testAddMember()
-
-  public void testAddGroupMemberWithNonGroupMember() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Subject         subj  = SubjectHelper.getSubjectById(SubjectHelper.SUBJ_ROOT);
-    Member          m     = Helper.getMemberBySubject(s, subj);
-    // add subj to uofc   
-    GroupHelper.addMember(uofc, subj, "members");
-    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
-    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
-    MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
-    // add uofc to i2
-    GroupHelper.addMember(i2, uofc);
-    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
-    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
-    MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
-    MembershipHelper.testEffMship(s, i2, subj, Group.getDefaultList(), uofc, 1);
-  } // public void testAddGroupMemberWithNonGroupMember()
 
   public void testAddMemberToGroupThatIsMember() {
     GrouperSession  s     = SessionHelper.getRootSession();
