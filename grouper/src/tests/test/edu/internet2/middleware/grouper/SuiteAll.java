@@ -30,6 +30,10 @@ public class SuiteAll extends TestCase {
 
     TestSuite suite = new TestSuite();
 
+    suite.addTest(SuiteAddMember.suite());
+    suite.addTest(SuiteMemberOf.suite());
+    suite.addTest(SuiteTxDaemon.suite());
+
     suite.addTestSuite(TestBugsClosed.class);
     suite.addTestSuite(TestBugsOpen.class);
 
@@ -38,8 +42,6 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGrFiFindByName.class);
     suite.addTestSuite(TestGrFiFindByUuid.class);
     suite.addTestSuite(TestGroup.class);
-    suite.addTestSuite(TestGroupAddMember.class);
-    suite.addTestSuite(TestGroupAddMemberGroup.class);
     suite.addTestSuite(TestGroupDelete.class);
     suite.addTestSuite(TestGroupDeleteMember.class);
     suite.addTestSuite(TestGroupDeleteMemberGroup.class);
@@ -65,7 +67,6 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestMember.class);
     suite.addTestSuite(TestMemberFinder.class);
     suite.addTestSuite(TestMemberToGroup.class);
-    suite.addTestSuite(TestMemberOf.class);
     // TODO suite.addTestSuite(TestMemberOfAccessPrivs.class);
     // TODO suite.addTestSuite(TestMemberOfNamingPrivs.class);
     suite.addTestSuite(TestMembership.class);
@@ -91,8 +92,6 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestSubjectFinderInternal.class);  // TODO Hrm...
     suite.addTestSuite(TestWrongFieldType.class); 
     // MANUAL suite.addTestSuite(TestWheelGroup.class); 
-
-    suite.addTest(SuiteTxDaemon.suite());
 
     return suite;
   } // static public Test suite()
