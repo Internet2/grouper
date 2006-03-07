@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteAddMember.java,v 1.1 2006-03-06 20:21:50 blair Exp $
+ * @version $Id: SuiteAddMember.java,v 1.2 2006-03-07 19:27:05 blair Exp $
  */
 public class SuiteAddMember extends TestCase {
 
@@ -39,6 +39,7 @@ public class SuiteAddMember extends TestCase {
     suite.addTestSuite(TestAddMember1.class);
     suite.addTestSuite(TestAddMember2.class);
     suite.addTestSuite(TestAddMember3.class);
+    suite.addTestSuite(TestAddMember4.class);
     return suite;
   } // static public Test suite()
 
