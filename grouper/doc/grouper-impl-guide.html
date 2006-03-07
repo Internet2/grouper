@@ -54,7 +54,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2006-02-13 20:15:05 $
+$Date: 2006-03-07 15:48:47 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -959,14 +959,14 @@ first.
     copy <i>tools.jar</i> from <tt>$JAVA_HOME/lib</tt> to
     <tt>$ANT_HOME/lib</tt> to get ant working properly.</p></li>
   <li>Change directory to <tt>$GROUPER</tt>.</li>
+  <li><p><tt>ant build</tt></p>
+    <p>This will compile Grouper and place the class files under
+    the <tt>$GROUPER/build</tt> directory.</p></li>
   <li><p><tt>ant setup</tt></p>
     <p>This will create a DDL appropriate for your configurated
       database type, initialize the Groups Registry and install tables
       required by the I2MI Subject Interface.</p>
   </li>
-  <li><p><tt>ant build</tt></p>
-    <p>This will compile Grouper and place the class files under
-    the <tt>$GROUPER/build</tt> directory.</p></li>
   <li><p><tt>ant test</tt> [optional]</p>
     <p>This will compile and run the Grouper test suite to exercise the
     API and ensure that Grouper is properly configured.</p>
