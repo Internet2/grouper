@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.13 2006-03-10 18:03:15 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.14 2006-03-10 19:56:03 blair Exp $
  */
 public class RegistryReset {
 
@@ -47,7 +47,6 @@ public class RegistryReset {
 
 
   // Private Instance Variables
-  private Connection  conn;
   private Session     hs;
   private Transaction tx;
 
@@ -134,38 +133,13 @@ public class RegistryReset {
 
 
   // Private Instance Methods
-
-  private void _addSubject(
-    PreparedStatement add, String id, String type, String name
-  ) 
+  private void _addSubjects() 
+    throws  HibernateException
   {
-    try {
-      add.setString(1, id);
-      add.setString(2, type);
-      add.setString(3, name);
-      add.executeUpdate();
-    }
-    catch (SQLException eSQL) {
-      String err = "unable to add subject " + id + ": " + eSQL.getMessage();
-      this._abort(err);
-    }
-  } // private void _addSubject(id, type, name)
-
-  private void _addSubjects() {
-    try {
-      PreparedStatement add = this.conn.prepareStatement(
-        "INSERT INTO Subject (subjectID, SubjectTypeID, name) "
-        + "VALUES (?, ?, ?)"
-      );
-      for (int i=0; i<100; i++) {
-        String  id    = "test.subject." + i;
-        String  name  = "my name is " + id;
-        this._addSubject(add, id, SUBJ_TYPE, name);
-      }
-    }
-    catch (SQLException eSQL) {
-      String err = "unable to prepare statement: " + eSQL.getMessage();
-      this._abort(err);
+    for (int i=0; i<100; i++) {
+      String  id    = "test.subject." + i;
+      String  name  = "my name is " + id;
+      this.hs.save(new HibernateSubject(id, SUBJ_TYPE, name));
     }
   } // private void _addSubjects()
 
@@ -173,28 +147,6 @@ public class RegistryReset {
     LOG.fatal(err);
     throw new RuntimeException(err);
   } // private void _abort(err)
-
-  private void _emptyTable(String table) {
-    this._emptyTable(table, "delete from " + table);
-  } // private void _emptyTable(table)
-
-  private void _emptyTable(String table, String sql) {
-    try {
-      PreparedStatement update = this.conn.prepareStatement(sql);
-      try {
-        update.executeUpdate();
-      } 
-      catch (SQLException eSQL) {
-        String err = "unable to update table " + table + "(" 
-          + sql + "): " + eSQL.getMessage();
-        this._abort(err);
-      }
-    } catch (SQLException eSQL) {
-      String err = "unable to prepare statement for table " 
-        + table + "(" + sql + "): " + eSQL.getMessage();
-      this._abort(err);
-    }
-  } // private void _emptyTable(table, sql)
 
   private void _emptyTables() 
     throws  HibernateException
@@ -221,20 +173,13 @@ public class RegistryReset {
     this.hs.delete(
       "from GroupType as t where (t.name != 'base' and t.name != 'naming')"
     );
-    this._emptyTable("SubjectAttribute"); // TODO
-    this._emptyTable("Subject");          // TODO
+    this.hs.delete("from HibernateSubject");
   } // private void _emptyTables()
 
   private void _setUp() 
     throws  HibernateException
   {
     this.hs   = HibernateHelper.getSession();
-    this.conn = hs.connection();
-    if (this.conn == null) {
-      String msg = "null connection";
-      LOG.fatal(msg);
-      throw new HibernateException(msg);
-    }
     this.tx   = this.hs.beginTransaction();
   } // private void _setUp()
 
