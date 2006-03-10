@@ -3,7 +3,7 @@ if "%OS%" == "Windows_NT" setlocal
 rem ---------------------------------------------------------------------------
 rem Start script for the Signet demo system
 rem
-rem $Id: shutdown.bat,v 1.6 2006-02-06 06:40:00 acohen Exp $
+rem $Id: shutdown.bat,v 1.7 2006-03-10 06:00:08 lmcrae Exp $
 rem ---------------------------------------------------------------------------
 
 if exist "%JAVA_HOME%\bin\java.exe" goto okJavaHome
@@ -53,7 +53,7 @@ cd %TOMCAT_EXECUTABLE_DIR%
 call %TOMCAT_EXECUTABLE%
 
 cd "%WORKING_DIR%\%HSQLDB_EXECUTABLE_DIR%"
-"%JAVA_HOME%"\bin\java.exe -jar hsqldb.jar --rcfile ..\..\config\sqltool.rc --sql "SHUTDOWN" localhost-sa
+"%JAVA_HOME%\bin\java.exe" -jar hsqldb.jar --rcfile ..\..\config\sqltool.rc --sql "SHUTDOWN" localhost-sa
 
 
 :end

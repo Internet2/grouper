@@ -3,7 +3,7 @@ if "%OS%" == "Windows_NT" setlocal
 rem ---------------------------------------------------------------------------
 rem Start script for the Signet demo system
 rem
-rem $Id: startup.bat,v 1.7 2006-02-06 06:40:00 acohen Exp $
+rem $Id: startup.bat,v 1.8 2006-03-10 06:00:38 lmcrae Exp $
 rem ---------------------------------------------------------------------------
 
 if exist "%JAVA_HOME%\bin\java.exe" goto okJavaHome
@@ -52,6 +52,6 @@ cd %TOMCAT_EXECUTABLE_DIR%
 call %TOMCAT_EXECUTABLE%
 
 cd "%WORKING_DIR%\%HSQLDB_EXECUTABLE_DIR%"
-start "HSQLDB database server for Signet demo" "%JAVA_HOME%"\bin\java.exe -classpath hsqldb.jar org.hsqldb.Server -database.0 mydb -dbname.0 xdb
+start "HSQLDB database server for Signet demo" "%JAVA_HOME%\bin\java.exe" -classpath hsqldb.jar org.hsqldb.Server -database.0 mydb -dbname.0 xdb
 
 :end
