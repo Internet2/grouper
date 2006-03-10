@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.100 2006-03-07 19:27:05 blair Exp $
+$Id: NEWS,v 1.101 2006-03-10 20:36:54 blair Exp $
 
 ---
 
@@ -10,6 +10,9 @@ $Id: NEWS,v 1.100 2006-03-07 19:27:05 blair Exp $
 Released: TBD
 
 ## Changes
+* UPDATE: `Stem` now extends `Owner`
+* UPDATE: Add internal Hibernate mapping for JDBC Subject Adapter
+  tables to unify methods for creating, loading and resetting DDLs.
 * BUGFIX: Do not allow lists to be added to themselves.
 * BUGFIX: Moved `GrouperSourceAdapter` configuration back into
   `sources.xml` to fix integration with Signet.

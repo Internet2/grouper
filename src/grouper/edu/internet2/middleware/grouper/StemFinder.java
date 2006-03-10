@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.14 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: StemFinder.java,v 1.15 2006-03-10 20:36:54 blair Exp $
  */
 public class StemFinder {
 
@@ -227,7 +227,7 @@ public class StemFinder {
       Stem    ns    = null;
       Session hs    = HibernateHelper.getSession();
       Query   qry   = hs.createQuery(
-        "from Stem as ns where ns.stem_id = :uuid"
+        "from Stem as ns where ns.owner_uuid = :uuid"
       );
       qry.setCacheable(GrouperConfig.QRY_SF_FBU);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBU);

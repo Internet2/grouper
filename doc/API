@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.136 2006-03-01 19:52:58 blair Exp $
+$Id: API,v 1.137 2006-03-10 20:36:54 blair Exp $
 
 ---
 
@@ -278,7 +278,7 @@ $Id: API,v 1.136 2006-03-01 19:52:58 blair Exp $
 
 ## QueryFilter extends BaseQueryFilter
 
-## Stem
+## Stem extends Owner
 * Group               addChildGroup(extension, displayExtension)
 * Stem                addChildStem(extension, displayExtension)
 * Set                 getChildGroups()

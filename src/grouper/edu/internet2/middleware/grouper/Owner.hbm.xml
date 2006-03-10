@@ -20,13 +20,13 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.18 2006-03-01 19:52:58 blair Exp $ -->
+<!-- $Id: Owner.hbm.xml,v 1.1 2006-03-10 20:36:54 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="Stem" table="grouper_stems">
+  <class name="Owner" table="grouper_owners">
 
     <meta attribute="class-description">
-A namespace within the Groups Registry.
+An owner within the Groups Registry.
 @author blair christensen.
     </meta>
     <meta attribute="implement-equals">true</meta>
@@ -44,37 +44,11 @@ A namespace within the Groups Registry.
     </id>
     <!-- id -->
 
-    <!-- child_groups -->
-    <set  name="child_groups"
-          table="grouper_groups"
-          cascade="none"
-          inverse="true"
-          lazy="true"
-          batch-size="10"
-    >
-      <key column="parent_stem"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Group" />
-    </set>
-    <!-- child_stems -->
-
-    <!-- child_stems -->
-    <set  name="child_stems"
-          table="grouper_stems"
-          cascade="none"
-          inverse="true"
-          lazy="true"
-          batch-size="10"
-    >
-      <key column="parent_stem"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Stem" />
-    </set>
-    <!-- child_stems -->
-
     <!-- creator_id -->
     <many-to-one  name="creator_id"
                   class="edu.internet2.middleware.grouper.Member" 
                   not-null="true"
-                  index="stem_creator_idx"
+                  index="owner_creator_idx"
     />
     <!-- creator_id -->
 
@@ -90,7 +64,7 @@ A namespace within the Groups Registry.
               type="long"
               not-null="true"
               update="false"
-              index="stem_createtime_idx" 
+              index="owner_createtime_idx" 
     >
       <column name="create_time"
               not-null="true"
@@ -98,48 +72,11 @@ A namespace within the Groups Registry.
     </property>
     <!-- create_time -->
 
-    <!-- description -->
-    <property 
-      name="stem_description"
-      type="string"
-      length="1024"
-    >
-      <column name="description"/>
-    </property>
-    <!-- description -->
-
-    <!-- display_extension -->
-    <property name="display_extension"
-              type="string"
-              index="stem_displayextn_idx"
-              not-null="true"
-    />
-    <!-- display_extension -->
-
-    <!-- display_name -->
-    <property name="display_name"
-              type="string"
-              index="stem_displayname_idx"
-              not-null="true"
-    />
-    <!-- display_name -->
-
-    <!-- extension -->
-    <property name="stem_extension"
-              type="string"
-              index="stem_extn_idx"
-    >
-      <column name="extension"
-              not-null="true"
-      />
-    </property>
-    <!-- extension -->
-
     <!-- modifier_id -->
     <many-to-one  name="modifier_id"
                   class="edu.internet2.middleware.grouper.Member" 
                   cascade="none"
-                  index="stem_modifier_idx"
+                  index="owner_modifier_idx"
     />
     <!-- modifier_id -->
 
@@ -153,47 +90,28 @@ A namespace within the Groups Registry.
     <!-- modify_time -->
     <property name="modify_time"
               type="long"
-              index="stem_modifytime_idx" 
+              index="owner_modifytime_idx" 
     />
     <!-- modify_time -->
 
-    <!-- name -->
-    <property
-      name="stem_name"
-      type="string"
-      index="stem_name_idx"
-    >
-      <column name="name"
-              not-null="true"/>
-    </property>
-    <!-- name -->
-
-    <!-- parent_stem -->
-    <many-to-one
-      name="parent_stem"
-      class="edu.internet2.middleware.grouper.Stem"
-      cascade="none"
-    />
-    <!-- parent_stem -->
-
-    <!-- stem_id -->
-    <property name="stem_id"
+    <!-- owner_uuid -->
+    <property name="owner_uuid"
               type="string"
               not-null="true"
               unique="true"
-              index="stem_uuid_idx"
+              index="owner_uuid_idx"
     >
-      <column name="stem_uuid"
+      <column name="owner_uuid"
               length="128"
       />
     </property>
-    <!-- stem_id -->
+    <!-- owner_uuid -->
 
     <!-- status -->
     <property name="status"
               type="edu.internet2.middleware.grouper.StatusUserType"
               update="false"
-              index="stem_status_idx"
+              index="owner_status_idx"
     >
       <column name="status_type"
               length="128"
@@ -201,6 +119,94 @@ A namespace within the Groups Registry.
       <column name="status_ttl"/>
     </property>
     <!-- status -->
+
+
+
+    <joined-subclass  name="Stem" table="grouper_stems">
+      <key column="owner_id"/>
+
+      <!-- child_groups -->
+      <set  name="child_groups"
+            table="grouper_groups"
+            cascade="none"
+            inverse="true"
+            lazy="true"
+            batch-size="10"
+      >
+        <key column="parent_stem"/>
+        <one-to-many class="edu.internet2.middleware.grouper.Group" />
+      </set>
+      <!-- child_stems -->
+
+      <!-- child_stems -->
+      <set  name="child_stems"
+            table="grouper_stems"
+            cascade="none"
+            inverse="true"
+            lazy="true"
+            batch-size="10"
+      >
+        <key column="parent_stem"/>
+        <one-to-many class="edu.internet2.middleware.grouper.Stem" />
+      </set>
+      <!-- child_stems -->
+
+      <!-- description -->
+      <property 
+        name="stem_description"
+        type="string"
+        length="1024"
+      >
+        <column name="description"/>
+      </property>
+      <!-- description -->
+
+      <!-- display_extension -->
+      <property name="display_extension"
+                type="string"
+                index="stem_displayextn_idx"
+                not-null="true"
+      />
+      <!-- display_extension -->
+
+      <!-- display_name -->
+      <property name="display_name"
+                type="string"
+                index="stem_displayname_idx"
+                not-null="true"
+      />
+      <!-- display_name -->
+
+      <!-- extension -->
+      <property name="stem_extension"
+                type="string"
+                index="stem_extn_idx"
+      >
+        <column name="extension"
+                not-null="true"
+        />
+      </property>
+      <!-- extension -->
+
+      <!-- name -->
+      <property
+        name="stem_name"
+        type="string"
+        index="stem_name_idx"
+      >
+        <column name="name"
+                not-null="true"/>
+      </property>
+      <!-- name -->
+
+      <!-- parent_stem -->
+      <many-to-one
+        name="parent_stem"
+        class="edu.internet2.middleware.grouper.Stem"
+        cascade="none"
+      />
+      <!-- parent_stem -->
+    </joined-subclass>
 
   </class>
 </hibernate-mapping>

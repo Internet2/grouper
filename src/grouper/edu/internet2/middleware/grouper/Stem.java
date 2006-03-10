@@ -31,10 +31,10 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.49 2006-03-10 18:03:15 blair Exp $
+ * @version $Id: Stem.java,v 1.50 2006-03-10 20:36:54 blair Exp $
  *     
 */
-public class Stem implements Serializable {
+public class Stem extends Owner implements Serializable {
 
   // Protected Class Constants
   protected static final String ROOT_EXT  = "";   // Appease Oracle
@@ -77,8 +77,8 @@ public class Stem implements Serializable {
   private Status  status;
   private String  stem_description;
   private String  stem_extension;
-  private String  stem_id;
   private String  stem_name;
+  private String  uuid;
   private int     version;
 
 
@@ -101,7 +101,7 @@ public class Stem implements Serializable {
   protected Stem(GrouperSession s) {
     this.s = s;
     this._setCreated();
-    this.setStem_id(          GrouperUuid.getUuid() );
+    this.setOwner_uuid(       GrouperUuid.getUuid() );
     this.setStem_name(        ROOT_INT              );
     this.setDisplay_name(     ROOT_INT              );
     this.setStem_extension(   ROOT_INT              );
@@ -295,9 +295,8 @@ public class Stem implements Serializable {
     }
     Stem otherStem = (Stem) other;
     return new EqualsBuilder()
-      .append(this.getStem_id()     , otherStem.getStem_id()    )
+      .append(this.getOwner_uuid()  , otherStem.getOwner_uuid() )
       .append(this.getCreator_id()  , otherStem.getCreator_id() )
-      .append(this.getStem_id()     , otherStem.getStem_id()    )
       .isEquals();
   } // public boolean equals(other)
 
@@ -650,7 +649,7 @@ public class Stem implements Serializable {
    * @return  Stem UUID.
    */
   public String getUuid() {
-    return this.getStem_id();
+    return this.getOwner_uuid();
   }
 
   /**
@@ -735,9 +734,8 @@ public class Stem implements Serializable {
  
   public int hashCode() {
     return new HashCodeBuilder()
-      .append(this.getStem_id()     )
+      .append(this.getOwner_uuid()  )
       .append(this.getCreator_id()  )
-      .append(this.getStem_id()     )
       .toHashCode()
       ;
   } // public int hashCode()
@@ -931,7 +929,7 @@ public class Stem implements Serializable {
     return new ToStringBuilder(this)
       .append("displayName" , getDisplay_name() )
       .append("name"        , getName()         )
-      .append("uuid"        , getStem_id()      )
+      .append("uuid"        , getOwner_uuid()   )
       .append("creator"     , getCreator_id()   )
       .append("modifier"    , getModifier_id()  )
       .toString();
@@ -1268,14 +1266,6 @@ public class Stem implements Serializable {
 
   private void setStem_name(String stem_name) {
     this.stem_name = stem_name;
-  }
-
-  private String getStem_id() {
-    return this.stem_id;
-  }
-  
-  private void setStem_id(String stem_id) {
-    this.stem_id = stem_id;
   }
 
   private Member getCreator_id() {
