@@ -1,3 +1,5 @@
+alter table grouper_queue drop constraint FKA9669A7EBFC28A9A;
+alter table grouper_queue drop constraint FKA9669A7E585A9F5;
 alter table grouper_memberships drop constraint FK2B2D6F0A5236F20E;
 alter table grouper_memberships drop constraint FK2B2D6F0A5000A8E0;
 alter table grouper_memberships drop constraint FK2B2D6F0ACC93A68B;
@@ -7,25 +9,31 @@ alter table grouper_groups_types drop constraint FKFBD6041CD26E040;
 alter table grouper_stems drop constraint FKA98254373C82913E;
 alter table grouper_stems drop constraint FKA9825437A3FBEB83;
 alter table grouper_stems drop constraint FKA98254375236F20E;
-alter table grouper_types drop constraint FKA992D9E65236F20E;
+alter table grouper_fields drop constraint FK6FFE2AEC4C7188FA;
 alter table grouper_groups drop constraint FK723686075236F20E;
 alter table grouper_groups drop constraint FK723686073C82913E;
 alter table grouper_groups drop constraint FK72368607A3FBEB83;
-alter table grouper_fields drop constraint FK6FFE2AEC4C7188FA;
+alter table grouper_types drop constraint FKA992D9E65236F20E;
+alter table SubjectAttribute drop constraint FK33C2CAF0F69C347;
+alter table grouper_queue_dirty drop constraint FKB5AB4AD1BA977309;
+alter table grouper_attributes drop constraint FK92BF040A1E2E76DB;
 alter table grouper_factors drop constraint FK82080B315236F20E;
 alter table grouper_factors drop constraint FK82080B311BBB05D6;
 alter table grouper_factors drop constraint FK82080B311BBB7A35;
-alter table grouper_attributes drop constraint FK92BF040A1E2E76DB;
 drop table grouper_members if exists;
+drop table grouper_queue if exists;
 drop table grouper_memberships if exists;
 drop table grouper_sessions if exists;
 drop table grouper_groups_types if exists;
 drop table grouper_stems if exists;
-drop table grouper_types if exists;
-drop table grouper_groups if exists;
 drop table grouper_fields if exists;
-drop table grouper_factors if exists;
+drop table grouper_groups if exists;
+drop table Subject if exists;
+drop table grouper_types if exists;
+drop table SubjectAttribute if exists;
+drop table grouper_queue_dirty if exists;
 drop table grouper_attributes if exists;
+drop table grouper_factors if exists;
 create table grouper_members (
    id varchar(128) not null,
    subject_id varchar(255) not null,
@@ -37,9 +45,24 @@ create table grouper_members (
    primary key (id),
    unique (subject_id, subject_source, subject_type)
 );
+create table grouper_queue (
+   id varchar(128) not null,
+   klass varchar(255) not null,
+   queue_uuid varchar(128) not null,
+   queue_time bigint not null,
+   session_id varchar(128),
+   actor varchar(128),
+   status_type varchar(128) not null,
+   owner varchar(128),
+   field_name varchar(32),
+   field_type varchar(32),
+   member varchar(128),
+   primary key (id),
+   unique (queue_uuid)
+);
 create table grouper_memberships (
    id varchar(128) not null,
-   membership_uuid varchar(128),
+   membership_uuid varchar(128) not null,
    owner_id varchar(128) not null,
    member_id varchar(128) not null,
    list_name varchar(32) not null,
@@ -68,7 +91,6 @@ create table grouper_groups_types (
 );
 create table grouper_stems (
    id varchar(128) not null,
-   version integer not null,
    creator_id varchar(128) not null,
    create_source varchar(255),
    create_time bigint not null,
@@ -86,19 +108,19 @@ create table grouper_stems (
    status_ttl bigint,
    primary key (id)
 );
-create table grouper_types (
+create table grouper_fields (
    id varchar(128) not null,
-   name varchar(255) not null,
-   creator_id varchar(128),
-   create_time bigint not null,
-   status_type varchar(128),
-   status_ttl bigint,
+   group_type varchar(128) not null,
+   field_type varchar(32) not null,
+   field_name varchar(32) not null,
+   read_priv varchar(128) not null,
+   write_priv varchar(128) not null,
+   nullable bit,
    primary key (id),
-   unique (name)
+   unique (field_name)
 );
 create table grouper_groups (
    id varchar(128) not null,
-   version integer not null,
    creator_id varchar(128),
    create_source varchar(255),
    create_time bigint not null,
@@ -111,16 +133,43 @@ create table grouper_groups (
    status_ttl bigint,
    primary key (id)
 );
-create table grouper_fields (
+create table Subject (
+   subjectID varchar(64) not null,
+   subjectTypeID varchar(32),
+   name varchar(255),
+   primary key (subjectID)
+);
+create table grouper_types (
    id varchar(128) not null,
-   group_type varchar(128) not null,
-   field_type varchar(32) not null,
-   field_name varchar(32) not null,
-   read_priv varchar(128) not null,
-   write_priv varchar(128) not null,
-   nullable bit,
+   name varchar(255) not null,
+   creator_id varchar(128),
+   create_time bigint not null,
+   assignable bit,
+   internal bit,
    primary key (id),
-   unique (field_name)
+   unique (name)
+);
+create table SubjectAttribute (
+   subjectID varchar(64) not null,
+   name varchar(255) not null,
+   value varchar(255) not null,
+   searchValue varchar(255),
+   primary key (subjectID, name, value)
+);
+create table grouper_queue_dirty (
+   queue_id varchar(128) not null,
+   uuid varchar(255) not null,
+   idx integer not null,
+   primary key (queue_id, idx)
+);
+create table grouper_attributes (
+   id varchar(128) not null,
+   version integer not null,
+   group_id varchar(128),
+   field_name varchar(32) not null,
+   field_type varchar(32) not null,
+   value varchar(1024) not null,
+   primary key (id)
 );
 create table grouper_factors (
    id varchar(128) not null,
@@ -134,20 +183,15 @@ create table grouper_factors (
    status_ttl bigint,
    primary key (id)
 );
-create table grouper_attributes (
-   id varchar(128) not null,
-   version integer not null,
-   group_id varchar(128),
-   field_name varchar(32) not null,
-   field_type varchar(32) not null,
-   value varchar(1024) not null,
-   primary key (id)
-);
 create index member_subjectsource_idx on grouper_members (subject_source);
 create index member_subjectid_idx on grouper_members (subject_id);
 create index member_status_idx on grouper_members (status_type, status_ttl);
 create index member_uuid_idx on grouper_members (member_uuid);
 create index member_subjecttype_idx on grouper_members (subject_type);
+create index queue_session_idx on grouper_queue (session_id);
+create index queue_status_idx on grouper_queue (status_type);
+alter table grouper_queue add constraint FKA9669A7EBFC28A9A foreign key (member) references grouper_members;
+alter table grouper_queue add constraint FKA9669A7E585A9F5 foreign key (actor) references grouper_members;
 create index membership_depth_idx on grouper_memberships (depth);
 create index membership_owner_idx on grouper_memberships (owner_id);
 create index membership_status_idx on grouper_memberships (status_type, status_ttl);
@@ -169,18 +213,19 @@ create index stem_uuid_idx on grouper_stems (stem_uuid);
 alter table grouper_stems add constraint FKA98254373C82913E foreign key (parent_stem) references grouper_stems;
 alter table grouper_stems add constraint FKA9825437A3FBEB83 foreign key (modifier_id) references grouper_members;
 alter table grouper_stems add constraint FKA98254375236F20E foreign key (creator_id) references grouper_members;
-create index grouptype_status_idx on grouper_types (status_type, status_ttl);
-alter table grouper_types add constraint FKA992D9E65236F20E foreign key (creator_id) references grouper_members;
+alter table grouper_fields add constraint FK6FFE2AEC4C7188FA foreign key (group_type) references grouper_types;
 create index group_status_idx on grouper_groups (status_type, status_ttl);
 create index group_uuid_idx on grouper_groups (group_uuid);
 alter table grouper_groups add constraint FK723686075236F20E foreign key (creator_id) references grouper_members;
 alter table grouper_groups add constraint FK723686073C82913E foreign key (parent_stem) references grouper_stems;
 alter table grouper_groups add constraint FK72368607A3FBEB83 foreign key (modifier_id) references grouper_members;
-alter table grouper_fields add constraint FK6FFE2AEC4C7188FA foreign key (group_type) references grouper_types;
+alter table grouper_types add constraint FKA992D9E65236F20E foreign key (creator_id) references grouper_members;
+alter table SubjectAttribute add constraint FK33C2CAF0F69C347 foreign key (subjectID) references Subject;
+alter table grouper_queue_dirty add constraint FKB5AB4AD1BA977309 foreign key (queue_id) references grouper_queue;
+create index attribute_field_idx on grouper_attributes (field_name, field_type);
+alter table grouper_attributes add constraint FK92BF040A1E2E76DB foreign key (group_id) references grouper_groups;
 create index factor_status_idx on grouper_factors (status_type, status_ttl);
 create index factor_uuid_idx on grouper_factors (factor_uuid);
 alter table grouper_factors add constraint FK82080B315236F20E foreign key (creator_id) references grouper_members;
 alter table grouper_factors add constraint FK82080B311BBB05D6 foreign key (node_a_id) references grouper_memberships;
 alter table grouper_factors add constraint FK82080B311BBB7A35 foreign key (node_b_id) references grouper_memberships;
-create index attribute_field_idx on grouper_attributes (field_name, field_type);
-alter table grouper_attributes add constraint FK92BF040A1E2E76DB foreign key (group_id) references grouper_groups;
