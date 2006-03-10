@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.48 2006-03-01 19:52:58 blair Exp $
+ * @version $Id: Stem.java,v 1.49 2006-03-10 18:03:15 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -1248,7 +1248,8 @@ public class Stem implements Serializable {
     return this.modify_source;
   }
 
-  private void setModify_source(String modify_source) {
+  // used by RegistryReset
+  protected void setModify_source(String modify_source) {
     this.modify_source = modify_source;
   }
 
@@ -1256,7 +1257,8 @@ public class Stem implements Serializable {
     return this.modify_time;
   }
 
-  private void setModify_time(long modify_time) {
+  // used by RegistryReset
+  protected void setModify_time(long modify_time) {
     this.modify_time = modify_time;
   }
 
@@ -1288,7 +1290,8 @@ public class Stem implements Serializable {
     return this.modifier_id;
   }
 
-  private void setModifier_id(Member modifier_id) {
+  // used by RegistryReset
+  protected void setModifier_id(Member modifier_id) {
       this.modifier_id = modifier_id;
   }
 
