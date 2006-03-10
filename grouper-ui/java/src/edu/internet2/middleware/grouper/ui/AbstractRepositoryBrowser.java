@@ -111,7 +111,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.6 2006-01-03 13:29:19 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.6.2.1 2006-03-10 10:07:00 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -200,11 +200,19 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 					start, pageSize, totalCount);
 			List tmpList = new ArrayList(tmp);
 			tmpList = GrouperHelper.groups2Maps(getGrouperSession(),tmpList);
+			if(totalCount!=null) {
+					totalCount.setLength(0);
+					totalCount.append(tmpList.size());
+				}
 			return new LinkedHashSet(tmpList);
 		}
 		List l=GrouperHelper.groups2Maps(s,new ArrayList( GrouperHelper.getGroupsForPrivileges(
 				s, flatPrivs, start, pageSize,
 				totalCount)));
+				if(totalCount!=null) {
+					totalCount.setLength(0);
+					totalCount.append(l.size());
+				}
 		return new LinkedHashSet(l);
 	}
 	
@@ -227,7 +235,10 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 				resultSize = allChildren.size();
 				results.addAll(GrouperHelper.groupList2SubjectsMaps(
 						s, new ArrayList(allChildren), start, pageSize));
-				
+				if(totalCount!=null) {
+					totalCount.setLength(0);
+					totalCount.append(resultSize);
+				}
 				return results;
 			}
 		} else if(group!=null) return results;
@@ -265,7 +276,11 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 								results.add(child);
 							}
 						}
-		return results;
+				if(totalCount!=null) {
+					totalCount.setLength(0);
+					totalCount.append(resultSize);
+				}
+				return results;
 	}
 	
 	/**
