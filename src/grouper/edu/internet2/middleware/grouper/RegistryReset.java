@@ -32,20 +32,12 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.12 2006-02-15 23:06:49 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.13 2006-03-10 18:03:15 blair Exp $
  */
 public class RegistryReset {
 
   /*
    * TODO
-   * * Use HQL
-   * * Make SQL and table names class constants
-   * * Preserve root stem based upon query for stem id
-   * * Preserve grouper stem based upon query for stem id
-   * * Preserve wheel group (including attributes and types) based upon 
-   *   query for group id
-   * * Preserve creator-of-root-stem, create-of-grouper-stem and
-   *   creator-of-wheel-group
    * * Move subject adding to a different class?
    */
 
@@ -204,73 +196,33 @@ public class RegistryReset {
     }
   } // private void _emptyTable(table, sql)
 
-  private void _emptyTableGrouperGroups() {
-    String  table = "grouper_groups";
-    String  sqlNoModifier = "update " + table + " set "
-      + "modifier_id = null, modify_source = null, modify_time = 0.0";
-    String  sqlNoParent   = "update " + table + " set "
-      + "parent_stem = null";
-    this._emptyTable(table, sqlNoModifier);
-    this._emptyTable(table, sqlNoParent);
-    this._emptyTable(table);
-  } // private void _emptyTableGrouperGroups()
-
-  private void _emptyTableGrouperMembers() {
-    String  table = "grouper_members";
-    String  sqlSaveRoot = "delete from " + table + " where "
-      + "subject_id != 'GrouperSystem'";
-    this._emptyTable(table, sqlSaveRoot);
-  } // private void _emptyTableGrouperMembers()
-
-  private void _emptyTableGrouperMemberships() {
-    String  table       = "grouper_memberships";
-    String  sqlNoParent = "update " + table + " set "
-      + "parent_membership = null";
-    this._emptyTable(table, sqlNoParent);
-    this._emptyTable(table);
-  } // private void _emptyTableGrouperGroups()
-
-  private void _emptyTableGrouperStems() {
-    String  table = "grouper_stems";
-    String  sqlNoModifier = "update " + table + " set "
-      + "modifier_id = null, modify_source = null, modify_time = 0.0";
-    String  sqlNoParent   = "update " + table + " set "
-      + " parent_stem = null";
-    String sqlSaveRoot    = "delete from " + table + " where "
-      + "name != '" + Stem.ROOT_INT + "'";
-    this._emptyTable(table, sqlNoModifier);
-    this._emptyTable(table, sqlNoParent);
-    this._emptyTable(table, sqlSaveRoot);
-  } // private void _emptyTableGrouperStems()
-
-  private void _emptyTableGrouperTypes() {
-    // TODO This should be part of a larger, all HQL transaction
-    try {
-      Transaction tx  = this.hs.beginTransaction();
-      hs.delete(
-        "from GroupType as t where "
-        + "(t.name != 'base' and t.name != 'naming')"
-      );
-      tx.commit();
+  private void _emptyTables() 
+    throws  HibernateException
+  {
+    this.hs.delete("from TxQueue");    
+    this.hs.delete("from Membership");
+    this.hs.delete("from GrouperSession");
+    this.hs.delete("from Group");
+    List l = this.hs.find("from Stem as ns where ns.stem_name like '" + Stem.ROOT_INT + "'");
+    if (l.size() == 1) {
+      Stem    root  = (Stem) l.get(0);
+      String  uuid  = root.getUuid();
+      root.setModifier_id(  null);
+      root.setModify_source(null);
+      root.setModify_time(  0   );
+      this.hs.saveOrUpdate(root);
+      this.hs.delete("from Stem as ns where ns.stem_id != '" + uuid + "'");
     }
-    catch (Exception e) {
-      this._abort(e.getMessage());    
+    else {
+      this.hs.delete("from Stem as ns where ns.stem_name != '" + Stem.ROOT_INT + "'");
     }
-  } // private void _emptyTableGrouperTypes()
-
-  private void _emptyTables() {
-    this._emptyTable("grouper_queue");
-    this._emptyTable("grouper_groups_types");
-    this._emptyTableGrouperMemberships();
-    this._emptyTable("grouper_sessions");
-    this._emptyTable("grouper_attributes");
-    this._emptyTableGrouperGroups();
-    this._emptyTableGrouperStems();
-    this._emptyTable("grouper_factors");
-    this._emptyTableGrouperMembers();
-    this._emptyTableGrouperTypes();
-    this._emptyTable("SubjectAttribute");
-    this._emptyTable("Subject");
+    this.hs.delete("from Factor");
+    this.hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
+    this.hs.delete(
+      "from GroupType as t where (t.name != 'base' and t.name != 'naming')"
+    );
+    this._emptyTable("SubjectAttribute"); // TODO
+    this._emptyTable("Subject");          // TODO
   } // private void _emptyTables()
 
   private void _setUp() 

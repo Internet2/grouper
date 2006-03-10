@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.12 2006-03-01 19:52:58 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.13 2006-03-10 18:03:15 blair Exp $
  */
 class HibernateHelper {
 
@@ -47,6 +47,7 @@ class HibernateHelper {
     try {
       FACTORY = new Configuration()
         .addClass(Attribute.class)
+        .addClass(Factor.class)
         .addClass(Field.class)
         .addClass(Group.class)
         .addClass(GrouperSession.class)
