@@ -1,6 +1,9 @@
 -- This is the Sybase DDL for the Signet database
 -- Author Lynn McRae, Stanford University 
--- modified
+-- Modifications
+--  03/09/2006 Add "foreign key (treeID) ..." to signet_treeNode table; formatting
+--     fixes; spelled out "integer" everywhere.  Dropped "clustered" subsystem
+--     primary index declaration
 --
 -- Tree tables
 drop table signet_treeNodeRelationship;
@@ -24,7 +27,7 @@ drop table signet_function;
 drop table signet_permission;
 drop table signet_limit;
 drop table signet_subsystem;
--- Signet Subject tables
+-- Signet Subject table
 drop table signet_subject;
 -- Local Source Subject tables (optional)
 drop table SubjectAttribute;
@@ -40,7 +43,7 @@ name                varchar(120)        NOT NULL,
 helpText            text                NOT NULL,
 scopeTreeID         varchar(64)         NULL,
 modifyDatetime      smalldatetime       NOT NULL,
-primary key clustered (subsystemID)
+primary key (subsystemID)
 )
 ;
 create table signet_category
@@ -73,7 +76,7 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 ;
 create table signet_permission
 (
-permissionKey		numeric(12,0)       IDENTITY,
+permissionKey       numeric(12,0)       IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 permissionID        varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -85,7 +88,7 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 ;
 create table signet_limit
 (
-limitKey			numeric(12,0)       IDENTITY,
+limitKey            numeric(12,0)       IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 limitID             varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -122,9 +125,9 @@ foreign key (permissionKey) references signet_permission (permissionKey),
 foreign key (limitKey) references signet_limit (limitKey)
 )
 ;
--- Signet Subject tables
+-- Signet Subject table
 create table signet_subject (
-subjectKey			numeric(12,0)       IDENTITY,
+subjectKey          numeric(12,0)       IDENTITY,
 subjectTypeID       varchar(32)         NOT NULL,
 subjectID           varchar(64)         NOT NULL,
 description         varchar(255)        NOT NULL,
@@ -153,6 +156,7 @@ status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
 modifyDatetime      smalldatetime       NOT NULL,
 primary key (treeID, nodeID),
+foreign key (treeID) references signet_tree (treeID)
 foreign key (treeID, nodeID) references signet_treeNode (treeID, nodeID)
 )
 ;
@@ -168,7 +172,7 @@ foreign key (treeID) references signet_tree (treeID)
 -- ChoiceSet tables
 create table signet_choiceSet
 (
-choiceSetKey		numeric(12,0)       IDENTITY,
+choiceSetKey        numeric(12,0)       IDENTITY,
 choiceSetID         varchar(64)         NOT NULL,
 adapterClass        varchar(255)        NOT NULL,
 subsystemID         varchar(64)         NULL,
@@ -179,7 +183,7 @@ unique (choiceSetID, subsystemID)
 ;
 create table signet_choice
 (
-choiceKey			numeric(12,0)       IDENTITY,
+choiceKey           numeric(12,0)       IDENTITY,
 choiceSetKey        numeric(12,0)       NOT NULL,
 value               varchar(32)         NOT NULL,
 label               varchar(64)         NOT NULL,
@@ -195,7 +199,7 @@ foreign key (choiceSetKey) references signet_choiceSet (choiceSetKey)
 create table signet_assignment
 (
 assignmentID        numeric(12,0)       IDENTITY,
-instanceNumber      int                 NOT NULL,
+instanceNumber      integer             NOT NULL,
 status              varchar(16)         NOT NULL,
 functionKey         numeric(12,0)       NOT NULL,
 grantorKey          numeric(12,0)       NOT NULL,
@@ -239,9 +243,9 @@ on signet_assignment (
 create table signet_assignmentLimit
 (
 assignmentID        numeric(12,0)       NOT NULL,
-limitKey    		numeric(12,0)       NOT NULL,
+limitKey            numeric(12,0)       NOT NULL,
 value               varchar(32)         NOT NULL,
-unique (assignmentID, limitKey, value),
+primary key (assignmentID, limitKey, value),
 foreign key (assignmentID) references signet_assignment (assignmentID),
 foreign key (limitKey) references signet_limit (limitKey)
 )
@@ -250,7 +254,7 @@ create table signet_assignment_history
 (
 historyID           numeric(12,0)       IDENTITY,
 assignmentID        numeric(12,0)       NOT NULL,
-instanceNumber      int                 NOT NULL,
+instanceNumber      integer             NOT NULL,
 status              varchar(16)         NOT NULL,
 functionKey         numeric(12,0)       NOT NULL,
 grantorKey          numeric(12,0)       NOT NULL,
@@ -285,22 +289,18 @@ on signet_assignment_history (
 ;
 create table signet_assignmentLimit_history
 (
-  assignment_historyID numeric(12,0) NOT NULL,
-  limitKey             numeric(12,0) NOT NULL,
-  value                varchar(32)   NOT NULL,
-  unique      (assignment_historyID, limitKey, value),
-  foreign key (assignment_historyID)
-    references signet_assignment_history
-      (historyID),
-  foreign key (limitKey)
-    references signet_limit
-      (limitKey)
+assignment_historyID numeric(12,0)       NOT NULL,
+limitKey             numeric(12,0)       NOT NULL,
+value                varchar(32)         NOT NULL,
+primary key (assignment_historyID, limitKey, value),
+foreign key (assignment_historyID) references signet_assignment_history (historyID),
+foreign key (limitKey) references signet_limit (limitKey)
 )
 ;
 create table signet_proxy
 (
 proxyID             numeric(12,0)       IDENTITY,
-instanceNumber      int                 NOT NULL,
+instanceNumber      integer             NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NULL,
 grantorKey          numeric(12,0)       NOT NULL,
@@ -323,12 +323,12 @@ create table signet_proxy_history
 (
 historyID           numeric(12,0)       IDENTITY,
 proxyID             numeric(12,0)       NOT NULL,
-instanceNumber      int                 NOT NULL,
+instanceNumber      integer             NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NULL,
 grantorKey          numeric(12,0)       NOT NULL,
 granteeKey          numeric(12,0)       NOT NULL,
-proxySubjectKey		numeric(12,0)       NULL,
+proxySubjectKey     numeric(12,0)       NULL,
 canUse              bit                 NOT NULL,
 canExtend           bit                 NOT NULL,
 effectiveDate       smalldatetime       NOT NULL,
@@ -336,7 +336,7 @@ expirationDate      smalldatetime       NULL,
 revokerKey          numeric(12,0)       NULL,
 historyDatetime     smalldatetime       NOT NULL,
 modifyDatetime      smalldatetime       NOT NULL,
-unique (proxyID, instanceNumber),
+primary key (proxyID, instanceNumber),
 foreign key (grantorKey) references signet_subject (subjectKey),
 foreign key (granteeKey) references signet_subject (subjectKey),
 foreign key (proxySubjectKey) references signet_subject (subjectKey),
@@ -344,34 +344,35 @@ foreign key (revokerKey) references signet_subject (subjectKey)
 )
 ;
 -- Subject tables (optional, for local subject tables)
-create table SubjectType (
-subjectTypeID     varchar(32)     NOT NULL,
-name              varchar(120)    NOT NULL,
-adapterClass      varchar(255)    NOT NULL,
-modifyDatetime    smalldatetime   NOT NULL,
+create table SubjectType
+(
+subjectTypeID     varchar(32)           NOT NULL,
+name              varchar(120)          NOT NULL,
+adapterClass      varchar(255)          NOT NULL,
+modifyDatetime    smalldatetime         NOT NULL,
 primary key (subjectTypeID)
 )
 ;
 create table Subject
 (
-subjectTypeID     varchar(32)     NOT NULL,
-subjectID         varchar(64)     NOT NULL,
-name              varchar(120)    NOT NULL,
-description       varchar(255)    NOT NULL,
-displayID         varchar(64)     NOT NULL,
-modifyDatetime    smalldatetime   NOT NULL,
+subjectTypeID     varchar(32)           NOT NULL,
+subjectID         varchar(64)           NOT NULL,
+name              varchar(120)          NOT NULL,
+description       varchar(255)          NOT NULL,
+displayID         varchar(64)           NOT NULL,
+modifyDatetime    smalldatetime         NOT NULL,
 primary key (subjectTypeID, subjectID)
 )
 ;
 create table SubjectAttribute
 (
-subjectTypeID     varchar(32)     NOT NULL,
-subjectID         varchar(64)     NOT NULL,
-name              varchar(32)     NOT NULL,
-instance          smallint        NOT NULL,
-value             varchar(255)    NOT NULL,
-searchValue       varchar(255)    NOT NULL,
-modifyDatetime    smalldatetime   NOT NULL,
+subjectTypeID     varchar(32)           NOT NULL,
+subjectID         varchar(64)           NOT NULL,
+name              varchar(32)           NOT NULL,
+instance          smallint              NOT NULL,
+value             varchar(255)          NOT NULL,
+searchValue       varchar(255)          NOT NULL,
+modifyDatetime    smalldatetime         NOT NULL,
 primary key (subjectTypeID, subjectID, name, instance),
 foreign key (subjectTypeID, subjectID) references Subject (subjectTypeID, subjectID)
 )
