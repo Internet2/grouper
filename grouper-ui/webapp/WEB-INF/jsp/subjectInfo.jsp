@@ -2,7 +2,7 @@
 			Displays subject attributes
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectInfo.jsp,v 1.2 2005-12-08 15:33:28 isgwb Exp $
+  @version $Id: subjectInfo.jsp,v 1.2.2.1 2006-03-10 10:04:40 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -33,6 +33,14 @@
 	</div>
 	<div class="formRight">
 		<c:out value="${subject.subjectType}"/>
+	</div>
+</div>
+<div class="formRow">
+	<div class="formLeft">
+		<fmt:message bundle="${nav}" key="subject.summary.subject-source"/>
+	</div>
+	<div class="formRight">
+		<c:out value="${subject.source}"/>
 	</div>
 </div>
 <div style="clear:left;"></div>
