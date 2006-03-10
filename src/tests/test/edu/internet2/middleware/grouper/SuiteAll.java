@@ -32,6 +32,7 @@ public class SuiteAll extends TestCase {
 
     suite.addTest(SuiteAddMember.suite());
     suite.addTest(SuiteMemberOf.suite());
+    suite.addTest(SuitePrivSTEM.suite());
     suite.addTest(SuiteTxDaemon.suite());
 
     suite.addTestSuite(TestBugsClosed.class);
@@ -76,7 +77,6 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestPrivOPTIN.class);    // TODO group-with-priv checks
     suite.addTestSuite(TestPrivOPTOUT.class);   // TODO group-with-priv checks
     suite.addTestSuite(TestPrivREAD.class);     // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivSTEM.class);     // TODO group-with-priv checks
     suite.addTestSuite(TestPrivVIEW.class);     // TODO group-with-priv checks
     suite.addTestSuite(TestPrivUPDATE.class);   // TODO group-with-priv checks
     suite.addTestSuite(TestStem.class);
