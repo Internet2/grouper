@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.2 2006-03-12 23:14:58 tbarton Exp $
+$Id: sources.xml,v 1.3 2006-03-12 23:42:43 tbarton Exp $
 -->
 
 <sources>
@@ -37,7 +37,7 @@ $Id: sources.xml,v 1.2 2006-03-12 23:14:58 tbarton Exp $
     </init-param>
     <init-param>
       <param-name>SECURITY_CREDENTIALS</param-name>
-      <param-value>Set_Nerv</param-value>
+      <param-value>%PASSWD%</param-value>
     </init-param>
     <init-param>
       <param-name>SubjectID_AttributeType</param-name>
