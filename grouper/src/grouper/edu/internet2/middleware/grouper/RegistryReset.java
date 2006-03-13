@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.15 2006-03-10 20:36:54 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.16 2006-03-13 18:33:17 blair Exp $
  */
 public class RegistryReset {
 
@@ -168,7 +168,6 @@ public class RegistryReset {
     else {
       this.hs.delete("from Owner");
     }
-    this.hs.delete("from Factor");
     this.hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
     this.hs.delete(
       "from GroupType as t where (t.name != 'base' and t.name != 'naming')"
