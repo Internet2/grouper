@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectAsMap.java,v 1.4.2.1 2006-03-13 13:03:30 isgwb Exp $
+ * @version $Id: SubjectAsMap.java,v 1.4.2.2 2006-03-13 14:07:32 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
 
@@ -72,10 +72,7 @@ public class SubjectAsMap extends ObjectAsMap {
 		if(obj!=null) return obj;
 		obj = super.get(key);
 		//Map overrides wrapped Subject
-		if (obj == null) {
-			//No value so check wrapped Subject for value
-			obj = subject.getAttributeValue((String) key);
-		}
+		
 		if(obj!=null && !"".equals(obj)) return obj;
 			//if (values != null && values.size() != 0)
 			//	obj = values.iterator().next();
@@ -91,7 +88,10 @@ public class SubjectAsMap extends ObjectAsMap {
 					obj = subject.getType().getName();
 				else if ("source".equals(key))
 					obj = subject.getSource().getId();
-			
+				if (obj == null) {
+					//No value so check wrapped Subject for value
+					obj = subject.getAttributeValue((String) key);
+				}
 		
 		return obj;
 	}
