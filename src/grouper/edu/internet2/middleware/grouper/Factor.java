@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * @author blair christensen.
  *     
 */
-class Factor implements Serializable {
+class Factor extends Owner implements Serializable {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(Factor.class);
@@ -38,11 +38,14 @@ class Factor implements Serializable {
   private String      id;
   private String      klass;
   private Member      creator_id;
+  private String      create_source;
   private long        create_time;
-  private Membership  node_a;
-  private Membership  node_b;
-  private Status      status;
-  private String      uuid;
+  private Membership  left;
+  private Member      modifier_id;
+  private String      modify_source;
+  private long        modify_time;
+  private String      owner_uuid;
+  private Membership  right;
 
 
   // Constructors
@@ -54,60 +57,67 @@ class Factor implements Serializable {
 
 
   // Hibernate Accessors
-  private String getId() {
-    return this.getId();
+  private String getCreate_source() { 
+    return this.create_source;
   }
-  private void setId(String id) {
-    this.id = id;
+  private long getCreate_time() {
+    return this.create_time;
   }
-
-  private String getKlass() {
-    return this.klass;
-  }
-  private void setKlass(String klass) {
-    this.klass = klass;
-  }
-
   private Member getCreator_id() {
     return this.creator_id;
   }
-  private void setCreator_id(Member m) {
-    this.creator_id = m;
+  private String getId() {
+    return this.getId();
+  }
+  private String getKlass() {
+    return this.klass;
+  }
+  private Membership getLeft() {
+    return this.left;
+  }
+  private Member getModifier_id() {
+    return this.modifier_id;
+  }
+  private String getModify_source() {
+    return this.modify_source;
+  }
+  private long getModify_time() {
+    return this.modify_time;
+  }
+  private Membership getRight() {
+    return this.right;
   }
 
-  private long getCreate_time() {
-    return this.create_time;
+  private void setCreate_source(String source) {
+    this.create_source = source;
   }
   private void setCreate_time(long time) {
     this.create_time = time;
   }
- 
-  private Membership getNode_a() {
-    return this.node_a;
+  private void setCreator_id(Member m) {
+    this.creator_id = m;
   }
-  private void setNode_a(Membership ms) {
-    this.node_a = ms;
+  private void setId(String id) {
+    this.id = id;
   }
- 
-  private Membership getNode_b() {
-    return this.node_b;
+  private void setKlass(String klass) {
+    this.klass = klass;
   }
-  private void setNode_b(Membership ms) {
-    this.node_b = ms;
+  private void setLeft(Membership ms) {
+    this.left = ms;
   }
-
-  private Status getStatus() {
-    return this.status;
+  private void setModifier_id(Member m) {
+    this.modifier_id = m;
   }
-  private void setStatus(Status s) {
-    this.status = s;
+  private void setModify_source(String source) {
+    this.modify_source = source;
   }
-
-  private String getUuid() {
-    return this.uuid;
+  private void setModify_time(long time) {
+    this.modify_time = time;
   }
-  private void setUuid(String uuid) {
-    this.uuid = uuid;
+  private void setRight(Membership ms) {
+    this.right = ms;
   }
 
 }
+
