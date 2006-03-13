@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.101 2006-03-10 20:36:54 blair Exp $
+$Id: NEWS,v 1.102 2006-03-13 20:19:13 blair Exp $
 
 ---
 
@@ -10,7 +10,7 @@ $Id: NEWS,v 1.101 2006-03-10 20:36:54 blair Exp $
 Released: TBD
 
 ## Changes
-* UPDATE: `Stem` now extends `Owner`
+* UPDATE: `Group`, `Factor` and `Stem` now extend `Owner`
 * UPDATE: Add internal Hibernate mapping for JDBC Subject Adapter
   tables to unify methods for creating, loading and resetting DDLs.
 * BUGFIX: Do not allow lists to be added to themselves.

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Owner.hbm.xml,v 1.2 2006-03-13 18:33:17 blair Exp $ -->
+<!-- $Id: Owner.hbm.xml,v 1.3 2006-03-13 20:19:13 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Owner" table="grouper_owners">
@@ -124,28 +124,63 @@ An owner within the Groups Registry.
     <joined-subclass  name="Factor" table="grouper_factors">
       <key column="owner_id"/>
 
-    <!-- left -->
-    <many-to-one  name="left"
-                  class="edu.internet2.middleware.grouper.Membership"
-                  cascade="none"
-    />
-    <!-- left -->
+      <!-- left -->
+      <many-to-one  name="left"
+                    class="edu.internet2.middleware.grouper.Membership"
+                    cascade="none"
+      />
+      <!-- left -->
 
-    <!-- right -->
-    <many-to-one  name="right"
-                  class="edu.internet2.middleware.grouper.Membership"
-                  cascade="none"
-    />
-    <!-- right -->
+      <!-- right -->
+      <many-to-one  name="right"
+                    class="edu.internet2.middleware.grouper.Membership"
+                    cascade="none"
+      />
+      <!-- right -->
 
-    <!-- klass -->
-    <property name="klass"
-              type="class"
-    />
-    <!-- klass -->
+      <!-- klass -->
+      <property name="klass"
+                type="class"
+      />
+      <!-- klass -->
 
-  </joined-subclass>
+    </joined-subclass>
 
+    <joined-subclass  name="Group" table="grouper_groups">
+      <key column="owner_id"/>
+
+      <!-- attributes -->
+      <!-- TODO Would switching to _all-delete-orphan_ work -->
+      <set  name="group_attributes"
+            cascade="all"
+      >
+        <key column="group_id"/>
+        <one-to-many class="edu.internet2.middleware.grouper.Attribute" />
+      </set>
+      <!-- attributes -->
+
+      <!-- parent_stem -->
+      <many-to-one
+        name="parent_stem"
+        class="edu.internet2.middleware.grouper.Stem"
+        cascade="none"
+      />
+      <!-- parent_stem -->
+
+      <!-- group_types -->
+      <set  name="group_types"
+            table="grouper_groups_types"
+            cascade="save-update"
+      >
+        <key column="group_id"/>
+        <many-to-many 
+          class="edu.internet2.middleware.grouper.GroupType"
+          column="type_id"
+        />
+      </set>
+      <!-- group_types -->
+
+    </joined-subclass>
 
     <joined-subclass  name="Stem" table="grouper_stems">
       <key column="owner_id"/>
