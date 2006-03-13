@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.10 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.11 2006-03-13 20:19:13 blair Exp $
  */
 public class GroupFinder {
 
@@ -301,7 +301,7 @@ public class GroupFinder {
       Group   g       = null;
       Session hs      = HibernateHelper.getSession();
       Query   qry   = hs.createQuery(
-        "from Group as g where g.group_id = :value"
+        "from Group as g where g.owner_uuid = :value"
       );
       qry.setCacheable(GrouperConfig.QRY_GF_FBU);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBU);

@@ -31,9 +31,9 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.58 2006-03-07 19:27:05 blair Exp $
+ * @version $Id: Group.java,v 1.59 2006-03-13 20:19:13 blair Exp $
  */
-public class Group implements Serializable {
+public class Group extends Owner implements Serializable {
 
   // Private Class Constants
   private static final EventLog EL        = new EventLog();
@@ -61,12 +61,12 @@ public class Group implements Serializable {
   private long    create_time;
   private Member  creator_id;
   private Set     group_attributes;
-  private String  group_id;
   private Set     group_types         = new LinkedHashSet(); 
   private String  id;
   private Member  modifier_id;
   private String  modify_source;
   private long    modify_time;
+  private String  owner_uuid;
   private Stem    parent_stem;
   private Status  status;
   private int     version;
@@ -109,7 +109,7 @@ public class Group implements Serializable {
     // Set create information
     this._setCreated();
     // Assign UUID
-    this.setGroup_id( GrouperUuid.getUuid() );
+    this.setOwner_uuid( GrouperUuid.getUuid() );
     // Set naming information
     Set attributes = new LinkedHashSet();
     this.attr_de  = displayExtn;
@@ -598,7 +598,7 @@ public class Group implements Serializable {
     return new EqualsBuilder()
       .append(this.getCreator_id()  , otherGroup.getCreator_id()  )
       .append(this.getCreate_time() , otherGroup.getCreate_time() )
-      .append(this.getGroup_id()    , otherGroup.getGroup_id()    )
+      .append(this.getOwner_uuid()  , otherGroup.getOwner_uuid()  )
       .isEquals();
   } // public boolean equals(other)
 
@@ -1267,7 +1267,7 @@ public class Group implements Serializable {
    * @return  Group UUID.
    */
   public String getUuid() {
-    return this.getGroup_id();
+    return this.getOwner_uuid();
   }
 
   /**
@@ -1462,7 +1462,7 @@ public class Group implements Serializable {
     return new HashCodeBuilder()
       .append(this.getCreator_id()  )
       .append(this.getCreate_time() )
-      .append(this.getGroup_id()    )
+      .append(this.getOwner_uuid()  )
       .toHashCode();
   }
 
@@ -2140,6 +2140,7 @@ public class Group implements Serializable {
     return updated;
   } // private Set _updateSystemAttrs(f, value, attrs
 
+
   // Hibernate Accessors
   private String getId() {
     return this.id;
@@ -2179,14 +2180,6 @@ public class Group implements Serializable {
 
   private void setModify_time(long modify_time) {
     this.modify_time = modify_time;
-  }
-
-  private String getGroup_id() {
-    return this.group_id;
-  }
-
-  private void setGroup_id(String group_id) {
-    this.group_id = group_id;
   }
 
   private Member getCreator_id() {
