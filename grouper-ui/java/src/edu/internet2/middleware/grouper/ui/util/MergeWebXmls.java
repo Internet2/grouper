@@ -32,7 +32,7 @@ import javax.xml.transform.stream.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MergeWebXmls.java,v 1.3 2005-12-08 15:31:42 isgwb Exp $
+ * @version $Id: MergeWebXmls.java,v 1.3.2.1 2006-03-14 15:51:15 isgwb Exp $
  */
 
 public class MergeWebXmls {
@@ -101,7 +101,7 @@ public class MergeWebXmls {
 			out = tempDir + File.separatorChar + "web." + i + ".xml";
 			if (i == files.length - 1)
 				out = finalXml;
-			params.put("mergeXmlFile", mergeIn);
+			params.put("mergeXmlFile", new File(mergeIn).toURI().toString());
 			System.out.println("Base = " + baseXml + "\n + " + mergeIn + "\n -> " + out
 					+ "\n");
 			transform(baseXml, out, mergeXsl, params);
@@ -110,7 +110,7 @@ public class MergeWebXmls {
 	}
 
 	private static void transform(String data, String out, String xsl,
-			Map parameters) throws Exception {
+		Map parameters) throws Exception {
 		File dataFile = new File(data);
 		File outFile = new File(out);
 		File xslFile = new File(xsl);
@@ -125,7 +125,11 @@ public class MergeWebXmls {
 				t.setParameter(key, parameters.get(key));
 			}
 		}
-		t.transform(new StreamSource(dataFile), new StreamResult(outFile));
+		try {
+			t.transform(new StreamSource(data), new StreamResult(out));
+		}catch(Exception e) {
+			System.err.println(e.getClass().getName() + ":" + e.getMessage());
+		}
 	}
 
 }
