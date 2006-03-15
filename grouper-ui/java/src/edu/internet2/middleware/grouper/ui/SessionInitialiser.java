@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.3 2005-12-14 14:52:08 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.3.2.1 2006-03-15 20:11:24 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -49,7 +49,15 @@ public class SessionInitialiser {
 		if (localeStr == null) {
 			locale = Locale.getDefault();
 		} else {
+			String [] parts = localeStr.split("_");
+			if(parts.length==1) {
 			locale = new Locale(localeStr);
+			}else if(parts.length==2) {
+				locale=new Locale(parts[0],parts[1]);
+			}else if(parts.length>2) {
+				locale=new Locale(parts[0],parts[1],parts[2]);
+			}
+			session.setAttribute("userSelectedLocale",locale);
 		}
 		session.setAttribute("org.apache.struts.action.LOCALE", locale);
 
@@ -76,6 +84,7 @@ public class SessionInitialiser {
 	 */
 	public static void init(String module, HttpSession session)
 			throws Exception {
+		
 		init(module, null, session);
 	}
 
@@ -104,7 +113,9 @@ public class SessionInitialiser {
 		if (locale == null || locale.equals("")) {
 			locale = moduleInit.getString("default.locale");
 		}
-		Locale localeObj = new Locale(locale);
+		Locale localeObj = (Locale)session.getAttribute("userSelectedLocale");
+		if(localeObj==null)localeObj = new Locale(locale);
+		
 		ResourceBundle grouperBundle = ResourceBundle.getBundle(
 				"resources.grouper.nav", localeObj);
 		ResourceBundle grouperMediaBundle = ResourceBundle.getBundle(
