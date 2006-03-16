@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.50 2006-03-10 20:36:54 blair Exp $
+ * @version $Id: Stem.java,v 1.51 2006-03-16 17:58:57 blair Exp $
  *     
 */
 public class Stem extends Owner implements Serializable {
@@ -85,7 +85,6 @@ public class Stem extends Owner implements Serializable {
   // Transient Instance Variables
   private transient Subject         creator;
   private transient Subject         modifier;
-  private transient GrouperSession  s;
 
 
   // Constructors
@@ -993,13 +992,6 @@ public class Stem extends Owner implements Serializable {
     }
   } // protected static void validateName(name)
     
-
-  // Protected Instance Methods
-  protected void setSession(GrouperSession s) {
-    GrouperSession.validate(s);
-    this.s = s;
-  } // protected void setSession(s)
-
 
   // Private Class Methods
 

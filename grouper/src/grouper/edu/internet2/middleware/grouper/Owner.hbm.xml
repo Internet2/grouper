@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Owner.hbm.xml,v 1.3 2006-03-13 20:19:13 blair Exp $ -->
+<!-- $Id: Owner.hbm.xml,v 1.4 2006-03-16 17:58:57 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Owner" table="grouper_owners">
@@ -168,9 +168,10 @@ An owner within the Groups Registry.
       <!-- parent_stem -->
 
       <!-- group_types -->
-      <set  name="group_types"
-            table="grouper_groups_types"
-            cascade="save-update"
+      <set  
+        name="group_types"
+        table="grouper_groups_types"
+        cascade="none"
       >
         <key column="group_id"/>
         <many-to-many 
@@ -186,12 +187,13 @@ An owner within the Groups Registry.
       <key column="owner_id"/>
 
       <!-- child_groups -->
-      <set  name="child_groups"
-            table="grouper_groups"
-            cascade="none"
-            inverse="true"
-            lazy="true"
-            batch-size="10"
+      <set  
+        name="child_groups"
+        table="grouper_groups"
+        cascade="none"
+        inverse="true"
+        lazy="true"
+        batch-size="10"
       >
         <key column="parent_stem"/>
         <one-to-many class="edu.internet2.middleware.grouper.Group" />
@@ -199,12 +201,13 @@ An owner within the Groups Registry.
       <!-- child_stems -->
 
       <!-- child_stems -->
-      <set  name="child_stems"
-            table="grouper_stems"
-            cascade="none"
-            inverse="true"
-            lazy="true"
-            batch-size="10"
+      <set  
+        name="child_stems"
+        table="grouper_stems"
+        cascade="none"
+        inverse="true"
+        lazy="true"
+        batch-size="10"
       >
         <key column="parent_stem"/>
         <one-to-many class="edu.internet2.middleware.grouper.Stem" />
