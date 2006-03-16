@@ -42,7 +42,7 @@ class TxMemberDel extends TxQueue implements Serializable {
     super();
   } // TxMemberDel()
 
-  protected TxMemberDel(GrouperSession s, String owner, Member m, Field f) {
+  protected TxMemberDel(GrouperSession s, Owner owner, Member m, Field f) {
     super();
     this.setSessionId(s.getSessionId());
     this.setActor(s.getMember());

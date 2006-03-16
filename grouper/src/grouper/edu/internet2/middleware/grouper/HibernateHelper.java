@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.17 2006-03-13 20:19:13 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.18 2006-03-16 20:59:57 blair Exp $
  */
 class HibernateHelper {
 
@@ -221,7 +221,16 @@ class HibernateHelper {
     LOG.info("saved: " + saves.size() + " deleted: " + deletes.size());
   } // protected static void saveAndDelete(saves, deletes)
 
+  // update the object with what is in the registry
+  protected static void update(Object o) 
+    throws  HibernateException 
+  {
+    Session hs = getSession();
+    hs.update(o);
+    hs.close();
+  } // protected static void update(o)
 
+  
   // Private Class Methods
   private static Object _getPersistent(Session hs, Object o) {
     boolean persistent  = false;

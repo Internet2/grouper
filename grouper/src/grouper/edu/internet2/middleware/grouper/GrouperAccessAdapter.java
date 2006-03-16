@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.34 2006-02-21 17:11:32 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.35 2006-03-16 20:59:57 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -81,8 +81,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     GrouperSession.validate(s);
     return MembershipFinder.findSubjects(
-      s, g.getUuid(), 
-      (Field) FieldFinder.find( (String) priv2list.get(priv) )
+      s, g, (Field) FieldFinder.find( (String) priv2list.get(priv) )
     );
   } // public Set getSubjectsWithpriv(s, g, priv)
 
@@ -162,9 +161,9 @@ public class GrouperAccessAdapter implements AccessAdapter {
       while (iterP.hasNext()) {
         Privilege p = (Privilege) iterP.next();
         Field     f = this._getField(p);   
-        Iterator  iterM = MembershipFinder.findMemberships(g.getUuid(), m, f).iterator();
+        Iterator  iterM = MembershipFinder.findMemberships(g, m, f).iterator();
         privs.addAll( this._getPrivs(s, g, subj, m, p, iterM) );
-        Iterator  iterA = MembershipFinder.findMemberships(g.getUuid(), all, f).iterator();
+        Iterator  iterA = MembershipFinder.findMemberships(g, all, f).iterator();
         privs.addAll( this._getPrivs(s, g, subj, all, p, iterA) );
       }
     }

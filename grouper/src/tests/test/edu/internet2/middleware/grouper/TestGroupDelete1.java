@@ -29,15 +29,15 @@ import  org.apache.commons.logging.*;
  * Test {@link Group.delete()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDelete.java,v 1.11 2006-02-21 17:11:33 blair Exp $
+ * @version $Id: TestGroupDelete1.java,v 1.1 2006-03-16 20:59:57 blair Exp $
  */
-public class TestGroupDelete extends TestCase {
+public class TestGroupDelete1 extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestGroupDelete.class);
+  private static final Log LOG = LogFactory.getLog(TestGroupDelete1.class);
 
 
-  public TestGroupDelete(String name) {
+  public TestGroupDelete1(String name) {
     super(name);
   }
 
@@ -50,24 +50,6 @@ public class TestGroupDelete extends TestCase {
     LOG.debug("tearDown");
     GrouperSession.waitForAllTx();
   }
-
-  // Tests
-
-  public void testGroupDelete() {
-    LOG.info("testGroupDelete");
-    Stem  root  = StemHelper.findRootStem(
-      SessionHelper.getRootSession()
-    );
-    Stem  edu   = StemHelper.addChildStem(root, "edu", "educational");
-    Group i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    try {
-      i2.delete();
-      Assert.assertTrue("group deleted", true);
-    }
-    catch (Exception e) {
-      Assert.fail("failed to delete group: " + e.getMessage());
-    }
-  } // public void testGroupDelete()
 
   public void testGroupDeleteWhenMemberAndHasMembers() {
     LOG.info("testGroupDeleteWhenMemberAndHasMembers");
@@ -98,54 +80,6 @@ public class TestGroupDelete extends TestCase {
       Assert.fail(e.getMessage());
     }
   } // public void testGroupDeleteWhenMemberAndHasMembers()
-
-  public void testGroupDeleteWhenHasMemberViaTwoPaths() {
-    LOG.info("testGroupDeleteWhenHasMemberViaTwoPaths");
-
-    Stem  root  = StemHelper.findRootStem(
-      SessionHelper.getRootSession()
-    );
-    Subject         subj0 = SubjectHelper.SUBJ0;
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uofc");
-    Group           ub    = StemHelper.addChildGroup(edu, "ub", "ub");
-    Group           uw    = StemHelper.addChildGroup(edu, "uw", "uw");
-
-    // 0 -> I2^M
-    GroupHelper.addMember(i2, subj0, "members");
-
-    // I2 -> UOFC^M
-    GroupHelper.addMember(uofc, i2.toSubject(), "members");
-
-    // I2 -> UB^M
-    GroupHelper.addMember(ub, i2.toSubject(), "members");
-
-    // UOFC -> UW^M
-    GroupHelper.addMember(uw, uofc.toSubject(), "members");
-
-    // UB -> UW^M
-    GroupHelper.addMember(uw, ub.toSubject(), "members");
-
-    try {
-      i2.delete();
-      Assert.assertTrue("group deleted", true);
-
-      MembershipHelper.testNumMship(i2,   "members",  0, 0, 0);
-
-      MembershipHelper.testNumMship(uofc, "members",  0, 0, 0);
-
-      MembershipHelper.testNumMship(ub, "members",  0, 0, 0);
-
-      MembershipHelper.testNumMship(uw, "members",  2, 2, 0);
-      MembershipHelper.testImm(s, uw, uofc.toSubject(), "members");
-      MembershipHelper.testImm(s, uw, ub.toSubject(), "members");
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
-  } // public void testGroupDeleteWhenHasMemberViaTwoPaths()
 
 }
 

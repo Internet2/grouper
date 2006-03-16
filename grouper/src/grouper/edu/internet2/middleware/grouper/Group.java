@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.60 2006-03-16 17:58:57 blair Exp $
+ * @version $Id: Group.java,v 1.61 2006-03-16 20:59:57 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -347,6 +347,11 @@ public class Group extends Owner implements Serializable {
       );
 
       // Add the group last for good luck    
+      // TODO Is it possible that deleting the group at this time could
+      //      leave the TxQueue in a state of limbo?  Or would
+      //      attempting to delete the group if referenced in the
+      //      TxQueue cause a HibernateException to be thrown?
+      //      Actually, I think both **could** happen.
       deletes.add(this);
 
       // Preserve name for logging
@@ -354,6 +359,7 @@ public class Group extends Owner implements Serializable {
 
       // And then commit changes to registry
       HibernateHelper.delete(deletes);
+
       // TODO info
       sw.stop();
       EL.groupDelete(this.s, name, sw);
@@ -974,7 +980,7 @@ public class Group extends Owner implements Serializable {
     throws  SchemaException
   {
     GrouperSession.validate(this.s);
-    return MembershipFinder.findImmediateMemberships(this.s, this.getUuid(), f);
+    return MembershipFinder.findImmediateMemberships(this.s, this, f);
   } // public Set getImmediateMemberships(f)
 
   /**
@@ -1042,7 +1048,7 @@ public class Group extends Owner implements Serializable {
   public Set getMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findMemberships(this.s, this.getUuid(), f);
+    return MembershipFinder.findMemberships(this.s, this, f);
   } // public Set getMemberships(f)
 
   /**
