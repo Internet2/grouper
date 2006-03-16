@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.29 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.30 2006-03-16 17:58:57 blair Exp $
  */
 public class MembershipFinder {
 
@@ -89,7 +89,7 @@ public class MembershipFinder {
     try {
       Member      m     = MemberFinder.findBySubject(s, subj);
       Set         effs  = findEffectiveMemberships(
-        g.getUuid(), m.getId(), f, via.getUuid(), depth
+        g.getUuid(), m.getId(), f, via, depth
       );
       if (effs.size() > 0) {
         try {
@@ -245,7 +245,7 @@ public class MembershipFinder {
   } // protected static Set findEffectiveMembers(s, g, f)
 
   protected static Set findEffectiveMemberships(
-    String oid, String mid, Field f, String vid, int depth
+    String oid, String mid, Field f, Owner via, int depth
   )
     throws MembershipNotFoundException
   {
@@ -265,17 +265,17 @@ public class MembershipFinder {
         + "and  ms.member_id    = :mid    "
         + "and  ms.field.name   = :fname  "
         + "and  ms.field.type   = :ftype  "
-        + "and  ms.via_id       = :vid    "
+        + "and  ms.via_id       = :via    "
         + "and  ms.depth        = :depth"
       );
       qry.setCacheable(GrouperConfig.QRY_MSF_FEM);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FEM);
-      qry.setString("oid"     , oid);
-      qry.setString("mid"     , mid                   );
-      qry.setString("fname"   , f.getName()           );
-      qry.setString("ftype"   , f.getType().toString());
-      qry.setString("vid"     , vid                   );
-      qry.setInteger("depth"  , depth                 );
+      qry.setString(    "oid"   , oid);
+      qry.setString(    "mid"   , mid                   );
+      qry.setString(    "fname" , f.getName()           );
+      qry.setString(    "ftype" , f.getType().toString());
+      qry.setParameter( "via"   , via);
+      qry.setInteger(   "depth" , depth                 );
       mships.addAll(qry.list());
       hs.close();
     }
@@ -283,7 +283,7 @@ public class MembershipFinder {
       throw new MembershipNotFoundException(eH.getMessage());
     }
     return mships;
-  } // protected static Set findEffectiveMembership(oid, mid, field, vid, depth)
+  } // protected static Set findEffectiveMembership(oid, mid, field, via, depth)
 
   protected static Set findEffectiveMemberships(
     GrouperSession s, Group g, Field f

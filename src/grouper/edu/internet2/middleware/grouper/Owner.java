@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.1 2006-03-10 20:36:54 blair Exp $
+ * @version $Id: Owner.java,v 1.2 2006-03-16 17:58:57 blair Exp $
  *     
 */
 public class Owner implements Serializable {
@@ -51,6 +51,9 @@ public class Owner implements Serializable {
   private String  owner_uuid;
   private Status  status;
 
+  // Transient Instance Variables
+  protected transient GrouperSession  s;
+  
 
   // Constructors
 
@@ -60,6 +63,12 @@ public class Owner implements Serializable {
   public Owner() {
     // Nothing
   }
+
+  // Protected Instance Methods
+  protected void setSession(GrouperSession s) {
+    GrouperSession.validate(s);
+    this.s = s;
+  } // protected void setSession(s)
 
 
   // Hibernate Accessors

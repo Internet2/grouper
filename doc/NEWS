@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.102 2006-03-13 20:19:13 blair Exp $
+$Id: NEWS,v 1.103 2006-03-16 17:58:57 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS,v 1.102 2006-03-13 20:19:13 blair Exp $
 Released: TBD
 
 ## Changes
+* UPDATE: Map `via` in `Membership` to `Owner`
 * UPDATE: `Group`, `Factor` and `Stem` now extend `Owner`
 * UPDATE: Add internal Hibernate mapping for JDBC Subject Adapter
   tables to unify methods for creating, loading and resetting DDLs.

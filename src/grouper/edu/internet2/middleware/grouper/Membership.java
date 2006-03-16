@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.26 2006-02-21 17:11:33 blair Exp $
+ * @version $Id: Membership.java,v 1.27 2006-03-16 17:58:57 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -53,10 +53,10 @@ public class Membership implements Serializable {
   private Membership  parent_membership;
   private Status      status;
   private String      uuid;
-  private String      via_id;
+  private Owner       via_id;
 
   
-  // Private Transient Instance Variables
+  // Transient Instance Variables
   private transient Group           group;
   private transient GrouperSession  s;
   private transient Stem            stem;
@@ -228,7 +228,8 @@ public class Membership implements Serializable {
         "no via group for immediate memberships"
       );
     }
-    return GroupFinder.findByUuid(this.s, this.getVia_id());
+    // TODO Owner?
+    return GroupFinder.findByUuid(this.s, this.getVia_id().getOwner_uuid());
   } // public Group getViaGroup()
 
   public int hashCode() {
@@ -241,10 +242,16 @@ public class Membership implements Serializable {
       .toHashCode();
   } // public int hashCode()
 
+  // TODO Owner-related changes
   public String toString() {
     GrouperSession.validate(this.s);
-    Object  owner = this.getOwner_id();
-    Object  via   = this.getVia_id();
+    String  owner = this.getOwner_id();
+    String  via   = null;
+    if (this.getVia_id() != null) {
+      Owner v = this.getVia_id();
+      v.setSession(this.s);
+      via     = v.toString();
+    }
     try {
       Group g = this.getGroup();
       owner   = g.getName() + "/group"; 
@@ -527,10 +534,10 @@ public class Membership implements Serializable {
       ms.getDepth() + hasMS.getDepth() + offset         
     );
     if (hasMS.getDepth() == 0) {
-      eff.setVia_id(  hasMS.getGroup().getUuid()    );  // hasMember m was immediate
+      eff.setVia_id( hasMS.getGroup() );  // hasMember m was immediate
     }
     else {
-      eff.setVia_id(  hasMS.getViaGroup().getUuid() );  // hasMember m was effective
+      eff.setVia_id(  hasMS.getViaGroup() );  // hasMember m was effective
     } 
     eff.setParent_membership(ms);                       // ms is parent membership
     GrouperLog.debug(LOG, s, "newEffectiveMembership: " + eff);
@@ -704,11 +711,12 @@ public class Membership implements Serializable {
     this.field = f;
   }
 
-  private String getVia_id() {
+  private Owner getVia_id() {
     return this.via_id;
   }
 
-  private void setVia_id(String via_id) {
+  // RegistryReset
+  protected void setVia_id(Owner via_id) {
     this.via_id = via_id;
   }
 

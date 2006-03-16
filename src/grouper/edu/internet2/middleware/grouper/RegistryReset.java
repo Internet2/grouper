@@ -17,8 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 
-import  java.io.*;
-import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.logging.*;
@@ -32,7 +30,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.17 2006-03-13 20:19:13 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.18 2006-03-16 17:58:57 blair Exp $
  */
 public class RegistryReset {
 
@@ -65,15 +63,11 @@ public class RegistryReset {
   public static void addTestSubjects() {
     RegistryReset rr = new RegistryReset();
     try {
-      rr._setUp();
       rr._addSubjects();
     }
     catch (Exception e) {
       rr._abort(e.getMessage());
     }
-    finally {
-      rr._tearDown();
-    } 
   } // public static void addTestSubjects()
 
   /**
@@ -99,16 +93,11 @@ public class RegistryReset {
   public static void reset() {
     RegistryReset rr = new RegistryReset();
     try {
-      rr._setUp();
       rr._emptyTables();
     }
     catch (Exception e) {
       rr._abort(e.getMessage());
     }
-    finally {
-      rr._tearDown();
-    } 
-    CacheMgr.resetAllCaches();
   } // public static void reset()
 
   /**
@@ -118,17 +107,12 @@ public class RegistryReset {
   public static void resetRegistryAndAddTestSubjects() {
     RegistryReset rr = new RegistryReset();
     try {
-      rr._setUp();
       rr._emptyTables();
       rr._addSubjects();
     }
     catch (Exception e) {
       rr._abort(e.getMessage());
     }
-    finally {
-      rr._tearDown();
-    } 
-    CacheMgr.resetAllCaches();
   } // public static void resetRegistryAndAddTestSubjects()
 
 
@@ -136,11 +120,16 @@ public class RegistryReset {
   private void _addSubjects() 
     throws  HibernateException
   {
+    Session     hs  = HibernateHelper.getSession();
+    Transaction tx  = hs.beginTransaction();
     for (int i=0; i<100; i++) {
       String  id    = "test.subject." + i;
       String  name  = "my name is " + id;
-      this.hs.save(new HibernateSubject(id, SUBJ_TYPE, name));
+      hs.save(new HibernateSubject(id, SUBJ_TYPE, name));
     }
+    tx.commit();
+    hs.close();
+    CacheMgr.resetAllCaches();
   } // private void _addSubjects()
 
   private void _abort(String err) {
@@ -151,51 +140,37 @@ public class RegistryReset {
   private void _emptyTables() 
     throws  HibernateException
   {
-    this.hs.delete("from TxQueue");    
-    this.hs.delete("from Membership");
-    this.hs.delete("from GrouperSession");
-    List l = this.hs.find("from Stem as ns where ns.stem_name like '" + Stem.ROOT_INT + "'");
+    Session     hs  = HibernateHelper.getSession();
+    Transaction tx  = hs.beginTransaction();
+
+    hs.delete("from TxQueue");    
+    hs.delete("from Membership");
+    hs.delete("from GrouperSession");
+
+    List l = hs.find("from Stem as ns where ns.stem_name like '" + Stem.ROOT_INT + "'");
     if (l.size() == 1) {
       Stem    root  = (Stem) l.get(0);
       String  uuid  = root.getUuid();
       root.setModifier_id(  null);
       root.setModify_source(null);
       root.setModify_time(  0   );
-      this.hs.saveOrUpdate(root);
-      this.hs.delete("from Owner as o where o.owner_uuid != '" + uuid + "'");
+      hs.saveOrUpdate(root);
+      hs.delete("from Owner as o where o.owner_uuid != '" + uuid + "'");
     }
     else {
-      this.hs.delete("from Owner");
+      hs.delete("from Owner");
     }
-    this.hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
-    this.hs.delete(
+
+    hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
+    hs.delete(
       "from GroupType as t where (t.name != 'base' and t.name != 'naming')"
     );
-    this.hs.delete("from HibernateSubject");
+    hs.delete("from HibernateSubject");
+
+    tx.commit();
+    hs.close();
+    CacheMgr.resetAllCaches();
   } // private void _emptyTables()
-
-  private void _setUp() 
-    throws  HibernateException
-  {
-    this.hs   = HibernateHelper.getSession();
-    this.tx   = this.hs.beginTransaction();
-  } // private void _setUp()
-
-  private void _tearDown() {
-    try {
-      if (this.hs != null) {
-        if (this.tx != null) {
-          this.tx.commit();
-        }
-        this.hs.close();
-      }
-    }
-    catch (HibernateException eH) {
-      String err = "unable to tearDown: " + eH.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err);
-    }
-  } // private void _tearDown()
 
 }
 

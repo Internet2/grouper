@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.59 2006-03-13 20:19:13 blair Exp $
+ * @version $Id: Group.java,v 1.60 2006-03-16 17:58:57 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -82,7 +82,6 @@ public class Group extends Owner implements Serializable {
   private transient Map             attrs     = new HashMap();
   private transient Subject         creator;
   private transient Subject         modifier;
-  private transient GrouperSession  s;
   private transient Set             types     = null;
 
 
@@ -1989,11 +1988,6 @@ public class Group extends Owner implements Serializable {
     }
     this.setGroup_attributes(attrs);
   } // protected void setDisplayName(value)
-
-  protected void setSession(GrouperSession s) {
-    GrouperSession.validate(s);
-    this.s = s;
-  } // protected void setSession(s)
 
 
   // Private Instance Methods
