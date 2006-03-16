@@ -42,9 +42,10 @@ change definition for this --%>
 			 <div id="Header">
 				<tiles:insert attribute="header" />
 			 </div><!--/Header-->
-    		<!--Footer-->
+    
+    </div><!--/ContentSpace--> 
+			<!--Footer-->
 			<div id="Footer">
 				<tiles:insert attribute="footer" />
 			</div><!--Footer-->
-    </div><!--/ContentSpace--> 
 </grouper:recordTile>
