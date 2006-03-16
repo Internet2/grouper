@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.13 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: StemHelper.java,v 1.14 2006-03-16 20:59:57 blair Exp $
  */
 public class StemHelper {
 
@@ -45,6 +45,7 @@ public class StemHelper {
     try {
       LOG.debug("addChildGroup.0 " + extn);
       Group child = ns.addChildGroup(extn, displayExtn);
+      GrouperSession.waitForAllTx();
       LOG.debug("addChildGroup.1 " + extn);
       Assert.assertNotNull("child !null", child);
       LOG.debug("addChildGroup.2 " + extn);
@@ -108,6 +109,7 @@ public class StemHelper {
   protected static Stem addChildStem(Stem ns, String extn, String displayExtn) {
     try {
       Stem child = ns.addChildStem(extn, displayExtn);
+      GrouperSession.waitForAllTx();
       Assert.assertNotNull("child !null", child);
       Assert.assertTrue("added child stem", true);
       Assert.assertTrue(

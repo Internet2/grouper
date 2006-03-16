@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: TxQueue.hbm.xml,v 1.4 2006-02-21 17:11:33 blair Exp $ -->
+<!-- $Id: TxQueue.hbm.xml,v 1.5 2006-03-16 20:59:57 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="TxQueue" table="grouper_queue">
@@ -113,13 +113,12 @@ Grouper Transaction Queue.
     <!-- dirty -->
 
     <!-- owner -->
-    <property name="owner"
-              type="string"
-    >
-      <column name="owner"
-              length="128"
-      />
-    </property>
+    <many-to-one
+      name="owner"
+      class="edu.internet2.middleware.grouper.Owner" 
+      cascade="none"
+      index="membership_owner_idx"
+    />
     <!-- owner -->
 
     <!-- field -->

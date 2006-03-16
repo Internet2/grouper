@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.27 2006-03-16 17:58:57 blair Exp $
+ * @version $Id: Membership.java,v 1.28 2006-03-16 20:59:57 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -49,7 +49,7 @@ public class Membership implements Serializable {
   private Field       field;
   private String      id;
   private Member      member_id;
-  private String      owner_id;
+  private Owner       owner_id;
   private Membership  parent_membership;
   private Status      status;
   private String      uuid;
@@ -73,13 +73,13 @@ public class Membership implements Serializable {
 
   // Create new membership
   protected Membership(
-    GrouperSession s, String oid, Member m, Field f
+    GrouperSession s, Owner o, Member m, Field f
   ) 
   {
     // Attach session
     this.s = s;
     // Set owner
-    this.setOwner_id(oid);
+    this.setOwner_id(o);
     // Set member
     this.setMember_id(m);
     // Set field  
@@ -143,9 +143,12 @@ public class Membership implements Serializable {
   public Group getGroup() 
     throws  GroupNotFoundException
   {
+    // TODO Owner
     if (this.group == null) {
       GrouperSession.validate(this.s);
-      this.group = GroupFinder.findByUuid(this.s, this.getOwner_id());
+      this.group = GroupFinder.findByUuid(
+        this.s, this.getOwner_id().getOwner_uuid()
+      );
     }
     return this.group;
   } // public Group getGroup()
@@ -245,7 +248,9 @@ public class Membership implements Serializable {
   // TODO Owner-related changes
   public String toString() {
     GrouperSession.validate(this.s);
-    String  owner = this.getOwner_id();
+    Owner   o     = this.getOwner_id();
+    o.setSession(this.s);
+    String  owner = o.toString();
     String  via   = null;
     if (this.getVia_id() != null) {
       Owner v = this.getVia_id();
@@ -309,7 +314,7 @@ public class Membership implements Serializable {
     GrouperSession.validate(s);
     // Mark group as modified
     g.setModified(); 
-    _addImmediateMembership(s, g, g.getUuid(), subj, f);
+    _addImmediateMembership(s, g, subj, f);
   } // protected static void addImmediateMembership(s, g, subj, f)
 
   protected static void addImmediateMembership(
@@ -322,7 +327,7 @@ public class Membership implements Serializable {
     GrouperSession.validate(s);
     // Mark stem as modified
     ns.setModified(); 
-    _addImmediateMembership(s, ns, ns.getUuid(), subj, f);
+    _addImmediateMembership(s, ns, subj, f);
   } // protected static void addImmediateMembership(s, g, subj, f)
 
   protected static void delEffectiveMemberships(GrouperSession fake, Membership imm) {
@@ -351,7 +356,7 @@ public class Membership implements Serializable {
     GrouperSession.validate(s);
     // Mark group as modified
     g.setModified(); 
-    _delImmediateMembership(s, g, g.getUuid(), subj, f);
+    _delImmediateMembership(s, g, subj, f);
   } // protected static void delImmediateMembership(s, g, subj, f)
 
   protected static void delImmediateMembership(
@@ -365,7 +370,7 @@ public class Membership implements Serializable {
     GrouperSession.validate(s);
     // Mark stem as modified
     ns.setModified(); 
-    _delImmediateMembership(s, ns, ns.getUuid(), subj, f);
+    _delImmediateMembership(s, ns, subj, f);
   } // protected static void delImmediateMembership(s, g, subj, f)
 
   protected static Set deleteAllField(GrouperSession s, Group g, Field f) 
@@ -436,7 +441,7 @@ public class Membership implements Serializable {
     // Remove this stem's immediate members
     GrouperLog.debug(LOG, s, msg + " finding hasMembers");
     Iterator iterHAS = MembershipFinder.findImmediateMemberships(
-      root, ns.getUuid(), f
+      root, ns, f
     ).iterator();
     while (iterHAS.hasNext()) {
       Membership  msHAS = (Membership) iterHAS.next();
@@ -495,12 +500,15 @@ public class Membership implements Serializable {
     return this.s;
   } // protected GrouperSession getSession()
 
+  // TODO Owner
   protected Stem getStem() 
     throws StemNotFoundException
   {
     if (this.stem == null) {
       GrouperSession.validate(this.s);
-      this.stem = StemFinder.findByUuid(this.s, this.getOwner_id());
+      this.stem = StemFinder.findByUuid(
+        this.s, this.getOwner_id().getOwner_uuid()
+      );
     }
     return this.stem;
   } // public Stem getStem()
@@ -515,8 +523,9 @@ public class Membership implements Serializable {
     eff.s = s;
     // Set UUID
     eff.setUuid( GrouperUuid.getUuid() );
+/*
     try {
-      eff.setOwner_id(  ms.getGroup().getUuid()       );  // original g
+      eff.setOwner_id(  ms.getGroup()                 );  // original g
     }
     catch (GroupNotFoundException eGNF) {
       try {
@@ -528,6 +537,8 @@ public class Membership implements Serializable {
         throw new RuntimeException(err);
       }
     }
+*/
+    eff.setOwner_id(  ms.getOwner_id()              );  // original owner
     eff.setMember_id( hasMS.getMember()             );  // hasMember m
     eff.setField(     ms.getList()                  );  // original f
     eff.setDepth(                                       // increment the depth
@@ -560,7 +571,7 @@ public class Membership implements Serializable {
   // Private Class Methods
 
   private static void _addImmediateMembership(
-    GrouperSession s, Object o, String oid, Subject subj, Field f
+    GrouperSession s, Owner o, Subject subj, Field f
   )
     throws  InsufficientPrivilegeException,
             MemberAddException,
@@ -571,29 +582,27 @@ public class Membership implements Serializable {
       Member  m     = PrivilegeResolver.getInstance().canViewSubject(
         s, subj, new String()               
       );
-      save.add(m);                                  // The member 
+      save.add(m); // The member 
       try {
         // Make sure membership doesn't already exist
-        Membership imm = MembershipFinder.findImmediateMembership(oid, m, f);
+        Membership imm = MembershipFinder.findImmediateMembership(o, m, f);
         throw new MemberAddException("membership already exists");
       }
       catch (MembershipNotFoundException eMNF) {
         // TODO Can the Membership constructor ever fail?
-        save.add( new Membership(s, oid, m, f)  );  // The membership
+        save.add( new Membership(s, o, m, f)  );  // The membership
       }
-      //save.add( new TxMemberAdd(s, oid, m, f) );    // The tx 
-      TxQueue tx = new TxMemberAdd(s, oid, m, f);    // The tx
-      save.add(tx); 
-      save.add(o);                                  // The owner
+      save.add( new TxMemberAdd(s, o, m, f) );    // The tx 
+      save.add(o);                                // The owner
       HibernateHelper.save(save);
     }
     catch (Exception e) {
       throw new MemberAddException(e.getMessage());
     }
-  } // private static void _addImmediateMembership(s, o, oid, subj, f)
+  } // private static void _addImmediateMembership(s, o, subj, f)
 
   private static void _delImmediateMembership(
-    GrouperSession s, Object o, String oid, Subject subj, Field f
+    GrouperSession s, Owner o, Subject subj, Field f
   ) 
     throws  InsufficientPrivilegeException,
             MemberDeleteException,
@@ -606,7 +615,7 @@ public class Membership implements Serializable {
       Member  m       = PrivilegeResolver.getInstance().canViewSubject(
         s, subj, new String()
       );
-      Membership      imm   = MembershipFinder.findImmediateMembership(oid, m, f); 
+      Membership      imm   = MembershipFinder.findImmediateMembership(o, m, f); 
       GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
       Iterator        iter  = MembershipFinder.findChildMemberships(root, imm).iterator();
       while (iter.hasNext()) {
@@ -614,10 +623,10 @@ public class Membership implements Serializable {
         child.setParent_membership(null); // Well, this is annoying
         save.add(child);
       }
-      save.add(m);                                // The member
-      delete.add(imm);                            // The membership
-      save.add( new TxMemberDel(s, oid, m, f) );  // The tx
-      save.add(o);                                // The owner 
+      save.add(m);                              // The member
+      delete.add(imm);                          // The membership
+      save.add( new TxMemberDel(s, o, m, f) );  // The tx
+      save.add(o);                              // The owner 
       HibernateHelper.saveAndDelete(save, delete);
       root.stop();
     }
@@ -669,90 +678,73 @@ public class Membership implements Serializable {
 
   
   // Hibernate Accessors
-
-  protected String getId() {
-    return this.id;
+  private long getCreate_time() {
+    return this.create_time;
   }
-
-  private void setId(String id) {
-    this.id = id;
+  private Member getCreator_id() {
+    return this.creator_id;
   }
-
   public int getDepth() {
     return this.depth;
   }
-
-  private void setDepth(int depth) {
-    this.depth = depth;
-  }
-
-  private String getOwner_id() {
-    return this.owner_id;
-  }
-
-  private void setOwner_id(String owner_id) {
-    this.owner_id = owner_id;
-  }
-
-  private Member getMember_id() {
-    return this.member_id;
-  }
-
-  //private void setMember_id(String member_id) {
-  private void setMember_id(Member member_id) {
-    this.member_id = member_id;
-  }
-
   private Field getField() {
     return this.field;
   }
-
-  private void setField(Field f) {
-    this.field = f;
+  protected String getId() {
+    return this.id;
   }
-
+  private Member getMember_id() {
+    return this.member_id;
+  }
+  private Membership getParent_membership() {
+    return this.parent_membership;
+  }
+  private Owner getOwner_id() {
+    return this.owner_id;
+  }
+  private Status getStatus() {
+    return this.status;
+  }
+  private String getUuid() {
+    return this.uuid;
+  }
   private Owner getVia_id() {
     return this.via_id;
   }
 
-  // RegistryReset
-  protected void setVia_id(Owner via_id) {
-    this.via_id = via_id;
-  }
-
-  private Membership getParent_membership() {
-    return this.parent_membership;
-  }
-
-  private void setParent_membership(Membership parent) {
-    this.parent_membership = parent;
-  }
-
-  private Status getStatus() {
-    return this.status;
-  }
-  private void setStatus(Status s) {
-    this.status = s;
-  }
-
-  private Member getCreator_id() {
-    return this.creator_id;
+  private void setCreate_time(long time) {
+    this.create_time = time;
   }
   private void setCreator_id(Member m) {
     this.creator_id = m;
   }
-  private long getCreate_time() {
-    return this.create_time;
+  private void setDepth(int depth) {
+    this.depth = depth;
   }
-  private void setCreate_time(long time) {
-    this.create_time = time;
+  private void setField(Field f) {
+    this.field = f;
   }
-
-  private String getUuid() {
-    return this.uuid;
+  private void setId(String id) {
+    this.id = id;
+  }
+  private void setMember_id(Member member_id) {
+    this.member_id = member_id;
+  }
+  private void setOwner_id(Owner o) {
+    this.owner_id = o;
+  }
+  private void setParent_membership(Membership parent) {
+    this.parent_membership = parent;
+  }
+  private void setStatus(Status s) {
+    this.status = s;
   }
   private void setUuid(String uuid) {
     this.uuid = uuid;
+  }
+  // RegistryReset
+  protected void setVia_id(Owner via_id) {
+    this.via_id = via_id;
   }
 
 }

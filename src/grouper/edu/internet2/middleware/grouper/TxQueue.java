@@ -43,7 +43,7 @@ class TxQueue implements Serializable {
   private String      id;
   private String      klass;
   private Member      member;
-  private String      owner;      // Switch to _Owner_
+  private Owner       owner;      // Switch to _Owner_
   private String      sessionId;
   private long        queueTime;
   private QueueStatus status;
@@ -112,80 +112,66 @@ class TxQueue implements Serializable {
   protected Member getActor() {
     return this.actor;
   }
+  protected List getDirty() {
+    return this.dirty;
+  }
+  protected Field getField() {
+    return this.field;
+  }
+  protected String getId() {
+    return this.id;
+  }
+  protected String getKlass() {
+    return this.klass;
+  }
+  protected Member getMember() {
+    return this.member;
+  }
+  protected Owner getOwner() {
+    return this.owner;
+  }
+  protected long getQueueTime() {
+    return this.queueTime;
+  }
+  protected String getSessionId() {
+    return this.sessionId;
+  }
+  protected QueueStatus getStatus() {
+    return this.status;
+  }
+  protected String getUuid() {
+    return this.uuid;
+  }
 
   protected void setActor(Member actor) {
     this.actor = actor;
   }
-
-  protected List getDirty() {
-    return this.dirty;
-  }
-  
   protected void setDirty(List dirty) {
     this.dirty = dirty;
   }
-
-  protected Field getField() {
-    return this.field;
-  }
-
   protected void setField(Field f) {
     this.field = f;
-  }
-
-  protected String getId() {
-    return this.id;
   }
   protected void setId(String id) {
     this.id = id;
   }
-
-  protected String getKlass() {
-    return this.klass;
-  }
   protected void setKlass(String klass) {
     this.klass = klass;
-  }
-
-  protected String getOwner() {
-    return this.owner;
-  }
-
-  protected void setOwner(String owner) {
-    this.owner = owner;
-  }
-
-  protected Member getMember() {
-    return this.member;
   }
   protected void setMember(Member m) {
     this.member = m;
   }
-
-  protected long getQueueTime() {
-    return this.queueTime;
+  protected void setOwner(Owner owner) {
+    this.owner = owner;
   }
   protected void setQueueTime(long time) {
     this.queueTime = time;
   }
- 
-  protected String getSessionId() {
-    return this.sessionId;
-  }
-
   protected void setSessionId(String id) {
     this.sessionId = id;
   }
-
-  protected QueueStatus getStatus() {
-    return this.status;
-  }
   protected void setStatus(QueueStatus s) {
     this.status = s;
-  }
-
-  protected String getUuid() {
-    return this.uuid;
   }
   protected void setUuid(String uuid) {
     this.uuid = uuid;

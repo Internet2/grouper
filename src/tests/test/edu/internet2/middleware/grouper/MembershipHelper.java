@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.16 2006-02-21 17:11:33 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.17 2006-03-16 20:59:57 blair Exp $
  */
 public class MembershipHelper {
 
@@ -258,6 +258,7 @@ public class MembershipHelper {
       );
     }
     catch (SchemaException eS) {
+      eS.printStackTrace();
       Assert.fail(eS.getMessage());
     }
   } // protected static void testNumMship(g, f, m, i, e) 

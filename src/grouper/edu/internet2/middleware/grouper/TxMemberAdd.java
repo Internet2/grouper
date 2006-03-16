@@ -42,7 +42,7 @@ class TxMemberAdd extends TxQueue implements Serializable {
     super();
   } // TxMemberAdd()
 
-  protected TxMemberAdd(GrouperSession s, String owner, Member m, Field f) {
+  protected TxMemberAdd(GrouperSession s, Owner owner, Member m, Field f) {
     super();
     this.setSessionId(s.getSessionId());
     this.setActor(s.getMember());

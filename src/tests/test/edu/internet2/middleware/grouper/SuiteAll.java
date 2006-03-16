@@ -30,10 +30,11 @@ public class SuiteAll extends TestCase {
 
     TestSuite suite = new TestSuite();
 
-    suite.addTest(SuiteAddMember.suite());
-    suite.addTest(SuiteMemberOf.suite());
-    suite.addTest(SuitePrivSTEM.suite());
-    suite.addTest(SuiteTxDaemon.suite());
+    suite.addTest(SuiteAddMember.suite()    );
+    suite.addTest(SuiteMemberOf.suite()     );
+    suite.addTest(SuitePrivSTEM.suite()     );
+    suite.addTest(SuiteGroupDelete.suite()  );
+    suite.addTest(SuiteTxDaemon.suite()     );
 
     suite.addTestSuite(TestBugsClosed.class);
     suite.addTestSuite(TestBugsOpen.class);
@@ -43,7 +44,6 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGrFiFindByName.class);
     suite.addTestSuite(TestGrFiFindByUuid.class);
     suite.addTestSuite(TestGroup.class);
-    suite.addTestSuite(TestGroupDelete.class);
     suite.addTestSuite(TestGroupDeleteMember.class);
     suite.addTestSuite(TestGroupDeleteMemberGroup.class);
     suite.addTestSuite(TestGroupToMember.class);

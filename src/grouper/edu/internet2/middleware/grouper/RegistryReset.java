@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.18 2006-03-16 17:58:57 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.19 2006-03-16 20:59:57 blair Exp $
  */
 public class RegistryReset {
 
@@ -140,6 +140,8 @@ public class RegistryReset {
   private void _emptyTables() 
     throws  HibernateException
   {
+    GrouperSession.waitForAllTx();  // Bah
+
     Session     hs  = HibernateHelper.getSession();
     Transaction tx  = hs.beginTransaction();
 

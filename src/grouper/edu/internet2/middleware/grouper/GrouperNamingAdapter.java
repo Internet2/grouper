@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.35 2006-02-21 17:11:32 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.36 2006-03-16 20:59:57 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -76,7 +76,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    return MembershipFinder.findSubjects(s, ns.getUuid(), this._getField(priv));
+    return MembershipFinder.findSubjects(s, ns, this._getField(priv));
   } // public Set getSubjectsWithPriv(s, ns, priv)
 
   /**
@@ -162,9 +162,9 @@ public class GrouperNamingAdapter implements NamingAdapter {
       while (iterP.hasNext()) {
         Privilege p = (Privilege) iterP.next();
         Field     f = this._getField(p);   
-        Iterator  iterM = MembershipFinder.findMemberships(ns.getUuid(), m, f).iterator();
+        Iterator  iterM = MembershipFinder.findMemberships(ns, m, f).iterator();
         privs.addAll( this._getPrivs(s, ns, subj, m, p, iterM) );
-        Iterator  iterA = MembershipFinder.findMemberships(ns.getUuid(), all, f).iterator();
+        Iterator  iterA = MembershipFinder.findMemberships(ns, all, f).iterator();
         privs.addAll( this._getPrivs(s, ns, subj, all, p, iterA) );
       }
     }
