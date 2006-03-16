@@ -111,7 +111,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.6.2.1 2006-03-10 10:07:00 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.6.2.2 2006-03-16 11:30:07 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -186,11 +186,11 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	 * @return
 	 * @throws Exception
 	 */
-	protected Set getFlatChildren(int start,int pageSize,StringBuffer totalCount) throws Exception{
+	protected Set getFlatChildren(int start,int pageSize,StringBuffer totalCount) throws Exception{ 
 		if("stem".equals(flatType)) {
 			List l = GrouperHelper.stems2Maps(s,new ArrayList( GrouperHelper.getStemsForPrivileges(
 		
-				s, flatPrivs, start, pageSize,
+				s, flatPrivs, getRootNode(),start, pageSize,
 				totalCount)));
 			return new LinkedHashSet(l);
 		}
@@ -201,13 +201,13 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			List tmpList = new ArrayList(tmp);
 			tmpList = GrouperHelper.groups2Maps(getGrouperSession(),tmpList);
 			if(totalCount!=null) {
-					totalCount.setLength(0);
+					totalCount.setLength(0); 
 					totalCount.append(tmpList.size());
 				}
 			return new LinkedHashSet(tmpList);
 		}
 		List l=GrouperHelper.groups2Maps(s,new ArrayList( GrouperHelper.getGroupsForPrivileges(
-				s, flatPrivs, start, pageSize,
+				s, flatPrivs,getRootNode(), start, pageSize,
 				totalCount)));
 				if(totalCount!=null) {
 					totalCount.setLength(0);

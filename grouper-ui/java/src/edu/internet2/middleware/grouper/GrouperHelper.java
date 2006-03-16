@@ -50,7 +50,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.8 2006-01-03 11:17:23 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.8.2.1 2006-03-16 11:29:52 isgwb Exp $
  */
 
 public class GrouperHelper {
@@ -1279,7 +1279,7 @@ public class GrouperHelper {
 	 */
 	public static Set getGroupsForPrivileges(GrouperSession s, String[] privs) throws MemberNotFoundException{
 
-		Set groups = getGroupsForPrivileges(s, privs, 0, 100000, null);
+		Set groups = getGroupsForPrivileges(s, privs,"", 0, 100000, null);
 		
 		return groups;
 	}
@@ -1298,7 +1298,7 @@ public class GrouperHelper {
 	 * @param resultCount overall number of GrouperGroups
 	 * @return Set - subset of GrouperGroups
 	 */
-	public static Set getGroupsForPrivileges(GrouperSession s, String[] privs,
+	public static Set getGroupsForPrivileges(GrouperSession s, String[] privs,String rootNode,
 			int start, int pageSize, StringBuffer resultCount) throws MemberNotFoundException{
 		
 		Set groupSet = new LinkedHashSet();
@@ -1308,7 +1308,7 @@ public class GrouperHelper {
 		
 		Member member = MemberFinder.findBySubject(s,s.getSubject());
 		for (int i = 0; i < privs.length; i++) {
-			allSet.addAll(getGroupsOrStemsWhereMemberHasPriv(member,privs[i].toLowerCase()));
+			allSet.addAll(filterByStem(rootNode,getGroupsOrStemsWhereMemberHasPriv(member,privs[i].toLowerCase())));
 		}
 
 		int end = start + pageSize;
@@ -1327,6 +1327,28 @@ public class GrouperHelper {
 		}
 		return groupSet;
 	}
+	
+	public static Set filterByStem(String stem,Set groupOrStems) {
+		if(stem==null|| "".equals(stem)) return groupOrStems;
+		LinkedHashSet res = new LinkedHashSet();
+		Iterator gosIterator = groupOrStems.iterator();
+		Object obj;
+		String name;
+		String comp = stem+":";
+		while(gosIterator.hasNext()) {
+			name=":";
+			obj=gosIterator.next();
+			if(obj instanceof Group) {
+				name = ((Group)obj).getName();
+			}else if(obj instanceof Stem){
+				name = ((Stem)obj).getName();	
+			}else if(obj instanceof Map) {
+				name = (String)((Map)obj).get(name);
+			}
+			if(name.startsWith(comp)) res.add(obj);
+		}
+		return res;
+	}
 
 	/**
 	 * Given a GrouperSession s, and an array of privileges, get all stems
@@ -1342,7 +1364,7 @@ public class GrouperHelper {
 		if (groups != null)
 			return null;
 
-		groups = getGroupsForPrivileges(s, privs, 0, 100000, null);
+		groups = getGroupsForPrivileges(s, privs,"", 0, 100000, null);
 		//Cache.instance().put(s,sb.toString(),groups);
 		return groups;
 
@@ -1361,7 +1383,7 @@ public class GrouperHelper {
 	 * @param resultCount overall number of GrouperStems
 	 * @return
 	 */
-	public static Set getStemsForPrivileges(GrouperSession s, String[] privs,
+	public static Set getStemsForPrivileges(GrouperSession s, String[] privs,String rootNode,
 			int start, int pageSize, StringBuffer resultCount) throws MemberNotFoundException{
 
 		
@@ -1370,7 +1392,7 @@ public class GrouperHelper {
 		
 		Member member = MemberFinder.findBySubject(s,s.getSubject());
 		for (int i = 0; i < privs.length; i++) {
-			allSet.addAll(getGroupsOrStemsWhereMemberHasPriv(member,privs[i].toLowerCase()));
+			allSet.addAll(filterByStem(rootNode,getGroupsOrStemsWhereMemberHasPriv(member,privs[i].toLowerCase())));
 		}
 		int end = start + pageSize;
 		if (end > allSet.size())
