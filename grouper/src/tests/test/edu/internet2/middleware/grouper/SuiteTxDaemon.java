@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteTxDaemon.java,v 1.1 2006-02-21 20:55:46 blair Exp $
+ * @version $Id: SuiteTxDaemon.java,v 1.2 2006-03-17 18:24:29 blair Exp $
  */
 public class SuiteTxDaemon extends TestCase {
 
@@ -37,7 +37,8 @@ public class SuiteTxDaemon extends TestCase {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(TestTxDaemon0.class);
     suite.addTestSuite(TestTxDaemon1.class);
-    suite.addTest(TestTxDaemon2.suite());
+    // RepeatedTest.  Limit to SuiteAll.
+    // suite.addTest(TestTxDaemon2.suite());
     return suite;
   } // static public Test suite()
 

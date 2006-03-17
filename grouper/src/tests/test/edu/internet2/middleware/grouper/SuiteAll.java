@@ -20,6 +20,12 @@ package test.edu.internet2.middleware.grouper;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+/**
+ * Test Everything.
+ * <p/>
+ * @author  blair christensen.
+ * @version $Id: SuiteAll.java,v 1.50 2006-03-17 18:24:29 blair Exp $
+ */
 public class SuiteAll extends TestCase {
 
   public SuiteAll(String name) {
@@ -29,69 +35,9 @@ public class SuiteAll extends TestCase {
   static public Test suite() {
 
     TestSuite suite = new TestSuite();
-
-    suite.addTest(SuiteAddMember.suite()    );
-    suite.addTest(SuiteMemberOf.suite()     );
-    suite.addTest(SuitePrivSTEM.suite()     );
-    suite.addTest(SuiteGroupDelete.suite()  );
-    suite.addTest(SuiteTxDaemon.suite()     );
-
-    suite.addTestSuite(TestBugsClosed.class);
-    suite.addTestSuite(TestBugsOpen.class);
-
-    suite.addTestSuite(TestAccessPrivilege.class);
-    suite.addTestSuite(TestField.class);
-    suite.addTestSuite(TestGrFiFindByName.class);
-    suite.addTestSuite(TestGrFiFindByUuid.class);
-    suite.addTestSuite(TestGroup.class);
-    suite.addTestSuite(TestGroupDeleteMember.class);
-    suite.addTestSuite(TestGroupDeleteMemberGroup.class);
-    suite.addTestSuite(TestGroupToMember.class);
-    suite.addTestSuite(TestGrouperConfig.class);
-    suite.addTestSuite(TestGroupTypes.class);
-    suite.addTestSuite(TestGQComplementFilter.class);
-    suite.addTestSuite(TestGQGroupAnyAttribute.class);
-    suite.addTestSuite(TestGQGroupAttribute.class);
-    suite.addTestSuite(TestGQGroupCreatedAfter.class);
-    suite.addTestSuite(TestGQGroupCreatedBefore.class);
-    suite.addTestSuite(TestGQGroupName.class);
-    suite.addTestSuite(TestGQIntersectionFilter.class);
-    suite.addTestSuite(TestGQNull.class);
-    suite.addTestSuite(TestGQStemCreatedAfter.class);
-    suite.addTestSuite(TestGQStemCreatedBefore.class);
-    suite.addTestSuite(TestGQStemName.class);
-    suite.addTestSuite(TestGQUnionFilter.class);
-    suite.addTestSuite(TestGrouperSession.class);
-    suite.addTestSuite(TestGrouperSourceAdapter.class);
-    suite.addTestSuite(TestGrouperSubject.class);
-    suite.addTestSuite(TestInternalSourceAdapter.class);
-    suite.addTestSuite(TestMember.class);
-    suite.addTestSuite(TestMemberFinder.class);
-    suite.addTestSuite(TestMemberToGroup.class);
-    // TODO suite.addTestSuite(TestMemberOfAccessPrivs.class);
-    // TODO suite.addTestSuite(TestMemberOfNamingPrivs.class);
-    suite.addTestSuite(TestMembership.class);
-    suite.addTestSuite(TestNamingPrivilege.class);
-    suite.addTestSuite(TestPrivADMIN.class);    // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivCREATE.class);  
-    suite.addTestSuite(TestPrivOPTIN.class);    // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivOPTOUT.class);   // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivREAD.class);     // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivVIEW.class);     // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivUPDATE.class);   // TODO group-with-priv checks
-    suite.addTestSuite(TestStem.class);
-    suite.addTestSuite(TestStemAddChildGroup.class);
-    suite.addTestSuite(TestStemAddChildStem.class);
-    suite.addTestSuite(TestStemFinder.class);
-    suite.addTestSuite(TestSuFiInSoAdFindById.class);
-    suite.addTestSuite(TestSuFiInSoAdFindByIdfr.class);
-    suite.addTestSuite(TestSuFiInSoAdSearch.class);
-    suite.addTestSuite(TestSuFiGrSoAdFindById.class);
-    suite.addTestSuite(TestSuFiGrSoAdFindByIdfr.class);
-    suite.addTestSuite(TestSuFiGrSoAdSearch.class);
-    suite.addTestSuite(TestSubjectFinderInternal.class);  // TODO Hrm...
-    suite.addTestSuite(TestWrongFieldType.class); 
-    // MANUAL suite.addTestSuite(TestWheelGroup.class); 
+    
+    suite.addTest(  SuiteDefault.suite()  );
+    suite.addTest(  TestTxDaemon2.suite() );
 
     return suite;
   } // static public Test suite()
