@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.91 2006-03-10 19:56:02 blair Exp $ -->
+<!-- $Id: build.xml,v 1.92 2006-03-17 18:24:29 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -318,36 +318,32 @@
   <!-- init -->
 
   <!-- runtest -->
-  <target name="runtest" 
-          description="Runs the test you specify on the command line with -Dtest=" 
-          depends="test-build, ensure-test-name">
-    <record name="${log.test.run}" action="start"/>
-    <antcall  target="daemon-start-fork"/>
-    <junit printsummary="withOutAndErr" fork="true"> 
-        <classpath    refid="project.classpath" />
-        <formatter    type="plain" usefile="false"/>
-      <batchtest>
-        <fileset dir="${src.test}">
-          <include name="**/${test}.java"/>
-        </fileset>
-      </batchtest>
-    </junit>
-    <antcall  target="daemon-stop"/>
-    <record name="${log.test.run}" action="stop"/>
+  <target 
+    name="runtest" 
+    description="Runs the test you specify on the command line with -Dtest=" 
+    depends="ensure-test-name"
+  >
+    <antcall  target="testrunner">
+      <param  name="testsuite"  value="${test}"/>
+    </antcall>
   </target>
   <!-- runtest -->
 
   <!-- runtestprof -->
-  <target name="runtestprof" 
-          description="Runs and profiles the test case you specify on the command line with -Dtest=" 
-          depends="test-build, ensure-test-name">
+  <!-- TODO Convert to use `testrunner` -->
+  <target 
+    name="runtestprof" 
+    description="Runs and profiles the test case you specify on the command line with -Dtest=" 
+    depends="ensure-test-name"
+  >
     <record name="${log.test.run}" action="start"/>
     <antcall  target="daemon-start-fork"/>
-    <java fork="true"
-          maxmemory="${max.memory}"
-          classname="junit.textui.TestRunner"
-          taskname="junit"
-          failonerror="true"
+    <java 
+      fork="true"
+      maxmemory="${max.memory}"
+      classname="junit.textui.TestRunner"
+      taskname="junit"
+      failonerror="true"
     >
       <arg    value="test.edu.internet2.middleware.grouper.${test}"/>
       <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=${hprof.depth}"/>
@@ -444,7 +440,23 @@
   <!-- test-build -->
 
   <!-- test -->
-  <target name="test" depends="test-build">
+  <target name="test">
+    <antcall  target="testrunner">
+      <param  name="testsuite"  value="SuiteDefault"/>
+    </antcall>
+  </target>
+  <!-- test -->
+
+  <!-- test-all -->
+  <target name="test-all">
+    <antcall  target="testrunner">
+      <param  name="testsuite"  value="SuiteAll"/>
+    </antcall>
+  </target>
+  <!-- test-all -->
+
+  <!-- testrunner -->
+  <target name="testrunner" depends="test-build">
     <echo/>
     <echo message="A single 'FATAL GrouperSession: unable to get subject
 associated with session' message is expected and does not indicate an
@@ -454,19 +466,20 @@ error"
     <record name="${log.test.run}" action="start"/>
     <!-- Run the test suite -->
     <antcall  target="daemon-start-fork"/>
-    <java fork="true" 
-          maxmemory="${max.memory}"
-          classname="junit.textui.TestRunner"
-          taskname="junit" 
-          failonerror="true"
+    <java 
+      fork="true" 
+      maxmemory="${max.memory}"
+      classname="junit.textui.TestRunner"
+      taskname="junit" 
+      failonerror="true"
     >
-      <arg value="test.edu.internet2.middleware.grouper.SuiteAll"/>
+      <arg value="test.edu.internet2.middleware.grouper.${testsuite}"/>
       <classpath refid="project.classpath"/>
     </java>
     <antcall  target="daemon-stop"/>
     <record name="${log.test.run}" action="stop"/>
   </target>
-  <!-- test -->
+  <!-- testrunner -->
 
   <target name="jar" depends="dist" />
 
