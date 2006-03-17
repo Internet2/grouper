@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXML.java,v 1.2 2006-02-09 10:23:00 lmcrae Exp $
-$Date: 2006-02-09 10:23:00 $
+$Id: PermissionsXML.java,v 1.3 2006-03-17 06:12:08 lmcrae Exp $
+$Date: 2006-03-17 06:12:08 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -102,10 +102,14 @@ public class PermissionsXML
          Privilege privilege = (Privilege) privilegesIter.next();
          Permission permission = privilege.getPermission();
          String permissionID = permission.getId();
-    
+
+         Subsystem permissionSubsystem = permission.getSubsystem();
+         String permissionSubsystemID = permissionSubsystem.getId();
+   
          // -------- Permission --------
          xmlw.writeCharacters("   ");
          xmlw.writeStartElement("Permission");
+         xmlw.writeAttribute("subsystemId",permissionSubsystemID);
          xmlw.writeAttribute("id",permissionID);
          xmlw.writeCharacters("\n");
     
