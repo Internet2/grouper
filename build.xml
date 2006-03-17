@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.92 2006-03-17 18:24:29 blair Exp $ -->
+<!-- $Id: build.xml,v 1.93 2006-03-17 19:05:03 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -488,6 +488,7 @@ error"
     <clover-setup initString="clover.db">
       <fileset dir="${src.grouper}">
         <exclude name="**/stress/*"/>
+        <exclude name="**/test/*"/>
         <exclude name="**/*Factor*.java"/>
         <exclude name="**/*Status*.java"/>
       </fileset>
