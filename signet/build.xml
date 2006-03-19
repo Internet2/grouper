@@ -5,7 +5,7 @@
 	basedir=".">
 	
 	<!-- Version number -->
-	<property name="signet_version" value="1.0"/>
+	<property name="signet_version" value="1.0.1"/>
 		
 	<!-- These are the "sources" from which we'll build our Signet
 	     distribution.  They include the Java files we've written ourselves,
