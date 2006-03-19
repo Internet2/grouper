@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXML.java,v 1.4 2006-03-19 04:23:31 lmcrae Exp $
-$Date: 2006-03-19 04:23:31 $
+$Id: PermissionsXML.java,v 1.5 2006-03-19 08:17:48 lmcrae Exp $
+$Date: 2006-03-19 08:17:48 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -177,6 +177,14 @@ public class PermissionsXML
             xmlw.writeEndElement();
             xmlw.writeCharacters("\n");
       
+         }
+ 
+         // -------- End Last limit -------- 
+         if (currLimitId != "") {
+             // -------- End Limit --------
+             xmlw.writeCharacters("      ");
+             xmlw.writeEndElement();
+             xmlw.writeCharacters("\n");
          }
       
          // -------- End Permission -------- 
