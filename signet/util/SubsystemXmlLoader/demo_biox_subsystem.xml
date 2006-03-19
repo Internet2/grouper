@@ -3,7 +3,7 @@
 <Subsystem>
    <Id>projectx</Id>
    <Name>Bio-Sciences Project X</Name>
-   <HelpText>This is a sample subsystem for Signet</HelpText>
+   <HelpText>This is a sample subsystem for Signet.</HelpText>
    
    <!-- ++++++++++++ Declare scope ++++++++++++ -->
 
