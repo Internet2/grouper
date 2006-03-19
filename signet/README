@@ -1,42 +1,23 @@
-Signet version 1.0 - February, 2006
+Signet release 1.0.1 - March 18, 2006
 
 What's New
 ----------
     
-This the first production release of Signet! A Signet product site is at
+This release 1.0.1 of Signet. A Signet product site is at
 http://signet.internet2.edu
+
+Release 1.0.1 fixes the following bugs:
+ #499: Oracle "out of cursors" error in XmlLoaders
+ #502: Linefeed, quote problem in startup.bat and shutdown.bat 
+ #502: Missing primary keys in hsql.sql
+ #506: Missing "subsystemId" attribute in <Permission> element of XML doc
+ #508" Multiple limits for a permission not displayed properly
 
 Signet is distributed in two forms: A "regular" distribution, which can be
 configured according to your own needs, and a "quickstart" distribution,
 which provides a pre-configured Signet web application, complete with Tomcat
 server and an HSQLDB database pre-populated with metadata, subjects and
 assignments. The "quickstart" distribution is much easier to get started with.
-
-Things new and different from the 0.6 pre-release:
- - Self-contained login page in the UI, used automatically in the absence of
-   any encapsulating login that sets REMOTE_USER.  Password is "signet" for all
-   users coming in this way -- this is NOT an offering for any production use!
- - Added views of historical data (former assignments) and assignment history
-   to details panel.
- - <Privileges> document renamed to <Permissions>
- - Add Scope information to <Permissions> document.
- - Added assigment reconcile method and associate AssignmentReconcile utility 
-   for effective/expiration dated lifecycle processing.
- - Added Oracle DDL.
- - The XML doctype for loading an organizational tree is now <Tree>,
-   not <SignetTree>
-
-Notable "demo" system changes
- - KITN is now Kern Institue of Technology, Northam, for international flair
- - New "Library" (library) demo subsystem added to accompany Bio-X (projectx)
- - New demo subject population with new roles, most notably:
-     - Kai Martinez (kmart) -- Signet System Administrator
-     - Avery Page (apage) -- Library Subsystem Owner
-     - Francis Dewey (fdewey) -- Principal Library subsystem privilege-holder
-     - Dana Petri (dpetri) -- Bio-X Subsystem Owner
-     - Jean Poole (jpoole) -- Principal Bio-X subsystem privilege-holder
- - Logging in as "demo" still works, and is equal to logging in as "jpoole"
- - Loggin in as any user requires password of "signet"
 
 Here is a summary installation guide.  Please see the website for more
 detailed instructions.
