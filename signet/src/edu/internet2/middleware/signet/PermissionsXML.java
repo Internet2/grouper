@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXML.java,v 1.3 2006-03-17 06:12:08 lmcrae Exp $
-$Date: 2006-03-17 06:12:08 $
+$Id: PermissionsXML.java,v 1.4 2006-03-19 04:23:31 lmcrae Exp $
+$Date: 2006-03-19 04:23:31 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -135,20 +135,40 @@ public class PermissionsXML
          xmlw.writeCharacters("\n");
       
          // -------- Limits --------
-         Set limitValues = privilege.getLimitValues();
-         Iterator limitValuesIter = limitValues.iterator();
+         Set limitValuesSet = privilege.getLimitValues();
+         Iterator limitValuesSetIter = limitValuesSet.iterator();
+
+         TreeSet limitValues = new TreeSet();
+         while (limitValuesSetIter.hasNext()) {
+            LimitValue limitValue = (LimitValue) limitValuesSetIter.next();
+            limitValues.add(limitValue);
+         }
     
-         if (limitValuesIter.hasNext()) {
+         Iterator limitValuesIter = limitValues.iterator();
+         String currLimitId = ""; 
+         while (limitValuesIter.hasNext()) {
             LimitValue limitValue = (LimitValue) limitValuesIter.next();
             Limit limit = limitValue.getLimit();
             String limitId = limit.getId();
             String limitChoice = limitValue.getValue();
     
-            // -------- Limit --------
-            xmlw.writeCharacters("      ");
-            xmlw.writeStartElement("Limit");
-            xmlw.writeAttribute("id",limitId);
-            xmlw.writeCharacters("\n");
+            if (limitId != currLimitId) {
+      
+                if (currLimitId != "") {
+                    // -------- End Limit --------
+                    xmlw.writeCharacters("      ");
+                    xmlw.writeEndElement();
+                    xmlw.writeCharacters("\n");
+                }
+
+                // -------- Limit --------
+                xmlw.writeCharacters("      ");
+                xmlw.writeStartElement("Limit");
+                xmlw.writeAttribute("id",limitId);
+                xmlw.writeCharacters("\n");
+                
+                currLimitId = limitId;
+            }
       
             // -------- LimitValue --------
             xmlw.writeCharacters("         ");
@@ -156,25 +176,7 @@ public class PermissionsXML
             xmlw.writeCharacters(limitChoice);
             xmlw.writeEndElement();
             xmlw.writeCharacters("\n");
-  
-            while (limitValuesIter.hasNext()) {
-               LimitValue limitValue2 = (LimitValue) limitValuesIter.next();
-               String limitChoice2 = limitValue2.getValue();
       
-               // -------- LimitValue --------
-               xmlw.writeCharacters("         ");
-               xmlw.writeStartElement("LimitValue");
-               xmlw.writeCharacters(limitChoice2);
-               xmlw.writeEndElement();
-               xmlw.writeCharacters("\n");
-      
-            }
-      
-            // -------- End Limit --------
-            xmlw.writeCharacters("      ");
-            xmlw.writeEndElement();
-            xmlw.writeCharacters("\n");
-
          }
       
          // -------- End Permission -------- 
