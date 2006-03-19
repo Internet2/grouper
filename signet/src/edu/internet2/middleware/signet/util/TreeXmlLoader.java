@@ -154,17 +154,23 @@ public class TreeXmlLoader
   throws
     SQLException
   {
-    PreparedStatement pStmt
-      = this.conn.prepareStatement(insertTreeNodeSQL);
-  
-    pStmt.setString(1, tree.getId());
-    pStmt.setString(2, nodeID);
-    pStmt.setString(3, nodeType);
-    pStmt.setString(4, status.toString());
-    pStmt.setString(5, name);
-    pStmt.setDate(6, new Date(new java.util.Date().getTime()));
-    pStmt.executeUpdate();
-    
+    PreparedStatement pStmt = null;
+    try {
+      pStmt = this.conn.prepareStatement(insertTreeNodeSQL);
+      pStmt.setString(1, tree.getId());
+      pStmt.setString(2, nodeID);
+      pStmt.setString(3, nodeType);
+      pStmt.setString(4, status.toString());
+      pStmt.setString(5, name);
+      pStmt.setDate(6, new Date(new java.util.Date().getTime()));
+      pStmt.executeUpdate();
+    }
+    finally {
+      if (pStmt != null) {
+        pStmt.close();
+      }
+    }
+
     TreeNode newNode = new NodeImpl(tree, nodeID, nodeType, status, name);
     
     if (parent == null)
@@ -200,13 +206,20 @@ public class TreeXmlLoader
   throws
     SQLException
   {
-    PreparedStatement pStmt
-      = this.conn.prepareStatement(insertTreeNodeRelationshipSQL);
-  
-    pStmt.setString(1, child.getTree().getId());
-    pStmt.setString(2, child.getId());
-    pStmt.setString(3, parent.getId());
-    pStmt.executeUpdate();
+    PreparedStatement pStmt = null;
+    try {
+      pStmt = this.conn.prepareStatement(insertTreeNodeRelationshipSQL);
+      pStmt.setString(1, child.getTree().getId());
+      pStmt.setString(2, child.getId());
+      pStmt.setString(3, parent.getId());
+      pStmt.executeUpdate();
+    }
+    finally {
+      if (pStmt != null) {
+        pStmt.close();
+      }
+    }
+
 
     parent.addChild(child);
     
@@ -253,13 +266,21 @@ public class TreeXmlLoader
   private void executeDeletion(Connection conn, String tableName)
   throws SQLException
   {
-    PreparedStatement ps = conn.prepareStatement("delete from " + tableName);
-    int rows = ps.executeUpdate();
-    System.out.println
-      (rows
-       + (rows == 1 ? " row " : " rows ")
-       + "deleted from table "
-       + tableName);
+    PreparedStatement ps = null;
+    try {
+      ps = conn.prepareStatement("delete from " + tableName);
+      int rows = ps.executeUpdate();
+      System.out.println
+        (rows
+         + (rows == 1 ? " row " : " rows ")
+         + "deleted from table "
+         + tableName);
+    }
+    finally {
+      if (ps != null) {
+        ps.close();
+      }
+    }
   }
 
   /**
@@ -279,14 +300,21 @@ public class TreeXmlLoader
   throws
     SQLException
   {
-    PreparedStatement pStmt
-      = this.conn.prepareStatement(insertTreeSQL);
-  
-    pStmt.setString(1, id);
-    pStmt.setString(2, name);
-    pStmt.setString(3, adapterClassName);
-    pStmt.setDate(4, new Date(new java.util.Date().getTime()));
-    pStmt.executeUpdate();
+    PreparedStatement pStmt = null;
+    try {
+      pStmt = this.conn.prepareStatement(insertTreeSQL);
+      pStmt.setString(1, id);
+      pStmt.setString(2, name);
+      pStmt.setString(3, adapterClassName);
+      pStmt.setDate(4, new Date(new java.util.Date().getTime()));
+      pStmt.executeUpdate();
+    }
+    finally {
+      if (pStmt != null) {
+        pStmt.close();
+      }
+    }
+
     
     Tree tree = new TreeImpl(id, name, adapterClassName);
 
