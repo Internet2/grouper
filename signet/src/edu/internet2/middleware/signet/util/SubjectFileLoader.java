@@ -133,18 +133,24 @@ public class SubjectFileLoader
   throws
     SQLException
   {
-    PreparedStatement pStmt
-      = this.conn.prepareStatement(insertAttrSQL);
-  
-    pStmt.setString(1, subject.getType().getName());
-    pStmt.setString(2, subject.getId());
-    pStmt.setString(3, name);
-    pStmt.setInt(4, instance);
-    pStmt.setString(5, value);
-    pStmt.setString(6, searchValue);
-    pStmt.setDate(7, new Date(new java.util.Date().getTime()));
-    pStmt.executeUpdate();
-    
+    PreparedStatement pStmt = null;
+    try {
+      pStmt = this.conn.prepareStatement(insertAttrSQL);
+      pStmt.setString(1, subject.getType().getName());
+      pStmt.setString(2, subject.getId());
+      pStmt.setString(3, name);
+      pStmt.setInt(4, instance);
+      pStmt.setString(5, value);
+      pStmt.setString(6, searchValue);
+      pStmt.setDate(7, new Date(new java.util.Date().getTime()));
+      pStmt.executeUpdate();
+    }
+    finally {
+      if (pStmt != null) {
+        pStmt.close();
+      }
+    }
+   
     ((SubjImpl)subject).addAttribute(name, value);
   }
 
@@ -187,9 +193,17 @@ public class SubjectFileLoader
   private void execute(Connection conn, String sql, String verb)
   throws SQLException
   {
-    PreparedStatement ps = conn.prepareStatement(sql);
-    int rows = ps.executeUpdate();
-    System.out.println("- " + sql + ": " + rows + " rows affected");
+    PreparedStatement ps = null;
+    try {
+      ps = conn.prepareStatement(sql);
+      int rows = ps.executeUpdate();
+      System.out.println("- " + sql + ": " + rows + " rows affected");
+    }
+    finally {
+      if (ps != null) {
+        ps.close();
+      }
+    }
   }
   
   /**
@@ -213,16 +227,22 @@ public class SubjectFileLoader
   throws
     SQLException
   {
-    PreparedStatement pStmt
-      = this.conn.prepareStatement(insertSubjectSQL);
-  
-    pStmt.setString(1, subjectType.getName());
-    pStmt.setString(2, subjectId);
-    pStmt.setString(3, subjectName);
-    pStmt.setString(4, subjectDescription);
-    pStmt.setString(5, subjectDisplayId);
-    pStmt.setDate(6, new Date(new java.util.Date().getTime()));
-    pStmt.executeUpdate();
+    PreparedStatement pStmt = null;
+    try {
+      pStmt = this.conn.prepareStatement(insertSubjectSQL);
+      pStmt.setString(1, subjectType.getName());
+      pStmt.setString(2, subjectId);
+      pStmt.setString(3, subjectName);
+      pStmt.setString(4, subjectDescription);
+      pStmt.setString(5, subjectDisplayId);
+      pStmt.setDate(6, new Date(new java.util.Date().getTime()));
+      pStmt.executeUpdate();
+    }
+    finally {
+      if (pStmt != null) {
+        pStmt.close();
+      }
+    }
     
     Subject subject
       = new SubjImpl
