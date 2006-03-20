@@ -7,11 +7,12 @@ This release 1.0.1 of Signet. A Signet product site is at
 http://signet.internet2.edu
 
 Release 1.0.1 fixes the following bugs:
- #499: Oracle "out of cursors" error in XmlLoaders
- #502: Linefeed, quote problem in startup.bat and shutdown.bat 
+ #499: Oracle "out of cursors" error in TreeXmlLoader
+ #501: Demo -- Linefeed, quote problem in startup.bat and shutdown.bat 
  #502: Missing primary keys in hsql.sql
  #506: Missing "subsystemId" attribute in <Permission> element of XML doc
- #508" Multiple limits for a permission not displayed properly
+ #508: Multiple limits for a permission not displayed properly
+ #510: Oracle "out of cursors" error in SubjectFileLoader
 
 Signet is distributed in two forms: A "regular" distribution, which can be
 configured according to your own needs, and a "quickstart" distribution,
