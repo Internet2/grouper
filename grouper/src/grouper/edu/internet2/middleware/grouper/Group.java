@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.61 2006-03-16 20:59:57 blair Exp $
+ * @version $Id: Group.java,v 1.62 2006-03-21 18:36:45 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -153,6 +153,21 @@ public class Group extends Owner implements Serializable {
 
  
   // Public Instance Methods
+
+  /**
+   * Add a factor-membership to this group.
+   * <pre class="eg">
+   * </pre>
+   * @param   factor  Add this {@link Factor}.
+   * @throws  FactorAddException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void addFactor(Factor f) 
+    throws  FactorAddException,
+            InsufficientPrivilegeException
+  {
+    Validator.validateLeftAndRight(this, f);
+  } // public void addFactor(f)
 
   /**
    * Add a subject to this group.

@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * @author blair christensen.
  *     
 */
-class Factor extends Owner implements Serializable {
+public class Factor extends Owner implements Serializable {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(Factor.class);
@@ -40,12 +40,12 @@ class Factor extends Owner implements Serializable {
   private Member      creator_id;
   private String      create_source;
   private long        create_time;
-  private Membership  left;
+  private Owner       left;
   private Member      modifier_id;
   private String      modify_source;
   private long        modify_time;
   private String      owner_uuid;
-  private Membership  right;
+  private Owner       right;
 
 
   // Constructors
@@ -72,7 +72,7 @@ class Factor extends Owner implements Serializable {
   private String getKlass() {
     return this.klass;
   }
-  private Membership getLeft() {
+  protected Owner getLeft() {
     return this.left;
   }
   private Member getModifier_id() {
@@ -84,7 +84,7 @@ class Factor extends Owner implements Serializable {
   private long getModify_time() {
     return this.modify_time;
   }
-  private Membership getRight() {
+  protected Owner getRight() {
     return this.right;
   }
 
@@ -103,8 +103,8 @@ class Factor extends Owner implements Serializable {
   private void setKlass(String klass) {
     this.klass = klass;
   }
-  private void setLeft(Membership ms) {
-    this.left = ms;
+  protected void setLeft(Owner left) {
+    this.left = left;
   }
   private void setModifier_id(Member m) {
     this.modifier_id = m;
@@ -115,8 +115,8 @@ class Factor extends Owner implements Serializable {
   private void setModify_time(long time) {
     this.modify_time = time;
   }
-  private void setRight(Membership ms) {
-    this.right = ms;
+  protected void setRight(Owner right) {
+    this.right = right;
   }
 
 }
