@@ -27,7 +27,7 @@ import  java.util.*;
  * Validator Utility Class.
  * <p />
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.3 2006-03-07 19:27:05 blair Exp $
+ * @version $Id: Validator.java,v 1.4 2006-03-21 18:36:45 blair Exp $
  */
 class Validator implements Serializable {
 
@@ -113,6 +113,19 @@ class Validator implements Serializable {
       }
     }
   } // protected static void isCircularMembership(g, subj, f)
+
+  // Don't allow circular factors and ensure that left-and-right are
+  // groups - for now
+  protected static void validateLeftAndRight(Owner o, Factor f) 
+    throws  FactorAddException
+  {
+    if (f.getLeft().equals(o)) {
+      throw new FactorAddException("circular left node");
+    }
+    if (f.getRight().equals(o)) {
+      throw new FactorAddException("circular right node");
+    }
+  } // protected static void validateLeftAndRight(f)
 
 
   // Private Class Methods

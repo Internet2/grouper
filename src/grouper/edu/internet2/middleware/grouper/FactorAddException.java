@@ -17,31 +17,24 @@
 
 package edu.internet2.middleware.grouper;
 
-
-import  java.io.Serializable;
-import  org.apache.commons.lang.builder.*;
-
-
-/** 
- * Group math factors.
- * @author blair christensen.
- *     
+/**
+ * Exception thrown when a factor cannot be added to the Groups Registry.
+ * <p />
+ * @author  blair christensen.
+ * @version $Id: FactorAddException.java,v 1.1 2006-03-21 18:36:45 blair Exp $
  */
-public class UnionFactor extends Factor implements Serializable {
-
-  // Constructors
-
-  /**
-   * For Hibernate.
-   */
-  public UnionFactor() {
-    super();
-  } // public UnionFactor()
-
-  public UnionFactor(Group left, Group right) {
-    this.setLeft(   left  );
-    this.setRight(  right );
-  } // public UnionFactor(left, right)
-
+public class FactorAddException extends Exception {
+  public FactorAddException() { 
+    super(); 
+  }
+  public FactorAddException(String msg) { 
+    super(msg); 
+  }
+  public FactorAddException(String msg, Throwable cause) { 
+    super(msg, cause); 
+  }
+  public FactorAddException(Throwable cause) { 
+    super(cause); 
+  }
 }
 
