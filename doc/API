@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.138 2006-03-21 18:36:44 blair Exp $
+$Id: API,v 1.139 2006-03-22 00:15:27 blair Exp $
 
 ---
 
@@ -138,6 +138,7 @@ $Id: API,v 1.138 2006-03-21 18:36:44 blair Exp $
 * boolean             hasAdmin(subject)
 * boolean             hasEffectiveMember(subject)
 * boolean             hasEffectiveMember(subject, field)
+* boolean             hasFactor()
 * boolean             hasImmediateMember(subject)
 * boolean             hasImmediateMember(subject, field)
 * boolean             hasOptin(subject)
@@ -148,6 +149,7 @@ $Id: API,v 1.138 2006-03-21 18:36:44 blair Exp $
 * boolean             hasType(type)
 * boolean             hasUpdate(subject)
 * boolean             hasView(subject)
+* boolean             isFactor()
 * void                revokePriv(access priv)
 * void                revokePriv(subject, access priv) 
 * void                setAttribute(attr, value)

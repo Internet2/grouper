@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.17 2006-03-07 19:27:05 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.18 2006-03-22 00:15:27 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -161,10 +161,21 @@ public class RegistryInstall {
     base.setAssignable(false);
     base.setInternal(false);
     types.add(base);
+
     GroupType naming  = new GroupType("naming", naming_f);
     naming.setAssignable(false);
     naming.setInternal(true);
     types.add(naming);
+
+    GroupType hasFactor = new GroupType("hasFactor" , new HashSet());
+    hasFactor.setAssignable(false);
+    hasFactor.setInternal(true);
+    types.add(hasFactor);
+    
+    GroupType isFactor  = new GroupType("isFactor"  , new HashSet());
+    isFactor.setAssignable(false);
+    isFactor.setInternal(true);
+    types.add(isFactor);
   
     fields.addAll(base_f);
     fields.addAll(naming_f);

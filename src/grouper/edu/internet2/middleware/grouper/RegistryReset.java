@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.19 2006-03-16 20:59:57 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.20 2006-03-22 00:15:27 blair Exp $
  */
 public class RegistryReset {
 
@@ -165,7 +165,12 @@ public class RegistryReset {
 
     hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
     hs.delete(
-      "from GroupType as t where (t.name != 'base' and t.name != 'naming')"
+      "from GroupType as t where (  "
+      + "     t.name != 'base'      "
+      + "and  t.name != 'hasFactor' "
+      + "and  t.name != 'isFactor'  "
+      + "and  t.name != 'naming'    "
+      + ")"
     );
     hs.delete("from HibernateSubject");
 
