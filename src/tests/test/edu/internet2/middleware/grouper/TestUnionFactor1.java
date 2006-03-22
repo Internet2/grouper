@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestUnionFactor1.java,v 1.1 2006-03-21 18:36:45 blair Exp $
+ * @version $Id: TestUnionFactor1.java,v 1.2 2006-03-22 01:10:11 blair Exp $
  */
 public class TestUnionFactor1 extends TestCase {
 
@@ -51,7 +51,6 @@ public class TestUnionFactor1 extends TestCase {
     LOG.info("testFailToAddUnionFactorWithCircularRightNode");
     try {
       R r = R.createOneStemAndTwoGroups();
-      GrouperSession  s = SessionHelper.getRootSession();
       try {
         r.i2.addFactor( new UnionFactor(r.uc, r.i2) );
         Assert.fail("FAIL: added recursive left node");
@@ -59,7 +58,9 @@ public class TestUnionFactor1 extends TestCase {
       catch (FactorAddException eFA) {
         Assert.assertTrue("OK: expected failure", true);
       } 
-      s.stop();
+      finally {
+        r.rs.stop();
+      }
     }
     catch (Exception e) {
       Assert.fail("FAIL: " + e.getMessage());
