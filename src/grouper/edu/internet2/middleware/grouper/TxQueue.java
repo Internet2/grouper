@@ -39,11 +39,12 @@ class TxQueue implements Serializable {
   // Hibernate Properties
   private Member      actor;
   private List        dirty       = new ArrayList();
+  private Factor      factor;
   private Field       field;
   private String      id;
   private String      klass;
   private Member      member;
-  private Owner       owner;      // Switch to _Owner_
+  private Owner       owner;      
   private String      sessionId;
   private long        queueTime;
   private QueueStatus status;
@@ -115,6 +116,9 @@ class TxQueue implements Serializable {
   protected List getDirty() {
     return this.dirty;
   }
+  protected Factor getFactor() {
+    return this.factor;
+  }
   protected Field getField() {
     return this.field;
   }
@@ -148,6 +152,9 @@ class TxQueue implements Serializable {
   }
   protected void setDirty(List dirty) {
     this.dirty = dirty;
+  }
+  protected void setFactor(Factor f) {
+    this.factor = f;
   }
   protected void setField(Field f) {
     this.field = f;

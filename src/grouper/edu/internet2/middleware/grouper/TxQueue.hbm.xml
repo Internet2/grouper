@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: TxQueue.hbm.xml,v 1.5 2006-03-16 20:59:57 blair Exp $ -->
+<!-- $Id: TxQueue.hbm.xml,v 1.6 2006-03-22 18:43:23 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="TxQueue" table="grouper_queue">
@@ -139,19 +139,31 @@ Grouper Transaction Queue.
     <many-to-one  name="member"
                   class="edu.internet2.middleware.grouper.Member" 
     >
-      <column     name="member"/>
+      <column name="member"/>
     </many-to-one>
     <!-- member -->
+
+    <!-- factor -->
+    <many-to-one
+      name="factor"
+      class="edu.internet2.middleware.grouper.Factor" 
+      cascade="none"
+    />
+    <!-- factor -->
+
   
 
+    <!-- TxFactordd -->
+    <subclass name="TxFactorAdd"  discriminator-value="factorAdd"/>
+    <!-- TxFactorAdd -->
+    <!-- TxMemberAdd -->
+    <subclass name="TxMemberAdd"  discriminator-value="memberAdd"/>
+    <!-- TxMemberAdd -->
+    <!-- TxMemberDel -->
+    <subclass name="TxMemberDel"  discriminator-value="memberDel"/>
+    <!-- TxMemberDel -->
     <!-- TxStop -->
     <subclass name="TxStop"       discriminator-value="stop"/>
-    <!-- TxStop -->
-    <!-- TxStop -->
-    <subclass name="TxMemberAdd"  discriminator-value="memberAdd"/>
-    <!-- TxStop -->
-    <!-- TxStop -->
-    <subclass name="TxMemberDel"  discriminator-value="memberDel"/>
     <!-- TxStop -->
 
   </class>

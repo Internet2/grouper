@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.8 2006-02-21 17:11:32 blair Exp $
+ * @version $Id: EventLog.java,v 1.9 2006-03-22 18:43:23 blair Exp $
  *     
 */
 class EventLog implements Serializable {
@@ -44,6 +44,7 @@ class EventLog implements Serializable {
   private static final String ERR_EFF_SNF = "effective membership subject not found";
 
   // event log messages
+  private static final String G_AF        = "add factor: group=";
   private static final String G_AM        = "add member: group=";
   private static final String G_AM_E      = "add effective member: group=";
   private static final String G_AT        = "add type: group=";
@@ -157,6 +158,16 @@ class EventLog implements Serializable {
   protected void error(String msg) {
     LOG.error(msg);
   }
+
+  protected void groupAddFactor(
+    GrouperSession s, String group, Factor f, StopWatch sw
+  )
+  { 
+    // TODO Don't use f.toString()
+    GrouperLog.info(
+      LOG, s.toString(), G_AF + group + " factor=" + f.toString(), sw
+    );
+  } // protected void groupAddFactor(s, group, f, sw)
 
   protected void groupAddMember(
     GrouperSession s, String group, Subject subj, Field f, StopWatch sw

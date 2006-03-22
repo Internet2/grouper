@@ -29,7 +29,7 @@ import  net.sf.hibernate.type.*;
  * Custom {@link Field} user type.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldUserType.java,v 1.4 2006-02-03 19:38:53 blair Exp $    
+ * @version $Id: FieldUserType.java,v 1.5 2006-03-22 18:43:23 blair Exp $    
  */
 public class FieldUserType implements CompositeUserType {
 
@@ -92,6 +92,10 @@ public class FieldUserType implements CompositeUserType {
     throws HibernateException, SQLException
   {
     if (resultSet.wasNull()) {
+      return null;
+    }
+    // TODO Is this right?
+    if (names[0] == null) {
       return null;
     }
     try {
