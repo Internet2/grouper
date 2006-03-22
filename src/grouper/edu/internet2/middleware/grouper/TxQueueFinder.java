@@ -84,7 +84,7 @@ class TxQueueFinder implements Serializable {
       LOG.error(msg);
     }
     return results;
-  } // protected static findByStatus(status)
+  } // protected static findBySession(session)
   
   protected static Set findByStatus(String status) {
     Set results = new LinkedHashSet();
