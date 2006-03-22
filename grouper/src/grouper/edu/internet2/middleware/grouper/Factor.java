@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 
 
 import  java.io.Serializable;
+import  java.util.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.logging.*;
 
@@ -49,13 +50,30 @@ public class Factor extends Owner implements Serializable {
 
 
   // Constructors
-
-  // For Hibernate
+  /** 
+   * For Hibernate.
+   */
   public Factor() { 
     super();
   }
+  protected Factor(Group g, Factor f) {
+    this.setCreator_id(   g.getSession().getMember()  );
+    this.setLeft(         f.getLeft()                 );
+    this.setRight(        f.getRight()                );
+    this.setCreate_time(  new Date().getTime()        );
+  } // protected Factor(g, f)
 
 
+  // Public Instance Methods
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE )
+      .append("name"        , this.getClass().getName()         )
+      .append("left"        , this.getLeft().toString()         )
+      .append("right"       , this.getRight().toString()        )
+      .toString();
+  } // public String toString()
+
+  
   // Hibernate Accessors
   private String getCreate_source() { 
     return this.create_source;
@@ -67,7 +85,7 @@ public class Factor extends Owner implements Serializable {
     return this.creator_id;
   }
   private String getId() {
-    return this.getId();
+    return this.id;
   }
   private String getKlass() {
     return this.klass;

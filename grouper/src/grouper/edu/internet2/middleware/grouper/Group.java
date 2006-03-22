@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.62 2006-03-21 18:36:45 blair Exp $
+ * @version $Id: Group.java,v 1.63 2006-03-22 18:43:23 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -166,7 +166,43 @@ public class Group extends Owner implements Serializable {
     throws  FactorAddException,
             InsufficientPrivilegeException
   {
-    Validator.validateLeftAndRight(this, f);
+    StopWatch sw = new StopWatch();
+    sw.start();
+
+    Validator.validateFactor(this, f);
+    Factor _f = new Factor(this, f);  // TODO ugly, ugly hack
+    if (this.hasFactor()) {
+      throw new FactorAddException("already has factor membership");
+    }
+    try {
+      PrivilegeResolver.getInstance().canWriteField(
+        this.s, this, this.s.getSubject(), getDefaultList(), FieldType.LIST
+      );
+
+      Set       saves     = new LinkedHashSet();
+      GroupType isFactor  = GroupTypeFinder.find("isFactor");
+      GroupType hasFactor = GroupTypeFinder.find("hasFactor");
+      Group     left      = (Group) _f.getLeft();
+      Group     right     = (Group) _f.getRight();
+      left._addType(  isFactor  );  // TODO Should I set modified?
+      right._addType( isFactor  );  // TODO Should I set modified?
+      this._addType(  hasFactor );
+      this.setModified();
+      saves.add(  _f                            );  // The factor
+      saves.add(  left                          );  // The left group
+      saves.add(  right                         );  // The right group
+      saves.add(  new TxFactorAdd(s, this, _f)  );  // The tx
+      saves.add(  this                          );  // This group
+      HibernateHelper.save(saves);
+
+      sw.stop();
+ 
+      EL.groupAddFactor(this.s, this.getName(), f, sw);
+    } catch (Exception e) {
+      // HibernateException
+      // SchemaException
+      throw new FactorAddException(e.getMessage());
+    }
   } // public void addFactor(f)
 
   /**
@@ -288,9 +324,7 @@ public class Group extends Owner implements Serializable {
     try {
       StopWatch sw    = new StopWatch();
       Session   hs    = HibernateHelper.getSession();
-      Set       types = this.getGroup_types();
-      types.add(type);
-      this.setGroup_types(types);
+      this._addType(type);
       HibernateHelper.save(this);
       hs.close();
       sw.stop();
@@ -1421,6 +1455,16 @@ public class Group extends Owner implements Serializable {
   } // public boolean hasEffectiveMember(subj, f)
 
   /**
+   * Does this group have a {@link Factor} membership?
+   * <pre class="eg">
+   * boolean rv = g.hasFactor();
+   * </pre>
+   */
+  public boolean hasFactor() {
+    return this.hasType("hasFactor");
+  } // public boolean hasFactor()
+
+  /**
    * Check whether the subject is an immediate member of this group.
    * <pre class="eg">
    * if (g.hasImmediateMember(subj)) {
@@ -1613,13 +1657,32 @@ public class Group extends Owner implements Serializable {
    * @param   type  The {@link GroupType} to check.
    */
   public boolean hasType(GroupType type) {
-    // if (this.getGroup_types().contains(type)) {
     Set types = this.getGroup_types();
     if (types.contains(type)) {
       return true;
     }
     return false;
-  }
+  } // public booean hasType(type)
+
+  /**
+   * Check whether group has the specified type.
+   * <pre class="eg">
+   * if (g.hasType("type")) {
+   *   // Group has type
+   * }
+   * </pre>
+   * @param   type  The {@link GroupType} to check.
+   */
+  public boolean hasType(String type) {
+    try {
+      return this.hasType( GroupTypeFinder.find(type) );
+    }
+    catch (SchemaException eS) {
+      // Ignore 
+      // TODO Or should I throw?
+    }
+    return false;
+  } // public boolean hasType(type)
 
   /**
    * Check whether the subject has UPDATE on this group.
@@ -1658,6 +1721,16 @@ public class Group extends Owner implements Serializable {
       this.s, this, subj, AccessPrivilege.VIEW
     );
   } // public boolean hasView(subj)
+
+  /**
+   * Is this group part of a {@link Factor} membership?
+   * <pre class="eg">
+   * boolean rv = g.isFactor();
+   * </pre>
+   */
+  public boolean isFactor() {
+    return this.hasType("isFactor");
+  } // public boolean isFactor()
 
   /**
    * Revoke all privileges of the specified type on this group.
@@ -2012,6 +2085,12 @@ public class Group extends Owner implements Serializable {
 
 
   // Private Instance Methods
+
+  private void _addType(GroupType type) {
+    Set types = this.getGroup_types();
+    types.add(type);
+    this.setGroup_types(types);
+  } // private void _addType(type)
 
   private void _canOPTIN(Subject subj, Field f) 
     throws  InsufficientPrivilegeException

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.139 2006-03-22 00:15:27 blair Exp $
+$Id: API,v 1.140 2006-03-22 18:43:23 blair Exp $
 
 ---
 
@@ -92,12 +92,12 @@ $Id: API,v 1.139 2006-03-22 00:15:27 blair Exp $
 * void                addFactor(factor)
 * void                addMember(subject)
 * void                addMember(subject, field)
-* void                addType(type)
+* void                addType(Type)
 * void                delete()
 * void                deleteAttribute(attr)
 * void                deleteMember(subject)
 * void                deleteMember(subject, field)
-* void                deleteType(type)
+* void                deleteType(Type)
 * Set                 getAdmins()
 * String              getAttribute(attr)
 * Map                 getAttributes()
@@ -146,6 +146,7 @@ $Id: API,v 1.139 2006-03-22 00:15:27 blair Exp $
 * boolean             hasMember(subject)
 * boolean             hasMember(subject, field)
 * boolean             hasRead(subject)
+* boolean             hasType(Type)
 * boolean             hasType(type)
 * boolean             hasUpdate(subject)
 * boolean             hasView(subject)
@@ -340,5 +341,6 @@ $Id: API,v 1.139 2006-03-22 00:15:27 blair Exp $
 * Factor              UnionFactor(group, group)
 
 ## UnionFilter extends BaseQueryFilter
+
 
 

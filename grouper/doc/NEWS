@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.104 2006-03-16 20:59:57 blair Exp $
+$Id: NEWS,v 1.105 2006-03-22 18:43:23 blair Exp $
 
 ---
 
@@ -10,6 +10,9 @@ $Id: NEWS,v 1.104 2006-03-16 20:59:57 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW: Add `addFactor()`, `hasFactor()`, `isFactor()` and `hasType()`
+  methods to `Group`
+* NEW: Add internal `hasFactor` and `isFactor` group types
 * UPDATE: Map `owner` and `via` in `Membership` to `Owner`
 * UPDATE: `Group`, `Factor` and `Stem` now extend `Owner`
 * UPDATE: Add internal Hibernate mapping for JDBC Subject Adapter
