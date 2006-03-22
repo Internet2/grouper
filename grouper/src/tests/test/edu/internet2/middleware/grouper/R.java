@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: R.java,v 1.1 2006-03-21 18:36:45 blair Exp $
+ * @version $Id: R.java,v 1.2 2006-03-22 01:10:11 blair Exp $
  */
 class R {
 
@@ -41,10 +41,13 @@ class R {
   private static final Log LOG = LogFactory.getLog(R.class);
 
   // Protected Class Variables
-  protected Stem  root  = null;
-  protected Stem  edu   = null;
-  protected Group i2    = null;
-  protected Group uc    = null;
+  protected GrouperSession  rs    = null;
+  protected Stem            root  = null;
+  protected Stem            edu   = null;
+  protected Group           i2    = null;
+  protected Group           ub    = null;
+  protected Group           uc    = null;
+  protected Group           uw    = null;
 
 
   // Constructors
@@ -59,15 +62,30 @@ class R {
   {
     LOG.info("createOneStemAndTwoGroups");
     R r = new R();
-    GrouperSession  s = SessionHelper.getRootSession();
-    r.root  = StemFinder.findRootStem(s);
+    r.rs    = SessionHelper.getRootSession();
+    r.root  = StemFinder.findRootStem(r.rs);
     r.edu   = r.root.addChildStem("edu" , "education" );
     r.i2    = r.edu.addChildGroup("i2"  , "internet2" );    
     r.uc    = r.edu.addChildGroup("uc"  , "uchicago"  );    
-    s.waitForTx();
-    s.stop();
+    GrouperSession.waitForAllTx();
     return r;
   } // protected static R createOneStemTwoGroups()
   
+  protected static R createOneStemAndFourGroups() 
+    throws  Exception
+  {
+    LOG.info("createOneStemAndFourGroups");
+    R r = new R();
+    r.rs    = SessionHelper.getRootSession();
+    r.root  = StemFinder.findRootStem(r.rs);
+    r.edu   = r.root.addChildStem("edu" , "education"   );
+    r.i2    = r.edu.addChildGroup("i2"  , "internet2"   );    
+    r.ub    = r.edu.addChildGroup("ub"  , "ubristol"    );    
+    r.uc    = r.edu.addChildGroup("uc"  , "uchicago"    );    
+    r.uw    = r.edu.addChildGroup("uw"  , "uwashington" );    
+    GrouperSession.waitForAllTx();
+    return r;
+  } // protected static R createOneStemFourGroups()
+
 }
 
