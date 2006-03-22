@@ -33,7 +33,7 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.18 2006-02-21 17:11:32 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.19 2006-03-22 19:03:37 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -138,12 +138,12 @@ public class GrouperSession implements Serializable {
       try {
         // TODO What's a good time?
         // Thread.sleep( (long) (Math.random() * 250) );
-        EL.info("WAITING FOR ALL TX: " + results.size());
+        EL.debug("WAITING FOR ALL TX: " + results.size());
         Iterator iter = results.iterator();
         int idx = 0;
         while (iter.hasNext()) {
           TxQueue tx = (TxQueue) iter.next();
-          EL.info("WAITING FOR ALL TX[" + idx++ + "] " + tx);
+          EL.debug("WAITING FOR ALL TX[" + idx++ + "] " + tx);
         }
         Thread.sleep(250);
       } catch (InterruptedException e) {
