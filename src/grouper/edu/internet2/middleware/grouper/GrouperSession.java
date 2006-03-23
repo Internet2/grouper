@@ -33,7 +33,7 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.19 2006-03-22 19:03:37 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.20 2006-03-23 18:36:31 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -82,6 +82,38 @@ public class GrouperSession implements Serializable {
 
 
   // Public class methods
+
+  /**
+   * Flush the results of a cached query.
+   * <p>
+   * <b>NOTE:</b> This method may not remain public.
+   * </p>
+   * <p>
+   * The caches that can be flushed are listed in
+   * <tt>conf/ehcache.xml</tt>.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   GrouperSession.flushCache(name);
+   * }
+   * catch (SessionException eS) {
+   *  // error flushing cache
+   * }
+   * </pre>
+   * @param   name  name of ehcache query cache to flush.
+   * @throws  SessionException
+   * @since   1.0
+   */
+  public static void flushCache(String name) 
+    throws  SessionException
+  {
+    try {
+      CacheMgr.resetCache( CacheMgr.getCache(name) );
+    }
+    catch (Exception e) {
+      throw new SessionException(e.getMessage());
+    }
+  } // public static void flushCache(name)
 
   /**
    * Start a session for interacting with the Grouper API.

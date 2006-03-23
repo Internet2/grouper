@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 
 
 import  java.io.Serializable;
+import  java.util.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.logging.*;
 
@@ -55,18 +56,28 @@ class TxFactorAdd extends TxQueue implements Serializable {
   // Public Instance Methods
   public boolean apply(GrouperDaemon gd) {
     boolean rv = false;
-    rv = true;
-/*
     try {
       GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
       GrouperSession  fake  = new GrouperSession(this.getSessionId(), this.getActor());
-      Member          m     = this.getMember();
-      m.setSession(root);
-      Membership      imm   = MembershipFinder.findImmediateMembership(
-        this.getOwner(), m, this.getField()
-      );
-      imm.setSession(root);
-      Membership.addEffectiveMemberships(fake, imm);
+      Set             ms    = new LinkedHashSet();
+
+      // TODO REFACTOR
+      if (this.getFactor().getKlass().equals(UnionFactor.KLASS)) {
+        ms = this._calculateUnionFactor(root);
+      }
+      else {
+        gd.getLog().error("factor type unknown: " + this.getFactor().getKlass());
+      }
+     
+      if (ms.size() > 0) { 
+        ( (Group) this.getOwner() ).setModified(this.getActor());
+        Set saves = new LinkedHashSet();
+        saves.addAll(ms);
+        saves.add(this);
+        HibernateHelper.save(saves);
+        // FIXME LOG!
+      }
+
       root.stop();
       rv = true;
     }
@@ -76,9 +87,39 @@ class TxFactorAdd extends TxQueue implements Serializable {
       //  SubjectNotFoundException
       gd.getLog().failedToApplyTx(this, e.getMessage());
     }
-*/
     return rv;
   } // public boolean apply()
+
+
+  // Private Instance Methods
+  private Set _calculateUnionFactor(GrouperSession s) 
+    throws  Exception
+  {
+    Set results = new LinkedHashSet();
+    Set tmp     = new LinkedHashSet();
+    Group left  = (Group) this.getFactor().getLeft();
+    Group right = (Group) this.getFactor().getRight();
+    left.setSession(s);
+    right.setSession(s);
+    tmp.addAll( left.getMembers() );
+    tmp.addAll( right.getMembers()  );
+    return this._createNewMembershipObjects(s, tmp);
+  } // private Set _calculateUnionFactor(s)
+
+  private Set _createNewMembershipObjects(GrouperSession s, Set tmp) 
+    throws  Exception
+  {
+    Set       results = new LinkedHashSet();
+    Iterator iter     = tmp.iterator();
+    while (iter.hasNext()) {
+      Member      m   = (Member) iter.next();
+      Membership  imm = new Membership(
+        s, this.getOwner(), m, this.getField()
+      );
+      results.add(imm);
+    }
+    return results;
+  } // private Set _createNewMembershipObjects(s, tmp)
 
 }
 

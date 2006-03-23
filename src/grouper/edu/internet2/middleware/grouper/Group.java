@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.63 2006-03-22 18:43:23 blair Exp $
+ * @version $Id: Group.java,v 1.64 2006-03-23 18:36:31 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -178,6 +178,12 @@ public class Group extends Owner implements Serializable {
       PrivilegeResolver.getInstance().canWriteField(
         this.s, this, this.s.getSubject(), getDefaultList(), FieldType.LIST
       );
+    }
+    catch (SchemaException eS) {
+      // TODO Argh.  This try-catch should **not** really be necessary.  
+      throw new FactorAddException(eS.getMessage());
+    }
+    try {
 
       Set       saves     = new LinkedHashSet();
       GroupType isFactor  = GroupTypeFinder.find("isFactor");
@@ -2064,10 +2070,18 @@ public class Group extends Owner implements Serializable {
 
 
   // Protected Instance Methods
+  // TODO DRY - why did moving this to Owner not work?
   protected void setModified() {
-    this.setModifier_id( s.getMember()        );
+    //this.setModifier_id( s.getMember()        );
+    //this.setModify_time( new Date().getTime() );
+    this.setModified(s.getMember());
+  } // protected void setModified()
+  // used by TxFactorAdd
+  protected void setModified(Member m) {
+    this.setModifier_id( m                    );
     this.setModify_time( new Date().getTime() );
-  } // private void setModified()
+  } 
+  
 
   protected void setDisplayName(String value) {
     Set       attrs = new LinkedHashSet();

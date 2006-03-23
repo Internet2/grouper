@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.2 2006-03-16 17:58:57 blair Exp $
+ * @version $Id: Owner.java,v 1.3 2006-03-23 18:36:31 blair Exp $
  *     
 */
 public class Owner implements Serializable {

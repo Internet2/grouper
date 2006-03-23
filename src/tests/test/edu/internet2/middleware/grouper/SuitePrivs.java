@@ -15,38 +15,30 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package test.edu.internet2.middleware.grouper;
 
+import  junit.framework.*;
+import  org.apache.commons.logging.*;
 
-import  java.io.Serializable;
-import  org.apache.commons.lang.builder.*;
-
-
-/** 
- * Group math factors.
- * @author blair christensen.
- *     
+/**
+ * @author  blair christensen.
+ * @version $Id: SuitePrivs.java,v 1.1 2006-03-23 18:36:31 blair Exp $
  */
-public class UnionFactor extends Factor implements Serializable {
+public class SuitePrivs extends TestCase {
 
-  // Protected Constants
-  protected static final String KLASS = "union";
+  // Private Class Constants
+  private static final Log  LOG = LogFactory.getLog(SuitePrivs.class); 
 
+  public SuitePrivs(String name) {
+    super(name);
+  } // public SuitePrivs(name)
 
-  // Constructors
-
-  /**
-   * For Hibernate.
-   */
-  public UnionFactor() {
-    super();
-  } // public UnionFactor()
-
-  public UnionFactor(Group left, Group right) {
-    this.setKlass(  KLASS );
-    this.setLeft(   left  );
-    this.setRight(  right );
-  } // public UnionFactor(left, right)
+  static public Test suite() {
+    TestSuite suite = new TestSuite();
+    suite.addTest(  SuitePrivREAD.suite() );
+    suite.addTest(  SuitePrivSTEM.suite() );
+    return suite;
+  } // static public Test suite()
 
 }
 

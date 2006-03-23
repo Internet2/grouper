@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: R.java,v 1.2 2006-03-22 01:10:11 blair Exp $
+ * @version $Id: R.java,v 1.3 2006-03-23 18:36:31 blair Exp $
  */
 class R {
 
@@ -48,6 +48,12 @@ class R {
   protected Group           ub    = null;
   protected Group           uc    = null;
   protected Group           uw    = null;
+  protected Subject         subj0 = null;
+  protected Subject         subj1 = null;
+  protected Subject         subj2 = null;
+  protected Member          m0    = null;
+  protected Member          m1    = null;
+  protected Member          m2    = null;
 
 
   // Constructors
@@ -67,6 +73,7 @@ class R {
     r.edu   = r.root.addChildStem("edu" , "education" );
     r.i2    = r.edu.addChildGroup("i2"  , "internet2" );    
     r.uc    = r.edu.addChildGroup("uc"  , "uchicago"  );    
+    r._findSubjectsAndMembers();
     GrouperSession.waitForAllTx();
     return r;
   } // protected static R createOneStemTwoGroups()
@@ -82,10 +89,24 @@ class R {
     r.i2    = r.edu.addChildGroup("i2"  , "internet2"   );    
     r.ub    = r.edu.addChildGroup("ub"  , "ubristol"    );    
     r.uc    = r.edu.addChildGroup("uc"  , "uchicago"    );    
-    r.uw    = r.edu.addChildGroup("uw"  , "uwashington" );    
+    r.uw    = r.edu.addChildGroup("uw"  , "uwashington" );
+    r._findSubjectsAndMembers();
     GrouperSession.waitForAllTx();
     return r;
   } // protected static R createOneStemFourGroups()
+
+  
+  // Private Instance Methods
+  private void _findSubjectsAndMembers() 
+    throws  Exception
+  {
+    this.subj0  = SubjectFinder.findById("test.subject.0");
+    this.subj1  = SubjectFinder.findById("test.subject.1");
+    this.subj2  = SubjectFinder.findById("test.subject.2");
+    this.m0     = MemberFinder.findBySubject(this.rs, this.subj0);
+    this.m1     = MemberFinder.findBySubject(this.rs, this.subj1);
+    this.m2     = MemberFinder.findBySubject(this.rs, this.subj2);
+  } // private void _findSubjectsAndMembers()
 
 }
 

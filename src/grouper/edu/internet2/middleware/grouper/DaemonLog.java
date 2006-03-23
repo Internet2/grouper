@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link GrouperDaemon} logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: DaemonLog.java,v 1.3 2006-02-21 17:11:32 blair Exp $
+ * @version $Id: DaemonLog.java,v 1.4 2006-03-23 18:36:31 blair Exp $
  *     
 */
 class DaemonLog implements Serializable {

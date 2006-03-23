@@ -58,16 +58,17 @@ public class Factor extends Owner implements Serializable {
   }
   protected Factor(Group g, Factor f) {
     this.setCreator_id(   g.getSession().getMember()  );
+    this.setCreate_time(  new Date().getTime()        );
     this.setLeft(         f.getLeft()                 );
     this.setRight(        f.getRight()                );
-    this.setCreate_time(  new Date().getTime()        );
+    this.setKlass(        f.getKlass()                );
   } // protected Factor(g, f)
 
 
   // Public Instance Methods
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE )
-      .append("name"        , this.getClass().getName()         )
+      .append("name"        , this.getClass()                   )
       .append("left"        , this.getLeft().toString()         )
       .append("right"       , this.getRight().toString()        )
       .toString();
@@ -87,7 +88,7 @@ public class Factor extends Owner implements Serializable {
   private String getId() {
     return this.id;
   }
-  private String getKlass() {
+  protected String getKlass() {
     return this.klass;
   }
   protected Owner getLeft() {
@@ -118,7 +119,7 @@ public class Factor extends Owner implements Serializable {
   private void setId(String id) {
     this.id = id;
   }
-  private void setKlass(String klass) {
+  protected void setKlass(String klass) {
     this.klass = klass;
   }
   protected void setLeft(Owner left) {

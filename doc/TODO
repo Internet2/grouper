@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.34 2006-03-22 18:43:23 blair Exp $
+$Id: TODO,v 1.35 2006-03-23 18:36:31 blair Exp $
 
 ---
 
@@ -40,6 +40,7 @@ $Id: TODO,v 1.34 2006-03-22 18:43:23 blair Exp $
 ## Future Releases
 * Add WS variant of GSA
 * Expand _Validator_ class
+* Make caching (more) configurable
 * Stem: _addChildGroup()_ and _addChildStems()_ should take an optional
   Properties arg that would override configuration defaults
 * Rework _PrivilegeCache_ so that I can expire individual entries

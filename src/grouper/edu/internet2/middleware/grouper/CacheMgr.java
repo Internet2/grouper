@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper Cache Manager
  * <p />
  * @author  blair christensen.
- * @version $Id: CacheMgr.java,v 1.2 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: CacheMgr.java,v 1.3 2006-03-23 18:36:31 blair Exp $
  *     
 */
 class CacheMgr {
@@ -95,11 +95,7 @@ class CacheMgr {
       Iterator iter = getCaches().iterator();
       while (iter.hasNext()) {
         Cache cache = (Cache) iter.next();
-        int   size  = cache.getSize();
-        if (size > 0) {
-          cache.removeAll();
-          LOG.info(GrouperLog.MSG_EC + cache.getName() + ": " + size);
-        }
+        resetCache(cache);
       }
     }
     catch (Exception e) {
@@ -108,6 +104,16 @@ class CacheMgr {
       throw new RuntimeException(err);
     }
   } // protected static void resetAllCaches()
+
+  protected static void resetCache(Cache cache) 
+    throws  Exception
+  {
+    int   size  = cache.getSize();
+    if (size > 0) {
+      cache.removeAll();
+      LOG.info(GrouperLog.MSG_EC + cache.getName() + ": " + size);
+    }
+  } // protected static void resetCache(cache)
 
 }
 

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteUnionFactors.java,v 1.3 2006-03-22 18:43:23 blair Exp $
+ * @version $Id: SuiteUnionFactors.java,v 1.4 2006-03-23 18:36:31 blair Exp $
  */
 public class SuiteUnionFactors extends TestCase {
 
@@ -38,8 +38,8 @@ public class SuiteUnionFactors extends TestCase {
     suite.addTestSuite( TestUnionFactor0.class  );  // circular left
     suite.addTestSuite( TestUnionFactor1.class  );  // circular right
     suite.addTestSuite( TestUnionFactor2.class  );  // simple union
-    // TODO suite.addTestSuite( TestUnionFactor3.class  );  // not priv'd
-    // TODO suite.addTestSuite( TestUnionFactor4.class  );  // union with members
+    suite.addTestSuite( TestUnionFactor3.class  );  // not priv'd
+    suite.addTestSuite( TestUnionFactor4.class  );  // union with members
     // TODO suite.addTestSuite( TestUnionFactor5.class  );  // union with a union'd member
     // TODO suite.addTestSuite( TestUnionFactor6.class  );  // union that is a union'd member
     // TODO suite.addTestSuite( TestUnionFactor7.class  );  // union that is and has unions
@@ -47,6 +47,9 @@ public class SuiteUnionFactors extends TestCase {
     // TODO suite.addTestSuite( TestUnionFactor8.class  );  // fail: null left
     // TODO suite.addTestSuite( TestUnionFactor8.class  );  // fail: null right
     // TODO suite.addTestSuite( TestUnionFactor9.class  );  // fail: has factor
+    // TODO suite.addTestSuite( TestUnionFactor10.class));  // fail: add member
+    // TODO suite.addTestSuite( TestUnionFactor11.class));  // fail: delete member
+    // TODO suite.addTestSuite( TestUnionFactor11.class));  // fail: add to group with member
     return suite;
   } // static public Test suite()
 
