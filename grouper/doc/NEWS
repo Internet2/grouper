@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.105 2006-03-22 18:43:23 blair Exp $
+$Id: NEWS,v 1.106 2006-03-23 18:36:31 blair Exp $
 
 ---
 
@@ -10,8 +10,11 @@ $Id: NEWS,v 1.105 2006-03-22 18:43:23 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW: Add `GrouperSession.flushCache()` method for flushing ehcache
+  cache results
 * NEW: Add `addFactor()`, `hasFactor()`, `isFactor()` and `hasType()`
-  methods to `Group`
+  methods to `Group` which support (simple) Union group math
+  operations
 * NEW: Add internal `hasFactor` and `isFactor` group types
 * UPDATE: Map `owner` and `via` in `Membership` to `Owner`
 * UPDATE: `Group`, `Factor` and `Stem` now extend `Owner`

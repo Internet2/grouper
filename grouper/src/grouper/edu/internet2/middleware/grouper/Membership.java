@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.28 2006-03-16 20:59:57 blair Exp $
+ * @version $Id: Membership.java,v 1.29 2006-03-23 18:36:31 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -78,19 +78,12 @@ public class Membership implements Serializable {
   {
     // Attach session
     this.s = s;
-    // Set owner
     this.setOwner_id(o);
-    // Set member
     this.setMember_id(m);
-    // Set field  
     this.setField(f);
-    // Set UUID
     this.setUuid( GrouperUuid.getUuid() );
-    // Set depth
     this.setDepth(0);
-    // Set via
     this.setVia_id(null);
-    // Set parent membership
     this.setParent_membership(null);
   } // protected Membership(s, oid, m, f)
 
@@ -523,21 +516,6 @@ public class Membership implements Serializable {
     eff.s = s;
     // Set UUID
     eff.setUuid( GrouperUuid.getUuid() );
-/*
-    try {
-      eff.setOwner_id(  ms.getGroup()                 );  // original g
-    }
-    catch (GroupNotFoundException eGNF) {
-      try {
-        eff.setOwner_id( ms.getStem().getUuid()       );
-      }
-      catch (StemNotFoundException eNSNF) {
-        String err = ERR_NO + ms;
-        LOG.fatal(err);
-        throw new RuntimeException(err);
-      }
-    }
-*/
     eff.setOwner_id(  ms.getOwner_id()              );  // original owner
     eff.setMember_id( hasMS.getMember()             );  // hasMember m
     eff.setField(     ms.getList()                  );  // original f

@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.51 2006-03-16 17:58:57 blair Exp $
+ * @version $Id: Stem.java,v 1.52 2006-03-23 18:36:31 blair Exp $
  *     
 */
 public class Stem extends Owner implements Serializable {
@@ -959,7 +959,9 @@ public class Stem extends Owner implements Serializable {
     return stem + ":" + extn;
   } // protected static String constructName(stem, extn)
 
+  // TODO DRY - why did moving this to Owner not work?
   protected void setModified() {
+    //this.setModified(s.getMember());
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
   } // protected void setModified()

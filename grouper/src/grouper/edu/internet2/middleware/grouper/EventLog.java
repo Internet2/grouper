@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.9 2006-03-22 18:43:23 blair Exp $
+ * @version $Id: EventLog.java,v 1.10 2006-03-23 18:36:31 blair Exp $
  *     
 */
 class EventLog implements Serializable {
@@ -129,6 +129,10 @@ class EventLog implements Serializable {
     }
   } // protected void addEffMembers(s, imm, effs)
     
+  protected void debug(String msg) {
+    LOG.debug(msg);
+  } // protected void info(msg)
+
   protected void delEffMembers(GrouperSession s, Membership imm, Set effs) {
     if (effs.size() > 0) {
       // Are we logging group adds?
@@ -259,7 +263,7 @@ class EventLog implements Serializable {
 
   protected void info(String msg) {
     LOG.info(msg);
-  }
+  } // protected void info(msg)
 
   protected void sessionStart(String sessionToString, StopWatch sw) {
     GrouperLog.info(LOG, sessionToString, GS_START, sw);

@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test Almost Everything.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.3 2006-03-21 18:36:45 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.4 2006-03-23 18:36:31 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -36,12 +36,12 @@ public class SuiteDefault extends TestCase {
 
     TestSuite suite = new TestSuite();
 
-    suite.addTest(      SuiteAddMember.suite()    );
-    suite.addTest(      SuiteFactors.suite()      );
-    suite.addTest(      SuiteMemberOf.suite()     );
-    suite.addTest(      SuitePrivSTEM.suite()     );
-    suite.addTest(      SuiteGroupDelete.suite()  );
-    suite.addTest(      SuiteTxDaemon.suite()     );
+    suite.addTest( SuiteAddMember.suite()   );
+    suite.addTest( SuiteFactors.suite()     );
+    suite.addTest( SuiteMemberOf.suite()    );
+    suite.addTest( SuitePrivs.suite()       );
+    suite.addTest( SuiteGroupDelete.suite() );
+    suite.addTest( SuiteTxDaemon.suite()    );
 
     suite.addTestSuite( TestBugsClosed.class      );
     suite.addTestSuite( TestBugsOpen.class        );
@@ -83,7 +83,6 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestPrivCREATE.class);  
     suite.addTestSuite(TestPrivOPTIN.class);    // TODO group-with-priv checks
     suite.addTestSuite(TestPrivOPTOUT.class);   // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivREAD.class);     // TODO group-with-priv checks
     suite.addTestSuite(TestPrivVIEW.class);     // TODO group-with-priv checks
     suite.addTestSuite(TestPrivUPDATE.class);   // TODO group-with-priv checks
     suite.addTestSuite(TestStem.class);
