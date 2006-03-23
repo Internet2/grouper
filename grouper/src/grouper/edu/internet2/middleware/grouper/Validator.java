@@ -27,7 +27,7 @@ import  java.util.*;
  * Validator Utility Class.
  * <p />
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.5 2006-03-22 18:43:23 blair Exp $
+ * @version $Id: Validator.java,v 1.6 2006-03-23 20:21:08 blair Exp $
  */
 class Validator implements Serializable {
 
@@ -119,6 +119,12 @@ class Validator implements Serializable {
   protected static void validateFactor(Owner o, Factor f) 
     throws  FactorAddException
   {
+    if (f.getLeft()   == null) {
+      throw new FactorAddException("null left node");
+    }
+    if (f.getRight()  == null) {
+      throw new FactorAddException("null right node");
+    }
     if (f.getLeft().equals(o)) {
       throw new FactorAddException("circular left node");
     }

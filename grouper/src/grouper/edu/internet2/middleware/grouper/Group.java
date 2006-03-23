@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.64 2006-03-23 18:36:31 blair Exp $
+ * @version $Id: Group.java,v 1.65 2006-03-23 20:21:08 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -157,6 +157,15 @@ public class Group extends Owner implements Serializable {
   /**
    * Add a factor-membership to this group.
    * <pre class="eg">
+   * try {
+   *   g.addFactor( new UnionFactor(leftGroup, rightGroup) );
+   * }
+   * catch (FactorAddException eFA) {
+   *   // error adding factor
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to add factor
+   * }
    * </pre>
    * @param   factor  Add this {@link Factor}.
    * @throws  FactorAddException
@@ -173,6 +182,9 @@ public class Group extends Owner implements Serializable {
     Factor _f = new Factor(this, f);  // TODO ugly, ugly hack
     if (this.hasFactor()) {
       throw new FactorAddException("already has factor membership");
+    }
+    if (this.getMembers().size() > 0) {
+      throw new FactorAddException("cannot add factor to group with members");
     }
     try {
       PrivilegeResolver.getInstance().canWriteField(
@@ -271,25 +283,23 @@ public class Group extends Owner implements Serializable {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    String  msg = MSG_AM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
-    GrouperLog.debug(LOG, this.s, msg);
+    if (this.hasType("hasFactor")) {
+      throw new MemberAddException(
+        "cannot add members to groups with factor memberships"
+      );
+    }
     Validator.isCircularMembership(this, subj, f);
     try {
       PrivilegeResolver.getInstance().canWriteField(
         this.s, this, this.s.getSubject(), f, FieldType.LIST
       );
-      GrouperLog.debug(LOG, s, msg + " can write list");
     } 
     catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + " cannot write list");
       try {
         this._canOPTIN(subj, f);
-        GrouperLog.debug(LOG, s, msg + " can OPTIN");
       }
       catch (InsufficientPrivilegeException optinEIP) {
-        String err = msg + " cannot OPTIN: " + eIP.getMessage();
-        GrouperLog.debug(LOG, s, err);
-        throw new InsufficientPrivilegeException(err);
+        throw new InsufficientPrivilegeException(eIP.getMessage());
       }
     }
     // TODO And why is this explicit cast of a `Group` object back to
@@ -515,6 +525,44 @@ public class Group extends Owner implements Serializable {
     EL.groupDelAttr(this.s, this.getName(), attr, val, sw);
   } // public void deleteAttribute(attr)
 
+  /**
+   * Delete a factor-membership from this group.
+   * <pre class="eg">
+   * try {
+   *   g.deleteFactor();
+   * }
+   * catch (FactorDeleteException eFA) {
+   *   // error adding factor
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to delete factor
+   * }
+   * </pre>
+   * @throws  FactorDeleteException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void deleteFactor() 
+    throws  FactorDeleteException,
+            InsufficientPrivilegeException
+  {
+    StopWatch sw = new StopWatch();
+    sw.start();
+
+    if (!this.hasFactor()) {
+      throw new FactorDeleteException("group does not have factor membership");
+    }
+    try {
+      PrivilegeResolver.getInstance().canWriteField(
+        this.s, this, this.s.getSubject(), getDefaultList(), FieldType.LIST
+      );
+    }
+    catch (SchemaException eS) {
+      // TODO Argh.  This try-catch should **not** really be necessary.  
+      throw new FactorDeleteException(eS.getMessage());
+    }
+    // FIXME Implement!
+  } // public void deleteFactor()
+
   /** 
    * Delete a subject from this group.
    * <pre class="eg">
@@ -571,23 +619,21 @@ public class Group extends Owner implements Serializable {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    String  msg = MSG_DM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
-    GrouperLog.debug(LOG, this.s, msg);
+    if (this.hasType("hasFactor")) {
+      throw new MemberDeleteException(
+        "cannot delete members from groups with factor memberships"
+      );
+    }
     try {
       PrivilegeResolver.getInstance().canWriteField(
         this.s, this, this.s.getSubject(), f, FieldType.LIST
       );
-      GrouperLog.debug(LOG, s, msg + " can write list");
     } catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + " cannot write list");
       try {
         this._canOPTOUT(subj, f);
-        GrouperLog.debug(LOG, s, msg + " can OPTOUT");
       }
       catch (InsufficientPrivilegeException optinEIP) {
-        String err = msg + " cannot OPTOUT: " + eIP.getMessage();
-        GrouperLog.debug(LOG, s, err);
-        throw new InsufficientPrivilegeException(err);
+        throw new InsufficientPrivilegeException(eIP.getMessage());
       }
     }
     try {
