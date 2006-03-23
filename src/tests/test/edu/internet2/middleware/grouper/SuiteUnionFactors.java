@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteUnionFactors.java,v 1.4 2006-03-23 18:36:31 blair Exp $
+ * @version $Id: SuiteUnionFactors.java,v 1.5 2006-03-23 20:21:08 blair Exp $
  */
 public class SuiteUnionFactors extends TestCase {
 
@@ -35,21 +35,28 @@ public class SuiteUnionFactors extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTestSuite( TestUnionFactor0.class  );  // circular left
-    suite.addTestSuite( TestUnionFactor1.class  );  // circular right
+    suite.addTestSuite( TestUnionFactor0.class  );  // fail: circular left
+    suite.addTestSuite( TestUnionFactor1.class  );  // fail: circular right
     suite.addTestSuite( TestUnionFactor2.class  );  // simple union
-    suite.addTestSuite( TestUnionFactor3.class  );  // not priv'd
+    suite.addTestSuite( TestUnionFactor3.class  );  // fail: not priv'd
     suite.addTestSuite( TestUnionFactor4.class  );  // union with members
     // TODO suite.addTestSuite( TestUnionFactor5.class  );  // union with a union'd member
     // TODO suite.addTestSuite( TestUnionFactor6.class  );  // union that is a union'd member
     // TODO suite.addTestSuite( TestUnionFactor7.class  );  // union that is and has unions
-    // TODO suite.addTestSuite( TestUnionFactor8.class  );  // fail: Factor() 
-    // TODO suite.addTestSuite( TestUnionFactor8.class  );  // fail: null left
-    // TODO suite.addTestSuite( TestUnionFactor8.class  );  // fail: null right
-    // TODO suite.addTestSuite( TestUnionFactor9.class  );  // fail: has factor
-    // TODO suite.addTestSuite( TestUnionFactor10.class));  // fail: add member
-    // TODO suite.addTestSuite( TestUnionFactor11.class));  // fail: delete member
-    // TODO suite.addTestSuite( TestUnionFactor11.class));  // fail: add to group with member
+    suite.addTestSuite( TestUnionFactor8.class  );  // fail: empty Factor() 
+    suite.addTestSuite( TestUnionFactor9.class  );  // fail: null left
+    suite.addTestSuite( TestUnionFactor10.class );  // fail: null right
+    suite.addTestSuite( TestUnionFactor11.class );  // fail: has factor
+    suite.addTestSuite( TestUnionFactor12.class );  // fail: add member when hasFactor
+    suite.addTestSuite( TestUnionFactor13.class );  // fail: delete member when hasFactor
+    suite.addTestSuite( TestUnionFactor14.class );  // fail: add factor to group with member
+    suite.addTestSuite( TestUnionFactor15.class );  // fail: delete factor when no factor
+    // TODO suite.addTestSuite( TestUnionFactor16.class );  // fail: delete not priv'd
+    // TODO suite.addTestSuite( TestUnionFactor17.class  );  // delete simple union
+    // TODO suite.addTestSuite( TestUnionFactor18.class  );  // delete union with members
+    // TODO suite.addTestSuite( TestUnionFactor19.class  );  // delete union with a union'd member
+    // TODO suite.addTestSuite( TestUnionFactor20.class  );  // delete union that is a union'd member
+    // TODO suite.addTestSuite( TestUnionFactor21.class  );  // delete union that is and has unions
     return suite;
   } // static public Test suite()
 
