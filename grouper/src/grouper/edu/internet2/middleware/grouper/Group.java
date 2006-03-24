@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.65 2006-03-23 20:21:08 blair Exp $
+ * @version $Id: Group.java,v 1.66 2006-03-24 19:38:12 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -215,7 +215,7 @@ public class Group extends Owner implements Serializable {
 
       sw.stop();
  
-      EL.groupAddFactor(this.s, this.getName(), f, sw);
+      EL.groupAddFactor(this.s, this.getName(), _f, sw);
     } catch (Exception e) {
       // HibernateException
       // SchemaException

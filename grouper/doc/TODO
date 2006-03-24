@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.37 2006-03-24 17:26:25 blair Exp $
+$Id: TODO,v 1.38 2006-03-24 19:38:12 blair Exp $
 
 ---
 
@@ -105,4 +105,5 @@ $Id: TODO,v 1.37 2006-03-24 17:26:25 blair Exp $
 * code `LaxAccessAdapter`
 * code `LaxNamingAdapter`
 * code: dns source adapter 
+
 

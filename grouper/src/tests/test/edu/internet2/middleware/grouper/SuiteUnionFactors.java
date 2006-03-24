@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteUnionFactors.java,v 1.5 2006-03-23 20:21:08 blair Exp $
+ * @version $Id: SuiteUnionFactors.java,v 1.6 2006-03-24 19:38:12 blair Exp $
  */
 public class SuiteUnionFactors extends TestCase {
 
@@ -40,9 +40,9 @@ public class SuiteUnionFactors extends TestCase {
     suite.addTestSuite( TestUnionFactor2.class  );  // simple union
     suite.addTestSuite( TestUnionFactor3.class  );  // fail: not priv'd
     suite.addTestSuite( TestUnionFactor4.class  );  // union with members
-    // TODO suite.addTestSuite( TestUnionFactor5.class  );  // union with a union'd member
+    suite.addTestSuite( TestUnionFactor5.class  );  // union with a union'd member
     // TODO suite.addTestSuite( TestUnionFactor6.class  );  // union that is a union'd member
-    // TODO suite.addTestSuite( TestUnionFactor7.class  );  // union that is and has unions
+    // suite.addTestSuite( TestUnionFactor7.class  );  // ???
     suite.addTestSuite( TestUnionFactor8.class  );  // fail: empty Factor() 
     suite.addTestSuite( TestUnionFactor9.class  );  // fail: null left
     suite.addTestSuite( TestUnionFactor10.class );  // fail: null right
