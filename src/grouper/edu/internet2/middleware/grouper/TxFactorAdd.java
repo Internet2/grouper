@@ -73,6 +73,8 @@ class TxFactorAdd extends TxQueue implements Serializable {
         ( (Group) this.getOwner() ).setModified(this.getActor());
         Set saves = new LinkedHashSet();
         saves.addAll(ms);
+        // TODO saves.addAll( this._findParentMemberships() );
+        // TODO saves.addAll( this._findParentFactors()     );
         saves.add(this);
         HibernateHelper.save(saves);
         // FIXME LOG!

@@ -32,7 +32,8 @@ import  org.apache.commons.logging.*;
 public class Factor extends Owner implements Serializable {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(Factor.class);
+  private static final EventLog EL  = new EventLog();
+  private static final Log      LOG = LogFactory.getLog(Factor.class);
 
   
   // Hibernate Properties
@@ -41,6 +42,7 @@ public class Factor extends Owner implements Serializable {
   private Member      creator_id;
   private String      create_source;
   private long        create_time;
+  private Owner       factor_owner;
   private Owner       left;
   private Member      modifier_id;
   private String      modify_source;
@@ -59,6 +61,7 @@ public class Factor extends Owner implements Serializable {
   protected Factor(Group g, Factor f) {
     this.setCreator_id(   g.getSession().getMember()  );
     this.setCreate_time(  new Date().getTime()        );
+    this.setFactor_owner( g                           );
     this.setLeft(         f.getLeft()                 );
     this.setRight(        f.getRight()                );
     this.setKlass(        f.getKlass()                );
@@ -69,6 +72,7 @@ public class Factor extends Owner implements Serializable {
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE )
       .append("name"        , this.getClass()                   )
+      .append("owner"       , this.getFactor_owner().toString() )
       .append("left"        , this.getLeft().toString()         )
       .append("right"       , this.getRight().toString()        )
       .toString();
@@ -84,6 +88,9 @@ public class Factor extends Owner implements Serializable {
   }
   private Member getCreator_id() {
     return this.creator_id;
+  }
+  private Owner getFactor_owner() {
+    return this.factor_owner;
   }
   private String getId() {
     return this.id;
@@ -115,6 +122,9 @@ public class Factor extends Owner implements Serializable {
   }
   private void setCreator_id(Member m) {
     this.creator_id = m;
+  }
+  private void setFactor_owner(Owner o) {
+    this.factor_owner = o;;
   }
   private void setId(String id) {
     this.id = id;

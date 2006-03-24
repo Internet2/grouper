@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: R.java,v 1.3 2006-03-23 18:36:31 blair Exp $
+ * @version $Id: R.java,v 1.4 2006-03-24 19:38:12 blair Exp $
  */
 class R {
 
@@ -45,8 +45,11 @@ class R {
   protected Stem            root  = null;
   protected Stem            edu   = null;
   protected Group           i2    = null;
+  protected Group           ua    = null;
   protected Group           ub    = null;
   protected Group           uc    = null;
+  protected Group           ud    = null;
+  protected Group           ue    = null;
   protected Group           uw    = null;
   protected Subject         subj0 = null;
   protected Subject         subj1 = null;
@@ -72,7 +75,7 @@ class R {
     r.root  = StemFinder.findRootStem(r.rs);
     r.edu   = r.root.addChildStem("edu" , "education" );
     r.i2    = r.edu.addChildGroup("i2"  , "internet2" );    
-    r.uc    = r.edu.addChildGroup("uc"  , "uchicago"  );    
+    r.uc    = r.edu.addChildGroup("uc"  , "u of c"    );    
     r._findSubjectsAndMembers();
     GrouperSession.waitForAllTx();
     return r;
@@ -85,16 +88,35 @@ class R {
     R r = new R();
     r.rs    = SessionHelper.getRootSession();
     r.root  = StemFinder.findRootStem(r.rs);
-    r.edu   = r.root.addChildStem("edu" , "education"   );
-    r.i2    = r.edu.addChildGroup("i2"  , "internet2"   );    
-    r.ub    = r.edu.addChildGroup("ub"  , "ubristol"    );    
-    r.uc    = r.edu.addChildGroup("uc"  , "uchicago"    );    
-    r.uw    = r.edu.addChildGroup("uw"  , "uwashington" );
+    r.edu   = r.root.addChildStem("edu" , "education" );
+    r.i2    = r.edu.addChildGroup("i2"  , "internet2" );    
+    r.ub    = r.edu.addChildGroup("ub"  , "u of b"    );    
+    r.uc    = r.edu.addChildGroup("uc"  , "u of c"    );    
+    r.uw    = r.edu.addChildGroup("uw"  , "u of w"    );
     r._findSubjectsAndMembers();
     GrouperSession.waitForAllTx();
     return r;
   } // protected static R createOneStemFourGroups()
 
+  protected static R createOneStemAndEightGroups() 
+    throws  Exception
+  {
+    LOG.info("createOneStemAndEightGroups");
+    R r = new R();
+    r.rs    = SessionHelper.getRootSession();
+    r.root  = StemFinder.findRootStem(r.rs);
+    r.edu   = r.root.addChildStem("edu" , "education" );
+    r.i2    = r.edu.addChildGroup("i2"  , "internet2" );    
+    r.ua    = r.edu.addChildGroup("ua"  , "u of a"    );    
+    r.ub    = r.edu.addChildGroup("ub"  , "u of b"    );    
+    r.uc    = r.edu.addChildGroup("uc"  , "u of c"    );    
+    r.ud    = r.edu.addChildGroup("ud"  , "u of d"    );    
+    r.ue    = r.edu.addChildGroup("ue"  , "u of e"    );    
+    r.uw    = r.edu.addChildGroup("uw"  , "u of w"    );
+    r._findSubjectsAndMembers();
+    GrouperSession.waitForAllTx();
+    return r;
+  } // protected static R createOneStemEightGroups()
   
   // Private Instance Methods
   private void _findSubjectsAndMembers() 

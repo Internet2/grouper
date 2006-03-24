@@ -30,14 +30,14 @@ import  org.apache.commons.logging.*;
  * Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.3 2006-03-23 18:36:31 blair Exp $
+ * @version $Id: Owner.java,v 1.4 2006-03-24 19:38:12 blair Exp $
  *     
 */
 public class Owner implements Serializable {
 
   // Private Class Constants
-  private static final EventLog EL          = new EventLog();
-  private static final Log      LOG         = LogFactory.getLog(Owner.class);
+  private static final EventLog EL  = new EventLog();
+  private static final Log      LOG = LogFactory.getLog(Owner.class);
 
 
   // Hibernate Properties
