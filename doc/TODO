@@ -4,77 +4,99 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.35 2006-03-23 18:36:31 blair Exp $
+$Id: TODO,v 1.36 2006-03-24 16:05:02 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### BUGS
+* wrong epoch?
+** testGetStartTime(test.edu.internet2.middleware.grouper.TestGrouperSession) start time != epoch
+** testGetCreateAttrs(test.edu.internet2.middleware.grouper.TestStem) create time != epoch
 
-### Improved update performance through introduction of grouperd
-* TxStatus
-* @doc
+### Next Actions
+* code: complete `UnionFactor` addition and deletion support
+* code: add `GroupTypeFinder.findAll()` that will return all types,
+  including base but excluding internal types
+* code: add `ComplementFactor` support
+* code: add `IntersectionFactor` support
+* code: add factor logging
+* code: add `GroupTypeFinder.findAllAssignable()` that will return all
+  assignable types
+* code: add internal `TxStatus` class
+* code: empty stem deletion
+* code: start-and-stop `GrouperDaemon` via API
+* code: class to verify that setup is functional
+** find the root stem, exercise subject api, etc
+* code: add `SubjectFinder.findById(id, type, source)`
+* code: add `SubjectFinder.findByIdentifier(id, type, source)`
+* code: add `SubjectFinder.findAll(query, source)`
+* code: make `GrouperDaemon` a singleton
+* code: do not shutdown hsqldb in server mode if not using embedded db
+* test: deletion of a group with pending tx
+* test: concurrent operations (i expect to find bugs)
+* code: add `Group.canReadField(f)`
+* code: add `Group.canReadField(f, subj)`
+* code: add `Group.canWriteField(f)`
+* code: add `Group.canWriteField(f, subj)`
+* code: add `Group.getTypes()` that will return all types that the
+  group has, including base but excluding internal types
+* code: add `Group.getRemovableTypes()` that will return all types
+  that can be removed from the group
+* document: _Using The Grouper API_
 
-### Group Math
-* Add transaction runner with support for group math
-* union factor
-* intersection factor
-* complement factor
-* logging
-* @doc
-
-### Documentation
-* Group Types [BUFFER@SCHEDULE]
-
-### Filler
-* _ErrorLog_
-* Unhibernate Grouper sessions
-* Performance profiling
-** Enable batch fetching of Memberships
-* _StemAttribute_ filter
-* Delete empty stems
+### Maybe
+* code: `StemAttributeFilter`
+* code: `ErrorLog`
+* code: `DebugLog`
+* code: make thread sleep times (invisibly) configurable
+* code: `Owner`-related cleanup
+* packaging: create binary-and-source distributions
+* code: unhibernate `GrouperSession`
+* code: enable batch fetching of `Membership` objects
+* code: order `Membership` queries by depth
+* code: Don't assign `GrouperSystem` privileges
+* document: add `@since` to javadoc
+* library: update [jug](http://jug.safehaus.org/)
 
 ---
 
-## Future Releases
-* Add WS variant of GSA
-* Expand _Validator_ class
-* Make caching (more) configurable
-* Stem: _addChildGroup()_ and _addChildStems()_ should take an optional
-  Properties arg that would override configuration defaults
-* Rework _PrivilegeCache_ so that I can expire individual entries
-  instead of the full cache
-* _DebugLog_
-* Config options for cache flushing (and do I flush on revoke all?)
-* Search by the set of groups or namespaces created or modified
-  by a specified subject [S&B#12]
-* Search by the set of groups to which a given subject is an immediate 
-  member can be listed [S&B#9]
-* Search by the set of groups to which a given subject is an effective 
-  member can be listed [S&B#10]
-* Paged search results
-* Group Hierarchy depth restrictions
-* Search limits
-* Removal of members that are no longer in use 
+## Grouper 1.1
+* code: add group aging
+* code: add membership aging
 
-### DRY
-* Member: isMember(), isImmediateMember() and isEffectiveMember()
-* Membership: addImmediateMembership()
-* Membership: delImmediateMembership()
-* Membership: deleteAllField()
-* Privilege: canWriteField()
-* Session proxying
+---
 
-### Aesthetics
-* FieldFinder: cache findAll()
-* Group: _deleteAttribute() naming attr handling
-* GrouperSubject: _addAttr() attr + value validation
-* Member: toGroup()
-* PrivilegeResolver: canVIEW()
-* Stem: addChildGroup() updates modify* attrs of child
-* Stem: addChildStem() updates modify* attrs of child
-* Stem: constructName()
-* StemFinder: isChild()
-* Test helper methods
+## Future Releases 
+
+### API
+* code: expose `HibernateSubject`
+* code: ws version of `GrouperSourceAdapter`
+* code: refactor `PrivilegeCache`
+* code: make cache usage more configurable
+* code: improved internal API model validation
+* code: `StemCreatedByFilter`
+* code: `StemModifiedByFilter`
+* code: `GroupCreatedByFilter`
+* code: `GroupModifiedByFilter`
+* code: `IsMemberFilter`
+* code: `IsImmediateMemberFilter`
+* code: `IsEffectiveMemberFilter`
+* code: ws-ify API
+* code: member aging
+* code: `Stem.addChildStem()` that takes an optional argument to
+  override configuration defaults
+* code: `Stem.addChildGroup()` that takes an optional argument to
+  override configuration defaults
+* code: session proxying/"act as" support
+* code: search limits
+* code: paged search results
+* code: group hierarchy depth restrictions
+
+## Contributed Code
+* code: flatfile source adapter 
+* code `LaxAccessAdapter`
+* code `LaxNamingAdapter`
+* code: dns source adapter 
 
