@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.36 2006-03-24 16:05:02 blair Exp $
+$Id: TODO,v 1.37 2006-03-24 17:26:25 blair Exp $
 
 ---
 
@@ -59,6 +59,12 @@ $Id: TODO,v 1.36 2006-03-24 16:05:02 blair Exp $
 * code: Don't assign `GrouperSystem` privileges
 * document: add `@since` to javadoc
 * library: update [jug](http://jug.safehaus.org/)
+
+---
+
+## Grouper 1.0.1
+* code: Grouper 1.0 bugfixes
+* code: import of operational attributes from xml
 
 ---
 
