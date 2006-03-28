@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.39 2006-03-28 16:33:58 blair Exp $
+$Id: TODO,v 1.40 2006-03-28 19:08:44 blair Exp $
 
 ---
 
@@ -32,6 +32,7 @@ $Id: TODO,v 1.39 2006-03-28 16:33:58 blair Exp $
 * code: add `SubjectFinder.findById(id, type, source)`
 * code: add `SubjectFinder.findByIdentifier(id, type, source)`
 * code: add `SubjectFinder.findAll(query, source)`
+* code: replace `GroupType.addField()` with `GroupType.addAttribute()` and `GroupType.addList()`
 * code: make `GrouperDaemon` a singleton
 * code: do not shutdown hsqldb in server mode if not using embedded db
 * test: deletion of a group with pending tx
