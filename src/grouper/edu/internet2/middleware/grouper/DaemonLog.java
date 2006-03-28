@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link GrouperDaemon} logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: DaemonLog.java,v 1.4 2006-03-23 18:36:31 blair Exp $
+ * @version $Id: DaemonLog.java,v 1.5 2006-03-28 16:33:58 blair Exp $
  *     
 */
 class DaemonLog implements Serializable {
@@ -87,9 +87,9 @@ class DaemonLog implements Serializable {
     LOG.error(ERR_TXQ_ATX + tx + ": " + msg);
   } // protected void failedToApplyTx(tx, msg)
 
-  protected void failedToSetFailed(TxQueue tx) {
-    LOG.error(ERR_TXQ_SF + tx);
-  } // protected void failedToSetFailed(tx)
+  protected void failedToSetFailed(TxQueue tx, String msg) {
+    LOG.error(ERR_TXQ_SF + tx + ": " + msg);
+  } // protected void failedToSetFailed(tx, msg)
 
   protected void failToDeleteTx(TxQueue tx, String msg)  {
     LOG.fatal(ERR_TXQ_DTX + tx + ": " + msg);

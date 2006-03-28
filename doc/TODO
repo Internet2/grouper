@@ -4,21 +4,21 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.38 2006-03-24 19:38:12 blair Exp $
+$Id: TODO,v 1.39 2006-03-28 16:33:58 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### BUGS
+* code: add `GroupTypeFinder.findAll()` that will return all types,
+  including base but excluding internal types
 * wrong epoch?
 ** testGetStartTime(test.edu.internet2.middleware.grouper.TestGrouperSession) start time != epoch
 ** testGetCreateAttrs(test.edu.internet2.middleware.grouper.TestStem) create time != epoch
 
 ### Next Actions
 * code: complete `UnionFactor` addition and deletion support
-* code: add `GroupTypeFinder.findAll()` that will return all types,
-  including base but excluding internal types
 * code: add `ComplementFactor` support
 * code: add `IntersectionFactor` support
 * code: add factor logging

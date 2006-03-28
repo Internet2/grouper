@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * @author blair christensen.
  *     
 */
-class TxMemberDel extends TxQueue implements Serializable {
+class TxMemberDel extends TxQueue implements Serializable, Tx {
 
   // Private Class Constants
   private static final EventLog EL  = new EventLog();
@@ -53,8 +53,9 @@ class TxMemberDel extends TxQueue implements Serializable {
 
 
   // Public Instance Methods
-  public boolean apply(GrouperDaemon gd) {
-    boolean rv = false;
+  public void apply(GrouperDaemon gd) 
+    throws  TxException
+  {
     try {
       GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
       GrouperSession  fake  = new GrouperSession(this.getSessionId(), this.getActor());
@@ -63,13 +64,13 @@ class TxMemberDel extends TxQueue implements Serializable {
       Membership      imm   = new Membership(root, this.getOwner(), m, this.getField());
       Membership.delEffectiveMemberships(fake, imm);
       root.stop();
-      rv = true;
     }
     catch (Exception e) {
-      gd.getLog().failedToApplyTx(this, e.getMessage());
+      String msg = "unable to apply member delete: " + e.getMessage();
+      gd.getLog().failedToApplyTx(this, msg);
+      throw new TxException(msg);
     }
-    return rv;
-  } // public boolean apply()
+  } // public void apply()
 
 }
 

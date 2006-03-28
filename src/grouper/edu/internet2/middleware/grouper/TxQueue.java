@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * @author blair christensen.
  *     
 */
-class TxQueue implements Serializable {
+class TxQueue implements Serializable, Tx {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TxQueue.class);
@@ -63,6 +63,12 @@ class TxQueue implements Serializable {
 
 
   // Public Instance Methods
+  public void apply(GrouperDaemon gd) 
+    throws  TxException
+  {
+    throw new TxException("apply() not implemented in TxQueue");
+  } // public void apply(gd)
+
   public String toString() {
     String k = this.getKlass();
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
@@ -76,11 +82,6 @@ class TxQueue implements Serializable {
 
 
   // Protected Instance Methods
-
-  // Apply a tx from the queue
-  protected boolean apply(GrouperDaemon gd) {
-    return false;
-  } // protected boolean apply(gd)
 
   // Delete a tx from the queue
   protected void delete(GrouperDaemon gd) {

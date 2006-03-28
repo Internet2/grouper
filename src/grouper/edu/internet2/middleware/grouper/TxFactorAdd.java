@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * @author blair christensen.
  *     
 */
-class TxFactorAdd extends TxQueue implements Serializable {
+class TxFactorAdd extends TxQueue implements Serializable, Tx {
 
   // Private Class Constants
   private static final EventLog EL  = new EventLog();
@@ -54,8 +54,9 @@ class TxFactorAdd extends TxQueue implements Serializable {
 
 
   // Public Instance Methods
-  public boolean apply(GrouperDaemon gd) {
-    boolean rv = false;
+  public void apply(GrouperDaemon gd) 
+    throws  TxException
+  {
     try {
       GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
       GrouperSession  fake  = new GrouperSession(this.getSessionId(), this.getActor());
@@ -81,16 +82,16 @@ class TxFactorAdd extends TxQueue implements Serializable {
       }
 
       root.stop();
-      rv = true;
     }
     catch (Exception e) {
       //  MembershipNotFoundException
       //  SessionException
       //  SubjectNotFoundException
-      gd.getLog().failedToApplyTx(this, e.getMessage());
+      String msg = "unable to apply factor add: " + e.getMessage();
+      gd.getLog().failedToApplyTx(this, msg);
+      throw new TxException(msg);
     }
-    return rv;
-  } // public boolean apply()
+  } // public void apply()
 
 
   // Private Instance Methods

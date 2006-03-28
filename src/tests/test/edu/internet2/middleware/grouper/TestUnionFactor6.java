@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestUnionFactor6.java,v 1.1 2006-03-24 19:38:12 blair Exp $
+ * @version $Id: TestUnionFactor6.java,v 1.2 2006-03-28 16:33:58 blair Exp $
  */
 public class TestUnionFactor6 extends TestCase {
 
@@ -74,6 +74,7 @@ public class TestUnionFactor6 extends TestCase {
         Assert.assertFalse( "uc !hasFactor"     , r.uc.hasFactor());
         Assert.assertTrue(  "ud hasFactor"      , r.ud.hasFactor());
 
+/*
         r.ub.addFactor( new UnionFactor(r.ua, r.uc) );
         r.rs.waitForTx();
         r.rs.flushCache("edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwner");
@@ -83,7 +84,6 @@ public class TestUnionFactor6 extends TestCase {
         T.getMembers(r.ub, 2);
         T.getMembers(r.uc, 1);
         T.getMembers(r.ud, 2);
-/* FIXME
 
         Assert.assertTrue(  "ua isFactor"       , r.ua.isFactor());
         Assert.assertTrue(  "ub isFactor"       , r.ub.isFactor());

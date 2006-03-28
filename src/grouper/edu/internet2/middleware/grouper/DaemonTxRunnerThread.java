@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * {@link grouperd} thread for processing the transaction queue.
  * <p />
  * @author  blair christensen.
- * @version $Id: DaemonTxRunnerThread.java,v 1.4 2006-02-21 17:11:32 blair Exp $    
+ * @version $Id: DaemonTxRunnerThread.java,v 1.5 2006-03-28 16:33:58 blair Exp $    
  */
 public class DaemonTxRunnerThread extends Thread {
 
@@ -60,14 +60,15 @@ public class DaemonTxRunnerThread extends Thread {
         Iterator iter = queue.iterator();
         while (iter.hasNext()) {
           TxQueue tx = (TxQueue) iter.next();
-          if (tx.apply(this.gd)) {
+          try { 
+            tx.apply(this.gd);
             DL.appliedTx(tx);
             tx.delete(this.gd);
-          } 
-          else {
+          }
+          catch (TxException eTX) {
             DL.failedToApplyTx(tx);
-            if (!tx.setFailed(this.gd)) {
-              DL.failedToSetFailed(tx);   
+            if (!tx.setFailed(this.gd)) { // TODO boolean -> void
+              DL.failedToSetFailed(tx, eTX.getMessage());
             }
           }
         }
