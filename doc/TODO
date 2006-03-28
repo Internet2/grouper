@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.41 2006-03-28 20:18:55 blair Exp $
+$Id: TODO,v 1.42 2006-03-28 20:44:24 blair Exp $
 
 ---
 
@@ -22,7 +22,6 @@ $Id: TODO,v 1.41 2006-03-28 20:18:55 blair Exp $
 * code: add factor logging
 * code: add `GroupTypeFinder.findAllAssignable()` that will return all
   assignable types
-* code: add internal `TxStatus` class
 * code: empty stem deletion
 * code: start-and-stop `GrouperDaemon` via API
 * code: class to verify that setup is functional
