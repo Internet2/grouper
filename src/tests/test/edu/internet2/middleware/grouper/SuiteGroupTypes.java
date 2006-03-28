@@ -17,35 +17,31 @@
 
 package test.edu.internet2.middleware.grouper;
 
-
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
-
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.3 2006-03-28 20:18:55 blair Exp $
+ * @version $Id: SuiteGroupTypes.java,v 1.1 2006-03-28 20:18:55 blair Exp $
  */
-public class T {
+public class SuiteGroupTypes extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(T.class);
+  private static final Log  LOG = LogFactory.getLog(SuiteGroupTypes.class); 
 
-  
-  // Protected Class Methods
-  protected static void amount(String msg, int exp, int got) { 
-    LOG.debug("amount()");
-    Assert.assertTrue(msg + " exp[" + exp + "] got[" + got + "]", exp == got);
-  } // protected static void amount(msg, exp, got)
+  public SuiteGroupTypes(String name) {
+    super(name);
+  } // public SuiteGroupTypes(name)
 
-  protected static void getMembers(Group g, int exp) {
-    LOG.debug("getMembers()");
-    T.amount(g.getName() + " members", exp, g.getMembers().size());
-  } // protected static void getMembers(g, exp)
+  static public Test suite() {
+    TestSuite suite = new TestSuite();
+    suite.addTestSuite( TestGroupType0.class  );  // GroupTypeFinder.findAll()
+    suite.addTestSuite( TestGroupType1.class  );  // GroupTypeFinder.findAll() after addition
+    // TODO split - and the damn ordering is important here as these tests leave junk behind.
+    //      i should really fix that.
+    suite.addTestSuite( TestGroupTypes.class  );  
+    return suite;
+  } // static public Test suite()
 
 }
 

@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test Almost Everything.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.4 2006-03-23 18:36:31 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.5 2006-03-28 20:18:55 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -36,15 +36,16 @@ public class SuiteDefault extends TestCase {
 
     TestSuite suite = new TestSuite();
 
-    suite.addTest( SuiteAddMember.suite()   );
-    suite.addTest( SuiteFactors.suite()     );
-    suite.addTest( SuiteMemberOf.suite()    );
-    suite.addTest( SuitePrivs.suite()       );
-    suite.addTest( SuiteGroupDelete.suite() );
-    suite.addTest( SuiteTxDaemon.suite()    );
+    suite.addTest(  SuiteAddMember.suite()    );
+    suite.addTest(  SuiteFactors.suite()      );
+    suite.addTest(  SuiteGroupTypes.suite()   ); 
+    suite.addTest(  SuiteMemberOf.suite()     );
+    suite.addTest(  SuitePrivs.suite()        );
+    suite.addTest(  SuiteGroupDelete.suite()  );
+    suite.addTest(  SuiteTxDaemon.suite()     );
 
-    suite.addTestSuite( TestBugsClosed.class      );
-    suite.addTestSuite( TestBugsOpen.class        );
+    suite.addTestSuite( TestBugsClosed.class  );
+    suite.addTestSuite( TestBugsOpen.class    );
 
     suite.addTestSuite(TestAccessPrivilege.class);
     suite.addTestSuite(TestField.class);
@@ -55,7 +56,6 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestGroupDeleteMemberGroup.class);
     suite.addTestSuite(TestGroupToMember.class);
     suite.addTestSuite(TestGrouperConfig.class);
-    suite.addTestSuite(TestGroupTypes.class);
     suite.addTestSuite(TestGQComplementFilter.class);
     suite.addTestSuite(TestGQGroupAnyAttribute.class);
     suite.addTestSuite(TestGQGroupAttribute.class);

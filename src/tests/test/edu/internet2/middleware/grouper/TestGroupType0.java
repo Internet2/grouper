@@ -17,7 +17,6 @@
 
 package test.edu.internet2.middleware.grouper;
 
-
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
@@ -28,24 +27,32 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.3 2006-03-28 20:18:55 blair Exp $
+ * @version $Id: TestGroupType0.java,v 1.1 2006-03-28 20:18:55 blair Exp $
  */
-public class T {
+public class TestGroupType0 extends TestCase {
 
-  // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(T.class);
+  // Private Static Class Constants
+  private static final Log LOG = LogFactory.getLog(TestGroupType0.class);
 
-  
-  // Protected Class Methods
-  protected static void amount(String msg, int exp, int got) { 
-    LOG.debug("amount()");
-    Assert.assertTrue(msg + " exp[" + exp + "] got[" + got + "]", exp == got);
-  } // protected static void amount(msg, exp, got)
+  public TestGroupType0(String name) {
+    super(name);
+  }
 
-  protected static void getMembers(Group g, int exp) {
-    LOG.debug("getMembers()");
-    T.amount(g.getName() + " members", exp, g.getMembers().size());
-  } // protected static void getMembers(g, exp)
+  protected void setUp () {
+    LOG.debug("setUp");
+    RegistryReset.resetRegistryAndAddTestSubjects();
+  }
+
+  protected void tearDown () {
+    LOG.debug("tearDown");
+    GrouperSession.waitForAllTx();
+  }
+
+  public void testFindAllTypes() {
+    LOG.info("testFindAllTypes");
+    Set types = GroupTypeFinder.findAll();    
+    T.amount("public group types", 1, types.size());
+  } // public void testFindAllTypes()
 
 }
 

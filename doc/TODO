@@ -4,15 +4,13 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.40 2006-03-28 19:08:44 blair Exp $
+$Id: TODO,v 1.41 2006-03-28 20:18:55 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### BUGS
-* code: add `GroupTypeFinder.findAll()` that will return all types,
-  including base but excluding internal types
 * wrong epoch?
 ** testGetStartTime(test.edu.internet2.middleware.grouper.TestGrouperSession) start time != epoch
 ** testGetCreateAttrs(test.edu.internet2.middleware.grouper.TestStem) create time != epoch
@@ -100,11 +98,13 @@ $Id: TODO,v 1.40 2006-03-28 19:08:44 blair Exp $
 * code: search limits
 * code: paged search results
 * code: group hierarchy depth restrictions
+* code: delete custom group types
 
 ## Contributed Code
 * code: flatfile source adapter 
 * code `LaxAccessAdapter`
 * code `LaxNamingAdapter`
 * code: dns source adapter 
+
 
 

@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.138 2006-02-03 17:13:29 blair Exp $
+$Id: ROADMAP,v 1.139 2006-03-28 20:18:55 blair Exp $
 
 ---
 
@@ -18,6 +18,15 @@ Estimated release: Late Spring 2006
 * Improved query performance through caching
 * Improved update performance through introduction of grouperd
 
+
+---
+
+# Grouper 1.0.1
+
+Estimated release: 2006
+
+## Features
+* Import of operational attributes from xml
 
 ---
 
