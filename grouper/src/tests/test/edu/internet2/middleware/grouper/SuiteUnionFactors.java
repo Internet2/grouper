@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteUnionFactors.java,v 1.7 2006-03-24 20:39:32 blair Exp $
+ * @version $Id: SuiteUnionFactors.java,v 1.8 2006-03-28 16:33:58 blair Exp $
  */
 public class SuiteUnionFactors extends TestCase {
 
@@ -41,7 +41,8 @@ public class SuiteUnionFactors extends TestCase {
     suite.addTestSuite( TestUnionFactor3.class  );  // fail: not priv'd
     suite.addTestSuite( TestUnionFactor4.class  );  // union with members
     suite.addTestSuite( TestUnionFactor5.class  );  // union with a union'd member
-    // TODO suite.addTestSuite( TestUnionFactor6.class  );  // union that is a union'd member
+    // FIXME Finish
+    suite.addTestSuite( TestUnionFactor6.class  );  // union that is a union'd member
     // suite.addTestSuite( TestUnionFactor7.class  );  // union that is a member
     suite.addTestSuite( TestUnionFactor8.class  );  // fail: empty Factor() 
     suite.addTestSuite( TestUnionFactor9.class  );  // fail: null left
@@ -57,7 +58,8 @@ public class SuiteUnionFactors extends TestCase {
     // TODO suite.addTestSuite( TestUnionFactor19.class  );  // delete union with a union'd member
     // TODO suite.addTestSuite( TestUnionFactor20.class  );  // delete union that is a union'd member
     // TODO suite.addTestSuite( TestUnionFactor21.class  );  // delete union that is and has unions
-    // suite.addTestSuite( TestUnionFactor22.class  );  // union with updated members
+    // TODO suite.addTestSuite( TestUnionFactor22.class  );  // union with updated members
+    // TODO suite.addTestSuite( TestUnionFactor23.class  );  // membership tests
     return suite;
   } // static public Test suite()
 

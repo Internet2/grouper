@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.1 2006-03-23 18:36:31 blair Exp $
+ * @version $Id: T.java,v 1.2 2006-03-28 16:33:58 blair Exp $
  */
 public class T {
 
@@ -43,7 +43,7 @@ public class T {
       Assert.assertTrue(g.getName() + " members == " + exp, true);
     }
     else {
-      Assert.fail(g.getName() + " members != " + exp + " [" + g.getMembers().size() + "]");
+      Assert.fail(g.getName() + " members != exp[" + exp + "] got[" + g.getMembers().size() + "]");
     }
   } // protected static void getMembers(g, exp)
 

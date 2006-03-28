@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * @author blair christensen.
  *     
 */
-class TxStop extends TxQueue implements Serializable {
+class TxStop extends TxQueue implements Serializable, Tx {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TxStop.class);
@@ -44,8 +44,9 @@ class TxStop extends TxQueue implements Serializable {
 
 
   // Public Instance Methods
-  public boolean apply(GrouperDaemon gd) {
-    boolean rv = false;
+  public void apply(GrouperDaemon gd) 
+    throws  TxException
+  {
     try {
       HibernateHelper.delete(this);
       gd.getLog().deleteTx(this);
@@ -56,14 +57,14 @@ class TxStop extends TxQueue implements Serializable {
         // Nothing
       }
       gd.stopDaemon();
-      rv = true;
     }
     catch (HibernateException eH) {
-      String msg = eH.getMessage();
+      String msg = "unable to stop GrouperDaemon: " + eH.getMessage();
       gd.getLog().failToDeleteTx(this, msg);
+      throw new TxException(msg);
     }
-    return rv;
-  } // public boolean apply()
+  } // public void apply()
+
 
   // Protected Instance Methods
   protected void delete(GrouperDaemon gd) {
