@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.18 2006-03-22 00:15:27 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.19 2006-03-28 20:18:55 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -157,6 +157,7 @@ public class RegistryInstall {
       )
     );
 
+    // TODO Why don't I use createType()?
     GroupType base    = new GroupType("base", base_f);
     base.setAssignable(false);
     base.setInternal(false);

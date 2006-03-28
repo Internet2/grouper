@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.8 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.9 2006-03-28 20:18:55 blair Exp $
  */
 public class GroupTypeFinder {
 
@@ -77,28 +77,38 @@ public class GroupTypeFinder {
   public static GroupType find(String name) 
     throws  SchemaException
   {
-    // I was running into problems when caching these in a HashMap.
-    // Given that I am now caching query results, I probably don't need
-    // the second cache.
-    //
-    // But I need to somewhat cache types to avoid Hibernate errors
-    // that appear while saving objects.  *sigh*
-    if (types.containsKey(name)) { 
+    // First check to see if type is cached.
+    if (types.containsKey(name)) {
       return (GroupType) types.get(name);
-    } 
-    // Type not cached.  Try to find it as it may be new.
-    Iterator iter = _findAll().iterator();
-    while (iter.hasNext()) {
-      GroupType t = (GroupType) iter.next();
-      if (t.getName().equals(name)) {
-        // Add it to the map of known types
-        types.put(name, t);
-        return t;
-      }
+    }
+    // If not, refresh known types as it may be new and try again. 
+    _updateKnownTypes();
+    if (types.containsKey(name)) {
+      return (GroupType) types.get(name);
     }
     LOG.debug(ERR_TNF + name);
     throw new SchemaException(ERR_TNF + name);
   } // public static GroupType find(name)
+
+  /**
+   * Find all public group types.
+   * <pre class="eg">
+   * Set types = GroupTypeFinder.findAll();
+   * </pre>
+   * @return  A {@link Set} of {@link GroupType} objects.
+   */
+  public static Set findAll() {
+    _updateKnownTypes();
+    Set       values  = new LinkedHashSet();
+    Iterator  iter    = types.values().iterator();
+    while (iter.hasNext()) {
+      GroupType t = (GroupType) iter.next();
+      if (!t.getInternal()) {
+        values.add(t); // We only want !internal group types
+      }
+    }
+    return values;
+  } // public static Set findAll()
 
 
   // Private Class Methods
@@ -107,7 +117,7 @@ public class GroupTypeFinder {
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery("from GroupType order by name asc");
-      qry.setCacheable(GrouperConfig.QRY_GTF_FA);
+      qry.setCacheable(GrouperConfig.QRY_GTF_FA); // TODO Currently true but should it ever be?
       qry.setCacheRegion(GrouperConfig.QCR_GTF_FA);
       types.addAll(qry.list());
       hs.close();  
@@ -120,6 +130,16 @@ public class GroupTypeFinder {
     LOG.debug("found group types: " + types.size());
     return types;
   } // public Static Set findAll()
+
+  private static void _updateKnownTypes() {
+    Iterator iter = _findAll().iterator();
+    while (iter.hasNext()) {
+      GroupType t = (GroupType) iter.next();
+      if (!types.containsKey(t.getName())) {
+        types.put(t.getName(), t); // New type.  Add it to the cached list.
+      }
+    }
+  } // private static void _updateKnownTypes()
 
 }
 

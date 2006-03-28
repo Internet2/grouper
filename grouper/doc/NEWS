@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.106 2006-03-23 18:36:31 blair Exp $
+$Id: NEWS,v 1.107 2006-03-28 20:18:55 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS,v 1.106 2006-03-23 18:36:31 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW: Add `GroupTypeFinder.findAll()` - return all public group types
 * NEW: Add `GrouperSession.flushCache()` method for flushing ehcache
   cache results
 * NEW: Add `addFactor()`, `hasFactor()`, `isFactor()` and `hasType()`

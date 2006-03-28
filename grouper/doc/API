@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.142 2006-03-23 20:21:08 blair Exp $
+$Id: API,v 1.143 2006-03-28 20:18:55 blair Exp $
 
 ---
 
@@ -203,6 +203,7 @@ $Id: API,v 1.142 2006-03-23 20:21:08 blair Exp $
 
 ## GroupTypeFinder
 * GroupType           GroupTypeFinder.find(name)
+* Set                 GroupTypeFinder.findAll()
 
 ## IntersectionFactor
 * Factor              IntersectionFactor(group, group)
