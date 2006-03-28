@@ -89,7 +89,7 @@ public class Factor extends Owner implements Serializable {
   private Member getCreator_id() {
     return this.creator_id;
   }
-  private Owner getFactor_owner() {
+  protected Owner getFactor_owner() {
     return this.factor_owner;
   }
   private String getId() {

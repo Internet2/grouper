@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: FactorFinder.java,v 1.4 2006-03-24 20:39:32 blair Exp $
+ * @version $Id: FactorFinder.java,v 1.5 2006-03-28 19:06:20 blair Exp $
  */
 class FactorFinder implements Serializable {
 
@@ -54,8 +54,7 @@ class FactorFinder implements Serializable {
     Iterator iter = qry.iterate();
     while (iter.hasNext()) {
       Factor f = (Factor) iter.next();
-      f.setSession(s);
-      //results.add(f);
+      results.add(f);
     }
     return results;
   } // protected static Set findIsFactor(s, tx)  

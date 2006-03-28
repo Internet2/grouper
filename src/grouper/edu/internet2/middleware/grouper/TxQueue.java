@@ -44,6 +44,7 @@ class TxQueue implements Serializable, Tx {
   private String      id;
   private String      klass;
   private Member      member;
+  private Owner       origin;
   private Owner       owner;      
   private String      sessionId;
   private long        queueTime;
@@ -132,6 +133,9 @@ class TxQueue implements Serializable, Tx {
   protected Member getMember() {
     return this.member;
   }
+  protected Owner getOrigin() {
+    return this.origin;
+  }
   protected Owner getOwner() {
     return this.owner;
   }
@@ -168,6 +172,9 @@ class TxQueue implements Serializable, Tx {
   }
   protected void setMember(Member m) {
     this.member = m;
+  }
+  protected void setOrigin(Owner origin) {
+    this.origin = origin;
   }
   protected void setOwner(Owner owner) {
     this.owner = owner;
