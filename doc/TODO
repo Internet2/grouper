@@ -4,7 +4,7 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.42 2006-03-28 20:44:24 blair Exp $
+$Id: TODO,v 1.43 2006-03-29 15:50:16 blair Exp $
 
 ---
 
@@ -42,6 +42,7 @@ $Id: TODO,v 1.42 2006-03-28 20:44:24 blair Exp $
   group has, including base but excluding internal types
 * code: add `Group.getRemovableTypes()` that will return all types
   that can be removed from the group
+* code: update to latest subject api
 * document: _Using The Grouper API_
 
 ### Maybe
@@ -50,6 +51,7 @@ $Id: TODO,v 1.42 2006-03-28 20:44:24 blair Exp $
 * code: `DebugLog`
 * code: make thread sleep times (invisibly) configurable
 * code: `Owner`-related cleanup
+* code: delete custom group types
 * packaging: create binary-and-source distributions
 * code: unhibernate `GrouperSession`
 * code: enable batch fetching of `Membership` objects
@@ -97,7 +99,6 @@ $Id: TODO,v 1.42 2006-03-28 20:44:24 blair Exp $
 * code: search limits
 * code: paged search results
 * code: group hierarchy depth restrictions
-* code: delete custom group types
 
 ## Contributed Code
 * code: flatfile source adapter 
