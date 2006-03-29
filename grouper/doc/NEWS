@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.107 2006-03-28 20:18:55 blair Exp $
+$Id: NEWS,v 1.108 2006-03-29 17:19:25 blair Exp $
 
 ---
 
@@ -10,6 +10,9 @@ $Id: NEWS,v 1.107 2006-03-28 20:18:55 blair Exp $
 Released: TBD
 
 ## Changes
+* BUGFIX: Several tests that were **supposed** to be testing against
+  the epoch were not.  This was selectively causing errors while
+  running the test harness, primarily on Windows.
 * NEW: Add `GroupTypeFinder.findAll()` - return all public group types
 * NEW: Add `GrouperSession.flushCache()` method for flushing ehcache
   cache results
