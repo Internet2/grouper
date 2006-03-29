@@ -31,18 +31,18 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSession.java,v 1.9 2006-02-21 17:11:33 blair Exp $
+ * @version $Id: TestSession4.java,v 1.1 2006-03-29 17:19:25 blair Exp $
  */
-public class TestGrouperSession extends TestCase {
+public class TestSession4 extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestGrouperSession.class);
+  private static final Log LOG = LogFactory.getLog(TestSession4.class);
 
 
   // Private Class Variables
   private Source sa;
 
-  public TestGrouperSession(String name) {
+  public TestSession4(String name) {
     super(name);
   }
 
@@ -55,38 +55,6 @@ public class TestGrouperSession extends TestCase {
     LOG.debug("tearDown");
     GrouperSession.waitForAllTx();
   }
-
-  // Tests
-
-  public void testStartSessionBadSubject() {
-    LOG.info("testStartSessionBadSubject");
-    Helper.getBadSession("bad subject");
-  } // public void testStartSessionBadSubject()
-
-  public void testStartSessionGoodSubject() {
-    LOG.info("testStartSessionGoodSubject");
-    GrouperSession s = SessionHelper.getSession("GrouperSystem", "application");
-  } // public void testStartSessionGoodSubject()
-
-  public void testGetStartTime() {
-    LOG.info("testGetStartTime");
-    GrouperSession s = SessionHelper.getRootSession();
-    Date d = s.getStartTime();
-    Assert.assertNotNull("start time !null", d);
-    Assert.assertTrue("start time != epoch (" + d + ")", !d.equals(new Date()));
-  } // public void testGetStartTime()
-
-  public void testStopSession() {
-    LOG.info("testStopSession");
-    GrouperSession s = SessionHelper.getRootSession();
-    try { 
-      s.stop();
-      Assert.assertTrue("stopped session", true);
-    }
-    catch (Exception e) {
-      Assert.fail("failed to stop session: " + e.getMessage());
-    }
-  } // public void testStopSession()
 
   public void testUseStoppedSession() {
     LOG.info("testUseStoppedSession");
@@ -109,20 +77,6 @@ public class TestGrouperSession extends TestCase {
       Assert.fail("failed to stop session: " + e.getMessage());
     }
   } // public void testUseStoppedSession()
-
-  public void testNotEqual() {
-    LOG.info("testNotEqual");
-    try {
-      GrouperSession  a = SessionHelper.getRootSession();
-      GrouperSession  b = SessionHelper.getRootSession();
-      Assert.assertFalse("a != b", a.equals(b));
-      a.stop();
-      b.stop();
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
-  } // public void testNotEqual()
 
 }
 

@@ -4,16 +4,13 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.43 2006-03-29 15:50:16 blair Exp $
+$Id: TODO,v 1.44 2006-03-29 17:19:25 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### BUGS
-* wrong epoch?
-** testGetStartTime(test.edu.internet2.middleware.grouper.TestGrouperSession) start time != epoch
-** testGetCreateAttrs(test.edu.internet2.middleware.grouper.TestStem) create time != epoch
 
 ### Next Actions
 * code: complete `UnionFactor` addition and deletion support

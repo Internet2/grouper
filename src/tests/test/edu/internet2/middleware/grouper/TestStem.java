@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.13 2006-02-21 17:11:33 blair Exp $
+ * @version $Id: TestStem.java,v 1.14 2006-03-29 17:19:25 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -163,72 +163,9 @@ public class TestStem extends TestCase {
     }
   } // public void testGetChildGroups()
 
-  public void testGetCreateAttrs() {
-    LOG.info("testGetCreateAttrs");
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Assert.assertTrue("create source", edu.getCreateSource().equals(""));
-    try {
-      Subject creator = edu.getCreateSubject();
-      Assert.assertNotNull("creator !null", creator);
-      Assert.assertTrue("creator", creator.equals(s.getSubject()));
-    }
-    catch (SubjectNotFoundException eSNF) {
-      Assert.fail("no create subject");
-    }
-    Date d = edu.getCreateTime();
-    Assert.assertNotNull("create time !null", d);
-    Assert.assertTrue("create time instanceof Date", d instanceof Date); 
-    Assert.assertTrue("create time != epoch", !d.equals(new Date()));
-  } // public void testGetCreateAttrs()
-
-  public void testGetModifyAttrsNotModified() {
-    LOG.info("testGetModifyAttrsNotModified");
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Assert.assertTrue("modify source", edu.getModifySource().equals(""));
-    // TODO Unfortunately, the modify* attrs currently get set due to
-    //      the granting of STEM at stem creation.  Fuck.
-    try {
-      Subject modifier = edu.getModifySubject();
-      Assert.assertNotNull("FIXME modifier !null", modifier);
-      Assert.assertTrue(
-        "FIXME modifier", SubjectHelper.eq(modifier, s.getSubject())
-      );
-    }
-    catch (SubjectNotFoundException eSNF) {
-      Assert.fail("FIXME no modify subject");
-    }
-    Date d = edu.getModifyTime();
-    Assert.assertNotNull("modify time !null", d);
-    Assert.assertTrue("modify time instanceof Date", d instanceof Date); 
-    Assert.assertTrue("FIXME modify time != epoch", !d.equals(new Date()));
-  } // public void testGetModifyAttrsNotModified()
-
-  public void testGetModifyAttrsModified() {
-    LOG.info("testGetModifyAttrsModified");
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Assert.assertTrue("modify source", edu.getModifySource().equals(""));
-    try {
-      Subject modifier = edu.getModifySubject();
-      Assert.assertNotNull("modifier !null", modifier);
-      Assert.assertTrue(
-        "modifier", SubjectHelper.eq(modifier, s.getSubject())
-      );
-    }
-    catch (SubjectNotFoundException eSNF) {
-      Assert.fail("no modify subject");
-    }
-    Date d = edu.getModifyTime();
-    Assert.assertNotNull("modify time !null", d);
-    Assert.assertTrue("modify time instanceof Date", d instanceof Date); 
-    Assert.assertTrue("modify time != epoch", !d.equals(new Date()));
-  } // public void testGetModifyAttrsModified()
+  // testGetCreateAttrs             => TestStem6
+  // testGetModifyAttrsNotModified  => TestStem7
+  // testGetModifyAttrsModified     => TestStem8
 
   public void testPropagateDisplayExtensionChangeRootAsRoot() {
     LOG.info("testPropagateExtensionChangeRootAsRoot");
