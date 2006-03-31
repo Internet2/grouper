@@ -56,7 +56,6 @@ name                varchar(120)        NOT NULL,
 helpText            text                NOT NULL,
 scopeTreeID         varchar(64)         NULL,
 modifyDatetime      timestamp           NOT NULL,
-
 primary key (subsystemID)
 )
 ;
@@ -113,6 +112,8 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
 
+drop sequence limitSerial;
+
 create sequence limitSerial START 1;
 
 create table signet_limit
@@ -130,7 +131,6 @@ valueType           varchar(32)         NOT NULL,
 displayOrder        smallint            NOT NULL,
 renderer            varchar(255)        NOT NULL,
 modifyDatetime      timestamp           NOT NULL,
-
 primary key (limitKey),
 unique (subsystemID, limitID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
@@ -141,7 +141,6 @@ create table signet_function_permission
 (
 functionKey         integer             NOT NULL,
 permissionKey       integer             NOT NULL,
-
 primary key (functionKey, permissionKey),
 foreign key (functionKey) references signet_function (functionKey),
 foreign key (permissionKey) references signet_permission (permissionKey)
@@ -161,6 +160,7 @@ foreign key (limitKey) references signet_limit (limitKey)
 ;
 
 -- Signet Subject table
+drop sequence subjectSerial;
 
 create sequence subjectSerial START 1;
 
@@ -198,9 +198,8 @@ nodeType            varchar(32)         NOT NULL,
 status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
 modifyDatetime      timestamp           NOT NULL,
-
 primary key (treeID, nodeID),
-foreign key (treeID) references signet_tree (treeID)
+foreign key (treeID) references signet_tree (treeID),
 foreign key (treeID, nodeID) references signet_treeNode (treeID, nodeID)
 )
 ;
@@ -266,8 +265,8 @@ granteeKey          integer             NOT NULL,
 proxyKey            integer             NULL,
 scopeID             varchar(64)         NULL,
 scopeNodeID         varchar(64)         NULL,
-canUse              bit                 NOT NULL,
-canGrant            bit                 NOT NULL,
+canUse              boolean             NOT NULL,
+canGrant            boolean             NOT NULL,
 effectiveDate       timestamp           NOT NULL,
 expirationDate      timestamp           NULL,
 revokerKey          integer             NULL,
@@ -313,6 +312,8 @@ foreign key (limitKey) references signet_limit (limitKey)
 )
 ;
 
+drop sequence assignmenthistoryserial;
+
 create sequence assignmentHistorySerial START 1;
 
 create table signet_assignment_history
@@ -327,8 +328,8 @@ granteeKey          integer             NOT NULL,
 proxyKey            integer             NULL,
 scopeID             varchar(64)         NULL,
 scopeNodeID         varchar(64)         NULL,
-canUse              bit                 NOT NULL,
-canGrant            bit                 NOT NULL,
+canUse              boolean             NOT NULL,
+canGrant            boolean             NOT NULL,
 effectiveDate       timestamp           NOT NULL,
 expirationDate      timestamp           NULL,
 revokerKey          integer             NULL,
@@ -377,8 +378,8 @@ subsystemID         varchar(64)         NULL,
 grantorKey          integer             NOT NULL,
 granteeKey          integer             NOT NULL,
 proxySubjectKey     integer             NULL,
-canUse              bit                 NOT NULL,
-canExtend           bit                 NOT NULL,
+canUse              boolean             NOT NULL,
+canExtend           boolean             NOT NULL,
 effectiveDate       timestamp           NOT NULL,
 expirationDate      timestamp           NULL,
 revokerKey          integer             NULL,
@@ -392,6 +393,8 @@ foreign key (revokerKey) references signet_subject (subjectKey)
 )
 ;
 
+drop sequence proxyhistoryserial;
+
 create sequence proxyHistorySerial START 1;
 
 create table signet_proxy_history
@@ -404,8 +407,8 @@ subsystemID         varchar(64)         NULL,
 grantorKey          integer             NOT NULL,
 granteeKey          integer             NOT NULL,
 proxySubjectKey     integer             NULL,
-canUse              bit                 NOT NULL,
-canExtend           bit                 NOT NULL,
+canUse              boolean             NOT NULL,
+canExtend           boolean             NOT NULL,
 effectiveDate       timestamp           NOT NULL,
 expirationDate      timestamp           NULL,
 revokerKey          integer             NULL,
