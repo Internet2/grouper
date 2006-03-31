@@ -61,7 +61,7 @@
 		<!-- Copy our property files and O/R mappings for use at runtime -->
 		<copy todir="${dist_webapp.dir}/${webapp.name}/WEB-INF/classes">
 			<fileset dir="${source_config.dir}">
-				<include name="**/*.cfg.xml"/>
+				<include name="**/*.xml"/>
 				<include name="**/*.properties"/>
 			</fileset>
 			<fileset dir="${source_java.dir}">
