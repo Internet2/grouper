@@ -528,13 +528,6 @@
 	  </description>
    </definition>
    
-       <definition name="subjectInfoDef" path="/WEB-INF/jsp/subjectInfo.jsp">
- 	  <description>
-		Tile which displays a summary of subject attributes  - currently inserted
-		in SubjectSummaryDef
-	  </description>
-   </definition>
-   
   <definition name="emptyDef" path="/WEB-INF/jsp/empty.jsp">
  	  <description>
 		Tile with no content - used as a place holder where content may be 
