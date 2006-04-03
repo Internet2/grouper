@@ -24,7 +24,7 @@ import java.util.Map;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupOrStem.java,v 1.1 2005-12-08 15:30:19 isgwb Exp $
+ * @version $Id: GroupOrStem.java,v 1.2 2006-04-03 12:39:34 isgwb Exp $
  */
 
 import edu.internet2.middleware.grouper.Group;
@@ -168,5 +168,29 @@ public class GroupOrStem {
 	 */
 	public Stem getStem() {
 		return stem;
+	}
+	
+	public String getDisplayExtension() {
+		if(group!=null) return group.getDisplayExtension();
+		if(stem!=null) return stem.getDisplayExtension();
+		throw new IllegalStateException("GroupOrStem is not initialised");
+	}
+	
+	public String getDisplayName() {
+		if(group!=null) return group.getDisplayName();
+		if(stem!=null) return stem.getDisplayName();
+		throw new IllegalStateException("GroupOrStem is not initialised");
+	}
+	
+	public String getName() {
+		if(group!=null) return group.getName();
+		if(stem!=null) return stem.getName();
+		throw new IllegalStateException("GroupOrStem is not initialised");
+	}
+	
+	public String getType() {
+		if(group!=null) return "group";
+		if(stem!=null) return "stem";
+		throw new IllegalStateException("GroupOrStem is not initialised");
 	}
 }
