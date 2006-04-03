@@ -228,7 +228,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.7 2006-02-22 13:11:44 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.8 2006-04-03 12:44:04 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -263,7 +263,12 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		if(!isEmpty(listField)) {
 			membershipField=listField;
 		}
-		Field mField = FieldFinder.find(membershipField);
+		Field mField = null;
+		try {
+		mField=FieldFinder.find(membershipField);
+		}catch(Throwable t) {
+			t.printStackTrace();
+		}
 		
 		subjectForm.set("contextSubject","true");
 		String subjectId = (String)subjectForm.get("subjectId");
