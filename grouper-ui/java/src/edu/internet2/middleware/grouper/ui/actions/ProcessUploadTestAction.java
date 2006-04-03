@@ -48,7 +48,7 @@ import edu.internet2.middleware.grouper.ui.util.DOMHelper;
  * Uploads output file from JUnit / HtmlUnit tests and generates 'slide show'
  * 
  * @author Gary Brown.
- * @version $Id: ProcessUploadTestAction.java,v 1.1 2006-01-10 12:30:02 isgwb Exp $
+ * @version $Id: ProcessUploadTestAction.java,v 1.2 2006-04-03 12:44:55 isgwb Exp $
  */
 public class ProcessUploadTestAction extends GrouperCapableAction {
 	
@@ -120,6 +120,8 @@ public class ProcessUploadTestAction extends GrouperCapableAction {
 		
 		List pages = new ArrayList();
 		Map attr = null;
+		String data;
+		int pos;
 		for(int i=0;i<nodes.getLength();i++) {
 			attr=new HashMap();
 			pages.add(attr);
@@ -134,7 +136,13 @@ public class ProcessUploadTestAction extends GrouperCapableAction {
 			attr.put("messages",getMessages(el));
 			outFile=new File(testRoot + page);
 			pw = new PrintWriter(new FileWriter(outFile));
-			pw.print(cd.getData());
+			data=cd.getData();
+			if(data.indexOf("<base")==-1) {
+				pos=data.indexOf("</title>") + 8;
+				data = data.substring(0,pos) 
+					+ "<base href=\"" + el.getAttribute("url") + "\"/>" + data.substring(pos);
+			}
+			pw.print(data);
 			pw.close();
 		}
 		return pages;
