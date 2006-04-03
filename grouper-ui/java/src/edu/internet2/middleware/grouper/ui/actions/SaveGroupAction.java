@@ -38,10 +38,12 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.subject.Subject;
 
@@ -127,7 +129,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.6 2006-02-22 13:22:45 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.7 2006-04-03 12:45:35 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -188,39 +190,53 @@ public class SaveGroupAction extends GrouperCapableAction {
 		String displayExtension = (String) groupForm.get("groupDisplayName");
 		if(isEmpty(displayExtension))displayExtension=extension;
 		//TODO: should be transactional - so add map or List of attributes
+		Map assignedPrivs=null;
+		Subject grouperAll = SubjectFinder.findById("GrouperAll");
 		if (groupExists) {
 			group = GroupFinder.findByUuid(grouperSession, curNode);
 			doTypes(group,request);
 			group.setDisplayExtension(displayExtension);
+			group.setExtension(extension);
+			Map selectedPrivs = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,grouperAll));
+			assignedPrivs=new HashMap();
+			Map.Entry entry;
+			String key;
+			Iterator it = selectedPrivs.entrySet().iterator();
+			while(it.hasNext()) {
+				entry = (Map.Entry)it.next();
+				key = (String)entry.getKey();
+				assignedPrivs.put(key.toLowerCase(),entry.getValue());
+			}
 		} else {
 			Stem parent = StemFinder.findByUuid(grouperSession,
 					curNode);
 			group = parent.addChildGroup(extension,displayExtension );
 			doTypes(group,request);
 			groupForm.set("groupId", group.getUuid());
-			String [] privileges = request.getParameterValues("privileges");
-			Map apiAssignedPrivs = GrouperHelper.getDefaultAccessPrivsForGrouperAPI();
-			Map selectedPrivs = new HashMap();
-			if(privileges==null) privileges = new String[]{};
-			
-				Subject grouperAll = SubjectFinder.findById("GrouperAll");
-				for(int i=0;i<privileges.length;i++) {
-					selectedPrivs.put(privileges[i],Boolean.TRUE);
-					//Check if priv was automatically assigned...
-					if(!Boolean.TRUE.equals(apiAssignedPrivs.get(privileges[i]))){
-						group.grantPriv(grouperAll,Privilege.getInstance(privileges[i]));
-					}
-				}
-				Map.Entry entry = null;
-				Iterator it = apiAssignedPrivs.entrySet().iterator();
-				while(it.hasNext()) {
-					entry = (Map.Entry)it.next();
-					if(!Boolean.TRUE.equals(selectedPrivs.get(entry.getKey()))) {
-						group.revokePriv(grouperAll,Privilege.getInstance((String)entry.getKey()));
-					}
-				}
-			
+			assignedPrivs = GrouperHelper.getDefaultAccessPrivsForGrouperAPI();
 		}
+		String [] privileges = request.getParameterValues("privileges");
+		
+		Map selectedPrivs = new HashMap();
+		if(privileges==null) privileges = new String[]{};
+		
+			
+		for(int i=0;i<privileges.length;i++) {
+			selectedPrivs.put(privileges[i],Boolean.TRUE);
+			//Check if priv was automatically assigned...
+			if(!Boolean.TRUE.equals(assignedPrivs.get(privileges[i]))){
+				group.grantPriv(grouperAll,Privilege.getInstance(privileges[i]));
+			}
+		}
+		Map.Entry entry = null;
+		Iterator it = assignedPrivs.entrySet().iterator();
+		while(it.hasNext()) {
+			entry = (Map.Entry)it.next();
+			if(!Boolean.TRUE.equals(selectedPrivs.get(entry.getKey()))) {
+				group.revokePriv(grouperAll,Privilege.getInstance((String)entry.getKey()));
+			}
+		}
+		
 		
 		
 		
