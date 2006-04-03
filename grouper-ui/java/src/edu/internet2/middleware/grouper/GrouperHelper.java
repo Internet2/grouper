@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.11 2006-03-01 16:08:02 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.12 2006-04-03 12:38:37 isgwb Exp $
  */
 
 /**
@@ -1739,7 +1739,22 @@ public class GrouperHelper {
 		Map map  =getAllHas(s,groupOrStem,member,field);
 		
 		map.remove("subject");
+		map.remove("effectivePrivs");
 		return map;
+		
+	}
+	
+	/**
+	 * Returns indirect privileges for member on the group or stem - but not how derived
+	 * @param s
+	 * @param groupOrStem
+	 * @param member
+	 * @return
+	 */
+	public static Map getEffectiveHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
+		Map map  =getAllHas(s,groupOrStem,member,field);
+
+		return (Map)map.get("effectivePrivs");
 		
 	}
 	
@@ -1771,7 +1786,7 @@ public class GrouperHelper {
 	 * @param member
 	 * @return
 	 */
-	private static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member) throws SchemaException{
+	public static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member) throws SchemaException{
 		return getAllHas(s,groupOrStem,member,FieldFinder.find("members"));
 	}
 	
@@ -1782,8 +1797,9 @@ public class GrouperHelper {
 	 * @param member
 	 * @return
 	 */
-	private static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
+	public static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
 		Set allPrivs = null;
+		Map effectivePrivs = new HashMap();
 		Map effectiveMemberships = new HashMap();
 		if(groupOrStem.isGroup()) {
 			allPrivs = member.getPrivs(groupOrStem.getGroup());
@@ -1833,6 +1849,7 @@ public class GrouperHelper {
 								effectiveMemberships.remove(priv.getOwner());
 							}
 						}catch(GroupNotFoundException e){}
+						effectivePrivs.put(priv.getName().toUpperCase(),Boolean.TRUE);
 					}
 					
 				}
@@ -1860,6 +1877,7 @@ public class GrouperHelper {
 								}
 								privs.put("group",group2Map(s,GroupFinder.findByUuid(s,nPriv.getOwner().getId())));
 							}catch(GroupNotFoundException e){}
+							effectivePrivs.put(nPriv.getName().toUpperCase(),Boolean.TRUE);
 						}
 						
 					}
@@ -1877,6 +1895,7 @@ public class GrouperHelper {
 			privs.put("MEMBER",Boolean.TRUE);
 			results.put(effGroup.getUuid(),privs);
 		}
+		results.put("effectivePrivs",effectivePrivs);
 		return results;
 		
 	}
