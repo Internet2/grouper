@@ -88,6 +88,20 @@
 		</antcall>
 	</target>
 	
+	<target name="test">
+		
+		<path id="dist.class.path">
+			<pathelement location="${last.webapp.folder}/WEB-INF/classes"/>
+				<!-- Make available jar files that Grouper needs -->
+			<fileset dir="${last.webapp.folder}/WEB-INF/lib">
+				<include name="**/*.jar"/>
+			</fileset>		
+		</path>
+		<java classname="edu.internet2.middleware.grouper.ui.util.TestWebappSources" 
+			classpathref="dist.class.path" outputproperty="testOutput" />
+			<echo message="${testOutput}"/>
+	</target>
+	
 	<!--
 		Build into dist.home and then make a war file 
 	-->
@@ -264,7 +278,7 @@
 		<condition property="copyToTomcat" value="true">
 			<and>
 				<isset property="deploy.copy.context.xml"/>
-				<available file="${deploy.home}/webapps" type="dir"/>
+				<available file="${deploy.context.dir}" type="dir"/>
 				<available file="./${deploy.context.xml}" type="file"/>
 			</and>
 		</condition>
@@ -281,7 +295,7 @@
 	<target name="-copyContextXmlToTomcat" if="copyToTomcat">
 		<filter token="deploy.docbase" value="${deploy.docbase}"/>
 		<filter token="deploy.context.path" value="${deploy.context.path}"/>
-		<copy file="${deploy.context.xml}" tofile="${deploy.home}/webapps/${webapp.name}.xml" filtering="true" overwrite="true"/>
+		<copy file="${deploy.context.xml}" tofile="${deploy.context.dir}/${webapp.name}.xml" filtering="true" overwrite="true"/>
 	</target>
 	
 	<!--
@@ -412,7 +426,9 @@
 				<istrue value="${default.webapp.folder.cleanable}"/>
 			</and>
 		</condition>
-		
+		<propertyfile file=".lastbuild.properties">
+				<entry key="last.webapp.folder" value="${webapp.folder}"/>
+			</propertyfile>
 		<condition property="webapp.class.folder" value="${webapp.folder}/WEB-INF/classes">
 			<not>
 				<isset property="webapp.class.folder"/>
