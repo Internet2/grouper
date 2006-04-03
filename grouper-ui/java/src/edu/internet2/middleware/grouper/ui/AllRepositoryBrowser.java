@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AllRepositoryBrowser.java,v 1.3 2005-12-19 14:22:56 isgwb Exp $
+ * @version $Id: AllRepositoryBrowser.java,v 1.4 2006-04-03 12:40:04 isgwb Exp $
  */
 
 
@@ -51,7 +51,10 @@ public class AllRepositoryBrowser extends AbstractRepositoryBrowser{
 	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#isValidChild(java.util.Map)
 	 */
 	protected boolean isValidChild(Map child) {
+		
 		GrouperSession s = getGrouperSession();
+		if("GrouperSystem".equals(s.getSubject().getId())) return true;
+		if(Boolean.TRUE.equals(UIThreadLocal.get("isActiveWheelGroupMember"))) return true;
 		String personalStem = null;
 		String name = (String) child.get("name");
 		try {
