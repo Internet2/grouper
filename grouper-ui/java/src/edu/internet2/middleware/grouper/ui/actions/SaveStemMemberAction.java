@@ -118,7 +118,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SaveStemMemberAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: SaveStemMemberAction.java,v 1.4 2006-04-03 12:47:18 isgwb Exp $
  */
 public class SaveStemMemberAction extends GrouperCapableAction {
 
@@ -174,7 +174,7 @@ public class SaveStemMemberAction extends GrouperCapableAction {
 		while (it.hasNext()) {
 			key = (String) it.next();
 			if (!newPrivs.containsKey(key)) {
-				curStem.revokePriv(member.getSubject(),Privilege.getInstance(key));
+				curStem.revokePriv(member.getSubject(),Privilege.getInstance(key.toLowerCase()));
 			}
 		}
 		//Assign privileges
