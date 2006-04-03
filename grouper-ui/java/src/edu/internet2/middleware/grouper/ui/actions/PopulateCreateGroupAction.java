@@ -117,7 +117,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupAction.java,v 1.7 2006-02-22 15:32:50 isgwb Exp $
+ * @version $Id: PopulateCreateGroupAction.java,v 1.8 2006-04-03 12:42:36 isgwb Exp $
  */
 public class PopulateCreateGroupAction extends GrouperCapableAction {
 
@@ -140,6 +140,7 @@ public class PopulateCreateGroupAction extends GrouperCapableAction {
 		//request.setAttribute("groupTypes", groupTypes);
 		request.setAttribute("editMode", Boolean.FALSE);
 		GroupOrStem groupOrStem = getCurrentGroupOrStem(grouperSession,session);
+		if(groupOrStem.isGroup()) groupOrStem = groupOrStem.findByStem(grouperSession,groupOrStem.getGroup().getParentStem());
 		Stem stem = groupOrStem.getStem();
 		List privileges = new ArrayList();
 		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
