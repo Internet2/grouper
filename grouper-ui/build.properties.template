@@ -63,8 +63,12 @@ deploy.context.path=/grouper
 ####Root of Tomcat installation
 #deploy.home=c:/tomcat_4-1-18
 
+
 ####Name of context xml file - this will be copied to META-INF and possibly to tomcat webapps directory
 ####Look at template-tomcat-context.xml for example - you can copy this and adjust 
 deploy.context.xml=tomcat-context.xml
+
+####Where to copy the context xml
+#deploy.context.dir=c:/tomcat_4-1-18/webapps
 
 
