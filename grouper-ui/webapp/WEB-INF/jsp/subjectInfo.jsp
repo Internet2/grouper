@@ -2,10 +2,11 @@
 			Displays subject attributes
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectInfo.jsp,v 1.3 2006-02-21 16:34:21 isgwb Exp $
+  @version $Id: subjectInfo.jsp,v 1.4 2006-04-03 13:22:58 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<tiles:importAttribute ignore="true"/>
+<c:set var="subject" value="${viewObject}"/>
 <div class="SubjectInfo">
 
 <c:forEach var="attrName" items="${subjectAttributeNames}">
@@ -58,4 +59,4 @@
 </c:forEach>
 <div style="clear:left;"></div>
 </div><!--/SubjectInfo-->
-</grouper:recordTile>
+
