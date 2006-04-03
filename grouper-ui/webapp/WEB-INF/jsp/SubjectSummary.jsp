@@ -3,10 +3,14 @@
 			the maintenance of the subject
 --%><%--
   @author Gary Brown.
-  @version $Id: SubjectSummary.jsp,v 1.2 2005-12-08 15:33:28 isgwb Exp $
+  @version $Id: SubjectSummary.jsp,v 1.3 2006-04-03 13:22:39 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="subjectSummary">
+	<tiles:insert definition="dynamicTileDef">
+		<tiles:put name="viewObject" beanName="subject" />
+		<tiles:put name="view" value="subjectInfo"/>
+	</tiles:insert>
 <tiles:insert definition="subjectInfoDef"/>
 <c:if test="${!empty grouperForm.map.callerPageId && grouperForm.map.subjectId!=lastSubjectSummaryForm.subjectId}">
 <div class="linkButton">
