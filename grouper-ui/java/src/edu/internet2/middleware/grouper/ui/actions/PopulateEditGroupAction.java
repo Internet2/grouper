@@ -18,7 +18,11 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,11 +33,17 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.AccessPrivilege;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Privilege;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Responsible for retrieving group, identified by request
@@ -123,7 +133,7 @@ import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAction.java,v 1.5 2006-02-22 15:32:50 isgwb Exp $
+ * @version $Id: PopulateEditGroupAction.java,v 1.6 2006-04-03 12:43:13 isgwb Exp $
  */
 public class PopulateEditGroupAction extends GrouperCapableAction {
 
@@ -159,7 +169,28 @@ public class PopulateEditGroupAction extends GrouperCapableAction {
 		groupForm.set("groupDescription", groupAsMap.get("description"));
 
 		request.setAttribute("editMode", Boolean.TRUE);
-
+		
+		List privileges = new ArrayList();
+		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
+		for(int i=0;i<accessPrivs.length;i++) {
+			privileges.add(accessPrivs[i].toLowerCase());
+		}
+		
+		Subject grouperAll = SubjectFinder.findById("GrouperAll");
+		Map selectedPrivs = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,grouperAll));
+		Map selected = new HashMap();
+		Map.Entry entry;
+		String key;
+		Iterator it = selectedPrivs.entrySet().iterator();
+		while(it.hasNext()) {
+			entry = (Map.Entry)it.next();
+			key = (String)entry.getKey();
+			selected.put(key.toLowerCase(),entry.getValue());
+		}
+		
+		request.setAttribute("privileges",privileges);
+		request.setAttribute("preSelected",selected);
+		
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, group));
 		request.setAttribute("allGroupTypes",GroupTypeFinder.findAll());
