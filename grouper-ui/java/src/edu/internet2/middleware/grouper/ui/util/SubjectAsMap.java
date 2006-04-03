@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper.ui.util;
 
 import java.util.Set;
 
+import org.apache.commons.beanutils.WrapDynaBean;
+
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -27,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectAsMap.java,v 1.4 2005-12-08 15:31:42 isgwb Exp $
+ * @version $Id: SubjectAsMap.java,v 1.5 2006-04-03 12:49:02 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
 
@@ -42,6 +44,7 @@ public class SubjectAsMap extends ObjectAsMap {
 	public SubjectAsMap(Subject subject) {
 		super();
 		super.objType = objType;
+		dynaBean = new WrapDynaBean(subject);
 		if (subject == null)
 			throw new NullPointerException(
 					"Cannot create SubjectAsMap with a null Subject");
@@ -64,12 +67,12 @@ public class SubjectAsMap extends ObjectAsMap {
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
 	public Object get(Object key) {
-		Object obj = super.get(key);
+		Class stemClass = subject.getClass();
+		Object obj = getByIntrospection(key);
+		if(obj!=null) return obj;
+		obj = super.get(key);
 		//Map overrides wrapped Subject
-		if (obj == null) {
-			//No value so check wrapped Subject for value
-			obj = subject.getAttributeValue((String) key);
-		}
+		
 		if(obj!=null && !"".equals(obj)) return obj;
 			//if (values != null && values.size() != 0)
 			//	obj = values.iterator().next();
@@ -85,7 +88,10 @@ public class SubjectAsMap extends ObjectAsMap {
 					obj = subject.getType().getName();
 				else if ("source".equals(key))
 					obj = subject.getSource().getId();
-			
+				if (obj == null) {
+					//No value so check wrapped Subject for value
+					obj = subject.getAttributeValue((String) key);
+				}
 		
 		return obj;
 	}
