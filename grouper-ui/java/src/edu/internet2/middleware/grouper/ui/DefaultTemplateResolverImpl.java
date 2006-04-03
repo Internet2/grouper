@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.StemAsMap;
 import edu.internet2.middleware.grouper.ui.util.SubjectAsMap;
 import edu.internet2.middleware.grouper.ui.util.SubjectPrivilegeAsMap;
+import edu.internet2.middleware.subject.Source;
 
 /**
  * Default implementation of the Grouper TemplateResolver interface. Deals with
@@ -382,7 +383,8 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 			ResourceBundle mediaResources, HttpServletRequest request) {
 		SubjectAsMap subject = (SubjectAsMap) object;
 		String tName = null;
-		String source = (String) subject.get("source");
+		Source so = (Source)subject.get("source");
+		String source = so.getId();
 		String subjectType = (String) subject.get("subjectType");
 
 		tName = getResource(mediaResources, source + ".subjectType."
