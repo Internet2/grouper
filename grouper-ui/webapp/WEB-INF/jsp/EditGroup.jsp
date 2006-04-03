@@ -2,7 +2,7 @@
 			Form for creating new groups or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.4 2006-02-21 16:19:21 isgwb Exp $
+  @version $Id: EditGroup.jsp,v 1.5 2006-04-03 12:51:28 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -15,7 +15,7 @@
 		<label for="groupName"><fmt:message bundle="${nav}" key="groups.edit.name"/></label>
 	</div>
 	<div class="formRight">
-		<html:text property="groupName" size="50" maxlength="50" disabled="${editMode}" styleId="groupName"/>
+		<html:text property="groupName" size="50" maxlength="50" styleId="groupName"/>
 	</div>
 </div>
 <div class="formRow">
@@ -34,7 +34,7 @@
 		<html:text property="groupDescription" size="50" maxlength="100" styleId="groupDescription"/>
 	</div>
 </div>
-<c:if test="${empty GroupFormBean.map.groupId}">
+
 <div class="formRow">
 <div class="formLeft">
 <fmt:message bundle="${nav}" key="groups.create.privs-for-all"/>
@@ -47,7 +47,9 @@
 					
 </div>
 </div>
-</c:if>
+</div>
+
+
 <div class="formRow">
 <div class="formLeft"><fmt:message bundle="${nav}" key="groups.edit.type"/></div>
 <div class="formRight">
