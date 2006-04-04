@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemImpl.java,v 1.15 2006-02-09 10:25:44 lmcrae Exp $
-$Date: 2006-02-09 10:25:44 $
+$Id: SubsystemImpl.java,v 1.16 2006-04-04 23:03:00 ddonn Exp $
+$Date: 2006-04-04 23:03:00 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -24,14 +24,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import net.sf.hibernate.HibernateException;
-
 import org.apache.commons.collections.map.UnmodifiableMap;
-import org.apache.commons.collections.set.UnmodifiableSet;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.tree.Tree;
 
@@ -315,7 +310,6 @@ class SubsystemImpl
   {
     Map map = new HashMap(set.size());
     Iterator iterator = set.iterator();
-    Class[] noParams = new Class[0];
     String id;
 
     while (iterator.hasNext())
@@ -324,8 +318,8 @@ class SubsystemImpl
 
       try
       {
-        Method getIdMethod = obj.getClass().getMethod("getId", noParams);
-        id = (String) (getIdMethod.invoke(obj, noParams));
+        Method getIdMethod = obj.getClass().getMethod("getId", (Class[])null);
+        id = (String) (getIdMethod.invoke(obj, (Object[])null));
       }
       catch (Exception e)
       {
