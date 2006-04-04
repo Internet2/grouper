@@ -23,24 +23,10 @@ package edu.internet2.middleware.signet.util;
  * @author lmcrae@stanford.edu
  *
  */
-import edu.internet2.middleware.signet.*;
-import edu.internet2.middleware.signet.choice.*;
-import edu.internet2.middleware.signet.tree.*;
-
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.cfg.Configuration;
-
-import org.jdom.*;
-import org.jdom.input.SAXBuilder;
-
-import java.io.*;
-
-// import java.sql.*;
-import java.lang.Integer.*;
-import java.lang.Exception.*;
-
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -49,8 +35,25 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.SessionFactory;
+import net.sf.hibernate.cfg.Configuration;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import edu.internet2.middleware.signet.Category;
+import edu.internet2.middleware.signet.DataType;
+import edu.internet2.middleware.signet.Function;
+import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.ObjectNotFoundException;
+import edu.internet2.middleware.signet.Permission;
+import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.tree.Tree;
 // import java.util.logging.Logger;
 
 public class SubsystemXmlLoader {
@@ -237,31 +240,34 @@ public class SubsystemXmlLoader {
                 String choiceOrder = choiceOrderElem.getTextTrim();
                 System.out.println("- - - - Order = " + choiceOrder);
 
-                int choiceOrderInt = 0;
-                int choiceRankInt = 0;
-
-                try {
-                    choiceOrderInt = Integer.parseInt(choiceOrder);
-                } catch (NumberFormatException e) {
-                    throw new NumberFormatException("ChoiceSet " + choicesetId + ", Choice "
-                        + choiceValue + " -- Order \"" + choiceOrder
-                        + "\" invalid, must be an integer");
-                }
+// never used, so comment it out
+//                int choiceOrderInt = 0;
+//                int choiceRankInt = 0;
+//
+//                try {
+//                    choiceOrderInt = Integer.parseInt(choiceOrder);
+//                } catch (NumberFormatException e) {
+//                    throw new NumberFormatException("ChoiceSet " + choicesetId + ", Choice "
+//                        + choiceValue + " -- Order \"" + choiceOrder
+//                        + "\" invalid, must be an integer");
+//                }
 
                 Element choiceRankElem = choiceElem.getChild("Rank");
                 String choiceRank = choiceRankElem.getTextTrim();
                 System.out.println("- - - - Rank = " + choiceRank);
 
-                try {
-                    choiceRankInt = Integer.parseInt(choiceRank);
-                } catch (NumberFormatException e) {
-                    throw new NumberFormatException("ChoiceSet " + choicesetId + ", Choice "
-                        + choiceValue + " -- Rank \"" + choiceRank
-                        + "\" invalid, must be an integer");
-                }
+// never used, so comment it out
+//                try {
+//                    choiceRankInt = Integer.parseInt(choiceRank);
+//                } catch (NumberFormatException e) {
+//                    throw new NumberFormatException("ChoiceSet " + choicesetId + ", Choice "
+//                        + choiceValue + " -- Rank \"" + choiceRank
+//                        + "\" invalid, must be an integer");
+//                }
 
-                Choice choice = choiceset.addChoice(choiceValue, choiceLabel, choiceOrderInt,
-                        choiceRankInt);
+// never used, so comment it out
+//                Choice choice = choiceset.addChoice(choiceValue, choiceLabel, choiceOrderInt,
+//                        choiceRankInt);
             }
         }
     }
@@ -455,8 +461,8 @@ public class SubsystemXmlLoader {
                 System.err.println("Usage: SubsystemXmlLoader <xml file>");
                 return;
             }
-            
-            SubsystemXmlLoader processor = new SubsystemXmlLoader();
+
+			SubsystemXmlLoader processor = new SubsystemXmlLoader();
 
             String fName = args[0];
 
