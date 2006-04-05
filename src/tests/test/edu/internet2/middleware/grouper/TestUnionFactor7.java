@@ -26,14 +26,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestUnionFactor6.java,v 1.4 2006-04-05 19:20:19 blair Exp $
+ * @version $Id: TestUnionFactor7.java,v 1.1 2006-04-05 19:20:19 blair Exp $
  */
-public class TestUnionFactor6 extends TestCase {
+public class TestUnionFactor7 extends TestCase {
 
   // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestUnionFactor6.class);
+  private static final Log LOG = LogFactory.getLog(TestUnionFactor7.class);
 
-  public TestUnionFactor6(String name) {
+  public TestUnionFactor7(String name) {
     super(name);
   }
 
@@ -47,14 +47,13 @@ public class TestUnionFactor6 extends TestCase {
     GrouperSession.waitForAllTx();
   }
 
-  public void testAddUnionToUnionMember() {
-    LOG.info("testAddUnionToUnionMember");
+  public void testAddMemberToUnionMember() {
+    LOG.info("testAddMemberToUnionMember");
     try {
       R r = R.createOneStemAndEightGroups();
       try {
         r.ua.addMember(r.subj0);
-        r.uc.addMember(r.subj1);
-        r.ud.addFactor( new UnionFactor(r.ua, r.ub) );
+        r.uc.addFactor( new UnionFactor(r.ua, r.ub) );
         r.rs.waitForTx();
         r.rs.flushCache("edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwner");
         Assert.assertTrue("populated feeder groups", true);
@@ -62,37 +61,31 @@ public class TestUnionFactor6 extends TestCase {
         T.getMembers(r.ua, 1);
         T.getMembers(r.ub, 0);
         T.getMembers(r.uc, 1);
-        T.getMembers(r.ud, 1);
 
         Assert.assertTrue(  "ua isFactor"       , r.ua.isFactor());
         Assert.assertTrue(  "ub isFactor"       , r.ub.isFactor());
         Assert.assertFalse( "uc !isFactor"      , r.uc.isFactor());
-        Assert.assertFalse( "ud !isFactor"      , r.ud.isFactor());
 
         Assert.assertFalse( "ua !hasFactor"     , r.ua.hasFactor());
         Assert.assertFalse( "ub !hasFactor"     , r.ub.hasFactor());
-        Assert.assertFalse( "uc !hasFactor"     , r.uc.hasFactor());
-        Assert.assertTrue(  "ud hasFactor"      , r.ud.hasFactor());
+        Assert.assertTrue(  "uc hasFactor"      , r.uc.hasFactor());
 
-        r.ub.addFactor( new UnionFactor(r.ua, r.uc) );
+        r.ub.addMember(r.subj1);
         r.rs.waitForTx();
         r.rs.flushCache("edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwner");
-        Assert.assertTrue("added union factor", true);
+        Assert.assertTrue("added member", true);
 
         T.getMembers(r.ua, 1);
-        T.getMembers(r.ub, 2);
-        T.getMembers(r.uc, 1);
-        T.getMembers(r.ud, 2);
+        T.getMembers(r.ub, 1);
+        T.getMembers(r.uc, 2);
 
         Assert.assertTrue(  "ua isFactor"       , r.ua.isFactor());
         Assert.assertTrue(  "ub isFactor"       , r.ub.isFactor());
-        Assert.assertTrue(  "uc isFactor"       , r.uc.isFactor());
-        Assert.assertFalse( "ud !isFactor"      , r.ud.isFactor());
+        Assert.assertFalse( "uc !isFactor"      , r.uc.isFactor());
 
         Assert.assertFalse( "ua !hasFactor"     , r.ua.hasFactor());
-        Assert.assertTrue(  "ub hasFactor"      , r.ub.hasFactor());
-        Assert.assertFalse( "uc !hasFactor"     , r.uc.hasFactor());
-        Assert.assertTrue(  "ud hasFactor"      , r.ud.hasFactor());
+        Assert.assertFalse( "ub !hasFactor"     , r.ub.hasFactor());
+        Assert.assertTrue(  "uc hasFactor"      , r.uc.hasFactor());
       }
       catch (Exception e) {
         Assert.fail(e.getMessage());
@@ -104,7 +97,7 @@ public class TestUnionFactor6 extends TestCase {
     catch (Exception e) {
       Assert.fail(e.getMessage());
     }
-  } // public void testAddUnionToUnionMember()
+  } // public void testAddMemberToUnionMember()
 
 }
 
