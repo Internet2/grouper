@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test Almost Everything.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.6 2006-03-29 17:19:25 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.7 2006-04-06 15:01:55 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -36,10 +36,8 @@ public class SuiteDefault extends TestCase {
 
     TestSuite suite = new TestSuite();
 
-    suite.addTest(  SuiteAddMember.suite()    );
     suite.addTest(  SuiteFactors.suite()      );
-    suite.addTest(  SuiteGroupDelete.suite()  );
-    suite.addTest(  SuiteGroupTypes.suite()   ); 
+    suite.addTest(  SuiteGroups.suite()       );
     suite.addTest(  SuiteMemberOf.suite()     );
     suite.addTest(  SuitePrivs.suite()        );
     suite.addTest(  SuiteSessions.suite()     );

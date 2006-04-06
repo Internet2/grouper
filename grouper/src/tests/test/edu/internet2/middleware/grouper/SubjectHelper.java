@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.11 2006-02-21 17:11:33 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.12 2006-04-06 15:01:55 blair Exp $
  */
 public class SubjectHelper {
 
@@ -65,19 +65,11 @@ public class SubjectHelper {
   } // static
 
 
-  // Protected Class Methods
+  // Protected Class Methods //
 
+  // TODO Kill me
   protected static boolean eq(Subject a, Subject b) {
-    if 
-    ( 
-      a.getId().equals(b.getId())
-      && a.getType().equals(b.getType())
-      && a.getSource().equals(b.getSource())
-    )
-    {
-      return true;
-    }
-    return false;
+    return edu.internet2.middleware.grouper.SubjectHelper.eq(a, b);
   } // protected static boolean eq(a, b)
 
   // Don't get a subject by bad id
