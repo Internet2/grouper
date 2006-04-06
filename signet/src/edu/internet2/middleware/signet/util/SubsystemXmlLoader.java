@@ -240,34 +240,30 @@ public class SubsystemXmlLoader {
                 String choiceOrder = choiceOrderElem.getTextTrim();
                 System.out.println("- - - - Order = " + choiceOrder);
 
-// never used, so comment it out
-//                int choiceOrderInt = 0;
-//                int choiceRankInt = 0;
-//
-//                try {
-//                    choiceOrderInt = Integer.parseInt(choiceOrder);
-//                } catch (NumberFormatException e) {
-//                    throw new NumberFormatException("ChoiceSet " + choicesetId + ", Choice "
-//                        + choiceValue + " -- Order \"" + choiceOrder
-//                        + "\" invalid, must be an integer");
-//                }
+                int choiceOrderInt = 0;
+                int choiceRankInt = 0;
+
+                try {
+                    choiceOrderInt = Integer.parseInt(choiceOrder);
+                } catch (NumberFormatException e) {
+                    throw new NumberFormatException("ChoiceSet " + choicesetId + ", Choice "
+                        + choiceValue + " -- Order \"" + choiceOrder
+                        + "\" invalid, must be an integer");
+                }
 
                 Element choiceRankElem = choiceElem.getChild("Rank");
                 String choiceRank = choiceRankElem.getTextTrim();
                 System.out.println("- - - - Rank = " + choiceRank);
 
-// never used, so comment it out
-//                try {
-//                    choiceRankInt = Integer.parseInt(choiceRank);
-//                } catch (NumberFormatException e) {
-//                    throw new NumberFormatException("ChoiceSet " + choicesetId + ", Choice "
-//                        + choiceValue + " -- Rank \"" + choiceRank
-//                        + "\" invalid, must be an integer");
-//                }
+                try {
+                    choiceRankInt = Integer.parseInt(choiceRank);
+                } catch (NumberFormatException e) {
+                    throw new NumberFormatException("ChoiceSet " + choicesetId + ", Choice "
+                        + choiceValue + " -- Rank \"" + choiceRank
+                        + "\" invalid, must be an integer");
+                }
 
-// never used, so comment it out
-//                Choice choice = choiceset.addChoice(choiceValue, choiceLabel, choiceOrderInt,
-//                        choiceRankInt);
+                choiceset.addChoice(choiceValue, choiceLabel, choiceOrderInt, choiceRankInt);
             }
         }
     }
