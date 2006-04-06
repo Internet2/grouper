@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.21 2006-03-22 18:43:23 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.22 2006-04-06 16:36:40 blair Exp $
  */
 public class RegistryReset {
 
@@ -122,7 +122,7 @@ public class RegistryReset {
   {
     Session     hs  = HibernateHelper.getSession();
     Transaction tx  = hs.beginTransaction();
-    for (int i=0; i<100; i++) {
+    for (int i=0; i<10; i++) {
       String  id    = "test.subject." + i;
       String  name  = "my name is " + id;
       hs.save(new HibernateSubject(id, SUBJ_TYPE, name));
