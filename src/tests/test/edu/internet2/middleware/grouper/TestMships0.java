@@ -27,14 +27,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupsMembers0.java,v 1.1 2006-04-06 15:01:55 blair Exp $
+ * @version $Id: TestMships0.java,v 1.1 2006-04-06 16:53:38 blair Exp $
  */
-public class TestGroupsMembers0 extends TestCase {
+public class TestMships0 extends TestCase {
 
   // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestGroupsMembers0.class);
+  private static final Log LOG = LogFactory.getLog(TestMships0.class);
 
-  public TestGroupsMembers0(String name) {
+  public TestMships0(String name) {
     super(name);
   }
 
