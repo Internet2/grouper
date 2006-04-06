@@ -4,14 +4,16 @@
 This file provides more detailed information on what Grouper
 development work needs to be done.
 
-$Id: TODO,v 1.46 2006-04-04 20:00:46 blair Exp $
+$Id: TODO,v 1.47 2006-04-06 15:44:26 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### BUGS
-* [unconfirmed] `Group.getEffectiveMembers()` returning wrong results
+* It is believed that there are severe data integrity and code
+  behavior issues with HEAD.  It should not be used until they are
+  tracked down and eliminated.
 
 ### Next Actions
 * code: complete `UnionFactor` addition and deletion support
