@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.4 2006-04-06 15:01:55 blair Exp $
+ * @version $Id: T.java,v 1.5 2006-04-06 16:53:38 blair Exp $
  */
 public class T {
 
@@ -42,6 +42,8 @@ public class T {
     Assert.assertTrue(msg + " exp[" + exp + "] got[" + got + "]", exp == got);
   } // protected static void amount(msg, exp, got)
 
+
+  // Group //
   protected static void getEffectiveMembers(Group g, int exp) {
     LOG.debug("getEffectiveMembers()");
     T.amount(g.getName() + " eff members", exp, g.getEffectiveMembers().size());
@@ -56,6 +58,17 @@ public class T {
     LOG.debug("getMembers()");
     T.amount(g.getName() + " members", exp, g.getMembers().size());
   } // protected static void getMembers(g, exp)
+
+  // Stem //
+  protected static void getChildGroups(Stem ns, int exp) {
+    LOG.debug("getChildGroups()");
+    T.amount(ns.getName() + " child groups", exp, ns.getChildGroups().size());
+  } // protected static void getChildGroups(ns, exp)
+
+  protected static void getChildStems(Stem ns, int exp) {
+    LOG.debug("getChildStems()");
+    T.amount(ns.getName() + " child stems", exp, ns.getChildStems().size());
+  } // protected static void getChildStems(ns, exp)
 
 }
 

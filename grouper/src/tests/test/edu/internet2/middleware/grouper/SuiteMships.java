@@ -24,21 +24,19 @@ import  org.apache.commons.logging.*;
  * Test Almost Everything.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteGroupsMembers.java,v 1.1 2006-04-06 15:01:55 blair Exp $
+ * @version $Id: SuiteMships.java,v 1.1 2006-04-06 16:53:38 blair Exp $
  */
-public class SuiteGroupsMembers extends TestCase {
+public class SuiteMships extends TestCase {
 
-  public SuiteGroupsMembers(String name) {
+  public SuiteMships(String name) {
     super(name);
   }
 
   static public Test suite() {
 
     TestSuite suite = new TestSuite();
-
-    suite.addTest(      SuiteAddMember.suite()    );
-    suite.addTestSuite( TestGroupsMembers0.class  ); // Group.get*Members()
-
+    suite.addTestSuite( TestMships0.class );  // Group.get*Members()
+    suite.addTestSuite( TestMships1.class );  // Group.get*Members() via recursion from root
     return suite;
   } // static public Test suite()
 
