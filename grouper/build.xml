@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.84.2.1 2006-04-10 17:51:03 blair Exp $ -->
+<!-- $Id: build.xml,v 1.84.2.2 2006-04-10 19:07:20 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -15,7 +15,7 @@
   <property name="src"                    location="${basedir}/src"/>
   <property name="src.conf"               location="${src}/conf"/>
   <property name="src.grouper"            location="${src}/grouper"/>
-  <property name="src.test"               location="${src}/tests"/>
+  <property name="src.test"               location="${src}/test"/>
 
   <property name="build"                  location="${basedir}/build"/>
   <property name="dist"                   location="${basedir}/dist"/>
@@ -260,7 +260,7 @@
           taskname="junit"
           failonerror="true"
     >
-      <arg    value="test.edu.internet2.middleware.grouper.${test}"/>
+      <arg    value="edu.internet2.middleware.grouper.${test}"/>
       <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=${hprof.depth}"/>
       <classpath refid="project.classpath"/>
     </java>
@@ -356,7 +356,7 @@ error"
           classname="junit.textui.TestRunner"
           taskname="junit" 
           failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.SuiteAll"/>
+      <arg value="edu.internet2.middleware.grouper.SuiteAll"/>
       <classpath refid="project.classpath"/>
     </java>
     <record name="${log.test.run}" action="stop"/>
