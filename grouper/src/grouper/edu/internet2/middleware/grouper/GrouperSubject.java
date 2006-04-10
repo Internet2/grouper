@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.9.2.1 2006-04-10 19:35:40 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.9.2.2 2006-04-10 19:49:32 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -53,7 +53,6 @@ public class GrouperSubject implements Subject {
     this.id       = g.getUuid();
     this.name     = g.getName();
     this.adapter  = SubjectFinder.getGrouperSourceAdapter();
-    this._addAttrs(); // Attach attributes
   } // protected GrouperSubject(g, sa)
 
 
