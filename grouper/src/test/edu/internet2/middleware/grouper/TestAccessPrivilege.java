@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestAccessPrivilege.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: TestAccessPrivilege.java,v 1.1.2.2 2006-04-10 19:18:29 blair Exp $
  */
 public class TestAccessPrivilege extends TestCase {
 
@@ -105,11 +105,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "i2/subj0 owner optin: " + ap.getOwner().getId(),
-          SubjectTestHelper.eq(ap.getOwner(), uofc.toSubject())
+          SubjectHelper.eq(ap.getOwner(), uofc.toSubject())
         );
         Assert.assertTrue(
           "i2/subj0 subj optin: " + ap.getSubject().getId(),
-          SubjectTestHelper.eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "i2/subj0 isRevokable optin: " + ap.isRevokable(),
@@ -131,11 +131,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "i2/subj0 owner read: " + ap.getOwner().getId(),
-          SubjectTestHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
+          SubjectHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
         );
         Assert.assertTrue(
           "i2/subj0 subj read: " + ap.getSubject().getId(),
-          SubjectTestHelper.eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "i2/subj0 isRevokable read: " + ap.isRevokable(),
@@ -157,11 +157,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "i2/subj0 owner view: " + ap.getOwner().getId(),
-          SubjectTestHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
+          SubjectHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
         );
         Assert.assertTrue(
           "i2/subj0 subj view: " + ap.getSubject().getId(),
-          SubjectTestHelper.eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "i2/subj0 isRevokable view: " + ap.isRevokable(),
@@ -196,11 +196,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "uofc/subj0 owner update: " + ap.getOwner().getId(),
-          SubjectTestHelper.eq(ap.getOwner(), subj0)
+          SubjectHelper.eq(ap.getOwner(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 subj update: " + ap.getSubject().getId(),
-          SubjectTestHelper.eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 isRevokable update: " + ap.isRevokable(),
@@ -222,11 +222,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "uofc/subj0 owner read: " + ap.getOwner().getId(),
-          SubjectTestHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
+          SubjectHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
         );
         Assert.assertTrue(
           "uofc/subj0 subj read: " + ap.getSubject().getId(),
-          SubjectTestHelper.eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 isRevokable read: " + ap.isRevokable(),
@@ -248,11 +248,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "uofc/subj0 owner view: " + ap.getOwner().getId(),
-          SubjectTestHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
+          SubjectHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
         );
         Assert.assertTrue(
           "uofc/subj0 subj view: " + ap.getSubject().getId(),
-          SubjectTestHelper.eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 isRevokable view: " + ap.isRevokable(),

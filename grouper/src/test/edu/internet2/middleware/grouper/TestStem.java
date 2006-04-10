@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: TestStem.java,v 1.1.2.2 2006-04-10 19:18:29 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -194,7 +194,7 @@ public class TestStem extends TestCase {
       Subject modifier = edu.getModifySubject();
       Assert.assertNotNull("FIXME modifier !null", modifier);
       Assert.assertTrue(
-        "FIXME modifier", SubjectTestHelper.eq(modifier, s.getSubject())
+        "FIXME modifier", SubjectHelper.eq(modifier, s.getSubject())
       );
     }
     catch (SubjectNotFoundException eSNF) {
@@ -217,7 +217,7 @@ public class TestStem extends TestCase {
       Subject modifier = edu.getModifySubject();
       Assert.assertNotNull("modifier !null", modifier);
       Assert.assertTrue(
-        "modifier", SubjectTestHelper.eq(modifier, s.getSubject())
+        "modifier", SubjectHelper.eq(modifier, s.getSubject())
       );
     }
     catch (SubjectNotFoundException eSNF) {
