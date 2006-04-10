@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.14.2.1 2006-04-10 19:35:40 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.14.2.2 2006-04-10 19:55:52 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
@@ -59,11 +59,6 @@ public class SubjectFinder implements Serializable {
       MGR.loadSource(isa);
       LOG.debug("Added source: " + isa.getId());
       // Add in group source adapter
-      BaseSourceAdapter gsa = new GrouperSourceAdapter(
-        GrouperSourceAdapter.ID, GrouperSourceAdapter.NAME
-      );
-      MGR.loadSource(gsa);
-      LOG.debug("Added source: " + gsa.getId());
       LOG.info("Subject finder initialized");
       try {
         ALL = SubjectFinder.findById(GrouperConfig.ALL, GrouperConfig.IST);
