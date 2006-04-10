@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.1 2006-04-10 14:44:37 blair Exp $
+$Id: TODO,v 1.30.2.2 2006-04-10 16:56:15 blair Exp $
 
 ---
 
@@ -26,7 +26,8 @@ $Id: TODO,v 1.30.2.1 2006-04-10 14:44:37 blair Exp $
 * code: add daemon (singleton?)
 * code: start+stop daemon via api
 * code: embed hsqldb within daemon 
-** do not stop hsqldb if using non-embedded db
+** admin: update to latest hsqldb
+** code: do not stop hsqldb if using non-embedded db
 * test: basic concurrency testing
 * MAYBE code: add registry integrity thread to daemon
 * code: add union set member (sync)
@@ -131,5 +132,5 @@ $Id: TODO,v 1.30.2.1 2006-04-10 14:44:37 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.1 2006-04-10 14:44:37 blair Exp $
+$Id: TODO,v 1.30.2.2 2006-04-10 16:56:15 blair Exp $
 
