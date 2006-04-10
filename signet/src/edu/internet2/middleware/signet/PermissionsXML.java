@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXML.java,v 1.5 2006-03-19 08:17:48 lmcrae Exp $
-$Date: 2006-03-19 08:17:48 $
+$Id: PermissionsXML.java,v 1.6 2006-04-10 06:28:11 ddonn Exp $
+$Date: 2006-04-10 06:28:11 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,11 +19,16 @@ limitations under the License.
 
 package edu.internet2.middleware.signet;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
-import javax.xml.stream.*;
-import edu.internet2.middleware.signet.tree.*;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
+import edu.internet2.middleware.signet.tree.TreeNode;
 
 public class PermissionsXML
 {
@@ -198,13 +203,19 @@ public class PermissionsXML
       xmlw.writeEndElement();
       xmlw.writeCharacters("\n");
       
-      // End the XML document
+      // End the XML document with a comment
       xmlw.writeEndDocument();
 
-      Date date = new Date();
+//      Date date = new Date();
       DateFormat df = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss z");
 
-      xmlw.writeComment("datastore='jdbc:sybase:Tds:renoir.stanford.edu:1025/dsignet' version='1.0' timestamp='" + df.format(date) + "'\n");
+      StringBuffer buf = new StringBuffer();
+      buf.append("datastore='" + Signet.getConfiguration().getProperty("hibernate.connection.url") + "' ");
+      buf.append("version='" + Signet.getVersion() + "' ");
+      buf.append("timestamp='" + df.format(new Date()) + "'");
+      buf.append("\n");
+      xmlw.writeComment(buf.toString());
+//      xmlw.writeComment("datastore='jdbc:sybase:Tds:renoir.stanford.edu:1025/dsignet' version='1.0' timestamp='" + df.format(date) + "'\n");
       
       // Close the XMLStreamWriter to free up resources
       xmlw.close();

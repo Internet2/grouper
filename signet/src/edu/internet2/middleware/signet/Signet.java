@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.57 2006-02-14 23:31:30 acohen Exp $
-$Date: 2006-02-14 23:31:30 $
+$Id: Signet.java,v 1.58 2006-04-10 06:28:11 ddonn Exp $
+$Date: 2006-04-10 06:28:11 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -61,6 +61,13 @@ import net.sf.hibernate.cfg.Configuration;
 */
 public final class Signet
 {
+	// Signet version (manually keep in sync with 'signet_version' in build.xml
+	private static final String version = "1.0.1";
+	 
+	// Signet application name
+	private static final String appName = "Signet";
+
+
  /**
   * This constant denotes the default subject-type ID, as it is
   * defined and used by Signet.
@@ -116,10 +123,6 @@ public final class Signet
   */
  public static final String    ATTR_DISPLAYID                 = "~displayid";
 
-  // This is the metadata that describes the pre-defined Signet
-  // application subject.
- 
-  private static final String   SIGNET_SUBJECT_ID = "signet";
 
  private static SessionFactory sessionFactory;
  
@@ -168,6 +171,14 @@ public final class Signet
  
  private PrivilegedSubject signetSubject;
  
+	// HIbernate configuration
+	private static final Configuration cfg;
+	 
+	public static Configuration getConfiguration() { return (cfg); }
+	public static String getVersion() { return (version); }
+	public static String getAppName() { return (appName); }
+
+
  /**
   * This constructor builds the fundamental Signet factory object. It opens a
   * Hibernate session, and stores some Signet-specific metadata in that
@@ -313,7 +324,7 @@ public final class Signet
  static
  /* runs at class load time */
  {
-   Configuration cfg = new Configuration();
+   cfg = new Configuration();
 
    try
    {
@@ -1140,63 +1151,15 @@ public final class Signet
  
   public PrivilegedSubject getSignetSubject()
   {
-    if (this.signetSubject == null)
+    if (null == signetSubject)
     {
-      Subject underlyingSubject
-        = new Subject()
-          {
-             public String getId()
-             {
-               return SIGNET_SUBJECT_ID;
-             }
-             
-             public String getSubjectTypeId()
-             {
-               return SubjectTypeEnum.APPLICATION.getName();
-             }
-             
-             public SubjectType getType()
-             {
-               return SubjectTypeEnum.APPLICATION;
-             }
-             
-             public String getName()
-             {
-               return "Signet";
-             }
+      SubjectImpl underlyingSubject = new SubjectImpl();
 
-             public String getDescription()
-             {
-               return "the Signet system";
-             }
-
-             public String getAttributeValue(String name)
-             {
-               return null;
-             }
-
-             public Set getAttributeValues(String name)
-             {
-               return new HashSet();
-             }
-
-             public Map getAttributes()
-             {
-               return new HashMap();
-             }
-
-             public Source getSource()
-             {
-               return null;
-             }
-          };
       try
       {
-        this.signetSubject
-          = fetchPrivilegedSubject
-              (SubjectTypeEnum.APPLICATION.getName(), SIGNET_SUBJECT_ID);
-        ((PrivilegedSubjectImpl)this.signetSubject).setSubject
-          (underlyingSubject);
+        signetSubject = fetchPrivilegedSubject(SubjectTypeEnum.APPLICATION.getName(),
+        		underlyingSubject.getId());
+        ((PrivilegedSubjectImpl)signetSubject).setSubject(underlyingSubject);
       }
       catch (ObjectNotFoundException onfe)
       {
@@ -1204,7 +1167,7 @@ public final class Signet
       }
     }
 
-    return this.signetSubject;
+    return (signetSubject);
   }
 
   private PrivilegedSubject fetchPrivilegedSubject
