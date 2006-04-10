@@ -1,88 +1,135 @@
 
 # Grouper Development TODO List
 
-This file provides more detailed information on what Grouper
-development work needs to be done.
+This file provides more detailed information on future Grouper
+development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30 2006-02-03 20:20:15 blair Exp $
+$Id: TODO,v 1.30.2.1 2006-04-10 14:44:37 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
-### BUGS
+### Next Actions
+* code: review changelog and perform selective merge from HEAD to
+  GROUPER_1_0_TAKE2 branch
+* code: relocate tests
+* code: add `GroupTypeFinder.findAllAssignable()` that will return all
+  assignable types
+* code: add `SubjectFinder.findById(id, type, source)`
+* code: add `SubjectFinder.findByIdentifier(id, type, source)`
+* code: add `SubjectFinder.findAll(query, source)`
+* code: replace `GroupType.addField()` with `GroupType.addAttribute()` and `GroupType.addList()`
+* code: empty stem deletion
+* code: `StemAttributeFilter`
+* code: record db schema version in db
+* code: add daemon (singleton?)
+* code: start+stop daemon via api
+* code: embed hsqldb within daemon 
+** do not stop hsqldb if using non-embedded db
+* test: basic concurrency testing
+* MAYBE code: add registry integrity thread to daemon
+* code: add union set member (sync)
+* code: delete union set member (sync)
+* code: add complement set member (sync)
+* code: delete complement set member (sync)
+* code: add intersection set member (sync)
+* code: delete intersection set member (sync)
+* code: privilege cleanup - `NamingResolver`
+* code: privilege cleanup - `AccessResolver`
+* code: privilege cleanup - Hibernate-backed `PrivilegeCache`
+* code: non-hibernated sessions
+* code: remove (all|most) RTEs
+* code: toString cleanup
+* code: attribute retrieval cleanup
+* code: add getting-and-setting sync mode to sessions
+* code: add member (async)
+* code: delete member (async)
+* code: grant access privilege (async)
+* code: revoke access privilege (async)
+* code: grant naming privilege (async)
+* code: revoke naming privilege (async)
+* code: add union set member (async)
+* code: delete union set member (async)
+* code: add complement set member (async)
+* code: delete complement set member (async)
+* code: add intersection set member (async)
+* code: delete intersection set member (async)
+* test: concurrency, deletion and async mods
+* test: concurrency testing (i expect to find many bugs)
+* code: class to verify that setup is functional
+** find the root stem, exercise subject api, hibernate dialect + driver class, etc
+* code: add `Group.canReadField(f)`
+* code: add `Group.canReadField(f, subj)`
+* code: add `Group.canWriteField(f)`
+* code: add `Group.canWriteField(f, subj)`
+* code: add `Group.getTypes()` that will return all types that the
+  group has, including base but excluding internal types
+* code: add `Group.getRemovableTypes()` that will return all types
+  that can be removed from the group
+* code: update to latest subject api
 
-### Improved update performance through introduction of grouperd
-* Create grouperd daemon process
-* Add transaction mapping
-* Add transaction runner with support for eff mships
-* Add transaction runner with support for group math
-* Allow listing of active + failed transactions
-* Allow shutdown of grouperd
-* @doc
-
-### Group Math
-* Have _Factor_, _Group_ and _Stem_ extend _Owner_
-* Redefine _Membership_ Hibernate mapping
-* add factor
-* delete factor
-* testing
-* hasFactor()
-* isFactor()
-* @doc
-
-### Basic XML export-and-import of Groups Registry
-Right now it looks like Gary is handling (all|most) of this for 1.0.
-
-### Documentation
-* Group Types [BUFFER@SCHEDULE]
-
-### Filler
-* _ErrorLog_
-* Unhibernate Grouper sessions
-* Performance profiling
-** Enable batch fetching of Memberships
-* _StemAttribute_ filter
-* Delete empty stems
+### Maybe
+* code: `ErrorLog`
+* code: `DebugLog`
+* code: make thread sleep times (invisibly?) configurable
+* code: `Owner`-related cleanup
+* code: delete custom group types
+* packaging: create binary-and-source distributions
+* code: unhibernate `GrouperSession`
+* code: enable batch fetching of `Membership` objects
+* code: order `Membership` queries by depth
+* code: Don't assign `GrouperSystem` privileges
+* document: add `@since` to javadoc
+* library: update [jug](http://jug.safehaus.org/)
 
 ---
 
-## Future Releases
-* Expand _Validator_ class
-* Stem: _addChildGroup()_ and _addChildStems()_ should take an optional
-  Properties arg that would override configuration defaults
-* Rework _PrivilegeCache_ so that I can expire individual entries
-  instead of the full cache
-* _DebugLog_
-* Config options for cache flushing (and do I flush on revoke all?)
-* Search by the set of groups or namespaces created or modified
-  by a specified subject [S&B#12]
-* Search by the set of groups to which a given subject is an immediate 
-  member can be listed [S&B#9]
-* Search by the set of groups to which a given subject is an effective 
-  member can be listed [S&B#10]
-* Paged search results
-* Group Hierarchy depth restrictions
-* Search limits
-* Removal of members that are no longer in use 
+## Grouper 1.0.1
+* code: Grouper 1.0 bugfixes
+* code: import of operational attributes from xml
 
-### DRY
-* Member: isMember(), isImmediateMember() and isEffectiveMember()
-* Membership: addImmediateMembership()
-* Membership: delImmediateMembership()
-* Membership: deleteAllField()
-* Privilege: canWriteField()
-* Session proxying
+---
 
-### Aesthetics
-* FieldFinder: cache findAll()
-* Group: _deleteAttribute() naming attr handling
-* GrouperSubject: _addAttr() attr + value validation
-* Member: toGroup()
-* PrivilegeResolver: canVIEW()
-* Stem: addChildGroup() updates modify* attrs of child
-* Stem: addChildStem() updates modify* attrs of child
-* Stem: constructName()
-* StemFinder: isChild()
-* Test helper methods
+## Grouper 1.1
+* code: add group aging
+* code: add membership aging
+
+---
+
+## Future Releases 
+
+### API
+* code: expose `HibernateSubject`
+* code: ws version of `GrouperSourceAdapter`
+* code: refactor `PrivilegeCache`
+* code: make cache usage more configurable
+* code: improved internal API model validation
+* code: `StemCreatedByFilter`
+* code: `StemModifiedByFilter`
+* code: `GroupCreatedByFilter`
+* code: `GroupModifiedByFilter`
+* code: `IsMemberFilter`
+* code: `IsImmediateMemberFilter`
+* code: `IsEffectiveMemberFilter`
+* code: ws-ify API
+* code: member aging
+* code: `Stem.addChildStem()` that takes an optional argument to
+  override configuration defaults
+* code: `Stem.addChildGroup()` that takes an optional argument to
+  override configuration defaults
+* code: session proxying/"act as" support
+* code: search limits
+* code: paged search results
+* code: group hierarchy depth restrictions
+
+## Contributed Code
+* code: flatfile source adapter 
+* code `LaxAccessAdapter`
+* code `LaxNamingAdapter`
+* code: dns source adapter 
+
+---
+
+$Id: TODO,v 1.30.2.1 2006-04-10 14:44:37 blair Exp $
 
