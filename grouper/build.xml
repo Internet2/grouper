@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.84 2006-01-18 19:31:18 blair Exp $ -->
+<!-- $Id: build.xml,v 1.84.2.1 2006-04-10 17:51:03 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -28,7 +28,6 @@
 
   <property name="log.schema"             location="${basedir}/schemaexport.log"/>
   <property name="log.dbinit"             location="${basedir}/db-init.log"/>
-  <property name="log.dbinit.jdbcsource"  location="${basedir}/db-init-jdbcsource.log"/>
   <property name="log.build"              location="${basedir}/build.log"/>
   <property name="log.test.build"         location="${basedir}/test-build.log"/>
   <property name="log.test.run"           location="${basedir}/test.log"/>
@@ -120,24 +119,6 @@
   </target>
   <!-- db-init -->
 
-  <!-- db-init-jdbcsource -->
-  <target name="db-init-jdbcsource"
-          description="install jdbc source ddl"
-  >
-    <record name="${log.dbinit.jdbcsource}" action="start"/>
-    <property file="${conf}/hibernate.properties"/>
-    <sql
-      classpathref="project.classpath"
-      driver="${hibernate.connection.driver_class}"
-      url="${hibernate.connection.url}"
-      userid="${hibernate.connection.username}"
-      password="${hibernate.connection.password}"
-      src="${sql}/jdbc_source.sql"
-    />
-    <record name="${log.dbinit.jdbcsource}" action="stop"/>
-  </target>
-  <!-- db-init-jdbcsource -->
-  
   <!-- db-reset -->
   <target name="db-reset"
           description="reset the db"

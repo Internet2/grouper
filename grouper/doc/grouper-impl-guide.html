@@ -54,7 +54,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2006-01-12 14:05:19 $
+$Date: 2006-04-10 17:51:03 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -969,10 +969,6 @@ first.
     HSQLDB RDBMS this will create the registry in the
     <tt>$GROUPER/dist/run</tt> directory.</p>
   </li>
-  <li><p><tt>ant db-init-jdbcsource</tt> [optional]</p>
-    <p>This will install tables require by the I2MI Subject interface's
-    JDBC source adapter.</p>
-  </li>
   <li><p><tt>ant build</tt></p>
     <p>This will compile Grouper and place the class files under
     the <tt>$GROUPER/build</tt> directory.</p></li>
@@ -982,8 +978,6 @@ first.
     <p><b>Note: Running the test suite is destructive and will
     delete all groups and memberships in the Groups Registry.  Do
     not run the test suite against production data.</b></p>
-    <p><b>Note:</b> <tt>ant db-init-jdbcsource</tt> must have been
-    run to run the test suite.</p>
     <p><b>Note:</b> If all of the tests succeed you will see a
       <b>single</b> message like this in the test output:
     </p>

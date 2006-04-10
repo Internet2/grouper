@@ -10,7 +10,7 @@ testing and running Grouper.
 For more detailed information see:
   `doc/grouper-impl-guide.html`
 
-$Id: README,v 1.36 2006-01-12 14:05:19 blair Exp $
+$Id: README,v 1.36.2.1 2006-04-10 17:51:03 blair Exp $
 
 ---
 
@@ -46,11 +46,6 @@ applies it to the database
 This initializes the Groups Registry with Grouper's default schema and
 installs the root stem.
 
-    % ant db-init-jdbcsource
-
-This installs tables required by the I2MI Subject interface's JDBC
-source adapter.  This is an optional step.
-
 ---
 
 ## Testing
@@ -60,8 +55,6 @@ source adapter.  This is an optional step.
 This adds some test subjects to the Groups Registry and then runs the
 Grouper test suite.  This is a *destructive* action and will destroy
 any data within the configured database.
-
-`ant db-init-jdbcsource` must have been run to run the test suite.
 
 If all of the tests succeed you will see a **single** message
 like this in the test output:

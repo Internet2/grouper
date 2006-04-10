@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateSubjectAttribute.hbm.xml,v 1.1 2006-03-10 19:56:03 blair Exp $ -->
+<!-- $Id: HibernateSubjectAttribute.hbm.xml,v 1.1.2.1 2006-04-10 17:51:03 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="HibernateSubjectAttribute" table="SubjectAttribute">

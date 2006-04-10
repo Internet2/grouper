@@ -105,6 +105,26 @@
   />
   <!-- Grouper Sessions -->
 
+  <!-- Hibernate Subjects -->
+  <cache  name="edu.internet2.middleware.grouper.HibernateSubject"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="60"
+          overflowToDisk="false"  
+  />
+  <!-- Hibernate Subjects -->
+
+  <!-- Hibernate Subject Attributess -->
+  <cache name="edu.internet2.middleware.grouper.HibernateSubjectAttribute"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="60"
+          overflowToDisk="false"  
+  />
+  <!-- Hibernate Subject Attributes -->
+
   <!-- Members -->
   <cache  name="edu.internet2.middleware.grouper.Member"
           maxElementsInMemory="1000"

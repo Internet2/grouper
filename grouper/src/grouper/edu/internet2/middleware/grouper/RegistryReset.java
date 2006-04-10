@@ -17,8 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 
-import  java.io.*;
-import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.logging.*;
@@ -32,20 +30,12 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.10 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.10.2.1 2006-04-10 17:51:03 blair Exp $
  */
 public class RegistryReset {
 
   /*
    * TODO
-   * * Use HQL
-   * * Make SQL and table names class constants
-   * * Preserve root stem based upon query for stem id
-   * * Preserve grouper stem based upon query for stem id
-   * * Preserve wheel group (including attributes and types) based upon 
-   *   query for group id
-   * * Preserve creator-of-root-stem, create-of-grouper-stem and
-   *   creator-of-wheel-group
    * * Move subject adding to a different class?
    */
 
@@ -55,7 +45,6 @@ public class RegistryReset {
 
 
   // Private Instance Variables
-  private Connection  conn;
   private Session     hs;
   private Transaction tx;
 
@@ -74,15 +63,11 @@ public class RegistryReset {
   public static void addTestSubjects() {
     RegistryReset rr = new RegistryReset();
     try {
-      rr._setUp();
       rr._addSubjects();
     }
     catch (Exception e) {
       rr._abort(e.getMessage());
     }
-    finally {
-      rr._tearDown();
-    } 
   } // public static void addTestSubjects()
 
   /**
@@ -108,16 +93,11 @@ public class RegistryReset {
   public static void reset() {
     RegistryReset rr = new RegistryReset();
     try {
-      rr._setUp();
       rr._emptyTables();
     }
     catch (Exception e) {
       rr._abort(e.getMessage());
     }
-    finally {
-      rr._tearDown();
-    } 
-    CacheMgr.resetAllCaches();
   } // public static void reset()
 
   /**
@@ -127,54 +107,29 @@ public class RegistryReset {
   public static void resetRegistryAndAddTestSubjects() {
     RegistryReset rr = new RegistryReset();
     try {
-      rr._setUp();
       rr._emptyTables();
       rr._addSubjects();
     }
     catch (Exception e) {
       rr._abort(e.getMessage());
     }
-    finally {
-      rr._tearDown();
-    } 
-    CacheMgr.resetAllCaches();
   } // public static void resetRegistryAndAddTestSubjects()
 
 
   // Private Instance Methods
-
-  private void _addSubject(
-    PreparedStatement add, String id, String type, String name
-  ) 
+  private void _addSubjects() 
+    throws  HibernateException
   {
-    try {
-      add.setString(1, id);
-      add.setString(2, type);
-      add.setString(3, name);
-      add.executeUpdate();
+    Session     hs  = HibernateHelper.getSession();
+    Transaction tx  = hs.beginTransaction();
+    for (int i=0; i<10; i++) {
+      String  id    = "test.subject." + i;
+      String  name  = "my name is " + id;
+      hs.save(new HibernateSubject(id, SUBJ_TYPE, name));
     }
-    catch (SQLException eSQL) {
-      String err = "unable to add subject " + id + ": " + eSQL.getMessage();
-      this._abort(err);
-    }
-  } // private void _addSubject(id, type, name)
-
-  private void _addSubjects() {
-    try {
-      PreparedStatement add = this.conn.prepareStatement(
-        "INSERT INTO Subject (subjectID, SubjectTypeID, name) "
-        + "VALUES (?, ?, ?)"
-      );
-      for (int i=0; i<100; i++) {
-        String  id    = "test.subject." + i;
-        String  name  = "my name is " + id;
-        this._addSubject(add, id, SUBJ_TYPE, name);
-      }
-    }
-    catch (SQLException eSQL) {
-      String err = "unable to prepare statement: " + eSQL.getMessage();
-      this._abort(err);
-    }
+    tx.commit();
+    hs.close();
+    CacheMgr.resetAllCaches();
   } // private void _addSubjects()
 
   private void _abort(String err) {
@@ -182,117 +137,45 @@ public class RegistryReset {
     throw new RuntimeException(err);
   } // private void _abort(err)
 
-  private void _emptyTable(String table) {
-    this._emptyTable(table, "delete from " + table);
-  } // private void _emptyTable(table)
-
-  private void _emptyTable(String table, String sql) {
-    try {
-      PreparedStatement update = this.conn.prepareStatement(sql);
-      try {
-        update.executeUpdate();
-      } 
-      catch (SQLException eSQL) {
-        String err = "unable to update table " + table + "(" 
-          + sql + "): " + eSQL.getMessage();
-        this._abort(err);
-      }
-    } catch (SQLException eSQL) {
-      String err = "unable to prepare statement for table " 
-        + table + "(" + sql + "): " + eSQL.getMessage();
-      this._abort(err);
-    }
-  } // private void _emptyTable(table, sql)
-
-  private void _emptyTableGrouperGroups() {
-    String  table = "grouper_groups";
-    String  sqlNoModifier = "update " + table + " set "
-      + "modifier_id = null, modify_source = null, modify_time = 0.0";
-    String  sqlNoParent   = "update " + table + " set "
-      + "parent_stem = null";
-    this._emptyTable(table, sqlNoModifier);
-    this._emptyTable(table, sqlNoParent);
-    this._emptyTable(table);
-  } // private void _emptyTableGrouperGroups()
-
-  private void _emptyTableGrouperMembers() {
-    String  table = "grouper_members";
-    String  sqlSaveRoot = "delete from " + table + " where "
-      + "subject_id != 'GrouperSystem'";
-    this._emptyTable(table, sqlSaveRoot);
-  } // private void _emptyTableGrouperMembers()
-
-  private void _emptyTableGrouperMemberships() {
-    String  table       = "grouper_memberships";
-    String  sqlNoParent = "update " + table + " set "
-      + "parent_membership = null";
-    this._emptyTable(table, sqlNoParent);
-    this._emptyTable(table);
-  } // private void _emptyTableGrouperGroups()
-
-  private void _emptyTableGrouperStems() {
-    String  table = "grouper_stems";
-    String  sqlNoModifier = "update " + table + " set "
-      + "modifier_id = null, modify_source = null, modify_time = 0.0";
-    String  sqlNoParent   = "update " + table + " set "
-      + " parent_stem = null";
-    String sqlSaveRoot    = "delete from " + table + " where "
-      + "name != '" + Stem.ROOT_INT + "'";
-    this._emptyTable(table, sqlNoModifier);
-    this._emptyTable(table, sqlNoParent);
-    this._emptyTable(table, sqlSaveRoot);
-  } // private void _emptyTableGrouperStems()
-
-  private void _emptyTableGrouperTypes() {
-    // TODO This should be part of a larger, all HQL transaction
-    try {
-      Transaction tx  = this.hs.beginTransaction();
-      hs.delete(
-        "from GroupType as t where "
-        + "(t.name != 'base' and t.name != 'naming')"
-      );
-      tx.commit();
-    }
-    catch (Exception e) {
-      this._abort(e.getMessage());    
-    }
-  } // private void _emptyTableGrouperTypes()
-
-  private void _emptyTables() {
-    this._emptyTable("grouper_groups_types");
-    this._emptyTableGrouperMemberships();
-    this._emptyTable("grouper_sessions");
-    this._emptyTable("grouper_attributes");
-    this._emptyTableGrouperGroups();
-    this._emptyTableGrouperStems();
-    this._emptyTable("grouper_factors");
-    this._emptyTableGrouperMembers();
-    this._emptyTableGrouperTypes();
-    this._emptyTable("SubjectAttribute");
-    this._emptyTable("Subject");
-  } // private void _emptyTables()
-
-  private void _setUp() 
+  private void _emptyTables() 
     throws  HibernateException
   {
-    this.hs   = HibernateHelper.getSession();
-    this.conn = hs.connection();
-    this.tx   = this.hs.beginTransaction();
-  } // private void _setUp()
+    Session     hs  = HibernateHelper.getSession();
+    Transaction tx  = hs.beginTransaction();
 
-  private void _tearDown() {
-    try {
-      if (this.hs != null) {
-        this.tx.commit();
-        this.hs.close();
-      }
+    hs.delete("from Membership");
+    hs.delete("from GrouperSession");
+
+    hs.delete("from Group");
+    List l = hs.find("from Stem as ns where ns.stem_name like '" + Stem.ROOT_INT + "'");
+    if (l.size() == 1) {
+      Stem    root  = (Stem) l.get(0);
+      String  uuid  = root.getUuid();
+      root.setModifier_id(  null);
+      root.setModify_source(null);
+      root.setModify_time(  0   );
+      hs.saveOrUpdate(root);
+      hs.delete("from Stem as ns where ns.stem_id != '" + uuid + "'");
     }
-    catch (HibernateException eH) {
-      String err = "unable to tearDown: " + eH.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err);
+    else {
+      hs.delete("from Stem");
     }
-  } // private void _tearDown()
+
+    hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
+    hs.delete(
+      "from GroupType as t where (  "
+      + "     t.name != 'base'      "
+      + "and  t.name != 'hasFactor' "
+      + "and  t.name != 'isFactor'  "
+      + "and  t.name != 'naming'    "
+      + ")"
+    );
+    hs.delete("from HibernateSubject");
+
+    tx.commit();
+    hs.close();
+    CacheMgr.resetAllCaches();
+  } // private void _emptyTables()
 
 }
 
