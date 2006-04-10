@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.46 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: Stem.java,v 1.46.2.1 2006-04-10 17:09:26 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -1168,148 +1168,117 @@ public class Stem implements Serializable {
   } // private void _setCreated()
 
 
-  // Hibernate Accessors
-  private String getId() {
-    return this.id;
-  }
-
-  private void setId(String id) {
-    this.id = id;
-  }
-
-  private String getCreate_source() {
-    return this.create_source;
-  }
-
-  private void setCreate_source(String create_source) {
-    this.create_source = create_source;
-  }
-
-  private long getCreate_time() {
-    return this.create_time;
-  }
-
-  private void setCreate_time(long create_time) {
-    this.create_time = create_time;
-  }
-
-  private String getStem_description() {
-    return this.stem_description;
-  }
-
-  private void setStem_description(String stem_description) {
-    this.stem_description = stem_description;
-  }
-
-  private String getDisplay_extension() {
-    return this.display_extension;
-  }
-
-  private void setDisplay_extension(String display_extension) {
-    this.display_extension = display_extension;
-  }
-
-  private String getDisplay_name() {
-    return this.display_name;
-  }
-
-  private void setDisplay_name(String display_name) {
-    this.display_name = display_name;
-  }
-
-  private String getStem_extension() {
-    return this.stem_extension;
-  }
-
-  private void setStem_extension(String stem_extension) {
-    this.stem_extension = stem_extension;
-  }
-
-  private String getModify_source() {
-    return this.modify_source;
-  }
-
-  private void setModify_source(String modify_source) {
-    this.modify_source = modify_source;
-  }
-
-  private long getModify_time() {
-    return this.modify_time;
-  }
-
-  private void setModify_time(long modify_time) {
-    this.modify_time = modify_time;
-  }
-
-  private String getStem_name() {
-    return this.stem_name;
-  }
-
-  private void setStem_name(String stem_name) {
-    this.stem_name = stem_name;
-  }
-
-  private String getStem_id() {
-    return this.stem_id;
-  }
-  
-  private void setStem_id(String stem_id) {
-    this.stem_id = stem_id;
-  }
-
-  private Member getCreator_id() {
-    return this.creator_id;
-  }
-
-  private void setCreator_id(Member creator_id) {
-    this.creator_id = creator_id;
-  }
-
-  private Member getModifier_id() {
-    return this.modifier_id;
-  }
-
-  private void setModifier_id(Member modifier_id) {
-      this.modifier_id = modifier_id;
-  }
-
-  private Stem getParent_stem() {
-    return this.parent_stem;
-  }
-
-  private void setParent_stem(Stem parent_stem) {
-    this.parent_stem = parent_stem;
-  }
-
+  // Getters //
   private Set getChild_groups() {
     return this.child_groups;
   }
-
-  private void setChild_groups(Set child_groups) {
-    this.child_groups = child_groups;
-  }
-
   private Set getChild_stems() {
     return this.child_stems;
   }
-
-  private void setChild_stems(Set child_stems) {
-    this.child_stems = child_stems;
+  private String getCreate_source() {
+    return this.create_source;
   }
-
+  private long getCreate_time() {
+    return this.create_time;
+  }
+  private Member getCreator_id() {
+    return this.creator_id;
+  }
+  private String getDisplay_extension() {
+    return this.display_extension;
+  }
+  private String getDisplay_name() {
+    return this.display_name;
+  }
+  private String getId() {
+    return this.id;
+  }
+  private Member getModifier_id() {
+    return this.modifier_id;
+  }
+  private String getModify_source() {
+    return this.modify_source;
+  }
+  private long getModify_time() {
+    return this.modify_time;
+  }
+  private Stem getParent_stem() {
+    return this.parent_stem;
+  }
+  private Status getStatus() {
+    return this.status;
+  }
+  private String getStem_description() {
+    return this.stem_description;
+  }
+  private String getStem_extension() {
+    return this.stem_extension;
+  }
+  private String getStem_id() {
+    return this.stem_id;
+  }
+  private String getStem_name() {
+    return this.stem_name;
+  }
   private int getVersion() {
     return this.version;
   }
 
-  private void setVersion(int version) {
-    this.version = version;
-  }
 
-  private Status getStatus() {
-    return this.status;
+  // Setters //
+  private void setChild_groups(Set child_groups) {
+    this.child_groups = child_groups;
+  }
+  private void setChild_stems(Set child_stems) {
+    this.child_stems = child_stems;
+  }
+  private void setCreate_source(String create_source) {
+    this.create_source = create_source;
+  }
+  private void setCreate_time(long create_time) {
+    this.create_time = create_time;
+  }
+  private void setCreator_id(Member creator_id) {
+    this.creator_id = creator_id;
+  }
+  private void setDisplay_extension(String display_extension) {
+    this.display_extension = display_extension;
+  }
+  private void setDisplay_name(String display_name) {
+    this.display_name = display_name;
+  }
+  private void setId(String id) {
+    this.id = id;
+  }
+  private void setModifier_id(Member modifier_id) {
+      this.modifier_id = modifier_id;
+  }
+  private void setModify_source(String modify_source) {
+    this.modify_source = modify_source;
+  }
+  private void setModify_time(long modify_time) {
+    this.modify_time = modify_time;
+  }
+  private void setParent_stem(Stem parent_stem) {
+    this.parent_stem = parent_stem;
   }
   private void setStatus(Status s) {
     this.status = s;
+  }
+  private void setStem_description(String stem_description) {
+    this.stem_description = stem_description;
+  }
+  private void setStem_extension(String stem_extension) {
+    this.stem_extension = stem_extension;
+  }
+  private void setStem_id(String stem_id) {
+    this.stem_id = stem_id;
+  }
+  private void setStem_name(String stem_name) {
+    this.stem_name = stem_name;
+  }
+  private void setVersion(int version) {
+    this.version = version;
   }
 
 }
