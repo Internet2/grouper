@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.2 2006-04-10 16:56:15 blair Exp $
+$Id: TODO,v 1.30.2.3 2006-04-10 19:07:44 blair Exp $
 
 ---
 
@@ -13,7 +13,6 @@ $Id: TODO,v 1.30.2.2 2006-04-10 16:56:15 blair Exp $
 ### Next Actions
 * code: review changelog and perform selective merge from HEAD to
   GROUPER_1_0_TAKE2 branch
-* code: relocate tests
 * code: add `GroupTypeFinder.findAllAssignable()` that will return all
   assignable types
 * code: add `SubjectFinder.findById(id, type, source)`
@@ -132,5 +131,5 @@ $Id: TODO,v 1.30.2.2 2006-04-10 16:56:15 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.2 2006-04-10 16:56:15 blair Exp $
+$Id: TODO,v 1.30.2.3 2006-04-10 19:07:44 blair Exp $
 
