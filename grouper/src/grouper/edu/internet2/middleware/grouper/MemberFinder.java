@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.9 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.9.2.1 2006-04-10 19:50:16 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
@@ -100,11 +100,13 @@ public class MemberFinder implements Serializable {
       qry.setString("uuid", uuid);
       List    members = qry.list();
       if (members.size() == 1) {
-        // Member exists
         m = (Member) members.get(0);
         m.setSession(s);
       }
       hs.close();
+      if (m == null) {
+        throw new MemberNotFoundException("matching members: " + members.size());
+      }
       return m;
     }
     catch (HibernateException eMNF) {
