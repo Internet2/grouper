@@ -469,3 +469,8 @@ on SubjectAttribute (
   value
 )
 ;
+
+DROP SEQUENCE hibernate_sequence;
+
+CREATE SEQUENCE hibernate_sequence
+	START WITH 1;
