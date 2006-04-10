@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.11 2006-02-03 20:20:15 blair Exp $
+ * @version $Id: GroupType.java,v 1.11.2.1 2006-04-10 18:14:18 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -41,12 +41,13 @@ public class GroupType implements Serializable {
 
 
   // Hibernate Properties
+  private boolean assignable    = true;
   private Member  creator_id;
   private long    create_time;
   private Set     fields        = new LinkedHashSet();
   private String  id;
+  private boolean internal      = false;
   private String  name;
-  private Status  status;
 
 
   // Constructors
@@ -56,10 +57,12 @@ public class GroupType implements Serializable {
     super();
   }
 
-  protected GroupType(String name, Set fields) {
+  protected GroupType(String name, Set fields, boolean assignable, boolean internal) {
     this.setName(name);
     this.setFields(fields); 
-  } // protected GroupType(name, fields)
+    this.setAssignable(assignable);
+    this.setInternal(internal);
+  } // protected GroupType(name, fields, assignable, internal)
 
 
   // Public Class Methods
@@ -113,7 +116,9 @@ public class GroupType implements Serializable {
       throw new SchemaException(msg);
     }
     try {
-      type = new GroupType(name, new HashSet());
+      type = new GroupType(name, new HashSet(), true, false);
+      type.setCreator_id(   s.getMember()         );
+      type.setCreate_time(  new Date().getTime()  );
       HibernateHelper.save(type);
       sw.stop();
       EL.groupTypeAdd(s, name, sw);
@@ -332,8 +337,17 @@ public class GroupType implements Serializable {
     return false;
   } // protected static boolean isSystemType(type)
 
-  // Hibernate Accessors
 
+  // Getters //
+  protected boolean getAssignable() {
+    return this.assignable;
+  }
+  private long getCreate_time() {
+    return this.create_time;
+  }
+  private Member getCreator_id() {
+    return this.creator_id;
+  }
   /**
    * Get group fields for this group type.
    * @return  A set of {@link Field} objects.
@@ -341,24 +355,12 @@ public class GroupType implements Serializable {
   public Set getFields() {
     return this.fields;
   } // public Set getFields()
-
-  protected void setFields(Set fields) {
-    Iterator iter = fields.iterator();
-    while (iter.hasNext()) {
-      Field f = (Field) iter.next();
-      f.setGroup_type(this); 
-    }
-    this.fields = fields;
-  } // protected void setFields(fields)
-  
   private String getId() {
     return this.id;
   } // private String getId()
-  
-  private void setId(String id) {
-    this.id = id;
-  } // private void setId()
-
+  protected boolean getInternal() {
+    return this.internal;
+  }
   /**
    * Get group type name.
    * @return  group type name.
@@ -367,28 +369,34 @@ public class GroupType implements Serializable {
     return this.name;
   } // public String getName()
 
-  private void setName(String name) {
-    this.name = name;
-  } // private void setName(name)
 
-  private Status getStatus() {
-    return this.status;
-  }
-  private void setStatus(Status s) {
-    this.status = s;
-  }
-
-  private Member getCreator_id() {
-    return this.creator_id;
-  }
-  private void setCreator_id(Member m) {
-    this.creator_id = m;
-  }
-  private long getCreate_time() {
-    return this.create_time;
+  // Setters //
+  private void setAssignable(boolean assignable) {
+    this.assignable = assignable;
   }
   private void setCreate_time(long time) {
     this.create_time = time;
   }
+
+  private void setCreator_id(Member m) {
+    this.creator_id = m;
+  }
+  protected void setFields(Set fields) {
+    Iterator iter = fields.iterator();
+    while (iter.hasNext()) {
+      Field f = (Field) iter.next();
+      f.setGroup_type(this); 
+    }
+    this.fields = fields;
+  } // protected void setFields(fields)
+  private void setId(String id) {
+    this.id = id;
+  } // private void setId()
+  private void setInternal(boolean internal) {
+    this.internal = internal;
+  }
+  private void setName(String name) {
+    this.name = name;
+  } // private void setName(name)
 
 }

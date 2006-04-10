@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.15 2006-02-03 19:38:53 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.15.2.1 2006-04-10 18:14:18 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -157,9 +157,9 @@ public class RegistryInstall {
       )
     );
 
-    GroupType base    = new GroupType("base", base_f);
+    GroupType base    = new GroupType("base", base_f, false, false);
     types.add(base);
-    GroupType naming  = new GroupType("naming", naming_f);
+    GroupType naming  = new GroupType("naming", naming_f, false, true);
     types.add(naming);
   
     fields.addAll(base_f);
