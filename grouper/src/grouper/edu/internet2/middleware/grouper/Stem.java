@@ -31,10 +31,10 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.46.2.3 2006-04-10 19:50:16 blair Exp $
+ * @version $Id: Stem.java,v 1.46.2.4 2006-04-11 18:50:30 blair Exp $
  *     
 */
-public class Stem implements Serializable {
+public class Stem extends Owner implements Serializable {
 
   // Protected Class Constants
   protected static final String ROOT_EXT  = "";   // Appease Oracle
@@ -62,24 +62,14 @@ public class Stem implements Serializable {
 
 
   // Hibernate Properties
-  private String  id;
   private Set     child_groups        = new LinkedHashSet();
   private Set     child_stems         = new LinkedHashSet();
-  private String  create_source;
-  private long    create_time;
-  private Member  creator_id;
   private String  display_extension;
   private String  display_name;
-  private Member  modifier_id;
-  private String  modify_source;
-  private long    modify_time;
   private Stem    parent_stem;
-  private Status  status;
   private String  stem_description;
   private String  stem_extension;
-  private String  stem_id;
   private String  stem_name;
-  private int     version;
 
 
   // Transient Instance Variables
@@ -101,7 +91,7 @@ public class Stem implements Serializable {
   protected Stem(GrouperSession s) {
     this.s = s;
     this._setCreated();
-    this.setStem_id(          GrouperUuid.getUuid() );
+    this.setUuid(             GrouperUuid.getUuid() );
     this.setStem_name(        ROOT_INT              );
     this.setDisplay_name(     ROOT_INT              );
     this.setStem_extension(   ROOT_INT              );
@@ -295,9 +285,8 @@ public class Stem implements Serializable {
     }
     Stem otherStem = (Stem) other;
     return new EqualsBuilder()
-      .append(this.getStem_id()     , otherStem.getStem_id()    )
+      .append(this.getUuid()        , otherStem.getUuid()       )
       .append(this.getCreator_id()  , otherStem.getCreator_id() )
-      .append(this.getStem_id()     , otherStem.getStem_id()    )
       .isEquals();
   } // public boolean equals(other)
 
@@ -629,18 +618,6 @@ public class Stem implements Serializable {
   } // public Set getStemmers()
 
   /**
-   * Get stem UUID.
-   * <pre class="eg">
-   * // Get UUID
-   * String uuid = ns.getUuid();
-   * </pre>
-   * @return  Stem UUID.
-   */
-  public String getUuid() {
-    return this.getStem_id();
-  }
-
-  /**
    * Grant a privilege on this stem.
    * <pre class="eg">
    * // Grant CREATE to the specified subject
@@ -722,9 +699,8 @@ public class Stem implements Serializable {
  
   public int hashCode() {
     return new HashCodeBuilder()
-      .append(this.getStem_id()     )
+      .append(this.getUuid()        )
       .append(this.getCreator_id()  )
-      .append(this.getStem_id()     )
       .toHashCode()
       ;
   } // public int hashCode()
@@ -918,7 +894,7 @@ public class Stem implements Serializable {
     return new ToStringBuilder(this)
       .append("displayName" , getDisplay_name() )
       .append("name"        , getName()         )
-      .append("uuid"        , getStem_id()      )
+      .append("uuid"        , getUuid()         )
       .append("creator"     , getCreator_id()   )
       .append("modifier"    , getModifier_id()  )
       .toString();
@@ -1181,38 +1157,14 @@ public class Stem implements Serializable {
   private Set getChild_stems() {
     return this.child_stems;
   }
-  private String getCreate_source() {
-    return this.create_source;
-  }
-  private long getCreate_time() {
-    return this.create_time;
-  }
-  private Member getCreator_id() {
-    return this.creator_id;
-  }
   private String getDisplay_extension() {
     return this.display_extension;
   }
   private String getDisplay_name() {
     return this.display_name;
   }
-  private String getId() {
-    return this.id;
-  }
-  private Member getModifier_id() {
-    return this.modifier_id;
-  }
-  private String getModify_source() {
-    return this.modify_source;
-  }
-  private long getModify_time() {
-    return this.modify_time;
-  }
   private Stem getParent_stem() {
     return this.parent_stem;
-  }
-  private Status getStatus() {
-    return this.status;
   }
   private String getStem_description() {
     return this.stem_description;
@@ -1220,14 +1172,8 @@ public class Stem implements Serializable {
   private String getStem_extension() {
     return this.stem_extension;
   }
-  private String getStem_id() {
-    return this.stem_id;
-  }
   private String getStem_name() {
     return this.stem_name;
-  }
-  private int getVersion() {
-    return this.version;
   }
 
 
@@ -1238,38 +1184,14 @@ public class Stem implements Serializable {
   private void setChild_stems(Set child_stems) {
     this.child_stems = child_stems;
   }
-  private void setCreate_source(String create_source) {
-    this.create_source = create_source;
-  }
-  private void setCreate_time(long create_time) {
-    this.create_time = create_time;
-  }
-  private void setCreator_id(Member creator_id) {
-    this.creator_id = creator_id;
-  }
   private void setDisplay_extension(String display_extension) {
     this.display_extension = display_extension;
   }
   private void setDisplay_name(String display_name) {
     this.display_name = display_name;
   }
-  private void setId(String id) {
-    this.id = id;
-  }
-  protected void setModifier_id(Member modifier_id) {
-      this.modifier_id = modifier_id;
-  }
-  protected void setModify_source(String modify_source) {
-    this.modify_source = modify_source;
-  }
-  protected void setModify_time(long modify_time) {
-    this.modify_time = modify_time;
-  }
   private void setParent_stem(Stem parent_stem) {
     this.parent_stem = parent_stem;
-  }
-  private void setStatus(Status s) {
-    this.status = s;
   }
   private void setStem_description(String stem_description) {
     this.stem_description = stem_description;
@@ -1277,14 +1199,8 @@ public class Stem implements Serializable {
   private void setStem_extension(String stem_extension) {
     this.stem_extension = stem_extension;
   }
-  private void setStem_id(String stem_id) {
-    this.stem_id = stem_id;
-  }
   private void setStem_name(String stem_name) {
     this.stem_name = stem_name;
-  }
-  private void setVersion(int version) {
-    this.version = version;
   }
 
 }

@@ -31,9 +31,9 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.1 2006-04-11 16:19:34 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.2 2006-04-11 18:50:30 blair Exp $
  */
-public class Group implements Serializable {
+public class Group extends Owner implements Serializable {
 
   // Private Class Constants
   private static final EventLog EL        = new EventLog();
@@ -57,19 +57,9 @@ public class Group implements Serializable {
 
 
   // Hibernate Properties
-  private String  create_source;
-  private long    create_time;
-  private Member  creator_id;
   private Set     group_attributes;
-  private String  group_id;
   private Set     group_types         = new LinkedHashSet(); 
-  private String  id;
-  private Member  modifier_id;
-  private String  modify_source;
-  private long    modify_time;
   private Stem    parent_stem;
-  private Status  status;
-  private int     version;
 
 
   // Transient Instance Variables
@@ -109,7 +99,7 @@ public class Group implements Serializable {
     // Set create information
     this._setCreated();
     // Assign UUID
-    this.setGroup_id( GrouperUuid.getUuid() );
+    this.setUuid( GrouperUuid.getUuid() );
     // Set naming information
     Set attributes = new LinkedHashSet();
     this.attr_de  = displayExtn;
@@ -596,7 +586,7 @@ public class Group implements Serializable {
     return new EqualsBuilder()
       .append(this.getCreator_id()  , otherGroup.getCreator_id()  )
       .append(this.getCreate_time() , otherGroup.getCreate_time() )
-      .append(this.getGroup_id()    , otherGroup.getGroup_id()    )
+      .append(this.getUuid()        , otherGroup.getUuid()        )
       .isEquals();
   } // public boolean equals(other)
 
@@ -1245,17 +1235,6 @@ public class Group implements Serializable {
   } // public set getUpdateres()
 
   /**
-   * Get group UUID.
-   * <pre class="eg">
-   * String uuid = g.getUuid();
-   * </pre>
-   * @return  Group UUID.
-   */
-  public String getUuid() {
-    return this.getGroup_id();
-  }
-
-  /**
    * Get subjects with the VIEW privilege on this group.
    * <pre class="eg">
    * Set viewers = g.getViewers();
@@ -1447,7 +1426,7 @@ public class Group implements Serializable {
     return new HashCodeBuilder()
       .append(this.getCreator_id()  )
       .append(this.getCreate_time() )
-      .append(this.getGroup_id()    )
+      .append(this.getUuid()        )
       .toHashCode();
   }
 
@@ -2125,63 +2104,11 @@ public class Group implements Serializable {
     return updated;
   } // private Set _updateSystemAttrs(f, value, attrs
 
-  // Hibernate Accessors
-  private String getId() {
-    return this.id;
-  }
 
-  private void setId(String id) {
-    this.id = id;
+  // Getters //
+  private Set getGroup_attributes() {
+    return this.group_attributes;
   }
-
-  private String getCreate_source() {
-    return this.create_source;
-  }
-
-  private void setCreate_source(String create_source) {
-    this.create_source = create_source;
-  }
-
-  private long getCreate_time() {
-    return this.create_time;
-  }
-
-  private void setCreate_time(long create_time) {
-    this.create_time = create_time;
-  }
-
-  private String getModify_source() {
-    return this.modify_source;
-  }
-
-  private void setModify_source(String modify_source) {
-    this.modify_source = modify_source;
-  }
-
-  private long getModify_time() {
-    return this.modify_time;
-  }
-
-  private void setModify_time(long modify_time) {
-    this.modify_time = modify_time;
-  }
-
-  private String getGroup_id() {
-    return this.group_id;
-  }
-
-  private void setGroup_id(String group_id) {
-    this.group_id = group_id;
-  }
-
-  private Member getCreator_id() {
-    return this.creator_id;
-  }
-
-  private void setCreator_id(Member creator_id) {
-    this.creator_id = creator_id;
-  }
-
   private Set getGroup_types() {
     // We only want to return the singleton instances of each group
     // type.  This saves from potential catastrophe when saving objects
@@ -2201,48 +2128,19 @@ public class Group implements Serializable {
     }
     return this.types;
   }
-
-  private void setGroup_types(Set types) {
-    this.group_types = types;
-  }
-
-  private Member getModifier_id() {
-    return this.modifier_id;
-  }
-
-  private void setModifier_id(Member modifier_id) {
-    this.modifier_id = modifier_id;
-  }
-
   private Stem getParent_stem() {
     return this.parent_stem;
   }
 
-  protected void setParent_stem(Stem parent_stem) {
-    this.parent_stem = parent_stem;
-  }
-
-  private Set getGroup_attributes() {
-    return this.group_attributes;
-  }
-
+  // Setters //
   private void setGroup_attributes(Set group_attributes) {
     this.group_attributes = group_attributes;
   }
-
-  private int getVersion() {
-    return this.version;
+  private void setGroup_types(Set types) {
+    this.group_types = types;
   }
-
-  private void setVersion(int version) {
-    this.version = version;
-  }
-
-  private Status getStatus() {
-    return this.status;
-  }
-  private void setStatus(Status s) {
-    this.status = s;
+  protected void setParent_stem(Stem parent_stem) {
+    this.parent_stem = parent_stem;
   }
 
 }

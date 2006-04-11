@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.10.2.2 2006-04-11 17:00:06 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.10.2.3 2006-04-11 18:50:30 blair Exp $
  */
 public class RegistryReset {
 
@@ -155,10 +155,10 @@ public class RegistryReset {
       root.setModify_source(null);
       root.setModify_time(  0   );
       hs.saveOrUpdate(root);
-      hs.delete("from Stem as ns where ns.stem_id != '" + uuid + "'");
+      hs.delete("from Owner as o where o.uuid != '" + uuid + "'");
     }
     else {
-      hs.delete("from Stem");
+      hs.delete("from Owner");
     }
 
     hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
