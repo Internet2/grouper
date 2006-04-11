@@ -27,7 +27,7 @@ import  java.util.*;
  * Validator Utility Class.
  * <p />
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.2 2006-02-03 20:20:15 blair Exp $
+ * @version $Id: Validator.java,v 1.2.2.1 2006-04-11 16:19:35 blair Exp $
  */
 class Validator implements Serializable {
 
@@ -79,6 +79,18 @@ class Validator implements Serializable {
     }
     _canModifyGroupType(s, g, type);
   } // protected static void canAddGroupType(s, g, type)
+
+  // Don't allow circular memberships
+  protected static void isCircularMembership(Group g, Subject subj, Field f) 
+    throws  MemberAddException
+  {
+    if (f.getName().equals(GrouperConfig.LIST)) {
+      if (SubjectHelper.eq(g.toSubject(), subj)) {
+        throw new MemberAddException("attempt to create circular membership");
+      }
+    }
+  } // protected static void isCircularMembership(g, subj, f)
+
 
   protected static void canDeleteFieldFromType(
     GrouperSession s, GroupType type, Field f

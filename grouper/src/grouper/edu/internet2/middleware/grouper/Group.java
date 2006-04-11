@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.1 2006-04-11 16:19:34 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -142,7 +142,7 @@ public class Group implements Serializable {
    */
   public static Field getDefaultList() {
     try {
-      return FieldFinder.find("members");
+      return FieldFinder.find(GrouperConfig.LIST);
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
@@ -198,6 +198,9 @@ public class Group implements Serializable {
    * catch (MemberAddException eMA) {
    *   // Unable to add member
    * } 
+   * catch (SchemaException eS) {
+   *   // Invalid Field
+   * } 
    * </pre>
    * @param   subj  Add this {@link Subject}
    * @param   f     Add subject to this {@link Field}.
@@ -214,6 +217,7 @@ public class Group implements Serializable {
     sw.start();
     String  msg = MSG_AM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
     GrouperLog.debug(LOG, this.s, msg);
+    Validator.isCircularMembership(this, subj, f);
     try {
       PrivilegeResolver.getInstance().canWriteField(
         this.s, this, this.s.getSubject(), f, FieldType.LIST

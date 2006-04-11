@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.15.2.1 2006-04-10 18:14:18 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.15.2.2 2006-04-11 16:19:34 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -101,7 +101,7 @@ public class RegistryInstall {
     );
     base_f.add(
       new Field(
-        "members"               , FieldType.LIST,
+        GrouperConfig.LIST      , FieldType.LIST,
         AccessPrivilege.READ    , AccessPrivilege.UPDATE,
         true
       )

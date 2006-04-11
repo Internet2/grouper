@@ -18,22 +18,28 @@
 package edu.internet2.middleware.grouper;
 
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
 
 /**
- * Test everything.
  * @author  blair christensen.
- * @version $Id: SuiteAll.java,v 1.1.2.2 2006-04-11 16:19:35 blair Exp $
+ * @version $Id: SuiteAddMember.java,v 1.1.2.1 2006-04-11 16:19:35 blair Exp $
  */
-public class SuiteAll extends TestCase {
+public class SuiteAddMember extends TestCase {
 
-  public SuiteAll(String name) {
+  // Private Class Constants
+  private static final Log  LOG = LogFactory.getLog(SuiteAddMember.class); 
+
+  public SuiteAddMember(String name) {
     super(name);
-  }
+  } // public SuiteAddMember(name)
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest(  SuiteDefault.suite()  );
-    // MANUAL suite.addTestSuite(TestWheelGroup.class); 
+    suite.addTestSuite(TestAddMember0.class);
+    suite.addTestSuite(TestAddMember1.class);
+    suite.addTestSuite(TestAddMember2.class);
+    suite.addTestSuite(TestAddMember3.class);
+    suite.addTestSuite(TestAddMember4.class); // fail: list recursion
     return suite;
   } // static public Test suite()
 

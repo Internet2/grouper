@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.84.2.2 2006-04-10 19:07:20 blair Exp $ -->
+<!-- $Id: build.xml,v 1.84.2.3 2006-04-11 16:19:34 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -356,7 +356,7 @@ error"
           classname="junit.textui.TestRunner"
           taskname="junit" 
           failonerror="true">
-      <arg value="edu.internet2.middleware.grouper.SuiteAll"/>
+      <arg value="edu.internet2.middleware.grouper.SuiteDefault"/>
       <classpath refid="project.classpath"/>
     </java>
     <record name="${log.test.run}" action="stop"/>

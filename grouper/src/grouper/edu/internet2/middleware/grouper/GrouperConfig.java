@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.14 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.14.2.1 2006-04-11 16:19:34 blair Exp $
  *     
 */
 public class GrouperConfig {
@@ -39,6 +39,7 @@ public class GrouperConfig {
   protected static final String GWG     = "groups.wheel.group";
   protected static final String GWU     = "groups.wheel.use";
   protected static final String IST     = "application";
+  protected static final String LIST    = "members";
   protected static final String MSLGEA  = "memberships.log.group.effective.add";
   protected static final String MSLGED  = "memberships.log.group.effective.del";
   protected static final String MSLSEA  = "memberships.log.stem.effective.add";

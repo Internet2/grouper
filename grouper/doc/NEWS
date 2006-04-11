@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.94.2.1 2006-04-10 19:55:52 blair Exp $
+$Id: NEWS,v 1.94.2.2 2006-04-11 16:19:34 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS,v 1.94.2.1 2006-04-10 19:55:52 blair Exp $
 Released: TBD
 
 ## Changes
+* BUGFIX: Do not allow lists to be added to themselves.
 * BUGFIX: Moved `GrouperSourceAdapter` configuration back into
   `sources.xml` to fix integration with Signet.
 * NEW: Delete custom fields from custom group types with the API
