@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.84.2.3 2006-04-11 16:19:34 blair Exp $ -->
+<!-- $Id: build.xml,v 1.84.2.4 2006-04-11 16:26:48 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -10,7 +10,6 @@
   <property name="impl.version"           value="0.9"/>
 
   <property name="conf"                   location="${basedir}/conf"/>
-  <property name="sql"                    location="${basedir}/sql"/>
 
   <property name="src"                    location="${basedir}/src"/>
   <property name="src.conf"               location="${src}/conf"/>
@@ -22,6 +21,7 @@
   <property name="build.grouper"          location="${build}/grouper"/>
   <property name="build.javadoc"          location="${dist}/api"/>
   <property name="build.lib"              location="${build}/lib"/>
+  <property name="build.sql"              location="${build}/sql"/>
   <property name="build.test"             location="${build}/test"/>
 
   <property name="lib"                    location="${basedir}/lib"/>
@@ -213,9 +213,10 @@
   <target name="init">
     <tstamp />
     <mkdir dir="${build.grouper}" />
-    <mkdir dir="${build.test}" />
-    <mkdir dir="${dist}" />
-    <mkdir dir="${dist}/run" />
+    <mkdir dir="${build.sql}"     />
+    <mkdir dir="${build.test}"    />
+    <mkdir dir="${dist}"          />
+    <mkdir dir="${dist}/run"      />
     <!-- only define our classpath once -->
     <path id="project.classpath">
       <pathelement path="${classpath}"/>
@@ -283,7 +284,7 @@
       text="no"
       drop="no"
       delimiter=";"
-      output="${sql}/schema-export.sql">
+      output="${build.sql}/schema-export.sql">
       <fileset dir="${src.grouper}">
         <include name="**/*.hbm.xml"/>
       </fileset>
