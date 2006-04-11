@@ -22,7 +22,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.1.2.2 2006-04-11 16:45:49 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.1.2.3 2006-04-11 16:55:14 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -34,9 +34,10 @@ public class SuiteDefault extends TestCase {
 
     TestSuite suite = new TestSuite();
 
-    suite.addTest(  SuiteSessions.suite() );
-    suite.addTest(  SuiteStems.suite()    );
-    suite.addTest(  SuiteGroups.suite()   );
+    suite.addTest(  SuiteSessions.suite()   );
+    suite.addTest(  SuiteStems.suite()      );
+    suite.addTest(  SuiteGroupTypes.suite() );
+    suite.addTest(  SuiteGroups.suite()     );
 
     suite.addTestSuite(TestBugsClosed.class);
     suite.addTestSuite(TestBugsOpen.class);
@@ -52,7 +53,6 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestGroupDeleteMemberGroup.class);
     suite.addTestSuite(TestGroupToMember.class);
     suite.addTestSuite(TestGrouperConfig.class);
-    suite.addTestSuite(TestGroupTypes.class);
     suite.addTestSuite(TestGQComplementFilter.class);
     suite.addTestSuite(TestGQGroupAnyAttribute.class);
     suite.addTestSuite(TestGQGroupAttribute.class);
