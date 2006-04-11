@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: PROJECT_LAYOUT,v 1.5 2005-12-15 01:32:39 blair Exp $
+$Id: PROJECT_LAYOUT,v 1.5.4.1 2006-04-11 16:21:40 blair Exp $
 
 ---
 
@@ -135,10 +135,6 @@ more details on the jar files included.
 ---
 
 ## sql/
-
-### jdbc_source.sql
-
-JDBC Source Adapter DDL.
 
 ### schema-export.sql
 
