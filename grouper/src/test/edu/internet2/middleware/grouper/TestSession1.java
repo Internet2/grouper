@@ -17,24 +17,32 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
+import  java.io.*;
 import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 
 /**
+ * Test {@link GrouperSession} class.
+ * <p />
  * @author  blair christensen.
- * @version $Id: TestAddMember4.java,v 1.1.2.2 2006-04-11 16:45:49 blair Exp $
+ * @version $Id: TestSession1.java,v 1.1.2.1 2006-04-11 16:45:49 blair Exp $
  */
-public class TestAddMember4 extends TestCase {
+public class TestSession1 extends TestCase {
 
-  // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestAddMember4.class);
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(TestSession1.class);
 
-  public TestAddMember4(String name) {
+
+  // Private Class Variables
+  private Source sa;
+
+  public TestSession1(String name) {
     super(name);
   }
 
@@ -47,28 +55,10 @@ public class TestAddMember4 extends TestCase {
     LOG.debug("tearDown");
   }
 
-  public void testNoListRecursion() {
-    LOG.info("testNoListRecursion");
-    try {
-      GrouperSession  s     = SessionHelper.getRootSession();
-      Stem            root  = StemHelper.findRootStem(s);
-      Stem            ns    = StemHelper.addChildStem(root  , "ns_a", "stem a");
-      Group           g     = StemHelper.addChildGroup(ns   , "g_a" , "group a");
-      try {
-        g.addMember(g.toSubject());
-        Assert.fail("fail: MemberAddException not thrown");
-      }
-      catch (MemberAddException eMA) {
-        Assert.assertTrue("pass: MemberAddException thrown", true);
-      }
-      finally {
-        s.stop();
-      }
-    }
-    catch (Exception e) {
-      Assert.fail("fail: " + e.getMessage());
-    }
-  } // public void testNoListRecursion()
+  public void testStartSessionGoodSubject() {
+    LOG.info("testStartSessionGoodSubject");
+    GrouperSession s = SessionHelper.getSession("GrouperSystem", "application");
+  } // public void testStartSessionGoodSubject()
 
 }
 

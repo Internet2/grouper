@@ -22,7 +22,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.1.2.1 2006-04-11 16:19:35 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.1.2.2 2006-04-11 16:45:49 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -34,7 +34,9 @@ public class SuiteDefault extends TestCase {
 
     TestSuite suite = new TestSuite();
 
-    suite.addTest(  SuiteGroups.suite() );
+    suite.addTest(  SuiteSessions.suite() );
+    suite.addTest(  SuiteStems.suite()    );
+    suite.addTest(  SuiteGroups.suite()   );
 
     suite.addTestSuite(TestBugsClosed.class);
     suite.addTestSuite(TestBugsOpen.class);
@@ -63,7 +65,6 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestGQStemCreatedBefore.class);
     suite.addTestSuite(TestGQStemName.class);
     suite.addTestSuite(TestGQUnionFilter.class);
-    suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestGrouperSourceAdapter.class);
     suite.addTestSuite(TestGrouperSubject.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);
@@ -83,7 +84,6 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestPrivSTEM.class);     // TODO group-with-priv checks
     suite.addTestSuite(TestPrivVIEW.class);     // TODO group-with-priv checks
     suite.addTestSuite(TestPrivUPDATE.class);   // TODO group-with-priv checks
-    suite.addTestSuite(TestStem.class);
     suite.addTestSuite(TestStemAddChildGroup.class);
     suite.addTestSuite(TestStemAddChildStem.class);
     suite.addTestSuite(TestStemFinder.class);
