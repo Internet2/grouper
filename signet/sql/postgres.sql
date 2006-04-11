@@ -40,11 +40,21 @@ drop table signet_subsystem cascade;
 
 -- Signet Subject table
 drop table signet_subject;
+drop sequence subjectSerial;
 
 -- Local Source Subject tables (optional)
 drop table SubjectAttribute;
 drop table Subject;
 drop table SubjectType;
+
+-- Miscellaneous
+drop sequence limitSerial;
+drop sequence assignmenthistoryserial;
+drop sequence proxyhistoryserial;
+
+-- Signet Implementation-specific
+DROP SEQUENCE hibernate_sequence;
+
 
 -- Subsystem tables
 
@@ -112,8 +122,6 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
 
-drop sequence limitSerial;
-
 create sequence limitSerial START 1;
 
 create table signet_limit
@@ -160,7 +168,6 @@ foreign key (limitKey) references signet_limit (limitKey)
 ;
 
 -- Signet Subject table
-drop sequence subjectSerial;
 
 create sequence subjectSerial START 1;
 
@@ -185,7 +192,6 @@ treeID              varchar(64)         NOT NULL,
 name                varchar(120)        NOT NULL,
 adapterClass        varchar(255)        NOT NULL,
 modifyDatetime      timestamp           NOT NULL,
-
 primary key (treeID)
 )
 ;
@@ -199,8 +205,7 @@ status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
 modifyDatetime      timestamp           NOT NULL,
 primary key (treeID, nodeID),
-foreign key (treeID) references signet_tree (treeID),
-foreign key (treeID, nodeID) references signet_treeNode (treeID, nodeID)
+foreign key (treeID) references signet_tree (treeID)
 )
 ;
 
@@ -209,9 +214,10 @@ create table signet_treeNodeRelationship
 treeID              varchar(64)         NOT NULL,
 nodeID              varchar(64)         NOT NULL,
 parentNodeID        varchar(64)         NOT NULL,
-
 primary key (treeID, nodeID, parentNodeID),
-foreign key (treeID) references signet_tree (treeID)
+foreign key (treeID) references signet_tree (treeID),
+foreign key (treeID, nodeID) references signet_treeNode (treeID, nodeID),
+foreign key (treeID, parentNodeID) references signet_treeNode(treeID, nodeID)
 )
 ;
 
@@ -312,8 +318,6 @@ foreign key (limitKey) references signet_limit (limitKey)
 )
 ;
 
-drop sequence assignmenthistoryserial;
-
 create sequence assignmentHistorySerial START 1;
 
 create table signet_assignment_history
@@ -393,8 +397,6 @@ foreign key (revokerKey) references signet_subject (subjectKey)
 )
 ;
 
-drop sequence proxyhistoryserial;
-
 create sequence proxyHistorySerial START 1;
 
 create table signet_proxy_history
@@ -469,8 +471,6 @@ on SubjectAttribute (
   value
 )
 ;
-
-DROP SEQUENCE hibernate_sequence;
 
 CREATE SEQUENCE hibernate_sequence
 	START WITH 1;

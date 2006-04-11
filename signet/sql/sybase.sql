@@ -157,7 +157,6 @@ name                varchar(120)        NOT NULL,
 modifyDatetime      smalldatetime       NOT NULL,
 primary key (treeID, nodeID),
 foreign key (treeID) references signet_tree (treeID)
-foreign key (treeID, nodeID) references signet_treeNode (treeID, nodeID)
 )
 ;
 create table signet_treeNodeRelationship
@@ -166,7 +165,9 @@ treeID              varchar(64)         NOT NULL,
 nodeID              varchar(64)         NOT NULL,
 parentNodeID        varchar(64)         NOT NULL,
 primary key (treeID, nodeID, parentNodeID),
-foreign key (treeID) references signet_tree (treeID)
+foreign key (treeID) references signet_tree (treeID),
+foreign key (treeID, nodeID) references signet_treeNode (treeID, nodeID),
+foreign key (treeID, parentNodeID) references signet_treeNode (treeID, nodeID)
 )
 ;
 -- ChoiceSet tables
