@@ -4,15 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.5 2006-04-11 18:50:30 blair Exp $
+$Id: TODO,v 1.30.2.6 2006-04-11 18:51:33 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* code: review changelog and perform selective merge from HEAD to
-  GROUPER_1_0_TAKE2 branch
 * code: update memberships to support `Owner`
 * code: add `GroupTypeFinder.findAllAssignable()` that will return all
   assignable types
@@ -132,5 +130,5 @@ $Id: TODO,v 1.30.2.5 2006-04-11 18:50:30 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.5 2006-04-11 18:50:30 blair Exp $
+$Id: TODO,v 1.30.2.6 2006-04-11 18:51:33 blair Exp $
 
