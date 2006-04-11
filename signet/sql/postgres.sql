@@ -4,6 +4,9 @@
 --    6/20/2005 - tablename prefixes; assignment history tables; assignment expirationDate
 --    1/10/2006 - renamed signet_privilegedSubject to signet_subject
 --    3/09/2006 - add categoryKey, functionKey, subjectKey, choiceKey, choiceSetKey
+--
+-- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.23 2006-04-11 23:20:32 ddonn Exp $
+--
 
 -- Tree tables
 drop table signet_treeNodeRelationship;

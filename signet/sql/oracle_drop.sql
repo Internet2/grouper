@@ -1,5 +1,9 @@
+--
 -- This is the Oracle DDL for the Signet database
 -- Author Tom Poage, University of California at Davis, 10 Feb 2006
+--
+-- $Header: /home/hagleyj/i2mi/signet/sql/oracle_drop.sql,v 1.2 2006-04-11 23:20:32 ddonn Exp $
+--
 
 -- These are roughly grouped by dependency order wrt foreign
 -- key constraints.

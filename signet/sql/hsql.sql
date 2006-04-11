@@ -1,5 +1,9 @@
+--
 -- This is the HSQL DDL for the Signet database
 --
+-- $Header: /home/hagleyj/i2mi/signet/sql/hsql.sql,v 1.39 2006-04-11 23:20:32 ddonn Exp $
+--
+
 -- Tree tables
 drop table signet_treeNodeRelationship if exists;
 drop table signet_treeNode if exists;
