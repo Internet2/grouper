@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.10.2.1 2006-04-10 17:51:03 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.10.2.2 2006-04-11 17:00:06 blair Exp $
  */
 public class RegistryReset {
 
@@ -165,8 +165,6 @@ public class RegistryReset {
     hs.delete(
       "from GroupType as t where (  "
       + "     t.name != 'base'      "
-      + "and  t.name != 'hasFactor' "
-      + "and  t.name != 'isFactor'  "
       + "and  t.name != 'naming'    "
       + ")"
     );
