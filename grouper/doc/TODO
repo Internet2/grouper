@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.3 2006-04-10 19:07:44 blair Exp $
+$Id: TODO,v 1.30.2.4 2006-04-11 17:20:30 blair Exp $
 
 ---
 
@@ -29,12 +29,12 @@ $Id: TODO,v 1.30.2.3 2006-04-10 19:07:44 blair Exp $
 ** code: do not stop hsqldb if using non-embedded db
 * test: basic concurrency testing
 * MAYBE code: add registry integrity thread to daemon
-* code: add union set member (sync)
-* code: delete union set member (sync)
-* code: add complement set member (sync)
-* code: delete complement set member (sync)
-* code: add intersection set member (sync)
-* code: delete intersection set member (sync)
+* code: add union composite member (sync)
+* code: delete union composite member (sync)
+* code: add complement composite member (sync)
+* code: delete complement composite member (sync)
+* code: add intersection composite member (sync)
+* code: delete intersection composite member (sync)
 * code: privilege cleanup - `NamingResolver`
 * code: privilege cleanup - `AccessResolver`
 * code: privilege cleanup - Hibernate-backed `PrivilegeCache`
@@ -49,12 +49,12 @@ $Id: TODO,v 1.30.2.3 2006-04-10 19:07:44 blair Exp $
 * code: revoke access privilege (async)
 * code: grant naming privilege (async)
 * code: revoke naming privilege (async)
-* code: add union set member (async)
-* code: delete union set member (async)
-* code: add complement set member (async)
-* code: delete complement set member (async)
-* code: add intersection set member (async)
-* code: delete intersection set member (async)
+* code: add union composite member (async)
+* code: delete union composite member (async)
+* code: add complement composite member (async)
+* code: delete complement composite member (async)
+* code: add intersection composite member (async)
+* code: delete intersection composite member (async)
 * test: concurrency, deletion and async mods
 * test: concurrency testing (i expect to find many bugs)
 * code: class to verify that setup is functional
@@ -131,5 +131,5 @@ $Id: TODO,v 1.30.2.3 2006-04-10 19:07:44 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.3 2006-04-10 19:07:44 blair Exp $
+$Id: TODO,v 1.30.2.4 2006-04-11 17:20:30 blair Exp $
 
