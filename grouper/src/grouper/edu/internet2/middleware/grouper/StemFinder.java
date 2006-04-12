@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.14.2.1 2006-04-11 18:50:30 blair Exp $
+ * @version $Id: StemFinder.java,v 1.14.2.2 2006-04-12 17:47:23 blair Exp $
  */
 public class StemFinder {
 
@@ -185,7 +185,12 @@ public class StemFinder {
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
       hs.close();
-      stems.addAll( Stem.setSession(s, l) );
+      Iterator  iter = l.iterator();
+      while (iter.hasNext()) {
+        Stem ns = (Stem) iter.next();
+        ns.setSession(s);
+        stems.add(ns);
+      }
     }
     catch (HibernateException eH) {
       throw new QueryException(
@@ -210,7 +215,12 @@ public class StemFinder {
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
       hs.close();
-      stems.addAll( Stem.setSession(s, l) );
+      Iterator  iter = l.iterator();
+      while (iter.hasNext()) {
+        Stem ns = (Stem) iter.next();
+        ns.setSession(s);
+        stems.add(ns);
+      }
     }
     catch (HibernateException eH) {
       throw new QueryException(

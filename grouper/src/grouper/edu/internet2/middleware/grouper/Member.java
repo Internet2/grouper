@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.32 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: Member.java,v 1.32.2.1 2006-04-12 17:47:23 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -780,7 +780,7 @@ public class Member implements Serializable {
     boolean rv  = false;
     String  msg = "isEffectiveMember '" + f.getName() + "' '";
     if (
-      MembershipFinder.findEffectiveMemberships(g.getUuid(), this, f).size() > 0
+      MembershipFinder.findEffectiveMemberships(g, this, f).size() > 0
     ) 
     {
       rv = true;
@@ -788,7 +788,7 @@ public class Member implements Serializable {
     }
     else if (
       MembershipFinder.findEffectiveMemberships(
-        g.getUuid(), MemberFinder.findAllMember(), f
+        g, MemberFinder.findAllMember(), f
       ).size() > 0
     )
     {
@@ -855,7 +855,7 @@ public class Member implements Serializable {
       catch (MembershipNotFoundException eMNF) {
         try {
           MembershipFinder.findImmediateMembership(
-            g.getUuid(), MemberFinder.findAllMember(), f
+            g, MemberFinder.findAllMember(), f
           );
           rv = true;
           GrouperLog.debug(LOG, this.s, msg + GrouperConfig.ALL + "': " + rv);
@@ -887,7 +887,7 @@ public class Member implements Serializable {
    */
   public boolean isMember(Group g) {
     try {
-      return this._isMember(g.getUuid(), Group.getDefaultList());
+      return this._isMember(g, Group.getDefaultList());
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
@@ -913,7 +913,7 @@ public class Member implements Serializable {
   public boolean isMember(Group g, Field f) 
     throws  SchemaException
   {
-    return this._isMember(g.getUuid(), f);
+    return this._isMember(g, f);
   } // public boolean isMember(g, f)
 
   /**
@@ -1071,7 +1071,7 @@ public class Member implements Serializable {
   protected boolean isMember(Stem ns, Field f) 
     throws  SchemaException
   {
-    return this._isMember(ns.getUuid(), f);
+    return this._isMember(ns, f);
   } // protected boolean isMember(ns, f)
 
   // Assign Session
@@ -1113,24 +1113,24 @@ public class Member implements Serializable {
     return rv;
   } // private boolean _hasPriv(ns, priv)
 
-  private boolean _isMember(String oid, Field f)
+  private boolean _isMember(Owner o, Field f)
     throws  SchemaException
   {
     boolean rv  = false;
-    Set mships = MembershipFinder.findMemberships(oid, this, f);
+    Set mships = MembershipFinder.findMemberships(o, this, f);
     if (mships.size() > 0) {
       rv = true;
     }
     else {
       mships = MembershipFinder.findMemberships(
-        oid, MemberFinder.findAllMember(), f
+        o, MemberFinder.findAllMember(), f
       );
       if (mships.size() > 0) {
         rv = true;
       }
     }
     return rv;
-  } // private boolean _isMember(oid, f);
+  } // private boolean _isMember(o, f);
 
 
   // Hibernate Accessors

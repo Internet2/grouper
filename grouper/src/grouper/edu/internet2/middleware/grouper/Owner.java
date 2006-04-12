@@ -29,10 +29,10 @@ import  org.apache.commons.logging.*;
  * An object that can have memberships assigned to it.
  * <p />
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.4.2.1 2006-04-11 18:50:30 blair Exp $
+ * @version $Id: Owner.java,v 1.4.2.2 2006-04-12 17:47:23 blair Exp $
  *     
 */
-public class Owner implements Serializable {
+public abstract class Owner implements Serializable {
 
   // Private Class Constants
   private static final EventLog EL  = new EventLog();
@@ -63,7 +63,17 @@ public class Owner implements Serializable {
     // Nothing
   }
 
-  // Protected Instance Methods
+
+  // Protected Abstract Instance Methods //
+  protected abstract void setModified();
+
+
+  // Protected Instance Methods //
+  protected GrouperSession getSession() {
+    GrouperSession.validate(this.s);
+    return this.s;
+  } // protected GrouperSession getSession()
+
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
     this.s = s;

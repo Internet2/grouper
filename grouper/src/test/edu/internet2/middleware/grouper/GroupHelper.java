@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.1.2.2 2006-04-12 17:47:23 blair Exp $
  */
 public class GroupHelper {
 
@@ -64,11 +64,8 @@ public class GroupHelper {
       MembershipHelper.testImm(g, gm.toSubject(), m);
       MembershipHelper.testEff(g, gm, m);
     }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail("not privileged to add member: " + eIP.getMessage());
-    }
-    catch (MemberAddException eMA) {
-      Assert.fail("failed to add member: " + eMA.getMessage());
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
     }
   } // protected static void addMember(g, gm)
 

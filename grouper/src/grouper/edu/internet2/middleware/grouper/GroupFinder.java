@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.10.2.1 2006-04-11 18:50:30 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.10.2.2 2006-04-12 17:47:23 blair Exp $
  */
 public class GroupFinder {
 
@@ -131,7 +131,12 @@ public class GroupFinder {
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
       hs.close();
-      groups.addAll( Group.setSession(s, l) );
+      Iterator  iter = l.iterator();
+      while (iter.hasNext()) {
+        Group g = (Group) iter.next();
+        g.setSession(s);
+        groups.add(g);
+      }
     }
     catch (HibernateException eH) {
       throw new QueryException(
@@ -156,7 +161,12 @@ public class GroupFinder {
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
       hs.close();
-      groups.addAll( Group.setSession(s, l) );
+      Iterator  iter = l.iterator();
+      while (iter.hasNext()) {
+        Group g = (Group) iter.next();
+        g.setSession(s);
+        groups.add(g);
+      }
     }
     catch (HibernateException eH) {
       throw new QueryException(

@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.46.2.4 2006-04-11 18:50:30 blair Exp $
+ * @version $Id: Stem.java,v 1.46.2.5 2006-04-12 17:47:23 blair Exp $
  *     
 */
 public class Stem extends Owner implements Serializable {
@@ -75,7 +75,6 @@ public class Stem extends Owner implements Serializable {
   // Transient Instance Variables
   private transient Subject         creator;
   private transient Subject         modifier;
-  private transient GrouperSession  s;
 
 
   // Constructors
@@ -89,7 +88,7 @@ public class Stem extends Owner implements Serializable {
 
   // Return a stem with an attached session
   protected Stem(GrouperSession s) {
-    this.s = s;
+    this.setSession(s);
     this._setCreated();
     this.setUuid(             GrouperUuid.getUuid() );
     this.setStem_name(        ROOT_INT              );
@@ -135,9 +134,9 @@ public class Stem extends Owner implements Serializable {
       throw new GroupAddException(eIA.getMessage());
     }
     PrivilegeResolver.getInstance().canCREATE(
-      this.s, this, this.s.getSubject()
+      this.getSession(), this, this.getSession().getSubject()
     );
-    if (this.equals(StemFinder.findRootStem(this.s))) {
+    if (this.equals(StemFinder.findRootStem(this.getSession()))) {
       throw new GroupAddException(
         "cannot create groups at root stem level"
       );
@@ -158,7 +157,7 @@ public class Stem extends Owner implements Serializable {
       throw new GroupAddException(eH.getMessage());
     }
     try {
-      Group child = new Group(this.s, this, extension, displayExtension);
+      Group child = new Group(this.getSession(), this, extension, displayExtension);
       // Set parent
       child.setParent_stem(this);
       // Add to children 
@@ -176,7 +175,7 @@ public class Stem extends Owner implements Serializable {
       HibernateHelper.save(objects);
 
       sw.stop();
-      EL.stemAddChildGroup(this.s, child.getName(), sw);
+      EL.stemAddChildGroup(this.getSession(), child.getName(), sw);
       _grantDefaultPrivsUponCreate(child);
 
       return child; // And return the newly created group
@@ -220,12 +219,11 @@ public class Stem extends Owner implements Serializable {
       throw new StemAddException(eIA.getMessage());
     }
     PrivilegeResolver.getInstance().canSTEM(
-      //GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
-      this.s, this, this.s.getSubject()
+      this.getSession(), this, this.getSession().getSubject()
     );
     try {
       Stem ns = StemFinder.findByName(
-        this.s, constructName(this.getName(), extension)
+        this.getSession(), constructName(this.getName(), extension)
       );
       throw new StemAddException("stem already exists");
     }
@@ -241,7 +239,7 @@ public class Stem extends Owner implements Serializable {
     }
 
     try {
-      Stem child = new Stem(this.s);
+      Stem child = new Stem(this.getSession());
 
       // Set naming attributes
       child.setStem_extension(extension);
@@ -264,7 +262,7 @@ public class Stem extends Owner implements Serializable {
       objects.add(this);
       HibernateHelper.save(objects);
       sw.stop();
-      EL.stemAddChildStem(this.s, child.getName(), sw);
+      EL.stemAddChildStem(this.getSession(), child.getName(), sw);
       _grantDefaultPrivsUponCreate(child);
       return child;
     }
@@ -299,7 +297,7 @@ public class Stem extends Owner implements Serializable {
    * @return  Set of {@link Group} objects
    */
   public Set getChildGroups() {
-    GrouperSession.validate(this.s);
+    GrouperSession.validate(this.getSession());
     Set children  = new LinkedHashSet();
     try {
       _initializeChildGroupsAndStems(this);
@@ -313,7 +311,7 @@ public class Stem extends Owner implements Serializable {
           PrivilegeResolver.getInstance().canVIEW(
             root, child, s.getSubject()
           );
-          child.setSession(this.s);
+          child.setSession(this.getSession());
           children.add(child);
         }
         catch (InsufficientPrivilegeException eIP) {
@@ -346,7 +344,7 @@ public class Stem extends Owner implements Serializable {
       Iterator iter = this.getChild_stems().iterator();
       while (iter.hasNext()) {
         Stem child = (Stem) iter.next();
-        child.setSession(this.s);
+        child.setSession(this.getSession());
         children.add(child);
       }
     }
@@ -417,7 +415,7 @@ public class Stem extends Owner implements Serializable {
   public Set getCreators() {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-        this.s, this, NamingPrivilege.CREATE
+        this.getSession(), this, NamingPrivilege.CREATE
       );
     }
     catch (SchemaException eS) {
@@ -579,7 +577,7 @@ public class Stem extends Owner implements Serializable {
     if (parent == null) {
       throw new StemNotFoundException();
     }
-    parent.setSession(this.s);
+    parent.setSession(this.getSession());
     return parent;
   } // public Stem getParentStem()
 
@@ -593,7 +591,7 @@ public class Stem extends Owner implements Serializable {
    */
   public Set getPrivs(Subject subj) {
     return PrivilegeResolver.getInstance().getPrivs(
-      this.s, this, subj
+      this.getSession(), this, subj
     );
   } // public Set getPrivs(subj)
 
@@ -607,7 +605,7 @@ public class Stem extends Owner implements Serializable {
   public Set getStemmers() {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-        this.s, this, NamingPrivilege.STEM
+        this.getSession(), this, NamingPrivilege.STEM
       );
     }
     catch (SchemaException eS) {
@@ -643,20 +641,20 @@ public class Stem extends Owner implements Serializable {
     sw.start();
     String msg = "grantPriv: " + SubjectHelper.getPretty(subj) 
       + " '" + priv.toString().toUpperCase() + "'";
-    GrouperLog.debug(LOG, this.s, msg);
+    GrouperLog.debug(LOG, this.getSession(), msg);
     try {
       PrivilegeResolver.getInstance().grantPriv(
-        this.s, this, subj, priv
+        this.getSession(), this, subj, priv
       );
       sw.stop();
-      EL.stemGrantPriv(this.s, this.getName(), subj, priv, sw);
+      EL.stemGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
     }
     catch (GrantPrivilegeException eGP) {
-      GrouperLog.debug(LOG, this.s, eGP.getMessage());
+      GrouperLog.debug(LOG, this.getSession(), eGP.getMessage());
       throw new GrantPrivilegeException(eGP.getMessage());
     }
     catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, this.s, eIP.getMessage());
+      GrouperLog.debug(LOG, this.getSession(), eIP.getMessage());
       throw new InsufficientPrivilegeException(eIP.getMessage());
     }
   } // public void grantPriv(subj, priv)
@@ -675,7 +673,7 @@ public class Stem extends Owner implements Serializable {
    */
   public boolean hasCreate(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, NamingPrivilege.CREATE
+      this.getSession(), this, subj, NamingPrivilege.CREATE
     );
   } // public boolean hasCreate(subj)
  
@@ -693,7 +691,7 @@ public class Stem extends Owner implements Serializable {
    */
   public boolean hasStem(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, NamingPrivilege.STEM
+      this.getSession(), this, subj, NamingPrivilege.STEM
     );
   } // public boolean hasStem(subj)
  
@@ -732,10 +730,10 @@ public class Stem extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     PrivilegeResolver.getInstance().revokePriv(
-      this.s, this, priv
+      this.getSession(), this, priv
     );
     sw.stop();
-    EL.stemRevokePriv(this.s, this.getName(), priv, sw);
+    EL.stemRevokePriv(this.getSession(), this.getName(), priv, sw);
   } // public void revokePriv(priv)
  
   /**
@@ -766,10 +764,10 @@ public class Stem extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     PrivilegeResolver.getInstance().revokePriv(
-      this.s, this, subj, priv
+      this.getSession(), this, subj, priv
     );
     sw.stop();
-    EL.stemRevokePriv(this.s, this.getName(), subj, priv, sw);
+    EL.stemRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
   } // public void revokePriv(subj, priv)
  
   /**
@@ -797,7 +795,7 @@ public class Stem extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     PrivilegeResolver.getInstance().canSTEM(
-      GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
+      GrouperSessionFinder.getRootSession(), this, this.getSession().getSubject()
     );
     try {
       this.setStem_description(value);
@@ -810,7 +808,7 @@ public class Stem extends Owner implements Serializable {
       );
     }
     sw.stop();
-    EL.stemSetAttr(this.s, this.getName(), "description", value, sw);
+    EL.stemSetAttr(this.getSession(), this.getName(), "description", value, sw);
   } // public void setDescription(value)
 
   /**
@@ -848,7 +846,7 @@ public class Stem extends Owner implements Serializable {
       value = ROOT_INT;
     }
     PrivilegeResolver.getInstance().canSTEM(
-      GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
+      GrouperSessionFinder.getRootSession(), this, this.getSession().getSubject()
     );
     try {
       Set objects = new HashSet();
@@ -868,7 +866,7 @@ public class Stem extends Owner implements Serializable {
       }
       // Now iterate through all child groups and stems (as root),
       // renaming each.
-      GrouperSession orig = this.s;
+      GrouperSession orig = this.getSession();
       GrouperSession root = GrouperSessionFinder.getTransientRootSession();
       this.setSession(root);
       objects.addAll( this._renameChildren() );
@@ -887,7 +885,7 @@ public class Stem extends Owner implements Serializable {
     if (value.equals(ROOT_INT)) {
       value = ROOT_EXT;
     }
-    EL.stemSetAttr(this.s, this.getName(), "displayExtension", value, sw);
+    EL.stemSetAttr(this.getSession(), this.getName(), "displayExtension", value, sw);
   } // public void setDisplayExtension(value)
 
   public String toString() {
@@ -930,17 +928,6 @@ public class Stem extends Owner implements Serializable {
     this.setModify_time( new Date().getTime() );
   } // protected void setModified()
 
-  protected static List setSession(GrouperSession s, List l) {
-    List      stems = new ArrayList();
-    Iterator  iter  = l.iterator();
-    while (iter.hasNext()) {
-      Stem ns = (Stem) iter.next();
-      ns.setSession(s);
-      stems.add(ns);
-    }
-    return stems;
-  } // protected static List setSession(s, l)
-
   protected static void validateName(String name)  
     throws  IllegalArgumentException
   {
@@ -959,14 +946,7 @@ public class Stem extends Owner implements Serializable {
   } // protected static void validateName(name)
     
 
-  // Protected Instance Methods
-  protected void setSession(GrouperSession s) {
-    GrouperSession.validate(s);
-    this.s = s;
-  } // protected void setSession(s)
-
-
-  // Private Class Methods
+  // Private Class Methods //
 
   // The child_groups and child_stems collections have lazy
   // associations so we need to manually initialize as needed.
@@ -1080,13 +1060,13 @@ public class Stem extends Owner implements Serializable {
         Group g = (Group) o;
         PrivilegeResolver.getInstance().grantPriv(root, g, all, p);
         sw.stop();
-        EL.groupGrantPriv(this.s, g.getName(), all, p, sw);
+        EL.groupGrantPriv(this.getSession(), g.getName(), all, p, sw);
       }
       else if (o.getClass().equals(Stem.class)) {
         Stem ns = (Stem) o;
         PrivilegeResolver.getInstance().grantPriv(root, ns, all, p);
         sw.stop();
-        EL.stemGrantPriv(this.s, ns.getName(), all, p, sw);
+        EL.stemGrantPriv(this.getSession(), ns.getName(), all, p, sw);
       }
     }
   } // private void _grantOptionalPrivUponCreate(orig, root, o, p, opt)
@@ -1118,7 +1098,7 @@ public class Stem extends Owner implements Serializable {
     }
     catch (HibernateException eH) {
       String err = eH.getMessage();
-      GrouperLog.error(LOG, this.s, err); 
+      GrouperLog.error(LOG, this.getSession(), err); 
       throw new StemModifyException(err);
     }
     return objects;

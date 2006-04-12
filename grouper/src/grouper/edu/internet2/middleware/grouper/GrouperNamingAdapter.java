@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.34 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.34.2.1 2006-04-12 17:47:23 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -76,7 +76,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    return MembershipFinder.findSubjects(s, ns.getUuid(), this._getField(priv));
+    return MembershipFinder.findSubjects(s, ns, this._getField(priv));
   } // public Set getSubjectsWithPriv(s, ns, priv)
 
   /**
@@ -162,9 +162,9 @@ public class GrouperNamingAdapter implements NamingAdapter {
       while (iterP.hasNext()) {
         Privilege p = (Privilege) iterP.next();
         Field     f = this._getField(p);   
-        Iterator  iterM = MembershipFinder.findMemberships(ns.getUuid(), m, f).iterator();
+        Iterator  iterM = MembershipFinder.findMemberships(ns, m, f).iterator();
         privs.addAll( this._getPrivs(s, ns, subj, m, p, iterM) );
-        Iterator  iterA = MembershipFinder.findMemberships(ns.getUuid(), all, f).iterator();
+        Iterator  iterA = MembershipFinder.findMemberships(ns, all, f).iterator();
         privs.addAll( this._getPrivs(s, ns, subj, all, p, iterA) );
       }
     }
@@ -221,7 +221,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       throw eIP;
     }
     try {
-      Membership.addImmediateMembership(s, (Object) ns, subj, f);
+      Membership.addImmediateMembership(s, ns, subj, f);
     }
     catch (MemberAddException eMA) {
       GrouperLog.debug(LOG, s, msg + ": " + eMA.getMessage());
