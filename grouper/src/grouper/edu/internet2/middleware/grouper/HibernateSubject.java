@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -27,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * Hibernate representation of the JDBC Subject table.
  * <p />
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.1.2.1 2006-04-10 17:51:03 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.1.2.2 2006-04-13 00:31:40 blair Exp $
  */
 class HibernateSubject implements Serializable {
 
@@ -48,10 +49,21 @@ class HibernateSubject implements Serializable {
     String subjectID, String subjectTypeID, String name
   )
   {
-    this.name           = name;
-    this.subjectID      = subjectID;
-    this.subjectTypeID  = subjectTypeID;
+    this.setAttributes(     new LinkedHashSet() );
+    this.setName(           name                );
+    this.setSubjectID(      subjectID           );
+    this.setSubjectTypeID(  subjectTypeID       );
   } // protected HibernateSubject(subjectID, subjectTypeID, name)
+
+
+  // Public Instance Methods //
+  public String toString() {
+    return new ToStringBuilder(this)
+      .append("id"    , this.getSubjectID()     )
+      .append("type"  , this.getSubjectTypeID() )
+      .append("name"  , this.getName()          )
+      .toString();
+  } // public String toString()
 
 
   // Getters //
