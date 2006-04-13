@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType1.java,v 1.1.2.1 2006-04-11 16:55:14 blair Exp $
+ * @version $Id: TestGroupType1.java,v 1.1.2.2 2006-04-13 14:31:01 blair Exp $
  */
 public class TestGroupType1 extends TestCase {
 
@@ -40,7 +40,7 @@ public class TestGroupType1 extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.reset();
   }
 
   protected void tearDown () {
