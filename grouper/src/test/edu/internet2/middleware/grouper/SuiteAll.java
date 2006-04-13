@@ -22,7 +22,7 @@ import  junit.framework.*;
 /**
  * Test everything.
  * @author  blair christensen.
- * @version $Id: SuiteAll.java,v 1.1.2.2 2006-04-11 16:19:35 blair Exp $
+ * @version $Id: SuiteAll.java,v 1.1.2.3 2006-04-13 14:16:09 blair Exp $
  */
 public class SuiteAll extends TestCase {
 
@@ -33,7 +33,6 @@ public class SuiteAll extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(  SuiteDefault.suite()  );
-    // MANUAL suite.addTestSuite(TestWheelGroup.class); 
     return suite;
   } // static public Test suite()
 

@@ -18,20 +18,22 @@
 package edu.internet2.middleware.grouper;
 
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.1.2.3 2006-04-11 16:55:14 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.1.2.4 2006-04-13 14:16:09 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
+  private static final Log LOG = LogFactory.getLog(SuiteDefault.class);
+
   public SuiteDefault(String name) {
     super(name);
-  }
+  } // public SuiteDefault(name)
 
   static public Test suite() {
-
     TestSuite suite = new TestSuite();
 
     suite.addTest(  SuiteSessions.suite()   );
@@ -95,10 +97,10 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestSuFiGrSoAdSearch.class);
     suite.addTestSuite(TestSubjectFinderInternal.class);  // TODO Hrm...
     suite.addTestSuite(TestWrongFieldType.class); 
-    // MANUAL suite.addTestSuite(TestWheelGroup.class); 
+    // TODO suite.addTestSuite(TestWheelGroup.class); 
 
     return suite;
-  }
+  } // static public Test suite()
 
 }
 
