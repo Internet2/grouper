@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteStems.java,v 1.1.2.1 2006-04-11 16:45:49 blair Exp $
+ * @version $Id: SuiteStems.java,v 1.1.2.2 2006-04-13 18:37:46 blair Exp $
  */
 public class SuiteStems extends TestCase {
 
@@ -35,10 +35,15 @@ public class SuiteStems extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
+    suite.addTestSuite( TestStem0.class );  // delete empty stem
+    suite.addTestSuite( TestStem1.class );  // fail: delete stem with child stems
+    suite.addTestSuite( TestStem2.class );  // fail: delete stem with child groups
+    suite.addTestSuite( TestStem3.class );  // fail: delete stem without stem
+    suite.addTestSuite( TestStem4.class );  // fail: delete root stem
     suite.addTestSuite( TestStem6.class );  // create attrs
     suite.addTestSuite( TestStem7.class );  // modify attrs - !mod'd
     suite.addTestSuite( TestStem8.class );  // modify attrs - mod'd
-    suite.addTestSuite( TestStem.class  ); // TODO Split
+    suite.addTestSuite( TestStem.class  );  // TODO Split
     return suite;
   } // static public Test suite()
 

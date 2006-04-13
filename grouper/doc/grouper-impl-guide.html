@@ -54,7 +54,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2006-04-11 16:26:48 $
+$Date: 2006-04-13 18:37:46 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -860,9 +860,10 @@ The access and naming privileges are listed in the following tables:
 <tr>
   <td class="c">STEM</td>
   <td class="r">Can grant and revoke <i>CREATE</i> and <i>STEM</i>
-    privilege for the namespace, can create a subordinate namespace
-    and can modify all namespace fields.  The creator of a namespace
-    is automatically granted this privilege.
+    privilege for the namespace, can create a subordinate namespace,
+    can modify all namespace fields and can delete stems with no
+    children.  The creator of a namespace is automatically granted
+    this privilege.
     <br /><br />
     <b>NOTE:</b> This privilege does <b>not</b> imply <i>CREATE</i> but
     a subject with this privilege can grant themselves that privilege.

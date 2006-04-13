@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.133.2.4 2006-04-13 17:26:16 blair Exp $
+$Id: API,v 1.133.2.5 2006-04-13 18:37:46 blair Exp $
 
 ---
 
@@ -281,6 +281,7 @@ $Id: API,v 1.133.2.4 2006-04-13 17:26:16 blair Exp $
 ## Stem
 * Group               addChildGroup(extension, displayExtension)
 * Stem                addChildStem(extension, displayExtension)
+* void                delete()
 * Set                 getChildGroups()
 * Set                 getChildStems()
 * String              getCreateSource()

@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.94.2.9 2006-04-13 17:26:16 blair Exp $
+$Id: NEWS,v 1.94.2.10 2006-04-13 18:37:46 blair Exp $
 
 ---
 
@@ -10,14 +10,15 @@ $Id: NEWS,v 1.94.2.9 2006-04-13 17:26:16 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW: `Stem.delete()` allows empty stems to be deleted.
 * UPDATE: Replaced `GroupType.addField()` with `GroupType.addAttribute()`
-  and `GroupType.addList()`
-* NEW: `SubjectFinder.findAll(query, source)` method
-* NEW: `SubjectFinder.findByIdentifier(id, type, source)` method
-* NEW: `SubjectFinder.findById(id, type, source)` method
-* NEW: `SubjectFinder.getSource(id)` method
-* NEW: `SubjectFinder.getSources(type)` method
-* NEW: `SubjectFinder.getSources()` method
+  and `GroupType.addList()`.
+* NEW: `SubjectFinder.findAll(query, source)` method.
+* NEW: `SubjectFinder.findByIdentifier(id, type, source)` method.
+* NEW: `SubjectFinder.findById(id, type, source)` method.
+* NEW: `SubjectFinder.getSource(id)` method.
+* NEW: `SubjectFinder.getSources(type)` method.
+* NEW: `SubjectFinder.getSources()` method.
 * NEW: `GroupTypeFinder.findAllAssignable()` returns all assignable group types.
 * NEW: `Group` and `Stem` extend from common parent: `Owner`.
 * UPDATE: Restore `GroupTypeFinder.findAll()` - return all public group types

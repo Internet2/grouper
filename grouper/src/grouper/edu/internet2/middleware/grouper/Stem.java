@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.46.2.5 2006-04-12 17:47:23 blair Exp $
+ * @version $Id: Stem.java,v 1.46.2.6 2006-04-13 18:37:46 blair Exp $
  *     
 */
 public class Stem extends Owner implements Serializable {
@@ -98,7 +98,7 @@ public class Stem extends Owner implements Serializable {
   } // protected Stem(s)
   
 
-  // Public Instance Methods
+  // Public Instance Methods //
 
   /**
    * Add a new group to the registry.
@@ -273,6 +273,42 @@ public class Stem extends Owner implements Serializable {
       );
     }
   } // public Stem addChildStem(extension, displayExtension)
+
+  /**
+   * Delete this stem from the Groups Registry.
+   * <pre class="eg">
+   * try {
+   *   ns.delete();
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to delete stem
+   * }
+   * catch (StemDeleteException eSD) {
+   *   // unable to delete stem
+   * }
+   * </pre>
+   * @throws  InsufficientPrivilegeException
+   * @throws  StemDeleteException
+   */
+  public void delete() 
+    throws  InsufficientPrivilegeException,
+            StemDeleteException
+  {
+    StopWatch sw = new StopWatch();
+    sw.start();
+    GrouperSession.validate(this.getSession());
+    Validator.canDeleteStem(this);
+    try {
+      String name = this.getName();   // Preserve name for logging
+      this._revokeAllNamingPrivs();   // Revoke privs
+      HibernateHelper.delete(this);   // And delete
+      sw.stop();
+      EL.stemDelete(this.getSession(), name, sw);
+    }
+    catch (Exception e) {
+      throw new StemDeleteException(e.getMessage());
+    }
+  } // public void delete()
 
   public boolean equals(Object other) {
     if (this == other) {
@@ -1124,6 +1160,18 @@ public class Stem extends Owner implements Serializable {
     return objects;
   } // private Set _renameChildStemsAndGroups()
 
+  private void _revokeAllNamingPrivs() 
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException, 
+            SchemaException
+  {
+    GrouperSession orig = this.getSession();
+    this.setSession(GrouperSessionFinder.getRootSession()); // proxy as root
+    this.revokePriv(NamingPrivilege.CREATE);
+    this.revokePriv(NamingPrivilege.STEM);
+    this.setSession(orig);
+  } // private void _revokeAllNamingPrivs()
+
   private void _setCreated() {
     this.setCreator_id( s.getMember()         );
     this.setCreate_time( new Date().getTime() );
@@ -1131,10 +1179,10 @@ public class Stem extends Owner implements Serializable {
 
 
   // Getters //
-  private Set getChild_groups() {
+  protected Set getChild_groups() { // Validator.canDeleteStem()
     return this.child_groups;
   }
-  private Set getChild_stems() {
+  protected Set getChild_stems() {  // Validator.canDeleteStem()
     return this.child_stems;
   }
   private String getDisplay_extension() {

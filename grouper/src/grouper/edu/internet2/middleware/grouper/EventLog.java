@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.7 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: EventLog.java,v 1.7.2.1 2006-04-13 18:37:46 blair Exp $
  *     
 */
 class EventLog implements Serializable {
@@ -64,6 +64,7 @@ class EventLog implements Serializable {
   private static final String GT_DF       = "delete group field: ";
   private static final String S_ACG       = "add group: ";  
   private static final String S_ACS       = "add stem: ";  
+  private static final String S_D         = "stem delete: ";
   private static final String S_GP        = "grant naming priv: stem=";
   private static final String S_GP_E      = "grant effective naming priv: stem=";
   private static final String S_RP        = "revoke naming priv: stem=";
@@ -242,6 +243,10 @@ class EventLog implements Serializable {
   protected void stemAddChildStem(GrouperSession s, String name, StopWatch sw) {
     GrouperLog.info(LOG, s.toString(), S_ACS + name, sw);
   } // protected void stemAddChildGroup(s, name, sw)
+
+  protected void stemDelete(GrouperSession s, String stem, StopWatch sw) {
+    GrouperLog.info(LOG, s.toString(), S_D + stem, sw);
+  } // protected void stemDelete(s, stem, sw)
 
   protected void stemGrantPriv(
     GrouperSession s, String stem, Subject subj, Privilege p, StopWatch sw

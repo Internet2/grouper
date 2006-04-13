@@ -27,7 +27,7 @@ import  java.util.*;
  * Validator Utility Class.
  * <p />
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.2.2.1 2006-04-11 16:19:35 blair Exp $
+ * @version $Id: Validator.java,v 1.2.2.2 2006-04-13 18:37:46 blair Exp $
  */
 class Validator implements Serializable {
 
@@ -79,6 +79,22 @@ class Validator implements Serializable {
     }
     _canModifyGroupType(s, g, type);
   } // protected static void canAddGroupType(s, g, type)
+
+  protected static void canDeleteStem(Stem ns) 
+    throws  InsufficientPrivilegeException,
+            StemDeleteException
+  {
+    if (ns.getName().equals(Stem.ROOT_EXT)) {
+      throw new StemDeleteException("cannot delete root stem");
+    }
+    PrivilegeResolver.getInstance().canSTEM(ns.getSession(), ns, ns.getSession().getSubject());
+    if (ns.getChild_stems().size() > 0) {
+      throw new StemDeleteException("cannot delete stem with child stems");
+    }
+    if (ns.getChild_groups().size() > 0) {
+      throw new StemDeleteException("cannot delete stem with child groups");
+    }
+  } // protected static void canDeleteStem(ns)
 
   // Don't allow circular memberships
   protected static void isCircularMembership(Group g, Subject subj, Field f) 
