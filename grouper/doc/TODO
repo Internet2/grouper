@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.8 2006-04-13 00:35:33 blair Exp $
+$Id: TODO,v 1.30.2.9 2006-04-13 14:07:42 blair Exp $
 
 ---
 
@@ -63,14 +63,15 @@ $Id: TODO,v 1.30.2.8 2006-04-13 00:35:33 blair Exp $
   group has, including base but excluding internal types
 * code: add `Group.getRemovableTypes()` that will return all types
   that can be removed from the group
+* code: make thread sleep times (invisibly?) configurable
+* code: delete custom group types
+* code: internalize cache management code?
 * code: update to latest subject api
 
 ### Maybe
 * code: `ErrorLog`
 * code: `DebugLog`
-* code: make thread sleep times (invisibly?) configurable
 * code: `Owner`-related cleanup
-* code: delete custom group types
 * packaging: create binary-and-source distributions
 * code: unhibernate `GrouperSession`
 * code: enable batch fetching of `Membership` objects
@@ -127,5 +128,5 @@ $Id: TODO,v 1.30.2.8 2006-04-13 00:35:33 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.8 2006-04-13 00:35:33 blair Exp $
+$Id: TODO,v 1.30.2.9 2006-04-13 14:07:42 blair Exp $
 
