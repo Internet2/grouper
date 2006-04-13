@@ -27,11 +27,11 @@ import  org.apache.commons.logging.*;
 /**
  * Hibernate utility helper class.
  * <p/>
- * This code was initially derived code in the book <i>Hibernate In
+ * This code was initially derived from code in the book <i>Hibernate In
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.10.2.2 2006-04-11 18:50:30 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.10.2.3 2006-04-13 00:31:02 blair Exp $
  */
 class HibernateHelper {
 
