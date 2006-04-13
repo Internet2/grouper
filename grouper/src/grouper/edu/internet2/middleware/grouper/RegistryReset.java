@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.10.2.3 2006-04-11 18:50:30 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.10.2.4 2006-04-13 00:32:39 blair Exp $
  */
 public class RegistryReset {
 
@@ -172,6 +172,7 @@ public class RegistryReset {
 
     tx.commit();
     hs.close();
+    Set types = GroupTypeFinder.findAll(); // So that we always refresh the cache
     CacheMgr.resetAllCaches();
   } // private void _emptyTables()
 
