@@ -4,14 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.7 2006-04-12 17:47:23 blair Exp $
+$Id: TODO,v 1.30.2.8 2006-04-13 00:35:33 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* code: add `GroupTypeFinder.findAllAssignable()` that will return all assignable types
 * code: add `SubjectFinder.findById(id, type, source)`
 * code: add `SubjectFinder.findByIdentifier(id, type, source)`
 * code: add `SubjectFinder.findAll(query, source)`
@@ -128,5 +127,5 @@ $Id: TODO,v 1.30.2.7 2006-04-12 17:47:23 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.7 2006-04-12 17:47:23 blair Exp $
+$Id: TODO,v 1.30.2.8 2006-04-13 00:35:33 blair Exp $
 

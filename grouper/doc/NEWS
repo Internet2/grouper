@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.94.2.6 2006-04-11 18:50:30 blair Exp $
+$Id: NEWS,v 1.94.2.7 2006-04-13 00:35:33 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS,v 1.94.2.6 2006-04-11 18:50:30 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW: `GroupTypeFinder.findAllAssignable()` returns all assignable group types.
 * NEW: `Group` and `Stem` extend from common parent: `Owner`.
 * UPDATE: Restore `GroupTypeFinder.findAll()` - return all public group types
 * BUGFIX: Several tests that were **supposed** to be testing against
