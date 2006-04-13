@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.1.2.2 2006-04-13 00:35:33 blair Exp $
+ * @version $Id: TestGroupTypes.java,v 1.1.2.3 2006-04-13 17:26:17 blair Exp $
  */
 public class TestGroupTypes extends TestCase {
 
@@ -174,43 +174,16 @@ public class TestGroupTypes extends TestCase {
     }
   } // public void testFailToFindCustomField()
 
-  public void testAddFieldAsNonRoot() {
-    GrouperSession  s     = null;
-    String          type  = "base";
-    String          name  = "customField";
-    FieldType       ft    = FieldType.LIST;
-    Privilege       read  = AccessPrivilege.VIEW;
-    Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
-    try {
-      GroupType base = GroupTypeFinder.find(type);
-      s = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-      Field f = base.addField(s, name, ft, read, write, req);
-      Assert.fail("added field to base type"); 
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.assertTrue("not privileged to add field", true); 
-    }
-    catch (SchemaException eS) {
-      Assert.fail("unexpected exception: " + eS.getMessage());
-    }
-    finally {
-      SessionHelper.stop(s);
-    }
-  } // public void testAddFieldAsNonRoot()
-
   public void testAddExistingField() {
     GrouperSession  s     = null;
     String          type  = "base";
     String          name  = "members";
-    FieldType       ft    = FieldType.LIST;
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
     try {
       GroupType base = GroupTypeFinder.find(type);
       s = SessionHelper.getRootSession();
-      Field f = base.addField(s, name, ft, read, write, req);
+      Field f = base.addList(s, name, read, write);
       Assert.fail("added field to base type"); 
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -228,14 +201,12 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "base";
     String          name  = "customField";
-    FieldType       ft    = FieldType.LIST;
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
     try {
       GroupType base = GroupTypeFinder.find(type);
       s = SessionHelper.getRootSession();
-      Field f = base.addField(s, name, ft, read, write, req);
+      Field f = base.addList(s, name, read, write);
       Assert.fail("added field to base type"); 
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -253,14 +224,12 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "naming";
     String          name  = "customField";
-    FieldType       ft    = FieldType.LIST;
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
     try {
       GroupType base = GroupTypeFinder.find(type);
       s = SessionHelper.getRootSession();
-      Field f = base.addField(s, name, ft, read, write, req);
+      Field f = base.addList(s, name, read, write);
       Assert.fail("added field to naming type"); 
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -274,68 +243,16 @@ public class TestGroupTypes extends TestCase {
     }
   } // public void testAddFieldToNaming()
 
-  public void testAddFieldTypeAccess() {
-    GrouperSession  s     = null;
-    String          type  = "customType";
-    String          name  = "customField";
-    FieldType       ft    = FieldType.ACCESS;
-    Privilege       read  = AccessPrivilege.VIEW;
-    Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
-    try {
-      s = SessionHelper.getRootSession();
-      GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
-      Assert.fail("added ACCESS field");
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail("unexpected exception: " + eIP.getMessage());
-    }
-    catch (SchemaException eS) {
-      Assert.assertTrue("cannot add ACCESS field", true);
-    }
-    finally {
-      SessionHelper.stop(s);
-    }
-  } // public void testAddFieldAccess()
-
-  public void testAddFieldTypeNaming() {
-    GrouperSession  s     = null;
-    String          type  = "customType";
-    String          name  = "customField";
-    FieldType       ft    = FieldType.NAMING;
-    Privilege       read  = AccessPrivilege.VIEW;
-    Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
-    try {
-      s = SessionHelper.getRootSession();
-      GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
-      Assert.fail("added NAMING field");
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail("unexpected exception: " + eIP.getMessage());
-    }
-    catch (SchemaException eS) {
-      Assert.assertTrue("cannot add NAMING field", true);
-    }
-    finally {
-      SessionHelper.stop(s);
-    }
-  } // public void testAddFieldNaming()
-
   public void testAddFieldReadNotAccess() {
     GrouperSession  s     = null;
     String          type  = "customType";
     String          name  = "customField";
-    FieldType       ft    = FieldType.LIST; 
     Privilege       read  = NamingPrivilege.CREATE;
     Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addList(s, name, read, write);
       Assert.fail("added field with !ACCESS read priv");
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -353,14 +270,12 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType";
     String          name  = "customField";
-    FieldType       ft    = FieldType.LIST; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = NamingPrivilege.STEM;
-    boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addList(s, name, read, write);
       Assert.fail("added field with !ACCESS write priv");
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -378,14 +293,13 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.0";
     String          name  = "customField";
-    FieldType       ft    = FieldType.ATTRIBUTE; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addAttribute(s, name, read, write, req);
       Assert.assertTrue("added ATTRIBUTE field", true);
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -403,14 +317,12 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.1";
     String          name  = "customField";
-    FieldType       ft    = FieldType.LIST; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addList(s, name, read, write);
       Assert.assertTrue("added LIST field", true);
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -428,17 +340,16 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.2";
     String          name  = "customField";
-    FieldType       ft    = FieldType.LIST; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addList(s, name, read, write);
       Assert.assertTrue("added LIST field", true);
       try {
-        Field f1 = custom.addField(s, name, FieldType.ATTRIBUTE, read, write, req);
+        Field f1 = custom.addAttribute(s, name, read, write, req);
         Assert.fail("added duplicate field name");
       }
       catch (SchemaException eS) {
@@ -460,14 +371,12 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.3";
     String          name  = "customField.3";
-    FieldType       ft    = FieldType.LIST; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addList(s, name, read, write);
       Assert.assertTrue("added LIST field", true);
       try {
         Field found = FieldFinder.find(name);
@@ -492,14 +401,12 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.TUCL";
     String          name  = "customField.TUCL";
-    FieldType       ft    = FieldType.LIST; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addList(s, name, read, write);
       Assert.assertTrue("added LIST field", true);
       try {
         Stem  root  = StemFinder.findRootStem(s);
@@ -546,14 +453,13 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.TUCA";
     String          name  = "customField.TUCA";
-    FieldType       ft    = FieldType.ATTRIBUTE; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addAttribute(s, name, read, write, req);
       Assert.assertTrue("added ATTRIBUTE field", true);
       try {
         Stem  root  = StemFinder.findRootStem(s);
@@ -603,14 +509,13 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.TUCAR";
     String          name  = "customField.TUCAR";
-    FieldType       ft    = FieldType.ATTRIBUTE; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     boolean         req   = true;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addAttribute(s, name, read, write, req);
       Assert.assertTrue("added ATTRIBUTE field", true);
       try {
         Stem  root  = StemFinder.findRootStem(s);
@@ -659,11 +564,10 @@ public class TestGroupTypes extends TestCase {
       String    type    = "customType.TGART";
       GroupType custom  = GroupType.createType(s, type);
       String    name    = "customField.TGART";
-      FieldType ft      = FieldType.ATTRIBUTE; 
       Privilege read    = AccessPrivilege.VIEW;
       Privilege write   = AccessPrivilege.UPDATE;
       boolean   req     = false;
-      Field     f       = custom.addField(s, name, ft, read, write, req);
+      Field     f       = custom.addAttribute(s, name, read, write, req);
 
       Stem      root    = StemFinder.findRootStem(s);
       Stem      edu     = root.addChildStem("edu", "edu");
@@ -754,14 +658,13 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.TDANR";
     String          name  = "customField.TDANR";
-    FieldType       ft    = FieldType.ATTRIBUTE; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addAttribute(s, name, read, write, req);
       Assert.assertTrue("added ATTRIBUTE field", true);
       GrouperSession nrs = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
       try {
@@ -787,14 +690,13 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.TDUCA";
     String          name  = "customField.TDUCA";
-    FieldType       ft    = FieldType.ATTRIBUTE; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addAttribute(s, name, read, write, req);
       Assert.assertTrue("added ATTRIBUTE field", true);
       f = FieldFinder.find(name);
       try {
@@ -821,14 +723,12 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.TDUCL";
     String          name  = "customField.TDUCL";
-    FieldType       ft    = FieldType.LIST; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addList(s, name, read, write);
       Assert.assertTrue("added LIST field", true);
       f = FieldFinder.find(name);
       try {
@@ -855,14 +755,13 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.FTTDUCA";
     String          name  = "customField.FTTDUCA";
-    FieldType       ft    = FieldType.ATTRIBUTE; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addAttribute(s, name, read, write, req);
       Assert.assertTrue("added ATTRIBUTE field", true);
       Stem  root  = StemFinder.findRootStem(s);
       Stem  ns    = root.addChildStem("ns", "ns");
@@ -889,14 +788,12 @@ public class TestGroupTypes extends TestCase {
     GrouperSession  s     = null;
     String          type  = "customType.FTDUCL";
     String          name  = "customField.FTTDUCL";
-    FieldType       ft    = FieldType.LIST; 
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
-    boolean         req   = false;
     try {
       s = SessionHelper.getRootSession();
       GroupType custom = GroupType.createType(s, type);
-      Field f = custom.addField(s, name, ft, read, write, req);
+      Field f = custom.addList(s, name, read, write);
       Assert.assertTrue("added LIST field", true);
       Stem  root  = StemFinder.findRootStem(s);
       Stem  ns    = root.addChildStem("ns", "ns");

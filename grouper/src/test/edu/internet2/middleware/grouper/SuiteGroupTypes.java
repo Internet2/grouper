@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteGroupTypes.java,v 1.1.2.2 2006-04-13 00:35:33 blair Exp $
+ * @version $Id: SuiteGroupTypes.java,v 1.1.2.3 2006-04-13 17:26:17 blair Exp $
  */
 public class SuiteGroupTypes extends TestCase {
 
@@ -40,6 +40,7 @@ public class SuiteGroupTypes extends TestCase {
     suite.addTestSuite( TestGroupType2.class  );  // GroupTypeFinder.findAllAssignable() 
     suite.addTestSuite( TestGroupType3.class  );  // GroupTypeFinder.findAllAssignable() after addition
     suite.addTestSuite( TestGroupType4.class  );  // add and delete custom type as non-root
+    suite.addTestSuite( TestGroupType5.class  );  // fail: add list to "base" as non-root
     // TODO split - and the damn ordering is important here as these tests leave junk behind.
     //      i should really fix that.
     suite.addTestSuite( TestGroupTypes.class  );  

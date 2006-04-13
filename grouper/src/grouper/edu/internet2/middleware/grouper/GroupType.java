@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.11.2.1 2006-04-10 18:14:18 blair Exp $
+ * @version $Id: GroupType.java,v 1.11.2.2 2006-04-13 17:26:16 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -131,71 +131,68 @@ public class GroupType implements Serializable {
     }
   } // public static GroupType createType(s, name)
 
-  // Public Instance Methods
+  // Public Instance Methods //
 
   /**
-   * Add a custom {@link Field} to a custom {@link GroupType}.
-   * <p/>
-   * Create a new custom field that can be used with this group type.
-   * If the field already exists, is one of the reserved system field
-   * types (<i>base</i> and <i>naming</i>), the type is neither an
-   * <i>attribute</i> nor a <i>list</i> or if the read and write
-   * privileges are not access privileges a {@link SchemaException}
-   * will be thrown.  If the subject is not root-like, an 
-   * {@link InsufficientPrivilegeException} will be thrown.
-   * <pre class="eg">
+   * Add a custom attribute {@link Field} to a custom {@link GroupType}.
    * try {
-   *   Field myField = type.addField(
-   *     "my field", FieldType.LIST, AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
+   *   Field myAttr = type.addAttribute(
+   *     "my attribute", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
    *   );
    * }
    * catch (InsufficientPrivilegeException eIP) {
-   *   // Not privileged to add field
+   *   // Not privileged to add attribute
    * }
    * catch (SchemaException eS) {
    *   // Invalid schema
    * }
    * </pre>
-   * @param   s         Add field within this session context.
-   * @param   name      Name of field.
-   * @param   type      {@link FieldType} of this {@link Field}.
+   * @param   s         Add attribute within this session context.
+   * @param   name      Name of attribute.
    * @param   read      {@link Privilege} required to write to this {@link Field}.
    * @param   write     {@link Privilege} required to write to this {@link Field}.
-   * @param   required  Is this field required.
+   * @param   required  Is this attribute required.
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
-  public Field addField(
-      GrouperSession s, String name, FieldType type, Privilege read, 
-      Privilege write, boolean required
+  public Field addAttribute(
+    GrouperSession s, String name, Privilege read, Privilege write, boolean required
   )
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    Field     f   = null;
-    StopWatch sw  = new StopWatch();
-    sw.start();
-    Validator.canAddFieldToType(s, this, name, type, read, write);
-    try {
-      boolean nullable = true;
-      if (required == true) {
-        nullable = false;
-      }
-      Set fields = this.getFields();
-      f = new Field(name, type, read, write, nullable);
-      fields.add(f);
-      this.setFields(fields);
-      HibernateHelper.save(this);
-      sw.stop();
-      EL.groupTypeAddField(s, this.getName(), name, sw);
-      return f;
-    }
-    catch (HibernateException eS) {
-      String msg = "unable to add field: " + name + ": " + eS.getMessage();
-      LOG.error(msg);
-      throw new SchemaException(msg);
-    }
-  } // public void addField(s, name, type, read, write, required)
+    return this._addField(s, name, FieldType.ATTRIBUTE, read, write, required);
+  } // public Field addAttribute(s, name, read, write, required)
+
+  /**
+   * Add a custom list {@link Field} to a custom {@link GroupType}.
+   * try {
+   *   Field myList = type.addList(
+   *     "my list", AccessPrivilege.VIEW, AccessPrivilege.UPDATE
+   *   );
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add list
+   * }
+   * catch (SchemaException eS) {
+   *   // Invalid schema
+   * }
+   * </pre>
+   * @param   s         Add list within this session context.
+   * @param   name      Name of list.
+   * @param   read      {@link Privilege} required to write to this {@link Field}.
+   * @param   write     {@link Privilege} required to write to this {@link Field}.
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   */
+  public Field addList(
+    GrouperSession s, String name, Privilege read, Privilege write
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    return this._addField(s, name, FieldType.LIST, read, write, false);
+  } // public Field addList(s, name, read, write)
 
   /**
    * Delete a custom {@link Field} from a custom {@link GroupType}.
@@ -338,6 +335,40 @@ public class GroupType implements Serializable {
   } // protected static boolean isSystemType(type)
 
 
+  // Private Instance Methods //
+  private Field _addField(
+      GrouperSession s, String name, FieldType type, Privilege read, 
+      Privilege write, boolean required
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    Field     f   = null;
+    StopWatch sw  = new StopWatch();
+    sw.start();
+    Validator.canAddFieldToType(s, this, name, type, read, write);
+    try {
+      boolean nullable = true;
+      if (required == true) {
+        nullable = false;
+      }
+      Set fields = this.getFields();
+      f = new Field(name, type, read, write, nullable);
+      fields.add(f);
+      this.setFields(fields);
+      HibernateHelper.save(this);
+      sw.stop();
+      EL.groupTypeAddField(s, this.getName(), name, sw);
+      return f;
+    }
+    catch (HibernateException eS) {
+      String msg = "unable to add field: " + name + ": " + eS.getMessage();
+      LOG.error(msg);
+      throw new SchemaException(msg);
+    }
+  } // private void _addField(s, name, type, read, write, required)
+
+
   // Getters //
   protected boolean getAssignable() {
     return this.assignable;
@@ -377,7 +408,6 @@ public class GroupType implements Serializable {
   private void setCreate_time(long time) {
     this.create_time = time;
   }
-
   private void setCreator_id(Member m) {
     this.creator_id = m;
   }
