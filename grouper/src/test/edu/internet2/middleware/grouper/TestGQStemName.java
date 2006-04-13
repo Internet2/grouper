@@ -24,10 +24,10 @@ import  java.util.*;
 import  junit.framework.*;
 
 /**
- * Test {@link StemNameFilter}.
+ * Test {@link StemNameAnyFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQStemName.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: TestGQStemName.java,v 1.1.2.2 2006-04-13 19:52:49 blair Exp $
  */
 public class TestGQStemName extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestGQStemName extends TestCase {
 
   // Tests
 
-  public void testStemNameFilterNothing() {
+  public void testStemNameAnyFilterNothing() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -56,7 +56,7 @@ public class TestGQStemName extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new StemNameFilter("nothing", root)
+        s, new StemNameAnyFilter("nothing", root)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -66,14 +66,14 @@ public class TestGQStemName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  } // public void testStemNameFilterNothing()
+  } // public void testStemNameAnyFilterNothing()
 
-  public void testStemNameFilterSomethingDisplayExtension() {
+  public void testStemNameAnyFilterSomethingDisplayExtension() {
   try {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     GrouperQuery q = GrouperQuery.createQuery(
-      s, new StemNameFilter("education", root)
+      s, new StemNameAnyFilter("education", root)
     );
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -83,7 +83,7 @@ public class TestGQStemName extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new StemNameFilter("education", root)
+        s, new StemNameAnyFilter("education", root)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -97,9 +97,9 @@ public class TestGQStemName extends TestCase {
   catch (QueryException e) {
     throw new RuntimeException("FUCK! " + e.getMessage());
   }
-  } // public void testStemNameFilterSomethingDisplayExtension()
+  } // public void testStemNameAnyFilterSomethingDisplayExtension()
 
-  public void testStemNameFilterSomethingDisplayName() {
+  public void testStemNameAnyFilterSomethingDisplayName() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -110,7 +110,7 @@ public class TestGQStemName extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new StemNameFilter("education", root)
+        s, new StemNameAnyFilter("education", root)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -120,9 +120,9 @@ public class TestGQStemName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  } // public void testStemNameFilterSomethingDisplayName()
+  } // public void testStemNameAnyFilterSomethingDisplayName()
 
-  public void testStemNameFilterSomethingExtension() {
+  public void testStemNameAnyFilterSomethingExtension() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -133,7 +133,7 @@ public class TestGQStemName extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new StemNameFilter("COM", root)
+        s, new StemNameAnyFilter("COM", root)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -143,9 +143,9 @@ public class TestGQStemName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  } // public void testStemNameFilterSomethingExtension()
+  } // public void testStemNameAnyFilterSomethingExtension()
 
-  public void testStemNameFilterSomethingName() {
+  public void testStemNameAnyFilterSomethingName() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -156,7 +156,7 @@ public class TestGQStemName extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new StemNameFilter("edu", root)
+        s, new StemNameAnyFilter("edu", root)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -166,9 +166,9 @@ public class TestGQStemName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  } // public void testStemNameFilterSomethingName()
+  } // public void testStemNameAnyFilterSomethingName()
 
-  public void testStemNameFilterSomethingDisplayExtensionScoped() {
+  public void testStemNameAnyFilterSomethingDisplayExtensionScoped() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -179,7 +179,7 @@ public class TestGQStemName extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new StemNameFilter("education", com)
+        s, new StemNameAnyFilter("education", com)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -189,9 +189,9 @@ public class TestGQStemName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  } // public void testStemNameFilterSomethingDisplayExtensionScoped()
+  } // public void testStemNameAnyFilterSomethingDisplayExtensionScoped()
 
-  public void testStemNameFilterSomethingDisplayNameScoped() {
+  public void testStemNameAnyFilterSomethingDisplayNameScoped() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -202,7 +202,7 @@ public class TestGQStemName extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new StemNameFilter("COM", com)
+        s, new StemNameAnyFilter("COM", com)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -212,9 +212,9 @@ public class TestGQStemName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  } // public void testStemNameFilterSomethingDisplayNameScoped()
+  } // public void testStemNameAnyFilterSomethingDisplayNameScoped()
 
-  public void testStemNameFilterSomethingExtensionScoped() {
+  public void testStemNameAnyFilterSomethingExtensionScoped() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -225,7 +225,7 @@ public class TestGQStemName extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new StemNameFilter("edu:i2", com)
+        s, new StemNameAnyFilter("edu:i2", com)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -235,9 +235,9 @@ public class TestGQStemName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  } // public void testStemNameFilterSomethingExtensionScoped()
+  } // public void testStemNameAnyFilterSomethingExtensionScoped()
 
-  public void testStemNameFilterSomethingNameScoped() {
+  public void testStemNameAnyFilterSomethingNameScoped() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -248,7 +248,7 @@ public class TestGQStemName extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new StemNameFilter("edu:i2", com)
+        s, new StemNameAnyFilter("edu:i2", com)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -258,7 +258,7 @@ public class TestGQStemName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  } // public void testStemNameFilterSomethingNameScoped()
+  } // public void testStemNameAnyFilterSomethingNameScoped()
 
 }
 

@@ -18,48 +18,46 @@
 package edu.internet2.middleware.grouper;
 
 import  java.util.*;
-import  org.apache.commons.logging.*;
 
 
 /** 
- * Query by stem attribute.
+ * Query by group name.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemNameFilter.java,v 1.3.2.1 2006-04-13 19:52:49 blair Exp $
+ * @version $Id: StemNameAnyFilter.java,v 1.1.2.1 2006-04-13 19:52:49 blair Exp $
  */
-public class StemNameFilter extends BaseQueryFilter {
+public class StemNameAnyFilter extends BaseQueryFilter {
 
-  // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(StemNameFilter.class);
-
-  // Private Instance Variables //
+  // Private Instance Variables
+  private String  name;
   private Stem    ns;
-  private String  val;
 
 
-  // Constructors //
+  // Constructors
 
   /**
    * {@link QueryFilter} that returns stems matching the specified
-   * <i>name</i> value.
+   * name.
    * <p>
-   * This performs a substring, lowercased query on <i>name</i>.
+   * This performs a substring, lowercased query against <i>name</i>,
+   * <i>displayName</i>, <i>extension</i> and <i>displayExtension</i>.
    * </p>
-   * @param   value Search for this value.
+   * @param   name  Find stems matching this name.
    * @param   ns    Restrict results to within this stem.
    */
-  public StemNameFilter(String value, Stem ns) {
+  public StemNameAnyFilter(String name, Stem ns) {
+    this.name = name;
     this.ns   = ns;
-    this.val  = value;
-  } // public StemNameFilter(value, ns)
+  } // public StemNameAnyFilter(name, ns)
 
 
-  // Public Instance Methods //
+  // Public Instance Methods
+
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
     GrouperSession.validate(s);
-    Set candidates  = StemFinder.findByApproximateName(s, this.val);
+    Set candidates  = StemFinder.findByApproximateNameAny(s, this.name);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;
   } // public Set getResults(s)

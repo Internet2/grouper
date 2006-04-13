@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.14.2.2 2006-04-13 00:32:11 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.14.2.3 2006-04-13 19:52:49 blair Exp $
  *     
 */
 public class GrouperConfig {
@@ -97,8 +97,16 @@ public class GrouperConfig {
   protected static final boolean  QRY_MSF_FMO   = true;
   protected static final String   QCR_MSF_FMOM  = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwnerMember";
   protected static final boolean  QRY_MSF_FMOM  = true;
+  protected static final String   QCR_SF_FBADE  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayExtension";
+  protected static final boolean  QRY_SF_FBADE  = true;
+  protected static final String   QCR_SF_FBADN  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayName";
+  protected static final boolean  QRY_SF_FBADN  = true;
+  protected static final String   QCR_SF_FBAE   = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateExtension";
+  protected static final boolean  QRY_SF_FBAE   = true;
   protected static final String   QCR_SF_FBAN   = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateName";
   protected static final boolean  QRY_SF_FBAN   = true;
+  protected static final String   QCR_SF_FBANA  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateNameAny";
+  protected static final boolean  QRY_SF_FBANA  = true;
   protected static final String   QCR_SF_FBCA   = "edu.internet2.middleware.grouper.StemFinder.FindByCreatedAfter";
   protected static final boolean  QRY_SF_FBCA   = true;
   protected static final String   QCR_SF_FBCB   = "edu.internet2.middleware.grouper.StemFinder.FindByCreatedBefore";

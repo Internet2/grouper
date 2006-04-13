@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.133.2.5 2006-04-13 18:37:46 blair Exp $
+$Id: API,v 1.133.2.6 2006-04-13 19:52:49 blair Exp $
 
 ---
 
@@ -151,6 +151,10 @@ $Id: API,v 1.133.2.5 2006-04-13 18:37:46 blair Exp $
 * void                setExtension(value)
 * Member              toMember()
 * Subject             toSubject()
+
+## GroupAnyAttributeFilter extends BaseQueryFilter
+
+## GroupAttributeFilter extends BaseQueryFilter
 
 ## GroupCreatedAfterFilter extends BaseQueryFilter
 
@@ -307,6 +311,16 @@ $Id: API,v 1.133.2.5 2006-04-13 18:37:46 blair Exp $
 * void                revokePriv(subject, naming priv) 
 * void                setDescription(value)
 * void                setDisplayExtension(value) 
+
+## StemDisplayExtensionFilter extends BaseQueryFilter
+
+## StemDisplayNameFilter extends BaseQueryFilter
+
+## StemExtensionFilter extends BaseQueryFilter
+
+## StemNameFilter extends BaseQueryFilter
+
+## StemNameAnyFilter extends BaseQueryFilter
 
 ## StemCreatedAfterFilter extends BaseQueryFilter
 

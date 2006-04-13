@@ -25,12 +25,12 @@ import  org.apache.commons.logging.*;
  * Query by stem attribute.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemNameFilter.java,v 1.3.2.1 2006-04-13 19:52:49 blair Exp $
+ * @version $Id: StemDisplayNameFilter.java,v 1.1.2.1 2006-04-13 19:52:49 blair Exp $
  */
-public class StemNameFilter extends BaseQueryFilter {
+public class StemDisplayNameFilter extends BaseQueryFilter {
 
   // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(StemNameFilter.class);
+  private static final Log LOG = LogFactory.getLog(StemDisplayNameFilter.class);
 
   // Private Instance Variables //
   private Stem    ns;
@@ -41,17 +41,17 @@ public class StemNameFilter extends BaseQueryFilter {
 
   /**
    * {@link QueryFilter} that returns stems matching the specified
-   * <i>name</i> value.
+   * <i>displayName</i> value.
    * <p>
-   * This performs a substring, lowercased query on <i>name</i>.
+   * This performs a substring, lowercased query on <i>displayName</i>.
    * </p>
    * @param   value Search for this value.
    * @param   ns    Restrict results to within this stem.
    */
-  public StemNameFilter(String value, Stem ns) {
+  public StemDisplayNameFilter(String value, Stem ns) {
     this.ns   = ns;
     this.val  = value;
-  } // public StemNameFilter(value, ns)
+  } // public StemDisplayNameFilter(value, ns)
 
 
   // Public Instance Methods //
@@ -59,7 +59,7 @@ public class StemNameFilter extends BaseQueryFilter {
     throws QueryException
   {
     GrouperSession.validate(s);
-    Set candidates  = StemFinder.findByApproximateName(s, this.val);
+    Set candidates  = StemFinder.findByApproximateDisplayName(s, this.val);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;
   } // public Set getResults(s)

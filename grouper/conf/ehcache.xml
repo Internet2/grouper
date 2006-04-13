@@ -368,7 +368,39 @@
           overflowToDisk="false"
   />
  
+  <cache name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayExtension"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayName"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateExtension"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
   <cache  name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateName"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateNameAny"
           maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="300"

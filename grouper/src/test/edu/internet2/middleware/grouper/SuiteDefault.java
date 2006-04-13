@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.1.2.5 2006-04-13 16:32:36 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.1.2.6 2006-04-13 19:52:49 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -41,6 +41,7 @@ public class SuiteDefault extends TestCase {
     suite.addTest(  SuiteGroupTypes.suite() );
     suite.addTest(  SuiteGroups.suite()     );
     suite.addTest(  SuiteSubjects.suite()   );
+    suite.addTest(  SuiteQueries.suite()    );
 
     suite.addTestSuite(TestBugsClosed.class);
     suite.addTestSuite(TestBugsOpen.class);
@@ -56,18 +57,6 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestGroupDeleteMemberGroup.class);
     suite.addTestSuite(TestGroupToMember.class);
     suite.addTestSuite(TestGrouperConfig.class);
-    suite.addTestSuite(TestGQComplementFilter.class);
-    suite.addTestSuite(TestGQGroupAnyAttribute.class);
-    suite.addTestSuite(TestGQGroupAttribute.class);
-    suite.addTestSuite(TestGQGroupCreatedAfter.class);
-    suite.addTestSuite(TestGQGroupCreatedBefore.class);
-    suite.addTestSuite(TestGQGroupName.class);
-    suite.addTestSuite(TestGQIntersectionFilter.class);
-    suite.addTestSuite(TestGQNull.class);
-    suite.addTestSuite(TestGQStemCreatedAfter.class);
-    suite.addTestSuite(TestGQStemCreatedBefore.class);
-    suite.addTestSuite(TestGQStemName.class);
-    suite.addTestSuite(TestGQUnionFilter.class);
     suite.addTestSuite(TestMember.class);
     suite.addTestSuite(TestMemberFinder.class);
     suite.addTestSuite(TestMemberToGroup.class);
