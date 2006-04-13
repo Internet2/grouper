@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: R.java,v 1.1.2.1 2006-04-13 00:33:22 blair Exp $
+ * @version $Id: R.java,v 1.1.2.2 2006-04-13 16:32:36 blair Exp $
  */
 class R {
 
@@ -71,7 +71,7 @@ class R {
         String  gExtn = _getSuffix(j);
         String  key   = nsExtn + ":" + gExtn;
         Group   g     = ns.addChildGroup(gExtn, "group " + gExtn);
-        LOG.debug("created group: " + ns);
+        LOG.debug("created group: " + g);
         r.groups.put(key, g);
       }
     }

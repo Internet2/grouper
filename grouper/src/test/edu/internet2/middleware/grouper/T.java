@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.1.2.1 2006-04-11 16:55:14 blair Exp $
+ * @version $Id: T.java,v 1.1.2.2 2006-04-13 16:32:36 blair Exp $
  */
 public class T {
 
@@ -41,6 +41,11 @@ public class T {
     LOG.debug("amount()");
     Assert.assertTrue(msg + " exp[" + exp + "] got[" + got + "]", exp == got);
   } // protected static void amount(msg, exp, got)
+
+  protected static void string(String msg, String exp, String got) { 
+    LOG.debug("string()");
+    Assert.assertTrue(msg + " exp[" + exp + "] got[" + got + "]", exp.equals(got));
+  } // protected static void string(msg, exp, got)
 
 
   // Group //
@@ -69,6 +74,20 @@ public class T {
     LOG.debug("getChildStems()");
     T.amount(ns.getName() + " child stems", exp, ns.getChildStems().size());
   } // protected static void getChildStems(ns, exp)
+
+  // SubjectFinder //
+  protected static void getSource(String id) {
+    LOG.debug("getSource()");
+    try {
+      Source sa = SubjectFinder.getSource(id);
+      Assert.assertNotNull( "sa not null"           , sa                    );
+      Assert.assertTrue(    "sa instanceof Source"  , sa instanceof Source  );
+      T.string("sa id", sa.getId(), id);
+    }
+    catch (SourceUnavailableException eSU) {
+      Assert.fail("unexpected exception: " + eSU.getMessage());
+    }
+  } // protected static void getSource(id)
 
 }
 

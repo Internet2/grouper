@@ -4,16 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.9 2006-04-13 14:07:42 blair Exp $
+$Id: TODO,v 1.30.2.10 2006-04-13 16:32:35 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* code: add `SubjectFinder.findById(id, type, source)`
-* code: add `SubjectFinder.findByIdentifier(id, type, source)`
-* code: add `SubjectFinder.findAll(query, source)`
 * code: replace `GroupType.addField()` with `GroupType.addAttribute()` and `GroupType.addList()`
 * code: empty stem deletion
 * code: `StemAttributeFilter`
@@ -76,6 +73,7 @@ $Id: TODO,v 1.30.2.9 2006-04-13 14:07:42 blair Exp $
 * code: unhibernate `GrouperSession`
 * code: enable batch fetching of `Membership` objects
 * code: order `Membership` queries by depth
+* code: add caching support to `SubjectFinder` methods that query by source
 * code: Don't assign `GrouperSystem` privileges
 * document: add `@since` to javadoc
 * library: update [jug](http://jug.safehaus.org/)
@@ -128,5 +126,5 @@ $Id: TODO,v 1.30.2.9 2006-04-13 14:07:42 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.9 2006-04-13 14:07:42 blair Exp $
+$Id: TODO,v 1.30.2.10 2006-04-13 16:32:35 blair Exp $
 

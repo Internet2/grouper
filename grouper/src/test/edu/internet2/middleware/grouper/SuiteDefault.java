@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.1.2.4 2006-04-13 14:16:09 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.1.2.5 2006-04-13 16:32:36 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -40,6 +40,7 @@ public class SuiteDefault extends TestCase {
     suite.addTest(  SuiteStems.suite()      );
     suite.addTest(  SuiteGroupTypes.suite() );
     suite.addTest(  SuiteGroups.suite()     );
+    suite.addTest(  SuiteSubjects.suite()   );
 
     suite.addTestSuite(TestBugsClosed.class);
     suite.addTestSuite(TestBugsOpen.class);
@@ -67,9 +68,6 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestGQStemCreatedBefore.class);
     suite.addTestSuite(TestGQStemName.class);
     suite.addTestSuite(TestGQUnionFilter.class);
-    suite.addTestSuite(TestGrouperSourceAdapter.class);
-    suite.addTestSuite(TestGrouperSubject.class);
-    suite.addTestSuite(TestInternalSourceAdapter.class);
     suite.addTestSuite(TestMember.class);
     suite.addTestSuite(TestMemberFinder.class);
     suite.addTestSuite(TestMemberToGroup.class);
@@ -89,13 +87,6 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestStemAddChildGroup.class);
     suite.addTestSuite(TestStemAddChildStem.class);
     suite.addTestSuite(TestStemFinder.class);
-    suite.addTestSuite(TestSuFiInSoAdFindById.class);
-    suite.addTestSuite(TestSuFiInSoAdFindByIdfr.class);
-    suite.addTestSuite(TestSuFiInSoAdSearch.class);
-    suite.addTestSuite(TestSuFiGrSoAdFindById.class);
-    suite.addTestSuite(TestSuFiGrSoAdFindByIdfr.class);
-    suite.addTestSuite(TestSuFiGrSoAdSearch.class);
-    suite.addTestSuite(TestSubjectFinderInternal.class);  // TODO Hrm...
     suite.addTestSuite(TestWrongFieldType.class); 
     // TODO suite.addTestSuite(TestWheelGroup.class); 
 

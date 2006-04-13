@@ -30,11 +30,11 @@ import  org.apache.commons.logging.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.14.2.2 2006-04-10 19:55:52 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.14.2.3 2006-04-13 16:32:35 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
-  // Private Class Constants
+  // Private Class Constants //
   private static final String         ERR_IAS   = "unable to initialize ALL subject: ";
   private static final String         ERR_INIT  = "failed to initialize source manager: ";
   private static final String         ERR_SNF   = "subject not found: ";
@@ -43,8 +43,6 @@ public class SubjectFinder implements Serializable {
   private static final SourceManager  MGR;
   private static final Subject        ALL; 
 
-  // Private Class Variables //
-  private static GrouperSourceAdapter _gsa      = null;
 
   // Static //
   static {
@@ -61,7 +59,7 @@ public class SubjectFinder implements Serializable {
       // Add in group source adapter
       LOG.info("Subject finder initialized");
       try {
-        ALL = SubjectFinder.findById(GrouperConfig.ALL, GrouperConfig.IST);
+        ALL = SubjectFinder.findById(GrouperConfig.ALL, GrouperConfig.IST, InternalSourceAdapter.ID);
         LOG.info("ALL subject initialized");
       }
       catch (SubjectNotFoundException eSNF) {
@@ -147,6 +145,42 @@ public class SubjectFinder implements Serializable {
   } // public static Subject findById(id, type)
 
   /**
+   * Get a subject by id, type and source.
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   Subject subj = SubjectFinder.findById(id, type, source);
+   * }
+   * catch (SourceUnavailableException eSU) {
+   *   // unable to query source
+   * }
+   * catch (SubjectNotFoundException eSNF) {
+   *   // subject not found
+   * }
+   *  </pre>
+   * @param   id      Subject ID
+   * @param   type    Subject type.
+   * @param   source  {@link Source} adapter to search.
+   * @return  A {@link Subject} object
+   * @throws  SourceUnavailableException
+   * @throws  SubjectNotFoundException
+   */
+  public static Subject findById(String id, String type, String source) 
+    throws  SourceUnavailableException,
+            SubjectNotFoundException
+  {
+    // FIXME Caching support
+    Source  sa    = getSource(source);
+    Subject subj  = sa.getSubject(id);
+    if (subj.getType().getName().equals(type)) {
+      return subj;
+    }
+    throw new SubjectNotFoundException(ERR_SNF + id + "," + type);
+  } // public static Subject findById(id, type, source)
+
+  /**
    * Get a subject by a well-known identifier.
    * <pre class="eg">
    * // Find the subject - within all sources - with the well-known
@@ -185,8 +219,11 @@ public class SubjectFinder implements Serializable {
    * try {
    *   Subject subj = SubjectFinder.findByIdentifier(identifier, type);
    * }
-   * catch (SubjectNotFoundException e) {
-   *   // Subject not found
+   * catch (SourceUnavailableException eSU) {
+   *   // unable to query source
+   * }
+   * catch (SubjectNotFoundException eSNF) {
+   *   // subject not found
    * }
    *  </pre>
    * @param   id      Subject identifier.
@@ -214,6 +251,39 @@ public class SubjectFinder implements Serializable {
   }
 
   /**
+   * Get a subject by a well-known identifier, type and source.
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   Subject subj = SubjectFinder.findByIdentifier(id, type, source);
+   * }
+   * catch (SubjectNotFoundException e) {
+   *   // Subject not found
+   * }
+   *  </pre>
+   * @param   id      Well-known identifier.
+   * @param   type    Subject type.
+   * @param   source  {@link Source} adapter to search.
+   * @return  A {@link Subject} object
+   * @throws  SourceUnavailableException
+   * @throws  SubjectNotFoundException
+   */
+  public static Subject findByIdentifier(String id, String type, String source) 
+    throws  SourceUnavailableException,
+            SubjectNotFoundException
+  {
+    // FIXME Caching support
+    Source  sa    = getSource(source);
+    Subject subj  = sa.getSubjectByIdentifier(id);
+    if (subj.getType().getName().equals(type)) {
+      return subj;
+    }
+    throw new SubjectNotFoundException(ERR_SNF + id + "," + type);
+  } // public static Subject findByIdentifier(id, type, source)
+
+  /**
    * Find all subjects matching the query.
    * <p>
    * The query string specification is currently unique to each subject
@@ -221,6 +291,9 @@ public class SubjectFinder implements Serializable {
    * results across different source adapters.  Consult the
    * documentation for each source adapter for more information on the
    * query language supported by each adapter.
+   * </p>
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
    * </p>
    * <pre class="eg">
    * // Find all subjects matching the given query string.
@@ -242,6 +315,32 @@ public class SubjectFinder implements Serializable {
   } // public static Set findAll(query)
 
   /**
+   * Find all subjects matching the query within the specified {@link Source}.
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   Set subjects = SubjectFinder.findAll(query, source);
+   * }
+   * catch (SourceUnavailableException eSU) {
+   *   // unable to query source
+   * }
+   *  </pre>
+   * @param   query   Subject query string.r.
+   * @param   source  {@link Source} adapter to search.
+   * @return  A {@link Set} of {@link Subject}s.
+   * @throws  SourceUnavailableException
+   */
+  public static Set findAll(String query, String source)
+    throws  SourceUnavailableException
+  {
+    // FIXME Caching support
+    Source sa = getSource(source);
+    return sa.search(query);
+  } // public static Set findAll(query, source)
+
+  /**
    * Get <i>GrouperAll</i> subject.
    * <pre class="eg">
    * Subject all = SubjectFinder.findAllSubject();
@@ -252,27 +351,53 @@ public class SubjectFinder implements Serializable {
     return ALL;
   } // public static Subject findAllSubject()
 
+  /**
+   * Get {@link Source} for specified by id.
+   * <pre class="eg">
+   * try {
+   *   Source sa = SubjectFinder.getSource(id);
+   * }
+   * catch (SourceUnavailableException eSU) {
+   *   // unable to retrieve source
+   * }
+   * </pre>
+   * @param   id  Name of source to retrieve.
+   * @return  {@link Source} adapter.
+   * @throws  SourceUnavailableException
+   */
+  public static Source getSource(String id) 
+    throws  SourceUnavailableException
+  {
+    return MGR.getSource(id);  
+  } // public static Source getSource(id)
 
-  // Protected Class Methods
-  protected static GrouperSourceAdapter getGrouperSourceAdapter() {
-    if (_gsa != null) {
-      return _gsa;
-    }
-    Iterator iter = MGR.getSources().iterator();
-    while (iter.hasNext()) {
-      Source source = (Source) iter.next();
-      if (source.getClass().equals(GrouperSourceAdapter.class)) {
-        _gsa = (GrouperSourceAdapter) source;
-        return _gsa;
-      }
-    }
-    throw new RuntimeException("could not find GSA");
-  } // protected static GrouperSourceAdapter getGrouperSourceAdapter()
+  /**
+   * Get all sources.
+   * <pre class="eg">
+   * Set sources = SubjectFinder.getSources();
+   * </pre>
+   * @return  {@link Set} of configured {@link Source} adapters.
+   */
+  public static Set getSources() {
+    return new LinkedHashSet( MGR.getSources() );
+  } // public static Set getSources()
+
+  /**
+   * Get all sources that support the specified subject type.
+   * <pre class="eg">
+   * Set personSources = SubjectFinder.getSources("person");
+   * </pre>
+   * @param   type  Find {@link Source} adapters that support this type.
+   * @return  {@link Set} of configured {@link Source} adapters.
+   */
+  public static Set getSources(String type) {
+    return new LinkedHashSet( 
+      MGR.getSources( SubjectTypeEnum.valueOf(type) ) 
+    );
+  } // public static Set getSources(type)
 
 
-  // Private class methods //
- 
-  // Find subjects by id 
+  // Private Class Methods //
   private static List _findById(String id, Iterator iter) {
     String msg = "_findById '" + id + "'";
     LOG.debug(msg);
@@ -294,8 +419,6 @@ public class SubjectFinder implements Serializable {
     LOG.debug(msg + " found: " + subjects.size());
     return subjects;
   } // private static List _findById(id, iter) 
-
-  // Find subjects by identifier
   private static List _findByIdentifier(String id, Iterator iter) {
     Subject subj      = null;
     List    subjects  = new ArrayList();

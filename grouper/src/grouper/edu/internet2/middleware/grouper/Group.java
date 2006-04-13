@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.3 2006-04-12 17:47:23 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.4 2006-04-13 16:32:35 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -1883,13 +1883,15 @@ public class Group extends Owner implements Serializable {
     if (as_subj == null) {
       try {
         GrouperLog.debug(LOG , s, msg + " find group as subject");
-        as_subj = SubjectFinder.findById(this.getUuid(), "group");
+        as_subj = SubjectFinder.findById(
+          this.getUuid(), "group", GrouperSourceAdapter.ID
+        );
         GrouperLog.debug(LOG, s, msg + " found: " + as_subj);
       }
-      catch (SubjectNotFoundException eSNF) {
+      catch (Exception e) {
         // If we can't find an existing group as a subject we have
         // major issues and shoudl probably just give up
-        String err = ERR_G2S + eSNF.getMessage();
+        String err = ERR_G2S + e.getMessage();
         GrouperLog.error(LOG, s, err);
         throw new RuntimeException(err);
       }

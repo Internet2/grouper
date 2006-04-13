@@ -33,7 +33,7 @@ import  org.apache.commons.logging.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.17 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.17.2.1 2006-04-13 16:32:35 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -115,7 +115,7 @@ public class GrouperSession implements Serializable {
     if (root == null) {
       try {
         root = SubjectFinder.findById(
-          GrouperConfig.ROOT, GrouperConfig.IST
+          GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID
         );
       }
       catch (Exception e) {

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.133.2.2 2006-04-13 00:35:33 blair Exp $
+$Id: API,v 1.133.2.3 2006-04-13 16:32:35 blair Exp $
 
 ---
 
@@ -320,10 +320,16 @@ $Id: API,v 1.133.2.2 2006-04-13 00:35:33 blair Exp $
 ## SubjectFinder
 * Subject             SubjectFinder.findById(id)  
 * Subject             SubjectFinder.findById(id, type)
+* Subject             SubjectFinder.findById(id, type, source)
 * Subject             SubjectFinder.findByIdentifier(id)  
 * Subject             SubjectFinder.findByIdentifier(id, type)
+* Subject             SubjectFinder.findByIdentifier(id, type, source)
 * Set                 SubjectFinder.findAll(query)
+* Set                 SubjectFinder.findAll(query, source)
 * Subject             SubjectFinder.findAllSubject()
+* Source              SubjectFinder.getSource(id)
+* Set                 SubjectFinder.getSources()
+* Set                 SubjectFinder.getSources(type)
 
 ## UnionFilter extends BaseQueryFilter
 
