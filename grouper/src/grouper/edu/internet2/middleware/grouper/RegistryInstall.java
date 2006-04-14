@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.15.2.3 2006-04-13 16:32:35 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.15.2.4 2006-04-14 16:14:28 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -166,13 +166,16 @@ public class RegistryInstall {
     fields.addAll(naming_f);
 
     try {
-      Session hs = HibernateHelper.getSession();
-      Set objects = new LinkedHashSet();
+      Session   hs        = HibernateHelper.getSession();
+      Set       objects   = new LinkedHashSet();
+      Settings  settings  = new Settings(Settings.getCurrentSchemaVersion());
       objects.addAll(types);
+      objects.add(settings);
       HibernateHelper.save(objects);
       hs.close();
-      LOG.info("group types installed: " + types.size());
-      LOG.info("fields installed     : " + fields.size());
+      LOG.info("set schema version   : " + settings.getSchemaVersion()  );
+      LOG.info("group types installed: " + types.size()                 );
+      LOG.info("fields installed     : " + fields.size()                );
     }
     catch (HibernateException eH) {
       String err = ERR_IS + eH.getMessage();

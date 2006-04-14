@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.94.2.11 2006-04-13 19:52:49 blair Exp $
+$Id: NEWS,v 1.94.2.12 2006-04-14 16:14:28 blair Exp $
 
 ---
 
@@ -10,6 +10,9 @@ $Id: NEWS,v 1.94.2.11 2006-04-13 19:52:49 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW: With an eye towards hopefully making migrations easier in
+  the future, we are now storing the schema version number in the
+  database.
 * NEW: `StemDisplayExtensionFilter`.
 * NEW: `StemDisplayNameFilter`.
 * NEW: `StemExtensionFilter`

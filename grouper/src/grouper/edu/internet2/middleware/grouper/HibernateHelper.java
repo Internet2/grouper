@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.10.2.3 2006-04-13 00:31:02 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.10.2.4 2006-04-14 16:14:28 blair Exp $
  */
 class HibernateHelper {
 
@@ -55,6 +55,7 @@ class HibernateHelper {
         .addClass(Member.class)
         .addClass(Membership.class)
         .addClass(Owner.class)
+        .addClass(Settings.class)
         .buildSessionFactory()
         ;
     } 

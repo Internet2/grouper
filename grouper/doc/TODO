@@ -4,14 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.13 2006-04-13 19:52:49 blair Exp $
+$Id: TODO,v 1.30.2.14 2006-04-14 16:14:28 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* code: record db schema version in db
 * code: add daemon (singleton?)
 * code: start+stop daemon via api
 * code: embed hsqldb within daemon 
@@ -123,7 +122,7 @@ $Id: TODO,v 1.30.2.13 2006-04-13 19:52:49 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.13 2006-04-13 19:52:49 blair Exp $
+$Id: TODO,v 1.30.2.14 2006-04-14 16:14:28 blair Exp $
 
 
 
