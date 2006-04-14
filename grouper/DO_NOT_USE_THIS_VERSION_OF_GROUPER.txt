@@ -1,6 +1,0 @@
-
-The current development branch of Grouper is **very unstable** and
-should not be used due to data integrity issues.
-
-$Id: DO_NOT_USE_THIS_VERSION_OF_GROUPER.txt,v 1.1 2006-04-06 15:42:56 blair Exp $
-
