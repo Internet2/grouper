@@ -3,16 +3,14 @@
 --
 -- Note: may not work with anything other than PostgreSQL, but might serve as a template for others.
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/Psql_clean_db.sql,v 1.1 2006-04-11 23:33:22 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/Psql_clean_db.sql,v 1.2 2006-04-14 23:06:18 ddonn Exp $
 --
 
 DELETE FROM signet_category;
 DELETE FROM signet_function_permission;
 DELETE FROM signet_function;
 DELETE FROM signet_permission_limit;
-DELETE FROM signet_limit;
 DELETE FROM signet_permission;
-DELETE FROM signet_subsystem;
 DELETE FROM signet_treeNodeRelationship;
 DELETE FROM signet_treeNode;
 DELETE FROM signet_tree;
@@ -21,10 +19,12 @@ DELETE FROM signet_choiceSet;
 DELETE FROM signet_assignmentLimit_history;
 DELETE FROM signet_assignment_history;
 DELETE FROM signet_assignmentLimit;
+DELETE FROM signet_limit;
 DELETE FROM signet_assignment;
 DELETE FROM signet_proxy_history;
 DELETE FROM signet_proxy;
 DELETE FROM signet_subject;
+DELETE FROM signet_subsystem;
 DELETE FROM SubjectAttribute;
 DELETE FROM Subject;
 DELETE FROM SubjectType;
