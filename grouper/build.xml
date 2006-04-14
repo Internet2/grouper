@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.84.2.4 2006-04-11 16:26:48 blair Exp $ -->
+<!-- $Id: build.xml,v 1.84.2.5 2006-04-14 15:17:45 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -392,26 +392,6 @@ error"
  <target name="clover.swing" depends="with.clover">
    <clover-view/>
  </target>
-
-<!-- deprecated -->
-
-  <!-- codegen -->
-<!--
-  <target name="codegen" depends="init">
-    <mkdir dir="${dist}" />
-    <mkdir dir="${dist}/run" />
-    <taskdef name="hbm2java"
-      classname="net.sf.hibernate.tool.hbm2java.Hbm2JavaTask"
-      classpathref="project.classpath"
-    />
-    <hbm2java config="${conf}/codegen.cfg.xml" output="${src.grouper}">
-      <fileset dir="${src.grouper}">
-        <include name="**/*.hbm.xml"/>
-      </fileset>
-    </hbm2java>
-  </target>
--->
-  <!-- codegen -->
 
 </project>
 
