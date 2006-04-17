@@ -4,20 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.14 2006-04-14 16:14:28 blair Exp $
+$Id: TODO,v 1.30.2.15 2006-04-17 15:42:08 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* code: add daemon (singleton?)
-* code: start+stop daemon via api
-* code: embed hsqldb within daemon 
-** admin: update to latest hsqldb
-** code: do not stop hsqldb if using non-embedded db
-* test: basic concurrency testing
-* MAYBE code: add registry integrity thread to daemon
 * code: add union composite member (sync)
 * code: delete union composite member (sync)
 * code: add complement composite member (sync)
@@ -27,8 +20,15 @@ $Id: TODO,v 1.30.2.14 2006-04-14 16:14:28 blair Exp $
 * code: privilege cleanup - `NamingResolver`
 * code: privilege cleanup - `AccessResolver`
 * code: privilege cleanup - Hibernate-backed `PrivilegeCache`
-* code: non-hibernated sessions
+* code: non-hibernated root sessions
 * code: remove (all|most) RTEs
+* code: add daemon (singleton?)
+* code: start+stop daemon via api
+* code: embed hsqldb within daemon 
+** admin: update to latest hsqldb
+** code: do not stop hsqldb if using non-embedded db
+* test: basic concurrency testing
+* MAYBE code: add registry integrity thread to daemon
 * code: toString cleanup
 * code: attribute retrieval cleanup
 * code: add getting-and-setting sync mode to sessions
@@ -122,7 +122,7 @@ $Id: TODO,v 1.30.2.14 2006-04-14 16:14:28 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.14 2006-04-14 16:14:28 blair Exp $
+$Id: TODO,v 1.30.2.15 2006-04-17 15:42:08 blair Exp $
 
 
 
