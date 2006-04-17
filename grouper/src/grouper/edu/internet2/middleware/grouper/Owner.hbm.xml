@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Owner.hbm.xml,v 1.7.2.1 2006-04-11 18:50:30 blair Exp $ -->
+<!-- $Id: Owner.hbm.xml,v 1.7.2.2 2006-04-17 18:19:54 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Owner" table="grouper_owners">
@@ -47,9 +47,12 @@ An owner within the Groups Registry.
     <!-- creator_id -->
     <many-to-one  name="creator_id"
                   class="edu.internet2.middleware.grouper.Member" 
-                  not-null="true"
-                  index="owner_creator_idx"
-    />
+    >
+      <column name="creator_id"
+              not-null="true"
+              index="owner_creator_idx"
+      />
+    </many-to-one>
     <!-- creator_id -->
 
     <!-- create_source -->
@@ -239,6 +242,55 @@ An owner within the Groups Registry.
         />
       </set>
       <!-- group_types -->
+    </joined-subclass>
+
+    <joined-subclass  name="Composite" table="grouper_composites">
+      <key column="owner_id"/>
+
+      <!-- owner -->
+      <many-to-one  name="owner"
+                    class="edu.internet2.middleware.grouper.Owner"
+                    cascade="none"
+      >
+        <column name="owner"
+                not-null="true"
+                index="composite_owner_idx"
+        />
+      </many-to-one>
+      <!-- owner -->
+
+      <!-- left -->
+      <many-to-one  name="left"
+                    class="edu.internet2.middleware.grouper.Owner"
+                    cascade="none"
+      >
+        <column name="left"
+                not-null="true"
+                index="composite_factor_idx"
+        />
+      </many-to-one>
+      <!-- left -->
+
+      <!-- right -->
+      <many-to-one  name="right"
+                    class="edu.internet2.middleware.grouper.Owner"
+                    cascade="none"
+      >
+        <column name="right"
+                not-null="true"
+                index="composite_factor_idx"
+        />
+      </many-to-one>
+      <!-- right -->
+
+      <!-- type -->
+      <property name="type"
+                type="edu.internet2.middleware.grouper.CompositeTypeUserType"
+                not-null="true"
+                length="32"
+      />
+      <!-- type -->
+
     </joined-subclass>
 
   </class>

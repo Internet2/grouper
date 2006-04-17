@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.133.2.6 2006-04-13 19:52:49 blair Exp $
+$Id: API,v 1.133.2.7 2006-04-17 18:19:54 blair Exp $
 
 ---
 
@@ -84,7 +84,7 @@ $Id: API,v 1.133.2.6 2006-04-13 19:52:49 blair Exp $
 * Set                 FieldFinder.findAll()
 * Set                 FieldFinder.findAllByType(fieldType)
 
-## Group
+## Group extends Owner
 * Field               Group.getDefaultList()
 * void                addMember(subject)
 * void                addMember(subject, field)
@@ -282,7 +282,7 @@ $Id: API,v 1.133.2.6 2006-04-13 19:52:49 blair Exp $
 
 ## QueryFilter extends BaseQueryFilter
 
-## Stem
+## Stem extends Owner
 * Group               addChildGroup(extension, displayExtension)
 * Stem                addChildStem(extension, displayExtension)
 * void                delete()

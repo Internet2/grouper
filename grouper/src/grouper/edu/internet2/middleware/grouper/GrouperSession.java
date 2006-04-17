@@ -30,50 +30,43 @@ import  org.apache.commons.logging.*;
 
 
 /** 
- * Session for interacting with the Grouper API.
+ * Context for interacting with the Grouper API and Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.17.2.1 2006-04-13 16:32:35 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.17.2.2 2006-04-17 18:19:54 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
 
-  // Private Class Constants
+  // Private Class Constants //
   private static final EventLog EL        = new EventLog();
+  private static final Log      LOG       = LogFactory.getLog(GrouperSession.class);
   private static final String   ERR_GS    = "unable to get subject associated with session";
   private static final String   ERR_START = "unable to start session: ";
   private static final String   ERR_STOP  = "unable to stop session: ";
-  private static final Log      LOG       = LogFactory.getLog(GrouperSession.class);
 
-
-  // Hibernate Properties
+  // Hibernate Properties //
   private String  id;
   private Member  member_id;
   private String  session_id;
   private Date    start_time;
 
-
-  // Private Class Variables
+  // Private Class Variables //
   private static Subject root = null;
 
-
-  // Private Transient Instance Variables
+  // Private Transient Instance Variables //
   private transient Subject subj  = null;
   private transient String  who;
   private transient String  type;
 
 
-  // Constructors
-
-  /**
-   * Default constructor for Hibernate.
-   */
-  public GrouperSession() { 
-    // Nothing
-  } // public GrouperSession()
+  // Constructors //
+  private GrouperSession() { 
+    // Default constructor for Hibernate
+  } // private GrouperSession()
 
 
-  // Public class methods
+  // Public Class Methods //
 
   /**
    * Start a session for interacting with the Grouper API.
@@ -278,6 +271,7 @@ public class GrouperSession implements Serializable {
 
 
   // Protected Class Methods
+  // TODO Deprecate
   protected static void validate(GrouperSession s) {
     try {
       if (s == null) {
