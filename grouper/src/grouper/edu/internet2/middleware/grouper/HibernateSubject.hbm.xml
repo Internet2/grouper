@@ -20,15 +20,11 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateSubject.hbm.xml,v 1.1.2.1 2006-04-10 17:51:03 blair Exp $ -->
+<!-- $Id: HibernateSubject.hbm.xml,v 1.1.2.2 2006-04-17 19:34:44 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="HibernateSubject" table="Subject">
 
-    <meta attribute="class-description">
-Hibernate representation of the JDBC Subject table.
-@author blair christensen.
-    </meta>
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateHelper.getSession();</meta>
 
@@ -40,6 +36,9 @@ Hibernate representation of the JDBC Subject table.
         unsaved-value="null"
         length="64"
     >
+      <column name="subjectID"
+              index="subject_idx"
+      />
       <generator class="assigned"/>
     </id>
     <!-- id -->
@@ -47,10 +46,11 @@ Hibernate representation of the JDBC Subject table.
     <!-- subjectTypeID -->
     <property name="subjectTypeID"
               type="string"
-              not-null="true"
     >
       <column name="subjectTypeID"
+              not-null="true"
               length="32"
+              index="subject_idx"
       />
     </property>
     <!-- subjectTypeID -->

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Member.hbm.xml,v 1.10 2006-02-03 19:38:53 blair Exp $ -->
+<!-- $Id: Member.hbm.xml,v 1.10.2.1 2006-04-17 19:34:44 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Member" table="grouper_members">
@@ -94,11 +94,11 @@ A member within the Groups Registry.
       name="member_id"
       type="string"
       unique="true"
-      index="member_uuid_idx"
     >
       <column name="member_uuid"
               not-null="true"
               length="128"
+              index="member_uuid_idx"
       />
     </property>
     <!-- member_id -->
@@ -107,10 +107,10 @@ A member within the Groups Registry.
     <property name="status"
               type="edu.internet2.middleware.grouper.StatusUserType"
               update="false"
-              index="member_status_idx"
     >
       <column name="status_type"
               length="128"
+              index="member_status_idx"
       />
       <column name="status_ttl"/>
     </property>

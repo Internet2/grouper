@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Owner.hbm.xml,v 1.7.2.2 2006-04-17 18:19:54 blair Exp $ -->
+<!-- $Id: Owner.hbm.xml,v 1.7.2.3 2006-04-17 19:34:44 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Owner" table="grouper_owners">
@@ -64,12 +64,11 @@ An owner within the Groups Registry.
     <!-- create_time -->
     <property name="create_time"
               type="long"
-              not-null="true"
               update="false"
-              index="owner_createtime_idx" 
     >
       <column name="create_time"
               not-null="true"
+              index="owner_createtime_idx" 
       />
     </property>
     <!-- create_time -->
@@ -78,8 +77,11 @@ An owner within the Groups Registry.
     <many-to-one  name="modifier_id"
                   class="edu.internet2.middleware.grouper.Member" 
                   cascade="none"
-                  index="owner_modifier_idx"
-    />
+    >
+      <column name="modifier_id"
+              index="owner_modifier_idx"
+      />
+    </many-to-one>
     <!-- modifier_id -->
 
     <!-- modify_source -->
@@ -91,19 +93,22 @@ An owner within the Groups Registry.
     <!-- modify_time -->
     <property name="modify_time"
               type="long"
+    >
+      <column name="modify_time"
               index="owner_modifytime_idx" 
-    />
+      />
+    </property>
     <!-- modify_time -->
 
     <!-- uuid -->
     <property name="uuid"
               type="string"
-              not-null="true"
               unique="true"
-              index="owner_uuid_idx"
     >
       <column name="uuid"
               length="128"
+              index="owner_uuid_idx"
+              not-null="true"
       />
     </property>
     <!-- uuid -->
@@ -112,12 +117,14 @@ An owner within the Groups Registry.
     <property name="status"
               type="edu.internet2.middleware.grouper.StatusUserType"
               update="false"
-              index="owner_status_idx"
     >
       <column name="status_type"
               length="128"
+              index="owner_status_idx"
       />
-      <column name="status_ttl"/>
+      <column name="status_ttl"
+              index="owner_status_idx"
+      />
     </property>
     <!-- status -->
 
@@ -166,26 +173,32 @@ An owner within the Groups Registry.
       <!-- display_extension -->
       <property name="display_extension"
                 type="string"
+      >
+        <column name="display_extension"
                 index="stem_displayextn_idx"
                 not-null="true"
-      />
+        />
+      </property>
       <!-- display_extension -->
 
       <!-- display_name -->
       <property name="display_name"
                 type="string"
+      >
+        <column name="display_name"
                 index="stem_displayname_idx"
                 not-null="true"
-      />
+        />
+      </property>
       <!-- display_name -->
 
       <!-- extension -->
       <property name="stem_extension"
                 type="string"
-                index="stem_extn_idx"
       >
         <column name="extension"
                 not-null="true"
+                index="stem_extn_idx"
         />
       </property>
       <!-- extension -->
@@ -194,10 +207,11 @@ An owner within the Groups Registry.
       <property
         name="stem_name"
         type="string"
-        index="stem_name_idx"
       >
         <column name="name"
-                not-null="true"/>
+                not-null="true"
+                index="stem_name_idx"
+        />
       </property>
       <!-- name -->
 

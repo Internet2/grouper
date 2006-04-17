@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Field.hbm.xml,v 1.11 2006-02-03 19:38:53 blair Exp $ -->
+<!-- $Id: Field.hbm.xml,v 1.11.2.1 2006-04-17 19:34:44 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Field" table="grouper_fields">
@@ -47,9 +47,8 @@ Schema specification for a Group attribute or list.
 
     <!-- group_type -->
     <!-- TODO What cascade level do I want? -->
-    <many-to-one
-      name="group_type"
-      class="edu.internet2.middleware.grouper.GroupType"
+    <many-to-one  name="group_type"
+                  class="edu.internet2.middleware.grouper.GroupType"
     >
       <column name="group_type" 
               not-null="true"
@@ -58,47 +57,54 @@ Schema specification for a Group attribute or list.
     <!-- group_type -->
 
     <!-- field_type -->
-    <property 
-      name="field_type"
-      type="edu.internet2.middleware.grouper.FieldTypeUserType"
-      not-null="true"
-      index="field_type_idx"
-      length="32"
-    />
+    <property name="field_type"
+              type="edu.internet2.middleware.grouper.FieldTypeUserType"
+    >
+      <column name="field_type"
+              not-null="true"
+              index="field_type_idx"
+              length="32"
+      />
+    </property>
     <!-- field_type -->
 
     <!-- field_name -->
-    <property 
-      name="field_name"
-      type="string"
-      not-null="true"
-      unique="true"
-      length="32"
-    />
+    <property name="field_name"
+              type="string"
+    >
+      <column name="field_name"
+              not-null="true"
+              unique="true"
+              length="32"
+      />
+    </property>
     <!-- field_name -->
 
     <!-- read_priv -->
-    <property 
-      name="read_priv"
-      type="edu.internet2.middleware.grouper.PrivilegeUserType"
-      not-null="true"
-      length="128"
-    />
+    <property name="read_priv"
+              type="edu.internet2.middleware.grouper.PrivilegeUserType"
+    >
+      <column name="read_priv"
+              not-null="true"
+              length="128"
+      />
+    </property>
     <!-- read_priv -->
 
     <!-- write_priv -->
-    <property 
-      name="write_priv"
-      type="edu.internet2.middleware.grouper.PrivilegeUserType"
-      not-null="true"
-      length="128"
-    />
+    <property name="write_priv"
+              type="edu.internet2.middleware.grouper.PrivilegeUserType"
+    >
+      <column name="write_priv"
+              not-null="true"
+              length="128"
+      />
+    </property>
     <!-- write_priv -->
   
     <!-- nullable -->
-    <property
-      name="nullable"
-      type="boolean"
+    <property name="nullable"
+              type="boolean"
     />
     <!-- nullable -->
 
