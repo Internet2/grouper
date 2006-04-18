@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteCompositesModel.java,v 1.1.2.1 2006-04-17 18:19:54 blair Exp $
+ * @version $Id: SuiteCompositesModel.java,v 1.1.2.2 2006-04-18 19:09:23 blair Exp $
  */
 public class SuiteCompositesModel extends TestCase {
 
@@ -48,6 +48,10 @@ public class SuiteCompositesModel extends TestCase {
     suite.addTestSuite( TestCompositeModel10.class  );  // intersection
     suite.addTestSuite( TestCompositeModel11.class  );  // union
     suite.addTestSuite( TestCompositeModel12.class  );  // fail: owner != (group|stem)
+/* TODO
+    suite.addTestSuite( TestCompositeModel13.class  );  // fail: owner == left
+    suite.addTestSuite( TestCompositeModel14.class  );  // fail: owner == right
+*/
     return suite;
   } // static public Test suite()
 
