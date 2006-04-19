@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.10.2.4 2006-04-13 00:32:39 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.10.2.5 2006-04-19 22:55:14 blair Exp $
  */
 public class RegistryReset {
 
@@ -66,6 +66,7 @@ public class RegistryReset {
       rr._addSubjects();
     }
     catch (Exception e) {
+      e.printStackTrace();
       rr._abort(e.getMessage());
     }
   } // public static void addTestSubjects()
@@ -96,6 +97,7 @@ public class RegistryReset {
       rr._emptyTables();
     }
     catch (Exception e) {
+      e.printStackTrace();
       rr._abort(e.getMessage());
     }
   } // public static void reset()
@@ -111,6 +113,7 @@ public class RegistryReset {
       rr._addSubjects();
     }
     catch (Exception e) {
+      e.printStackTrace();
       rr._abort(e.getMessage());
     }
   } // public static void resetRegistryAndAddTestSubjects()

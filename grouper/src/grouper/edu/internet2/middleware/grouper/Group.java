@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.4 2006-04-13 16:32:35 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.5 2006-04-19 22:55:14 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -166,9 +166,7 @@ public class Group extends Owner implements Serializable {
             MemberAddException
   {
     try {
-      this.addMember(
-        subj, getDefaultList()
-      );
+      this.addMember(subj, getDefaultList());
     }
     catch (SchemaException eS) {
       throw new MemberAddException(eS.getMessage());
@@ -204,27 +202,7 @@ public class Group extends Owner implements Serializable {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    String  msg = MSG_AM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
-    GrouperLog.debug(LOG, this.getSession(), msg);
-    Validator.isCircularMembership(this, subj, f);
-    try {
-      PrivilegeResolver.getInstance().canWriteField(
-        this.getSession(), this, this.getSession().getSubject(), f, FieldType.LIST
-      );
-      GrouperLog.debug(LOG, s, msg + " can write list");
-    } 
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + " cannot write list");
-      try {
-        this._canOPTIN(subj, f);
-        GrouperLog.debug(LOG, s, msg + " can OPTIN");
-      }
-      catch (InsufficientPrivilegeException optinEIP) {
-        String err = msg + " cannot OPTIN: " + eIP.getMessage();
-        GrouperLog.debug(LOG, s, err);
-        throw new InsufficientPrivilegeException(err);
-      }
-    }
+    GroupValidator.canAddMember(this, subj, f);
     Membership.addImmediateMembership(this.getSession(), this, subj, f);
     sw.stop();
     EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
@@ -379,42 +357,28 @@ public class Group extends Owner implements Serializable {
             GroupModifyException, 
             InsufficientPrivilegeException
   {
-    // TODO This needs some refactoring.  Definitely some duplicate
-    //      code between here and setAttribute() if nothing else.
-    StopWatch sw = new StopWatch();
-    sw.start();
-    String  val = new String(); // For logging
-    String  msg = "deleteAttribute: ";
-    if ( (attr == null) || (attr.equals("")) ) {
-      GrouperLog.debug(LOG, this.getSession(), msg + "no attr");
-      throw new GroupModifyException(msg + "no attr");
-    }
     try {
+      StopWatch sw = new StopWatch();
+      sw.start();
       Field f = FieldFinder.find(attr);
-      if (f.getRequired()) {
-        throw new GroupModifyException("cannot delete require attribute: " + attr);
-      }
-      PrivilegeResolver.getInstance().canPrivDispatch(
-        this.getSession(), this, this.getSession().getSubject(), f.getWritePriv()
-      );
+      GroupValidator.canDelAttribute(this, f);
+
+      // TODO I'm not comfortable with this code
       Set       saves   = new LinkedHashSet();
       Set       deletes = new LinkedHashSet();
       Set       attrs   = new LinkedHashSet();
-      boolean   found   = false;
+      boolean   found   = false;        // so we know if there was actually anything to delete
+      String    val     = new String(); // for logging purposes
       Iterator  iter    = this.getGroup_attributes().iterator();
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().equals(f)) {
           val = a.getValue();
-          GrouperLog.debug(LOG, this.getSession(), msg + "will delete '" + attr + "'");
-          deletes.add(a);
+          deletes.add(a); // deleting
           found = true;
         }
         else {
-          GrouperLog.debug(
-            LOG, this.getSession(), msg + "will preserve '" + a.getField().getName() + "'"
-          );
-          attrs.add(a);
+          attrs.add(a); // preserving
         }
       }
       if (found == true) {
@@ -422,24 +386,19 @@ public class Group extends Owner implements Serializable {
         this.setGroup_attributes(attrs);
         saves.add(this);
         HibernateHelper.saveAndDelete(saves, deletes);
-        GrouperLog.debug(LOG, this.getSession(), msg + "deleted '" + attr + "'");
       }
       else {
-        msg += "does not have '" + attr + "'";
-        GrouperLog.debug(LOG, this.getSession(), msg); 
-        throw new AttributeNotFoundException(msg);
+        throw new AttributeNotFoundException();
       }
-    }
-    catch (HibernateException eH) {
-      GrouperLog.debug(LOG, this.getSession(), msg + eH.getMessage());
-      throw new GroupModifyException(msg + eH.getMessage());
+      sw.stop();
+      EL.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
     }
     catch (SchemaException eS) {
-      GrouperLog.debug(LOG, this.getSession(), msg + eS.getMessage());
-      throw new AttributeNotFoundException(msg + eS.getMessage());
+      throw new AttributeNotFoundException(eS.getMessage());
     }
-    sw.stop();
-    EL.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
+    catch (Exception e) {
+      throw new GroupModifyException(e.getMessage());
+    }
   } // public void deleteAttribute(attr)
 
   /** 
@@ -498,32 +457,8 @@ public class Group extends Owner implements Serializable {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    String  msg = MSG_DM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
-    GrouperLog.debug(LOG, this.getSession(), msg);
-    try {
-      PrivilegeResolver.getInstance().canWriteField(
-        this.getSession(), this, this.getSession().getSubject(), f, FieldType.LIST
-      );
-      GrouperLog.debug(LOG, s, msg + " can write list");
-    } catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + " cannot write list");
-      try {
-        this._canOPTOUT(subj, f);
-        GrouperLog.debug(LOG, s, msg + " can OPTOUT");
-      }
-      catch (InsufficientPrivilegeException optinEIP) {
-        String err = msg + " cannot OPTOUT: " + eIP.getMessage();
-        GrouperLog.debug(LOG, s, err);
-        throw new InsufficientPrivilegeException(err);
-      }
-    }
-    try {
-      Membership.delImmediateMembership(this.getSession(), this, subj, f);
-    }
-    catch (MembershipNotFoundException eMNF) {
-      // TODO Why don't I throw this directly?
-      throw new MemberDeleteException(eMNF.getMessage());
-    }
+    GroupValidator.canDelMember(this, subj, f);
+    Membership.delImmediateMembership(this.getSession(), this, subj, f);
     sw.stop();
     EL.groupDelMember(this.getSession(), this.getName(), subj, f, sw);
   } // public void deleteMember(subj, f)
@@ -1694,49 +1629,38 @@ public class Group extends Owner implements Serializable {
             GroupModifyException, 
             InsufficientPrivilegeException
   {
-    // TODO s,AttributeNotFoundException,SchemaException,?
-    //      Or both?
-    StopWatch sw = new StopWatch();
-    sw.start();
-    String msg = "setAttribute: ";
-    if ( (value == null) || (value.equals("")) ) {
-      GrouperLog.debug(LOG, this.getSession(), msg + "no value");
-      throw new GroupModifyException(msg + "no value");
-    }
+    // TODO s,AttributeNotFoundException,SchemaException,
     try {
+      StopWatch sw = new StopWatch();
+      sw.start();
       Field f = FieldFinder.find(attr);
-      PrivilegeResolver.getInstance().canWriteField(
-        this.getSession(), this, this.getSession().getSubject(), f, FieldType.ATTRIBUTE
-      );
-      GrouperLog.debug(LOG, s, msg + " can write attr");
+      GroupValidator.canSetAttribute(this, f, value);
+
+      // TODO I'm not comfortable with this code
       Set       attrs = new LinkedHashSet();
-      boolean   found = false;
+      boolean   found = false; // So we know if we are adding or updating
       Iterator  iter  = this.getGroup_attributes().iterator();
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().equals(f)) {
-          // updating attribute
-          GrouperLog.debug(
-            LOG, this.getSession(), "updating '" + a.getField().getName() + "'"
-          );
-          a.setValue(value);  
+          a.setValue(value); // updating
+          found = true;
         }
         attrs.add(a);
       }
       if (found == false) {
-        // adding new attribute
-        GrouperLog.debug(LOG, this.getSession(), "adding '" + attr + "'");
-        attrs.add(new Attribute(this, f, value));
+        attrs.add(new Attribute(this, f, value)); // adding 
       }
+
       this.setGroup_attributes( this._updateSystemAttrs(f, value, attrs) );
       this.setModified();
       HibernateHelper.save(this);
+
       sw.stop();
       EL.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
     }
     catch (SchemaException eS) {
-      GrouperLog.debug(LOG, this.getSession(), msg + eS.getMessage());
-      throw new AttributeNotFoundException(msg + eS.getMessage());
+      throw new AttributeNotFoundException(eS.getMessage());
     }
     catch (Exception e) {
       throw new GroupModifyException(e.getMessage());
@@ -1946,61 +1870,6 @@ public class Group extends Owner implements Serializable {
 
 
   // Private Instance Methods //
-
-  private void _canOPTIN(Subject subj, Field f) 
-    throws  InsufficientPrivilegeException
-  {
-    GrouperSession.validate(s);
-    boolean can = false;
-    String  msg = "_canOPTIN '" + f.getName() + "'";
-    String  err = msg;
-    GrouperLog.debug(LOG, this.getSession(), msg);
-    if (
-      SubjectHelper.eq(s.getSubject(), subj)
-      && f.equals(getDefaultList())
-    )
-    {
-      try {
-        PrivilegeResolver.getInstance().canOPTIN(this.getSession(), this, subj);
-        can = true;
-      }
-      catch (InsufficientPrivilegeException eIP) {
-        err = eIP.getMessage();
-      }
-    }
-    if (can == false) {
-      GrouperLog.debug(LOG, this.getSession(), msg + ": " + err);
-      throw new InsufficientPrivilegeException(err);
-    }
-  } // private void _canOPTIN(subj, f)
-
-  private void _canOPTOUT(Subject subj, Field f)
-    throws  InsufficientPrivilegeException
-  {
-    GrouperSession.validate(s);
-    boolean can = false;
-    String  msg = "_canOPTOUT '" + f.getName() + "'";
-    String  err = msg;
-    GrouperLog.debug(LOG, this.getSession(), msg);
-    if (
-      SubjectHelper.eq(s.getSubject(), subj)
-      && f.equals(getDefaultList())
-    )
-    {
-      try {
-        PrivilegeResolver.getInstance().canOPTOUT(this.getSession(), this, subj);
-        can = true;
-      }
-      catch (InsufficientPrivilegeException eIP) {
-        err = eIP.getMessage();
-      }
-    }
-    if (can == false) {
-      GrouperLog.debug(LOG, this.getSession(), msg + ": " + err);
-      throw new InsufficientPrivilegeException(err);
-    }
-  } // private void _canOPTOUT(subj, f)
-
   private Map _getAttributes() {
     Iterator iter = this.getGroup_attributes().iterator();
     while (iter.hasNext()) {
@@ -2047,7 +1916,7 @@ public class Group extends Owner implements Serializable {
   } // private void _setCreated()
 
   private Set _updateSystemAttrs(Field f, String value, Set attrs) 
-    throws  IllegalArgumentException
+    throws  ModelException
   {
     Set updated = new LinkedHashSet();
     if      (f.getName().equals("extension")) {
@@ -2055,7 +1924,7 @@ public class Group extends Owner implements Serializable {
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().getName().equals("name")) {
-          Stem.validateName(value);
+          AttributeValidator.namingValue(value);
           String newVal = Stem.constructName(
             this.getParentStem().getName(), value
           );
@@ -2072,7 +1941,7 @@ public class Group extends Owner implements Serializable {
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().getName().equals("displayName")) {
-          Stem.validateName(value);
+          AttributeValidator.namingValue(value);
           String newVal = Stem.constructName(
             this.getParentStem().getDisplayName(), value
           );

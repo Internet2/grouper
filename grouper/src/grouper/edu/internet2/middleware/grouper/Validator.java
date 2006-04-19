@@ -27,12 +27,13 @@ import  java.util.*;
  * Validator Utility Class.
  * <p />
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.2.2.2 2006-04-13 18:37:46 blair Exp $
+ * @version $Id: Validator.java,v 1.2.2.3 2006-04-19 22:55:14 blair Exp $
  */
 class Validator implements Serializable {
 
-  // Protected Class Methods
+  // FIXME Deprecate
 
+  // Protected Class Methods //
   protected static void canAddFieldToType(
     GrouperSession s, GroupType gt, String name, FieldType ft, Privilege read, Privilege write
   ) 
@@ -95,18 +96,6 @@ class Validator implements Serializable {
       throw new StemDeleteException("cannot delete stem with child groups");
     }
   } // protected static void canDeleteStem(ns)
-
-  // Don't allow circular memberships
-  protected static void isCircularMembership(Group g, Subject subj, Field f) 
-    throws  MemberAddException
-  {
-    if (f.getName().equals(GrouperConfig.LIST)) {
-      if (SubjectHelper.eq(g.toSubject(), subj)) {
-        throw new MemberAddException("attempt to create circular membership");
-      }
-    }
-  } // protected static void isCircularMembership(g, subj, f)
-
 
   protected static void canDeleteFieldFromType(
     GrouperSession s, GroupType type, Field f

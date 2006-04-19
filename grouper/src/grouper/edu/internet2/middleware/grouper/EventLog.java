@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.7.2.1 2006-04-13 18:37:46 blair Exp $
+ * @version $Id: EventLog.java,v 1.7.2.2 2006-04-19 22:55:14 blair Exp $
  *     
 */
 class EventLog implements Serializable {
@@ -121,22 +121,24 @@ class EventLog implements Serializable {
   } // protected void addEffMembers(s, o, subj, f, effs)
 
   protected void delEffMembers(
-    GrouperSession s, Group g, Subject subj, Field f, Set effs
-  ) 
+    GrouperSession s, Owner o, Subject subj, Field f, Set effs
+  )
   {
-    if (this.log_eff_group_del == true) {
-      this._delEffs(s, "group=" + g.getName(), subj, f, effs);
+    if      (o instanceof Group) {
+      if (this.log_eff_group_del == true) {
+        this._delEffs(s, "group=" + ( (Group) o).getName(), subj, f, effs);
+      }
     }
-  } // protected void delEffMembers(s, g, subj, f, effs)
-
-  protected void delEffMembers(
-    GrouperSession s, Stem ns, Subject subj, Field f, Set effs
-  ) 
-  {
-    if (this.log_eff_stem_del == true) {
-      this._delEffs(s, "stem=" + ns.getName(), subj, f, effs);
+    else if (o instanceof Stem) {
+      if (this.log_eff_stem_del == true) {
+        this._delEffs(s, "stem=" + ( (Stem) o).getName(), subj, f, effs);
+      }
     }
-  } // protected void delEffMembers(s, ns, subj, f, effs)
+    else {
+      // FIXME Better message
+      GrouperLog.error(LOG, s, "unable to log deletion of effective memberships");
+    }
+  }
 
   protected void groupAddMember(
     GrouperSession s, String group, Subject subj, Field f, StopWatch sw

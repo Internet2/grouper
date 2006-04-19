@@ -17,43 +17,41 @@
 
 package edu.internet2.middleware.grouper;
 
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  org.apache.commons.logging.*;
 
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperSessionValidator.java,v 1.1.2.2 2006-04-19 22:55:14 blair Exp $
+ * @version $Id: StemValidator.java,v 1.1.2.1 2006-04-19 22:55:14 blair Exp $
  */
-class GrouperSessionValidator implements Serializable {
+class StemValidator implements Serializable {
 
   // Protected Class Constants //
-  protected static final String ERR_I = "null session id";
-  protected static final String ERR_O = "null session object";
-  protected static final String ERR_M = "null session member";
-  protected static final String ERR_T = "null session start time";
+  protected static final String ERR_FT  = "invalid field type: ";
 
   // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(GrouperSessionValidator.class);
-
+  private static final Log LOG = LogFactory.getLog(StemValidator.class);
 
   // Protected Class Methods //
-  protected static void validate(GrouperSession s)
-    throws  ModelException
+  protected static void canWriteField(
+    GrouperSession s, Stem ns, Subject subj, Field f, FieldType type
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
   {
-    if (s == null) {
-      throw new ModelException(ERR_O);
-    }
-    if (s.getMember()     == null) {
-      throw new ModelException(ERR_M);
-    }
-    if (s.getSessionId()  == null) {
-      throw new ModelException(ERR_I);
-    }
-    if (s.getStartTime()  == null) {
-      throw new ModelException(ERR_T);
-    }
-  } // protected static void validate(s)
+    // FIXME Can I remove s?
+    // Validate the field type
+    if (!f.getType().equals(type)) {
+      throw new SchemaException(ERR_FT + f.getType());
+    }  
+    // FIXME Should this be internalized?
+    PrivilegeResolver.getInstance().canPrivDispatch(
+      s, ns, subj, f.getWritePriv()
+    );
+  } // protected static void canWriteField(s, ns, subj, f, type)
 
 }
 

@@ -17,43 +17,44 @@
 
 package edu.internet2.middleware.grouper;
 
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
+import  java.util.regex.*;
 import  org.apache.commons.logging.*;
 
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperSessionValidator.java,v 1.1.2.2 2006-04-19 22:55:14 blair Exp $
+ * @version $Id: AttributeValidator.java,v 1.1.2.1 2006-04-19 22:55:14 blair Exp $
  */
-class GrouperSessionValidator implements Serializable {
+class AttributeValidator implements Serializable {
 
   // Protected Class Constants //
-  protected static final String ERR_I = "null session id";
-  protected static final String ERR_O = "null session object";
-  protected static final String ERR_M = "null session member";
-  protected static final String ERR_T = "null session start time";
+  protected static final String ERR_AV  = "empty attribute value";
+  protected static final String ERR_VCC = "value contains colon";
 
   // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(GrouperSessionValidator.class);
-
+  private static final Log      LOG       = LogFactory.getLog(AttributeValidator.class);
+  private static final Pattern  RE_COLON  = Pattern.compile(":");
+  private static final Pattern  RE_WS     = Pattern.compile("^\\s*$");
 
   // Protected Class Methods //
-  protected static void validate(GrouperSession s)
+  protected static void namingValue(String value)
     throws  ModelException
   {
-    if (s == null) {
-      throw new ModelException(ERR_O);
+    if (value == null) {
+      throw new ModelException(ERR_AV);
     }
-    if (s.getMember()     == null) {
-      throw new ModelException(ERR_M);
+    Matcher m = RE_COLON.matcher(value);
+    if (m.find()) {
+      throw new ModelException(ERR_VCC);
     }
-    if (s.getSessionId()  == null) {
-      throw new ModelException(ERR_I);
+    m = RE_WS.matcher(value);
+    if (m.find()) {
+      throw new ModelException(ERR_AV);
     }
-    if (s.getStartTime()  == null) {
-      throw new ModelException(ERR_T);
-    }
-  } // protected static void validate(s)
-
+  } // protected static void namingValue(value)
+    
 }
 

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.133.2.7 2006-04-17 18:19:54 blair Exp $
+$Id: API,v 1.133.2.8 2006-04-19 22:55:13 blair Exp $
 
 ---
 
@@ -86,6 +86,7 @@ $Id: API,v 1.133.2.7 2006-04-17 18:19:54 blair Exp $
 
 ## Group extends Owner
 * Field               Group.getDefaultList()
+* void                addCompositeMember(ComplementType, Group, Group)
 * void                addMember(subject)
 * void                addMember(subject, field)
 * void                addType(type)

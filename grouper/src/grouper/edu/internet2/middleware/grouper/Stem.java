@@ -20,7 +20,6 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
-import  java.util.regex.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.lang.builder.*;
@@ -31,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.46.2.6 2006-04-13 18:37:46 blair Exp $
+ * @version $Id: Stem.java,v 1.46.2.7 2006-04-19 22:55:14 blair Exp $
  *     
 */
 public class Stem extends Owner implements Serializable {
@@ -57,8 +56,6 @@ public class Stem extends Owner implements Serializable {
   private static final String   ERR_ARS     = "unable to install root stem: ";
   private static final String   ERR_FNF     = "field not found: ";
   private static final Log      LOG         = LogFactory.getLog(Stem.class);
-  private static final Pattern  RE_COLON    = Pattern.compile(":");
-  private static final Pattern  RE_WS       = Pattern.compile("^\\s*$");
 
 
   // Hibernate Properties
@@ -127,11 +124,11 @@ public class Stem extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     try {
-      validateName(extension);
-      validateName(displayExtension);
+      AttributeValidator.namingValue(extension);
+      AttributeValidator.namingValue(displayExtension);
     }
-    catch (IllegalArgumentException eIA) {
-      throw new GroupAddException(eIA.getMessage());
+    catch (ModelException eM) {
+      throw new GroupAddException(eM.getMessage());
     }
     PrivilegeResolver.getInstance().canCREATE(
       this.getSession(), this, this.getSession().getSubject()
@@ -212,11 +209,11 @@ public class Stem extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     try {
-      validateName(extension);
-      validateName(displayExtension);
+      AttributeValidator.namingValue(extension);
+      AttributeValidator.namingValue(displayExtension);
     }
-    catch (IllegalArgumentException eIA) {
-      throw new StemAddException(eIA.getMessage());
+    catch (ModelException eM) {
+      throw new StemAddException(eM.getMessage());
     }
     PrivilegeResolver.getInstance().canSTEM(
       this.getSession(), this, this.getSession().getSubject()
@@ -675,24 +672,11 @@ public class Stem extends Owner implements Serializable {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    String msg = "grantPriv: " + SubjectHelper.getPretty(subj) 
-      + " '" + priv.toString().toUpperCase() + "'";
-    GrouperLog.debug(LOG, this.getSession(), msg);
-    try {
-      PrivilegeResolver.getInstance().grantPriv(
-        this.getSession(), this, subj, priv
-      );
-      sw.stop();
-      EL.stemGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
-    }
-    catch (GrantPrivilegeException eGP) {
-      GrouperLog.debug(LOG, this.getSession(), eGP.getMessage());
-      throw new GrantPrivilegeException(eGP.getMessage());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, this.getSession(), eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
-    }
+    PrivilegeResolver.getInstance().grantPriv(
+      this.getSession(), this, subj, priv
+    );
+    sw.stop();
+    EL.stemGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
   } // public void grantPriv(subj, priv)
 
   /**
@@ -872,11 +856,11 @@ public class Stem extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     try {
-      validateName(value);
+      AttributeValidator.namingValue(value);
     }
-    catch (IllegalArgumentException eIA) {
+    catch (ModelException eM) {
       if (!(this.getStem_name().equals(ROOT_INT) && value.equals(ROOT_EXT))) {
-        throw new StemModifyException(eIA.getMessage());
+        throw new StemModifyException(eM.getMessage());
       }
       // Appease Oracle
       value = ROOT_INT;
@@ -964,23 +948,6 @@ public class Stem extends Owner implements Serializable {
     this.setModify_time( new Date().getTime() );
   } // protected void setModified()
 
-  protected static void validateName(String name)  
-    throws  IllegalArgumentException
-  {
-    // TODO I should reuse the same patterns
-    if (name == null) {
-      throw new IllegalArgumentException("null name");
-    }
-    Matcher m = RE_COLON.matcher(name);
-    if (m.find()) {
-      throw new IllegalArgumentException("name contains colon");
-    }
-    m = RE_WS.matcher(name);
-    if (m.find()) {
-      throw new IllegalArgumentException("empty name");
-    }
-  } // protected static void validateName(name)
-    
 
   // Private Class Methods //
 

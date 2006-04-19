@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege resolution class.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.36 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.36.2.1 2006-04-19 22:55:14 blair Exp $
  *     
 */
 public class PrivilegeResolver {
@@ -447,75 +447,6 @@ public class PrivilegeResolver {
     return m;
   } // protected Member canViewSubject(s, subj, msg)
 
-  protected void canWriteField(
-    GrouperSession s, Group g, Subject subj, Field f, FieldType type
-  )
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    GrouperSession.validate(s);
-    String msg = "canWriteField '" + f + "' '" + type + "'";
-    GrouperLog.debug(LOG, s, msg);
-
-    // Validate field type
-    if (f.getType().equals(type)) {
-      GrouperLog.debug(LOG, s, msg + " right type");
-    }
-    else {
-      String err = f.getName() + " is not type " + type;
-      GrouperLog.debug(LOG, s, err);
-      throw new SchemaException(err);
-    }
-    // Validate that group has proper type for this field
-    if (!g.hasType( f.getGroupType() ) ) {
-      String err = "does not have group type: " + f.getGroupType().toString();
-      GrouperLog.debug(LOG, s, err);
-      throw new SchemaException(err); 
-    }
-
-    try {
-      PrivilegeResolver.getInstance().canPrivDispatch(
-        s, g, subj, f.getWritePriv()
-      );
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
-    }
-  } // protected static void canWriteField(s, g, subj, f, type)
-
-  protected void canWriteField(
-    GrouperSession s, Stem ns, Subject subj, Field f, FieldType type
-  )
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    GrouperSession.validate(s);
-    String msg = "canWriteField '" + f + "' '" + type + "'";
-    GrouperLog.debug(LOG, s, msg);
-
-    // Validate field type
-    // TODO extract
-    if (f.getType().equals(type)) {
-      GrouperLog.debug(LOG, s, msg + " right type");
-    }
-    else {
-      String err = f.getName() + " is not type " + type;
-      GrouperLog.debug(LOG, s, err);
-      throw new SchemaException(err);
-    }
-
-    try {
-      PrivilegeResolver.getInstance().canPrivDispatch(
-        s, ns, subj, f.getWritePriv()
-      );
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
-    }
-  } // protected static void canWriteField(s, ns, subj, f, type)
-
   protected Set getPrivs(
     GrouperSession s, Group g, Subject subj
   )
@@ -603,6 +534,7 @@ public class PrivilegeResolver {
   protected boolean isRoot(Subject subj) {
     boolean rv = false;
     // First check to see if this is GrouperSystem
+    // FIXME Refactor
     if      (
       (subj.getId().equals(GrouperConfig.ROOT))
       && (subj.getSource().getId().equals(InternalSourceAdapter.ID))

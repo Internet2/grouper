@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.24.2.1 2006-04-12 17:47:23 blair Exp $
+ * @version $Id: Membership.java,v 1.24.2.2 2006-04-19 22:55:14 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -60,40 +60,26 @@ public class Membership implements Serializable {
   private transient GrouperSession  s;
 
 
-  // Constructors
-
-  /**
-   * Default constructor for Hibernate.
-   */
-  public Membership() {
-    // Nothing
+  // Constructors //
+  private Membership() {
+    // Default constructor for Hibernate.
   }
-
-  // Create new membership
-  protected Membership(
-    GrouperSession s, Owner o, Member m, Field f
-  ) 
+  protected Membership(Owner o, Member m, Field f)
+    throws  ModelException
   {
-    // Attach session
-    this.s = s;
-    // Set owner
-    this.setOwner_id(o);
-    // Set member
-    this.setMember_id(m);
-    // Set field  
-    this.setField(f);
-    // Set UUID
-    this.setUuid( GrouperUuid.getUuid() );
-    // Set depth
-    this.setDepth(0);
-    // Set via
-    this.setVia_id(null);
-    // Set parent membership
-    this.setParent_membership(null);
-  } // protected Membership(s, o, m, f)
+    this.setOwner_id(           o                     );
+    this.setMember_id(          m                     );
+    this.setField(              f                     );
+    this.setUuid(               GrouperUuid.getUuid() );
+    this.setDepth(              0                     );
+    this.setVia_id(             null                  );
+    this.setParent_membership(  null                  );
+    this.setSession(            o.getSession()        );
+    MembershipValidator.validate(this);
+  } // protected Membership(o, m, f)
 
 
-  // Public Instance Methods
+  // Public Instance Methods //
 
   public boolean equals(Object other) {
     if (this == other) {
@@ -126,8 +112,7 @@ public class Membership implements Serializable {
     //        moment
     //      * I still need to attach sessions
     //      * I still need to filter
-    GrouperSession.validate(this.s);
-    return MembershipFinder.findChildMemberships(this.s, this);
+    return MembershipFinder.findChildMemberships(this.getSession(), this);
   } // public Set getChildMemberships()
 
 
@@ -143,7 +128,7 @@ public class Membership implements Serializable {
   {
     if (this.getOwner_id() instanceof Group) {
       Group g = (Group) this.getOwner_id();
-      g.setSession(this.s);
+      g.setSession(this.getSession());
       return g;
     }
     throw new GroupNotFoundException();
@@ -171,14 +156,14 @@ public class Membership implements Serializable {
   public Member getMember() 
     throws MemberNotFoundException
   {
-    GrouperSession.validate(this.s);
+    GrouperSession.validate(this.getSession());
     Member m = this.getMember_id();
     if (m == null) {
       String msg = "unable to get member";
-      GrouperLog.debug(LOG, this.s, msg);
+      GrouperLog.debug(LOG, this.getSession(), msg);
       throw new MemberNotFoundException(msg);
     }
-    m.setSession(this.s);
+    m.setSession(this.getSession());
     return m;
   } // public Member getMember()
 
@@ -202,7 +187,7 @@ public class Membership implements Serializable {
     if (parent == null) {
       throw new MembershipNotFoundException("no parent");
     }
-    parent.setSession(this.s);
+    parent.setSession(this.getSession());
     return parent;
   } // public Membership getParentMembership()
  
@@ -224,7 +209,7 @@ public class Membership implements Serializable {
   {
     if ( (this.getVia_id() != null) && (this.getVia_id() instanceof Group) ) {
       Group g = (Group) this.getVia_id();
-      g.setSession(this.s);
+      g.setSession(this.getSession());
       return g;
     }
     throw new GroupNotFoundException();
@@ -241,7 +226,7 @@ public class Membership implements Serializable {
   } // public int hashCode()
 
   public String toString() {
-    GrouperSession.validate(this.s);
+    GrouperSession.validate(this.getSession());
     return new ToStringBuilder(this) 
       .append("owner"   , this.getOwner_id()  )
       .append("member"  , this.getMember_id() )
@@ -260,263 +245,162 @@ public class Membership implements Serializable {
             MemberAddException,
             SchemaException
   {
-    GrouperSession.validate(s);
-    String msg = "addImmediateMembership '" + f + "'";
-    GrouperLog.debug(LOG, s, msg);
+    GrouperSession.validate(s); // FIXME 
     try {
       // The objects that will need saving
-      Set     objects = new LinkedHashSet();
+      Set     saves   = new LinkedHashSet();
       // Who we're adding
       Member  m       = PrivilegeResolver.getInstance().canViewSubject(
-        s, subj, msg
+        s, subj, new String()
       );
-      objects.add(m);
+      saves.add(m);
 
       o.setModified();
-
-      // Create the immediate membership
-      Membership imm = _addMembership(s, o, m, f);
+      Membership imm = new Membership(o, m, f); // The immediate ms
 
       // Find effective memberships
       Set effs = MemberOf.doMemberOf(s, imm);
-      objects.addAll(effs);
+      saves.addAll(effs);
 
       // And then save owner and memberships
-      objects.add(imm);
-      objects.add(o);
-      HibernateHelper.save(objects);
+      saves.add(imm);
+      saves.add(o);
+      HibernateHelper.save(saves);
       EL.addEffMembers(s, o, subj, f, effs);
-    }
-    catch (MemberAddException eMA) {
-      throw eMA;
     }
     catch (Exception e) {
       throw new MemberAddException(e.getMessage());
     }
   } // protected static void addImmediateMembership(s, g, subj, f)
 
-
-  // TODO REFACTOR/DRY
   protected static void delImmediateMembership(
-    GrouperSession s, Group g, Subject subj, Field f
+    GrouperSession s, Owner o, Subject subj, Field f
   )
     throws  InsufficientPrivilegeException,
             MemberDeleteException,
-            MembershipNotFoundException,
             SchemaException
   {
-    GrouperSession.validate(s);
-    String msg = "delImmediateMembership '" + f + "'";
-    GrouperLog.debug(LOG, s, msg);
+    GrouperSession.validate(s); // FIXME
     try {
       // The objects that will need deleting and saving
       Set     deletes = new LinkedHashSet();
       Set     saves   = new LinkedHashSet();
       // Who we're deleting
       Member  m       = PrivilegeResolver.getInstance().canViewSubject(
-        s, subj, msg
+        s, subj, new String()
       );
 
-      g.setModified();
-      saves.add(g);
+      o.setModified();
+      saves.add(o);
 
       // Find memberships to delete
-      Membership imm = MembershipFinder.findImmediateMembership(s, g, subj, f);
-      Set effs = _membershipsToDelete(s, imm);
-      deletes.addAll(effs);
-      deletes.add(imm);
-
-      // And then commit changes to registry
-      HibernateHelper.saveAndDelete(saves, deletes);
-      EL.delEffMembers(s, g, subj, f, effs);
-    }
-    catch (HibernateException eH) {
-      msg += ": " + eH.getMessage();
-      GrouperLog.debug(LOG, s, msg);
-      throw new MemberDeleteException(msg);
-    }
-    catch (MemberNotFoundException eMNF) {
-      msg += ": " + eMNF.getMessage();
-      GrouperLog.debug(LOG, s, msg);
-      throw new MemberDeleteException(msg);
-    }
-  } // protected static void delImmediateMembership(s, g, subj, f)
-
-  // TODO REFACTOR/DRY
-  protected static void delImmediateMembership(
-    GrouperSession s, Stem ns, Subject subj, Field f
-  )
-    throws  InsufficientPrivilegeException,
-            MemberDeleteException,
-            MembershipNotFoundException,
-            SchemaException
-  {
-    GrouperSession.validate(s);
-    String msg = "delImmediateMembership '" + f + "'";
-    GrouperLog.debug(LOG, s, msg);
-    try {
-      // The objects that will need deleting and saving
-      Set     deletes = new LinkedHashSet();
-      Set     saves   = new LinkedHashSet();
-      // Who we're deleting
-      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
-        s, subj, msg
-      );
-
-      ns.setModified();
-      saves.add(ns);
-
-      // Find memberships to delete
-      Membership imm = MembershipFinder.findImmediateMembership(ns, m, f);
+      Membership  imm = MembershipFinder.findImmediateMembership(o, m, f);
       imm.setSession(s);
-      deletes.add(imm);
       Set effs = _membershipsToDelete(s, imm);
       deletes.addAll(effs);
+      deletes.add(imm);
 
       // And then commit changes to registry
       HibernateHelper.saveAndDelete(saves, deletes);
-      EL.delEffMembers(s, ns, subj, f, effs);
+      EL.delEffMembers(s, o, subj, f, effs);
     }
     catch (HibernateException eH) {
-      msg += ": " + eH.getMessage();
-      GrouperLog.debug(LOG, s, msg);
-      throw new MemberDeleteException(msg);
+      throw new MemberDeleteException(eH.getMessage());
     }
     catch (MemberNotFoundException eMNF) {
-      msg += ": " + eMNF.getMessage();
-      GrouperLog.debug(LOG, s, msg);
-      throw new MemberDeleteException(msg);
+      throw new MemberDeleteException(eMNF.getMessage());
     }
-  } // protected static void delImmediateMembership(s, ns, subj, f
+    catch (MembershipNotFoundException eMSNF) {
+      throw new MemberDeleteException(eMSNF.getMessage());
+    }
+  } // protected static void delImmediateMembership(s, o, subj, f)
 
-  protected static Set deleteAllField(GrouperSession s, Group g, Field f) 
-    throws  GroupNotFoundException,
-            MemberDeleteException,
-            MemberNotFoundException,
-            SchemaException,
-            SubjectNotFoundException
+  protected static Set deleteAllField(GrouperSession s, Owner o, Field f) 
+    throws  MemberDeleteException,
+            SchemaException
   {
-    GrouperSession.validate(s);
-    String msg = "deleteAllField '" + f + "'";
-    GrouperLog.debug(LOG, s, msg);
+    try {
+      GrouperSessionValidator.validate(s);
+      GrouperSession orig = s;
+      GrouperSession root = GrouperSessionFinder.getRootSession();
+      o.setSession(root);
 
-    GrouperSession orig = s;
-    GrouperSession root = GrouperSessionFinder.getRootSession();
-    g.setSession(root);
+      Set deletes = new LinkedHashSet();
 
-    Set deletes = new LinkedHashSet();
+      // If o == group, deal with its immediate memberships
+      if (o instanceof Group) {
+        Iterator iterIs = ( (Group) o).toMember().getImmediateMemberships(f).iterator();
+        while (iterIs.hasNext()) {
+          Membership  ms    = (Membership) iterIs.next();
+          Set         effs  = _membershipsToDelete(s, ms);
+          deletes.addAll(effs);
+          deletes.add(ms);
+        }
+      }
 
-    // Remove where this group is an immediate member
-    GrouperLog.debug(LOG, s, msg + " finding isMember");
-    Iterator iterIS = g.toMember().getImmediateMemberships(f).iterator();
-    while (iterIS.hasNext()) {
-      Membership  msIS  = (Membership) iterIS.next();
-      Set         effs  = _membershipsToDelete(s, msIS);
-      GrouperLog.debug(
-        LOG, orig, msg + " found isMember: " + effs.size()
-      );
-      deletes.addAll(effs);
-      deletes.add(msIS);
+      // Now deal with immediate members
+      Iterator iterHas = MembershipFinder.findImmediateMemberships(root, o, f).iterator();
+      while (iterHas.hasNext()) {
+        Membership  ms    = (Membership) iterHas.next();
+        Set         effs  = _membershipsToDelete(s, ms);
+        deletes.addAll(effs);
+        deletes.add(ms);
+      }
+
+      o.setSession(orig);
+      return deletes;
     }
-    // ... and then deal with this group's immediate members
-    GrouperLog.debug(LOG, s, msg + " finding hasMembers");
-    Iterator iterHAS = g.getImmediateMemberships(f).iterator();
-    while (iterHAS.hasNext()) {
-      Membership  msHAS = (Membership) iterHAS.next();
-      Set         effs  = _membershipsToDelete(s, msHAS);
-      GrouperLog.debug(
-        LOG, orig, msg + " found hasMembers: " + effs.size()
-      );
-      deletes.addAll(effs);
-      deletes.add(msHAS);
+    catch (ModelException eM) {
+      throw new MemberDeleteException(eM.getMessage());
     }
+  } // protected static Set deleteAllField(s, o, f)
 
-    g.setSession(orig);
-    GrouperLog.debug(LOG, orig, msg + " total: " + deletes.size());
-    return deletes;
-  } // protected static Set deleteAllField(s, g, f)
-
-  // TODO REFACTOR/DRY
-  protected static Set deleteAllField(GrouperSession s, Stem ns, Field f) 
-    throws  GroupNotFoundException,
-            MemberDeleteException,
-            MemberNotFoundException,
-            StemNotFoundException,
-            SubjectNotFoundException
+  protected static Set deleteAllFieldType(GrouperSession s, Owner o, FieldType type) 
+    throws  MemberDeleteException,
+            SchemaException
   {
-    GrouperSession.validate(s);
-    String msg = "deleteAllField '" + f + "'";
-    GrouperLog.debug(LOG, s, msg);
+    try {
+      GrouperSessionValidator.validate(s);
+      GrouperSession orig = s;
+      GrouperSession root = GrouperSessionFinder.getRootSession();
+      o.setSession(root);
 
-    GrouperSession orig = s;
-    GrouperSession root = GrouperSessionFinder.getRootSession();
-    ns.setSession(root);
+      Set deletes = new LinkedHashSet();
 
-    Set deletes = new LinkedHashSet();
+      Iterator iter = FieldFinder.findAllByType(type).iterator();
+      while (iter.hasNext()) {
+        Field f = (Field) iter.next();
+        deletes.addAll( deleteAllField(s, o, f) );
+      }
 
-    // Remove this stem's immediate members
-    GrouperLog.debug(LOG, s, msg + " finding hasMembers");
-    Iterator iterHAS = MembershipFinder.findImmediateMemberships(
-      root, ns, f
-    ).iterator();
-    while (iterHAS.hasNext()) {
-      Membership  msHAS = (Membership) iterHAS.next();
-      Set         effs  = _membershipsToDelete(s, msHAS);
-      GrouperLog.debug(
-        LOG, orig, msg + " found hasMembers: " + effs.size()
-      );
-      deletes.addAll(effs);
-      deletes.add(msHAS);
+      o.setSession(orig);
+      return deletes;
     }
-
-    ns.setSession(orig);
-    GrouperLog.debug(LOG, orig, msg + " total: " + deletes.size());
-    return deletes;
-  } // protected static Set deleteAllField(s, ns, f)
-
-  protected static Set deleteAllFieldType(
-    GrouperSession s, Group g, FieldType type
-  ) 
-    throws  GroupNotFoundException,
-            MemberDeleteException,
-            MemberNotFoundException,
-            SchemaException,
-            SubjectNotFoundException
-  {
-    GrouperSession.validate(s);
-    String msg = "deleteAllFieldType '" + type + "'";
-    GrouperLog.debug(LOG, s, msg);
-
-    GrouperSession orig = s;
-    GrouperSession root = GrouperSessionFinder.getRootSession();
-    g.setSession(root);
-
-    Set deletes = new LinkedHashSet();
-
-    // Find all fields of type list
-    Iterator iter = FieldFinder.findAllByType(type).iterator();
-    while (iter.hasNext()) {
-      Field f     = (Field) iter.next();
-      GrouperLog.debug(LOG, orig, msg + " finding '" + f + "'");
-      Set   found = deleteAllField(s, g, f);
-      GrouperLog.debug(LOG, s, msg + " found: " + found.size());
-      deletes.addAll(found);
+    catch (ModelException eM) {
+      throw new MemberDeleteException(eM.getMessage());
     }
-
-    g.setSession(orig);
-    GrouperLog.debug(LOG, orig, msg + " total: " + deletes.size());
-    return deletes;
-  } // protected static Set deleteAllFieldType(s, g, type)
+  } // protected static Set deleteAllFieldType(s, o, f)
 
 
-  // Protected Instance Methods
+  // Protected Instance Methods //
+  // FIXME No RTE
+  protected GrouperSession getSession() {
+    try {
+      GrouperSessionValidator.validate(this.s);
+      return this.s;
+    }
+    catch (ModelException eM) {
+      eM.printStackTrace();
+      throw new RuntimeException(eM.getMessage());
+    }
+  } // protected GrouperSession getSession()
 
   protected Stem getStem() 
     throws StemNotFoundException
   {
     if (this.getOwner_id() instanceof Stem) {
       Stem ns = (Stem) this.getOwner_id();
-      ns.setSession(this.s);
+      ns.setSession(this.getSession());
       return ns;
     }
     throw new StemNotFoundException();
@@ -555,10 +439,14 @@ public class Membership implements Serializable {
     Owner   o = this.getOwner_id();
     Member  m = this.getMember_id();
     Owner   v = this.getVia_id();
-    o.setSession(this.s);
-    m.setSession(this.s);
-    this.setOwner_id(o);
-    this.setMember_id(m);
+    if (o != null) {
+      o.setSession(this.s);
+      this.setOwner_id(o);
+    }
+    if (m != null) {
+      m.setSession(this.s);
+      this.setMember_id(m);
+    }
     if (v != null) {
       v.setSession(this.s);
       this.setVia_id(v);
@@ -567,27 +455,6 @@ public class Membership implements Serializable {
 
 
   // Private Class Methods //
-  private static Membership _addMembership(
-    GrouperSession s, Owner o, Member m, Field f
-  )
-    throws MemberAddException
-  {
-    Membership ms = null;
-    try {
-      // Does the membership already exist?
-      ms = MembershipFinder.findImmediateMembership(o, m, f);
-      throw new MemberAddException("membership already exists");
-    }
-    catch (MembershipNotFoundException eMNF) {
-      // Membership doesn't exist.  Create it.
-      ms = new Membership(s, o, m, f);
-    }
-    if (ms == null) {
-      throw new MemberAddException("unable to add member");
-    }
-    return ms;
-  } // private static Membership _addMembership(s, o, m, f)
-    
   // TODO REFACTOR/DRY
   private static Set _membershipsToDelete(GrouperSession s, Membership imm) 
     throws  MemberDeleteException
@@ -640,28 +507,28 @@ public class Membership implements Serializable {
   public int getDepth() {
     return this.depth;
   }
-  private Field getField() {
+  protected Field getField() {
     return this.field;
   }
   protected String getId() {
     return this.id;
   }
-  private Member getMember_id() {
+  protected Member getMember_id() {
     return this.member_id;
   }
-  private Owner getOwner_id() {
+  protected Owner getOwner_id() {
     return this.owner_id;
   }
-  private Membership getParent_membership() {
+  protected Membership getParent_membership() {
     return this.parent_membership;
   }
   private Status getStatus() {
     return this.status;
   }
-  private String getUuid() {
+  protected String getUuid() {
     return this.uuid;
   }
-  private Owner getVia_id() {
+  protected Owner getVia_id() {
     return this.via_id;
   }
 
