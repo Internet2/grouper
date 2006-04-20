@@ -25,14 +25,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel14.java,v 1.1.2.2 2006-04-20 16:16:57 blair Exp $
+ * @version $Id: TestCompositeU2.java,v 1.1.2.1 2006-04-20 16:16:57 blair Exp $
  */
-public class TestCompositeModel14 extends TestCase {
+public class TestCompositeU2 extends TestCase {
 
   // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestCompositeModel14.class);
+  private static final Log LOG = LogFactory.getLog(TestCompositeU2.class);
 
-  public TestCompositeModel14(String name) {
+  public TestCompositeU2(String name) {
     super(name);
   }
 
@@ -45,24 +45,18 @@ public class TestCompositeModel14 extends TestCase {
     LOG.debug("tearDown");
   }
 
-  public void testFailOwnerEqualsRightFactor() {
-    LOG.info("testFailOwnerEqualsRightFactor");
+  public void testFailHasCompositeWhenNot() {
+    LOG.info("testFailHasCompositeWhenNot");
     try {
-      R r = R.populateRegistry(1, 2, 0);
-      Composite c0 = new Composite(
-        r.rs, r.getGroup("a", "b"), r.getGroup("a", "a"), r.getGroup("a", "b"), CompositeType.UNION
-      );
+      R     r = R.populateRegistry(1, 1, 0);
+      Group a = r.getGroup("a", "a");
+      Assert.assertFalse("hasComposite", a.hasComposite());
       r.rs.stop();
-      Assert.fail("created composite where right == owner");
-    }
-    catch (ModelException eM) {
-      Assert.assertTrue("OK: cannot create composites where right == owner", true);
-      T.string("error message", CompositeValidator.ERR_CR, eM.getMessage());
     }
     catch (Exception e) {
-      Assert.fail("unexpected exception: " + e.getMessage());
+      T.e(e);
     }
-  } // public void testFailOwnerEqualsRightFactor()
+  } // public void testFailHasCompositeWhenNot()
 
 }
 

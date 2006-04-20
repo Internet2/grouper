@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.14.2.3 2006-04-13 19:52:49 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.14.2.4 2006-04-20 16:16:57 blair Exp $
  *     
 */
 public class GrouperConfig {
@@ -49,6 +49,11 @@ public class GrouperConfig {
   protected static final String ROOT    = "GrouperSystem";
 
   // Protected Class Constants - Queries
+  // FIXME I really hate all of these
+  protected static final String   QCR_CF_IF     = "edu.internet2.middleware.grouper.CompositeFinder.IsFactor";
+  protected static final boolean  QRY_CF_IF     = true;
+  protected static final String   QCR_CF_IO     = "edu.internet2.middleware.grouper.CompositeFinder.IsOwner";
+  protected static final boolean  QRY_CF_IO     = true;
   protected static final String   QCR_FF_FA     = "edu.internet2.middleware.grouper.FieldFinder.FindAll";
   protected static final boolean  QRY_FF_FA     = true;
   protected static final String   QCR_FF_FABT   = "edu.internet2.middleware.grouper.FieldFinder.FindAllByType";

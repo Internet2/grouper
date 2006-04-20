@@ -25,14 +25,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel14.java,v 1.1.2.2 2006-04-20 16:16:57 blair Exp $
+ * @version $Id: TestCompositeU0.java,v 1.1.2.1 2006-04-20 16:16:57 blair Exp $
  */
-public class TestCompositeModel14 extends TestCase {
+public class TestCompositeU0 extends TestCase {
 
   // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestCompositeModel14.class);
+  private static final Log LOG = LogFactory.getLog(TestCompositeU0.class);
 
-  public TestCompositeModel14(String name) {
+  public TestCompositeU0(String name) {
     super(name);
   }
 
@@ -45,24 +45,29 @@ public class TestCompositeModel14 extends TestCase {
     LOG.debug("tearDown");
   }
 
-  public void testFailOwnerEqualsRightFactor() {
-    LOG.info("testFailOwnerEqualsRightFactor");
+  public void testFailNotPrivilegedToAddCompositeMember() {
+    LOG.info("testFailNotPrivilegedToAddCompositeMember");
     try {
-      R r = R.populateRegistry(1, 2, 0);
-      Composite c0 = new Composite(
-        r.rs, r.getGroup("a", "b"), r.getGroup("a", "a"), r.getGroup("a", "b"), CompositeType.UNION
+      R               r   = R.populateRegistry(1, 3, 1);
+      GrouperSession  nrs = GrouperSession.start( r.getSubject("a") );
+      Group           a   = r.getGroup("a", "a");
+      a.setSession(nrs);
+      a.addCompositeMember(
+        CompositeType.UNION, r.getGroup("a", "b"), r.getGroup("a", "c")
       );
       r.rs.stop();
-      Assert.fail("created composite where right == owner");
+      nrs.stop();
+      Assert.fail("added composite without privilege to add composite");
     }
-    catch (ModelException eM) {
-      Assert.assertTrue("OK: cannot create composites where right == owner", true);
-      T.string("error message", CompositeValidator.ERR_CR, eM.getMessage());
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.assertTrue("OK: cannot add union without privileges", true);
+      String exp = "a does not have update on 'i2:a:a'"; // TODO fragile
+      T.string("error message", exp, eIP.getMessage());
     }
     catch (Exception e) {
-      Assert.fail("unexpected exception: " + e.getMessage());
+      T.e(e);
     }
-  } // public void testFailOwnerEqualsRightFactor()
+  } // public void testFailNotPrivilegedToAddCompositeMember()
 
 }
 

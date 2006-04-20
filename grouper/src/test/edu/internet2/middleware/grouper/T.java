@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.1.2.3 2006-04-14 16:08:48 blair Exp $
+ * @version $Id: T.java,v 1.1.2.4 2006-04-20 16:16:57 blair Exp $
  */
 public class T {
 
@@ -41,6 +41,11 @@ public class T {
     LOG.debug("amount()");
     Assert.assertTrue(msg + " - exp[" + exp + "] got[" + got + "]", exp == got);
   } // protected static void amount(msg, exp, got)
+
+  protected static void e(Exception e) {
+    e.printStackTrace();
+    Assert.fail("UNEXPECTED EXCEPTION: " + e.getMessage());
+  } // protected static void e(e)
 
   protected static void string(String msg, String exp, String got) { 
     LOG.debug("string()");

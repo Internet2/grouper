@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel12.java,v 1.1.2.1 2006-04-17 18:19:54 blair Exp $
+ * @version $Id: TestCompositeModel12.java,v 1.1.2.2 2006-04-20 16:16:57 blair Exp $
  */
 public class TestCompositeModel12 extends TestCase {
 
@@ -60,7 +60,7 @@ public class TestCompositeModel12 extends TestCase {
       }
       catch (ModelException eM) {
         Assert.assertTrue("OK: cannot create composites with !(group|stem) as owner", true);
-        Assert.assertEquals("error message", CompositeValidator.ERR_OC, eM.getMessage());
+        T.string("error message", CompositeValidator.ERR_OC, eM.getMessage());
       }
       finally {
         r.rs.stop();

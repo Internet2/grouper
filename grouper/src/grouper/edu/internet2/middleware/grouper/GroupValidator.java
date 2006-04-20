@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.1.2.1 2006-04-19 22:55:14 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.1.2.2 2006-04-20 16:16:57 blair Exp $
  */
 class GroupValidator implements Serializable {
 
@@ -41,6 +41,15 @@ class GroupValidator implements Serializable {
   private static final Log LOG = LogFactory.getLog(GroupValidator.class);
 
   // Protected Class Methods //
+  protected static void canAddCompositeMember(Group g, Composite c)
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    canWriteField(
+      g.getSession(), g, g.getSession().getSubject(), Group.getDefaultList(), FieldType.LIST
+    );
+  } // protected static void canAddCompositeMember(g, c)
+
   protected static void canAddMember(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
             SchemaException

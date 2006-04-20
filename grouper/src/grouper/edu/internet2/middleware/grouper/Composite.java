@@ -27,10 +27,12 @@ import  org.apache.commons.logging.*;
  * A composite membership definition within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.1.2.1 2006-04-17 18:19:54 blair Exp $
+ * @version $Id: Composite.java,v 1.1.2.2 2006-04-20 16:16:57 blair Exp $
  *     
 */
 public class Composite extends Owner implements Serializable {
+
+  // FIXME What about privs?
 
   // Private Class Constants //
   private static final EventLog EL  = new EventLog();

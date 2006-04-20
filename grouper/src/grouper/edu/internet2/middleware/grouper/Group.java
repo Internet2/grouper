@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.5 2006-04-19 22:55:14 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.6 2006-04-20 16:16:57 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -142,7 +142,47 @@ public class Group extends Owner implements Serializable {
   } // public static Field getDefaultList()
 
  
-  // Public Instance Methods
+  // Public Instance Methods //
+
+  /**
+   * Add a composite membership to this group.
+   * <pre class="eg">
+   * try {
+   *   g.addCompositeMember(CompositeType.UNION, leftGroup, rightGroup);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add members 
+   * }
+   * catch (MemberAddException eMA) {
+   *   // Unable to add composite membership
+   * } 
+   * </pre>
+   * @param   type  {@link CompositeType}
+   * @param   left  {@link Group} that is left factor of of composite membership.
+   * @param   right {@link Group} that is right factor of composite membership.
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberAddException
+   */
+  public void addCompositeMember(CompositeType type, Group left, Group right)
+    throws  InsufficientPrivilegeException,
+            MemberAddException
+  {
+    try {
+      StopWatch sw = new StopWatch();
+      sw.start();
+      Composite c = new Composite(this.getSession(), this, left, right, type);
+      GroupValidator.canAddCompositeMember(this, c);
+      // TODO Membership.addImmediateMembership(this.getSession(), this, subj, f);
+      sw.stop();
+      // TODO EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
+    }
+    catch (ModelException eM) {
+      throw new MemberAddException(eM.getMessage());
+    }
+    catch (SchemaException eS) {
+      throw new MemberAddException(eS.getMessage());
+    }
+  } // public void addCompositeMember(type, left, right)
 
   /**
    * Add a subject to this group.
@@ -206,7 +246,7 @@ public class Group extends Owner implements Serializable {
     Membership.addImmediateMembership(this.getSession(), this, subj, f);
     sw.stop();
     EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
-  } // protected void stemAddChildGroup(s, name, sw)
+  } // public void addMember(subj, f)
 
   /**
    * Add an additional group type.
@@ -1241,6 +1281,25 @@ public class Group extends Owner implements Serializable {
   } // public boolean hasAdmin(subj)
 
   /**
+   * Does this {@link Group} have a {@link Composite} membership.
+   * <pre class="eg">
+   * if (g.hasComposite()) {
+   *   // this group has a composite membership
+   * }
+   * </pre>
+   * @return  Boolean true if group has a composite membership.
+   */
+  public boolean hasComposite() {
+    try {
+      Composite c = CompositeFinder.isOwner(this);
+      return true;
+    }
+    catch (CompositeNotFoundException eCNF) {
+      return false;
+    }
+  } // public boolean hasComposite()
+
+  /**
    * Check whether the subject is an effective member of this group.
    * <pre class="eg">
    * if (g.hasEffectiveMember(subj)) {
@@ -1536,6 +1595,23 @@ public class Group extends Owner implements Serializable {
       this.getSession(), this, subj, AccessPrivilege.VIEW
     );
   } // public boolean hasView(subj)
+
+  /**
+   * Is this {@link Group} a factor in a {@link Composite} membership.
+   * <pre class="eg">
+   * if (g.isComposite()) {
+   *   // this group is a factor in one-or-more composite memberships.
+   * }
+   * </pre>
+   * @return  Boolean true if group is a factor in a composite membership.
+   */
+  public boolean isComposite() {
+    Set factors = CompositeFinder.isFactor(this);
+    if (factors.size() > 0) {
+      return true;
+    }
+    return false;
+  } // public boolean isComposite()
 
   /**
    * Revoke all privileges of the specified type on this group.

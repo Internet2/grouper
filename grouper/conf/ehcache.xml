@@ -176,6 +176,22 @@
 
   <!-- Queries -->
 
+  <cache  name="edu.internet2.middleware.grouper.CompositeFinder.IsFactor"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.CompositeFinder.IsOwner"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
   <cache  name="edu.internet2.middleware.grouper.FieldFinder.FindAll"
           maxElementsInMemory="100"
           eternal="false"

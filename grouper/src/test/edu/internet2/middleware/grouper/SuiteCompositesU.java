@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteCompositesU.java,v 1.1.2.2 2006-04-20 14:55:35 blair Exp $
+ * @version $Id: SuiteCompositesU.java,v 1.1.2.3 2006-04-20 16:16:57 blair Exp $
  */
 public class SuiteCompositesU extends TestCase {
 
@@ -35,48 +35,49 @@ public class SuiteCompositesU extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
+    suite.addTestSuite( TestCompositeU0.class   );  // fail: not priv'd to add union
+    // TODO suite.addTestSuite( TestCompositeU1.class   );  // fail: not priv'd to delete union
+    suite.addTestSuite( TestCompositeU2.class   );  // fail: hasComposite()
+    suite.addTestSuite( TestCompositeU3.class   );  // fail: isComposite()
 /* TODO
-    suite.addTestSuite( TestUnionComposite0.class   );  // fail: not priv'd to add union
-    suite.addTestSuite( TestUnionComposite1.class   );  // fail: not priv'd to delete union
-    suite.addTestSuite( TestUnionComposite2.class   );  // fail: hasComposite()
-    suite.addTestSuite( TestUnionComposite3.class   );  // fail: isComposite()
-    suite.addTestSuite( TestUnionComposite4.class   );  // fail: addMember() when hasComposite()
-    suite.addTestSuite( TestUnionComposite5.class   );  // fail: deleteMember() when hasComposite()
-    suite.addTestSuite( TestUnionComposite6.class   );  // fail: addCompositeMember() when has member
-    suite.addTestSuite( TestUnionComposite7.class   );  // fail: deleteComposite() when has member
-    suite.addTestSuite( TestUnionComposite8.class   );  // fail: deleteComposite() when not has hasComposite()
-    suite.addTestSuite( TestUnionComposite9.class   );  // add union: no children, no parents
-    suite.addTestSuite( TestUnionComposite10.class  );  // del union: no children, no parents
-    suite.addTestSuite( TestUnionComposite11.class  );  // add union: one child, no parents
-    suite.addTestSuite( TestUnionComposite12.class  );  // del union: one child, no parents
-    suite.addTestSuite( TestUnionComposite13.class  );  // add union: one comp child, no parents
-    suite.addTestSuite( TestUnionComposite14.class  );  // del union: one comp child, no parents
-    suite.addTestSuite( TestUnionComposite15.class  );  // add union: two children, no parents
-    suite.addTestSuite( TestUnionComposite16.class  );  // del union: two children, no parents
-    suite.addTestSuite( TestUnionComposite17.class  );  // add union: two comp children, no parents
-    suite.addTestSuite( TestUnionComposite18.class  );  // del union: two comp children, no parents
-    suite.addTestSuite( TestUnionComposite19.class  );  // add union: no children, parent
-    suite.addTestSuite( TestUnionComposite20.class  );  // del union: no children, parent
-    suite.addTestSuite( TestUnionComposite21.class  );  // add union: no children, comp parent
-    suite.addTestSuite( TestUnionComposite22.class  );  // del union: no children, comp parent
-    suite.addTestSuite( TestUnionComposite23.class  );  // add union: one child, parent
-    suite.addTestSuite( TestUnionComposite24.class  );  // del union: one child, parent
-    suite.addTestSuite( TestUnionComposite25.class  );  // add union: one child, comp parent
-    suite.addTestSuite( TestUnionComposite26.class  );  // del union: one child, comp parent
-    suite.addTestSuite( TestUnionComposite27.class  );  // add union: two children, parent
-    suite.addTestSuite( TestUnionComposite28.class  );  // del union: two children, parent
-    suite.addTestSuite( TestUnionComposite29.class  );  // add union: two children, comp parent
-    suite.addTestSuite( TestUnionComposite30.class  );  // del union: two children, comp parent
-    suite.addTestSuite( TestUnionComposite31.class  );  // add union: one comp child, comp parent
-    suite.addTestSuite( TestUnionComposite32.class  );  // del union: one comp child, comp parent
-    suite.addTestSuite( TestUnionComposite33.class  );  // add union: one child, one comp child, parent
-    suite.addTestSuite( TestUnionComposite34.class  );  // del union: one child, one comp child, parent
-    suite.addTestSuite( TestUnionComposite35.class  );  // add union: one child, one comp child, comp parent
-    suite.addTestSuite( TestUnionComposite36.class  );  // del union: one child, one comp child, comp parent
-    suite.addTestSuite( TestUnionComposite37.class  );  // add union: two comp children, comp parent
-    suite.addTestSuite( TestUnionComposite38.class  );  // del union: two comp children, comp parent
-    suite.addTestSuite( TestUnionComposite39.class  );  // add member to comp child
-    suite.addTestSuite( TestUnionComposite40.class  );  // del member from comp child
+    // TODO Stems!
+    suite.addTestSuite( TestCompositeU4.class   );  // fail: addMember() when hasComposite()
+    suite.addTestSuite( TestCompositeU5.class   );  // fail: deleteMember() when hasComposite()
+    suite.addTestSuite( TestCompositeU6.class   );  // fail: addCompositeMember() when has member
+    suite.addTestSuite( TestCompositeU7.class   );  // fail: deleteComposite() when has member
+    suite.addTestSuite( TestCompositeU8.class   );  // fail: deleteComposite() when not has hasComposite()
+    suite.addTestSuite( TestCompositeU9.class   );  // add union: no children, no parents
+    suite.addTestSuite( TestCompositeU10.class  );  // del union: no children, no parents
+    suite.addTestSuite( TestCompositeU11.class  );  // add union: one child, no parents
+    suite.addTestSuite( TestCompositeU12.class  );  // del union: one child, no parents
+    suite.addTestSuite( TestCompositeU13.class  );  // add union: one comp child, no parents
+    suite.addTestSuite( TestCompositeU14.class  );  // del union: one comp child, no parents
+    suite.addTestSuite( TestCompositeU15.class  );  // add union: two children, no parents
+    suite.addTestSuite( TestCompositeU16.class  );  // del union: two children, no parents
+    suite.addTestSuite( TestCompositeU17.class  );  // add union: two comp children, no parents
+    suite.addTestSuite( TestCompositeU18.class  );  // del union: two comp children, no parents
+    suite.addTestSuite( TestCompositeU19.class  );  // add union: no children, parent
+    suite.addTestSuite( TestCompositeU20.class  );  // del union: no children, parent
+    suite.addTestSuite( TestCompositeU21.class  );  // add union: no children, comp parent
+    suite.addTestSuite( TestCompositeU22.class  );  // del union: no children, comp parent
+    suite.addTestSuite( TestCompositeU23.class  );  // add union: one child, parent
+    suite.addTestSuite( TestCompositeU24.class  );  // del union: one child, parent
+    suite.addTestSuite( TestCompositeU25.class  );  // add union: one child, comp parent
+    suite.addTestSuite( TestCompositeU26.class  );  // del union: one child, comp parent
+    suite.addTestSuite( TestCompositeU27.class  );  // add union: two children, parent
+    suite.addTestSuite( TestCompositeU28.class  );  // del union: two children, parent
+    suite.addTestSuite( TestCompositeU29.class  );  // add union: two children, comp parent
+    suite.addTestSuite( TestCompositeU30.class  );  // del union: two children, comp parent
+    suite.addTestSuite( TestCompositeU31.class  );  // add union: one comp child, comp parent
+    suite.addTestSuite( TestCompositeU32.class  );  // del union: one comp child, comp parent
+    suite.addTestSuite( TestCompositeU33.class  );  // add union: one child, one comp child, parent
+    suite.addTestSuite( TestCompositeU34.class  );  // del union: one child, one comp child, parent
+    suite.addTestSuite( TestCompositeU35.class  );  // add union: one child, one comp child, comp parent
+    suite.addTestSuite( TestCompositeU36.class  );  // del union: one child, one comp child, comp parent
+    suite.addTestSuite( TestCompositeU37.class  );  // add union: two comp children, comp parent
+    suite.addTestSuite( TestCompositeU38.class  );  // del union: two comp children, comp parent
+    suite.addTestSuite( TestCompositeU39.class  );  // add member to comp child
+    suite.addTestSuite( TestCompositeU40.class  );  // del member from comp child
 */
     return suite;
   } // static public Test suite()

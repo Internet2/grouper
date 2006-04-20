@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel13.java,v 1.1.2.1 2006-04-20 14:55:35 blair Exp $
+ * @version $Id: TestCompositeModel13.java,v 1.1.2.2 2006-04-20 16:16:57 blair Exp $
  */
 public class TestCompositeModel13 extends TestCase {
 
@@ -57,7 +57,7 @@ public class TestCompositeModel13 extends TestCase {
     }
     catch (ModelException eM) {
       Assert.assertTrue("OK: cannot create composites where left == owner", true);
-      Assert.assertEquals("error message", CompositeValidator.ERR_CL, eM.getMessage());
+      T.string("error message", CompositeValidator.ERR_CL, eM.getMessage());
     }
     catch (Exception e) {
       Assert.fail("unexpected exception: " + e.getMessage());
