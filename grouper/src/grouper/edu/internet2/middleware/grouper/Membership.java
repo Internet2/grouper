@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.24.2.2 2006-04-19 22:55:14 blair Exp $
+ * @version $Id: Membership.java,v 1.24.2.3 2006-04-20 17:45:20 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -75,8 +75,22 @@ public class Membership implements Serializable {
     this.setVia_id(             null                  );
     this.setParent_membership(  null                  );
     this.setSession(            o.getSession()        );
-    MembershipValidator.validate(this);
+    MembershipValidator.validateImmediate(this);
   } // protected Membership(o, m, f)
+
+  protected Membership(Owner o, Member m, Field f, Composite via)
+    throws  ModelException
+  {
+    this.setOwner_id(           o                     );
+    this.setMember_id(          m                     );
+    this.setField(              f                     );
+    this.setUuid(               GrouperUuid.getUuid() );
+    this.setDepth(              0                     );
+    this.setVia_id(             via                   );
+    this.setParent_membership(  null                  );
+    this.setSession(            o.getSession()        );
+    MembershipValidator.validateComposite(this);
+  } // protected Membership(o, m, f, via)
 
 
   // Public Instance Methods //
@@ -238,6 +252,25 @@ public class Membership implements Serializable {
 
 
   // Protected Class Methods //
+  protected static void addCompositeMembership(
+    GrouperSession s, Owner o, Composite c
+  )
+    throws  MemberAddException,
+            ModelException
+  {
+    GrouperSessionValidator.validate(s);
+    Set deletes = new LinkedHashSet();
+    Set saves   = new LinkedHashSet();
+    try {
+      MemberOf mof = MemberOf.addComposite(s, o, c);
+      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      // TODO EL.addEffMembers(s, o, subj, f, effs);
+    }
+    catch (HibernateException eH) {
+      throw new MemberAddException(eH.getMessage());
+    }    
+  } // protected static void addCompositeMembership(s, o, c)
+
   protected static void addImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f
   )
@@ -271,7 +304,7 @@ public class Membership implements Serializable {
     catch (Exception e) {
       throw new MemberAddException(e.getMessage());
     }
-  } // protected static void addImmediateMembership(s, g, subj, f)
+  } // protected static void addImmediateMembership(s, o, subj, f)
 
   protected static void delImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f
@@ -406,6 +439,7 @@ public class Membership implements Serializable {
     throw new StemNotFoundException();
   } // public Stem getStem()
 
+  // FIXME Deprecate
   protected static Membership newEffectiveMembership(
     GrouperSession s, Membership ms, Membership hasMS, int offset
   )

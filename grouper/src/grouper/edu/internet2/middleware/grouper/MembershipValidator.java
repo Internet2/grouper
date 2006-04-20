@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.1.2.1 2006-04-19 22:55:14 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.1.2.2 2006-04-20 17:45:20 blair Exp $
  */
 class MembershipValidator implements Serializable {
 
@@ -33,18 +33,62 @@ class MembershipValidator implements Serializable {
   protected static final String ERR_CM  = "cannot create a circular membership";
   protected static final String ERR_D   = "membership has invalid depth: ";
   protected static final String ERR_FT  = "membership has invalid field type: ";
+  protected static final String ERR_IV  = "immediate membership has via";
   protected static final String ERR_M   = "membership has null member";
   protected static final String ERR_MAE = "membership already exists";
   protected static final String ERR_O   = "membership has null owner";
   protected static final String ERR_OC  = "membership has invalid owner class: ";
   protected static final String ERR_PMS = "immediate membership has parent membership";
-  protected static final String ERR_V   = "immediate membership has via";
+  protected static final String ERR_V   = "composite membership has null via";
+  protected static final String ERR_VC  = "composite membership has invalid via class: ";
 
   // Private Class Constants //
   private static final Log LOG = LogFactory.getLog(MembershipValidator.class);
 
   // Protected Class Methods //
-  protected static void validate(Membership ms) 
+  protected static void validateComposite(Membership ms)
+    throws  ModelException
+  {
+    _validate(ms); 
+    // Verify Depth
+    if (ms.getDepth() != 0) {
+      throw new ModelException(ERR_D + ms.getDepth());
+    }
+    // Verify Via
+    Owner via = ms.getVia_id();
+    if (via == null) {
+      throw new ModelException(ERR_V);
+    }
+    if (!(via instanceof Composite)) {
+      throw new ModelException(ERR_VC + via.getClass().getName());
+    }
+    // Verify Parent Membership
+    if (ms.getParent_membership() != null) {
+      throw new ModelException(ERR_PMS);
+    }
+  } // protected static void validateComposite(ms)
+
+  protected static void validateImmediate(Membership ms)
+    throws  ModelException
+  {
+    _validate(ms); 
+    // Verify Depth
+    if (ms.getDepth() != 0) {
+      throw new ModelException(ERR_D + ms.getDepth());
+    }
+    // Verify Via
+    if (ms.getVia_id() != null) {
+      throw new ModelException(ERR_IV);
+    }
+    // Verify Parent Membership
+    if (ms.getParent_membership() != null) {
+      throw new ModelException(ERR_PMS);
+    }
+  } // protected static void validateImmediate(ms)
+
+
+  // Private Class Methods //
+  private static void _validate(Membership ms) 
     throws  ModelException
   {
     GrouperSessionValidator.validate(ms.getSession());
@@ -73,18 +117,6 @@ class MembershipValidator implements Serializable {
     {
       throw new ModelException(ERR_FT + f.getType());
     }
-    // Verify Depth
-    if (ms.getDepth() != 0) {
-      throw new ModelException(ERR_D + ms.getDepth());
-    }
-    // Verify Via
-    if (ms.getVia_id() != null) {
-      throw new ModelException(ERR_V);
-    }
-    // Verify Parent Membership
-    if (ms.getParent_membership() != null) {
-      throw new ModelException(ERR_PMS);
-    }
     // Verify that it is not a circular membership
     if ( (o instanceof Group) && (f.getName().equals(GrouperConfig.LIST)) ) {
       Group g = (Group) o;
@@ -105,7 +137,7 @@ class MembershipValidator implements Serializable {
     catch (MembershipNotFoundException eMNF) {
       // Ignore - this is what we want. 
     }
-  } // protected static void validate(ms)
+  } // private static void _validate(ms)
 
 }
 

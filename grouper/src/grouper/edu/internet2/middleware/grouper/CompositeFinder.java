@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.1.2.1 2006-04-20 16:16:57 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.1.2.2 2006-04-20 17:45:20 blair Exp $
  */
 class CompositeFinder {
 
@@ -46,7 +46,7 @@ class CompositeFinder {
         + " c.left = :left or c.right = :right "
         + ")"
       );
-      qry.setCacheable(   GrouperConfig.QRY_CF_IF );
+      qry.setCacheable(   GrouperConfig.QRY_CF_IF ); 
       qry.setCacheRegion( GrouperConfig.QCR_CF_IF );
       qry.setParameter( "left"  , o );
       qry.setParameter( "right" , o );
@@ -72,7 +72,7 @@ class CompositeFinder {
       Query     qry = hs.createQuery(
         "from Composite as c where c.owner = :owner"
       );
-      qry.setCacheable(   GrouperConfig.QRY_CF_IO );
+      qry.setCacheable(   GrouperConfig.QRY_CF_IO ); 
       qry.setCacheRegion( GrouperConfig.QCR_CF_IO );
       qry.setParameter( "owner" , o );
       Composite c   = (Composite) qry.uniqueResult();

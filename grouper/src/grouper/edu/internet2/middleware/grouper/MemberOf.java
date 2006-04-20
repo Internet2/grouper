@@ -28,32 +28,71 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: MemberOf.java,v 1.14.2.1 2006-04-20 17:45:20 blair Exp $
  */
 class MemberOf implements Serializable {
 
-  // Private Class Constants
+  // Protected Class Constants //
+  protected static final String ERR_CT  = "invalid composite type: ";
+
+  // Private Class Constants //
   private static final Log LOG = LogFactory.getLog(MemberOf.class);
 
 
-  // Private Instance Variables
+  // Private Instance Variables //
+  private Composite       c;
+  private Set             deletes = new LinkedHashSet();
   private Field           f;
-  private Group           g;
+  private Group           g;    // FIXME Replace with this.o
   private Member          m;
   private Membership      ms;
-  private Stem            ns;
+  private Owner           o;
+  private Stem            ns;   // FIXME Replace with this.o
   private GrouperSession  root;
-  private GrouperSession  s;
+  private GrouperSession  s;    
+  private Set             saves   = new LinkedHashSet();
 
 
-  // Constructors
+  // Constructors //
   private MemberOf(GrouperSession s, Membership ms) {
     this.s  = s;
     this.ms = ms;
-  }
+  } // private MemberOf(s, ms)
 
-  // Protected Class Methods
-  
+  private MemberOf(GrouperSession s, Owner o, Composite c) {
+    this.root = GrouperSessionFinder.getTransientRootSession();
+    this.s    = s;
+    this.o    = o;
+    this.c    = c;
+    this.c.setSession(this.root);
+    this.o.setSession(this.root);
+  } // private MemberOf(s, o, c)
+
+  protected Set getDeletes() {
+    return this.deletes;
+  } // protected Set getDeletes()
+  protected Set getSaves() {
+    return this.saves;
+  } // protected Set getSaves()
+
+
+  // Protected Class Methods //
+ 
+  // Calculate addition of a composite membership 
+  protected static MemberOf addComposite(
+    GrouperSession s, Owner o, Composite c
+  )
+    throws  ModelException
+  {
+    MemberOf mof = new MemberOf(s, o, c);
+    mof.saves.addAll( mof._evalComposite() );
+    mof._resetSessions();
+    mof.o.setModified();
+    mof.saves.add(mof.c);     // Save the composite
+    mof.saves.add(mof.o);     // Update the owner
+    return mof;
+  } // protected static MemberOf addComposite(s, o, c)
+
   // Find effective memberships, whether for addition or deletion
   protected static Set doMemberOf(GrouperSession s, Membership ms) 
     throws  GroupNotFoundException,
@@ -64,7 +103,7 @@ class MemberOf implements Serializable {
   } // protected static Set doMemberOf(s, ms)
 
 
-  // Private Instance Methods
+  // Private Instance Methods //
 
   // Add m's hasMembers to g
   private Set _addHasMembersToGroup(Set hasMembers) 
@@ -162,6 +201,48 @@ class MemberOf implements Serializable {
     return results;
   } // private Set _calculate()
 
+  // Convert a set of memberships into composite memberships
+  private Set _createNewMembershipObjects(Set members) 
+    throws  ModelException
+  {
+    Set       mships  = new LinkedHashSet();
+    Iterator iter     = members.iterator();
+    while (iter.hasNext()) {
+      Member      m   = (Member) iter.next();
+      Membership  imm = new Membership(o, m, Group.getDefaultList(), c);
+      imm.setSession(root);
+      mships.add(imm);
+    }
+    return mships;
+  } // private Set _createNewMembershipObjects(members)
+
+  // Evaluate a composite membership
+  private Set _evalComposite() 
+    throws  ModelException 
+  {
+    Set results = new LinkedHashSet();
+    if (this.c.getType().equals(CompositeType.UNION)) {
+      results.addAll( this._evalCompositeUnion() );
+    }
+    else {
+      throw new ModelException(ERR_CT + c.getType().toString());
+    }
+    return results;
+  } // private Set _evalComposite()
+
+  // Evaluate a union composite membership
+  private Set _evalCompositeUnion() 
+    throws  ModelException
+  {
+    Set results = new LinkedHashSet();
+    Set tmp     = new LinkedHashSet();
+    Group left  = (Group) this.c.getLeft();
+    Group right = (Group) this.c.getRight();
+    tmp.addAll( left.getMembers() );
+    tmp.addAll( right.getMembers()  );
+    return this._createNewMembershipObjects(tmp);
+  } // private Set _evalCompositeUnion()
+
   // Setup instance variables based upon the membership passed
   private void _extractObjects() 
     throws  GroupNotFoundException,
@@ -226,6 +307,16 @@ class MemberOf implements Serializable {
     }
     return results;
   } // private Set _resetObjects(mships)
+
+  // Reset attached sessions to their original state
+  private void _resetSessions() {
+    if (this.c != null) {
+      this.c.setSession(s);
+    }
+    if (this.o != null) {
+      this.o.setSession(s);
+    }
+  } // private void _resetSessions()
 
 }
 
