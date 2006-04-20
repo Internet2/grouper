@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14.2.1 2006-04-20 17:45:20 blair Exp $
+ * @version $Id: MemberOf.java,v 1.14.2.2 2006-04-20 19:26:37 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -41,39 +41,35 @@ class MemberOf implements Serializable {
 
   // Private Instance Variables //
   private Composite       c;
-  private Set             deletes = new LinkedHashSet();
+  private Set             deletes     = new LinkedHashSet();
+  private Set             effDeletes  = new LinkedHashSet();
+  private Set             effSaves    = new LinkedHashSet();
   private Field           f;
-  private Group           g;    // FIXME Replace with this.o
   private Member          m;
   private Membership      ms;
   private Owner           o;
-  private Stem            ns;   // FIXME Replace with this.o
   private GrouperSession  root;
   private GrouperSession  s;    
-  private Set             saves   = new LinkedHashSet();
+  private Set             saves       = new LinkedHashSet();
 
 
   // Constructors //
-  private MemberOf(GrouperSession s, Membership ms) {
-    this.s  = s;
+  private MemberOf(GrouperSession s, Owner o, Member m, Membership ms) {
+    this.f  = ms.getList();
+    this.m  = m;
     this.ms = ms;
-  } // private MemberOf(s, ms)
+    this.o  = o;
+    this.s  = s;
+    this._setSessions();
+  } // private MemberOf(s, o, m, ms)
 
   private MemberOf(GrouperSession s, Owner o, Composite c) {
-    this.root = GrouperSessionFinder.getTransientRootSession();
-    this.s    = s;
-    this.o    = o;
     this.c    = c;
-    this.c.setSession(this.root);
-    this.o.setSession(this.root);
+    this.f    = Group.getDefaultList();
+    this.o    = o;
+    this.s    = s;
+    this._setSessions();
   } // private MemberOf(s, o, c)
-
-  protected Set getDeletes() {
-    return this.deletes;
-  } // protected Set getDeletes()
-  protected Set getSaves() {
-    return this.saves;
-  } // protected Set getSaves()
 
 
   // Protected Class Methods //
@@ -85,7 +81,8 @@ class MemberOf implements Serializable {
     throws  ModelException
   {
     MemberOf mof = new MemberOf(s, o, c);
-    mof.saves.addAll( mof._evalComposite() );
+    mof.effSaves.addAll(  mof._evalComposite()  );  // Find the composites
+    mof.saves.addAll(     mof.effSaves          );
     mof._resetSessions();
     mof.o.setModified();
     mof.saves.add(mof.c);     // Save the composite
@@ -93,21 +90,63 @@ class MemberOf implements Serializable {
     return mof;
   } // protected static MemberOf addComposite(s, o, c)
 
-  // Find effective memberships, whether for addition or deletion
-  protected static Set doMemberOf(GrouperSession s, Membership ms) 
-    throws  GroupNotFoundException,
-            MemberNotFoundException
+  protected static MemberOf addImmediate(
+    GrouperSession s, Owner o, Membership ms, Member m
+  )
+    throws  GroupNotFoundException, // TODO 
+            MemberNotFoundException // TODO
   {
-    MemberOf mof = new MemberOf(s, ms);
-    return mof._calculate();
-  } // protected static Set doMemberOf(s, ms)
+    MemberOf  mof = new MemberOf(s, o, m, ms);
+    mof.saves.add(m);       // Save the member
+    mof.effSaves.addAll( mof._evalImmediate() );  // Find the new effs
+    mof.saves.addAll(   mof.effSaves          );
+    mof._resetSessions();
+    mof.o.setModified();
+    mof.saves.add(ms);      // Save the immediate
+    mof.saves.add(mof.o);   // Update the owner
+    return mof;
+  } // protected static MemberOf addImmediate(s, o, m, ms)
+
+  protected static MemberOf delImmediate(
+    GrouperSession s, Owner o, Membership ms, Member m
+  )
+    throws  GroupNotFoundException, // TODO
+            MemberNotFoundException // TODO
+  {
+    MemberOf  mof = new MemberOf(s, o, m, ms);
+    mof.effDeletes.addAll(  mof._evalImmediate() );  // Find the effs to remove
+    mof.deletes.addAll(     mof.effDeletes        );
+    mof._resetSessions();
+    mof.o.setModified();
+    mof.deletes.add(ms);    // Delete the immediate
+    mof.saves.add(mof.o);   // Update the owner
+    return mof;
+  } // protected static MemberOf delImmediate(s, o, m, ms)
+
+
+  // Protected Instance Methods //
+  protected Set getDeletes() {
+    return this.deletes;
+  } // protected Set getDeletes()
+
+  protected Set getEffDeletes() {
+    return this.effDeletes;
+  } // protected Set getEffDeletes()
+
+  protected Set getEffSaves() {
+    return this.effSaves;
+  } // protected Set getEffSaves()
+
+  protected Set getSaves() {
+    return this.saves;
+  } // protected Set getSaves()
 
 
   // Private Instance Methods //
 
-  // Add m's hasMembers to g
-  private Set _addHasMembersToGroup(Set hasMembers) 
-    throws  GroupNotFoundException,
+  // Add m's hasMembers to o
+  private Set _addHasMembersToOwner(Set hasMembers) 
+    throws  GroupNotFoundException, // TODO
             MemberNotFoundException
   {
     Set     mships  = new LinkedHashSet();
@@ -120,11 +159,11 @@ class MemberOf implements Serializable {
       mships.add(eff);
     }
     return mships;
-  } // private Set _addHasMembersToGroup(hasMembers)
+  } // private Set _addHasMembersToOwner(hasMembers)
 
   // Add m's hasMembers to where g isMember
   private Set _addHasMembersToWhereGroupIsMember(Set isMember, Set hasMembers) 
-    throws  GroupNotFoundException,
+    throws  GroupNotFoundException, // TODO
             MemberNotFoundException
   {
     Set     mships  = new LinkedHashSet();
@@ -170,37 +209,6 @@ class MemberOf implements Serializable {
     return mships;
   } // private Set _addHasMembersToWhereGroupIsMember(isMember, hasMembers)
 
-  // Perform the memberOf calculation
-  private Set _calculate() 
-    throws  GroupNotFoundException,
-            MemberNotFoundException
-  {
-    this._extractObjects();
-
-    Set mships  = new LinkedHashSet();
-
-    // If we are working on a group, where is it a member
-    Set isMember = new LinkedHashSet();
-    if (this.g != null) {
-      isMember = this.g.toMember().getAllMemberships();
-    }
-
-    // Members of m if m is a group
-    Set hasMembers  = this._findMembersOfMember();
-
-    // Add m to where g is a member if f == "members"
-    mships.addAll( this._addMemberToWhereGroupIsMember(isMember) );
-
-    // Add members of m to g
-    mships.addAll( this._addHasMembersToGroup(hasMembers) ); 
-
-    // Add members of m to where g is a member if f == "members"
-    mships.addAll( this._addHasMembersToWhereGroupIsMember(isMember, hasMembers) );
-
-    Set results = this._resetObjects(mships);
-    return results;
-  } // private Set _calculate()
-
   // Convert a set of memberships into composite memberships
   private Set _createNewMembershipObjects(Set members) 
     throws  ModelException
@@ -209,7 +217,7 @@ class MemberOf implements Serializable {
     Iterator iter     = members.iterator();
     while (iter.hasNext()) {
       Member      m   = (Member) iter.next();
-      Membership  imm = new Membership(o, m, Group.getDefaultList(), c);
+      Membership  imm = new Membership(o, m, this.f, c);
       imm.setSession(root);
       mships.add(imm);
     }
@@ -243,29 +251,27 @@ class MemberOf implements Serializable {
     return this._createNewMembershipObjects(tmp);
   } // private Set _evalCompositeUnion()
 
-  // Setup instance variables based upon the membership passed
-  private void _extractObjects() 
-    throws  GroupNotFoundException,
-            MemberNotFoundException
+  // Evaluate an immediate membership
+  private Set _evalImmediate() 
+    throws  GroupNotFoundException, // TODO
+            MemberNotFoundException // TODO
   {
-    this.root = GrouperSessionFinder.getRootSession();
-    try {
-      this.g = this.ms.getGroup();
-      this.g.setSession(this.root);
+    Set results   = new LinkedHashSet();
+    // If we are working on a group, where is it a member
+    Set isMember  = new LinkedHashSet();
+    if (this.o instanceof Group) {
+      isMember = ( (Group) o).toMember().getAllMemberships();
     }
-    catch (GroupNotFoundException eGNF) {
-      try {
-        this.ns = this.ms.getStem();
-        this.ns.setSession(this.root);
-      }
-      catch (StemNotFoundException eSNF) {
-        throw new GroupNotFoundException(eGNF.getMessage());
-      }
-    }
-    this.m    = this.ms.getMember();
-    this.m.setSession(this.root);
-    this.f    = this.ms.getList();
-  } // private void _extractObjects()
+    // Members of m if o is a group
+    Set hasMembers  = this._findMembersOfMember();
+    // Add m to where o is a member if f == "members"
+    results.addAll( this._addMemberToWhereGroupIsMember(isMember) );
+    // Add members of m to o
+    results.addAll( this._addHasMembersToOwner(hasMembers) ); 
+    // Add members of m to where o is a member if f == "members"
+    results.addAll( this._addHasMembersToWhereGroupIsMember(isMember, hasMembers) );
+    return results;
+  } // private Set _evalImmediate()
 
   // Find m's hasMembers
   private Set _findMembersOfMember() 
@@ -285,38 +291,45 @@ class MemberOf implements Serializable {
     return hasMembers;
   } // private Set _findMembersOfMember()
 
-  // Reset the session on identified objects 
-  private Set _resetObjects(Set mships) {
-    Set results = new LinkedHashSet();
-    // Now reset everything to the proper session
-    if (this.g != null) {
-      g.setSession(this.s);
-    }
-    if (this.ns != null) {
-      ns.setSession(this.s);
-    }
-    m.setSession(this.s);
-    // TODO Don't I already have a method to do this in bulk?
-    //      But on the other hand, I **do** want to have the option of
-    //      logging each-and-every one of these.
-    Iterator iter = mships.iterator();
-    while (iter.hasNext()) {
-      Membership found = (Membership) iter.next();    
-      found.setSession(this.s);
-      results.add(found);
-    }
-    return results;
-  } // private Set _resetObjects(mships)
-
   // Reset attached sessions to their original state
   private void _resetSessions() {
     if (this.c != null) {
-      this.c.setSession(s);
+      this.c.setSession(this.s);
     }
     if (this.o != null) {
-      this.o.setSession(s);
+      this.o.setSession(this.s);
     }
+    Set       tmp       = new LinkedHashSet();
+    Iterator  saveIter  = this.effSaves.iterator();
+    while (saveIter.hasNext()) {
+      Membership ms = (Membership) saveIter.next();
+      ms.setSession(this.s);
+      tmp.add(ms);
+    }
+    this.saves = tmp;
+    tmp = new LinkedHashSet();
+    Iterator  delIter   = this.effDeletes.iterator();
+    while (delIter.hasNext()) {
+      Membership ms = (Membership) delIter.next();
+      ms.setSession(this.s);
+      tmp.add(ms);
+    }
+    this.deletes = tmp;
   } // private void _resetSessions()
+
+  // Switch all sessions to root sessions
+  private void _setSessions() {
+    this.root = GrouperSessionFinder.getTransientRootSession();
+    if (this.c != null) {
+      this.c.setSession(this.root);
+    }
+    if (this.m != null) {
+      this.m.setSession(this.root);
+    }
+    if (this.o != null) {
+      this.o.setSession(this.root);
+    }
+  } // private void _setSessions()
 
 }
 

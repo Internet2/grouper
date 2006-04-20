@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.18 2006-04-20 16:16:57 blair Exp $
+$Id: TODO,v 1.30.2.19 2006-04-20 19:26:37 blair Exp $
 
 ---
 
@@ -12,6 +12,7 @@ $Id: TODO,v 1.30.2.18 2006-04-20 16:16:57 blair Exp $
 
 ### Bugs
 * Privileges are not applied to Composites
+* Logging of composite membership changes
 
 ### Next Actions
 * code: add union composite member (sync)
@@ -125,7 +126,7 @@ $Id: TODO,v 1.30.2.18 2006-04-20 16:16:57 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.18 2006-04-20 16:16:57 blair Exp $
+$Id: TODO,v 1.30.2.19 2006-04-20 19:26:37 blair Exp $
 
 
 

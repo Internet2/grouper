@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.24.2.3 2006-04-20 17:45:20 blair Exp $
+ * @version $Id: Membership.java,v 1.24.2.4 2006-04-20 19:26:37 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -259,8 +259,6 @@ public class Membership implements Serializable {
             ModelException
   {
     GrouperSessionValidator.validate(s);
-    Set deletes = new LinkedHashSet();
-    Set saves   = new LinkedHashSet();
     try {
       MemberOf mof = MemberOf.addComposite(s, o, c);
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
@@ -274,54 +272,33 @@ public class Membership implements Serializable {
   protected static void addImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f
   )
-    throws  InsufficientPrivilegeException,
-            MemberAddException,
-            SchemaException
+    throws  MemberAddException
   {
-    GrouperSession.validate(s); // FIXME 
     try {
-      // The objects that will need saving
-      Set     saves   = new LinkedHashSet();
-      // Who we're adding
-      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
-        s, subj, new String()
-      );
-      saves.add(m);
-
-      o.setModified();
-      Membership imm = new Membership(o, m, f); // The immediate ms
-
-      // Find effective memberships
-      Set effs = MemberOf.doMemberOf(s, imm);
-      saves.addAll(effs);
-
-      // And then save owner and memberships
-      saves.add(imm);
-      saves.add(o);
-      HibernateHelper.save(saves);
-      EL.addEffMembers(s, o, subj, f, effs);
+      GrouperSessionValidator.validate(s);
+      Member      m   = PrivilegeResolver.getInstance().canViewSubject(s, subj);
+      Membership  imm = new Membership(o, m, f);
+      MemberOf    mof = MemberOf.addImmediate(s, o, imm, m);
+      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      EL.addEffMembers(s, o, subj, f, mof.getEffSaves());
     }
     catch (Exception e) {
       throw new MemberAddException(e.getMessage());
-    }
+    }    
   } // protected static void addImmediateMembership(s, o, subj, f)
 
   protected static void delImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f
   )
-    throws  InsufficientPrivilegeException,
-            MemberDeleteException,
-            SchemaException
+    throws  MemberDeleteException
   {
-    GrouperSession.validate(s); // FIXME
     try {
+      GrouperSessionValidator.validate(s); 
       // The objects that will need deleting and saving
       Set     deletes = new LinkedHashSet();
       Set     saves   = new LinkedHashSet();
       // Who we're deleting
-      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
-        s, subj, new String()
-      );
+      Member  m       = PrivilegeResolver.getInstance().canViewSubject(s, subj);
 
       o.setModified();
       saves.add(o);
@@ -337,15 +314,9 @@ public class Membership implements Serializable {
       HibernateHelper.saveAndDelete(saves, deletes);
       EL.delEffMembers(s, o, subj, f, effs);
     }
-    catch (HibernateException eH) {
-      throw new MemberDeleteException(eH.getMessage());
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new MemberDeleteException(eMNF.getMessage());
-    }
-    catch (MembershipNotFoundException eMSNF) {
-      throw new MemberDeleteException(eMSNF.getMessage());
-    }
+    catch (Exception e) {
+      throw new MemberDeleteException(e.getMessage());
+    } 
   } // protected static void delImmediateMembership(s, o, subj, f)
 
   protected static Set deleteAllField(GrouperSession s, Owner o, Field f) 
@@ -493,20 +464,21 @@ public class Membership implements Serializable {
   private static Set _membershipsToDelete(GrouperSession s, Membership imm) 
     throws  MemberDeleteException
   {
-    GrouperSession.validate(s);
     Set     mships  = new LinkedHashSet();
     Field   f       = imm.getList();
-    String  msg     = "_membershipsToDelete '" + f + "'";
-    GrouperLog.debug(LOG, s, msg);
     try {
       Member m = imm.getMember();
-      GrouperLog.debug(LOG, s, msg + " immediate member: " + imm);
       // Find effective memberships
       // As many of the memberships are likely to be transient, we
       // need to retrieve the persistent version of each before
       // passing it along to be deleted by HibernateHelper.  
+      // FIXME Actually, do we still need to now that HibernateHelper
+      //       tries to untransient (at least select items).  
+      //       But, even if the above is not true this code is still
+      //       hateful.
       Session   hs    = HibernateHelper.getSession();
-      Iterator  iter  = MemberOf.doMemberOf(s, imm).iterator();
+      MemberOf  mof   = MemberOf.delImmediate(s, imm.getOwner_id(), imm, m);
+      Iterator  iter  = mof.getEffDeletes().iterator();
       while (iter.hasNext()) {
         Membership  ms    = (Membership) iter.next();
         Set         effs  = MembershipFinder.findEffectiveMemberships(
@@ -517,14 +489,12 @@ public class Membership implements Serializable {
         while (effsIter.hasNext()) {
           Membership eff = (Membership) effsIter.next();
           eff.setSession(s);
-          GrouperLog.debug(LOG, s, msg + " effective member: " + eff);
           mships.add(eff);
         }
       }
       hs.close();
     }
     catch (Exception e) {
-      GrouperLog.debug(LOG, s, msg + ": " + e.getMessage());
       throw new MemberDeleteException(e.getMessage());
     }
     return mships;

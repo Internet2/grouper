@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege resolution class.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.36.2.1 2006-04-19 22:55:14 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.36.2.2 2006-04-20 19:26:37 blair Exp $
  *     
 */
 public class PrivilegeResolver {
@@ -423,29 +423,23 @@ public class PrivilegeResolver {
     return groups;
   }
 
-  protected Member canViewSubject(GrouperSession s, Subject subj, String msg) 
-    throws  MemberNotFoundException
+  // If the subject being added is a group, verify that we can VIEW it
+  protected Member canViewSubject(GrouperSession s, Subject subj)
+    throws  ModelException
   {
-    Member  m = MemberFinder.findBySubject(s, subj);
-    // If the subject being added is a group, verify that we can VIEW it
     try {
+      Member  m = MemberFinder.findBySubject(s, subj);
       if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
         Subject who   = s.getSubject();
         Group   what  = m.toGroup();
         PrivilegeResolver.getInstance().canVIEW(s, what, who);
-        GrouperLog.debug(LOG, s, msg + "true");
       }
+      return m;
     }
-    catch (GroupNotFoundException eGNF) {
-      GrouperLog.debug(LOG, s, msg + eGNF.getMessage());
-      throw new MemberNotFoundException(msg + eGNF.getMessage());
+    catch (Exception e) {
+      throw new ModelException(e.getMessage());
     }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + eIP.getMessage());
-      throw new MemberNotFoundException(msg + eIP.getMessage());
-    }
-    return m;
-  } // protected Member canViewSubject(s, subj, msg)
+  } // protected Member canViewSubject(s, subj)
 
   protected Set getPrivs(
     GrouperSession s, Group g, Subject subj

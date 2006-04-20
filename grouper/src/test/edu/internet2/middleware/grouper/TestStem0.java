@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem0.java,v 1.1.2.2 2006-04-19 22:55:14 blair Exp $
+ * @version $Id: TestStem0.java,v 1.1.2.3 2006-04-20 19:26:37 blair Exp $
  */
 public class TestStem0 extends TestCase {
 
@@ -54,8 +54,7 @@ public class TestStem0 extends TestCase {
       r.rs.stop();
     }
     catch (Exception e) {
-      e.printStackTrace();
-      Assert.fail("unexpected exception: " + e.getMessage());
+      T.e(e);
     }
   } // public void testDeleteEmptyStem()
 
