@@ -23,12 +23,14 @@ import  org.apache.commons.logging.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.1.2.1 2006-04-17 18:19:54 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.1.2.2 2006-04-20 14:55:35 blair Exp $
  *     
 */
 class CompositeValidator implements Serializable {
 
   // Protected Class Constants //
+  protected static final String ERR_CL  = "left factor is owner";
+  protected static final String ERR_CR  = "right factor is owner";
   protected static final String ERR_L   = "no composite left factor";
   protected static final String ERR_LC  = "composite left factor is not a group";
   protected static final String ERR_LR  = "same left and right composite factors";
@@ -70,6 +72,12 @@ class CompositeValidator implements Serializable {
     }
     if (l.equals(r)) {
       throw new ModelException(ERR_LR);
+    }
+    if (o.equals(l)) {
+      throw new ModelException(ERR_CL);
+    }
+    if (o.equals(r)) {
+      throw new ModelException(ERR_CR);
     }
     if (c.getType() == null) {
       throw new ModelException(ERR_T);
