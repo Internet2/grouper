@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.24.2.4 2006-04-20 19:26:37 blair Exp $
+ * @version $Id: Membership.java,v 1.24.2.5 2006-04-21 15:17:11 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -204,6 +204,30 @@ public class Membership implements Serializable {
     parent.setSession(this.getSession());
     return parent;
   } // public Membership getParentMembership()
+
+  /**
+   * Get this membership's via.
+   * <pre calss="eg">
+   * try {
+   *   Owner via = ms.getVia();
+   * }
+   * catch (OwnerNotFoundException eONF) {
+   *   // Unable to retrieve via
+   * }
+   * </pre>
+   * @return  An {@link Owner}.
+   * @throws  OwnerNotFoundException
+   */
+  public Owner getVia()
+    throws  OwnerNotFoundException
+  {
+    if (this.getVia_id() != null) {
+      Owner via = this.getVia_id();
+      via.setSession(this.getSession());
+      return via;
+    }
+    throw new OwnerNotFoundException();
+  } // public Owner getVia()
  
   /**
    * Get this membership's via group.
