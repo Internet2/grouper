@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.24.2.5 2006-04-21 15:17:11 blair Exp $
+ * @version $Id: Membership.java,v 1.24.2.6 2006-04-21 17:47:37 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -245,10 +245,10 @@ public class Membership implements Serializable {
   public Group getViaGroup() 
     throws GroupNotFoundException
   {
-    if ( (this.getVia_id() != null) && (this.getVia_id() instanceof Group) ) {
-      Group g = (Group) this.getVia_id();
-      g.setSession(this.getSession());
-      return g;
+    Group via = (Group) this.getVia_id();
+    if ( (via != null) && (via instanceof Group) ) {
+      via.setSession(this.getSession());
+      return via;
     }
     throw new GroupNotFoundException();
   } // public Group getViaGroup()
