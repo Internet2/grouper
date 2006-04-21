@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.19 2006-04-20 19:26:37 blair Exp $
+$Id: TODO,v 1.30.2.20 2006-04-21 15:20:55 blair Exp $
 
 ---
 
@@ -66,6 +66,8 @@ $Id: TODO,v 1.30.2.19 2006-04-20 19:26:37 blair Exp $
 * code: update to latest subject api
 
 ### Maybe
+* code: Deprecate `Membership.getViaGroup()`
+* code: Add `MembershipType` to `Membership` mapping
 * code: `ErrorLog`
 * code: `DebugLog`
 * code: `Owner`-related cleanup
@@ -126,7 +128,7 @@ $Id: TODO,v 1.30.2.19 2006-04-20 19:26:37 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.19 2006-04-20 19:26:37 blair Exp $
+$Id: TODO,v 1.30.2.20 2006-04-21 15:20:55 blair Exp $
 
 
 
