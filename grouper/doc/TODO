@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.20 2006-04-21 15:20:55 blair Exp $
+$Id: TODO,v 1.30.2.21 2006-04-28 14:41:40 blair Exp $
 
 ---
 
@@ -15,12 +15,16 @@ $Id: TODO,v 1.30.2.20 2006-04-21 15:20:55 blair Exp $
 * Logging of composite membership changes
 
 ### Next Actions
+* code: update to latest subject api
 * code: add union composite member (sync)
 * code: delete union composite member (sync)
 * code: add complement composite member (sync)
 * code: delete complement composite member (sync)
 * code: add intersection composite member (sync)
 * code: delete intersection composite member (sync)
+* start populating membership creator
+* privilege query filters
+* TODO start populating membership creator
 * code: privilege cleanup - `NamingResolver`
 * code: privilege cleanup - `AccessResolver`
 * code: privilege cleanup - Hibernate-backed `PrivilegeCache`
@@ -63,10 +67,9 @@ $Id: TODO,v 1.30.2.20 2006-04-21 15:20:55 blair Exp $
 * code: make thread sleep times (invisibly?) configurable
 * code: delete custom group types
 * code: internalize cache management code?
-* code: update to latest subject api
 
 ### Maybe
-* code: Deprecate `Membership.getViaGroup()`
+* code: either remove status-related code or else think it out more thoroughly
 * code: Add `MembershipType` to `Membership` mapping
 * code: `ErrorLog`
 * code: `DebugLog`
@@ -79,6 +82,7 @@ $Id: TODO,v 1.30.2.20 2006-04-21 15:20:55 blair Exp $
 * code: Don't assign `GrouperSystem` privileges
 * document: add `@since` to javadoc
 * library: update [jug](http://jug.safehaus.org/)
+* code: Deprecate `Membership.getViaGroup()`
 
 ---
 
@@ -119,6 +123,9 @@ $Id: TODO,v 1.30.2.20 2006-04-21 15:20:55 blair Exp $
 * code: search limits
 * code: paged search results
 * code: group hierarchy depth restrictions
+* code: make at least some events (mships, privs, children) observable for notification purposes
+* code: allow custom attributes and lists to be associated with more than one group type
+* code: rule-engine support and/or support for both enable- and disable-based aging
 
 ## Contributed Code
 * code: flatfile source adapter 
@@ -128,7 +135,7 @@ $Id: TODO,v 1.30.2.20 2006-04-21 15:20:55 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.20 2006-04-21 15:20:55 blair Exp $
+$Id: TODO,v 1.30.2.21 2006-04-28 14:41:40 blair Exp $
 
 
 
