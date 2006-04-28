@@ -1,6 +1,6 @@
 /*--
-$Id: SourceManager.java,v 1.3 2006-03-12 23:10:50 tbarton Exp $
-$Date: 2006-03-12 23:10:50 $
+$Id: SourceManager.java,v 1.4 2006-04-28 17:11:04 blair Exp $
+$Date: 2006-04-28 17:11:04 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -95,7 +95,10 @@ public class SourceManager {
      * @return Collection
      */
     public Collection getSources(SubjectType type) {
-        return (Collection)this.source2TypeMap.get(type);
+        if (this.source2TypeMap.containsKey(type)) {
+            return (Collection)this.source2TypeMap.get(type);
+        }
+        return (Collection) new HashSet();
     }
     
     /**
