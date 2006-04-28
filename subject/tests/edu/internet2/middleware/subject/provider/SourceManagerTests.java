@@ -68,6 +68,33 @@ public class SourceManagerTests extends TestCase {
     Collection apps   = mgr.getSources(SubjectTypeEnum.valueOf("application"));
     Assert.assertNotNull("apps !null", apps);
     Assert.assertEquals("Application sources == 0", 0, apps.size());
-  } // public void testSourcesByType()
+  } // public void testGetSourcesByType()
+
+  /**
+   * Test adding multiple {@link NullSourceAdapter}s.
+   */
+  public void testAddNullSourceAdapterAndGetSourcesByType() {
+    // Verify we have nothing
+    Assert.assertEquals("sources == 0", 0, mgr.getSources().size());
+
+    // Add the NullSourceAdapter 
+    NullSourceAdapter nsa = new NullSourceAdapter("nsa", "null source adapter");
+    Assert.assertNotNull("nsa !null", nsa);
+    mgr.loadSource(nsa);
+    Assert.assertEquals("sources == 1", 1, mgr.getSources().size());
+
+    // Now verify that we have an adapter for each type
+    Collection people = mgr.getSources(SubjectTypeEnum.valueOf("person"));
+    Assert.assertNotNull("people !null", people);
+    Assert.assertEquals("Person sources == 1", 1, people.size());
+		
+    Collection groups = mgr.getSources(SubjectTypeEnum.valueOf("group"));
+    Assert.assertNotNull("groups !null", groups);
+    Assert.assertEquals("Group sources == 1", 1, groups.size());
+
+    Collection apps   = mgr.getSources(SubjectTypeEnum.valueOf("application"));
+    Assert.assertNotNull("apps !null", apps);
+    Assert.assertEquals("Application sources == 1", 1, apps.size());
+  } // public void testAddNullSourceAdapterAndGetSourcesByType() {
 
 }
