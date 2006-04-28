@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.21 2006-04-28 14:41:40 blair Exp $
+$Id: TODO,v 1.30.2.22 2006-04-28 18:05:33 blair Exp $
 
 ---
 
@@ -15,7 +15,6 @@ $Id: TODO,v 1.30.2.21 2006-04-28 14:41:40 blair Exp $
 * Logging of composite membership changes
 
 ### Next Actions
-* code: update to latest subject api
 * code: add union composite member (sync)
 * code: delete union composite member (sync)
 * code: add complement composite member (sync)
@@ -135,7 +134,7 @@ $Id: TODO,v 1.30.2.21 2006-04-28 14:41:40 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.21 2006-04-28 14:41:40 blair Exp $
+$Id: TODO,v 1.30.2.22 2006-04-28 18:05:33 blair Exp $
 
 
 

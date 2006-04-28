@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.94.2.13 2006-04-17 19:34:44 blair Exp $
+$Id: NEWS,v 1.94.2.14 2006-04-28 18:05:33 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS,v 1.94.2.13 2006-04-17 19:34:44 blair Exp $
 Released: TBD
 
 ## Changes
+* UPDATE: Updated Subject API to version 0.1c.
 * BUGFIX: Several indices had gone missing in the Hibernate mapping
   files as a result of various configuration changes over the past
   months.
