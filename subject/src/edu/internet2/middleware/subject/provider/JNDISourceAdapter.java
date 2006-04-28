@@ -56,10 +56,9 @@ public class JNDISourceAdapter
     // Return scope for searching as a int - associate the string with the int
     protected static HashMap scopeStrings = new HashMap();
     static {
-        scopeStrings.put("OBJECT_SCOPE", Integer.valueOf(SearchControls.OBJECT_SCOPE));
-        scopeStrings.put("ONELEVEL_SCOPE", Integer.valueOf(SearchControls.ONELEVEL_SCOPE));
-        scopeStrings.put("SUBTREE_SCOPE", Integer.valueOf(SearchControls.SUBTREE_SCOPE));
-        
+        scopeStrings.put("OBJECT_SCOPE",    new Integer(SearchControls.OBJECT_SCOPE)  );
+        scopeStrings.put("ONELEVEL_SCOPE",  new Integer(SearchControls.ONELEVEL_SCOPE));
+        scopeStrings.put("SUBTREE_SCOPE",   new Integer(SearchControls.SUBTREE_SCOPE) );
     }
     protected static int getScope(String scope ) {
         Integer s = (Integer) scopeStrings.get(scope.toUpperCase());
