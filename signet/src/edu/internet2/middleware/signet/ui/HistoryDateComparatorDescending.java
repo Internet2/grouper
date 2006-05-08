@@ -1,6 +1,6 @@
 /*--
-$Id: HistoryDateComparatorDescending.java,v 1.2 2006-02-09 10:31:43 lmcrae Exp $
-$Date: 2006-02-09 10:31:43 $
+$Id: HistoryDateComparatorDescending.java,v 1.3 2006-05-08 18:33:29 ddonn Exp $
+$Date: 2006-05-08 18:33:29 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,9 +18,9 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.ui;
 
+import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.Date;
-
 import edu.internet2.middleware.signet.History;
 
 public class HistoryDateComparatorDescending implements Comparator
@@ -38,11 +38,10 @@ public class HistoryDateComparatorDescending implements Comparator
    */
   public int compare(Object o1, Object o2)
   {
-    if (o1 instanceof History
-      && o2 instanceof History)
+    if (o1 instanceof History && o2 instanceof History)
     {
-      Date date1 = ((History)o1).getDate();
-      Date date2 = ((History)o2).getDate();
+      Date date1 = homogenizeDate(((History)o1).getDate());
+      Date date2 = homogenizeDate(((History)o2).getDate());
       
       // We'll do this comparison "backwards", to get a descending sort.
       return date2.compareTo(date1);
@@ -50,4 +49,21 @@ public class HistoryDateComparatorDescending implements Comparator
     
     return 0;
   }
+
+
+  /** Some of the Dates get converted to Timestamp objects when stored in the DB.
+   * This causes compare() to choke when trying to compare a Date to a Timestamp.
+   */
+  private java.util.Date homogenizeDate(Date inDate)
+  {
+	  if (inDate instanceof Timestamp)
+	  {
+		  Date outDate = new Date(inDate.getTime());
+		  return (outDate);
+	  }
+	  else
+		  return (inDate);
+  }
+
+
 }
