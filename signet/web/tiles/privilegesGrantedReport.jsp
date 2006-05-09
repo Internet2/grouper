@@ -95,8 +95,15 @@
   </DIV> <!-- tablecontrols -->
 
 
-   <FORM name="checkform" action="Revoke.do" method="post" id="checkform" onSubmit="return confirmRevokeMsg()">
-
+   <FORM
+   		name="checkform"
+   		action="Revoke.do"
+   		method="post"
+   		id="checkform"
+	      onSubmit
+	        ="return confirm
+	           ('Are you sure you want to revoke the selected privileges(s)?\nThis action cannot be undone.\nClick OK to confirm.');">
+	
     <DIV class="tablecontent">    
       <TABLE>
         <TR class="columnhead">
