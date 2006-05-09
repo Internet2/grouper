@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.22 2006-04-28 18:05:33 blair Exp $
+$Id: TODO,v 1.30.2.23 2006-05-09 15:50:54 blair Exp $
 
 ---
 
@@ -15,46 +15,16 @@ $Id: TODO,v 1.30.2.22 2006-04-28 18:05:33 blair Exp $
 * Logging of composite membership changes
 
 ### Next Actions
-* code: add union composite member (sync)
-* code: delete union composite member (sync)
-* code: add complement composite member (sync)
-* code: delete complement composite member (sync)
-* code: add intersection composite member (sync)
-* code: delete intersection composite member (sync)
-* start populating membership creator
-* privilege query filters
-* TODO start populating membership creator
-* code: privilege cleanup - `NamingResolver`
-* code: privilege cleanup - `AccessResolver`
-* code: privilege cleanup - Hibernate-backed `PrivilegeCache`
-* code: non-hibernated root sessions
-* code: remove (all|most) RTEs
-* code: add daemon (singleton?)
-* code: start+stop daemon via api
-* code: embed hsqldb within daemon 
-** admin: update to latest hsqldb
-** code: do not stop hsqldb if using non-embedded db
-* test: basic concurrency testing
-* MAYBE code: add registry integrity thread to daemon
-* code: toString cleanup
-* code: attribute retrieval cleanup
-* code: add getting-and-setting sync mode to sessions
-* code: add member (async)
-* code: delete member (async)
-* code: grant access privilege (async)
-* code: revoke access privilege (async)
-* code: grant naming privilege (async)
-* code: revoke naming privilege (async)
-* code: add union composite member (async)
-* code: delete union composite member (async)
-* code: add complement composite member (async)
-* code: delete complement composite member (async)
-* code: add intersection composite member (async)
-* code: delete intersection composite member (async)
-* test: concurrency, deletion and async mods
-* test: concurrency testing (i expect to find many bugs)
+* code: union composites (sync)
+* admin: merge GROUPER_1_0_TAKE2 back into HEAD
+* code: complement composites (sync)
+* code: intersection composites (sync)
+* code: start populating membership creator
+* code: privilege query filters
 * code: class to verify that setup is functional
 ** find the root stem, exercise subject api, hibernate dialect + driver class, etc
+* code: non-hibernated root sessions (cleanup)
+* test: basic concurrency testing (i expect to find many bugs)
 * code: add `Group.canReadField(f)`
 * code: add `Group.canReadField(f, subj)`
 * code: add `Group.canWriteField(f)`
@@ -63,15 +33,42 @@ $Id: TODO,v 1.30.2.22 2006-04-28 18:05:33 blair Exp $
   group has, including base but excluding internal types
 * code: add `Group.getRemovableTypes()` that will return all types
   that can be removed from the group
-* code: make thread sleep times (invisibly?) configurable
 * code: delete custom group types
 * code: internalize cache management code?
+* code: privilege cleanup - `NamingResolver`
+* code: privilege cleanup - `AccessResolver`
+* code: privilege cleanup - Hibernate-backed `PrivilegeCache`
+* code: remove (all|most) RTEs
+* code: toString cleanup
+* code: attribute retrieval cleanup
 
 ### Maybe
+* code: API support for XML import+export
 * code: either remove status-related code or else think it out more thoroughly
-* code: Add `MembershipType` to `Membership` mapping
 * code: `ErrorLog`
 * code: `DebugLog`
+* Daemon Support
+** code: add daemon (singleton?)
+** code: start+stop daemon via api
+** code: embed hsqldb within daemon 
+*** admin: update to latest hsqldb
+*** code: do not stop hsqldb if using non-embedded db
+** MAYBE code: add registry integrity thread to daemon
+** code: add getting-and-setting sync mode to sessions
+** code: add member (async)
+** code: delete member (async)
+** code: grant access privilege (async)
+** code: revoke access privilege (async)
+** code: grant naming privilege (async)
+** code: revoke naming privilege (async)
+** code: add union composite member (async)
+** code: delete union composite member (async)
+** code: add complement composite member (async)
+** code: delete complement composite member (async)
+** code: add intersection composite member (async)
+** code: delete intersection composite member (async)
+** test: concurrency, deletion and async mods
+** code: make thread sleep times (invisibly?) configurable
 * code: `Owner`-related cleanup
 * packaging: create binary-and-source distributions
 * code: unhibernate `GrouperSession`
@@ -134,7 +131,7 @@ $Id: TODO,v 1.30.2.22 2006-04-28 18:05:33 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.22 2006-04-28 18:05:33 blair Exp $
+$Id: TODO,v 1.30.2.23 2006-05-09 15:50:54 blair Exp $
 
 
 
