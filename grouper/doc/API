@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.133.2.10 2006-04-21 15:17:11 blair Exp $
+$Id: API,v 1.133.2.11 2006-05-09 18:30:45 blair Exp $
 
 ---
 
@@ -92,6 +92,7 @@ $Id: API,v 1.133.2.10 2006-04-21 15:17:11 blair Exp $
 * void                addType(type)
 * void                delete()
 * void                deleteAttribute(attr)
+* void                deleteCompositeMember()
 * void                deleteMember(subject)
 * void                deleteMember(subject, field)
 * void                deleteType(type)

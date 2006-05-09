@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.7 2006-04-20 17:45:20 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.8 2006-05-09 18:30:45 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -440,6 +440,39 @@ public class Group extends Owner implements Serializable {
       throw new GroupModifyException(e.getMessage());
     }
   } // public void deleteAttribute(attr)
+
+  /**
+   * Delete a composite membership from this group.
+   * <pre class="eg">
+   * try {
+   *   g.deleteCompositeMember();
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete members
+   * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete composite membership
+   * } 
+   * </pre>
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   */
+  public void deleteCompositeMember()
+    throws  InsufficientPrivilegeException,
+            MemberDeleteException
+  {
+    try {
+      StopWatch sw = new StopWatch();
+      sw.start();
+      GroupValidator.canDelCompositeMember(this);
+      // TODO Membership.delCompositeMembership(this.getSession(), this);
+      sw.stop();
+      // TODO EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
+    }
+    catch (SchemaException eS) {
+      throw new MemberDeleteException(eS.getMessage());
+    }
+  } // public void deleteCompositeMember()
 
   /** 
    * Delete a subject from this group.

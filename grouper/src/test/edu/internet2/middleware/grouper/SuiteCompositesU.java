@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteCompositesU.java,v 1.1.2.7 2006-04-26 18:05:30 blair Exp $
+ * @version $Id: SuiteCompositesU.java,v 1.1.2.8 2006-05-09 18:30:45 blair Exp $
  */
 public class SuiteCompositesU extends TestCase {
 
@@ -36,7 +36,7 @@ public class SuiteCompositesU extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( TestCompositeU0.class   );  // fail: not priv'd to add union
-    // TODO suite.addTestSuite( TestCompositeU1.class   );  // fail: not priv'd to delete union
+    suite.addTestSuite( TestCompositeU1.class   );  // fail: not priv'd to delete union
     suite.addTestSuite( TestCompositeU2.class   );  // fail: hasComposite()
     suite.addTestSuite( TestCompositeU3.class   );  // fail: isComposite()
 /*  TODO
@@ -45,7 +45,7 @@ public class SuiteCompositesU extends TestCase {
     suite.addTestSuite( TestCompositeU5.class   );  // fail: deleteMember() when hasComposite()
     suite.addTestSuite( TestCompositeU6.class   );  // fail: addCompositeMember() when has member
     suite.addTestSuite( TestCompositeU7.class   );  // fail: deleteComposite() when has member
-    suite.addTestSuite( TestCompositeU8.class   );  // fail: deleteComposite() when not has hasComposite()
+    suite.addTestSuite( TestCompositeU8.class   );  // fail: deleteComposite() when not hasComposite()
 */
     suite.addTestSuite( TestCompositeU9.class   );  // add union: no children, no parents
     // TODO suite.addTestSuite( TestCompositeU10.class  );  // del union: no children, no parents
