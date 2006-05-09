@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.58 2006-04-10 06:28:11 ddonn Exp $
-$Date: 2006-04-10 06:28:11 $
+$Id: Signet.java,v 1.59 2006-05-09 01:33:33 ddonn Exp $
+$Date: 2006-05-09 01:33:33 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,6 +18,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,24 +30,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Logger;
-
-import org.apache.commons.collections.set.UnmodifiableSet;
-
-import edu.internet2.middleware.signet.choice.ChoiceSet;
-import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
-import edu.internet2.middleware.signet.tree.Tree;
-import edu.internet2.middleware.signet.tree.TreeNotFoundException;
-import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.signet.tree.TreeAdapter;
-
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectType;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.Source;
-
-import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-import edu.internet2.middleware.subject.provider.SourceManager;
-
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
@@ -54,6 +37,20 @@ import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 import net.sf.hibernate.Transaction;
 import net.sf.hibernate.cfg.Configuration;
+import org.apache.commons.collections.set.UnmodifiableSet;
+import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
+import edu.internet2.middleware.signet.resource.ResLoaderApp;
+import edu.internet2.middleware.signet.tree.Tree;
+import edu.internet2.middleware.signet.tree.TreeAdapter;
+import edu.internet2.middleware.signet.tree.TreeNode;
+import edu.internet2.middleware.signet.tree.TreeNotFoundException;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
 * This is the factory class for all Signet entities.
@@ -61,31 +58,27 @@ import net.sf.hibernate.cfg.Configuration;
 */
 public final class Signet
 {
-	// Signet version (manually keep in sync with 'signet_version' in build.xml
-	private static final String version = "1.0.1";
+	// Signet version
+	private static final String version = ResLoaderApp.getString("signet_version"); //$NON-NLS-1$
 	 
 	// Signet application name
-	private static final String appName = "Signet";
+	private static final String appName = Signet.class.getSimpleName();
 
 
  /**
   * This constant denotes the default subject-type ID, as it is
   * defined and used by Signet.
   */
- public static final String DEFAULT_SUBJECT_TYPE_ID
-  = "person";
+ public static final String DEFAULT_SUBJECT_TYPE_ID = "person"; 
 
  // This constant should probably end up in some sort of
  // Tree-specific presentation class adapter, and should probably
  // be private when it moves there.
- static final String           SCOPE_PART_DELIMITER
-  = ":";
+ static final String           SCOPE_PART_DELIMITER = ":"; 
 
- private static final String   DEFAULT_TREE_ADAPTER_NAME
-  = "edu.internet2.middleware.signet.TreeAdapterImpl";
+ private static final String   DEFAULT_TREE_ADAPTER_NAME = ResLoaderApp.getString("Signet.app.defaultTreeAdapterName"); //$NON-NLS-1$
 
- private static final String    DEFAULT_CHOICE_SET_ADAPTER_NAME
-  = "edu.internet2.middleware.signet.ChoiceSetAdapterImpl";
+ private static final String    DEFAULT_CHOICE_SET_ADAPTER_NAME = ResLoaderApp.getString("Signet.app.defaultChoiceSetAdapterName"); //$NON-NLS-1$
 
  /**
   * This constant denotes the "first name" attribute of a Subject, as it is
@@ -94,7 +87,7 @@ public final class Signet
   * Perhaps this constant should be moved to the PrivilegedSubject interface,
   * or even hidden within the implementation of that interface.
   */
- public static final String    ATTR_FIRSTNAME                 = "~firstname";
+ public static final String    ATTR_FIRSTNAME = "~firstname"; 
 
  /**
   * This constant denotes the "middle name" attribute of a Subject, as it is
@@ -103,7 +96,7 @@ public final class Signet
   * Perhaps this constant should be moved to the PrivilegedSubject interface,
   * or even hidden within the implementation of that interface.
   */
- public static final String    ATTR_MIDDLENAME                = "~middlename";
+ public static final String    ATTR_MIDDLENAME = "~middlename"; 
 
  /**
   * This constant denotes the "last name" attribute of a Subject, as it is
@@ -112,7 +105,7 @@ public final class Signet
   * Perhaps this constant should be moved to the PrivilegedSubject interface,
   * or even hidden within the implementation of that interface.
   */
- public static final String    ATTR_LASTNAME                  = "~lastname";
+ public static final String    ATTR_LASTNAME = "~lastname"; 
 
  /**
   * This constant denotes the "display ID" attribute of a Subject, as it is
@@ -121,7 +114,7 @@ public final class Signet
   * Perhaps this constant should be moved to the PrivilegedSubject interface,
   * or even hidden within the implementation of that interface.
   */
- public static final String    ATTR_DISPLAYID                 = "~displayid";
+ public static final String    ATTR_DISPLAYID = "~displayid"; 
 
 
  private static SessionFactory sessionFactory;
@@ -134,7 +127,7 @@ public final class Signet
 
 // private PrivilegedSubject     superPSubject;
 
- private int                   xactNestingLevel               = 0;
+ private int                   xactNestingLevel = 0;
 
  // If I could, I would, by default, set Signet's log to be the same as
  // whatever log was configured for Signet's underlying Hibernate instance.
@@ -212,7 +205,7 @@ public final class Signet
      }
      catch (Exception e)
      {
-       throw new SignetRuntimeException("Error getting SourceManager", e);
+       throw new SignetRuntimeException(ResLoaderApp.getString("Signet.msg.exc.srcMgr"), e); //$NON-NLS-1$
      }
    }
    
@@ -331,7 +324,7 @@ public final class Signet
      // Read the "hibernate.cfg.xml" file. It is expected to be in a root
      // directory of the classpath.
      cfg.configure();
-     String dbAccount = cfg.getProperty("hibernate.connection.username");
+     String dbAccount = cfg.getProperty("hibernate.connection.username"); //$NON-NLS-1$
      interceptor = new HousekeepingInterceptor(dbAccount);
      cfg.setInterceptor(interceptor);
 
@@ -433,8 +426,7 @@ public final class Signet
    }
    catch (net.sf.hibernate.ObjectNotFoundException onfe)
    {
-     throw new
-      edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
+     throw new ObjectNotFoundException(onfe);
    }
    catch (HibernateException e)
    {
@@ -451,13 +443,12 @@ public final class Signet
 
    try
    {
-     query
-       = session
-           .createQuery
-             ("from edu.internet2.middleware.signet.ChoiceSetImpl"
-              + " as choiceSet" + " where choiceSetID = :id");
+     query = session.createQuery
+             ("from edu.internet2.middleware.signet.ChoiceSetImpl" 
+              + " as choiceSet"  
+              + " where choiceSetID = :id"); 
 
-      query.setString("id", choiceSetId);
+      query.setString("id", choiceSetId); 
 
       resultList = query.list();
     }
@@ -468,20 +459,25 @@ public final class Signet
     
     if (resultList.size() > 1)
     {
-      throw new SignetRuntimeException
-        ("Found "
-         + resultList.size()
-         + " ChoiceSet instances in the database matching choiceSetId '"
-         + choiceSetId
-         + "'. This value should be unique.");
+    	Object[] formData = new Object[] {
+    			new Integer(resultList.size()),
+    			choiceSetId
+    	};
+    	MessageFormat form = new MessageFormat(
+    			ResLoaderApp.getString("Signet.msg.exc.choiceSetId_1") + //$NON-NLS-1$
+    			ResLoaderApp.getString("Signet.msg.exc.choiceSetId_2") + //$NON-NLS-1$
+    			ResLoaderApp.getString("Signet.msg.exc.choiceSetId_3")); //$NON-NLS-1$
+  
+    	throw new SignetRuntimeException(form.format(formData));
     }
     
     if (resultList.size() == 0)
     {
-      throw new ObjectNotFoundException
-        ("Unable to fetch ChoiceSet with choiceSetId '"
-         + choiceSetId
-         + "'.");
+    	Object[] formData = new Object[] { choiceSetId };
+    	throw new ObjectNotFoundException(
+    			MessageFormat.format(
+    					ResLoaderApp.getString("Signet.msg.exc.choiceSetFetch"), //$NON-NLS-1$
+    					formData));
     } 
 
     // If we've gotten this far, then resultList.size() must be equal to 1.
@@ -509,7 +505,7 @@ public final class Signet
    try
    {
      resultList = session
-         .find("from edu.internet2.middleware.signet.SubsystemImpl as subsystem");
+         .find("from edu.internet2.middleware.signet.SubsystemImpl as subsystem"); 
    }
    catch (HibernateException e)
    {
@@ -546,7 +542,7 @@ public final class Signet
    try
    {
      resultList = session
-         .find("from edu.internet2.middleware.signet.TreeImpl as tree");
+         .find("from edu.internet2.middleware.signet.TreeImpl as tree"); 
    }
    catch (HibernateException e)
    {
@@ -580,14 +576,13 @@ public final class Signet
    try
    {
     List privilegedSubjects =
-      session.find("from edu.internet2.middleware.signet.PrivilegedSubject");
+      session.find("from edu.internet2.middleware.signet.PrivilegedSubject"); 
     return privilegedSubjects;
    }
    catch (HibernateException e)
    {
      throw new SignetRuntimeException(
-         "Error while attempting to retrieve all PrivilegedSubject from"
-             + " the database", e);
+         ResLoaderApp.getString("Signet.msg.exc.privSubj"), e); //$NON-NLS-1$
    }
 
  }
@@ -602,26 +597,26 @@ public final class Signet
     {
       query = session
          .createQuery
-           ("from edu.internet2.middleware.signet.AssignmentImpl"
-            + " as assignment"
-            + " where granteeKey  = :granteeKey"
-            + " and functionKey   = :functionKey"
-            + " and scopeID       = :scopeId"
-            + " and scopeNodeID   = :scopeNodeId"
-            + " and assignmentID != :assignmentId");
+           ("from edu.internet2.middleware.signet.AssignmentImpl" 
+            + " as assignment" 
+            + " where granteeKey  = :granteeKey" 
+            + " and functionKey   = :functionKey" 
+            + " and scopeID       = :scopeId" 
+            + " and scopeNodeID   = :scopeNodeId" 
+            + " and assignmentID != :assignmentId"); 
 
       query.setParameter
-        ("granteeKey", assignment.getGrantee().getId(), Hibernate.INTEGER);
+        ("granteeKey", assignment.getGrantee().getId(), Hibernate.INTEGER); 
       query.setParameter
-        ("functionKey",
+        ("functionKey", 
          ((FunctionImpl)(assignment.getFunction())).getKey(),
          Hibernate.INTEGER);
       query.setString
-        ("scopeId", assignment.getScope().getTree().getId());
+        ("scopeId", assignment.getScope().getTree().getId()); 
       query.setString
-        ("scopeNodeId", assignment.getScope().getId());
+        ("scopeNodeId", assignment.getScope().getId()); 
       
-      query.setParameter("assignmentId", assignment.getId(), Hibernate.INTEGER);
+      query.setParameter("assignmentId", assignment.getId(), Hibernate.INTEGER); 
 
       resultList = query.list();
     }
@@ -714,13 +709,13 @@ public final class Signet
    try
    {
      query = session
-         .createQuery("from edu.internet2.middleware.signet.TreeNodeRelationship"
-             + " as treeNodeRelationship"
-             + " where treeID = :treeId"
-             + " and nodeID = :childNodeId");
+         .createQuery("from edu.internet2.middleware.signet.TreeNodeRelationship" 
+             + " as treeNodeRelationship" 
+             + " where treeID = :treeId" 
+             + " and nodeID = :childNodeId"); 
 
-     query.setString("treeId", tree.getId());
-     query.setString("childNodeId", childNode.getId());
+     query.setString("treeId", tree.getId()); 
+     query.setString("childNodeId", childNode.getId()); 
 
      resultList = query.list();
    }
@@ -755,13 +750,13 @@ public final class Signet
    try
    {
      query = session
-         .createQuery("from edu.internet2.middleware.signet.TreeNodeRelationship"
-             + " as treeNodeRelationship"
-             + " where treeID = :treeId"
-             + " and parentNodeID = :parentNodeId");
+         .createQuery("from edu.internet2.middleware.signet.TreeNodeRelationship" 
+             + " as treeNodeRelationship" 
+             + " where treeID = :treeId" 
+             + " and parentNodeID = :parentNodeId"); 
 
-     query.setString("treeId", tree.getId());
-     query.setString("parentNodeId", parentNode.getId());
+     query.setString("treeId", tree.getId()); 
+     query.setString("parentNodeId", parentNode.getId()); 
 
      resultList = query.list();
    }
@@ -795,10 +790,10 @@ public final class Signet
    try
    {
      query = session
-         .createQuery("from edu.internet2.middleware.signet.FunctionImpl"
-             + " as function" + " where subsystemID = :id");
+         .createQuery("from edu.internet2.middleware.signet.FunctionImpl" 
+             + " as function" + " where subsystemID = :id");  
 
-     query.setString("id", subsystem.getId());
+     query.setString("id", subsystem.getId()); 
 
      resultList = query.list();
    }
@@ -831,10 +826,10 @@ public final class Signet
    {
      query = session
          .createQuery
-          ("from edu.internet2.middleware.signet.ChoiceSetImpl"
-            + " as choiceSet where subsystemID = :id");
+          ("from edu.internet2.middleware.signet.ChoiceSetImpl" 
+            + " as choiceSet where subsystemID = :id"); 
 
-     query.setString("id", subsystem.getId());
+     query.setString("id", subsystem.getId()); 
 
      resultList = query.list();
    }
@@ -868,10 +863,10 @@ public final class Signet
    {
      query = session
          .createQuery
-          ("from edu.internet2.middleware.signet.LimitImpl"
-            + " as limit where subsystemID = :id");
+          ("from edu.internet2.middleware.signet.LimitImpl" 
+            + " as limit where subsystemID = :id"); 
 
-     query.setString("id", subsystem.getId());
+     query.setString("id", subsystem.getId()); 
 
      resultList = query.list();
    }
@@ -905,10 +900,10 @@ public final class Signet
    {
      query = session
          .createQuery
-          ("from edu.internet2.middleware.signet.PermissionImpl"
-            + " as limit where subsystemID = :id");
+          ("from edu.internet2.middleware.signet.PermissionImpl" 
+            + " as limit where subsystemID = :id"); 
 
-     query.setString("id", subsystem.getId());
+     query.setString("id", subsystem.getId()); 
 
      resultList = query.list();
    }
@@ -994,8 +989,8 @@ public final class Signet
    try
    {
      resultList = session
-         .find("from edu.internet2.middleware.signet.AssignmentImpl"
-             + " as assignment");
+         .find("from edu.internet2.middleware.signet.AssignmentImpl" 
+             + " as assignment"); 
    }
    catch (HibernateException e)
    {
@@ -1036,15 +1031,14 @@ public final class Signet
    if (tx == null)
    {
      throw new IllegalStateException(
-         "It is illegal to attempt to commit a Signet transaction that has"
-             + " not yet begun.");
+         ResLoaderApp.getString("Signet.msg.exc.sigTrans")); //$NON-NLS-1$
    }
 
    if (xactNestingLevel < 1)
    {
      throw new SignetRuntimeException(
-         "A Signet transaction is open, but Signet's transaction-nesting"
-             + " level is not greater than zero. This is an internal error.");
+         ResLoaderApp.getString("Signet.msg.exc.transNest_1") + //$NON-NLS-1$
+     		ResLoaderApp.getString("Signet.msg.exc.transNest_2")); //$NON-NLS-1$
    }
 
    xactNestingLevel--;
@@ -1179,19 +1173,16 @@ public final class Signet
     Query                 query;
     List                  resultList;
 
-    try
-    {
-      query
-        = session
-            .createQuery
-              ("from edu.internet2.middleware.signet.PrivilegedSubjectImpl"
-               + " as privilegedSubject" + " where subjectID = :id"
-               + " and subjectTypeID = :type");
-
-       query.setString("id", subjectId);
-       query.setString("type", subjectTypeId);
-
-       resultList = query.list();
+	try
+	{
+		query = session.createQuery(
+			"from edu.internet2.middleware.signet.PrivilegedSubjectImpl" + 
+			" as privilegedSubject" + 
+			" where subjectID = :id" + 
+			" and subjectTypeID = :type"); 
+		query.setString("id", subjectId); 
+		query.setString("type", subjectTypeId); 
+		resultList = query.list();
      }
      catch (HibernateException e)
      {
@@ -1200,24 +1191,28 @@ public final class Signet
      
      if (resultList.size() > 1)
      {
-       throw new SignetRuntimeException
-         ("Found "
-          + resultList.size()
-          + " PrivilegedSubject instances in the database matching subjectId '"
-          + subjectId
-          + "' and subjectTypeId '"
-          + subjectTypeId
-          + "'. This compound value should be unique.");
+    	 Object[] msgData = new Object[] {
+    			 new Integer(resultList.size()),
+    			 subjectId,
+    			 subjectTypeId
+    	 };
+    	 MessageFormat msg = new MessageFormat(
+    			 ResLoaderApp.getString("Signet.msg.exc.multiPrivSubj_1") + //$NON-NLS-1$
+    			 ResLoaderApp.getString("Signet.msg.exc.multiPrivSubj_2") + //$NON-NLS-1$
+    			 ResLoaderApp.getString("Signet.msg.exc.multiPrivSubj_3")); //$NON-NLS-1$
+    	 
+       throw new SignetRuntimeException(msg.format(msgData));
      }
      
      if (resultList.size() == 0)
      {
-       throw new ObjectNotFoundException
-         ("Unable to fetch PrivilegedSubject with typeId '"
-          + subjectTypeId
-          + "' and subjectId '"
-          + subjectId
-          + "'.");
+    	 Object[] msgData = new Object[] {
+    			 subjectTypeId,
+    			 subjectId
+    	 };
+    	 MessageFormat msg = new MessageFormat(
+    			 ResLoaderApp.getString("Signet.msg.exc.privSubjNotFound")); //$NON-NLS-1$
+       throw new ObjectNotFoundException(msg.format(msgData));
      } 
 
      // If we've gotten this far, then resultList.size() must be equal to 1.
@@ -1275,7 +1270,7 @@ public final class Signet
  {
   Subject subject = getSubjectByDisplayId(subjectTypeId, displayId);
   if (subject == null) {
-    throw new ObjectNotFoundException("Unable to get PrivilegedSubject by display ID.");
+    throw new ObjectNotFoundException(ResLoaderApp.getString("Signet.msg.exc.privSubjByDisplay")); //$NON-NLS-1$
   }
   return getPrivilegedSubject(subject);
  }
@@ -1327,7 +1322,7 @@ public final class Signet
    }
    catch (net.sf.hibernate.ObjectNotFoundException onfe)
    {
-     throw new edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
+     throw new ObjectNotFoundException(onfe);
    }
    catch (HibernateException he)
    {
@@ -1427,7 +1422,7 @@ public final class Signet
    ChoiceSetAdapter adapter
     = (ChoiceSetAdapter)
         (loadAndCheckAdapter
-            (adapterName, ChoiceSetAdapter.class, "ChoiceSet"));
+            (adapterName, ChoiceSetAdapter.class, "ChoiceSet")); 
   
    if (adapter instanceof ChoiceSetAdapterImpl)
    {
@@ -1457,28 +1452,30 @@ public final class Signet
    }
    catch (ClassNotFoundException cnfe)
    {
-     throw new SignetRuntimeException
-        ("A "
-         + adapterTargetName
-         + " referenced by Signet relies upon an adapter which"
-         + " is implemented by the class named '"
-         + className
-         + "'. This class cannot be found in Signet's classpath.",
-         cnfe);
+	   Object[] msgData = new Object[] {
+			   adapterTargetName,
+			   className
+	   };
+	   MessageFormat msg = new MessageFormat(
+			   ResLoaderApp.getString("Signet.msg.exc.noAdapter_1") + //$NON-NLS-1$
+			   ResLoaderApp.getString("Signet.msg.exc.noAdapter_2") + //$NON-NLS-1$
+			   ResLoaderApp.getString("Signet.msg.exc.noAdapter_3")); //$NON-NLS-1$
+     throw new SignetRuntimeException(msg.format(msgData), cnfe);
    }
    
    if (!classImplementsInterface(actualClass, requiredInterface))
    {
-     throw new SignetRuntimeException
-      ("A "
-        + adapterTargetName
-        + " referenced by Signet relies upon an adapter which"
-        + " is implemented by the class named '"
-        + className
-        + "'. This class is in Signet's classpath, but it does not"
-        + " implement the required interface '"
-        + requiredInterface.getName()
-        + "'.");
+	   Object[] msgData = new Object[] {
+			   adapterTargetName,
+			   className,
+			   requiredInterface.getName()
+	   };
+	   MessageFormat msg = new MessageFormat(ResLoaderApp.getString("Signet.msg.exc.adaptNotImpl_1") + //$NON-NLS-1$
+			   ResLoaderApp.getString("Signet.msg.exc.adaptNotImpl_2") + //$NON-NLS-1$
+			   ResLoaderApp.getString("Signet.msg.exc.adaptNotImpl_3") + //$NON-NLS-1$
+			   ResLoaderApp.getString("Signet.msg.exc.adaptNotImpl_4")); //$NON-NLS-1$
+	   
+     throw new SignetRuntimeException(msg.format(msgData));
    }
    
    try
@@ -1487,14 +1484,17 @@ public final class Signet
    }
    catch (Exception e)
    {
-     throw new SignetRuntimeException
-         ("A "
-          + adapterTargetName
-          + " in the Signet database relies upon an adapter which"
-          + " is implemented by the class named '"
-          + className
-          + "'. This class is in Signet's classpath, but Signet did not"
-          + " succeed in invoking its default constructor.", e);
+	   Object[] msgData = new Object[] {
+			   adapterTargetName,
+			   className
+	   };
+	   MessageFormat msg = new MessageFormat(
+			   ResLoaderApp.getString("Signet.msg.exc.adaptConstructor_1") + //$NON-NLS-1$
+			   ResLoaderApp.getString("Signet.msg.exc.adaptConstructor_2") + //$NON-NLS-1$
+			   ResLoaderApp.getString("Signet.msg.exc.adaptConstructor_3") + //$NON-NLS-1$
+			   ResLoaderApp.getString("Signet.msg.exc.adaptConstructor_4")); //$NON-NLS-1$
+	   
+     throw new SignetRuntimeException(msg.format(msgData), e);
    }
    
    return adapter;
@@ -1537,7 +1537,7 @@ public final class Signet
    TreeAdapter adapter
     = (TreeAdapter)
         (loadAndCheckAdapter
-          (adapterName, TreeAdapter.class, "Tree"));
+          (adapterName, TreeAdapter.class, "Tree")); 
 
    if (adapter instanceof TreeAdapterImpl)
    {
@@ -1563,7 +1563,7 @@ public final class Signet
         (loadAndCheckAdapter
           (rendererName,
            HTMLLimitRenderer.class,
-           "HTMLLimitRenderer"));
+           "HTMLLimitRenderer")); 
 
    if (renderer instanceof HTMLLimitRendererImpl)
    {
@@ -1683,14 +1683,12 @@ public final class Signet
    
    if (id == null)
    {
-     throw new IllegalArgumentException
-       ("Subsystem IDs must be non-null.");
+     throw new IllegalArgumentException(ResLoaderApp.getString("Signet.msg.exc.subsysIds")); //$NON-NLS-1$
    }
    
    if (id.length() == 0)
    {
-     throw new IllegalArgumentException
-       ("Zero-length Subsystem IDs are not allowed.");
+     throw new IllegalArgumentException(ResLoaderApp.getString("Signet.msg.exc.subsysIdIs0")); //$NON-NLS-1$
    }
 
    try
@@ -1699,9 +1697,10 @@ public final class Signet
    }
    catch (net.sf.hibernate.ObjectNotFoundException onfe)
    {
-     throw new edu.internet2.middleware.signet.ObjectNotFoundException
-       ("Unable to retrieve Subsystem with ID '" + id + "'.",
-        onfe);
+	   Object[] msgData = new Object[] { id };
+	   MessageFormat msg = new MessageFormat(
+			   ResLoaderApp.getString("Signet.msg.exc.subsysNotFound")); //$NON-NLS-1$
+     throw new ObjectNotFoundException(msg.format(msgData), onfe);
    }
    catch (HibernateException he)
    {
@@ -1782,12 +1781,13 @@ public final class Signet
     }
     if (subject == null)
     {
-      throw new ObjectNotFoundException
-        ("Unable to find Subject by subject ID '"
-         + subjectId
-         + "' and subject type ID '"
-         + subjectTypeId
-         + "'.");
+    	Object[] msgData = new Object[] {
+    		subjectId,
+    		subjectTypeId
+    	};
+    	MessageFormat msg = new MessageFormat(
+    			ResLoaderApp.getString("Signet.msg.exc.subjectNotFound")); //$NON-NLS-1$
+      throw new ObjectNotFoundException(msg.format(msgData));
     }
 
    return subject;
@@ -1816,7 +1816,7 @@ public final class Signet
     }
    }
   if (subject == null) {
-    throw new ObjectNotFoundException("Unable to find Subject by display ID.");
+    throw new ObjectNotFoundException(ResLoaderApp.getString("Signet.msg.exc.subjectDisplayIdNotFound")); //$NON-NLS-1$
   }
    return subject;
  }
@@ -2051,7 +2051,7 @@ public final class Signet
    }
    catch (net.sf.hibernate.ObjectNotFoundException onfe)
    {
-     throw new edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
+     throw new ObjectNotFoundException(onfe);
    }
    catch (HibernateException he)
    {
@@ -2079,7 +2079,7 @@ public final class Signet
     }
     catch (net.sf.hibernate.ObjectNotFoundException onfe)
     {
-      throw new edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
+      throw new ObjectNotFoundException(onfe);
     }
     catch (HibernateException he)
     {
@@ -2305,12 +2305,12 @@ public final class Signet
       assignmentQuery
         = session
             .createQuery
-              ("from edu.internet2.middleware.signet.AssignmentImpl"
-                 + " as assignment" + " where status != :inactiveStatus"
-                 + " and effectiveDate <= :currentDate");
+              ("from edu.internet2.middleware.signet.AssignmentImpl" 
+                 + " as assignment" + " where status != :inactiveStatus"  
+                 + " and effectiveDate <= :currentDate"); 
 
-      assignmentQuery.setParameter("inactiveStatus", Status.INACTIVE);
-      assignmentQuery.setParameter("currentDate", date);
+      assignmentQuery.setParameter("inactiveStatus", Status.INACTIVE); 
+      assignmentQuery.setParameter("currentDate", date); 
 
       assignmentResultList = assignmentQuery.list();
     }
@@ -2326,12 +2326,12 @@ public final class Signet
       proxyQuery
         = session
             .createQuery
-              ("from edu.internet2.middleware.signet.ProxyImpl"
-                 + " as proxy" + " where status != :inactiveStatus"
-                 + " and effectiveDate <= :currentDate");
+              ("from edu.internet2.middleware.signet.ProxyImpl" 
+                 + " as proxy" + " where status != :inactiveStatus"  
+                 + " and effectiveDate <= :currentDate"); 
 
-      proxyQuery.setParameter("inactiveStatus", Status.INACTIVE);
-      proxyQuery.setParameter("currentDate", date);
+      proxyQuery.setParameter("inactiveStatus", Status.INACTIVE); 
+      proxyQuery.setParameter("currentDate", date); 
 
       proxyResultList = proxyQuery.list();
     }

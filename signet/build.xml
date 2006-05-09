@@ -4,9 +4,9 @@
 	default="create-dist"
 	basedir=".">
 	
-	<!-- Version number -->
-	<property name="signet_version" value="1.0.1"/>
-		
+	<!-- Signet version number -->
+	<property file="resources/edu/internet2/middleware/signet/signet_version.properties" />
+
 	<!-- These are the "sources" from which we'll build our Signet
 	     distribution.  They include the Java files we've written ourselves,
 	     various configuration files that are used by Signet and its subsidiary
@@ -16,6 +16,7 @@
 	<property name="source_lib.dir"       location="lib"/>
 	<property name="source_sql.dir"       location="sql"/>
 	<property name="source_config.dir"    location="config"/>
+	<property name="source_resources.dir" location="resources"/>
 	
 	<!-- This folder exists only for the convenience of some developers who
 	     like to compile into a "classes" directory for iterative development.
@@ -71,14 +72,12 @@
 		<mkdir dir="${dist_lib.dir}"/>
 	</target>
 
-	<!-- Compile the java source of the project.
-	     This task exists only for the convenience of some developers who
-	     like to compile into a "classes" directory for iterative development.
-	     It is not used when building a Signet release.
+	<!-- Use one compile target for every build (dev vs. deploy). Move/copy
+	  class and resource files as required for specific builds.
 	-->
 	<target
 		name="compile"
-		description="Compiles all Java classes">
+		description="Compiles all Java classes to ${classes.dir}">
 		
 		<mkdir dir="${classes.dir}"/>
 		
@@ -92,41 +91,43 @@
 		</javac>
 	</target>
 
+	<!--Build Signet release -->
 	<target
 		name="build"
-		depends="prepare"
+		depends="prepare, compile"
 		description="Builds Signet release">
-		
-		<javac
-			srcdir="${source_java.dir}"
-			destdir="${work_classes.dir}"
-			debug="on"
-			optimize="off"
-			deprecation="on">
-			<classpath refid="source.class.path"/>
-		</javac>
-		
-		<!-- Copy the Hibernate mapping-files into the work-classes directory.
-		-->
-		<copy todir="${work_classes.dir}">
+
+		<!-- Copy the Hibernate mapping-files into the classes directory. -->
+		<copy todir="${classes.dir}">
 			<fileset dir="${source_java.dir}">
 				<include name="**/*.hbm.xml"/>
 			</fileset>
 		</copy>
 		
+		<copy todir="${work_classes.dir}">
+			<fileset dir="${classes.dir}">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+
+		<copy todir="${work_classes.dir}">
+			<fileset dir="${source_resources.dir}">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+
 		<!-- Build the Signet API jar. -->
-		
 		<jar destfile="${work_lib.dir}/${signet_jarfile}" >
 			<fileset dir="${work_classes.dir}">
 				<include name="**/*.class"/>
 				<include name="**/*.hbm.xml"/>
+				<include name="**/*.properties"/>
 				<exclude name="edu/internet2/middleware/signet/ui/*"/>
 				<exclude name="edu/internet2/middleware/signet/util/*"/>
 			</fileset>
 		</jar>
 		
 		<!-- Delete all the files that we just jarred up. -->
-		
 		<delete
 			dir="${work_classes.dir}/edu/internet2/middleware/signet/choice"/>
 		<delete
@@ -140,9 +141,8 @@
 				<exclude name="edu/internet2/middleware/signet/util/*"/>
 			</fileset>
 		</delete>
-		
-		<!-- Build the Signet UI jar -->
 
+		<!-- Build the Signet UI jar -->
 		<jar destfile="${work_lib.dir}/${signet_ui_jarfile}" >
 			<fileset dir="${work_classes.dir}">
 				<include name="edu/internet2/middleware/signet/ui/*.class"/>
@@ -150,11 +150,9 @@
 		</jar>
 		
 		<!-- Delete all the files we just jarred up. -->
-		
 		<delete dir="${work_classes.dir}/edu/internet2/middleware/signet/ui"/>
 		
 		<!-- Build the Signet Util jar -->
-
 		<jar destfile="${work_lib.dir}/${signet_util_jarfile}" >
 			<fileset dir="${work_classes.dir}">
 				<include name="edu/internet2/middleware/signet/util/*.class"/>
@@ -162,13 +160,39 @@
 		</jar>
 		
 		<!-- Delete all the files we just jarred up. -->
-		
 		<delete dir="${work_classes.dir}/edu/internet2/middleware/signet/util"/>
-
 	</target>
 	
 	<!-- Removes various generated files -->
-	<target name="clean" description="Removes various generated files">
+	<target
+		name="dev-clean"
+		description="Removes Developer's build-generated files">
+		<delete dir="${classes.dir}"/>
+	</target>
+
+	<target
+		name="dev-build"
+		depends="compile"
+		description="Signet Developer's build">
+		
+		<!-- Copy the Hibernate mapping-files into the work-classes directory. -->
+		<copy todir="${classes.dir}">
+			<fileset dir="${source_java.dir}">
+				<include name="**/*.hbm.xml"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target
+		name="dev-build-full"
+		depends="dev-clean,dev-build"
+		description="Clean and Build for developers">
+	</target>
+
+
+	<!-- Removes various generated files -->
+	<target name="clean"
+			description="Removes various generated files">
 		<delete dir="${work.dir}" />
 		<delete dir="${dist.dir}" />
 		<delete dir="${classes.dir}"/>
@@ -193,20 +217,21 @@
 			classpathref="source.class.path" /> 
 	</target>
 
-	<target name="create-dist" depends="clean, build, javadoc">
+	<target name="create-dist"
+			depends="clean, build, javadoc">
 		<copy todir="${toplevel.dir}">
 			<fileset dir=".">
 				<include name="README" />
 				<include name="LICENSE" />
 			</fileset>
 		</copy>
-		
+
 		<copy todir="${dist_java.dir}">
 			<fileset dir="${source_java.dir}">
 				<include name="**/*" />
 			</fileset>
 		</copy>
-		
+
 		<copy todir="${dist_config.dir}">
 			<fileset dir="${source_config.dir}">
 				<include name="**/*" />
@@ -236,12 +261,12 @@
 				<include name="**/*" />
 			</fileset>
 		</zip>
-		
+
 		<fixcrlf srcdir="${dist.dir}"
 			eol="unix" 
 			eof="remove"
 			includes="**/*.bat, **/*.sh, **/*.xml, **/*.properties, **/*.sql, **/*.jsp" />
-		
+
 		<tar destfile="${tarfile}" longfile="gnu">
 			<tarfileset dir="${dist.dir}" mode="755">
 				<include name="**/*" />

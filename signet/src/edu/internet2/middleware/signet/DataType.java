@@ -1,6 +1,6 @@
 /*--
-$Id: DataType.java,v 1.5 2006-04-04 23:32:58 ddonn Exp $
-$Date: 2006-04-04 23:32:58 $
+$Id: DataType.java,v 1.6 2006-05-09 01:33:33 ddonn Exp $
+$Date: 2006-05-09 01:33:33 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package edu.internet2.middleware.signet;
 
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
+import edu.internet2.middleware.signet.resource.ResLoaderUI;
 
 /**
  * This is a typesafe enumeration that identifies the various types of 
@@ -52,13 +53,13 @@ public class DataType implements ITypeSafeEnum
 	{
 		instancesByName = new Hashtable(3, 1.0f);
 
-		TEXT = new DataType("text", "Any alphanumeric value");
+		TEXT = new DataType("text", ResLoaderUI.getString("DataType.text.txt"));
 		instancesByName.put(TEXT.name, TEXT);
 
-		NUMERIC = new DataType("numeric", "Any integer or decimal value");
+		NUMERIC = new DataType("numeric", ResLoaderUI.getString("DataType.numeric.txt"));
 		instancesByName.put(NUMERIC.name, NUMERIC);
 
-		DATE = new DataType("date", "Any calendar date");
+		DATE = new DataType("date", ResLoaderUI.getString("DataType.date.txt"));
 		instancesByName.put(DATE.name, DATE);
 	}
 

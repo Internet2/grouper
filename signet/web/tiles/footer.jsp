@@ -1,23 +1,24 @@
 <!--
-  $Id: footer.jsp,v 1.3 2006-01-26 02:06:28 jvine Exp $
-  $Date: 2006-01-26 02:06:28 $
+  $Id: footer.jsp,v 1.4 2006-05-09 01:33:33 ddonn Exp $
+  $Date: 2006-05-09 01:33:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
   see doc/license.txt in this distribution.
 -->
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <DIV id="Footer">
   <P>
-    &copy; 2006 Internet2, Stanford University - All rights reserved.
+    <%=ResLoaderUI.getString("footer.copyright.txt") %>
     <BR /> 
-    <A href="http://www.internet2.edu/termsofuse.html" target="_blank">
-      Terms of use
+    <A href=<%=ResLoaderUI.getString("footer.terms.href") %> target="_blank">
+      <%=ResLoaderUI.getString("footer.terms.txt") %>
     </A>
     |
     <A href="@FEEDBACK_URL@" title="Signet feedback">
-      Feedback
+      <%=ResLoaderUI.getString("footer.feedback.txt") %>
     </A>
   </P>
 </DIV>

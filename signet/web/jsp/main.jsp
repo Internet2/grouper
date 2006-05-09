@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.6 2006-04-14 23:04:24 ddonn Exp $
-  $Date: 2006-04-14 23:04:24 $
+  $Id: main.jsp,v 1.7 2006-05-09 01:33:33 ddonn Exp $
+  $Date: 2006-05-09 01:33:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -9,20 +9,42 @@
 -->
 
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>
-    Signet
-  </title>
+    <title>
+      <%=ResLoaderUI.getString("signet.title") %>
+    </title>
   <link href="styles/signet.css" rel="stylesheet" type="text/css" />
   <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
 </head>
 
 <body onload="javascript:initControls();">
+
   <script type="text/javascript">
+
+
+	function confirmRevokeMsg()
+	{
+		var ResLoaderUI = ResLoaderUI;
+		var s_msg = ResLoaderUI.getString("privilegesGrantedReport.warning.txt");
+var System = java.lang.System;
+System.err.println("javascript.confirmRevokeMsg: msg = " + s_msg)
+		var torf = confirm(s_msg);
+if (true == torf) {
+ System.err.println("confirmRevokeMsg returned true");
+} else {
+ System.err.println("confirmRevokeMsg returned false");
+}
+//		return torf;
+return false;
+	}
+
     function initControls()
     {
+var System = java.lang.System;
+System.err.println("RUNNING INITCONTROLS");
       initRevokeAllCheckbox();
       setStartButtonStatus();
     }
@@ -175,6 +197,7 @@
     }    
   </script>
 
+
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.text.DateFormat" %>
@@ -192,6 +215,8 @@
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
 <%@ page import="edu.internet2.middleware.signet.Proxy" %>
+
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -234,7 +259,7 @@
       <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
         <%=Common.homepageName(loggedInPrivilegedSubject)%>
       </a>
-      &gt; Subject View [<%=currentPSubject.getName()%>]
+      <%=ResLoaderUI.getString("main.hdr.subjview.txt") %>[<%=currentPSubject.getName()%>]
 <%
   }
 %>
@@ -267,7 +292,7 @@
         <form name="grantForm" id="grantForm" action="Functions.do">
       <div class="grant">
         <h2>
-          Grant a privilege
+        	<%=ResLoaderUI.getString("main.grant.h2.lb")%> <!-- Grant a privilege  -->
         </h2>
         <p>to <%=currentPSubject.getName()%>:<br />
             <select
@@ -277,7 +302,7 @@
               onchange="setStartButtonStatus()">
                 
               <option value="prompt">
-                select a privilege type...
+                <%=ResLoaderUI.getString("main.grant.prompt.cb")%> <!-- select a privilege type...  -->
               </option>
 
 <%
@@ -294,16 +319,16 @@
 %>
             </select>
        
-            <input
+            <input 
               type="submit"
               name="grantButton"
               id="grantButton"
               class="button1"
-              <%="disabled=\"disabled\""%>
-              value="Start &gt;&gt;" />
+              disabled="disabled"
+              value=<%=ResLoaderUI.getString("main.grant.bt")%> />
             </p>
             <p class="dropback"><label for="grantableSubsystems">
-              Select the type of privilege you want to grant, then click Start.
+            <%=ResLoaderUI.getString("main.grant.txt")%>
             </label>
             </p>
           
@@ -312,7 +337,7 @@
       
       <div class="actionbox"> 
         <h2>
-          Designated driver
+          <%=ResLoaderUI.getString("main.designate.h2.lb")%>
         </h2>
 <%
   if (!Common.isSystemAdministrator(signet, loggedInPrivilegedSubject))
@@ -325,9 +350,9 @@
         <p>
           <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">
             <img src="images/arrow_right.gif">
-            Designate
+            <%=ResLoaderUI.getString("main.designate_1.href") %>
             <%=currentPSubject.getName()%></a>	<!-- keep closing 'a' tag on same line -->
-            to grant privileges as
+            <%=ResLoaderUI.getString("main.designate_2.href") %>
             <%=loggedInPrivilegedSubject.getEffectiveEditor().getName()%>       
         </p>
 <%
@@ -338,7 +363,7 @@
     {
 %>
         <p>
-          or
+          <%=ResLoaderUI.getString("main.designate_3.href") %>
         </p>
 <%
     }
@@ -351,9 +376,11 @@
 	     -->
         <p>
           <a href="Designate.do?<%=Constants.SUBSYSTEM_OWNER_HTTPPARAMNAME%>=true&<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">
-            <img src="images/arrow_right.gif">
-            Designate <%=currentPSubject.getName()%></a>	<!-- keep closing 'a' tag on same line -->
-			 as a subsystem owner
+            <img src="images/arrow_right.gif" />
+            <%=ResLoaderUI.getString("main.designate_4.href") %>
+			<%=currentPSubject.getName()%></a>	<!-- keep closing 'a' tag on same line -->
+            <%=ResLoaderUI.getString("main.designate_5.href") %>
+			
         </p>
 <%
   }
@@ -373,7 +400,7 @@
 
       <div class="findperson">
         <h2>
-          find a subject
+          <%=ResLoaderUI.getString("main.findperson.h2.lb")%>
         </h2> 
 		<p>
         <input
@@ -387,13 +414,13 @@
           name="searchbutton"
           type="submit"
           class="button1"
-          value="Search"
+          value=<%=ResLoaderUI.getString("main.findperson.bt")%>
           onclick="personSearchButtonHasFocus=true;"
           onfocus="personSearchButtonHasFocus=true;"
           onblur="personSearchButtonHasFocus=false;" />
         </p>
 		<p class="dropback">
-          <label for="words">Enter a person's or a group's name, then click Search.</label>
+          <label for="words"><%=ResLoaderUI.getString("main.findperson.txt")%></label>
         </p>
         <div id="PersonSearchResults" style="display:none">
         </div> <!-- PersonSearchResults -->
@@ -411,7 +438,7 @@
         name="actAsForm"
         method="post"
         action="ActAs.do">
-        <h2>Act As</h2>
+        <h2><%=ResLoaderUI.getString("main.actas.h2.lb")%></h2>
         <p>
           <%=Common.displayActingForOptions
                (signet,

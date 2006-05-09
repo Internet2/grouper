@@ -1,6 +1,6 @@
 /*--
-$Id: LimitShape.java,v 1.5 2006-04-10 07:22:02 ddonn Exp $
-$Date: 2006-04-10 07:22:02 $
+$Id: LimitShape.java,v 1.6 2006-05-09 01:33:33 ddonn Exp $
+$Date: 2006-05-09 01:33:33 $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package edu.internet2.middleware.signet;
 
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
+import edu.internet2.middleware.signet.resource.ResLoaderUI;
 
 /**
  * This is a typesafe enumeration that identifies the various shapes
@@ -49,11 +50,10 @@ public class LimitShape implements ITypeSafeEnum
 	{
 		instancesByName = new Hashtable(2, 1.0f);
 
-		CHOICE_SET = new LimitShape("choice_set", "A set of discrete choices");
+		CHOICE_SET = new LimitShape("choice_set", ResLoaderUI.getString("LimitShape.choice_set.txt"));
 		instancesByName.put(CHOICE_SET.name, CHOICE_SET);
 
-		TREE = new LimitShape("tree",
-				"A hierarchical tree, with the possibility of multiple roots and multiple parents for each node.");
+		TREE = new LimitShape("tree", ResLoaderUI.getString("LimitShape.tree.txt"));
 		instancesByName.put(TREE.name, TREE);
 	}
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: functions.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
-  $Date: 2006-01-26 02:06:28 $
+  $Id: functions.jsp,v 1.3 2006-05-09 01:33:33 ddonn Exp $
+  $Date: 2006-05-09 01:33:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>
-      Signet
+      <%=ResLoaderUI.getString("signet.title") %>
     </title>
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
@@ -61,7 +61,7 @@
 <%@ page import="edu.internet2.middleware.signet.Category" %>
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
-
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 
@@ -108,17 +108,17 @@
               <%=Common.homepageName(loggedInPrivilegedSubject)%>
             </a>
             &gt; <!-- displays as text right-angle bracket -->
-            <a href="<%=personViewHref%>">Subject View
+            <a href="<%=personViewHref%>"><%=ResLoaderUI.getString("functions.form1.subjview.txt") %>
 						[<%=currentGranteePrivilegedSubject.getName()%>]
             </a>
-            &gt; Grant new privilege
+            <%=ResLoaderUI.getString("functions.form1.grant.txt") %>
           </span> <!-- select -->
         </div> <!-- Navbar -->
     
       <div id="Layout"> 
         <div id="Content">
           <div id="ViewHead">
-			<span class="dropback">Granting new privilege to</span>           	
+			<span class="dropback"><%=ResLoaderUI.getString("functions.form1.grantnew.txt") %></span>           	
 			<h1><%=currentGranteePrivilegedSubject.getName()%></h1>
            	<span class="ident">
 						<%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
@@ -126,14 +126,14 @@
           <!-- ViewHead -->
          
          <div class="section" id="summary">
-				 		<h2>New assignment details</h2>
+				 		<h2><%=ResLoaderUI.getString("functions.assigndetails.hdr") %></h2>
 							<table>
               	<tr>
-              		<th class="label" scope="row">Type:</th>
+              		<th class="label" scope="row"><%=ResLoaderUI.getString("functions.assigndetails.type.lb") %></th>
               		<td class="data"><%=currentSubsystem.getName()%></td>
               		<td class="control">
 										<a href="<%=personViewHref%>">
-		               	<img src="images/arrow_left.gif" alt="" />change
+		               	<img src="images/arrow_left.gif" alt="" /><%=ResLoaderUI.getString("functions.assigndetails.change.txt") %>
     			         	</a>
 				  </td>
              		</tr>								
@@ -142,10 +142,10 @@
 				 
 				 	<div class="section">
 					<h2>
-           	Select privilege
+           	<%=ResLoaderUI.getString("functions.privilege.hdr") %>
          	</h2> 
 						  <p class="dropback"><label for="scope">
-							  Select a privilege, then click Continue.
+							  <%=ResLoaderUI.getString("functions.privilege.lb") %>
 							</label>
 						  </p>
 					  <select
@@ -225,7 +225,7 @@
 					
            <div class="section">
 			<h2>
-           	Continue to next step : Scope
+           	<%=ResLoaderUI.getString("functions.continuescope.hdr") %>
          	</h2> 
 
              	<input
@@ -233,11 +233,11 @@
         		  		disabled="true"
                   type="submit"
                   class="button-def"
-                  value="Continue &gt;&gt;" />
+                  value="<%=ResLoaderUI.getString("functions.continuescope.bt") %>" />
            	
            	<p>
              	<a href="<%=personViewHref%>">
-               	<img src="images/arrow_left.gif" alt="" />CANCEL and return to Subject View [<%=currentGranteePrivilegedSubject.getName()%>]
+               	<img src="images/arrow_left.gif" alt="" /><%=ResLoaderUI.getString("functions.cancel.txt") %>[<%=currentGranteePrivilegedSubject.getName()%>]
            	  </a>
            	</p>
        	  </div>	<!-- section -->
@@ -245,14 +245,14 @@
        	</div><!-- Content -->
         <div id="Sidebar">
           <div class="helpbox">
-          	<h2>Help</h2>
-          	<p>Steps to grant a privilege:</p>
+          	<h2><%=ResLoaderUI.getString("functions.help.hdr") %></h2>
+          	<p><%=ResLoaderUI.getString("functions.help1.ttl") %></p>
           	<ol>
-          	  <li><b>Select the privilege you want to grant, then click Continue.<i><br />
-       	      </i></b>Only the privileges you are authorized to grant are shown.</li>
-          	  <p style="margin: 10px 0px 2px -20px;">Next:</p>
-			  <li>Select the scope to which the privilege applies.</li>
-          	  <li> Set limits and conditions for the privilege.</li>
+          	  <li><b><%=ResLoaderUI.getString("functions.help1.msg1.txt") %><i><br />
+       	      </i></b><%=ResLoaderUI.getString("functions.help1.msg2.txt") %></li>
+          	  <p style="margin: 10px 0px 2px -20px;><%=ResLoaderUI.getString("functions.help2.ttl") %></p>
+			  <li><%=ResLoaderUI.getString("functions.help2.msg1.txt") %></li>
+          	  <li><%=ResLoaderUI.getString("functions.help2.msg2.txt") %></li>
        	    </ol>
           </div>  
           <!-- end helpbox -->

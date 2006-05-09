@@ -11,6 +11,7 @@
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.SubjectNameComparator" %>
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
       <LINK href="styles/signet.css" rel="stylesheet" type="text/css" />
     <DIV>
@@ -30,15 +31,15 @@
   {
 %>
       <SPAN class="error">
-        Your search found no results.
+        <%=ResLoaderUI.getString("personQuickSearch.error.txt") %>
       </SPAN>
 <%
   }
   else
   {   
 %>
-      <SPAN class="close">[<A href="javascript:;" onClick="document.getElementById('PersonSearchResults').style.display='none';">close</A>]</SPAN>	
-	  Your search found:
+      <SPAN class="close">[<A href="javascript:;" onClick="document.getElementById('PersonSearchResults').style.display='none';"><%=ResLoaderUI.getString("personQuickSearch.close.href") %></A>]</SPAN>	
+	  <%=ResLoaderUI.getString("personQuickSearch.found.txt") %>
       <DIV class="scroll">
 <% 
   	Iterator sortSetIterator = sortSet.iterator();
@@ -47,7 +48,7 @@
       PrivilegedSubject listSubject
         = (PrivilegedSubject)(sortSetIterator.next());
 %>
-        <A href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?granteeSubjectTypeId=" + listSubject.getSubjectTypeId() + "&granteeSubjectId=" + listSubject.getSubjectId())%>'))">
+        <A href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?granteeSubjectTypeId=" + listSubject.getSubjectTypeId() + "&granteeSubjectId=" + listSubject.getSubjectId(), "UTF-8")%>'))">
           <%=listSubject.getName()%>
 		</A>
         <DIV class="ident">

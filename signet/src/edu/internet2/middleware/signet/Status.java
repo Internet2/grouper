@@ -1,6 +1,6 @@
 /*--
-$Id: Status.java,v 1.7 2006-04-10 07:22:02 ddonn Exp $
-$Date: 2006-04-10 07:22:02 $
+$Id: Status.java,v 1.8 2006-05-09 01:33:33 ddonn Exp $
+$Date: 2006-05-09 01:33:33 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package edu.internet2.middleware.signet;
 
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
+import edu.internet2.middleware.signet.resource.ResLoaderUI;
 
 /**
  * This is a typesafe enumeration that identifies the various statuses that a
@@ -53,13 +54,13 @@ public class Status implements ITypeSafeEnum
 	{
 		instancesByName = new Hashtable(3, 1.0f);
 
-		ACTIVE = new Status("active", "currently active");
+		ACTIVE = new Status("active", ResLoaderUI.getString("Status.active.txt"));
 		instancesByName.put(ACTIVE.name, ACTIVE);
 
-		INACTIVE = new Status("inactive", "inactive, exists only for the historical record");
+		INACTIVE = new Status("inactive", ResLoaderUI.getString("Status.inactive.txt"));
 		instancesByName.put(INACTIVE.name, INACTIVE);
 
-		PENDING = new Status("pending", "pending, will become active when prerequisites are fulfilled");
+		PENDING = new Status("pending", ResLoaderUI.getString("Status.pending.txt"));
 		instancesByName.put(PENDING.name, PENDING);
 	}
 

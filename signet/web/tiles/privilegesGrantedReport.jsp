@@ -14,7 +14,7 @@
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
 <%@ page import="edu.internet2.middleware.signet.Proxy" %>
-
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 <%@ page import="edu.internet2.middleware.signet.ui.PrivDisplayType" %>
@@ -29,7 +29,7 @@
 <DIV id="Content"> 
   <DIV id="ViewHead">
     <SPAN class="dropback">
-      Privileges and granting activity for</SPAN> 
+      <%=ResLoaderUI.getString("privilegesGrantedReport.page.hdr") %></SPAN> 
       <H1>
         <%=pSubject.getName()%>
       </H1>
@@ -54,13 +54,13 @@
       <IMG
         src="images/print.gif"
         alt="" />
-      Printable version
+      <%=ResLoaderUI.getString("privilegesGrantedReport.print.txt") %>
     </A>
   <A href="PrivilegesXML.do" target="_blank">
                 <IMG
                 	src="images/xml.gif"
                     alt="" />
-                View XML
+                <%=ResLoaderUI.getString("privilegesGrantedReport.viewXML.txt") %>
                </A>    
   <H2 class="inlinecontrol">
       <%=privDisplayType.getDescription()%>
@@ -74,7 +74,7 @@
           name="privDisplayType"
           id="privDisplayType"
 		  onChange="setShowButtonStatus()">
-		  <OPTION value="" selected>change the view to show...</OPTION>
+		  <OPTION value="" selected><%=ResLoaderUI.getString("privilegesGrantedReport.privDisplayType.txt") %></OPTION>
           <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, null)%>
           <%=Common.displayOption(PrivDisplayType.FORMER_RECEIVED, null)%>
           <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, null)%>
@@ -83,7 +83,7 @@
         <INPUT
           name="showButton"
           id="showButton"	  
-          value="Show"
+          value="<%=ResLoaderUI.getString("privilegesGrantedReport.show.bt") %>"
           type="submit"
               <%="disabled=\"disabled\""%>	  
           class="button1" />
@@ -91,24 +91,11 @@
   </DIV> <!-- tableheader -->
   
   <DIV class="tablecontrols">
-    Privilege types: <%=Common.subsystemLinks(pSubject, privDisplayType, currentSubsystem)%>
+    <%=ResLoaderUI.getString("privilegesGrantedReport.privilegeTypes.lbl") %> <%=Common.subsystemLinks(pSubject, privDisplayType, currentSubsystem)%>
   </DIV> <!-- tablecontrols -->
-  
-             
-  <FORM
-      onSubmit
-        ="return confirm
-           ('Are you sure you want to revoke the'
-            + (selectCount() == 1 ? '' : (' ' + selectCount()))
-            + ' selected privilege'
-            + (selectCount() > 1 ? 's' : '')
-            + '?'
-            + ' This action cannot be undone.'
-            + ' Click OK to confirm.');"
-      action="Revoke.do"
-      method="post"
-      name="checkform"
-      id="checkform">
+
+
+   <FORM name="checkform" action="Revoke.do" method="post" id="checkform" onSubmit="return confirmRevokeMsg()">
 
     <DIV class="tablecontent">    
       <TABLE>
@@ -118,21 +105,21 @@
       || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
   {
 %>
-          <TH> Subject </TH>
+          <TH><%=ResLoaderUI.getString("privilegesGrantedReport.subject.hdr") %></TH>
           <%
   }
 %>
-          <TH width="40%"> Privilege </TH>
-          <TH> Scope </TH>
-          <TH> Limits </TH>
-          <TH> Status </TH>
-          <TH width="60"> All:
+          <TH width="40%"><%=ResLoaderUI.getString("privilegesGrantedReport.privilege.hdr")%></TH>
+          <TH><%=ResLoaderUI.getString("privilegesGrantedReport.scope.hdr")%></TH>
+          <TH><%=ResLoaderUI.getString("privilegesGrantedReport.limits.hdr")%></TH>
+          <TH><%=ResLoaderUI.getString("privilegesGrantedReport.status.hdr")%></TH>
+          <TH width="60"><%=ResLoaderUI.getString("privilegesGrantedReport.all.hdr")%>
               <INPUT
                name="checkAll"
                type="checkbox"
                id="checkAll"
                onClick="selectAll(this.checked);"
-               value="Check All" />
+               value="<%=ResLoaderUI.getString("privilegesGrantedReport.checkall.bt")%>" />
           </TH>
         </TR>
         <%
@@ -208,7 +195,7 @@
               type="submit"
               disabled="true"
               class="button1"
-              value="Revoke" />
+              value="<%=ResLoaderUI.getString("privilegesGrantedReport.revoke.bt") %>" />
           </TD>
         </TR>
       </TABLE>

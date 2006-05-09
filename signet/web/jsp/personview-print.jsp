@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview-print.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: personview-print.jsp,v 1.2 2006-05-09 01:33:33 ddonn Exp $
+  $Date: 2006-05-09 01:33:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>
-      Signet
+      <%=ResLoaderUI.getString("signet.title") %>
     </title>
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
@@ -40,6 +40,8 @@
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
 <%@ page import="edu.internet2.middleware.signet.Proxy" %>
+
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -80,8 +82,8 @@
           		 privDisplayType,
           		 pSubject)%>
         </h1>
-		  <p class="dropback">Date of report: <%=Common.displayDatetime(Constants.DATETIME_FORMAT_24_SECOND, new Date())%></p> 
-      <a href="PersonView.do"><img src="images/arrow_left.gif" alt="" />return</a>
+		  <p class="dropback"><%=ResLoaderUI.getString("personview-print.date.txt")%><%=Common.displayDatetime(Constants.DATETIME_FORMAT_24_SECOND, new Date())%></p> 
+      <a href="PersonView.do"><img src="images/arrow_left.gif" alt="" /><%=ResLoaderUI.getString("personview-print.return.txt") %></a>
 
         
           <table>
@@ -91,14 +93,14 @@
       || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
   {
 %>
-              <td><b>Subject</b></td>
+              <td><b><%=ResLoaderUI.getString("privilegesGrantedReport.subject.hdr")%></b></td>
 <%
   }
 %>
-              <td><b>Privilege</b></td>
-              <td><b>Scope</b></td>
-              <td><b>Limits</b></td>
-              <td><b>Status</b></td>
+              <td><b><%=ResLoaderUI.getString("privilegesGrantedReport.privilege.hdr")%></b></td>
+              <td><b><%=ResLoaderUI.getString("privilegesGrantedReport.scope.hdr")%></b></td>
+              <td><b><%=ResLoaderUI.getString("privilegesGrantedReport.limits.hdr")%></b></td>
+              <td><b><%=ResLoaderUI.getString("privilegesGrantedReport.status.hdr")%></b></td>
             </tr>
 <%
   if (currentSubsystem != null)

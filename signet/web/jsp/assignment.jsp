@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.2 2006-02-01 23:47:31 jvine Exp $
-  $Date: 2006-02-01 23:47:31 $
+  $Id: assignment.jsp,v 1.3 2006-05-09 01:33:33 ddonn Exp $
+  $Date: 2006-05-09 01:33:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -39,6 +39,7 @@
 <%@ page import="edu.internet2.middleware.signet.LimitValue" %>
 <%@ page import="edu.internet2.middleware.signet.AssignmentHistory" %>
 
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -79,14 +80,14 @@
 
   <div id="summary">
     <div class="section">
-      <h2>Assignment details</h2>
+      <h2><%=ResLoaderUI.getString("assignment.summary.hdr") %> </h2>
     </div>
       
     <table>
     
       <tr>
         <th class="label" scope="row">
-          Granted to:
+          <%=ResLoaderUI.getString("assignment.grant.lbl") %>
         </th>
         <td>
           <%=grantee.getName()%>
@@ -94,7 +95,7 @@
       </tr>
       <tr>
         <th class="label" scope="row">
-          Type:
+          <%=ResLoaderUI.getString("assignment.type.lbl") %>
         </th>
         <td>
           <%=currentAssignment.getFunction().getSubsystem().getName()%>
@@ -102,7 +103,7 @@
       </tr>
       <tr>
         <th class="label" scope="row">
-          Privilege:
+          <%=ResLoaderUI.getString("assignment.privilege.lbl") %>
         </th>
         <td>
           <span class="category">
@@ -118,7 +119,7 @@
       </tr>
       <tr>
         <th class="label" scope="row">
-          Scope:
+          <%=ResLoaderUI.getString("assignment.scope.lbl") %>
         </th>
         <td>
           <%=signet.displayAncestry
@@ -177,27 +178,30 @@
         </td>
       </tr>  -->
       <tr>
-        <th class="label" scope="row"> First effective: </th>
+        <th class="label" scope="row"><%=ResLoaderUI.getString("assignment.first_effective.lbl") %> </th>
         <td class="data"><%=dateFormat.format(currentAssignment.getEffectiveDate())%> </td>
       </tr>
       <tr> 
         <th class="label" scope="row">
-          Duration:
+          <%=ResLoaderUI.getString("assignment.duration.lbl") %>
         </th>
         <td>
-          until
+          <%=ResLoaderUI.getString("assignment.until.lbl") %>
           <%=currentAssignment.getExpirationDate() == null
-             ? "revoked"
+             ? ResLoaderUI.getString("assignment.revoked.lbl")
              : dateFormat.format(currentAssignment.getExpirationDate())%>
         </td>
       </tr>
 
       <tr>
         <th class="label" scope="row">
-          Status:
+          <%=ResLoaderUI.getString("assignment.status.lbl") %>
         </th>
         <td>
-          <%=Common.displayStatusForDetailPopup(currentAssignment)%><br /><%=canUse?"can use":""%><%=(canUse && canGrant ? ", " : "")%><%=canGrant?"can grant":""%>
+          <%=Common.displayStatusForDetailPopup(currentAssignment)%><br />
+          	<%=canUse ? ResLoaderUI.getString("assignment.can_use.txt") : "" %>
+          	<%=(canUse && canGrant) ? ", " : ""%>
+          	<%=canGrant ? ResLoaderUI.getString("assignment.can_grant.txt") : ""%>
         </td>
       </tr>
   
@@ -207,7 +211,7 @@
       <h2>
         <a name="history" id="history">
         </a>
-        History
+        <%=ResLoaderUI.getString("assignment.history.lbl") %>
       </h2>
     </div>
 

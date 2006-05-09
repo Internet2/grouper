@@ -1,6 +1,6 @@
 /*--
-$Id: Reason.java,v 1.8 2006-04-04 23:32:58 ddonn Exp $
-$Date: 2006-04-04 23:32:58 $
+$Id: Reason.java,v 1.9 2006-05-09 01:33:33 ddonn Exp $
+$Date: 2006-05-09 01:33:33 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package edu.internet2.middleware.signet;
 
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
+import edu.internet2.middleware.signet.resource.ResLoaderUI;
 
 /**
  * This is a typesafe enumeration that identifies the various reasons a
@@ -93,46 +94,28 @@ public class Reason implements ITypeSafeEnum
 	{
 		instancesByName = new Hashtable(8, 1.0f);
 
-		STATUS = new Reason("status",
-			"It is illegal to grant, modify or revoke an assignment or proxy which"
-			+ " has a Status value of INACTIVE. Only PENDING or ACTIVE assignments"
-			+ " and proxies may be edited.");
+		STATUS = new Reason("status", ResLoaderUI.getString("Reason.status.txt"));
 		instancesByName.put(STATUS.name, STATUS);
 		
-		SELF = new Reason("self",
-			"It is illegal to grant an assignment or proxy to oneself, or to"
-			+ " modify or revoke an assignment or proxy which is granted to"
-			+ " oneself.");
+		SELF = new Reason("self", ResLoaderUI.getString("Reason.self.txt"));
 		instancesByName.put(SELF.name, SELF);
 
-		LIMIT = new Reason("limit",
-			"This assignment includes a Limit-value which this PrivilegedSubject"
-			+ " does not have sufficient privileges to work with.");
+		LIMIT = new Reason("limit", ResLoaderUI.getString("Reason.limit.txt"));
 		instancesByName.put(LIMIT.name, LIMIT);
 
-		FUNCTION = new Reason("function",
-			"The PrivilegedSubject has no grantable privileges in regard to this"
-			+ " function.");
+		FUNCTION = new Reason("function", ResLoaderUI.getString("Reason.function.txt"));
 		instancesByName.put(FUNCTION.name, FUNCTION);
 
-		SCOPE = new Reason("scope",
-			"The scope of this Assignment lies outside the scope within which"
-			+ " this PrivilegedSubject has the ability to grant the specified"
-			+ " Function.");
+		SCOPE = new Reason("scope", ResLoaderUI.getString("Reason.scope.txt"));
 		instancesByName.put(SCOPE.name, SCOPE);
 
-		CANNOT_EXTEND = new Reason("cannot extend",
-			"This Proxy cannot be extended to a third party.");
+		CANNOT_EXTEND = new Reason("cannot extend", ResLoaderUI.getString("Reason.cannot_extend.txt"));
 		instancesByName.put(CANNOT_EXTEND.name, CANNOT_EXTEND);
 
-		CANNOT_USE = new Reason("cannot use",
-			"This Proxy cannot be used directly. It may only be extended to a"
-			+ " third party.");
+		CANNOT_USE = new Reason("cannot use", ResLoaderUI.getString("Reason.cannot_use.txt"));
 		instancesByName.put(CANNOT_USE.name, CANNOT_USE);
 
-		NO_PROXY = new Reason("no proxy",
-			"This PrivilegedSubject does not hold a Proxy that encompasses this"
-		       + " operation.");
+		NO_PROXY = new Reason("no proxy", ResLoaderUI.getString("Reason.no_proxy.txt"));
 		instancesByName.put(NO_PROXY.name, NO_PROXY);
 	}
 

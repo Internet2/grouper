@@ -1,6 +1,6 @@
 /*--
-$Id: SelectionType.java,v 1.4 2006-04-10 07:22:02 ddonn Exp $
-$Date: 2006-04-10 07:22:02 $
+$Id: SelectionType.java,v 1.5 2006-05-09 01:33:33 ddonn Exp $
+$Date: 2006-05-09 01:33:33 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package edu.internet2.middleware.signet;
 
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
+import edu.internet2.middleware.signet.resource.ResLoaderUI;
 
 /**
  * This is a typesafe enumeration that identifies the various selection-types
@@ -53,10 +54,10 @@ public class SelectionType implements ITypeSafeEnum
 	{
 		instancesByName = new Hashtable(2, 1.0f);
 
-		SINGLE = new SelectionType("single", "Select only one from the set");
+		SINGLE = new SelectionType("single", ResLoaderUI.getString("SelectionType.single.txt"));
 		instancesByName.put(SINGLE.name, SINGLE);
 
-		MULTIPLE = new SelectionType("multiple", "Select one or more from the set");
+		MULTIPLE = new SelectionType("multiple", ResLoaderUI.getString("SelectionType.multiple.txt"));
 		instancesByName.put(MULTIPLE.name, MULTIPLE);
 	}
 

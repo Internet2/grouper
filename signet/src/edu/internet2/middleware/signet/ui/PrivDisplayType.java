@@ -1,6 +1,6 @@
 /*--
-$Id: PrivDisplayType.java,v 1.3 2006-02-09 10:33:01 lmcrae Exp $
-$Date: 2006-02-09 10:33:01 $
+$Id: PrivDisplayType.java,v 1.4 2006-05-09 01:33:33 ddonn Exp $
+$Date: 2006-05-09 01:33:33 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -17,6 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 package edu.internet2.middleware.signet.ui;
+
+import edu.internet2.middleware.signet.resource.ResLoaderUI;
 
 /**
  * This is a typesafe enumeration that identifies the various statuses that a
@@ -46,7 +48,7 @@ public class PrivDisplayType
    * Proxies received by a specific PrivilegedSubject.
    */
   public static final PrivDisplayType CURRENT_RECEIVED
-  	= new PrivDisplayType("current_received", "current privileges");
+  	= new PrivDisplayType("current_received", ResLoaderUI.getString("PrivDisplayType.current_received.txt"));
 
   /**
    * The instance that indicates a display of currently-active Assignments and
@@ -54,14 +56,14 @@ public class PrivDisplayType
    */
   public static final PrivDisplayType CURRENT_GRANTED
   	= new PrivDisplayType
-  			("current_granted", "current assignments to others");
+  			("current_granted", ResLoaderUI.getString("PrivDisplayType.current_granted.txt"));
 
   /**
    * The instance that indicates a display of no-longer-active Assignments and
    * Proxies received by a specific PrivilegedSubject.
    */
   public static final PrivDisplayType FORMER_RECEIVED
-    = new PrivDisplayType("former_received", "former privileges");
+    = new PrivDisplayType("former_received", ResLoaderUI.getString("PrivDisplayType.former_received.txt"));
 
   /**
    * The instance that indicates a display of no-longer-active Assignments and
@@ -69,5 +71,5 @@ public class PrivDisplayType
    */
   public static final PrivDisplayType FORMER_GRANTED
     = new PrivDisplayType
-        ("former_granted", "former assignments to others");
+        ("former_granted", ResLoaderUI.getString("PrivDisplayType.former_granted.txt"));
 }

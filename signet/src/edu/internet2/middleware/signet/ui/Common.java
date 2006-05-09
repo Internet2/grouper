@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.66 2006-02-09 10:38:54 lmcrae Exp $
-$Date: 2006-02-09 10:38:54 $
+$Id: Common.java,v 1.67 2006-05-09 01:33:33 ddonn Exp $
+$Date: 2006-05-09 01:33:33 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -18,6 +18,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.ui;
 
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -29,7 +30,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
+// DMD - not used import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -43,7 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessages;
-import org.apache.struts.util.MessageResources;
+// DMD - not used import org.apache.struts.util.MessageResources;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentHistory;
@@ -64,6 +65,7 @@ import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
+import edu.internet2.middleware.signet.resource.ResLoaderUI;
 import edu.internet2.middleware.signet.ui.Constants;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
@@ -704,7 +706,7 @@ public class Common
     if (proxiesReceived.size() > 0)
     {    
       outStr.append("<LABEL for=\"" + htmlSelectId + "\">\n");
-      outStr.append("  Act in Signet as:\n");
+      outStr.append(ResLoaderUI.getString("Common.actas.txt"));
       outStr.append("</LABEL>\n");
       outStr.append("<SELECT\n");
       outStr.append("  name=\"" + htmlSelectId + "\"\n");
@@ -721,7 +723,7 @@ public class Common
       outStr.append("  disabled=\"true\"\n");
       outStr.append("  type=\"submit\"\n");
       outStr.append("  class=\"button1\"\n");
-      outStr.append("  value=\"Switch\"\n");
+      outStr.append("  value=\"" + ResLoaderUI.getString("Common.actas.bt") + "\"\n");
       outStr.append("/>\n");
 
     }
@@ -1296,10 +1298,13 @@ public class Common
       ActionMessages actionMessages = (ActionMessages)o;
 
       // Get the locale and message resources bundle
-      Locale locale = 
-        (Locale)(request.getSession().getAttribute(Globals.LOCALE_KEY));
-      MessageResources messageResources
-        = (MessageResources)(request.getAttribute(Globals.MESSAGES_KEY));
+// DMD - not used
+//      Locale locale = 
+//        (Locale)(request.getSession().getAttribute(Globals.LOCALE_KEY));
+//      MessageResources messageResources
+//        = (MessageResources)(request.getAttribute(Globals.MESSAGES_KEY));
+        request.getSession().getAttribute(Globals.LOCALE_KEY);
+        request.getAttribute(Globals.MESSAGES_KEY);
 
       // Loop thru all the labels in the ActionMessages  
       for (Iterator actionMessagesProperties = actionMessages.properties();
@@ -1628,7 +1633,7 @@ public class Common
     {
       privDisplayType
         = (PrivDisplayType)
-            (PrivDisplayType.getInstanceByName(privDisplayTypeName));
+            (TypeSafeEnumeration.getInstanceByName(privDisplayTypeName));
     }
     else
     {
@@ -1810,7 +1815,7 @@ public class Common
   
   static public String displayLogoutHref(HttpServletRequest request)
   {
-    return "<a href=\"Logout.do\">Logout</a>\n";
+    return "<a href=\"Logout.do\">" + ResLoaderUI.getString("Common.logout.href") + "</a>\n";
   }
   
   static public String displayOption
@@ -2217,71 +2222,81 @@ public class Common
     return filteredSet;
   }
 
-  private static String timeWord
-    (PrivDisplayType  type,
-     boolean          initialCap)
-  {
-    if ((type.equals(PrivDisplayType.CURRENT_GRANTED)
-        || (type.equals(PrivDisplayType.CURRENT_RECEIVED))))
-    {
-      return (initialCap ? "Current" : "current");
-    }
-    else if ((type.equals(PrivDisplayType.FORMER_GRANTED)
-             || (type.equals(PrivDisplayType.FORMER_RECEIVED))))
-    {
-      return (initialCap ? "Former" : "former");
-    }
-    
-    return ("UNRECOGNIZED: PrivilegedDisplayType.getName()='"
-            + type.getName()
-            + "'");
-  }
-  
-  private static String directionPhrase(PrivDisplayType type)
-  {
-    if (type.equals(PrivDisplayType.CURRENT_GRANTED)
-        || type.equals(PrivDisplayType.FORMER_GRANTED))
-    {
-      return "assigned by" ;
-    }
-    else if (type.equals(PrivDisplayType.CURRENT_RECEIVED)
-             || type.equals(PrivDisplayType.FORMER_RECEIVED))
-    {
-      return "assigned to";
-    }
-    
-    return ("UNRECOGNIZED: PrivilegedDisplayType.getName()='"
-            + type.getName()
-            + "'");
-  }
-  
-  public static String titleForPrintReport
-    (Subsystem          subsystem,
-     PrivDisplayType    privDisplayType,
-     PrivilegedSubject  pSubject)
-  {
-    StringBuffer outStr = new StringBuffer();
-    
-    if (subsystem == Constants.WILDCARD_SUBSYSTEM)
-    {
-      outStr.append("All ");
-      outStr.append(timeWord(privDisplayType, false));
-    }
-    else
-    {
-      outStr.append(timeWord(privDisplayType, true));
-      outStr.append(" ");
-      outStr.append(subsystem.getName());
-    }
 
-    outStr.append(" privileges ");
-    outStr.append(directionPhrase(privDisplayType));
-    outStr.append(" ");
-    outStr.append(pSubject.getName());
-    
-    return outStr.toString();
-  }
-  
+	private static String timeWord(PrivDisplayType type, boolean initialCap)
+	{
+		StringBuffer retval = null;
+	
+	    if (type.equals(PrivDisplayType.CURRENT_GRANTED) || type.equals(PrivDisplayType.CURRENT_RECEIVED))
+			retval = new StringBuffer(ResLoaderUI.getString("Common.timeword.current.txt"));
+	
+	    else if (type.equals(PrivDisplayType.FORMER_GRANTED) || type.equals(PrivDisplayType.FORMER_RECEIVED))
+			retval = new StringBuffer(ResLoaderUI.getString("Common.timeword.former.txt"));
+	
+	    else
+	    	return ("UNRECOGNIZED: PrivilegedDisplayType.getName()='" + type.getName() + "'");
+	
+	    if (initialCap)
+	    	retval.setCharAt(0, Character.toUpperCase(retval.charAt(0)));
+
+	    return (retval.toString());
+	}
+
+
+	private static String directionPhrase(PrivDisplayType type)
+	{
+		String retval = null;
+
+		if (type.equals(PrivDisplayType.CURRENT_GRANTED) || type.equals(PrivDisplayType.FORMER_GRANTED))
+			retval = ResLoaderUI.getString("Common.directionPhrase.by.txt");
+
+		else if (type.equals(PrivDisplayType.CURRENT_RECEIVED) || type.equals(PrivDisplayType.FORMER_RECEIVED))
+			retval = ResLoaderUI.getString("Common.directionPhrase.to.txt");
+
+		else
+			retval = new String("UNRECOGNIZED: PrivilegedDisplayType.getName()='" + type.getName() + "'");
+
+		return (retval);
+	}
+
+
+	/**
+	 * Creates a title string for personview-print.jsp. Note this method makes
+	 * use of properties Common.titleForPrintReport.all and Common.titleForPrintReport.fmt
+	 * to construct the returned string.
+	 * @param subsystem The subsystem
+	 * @param privDisplayType The display type
+	 * @param pSubject The subject
+	 * @return The formatted string
+	 */
+	public static String titleForPrintReport(Subsystem subsystem,
+			PrivDisplayType privDisplayType,
+			PrivilegedSubject  pSubject)
+	{
+		Object[] fmtData = new String[4];
+	
+		if (Constants.WILDCARD_SUBSYSTEM == subsystem)
+		{
+			fmtData[0] = ResLoaderUI.getString("Common.titleForPrintReport.all");
+			fmtData[1] = timeWord(privDisplayType, false);
+		}
+		else
+		{
+			fmtData[0] = timeWord(privDisplayType, true);
+			fmtData[1] = subsystem.getName();
+		}
+		
+		fmtData[2] = directionPhrase(privDisplayType);
+		fmtData[3] = pSubject.getName();
+		
+		String outStr = MessageFormat.format(
+				ResLoaderUI.getString("Common.titleForPrintReport.fmt"),
+				fmtData);
+	
+		return (outStr);
+	}
+
+
   static Set filterProxies(Set all, Status status)
   {
     Set statusSet = new HashSet();
@@ -2552,4 +2567,22 @@ public class Common
 //System.out.println("DEBUG: EXITING Common.getSubsystemsFromProxies(): subsystems=" + subsystems);
 //    return subsystems;
 //  }
+
+
+	public static String buildRevokeMsg(String selectionCountStr)
+	{
+		Object[] data = new Object[] { "", "" };
+				
+		MessageFormat form = new MessageFormat(ResLoaderUI.getString("Common.revokemsg.fmt"));
+		int selectionCount = Integer.parseInt(selectionCountStr);
+		if (selectionCount > 1)
+		{
+			data[0] = Integer.toString(selectionCount);
+			data[1] = ResLoaderUI.getString("Common.revokemsg.plural.txt");
+		}
+		String retval = form.format(data);
+
+		return (retval);
+	}
+
 }

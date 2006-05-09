@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.23 2006-02-09 10:30:34 lmcrae Exp $
-$Date: 2006-02-09 10:30:34 $
+$Id: Constants.java,v 1.24 2006-05-09 01:33:33 ddonn Exp $
+$Date: 2006-05-09 01:33:33 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -25,7 +25,7 @@ import java.util.Set;
 import edu.internet2.middleware.signet.Category;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
+// import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
@@ -116,13 +116,14 @@ public final class Constants
    */
   public static final String ERROR_KEY = "ERROR";
 
+  public static final String SIGNET_ATTRNAME = "signet";
 
   public static final String EFFECTIVE_DATE_PREFIX = "effectiveDate";
   public static final String EXPIRATION_DATE_PREFIX = "expirationDate";
   
   public static final String ASSIGNMENT_HTTPPARAMPREFIX = "assignment:";
   public static final String PROXY_HTTPPARAMPREFIX = "proxy:";
-  
+
   public static final String SUBSYSTEM_HTTPPARAMNAME = "subsystem";
   public static final String SUBSYSTEM_PROMPTVALUE = "__subsystem_prompt_value";
   public static final String SUBSYSTEM_ATTRNAME = "currentSubsystemAttr";
@@ -159,7 +160,7 @@ public final class Constants
   public static final String DEMO_USERNAME_HTTPPARAMNAME = "username";
   public static final String DEMO_PASSWORD_HTTPPARAMNAME = "password";
   public static final String DEMO_PASSWORD = "signet";
-  
+
   public static final Subsystem WILDCARD_SUBSYSTEM
     = new Subsystem()
       {

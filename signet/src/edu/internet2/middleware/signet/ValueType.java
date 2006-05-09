@@ -1,6 +1,6 @@
 /*--
-$Id: ValueType.java,v 1.5 2006-04-04 23:32:58 ddonn Exp $
-$Date: 2006-04-04 23:32:58 $
+$Id: ValueType.java,v 1.6 2006-05-09 01:33:33 ddonn Exp $
+$Date: 2006-05-09 01:33:33 $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package edu.internet2.middleware.signet;
 
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
+import edu.internet2.middleware.signet.resource.ResLoaderUI;
 
 /**
  * This is a typesafe enumeration that identifies the various types that a
@@ -52,13 +53,13 @@ public class ValueType implements ITypeSafeEnum
 	{
 		instancesByName = new Hashtable(3, 1.0f);
 
-		STRING = new ValueType("string", "Any alphanumeric value");
+		STRING = new ValueType("string", ResLoaderUI.getString("ValueType.string.txt"));
 		instancesByName.put(STRING.name, STRING);
 
-		NUMERIC = new ValueType("numeric", "Any integer or decimal value");
+		NUMERIC = new ValueType("numeric", ResLoaderUI.getString("ValueType.numeric.txt"));
 		instancesByName.put(NUMERIC.name, NUMERIC);
 
-		DATE = new ValueType("date", "Any calendar date");
+		DATE = new ValueType("date", ResLoaderUI.getString("ValueType.date.txt"));
 		instancesByName.put(DATE.name, DATE);
 	}
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: demoLoginFailed.jsp,v 1.1 2006-01-13 19:01:12 acohen Exp $
-  $Date: 2006-01-13 19:01:12 $
+  $Id: demoLoginFailed.jsp,v 1.2 2006-05-09 01:33:33 ddonn Exp $
+  $Date: 2006-05-09 01:33:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,13 +13,15 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>
-      Signet
+      <%=ResLoaderUI.getString("signet.title") %>
     </title>
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
   </head>
 
   <body onLoad="document.form1.username.focus();">
+
+	<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
   
     <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
     <tiles:insert page="/tiles/header.jsp" flush="true" />
@@ -28,21 +30,20 @@
       
       <div id="Navbar">
         <span class="select">
-		  Login
+		  <%=ResLoaderUI.getString("demoLogin.navbar.lb") %>
 		</span> <!-- select -->
       </div> <!-- Navbar -->
       
       <div id="Layout">
         <div id="Content">
           <h1>
-            Login to Signet
+            <%=ResLoaderUI.getString("demoLogin.content.h1.lb") %>
           </h1>
 			
           <div class="alert">
             <p>
               <img src="images/caution.gif" align="left" />
-              You entered an incorrect username or password (or both).
-              Please try again.
+              <%=ResLoaderUI.getString("demoLoginFailed.alert.txt") %>
             </p>
 
 </div>
@@ -52,7 +53,7 @@
             <tr>
               <th class="label" scope="row" style="border:none;">
                 <label for="username">
-                  User name:
+                  <%=ResLoaderUI.getString("demoLogin.username.lb") %>
                 </label>
               </th>
               <td>
@@ -63,7 +64,7 @@
             <tr>
               <th class="label" scope="row" style="border:none;">
                 <label for="password">
-                  Password:
+                  <%=ResLoaderUI.getString("demoLogin.password.lb") %>
                 </label>
               </th>
               <td>
@@ -80,7 +81,7 @@
                   name="Button"
                   type="submit"
                   class="button-def"
-                  value="Login"/>
+                  value=<%=ResLoaderUI.getString("demoLogin.login.bt") %> />
               </td>
             </tr>
           </table>
