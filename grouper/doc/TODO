@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.23 2006-05-09 15:50:54 blair Exp $
+$Id: TODO,v 1.30.2.24 2006-05-09 16:08:48 blair Exp $
 
 ---
 
@@ -25,19 +25,27 @@ $Id: TODO,v 1.30.2.23 2006-05-09 15:50:54 blair Exp $
 ** find the root stem, exercise subject api, hibernate dialect + driver class, etc
 * code: non-hibernated root sessions (cleanup)
 * test: basic concurrency testing (i expect to find many bugs)
+* code: delete custom group types
+* code: internalize cache management code?
+* code: add `Member.canAdmin(group)`
+* code: add `Member.canCreate(stem)`
+* code: add `Member.canOptin(group)`
+* code: add `Member.canOptout(group)`
+* code: add `Member.canRead(group)`
+* code: add `Member.canStem(stem)`
+* code: add `Member.canUpdate(group)`
+* code: add `Member.canView(group)`
 * code: add `Group.canReadField(f)`
-* code: add `Group.canReadField(f, subj)`
 * code: add `Group.canWriteField(f)`
+* code: privilege cleanup - `NamingResolver`
+* code: privilege cleanup - `AccessResolver`
+* code: privilege cleanup - Hibernate-backed `PrivilegeCache`
+* code: add `Group.canReadField(f, subj)`
 * code: add `Group.canWriteField(f, subj)`
 * code: add `Group.getTypes()` that will return all types that the
   group has, including base but excluding internal types
 * code: add `Group.getRemovableTypes()` that will return all types
   that can be removed from the group
-* code: delete custom group types
-* code: internalize cache management code?
-* code: privilege cleanup - `NamingResolver`
-* code: privilege cleanup - `AccessResolver`
-* code: privilege cleanup - Hibernate-backed `PrivilegeCache`
 * code: remove (all|most) RTEs
 * code: toString cleanup
 * code: attribute retrieval cleanup
@@ -131,7 +139,7 @@ $Id: TODO,v 1.30.2.23 2006-05-09 15:50:54 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.23 2006-05-09 15:50:54 blair Exp $
+$Id: TODO,v 1.30.2.24 2006-05-09 16:08:48 blair Exp $
 
 
 
