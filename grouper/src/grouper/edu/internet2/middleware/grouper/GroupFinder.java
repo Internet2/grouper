@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.10.2.2 2006-04-12 17:47:23 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.10.2.3 2006-05-11 17:14:22 blair Exp $
  */
 public class GroupFinder {
 
@@ -140,7 +140,7 @@ public class GroupFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding groups: " + eH.getMessage()
+        "error finding groups: " + eH.getMessage(), eH
       );  
     }
     return PrivilegeResolver.getInstance().canVIEW(s, new LinkedHashSet(groups));
@@ -170,7 +170,7 @@ public class GroupFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding groups: " + eH.getMessage()
+        "error finding groups: " + eH.getMessage(), eH
       );  
     }
     return PrivilegeResolver.getInstance().canVIEW(s, new LinkedHashSet(groups));
@@ -199,7 +199,7 @@ public class GroupFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding groups: " + eH.getMessage()
+        "error finding groups: " + eH.getMessage(), eH
       );
     }
     return PrivilegeResolver.getInstance().canVIEW(s, groups);
@@ -230,7 +230,7 @@ public class GroupFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding groups: " + eH.getMessage()
+        "error finding groups: " + eH.getMessage(), eH
       );
     }
     return PrivilegeResolver.getInstance().canVIEW(s, groups);
@@ -263,7 +263,7 @@ public class GroupFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding groups: " + eH.getMessage()
+        "error finding groups: " + eH.getMessage(), eH
       );
     }
     return PrivilegeResolver.getInstance().canVIEW(s, groups);
@@ -297,7 +297,7 @@ public class GroupFinder {
     }
     catch (HibernateException eH) {
       throw new GroupNotFoundException(
-        ERR_GNF + " by name: " + name + "(" + eH.getMessage() + ")"
+        ERR_GNF + " by name: " + name + "(" + eH.getMessage() + ")", eH
       );
     }
   } // protected static Group findByName(name)
@@ -328,7 +328,7 @@ public class GroupFinder {
     }
     catch (HibernateException eH) {
       throw new GroupNotFoundException(
-        ERR_GNF + " by uuid: " + uuid + "(" + eH.getMessage() + ")"
+        ERR_GNF + " by uuid: " + uuid + "(" + eH.getMessage() + ")", eH
       );  
     }
   } // private static Group _findByUuid(uuid)

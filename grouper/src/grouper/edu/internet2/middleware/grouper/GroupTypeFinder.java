@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.8.2.2 2006-04-13 00:35:33 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.8.2.3 2006-05-11 17:14:22 blair Exp $
  */
 public class GroupTypeFinder {
 
@@ -144,7 +144,7 @@ public class GroupTypeFinder {
     catch (HibernateException eH) {
       String err = ERR_NF + eH.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eH);
     }
     LOG.debug("found group types: " + types.size());
     return types;

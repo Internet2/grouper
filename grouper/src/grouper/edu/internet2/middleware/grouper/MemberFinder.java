@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.9.2.1 2006-04-10 19:50:16 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.9.2.2 2006-05-11 17:14:22 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
@@ -111,7 +111,7 @@ public class MemberFinder implements Serializable {
     }
     catch (HibernateException eMNF) {
       throw new MemberNotFoundException(
-        "member not found: " + eMNF.getMessage()
+        "member not found: " + eMNF.getMessage(), eMNF
       );
     }
   } // public static Member findByUuid(s, uuid)
@@ -126,7 +126,7 @@ public class MemberFinder implements Serializable {
     catch (MemberNotFoundException eMNF) {
       String err = ERR_FAM + eMNF.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eMNF);
     }
   } // protected static Member findAllMember()
 
@@ -176,7 +176,7 @@ public class MemberFinder implements Serializable {
     catch (HibernateException eH) {
       String err = msg + " member not found nor created: " + eH.getMessage();
       LOG.error(err);
-      throw new MemberNotFoundException(err);
+      throw new MemberNotFoundException(err, eH);
     }
   } // protected static Member findBySubject(subj)
 }

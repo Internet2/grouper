@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.10 2006-05-11 16:41:44 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.11 2006-05-11 17:14:22 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -137,7 +137,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public static Field getDefaultList()
 
@@ -177,10 +177,10 @@ public class Group extends Owner implements Serializable {
       // TODO EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
     }
     catch (ModelException eM) {
-      throw new MemberAddException(eM.getMessage());
+      throw new MemberAddException(eM.getMessage(), eM);
     }
     catch (SchemaException eS) {
-      throw new MemberAddException(eS.getMessage());
+      throw new MemberAddException(eS.getMessage(), eS);
     }
   } // public void addCompositeMember(type, left, right)
 
@@ -209,7 +209,7 @@ public class Group extends Owner implements Serializable {
       this.addMember(subj, getDefaultList());
     }
     catch (SchemaException eS) {
-      throw new MemberAddException(eS.getMessage());
+      throw new MemberAddException(eS.getMessage(), eS);
     }
   } // public void addMember(subj)
 
@@ -290,7 +290,7 @@ public class Group extends Owner implements Serializable {
     catch (Exception e) {
       String msg = "unable to add type: " + type + ": " + e.getMessage();
       LOG.error(msg);
-      throw new GroupModifyException(msg); 
+      throw new GroupModifyException(msg, e); 
     }
   } // public void addType(type)
 
@@ -327,7 +327,7 @@ public class Group extends Owner implements Serializable {
     catch (InsufficientPrivilegeException eIP) {
       String err = msg + " cannot ADMIN: " + eIP.getMessage();
       GrouperLog.debug(LOG, this.getSession(), err);
-      throw new InsufficientPrivilegeException(err);
+      throw new InsufficientPrivilegeException(err, eIP);
     } 
     try {
       Set deletes = new LinkedHashSet();
@@ -366,11 +366,11 @@ public class Group extends Owner implements Serializable {
     }
     catch (InsufficientPrivilegeException eIP) {
       LOG.debug(ERR_DG + eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
+      throw new InsufficientPrivilegeException(eIP.getMessage(), eIP);
     }
     catch (Exception e) {
       LOG.debug(ERR_DG + e.getMessage());
-      throw new GroupDeleteException(e.getMessage());
+      throw new GroupDeleteException(e.getMessage(), e);
     }
   } // public void delete()
 
@@ -434,10 +434,10 @@ public class Group extends Owner implements Serializable {
       EL.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
     }
     catch (SchemaException eS) {
-      throw new AttributeNotFoundException(eS.getMessage());
+      throw new AttributeNotFoundException(eS.getMessage(), eS);
     }
     catch (Exception e) {
-      throw new GroupModifyException(e.getMessage());
+      throw new GroupModifyException(e.getMessage(), e);
     }
   } // public void deleteAttribute(attr)
 
@@ -470,14 +470,11 @@ public class Group extends Owner implements Serializable {
       sw.stop();
       // TODO EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
     }
-    catch (CompositeNotFoundException eCNF) {
-      throw new MemberDeleteException(eCNF.getMessage());
+    catch (InsufficientPrivilegeException eIP) {
+      throw eIP;
     }
-    catch (ModelException eM) {
-      throw new MemberDeleteException(eM.getMessage());
-    }
-    catch (SchemaException eS) {
-      throw new MemberDeleteException(eS.getMessage());
+    catch (Exception e) {
+      throw new MemberDeleteException(e.getMessage(), e);
     }
   } // public void deleteCompositeMember()
 
@@ -507,7 +504,7 @@ public class Group extends Owner implements Serializable {
       this.deleteMember(subj, getDefaultList());
     }
     catch (SchemaException eS) {
-      throw new MemberDeleteException(eS.getMessage());
+      throw new MemberDeleteException(eS.getMessage(), eS);
     }
   } // public void deleteMember(subj)
 
@@ -585,7 +582,7 @@ public class Group extends Owner implements Serializable {
     catch (Exception e) {
       String msg = "unable to delete type: " + type + ": " + e.getMessage();
       LOG.error(msg);
-      throw new GroupModifyException(msg); 
+      throw new GroupModifyException(msg, e); 
     }
   } // public void deleteType(type)
 
@@ -620,7 +617,7 @@ public class Group extends Owner implements Serializable {
     catch (SchemaException eS) {
       String err = ERR_FNF + AccessPrivilege.ADMIN;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getAdmins()
 
@@ -654,7 +651,7 @@ public class Group extends Owner implements Serializable {
       }
     }
     catch (SchemaException eS) {
-      throw new AttributeNotFoundException(eS.getMessage());
+      throw new AttributeNotFoundException(eS.getMessage(), eS);
     }
     try {
       Map attrs = this._getAttributes();
@@ -788,7 +785,7 @@ public class Group extends Owner implements Serializable {
       }
       catch (AttributeNotFoundException eANF) {
         GrouperLog.fatal(LOG, this.getSession(), ERR_NODE);
-        throw new RuntimeException(ERR_NODE);
+        throw new RuntimeException(ERR_NODE, eANF);
       }
     }
     return attr_de;
@@ -812,7 +809,7 @@ public class Group extends Owner implements Serializable {
       }
       catch (AttributeNotFoundException eANF) {
         GrouperLog.fatal(LOG, this.getSession(), ERR_NODN);
-        throw new RuntimeException(ERR_NODN);
+        throw new RuntimeException(ERR_NODN, eANF);
       }
     }
     return attr_dn;
@@ -833,7 +830,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getEffectiveMembership()
 
@@ -868,7 +865,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getEffectiveMembership()
 
@@ -905,7 +902,7 @@ public class Group extends Owner implements Serializable {
       }
       catch (AttributeNotFoundException eANF) {
         GrouperLog.fatal(LOG, this.getSession(), ERR_NOE);
-        throw new RuntimeException(ERR_NOE);
+        throw new RuntimeException(ERR_NOE, eANF);
       }
     }
     return attr_e;
@@ -926,7 +923,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getImmediateMembers()
 
@@ -960,7 +957,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getImmediateMemberships()
 
@@ -995,7 +992,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getMembers()
 
@@ -1029,7 +1026,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getMemberships()
 
@@ -1123,7 +1120,7 @@ public class Group extends Owner implements Serializable {
       }
       catch (AttributeNotFoundException eANF) {
         GrouperLog.fatal(LOG, this.getSession(), ERR_NON);
-        throw new RuntimeException(ERR_NON);
+        throw new RuntimeException(ERR_NON, eANF);
       }
     }
     return attr_n;
@@ -1145,7 +1142,7 @@ public class Group extends Owner implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.OPTIN;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getOptins()
 
@@ -1165,7 +1162,7 @@ public class Group extends Owner implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.OPTOUT;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getOptouts()
 
@@ -1213,7 +1210,7 @@ public class Group extends Owner implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.READ;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getReaders()
 
@@ -1244,7 +1241,7 @@ public class Group extends Owner implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.UPDATE;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public set getUpdateres()
 
@@ -1264,7 +1261,7 @@ public class Group extends Owner implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.VIEW;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getViewers()
 
@@ -1360,7 +1357,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public boolean hasEffectiveMember(Subject subj)
 
@@ -1418,7 +1415,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public boolean hasImmediateMember(subj)
 
@@ -1522,7 +1519,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public boolean hasMember(subj)
 
@@ -1776,10 +1773,10 @@ public class Group extends Owner implements Serializable {
       EL.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
     }
     catch (SchemaException eS) {
-      throw new AttributeNotFoundException(eS.getMessage());
+      throw new AttributeNotFoundException(eS.getMessage(), eS);
     }
     catch (Exception e) {
-      throw new GroupModifyException(e.getMessage());
+      throw new GroupModifyException(e.getMessage(), e);
     }
   } // public void setAttribute(attr, value)
 
@@ -1809,7 +1806,7 @@ public class Group extends Owner implements Serializable {
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
-        "unable to set description: " + eANF.getMessage()
+        "unable to set description: " + eANF.getMessage(), eANF
       );
     }
   } // public void setDescription(value)
@@ -1840,7 +1837,7 @@ public class Group extends Owner implements Serializable {
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
-        "unable to set extension: " + eANF.getMessage()
+        "unable to set extension: " + eANF.getMessage(), eANF
       );
     }
   } // public void setExtension(value)
@@ -1871,7 +1868,7 @@ public class Group extends Owner implements Serializable {
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
-        "unable to set displayExtension: " + eANF.getMessage()
+        "unable to set displayExtension: " + eANF.getMessage(), eANF
       );
     }
   } // public void setDisplayExtension(value)
@@ -1902,7 +1899,7 @@ public class Group extends Owner implements Serializable {
         // and should probably just give up
         String err = ERR_G2M + eMNF.getMessage();
         GrouperLog.error(LOG, s, err);
-        throw new RuntimeException(err);
+        throw new RuntimeException(err, eMNF);
       }
     }
     return as_member;
@@ -1933,7 +1930,7 @@ public class Group extends Owner implements Serializable {
         // major issues and shoudl probably just give up
         String err = ERR_G2S + e.getMessage();
         GrouperLog.error(LOG, s, err);
-        throw new RuntimeException(err);
+        throw new RuntimeException(err, e);
       }
     }
     return as_subj;

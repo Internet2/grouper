@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.24.2.7 2006-05-11 16:41:44 blair Exp $
+ * @version $Id: Membership.java,v 1.24.2.8 2006-05-11 17:14:22 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -289,7 +289,7 @@ public class Membership implements Serializable {
       // TODO EL.addEffMembers(s, o, subj, f, effs);
     }
     catch (HibernateException eH) {
-      throw new MemberAddException(eH.getMessage());
+      throw new MemberAddException(eH.getMessage(), eH);
     }    
   } // protected static void addCompositeMembership(s, o, c)
 
@@ -307,7 +307,7 @@ public class Membership implements Serializable {
       EL.addEffMembers(s, o, subj, f, mof.getEffSaves());
     }
     catch (Exception e) {
-      throw new MemberAddException(e.getMessage());
+      throw new MemberAddException(e.getMessage(), e);
     }    
   } // protected static void addImmediateMembership(s, o, subj, f)
 
@@ -322,7 +322,7 @@ public class Membership implements Serializable {
       // TODO EL.delEffMembers(s, o, subj, f, effs);
     }
     catch (HibernateException eH) {
-      throw new MemberDeleteException(eH.getMessage());
+      throw new MemberDeleteException(eH.getMessage(), eH);
     }    
   } // protected static void delCompositeMembership(s, o, c)
 
@@ -354,7 +354,7 @@ public class Membership implements Serializable {
       EL.delEffMembers(s, o, subj, f, effs);
     }
     catch (Exception e) {
-      throw new MemberDeleteException(e.getMessage());
+      throw new MemberDeleteException(e.getMessage(), e);
     } 
   } // protected static void delImmediateMembership(s, o, subj, f)
 
@@ -394,7 +394,7 @@ public class Membership implements Serializable {
       return deletes;
     }
     catch (ModelException eM) {
-      throw new MemberDeleteException(eM.getMessage());
+      throw new MemberDeleteException(eM.getMessage(), eM);
     }
   } // protected static Set deleteAllField(s, o, f)
 
@@ -420,7 +420,7 @@ public class Membership implements Serializable {
       return deletes;
     }
     catch (ModelException eM) {
-      throw new MemberDeleteException(eM.getMessage());
+      throw new MemberDeleteException(eM.getMessage(), eM);
     }
   } // protected static Set deleteAllFieldType(s, o, f)
 
@@ -434,7 +434,7 @@ public class Membership implements Serializable {
     }
     catch (ModelException eM) {
       eM.printStackTrace();
-      throw new RuntimeException(eM.getMessage());
+      throw new RuntimeException(eM.getMessage(), eM);
     }
   } // protected GrouperSession getSession()
 
@@ -534,7 +534,7 @@ public class Membership implements Serializable {
       hs.close();
     }
     catch (Exception e) {
-      throw new MemberDeleteException(e.getMessage());
+      throw new MemberDeleteException(e.getMessage(), e);
     }
     return mships;
   } // private static Set _membershipsToDelete(s, imm)

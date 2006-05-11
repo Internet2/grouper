@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.15.2.4 2006-04-14 16:14:28 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.15.2.5 2006-05-11 17:14:22 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -180,7 +180,7 @@ public class RegistryInstall {
     catch (HibernateException eH) {
       String err = ERR_IS + eH.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eH);
     }
   } // private static void _installFieldsAndTypes()
 
@@ -197,7 +197,7 @@ public class RegistryInstall {
     catch (Exception e) { 
       String err = ERR_ISG + e.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, e);
     }
   } // private static void _installGroupsAndStems()
 

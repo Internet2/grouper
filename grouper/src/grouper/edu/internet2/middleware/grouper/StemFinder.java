@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.14.2.3 2006-04-13 19:52:49 blair Exp $
+ * @version $Id: StemFinder.java,v 1.14.2.4 2006-05-11 17:14:22 blair Exp $
  */
 public class StemFinder {
 
@@ -79,7 +79,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new StemNotFoundException(
-        "unable to find stem: " + eH.getMessage()
+        "unable to find stem: " + eH.getMessage(), eH
       );
     }
     if (ns == null) {
@@ -106,7 +106,7 @@ public class StemFinder {
     }
     catch (StemNotFoundException eSNF) {
       GrouperLog.fatal(LOG, s, ERR_FRS);
-      throw new RuntimeException(ERR_FRS);
+      throw new RuntimeException(ERR_FRS, eSNF);
     }
   } // public static Stem findRootStem(s)
 
@@ -159,7 +159,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding stems: " + eH.getMessage()
+        "error finding stems: " + eH.getMessage(), eH
       );
     }
     return stems;
@@ -187,7 +187,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding stems: " + eH.getMessage()
+        "error finding stems: " + eH.getMessage(), eH
       );
     }
     return stems;
@@ -215,7 +215,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding stems: " + eH.getMessage()
+        "error finding stems: " + eH.getMessage(), eH
       );
     }
     return stems;
@@ -243,7 +243,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding stems: " + eH.getMessage()
+        "error finding stems: " + eH.getMessage(), eH
       );
     }
     return stems;
@@ -275,7 +275,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding stems: " + eH.getMessage()
+        "error finding stems: " + eH.getMessage(), eH
       );
     }
     return stems;
@@ -305,7 +305,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding stems: " + eH.getMessage()
+        "error finding stems: " + eH.getMessage(), eH
       );  
     }
     return new LinkedHashSet(stems);
@@ -335,7 +335,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding stems: " + eH.getMessage()
+        "error finding stems: " + eH.getMessage(), eH
       );  
     }
     return new LinkedHashSet(stems);
@@ -365,7 +365,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new StemNotFoundException(
-        "error finding stem: " + eH.getMessage()
+        "error finding stem: " + eH.getMessage(), eH
       );  
     }
   } // protected static Stem findByUuid(uuid)

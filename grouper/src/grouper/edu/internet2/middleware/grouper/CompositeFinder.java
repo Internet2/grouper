@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.1.2.2 2006-04-20 17:45:20 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.1.2.3 2006-05-11 17:14:22 blair Exp $
  */
 class CompositeFinder {
 
@@ -84,7 +84,7 @@ class CompositeFinder {
       return c;
     }
     catch (HibernateException eH) {
-      throw new CompositeNotFoundException(eH.getMessage());
+      throw new CompositeNotFoundException(eH.getMessage(), eH);
     }
   } // protected static Composite isOwner(o)
 

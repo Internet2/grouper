@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.46.2.7 2006-04-19 22:55:14 blair Exp $
+ * @version $Id: Stem.java,v 1.46.2.8 2006-05-11 17:14:22 blair Exp $
  *     
 */
 public class Stem extends Owner implements Serializable {
@@ -128,7 +128,7 @@ public class Stem extends Owner implements Serializable {
       AttributeValidator.namingValue(displayExtension);
     }
     catch (ModelException eM) {
-      throw new GroupAddException(eM.getMessage());
+      throw new GroupAddException(eM.getMessage(), eM);
     }
     PrivilegeResolver.getInstance().canCREATE(
       this.getSession(), this, this.getSession().getSubject()
@@ -151,7 +151,7 @@ public class Stem extends Owner implements Serializable {
       _initializeChildGroupsAndStems(this);
     }
     catch (HibernateException eH) {
-      throw new GroupAddException(eH.getMessage());
+      throw new GroupAddException(eH.getMessage(), eH);
     }
     try {
       Group child = new Group(this.getSession(), this, extension, displayExtension);
@@ -180,7 +180,7 @@ public class Stem extends Owner implements Serializable {
     catch (Exception e) {
       throw new GroupAddException(
         "Unable to add group " + this.getName() + ":" + extension + ": " 
-        + e.getMessage()
+        + e.getMessage(), e
       );
     }
   } // public Group addChildGroup(extension, displayExtension)
@@ -213,7 +213,7 @@ public class Stem extends Owner implements Serializable {
       AttributeValidator.namingValue(displayExtension);
     }
     catch (ModelException eM) {
-      throw new StemAddException(eM.getMessage());
+      throw new StemAddException(eM.getMessage(), eM);
     }
     PrivilegeResolver.getInstance().canSTEM(
       this.getSession(), this, this.getSession().getSubject()
@@ -232,7 +232,7 @@ public class Stem extends Owner implements Serializable {
       _initializeChildGroupsAndStems(this);
     }
     catch (HibernateException eH) {
-      throw new StemAddException(eH.getMessage());
+      throw new StemAddException(eH.getMessage(), eH);
     }
 
     try {
@@ -266,7 +266,7 @@ public class Stem extends Owner implements Serializable {
     catch (HibernateException eH) {
       throw new StemAddException(
         "Unable to add stem " + this.getName() + ":" + extension + ": " 
-        + eH.getMessage()
+        + eH.getMessage(), eH
       );
     }
   } // public Stem addChildStem(extension, displayExtension)
@@ -303,7 +303,7 @@ public class Stem extends Owner implements Serializable {
       EL.stemDelete(this.getSession(), name, sw);
     }
     catch (Exception e) {
-      throw new StemDeleteException(e.getMessage());
+      throw new StemDeleteException(e.getMessage(), e);
     }
   } // public void delete()
 
@@ -454,7 +454,7 @@ public class Stem extends Owner implements Serializable {
     catch (SchemaException eS) {
       String err = ERR_FNF + NamingPrivilege.CREATE;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getCreators()
 
@@ -644,7 +644,7 @@ public class Stem extends Owner implements Serializable {
     catch (SchemaException eS) {
       String err = ERR_FNF + NamingPrivilege.STEM;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getStemmers()
 
@@ -824,7 +824,7 @@ public class Stem extends Owner implements Serializable {
     }
     catch (Exception e) {
       throw new StemModifyException(
-        "unable to set description: " + e.getMessage()
+        "unable to set description: " + e.getMessage(), e
       );
     }
     sw.stop();
@@ -860,7 +860,7 @@ public class Stem extends Owner implements Serializable {
     }
     catch (ModelException eM) {
       if (!(this.getStem_name().equals(ROOT_INT) && value.equals(ROOT_EXT))) {
-        throw new StemModifyException(eM.getMessage());
+        throw new StemModifyException(eM.getMessage(), eM);
       }
       // Appease Oracle
       value = ROOT_INT;
@@ -897,7 +897,7 @@ public class Stem extends Owner implements Serializable {
     }
     catch (Exception e) {
       throw new StemModifyException(
-        "unable to set displayExtension: " + e.getMessage()
+        "unable to set displayExtension: " + e.getMessage(), e
       );
     }
     sw.stop();
@@ -929,7 +929,7 @@ public class Stem extends Owner implements Serializable {
     catch (HibernateException eH) {
       String err = ERR_ARS + eH.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eH);
     }
     return root;
   } // protected static Stem addRootStem(GrouperSession s)
@@ -1007,7 +1007,7 @@ public class Stem extends Owner implements Serializable {
     }
     catch (Exception e) {
       throw new GroupAddException(
-        "group created but unable to grant ADMIN to creator: " + e.getMessage()
+        "group created but unable to grant ADMIN to creator: " + e.getMessage(), e
       );
     }
   } // private void _grantDefaultPrivsUponCreate(g)
@@ -1043,7 +1043,7 @@ public class Stem extends Owner implements Serializable {
     }
     catch (Exception e) {
       throw new StemAddException(
-        "stem created but unable to grant STEM to creator: " + e.getMessage()
+        "stem created but unable to grant STEM to creator: " + e.getMessage(), e
       );
     }
   } // private void _grantDefaultPrivsUponCreate(ns)
@@ -1102,7 +1102,7 @@ public class Stem extends Owner implements Serializable {
     catch (HibernateException eH) {
       String err = eH.getMessage();
       GrouperLog.error(LOG, this.getSession(), err); 
-      throw new StemModifyException(err);
+      throw new StemModifyException(err, eH);
     }
     return objects;
   } // private Set _renameChildren()

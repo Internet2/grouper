@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege resolution class.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.36.2.2 2006-04-20 19:26:37 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.36.2.3 2006-05-11 17:14:22 blair Exp $
  *     
 */
 public class PrivilegeResolver {
@@ -84,7 +84,7 @@ public class PrivilegeResolver {
     catch (Exception e) {
       String err = ERR_RPC + e.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, e);
     }
   } // public static void resetPrivilegeCaches()
 
@@ -437,7 +437,7 @@ public class PrivilegeResolver {
       return m;
     }
     catch (Exception e) {
-      throw new ModelException(e.getMessage());
+      throw new ModelException(e.getMessage(), e);
     }
   } // protected Member canViewSubject(s, subj)
 
@@ -709,7 +709,7 @@ public class PrivilegeResolver {
     catch (Exception e) {
       String err = ERR_CI + name + ": " + e.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, e);
     }
   } // private static Object _createInterface(name)
 

@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.1.2.2 2006-04-20 17:45:20 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.1.2.3 2006-05-11 17:14:22 blair Exp $
  */
 class MembershipValidator implements Serializable {
 
@@ -126,7 +126,7 @@ class MembershipValidator implements Serializable {
         }
       }
       catch (SubjectNotFoundException eSNF) {
-        throw new ModelException(eSNF.getMessage()); // FIXME
+        throw new ModelException(eSNF.getMessage(), eSNF); // FIXME
       }
     }
     // Verify that membership doesn't already exist

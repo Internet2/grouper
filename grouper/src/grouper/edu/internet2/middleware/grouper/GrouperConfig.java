@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.14.2.4 2006-04-20 16:16:57 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.14.2.5 2006-05-11 17:14:22 blair Exp $
  *     
 */
 public class GrouperConfig {
@@ -179,10 +179,10 @@ public class GrouperConfig {
       cfg = new GrouperConfig();
       cfg.properties.load(in);
     }
-    catch (IOException eIOE) {
-      String err = ERR_GC + eIOE.getMessage();
+    catch (IOException eIO) {
+      String err = ERR_GC + eIO.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eIO);
     }
     return cfg;     
   } // private static GrouperConfig _getConfiguration()

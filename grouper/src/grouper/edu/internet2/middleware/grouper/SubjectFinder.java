@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.14.2.3 2006-04-13 16:32:35 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.14.2.4 2006-05-11 17:14:22 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
@@ -65,13 +65,13 @@ public class SubjectFinder implements Serializable {
       catch (SubjectNotFoundException eSNF) {
         String err = ERR_IAS + eSNF.getMessage();
         LOG.fatal(err);
-        throw new RuntimeException(err);
+        throw new RuntimeException(err, eSNF);
       }
     } 
     catch (Exception e) {
       String err = ERR_INIT + e.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, e);
     }
   } // static
 

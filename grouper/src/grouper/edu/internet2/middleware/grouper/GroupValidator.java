@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.1.2.4 2006-05-11 15:31:39 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.1.2.5 2006-05-11 17:14:22 blair Exp $
  */
 class GroupValidator implements Serializable {
 
@@ -77,7 +77,7 @@ class GroupValidator implements Serializable {
       }
       catch (InsufficientPrivilegeException eIP1) {
         // Throw with original message
-      throw new InsufficientPrivilegeException(eIP0.getMessage());
+        throw new InsufficientPrivilegeException(eIP0.getMessage(), eIP0);
       }
     }
     if ( (f.equals(Group.getDefaultList())) && (g.hasComposite()) ) {
@@ -123,7 +123,7 @@ class GroupValidator implements Serializable {
       }
       catch (InsufficientPrivilegeException eIP1) {
         // Throw with original message
-        throw new InsufficientPrivilegeException(eIP0.getMessage());
+        throw new InsufficientPrivilegeException(eIP0.getMessage(), eIP0);
       }
     }
     if ( (f.equals(Group.getDefaultList())) && (g.hasComposite()) ) {

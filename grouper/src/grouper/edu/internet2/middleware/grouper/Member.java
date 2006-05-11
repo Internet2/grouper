@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.32.2.2 2006-04-13 16:32:35 blair Exp $
+ * @version $Id: Member.java,v 1.32.2.3 2006-05-11 17:14:22 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -117,7 +117,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getEffectiveMemberships()
 
@@ -204,7 +204,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getImmediateMemberships()
 
@@ -241,7 +241,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getMemberships()
 
@@ -332,7 +332,7 @@ public class Member implements Serializable {
         );
       }
       catch (SourceUnavailableException eSU) {
-        throw new SubjectNotFoundException(eSU.getMessage());
+        throw new SubjectNotFoundException(eSU.getMessage(), eSU);
       }
     }
     return this.subj;
@@ -365,7 +365,7 @@ public class Member implements Serializable {
     catch (SubjectNotFoundException eSNF) {
       String err = ERR_SNF + eSNF.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eSNF);
     }
   } // public Source getSubjectSource()
 
@@ -434,7 +434,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.ADMIN;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error(ERR_SNF + eSNF.getMessage());
@@ -475,7 +475,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + NamingPrivilege.CREATE;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error(ERR_SNF + eSNF.getMessage());
@@ -516,7 +516,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.OPTIN;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error(ERR_SNF + eSNF.getMessage());
@@ -557,7 +557,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.OPTOUT;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error(ERR_SNF + eSNF.getMessage());
@@ -598,7 +598,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.READ;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error(ERR_SNF + eSNF.getMessage());
@@ -639,7 +639,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + NamingPrivilege.STEM;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error(ERR_SNF + eSNF.getMessage());
@@ -679,7 +679,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.UPDATE;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error(ERR_SNF + eSNF.getMessage());
@@ -720,7 +720,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.VIEW;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error(ERR_SNF + eSNF.getMessage());
@@ -762,7 +762,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public boolean isEffectiveMember(g);
 
@@ -826,7 +826,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public boolean isImmediateMember(g)
 
@@ -898,7 +898,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public boolean isMember(g)
 
@@ -1056,9 +1056,9 @@ public class Member implements Serializable {
       m.setSubject(subj);
       return m;
     }
-    catch (HibernateException e) {
+    catch (HibernateException eH) {
       throw new MemberNotFoundException(
-        "unable to save member: " + e.getMessage()
+        "unable to save member: " + eH.getMessage(), eH
       );
     }
   } // protected static Member addMember(subj)

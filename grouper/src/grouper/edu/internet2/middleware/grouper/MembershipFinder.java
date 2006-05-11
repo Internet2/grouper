@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.29.2.1 2006-04-12 17:47:23 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.29.2.2 2006-05-11 17:14:22 blair Exp $
  */
 public class MembershipFinder {
 
@@ -107,7 +107,7 @@ public class MembershipFinder {
       }
     }
     catch (MemberNotFoundException eMNF) {
-      throw new MembershipNotFoundException(eMNF.getMessage());
+      throw new MembershipNotFoundException(eMNF.getMessage(), eMNF);
     }
     return mships;
   } // public static Membership findEffectiveMembership(s, g, subj, f, via, depth)
@@ -152,7 +152,7 @@ public class MembershipFinder {
       // @exception GroupNotFoundException
       // @exception InsufficientPrivilegeException
       // @exception MemberNotFoundException
-      throw new MembershipNotFoundException(e.getMessage());
+      throw new MembershipNotFoundException(e.getMessage(), e);
     }
   } // public static Membership findImmediateMembership(s, g, m, f)
 
@@ -278,7 +278,7 @@ public class MembershipFinder {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new MembershipNotFoundException(eH.getMessage());
+      throw new MembershipNotFoundException(eH.getMessage(), eH);
     }
     return mships;
   } // protected static Set findEffectiveMembership(o, mid, field, via, depth)
@@ -451,7 +451,7 @@ public class MembershipFinder {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new MembershipNotFoundException(eH.getMessage());
+      throw new MembershipNotFoundException(eH.getMessage(), eH);
     }
     if (mships.size() == 1) {
       Membership ms = (Membership) mships.get(0);

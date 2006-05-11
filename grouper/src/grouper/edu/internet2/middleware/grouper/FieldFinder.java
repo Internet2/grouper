@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.9.2.1 2006-04-13 00:35:33 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.9.2.2 2006-05-11 17:14:22 blair Exp $
  */
 public class FieldFinder {
 
@@ -95,7 +95,7 @@ public class FieldFinder {
     catch (HibernateException eH) {
       String err = ERR_FA + eH.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eH);
     }
     return fields;
   } // public Static Set findAll()
@@ -124,7 +124,7 @@ public class FieldFinder {
     catch (HibernateException eH) {
       String err = ERR_FAT + eH.getMessage();
       LOG.error(err);
-      throw new SchemaException(err);
+      throw new SchemaException(err, eH);
     }
     return fields;
   } // public static Set fieldAllByType(type)

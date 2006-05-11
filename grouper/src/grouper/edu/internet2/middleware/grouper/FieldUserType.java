@@ -29,7 +29,7 @@ import  net.sf.hibernate.type.*;
  * Custom {@link Field} user type.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldUserType.java,v 1.4 2006-02-03 19:38:53 blair Exp $    
+ * @version $Id: FieldUserType.java,v 1.4.2.1 2006-05-11 17:14:22 blair Exp $    
  */
 public class FieldUserType implements CompositeUserType {
 
@@ -101,7 +101,7 @@ public class FieldUserType implements CompositeUserType {
     }
     catch (SchemaException eS) {
       throw new HibernateException(
-        "unable to get field: " + eS.getMessage()
+        "unable to get field: " + eS.getMessage(), eS
       );
     }
   } // public Object nullSafeGet(resultSet, types, session, owner)

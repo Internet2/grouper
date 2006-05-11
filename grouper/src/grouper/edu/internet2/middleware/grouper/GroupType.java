@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.11.2.2 2006-04-13 17:26:16 blair Exp $
+ * @version $Id: GroupType.java,v 1.11.2.3 2006-05-11 17:14:22 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -127,7 +127,7 @@ public class GroupType implements Serializable {
     catch (HibernateException eH) {
       String msg = "unable to add type: " + name + ": " + eH.getMessage();
       LOG.error(msg);
-      throw new SchemaException(msg);
+      throw new SchemaException(msg, eH);
     }
   } // public static GroupType createType(s, name)
 
@@ -275,14 +275,14 @@ public class GroupType implements Serializable {
     catch (HibernateException eH) {
       String msg = "cannot delete field: " + eH.getMessage();
       LOG.error(msg);
-      throw new SchemaException(msg);
+      throw new SchemaException(msg, eH);
     }
     finally {
       try {
         if (hs != null) { hs.close(); }
       }
       catch (HibernateException eH) {
-        throw new SchemaException(eH.getMessage());
+        throw new SchemaException(eH.getMessage(), eH);
       }
     }
   } // public void addField(s, name, type, read, write, required)
@@ -364,7 +364,7 @@ public class GroupType implements Serializable {
     catch (HibernateException eS) {
       String msg = "unable to add field: " + name + ": " + eS.getMessage();
       LOG.error(msg);
-      throw new SchemaException(msg);
+      throw new SchemaException(msg, eS);
     }
   } // private void _addField(s, name, type, read, write, required)
 

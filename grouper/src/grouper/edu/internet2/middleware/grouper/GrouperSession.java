@@ -33,7 +33,7 @@ import  org.apache.commons.logging.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.17.2.2 2006-04-17 18:19:54 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.17.2.3 2006-05-11 17:14:22 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -100,7 +100,7 @@ public class GrouperSession implements Serializable {
       // @MemberNotFoundException
       String err = ERR_START + e.getMessage();
       LOG.fatal(err);
-      throw new SessionException(err);
+      throw new SessionException(err, e);
     }
   } // public static GrouperSession start(subject)
 
@@ -114,7 +114,7 @@ public class GrouperSession implements Serializable {
       catch (Exception e) {
         String err = GrouperLog.ERR_GRS + e.getMessage();
         LOG.fatal(err);
-        throw new RuntimeException(err);
+        throw new RuntimeException(err, e);
       }
     }
     try {
@@ -123,7 +123,7 @@ public class GrouperSession implements Serializable {
     catch (Exception e) {
       String err = GrouperLog.ERR_GRS + e.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, e);
     }
   } // protected static GrouperSession startTransient()
 
@@ -257,7 +257,7 @@ public class GrouperSession implements Serializable {
     catch (HibernateException eH) {
       String err = ERR_STOP + eH.getMessage();
       LOG.error(err);
-      throw new SessionException(err);
+      throw new SessionException(err, eH);
     }
   } // public void stop()
 
@@ -289,7 +289,7 @@ public class GrouperSession implements Serializable {
     }
     catch (RuntimeException e) {
       e.printStackTrace();
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException(e.getMessage(), e);
     }
   } // protected static void validate(s)
 

@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.33.2.2 2006-04-19 22:55:14 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.33.2.3 2006-05-11 17:14:22 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -211,10 +211,10 @@ public class GrouperAccessAdapter implements AccessAdapter {
       Membership.addImmediateMembership(s, g, subj, f);
     }
     catch (MemberAddException eMA) {
-      throw new GrantPrivilegeException(eMA.getMessage());
+      throw new GrantPrivilegeException(eMA.getMessage(), eMA);
     }
     catch (ModelException eM) {
-      throw new GrantPrivilegeException(eM.getMessage());
+      throw new GrantPrivilegeException(eM.getMessage(), eM);
     }
   } // public void grantPriv(s, g, subj, priv)
 
@@ -292,11 +292,11 @@ public class GrouperAccessAdapter implements AccessAdapter {
         HibernateHelper.saveAndDelete(saves, deletes);
       }
       catch (Exception e) {
-        throw new RevokePrivilegeException(e.getMessage());
+        throw new RevokePrivilegeException(e.getMessage(), e);
       }
     }
     catch (ModelException eM) {
-      throw new RevokePrivilegeException(eM.getMessage());
+      throw new RevokePrivilegeException(eM.getMessage(), eM);
     }
   } // public void revokePriv(s, g, priv)
 
@@ -335,10 +335,10 @@ public class GrouperAccessAdapter implements AccessAdapter {
       Membership.delImmediateMembership(s, g, subj, f);
     }
     catch (MemberDeleteException eMD) {
-      throw new RevokePrivilegeException(eMD.getMessage());
+      throw new RevokePrivilegeException(eMD.getMessage(), eMD);
     }
     catch (ModelException eM) {
-      throw new RevokePrivilegeException(eM.getMessage());
+      throw new RevokePrivilegeException(eM.getMessage(), eM);
     }
   } // public void revokePriv(s, g, subj, priv)
 
