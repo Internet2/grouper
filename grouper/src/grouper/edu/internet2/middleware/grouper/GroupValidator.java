@@ -25,17 +25,23 @@ import  org.apache.commons.logging.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.1.2.3 2006-05-09 18:30:45 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.1.2.4 2006-05-11 15:31:39 blair Exp $
  */
 class GroupValidator implements Serializable {
 
   // Protected Class Constants //
-  protected static final String ERR_COI = "cannot OPTIN";
-  protected static final String ERR_COO = "cannot OPTOUT";
-  protected static final String ERR_DRA = "cannot delete required attribute: ";
-  protected static final String ERR_FT  = "invalid field type: ";
-  protected static final String ERR_GT  = "invalid group type: ";
-  protected static final String ERR_AV  = "invalid attribute value";
+  protected static final String ERR_ACTC  = "cannot add composite membership to group with composite membership";
+  protected static final String ERR_ACTM  = "cannot add composite membership to group with members";
+  protected static final String ERR_AMTC  = "cannot add member to composite membership";
+  protected static final String ERR_COI   = "cannot OPTIN";
+  protected static final String ERR_COO   = "cannot OPTOUT";
+  protected static final String ERR_DCFC  = "cannot delete non-existent composite membership";
+  protected static final String ERR_DCFM  = "cannot delete composite membership from group with members";
+  protected static final String ERR_DMFC  = "cannot delete member from composite membership";
+  protected static final String ERR_DRA   = "cannot delete required attribute: ";
+  protected static final String ERR_FT    = "invalid field type: ";
+  protected static final String ERR_GT    = "invalid group type: ";
+  protected static final String ERR_AV    = "invalid attribute value";
 
   // Private Class Constants //
   private static final Log LOG = LogFactory.getLog(GroupValidator.class);
@@ -43,15 +49,23 @@ class GroupValidator implements Serializable {
   // Protected Class Methods //
   protected static void canAddCompositeMember(Group g, Composite c)
     throws  InsufficientPrivilegeException,
+            ModelException,
             SchemaException
   {
     canWriteField(
       g.getSession(), g, g.getSession().getSubject(), Group.getDefaultList(), FieldType.LIST
     );
+    if (g.hasComposite()) {
+      throw new ModelException(ERR_ACTC); // TODO TEST!
+    }
+    if (g.getMembers().size() > 0) {
+      throw new ModelException(ERR_ACTM); // TODO ModelException
+    }
   } // protected static void canAddCompositeMember(g, c)
 
   protected static void canAddMember(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
+            MemberAddException,
             SchemaException
   {
     try {
@@ -65,6 +79,9 @@ class GroupValidator implements Serializable {
         // Throw with original message
       throw new InsufficientPrivilegeException(eIP0.getMessage());
       }
+    }
+    if ( (f.equals(Group.getDefaultList())) && (g.hasComposite()) ) {
+      throw new MemberAddException(ERR_AMTC); // TODO ModelException
     }
   } // protected static void canAddMember(g, subj, f)
 
@@ -81,15 +98,20 @@ class GroupValidator implements Serializable {
 
   protected static void canDelCompositeMember(Group g)
     throws  InsufficientPrivilegeException,
+            ModelException,
             SchemaException
   {
     canWriteField(
       g.getSession(), g, g.getSession().getSubject(), Group.getDefaultList(), FieldType.LIST
     );
+    if (!g.hasComposite()) {
+      throw new ModelException(ERR_DCFC); 
+    }
   } // protected static void canDelCompositeMember(g)
 
   protected static void canDelMember(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
+            MemberDeleteException,
             SchemaException
   {
     try {
@@ -101,8 +123,11 @@ class GroupValidator implements Serializable {
       }
       catch (InsufficientPrivilegeException eIP1) {
         // Throw with original message
-      throw new InsufficientPrivilegeException(eIP0.getMessage());
+        throw new InsufficientPrivilegeException(eIP0.getMessage());
       }
+    }
+    if ( (f.equals(Group.getDefaultList())) && (g.hasComposite()) ) {
+      throw new MemberDeleteException(ERR_DMFC); // TODO ModelException
     }
   } // protected static void canDelMember(g, subj, f)
 

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteCompositesU.java,v 1.1.2.8 2006-05-09 18:30:45 blair Exp $
+ * @version $Id: SuiteCompositesU.java,v 1.1.2.9 2006-05-11 15:31:39 blair Exp $
  */
 public class SuiteCompositesU extends TestCase {
 
@@ -39,14 +39,11 @@ public class SuiteCompositesU extends TestCase {
     suite.addTestSuite( TestCompositeU1.class   );  // fail: not priv'd to delete union
     suite.addTestSuite( TestCompositeU2.class   );  // fail: hasComposite()
     suite.addTestSuite( TestCompositeU3.class   );  // fail: isComposite()
-/*  TODO
-    // TODO Stems!  Or not?
     suite.addTestSuite( TestCompositeU4.class   );  // fail: addMember() when hasComposite()
     suite.addTestSuite( TestCompositeU5.class   );  // fail: deleteMember() when hasComposite()
     suite.addTestSuite( TestCompositeU6.class   );  // fail: addCompositeMember() when has member
     suite.addTestSuite( TestCompositeU7.class   );  // fail: deleteComposite() when has member
     suite.addTestSuite( TestCompositeU8.class   );  // fail: deleteComposite() when not hasComposite()
-*/
     suite.addTestSuite( TestCompositeU9.class   );  // add union: no children, no parents
     // TODO suite.addTestSuite( TestCompositeU10.class  );  // del union: no children, no parents
     suite.addTestSuite( TestCompositeU11.class  );  // add union: one child, no parents

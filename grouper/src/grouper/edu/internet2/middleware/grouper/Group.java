@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.8 2006-05-09 18:30:45 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.9 2006-05-11 15:31:38 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -468,6 +468,9 @@ public class Group extends Owner implements Serializable {
       // TODO Membership.delCompositeMembership(this.getSession(), this);
       sw.stop();
       // TODO EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
+    }
+    catch (ModelException eM) {
+      throw new MemberDeleteException(eM.getMessage());
     }
     catch (SchemaException eS) {
       throw new MemberDeleteException(eS.getMessage());
