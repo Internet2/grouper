@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.9 2006-05-11 15:31:38 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.10 2006-05-11 16:41:44 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -462,12 +462,16 @@ public class Group extends Owner implements Serializable {
             MemberDeleteException
   {
     try {
-      StopWatch sw = new StopWatch();
+      StopWatch sw  = new StopWatch();
       sw.start();
       GroupValidator.canDelCompositeMember(this);
-      // TODO Membership.delCompositeMembership(this.getSession(), this);
+      Composite c   = CompositeFinder.isOwner(this);
+      Membership.delCompositeMembership(this.getSession(), this, c);
       sw.stop();
       // TODO EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
+    }
+    catch (CompositeNotFoundException eCNF) {
+      throw new MemberDeleteException(eCNF.getMessage());
     }
     catch (ModelException eM) {
       throw new MemberDeleteException(eM.getMessage());

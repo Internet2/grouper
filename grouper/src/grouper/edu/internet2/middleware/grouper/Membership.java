@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.24.2.6 2006-04-21 17:47:37 blair Exp $
+ * @version $Id: Membership.java,v 1.24.2.7 2006-05-11 16:41:44 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -310,6 +310,21 @@ public class Membership implements Serializable {
       throw new MemberAddException(e.getMessage());
     }    
   } // protected static void addImmediateMembership(s, o, subj, f)
+
+  protected static void delCompositeMembership(GrouperSession s, Owner o, Composite c)
+    throws  MemberDeleteException,
+            ModelException
+  {
+    GrouperSessionValidator.validate(s);
+    try {
+      MemberOf  mof = MemberOf.delComposite(s, o, c);
+      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      // TODO EL.delEffMembers(s, o, subj, f, effs);
+    }
+    catch (HibernateException eH) {
+      throw new MemberDeleteException(eH.getMessage());
+    }    
+  } // protected static void delCompositeMembership(s, o, c)
 
   protected static void delImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f

@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14.2.2 2006-04-20 19:26:37 blair Exp $
+ * @version $Id: MemberOf.java,v 1.14.2.3 2006-05-11 16:41:44 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -106,6 +106,24 @@ class MemberOf implements Serializable {
     mof.saves.add(mof.o);   // Update the owner
     return mof;
   } // protected static MemberOf addImmediate(s, o, m, ms)
+
+  // Calculate deletion of a composite membership 
+  protected static MemberOf delComposite(
+    GrouperSession s, Owner o, Composite c
+  )
+    throws  ModelException
+  {
+    MemberOf mof = new MemberOf(s, o, c);
+    mof.effDeletes.addAll(  ( (Group) o).getMemberships() );  // FIXME Is this actually right?
+                                                              // TEST  And what happens if
+                                                              //       not GrouperSystem?
+    mof.deletes.addAll(     mof.effDeletes                );
+    mof._resetSessions();
+    mof.o.setModified();
+    mof.deletes.add(mof.c);   // Delete the composite
+    mof.saves.add(mof.o);     // Update the owner
+    return mof;
+  } // protected static MemberOf addComposite(s, o, c)
 
   protected static MemberOf delImmediate(
     GrouperSession s, Owner o, Membership ms, Member m
@@ -242,10 +260,10 @@ class MemberOf implements Serializable {
   private Set _evalCompositeUnion() 
     throws  ModelException
   {
-    Set results = new LinkedHashSet();
-    Set tmp     = new LinkedHashSet();
-    Group left  = (Group) this.c.getLeft();
-    Group right = (Group) this.c.getRight();
+    Set   results = new LinkedHashSet();
+    Set   tmp     = new LinkedHashSet();
+    Group left    = this.c.getLeftGroup();
+    Group right   = this.c.getRightGroup();
     tmp.addAll( left.getMembers() );
     tmp.addAll( right.getMembers()  );
     return this._createNewMembershipObjects(tmp);

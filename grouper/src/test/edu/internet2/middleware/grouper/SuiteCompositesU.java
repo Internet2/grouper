@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteCompositesU.java,v 1.1.2.9 2006-05-11 15:31:39 blair Exp $
+ * @version $Id: SuiteCompositesU.java,v 1.1.2.10 2006-05-11 16:41:44 blair Exp $
  */
 public class SuiteCompositesU extends TestCase {
 
@@ -45,11 +45,11 @@ public class SuiteCompositesU extends TestCase {
     suite.addTestSuite( TestCompositeU7.class   );  // fail: deleteComposite() when has member
     suite.addTestSuite( TestCompositeU8.class   );  // fail: deleteComposite() when not hasComposite()
     suite.addTestSuite( TestCompositeU9.class   );  // add union: no children, no parents
-    // TODO suite.addTestSuite( TestCompositeU10.class  );  // del union: no children, no parents
+    suite.addTestSuite( TestCompositeU10.class  );  // del union: no children, no parents
     suite.addTestSuite( TestCompositeU11.class  );  // add union: one child, no parents
-    // TODO suite.addTestSuite( TestCompositeU12.class  );  // del union: one child, no parents
+    suite.addTestSuite( TestCompositeU12.class  );  // del union: one child, no parents
     suite.addTestSuite( TestCompositeU13.class  );  // add union: one comp child, no parents
-    // TODO suite.addTestSuite( TestCompositeU14.class  );  // del union: one comp child, no parents
+    suite.addTestSuite( TestCompositeU14.class  );  // del union: one comp child, no parents
     suite.addTestSuite( TestCompositeU15.class  );  // add union: two children, no parents
     // TODO suite.addTestSuite( TestCompositeU16.class  );  // del union: two children, no parents
     suite.addTestSuite( TestCompositeU17.class  );  // add union: two comp children, no parents
