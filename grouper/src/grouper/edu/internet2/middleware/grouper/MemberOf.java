@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14.2.3 2006-05-11 16:41:44 blair Exp $
+ * @version $Id: MemberOf.java,v 1.14.2.4 2006-05-11 17:29:40 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -114,9 +114,11 @@ class MemberOf implements Serializable {
     throws  ModelException
   {
     MemberOf mof = new MemberOf(s, o, c);
-    mof.effDeletes.addAll(  ( (Group) o).getMemberships() );  // FIXME Is this actually right?
-                                                              // TEST  And what happens if
-                                                              //       not GrouperSystem?
+    mof.effDeletes.addAll(  ( (Group) o).getMemberships() );  // FIXME  Is this actually right?
+                                                              // TEST   And what happens if
+                                                              //        not GrouperSystem?
+                                                              //        But we should be running
+                                                              //        as root here, right?
     mof.deletes.addAll(     mof.effDeletes                );
     mof._resetSessions();
     mof.o.setModified();
