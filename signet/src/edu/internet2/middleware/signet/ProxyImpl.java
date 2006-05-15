@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyImpl.java,v 1.12 2006-02-09 10:24:16 lmcrae Exp $
-$Date: 2006-02-09 10:24:16 $
+$Id: ProxyImpl.java,v 1.13 2006-05-15 21:22:11 ddonn Exp $
+$Date: 2006-05-15 21:22:11 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -180,11 +180,14 @@ implements Proxy
     // This last clause is here to distinguish two Proxies which are 
     // otherwise identical twins:
     
-    Integer thisId = this.getId();
-    Integer otherId = other.getId();
-    comparisonResult = thisId.compareTo(otherId);
+    Integer thisId = null;
+    Integer otherId = null;
+    if (null == (thisId = this.getId()))
+    	comparisonResult = -1;
+    else if (null == (otherId = other.getId()))
+    	comparisonResult = 1;
 
-    return comparisonResult;
+    return ((0 != comparisonResult) ? comparisonResult : thisId.compareTo(otherId));
   }
 
   /* (non-Javadoc)
