@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.11 2006-05-11 17:14:22 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.12 2006-05-15 18:24:49 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -535,9 +535,26 @@ public class Group extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     GroupValidator.canDelMember(this, subj, f);
-    Membership.delImmediateMembership(this.getSession(), this, subj, f);
+    MemberOf  mof     = Membership.delImmediateMembership(
+      this.getSession(), this, subj, f
+    );
+    Set       saves   = mof.getSaves();
+    Set       deletes = mof.getDeletes();
+
+    this.setModified();
+    saves.add(this);
+
+    // And then commit changes to registry
+    try {
+      HibernateHelper.saveAndDelete(saves, deletes);
+    }
+    catch (HibernateException eH) {
+      throw new MemberDeleteException(eH);
+    }
+
     sw.stop();
     EL.groupDelMember(this.getSession(), this.getName(), subj, f, sw);
+    EL.delEffMembers(this.getSession(), this, subj, f, mof.getEffDeletes());
   } // public void deleteMember(subj, f)
 
   /**

@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14.2.4 2006-05-11 17:29:40 blair Exp $
+ * @version $Id: MemberOf.java,v 1.14.2.5 2006-05-15 18:24:49 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -113,13 +113,20 @@ class MemberOf implements Serializable {
   )
     throws  ModelException
   {
-    MemberOf mof = new MemberOf(s, o, c);
-    mof.effDeletes.addAll(  ( (Group) o).getMemberships() );  // FIXME  Is this actually right?
-                                                              // TEST   And what happens if
-                                                              //        not GrouperSystem?
-                                                              //        But we should be running
-                                                              //        as root here, right?
-    mof.deletes.addAll(     mof.effDeletes                );
+    MemberOf  mof   = new MemberOf(s, o, c);
+    Iterator  iter  = ( (Group) o ).getMemberships().iterator();
+    while (iter.hasNext()) {
+      Membership  ms    = (Membership) iter.next();
+      try {
+        MemberOf    msMof = MemberOf.delImmediate(
+          s, o, ms, ms.getMember()
+        );
+        mof.deletes.addAll(     msMof.getDeletes()    );
+      }
+      catch (Exception e) {
+        throw new ModelException(e);
+      }
+    }
     mof._resetSessions();
     mof.o.setModified();
     mof.deletes.add(mof.c);   // Delete the composite
@@ -130,12 +137,17 @@ class MemberOf implements Serializable {
   protected static MemberOf delImmediate(
     GrouperSession s, Owner o, Membership ms, Member m
   )
-    throws  GroupNotFoundException, // TODO
-            MemberNotFoundException // TODO
+    throws  GroupNotFoundException,   // TODO
+            HibernateException,
+            MemberNotFoundException,  // TODO
+            MembershipNotFoundException
   {
     MemberOf  mof = new MemberOf(s, o, m, ms);
-    mof.effDeletes.addAll(  mof._evalImmediate() );  // Find the effs to remove
-    mof.deletes.addAll(     mof.effDeletes        );
+    // TODO This seems overly complicated.  Why don't I just query for
+    //      the appropriate members?
+    mof.effDeletes.addAll( Membership.getPersistent(s, mof._evalImmediate()) );
+    mof.deletes.addAll(mof.effDeletes);
+    mof.deletes.add(ms);
     mof._resetSessions();
     mof.o.setModified();
     mof.deletes.add(ms);    // Delete the immediate
@@ -328,7 +340,7 @@ class MemberOf implements Serializable {
     }
     this.saves = tmp;
     tmp = new LinkedHashSet();
-    Iterator  delIter   = this.effDeletes.iterator();
+    Iterator  delIter   = this.deletes.iterator();
     while (delIter.hasNext()) {
       Membership ms = (Membership) delIter.next();
       ms.setSession(this.s);

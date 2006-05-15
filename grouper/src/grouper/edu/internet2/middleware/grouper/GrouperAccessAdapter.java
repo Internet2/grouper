@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.33.2.3 2006-05-11 17:14:22 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.33.2.4 2006-05-15 18:24:49 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -332,13 +332,26 @@ public class GrouperAccessAdapter implements AccessAdapter {
       GrouperSessionValidator.validate(s);
       Field f = this._getField(priv);
       GroupValidator.canWriteField(s, g, s.getSubject(), f, FieldType.ACCESS);
-      Membership.delImmediateMembership(s, g, subj, f);
+      MemberOf  mof     = Membership.delImmediateMembership(s, g, subj, f);
+      Set       saves   = mof.getSaves();
+      Set       deletes = mof.getDeletes();
+
+      // TODO Should this be in _Group_?  
+      // TODO Actually, should it done at all?
+      g.setModified();
+      saves.add(g);
+
+      // And then commit changes to registry
+      HibernateHelper.saveAndDelete(saves, deletes);
+    }
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException(eH);
     }
     catch (MemberDeleteException eMD) {
-      throw new RevokePrivilegeException(eMD.getMessage(), eMD);
+      throw new RevokePrivilegeException(eMD);
     }
     catch (ModelException eM) {
-      throw new RevokePrivilegeException(eM.getMessage(), eM);
+      throw new RevokePrivilegeException(eM);
     }
   } // public void revokePriv(s, g, subj, priv)
 

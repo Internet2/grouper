@@ -296,6 +296,14 @@
           overflowToDisk="false"
   />
        
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindByUuid"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+       
   <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindChildMemberships"
           maxElementsInMemory="1000"
           eternal="false"

@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test Groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteGroups.java,v 1.1.2.1 2006-04-11 16:19:35 blair Exp $
+ * @version $Id: SuiteGroups.java,v 1.1.2.2 2006-05-15 18:24:49 blair Exp $
  */
 public class SuiteGroups extends TestCase {
 
@@ -33,8 +33,14 @@ public class SuiteGroups extends TestCase {
   }
 
   static public Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(  SuiteAddMember.suite()    );
+    TestSuite suite = new TestSuite();        
+    suite.addTestSuite( TestGroup0.class        );  // delete member group
+    suite.addTestSuite( TestGroup1.class        );  // delete member group with non-group member
+    suite.addTestSuite( TestGroup2.class        );  // delete member from group that is member
+    suite.addTestSuite( TestGroup3.class        );  // delete empty group
+    suite.addTestSuite( TestGroup4.class        );  // delete group that has members and is a member
+    suite.addTestSuite( TestGroup5.class        );  // delete group when it has member via two paths
+    suite.addTest(      SuiteAddMember.suite()  );
     return suite;
   } // static public Test suite()
 

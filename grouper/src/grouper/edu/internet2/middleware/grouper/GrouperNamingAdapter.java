@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.34.2.3 2006-05-11 17:14:22 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.34.2.4 2006-05-15 18:24:49 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -333,13 +333,26 @@ public class GrouperNamingAdapter implements NamingAdapter {
       GrouperSessionValidator.validate(s);
       Field f = this._getField(priv);
       StemValidator.canWriteField(s, ns, s.getSubject(), f, FieldType.NAMING);
-      Membership.delImmediateMembership(s, ns, subj, f);
+      MemberOf  mof     = Membership.delImmediateMembership(s, ns, subj, f);
+      Set       saves   = mof.getSaves();
+      Set       deletes = mof.getDeletes();
+
+      // TODO Should this be in _Stem_?  
+      // TODO Actually, should it done at all?
+      ns.setModified();
+      saves.add(ns);
+
+      // And then commit changes to registry
+      HibernateHelper.saveAndDelete(saves, deletes);
+    }
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException(eH);
     }
     catch (MemberDeleteException eMD) {
-      throw new RevokePrivilegeException(eMD.getMessage(), eMD);
+      throw new RevokePrivilegeException(eMD);
     }
     catch (ModelException eM) {
-      throw new RevokePrivilegeException(eM.getMessage(), eM);
+      throw new RevokePrivilegeException(eM);
     }
   } // public void revokePriv(s, ns, subj, priv)
 

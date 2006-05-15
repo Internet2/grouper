@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.14.2.5 2006-05-11 17:14:22 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.14.2.6 2006-05-15 18:24:49 blair Exp $
  *     
 */
 public class GrouperConfig {
@@ -80,6 +80,8 @@ public class GrouperConfig {
   protected static final boolean  QRY_MF_FBU    = true;
   protected static final String   QCR_MSF_FAM    = "edu.internet2.middleware.grouper.MembershipFinder.FindAllMemberships";
   protected static final boolean  QRY_MSF_FAM   = true;
+  protected static final String   QCR_MSF_FBU   = "edu.internet2.middleware.grouper.MembershipFinder.FindByUuid";
+  protected static final boolean  QRY_MSF_FBU   = true;
   protected static final String   QCR_MSF_FCM   = "edu.internet2.middleware.grouper.MembershipFinder.FindChildMemberships";
   protected static final boolean  QRY_MSF_FCM   = true;
   protected static final String   QCR_MSF_FEM   = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMemberships";

@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.29.2.2 2006-05-11 17:14:22 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.29.2.3 2006-05-15 18:24:49 blair Exp $
  */
 public class MembershipFinder {
 
@@ -158,7 +158,7 @@ public class MembershipFinder {
 
 
 
-  // Protected Class Methods
+  // Protected Class Methods //
 
   protected static Set findAllMemberships(GrouperSession s, Member m) {
     /*
@@ -190,6 +190,38 @@ public class MembershipFinder {
     }
     return mships;
   } // protected static Set findAllMemberships(s, m)
+
+  // FIXME  Does this even work?
+  protected static Membership findByUuid(GrouperSession s, String uuid) 
+    throws MembershipNotFoundException
+  {
+    GrouperSession.validate(s);
+    try {
+      Membership  ms  = null;
+      Session     hs  = HibernateHelper.getSession();
+      Query       qry = hs.createQuery(
+        "from Membership as ms where ms.uuid = :uuid"
+      );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FBU);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FBU);
+      qry.setString("uuid", uuid);
+      List mships  = qry.list();
+      if (mships.size() == 1) {
+        ms = (Membership) mships.get(0);
+        ms.setSession(s);
+      }
+      hs.close();
+      if (ms == null) {
+        throw new MembershipNotFoundException("membership not found");
+      }
+      return ms; 
+    }
+    catch (HibernateException eH) {
+      throw new MembershipNotFoundException(
+        "error finding membership: " + eH.getMessage(), eH
+      );  
+    }
+  } // protected static Membership findByUuid(s, uuid)
 
   protected static Set findChildMemberships(GrouperSession s, Membership ms) { 
     /*

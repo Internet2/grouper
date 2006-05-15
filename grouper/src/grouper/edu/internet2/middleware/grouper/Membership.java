@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.24.2.8 2006-05-11 17:14:22 blair Exp $
+ * @version $Id: Membership.java,v 1.24.2.9 2006-05-15 18:24:49 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -285,6 +285,7 @@ public class Membership implements Serializable {
     GrouperSessionValidator.validate(s);
     try {
       MemberOf mof = MemberOf.addComposite(s, o, c);
+      // TODO Move to Group.  Hell, delete method entirely?
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
       // TODO EL.addEffMembers(s, o, subj, f, effs);
     }
@@ -318,6 +319,7 @@ public class Membership implements Serializable {
     GrouperSessionValidator.validate(s);
     try {
       MemberOf  mof = MemberOf.delComposite(s, o, c);
+      // TODO Move to Group.  Hell, delete method entirely?
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
       // TODO EL.delEffMembers(s, o, subj, f, effs);
     }
@@ -326,39 +328,26 @@ public class Membership implements Serializable {
     }    
   } // protected static void delCompositeMembership(s, o, c)
 
-  protected static void delImmediateMembership(
+  protected static MemberOf delImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f
   )
     throws  MemberDeleteException
   {
     try {
       GrouperSessionValidator.validate(s); 
-      // The objects that will need deleting and saving
-      Set     deletes = new LinkedHashSet();
-      Set     saves   = new LinkedHashSet();
       // Who we're deleting
-      Member  m       = PrivilegeResolver.getInstance().canViewSubject(s, subj);
-
-      o.setModified();
-      saves.add(o);
-
-      // Find memberships to delete
+      Member      m   = PrivilegeResolver.getInstance().canViewSubject(s, subj);
       Membership  imm = MembershipFinder.findImmediateMembership(o, m, f);
       imm.setSession(s);
-      Set effs = _membershipsToDelete(s, imm);
-      deletes.addAll(effs);
-      deletes.add(imm);
-
-      // And then commit changes to registry
-      HibernateHelper.saveAndDelete(saves, deletes);
-      EL.delEffMembers(s, o, subj, f, effs);
+      return MemberOf.delImmediate(s, o, imm, m);
     }
     catch (Exception e) {
       throw new MemberDeleteException(e.getMessage(), e);
     } 
   } // protected static void delImmediateMembership(s, o, subj, f)
 
-  protected static Set deleteAllField(GrouperSession s, Owner o, Field f) 
+  // FIXME  return mof?
+  protected static Set deleteAllField(GrouperSession s, Owner o, Field f)
     throws  MemberDeleteException,
             SchemaException
   {
@@ -370,31 +359,36 @@ public class Membership implements Serializable {
 
       Set deletes = new LinkedHashSet();
 
-      // If o == group, deal with its immediate memberships
-      if (o instanceof Group) {
+      if (o instanceof Group) { // then deal with its immediate membership
         Iterator iterIs = ( (Group) o).toMember().getImmediateMemberships(f).iterator();
         while (iterIs.hasNext()) {
-          Membership  ms    = (Membership) iterIs.next();
-          Set         effs  = _membershipsToDelete(s, ms);
-          deletes.addAll(effs);
-          deletes.add(ms);
+          Membership  ms  = (Membership) iterIs.next();
+          MemberOf    mof = Membership.delImmediateMembership(
+            s, ms.getOwner_id(), ms.getMember().getSubject(), ms.getField()
+          );
+          deletes.addAll( mof.getDeletes() );
         }
       }
 
       // Now deal with immediate members
       Iterator iterHas = MembershipFinder.findImmediateMemberships(root, o, f).iterator();
       while (iterHas.hasNext()) {
-        Membership  ms    = (Membership) iterHas.next();
-        Set         effs  = _membershipsToDelete(s, ms);
-        deletes.addAll(effs);
-        deletes.add(ms);
+        Membership  ms  = (Membership) iterHas.next();
+        MemberOf    mof = Membership.delImmediateMembership(s, o, ms.getMember().getSubject(), f);
+        deletes.addAll( mof.getDeletes() );
       }
 
       o.setSession(orig);
       return deletes;
     }
+    catch (MemberNotFoundException eMNF) {
+      throw new MemberDeleteException(eMNF);
+    }
     catch (ModelException eM) {
-      throw new MemberDeleteException(eM.getMessage(), eM);
+      throw new MemberDeleteException(eM);
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new MemberDeleteException(eSNF);
     }
   } // protected static Set deleteAllField(s, o, f)
 
@@ -500,44 +494,32 @@ public class Membership implements Serializable {
 
   // Private Class Methods //
   // TODO REFACTOR/DRY
-  private static Set _membershipsToDelete(GrouperSession s, Membership imm) 
-    throws  MemberDeleteException
+  protected static Set getPersistent(GrouperSession s, Set mships) 
+    throws  HibernateException,
+            MemberNotFoundException,
+            MembershipNotFoundException
   {
-    Set     mships  = new LinkedHashSet();
-    Field   f       = imm.getList();
-    try {
-      Member m = imm.getMember();
-      // Find effective memberships
-      // As many of the memberships are likely to be transient, we
-      // need to retrieve the persistent version of each before
-      // passing it along to be deleted by HibernateHelper.  
-      // FIXME Actually, do we still need to now that HibernateHelper
-      //       tries to untransient (at least select items).  
-      //       But, even if the above is not true this code is still
-      //       hateful.
-      Session   hs    = HibernateHelper.getSession();
-      MemberOf  mof   = MemberOf.delImmediate(s, imm.getOwner_id(), imm, m);
-      Iterator  iter  = mof.getEffDeletes().iterator();
-      while (iter.hasNext()) {
-        Membership  ms    = (Membership) iter.next();
-        Set         effs  = MembershipFinder.findEffectiveMemberships(
-          ms.getOwner_id(), ms.getMember().getId(), 
-          ms.getList(), ms.getVia_id(), ms.getDepth()
-        );
-        Iterator effsIter = effs.iterator();
-        while (effsIter.hasNext()) {
-          Membership eff = (Membership) effsIter.next();
-          eff.setSession(s);
-          mships.add(eff);
-        }
+    Set       persistent  = new LinkedHashSet();
+    Iterator  iter        = mships.iterator();
+    Session   hs          = HibernateHelper.getSession();
+    while (iter.hasNext()) {
+      Membership ms   = (Membership) iter.next();
+      // FIXME  What a monstrosity.
+      //        Ideally I'd just find by uuid but I believe that UUIDs
+      //        for effective mships are broken at the moment.  Woe.
+      Iterator  effs  = MembershipFinder.findEffectiveMemberships(
+        ms.getOwner_id(), ms.getMember().getId(), 
+        ms.getList(), ms.getVia_id(), ms.getDepth()
+      ).iterator();
+      while (effs.hasNext()) {
+        Membership eff = (Membership) effs.next();
+        eff.setSession(s);
+        persistent.add(eff);
       }
-      hs.close();
     }
-    catch (Exception e) {
-      throw new MemberDeleteException(e.getMessage(), e);
-    }
-    return mships;
-  } // private static Set _membershipsToDelete(s, imm)
+    hs.close();
+    return persistent;
+  } // protected static Set getPersistant(s, mships)
 
  
   // Getters // 

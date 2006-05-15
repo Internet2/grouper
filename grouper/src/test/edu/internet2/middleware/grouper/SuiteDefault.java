@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.1.2.8 2006-04-17 18:19:54 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.1.2.9 2006-05-15 18:24:49 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -54,9 +54,7 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestGrFiFindByUuid.class);
     suite.addTestSuite(TestGroup.class);
     suite.addTestSuite(TestGroupAddMemberGroup.class);
-    suite.addTestSuite(TestGroupDelete.class);
     suite.addTestSuite(TestGroupDeleteMember.class);
-    suite.addTestSuite(TestGroupDeleteMemberGroup.class);
     suite.addTestSuite(TestGroupToMember.class);
     suite.addTestSuite(TestMember.class);
     suite.addTestSuite(TestMemberFinder.class);
