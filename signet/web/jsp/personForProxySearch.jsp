@@ -9,6 +9,8 @@
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.choice.Choice" %>
 
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
+
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 <%@ page import="edu.internet2.middleware.signet.ui.SubjectNameComparator" %>
@@ -45,14 +47,14 @@
   {
 %>
       <span class="error">
-        Your search found no results.
+        <%=ResLoaderUI.getString("personForProxySearch.noresults.txt") %>
       </span>
 <%
   }
   else
   {   
 %>
-      Your search found:
+      <%=ResLoaderUI.getString("personForProxySearch.results.txt") %>
       <br />
       <select
         class="long"

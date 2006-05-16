@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: proxy.jsp,v 1.3 2006-02-10 01:17:01 acohen Exp $
-  $Date: 2006-02-10 01:17:01 $
+  $Id: proxy.jsp,v 1.4 2006-05-16 17:37:35 ddonn Exp $
+  $Date: 2006-05-16 17:37:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>
-      Signet
+      <%=ResLoaderUI.getString("signet.title") %>
     </title>
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
@@ -36,6 +36,8 @@
 <%@ page import="edu.internet2.middleware.signet.Proxy" %>
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.ProxyHistory" %>
+
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -62,14 +64,14 @@
 <div id="summary">
     <div class="section">
       <h2>
-        Proxy details
+        <%=ResLoaderUI.getString("proxy.proxydetails.hdr") %>
       </h2>
     </div>    
     <table>
     
       <tr>
         <th class="label" scope="row">
-          Designated:
+          <%=ResLoaderUI.getString("proxy.desig.txt") %>
         </th>
         <td>
           <%=grantee.getName()%>
@@ -78,7 +80,7 @@
         
       <tr>
         <th class="label" scope="row">
-          Privilege:
+          <%=ResLoaderUI.getString("proxy.priv.txt") %>
         </th>
         <td>
           <%=Common.proxyPrivilegeDisplayName(signet, currentProxy)%>
@@ -87,7 +89,7 @@
         
       <tr>
         <th class="label" scope="row">
-          In:
+          <%=ResLoaderUI.getString("proxy.in.txt") %>
         </th>
         <td>
           <%=Common.displaySubsystem(currentProxy)%>
@@ -95,24 +97,24 @@
       </tr>
  
       <tr>
-        <th class="label" scope="row">First effective:</th>
+        <th class="label" scope="row"><%=ResLoaderUI.getString("proxy.effective.txt") %></th>
         <td class="content"><%=dateFormat.format(currentProxy.getEffectiveDate())%> </td>
       </tr>
       <tr>
         <th class="label" scope="row">
-          Duration:
+          <%=ResLoaderUI.getString("proxy.duration.txt") %>
         </th>
         <td>
-          until
+          <%=ResLoaderUI.getString("proxy.until.txt") %>
           <%=currentProxy.getExpirationDate() == null
-             ? "revoked"
+             ? ResLoaderUI.getString("proxy.revoked.txt")
              : dateFormat.format(currentProxy.getExpirationDate())%>
         </td>
       </tr>
 
       <tr>
         <th class="label" scope="row">
-          Status:
+          <%=ResLoaderUI.getString("proxy.status.txt") %>
         </th>
         <td>
           <%=Common.displayStatusForDetailPopup(currentProxy)%>
@@ -126,7 +128,7 @@
       <h2>
         <a name="history" id="history">
         </a>
-        History
+        <%=ResLoaderUI.getString("proxy.history.hdr") %>
       </h2>
 	</div>
 

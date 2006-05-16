@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: inspectMessages.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: inspectMessages.jsp,v 1.2 2006-05-16 17:37:35 ddonn Exp $
+  $Date: 2006-05-16 17:37:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>
-      Signet
+      <%=ResLoaderUI.getString("inspectMessages.title") %>
     </title>
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
@@ -25,10 +25,11 @@
 <%@ page import="org.apache.struts.*" %>
 <%@ page import="org.apache.struts.util.*" %>
 <%@ page import="org.apache.struts.action.*" %>
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <%
   // Print all attributes in the request object
-  out.println("<p><b>All Attributes in request scope:</b>");
+  out.println("<p><b>" + ResLoaderUI.getString("inspectMessages.allattrs_req.txt") + "</b>");
   Enumeration paramNames = request.getAttributeNames();
   while (paramNames.hasMoreElements()) {
     String name = (String) paramNames.nextElement();
@@ -37,7 +38,7 @@
   }
   
   // Print all attributes in the session object
-  out.println("<p><b>All Attributes in session scope:</b>");
+  out.println("<p><b>" + ResLoaderUI.getString("inspectMessages.allattrs_sess.txt") + "</b>");
   paramNames = session.getAttributeNames();
   while (paramNames.hasMoreElements()) {
     String name = (String) paramNames.nextElement();
@@ -45,7 +46,7 @@
     out.println("<br> " + name + ":" + values);
   }
 
-  out.println("<p><b>Data in ActionMessages:</b>");
+  out.println("<p><b>" + ResLoaderUI.getString("inspectMessages.actmsgdata.txt") + "</b>");
 
   // Get the ActionMessages 
   Object o = request.getAttribute(Globals.MESSAGE_KEY);
@@ -63,7 +64,7 @@
     // Loop thru all the labels in the ActionMessage's  
     for (Iterator i = ae.properties(); i.hasNext();) {
       String property = (String)i.next();
-      out.println("<br>property " + property + ": ");
+      out.println("<br>" + ResLoaderUI.getString("inspectMessages.property.txt") + " " + property + ": ");
 
       // Get all messages for this label
       for (Iterator it = ae.get(property); it.hasNext();) {

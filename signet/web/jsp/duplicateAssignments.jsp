@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateAssignments.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: duplicateAssignments.jsp,v 1.2 2006-05-16 17:37:35 ddonn Exp $
+  $Date: 2006-05-16 17:37:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,21 +13,23 @@
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>
-    Signet
+      <%=ResLoaderUI.getString("signet.title") %>
   </title>
   <link href="styles/signet.css" rel="stylesheet" type="text/css" />
   <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
 
+<!-- not called from anywhere
 	<script language="JavaScript">
 	function ButtonChange() {
 		if (document.dupForm.checkAssign.checked == true) {
-			document.dupForm.complButton.value = "COMPLETE and replace selected assignment(s)";
+			document.dupForm.complButton.value = "<%=ResLoaderUI.getString("duplicateAssignments.complete_1.bt") %>";
 			}
 		else {
-			document.dupForm.complButton.value = "COMPLETE";
+			document.dupForm.complButton.value = "<%=ResLoaderUI.getString("duplicateAssignments.complete_2.bt") %>";
 			}
 	}
 	</script>
+-->
 </head>
 
 <body>
@@ -42,6 +44,8 @@
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.tree.TreeNode" %>
+
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -91,7 +95,7 @@
             <%=Common.homepageName(loggedInPrivilegedSubject)%>
           </a>
           &gt; <!-- displays as text right-angle bracket -->
-          <a href="<%=personViewHref%>">Subject View 
+          <a href="<%=personViewHref%>"><%=ResLoaderUI.getString("duplicateAssignments.subjview.txt") %> 
             [<%=currentGranteePrivilegedSubject.getName()%>]
           </a>          
         </span> <!-- select -->
@@ -101,7 +105,7 @@
   <div id="Layout"> 
     <div id="Content">
       <div id="ViewHead">
-			<span class="dropback">Granting new privilege to</span>           	
+			<span class="dropback"><%=ResLoaderUI.getString("duplicateAssignments.grantingnew.txt") %></span>           	
         <h1>
           <%=currentGranteePrivilegedSubject.getName()%>
        	</h1>
@@ -109,26 +113,24 @@
       </div>  <!-- ViewHead -->
 			
 <div class="alert">
-<p><img src="images/caution.gif" align="left" />Your new assignment is very similar to the others shown below. Review these  assignments, then: </p>
+<p><img src="images/caution.gif" align="left" /><%=ResLoaderUI.getString("duplicateAssignments.alert_1.txt") %> </p>
 
 <ul>
-	<li>check, under &quot;Replace&quot;, any assignments to be replaced by your new assignment (equivalent to revoking and reassigning authority), and </li>
-  <li>complete this transaction using the &quot;COMPLETE&quot; button at the bottom 
-  	of the page.</li>
+	<li><%=ResLoaderUI.getString("duplicateAssignments.alert_2.txt") %></li>
+  <li><%=ResLoaderUI.getString("duplicateAssignments.alert_3.txt") %></li>
   </ul>
-<p>Or cancel your assignment by clicking the &quot;CANCEL&quot; link at the bottom of the page. </p>
+<p><%=ResLoaderUI.getString("duplicateAssignments.alert_4.txt") %></p>
 
 </div>
 
 <div class="section">
-<h2>Review your New assignment<span class="status"> (not yet complete)</span></h2>
+<h2><%=ResLoaderUI.getString("duplicateAssignments.review_1.hdr") %><span class="status"> <%=ResLoaderUI.getString("duplicateAssignments.review_2.hdr") %></span></h2>
 	<table class="full" style="margin-left: 75px;">
 	<tr>
-		<th>Privilege</th>
-		<th>Scope</th>
-
-		<th>Limits</th>
-		<th>Status</th>
+		<th><%=ResLoaderUI.getString("duplicateAssignments.priv.lbl") %></th>
+		<th><%=ResLoaderUI.getString("duplicateAssignments.scope.lbl") %></th>
+		<th><%=ResLoaderUI.getString("duplicateAssignments.limits.lbl") %></th>
+		<th><%=ResLoaderUI.getString("duplicateAssignments.status.lbl") %></th>
 		</tr>
     <tr >
       <td>
@@ -155,11 +157,11 @@
     <h2>check any Existing assignment(s) you want to replace</h2>
     <table class="full">
       <tr>
-        <th width="50" align="center"> Replace</th>
-        <th>Privilege</th>
-        <th>Scope</th>
-        <th>Limits</th>
-        <th>Status</th>
+        <th width="50" align="center"> <%=ResLoaderUI.getString("duplicateAssignments.dupform_1.lbl") %></th>
+		<th><%=ResLoaderUI.getString("duplicateAssignments.priv.lbl") %></th>
+		<th><%=ResLoaderUI.getString("duplicateAssignments.scope.lbl") %></th>
+		<th><%=ResLoaderUI.getString("duplicateAssignments.limits.lbl") %></th>
+		<th><%=ResLoaderUI.getString("duplicateAssignments.status.lbl") %></th>
       </tr>
       
 <%
@@ -195,7 +197,7 @@
   <div class="section">
     <h2>
       <a name="complete" id="complete"></a>
-      Complete this assignment
+      <%=ResLoaderUI.getString("duplicateAssignments.completeassign.hdr") %>
     </h2>
 
     <input
@@ -203,14 +205,12 @@
       type="submit"
       class="button-def"
       id="complButton"
-      value="COMPLETE" />
-
+      value="<%=ResLoaderUI.getString("duplicateAssignments.complete_2.bt") %>" />
     <br />
-    
     
     <a href="<%=personViewHref%>">
       <img src="images/arrow_left.gif" />
-      CANCEL this assignment and return to  Subject View [<%=currentGranteePrivilegedSubject.getName()%>]</a>
+      <%=ResLoaderUI.getString("duplicateAssignments.cancel.txt") %> <%=ResLoaderUI.getString("duplicateAssignments.subjview.txt") %> [<%=currentGranteePrivilegedSubject.getName()%>]</a>
   </div>
 
      	</form>
@@ -221,13 +221,11 @@
 
       <div id="Sidebar">
       	<div class="helpbox">
-      		<h2>help</h2>
-      			<p>This assignment has been determined to be very similar to one or more existing assignments.</p>
-<p>The subject's actual privilege will be the highest of any specified limits or conditions. If your intent is to decrease the limits or conditions of this privilege, you should replace any assignments with higher limits.</p>
-<p>Your own limits and conditions may prevent you from replacing an assignment with higher limits and conditions. </p>
-
-<p>You can find out who originally granted the privilege by clicking on the <img src="images/maglass.gif" alt="" style="vertical-align:top;" /> icon. </p>
-
+      		<h2><%=ResLoaderUI.getString("duplicateAssignments.help.hdr") %></h2>
+      			<p><%=ResLoaderUI.getString("duplicateAssignments.help_1.txt") %></p>
+                <p><%=ResLoaderUI.getString("duplicateAssignments.help_2.txt") %></p>
+                <p><%=ResLoaderUI.getString("duplicateAssignments.help_3.txt") %></p>
+                <p><%=ResLoaderUI.getString("duplicateAssignments.help_4.txt") %> <img src="images/maglass.gif" alt="" style="vertical-align:top;" /> </p>
    		</div>
    	</div>  <!-- Sidebar -->
 		

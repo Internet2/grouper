@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: org-browse.jsp,v 1.2 2006-01-26 02:06:28 jvine Exp $
-  $Date: 2006-01-26 02:06:28 $
+  $Id: org-browse.jsp,v 1.3 2006-05-16 17:37:35 ddonn Exp $
+  $Date: 2006-05-16 17:37:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <meta name="robots" content="noindex, nofollow">
     <title>
-      Signet
+      <%=ResLoaderUI.getString("signet.title") %>
     </title>
     <link href="styles/signet.css" rel="stylesheet" type="text/css">
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
@@ -35,6 +35,8 @@
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
+
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
@@ -90,16 +92,16 @@
             <%=Common.homepageName(loggedInPrivilegedSubject)%>
           </a>
            &gt; <!-- displays as text right-angle bracket -->
-          <a href="<%=personViewHref%>">Subject View
+          <a href="<%=personViewHref%>"><%=ResLoaderUI.getString("org-browse.subjview.txt") %>
             [<%=currentGranteePrivilegedSubject.getName()%>]
           </a>
-          &gt; Grant new privilege
+          &gt; <%=ResLoaderUI.getString("org-browse.form1.grant.txt") %>
         </span> <!-- select -->
       </div> <!-- Navbar -->
       <div id="Layout">
         <div id="Content">
           <div id="ViewHead">
-			<span class="dropback">Granting new privilege to</span>           	
+			<span class="dropback"><%=ResLoaderUI.getString("org-browse.form1.grantnew.txt") %></span>           	
      	    	<h1>
      	      	<%=currentGranteePrivilegedSubject.getName()%>
      	    	</h1>
@@ -107,24 +109,24 @@
          	</div> <!-- ViewHead -->
 
          	<div class="section" id="summary">
-				 		<h2>New assignment details</h2>
+				 		<h2><%=ResLoaderUI.getString("org-browse.summary.hdr") %></h2>
 							<table>
               	<tr>
-              		<th class="label" scope="row">Type:</th>
+              		<th class="label" scope="row"><%=ResLoaderUI.getString("org-browse.summary.type.lb") %></th>
               		<td class="data"><%=currentSubsystem.getName()%></td>
               		<td class="control">
 										<a href="<%=personViewHref%>">
-		               	<img src="images/arrow_left.gif" alt="" />change
+		               	<img src="images/arrow_left.gif" alt="" /><%=ResLoaderUI.getString("org-browse.summary.change.txt") %>
     			         	</a>
 									</td>
              		</tr>								
               	<tr>
-              		<th class="label" scope="row">Privilege:</th>
+              		<th class="label" scope="row"><%=ResLoaderUI.getString("org-browse.privilege.hdr") %></th>
               		<td class="data"><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span><br />
 						<%=currentFunction.getHelpText()%>
 					</td>
               		<td class="control">
-										<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" alt="" />change</a>
+										<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" alt="" /><%=ResLoaderUI.getString("org-browse.change_href.txt") %></a>
 									</td>
              		</tr>								
 							</table>						
@@ -132,10 +134,10 @@
 				 
            	<div class="section">
            	<h2>
-             	Select scope
+             	<%=ResLoaderUI.getString("org-browse.selscope.hdr") %>
          	 </h2>
 			  <p class="dropback"><label for "scope">
-           	  Select the scope to which this privilege applies.
+           	  <%=ResLoaderUI.getString("org-browse.scope.lbl") %>
              	</label>
 			  </p>
 			  <select
@@ -158,32 +160,32 @@
 	
           <div class="section">
 			<h2>
-           	Continue to next step : Limits &amp; Conditions
+           	<%=ResLoaderUI.getString("org-browse.continue.hdr") %>
          	</h2> 		  
       	    <input
         name="continueButton"
         disabled="true"
         type="submit"
         class="button-def"
-        value="Continue >>" />
+        value="<%=ResLoaderUI.getString("org-browse.continue.bt") %> >>" />
          
          	<p>
            	<a href="<%=personViewHref%>">
-             	<img src="images/arrow_left.gif" alt="" />CANCEL and return to Subject View [<%=currentGranteePrivilegedSubject.getName()%>]
+             	<img src="images/arrow_left.gif" alt="" /><%=ResLoaderUI.getString("org-browse.cancel_href.txt") %> [<%=currentGranteePrivilegedSubject.getName()%>]
            	</a>
            	</p>
          </div> <!-- end section -->  	
        	</div><!-- end Content -->	
         <div id="Sidebar">     
           <div class="helpbox">
-          	<h2>Help</h2>
+          	<h2><%=ResLoaderUI.getString("org-browse.help.hdr") %></h2>
           	<div class="helpbox">
-          	  <p>Steps to grant a privilege:</p>
+          	  <p><%=ResLoaderUI.getString("org-browse.helpsteps.txt") %></p>
           	  <ol>
-          	    <li class="dropback">Select the privilege (done). </li>
-          	    <li><b>Select the scope to which the privilege applies, then click Continue.</b></li>
-          	    <p style="margin: 10px 0px 2px -20px;">Next:</p>
-			<li>Set limits and conditions for the privilege.</li>
+          	    <li class="dropback"><%=ResLoaderUI.getString("org-browse.helpsel_1.txt") %> </li>
+          	    <li><b><%=ResLoaderUI.getString("org-browse.helpsel_2.txt") %></b></li>
+          	    <p style="margin: 10px 0px 2px -20px;"><%=ResLoaderUI.getString("org-browse.next_1.txt") %> </p>
+			<li><%=ResLoaderUI.getString("org-browse.next_2.txt") %></li>
        	      </ol>
           	</div>
           	<!-- end helpbox -->

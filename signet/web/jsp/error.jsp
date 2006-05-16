@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: error.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: error.jsp,v 1.2 2006-05-16 17:37:35 ddonn Exp $
+  $Date: 2006-05-16 17:37:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>
-      Unexpected Error
+      <%=ResLoaderUI.getString("error.title") %>
     </title>
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
@@ -26,8 +26,10 @@
   <%@ page import="org.apache.struts.Globals" %>
   <%@ taglib uri="/tags/struts-bean" prefix="bean" %>
   <%@ taglib uri="/tags/struts-logic" prefix="logic" %>
-  
+
+  <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
   <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
+  <%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
   <tiles:insert page="/tiles/header.jsp" flush="true" /> 
       
@@ -43,20 +45,20 @@
           <a href="Start.do">
             <%=Common.homepageName(loggedInPrivilegedSubject)%>
           </a>
-            > Unexpected Error
+            &gt;<%=ResLoaderUI.getString("error.title") %>
         </span> <!-- select -->
       </div> <!-- Navbar -->
       
       <div id="Layout">
         <div id="Content">
-           <h1>An unexpected error has occured</h1>
+           <h1><%=ResLoaderUI.getString("error.tile.hdr") %> </h1>
 	    <logic:present name="<%=Globals.EXCEPTION_KEY%>">
 	      <p><bean:write name="<%=Globals.EXCEPTION_KEY%>" property="message" /></p>
 	    </logic:present>
 
             <br />
             <a href="Start.do">
-            <img src="images/arrow_left.gif" alt="" />Return to home page
+            <img src="images/arrow_left.gif" alt="" /><%=ResLoaderUI.getString("error.return_href.txt") %>
             </a>
           <tiles:insert page="/tiles/footer.jsp" flush="true" />
         </div> <!-- Content -->

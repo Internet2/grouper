@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateProxies.jsp,v 1.3 2006-02-07 19:52:03 jvine Exp $
-  $Date: 2006-02-07 19:52:03 $
+  $Id: duplicateProxies.jsp,v 1.4 2006-05-16 17:37:35 ddonn Exp $
+  $Date: 2006-05-16 17:37:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,21 +13,23 @@
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>
-    Signet
+      <%=ResLoaderUI.getString("signet.title") %>
   </title>
   <link href="styles/signet.css" rel="stylesheet" type="text/css" />
   <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
 
+<!-- not called from anywhere
 	<script language="JavaScript">
 	function ButtonChange() {
 		if (document.dupForm.checkAssign.checked == true) {
-			document.dupForm.complButton.value = "COMPLETE and replace selected proxy designation(s)";
+			document.dupForm.complButton.value = "<%=ResLoaderUI.getString("duplicateProxies.buttonchange.bt") %>";
 			}
 		else {
-			document.dupForm.complButton.value = "COMPLETE";
+			document.dupForm.complButton.value = "<%=ResLoaderUI.getString("duplicateProxies.complete.bt") %>";
 			}
 	}
 	</script>
+-->
 </head>
 
 <body>
@@ -39,6 +41,8 @@
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Proxy" %>
+
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -105,7 +109,7 @@
           &gt; <!-- displays as text right-angle bracket -->
           <a href="<%=personViewHref%>">Subject View 
             [<%=currentGranteePrivilegedSubject.getName()%>]</a>
-		  &gt; Duplicate Designated Driver          
+		  &gt; <%=ResLoaderUI.getString("duplicateProxies.dupedriver_href.lbl") %>
         </span> <!-- select -->
       </div>  <!-- Navbar -->
 
@@ -114,8 +118,8 @@
     <div id="Content">
       <div id="ViewHead">
 		   <span class="dropback">
-            Duplicate
-			<%=isSubsystemOwner ? "subsystem owner" : "proxy"%>				   
+            <%=ResLoaderUI.getString("duplicateProxies.duplicate.txt") %>
+			<%=isSubsystemOwner ? ResLoaderUI.getString("duplicateProxies.subsysowner.txt") : ResLoaderUI.getString("duplicateProxies.proxy.txt") %>				   
           </span>            	
         <h1>
           <%=currentGranteePrivilegedSubject.getName()%>
@@ -124,23 +128,24 @@
       </div>  <!-- ViewHead -->
 			
 <div class="alert">
-<p><img src="images/caution.gif" align="left" />This  designated driver is very similar to one or more that already exists. Compare them below, then: </p>
+<p><img src="images/caution.gif" align="left" /><%=ResLoaderUI.getString("duplicateProxies.alert_1.txt") %> </p>
 
 <ul>
-	<li>in the &quot;Replace&quot; column, check any  existing designated driver(s) you want to replace with this one, then </li>
-    <li>click the &quot;COMPLETE&quot; button at the bottom 
-  	of the page.</li>
+	<li><%=ResLoaderUI.getString("duplicateProxies.alert_2.txt") %> </li>
+    <li><%=ResLoaderUI.getString("duplicateProxies.alert_3.txt") %> </li>
   </ul>
-<p>Or cancel this designated driver by clicking the &quot;CANCEL&quot; link at the bottom of the page.</p>
+<p><%=ResLoaderUI.getString("duplicateProxies.alert_4.txt") %> </p>
 
 </div>
 
 <div class="section">
-<h2>Review your current  designated driver <span class="status"> (not yet complete)</span></h2>
+<h2><%=ResLoaderUI.getString("duplicateProxies.review.hdr") %>
+  <span class="status"><%=ResLoaderUI.getString("duplicateProxies.review.txt") %></span>
+</h2>
 	<table class="full" style="margin-left: 75px;">
 	<tr>
-		<th width="300">Subsystem</th>
-		<th width="100">Status</th>
+		<th width="300"><%=ResLoaderUI.getString("duplicateProxies.review_row1.hdr") %></th>
+		<th width="100"><%=ResLoaderUI.getString("duplicateProxies.review_row2.hdr") %></th>
 		</tr>
     <tr >
       <td>
@@ -160,12 +165,12 @@
   id="dupForm">
   
   <div class="section">
-    <h2>Check any existing  designated driver(s) you want to replace</h2>
+    <h2><%=ResLoaderUI.getString("duplicateProxies.replace.hdr") %></h2>
     <table class="full">
       <tr>
-        <th width="50" align="center"> Replace</th>
-        <th width="300">Subsystem</th>
-        <th width="100">Status</th>
+        <th width="50" align="center"><%=ResLoaderUI.getString("duplicateProxies.replace_row1.hdr") %></th>
+        <th width="300"><%=ResLoaderUI.getString("duplicateProxies.replace_row2.hdr") %></th>
+        <th width="100"><%=ResLoaderUI.getString("duplicateProxies.replace_row3.hdr") %></th>
       </tr>
       
 <%
@@ -194,21 +199,21 @@
   <div class="section">
     <h2>
       <a name="complete" id="complete"></a>
-      Complete this  designated driver </h2>
+      <%=ResLoaderUI.getString("duplicateProxies.complete.hdr") %> </h2>
 
     <input
       name="complButton"
       type="submit"
       class="button-def"
       id="complButton"
-      value="COMPLETE" />
+      value="<%=ResLoaderUI.getString("duplicateProxies.complete.bt") %>" />
 
     <br />
     
     
     <a href="<%=personViewHref%>">
       <img src="images/arrow_left.gif" />
-      CANCEL this designated driver</a> and return to Subject View [<%=currentGranteePrivilegedSubject.getName()%>]
+      <%=ResLoaderUI.getString("duplicateProxies.cancel_href_1.txt") %></a> <%=ResLoaderUI.getString("duplicateProxies.cancel_href_2.txt") %> [<%=currentGranteePrivilegedSubject.getName()%>]
     
   </div>
 
@@ -221,11 +226,11 @@
 
       <div id="Sidebar">
       	<div class="helpbox">
-      		<h2>Help</h2>
+      		<h2><%=ResLoaderUI.getString("duplicateProxies.help.hdr") %></h2>
       		<div class="actionbox">
-   			  <p>In cases where there is more than one designation for a specific privilege type, the subject's actual  conditions (effective date and duration) will be the most lenient of any specified conditions. </p>
-   			  <p>If your intent is to restrict conditions, you should replace any designations with more lenient conditions.</p>
-			  <p>Find out more details about the existing designations  by clicking on the <img src="images/maglass.gif" alt="" style="vertical-align:top;" /> icon. </p>
+   			  <p><%=ResLoaderUI.getString("duplicateProxies.help_1.txt") %> </p>
+   			  <p><%=ResLoaderUI.getString("duplicateProxies.help_2.txt") %> </p>
+			  <p><%=ResLoaderUI.getString("duplicateProxies.help_3.txt") %><img src="images/maglass.gif" alt="" style="vertical-align:top;" /></p>
 
 		  </div>
      		</div>

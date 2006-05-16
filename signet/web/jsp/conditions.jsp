@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: conditions.jsp,v 1.3 2006-02-03 01:57:48 acohen Exp $
-  $Date: 2006-02-03 01:57:48 $
+  $Id: conditions.jsp,v 1.4 2006-05-16 17:37:35 ddonn Exp $
+  $Date: 2006-05-16 17:37:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>
-      Signet
+      <%=ResLoaderUI.getString("signet.title") %>
     </title>
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
@@ -103,6 +103,8 @@
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.Limit" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
+
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.LimitRenderer" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
@@ -197,19 +199,19 @@
             <%=Common.homepageName(loggedInPrivilegedSubject)%>
           </a>
           &gt; <!-- displays as text right-angle bracket -->
-        <a href="<%=personViewHref%>">Subject View 
+        <a href="<%=personViewHref%>"><%=ResLoaderUI.getString("conditions.subjectview.txt") %> 
             [<%=currentGranteePrivilegedSubject.getName()%>]
           </a>
 <% if (currentAssignment == null)
    {
 %>
-          &gt; Grant new privilege
+          &gt;<%=ResLoaderUI.getString("conditions.grantpriv.txt") %>
 <%
    }
    else
    {
 %>
-          &gt; Edit privilege
+          &gt;<%=ResLoaderUI.getString("conditions.editpriv.txt") %>
 <%
    }
 %>
@@ -223,13 +225,13 @@
 <% if (currentAssignment == null)
    {
 %>
-            <span class="dropback">Granting new privilege to</span>
+            <span class="dropback"><%=ResLoaderUI.getString("conditions.grantto.txt") %></span>
 <%
    }
    else
    {
 %>
-            <span class="dropback">Editing privilege for</span>
+            <span class="dropback"><%=ResLoaderUI.getString("conditions.editfor.txt") %></span>
 <%
    }
 %>
@@ -243,33 +245,33 @@
 <% if (currentAssignment == null)
    {
 %>
-            <h2>New assignment details</h2>
+            <h2><%=ResLoaderUI.getString("conditions.newassigndet.txt") %></h2>
 <%
    }
    else
    {
 %>
-            <h2>Current assignment details</h2>
+            <h2><%=ResLoaderUI.getString("conditions.currassigndet.txt") %></h2>
 <%
    }
 %>
 							<table>
               	<!-- deleted name row -->
               	<tr>
-              		<th class="label" scope="row">Type:</th>
+              		<th class="label" scope="row"><%=ResLoaderUI.getString("conditions.type.lbl") %></th>
               		<td class="data"><%=currentSubsystem.getName()%></td>
 <% if (currentAssignment == null)
    {
 %>
               		<td class="control">
-					<a href="<%=personViewHref%>"><img src="images/arrow_left.gif" alt="" />change</a>
+					<a href="<%=personViewHref%>"><img src="images/arrow_left.gif" alt="" /><%=ResLoaderUI.getString("conditions.change.txt") %></a>
 					</td>
 <%
 	}
 %>									
          		</tr>								
               	<tr>
-              		<th class="label" scope="row">Privilege:</th>
+              		<th class="label" scope="row"><%=ResLoaderUI.getString("conditions.privilege.lbl") %></th>
               		<td class="data"><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span><br />
               		    <%=currentFunction.getHelpText()%></td>
            		  <% if (currentAssignment == null)
@@ -283,7 +285,7 @@
 %>				
                 </tr>			
 			    <tr>
-              		<th class="label" scope="row">Scope:</th>
+              		<th class="label" scope="row"><%=ResLoaderUI.getString("conditions.scope.lbl") %></th>
               		<td class="data">
 											<%=signet.displayAncestry
 													(currentScope,
@@ -297,7 +299,7 @@
    {
 %>
               		<td class="control">
-											<a href="<%=orgBrowseHref%>"><img src="images/arrow_left.gif" />change</a>
+											<a href="<%=orgBrowseHref%>"><img src="images/arrow_left.gif" /><%=ResLoaderUI.getString("conditions.change.txt") %></a>
 				  </td>
 <%
    }
@@ -316,13 +318,13 @@
 <% if (currentAssignment == null)
    {
 %>
-              <h2>Select limits</h2>
+              <h2><%=ResLoaderUI.getString("conditions.selectlimits.hdr") %></h2>
 <%
    }
    else
    {
 %>
-              <h2>Edit limits</h2>
+              <h2><%=ResLoaderUI.getString("conditions.editlimits.hdr") %></h2>
 <%
    }
 %>
@@ -375,13 +377,13 @@
 <% if (currentAssignment == null)
    {
 %>
-              <h2>Set conditions</h2>
+              <h2><%=ResLoaderUI.getString("conditions.setconditions.hdr") %></h2>
 <%
    }
    else
    {
 %>
-              <h2>Edit conditions</h2>
+              <h2><%=ResLoaderUI.getString("conditions.editconditions.hdr") %></h2>
 <%
    }
 %>
@@ -391,9 +393,9 @@
                     <%=Common.dateSelection
                       (request,
                        Constants.EFFECTIVE_DATE_PREFIX,
-                       "Effective:",
-                       "immediately",
-                       "on",
+                       ResLoaderUI.getString("conditions.effective.txt"),
+                       ResLoaderUI.getString("conditions.immediately.txt"),
+                       ResLoaderUI.getString("conditions.on.txt"),
                        currentAssignment == null
                          ? null
                          : currentAssignment.getEffectiveDate(),
@@ -405,16 +407,16 @@
                     <%=Common.dateSelection
                       (request,
                        Constants.EXPIRATION_DATE_PREFIX,
-                       "Duration:",
-                       "until revoked",
-                       "until",
+                       ResLoaderUI.getString("conditions.duration.txt"),
+                       ResLoaderUI.getString("conditions.untilrevoked.txt"),
+                       ResLoaderUI.getString("conditions.until.txt"),
                        currentAssignment == null
                          ? null
                          : currentAssignment.getExpirationDate())%>
                   </tr>
                   <tr>
 
-                    <td>Privilege holder can:</td>
+                    <td><%=ResLoaderUI.getString("conditions.holdercan.txt") %></td>
                     <td>
                       <input
                         name="can_use"
@@ -425,15 +427,15 @@
                          /* We're not editing an existing Assignment, so
                           * check this box as a default value.
                           */
-                         ? "checked=\"checked\""
+                         ? "CHECKED"
                          /* We are editing an existing Assignment, so get
                           * this box's status from the Assignment.
                           */
                          : (currentAssignment.canUse()
-                              ? "checked=\"checked\""
+                              ? "CHECKED"
                               : ""))%>
                       />
-                      use this privilege
+                      <%=ResLoaderUI.getString("conditions.canuse.txt") %>
                       <br />
                       <input
                         name="can_grant"
@@ -449,26 +451,26 @@
                              * this box's status from the Assignment.
                              */
                             : (currentAssignment.canGrant()
-                                 ? "checked=\"checked\""
+                                 ? "CHECKED"
                                  : ""))%>
                       />
-                      grant this privilege to others
+                      <%=ResLoaderUI.getString("conditions.toothers.txt") %>
                     </td>
                   </tr>
                 </table>
 		</div>		
         <div class="section">
         
-          <h2>Complete this assignment </h2>	
+          <h2><%=ResLoaderUI.getString("conditions.completeassign.hdr") %> </h2>	
                 <input
                    name="completeAssignmentButton"
                    type="submit"
                    class="button-def"
-                   value="<%=(currentAssignment==null?"Complete assignment":"Save changes")%>" />
+                   value="<%=(currentAssignment==null ? ResLoaderUI.getString("conditions.completeassign_1.bt") : ResLoaderUI.getString("conditions.completeassign_2.bt"))%>" />
 
               <p>
                 <a href="<%=personViewHref%>">
-                  <img src="images/arrow_left.gif" alt="" />CANCEL and return to Subject View [<%=currentGranteePrivilegedSubject.getName()%>]
+                  <img src="images/arrow_left.gif" alt="" /><%=ResLoaderUI.getString("conditions.cancelandreturn.txt") %> [<%=currentGranteePrivilegedSubject.getName()%>]
                 </a>
           </p>
           </div> <!-- section -->
@@ -476,20 +478,20 @@
 				      
         <div id="Sidebar">
           <div class="helpbox">
-			 	  	<h2>Help</h2>
+			 	  	<h2><%=ResLoaderUI.getString("conditions.help.hdr") %></h2>
 			  		<div class="helpbox">
-			  		  <p>Steps to grant a privilege:</p>
+			  		  <p><%=ResLoaderUI.getString("conditions.steps.txt") %></p>
           	          <ol>
-          	            <li class="dropback">Select the privilege (done). </li>
-          	            <li class="dropback">Select the scope (done).</li>
-          	            <li><b>Set  limits and effective dates. Select whether the subject can use and/or grant this privilege, then click Complete assignment.</b></li>
+          	            <li class="dropback"><%=ResLoaderUI.getString("conditions.selpriv.txt") %> </li>
+          	            <li class="dropback"><%=ResLoaderUI.getString("conditions.selscope.txt") %></li>
+          	            <li><b><%=ResLoaderUI.getString("conditions.helptext.txt") %></b></li>
        	              </ol>
-					  <h2>Definitions</h2>
+					  <h2><%=ResLoaderUI.getString("conditions.definitions.hdr") %></h2>
           	          <dl>
-					  <dt>Use this privilege </dt>
-					  <dd>Subject has access to the appropriate business system(s) to perform the tasks controlled by this privilege.</dd>
-					  <dt>Grant this privilege </dt>
-					  <dd>Subject can grant this privilege (in the same scope, and up to the same limits) to any other subject.</dd>
+					  <dt><%=ResLoaderUI.getString("conditions.usepriv.hdr") %> </dt>
+					  <dd><%=ResLoaderUI.getString("conditions.usepriv.txt") %></dd>
+					  <dt><%=ResLoaderUI.getString("conditions.grantpriv.hdr") %> </dt>
+					  <dd><%=ResLoaderUI.getString("conditions.grantpriv.txt") %></dd>
 					  </dl>
 			  		</div>
           	</div> 

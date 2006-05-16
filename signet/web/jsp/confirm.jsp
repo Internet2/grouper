@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.5 2006-02-02 21:52:16 acohen Exp $
-  $Date: 2006-02-02 21:52:16 $
+  $Id: confirm.jsp,v 1.6 2006-05-16 17:37:35 ddonn Exp $
+  $Date: 2006-05-16 17:37:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>
-      Signet
+      <%=ResLoaderUI.getString("signet.title") %>
     </title>
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
@@ -40,6 +40,8 @@
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.Limit" %>
 <%@ page import="edu.internet2.middleware.signet.LimitValue" %>
+
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -106,17 +108,17 @@
             <%=Common.homepageName(loggedInPrivilegedSubject)%>
           </a>
           &gt; <!-- displays as text right-angle bracket -->
-          <a href="<%=personViewHref%>">Subject View 
+          <a href="<%=personViewHref%>"><%=ResLoaderUI.getString("confirm.subjview.txt") %> 
             [<%=currentGranteePrivilegedSubject.getName()%>]
           </a>
-          &gt; Privilege granted </span> <!-- select -->
+          &gt; <%=ResLoaderUI.getString("confirm.privgranted.txt") %> </span> <!-- select -->
       </div>  
       <!-- Navbar -->
       
       <div id="Layout">
         <div id="Content">
           <div id="ViewHead">
-            <span class="dropback">Privilege granted to</span>
+            <span class="dropback"><%=ResLoaderUI.getString("confirm.grantedto.txt") %></span>
             <h1>
               <%=currentGranteePrivilegedSubject.getName()%>
             </h1>
@@ -124,11 +126,11 @@
           </div> <!-- ViewHead -->
            
           <div class="section" id="summary">
-            <h2>Privilege Summary </h2>
+            <h2><%=ResLoaderUI.getString("confirm.privsummary.hdr") %> </h2>
 			<table>
               <tr>
                 <th class="label" scope="row">
-                  Type:
+                  <%=ResLoaderUI.getString("confirm.summarytype.hdr") %>
                 </th>
                 <td class="data">
                   <%=currentSubsystem.getName()%>
@@ -136,7 +138,7 @@
               </tr>								
               <tr>
                 <th class="label" scope="row">
-                  Privilege:
+                  <%=ResLoaderUI.getString("confirm.summarypriv.hdr") %>
                 </th>
                 <td class="data">
                   <span class="category">
@@ -150,7 +152,7 @@
                   <%=currentAssignment.getFunction().getHelpText()%></td>
            	  </tr>
               	<tr>
-              		<th class="label" scope="row">Scope:</th>               
+              		<th class="label" scope="row"><%=ResLoaderUI.getString("confirm.summaryscope.hdr") %></th>               
               		<td class="data">
               <%=signet.displayAncestry
                     (currentScope,
@@ -205,27 +207,27 @@
 								
 				<tr>
                 <th class="label" scope="row">
-                  Status:
+                  <%=ResLoaderUI.getString("confirm.summarystatus.hdr") %>
                 </th>
                 <td class="data">
-                  <%=(currentAssignment.canUse() ? "use this privilege" : "")%>
+                  <%=(currentAssignment.canUse() ? ResLoaderUI.getString("confirm.summaryusepriv.txt") : "")%>
                   <br />
-                  <%=(currentAssignment.canGrant() ? "grant this privilege to others" : "")%>
+                  <%=(currentAssignment.canGrant() ? ResLoaderUI.getString("confirm.summarygrantpriv.txt") : "")%>
                 </td>
               </tr>
 			  <tr>
 				  <th class="label" scope="row">
-				  	First effective:
+				  	<%=ResLoaderUI.getString("confirm.firsteffective.txt") %>
 				  </th>
 				  <td class="data">
 			         <%=dateFormat.format(currentAssignment.getEffectiveDate())%>
 				  </td>
 			  </tr>
 			  <tr>
-			    <th class="label" scope="row">Duration:</th>
-			    <td class="data">until
+			    <th class="label" scope="row"><%=ResLoaderUI.getString("confirm.duration.lbl") %></th>
+			    <td class="data"><%=ResLoaderUI.getString("confirm.until.txt") %>
 			         <%=currentAssignment.getExpirationDate() == null
-        	    	 ? "revoked"
+        	    	 ? ResLoaderUI.getString("confirm.revoked.txt")
 	            	 : dateFormat.format(currentAssignment.getExpirationDate())%></td>
 		      </tr>
 
@@ -233,31 +235,30 @@
 		  </div><!-- section -->
 				 
 <div class="section">
-          <h2>
-             Continue</h2>
+          <h2><%=ResLoaderUI.getString("confirm.continue.hdr") %> </h2>
              <p>
                <a href="<%=personViewHref%>">
                  <img src="images/arrow_right.gif" alt="" />
-				 <span class="default">Subject view</span> [<%=currentGranteePrivilegedSubject.getName()%>]</a>
+				 <span class="default"><%=ResLoaderUI.getString("confirm.subjview_href.txt") %></span> [<%=currentGranteePrivilegedSubject.getName()%>]</a>
              </p>
              <p>
                <a href="Functions.do?grantableSubsystems=<%=currentSubsystem.getId()%>">
                  <img src="images/arrow_right.gif" alt="" />
-				 Grant another <%=currentSubsystem.getName()%> privilege</a> to <%=currentGranteePrivilegedSubject.getName()%>
+				 <%=ResLoaderUI.getString("confirm.grantanother_href_1.txt") %> <%=currentSubsystem.getName()%> <%=ResLoaderUI.getString("confirm.grantanother_href_2.txt") %></a> <%=ResLoaderUI.getString("confirm.grantanother_href_3.txt") %> <%=currentGranteePrivilegedSubject.getName()%>
              </p>
 			 <p>
                 <%=
                   Common.editLink
                     (loggedInPrivilegedSubject,
                      currentAssignment,
-                     "Edit this assignment",
+                     ResLoaderUI.getString("confirm.editassign.txt"),
                      null)
                 %>
 				</p>		
              <p>
                <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
                  <img src="images/arrow_right.gif" alt="" />
-				 <span class="default">My View</span> : Current assignments to others</a></p>
+				 <span class="default"><%=ResLoaderUI.getString("confirm.myview.txt") %></span> : <%=ResLoaderUI.getString("confirm.assigntoothers.txt") %></a></p>
           </div>
         </div> <!-- Content -->    
          <div id="Sidebar">
@@ -268,8 +269,7 @@
       action="" 
       onsubmit ="return checkForCursorInPersonSearch('personQuickSearch.jsp', 'words', 'PersonSearchResults')">
         <div class="findperson">
-            <h2>
-              Find a subject </h2>
+            <h2><%=ResLoaderUI.getString("confirm.findsubj.hdr") %> </h2>
             <p>
               <input
                 name="words"
@@ -284,12 +284,12 @@
                 name="searchbutton"
                 type="submit"
                 class="button1"
-                value="Search"
+                value=<%=ResLoaderUI.getString("confirm.search.bt") %>
                 onclick="personSearchButtonHasFocus=true;"
                 onfocus="personSearchButtonHasFocus=true;"
                 onblur="personSearchButtonHasFocus=false;" />
 			</p>
-		  	<p class="dropback"><label for="words">Enter a person's or group's name, then click Search. </label></p>
+		  	<p class="dropback"><label for="words"><%=ResLoaderUI.getString("confirm.findhelp.lbl") %> </label></p>
             <div id="PersonSearchResults" style="display:none">
             </div> <!-- PersonSearchResults -->
 
