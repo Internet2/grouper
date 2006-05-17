@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.67 2006-05-09 01:33:33 ddonn Exp $
-$Date: 2006-05-09 01:33:33 $
+$Id: Common.java,v 1.68 2006-05-17 22:03:56 ddonn Exp $
+$Date: 2006-05-17 22:03:56 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -177,17 +177,17 @@ public class Common
     
     if (diff.equals(Difference.GRANT))
     {
-      changeStr.append("Granted by ");
+      changeStr.append(ResLoaderUI.getString("Common.describeChange.granted.txt"));
       changeStr.append(editorDescription);
     }
     else if (diff.equals(Difference.REVOKE))
     {
-      changeStr.append("Revoked by ");
+      changeStr.append(ResLoaderUI.getString("Common.describeChange.revoked.txt"));
       changeStr.append(editorDescription);
     }
     else
     {
-      changeStr.append("Modified by ");
+      changeStr.append(ResLoaderUI.getString("Common.describeChange.modified.txt"));
       changeStr.append(editorDescription);
       changeStr.append
         (describeModifications(newerHistoryRecord, olderHistoryRecord));
@@ -213,36 +213,34 @@ public class Common
     if ((older != newer)
         && ((older == null) || (newer == null) || !newer.equals(older)))
     {
-      description.append("<p>\n");
-      description.append("  <span class=\"status\">\n");
-      description.append("    changed\n");
-      description.append("  </span>\n");
-      description.append("  <span class=\"label\">\n");
-      description.append(     label);
-      description.append(     " from\n");
-      description.append("  </span>\n");
-      description.append(     "'");
-      description.append(     timeWord);
-      description.append(     " ");
-      description.append(     older == null
-                                ? nullDescription
-                                : displayDatetime
-                                    (Constants.DATETIME_FORMAT_24_DAY,
-                                     older));
-      description.append(     "'\n");
-      description.append("  <span class=\"label\">\n");
-      description.append("    to\n");
-      description.append("  </span>\n");
-      description.append(     "'");
-      description.append(     timeWord);
-      description.append(     " ");
-      description.append(     newer == null
-                                ? nullDescription
-                                : displayDatetime
-                                    (Constants.DATETIME_FORMAT_24_DAY,
-                                     newer));
-      description.append(     "'\n");
-      description.append("</p>\n");
+    	String dhtmlTemplate =
+    				"<p>\n" +
+    				"<span class=\"status\">\n" +
+    				"    {5}\n" +
+    				"  </span>\n" +
+    				"  <span class=\"label\">\n" +
+    				"{0}" +
+    				" {6}\n" +
+    				"  </span>\n" +
+    				"''{1} {2}''\n" + // MessageFormat requires single quotes to be doubled (can't escape with a backslash)
+    				"  <span class=\"label\">\n" +
+    				"    {7}\n" +
+    				"  </span>\n" +
+    				"''{3} {4}''\n" + // MessageFormat requires single quotes to be doubled (can't escape with a backslash)
+    				" </p>\n";
+    	String[] dhtmlData = new String[] {
+			label,
+			timeWord,
+			(older == null) ? nullDescription : displayDatetime(Constants.DATETIME_FORMAT_24_DAY, older),
+			timeWord,
+			(newer == null) ? nullDescription : displayDatetime(Constants.DATETIME_FORMAT_24_DAY, newer),
+			ResLoaderUI.getString("Common.describeChange.changed.txt"),
+			ResLoaderUI.getString("Common.describeChange.from.txt"),
+			ResLoaderUI.getString("Common.describeChange.to.txt")
+    	};
+
+    	MessageFormat mf = new MessageFormat(dhtmlTemplate);
+		description.append(mf.format(dhtmlData));
     }
     
     return description;
@@ -255,16 +253,16 @@ public class Common
     StringBuffer description = new StringBuffer();
     description.append
       (describeChange
-        ("Effective Date",
+        (ResLoaderUI.getString("Common.describeModifications.effdate.txt"),
          "",
-         "immediate",
+         ResLoaderUI.getString("Common.describeModifications.immediate.txt"),
          newer.getEffectiveDate(),
          older.getEffectiveDate()));
     description.append
       (describeChange
-        ("Duration",
-         "until",
-         "revoked",
+        (ResLoaderUI.getString("Common.describeModifications.duration.txt"),
+         ResLoaderUI.getString("Common.describeModifications.until.txt"),
+         ResLoaderUI.getString("Common.describeModifications.revoked.txt"),
          newer.getExpirationDate(),
          older.getExpirationDate()));
     
@@ -272,13 +270,13 @@ public class Common
     {
       description.append
         (describeChange
-          ("Can Use",
+          (ResLoaderUI.getString("Common.describeModifications.canuse.txt"),
            ((AssignmentHistory)newer).canUse(),
            ((AssignmentHistory)older).canUse()));
       
       description.append
         (describeChange
-          ("Can Grant",
+          (ResLoaderUI.getString("Common.describeModifications.cangrant.txt"),
            ((AssignmentHistory)newer).canGrant(),
            ((AssignmentHistory)older).canGrant()));
 
@@ -291,12 +289,12 @@ public class Common
     {
       description.append
         (describeChange
-          ("Can Use",
+          (ResLoaderUI.getString("Common.describeModifications.canuse.txt"),
            ((ProxyHistory)newer).canUse(),
            ((ProxyHistory)older).canUse()));
       description.append
         (describeChange
-          ("Can Extend",
+          (ResLoaderUI.getString("Common.describeModifications.canextend.txt"),
            ((ProxyHistory)newer).canExtend(),
            ((ProxyHistory)older).canExtend()));
     }
@@ -325,12 +323,18 @@ public class Common
     Set deletedLimitValues
       = subtractIntersection
           (olderMultiChoiceLimitValues, newerMultiChoiceLimitValues);
-    description.append(describeMultiChoiceLimitChanges("deleted", deletedLimitValues));
+    description.append(
+    	describeMultiChoiceLimitChanges(
+    		ResLoaderUI.getString("Common.describeLimitChanges.deleted.txt"),
+    		deletedLimitValues));
     
     Set addedLimitValues
       = subtractIntersection
           (newerMultiChoiceLimitValues, olderMultiChoiceLimitValues);
-    description.append(describeMultiChoiceLimitChanges("added", addedLimitValues));
+    description.append(
+    	describeMultiChoiceLimitChanges(
+    		ResLoaderUI.getString("Common.describeLimitChanges.added.txt"),
+    		addedLimitValues));
     
     return description;
   }
@@ -429,24 +433,34 @@ public class Common
     
     if (newer != older)
     {
-      description.append("<p>\n");
-      description.append("  <span class=\"status\">\n");
-      description.append("    changed\n");
-      description.append("  </span>\n");
-      description.append("  <span class=\"label\">\n");
-      description.append(     label);
-      description.append("    from\n");
-      description.append("  </span>\n");
-      description.append("    '");
-      description.append(     older);
-      description.append(     "'\n");
-      description.append("  <span class=\"label\">\n");
-      description.append("    to\n");
-      description.append("  </span>\n");
-      description.append("    '");
-      description.append(     newer);
-      description.append(     "'\n");
-      description.append("</p>\n");
+    	//"<p> <span class=\"status\">{3}</span> <span class=\"label\">{0}    {4}</span>    ''{1}'' <span class=\"label\">    {5}</span>    ''{2}'' </p>"
+    	String dhtmlTemplate = 
+    		"<p>\n" +
+    		"  <span class=\"status\">\n" +
+    		"    {3}\n" +
+    		"  </span>\n" +
+    		"  <span class=\"label\">\n" +
+    		"{0}" +
+    		"    {4}\n" +
+    		"  </span>\n" +
+    		"    ''{1}''\n" +
+    		"  <span class=\"label\">\n" +
+    		"    {5}\n" +
+    		"  </span>\n" +
+    		"    ''{2}''\n" +
+    		" </p>\n";
+
+    	String[] dhtmlData = new String[] {
+    		label,
+    		Boolean.toString(older),
+    		Boolean.toString(newer),
+    		ResLoaderUI.getString("Common.describeChange.changed.txt"),
+    		ResLoaderUI.getString("Common.describeChange.from.txt"),
+    		ResLoaderUI.getString("Common.describeChange.to.txt"),
+    	};
+
+    	MessageFormat mf = new MessageFormat(dhtmlTemplate);
+    	description = new StringBuffer(mf.format(dhtmlData));
     }
     
     return description;
