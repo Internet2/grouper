@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.1.2.2 2006-05-19 16:13:32 blair Exp $
  */
 public class TestBugsClosed extends TestCase {
 
@@ -114,57 +114,57 @@ public class TestBugsClosed extends TestCase {
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.0");
       admins.addMember(kebe);
-      MembershipHelper.testImm(s, admins, kebe, "members");
-      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipTestHelper.testImm(s, admins, kebe, "members");
+      MembershipTestHelper.testNumMship(admins, "members", 1, 1, 0);
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.1");
       Group staff = qsuob.addChildGroup("staff","staff");
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.2");
       staff.addMember(iata);
-      MembershipHelper.testImm(s, admins, kebe, "members");
-      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
-      MembershipHelper.testImm(s, staff, iata , "members");
-      MembershipHelper.testNumMship(staff, "members", 1, 1, 0);
+      MembershipTestHelper.testImm(s, admins, kebe, "members");
+      MembershipTestHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipTestHelper.testImm(s, staff, iata , "members");
+      MembershipTestHelper.testNumMship(staff, "members", 1, 1, 0);
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.3");
       staff.addMember(iawi);
-      MembershipHelper.testImm(s, admins, kebe, "members");
-      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
-      MembershipHelper.testImm(s, staff, iata , "members");
-      MembershipHelper.testImm(s, staff, iawi , "members");
-      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipTestHelper.testImm(s, admins, kebe, "members");
+      MembershipTestHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipTestHelper.testImm(s, staff, iata , "members");
+      MembershipTestHelper.testImm(s, staff, iawi , "members");
+      MembershipTestHelper.testNumMship(staff, "members", 2, 2, 0);
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.4");
       Group all_staff = qsuob.addChildGroup("all_staff","all staff");
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.5");
       all_staff.addMember(staff.toSubject());
-      MembershipHelper.testImm(s, admins, kebe, "members");
-      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
-      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
-      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
-      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
-      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
-      MembershipHelper.testImm(s, staff, iata , "members");
-      MembershipHelper.testImm(s, staff, iawi , "members");
-      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipTestHelper.testImm(s, admins, kebe, "members");
+      MembershipTestHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipTestHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipTestHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipTestHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipTestHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipTestHelper.testImm(s, staff, iata , "members");
+      MembershipTestHelper.testImm(s, staff, iawi , "members");
+      MembershipTestHelper.testNumMship(staff, "members", 2, 2, 0);
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.6");
       admins.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
-      MembershipHelper.testImm(s, admins, kebe, "members");
-      MembershipHelper.testImm(s, admins, subj, "admins");
-      MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
-      MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
-      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
-      MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
-      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
-      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
-      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
-      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
-      MembershipHelper.testImm(s, staff, iata , "members");
-      MembershipHelper.testImm(s, staff, iawi , "members");
-      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipTestHelper.testImm(s, admins, kebe, "members");
+      MembershipTestHelper.testImm(s, admins, subj, "admins");
+      MembershipTestHelper.testImm(s, admins, admins.toSubject(), "admins");
+      MembershipTestHelper.testEff(s, admins, kebe, "admins", admins, 1);
+      MembershipTestHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipTestHelper.testNumMship(admins, "admins", 3, 2, 1);
+      MembershipTestHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipTestHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipTestHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipTestHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipTestHelper.testImm(s, staff, iata , "members");
+      MembershipTestHelper.testImm(s, staff, iawi , "members");
+      MembershipTestHelper.testNumMship(staff, "members", 2, 2, 0);
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.7");
       qsuob.grantPriv(admins.toSubject(),Privilege.getInstance("create"));
@@ -177,102 +177,102 @@ public class TestBugsClosed extends TestCase {
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.9");
       staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
       // TODO test
-      MembershipHelper.testImm(s, admins, kebe, "members");
-      MembershipHelper.testImm(s, admins, subj, "admins");
-      MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
-      MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
-      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
-      MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
-      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
-      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
-      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
-      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipTestHelper.testImm(s, admins, kebe, "members");
+      MembershipTestHelper.testImm(s, admins, subj, "admins");
+      MembershipTestHelper.testImm(s, admins, admins.toSubject(), "admins");
+      MembershipTestHelper.testEff(s, admins, kebe, "admins", admins, 1);
+      MembershipTestHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipTestHelper.testNumMship(admins, "admins", 3, 2, 1);
+      MembershipTestHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipTestHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipTestHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipTestHelper.testNumMship(all_staff, "members", 3, 1, 2);
 
-      MembershipHelper.testImm(s, staff, iata , "members");
-      MembershipHelper.testImm(s, staff, iawi , "members");
-      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
-      MembershipHelper.testImm(s, staff, all_staff.toSubject(), "readers");
-      MembershipHelper.testEff(s, staff, iata, "readers", staff, 2);
-      MembershipHelper.testEff(s, staff, iawi, "readers", staff, 2);
+      MembershipTestHelper.testImm(s, staff, iata , "members");
+      MembershipTestHelper.testImm(s, staff, iawi , "members");
+      MembershipTestHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipTestHelper.testImm(s, staff, all_staff.toSubject(), "readers");
+      MembershipTestHelper.testEff(s, staff, iata, "readers", staff, 2);
+      MembershipTestHelper.testEff(s, staff, iawi, "readers", staff, 2);
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.10");
       staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
       // TODO test
-      MembershipHelper.testImm(s, admins, kebe, "members");
-      MembershipHelper.testImm(s, admins, subj, "admins");
-      MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
-      MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
-      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
-      MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
-      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
-      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
-      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
-      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
-      MembershipHelper.testImm(s, staff, iata , "members");
-      MembershipHelper.testImm(s, staff, iawi , "members");
-      MembershipHelper.testImm(s, staff, admins.toSubject(), "admins");
-      MembershipHelper.testEff(s, staff, kebe, "admins", admins, 1);
-      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
-      MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
+      MembershipTestHelper.testImm(s, admins, kebe, "members");
+      MembershipTestHelper.testImm(s, admins, subj, "admins");
+      MembershipTestHelper.testImm(s, admins, admins.toSubject(), "admins");
+      MembershipTestHelper.testEff(s, admins, kebe, "admins", admins, 1);
+      MembershipTestHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipTestHelper.testNumMship(admins, "admins", 3, 2, 1);
+      MembershipTestHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipTestHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipTestHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipTestHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipTestHelper.testImm(s, staff, iata , "members");
+      MembershipTestHelper.testImm(s, staff, iawi , "members");
+      MembershipTestHelper.testImm(s, staff, admins.toSubject(), "admins");
+      MembershipTestHelper.testEff(s, staff, kebe, "admins", admins, 1);
+      MembershipTestHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipTestHelper.testNumMship(staff, "admins", 3, 2, 1);
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.11");
       all_staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
       // TODO test
-      MembershipHelper.testImm(s, admins, kebe, "members");
-      MembershipHelper.testImm(s, admins, subj, "admins");
-      MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
-      MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
-      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
-      MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
+      MembershipTestHelper.testImm(s, admins, kebe, "members");
+      MembershipTestHelper.testImm(s, admins, subj, "admins");
+      MembershipTestHelper.testImm(s, admins, admins.toSubject(), "admins");
+      MembershipTestHelper.testEff(s, admins, kebe, "admins", admins, 1);
+      MembershipTestHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipTestHelper.testNumMship(admins, "admins", 3, 2, 1);
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.11.0");
 
-      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
-      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
-      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
-      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
-      MembershipHelper.testImm(s, all_staff, all_staff.toSubject(), "readers");
-      MembershipHelper.testEff(s, all_staff, staff.toSubject(), "readers", all_staff, 1);
-      MembershipHelper.testEff(s, all_staff, iata, "readers", staff, 2);
-      MembershipHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
-      MembershipHelper.testNumMship(all_staff, "readers", 5, 2, 3);
+      MembershipTestHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipTestHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipTestHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipTestHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipTestHelper.testImm(s, all_staff, all_staff.toSubject(), "readers");
+      MembershipTestHelper.testEff(s, all_staff, staff.toSubject(), "readers", all_staff, 1);
+      MembershipTestHelper.testEff(s, all_staff, iata, "readers", staff, 2);
+      MembershipTestHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
+      MembershipTestHelper.testNumMship(all_staff, "readers", 5, 2, 3);
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.11.1");
 
-      MembershipHelper.testImm(s, staff, iata , "members");
-      MembershipHelper.testImm(s, staff, iawi , "members");
-      MembershipHelper.testImm(s, staff, admins.toSubject(), "admins");
-      MembershipHelper.testEff(s, staff, kebe, "admins", admins, 1);
-      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
-      MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
+      MembershipTestHelper.testImm(s, staff, iata , "members");
+      MembershipTestHelper.testImm(s, staff, iawi , "members");
+      MembershipTestHelper.testImm(s, staff, admins.toSubject(), "admins");
+      MembershipTestHelper.testEff(s, staff, kebe, "admins", admins, 1);
+      MembershipTestHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipTestHelper.testNumMship(staff, "admins", 3, 2, 1);
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.12");
       all_staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
       // TODO test
-      MembershipHelper.testImm(s, admins, kebe, "members");
-      MembershipHelper.testImm(s, admins, subj, "admins");
-      MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
-      MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
-      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
-      MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
+      MembershipTestHelper.testImm(s, admins, kebe, "members");
+      MembershipTestHelper.testImm(s, admins, subj, "admins");
+      MembershipTestHelper.testImm(s, admins, admins.toSubject(), "admins");
+      MembershipTestHelper.testEff(s, admins, kebe, "admins", admins, 1);
+      MembershipTestHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipTestHelper.testNumMship(admins, "admins", 3, 2, 1);
 
-      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
-      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
-      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
-      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
-      MembershipHelper.testImm(s, all_staff, all_staff.toSubject(), "readers");
-      MembershipHelper.testEff(s, all_staff, staff.toSubject(), "readers", all_staff, 1);
-      MembershipHelper.testEff(s, all_staff, iata, "readers", staff, 2);
-      MembershipHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
-      MembershipHelper.testNumMship(all_staff, "readers", 5, 2, 3);
-      MembershipHelper.testImm(s, all_staff, subj, "admins");
-      MembershipHelper.testImm(s, all_staff, admins.toSubject(), "admins");
-      MembershipHelper.testEff(s, all_staff, kebe, "admins", admins, 1);
+      MembershipTestHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipTestHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipTestHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipTestHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipTestHelper.testImm(s, all_staff, all_staff.toSubject(), "readers");
+      MembershipTestHelper.testEff(s, all_staff, staff.toSubject(), "readers", all_staff, 1);
+      MembershipTestHelper.testEff(s, all_staff, iata, "readers", staff, 2);
+      MembershipTestHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
+      MembershipTestHelper.testNumMship(all_staff, "readers", 5, 2, 3);
+      MembershipTestHelper.testImm(s, all_staff, subj, "admins");
+      MembershipTestHelper.testImm(s, all_staff, admins.toSubject(), "admins");
+      MembershipTestHelper.testEff(s, all_staff, kebe, "admins", admins, 1);
 
-      MembershipHelper.testImm(s, staff, iata , "members");
-      MembershipHelper.testImm(s, staff, iawi , "members");
-      MembershipHelper.testImm(s, staff, admins.toSubject(), "admins");
-      MembershipHelper.testEff(s, staff, kebe, "admins", admins, 1);
-      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
-      MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
+      MembershipTestHelper.testImm(s, staff, iata , "members");
+      MembershipTestHelper.testImm(s, staff, iawi , "members");
+      MembershipTestHelper.testImm(s, staff, admins.toSubject(), "admins");
+      MembershipTestHelper.testEff(s, staff, kebe, "admins", admins, 1);
+      MembershipTestHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipTestHelper.testNumMship(staff, "admins", 3, 2, 1);
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.13");
       GroupHelper.delete(s, admins, admins.getName());

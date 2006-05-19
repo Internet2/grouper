@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test use of the CREATE {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivCREATE.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: TestPrivCREATE.java,v 1.1.2.2 2006-05-19 16:13:32 blair Exp $
  */
 public class TestPrivCREATE extends TestCase {
 
@@ -95,7 +95,7 @@ public class TestPrivCREATE extends TestCase {
 
   public void testCreateChildGroupWithGroupCREATE() {
     LOG.info("testCreateChildGroupWithGroupCREATE");
-    MembershipHelper.testImm(s, i2, subj0, "members");
+    MembershipTestHelper.testImm(s, i2, subj0, "members");
     PrivHelper.grantPriv(s, edu, i2.toSubject(), NamingPrivilege.CREATE);
     Assert.assertTrue("i2 has priv", edu.hasCreate(i2.toSubject()));
     Assert.assertTrue("subj0 has priv", edu.hasCreate(subj0));

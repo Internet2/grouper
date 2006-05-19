@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestAddMember0.java,v 1.1.2.1 2006-04-11 16:19:35 blair Exp $
+ * @version $Id: TestAddMember0.java,v 1.1.2.2 2006-05-19 16:13:32 blair Exp $
  */
 public class TestAddMember0 extends TestCase {
 
@@ -58,8 +58,8 @@ public class TestAddMember0 extends TestCase {
     Member          m     = Helper.getMemberBySubject(s, subj);
     GroupHelper.addMember(i2, subj, m);
     // mships
-    MembershipHelper.testNumMship(i2, Group.getDefaultList(), 1, 1, 0);
-    MembershipHelper.testImmMship(s, i2, subj, Group.getDefaultList());
+    MembershipTestHelper.testNumMship(i2, Group.getDefaultList(), 1, 1, 0);
+    MembershipTestHelper.testImmMship(s, i2, subj, Group.getDefaultList());
   } // public void testAddMember()
 
 }

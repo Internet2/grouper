@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.13 2006-05-19 15:07:57 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.14 2006-05-19 16:13:31 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -1935,11 +1935,8 @@ public class Group extends Owner implements Serializable {
   public String toString() {
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
-      .append("name"        , this._getAttributeNoPrivs("name")         )
-      .append("displayName" , this._getAttributeNoPrivs("displayName")  )
-      .append("uuid"        , this.getUuid()                            )
-      .append("creator"     , getCreator_id()                           )
-      .append("modifier"    , getModifier_id()                          )
+      .append("name"        , this._getAttributeNoPrivs("name") )
+      .append("uuid"        , this.getUuid()                    )
       .toString();
   } // public String toString()
 

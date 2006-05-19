@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link Group.addMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMemberGroup.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: TestGroupAddMemberGroup.java,v 1.1.2.2 2006-05-19 16:13:32 blair Exp $
  */
 public class TestGroupAddMemberGroup extends TestCase {
 
@@ -53,9 +53,9 @@ public class TestGroupAddMemberGroup extends TestCase {
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     GroupHelper.addMember(i2, uofc);
     // mships
-    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 1,    1, 0);
-    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 0,    0, 0);
-    MembershipHelper.testImmMship(s, i2, uofc, Group.getDefaultList());
+    MembershipTestHelper.testNumMship(i2,   Group.getDefaultList(), 1,    1, 0);
+    MembershipTestHelper.testNumMship(uofc, Group.getDefaultList(), 0,    0, 0);
+    MembershipTestHelper.testImmMship(s, i2, uofc, Group.getDefaultList());
   } // public void testAddMember()
 
   public void testAddGroupMemberWithNonGroupMember() {
@@ -68,16 +68,16 @@ public class TestGroupAddMemberGroup extends TestCase {
     Member          m     = Helper.getMemberBySubject(s, subj);
     // add subj to uofc   
     GroupHelper.addMember(uofc, subj, m);
-    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
-    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
-    MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
+    MembershipTestHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    MembershipTestHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
+    MembershipTestHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
     // add uofc to i2
     GroupHelper.addMember(i2, uofc);
-    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
-    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
-    MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
-    MembershipHelper.testEffMship(s, i2, subj, Group.getDefaultList(), uofc, 1);
+    MembershipTestHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    MembershipTestHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
+    MembershipTestHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(s, i2, subj, Group.getDefaultList(), uofc, 1);
   } // public void testAddGroupMemberWithNonGroupMember()
 
   public void testAddMemberToGroupThatIsMember() {
@@ -90,16 +90,16 @@ public class TestGroupAddMemberGroup extends TestCase {
     Member          m     = Helper.getMemberBySubject(s, subj);
     // add uofc to i2
     GroupHelper.addMember(i2, uofc);
-    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 0, 0, 0);
-    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 1, 1, 0);
-    MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
+    MembershipTestHelper.testNumMship(uofc, Group.getDefaultList(), 0, 0, 0);
+    MembershipTestHelper.testNumMship(i2,   Group.getDefaultList(), 1, 1, 0);
+    MembershipTestHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
     // add subj to uofc   
     GroupHelper.addMember(uofc, subj, m);
-    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
-    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
-    MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
-    MembershipHelper.testEffMship(s, i2, subj, Group.getDefaultList(), uofc, 1);
+    MembershipTestHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    MembershipTestHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
+    MembershipTestHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(s, i2, subj, Group.getDefaultList(), uofc, 1);
   } // public void testAddMemberToGroupThatIsMember()
 
 }

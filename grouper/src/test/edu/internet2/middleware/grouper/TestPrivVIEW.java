@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test use of the VIEW {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivVIEW.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: TestPrivVIEW.java,v 1.1.2.2 2006-05-19 16:13:32 blair Exp $
  */
 public class TestPrivVIEW extends TestCase {
 
@@ -256,9 +256,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithADMIN()
 
   public void testAddGroupAsMemberWithAllADMIN() {
@@ -270,9 +270,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithAllADMIN()
 
   public void testAddGroupAsMemberWithOPTIN() {
@@ -284,9 +284,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithOPTIN()
 
   public void testAddGroupAsMemberWithAllOPTIN() {
@@ -298,9 +298,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithAllOPTIN()
 
   public void testAddGroupAsMemberWithOPTOUT() {
@@ -312,9 +312,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithOPTOUT()
 
   public void testAddGroupAsMemberWithAllOPTOUT() {
@@ -326,9 +326,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithAllOPTOUT()
 
   public void testAddGroupAsMemberWithREAD() {
@@ -340,9 +340,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithREAD()
 
   public void testAddGroupAsMemberWithAllREAD() {
@@ -355,9 +355,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithAllREAD()
 
   public void testAddGroupAsMemberWithUPDATE() {
@@ -369,9 +369,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithUPDATE()
 
   public void testAddGroupAsMemberWithAllUPDATE() {
@@ -383,9 +383,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithAllUPDATE()
 
   public void testAddGroupAsMemberWithVIEW() {
@@ -397,9 +397,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithVIEW()
 
   public void testAddGroupAsMemberWithAllVIEW() {
@@ -413,9 +413,9 @@ public class TestPrivVIEW extends TestCase {
     Group b = GroupHelper.findByName(nrs, i2.getName());
     // add uofc (a) to i2 (b)
     GroupHelper.addMember(b, a);
-    MembershipHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
+    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
+    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
+    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithAllVIEW()
 
 }

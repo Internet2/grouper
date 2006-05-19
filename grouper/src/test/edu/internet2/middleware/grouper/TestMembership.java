@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Membership}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMembership.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: TestMembership.java,v 1.1.2.2 2006-05-19 16:13:32 blair Exp $
  */
 public class TestMembership extends TestCase {
 
@@ -73,56 +73,56 @@ public class TestMembership extends TestCase {
 
   public void testNoParentAndNoChildMemberships() {
     LOG.info("testNoParentAndNoChildMemberships");
-    MembershipHelper.testNumMship(i2, "members", 0, 0, 0);
+    MembershipTestHelper.testNumMship(i2, "members", 0, 0, 0);
     GroupHelper.addMember(i2, subj0, "members");
-    MembershipHelper.testImm(s, i2, subj0, "members");
-    MembershipHelper.testNumMship(i2, "members", 1, 1, 0);
-    Membership imm = MembershipHelper.getImm(s, i2, subj0, "members");
-    MembershipHelper.testNoParent(imm);
-    MembershipHelper.testNoChildren(imm);
+    MembershipTestHelper.testImm(s, i2, subj0, "members");
+    MembershipTestHelper.testNumMship(i2, "members", 1, 1, 0);
+    Membership imm = MembershipTestHelper.getImm(s, i2, subj0, "members");
+    MembershipTestHelper.testNoParent(imm);
+    MembershipTestHelper.testNoChildren(imm);
   } // public void testNoParentAndNoChildMemberships()
 
   public void testParentAndChildMemberships() {
     LOG.info("testParentAndChildMemberships");
-    MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(uofc , "members", 0, 0, 0);
+    MembershipTestHelper.testNumMship(i2   , "members", 0, 0, 0);
+    MembershipTestHelper.testNumMship(uofc , "members", 0, 0, 0);
 
     GroupHelper.addMember(uofc, i2.toSubject(), "members");
-    MembershipHelper.testImm(s, uofc , i2.toSubject(), "members"); 
-    MembershipHelper.testNumMship(i2   , "members", 0, 0, 0);
-    MembershipHelper.testNumMship(uofc , "members", 1, 1, 0);
-    Membership uofc_i2 = MembershipHelper.getImm(s, uofc, i2.toSubject(), "members");
-    MembershipHelper.testNoParent(uofc_i2);
-    MembershipHelper.testNoChildren(uofc_i2);
+    MembershipTestHelper.testImm(s, uofc , i2.toSubject(), "members"); 
+    MembershipTestHelper.testNumMship(i2   , "members", 0, 0, 0);
+    MembershipTestHelper.testNumMship(uofc , "members", 1, 1, 0);
+    Membership uofc_i2 = MembershipTestHelper.getImm(s, uofc, i2.toSubject(), "members");
+    MembershipTestHelper.testNoParent(uofc_i2);
+    MembershipTestHelper.testNoChildren(uofc_i2);
 
     GroupHelper.addMember(i2, subj0, "members");
-    MembershipHelper.testImm(s, i2   , subj0          , "members");
-    MembershipHelper.testImm(s, uofc , i2.toSubject() , "members"); 
-    MembershipHelper.testEff(s, uofc,  subj0          , "members", i2, 1);
-    MembershipHelper.testNumMship(i2   , "members", 1, 1, 0);
-    MembershipHelper.testNumMship(uofc , "members", 2, 1, 1);
-    Membership i2_subj0 = MembershipHelper.getImm(s, i2, subj0, "members");
-    MembershipHelper.testNoParent(i2_subj0);
-    MembershipHelper.testNoChildren(i2_subj0);
-    Set uofc_i2_subj0 = MembershipHelper.getEff(s, uofc, subj0, "members", 1, i2);
+    MembershipTestHelper.testImm(s, i2   , subj0          , "members");
+    MembershipTestHelper.testImm(s, uofc , i2.toSubject() , "members"); 
+    MembershipTestHelper.testEff(s, uofc,  subj0          , "members", i2, 1);
+    MembershipTestHelper.testNumMship(i2   , "members", 1, 1, 0);
+    MembershipTestHelper.testNumMship(uofc , "members", 2, 1, 1);
+    Membership i2_subj0 = MembershipTestHelper.getImm(s, i2, subj0, "members");
+    MembershipTestHelper.testNoParent(i2_subj0);
+    MembershipTestHelper.testNoChildren(i2_subj0);
+    Set uofc_i2_subj0 = MembershipTestHelper.getEff(s, uofc, subj0, "members", 1, i2);
     Set children      = new LinkedHashSet();
     Iterator iter = uofc_i2_subj0.iterator();
     while (iter.hasNext()) {
       Membership eff = (Membership) iter.next();
-      MembershipHelper.testParent(uofc_i2, eff);
+      MembershipTestHelper.testParent(uofc_i2, eff);
       children.add(eff);
     }
-    MembershipHelper.testChildren(uofc_i2, children);
+    MembershipTestHelper.testChildren(uofc_i2, children);
   } // public void testParentAndChildMemberships()
 
   public void testEqualNotEqual() {
     LOG.info("testEqualNotEqual");
-    MembershipHelper.testNumMship(i2, "members", 0, 0, 0);
+    MembershipTestHelper.testNumMship(i2, "members", 0, 0, 0);
     GroupHelper.addMember(i2, subj0, "members");
     GroupHelper.addMember(i2, subj1, "members");
-    Membership imm0 = MembershipHelper.getImm(s, i2, subj0, "members");
-    Membership imm1 = MembershipHelper.getImm(s, i2, subj1, "members");
-    Membership imm2 = MembershipHelper.getImm(s, i2, subj0, "members");
+    Membership imm0 = MembershipTestHelper.getImm(s, i2, subj0, "members");
+    Membership imm1 = MembershipTestHelper.getImm(s, i2, subj1, "members");
+    Membership imm2 = MembershipTestHelper.getImm(s, i2, subj0, "members");
     Assert.assertTrue("equal",      imm0.equals(imm2));
     Assert.assertTrue("not equal",  !imm0.equals(imm1));
   } // public void testEqualNotEqual()

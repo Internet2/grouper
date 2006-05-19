@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the wheel group.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestWheelGroup.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: TestWheelGroup.java,v 1.1.2.2 2006-05-19 16:13:32 blair Exp $
  */
 public class TestWheelGroup extends TestCase {
   // @test  MANUAL
@@ -92,7 +92,7 @@ public class TestWheelGroup extends TestCase {
   public void testGrantAdminWithWHEEL() {
     LOG.info("testGrantAdminWithWHEEL");
     GroupHelper.addMember(wheel, subj0, "members");
-    MembershipHelper.testImm(s, wheel, subj0, "members");
+    MembershipTestHelper.testImm(s, wheel, subj0, "members");
     nrs = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     a   = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.ADMIN);     

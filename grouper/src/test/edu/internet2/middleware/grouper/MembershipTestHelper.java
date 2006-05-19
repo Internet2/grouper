@@ -30,12 +30,12 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.1.2.1 2006-04-10 19:07:20 blair Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.1.2.1 2006-05-19 16:13:32 blair Exp $
  */
-public class MembershipHelper {
+public class MembershipTestHelper {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(MembershipHelper.class);
+  private static final Log LOG = LogFactory.getLog(MembershipTestHelper.class);
 
 
   // Protected Class Methods

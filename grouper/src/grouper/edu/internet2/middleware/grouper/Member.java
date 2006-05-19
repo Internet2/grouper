@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.32.2.4 2006-05-19 15:07:57 blair Exp $
+ * @version $Id: Member.java,v 1.32.2.5 2006-05-19 16:13:32 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -974,23 +974,10 @@ public class Member implements Serializable {
 
   public String toString() {
     try {
-      String  who   = this.getSubject().getId();
-      String  type  = this.getSubject().getType().getName();
-      if (type.equals("group")) {
-        who = this.getSubject().getName();
-      } 
-      // Prettier
-      return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-        .append("subject_id"    , who )
-        .append("subject_type"  , type)
-        .toString();
+      return SubjectHelper.getPretty(this.getSubject());
     }
     catch (SubjectNotFoundException eSNF) {
-      // But better than nothing
-      return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-        .append("subject_id"    , this.getSubject_id()  )  
-        .append("subject_type"  , this.getSubject_type())
-        .toString();
+      return new ToStringBuilder(this).toString();
     }
   } // public String toString()
 

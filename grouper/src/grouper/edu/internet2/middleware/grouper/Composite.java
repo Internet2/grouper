@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * A composite membership definition within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.1.2.3 2006-05-11 16:41:44 blair Exp $
+ * @version $Id: Composite.java,v 1.1.2.4 2006-05-19 16:13:31 blair Exp $
  *     
 */
 public class Composite extends Owner implements Serializable {
@@ -94,13 +94,7 @@ public class Composite extends Owner implements Serializable {
   } // public void setModified()
 
   public String toString() {
-    return new ToStringBuilder(this)
-      .append("owner"       , this.getOwner() )
-      .append("left"        , this.getLeft()  )
-      .append("right"       , this.getRight() )
-      .append("type"        , this.getType()  )
-      .append("uuid"        , this.getUuid()  )
-      .toString();
+    return new ToStringBuilder(this).toString();  // TODO Improve
   } // public String toString()
 
 
@@ -116,6 +110,11 @@ public class Composite extends Owner implements Serializable {
   }
   protected Owner getOwner() {
     return this.owner;
+  }
+  protected Group getOwnerGroup() {
+    Group g = (Group) this.owner;
+    g.setSession( this.getSession() );
+    return g;
   }
   protected Owner getRight() {
     return this.right;
