@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU26.java,v 1.1.2.1 2006-05-19 15:07:57 blair Exp $
+ * @version $Id: TestCompositeU26.java,v 1.1.2.2 2006-05-19 18:30:40 blair Exp $
  */
 public class TestCompositeU26 extends TestCase {
 
@@ -66,7 +66,6 @@ public class TestCompositeU26 extends TestCase {
       c.deleteCompositeMember();
       
       // And test
-/*
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       Assert.assertFalse( "b !hasComposite" , b.hasComposite()  );
       Assert.assertFalse( "c !hasComposite" , c.hasComposite()  );
@@ -87,15 +86,7 @@ public class TestCompositeU26 extends TestCase {
       T.amount( "c members", 0, c.getMembers().size() );
 
       T.amount( "d members", 0, d.getMembers().size() );
-*/
 
-System.err.println("TEST PREFIX!");
-System.err.println("TEST MSHIPS == " + e.getMemberships().size());
-Iterator iter = e.getMemberships().iterator();
-while (iter.hasNext()) {
-Membership ms = (Membership) iter.next();
-System.err.println("TEST MS == "+ms.toString());
-}
       T.amount( "e members", 0, e.getMembers().size() );
 
       r.rs.stop();

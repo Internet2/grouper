@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14.2.6 2006-05-19 15:07:57 blair Exp $
+ * @version $Id: MemberOf.java,v 1.14.2.7 2006-05-19 18:30:40 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -48,6 +48,7 @@ class MemberOf implements Serializable {
   private Member          m;
   private Membership      ms;
   private Owner           o;
+  private Set             pending     = new LinkedHashSet();
   private GrouperSession  root;
   private GrouperSession  s;    
   private Set             saves       = new LinkedHashSet();
@@ -108,16 +109,25 @@ class MemberOf implements Serializable {
   } // protected static MemberOf addImmediate(s, o, m, ms)
 
   // Calculate deletion of a composite membership 
+  //  TODO  Why do I need to include o?  Can't I just get that from c?
   protected static MemberOf delComposite(
     GrouperSession s, Owner o, Composite c
   )
     throws  ModelException
   {
+    //  TODO  I'm really uncertain about this code.  Expect it to be
+    //        both flawed and evolving for quite some time.
     MemberOf  mof   = new MemberOf(s, o, c);
-    //  TODO  There are some clear performance concerns with this code.
-    Iterator  iter  = ( (Group) o ).getMemberships().iterator();
-    while (iter.hasNext()) {
-      Membership  ms    = (Membership) iter.next();
+
+    //  We will need to update where this group is a composite factor
+    //  after we have take care of everything else.  Argh.
+    mof.pending.addAll( CompositeFinder.isFactor(o) );
+
+    //  Delete this group's members
+    //  TODO  I have performance concerns with this code
+    Iterator  iterH = ( (Group) o ).getMemberships().iterator();
+    while (iterH.hasNext()) {
+      Membership  ms    = (Membership) iterH.next();
       try {
         MemberOf    msMof = MemberOf.delImmediate(
           s, o, ms, ms.getMember()
@@ -128,6 +138,7 @@ class MemberOf implements Serializable {
         throw new ModelException(e);
       }
     }
+
     mof._resetSessions();
     mof.o.setModified();
     mof.deletes.add(mof.c);   // Delete the composite
@@ -161,15 +172,15 @@ class MemberOf implements Serializable {
   protected Set getDeletes() {
     return this.deletes;
   } // protected Set getDeletes()
-
   protected Set getEffDeletes() {
     return this.effDeletes;
   } // protected Set getEffDeletes()
-
   protected Set getEffSaves() {
     return this.effSaves;
   } // protected Set getEffSaves()
-
+  protected Set getPending() {
+    return this.pending;
+  } // protected Set getPending()
   protected Set getSaves() {
     return this.saves;
   } // protected Set getSaves()

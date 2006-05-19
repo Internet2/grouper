@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.logging.*;
 
@@ -27,7 +28,7 @@ import  org.apache.commons.logging.*;
  * A composite membership definition within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.1.2.4 2006-05-19 16:13:31 blair Exp $
+ * @version $Id: Composite.java,v 1.1.2.5 2006-05-19 18:30:40 blair Exp $
  *     
 */
 public class Composite extends Owner implements Serializable {
@@ -96,6 +97,45 @@ public class Composite extends Owner implements Serializable {
   public String toString() {
     return new ToStringBuilder(this).toString();  // TODO Improve
   } // public String toString()
+
+
+  // Protected Instance Methods //
+  protected void update() {
+    //  TODO  Assuming this is actually correct I am sure it can be
+    //        improved upon.  At least it isn't as bad as the first
+    //        (functional) approach taken.
+    //  TODO  What about pending?
+    //  TODO  What about the other saves + deletes in mof?
+    try {
+      GrouperSession  rs  = GrouperSessionFinder.getRootSession();
+      this.setSession(rs);
+      CompositeType   t   = this.getType();
+      Group           g   = this.getOwnerGroup();
+      Group           l   = this.getLeftGroup();
+      Group           r   = this.getRightGroup();
+      MemberOf        mof = MemberOf.addComposite(rs, g, this);
+
+      Set cur     = g.getMemberships();       // Current mships
+      Set evaled  = mof.getEffSaves();        // What mships should be
+      Set diff    = new LinkedHashSet(cur);   // Default to current mships
+      diff.removeAll(evaled);                 // Reduce to differences
+      Set saves   = new LinkedHashSet(diff);  // Default to differences
+      saves.retainAll(evaled);                // Retain new mships
+      Set deletes = new LinkedHashSet(diff);  // Default to differences
+      deletes.retainAll(cur);                 // Retain current mships
+
+      if ( (deletes.size() > 0) || (saves.size() > 0) ) {
+        HibernateHelper.saveAndDelete(saves, deletes);
+        //  FIXME LOG! additions + deletions
+      }
+    }
+    catch (HibernateException eH) {
+      //  FIXME LOG!
+    }
+    catch (ModelException eM) {
+      //  FIXME LOG!
+    }
+  } // protected void update()
 
 
   // Getters //

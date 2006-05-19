@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.14 2006-05-19 16:13:31 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.15 2006-05-19 18:30:40 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -167,19 +167,24 @@ public class Group extends Owner implements Serializable {
             MemberAddException
   {
     try {
-      StopWatch sw = new StopWatch();
+      StopWatch sw  = new StopWatch();
       sw.start();
-      Composite c = new Composite(this.getSession(), this, left, right, type);
+      Composite c   = new Composite(this.getSession(), this, left, right, type);
       GroupValidator.canAddCompositeMember(this, c);
-      Membership.addCompositeMembership(this.getSession(), this, c);
+      MemberOf  mof = MemberOf.addComposite(this.getSession(), this, c);
+      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
       sw.stop();
-      // TODO EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
+      //  FIXME LOG! imms + effs
+    }
+    catch (HibernateException eH) {
+      throw new MemberAddException(eH);
     }
     catch (ModelException eM) {
+      // Fragile tests rely upon the message being precise
       throw new MemberAddException(eM.getMessage(), eM);
     }
     catch (SchemaException eS) {
-      throw new MemberAddException(eS.getMessage(), eS);
+      throw new MemberAddException(eS);
     }
   } // public void addCompositeMember(type, left, right)
 
@@ -465,15 +470,29 @@ public class Group extends Owner implements Serializable {
       sw.start();
       GroupValidator.canDelCompositeMember(this);
       Composite c   = CompositeFinder.isOwner(this);
-      Membership.delCompositeMembership(this.getSession(), this, c);
+      MemberOf  mof = MemberOf.delComposite(this.getSession(), this, c);
+      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      //  FIXME LOG! imms + effs
+      //  TODO  Hrm...
+      Iterator  iter = mof.getPending().iterator();
+      while (iter.hasNext()) {
+        Composite comp = (Composite) iter.next();
+        comp.update();
+      }
       sw.stop();
-      // TODO EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
     }
-    catch (InsufficientPrivilegeException eIP) {
-      throw eIP;
+    catch (CompositeNotFoundException eCNF) {
+      throw new MemberDeleteException(eCNF);
     }
-    catch (Exception e) {
-      throw new MemberDeleteException(e.getMessage(), e);
+    catch (HibernateException eH) {
+      throw new MemberDeleteException(eH);
+    }
+    catch (ModelException eM) {
+      // Fragile tests rely upon the message being precise
+      throw new MemberDeleteException(eM.getMessage(), eM);
+    }
+    catch (SchemaException eS) {
+      throw new MemberDeleteException(eS);
     }
   } // public void deleteCompositeMember()
 

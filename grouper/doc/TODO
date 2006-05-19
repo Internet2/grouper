@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.30.2.24 2006-05-09 16:08:48 blair Exp $
+$Id: TODO,v 1.30.2.25 2006-05-19 18:30:40 blair Exp $
 
 ---
 
@@ -20,6 +20,8 @@ $Id: TODO,v 1.30.2.24 2006-05-09 16:08:48 blair Exp $
 * code: complement composites (sync)
 * code: intersection composites (sync)
 * code: start populating membership creator
+* code: add `Group.canReadField(f)`
+* code: add `Group.canWriteField(f)`
 * code: privilege query filters
 * code: class to verify that setup is functional
 ** find the root stem, exercise subject api, hibernate dialect + driver class, etc
@@ -27,16 +29,14 @@ $Id: TODO,v 1.30.2.24 2006-05-09 16:08:48 blair Exp $
 * test: basic concurrency testing (i expect to find many bugs)
 * code: delete custom group types
 * code: internalize cache management code?
-* code: add `Member.canAdmin(group)`
-* code: add `Member.canCreate(stem)`
-* code: add `Member.canOptin(group)`
-* code: add `Member.canOptout(group)`
-* code: add `Member.canRead(group)`
-* code: add `Member.canStem(stem)`
-* code: add `Member.canUpdate(group)`
-* code: add `Member.canView(group)`
-* code: add `Group.canReadField(f)`
-* code: add `Group.canWriteField(f)`
+* code: add ??? `Member.canAdmin(group)` ???
+* code: add ??? `Member.canCreate(stem)` ???
+* code: add ??? `Member.canOptin(group)` ???
+* code: add ??? `Member.canOptout(group)` ???
+* code: add ??? `Member.canRead(group)` ???
+* code: add ??? `Member.canStem(stem)` ???
+* code: add ??? `Member.canUpdate(group)` ???
+* code: add ??? `Member.canView(group)` ???
 * code: privilege cleanup - `NamingResolver`
 * code: privilege cleanup - `AccessResolver`
 * code: privilege cleanup - Hibernate-backed `PrivilegeCache`
@@ -48,11 +48,11 @@ $Id: TODO,v 1.30.2.24 2006-05-09 16:08:48 blair Exp $
   that can be removed from the group
 * code: remove (all|most) RTEs
 * code: toString cleanup
-* code: attribute retrieval cleanup
 
 ### Maybe
 * code: API support for XML import+export
 * code: either remove status-related code or else think it out more thoroughly
+* code: `XmlLog`
 * code: `ErrorLog`
 * code: `DebugLog`
 * Daemon Support
@@ -139,7 +139,7 @@ $Id: TODO,v 1.30.2.24 2006-05-09 16:08:48 blair Exp $
 
 ---
 
-$Id: TODO,v 1.30.2.24 2006-05-09 16:08:48 blair Exp $
+$Id: TODO,v 1.30.2.25 2006-05-19 18:30:40 blair Exp $
 
 
 

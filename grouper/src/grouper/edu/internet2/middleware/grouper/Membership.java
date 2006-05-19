@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.24.2.11 2006-05-19 16:13:32 blair Exp $
+ * @version $Id: Membership.java,v 1.24.2.12 2006-05-19 18:30:40 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -269,24 +269,6 @@ public class Membership implements Serializable {
 
 
   // Protected Class Methods //
-  protected static void addCompositeMembership(
-    GrouperSession s, Owner o, Composite c
-  )
-    throws  MemberAddException,
-            ModelException
-  {
-    GrouperSessionValidator.validate(s);
-    try {
-      MemberOf mof = MemberOf.addComposite(s, o, c);
-      // TODO Move to Group.  Hell, delete method entirely?
-      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
-      // TODO EL.addEffMembers(s, o, subj, f, effs);
-    }
-    catch (HibernateException eH) {
-      throw new MemberAddException(eH.getMessage(), eH);
-    }    
-  } // protected static void addCompositeMembership(s, o, c)
-
   protected static void addImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f
   )
@@ -304,22 +286,6 @@ public class Membership implements Serializable {
       throw new MemberAddException(e.getMessage(), e);
     }    
   } // protected static void addImmediateMembership(s, o, subj, f)
-
-  protected static void delCompositeMembership(GrouperSession s, Owner o, Composite c)
-    throws  MemberDeleteException,
-            ModelException
-  {
-    GrouperSessionValidator.validate(s);
-    try {
-      MemberOf  mof = MemberOf.delComposite(s, o, c);
-      // TODO Move to Group.  Hell, delete method entirely?
-      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
-      // TODO EL.delEffMembers(s, o, subj, f, effs);
-    }
-    catch (HibernateException eH) {
-      throw new MemberDeleteException(eH.getMessage(), eH);
-    }    
-  } // protected static void delCompositeMembership(s, o, c)
 
   protected static MemberOf delImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f
