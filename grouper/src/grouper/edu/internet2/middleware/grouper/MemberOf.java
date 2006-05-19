@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14.2.5 2006-05-15 18:24:49 blair Exp $
+ * @version $Id: MemberOf.java,v 1.14.2.6 2006-05-19 15:07:57 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -114,6 +114,7 @@ class MemberOf implements Serializable {
     throws  ModelException
   {
     MemberOf  mof   = new MemberOf(s, o, c);
+    //  TODO  There are some clear performance concerns with this code.
     Iterator  iter  = ( (Group) o ).getMemberships().iterator();
     while (iter.hasNext()) {
       Membership  ms    = (Membership) iter.next();

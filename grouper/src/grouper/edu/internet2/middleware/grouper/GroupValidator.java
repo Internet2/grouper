@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.1.2.5 2006-05-11 17:14:22 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.1.2.6 2006-05-19 15:07:57 blair Exp $
  */
 class GroupValidator implements Serializable {
 
@@ -167,6 +167,27 @@ class GroupValidator implements Serializable {
     // FIXME Refactor
     PrivilegeResolver.getInstance().canOPTOUT(g.getSession(), g, subj);
   } // protected static void canOptin(g, subj, f)
+
+  protected static void canReadField(
+    GrouperSession s, Group g, Subject subj, Field f, FieldType type
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    // FIXME Can I remove s?
+    // Validate the field type
+    if (!f.getType().equals(type)) {
+      throw new SchemaException(ERR_FT + f.getType());
+    }  
+    // Validate that this group has the proper group type for this field
+    if (!g.hasType( f.getGroupType() ) ) {
+      throw new SchemaException(ERR_GT + f.getGroupType().toString());
+    }
+    // FIXME Should this be internalized?
+    PrivilegeResolver.getInstance().canPrivDispatch(
+      s, g, subj, f.getReadPriv()
+    );
+  } // protected static void canReadField(s, g, subj, f, type)
 
   protected static void canSetAttribute(Group g, Field f, String value) 
     throws  InsufficientPrivilegeException,

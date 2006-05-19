@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.29.2.3 2006-05-15 18:24:49 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.29.2.4 2006-05-19 15:07:57 blair Exp $
  */
 public class MembershipFinder {
 
@@ -683,7 +683,6 @@ public class MembershipFinder {
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FMSHIPSO_PRO);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -693,20 +692,18 @@ public class MembershipFinder {
         + "and  ms.field.name = :fname  "
         + "and  ms.field.type = :ftype"
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FMO);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FMO);
+      qry.setCacheable(   GrouperConfig.QRY_MSF_FMO );
+      qry.setCacheRegion( GrouperConfig.QCR_MSF_FMO );
       qry.setParameter( "owner" , o                     );
       qry.setString(    "fname" , f.getName()           );
       qry.setString(    "ftype" , f.getType().toString());
       List    l   = qry.list();
       hs.close();
-      GrouperLog.debug(LOG, s, MSG_FMSHIPSO_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
     }
     catch (HibernateException eH) {
       GrouperLog.error(LOG, s, MSG_FMSHIPSO_PRO + ": " + eH.getMessage());
     }
-    GrouperLog.debug(LOG, s, MSG_FMSHIPSO_PRO + " filtered: " + mships.size());
     return mships;
   } // protected static Set findMemberships(s, o, f)
 
@@ -751,8 +748,6 @@ public class MembershipFinder {
   // Private Class Methods
   private static Set _filterMemberships(GrouperSession s, Field f, List l) {
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FMSHIPS);
-    GrouperLog.debug(LOG, s, MSG_FMSHIPS + " unfiltered: " + l.size());
     Set       mships  = new LinkedHashSet();
     Iterator  iter    = l.iterator();
     while (iter.hasNext()) {
@@ -779,7 +774,6 @@ public class MembershipFinder {
         // ignore
       }
     }
-    GrouperLog.debug(LOG, s, MSG_FMSHIPS + " filtered: " + mships.size());
     return mships;
   } // private static Set _filterMemberships(s, f, l)
 

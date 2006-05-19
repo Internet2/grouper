@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.12 2006-05-15 18:24:49 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.13 2006-05-19 15:07:57 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -65,10 +65,6 @@ public class Group extends Owner implements Serializable {
   // Transient Instance Variables
   private transient Member          as_member = null;
   private transient Subject         as_subj   = null;
-  private transient String          attr_dn   = null;
-  private transient String          attr_de   = null;
-  private transient String          attr_e    = null;
-  private transient String          attr_n    = null;
   private transient Map             attrs     = new HashMap();
   private transient Subject         creator;
   private transient Subject         modifier;
@@ -101,27 +97,30 @@ public class Group extends Owner implements Serializable {
     this.setUuid( GrouperUuid.getUuid() );
     // Set naming information
     Set attributes = new LinkedHashSet();
-    this.attr_de  = displayExtn;
-    this.attr_dn  = Stem.constructName(ns.getDisplayName(), displayExtn);
-    this.attr_e   = extn;
-    this.attr_n   = Stem.constructName(ns.getName(), extn);
     attributes.add(
-      new Attribute(this, FieldFinder.find("displayExtension"), attr_de )
+      new Attribute(this, FieldFinder.find("displayExtension"), displayExtn)
     );
     attributes.add(
-      new Attribute(this, FieldFinder.find("displayName")     , attr_dn )
+      new Attribute(
+        this, FieldFinder.find("displayName"), 
+        Stem.constructName(ns.getDisplayName(), displayExtn)
+      )
     );
     attributes.add(
-      new Attribute(this, FieldFinder.find("extension")       , attr_e  )
+      new Attribute(this, FieldFinder.find("extension"), extn)
     );
     attributes.add(
-      new Attribute(this, FieldFinder.find("name")            , attr_n  )
+      new Attribute(
+        this, FieldFinder.find("name"), 
+        Stem.constructName(ns.getName(), extn)
+      )
     );
     this.setGroup_attributes(attributes);
   } // protected Group(s, ns, extn, displayExtn)
  
 
-  // Public Class Methods
+  // Public Class Methods //
+
   /**
    * Retrieve default members {@link Field}.
    * <pre class="eg">
@@ -655,36 +654,29 @@ public class Group extends Owner implements Serializable {
   public String getAttribute(String attr) 
     throws  AttributeNotFoundException
   {
-    String val = new String();
     try {
       Field f = FieldFinder.find(attr);
       if (!f.getType().equals(FieldType.ATTRIBUTE)) {
-        String err = "not an attribute: " + attr;
-        throw new SchemaException(err);
+        throw new SchemaException("not an attribute: " + attr);
       }
       if (!this.hasType( f.getGroupType() ) ) {
-        String err = "does not have group type: " + f.getGroupType().toString();
-        throw new SchemaException(err);
-      }
-    }
-    catch (SchemaException eS) {
-      throw new AttributeNotFoundException(eS.getMessage(), eS);
-    }
-    try {
-      Map attrs = this._getAttributes();
-      if (attrs.containsKey(attr)) {
-        Attribute a = (Attribute) attrs.get(attr);
-        PrivilegeResolver.getInstance().canPrivDispatch(
-          this.getSession(), this, this.getSession().getSubject(), a.getField().getReadPriv()
+        throw new SchemaException(
+          "group does not have group type: " + f.getGroupType().toString()
         );
-        val = a.getValue();
       }
+      GroupValidator.canReadField(
+        this.getSession(), this, this.getSession().getSubject(), f, FieldType.ATTRIBUTE
+      );
     }
     catch (InsufficientPrivilegeException eIP) {
-      // Ignore
+      throw new AttributeNotFoundException(eIP);
     }
     catch (SchemaException eS) {
-      // Ignore
+      throw new AttributeNotFoundException(eS);
+    }
+    String val = this._getAttributeNoPrivs(attr);
+    if (val == null) {
+      return new String();
     }
     return val;
   } // public String getAttribute(attr)
@@ -697,20 +689,19 @@ public class Group extends Owner implements Serializable {
    * @return  A map of attributes and values.
    */
   public Map getAttributes() {
-    // TODO Cache results
     Map       filtered  = new HashMap();
-    Iterator  iter      = this._getAttributes().values().iterator();
+    Iterator  iter      = this._getAttributesNoPrivs().values().iterator();
     while (iter.hasNext()) {
       Attribute attr = (Attribute) iter.next();
       try {
-        // TODO Does this actually work?
-        PrivilegeResolver.getInstance().canPrivDispatch(
-          this.getSession(), this, this.getSession().getSubject(), attr.getField().getReadPriv()
+        Field f = attr.getField();
+        GroupValidator.canReadField(
+          this.getSession(), this, this.getSession().getSubject(), f, FieldType.ATTRIBUTE
         );
-        filtered.put( attr.getField().getName(), attr.getValue() );
+        filtered.put(f.getName(), attr.getValue());
       }
       catch (Exception e) {
-        // Nothing
+        //  FIXME ???
       }
     }
     return filtered;
@@ -792,20 +783,17 @@ public class Group extends Owner implements Serializable {
    * @return  Gruop displayExtension.
    */
   public String getDisplayExtension() {
-    GrouperSession.validate(s);
-    String msg = "getDisplayExtension";
-    if (attr_de == null) {
-      try {
-        GrouperLog.debug(LOG, this.getSession(), msg + " fetching");
-        attr_de = (String) this.getAttribute("displayExtension");
-        GrouperLog.debug(LOG, this.getSession(), msg + " fetched");
-      }
-      catch (AttributeNotFoundException eANF) {
-        GrouperLog.fatal(LOG, this.getSession(), ERR_NODE);
-        throw new RuntimeException(ERR_NODE, eANF);
-      }
+    //  TODO  Do I need to validate privs here or not?  If one has
+    //        retrieved a group then one has at least VIEW and thus this
+    //        attribute should be available, no?  As long as I don't make
+    //        public the methods for adjusting the session associated with a
+    //        Group I think this is fine.
+    String val = this._getAttributeNoPrivs("displayExtension");
+    if (val == null) {
+      //  A group without this attribute is VERY faulty
+      throw new RuntimeException(ERR_NODE);
     }
-    return attr_de;
+    return val;
   } // public String getDisplayExtension()
 
   /**
@@ -816,20 +804,17 @@ public class Group extends Owner implements Serializable {
    * @return  Group displayName.
    */
   public String getDisplayName() {
-    GrouperSession.validate(s);
-    String msg = "getDisplayName";
-    if (attr_dn == null) {
-      try {
-        GrouperLog.debug(LOG, this.getSession(), msg + " fetching");
-        attr_dn = (String) this.getAttribute("displayName");
-        GrouperLog.debug(LOG, this.getSession(), msg + " fetched");
-      }
-      catch (AttributeNotFoundException eANF) {
-        GrouperLog.fatal(LOG, this.getSession(), ERR_NODN);
-        throw new RuntimeException(ERR_NODN, eANF);
-      }
+    //  TODO  Do I need to validate privs here or not?  If one has
+    //        retrieved a group then one has at least VIEW and thus this
+    //        attribute should be available, no?  As long as I don't make
+    //        public the methods for adjusting the session associated with a
+    //        Group I think this is fine.
+    String val = this._getAttributeNoPrivs("displayName");
+    if (val == null) {
+      //  A group without this attribute is VERY faulty
+      throw new RuntimeException(ERR_NODN);
     }
-    return attr_dn;
+    return val;
   } // public String getDisplayName()
 
   /**
@@ -887,9 +872,9 @@ public class Group extends Owner implements Serializable {
   } // public Set getEffectiveMembership()
 
   /**
-   * Get memberships of this group.
+   * Get effective memberships of this group.
    * <pre class="eg">
-   * Set memberships = g.getMemberships(f);
+   * Set memberships = g.getEffectiveMemberships(f);
    * </pre>
    * @param   f Get memberships in this list field.
    * @return  A set of {@link Membership} objects.
@@ -909,20 +894,17 @@ public class Group extends Owner implements Serializable {
    * @return  Group extension.
    */
   public String getExtension() {
-    GrouperSession.validate(s);
-    String msg = "getExtension";
-    if (attr_e == null) {
-      try {
-        GrouperLog.debug(LOG, this.getSession(), msg + " fetching");
-        attr_e = (String) this.getAttribute("extension");
-        GrouperLog.debug(LOG, this.getSession(), msg + " fetched");
-      }
-      catch (AttributeNotFoundException eANF) {
-        GrouperLog.fatal(LOG, this.getSession(), ERR_NOE);
-        throw new RuntimeException(ERR_NOE, eANF);
-      }
+    //  TODO  Do I need to validate privs here or not?  If one has
+    //        retrieved a group then one has at least VIEW and thus this
+    //        attribute should be available, no?  As long as I don't make
+    //        public the methods for adjusting the session associated with a
+    //        Group I think this is fine.
+    String val = this._getAttributeNoPrivs("extension");
+    if (val == null) {
+      //  A group without this attribute is VERY faulty
+      throw new RuntimeException(ERR_NOE);
     }
-    return attr_e;
+    return val;
   } // public String getExtension()
  
   /**
@@ -1127,20 +1109,17 @@ public class Group extends Owner implements Serializable {
    * @return  Group name.
    */
   public String getName() {
-    GrouperSession.validate(s);
-    String msg = "getName";
-    if (attr_n == null) {
-      try {
-        GrouperLog.debug(LOG, this.getSession(), msg + " fetching");
-        attr_n = (String) this.getAttribute("name");
-        GrouperLog.debug(LOG, this.getSession(), msg + " fetched");
-      }
-      catch (AttributeNotFoundException eANF) {
-        GrouperLog.fatal(LOG, this.getSession(), ERR_NON);
-        throw new RuntimeException(ERR_NON, eANF);
-      }
+    //  TODO  Do I need to validate privs here or not?  If one has
+    //        retrieved a group then one has at least VIEW and thus this
+    //        attribute should be available, no?  As long as I don't make
+    //        public the methods for adjusting the session associated with a
+    //        Group I think this is fine.
+    String val = this._getAttributeNoPrivs("name");
+    if (val == null) {
+      //  A group without this attribute is VERY faulty
+      throw new RuntimeException(ERR_NON);
     }
-    return attr_n;
+    return val;
   } // public String getName()
 
   /**
@@ -1931,7 +1910,7 @@ public class Group extends Owner implements Serializable {
    * @return  {@link Group} as a {@link Subject}
    */
   public Subject toSubject() {
-    GrouperSession.validate(s);
+    GrouperSession.validate(this.getSession());
     String msg = "toSubject";
     GrouperLog.debug(LOG, s, msg);
     if (as_subj == null) {
@@ -1954,12 +1933,13 @@ public class Group extends Owner implements Serializable {
   } // public Subject toSubject()
 
   public String toString() {
+    // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
-      .append("name"        , this.getName()        )
-      .append("displayName" , this.getDisplayName() )
-      .append("uuid"        , this.getUuid()        )
-      .append("creator"     , getCreator_id()       )
-      .append("modifier"    , getModifier_id()      )
+      .append("name"        , this._getAttributeNoPrivs("name")         )
+      .append("displayName" , this._getAttributeNoPrivs("displayName")  )
+      .append("uuid"        , this.getUuid()                            )
+      .append("creator"     , getCreator_id()                           )
+      .append("modifier"    , getModifier_id()                          )
       .toString();
   } // public String toString()
 
@@ -1991,7 +1971,6 @@ public class Group extends Owner implements Serializable {
       Attribute a = (Attribute) iter.next();
       if (a.getField().getName().equals("displayName")) {
         a.setValue(value);
-        this.attr_dn = value;
       }
       attrs.add(a);
     }
@@ -2000,14 +1979,24 @@ public class Group extends Owner implements Serializable {
 
 
   // Private Instance Methods //
-  private Map _getAttributes() {
+  private String _getAttributeNoPrivs(String attr) {
+    String    val   = null;
+    Map       attrs = this._getAttributesNoPrivs();
+    if (attrs.containsKey(attr)) {
+      Attribute a = (Attribute) attrs.get(attr);
+      val = a.getValue();
+    }
+    return val;
+  } // private String _getAttributeNoPrivs(attr)
+
+  private Map _getAttributesNoPrivs() {
     Iterator iter = this.getGroup_attributes().iterator();
     while (iter.hasNext()) {
       Attribute attr = (Attribute) iter.next();
       this.attrs.put(attr.getField().getName(), attr);
     }
     return this.attrs;
-  } // private Map _getAttributes()
+  } // private Map _getAttributesNoPrivs()
 
   private void _revokeAllAccessPrivs(String msg) 
     throws  InsufficientPrivilegeException,
@@ -2059,9 +2048,6 @@ public class Group extends Owner implements Serializable {
             this.getParentStem().getName(), value
           );
           a.setValue(newVal);
-          // Update the cached values
-          this.attr_e = value;
-          this.attr_n = newVal;
         }
         updated.add(a);
       }
@@ -2076,9 +2062,6 @@ public class Group extends Owner implements Serializable {
             this.getParentStem().getDisplayName(), value
           );
           a.setValue(newVal);
-          // Update the cached values
-          this.attr_de = value;
-          this.attr_dn = newVal;
         }
         updated.add(a);
       }
