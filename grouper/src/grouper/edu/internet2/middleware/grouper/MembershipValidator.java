@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.1.2.3 2006-05-11 17:14:22 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.1.2.4 2006-05-22 18:36:15 blair Exp $
  */
 class MembershipValidator implements Serializable {
 
@@ -50,6 +50,7 @@ class MembershipValidator implements Serializable {
     throws  ModelException
   {
     _validate(ms); 
+    // TODO _validateDoesNotExist(ms);
     // Verify Depth
     if (ms.getDepth() != 0) {
       throw new ModelException(ERR_D + ms.getDepth());
@@ -72,6 +73,7 @@ class MembershipValidator implements Serializable {
     throws  ModelException
   {
     _validate(ms); 
+    _validateDoesNotExist(ms);
     // Verify Depth
     if (ms.getDepth() != 0) {
       throw new ModelException(ERR_D + ms.getDepth());
@@ -129,15 +131,22 @@ class MembershipValidator implements Serializable {
         throw new ModelException(eSNF.getMessage(), eSNF); // FIXME
       }
     }
-    // Verify that membership doesn't already exist
+  } // private static void _validate(ms)
+
+  // Verify that membership doesn't already exist
+  private static void _validateDoesNotExist(Membership ms) 
+    throws  ModelException
+  {
     try {
-      MembershipFinder.findImmediateMembership(o, m, f);
+      MembershipFinder.findImmediateMembership(
+        ms.getOwner_id(), ms.getMember_id(), ms.getField()
+      );
       throw new ModelException(ERR_MAE);
     }
     catch (MembershipNotFoundException eMNF) {
       // Ignore - this is what we want. 
     }
-  } // private static void _validate(ms)
+  } // private static void _validateDoesNotExist(ms)
 
 }
 

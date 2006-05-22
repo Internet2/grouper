@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * A composite membership definition within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.1.2.5 2006-05-19 18:30:40 blair Exp $
+ * @version $Id: Composite.java,v 1.1.2.6 2006-05-22 18:36:15 blair Exp $
  *     
 */
 public class Composite extends Owner implements Serializable {
@@ -36,8 +36,9 @@ public class Composite extends Owner implements Serializable {
   // FIXME What about privs?
 
   // Private Class Constants //
-  private static final EventLog EL  = new EventLog();
-  private static final Log      LOG = LogFactory.getLog(Composite.class);
+  private static final EventLog EL    = new EventLog();
+  private static final String   ERR_U = "unable to update composite membership: ";
+  private static final Log      LOG   = LogFactory.getLog(Composite.class);
 
   // Hibernate Properties //
   private Owner         left  = null;
@@ -95,7 +96,12 @@ public class Composite extends Owner implements Serializable {
   } // public void setModified()
 
   public String toString() {
-    return new ToStringBuilder(this).toString();  // TODO Improve
+    return  new ToStringBuilder(this)
+      .append(  "type"  , this.getType().toString()       )
+      .append(  "group" , this.getOwnerGroup().getName()  )
+      .append(  "left"  , this.getLeftGroup().getName()   )
+      .append(  "right" , this.getRightGroup().getName()  )
+      .toString();
   } // public String toString()
 
 
@@ -116,7 +122,29 @@ public class Composite extends Owner implements Serializable {
       MemberOf        mof = MemberOf.addComposite(rs, g, this);
 
       Set cur     = g.getMemberships();       // Current mships
-      Set evaled  = mof.getEffSaves();        // What mships should be
+      // TODO Improve. Sanify.  And so forth.
+      // This one is a little more complicated.  What we want is to get
+      // the list of memberships that the composite should have.  We
+      // retrieve that with `mof.getEffSaves()`.  However, the
+      // memberships in that set will never be equal to current set of
+      // memberships as each membership will have a new uuid.
+      //
+      // **sigh**
+      Set evaled  = new LinkedHashSet();
+      Iterator i  = mof.getEffSaves().iterator();
+      while (i.hasNext()) {
+        Membership ms = (Membership) i.next();
+        try {
+          Membership exists = MembershipFinder.findImmediateMembership(
+            ms.getOwner_id(), ms.getMember_id(), ms.getField()
+          );
+          exists.setSession(rs);
+          evaled.add(exists);
+        }
+        catch (MembershipNotFoundException eMNF) {
+          evaled.add(ms);
+        }        
+      }
       Set diff    = new LinkedHashSet(cur);   // Default to current mships
       diff.removeAll(evaled);                 // Reduce to differences
       Set saves   = new LinkedHashSet(diff);  // Default to differences
@@ -126,16 +154,40 @@ public class Composite extends Owner implements Serializable {
 
       if ( (deletes.size() > 0) || (saves.size() > 0) ) {
         HibernateHelper.saveAndDelete(saves, deletes);
+        Composite._update(deletes);
+        Composite._update(saves);
         //  FIXME LOG! additions + deletions
       }
     }
     catch (HibernateException eH) {
-      //  FIXME LOG!
+      // FIXME  Log!
+      throw new RuntimeException(ERR_U + eH.getMessage(), eH);
     }
     catch (ModelException eM) {
-      //  FIXME LOG!
+      // FIXME  Log!
+      throw new RuntimeException(ERR_U + eM.getMessage(), eM);
     }
   } // protected void update()
+
+
+  // Private Class Methods
+  private static void _update(Set mships) {
+    Set       updates = new LinkedHashSet();
+    Iterator  iterMS  = mships.iterator();
+    while (iterMS.hasNext()) {
+      Membership ms = (Membership) iterMS.next();
+      updates.add( ms.getOwner_id() ); 
+    }
+    Iterator  iterU   = updates.iterator();
+    while (iterU.hasNext()) {
+      Owner     o     = (Owner) iterU.next();
+      Iterator  iter  = CompositeFinder.isFactor(o).iterator();
+      while (iter.hasNext()) {
+        Composite c = (Composite) iter.next();
+        c.update();
+      }
+    }
+  } // private static void _update(mships)
 
 
   // Getters //

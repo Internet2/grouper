@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14.2.7 2006-05-19 18:30:40 blair Exp $
+ * @version $Id: MemberOf.java,v 1.14.2.8 2006-05-22 18:36:15 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -144,7 +144,7 @@ class MemberOf implements Serializable {
     mof.deletes.add(mof.c);   // Delete the composite
     mof.saves.add(mof.o);     // Update the owner
     return mof;
-  } // protected static MemberOf addComposite(s, o, c)
+  } // protected static MemberOf delComposite(s, o, c)
 
   protected static MemberOf delImmediate(
     GrouperSession s, Owner o, Membership ms, Member m
