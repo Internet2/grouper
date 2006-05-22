@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteCompositesU.java,v 1.1.2.20 2006-05-22 19:11:21 blair Exp $
+ * @version $Id: SuiteCompositesU.java,v 1.1.2.21 2006-05-22 19:29:38 blair Exp $
  */
 public class SuiteCompositesU extends TestCase {
 
@@ -72,9 +72,9 @@ public class SuiteCompositesU extends TestCase {
     suite.addTestSuite( TestCompositeU34.class  );  // del union: one child, one comp child, parent
     suite.addTestSuite( TestCompositeU35.class  );  // add union: one child, one comp child, comp parent
     suite.addTestSuite( TestCompositeU36.class  );  // del union: one child, one comp child, comp parent
-/*  TODO
     suite.addTestSuite( TestCompositeU37.class  );  // add union: two comp children, comp parent
     suite.addTestSuite( TestCompositeU38.class  );  // del union: two comp children, comp parent
+/*  TODO
     suite.addTestSuite( TestCompositeU39.class  );  // add member to comp child
     suite.addTestSuite( TestCompositeU40.class  );  // del member from comp child
 */
