@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.10 2006-03-23 18:36:31 blair Exp $
+ * @version $Id: EventLog.java,v 1.11 2006-05-23 19:10:22 blair Exp $
  *     
 */
 class EventLog implements Serializable {
@@ -44,7 +44,6 @@ class EventLog implements Serializable {
   private static final String ERR_EFF_SNF = "effective membership subject not found";
 
   // event log messages
-  private static final String G_AF        = "add factor: group=";
   private static final String G_AM        = "add member: group=";
   private static final String G_AM_E      = "add effective member: group=";
   private static final String G_AT        = "add type: group=";
@@ -65,6 +64,7 @@ class EventLog implements Serializable {
   private static final String GT_DF       = "delete group field: ";
   private static final String S_ACG       = "add group: ";  
   private static final String S_ACS       = "add stem: ";  
+  private static final String S_D         = "stem delete: ";
   private static final String S_GP        = "grant naming priv: stem=";
   private static final String S_GP_E      = "grant effective naming priv: stem=";
   private static final String S_RP        = "revoke naming priv: stem=";
@@ -102,76 +102,43 @@ class EventLog implements Serializable {
 
   // Protected Instance Methods
 
-  // TODO @refactor
-  protected void addEffMembers(GrouperSession s, Membership imm, Set effs) {
-    if (effs.size() > 0) {
-      // Are we logging group adds?
-      if (this.log_eff_group_add == true) {
-        // And is this a group?
-        try {
-          Group g = imm.getGroup();
-          this._addEffs(s, "group=" + g.getName(), imm, effs);
-        }
-        catch (GroupNotFoundException eGNF) {
-          // No?  Are we logging stem adds?
-          if (this.log_eff_stem_add == true) {
-            // And is this a stem?
-            try {
-              Stem ns = imm.getStem();
-              this._addEffs(s, "stem=" + ns.getName(), imm, effs);
-            }
-            catch (StemNotFoundException eNSF) {
-              // TODO Ignore
-            }
-          }
-        }
-      }
-    }
-  } // protected void addEffMembers(s, imm, effs)
-    
-  protected void debug(String msg) {
-    LOG.debug(msg);
-  } // protected void info(msg)
-
-  protected void delEffMembers(GrouperSession s, Membership imm, Set effs) {
-    if (effs.size() > 0) {
-      // Are we logging group adds?
-      if (this.log_eff_group_del == true) {
-        // And is this a group?
-        try {
-          Group g = imm.getGroup();
-          this._delEffs(s, "group=" + g.getName(), imm, effs);
-        }
-        catch (GroupNotFoundException eGNF) {
-          // No?  Are we logging stem adds?
-          if (this.log_eff_stem_del == true) {
-            // And is this a stem?
-            try {
-              Stem ns = imm.getStem();
-              this._delEffs(s, "stem=" + ns.getName(), imm, effs);
-            }
-            catch (StemNotFoundException eNSF) {
-              // TODO Ignore
-            }
-          }
-        }
-      }
-    }
-  } // protected void addEffMembers(s, imm, effs)
-
-  protected void error(String msg) {
-    LOG.error(msg);
-  }
-
-  protected void groupAddFactor(
-    GrouperSession s, String group, Factor f, StopWatch sw
+  protected void addEffMembers(
+    GrouperSession s, Object o, Subject subj, Field f, Set effs
   )
-  { 
-    // TODO Don't use f.toString()
-    GrouperLog.info(
-      LOG, s.toString(), G_AF + group + " factor=" + f.toString(), sw
-    );
-  } // protected void groupAddFactor(s, group, f, sw)
+  {
+    if 
+    ( o.getClass().equals(Group.class) && this.log_eff_group_add == true ) 
+    {
+      Group g = (Group) o;
+      this._addEffs(s, "group=" + g.getName(), subj, f, effs);
+    }
+    else if
+    ( o.getClass().equals(Group.class) && this.log_eff_group_add == true ) 
+    {
+      Stem ns = (Stem) o;
+      this._addEffs(s, "stem=" + ns.getName(), subj, f, effs);
+    }
+  } // protected void addEffMembers(s, o, subj, f, effs)
+
+  protected void delEffMembers(
+    GrouperSession s, Owner o, Subject subj, Field f, Set effs
+  )
+  {
+    if      (o instanceof Group) {
+      if (this.log_eff_group_del == true) {
+        this._delEffs(s, "group=" + ( (Group) o).getName(), subj, f, effs);
+      }
+    }
+    else if (o instanceof Stem) {
+      if (this.log_eff_stem_del == true) {
+        this._delEffs(s, "stem=" + ( (Stem) o).getName(), subj, f, effs);
+      }
+    }
+    else {
+      // FIXME Better message
+      GrouperLog.error(LOG, s, "unable to log deletion of effective memberships");
+    }
+  }
 
   protected void groupAddMember(
     GrouperSession s, String group, Subject subj, Field f, StopWatch sw
@@ -261,10 +228,6 @@ class EventLog implements Serializable {
     GrouperLog.info(LOG, s.toString(), GT_DF + name + " from " + type, sw);
   } // protected void groupDelField(s, group, attr, val, sw);
 
-  protected void info(String msg) {
-    LOG.info(msg);
-  } // protected void info(msg)
-
   protected void sessionStart(String sessionToString, StopWatch sw) {
     GrouperLog.info(LOG, sessionToString, GS_START, sw);
   } // protected sessionStart(sessionToString, sw)
@@ -282,6 +245,10 @@ class EventLog implements Serializable {
   protected void stemAddChildStem(GrouperSession s, String name, StopWatch sw) {
     GrouperLog.info(LOG, s.toString(), S_ACS + name, sw);
   } // protected void stemAddChildGroup(s, name, sw)
+
+  protected void stemDelete(GrouperSession s, String stem, StopWatch sw) {
+    GrouperLog.info(LOG, s.toString(), S_D + stem, sw);
+  } // protected void stemDelete(s, stem, sw)
 
   protected void stemGrantPriv(
     GrouperSession s, String stem, Subject subj, Privilege p, StopWatch sw
@@ -315,96 +282,57 @@ class EventLog implements Serializable {
   // Private Instance Methods
 
   private void _addEffs(
-    GrouperSession fake, String name, Membership imm, Set effs
+    GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    Iterator iter = effs.iterator();
-    while (iter.hasNext()) {
-      Membership eff = (Membership) iter.next();
-      if      (eff.getList().getType().equals(FieldType.ACCESS)) {
-        this._eff(fake, G_GP_E, name, imm, eff, "priv="); 
+    try {
+      GrouperSession root = GrouperSessionFinder.getTransientRootSession();
+      Iterator iter = effs.iterator();
+      while (iter.hasNext()) {
+        Membership eff = (Membership) iter.next();
+        if      (eff.getList().getType().equals(FieldType.ACCESS)) {
+          this._eff(root, s, G_GP_E, name, subj, f, eff, "priv="); 
+        }
+        else if (eff.getList().getType().equals(FieldType.LIST)) {
+          this._eff(root, s, G_AM_E, name, subj, f, eff, "list="); 
+        }
+        else if (eff.getList().getType().equals(FieldType.NAMING)) {
+          this._eff(root, s, S_GP_E, name, subj, f, eff, "priv="); 
+        }
       }
-      else if (eff.getList().getType().equals(FieldType.LIST)) {
-        this._eff(fake, G_AM_E, name, imm, eff, "list="); 
-      }
-      else if (eff.getList().getType().equals(FieldType.NAMING)) {
-        this._eff(fake, S_GP_E, name, imm, eff, "priv="); 
-      }
+      root.stop();
     }
-  } // private void _addEffs(fake, name, imm, effs)
+    catch (SessionException eS) {
+      GrouperLog.error(LOG, s, ERR_EFF_LOG + eS.getMessage());
+    }
+  } // private void _addEffs(s, name, subj, f, effs)
 
   private void _delEffs(
-    GrouperSession fake, String name, Membership imm, Set effs
+    GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    Iterator iter = effs.iterator();
-    while (iter.hasNext()) {
-      Membership eff = (Membership) iter.next();
-      if      (eff.getList().getType().equals(FieldType.ACCESS)) {
-        this._eff(fake, G_RP_E, name, imm, eff, "priv="); 
+    try {
+      GrouperSession root = GrouperSessionFinder.getTransientRootSession();
+      Iterator iter = effs.iterator();
+      while (iter.hasNext()) {
+        Membership eff = (Membership) iter.next();
+        if      (eff.getList().getType().equals(FieldType.ACCESS)) {
+          this._eff(root, s, G_RP_E, name, subj, f, eff, "priv="); 
+        }
+        else if (eff.getList().getType().equals(FieldType.LIST)) {
+          this._eff(root, s, G_DM_E, name, subj, f, eff, "list="); 
+        }
+        else if (eff.getList().getType().equals(FieldType.NAMING)) {
+          this._eff(root, s, S_RP_E, name, subj, f, eff, "priv="); 
+        }
       }
-      else if (eff.getList().getType().equals(FieldType.LIST)) {
-        this._eff(fake, G_DM_E, name, imm, eff, "list="); 
-      }
-      else if (eff.getList().getType().equals(FieldType.NAMING)) {
-        this._eff(fake, S_RP_E, name, imm, eff, "priv="); 
-      }
+      root.stop();
     }
-  } // private void _delEffs(fake, name, imm, effs)
+    catch (SessionException eS) {
+      GrouperLog.error(LOG, s, ERR_EFF_LOG + eS.getMessage());
+    }
+  } // private void _delEffs(s, name, subj, f, effs)
 
-  private void _eff(
-    GrouperSession fake, String msg, String name, Membership imm, Membership eff, String field
-  )
-  {
-    try {
-      Group g = eff.getGroup();
-      msg += g.getName();
-    }
-    catch (GroupNotFoundException eGNF) {
-      try {
-        Stem ns = eff.getStem();
-        msg += ns.getName();
-      }
-      catch (StemNotFoundException eSNF) {
-        GrouperLog.error(LOG, fake, ERR_EFF_ONF);
-        msg += "???";
-      }
-    }   
-    // Get eff field
-    msg += " " + field + eff.getList().getName();
-    // Get eff subject
-    try {
-      Subject subject = eff.getMember().getSubject();
-      msg += " subject=" + SubjectHelper.getPretty(subject);
-    }
-    catch (Exception e) {
-      GrouperLog.error(LOG, fake, ERR_EFF_SNF);
-      msg += "subject=???";
-    }
-    // Get added or removed message that caused this effective membership change
-    msg += " (" + name + " ";
-    Field f = imm.getList();
-    if      (f.getType().equals(FieldType.ACCESS)) {
-      msg += "priv=" + f.getName();
-    }
-    else if (f.getType().equals(FieldType.LIST)) {
-      msg += "list=" + f.getName();
-    }
-    else if (f.getType().equals(FieldType.NAMING)) {
-      msg += "priv=" + f.getName();
-    }
-    // Get added or removed subject that caused this effective
-    // membership change
-    try {
-      msg += " subject=" + SubjectHelper.getPretty(imm.getMember().getSubject()) + ")";
-    }
-    catch (Exception e) {
-      msg += " subject=???";
-    }
-    // Now log it
-    GrouperLog.info(LOG, fake.toString(), msg);
-  } // private void _eff(fake, msg, imm, eff, field)
-  // TODO @deprecate
   private void _eff(
     GrouperSession root, GrouperSession s, String msg, String name, 
     Subject subj, Field f,Membership eff, String field
@@ -439,7 +367,7 @@ class EventLog implements Serializable {
       msg += "subject=???";
     }
     // Get added or removed message that caused this effective membership change
-    msg += " (via " + name + " ";
+    msg += " (" + name + " ";;
     if      (f.getType().equals(FieldType.ACCESS)) {
       msg += "priv=" + f.getName();
     }

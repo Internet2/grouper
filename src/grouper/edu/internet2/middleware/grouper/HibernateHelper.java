@@ -27,11 +27,11 @@ import  org.apache.commons.logging.*;
 /**
  * Hibernate utility helper class.
  * <p/>
- * This code was initially derived code in the book <i>Hibernate In
+ * This code was initially derived from code in the book <i>Hibernate In
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.18 2006-03-16 20:59:57 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.19 2006-05-23 19:10:23 blair Exp $
  */
 class HibernateHelper {
 
@@ -55,15 +55,15 @@ class HibernateHelper {
         .addClass(Member.class)
         .addClass(Membership.class)
         .addClass(Owner.class)
-        .addClass(TxQueue.class)
+        .addClass(Settings.class)
         .buildSessionFactory()
         ;
     } 
-    catch (Throwable e) {
+    catch (Throwable t) {
       // Catch *all* the errors
-      String err = ERR_INIT + e.getMessage();
+      String err = ERR_INIT + t.getMessage();
       LOG.fatal(err);
-      throw new ExceptionInInitializerError(err);
+      throw new ExceptionInInitializerError(t);
     }
   } // static
 
@@ -103,7 +103,7 @@ class HibernateHelper {
       catch (HibernateException eH) {
         msg += ": unable to delete " + err + ": " + eH.getMessage();
         tx.rollback();
-        throw new HibernateException(msg);
+        throw new HibernateException(msg, eH);
       }
       finally {
         hs.close();
@@ -111,7 +111,7 @@ class HibernateHelper {
     }
     catch (HibernateException eH) {
       LOG.error(eH.getMessage());
-      throw new HibernateException(eH.getMessage());
+      throw new HibernateException(eH.getMessage(), eH);
     }
     LOG.info(msg + ": deleted " + objects.size());
   } // protected static void delete(objects)
@@ -138,7 +138,7 @@ class HibernateHelper {
   protected static void save(Set objects)
     throws HibernateException
   { 
-    Object  err = null;
+    Object err = null;
     String  msg = "save";
     LOG.debug(msg + ": will save " + objects.size());
     try {
@@ -156,10 +156,9 @@ class HibernateHelper {
         tx.commit();
       }
       catch (HibernateException eH) {
-        msg += ": unable to save " + err + "[" + err.getClass().getName() 
-            + "] <<" + objects + ">>: " + eH.getMessage();
+        msg += ": unable to save " + err + ": " + eH.getMessage();
         tx.rollback();
-        throw new HibernateException(msg);
+        throw new HibernateException(msg, eH);
       }
       finally {
         hs.close();
@@ -167,7 +166,7 @@ class HibernateHelper {
     }
     catch (HibernateException eH) {
       LOG.error(eH.getMessage());
-      throw new HibernateException(eH.getMessage());
+      throw new HibernateException(eH.getMessage(), eH);
     }
     LOG.info(msg + ": saved " + objects.size());
   } // protected static void save(objects)
@@ -190,7 +189,7 @@ class HibernateHelper {
           }
           catch (HibernateException eH) {
             String msg = "unable to delete " + o + ": " + eH.getMessage();
-            throw new HibernateException(msg);
+            throw new HibernateException(msg, eH);
           }
         }
         while (iterS.hasNext()) {
@@ -201,14 +200,14 @@ class HibernateHelper {
           }
           catch (HibernateException eH) {
             String msg = "unable to save " + o + ": " + eH.getMessage();
-            throw new HibernateException(msg);
+            throw new HibernateException(msg, eH);
           }
         }
         tx.commit();
       }
       catch (HibernateException eH) {
         tx.rollback();
-        throw new HibernateException(eH.getMessage());
+        throw new HibernateException(eH.getMessage(), eH);
       }
       finally {
         hs.close();
@@ -216,21 +215,12 @@ class HibernateHelper {
     }
     catch (HibernateException eH) {
       LOG.error(eH.getMessage());
-      throw new HibernateException(eH.getMessage());
+      throw new HibernateException(eH.getMessage(), eH);
     }
     LOG.info("saved: " + saves.size() + " deleted: " + deletes.size());
   } // protected static void saveAndDelete(saves, deletes)
 
-  // update the object with what is in the registry
-  protected static void update(Object o) 
-    throws  HibernateException 
-  {
-    Session hs = getSession();
-    hs.update(o);
-    hs.close();
-  } // protected static void update(o)
 
-  
   // Private Class Methods
   private static Object _getPersistent(Session hs, Object o) {
     boolean persistent  = false;
@@ -256,7 +246,7 @@ class HibernateHelper {
         String err = ERR_GP + o + ":" + eR.getMessage();
         LOG.fatal(err);
         eR.printStackTrace();
-        throw new RuntimeException(err);
+        throw new RuntimeException(err, eR);
       }
     }
     return o;

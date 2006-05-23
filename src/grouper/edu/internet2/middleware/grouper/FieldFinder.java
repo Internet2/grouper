@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.9 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.10 2006-05-23 19:10:23 blair Exp $
  */
 public class FieldFinder {
 
@@ -58,24 +58,23 @@ public class FieldFinder {
    * <pre class="eg">
    * Field f = FieldFinder.find(field);
    * </pre>
+   * @param   name  Name of {@link Field} to return.
    * @throws  SchemaException
    */
-  public static Field find(String field) 
+  public static Field find(String name) 
     throws  SchemaException
   {
-    if (fields.containsKey(field)) {
-      return (Field) fields.get(field);
+    // First check to see if type is cached.
+    if (fields.containsKey(name)) {
+      return (Field) fields.get(name);
     }
-    Iterator iter = findAll().iterator();
-    while (iter.hasNext()) {
-      Field f = (Field) iter.next();
-      if (f.getName().equals(field)) {
-        fields.put(field, f);
-        return f;
-      }
+    // If not, refresh known types as it may be new and try again. 
+    _updateKnownFields();
+    if (fields.containsKey(name)) {
+      return (Field) fields.get(name);
     }
-    throw new SchemaException("invalid field: " + field);
-  } // public static Field find(field)
+    throw new SchemaException("field not found: " + name);
+  } // public static Field find(name)
 
   /**
    * Find all fields.
@@ -88,7 +87,7 @@ public class FieldFinder {
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery("from Field order by field_name asc");
-      qry.setCacheable(GrouperConfig.QRY_FF_FA);
+      qry.setCacheable(GrouperConfig.QRY_FF_FA);  // TODO I'm wary
       qry.setCacheRegion(GrouperConfig.QCR_FF_FA);
       fields.addAll(qry.list());
       hs.close();  
@@ -96,7 +95,7 @@ public class FieldFinder {
     catch (HibernateException eH) {
       String err = ERR_FA + eH.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eH);
     }
     return fields;
   } // public Static Set findAll()
@@ -125,10 +124,40 @@ public class FieldFinder {
     catch (HibernateException eH) {
       String err = ERR_FAT + eH.getMessage();
       LOG.error(err);
-      throw new SchemaException(err);
+      throw new SchemaException(err, eH);
     }
     return fields;
   } // public static Set fieldAllByType(type)
+
+
+  // Private Class Methods //
+  private static void _updateKnownFields() {
+    // TODO This method irks me still even if it is now more
+    //      functionally correct
+    Set fieldsInRegistry = findAll();
+    // Look for types to add
+    Iterator addIter = fieldsInRegistry.iterator();
+    while (addIter.hasNext()) {
+      Field f = (Field) addIter.next();
+      if (!fields.containsKey(f.getName())) {
+        fields.put(f.getName(), f); // New field.  Add it to the cached list.
+      }
+    }
+    // Look for fields to remove
+    Set       toDel   = new LinkedHashSet();
+    Iterator  delIter = fields.values().iterator();
+    while (delIter.hasNext()) {
+      Field f = (Field) delIter.next();
+      if (!fieldsInRegistry.contains(f)) {
+        toDel.add(f.getName()); 
+      }
+    }
+    Iterator  toDelIter = toDel.iterator();
+    while (toDelIter.hasNext()) {
+      String field = (String) toDelIter.next();
+      fields.remove(field);  
+    }
+  } // private static void _updateKnownFields()
 
 }
 

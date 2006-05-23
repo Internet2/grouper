@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: PROJECT_LAYOUT,v 1.6 2006-03-10 20:22:42 blair Exp $
+$Id: PROJECT_LAYOUT,v 1.7 2006-05-23 19:10:22 blair Exp $
 
 ---
 
@@ -131,27 +131,6 @@ particular future release.
 
 Third-party jar files included with Grouper.  See _java/lib/README_ for
 more details on the jar files included.
-
----
-
-## sql/
-
-### schema-export.sql
-
-Hibernate-generated DDL for your configured database type.  This
-file is generated at build.
-
-### schema-export-hsqldb.sql
-
-A pre-generated DDL for HSQLDB.
-
-### schema-export-oracle9i.sql
-
-A pre-generated DDL for Oracle 9i.
-
-### schema-export-pg8.sql
-
-A pre-generated DDL for Postgresql 8.
 
 ---
 

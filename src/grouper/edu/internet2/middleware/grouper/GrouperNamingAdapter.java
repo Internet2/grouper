@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.36 2006-03-16 20:59:57 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.37 2006-05-23 19:10:23 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -205,29 +205,18 @@ public class GrouperNamingAdapter implements NamingAdapter {
             InsufficientPrivilegeException,
             SchemaException
   {
-    GrouperSession.validate(s);
-    Field   f   = this._getField(priv);
-    String  msg = MSG_GP + "'" + f + "' " + SubjectHelper.getPretty(subj);
-    String  err = ERR_GP;
-    GrouperLog.debug(LOG, s, msg);
     try {
-      PrivilegeResolver.getInstance().canWriteField(
-        s, ns, s.getSubject(), f, FieldType.NAMING
-      );
-      GrouperLog.debug(LOG, s, msg + " can grant priv");
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + ": " + eIP.getMessage());
-      throw eIP;
-    }
-    try {
+      GrouperSessionValidator.validate(s);
+      Field f = this._getField(priv);
+      StemValidator.canWriteField(s, ns, s.getSubject(), f, FieldType.NAMING);
       Membership.addImmediateMembership(s, ns, subj, f);
     }
     catch (MemberAddException eMA) {
-      GrouperLog.debug(LOG, s, msg + ": " + eMA.getMessage());
-      throw new GrantPrivilegeException(eMA.getMessage());
+      throw new GrantPrivilegeException(eMA.getMessage(), eMA);
     }
-    GrouperLog.debug(LOG, s, msg + ": granted");
+    catch (ModelException eM) {
+      throw new GrantPrivilegeException(eM.getMessage(), eM);
+    }
   } // public void grantPriv(s, ns, subj, priv)
 
   /**
@@ -286,74 +275,30 @@ public class GrouperNamingAdapter implements NamingAdapter {
             RevokePrivilegeException,
             SchemaException
   {
-    GrouperSession.validate(s);
-    String msg  = "revokePriv '" + priv + "'";
-    Field  f    = this._getField(priv);
-    GrouperLog.debug(LOG, s, msg);
-
     try {
-      PrivilegeResolver.getInstance().canWriteField(
-        s, ns, s.getSubject(), f, FieldType.NAMING
-      );
-      GrouperLog.debug(LOG, s, msg + " can revoke priv");
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + ": " + eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
-    }
+      GrouperSessionValidator.validate(s);
+      Field f = this._getField(priv);
+      StemValidator.canWriteField(s, ns, s.getSubject(), f, FieldType.NAMING);
 
-    try {
       // The objects that will need updating and deleting
       Set     saves   = new LinkedHashSet();
       Set     deletes = new LinkedHashSet();
 
-      // Update stem modify time
       ns.setModified();
       saves.add(ns);
 
-      // Find privileges that need to be revoked
-      GrouperLog.debug(LOG, s, msg + " find privs to revoke");
-      deletes = Membership.deleteAllField(s, ns, f);
-      GrouperLog.debug(
-        LOG, s, msg + " found privs to revoke: " + deletes.size()
-      );
-
-      // And then update the registry
-      GrouperLog.debug(LOG, s, msg + " committing changes to registry");
-      HibernateHelper.saveAndDelete(saves, deletes);
-      GrouperLog.debug(LOG, s, msg + " revoked privs: " + deletes.size());
+      try {
+        // Find privileges that need to be revoked and then update registry
+        deletes = Membership.deleteAllField(s, ns, f);
+        HibernateHelper.saveAndDelete(saves, deletes);
+      }
+      catch (Exception e) {
+        throw new RevokePrivilegeException(e.getMessage(), e);
+      }
     }
-    catch (GroupNotFoundException eGNF) {
-      String err = msg + ": " + eGNF.getMessage();
-      GrouperLog.debug(LOG, s, err);
-      throw new RevokePrivilegeException(err);
+    catch (ModelException eM) {
+      throw new RevokePrivilegeException(eM.getMessage(), eM);
     }
-    catch (HibernateException eH) {
-      String err = msg + ": " + eH.getMessage();
-      GrouperLog.debug(LOG, s, err);
-      throw new RevokePrivilegeException(err);
-    }
-    catch (MemberDeleteException eMD) {
-      String err = msg + ": " + eMD.getMessage();
-      GrouperLog.debug(LOG, s, err);
-      throw new RevokePrivilegeException(err);
-    }
-    catch (MemberNotFoundException eMNF) {
-      String err = msg + ": " + eMNF.getMessage();
-      GrouperLog.debug(LOG, s, err);
-      throw new RevokePrivilegeException(err);
-    }
-    catch (StemNotFoundException eNSNF) {
-      String err = msg + ": " + eNSNF.getMessage();
-      GrouperLog.debug(LOG, s, err);
-      throw new RevokePrivilegeException(err);
-    }
-    catch (SubjectNotFoundException eSNF) {
-      String err = msg + ": " + eSNF.getMessage();
-      GrouperLog.debug(LOG, s, err);
-      throw new RevokePrivilegeException(err);
-    }
-    GrouperLog.debug(LOG, s, msg + " revoked");
   } // public void revokePriv(s, ns, priv)
 
   /**
@@ -384,37 +329,35 @@ public class GrouperNamingAdapter implements NamingAdapter {
             RevokePrivilegeException,
             SchemaException
   {
-    GrouperSession.validate(s);
-    Field   f   = this._getField(priv);
-    String  msg = MSG_GP + "'" + f + "' " + SubjectHelper.getPretty(subj);
-    String  err = ERR_RP;
-    GrouperLog.debug(LOG, s, msg);
     try {
-      PrivilegeResolver.getInstance().canWriteField(
-        s, ns, s.getSubject(), f, FieldType.NAMING
-      );
-      GrouperLog.debug(LOG, s, msg + " can revoke priv");
+      GrouperSessionValidator.validate(s);
+      Field f = this._getField(priv);
+      StemValidator.canWriteField(s, ns, s.getSubject(), f, FieldType.NAMING);
+      MemberOf  mof     = Membership.delImmediateMembership(s, ns, subj, f);
+      Set       saves   = mof.getSaves();
+      Set       deletes = mof.getDeletes();
+
+      // TODO Should this be in _Stem_?  
+      // TODO Actually, should it done at all?
+      ns.setModified();
+      saves.add(ns);
+
+      // And then commit changes to registry
+      HibernateHelper.saveAndDelete(saves, deletes);
     }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + ": " + eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
-    }
-    try {
-      Membership.delImmediateMembership(s, ns, subj, f);
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException(eH);
     }
     catch (MemberDeleteException eMD) {
-      GrouperLog.debug(LOG, s, msg + ": " + eMD.getMessage());
-      throw new RevokePrivilegeException(eMD.getMessage());
+      throw new RevokePrivilegeException(eMD);
     }
-    catch (MembershipNotFoundException eMNF) {
-      GrouperLog.debug(LOG, s, msg + ": " + eMNF.getMessage());
-      throw new RevokePrivilegeException(eMNF.getMessage());
+    catch (ModelException eM) {
+      throw new RevokePrivilegeException(eM);
     }
-    GrouperLog.debug(LOG, s, msg + ": revoked");
   } // public void revokePriv(s, ns, subj, priv)
 
   
-  // Private Instance Methods
+  // Private Instance Methods //
   private Field _getField(Privilege priv) 
     throws  SchemaException
   {

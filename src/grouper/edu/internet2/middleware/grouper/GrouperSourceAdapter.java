@@ -41,7 +41,7 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.8 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.9 2006-05-23 19:10:23 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -102,12 +102,12 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   {
     try {
       return new GrouperSubject(
-        GroupFinder.findByUuid(GrouperSessionFinder.getRootSession(), id), this
+        GroupFinder.findByUuid(GrouperSessionFinder.getRootSession(), id)
       );
     }
-    catch (GroupNotFoundException e) {
+    catch (Exception e) {
       throw new SubjectNotFoundException(
-        "subject not found: " + e.getMessage()
+        "subject not found: " + e.getMessage(), e
       );
     }
   } // public Subject getSubject(id)
@@ -141,12 +141,12 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   {
     try {
       return new GrouperSubject(
-        GroupFinder.findByName(GrouperSessionFinder.getRootSession(), name), this
+        GroupFinder.findByName(GrouperSessionFinder.getRootSession(), name)
       );
     }
-    catch (GroupNotFoundException e) {
+    catch (Exception e) {
       throw new SubjectNotFoundException(
-        "subject not found: " + e.getMessage()
+        "subject not found: " + e.getMessage(), e
       );
     }
   } // public Subject getSubjectByIdentifier(name)

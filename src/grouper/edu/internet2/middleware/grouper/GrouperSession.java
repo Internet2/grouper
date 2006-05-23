@@ -30,90 +30,43 @@ import  org.apache.commons.logging.*;
 
 
 /** 
- * Session for interacting with the Grouper API.
+ * Context for interacting with the Grouper API and Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.20 2006-03-23 18:36:31 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.21 2006-05-23 19:10:23 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
 
-  // Private Class Constants
+  // Private Class Constants //
   private static final EventLog EL        = new EventLog();
+  private static final Log      LOG       = LogFactory.getLog(GrouperSession.class);
   private static final String   ERR_GS    = "unable to get subject associated with session";
   private static final String   ERR_START = "unable to start session: ";
   private static final String   ERR_STOP  = "unable to stop session: ";
-  private static final Log      LOG       = LogFactory.getLog(GrouperSession.class);
 
-
-  // Hibernate Properties
+  // Hibernate Properties //
   private String  id;
   private Member  member_id;
   private String  session_id;
   private Date    start_time;
 
-
-  // Private Class Variables
+  // Private Class Variables //
   private static Subject root = null;
 
-
-  // Private Transient Instance Variables
+  // Private Transient Instance Variables //
   private transient Subject subj  = null;
   private transient String  who;
   private transient String  type;
 
 
-  // Constructors
-
-  /**
-   * Default constructor for Hibernate.
-   */
-  public GrouperSession() { 
-    // Nothing
-  } // public GrouperSession()
-
-  // For internal logging purposes
-  protected GrouperSession(String uuid, Member m) {
-    this.session_id = uuid;
-    this.member_id  = m;
-    this.who        = m.getSubjectId();
-    this.type       = m.getSubjectTypeId();
-  } // protected GrouperSession(uuid, m)
+  // Constructors //
+  private GrouperSession() { 
+    // Default constructor for Hibernate
+  } // private GrouperSession()
 
 
-  // Public class methods
-
-  /**
-   * Flush the results of a cached query.
-   * <p>
-   * <b>NOTE:</b> This method may not remain public.
-   * </p>
-   * <p>
-   * The caches that can be flushed are listed in
-   * <tt>conf/ehcache.xml</tt>.
-   * </p>
-   * <pre class="eg">
-   * try {
-   *   GrouperSession.flushCache(name);
-   * }
-   * catch (SessionException eS) {
-   *  // error flushing cache
-   * }
-   * </pre>
-   * @param   name  name of ehcache query cache to flush.
-   * @throws  SessionException
-   * @since   1.0
-   */
-  public static void flushCache(String name) 
-    throws  SessionException
-  {
-    try {
-      CacheMgr.resetCache( CacheMgr.getCache(name) );
-    }
-    catch (Exception e) {
-      throw new SessionException(e.getMessage());
-    }
-  } // public static void flushCache(name)
+  // Public Class Methods //
 
   /**
    * Start a session for interacting with the Grouper API.
@@ -147,42 +100,32 @@ public class GrouperSession implements Serializable {
       // @MemberNotFoundException
       String err = ERR_START + e.getMessage();
       LOG.fatal(err);
-      throw new SessionException(err);
+      throw new SessionException(err, e);
     }
   } // public static GrouperSession start(subject)
 
-  /**
-   * Wait for all transactions initiated by all sessions to be
-   * completed.
-   * <p/>
-   * This method will poll every 250ms to see if there are pending
-   * transactions for this session.  The method will complete once all
-   * transactions are either complete or have failed.
-   */
-  public static void waitForAllTx() {
-    long start = new Date().getTime();
-    Set results = new HashSet();
-    while (true) {
-      results = TxQueueFinder.findByStatus("wait");
-      if (results.size() == 0) {
-        break;
-      }
+  protected static GrouperSession startTransient() {
+    if (root == null) {
       try {
-        // TODO What's a good time?
-        // Thread.sleep( (long) (Math.random() * 250) );
-        EL.debug("WAITING FOR ALL TX: " + results.size());
-        Iterator iter = results.iterator();
-        int idx = 0;
-        while (iter.hasNext()) {
-          TxQueue tx = (TxQueue) iter.next();
-          EL.debug("WAITING FOR ALL TX[" + idx++ + "] " + tx);
-        }
-        Thread.sleep(250);
-      } catch (InterruptedException e) {
-        // Nothing
+        root = SubjectFinder.findById(
+          GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID
+        );
       }
-    }  
-  } // public static void waitForAllTx()
+      catch (Exception e) {
+        String err = GrouperLog.ERR_GRS + e.getMessage();
+        LOG.fatal(err);
+        throw new RuntimeException(err, e);
+      }
+    }
+    try {
+      return _getSession(root);
+    }
+    catch (Exception e) {
+      String err = GrouperLog.ERR_GRS + e.getMessage();
+      LOG.fatal(err);
+      throw new RuntimeException(err, e);
+    }
+  } // protected static GrouperSession startTransient()
 
 
   // Public instance methods
@@ -314,7 +257,7 @@ public class GrouperSession implements Serializable {
     catch (HibernateException eH) {
       String err = ERR_STOP + eH.getMessage();
       LOG.error(err);
-      throw new SessionException(err);
+      throw new SessionException(err, eH);
     }
   } // public void stop()
 
@@ -326,56 +269,9 @@ public class GrouperSession implements Serializable {
       .toString();
   } // public String toString()
 
-  /**
-   * Wait for transactions initiated by this session to complete.
-   * <p/>
-   * This method will poll every 250ms to see if there are pending
-   * transactions for this session.  The method will complete once all
-   * transactions are either complete or have failed.
-   */
-  public void waitForTx() {
-    long start = new Date().getTime();
-    Set results = new HashSet();
-    while (true) {
-      results = TxQueueFinder.findBySession(this.getSession_id()); 
-      if (results.size() == 0) {
-        break;
-      }
-      try {
-        // TODO What's a good time?
-        // Thread.sleep( (long) (Math.random() * 250) );
-        Thread.sleep(250);
-      } catch (InterruptedException e) {
-        // Nothing
-      }
-    }  
-  } // public void waitForTx()
-
 
   // Protected Class Methods
-  protected static GrouperSession startTransient() {
-    if (root == null) {
-      try {
-        root = SubjectFinder.findById(
-          GrouperConfig.ROOT, GrouperConfig.IST
-        );
-      }
-      catch (Exception e) {
-        String err = GrouperLog.ERR_GRS + e.getMessage();
-        LOG.fatal(err);
-        throw new RuntimeException(err);
-      }
-    }
-    try {
-      return _getSession(root);
-    }
-    catch (Exception e) {
-      String err = GrouperLog.ERR_GRS + e.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err);
-    }
-  } // protected static GrouperSession startTransient()
-
+  // TODO Deprecate
   protected static void validate(GrouperSession s) {
     try {
       if (s == null) {
@@ -393,7 +289,7 @@ public class GrouperSession implements Serializable {
     }
     catch (RuntimeException e) {
       e.printStackTrace();
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException(e.getMessage(), e);
     }
   } // protected static void validate(s)
 

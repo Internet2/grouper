@@ -105,6 +105,26 @@
   />
   <!-- Grouper Sessions -->
 
+  <!-- Hibernate Subjects -->
+  <cache  name="edu.internet2.middleware.grouper.HibernateSubject"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="60"
+          overflowToDisk="false"  
+  />
+  <!-- Hibernate Subjects -->
+
+  <!-- Hibernate Subject Attributess -->
+  <cache name="edu.internet2.middleware.grouper.HibernateSubjectAttribute"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="60"
+          overflowToDisk="false"  
+  />
+  <!-- Hibernate Subject Attributes -->
+
   <!-- Members -->
   <cache  name="edu.internet2.middleware.grouper.Member"
           maxElementsInMemory="1000"
@@ -156,7 +176,22 @@
 
   <!-- Queries -->
 
-  <!-- Not Cached In Code --> 
+  <cache  name="edu.internet2.middleware.grouper.CompositeFinder.IsFactor"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache  name="edu.internet2.middleware.grouper.CompositeFinder.IsOwner"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
   <cache  name="edu.internet2.middleware.grouper.FieldFinder.FindAll"
           maxElementsInMemory="100"
           eternal="false"
@@ -165,7 +200,6 @@
           overflowToDisk="false"
   />
         
-  <!-- Not Cached In Code --> 
   <cache  name="edu.internet2.middleware.grouper.FieldFinder.FindAllByType"
           maxElementsInMemory="100"
           eternal="false"
@@ -262,6 +296,14 @@
           overflowToDisk="false"
   />
        
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindByUuid"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+       
   <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindChildMemberships"
           maxElementsInMemory="1000"
           eternal="false"
@@ -350,7 +392,39 @@
           overflowToDisk="false"
   />
  
+  <cache name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayExtension"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayName"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateExtension"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
   <cache  name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateName"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+        
+  <cache name="edu.internet2.middleware.grouper.StemFinder.FindByApproximateNameAny"
           maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="300"
@@ -389,34 +463,8 @@
           timeToLiveSeconds="600"
           overflowToDisk="false"
   />
-       
-  <!-- Not Cached In Code --> 
-  <cache  name="edu.internet2.middleware.grouper.TxQueueFinder.FindAll"
-          maxElementsInMemory="100"
-          eternal="false"
-          timeToIdleSeconds="5"
-          timeToLiveSeconds="15"
-          overflowToDisk="false"
-  />
         
-  <!-- Not Cached In Code --> 
-  <cache name="edu.internet2.middleware.grouper.TxQueueFinder.FindBySession"
-          maxElementsInMemory="100"
-          eternal="false"
-          timeToIdleSeconds="5"
-          timeToLiveSeconds="15"
-          overflowToDisk="false"
-  />
-        
-  <!-- Not Cached In Code --> 
-  <cache name="edu.internet2.middleware.grouper.TxQueueFinder.FindByStatus"
-          maxElementsInMemory="100"
-          eternal="false"
-          timeToIdleSeconds="5"
-          timeToLiveSeconds="15"
-          overflowToDisk="false"
-  />
-        
+
   <!-- Queries -->
 
 <!--

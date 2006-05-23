@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.31 2006-03-16 20:59:57 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.32 2006-05-23 19:10:23 blair Exp $
  */
 public class MembershipFinder {
 
@@ -88,9 +88,7 @@ public class MembershipFinder {
     Set mships = new LinkedHashSet();
     try {
       Member      m     = MemberFinder.findBySubject(s, subj);
-      Set         effs  = findEffectiveMemberships(
-        g, m.getId(), f, via, depth
-      );
+      Set         effs  = findEffectiveMemberships(g, m.getId(), f, via, depth);
       if (effs.size() > 0) {
         try {
           PrivilegeResolver.getInstance().canPrivDispatch(
@@ -109,7 +107,7 @@ public class MembershipFinder {
       }
     }
     catch (MemberNotFoundException eMNF) {
-      throw new MembershipNotFoundException(eMNF.getMessage());
+      throw new MembershipNotFoundException(eMNF.getMessage(), eMNF);
     }
     return mships;
   } // public static Membership findEffectiveMembership(s, g, subj, f, via, depth)
@@ -154,13 +152,13 @@ public class MembershipFinder {
       // @exception GroupNotFoundException
       // @exception InsufficientPrivilegeException
       // @exception MemberNotFoundException
-      throw new MembershipNotFoundException(e.getMessage());
+      throw new MembershipNotFoundException(e.getMessage(), e);
     }
   } // public static Membership findImmediateMembership(s, g, m, f)
 
 
 
-  // Protected Class Methods
+  // Protected Class Methods //
 
   protected static Set findAllMemberships(GrouperSession s, Member m) {
     /*
@@ -192,6 +190,38 @@ public class MembershipFinder {
     }
     return mships;
   } // protected static Set findAllMemberships(s, m)
+
+  // FIXME  Does this even work?
+  protected static Membership findByUuid(GrouperSession s, String uuid) 
+    throws MembershipNotFoundException
+  {
+    GrouperSession.validate(s);
+    try {
+      Membership  ms  = null;
+      Session     hs  = HibernateHelper.getSession();
+      Query       qry = hs.createQuery(
+        "from Membership as ms where ms.uuid = :uuid"
+      );
+      qry.setCacheable(GrouperConfig.QRY_MSF_FBU);
+      qry.setCacheRegion(GrouperConfig.QCR_MSF_FBU);
+      qry.setString("uuid", uuid);
+      List mships  = qry.list();
+      if (mships.size() == 1) {
+        ms = (Membership) mships.get(0);
+        ms.setSession(s);
+      }
+      hs.close();
+      if (ms == null) {
+        throw new MembershipNotFoundException("membership not found");
+      }
+      return ms; 
+    }
+    catch (HibernateException eH) {
+      throw new MembershipNotFoundException(
+        "error finding membership: " + eH.getMessage(), eH
+      );  
+    }
+  } // protected static Membership findByUuid(s, uuid)
 
   protected static Set findChildMemberships(GrouperSession s, Membership ms) { 
     /*
@@ -270,23 +300,23 @@ public class MembershipFinder {
       );
       qry.setCacheable(GrouperConfig.QRY_MSF_FEM);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FEM);
-      qry.setParameter( "owner" , o);
-      qry.setString(    "mid"   , mid                   );
-      qry.setString(    "fname" , f.getName()           );
-      qry.setString(    "ftype" , f.getType().toString());
-      qry.setParameter( "via"   , via);
-      qry.setInteger(   "depth" , depth                 );
+      qry.setParameter( "owner"   , o                     );
+      qry.setString(    "mid"     , mid                   ); // FIXME
+      qry.setString(    "fname"   , f.getName()           );
+      qry.setString(    "ftype"   , f.getType().toString());
+      qry.setParameter( "via"     , via                   );
+      qry.setInteger(   "depth"   , depth                 );
       mships.addAll(qry.list());
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new MembershipNotFoundException(eH.getMessage());
+      throw new MembershipNotFoundException(eH.getMessage(), eH);
     }
     return mships;
   } // protected static Set findEffectiveMembership(o, mid, field, via, depth)
 
   protected static Set findEffectiveMemberships(
-    GrouperSession s, Owner o, Field f
+    GrouperSession s, Group g, Field f
   )
   {
     /*
@@ -309,7 +339,7 @@ public class MembershipFinder {
       );
       qry.setCacheable(GrouperConfig.QRY_MSF_FEMO);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMO);
-      qry.setParameter( "owner" , o                     );
+      qry.setParameter( "owner" , g                     );
       qry.setString(    "fname" , f.getName()           );
       qry.setString(    "ftype" , f.getType().toString());
       List    l     = qry.list();
@@ -362,7 +392,10 @@ public class MembershipFinder {
     return mships;
   } // protected static Set findEffectiveMemberships(s, m, f)
 
-  protected static Set findEffectiveMemberships(Owner o, Member m, Field f) {
+  protected static Set findEffectiveMemberships(
+    Owner o, Member m, Field f
+  )
+  {
     /*
      * @caller    public  Member.isEffectiveMember(Group g, Field f)
      * @filtered  false
@@ -383,7 +416,7 @@ public class MembershipFinder {
       qry.setCacheable(GrouperConfig.QRY_MSF_FEMOM);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMOM);
       qry.setParameter( "owner" , o                     );
-      qry.setString(    "mid"   , m.getId()             );
+      qry.setString(    "mid"   , m.getId()             ); // FIXME
       qry.setString(    "fname" , f.getName()           );
       qry.setString(    "ftype" , f.getType().toString());
       mships.addAll(qry.list());
@@ -443,14 +476,14 @@ public class MembershipFinder {
       qry.setCacheable(GrouperConfig.QRY_MSF_FIM);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FIM);
       qry.setParameter( "owner" , o                     );
-      qry.setString(    "mid"   , m.getId()             );
+      qry.setString(    "mid"   , m.getId()             ); // FIXME Why not just setParameter()?
       qry.setString(    "fname" , f.getName()           );
       qry.setString(    "ftype" , f.getType().toString()); 
       mships.addAll(qry.list());
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new MembershipNotFoundException(eH.getMessage());
+      throw new MembershipNotFoundException(eH.getMessage(), eH);
     }
     if (mships.size() == 1) {
       Membership ms = (Membership) mships.get(0);
@@ -650,7 +683,6 @@ public class MembershipFinder {
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FMSHIPSO_PRO);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -660,24 +692,24 @@ public class MembershipFinder {
         + "and  ms.field.name = :fname  "
         + "and  ms.field.type = :ftype"
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FMO);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FMO);
+      qry.setCacheable(   GrouperConfig.QRY_MSF_FMO );
+      qry.setCacheRegion( GrouperConfig.QCR_MSF_FMO );
       qry.setParameter( "owner" , o                     );
       qry.setString(    "fname" , f.getName()           );
       qry.setString(    "ftype" , f.getType().toString());
       List    l   = qry.list();
       hs.close();
-      GrouperLog.debug(LOG, s, MSG_FMSHIPSO_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
     }
     catch (HibernateException eH) {
       GrouperLog.error(LOG, s, MSG_FMSHIPSO_PRO + ": " + eH.getMessage());
     }
-    GrouperLog.debug(LOG, s, MSG_FMSHIPSO_PRO + " filtered: " + mships.size());
     return mships;
   } // protected static Set findMemberships(s, o, f)
 
-  protected static Set findMemberships(Owner o, Member m, Field f)
+  protected static Set findMemberships(
+    Owner o, Member m, Field f
+  )
   {
     /*
      * @caller    public  GrouperAccessAdapter.getPrivs(s, g, subj)
@@ -700,7 +732,7 @@ public class MembershipFinder {
       qry.setCacheable(GrouperConfig.QRY_MSF_FMOM);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FMOM);
       qry.setParameter( "owner" , o                     );
-      qry.setString(    "mid"   , m.getId()             );
+      qry.setString(    "mid"   , m.getId()             ); // FIXME
       qry.setString(    "fname" , f.getName()           );
       qry.setString(    "ftype" , f.getType().toString());
       mships.addAll(qry.list());
@@ -716,8 +748,6 @@ public class MembershipFinder {
   // Private Class Methods
   private static Set _filterMemberships(GrouperSession s, Field f, List l) {
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FMSHIPS);
-    GrouperLog.debug(LOG, s, MSG_FMSHIPS + " unfiltered: " + l.size());
     Set       mships  = new LinkedHashSet();
     Iterator  iter    = l.iterator();
     while (iter.hasNext()) {
@@ -744,7 +774,6 @@ public class MembershipFinder {
         // ignore
       }
     }
-    GrouperLog.debug(LOG, s, MSG_FMSHIPS + " filtered: " + mships.size());
     return mships;
   } // private static Set _filterMemberships(s, f, l)
 

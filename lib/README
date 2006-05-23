@@ -4,7 +4,7 @@
 This file provides information on the third party libraries that ship
 with Grouper.
 
-$Id: README,v 1.18 2006-02-13 20:18:05 blair Exp $
+$Id: README,v 1.19 2006-05-23 19:10:22 blair Exp $
 
 ---
 
@@ -114,7 +114,7 @@ Hibernate extensions for code and schema generation.
 
 "Lightweight 100% Java SQL Database Engine"
 
-* Version:  1.8.0.2
+* Version:  1.7.2.11
 * Source:   <http://hsqldb.sourceforge.net/>
 * License:  Hypersonic License
 
@@ -187,7 +187,7 @@ implementation"
 
 "The I2MI Subject Interface."
 
-* Version:  CVS HEAD checkout on 20051209
+* Version:  0.1c
 * Source:   <http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/subject/?cvsroot=I2MI>
 * License:  Apache License, Version 2.0 (?)
 

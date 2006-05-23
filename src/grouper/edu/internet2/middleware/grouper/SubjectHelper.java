@@ -26,39 +26,38 @@ import  org.apache.commons.logging.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.8 2006-04-06 16:53:28 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.9 2006-05-23 19:10:23 blair Exp $
  */
-public class SubjectHelper {
+class SubjectHelper {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(SubjectHelper.class);
 
 
-  // Public Class Methods //
-  public static boolean eq(Subject a, Subject b) {
+  // Protected Class Methods
+
+  protected static boolean eq(Subject a, Subject b) {
     if ( (a == null) || (b == null) ) {
       return false;
     }
     if 
     (
-          a.getId().equals(     b.getId()     )
-      &&  a.getType().equals(   b.getType()   )
-      &&  a.getSource().equals( b.getSource() )
+      a.getId().equals(b.getId())
+      && a.getType().equals(b.getType())
+      && a.getSource().equals(b.getSource())
     )
     {
       return true;
     }
     return false;
-  } // public static boolean eq(a, b)
+  } // protected static boolean eq(a, b)
 
-
-  // Protected Class Methods //
   protected static String getPretty(Subject subj) {
     String pretty = subj.getId();
     if (subj.getType().equals(SubjectTypeEnum.valueOf("group"))) {
       pretty = subj.getName();
     }
-    pretty = pretty + "," + subj.getType().getName();
+    pretty = pretty + "/" + subj.getType().getName() + "/" + subj.getSource().getId();
     return pretty;
   } // protected static String getPretty(subj)
 

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.11 2006-03-23 18:36:31 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.12 2006-05-23 19:10:23 blair Exp $
  *     
 */
 class GrouperLog implements Serializable {

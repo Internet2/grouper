@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege resolution class.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.36 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.37 2006-05-23 19:10:23 blair Exp $
  *     
 */
 public class PrivilegeResolver {
@@ -84,7 +84,7 @@ public class PrivilegeResolver {
     catch (Exception e) {
       String err = ERR_RPC + e.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, e);
     }
   } // public static void resetPrivilegeCaches()
 
@@ -423,98 +423,23 @@ public class PrivilegeResolver {
     return groups;
   }
 
-  protected Member canViewSubject(GrouperSession s, Subject subj, String msg) 
-    throws  MemberNotFoundException
+  // If the subject being added is a group, verify that we can VIEW it
+  protected Member canViewSubject(GrouperSession s, Subject subj)
+    throws  ModelException
   {
-    Member  m = MemberFinder.findBySubject(s, subj);
-    // If the subject being added is a group, verify that we can VIEW it
     try {
+      Member  m = MemberFinder.findBySubject(s, subj);
       if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
         Subject who   = s.getSubject();
         Group   what  = m.toGroup();
         PrivilegeResolver.getInstance().canVIEW(s, what, who);
-        GrouperLog.debug(LOG, s, msg + "true");
       }
+      return m;
     }
-    catch (GroupNotFoundException eGNF) {
-      GrouperLog.debug(LOG, s, msg + eGNF.getMessage());
-      throw new MemberNotFoundException(msg + eGNF.getMessage());
+    catch (Exception e) {
+      throw new ModelException(e.getMessage(), e);
     }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + eIP.getMessage());
-      throw new MemberNotFoundException(msg + eIP.getMessage());
-    }
-    return m;
-  } // protected Member canViewSubject(s, subj, msg)
-
-  protected void canWriteField(
-    GrouperSession s, Group g, Subject subj, Field f, FieldType type
-  )
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    GrouperSession.validate(s);
-    String msg = "canWriteField '" + f + "' '" + type + "'";
-    GrouperLog.debug(LOG, s, msg);
-
-    // Validate field type
-    if (f.getType().equals(type)) {
-      GrouperLog.debug(LOG, s, msg + " right type");
-    }
-    else {
-      String err = f.getName() + " is not type " + type;
-      GrouperLog.debug(LOG, s, err);
-      throw new SchemaException(err);
-    }
-    // Validate that group has proper type for this field
-    if (!g.hasType( f.getGroupType() ) ) {
-      String err = "does not have group type: " + f.getGroupType().toString();
-      GrouperLog.debug(LOG, s, err);
-      throw new SchemaException(err); 
-    }
-
-    try {
-      PrivilegeResolver.getInstance().canPrivDispatch(
-        s, g, subj, f.getWritePriv()
-      );
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
-    }
-  } // protected static void canWriteField(s, g, subj, f, type)
-
-  protected void canWriteField(
-    GrouperSession s, Stem ns, Subject subj, Field f, FieldType type
-  )
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    GrouperSession.validate(s);
-    String msg = "canWriteField '" + f + "' '" + type + "'";
-    GrouperLog.debug(LOG, s, msg);
-
-    // Validate field type
-    // TODO extract
-    if (f.getType().equals(type)) {
-      GrouperLog.debug(LOG, s, msg + " right type");
-    }
-    else {
-      String err = f.getName() + " is not type " + type;
-      GrouperLog.debug(LOG, s, err);
-      throw new SchemaException(err);
-    }
-
-    try {
-      PrivilegeResolver.getInstance().canPrivDispatch(
-        s, ns, subj, f.getWritePriv()
-      );
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
-    }
-  } // protected static void canWriteField(s, ns, subj, f, type)
+  } // protected Member canViewSubject(s, subj)
 
   protected Set getPrivs(
     GrouperSession s, Group g, Subject subj
@@ -603,6 +528,7 @@ public class PrivilegeResolver {
   protected boolean isRoot(Subject subj) {
     boolean rv = false;
     // First check to see if this is GrouperSystem
+    // FIXME Refactor
     if      (
       (subj.getId().equals(GrouperConfig.ROOT))
       && (subj.getSource().getId().equals(InternalSourceAdapter.ID))
@@ -783,7 +709,7 @@ public class PrivilegeResolver {
     catch (Exception e) {
       String err = ERR_CI + name + ": " + e.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, e);
     }
   } // private static Object _createInterface(name)
 

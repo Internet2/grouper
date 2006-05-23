@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.19 2006-03-28 20:18:55 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.20 2006-05-23 19:10:23 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -157,50 +157,39 @@ public class RegistryInstall {
       )
     );
 
-    // TODO Why don't I use createType()?
-    GroupType base    = new GroupType("base", base_f);
-    base.setAssignable(false);
-    base.setInternal(false);
+    GroupType base    = new GroupType("base", base_f, false, false);
     types.add(base);
-
-    GroupType naming  = new GroupType("naming", naming_f);
-    naming.setAssignable(false);
-    naming.setInternal(true);
+    GroupType naming  = new GroupType("naming", naming_f, false, true);
     types.add(naming);
-
-    GroupType hasFactor = new GroupType("hasFactor" , new HashSet());
-    hasFactor.setAssignable(false);
-    hasFactor.setInternal(true);
-    types.add(hasFactor);
-    
-    GroupType isFactor  = new GroupType("isFactor"  , new HashSet());
-    isFactor.setAssignable(false);
-    isFactor.setInternal(true);
-    types.add(isFactor);
   
     fields.addAll(base_f);
     fields.addAll(naming_f);
 
     try {
-      Session hs = HibernateHelper.getSession();
-      Set objects = new LinkedHashSet();
+      Session   hs        = HibernateHelper.getSession();
+      Set       objects   = new LinkedHashSet();
+      Settings  settings  = new Settings(Settings.getCurrentSchemaVersion());
       objects.addAll(types);
+      objects.add(settings);
       HibernateHelper.save(objects);
       hs.close();
-      LOG.info("group types installed: " + types.size());
-      LOG.info("fields installed     : " + fields.size());
+      LOG.info("set schema version   : " + settings.getSchemaVersion()  );
+      LOG.info("group types installed: " + types.size()                 );
+      LOG.info("fields installed     : " + fields.size()                );
     }
     catch (HibernateException eH) {
       String err = ERR_IS + eH.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eH);
     }
   } // private static void _installFieldsAndTypes()
 
   private static void _installGroupsAndStems() {
     try {
       GrouperSession s = GrouperSession.start(
-        SubjectFinder.findById(GrouperConfig.ROOT, GrouperConfig.IST)
+        SubjectFinder.findById(
+          GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID
+        )
       );
       Stem  root    = Stem.addRootStem(s);
       LOG.info("root stem installed");
@@ -208,7 +197,7 @@ public class RegistryInstall {
     catch (Exception e) { 
       String err = ERR_ISG + e.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, e);
     }
   } // private static void _installGroupsAndStems()
 

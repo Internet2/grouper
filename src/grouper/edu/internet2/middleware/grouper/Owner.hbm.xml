@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Owner.hbm.xml,v 1.7 2006-03-24 19:38:12 blair Exp $ -->
+<!-- $Id: Owner.hbm.xml,v 1.8 2006-05-23 19:10:23 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Owner" table="grouper_owners">
@@ -47,27 +47,28 @@ An owner within the Groups Registry.
     <!-- creator_id -->
     <many-to-one  name="creator_id"
                   class="edu.internet2.middleware.grouper.Member" 
-                  not-null="true"
-                  index="owner_creator_idx"
-    />
+    >
+      <column name="creator_id"
+              not-null="true"
+              index="owner_creator_idx"
+      />
+    </many-to-one>
     <!-- creator_id -->
 
     <!-- create_source -->
-    <property 
-      name="create_source"
-      type="string"
+    <property name="create_source"
+              type="string"
     />
     <!-- create_source -->
 
     <!-- create_time -->
     <property name="create_time"
               type="long"
-              not-null="true"
               update="false"
-              index="owner_createtime_idx" 
     >
       <column name="create_time"
               not-null="true"
+              index="owner_createtime_idx" 
       />
     </property>
     <!-- create_time -->
@@ -76,119 +77,57 @@ An owner within the Groups Registry.
     <many-to-one  name="modifier_id"
                   class="edu.internet2.middleware.grouper.Member" 
                   cascade="none"
-                  index="owner_modifier_idx"
-    />
+    >
+      <column name="modifier_id"
+              index="owner_modifier_idx"
+      />
+    </many-to-one>
     <!-- modifier_id -->
 
     <!-- modify_source -->
-    <property 
-      name="modify_source"
-      type="string"
+    <property name="modify_source"
+              type="string"
     />
     <!-- modify_source -->
 
     <!-- modify_time -->
     <property name="modify_time"
               type="long"
-              index="owner_modifytime_idx" 
-    />
-    <!-- modify_time -->
-
-    <!-- owner_uuid -->
-    <property name="owner_uuid"
-              type="string"
-              not-null="true"
-              unique="true"
-              index="owner_uuid_idx"
     >
-      <column name="owner_uuid"
-              length="128"
+      <column name="modify_time"
+              index="owner_modifytime_idx" 
       />
     </property>
-    <!-- owner_uuid -->
+    <!-- modify_time -->
+
+    <!-- uuid -->
+    <property name="uuid"
+              type="string"
+              unique="true"
+    >
+      <column name="uuid"
+              length="128"
+              index="owner_uuid_idx"
+              not-null="true"
+      />
+    </property>
+    <!-- uuid -->
 
     <!-- status -->
     <property name="status"
               type="edu.internet2.middleware.grouper.StatusUserType"
               update="false"
-              index="owner_status_idx"
     >
       <column name="status_type"
               length="128"
+              index="owner_status_idx"
       />
-      <column name="status_ttl"/>
+      <column name="status_ttl"
+              index="owner_status_idx"
+      />
     </property>
     <!-- status -->
 
-
-    <joined-subclass  name="Factor" table="grouper_factors">
-      <key column="owner_id"/>
-
-      <!-- factor_owner -->
-      <many-to-one  name="factor_owner"
-                    class="edu.internet2.middleware.grouper.Owner"
-                    cascade="none"
-      />
-      <!-- factor_owner -->
-
-      <!-- left -->
-      <many-to-one  name="left"
-                    class="edu.internet2.middleware.grouper.Owner"
-                    cascade="none"
-      />
-      <!-- left -->
-
-      <!-- right -->
-      <many-to-one  name="right"
-                    class="edu.internet2.middleware.grouper.Owner"
-                    cascade="none"
-      />
-      <!-- right -->
-
-      <!-- klass -->
-      <property name="klass"
-                type="string"
-      />
-      <!-- klass -->
-
-    </joined-subclass>
-
-    <joined-subclass  name="Group" table="grouper_groups">
-      <key column="owner_id"/>
-
-      <!-- attributes -->
-      <!-- TODO Would switching to _all-delete-orphan_ work -->
-      <set  name="group_attributes"
-            cascade="all"
-      >
-        <key column="group_id"/>
-        <one-to-many class="edu.internet2.middleware.grouper.Attribute" />
-      </set>
-      <!-- attributes -->
-
-      <!-- parent_stem -->
-      <many-to-one
-        name="parent_stem"
-        class="edu.internet2.middleware.grouper.Stem"
-        cascade="none"
-      />
-      <!-- parent_stem -->
-
-      <!-- group_types -->
-      <set  
-        name="group_types"
-        table="grouper_groups_types"
-        cascade="none"
-      >
-        <key column="group_id"/>
-        <many-to-many 
-          class="edu.internet2.middleware.grouper.GroupType"
-          column="type_id"
-        />
-      </set>
-      <!-- group_types -->
-
-    </joined-subclass>
 
     <joined-subclass  name="Stem" table="grouper_stems">
       <key column="owner_id"/>
@@ -234,26 +173,32 @@ An owner within the Groups Registry.
       <!-- display_extension -->
       <property name="display_extension"
                 type="string"
+      >
+        <column name="display_extension"
                 index="stem_displayextn_idx"
                 not-null="true"
-      />
+        />
+      </property>
       <!-- display_extension -->
 
       <!-- display_name -->
       <property name="display_name"
                 type="string"
+      >
+        <column name="display_name"
                 index="stem_displayname_idx"
                 not-null="true"
-      />
+        />
+      </property>
       <!-- display_name -->
 
       <!-- extension -->
       <property name="stem_extension"
                 type="string"
-                index="stem_extn_idx"
       >
         <column name="extension"
                 not-null="true"
+                index="stem_extn_idx"
         />
       </property>
       <!-- extension -->
@@ -262,10 +207,11 @@ An owner within the Groups Registry.
       <property
         name="stem_name"
         type="string"
-        index="stem_name_idx"
       >
         <column name="name"
-                not-null="true"/>
+                not-null="true"
+                index="stem_name_idx"
+        />
       </property>
       <!-- name -->
 
@@ -276,6 +222,89 @@ An owner within the Groups Registry.
         cascade="none"
       />
       <!-- parent_stem -->
+    </joined-subclass>
+
+    <joined-subclass  name="Group" table="grouper_groups">
+      <key column="owner_id"/>
+
+      <!-- attributes -->
+      <!-- TODO Would switching to _all-delete-orphan_ work -->
+      <set  name="group_attributes"
+            cascade="all"
+      >
+        <key column="group_id"/>
+        <one-to-many class="edu.internet2.middleware.grouper.Attribute"
+/>
+      </set>
+      <!-- attributes -->
+
+      <!-- parent_stem -->
+      <many-to-one  name="parent_stem"
+                    class="edu.internet2.middleware.grouper.Stem"
+                    cascade="none"
+      />
+      <!-- parent_stem -->
+
+      <!-- group_types -->
+      <set  name="group_types"
+            table="grouper_groups_types"
+            cascade="none"
+      >
+        <key column="group_id"/>
+        <many-to-many class="edu.internet2.middleware.grouper.GroupType"
+                      column="type_id"
+        />
+      </set>
+      <!-- group_types -->
+    </joined-subclass>
+
+    <joined-subclass  name="Composite" table="grouper_composites">
+      <key column="owner_id"/>
+
+      <!-- owner -->
+      <many-to-one  name="owner"
+                    class="edu.internet2.middleware.grouper.Owner"
+                    cascade="none"
+      >
+        <column name="owner"
+                not-null="true"
+                index="composite_owner_idx"
+        />
+      </many-to-one>
+      <!-- owner -->
+
+      <!-- left -->
+      <many-to-one  name="left"
+                    class="edu.internet2.middleware.grouper.Owner"
+                    cascade="none"
+      >
+        <column name="left"
+                not-null="true"
+                index="composite_factor_idx"
+        />
+      </many-to-one>
+      <!-- left -->
+
+      <!-- right -->
+      <many-to-one  name="right"
+                    class="edu.internet2.middleware.grouper.Owner"
+                    cascade="none"
+      >
+        <column name="right"
+                not-null="true"
+                index="composite_factor_idx"
+        />
+      </many-to-one>
+      <!-- right -->
+
+      <!-- type -->
+      <property name="type"
+                type="edu.internet2.middleware.grouper.CompositeTypeUserType"
+                not-null="true"
+                length="32"
+      />
+      <!-- type -->
+
     </joined-subclass>
 
   </class>

@@ -26,14 +26,13 @@ import  org.apache.commons.logging.*;
 
 
 /** 
- * An object that can have associated memberships within the Groups
- * Registry.
+ * An object that can have memberships assigned to it.
  * <p />
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.4 2006-03-24 19:38:12 blair Exp $
+ * @version $Id: Owner.java,v 1.5 2006-05-23 19:10:23 blair Exp $
  *     
 */
-public class Owner implements Serializable {
+public abstract class Owner implements Serializable {
 
   // Private Class Constants
   private static final EventLog EL  = new EventLog();
@@ -48,8 +47,8 @@ public class Owner implements Serializable {
   private Member  modifier_id;
   private String  modify_source;
   private long    modify_time;
-  private String  owner_uuid;
   private Status  status;
+  private String  uuid;
 
   // Transient Instance Variables
   protected transient GrouperSession  s;
@@ -64,83 +63,94 @@ public class Owner implements Serializable {
     // Nothing
   }
 
-  // Protected Instance Methods
+
+  // Protected Abstract Instance Methods //
+  protected abstract void setModified();
+
+
+  // Protected Instance Methods //
+  protected GrouperSession getSession() {
+    GrouperSession.validate(this.s);
+    return this.s;
+  } // protected GrouperSession getSession()
+
+  // FIXME
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
     this.s = s;
   } // protected void setSession(s)
+  protected void setSessionNew(GrouperSession s) 
+    throws  ModelException
+  {
+    GrouperSessionValidator.validate(s);
+    this.s = s;
+  } // protected void setSession(s)
 
 
-  // Hibernate Accessors
-  private String getId() {
-    return this.id;
-  }
-
-  private void setId(String id) {
-    this.id = id;
-  }
-
-  private String getCreate_source() {
+  // Getters //
+  protected String getCreate_source() {
     return this.create_source;
   }
-
-  private void setCreate_source(String create_source) {
-    this.create_source = create_source;
-  }
-
-  private long getCreate_time() {
+  protected long getCreate_time() {
     return this.create_time;
   }
-
-  private void setCreate_time(long create_time) {
-    this.create_time = create_time;
-  }
-
-  private String getModify_source() {
-    return this.modify_source;
-  }
-
-  private void setModify_source(String modify_source) {
-    this.modify_source = modify_source;
-  }
-
-  private long getModify_time() {
-    return this.modify_time;
-  }
-
-  private void setModify_time(long modify_time) {
-    this.modify_time = modify_time;
-  }
-
-  protected String getOwner_uuid() {
-    return this.owner_uuid;
-  }
-  
-  protected void setOwner_uuid(String owner_uuid) {
-    this.owner_uuid = owner_uuid;
-  }
-
-  private Member getCreator_id() {
+  protected Member getCreator_id() {
     return this.creator_id;
   }
-
-  private void setCreator_id(Member creator_id) {
-    this.creator_id = creator_id;
+  protected String getId() {
+    return this.id;
   }
-
-  private Member getModifier_id() {
+  protected Member getModifier_id() {
     return this.modifier_id;
   }
-
-  private void setModifier_id(Member modifier_id) {
-      this.modifier_id = modifier_id;
+  protected String getModify_source() {
+    return this.modify_source;
   }
-
-  private Status getStatus() {
+  protected long getModify_time() {
+    return this.modify_time;
+  }
+  protected Status getStatus() {
     return this.status;
   }
-  private void setStatus(Status s) {
+  /**
+   * Return UUID.
+   * <pre class="eg">
+   * String uuid = o.getUuid();
+   * </pre>
+   * @return  UUID of object.
+   */
+  public String getUuid() {
+    return this.uuid;
+  } // public String getUuid()
+
+
+  // Setters //
+  protected void setId(String id) {
+    this.id = id;
+  }
+  protected void setCreate_source(String create_source) {
+    this.create_source = create_source;
+  }
+  protected void setCreate_time(long create_time) {
+    this.create_time = create_time;
+  }
+  protected void setCreator_id(Member creator_id) {
+    this.creator_id = creator_id;
+  }
+  protected void setModifier_id(Member modifier_id) {
+      this.modifier_id = modifier_id;
+  }
+  protected void setModify_source(String modify_source) {
+    this.modify_source = modify_source;
+  }
+  protected void setModify_time(long modify_time) {
+    this.modify_time = modify_time;
+  }
+  protected void setStatus(Status s) {
     this.status = s;
+  }
+  protected void setUuid(String uuid) {
+    this.uuid = uuid;
   }
 
 }

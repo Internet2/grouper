@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.93 2006-03-17 19:05:03 blair Exp $ -->
+<!-- $Id: build.xml,v 1.94 2006-05-23 19:10:22 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -10,18 +10,18 @@
   <property name="impl.version"           value="0.9"/>
 
   <property name="conf"                   location="${basedir}/conf"/>
-  <property name="sql"                    location="${basedir}/sql"/>
 
   <property name="src"                    location="${basedir}/src"/>
   <property name="src.conf"               location="${src}/conf"/>
   <property name="src.grouper"            location="${src}/grouper"/>
-  <property name="src.test"               location="${src}/tests"/>
+  <property name="src.test"               location="${src}/test"/>
 
   <property name="build"                  location="${basedir}/build"/>
   <property name="dist"                   location="${basedir}/dist"/>
   <property name="build.grouper"          location="${build}/grouper"/>
   <property name="build.javadoc"          location="${dist}/api"/>
   <property name="build.lib"              location="${build}/lib"/>
+  <property name="build.sql"              location="${build}/sql"/>
   <property name="build.test"             location="${build}/test"/>
 
   <property name="lib"                    location="${basedir}/lib"/>
@@ -33,7 +33,7 @@
   <property name="log.test.run"           location="${basedir}/test.log"/>
 
   <property name="hprof.depth"            value="20"/>
-  <property name="max.memory"             value="128m"/>
+  <property name="max.memory"             value="192m"/>
   <!-- Global Properties -->
 
   <!-- build -->
@@ -84,96 +84,10 @@
   </target>
   <!-- conf-init -->
 
-  <!-- daemon-list -->
-  <target name="daemon-list"
-          depends="build"
-          description="list GrouperDaemon transaction queue"
-  >
-    <java classname="edu.internet2.middleware.grouper.GrouperDaemon"
-          fork="true"
-    >
-      <classpath refid="project.classpath"/>
-      <arg value="list"/>
-    </java>
-  </target>
-  <!-- daemon-list -->
-
-  <!-- daemon-list-active -->
-  <target name="daemon-list-active"
-          depends="build"
-          description="list active items in GrouperDaemon transaction queue"
-  >
-    <java classname="edu.internet2.middleware.grouper.GrouperDaemon"
-          fork="true"
-    >
-      <classpath refid="project.classpath"/>
-      <arg value="list-active"/>
-    </java>
-  </target>
-  <!-- daemon-list-active -->
-
-  <!-- daemon-list-failed -->
-  <target name="daemon-list-failed"
-          depends="build"
-          description="list failed items in GrouperDaemon transaction queue"
-  >
-    <java classname="edu.internet2.middleware.grouper.GrouperDaemon"
-          fork="true"
-    >
-      <classpath refid="project.classpath"/>
-      <arg value="list-failed"/>
-    </java>
-  </target>
-  <!-- daemon-list-failed -->
-
-  <!-- daemon-start -->
-  <target name="daemon-start"
-          depends="build"
-          description="run GrouperDaemon process"
-  >
-    <java classname="edu.internet2.middleware.grouper.GrouperDaemon"
-          fork="true"
-          spawn="false"
-          maxmemory="${max.memory}"
-    >
-      <classpath refid="project.classpath"/>
-      <arg value="start"/>
-    </java>
-  </target>
-  <!-- daemon-start -->
-
-  <!-- daemon-start-fork -->
-  <target name="daemon-start-fork"
-          description="start and fork GrouperDaemon process"
-  >
-    <java classname="edu.internet2.middleware.grouper.GrouperDaemon"
-          fork="true"
-          spawn="true"
-          maxmemory="${max.memory}"
-    >
-      <classpath refid="project.classpath"/>
-      <arg value="start"/>
-    </java>
-  </target>
-  <!-- daemon-start-fork -->
-
-  <!-- daemon-stop -->
-  <target name="daemon-stop"
-          description="stop GrouperDaemon process"
-  >
-    <java classname="edu.internet2.middleware.grouper.GrouperDaemon"
-          fork="true"
-    >
-      <classpath refid="project.classpath"/>
-      <arg value="stop"/>
-    </java>
-  </target>
-  <!-- daemon-stop -->
-
   <!-- db -->
   <target name="db" depends="init" description="Launch HSQLDB UI">
     <property file="${conf}/hibernate.properties"/>
-    <java fork="true"
+    <java fork="yes"
           classname="org.hsqldb.util.DatabaseManager"
           maxmemory="${max.memory}"
     >
@@ -197,7 +111,7 @@
   >
     <record name="${log.dbinit}" action="start"/>
     <java classname="edu.internet2.middleware.grouper.RegistryInstall"
-          fork="true"
+          fork="yes"
     >
       <classpath refid="project.classpath"/>
     </java>
@@ -210,7 +124,7 @@
           description="reset the db"
           depends="build"
   >
-    <java fork="true"
+    <java fork="yes"
           maxmemory="${max.memory}"
           classname="edu.internet2.middleware.grouper.RegistryReset"
     >
@@ -299,9 +213,10 @@
   <target name="init">
     <tstamp />
     <mkdir dir="${build.grouper}" />
-    <mkdir dir="${build.test}" />
-    <mkdir dir="${dist}" />
-    <mkdir dir="${dist}/run" />
+    <mkdir dir="${build.sql}"     />
+    <mkdir dir="${build.test}"    />
+    <mkdir dir="${dist}"          />
+    <mkdir dir="${dist}/run"      />
     <!-- only define our classpath once -->
     <path id="project.classpath">
       <pathelement path="${classpath}"/>
@@ -318,38 +233,38 @@
   <!-- init -->
 
   <!-- runtest -->
-  <target 
-    name="runtest" 
-    description="Runs the test you specify on the command line with -Dtest=" 
-    depends="ensure-test-name"
-  >
-    <antcall  target="testrunner">
-      <param  name="testsuite"  value="${test}"/>
-    </antcall>
+  <target name="runtest" 
+          description="Runs the test you specify on the command line with -Dtest=" 
+          depends="test-build, ensure-test-name">
+    <record name="${log.test.run}" action="start"/>
+    <junit printsummary="withOutAndErr" fork="yes"> 
+        <classpath    refid="project.classpath" />
+        <formatter    type="plain" usefile="false"/>
+      <batchtest>
+        <fileset dir="${src.test}">
+          <include name="**/${test}.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+    <record name="${log.test.run}" action="stop"/>
   </target>
   <!-- runtest -->
 
   <!-- runtestprof -->
-  <!-- TODO Convert to use `testrunner` -->
-  <target 
-    name="runtestprof" 
-    description="Runs and profiles the test case you specify on the command line with -Dtest=" 
-    depends="ensure-test-name"
-  >
+  <target name="runtestprof" 
+          description="Runs and profiles the test case you specify on the command line with -Dtest=" 
+          depends="test-build, ensure-test-name">
     <record name="${log.test.run}" action="start"/>
-    <antcall  target="daemon-start-fork"/>
-    <java 
-      fork="true"
-      maxmemory="${max.memory}"
-      classname="junit.textui.TestRunner"
-      taskname="junit"
-      failonerror="true"
+    <java fork="yes"
+          maxmemory="${max.memory}"
+          classname="junit.textui.TestRunner"
+          taskname="junit"
+          failonerror="true"
     >
-      <arg    value="test.edu.internet2.middleware.grouper.${test}"/>
+      <arg    value="edu.internet2.middleware.grouper.${test}"/>
       <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=${hprof.depth}"/>
       <classpath refid="project.classpath"/>
     </java>
-    <antcall  target="daemon-stop"/>
     <record name="${log.test.run}" action="stop"/>
   </target>
   <!-- runtestprof -->
@@ -369,7 +284,7 @@
       text="no"
       drop="no"
       delimiter=";"
-      output="${sql}/schema-export.sql">
+      output="${build.sql}/schema-export.sql">
       <fileset dir="${src.grouper}">
         <include name="**/*.hbm.xml"/>
       </fileset>
@@ -378,23 +293,11 @@
   </target>
   <!-- schemaexport -->
 
-  <!-- setup -->
-  <target name="setup" 
-          depends="build"
-          description="initialize rdbms"
-  >
-    <antcall  target="daemon-start-fork"/>
-    <antcall  target="schemaexport"/>
-    <antcall  target="db-init"/>
-    <antcall  target="daemon-stop"/>
-  </target>
-  <!-- setup -->
-
   <!-- stress -->
   <target name="stress" 
           description="Runs the stress case specified on the command line with -Dname="
           depends="build, ensure-stress-name">
-    <java fork="true"
+    <java fork="yes"
           maxmemory="${max.memory}"
           classname="edu.internet2.middleware.grouper.stress.${name}"
           failonerror="true"
@@ -417,7 +320,7 @@
   <target name="stressprof" 
           description="Runs and profiles the stress case specified on the command line with -Dname="
           depends="build, ensure-stress-name">
-    <java fork="true"
+    <java fork="yes"
           maxmemory="${max.memory}"
           classname="edu.internet2.middleware.grouper.stress.${name}"
           failonerror="true"
@@ -440,23 +343,7 @@
   <!-- test-build -->
 
   <!-- test -->
-  <target name="test">
-    <antcall  target="testrunner">
-      <param  name="testsuite"  value="SuiteDefault"/>
-    </antcall>
-  </target>
-  <!-- test -->
-
-  <!-- test-all -->
-  <target name="test-all">
-    <antcall  target="testrunner">
-      <param  name="testsuite"  value="SuiteAll"/>
-    </antcall>
-  </target>
-  <!-- test-all -->
-
-  <!-- testrunner -->
-  <target name="testrunner" depends="test-build">
+  <target name="test" depends="test-build">
     <echo/>
     <echo message="A single 'FATAL GrouperSession: unable to get subject
 associated with session' message is expected and does not indicate an
@@ -465,21 +352,17 @@ error"
     <echo/>
     <record name="${log.test.run}" action="start"/>
     <!-- Run the test suite -->
-    <antcall  target="daemon-start-fork"/>
-    <java 
-      fork="true" 
-      maxmemory="${max.memory}"
-      classname="junit.textui.TestRunner"
-      taskname="junit" 
-      failonerror="true"
-    >
-      <arg value="test.edu.internet2.middleware.grouper.${testsuite}"/>
+    <java fork="yes" 
+          maxmemory="${max.memory}"
+          classname="junit.textui.TestRunner"
+          taskname="junit" 
+          failonerror="true">
+      <arg value="edu.internet2.middleware.grouper.SuiteDefault"/>
       <classpath refid="project.classpath"/>
     </java>
-    <antcall  target="daemon-stop"/>
     <record name="${log.test.run}" action="stop"/>
   </target>
-  <!-- testrunner -->
+  <!-- test -->
 
   <target name="jar" depends="dist" />
 
@@ -488,7 +371,6 @@ error"
     <clover-setup initString="clover.db">
       <fileset dir="${src.grouper}">
         <exclude name="**/stress/*"/>
-        <exclude name="**/test/*"/>
         <exclude name="**/*Factor*.java"/>
         <exclude name="**/*Status*.java"/>
       </fileset>
@@ -510,26 +392,6 @@ error"
  <target name="clover.swing" depends="with.clover">
    <clover-view/>
  </target>
-
-<!-- deprecated -->
-
-  <!-- codegen -->
-<!--
-  <target name="codegen" depends="init">
-    <mkdir dir="${dist}" />
-    <mkdir dir="${dist}/run" />
-    <taskdef name="hbm2java"
-      classname="net.sf.hibernate.tool.hbm2java.Hbm2JavaTask"
-      classpathref="project.classpath"
-    />
-    <hbm2java config="${conf}/codegen.cfg.xml" output="${src.grouper}">
-      <fileset dir="${src.grouper}">
-        <include name="**/*.hbm.xml"/>
-      </fileset>
-    </hbm2java>
-  </target>
--->
-  <!-- codegen -->
 
 </project>
 

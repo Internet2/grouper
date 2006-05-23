@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.8 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.9 2006-05-23 19:10:23 blair Exp $
  */
 public class GrouperQuery implements Serializable {
 
@@ -167,7 +167,7 @@ public class GrouperQuery implements Serializable {
     }
     catch (MemberNotFoundException eMNF) {
       throw new QueryException(
-        "unable to retrieve members: " + eMNF.getMessage()
+        "unable to retrieve members: " + eMNF.getMessage(), eMNF
       );
     }
     return members;
