@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.55.2.15 2006-05-19 18:30:40 blair Exp $
+ * @version $Id: Group.java,v 1.55.2.16 2006-05-23 17:53:44 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -173,6 +173,7 @@ public class Group extends Owner implements Serializable {
       GroupValidator.canAddCompositeMember(this, c);
       MemberOf  mof = MemberOf.addComposite(this.getSession(), this, c);
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      Composite.update(this);
       sw.stop();
       //  FIXME LOG! imms + effs
     }
@@ -248,8 +249,9 @@ public class Group extends Owner implements Serializable {
     sw.start();
     GroupValidator.canAddMember(this, subj, f);
     Membership.addImmediateMembership(this.getSession(), this, subj, f);
-    sw.stop();
     EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
+    Composite.update(this);
+    sw.stop();
   } // public void addMember(subj, f)
 
   /**
@@ -473,12 +475,7 @@ public class Group extends Owner implements Serializable {
       MemberOf  mof = MemberOf.delComposite(this.getSession(), this, c);
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
       //  FIXME LOG! imms + effs
-      //  TODO  Hrm...
-      Iterator  iter = mof.getPending().iterator();
-      while (iter.hasNext()) {
-        Composite comp = (Composite) iter.next();
-        comp.update();
-      }
+      Composite.update(this);
       sw.stop();
     }
     catch (CompositeNotFoundException eCNF) {
@@ -573,6 +570,7 @@ public class Group extends Owner implements Serializable {
     sw.stop();
     EL.groupDelMember(this.getSession(), this.getName(), subj, f, sw);
     EL.delEffMembers(this.getSession(), this, subj, f, mof.getEffDeletes());
+    Composite.update(this);
   } // public void deleteMember(subj, f)
 
   /**

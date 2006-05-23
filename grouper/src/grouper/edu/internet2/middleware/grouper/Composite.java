@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * A composite membership definition within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.1.2.6 2006-05-22 18:36:15 blair Exp $
+ * @version $Id: Composite.java,v 1.1.2.7 2006-05-23 17:53:44 blair Exp $
  *     
 */
 public class Composite extends Owner implements Serializable {
@@ -105,13 +105,22 @@ public class Composite extends Owner implements Serializable {
   } // public String toString()
 
 
+  // Protected Class Methods //
+  protected static void update(Owner o) {
+    Iterator iter = CompositeFinder.isFactor(o).iterator();
+    while (iter.hasNext()) {
+      Composite c = (Composite) iter.next();
+      c.update();
+    }
+  } // protected static void update(o)
+
+
   // Protected Instance Methods //
   protected void update() {
     //  TODO  Assuming this is actually correct I am sure it can be
     //        improved upon.  At least it isn't as bad as the first
-    //        (functional) approach taken.
-    //  TODO  What about pending?
-    //  TODO  What about the other saves + deletes in mof?
+    //        (functional) approach taken.  Or even the second, third
+    //        or fourth approaches!
     try {
       GrouperSession  rs  = GrouperSessionFinder.getRootSession();
       this.setSession(rs);
@@ -145,17 +154,15 @@ public class Composite extends Owner implements Serializable {
           evaled.add(ms);
         }        
       }
-      Set diff    = new LinkedHashSet(cur);   // Default to current mships
-      diff.removeAll(evaled);                 // Reduce to differences
-      Set saves   = new LinkedHashSet(diff);  // Default to differences
-      saves.retainAll(evaled);                // Retain new mships
-      Set deletes = new LinkedHashSet(diff);  // Default to differences
-      deletes.retainAll(cur);                 // Retain current mships
+      Set deletes = new LinkedHashSet(cur);     // deletes  = cur - evaled
+      deletes.removeAll(evaled);
+      Set adds    = new LinkedHashSet(evaled);  // adds     = evaled - cur
+      adds.removeAll(cur);
 
-      if ( (deletes.size() > 0) || (saves.size() > 0) ) {
-        HibernateHelper.saveAndDelete(saves, deletes);
+      if ( (adds.size() > 0) || (deletes.size() > 0) ) {
+        HibernateHelper.saveAndDelete(adds, deletes);
         Composite._update(deletes);
-        Composite._update(saves);
+        Composite._update(adds);
         //  FIXME LOG! additions + deletions
       }
     }

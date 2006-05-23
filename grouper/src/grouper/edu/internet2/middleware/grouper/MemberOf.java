@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14.2.8 2006-05-22 18:36:15 blair Exp $
+ * @version $Id: MemberOf.java,v 1.14.2.9 2006-05-23 17:53:44 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -48,7 +48,6 @@ class MemberOf implements Serializable {
   private Member          m;
   private Membership      ms;
   private Owner           o;
-  private Set             pending     = new LinkedHashSet();
   private GrouperSession  root;
   private GrouperSession  s;    
   private Set             saves       = new LinkedHashSet();
@@ -119,10 +118,6 @@ class MemberOf implements Serializable {
     //        both flawed and evolving for quite some time.
     MemberOf  mof   = new MemberOf(s, o, c);
 
-    //  We will need to update where this group is a composite factor
-    //  after we have take care of everything else.  Argh.
-    mof.pending.addAll( CompositeFinder.isFactor(o) );
-
     //  Delete this group's members
     //  TODO  I have performance concerns with this code
     Iterator  iterH = ( (Group) o ).getMemberships().iterator();
@@ -178,9 +173,6 @@ class MemberOf implements Serializable {
   protected Set getEffSaves() {
     return this.effSaves;
   } // protected Set getEffSaves()
-  protected Set getPending() {
-    return this.pending;
-  } // protected Set getPending()
   protected Set getSaves() {
     return this.saves;
   } // protected Set getSaves()
