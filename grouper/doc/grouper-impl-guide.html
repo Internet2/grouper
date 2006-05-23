@@ -54,7 +54,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2006-03-10 19:56:02 $
+$Date: 2006-05-23 19:10:22 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -860,9 +860,10 @@ The access and naming privileges are listed in the following tables:
 <tr>
   <td class="c">STEM</td>
   <td class="r">Can grant and revoke <i>CREATE</i> and <i>STEM</i>
-    privilege for the namespace, can create a subordinate namespace
-    and can modify all namespace fields.  The creator of a namespace
-    is automatically granted this privilege.
+    privilege for the namespace, can create a subordinate namespace,
+    can modify all namespace fields and can delete stems with no
+    children.  The creator of a namespace is automatically granted
+    this privilege.
     <br /><br />
     <b>NOTE:</b> This privilege does <b>not</b> imply <i>CREATE</i> but
     a subject with this privilege can grant themselves that privilege.
@@ -917,11 +918,6 @@ the following directories and files:
   <td class="r">Java source for Grouper and Grouper test suite.</td>
 </tr>
 <tr>
-  <td class="c"><tt>sql/</tt></td>
-  <td class="r">SQL scripts for creating, initializing and testing the
-    Groups Registry</td>
-</tr>
-<tr>
   <td class="c"><tt>LICENSE</tt></td>
   <td class="r">License under which Grouper may be used</td>
 </tr>
@@ -962,10 +958,15 @@ first.
   <li><p><tt>ant build</tt></p>
     <p>This will compile Grouper and place the class files under
     the <tt>$GROUPER/build</tt> directory.</p></li>
-  <li><p><tt>ant setup</tt></p>
-    <p>This will create a DDL appropriate for your configurated
-      database type, initialize the Groups Registry and install tables
-      required by the I2MI Subject Interface.</p>
+  <li><p><tt>ant schemaexport</tt></p>
+    <p>This will generate a DDL appropriate for your configured RDBMS
+    and install the tables.</p>
+  </li>
+  <li><p><tt>ant db-init</tt></p>
+    <p>This will install Grouper schema information and the root stem
+    of the Groups Registry into your RDBMS.  If using the defeault
+    HSQLDB RDBMS this will create the registry in the
+    <tt>$GROUPER/dist/run</tt> directory.</p>
   </li>
   <li><p><tt>ant test</tt> [optional]</p>
     <p>This will compile and run the Grouper test suite to exercise the
@@ -1531,41 +1532,6 @@ multiple group types to a group to control what attributes and lists a
 group may be assigned.  Unfortunately, there was not time to properly
 implement the public API support for assigning multiple types to a
 group.  This will be completed in a future release.
-<!-- FIXME Implement
-To support some of the 
-<a href="http://middleware.internet2.edu/dir/docs/draft-internet2-mace-dir-sage-scenarios-00.html">use cases</a>
-identified by MACE-Dir-Groups working group members, Grouper was
-designed from the start to enable implementation sites to extend the
-set of attributes and lists available to be associated with groups.
-This was done by declaring attributes, lists, and their properties in
-tables within the Groups Registry rather than having them represented
-as static schematic elements of that database. Sets of attributes and
-lists are packaged into group types.  This is similar to how schemas
-for LDAP directories are managed and extended: LDAP attributes are
-packaged into object classes, and each LDAP entry can have a set
-of object classes associated with it, allowing different entries
-to serve different purposes.  
-</p>
-<p>
-Unfortunately, at this time Grouper only allows a single group type to
-be assigned to a group.  Thus, if you are extending the Groups Registry
-by creating new group types you will currently need to first duplicate
-the definition of the <i>base</i> group type and then add any
-additional attributes and lists that you may desire.  Grouper ships
-with one custom group type: <i>naming</i>.  This type is used
-internally to model namespaces.
-</p>
-<p>
-Although it is not currently possible  to extend Grouper's supported
-group types, attributes and lists with the API, sites can create
-new group types, attributes and lists.  To adjust the schema  you will
-need to manually alter the <i>grouper_type</i>, <i>grouper_typeDef</i>
-and <i>grouper_field</i> tables within the Groups Registry to
-determine the set of attributes and lists that are associated with
-an extended group type.  The <tt>$GROUPER/sql/init.sql</tt> file
-may provide some guidance on how to update those tables with your
-desired extensions.
--->
 </p>
 <!-- extend_group_types -->
 <!-- extend_privs -->

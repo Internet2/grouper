@@ -26,9 +26,11 @@ import  org.apache.commons.lang.builder.*;
  * Hibernate representation of the JDBC SubjectAttribute table.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateSubjectAttribute.java,v 1.1 2006-03-10 19:56:03 blair Exp $
+ * @version $Id: HibernateSubjectAttribute.java,v 1.2 2006-05-23 19:10:23 blair Exp $
  */
 class HibernateSubjectAttribute implements Serializable {
+
+  // TODO Move to different package?
 
   // Hibernate Properties
   private String            name;
@@ -73,7 +75,7 @@ class HibernateSubjectAttribute implements Serializable {
   } // public int hashCode()
 
 
-  // Hibernate Accessors
+  // Getters //
   private String getName() {
     return this.name;
   }
@@ -87,6 +89,8 @@ class HibernateSubjectAttribute implements Serializable {
     return this.value;
   }
 
+
+  // Setters //
   private void setName(String name) {
     this.name = name;
   }

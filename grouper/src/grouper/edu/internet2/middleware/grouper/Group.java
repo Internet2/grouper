@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.66 2006-03-24 19:38:12 blair Exp $
+ * @version $Id: Group.java,v 1.67 2006-05-23 19:10:23 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -57,28 +57,14 @@ public class Group extends Owner implements Serializable {
 
 
   // Hibernate Properties
-  private String  create_source;
-  private long    create_time;
-  private Member  creator_id;
   private Set     group_attributes;
   private Set     group_types         = new LinkedHashSet(); 
-  private String  id;
-  private Member  modifier_id;
-  private String  modify_source;
-  private long    modify_time;
-  private String  owner_uuid;
   private Stem    parent_stem;
-  private Status  status;
-  private int     version;
 
 
   // Transient Instance Variables
   private transient Member          as_member = null;
   private transient Subject         as_subj   = null;
-  private transient String          attr_dn   = null;
-  private transient String          attr_de   = null;
-  private transient String          attr_e    = null;
-  private transient String          attr_n    = null;
   private transient Map             attrs     = new HashMap();
   private transient Subject         creator;
   private transient Subject         modifier;
@@ -100,7 +86,7 @@ public class Group extends Owner implements Serializable {
   ) 
     throws SchemaException
   {
-    this.s = s;
+    this.setSession(s);
     // Attach group type
     Set types = this.getGroup_types();
     types.add( GroupTypeFinder.find("base") );
@@ -108,30 +94,33 @@ public class Group extends Owner implements Serializable {
     // Set create information
     this._setCreated();
     // Assign UUID
-    this.setOwner_uuid( GrouperUuid.getUuid() );
+    this.setUuid( GrouperUuid.getUuid() );
     // Set naming information
     Set attributes = new LinkedHashSet();
-    this.attr_de  = displayExtn;
-    this.attr_dn  = Stem.constructName(ns.getDisplayName(), displayExtn);
-    this.attr_e   = extn;
-    this.attr_n   = Stem.constructName(ns.getName(), extn);
     attributes.add(
-      new Attribute(this, FieldFinder.find("displayExtension"), attr_de )
+      new Attribute(this, FieldFinder.find("displayExtension"), displayExtn)
     );
     attributes.add(
-      new Attribute(this, FieldFinder.find("displayName")     , attr_dn )
+      new Attribute(
+        this, FieldFinder.find("displayName"), 
+        Stem.constructName(ns.getDisplayName(), displayExtn)
+      )
     );
     attributes.add(
-      new Attribute(this, FieldFinder.find("extension")       , attr_e  )
+      new Attribute(this, FieldFinder.find("extension"), extn)
     );
     attributes.add(
-      new Attribute(this, FieldFinder.find("name")            , attr_n  )
+      new Attribute(
+        this, FieldFinder.find("name"), 
+        Stem.constructName(ns.getName(), extn)
+      )
     );
     this.setGroup_attributes(attributes);
   } // protected Group(s, ns, extn, displayExtn)
  
 
-  // Public Class Methods
+  // Public Class Methods //
+
   /**
    * Retrieve default members {@link Field}.
    * <pre class="eg">
@@ -147,81 +136,58 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public static Field getDefaultList()
 
  
-  // Public Instance Methods
+  // Public Instance Methods //
 
   /**
-   * Add a factor-membership to this group.
+   * Add a composite membership to this group.
    * <pre class="eg">
    * try {
-   *   g.addFactor( new UnionFactor(leftGroup, rightGroup) );
-   * }
-   * catch (FactorAddException eFA) {
-   *   // error adding factor
+   *   g.addCompositeMember(CompositeType.UNION, leftGroup, rightGroup);
    * }
    * catch (InsufficientPrivilegeException eIP) {
-   *   // not privileged to add factor
+   *   // Not privileged to add members 
    * }
+   * catch (MemberAddException eMA) {
+   *   // Unable to add composite membership
+   * } 
    * </pre>
-   * @param   factor  Add this {@link Factor}.
-   * @throws  FactorAddException
+   * @param   type  {@link CompositeType}
+   * @param   left  {@link Group} that is left factor of of composite membership.
+   * @param   right {@link Group} that is right factor of composite membership.
    * @throws  InsufficientPrivilegeException
+   * @throws  MemberAddException
    */
-  public void addFactor(Factor f) 
-    throws  FactorAddException,
-            InsufficientPrivilegeException
+  public void addCompositeMember(CompositeType type, Group left, Group right)
+    throws  InsufficientPrivilegeException,
+            MemberAddException
   {
-    StopWatch sw = new StopWatch();
-    sw.start();
-
-    Validator.validateFactor(this, f);
-    Factor _f = new Factor(this, f);  // TODO ugly, ugly hack
-    if (this.hasFactor()) {
-      throw new FactorAddException("already has factor membership");
-    }
-    if (this.getMembers().size() > 0) {
-      throw new FactorAddException("cannot add factor to group with members");
-    }
     try {
-      PrivilegeResolver.getInstance().canWriteField(
-        this.s, this, this.s.getSubject(), getDefaultList(), FieldType.LIST
-      );
+      StopWatch sw  = new StopWatch();
+      sw.start();
+      Composite c   = new Composite(this.getSession(), this, left, right, type);
+      GroupValidator.canAddCompositeMember(this, c);
+      MemberOf  mof = MemberOf.addComposite(this.getSession(), this, c);
+      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      Composite.update(this);
+      sw.stop();
+      //  FIXME LOG! imms + effs
+    }
+    catch (HibernateException eH) {
+      throw new MemberAddException(eH);
+    }
+    catch (ModelException eM) {
+      // Fragile tests rely upon the message being precise
+      throw new MemberAddException(eM.getMessage(), eM);
     }
     catch (SchemaException eS) {
-      // TODO Argh.  This try-catch should **not** really be necessary.  
-      throw new FactorAddException(eS.getMessage());
+      throw new MemberAddException(eS);
     }
-    try {
-
-      Set       saves     = new LinkedHashSet();
-      GroupType isFactor  = GroupTypeFinder.find("isFactor");
-      GroupType hasFactor = GroupTypeFinder.find("hasFactor");
-      Group     left      = (Group) _f.getLeft();
-      Group     right     = (Group) _f.getRight();
-      left._addType(  isFactor  );  // TODO Should I set modified?
-      right._addType( isFactor  );  // TODO Should I set modified?
-      this._addType(  hasFactor );
-      this.setModified();
-      saves.add(  _f                            );  // The factor
-      saves.add(  left                          );  // The left group
-      saves.add(  right                         );  // The right group
-      saves.add(  new TxFactorAdd(s, this, _f)  );  // The tx
-      saves.add(  this                          );  // This group
-      HibernateHelper.save(saves);
-
-      sw.stop();
- 
-      EL.groupAddFactor(this.s, this.getName(), _f, sw);
-    } catch (Exception e) {
-      // HibernateException
-      // SchemaException
-      throw new FactorAddException(e.getMessage());
-    }
-  } // public void addFactor(f)
+  } // public void addCompositeMember(type, left, right)
 
   /**
    * Add a subject to this group.
@@ -245,12 +211,10 @@ public class Group extends Owner implements Serializable {
             MemberAddException
   {
     try {
-      this.addMember(
-        subj, getDefaultList()
-      );
+      this.addMember(subj, getDefaultList());
     }
     catch (SchemaException eS) {
-      throw new MemberAddException(eS.getMessage());
+      throw new MemberAddException(eS.getMessage(), eS);
     }
   } // public void addMember(subj)
 
@@ -268,7 +232,7 @@ public class Group extends Owner implements Serializable {
    * } 
    * catch (SchemaException eS) {
    *   // Invalid Field
-   * }
+   * } 
    * </pre>
    * @param   subj  Add this {@link Subject}
    * @param   f     Add subject to this {@link Field}.
@@ -283,31 +247,12 @@ public class Group extends Owner implements Serializable {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if (this.hasType("hasFactor")) {
-      throw new MemberAddException(
-        "cannot add members to groups with factor memberships"
-      );
-    }
-    Validator.isCircularMembership(this, subj, f);
-    try {
-      PrivilegeResolver.getInstance().canWriteField(
-        this.s, this, this.s.getSubject(), f, FieldType.LIST
-      );
-    } 
-    catch (InsufficientPrivilegeException eIP) {
-      try {
-        this._canOPTIN(subj, f);
-      }
-      catch (InsufficientPrivilegeException optinEIP) {
-        throw new InsufficientPrivilegeException(eIP.getMessage());
-      }
-    }
-    // TODO And why is this explicit cast of a `Group` object back to
-    //      `Group` necessary?
-    Membership.addImmediateMembership(this.s, (Group) this, subj, f);
+    GroupValidator.canAddMember(this, subj, f);
+    Membership.addImmediateMembership(this.getSession(), this, subj, f);
+    EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
+    Composite.update(this);
     sw.stop();
-    EL.groupAddMember(this.s, this.getName(), subj, f, sw);
-  } // protected void stemAddChildGroup(s, name, sw)
+  } // public void addMember(subj, f)
 
   /**
    * Add an additional group type.
@@ -336,20 +281,22 @@ public class Group extends Owner implements Serializable {
             InsufficientPrivilegeException,
             SchemaException
   {
-    Validator.canAddGroupType(this.s, this, type);
+    Validator.canAddGroupType(this.getSession(), this, type);
     try {
       StopWatch sw    = new StopWatch();
       Session   hs    = HibernateHelper.getSession();
-      this._addType(type);
+      Set       types = this.getGroup_types();
+      types.add(type);
+      this.setGroup_types(types);
       HibernateHelper.save(this);
       hs.close();
       sw.stop();
-      EL.groupAddType(this.s, this.getName(), type, sw);
+      EL.groupAddType(this.getSession(), this.getName(), type, sw);
     }
     catch (Exception e) {
       String msg = "unable to add type: " + type + ": " + e.getMessage();
       LOG.error(msg);
-      throw new GroupModifyException(msg); 
+      throw new GroupModifyException(msg, e); 
     }
   } // public void addType(type)
 
@@ -376,31 +323,31 @@ public class Group extends Owner implements Serializable {
     // TODO Refactor into smaller components
     StopWatch sw = new StopWatch();
     sw.start();
-    GrouperSession.validate(this.s);
+    GrouperSession.validate(this.getSession());
     String msg = "delete";
-    GrouperLog.debug(LOG, this.s, msg);
+    GrouperLog.debug(LOG, this.getSession(), msg);
     try {
-      PrivilegeResolver.getInstance().canADMIN(this.s, this, this.s.getSubject());
-      GrouperLog.debug(LOG, this.s, msg + " canADMIN");
+      PrivilegeResolver.getInstance().canADMIN(this.getSession(), this, this.getSession().getSubject());
+      GrouperLog.debug(LOG, this.getSession(), msg + " canADMIN");
     }
     catch (InsufficientPrivilegeException eIP) {
       String err = msg + " cannot ADMIN: " + eIP.getMessage();
-      GrouperLog.debug(LOG, this.s, err);
-      throw new InsufficientPrivilegeException(err);
+      GrouperLog.debug(LOG, this.getSession(), err);
+      throw new InsufficientPrivilegeException(err, eIP);
     } 
     try {
       Set deletes = new LinkedHashSet();
       msg += " '" + this.getName() + "'";
-      GrouperLog.debug(LOG, this.s, msg);
+      GrouperLog.debug(LOG, this.getSession(), msg);
 
       // And revoke all access privileges
-      GrouperLog.debug(LOG, this.s, msg + " revoking access privs");
+      GrouperLog.debug(LOG, this.getSession(), msg + " revoking access privs");
       this._revokeAllAccessPrivs(msg);
-      GrouperLog.debug(LOG, this.s, msg + " access privs revoked");
+      GrouperLog.debug(LOG, this.getSession(), msg + " access privs revoked");
 
       // And delete all memberships - as root
       GrouperLog.debug(
-        LOG, this.s, msg + " finding memberships to delete"
+        LOG, this.getSession(), msg + " finding memberships to delete"
       );
       deletes.addAll( 
         Membership.deleteAllFieldType(
@@ -408,15 +355,10 @@ public class Group extends Owner implements Serializable {
         )
       );
       GrouperLog.debug(
-        LOG, this.s, msg + " total membership to delete: " + deletes.size()
+        LOG, this.getSession(), msg + " total membership to delete: " + deletes.size()
       );
 
       // Add the group last for good luck    
-      // TODO Is it possible that deleting the group at this time could
-      //      leave the TxQueue in a state of limbo?  Or would
-      //      attempting to delete the group if referenced in the
-      //      TxQueue cause a HibernateException to be thrown?
-      //      Actually, I think both **could** happen.
       deletes.add(this);
 
       // Preserve name for logging
@@ -424,18 +366,17 @@ public class Group extends Owner implements Serializable {
 
       // And then commit changes to registry
       HibernateHelper.delete(deletes);
-
       // TODO info
       sw.stop();
-      EL.groupDelete(this.s, name, sw);
+      EL.groupDelete(this.getSession(), name, sw);
     }
     catch (InsufficientPrivilegeException eIP) {
       LOG.debug(ERR_DG + eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
+      throw new InsufficientPrivilegeException(eIP.getMessage(), eIP);
     }
     catch (Exception e) {
       LOG.debug(ERR_DG + e.getMessage());
-      throw new GroupDeleteException(e.getMessage());
+      throw new GroupDeleteException(e.getMessage(), e);
     }
   } // public void delete()
 
@@ -462,42 +403,28 @@ public class Group extends Owner implements Serializable {
             GroupModifyException, 
             InsufficientPrivilegeException
   {
-    // TODO This needs some refactoring.  Definitely some duplicate
-    //      code between here and setAttribute() if nothing else.
-    StopWatch sw = new StopWatch();
-    sw.start();
-    String  val = new String(); // For logging
-    String  msg = "deleteAttribute: ";
-    if ( (attr == null) || (attr.equals("")) ) {
-      GrouperLog.debug(LOG, this.s, msg + "no attr");
-      throw new GroupModifyException(msg + "no attr");
-    }
     try {
+      StopWatch sw = new StopWatch();
+      sw.start();
       Field f = FieldFinder.find(attr);
-      if (f.getRequired()) {
-        throw new GroupModifyException("cannot delete require attribute: " + attr);
-      }
-      PrivilegeResolver.getInstance().canPrivDispatch(
-        this.s, this, this.s.getSubject(), f.getWritePriv()
-      );
+      GroupValidator.canDelAttribute(this, f);
+
+      // TODO I'm not comfortable with this code
       Set       saves   = new LinkedHashSet();
       Set       deletes = new LinkedHashSet();
       Set       attrs   = new LinkedHashSet();
-      boolean   found   = false;
+      boolean   found   = false;        // so we know if there was actually anything to delete
+      String    val     = new String(); // for logging purposes
       Iterator  iter    = this.getGroup_attributes().iterator();
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().equals(f)) {
           val = a.getValue();
-          GrouperLog.debug(LOG, this.s, msg + "will delete '" + attr + "'");
-          deletes.add(a);
+          deletes.add(a); // deleting
           found = true;
         }
         else {
-          GrouperLog.debug(
-            LOG, this.s, msg + "will preserve '" + a.getField().getName() + "'"
-          );
-          attrs.add(a);
+          attrs.add(a); // preserving
         }
       }
       if (found == true) {
@@ -505,63 +432,66 @@ public class Group extends Owner implements Serializable {
         this.setGroup_attributes(attrs);
         saves.add(this);
         HibernateHelper.saveAndDelete(saves, deletes);
-        GrouperLog.debug(LOG, this.s, msg + "deleted '" + attr + "'");
       }
       else {
-        msg += "does not have '" + attr + "'";
-        GrouperLog.debug(LOG, this.s, msg); 
-        throw new AttributeNotFoundException(msg);
+        throw new AttributeNotFoundException();
       }
-    }
-    catch (HibernateException eH) {
-      GrouperLog.debug(LOG, this.s, msg + eH.getMessage());
-      throw new GroupModifyException(msg + eH.getMessage());
+      sw.stop();
+      EL.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
     }
     catch (SchemaException eS) {
-      GrouperLog.debug(LOG, this.s, msg + eS.getMessage());
-      throw new AttributeNotFoundException(msg + eS.getMessage());
+      throw new AttributeNotFoundException(eS.getMessage(), eS);
     }
-    sw.stop();
-    EL.groupDelAttr(this.s, this.getName(), attr, val, sw);
+    catch (Exception e) {
+      throw new GroupModifyException(e.getMessage(), e);
+    }
   } // public void deleteAttribute(attr)
 
   /**
-   * Delete a factor-membership from this group.
+   * Delete a composite membership from this group.
    * <pre class="eg">
    * try {
-   *   g.deleteFactor();
-   * }
-   * catch (FactorDeleteException eFA) {
-   *   // error adding factor
+   *   g.deleteCompositeMember();
    * }
    * catch (InsufficientPrivilegeException eIP) {
-   *   // not privileged to delete factor
+   *   // Not privileged to delete members
    * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete composite membership
+   * } 
    * </pre>
-   * @throws  FactorDeleteException
    * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
    */
-  public void deleteFactor() 
-    throws  FactorDeleteException,
-            InsufficientPrivilegeException
+  public void deleteCompositeMember()
+    throws  InsufficientPrivilegeException,
+            MemberDeleteException
   {
-    StopWatch sw = new StopWatch();
-    sw.start();
-
-    if (!this.hasFactor()) {
-      throw new FactorDeleteException("group does not have factor membership");
-    }
     try {
-      PrivilegeResolver.getInstance().canWriteField(
-        this.s, this, this.s.getSubject(), getDefaultList(), FieldType.LIST
-      );
+      StopWatch sw  = new StopWatch();
+      sw.start();
+      GroupValidator.canDelCompositeMember(this);
+      Composite c   = CompositeFinder.isOwner(this);
+      MemberOf  mof = MemberOf.delComposite(this.getSession(), this, c);
+      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      //  FIXME LOG! imms + effs
+      Composite.update(this);
+      sw.stop();
+    }
+    catch (CompositeNotFoundException eCNF) {
+      throw new MemberDeleteException(eCNF);
+    }
+    catch (HibernateException eH) {
+      throw new MemberDeleteException(eH);
+    }
+    catch (ModelException eM) {
+      // Fragile tests rely upon the message being precise
+      throw new MemberDeleteException(eM.getMessage(), eM);
     }
     catch (SchemaException eS) {
-      // TODO Argh.  This try-catch should **not** really be necessary.  
-      throw new FactorDeleteException(eS.getMessage());
+      throw new MemberDeleteException(eS);
     }
-    // FIXME Implement!
-  } // public void deleteFactor()
+  } // public void deleteCompositeMember()
 
   /** 
    * Delete a subject from this group.
@@ -589,7 +519,7 @@ public class Group extends Owner implements Serializable {
       this.deleteMember(subj, getDefaultList());
     }
     catch (SchemaException eS) {
-      throw new MemberDeleteException(eS.getMessage());
+      throw new MemberDeleteException(eS.getMessage(), eS);
     }
   } // public void deleteMember(subj)
 
@@ -619,32 +549,28 @@ public class Group extends Owner implements Serializable {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if (this.hasType("hasFactor")) {
-      throw new MemberDeleteException(
-        "cannot delete members from groups with factor memberships"
-      );
-    }
+    GroupValidator.canDelMember(this, subj, f);
+    MemberOf  mof     = Membership.delImmediateMembership(
+      this.getSession(), this, subj, f
+    );
+    Set       saves   = mof.getSaves();
+    Set       deletes = mof.getDeletes();
+
+    this.setModified();
+    saves.add(this);
+
+    // And then commit changes to registry
     try {
-      PrivilegeResolver.getInstance().canWriteField(
-        this.s, this, this.s.getSubject(), f, FieldType.LIST
-      );
-    } catch (InsufficientPrivilegeException eIP) {
-      try {
-        this._canOPTOUT(subj, f);
-      }
-      catch (InsufficientPrivilegeException optinEIP) {
-        throw new InsufficientPrivilegeException(eIP.getMessage());
-      }
+      HibernateHelper.saveAndDelete(saves, deletes);
     }
-    try {
-      Membership.delImmediateMembership(this.s, this, subj, f);
+    catch (HibernateException eH) {
+      throw new MemberDeleteException(eH);
     }
-    catch (MembershipNotFoundException eMNF) {
-      // TODO Why don't I throw this directly?
-      throw new MemberDeleteException(eMNF.getMessage());
-    }
+
     sw.stop();
-    EL.groupDelMember(this.s, this.getName(), subj, f, sw);
+    EL.groupDelMember(this.getSession(), this.getName(), subj, f, sw);
+    EL.delEffMembers(this.getSession(), this, subj, f, mof.getEffDeletes());
+    Composite.update(this);
   } // public void deleteMember(subj, f)
 
   /**
@@ -674,7 +600,7 @@ public class Group extends Owner implements Serializable {
             InsufficientPrivilegeException,
             SchemaException
   {
-    Validator.canDeleteGroupType(this.s, this, type);
+    Validator.canDeleteGroupType(this.getSession(), this, type);
     try {
       StopWatch sw    = new StopWatch();
       Session   hs    = HibernateHelper.getSession();
@@ -684,12 +610,12 @@ public class Group extends Owner implements Serializable {
       HibernateHelper.save(this);
       hs.close();
       sw.stop();
-      EL.groupDelType(this.s, this.getName(), type, sw);
+      EL.groupDelType(this.getSession(), this.getName(), type, sw);
     }
     catch (Exception e) {
       String msg = "unable to delete type: " + type + ": " + e.getMessage();
       LOG.error(msg);
-      throw new GroupModifyException(msg); 
+      throw new GroupModifyException(msg, e); 
     }
   } // public void deleteType(type)
 
@@ -704,7 +630,7 @@ public class Group extends Owner implements Serializable {
     return new EqualsBuilder()
       .append(this.getCreator_id()  , otherGroup.getCreator_id()  )
       .append(this.getCreate_time() , otherGroup.getCreate_time() )
-      .append(this.getOwner_uuid()  , otherGroup.getOwner_uuid()  )
+      .append(this.getUuid()        , otherGroup.getUuid()        )
       .isEquals();
   } // public boolean equals(other)
 
@@ -718,13 +644,13 @@ public class Group extends Owner implements Serializable {
   public Set getAdmins() {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-        this.s, this, AccessPrivilege.ADMIN
+        this.getSession(), this, AccessPrivilege.ADMIN
       );
     }
     catch (SchemaException eS) {
       String err = ERR_FNF + AccessPrivilege.ADMIN;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getAdmins()
 
@@ -745,36 +671,29 @@ public class Group extends Owner implements Serializable {
   public String getAttribute(String attr) 
     throws  AttributeNotFoundException
   {
-    String val = new String();
     try {
       Field f = FieldFinder.find(attr);
       if (!f.getType().equals(FieldType.ATTRIBUTE)) {
-        String err = "not an attribute: " + attr;
-        throw new SchemaException(err);
+        throw new SchemaException("not an attribute: " + attr);
       }
       if (!this.hasType( f.getGroupType() ) ) {
-        String err = "does not have group type: " + f.getGroupType().toString();
-        throw new SchemaException(err);
-      }
-    }
-    catch (SchemaException eS) {
-      throw new AttributeNotFoundException(eS.getMessage());
-    }
-    try {
-      Map attrs = this._getAttributes();
-      if (attrs.containsKey(attr)) {
-        Attribute a = (Attribute) attrs.get(attr);
-        PrivilegeResolver.getInstance().canPrivDispatch(
-          this.s, this, this.s.getSubject(), a.getField().getReadPriv()
+        throw new SchemaException(
+          "group does not have group type: " + f.getGroupType().toString()
         );
-        val = a.getValue();
       }
+      GroupValidator.canReadField(
+        this.getSession(), this, this.getSession().getSubject(), f, FieldType.ATTRIBUTE
+      );
     }
     catch (InsufficientPrivilegeException eIP) {
-      // Ignore
+      throw new AttributeNotFoundException(eIP);
     }
     catch (SchemaException eS) {
-      // Ignore
+      throw new AttributeNotFoundException(eS);
+    }
+    String val = this._getAttributeNoPrivs(attr);
+    if (val == null) {
+      return new String();
     }
     return val;
   } // public String getAttribute(attr)
@@ -787,20 +706,19 @@ public class Group extends Owner implements Serializable {
    * @return  A map of attributes and values.
    */
   public Map getAttributes() {
-    // TODO Cache results
     Map       filtered  = new HashMap();
-    Iterator  iter      = this._getAttributes().values().iterator();
+    Iterator  iter      = this._getAttributesNoPrivs().values().iterator();
     while (iter.hasNext()) {
       Attribute attr = (Attribute) iter.next();
       try {
-        // TODO Does this actually work?
-        PrivilegeResolver.getInstance().canPrivDispatch(
-          this.s, this, this.s.getSubject(), attr.getField().getReadPriv()
+        Field f = attr.getField();
+        GroupValidator.canReadField(
+          this.getSession(), this, this.getSession().getSubject(), f, FieldType.ATTRIBUTE
         );
-        filtered.put( attr.getField().getName(), attr.getValue() );
+        filtered.put(f.getName(), attr.getValue());
       }
       catch (Exception e) {
-        // Nothing
+        //  FIXME ???
       }
     }
     return filtered;
@@ -882,20 +800,17 @@ public class Group extends Owner implements Serializable {
    * @return  Gruop displayExtension.
    */
   public String getDisplayExtension() {
-    GrouperSession.validate(s);
-    String msg = "getDisplayExtension";
-    if (attr_de == null) {
-      try {
-        GrouperLog.debug(LOG, this.s, msg + " fetching");
-        attr_de = (String) this.getAttribute("displayExtension");
-        GrouperLog.debug(LOG, this.s, msg + " fetched");
-      }
-      catch (AttributeNotFoundException eANF) {
-        GrouperLog.fatal(LOG, this.s, ERR_NODE);
-        throw new RuntimeException(ERR_NODE);
-      }
+    //  TODO  Do I need to validate privs here or not?  If one has
+    //        retrieved a group then one has at least VIEW and thus this
+    //        attribute should be available, no?  As long as I don't make
+    //        public the methods for adjusting the session associated with a
+    //        Group I think this is fine.
+    String val = this._getAttributeNoPrivs("displayExtension");
+    if (val == null) {
+      //  A group without this attribute is VERY faulty
+      throw new RuntimeException(ERR_NODE);
     }
-    return attr_de;
+    return val;
   } // public String getDisplayExtension()
 
   /**
@@ -906,20 +821,17 @@ public class Group extends Owner implements Serializable {
    * @return  Group displayName.
    */
   public String getDisplayName() {
-    GrouperSession.validate(s);
-    String msg = "getDisplayName";
-    if (attr_dn == null) {
-      try {
-        GrouperLog.debug(LOG, this.s, msg + " fetching");
-        attr_dn = (String) this.getAttribute("displayName");
-        GrouperLog.debug(LOG, this.s, msg + " fetched");
-      }
-      catch (AttributeNotFoundException eANF) {
-        GrouperLog.fatal(LOG, this.s, ERR_NODN);
-        throw new RuntimeException(ERR_NODN);
-      }
+    //  TODO  Do I need to validate privs here or not?  If one has
+    //        retrieved a group then one has at least VIEW and thus this
+    //        attribute should be available, no?  As long as I don't make
+    //        public the methods for adjusting the session associated with a
+    //        Group I think this is fine.
+    String val = this._getAttributeNoPrivs("displayName");
+    if (val == null) {
+      //  A group without this attribute is VERY faulty
+      throw new RuntimeException(ERR_NODN);
     }
-    return attr_dn;
+    return val;
   } // public String getDisplayName()
 
   /**
@@ -937,7 +849,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getEffectiveMembership()
 
@@ -954,7 +866,7 @@ public class Group extends Owner implements Serializable {
   public Set getEffectiveMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findEffectiveMembers(this.s, this, f);
+    return MembershipFinder.findEffectiveMembers(this.getSession(), this, f);
   }  // public Set getEffectiveMembers(f)
 
   /**
@@ -972,14 +884,14 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getEffectiveMembership()
 
   /**
-   * Get memberships of this group.
+   * Get effective memberships of this group.
    * <pre class="eg">
-   * Set memberships = g.getMemberships(f);
+   * Set memberships = g.getEffectiveMemberships(f);
    * </pre>
    * @param   f Get memberships in this list field.
    * @return  A set of {@link Membership} objects.
@@ -988,7 +900,7 @@ public class Group extends Owner implements Serializable {
   public Set getEffectiveMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findEffectiveMemberships(this.s, this, f);
+    return MembershipFinder.findEffectiveMemberships(this.getSession(), this, f);
   } // public Set getEffectiveMemberships(f)
 
   /**
@@ -999,20 +911,17 @@ public class Group extends Owner implements Serializable {
    * @return  Group extension.
    */
   public String getExtension() {
-    GrouperSession.validate(s);
-    String msg = "getExtension";
-    if (attr_e == null) {
-      try {
-        GrouperLog.debug(LOG, this.s, msg + " fetching");
-        attr_e = (String) this.getAttribute("extension");
-        GrouperLog.debug(LOG, this.s, msg + " fetched");
-      }
-      catch (AttributeNotFoundException eANF) {
-        GrouperLog.fatal(LOG, this.s, ERR_NOE);
-        throw new RuntimeException(ERR_NOE);
-      }
+    //  TODO  Do I need to validate privs here or not?  If one has
+    //        retrieved a group then one has at least VIEW and thus this
+    //        attribute should be available, no?  As long as I don't make
+    //        public the methods for adjusting the session associated with a
+    //        Group I think this is fine.
+    String val = this._getAttributeNoPrivs("extension");
+    if (val == null) {
+      //  A group without this attribute is VERY faulty
+      throw new RuntimeException(ERR_NOE);
     }
-    return attr_e;
+    return val;
   } // public String getExtension()
  
   /**
@@ -1030,7 +939,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getImmediateMembers()
 
@@ -1046,7 +955,7 @@ public class Group extends Owner implements Serializable {
   public Set getImmediateMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findImmediateMembers(this.s, this, f);
+    return MembershipFinder.findImmediateMembers(this.getSession(), this, f);
   } // public Set getImmediateMembers(f)
 
   /**
@@ -1064,7 +973,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getImmediateMemberships()
 
@@ -1080,8 +989,8 @@ public class Group extends Owner implements Serializable {
   public Set getImmediateMemberships(Field f) 
     throws  SchemaException
   {
-    GrouperSession.validate(this.s);
-    return MembershipFinder.findImmediateMemberships(this.s, this, f);
+    GrouperSession.validate(this.getSession());
+    return MembershipFinder.findImmediateMemberships(this.getSession(), this, f);
   } // public Set getImmediateMemberships(f)
 
   /**
@@ -1099,7 +1008,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getMembers()
 
@@ -1115,7 +1024,7 @@ public class Group extends Owner implements Serializable {
   public Set getMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findMembers(this.s, this, f);
+    return MembershipFinder.findMembers(this.getSession(), this, f);
   } // public Set getMembers(f)
 
   /**
@@ -1133,7 +1042,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getMemberships()
 
@@ -1149,7 +1058,7 @@ public class Group extends Owner implements Serializable {
   public Set getMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findMemberships(this.s, this, f);
+    return MembershipFinder.findMemberships(this.getSession(), this, f);
   } // public Set getMemberships(f)
 
   /**
@@ -1217,20 +1126,17 @@ public class Group extends Owner implements Serializable {
    * @return  Group name.
    */
   public String getName() {
-    GrouperSession.validate(s);
-    String msg = "getName";
-    if (attr_n == null) {
-      try {
-        GrouperLog.debug(LOG, this.s, msg + " fetching");
-        attr_n = (String) this.getAttribute("name");
-        GrouperLog.debug(LOG, this.s, msg + " fetched");
-      }
-      catch (AttributeNotFoundException eANF) {
-        GrouperLog.fatal(LOG, this.s, ERR_NON);
-        throw new RuntimeException(ERR_NON);
-      }
+    //  TODO  Do I need to validate privs here or not?  If one has
+    //        retrieved a group then one has at least VIEW and thus this
+    //        attribute should be available, no?  As long as I don't make
+    //        public the methods for adjusting the session associated with a
+    //        Group I think this is fine.
+    String val = this._getAttributeNoPrivs("name");
+    if (val == null) {
+      //  A group without this attribute is VERY faulty
+      throw new RuntimeException(ERR_NON);
     }
-    return attr_n;
+    return val;
   } // public String getName()
 
   /**
@@ -1243,13 +1149,13 @@ public class Group extends Owner implements Serializable {
   public Set getOptins() {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-        this.s, this, AccessPrivilege.OPTIN
+        this.getSession(), this, AccessPrivilege.OPTIN
       );
     } 
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.OPTIN;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getOptins()
 
@@ -1263,13 +1169,13 @@ public class Group extends Owner implements Serializable {
   public Set getOptouts() {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-        this.s, this, AccessPrivilege.OPTOUT
+        this.getSession(), this, AccessPrivilege.OPTOUT
       );
     } 
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.OPTOUT;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getOptouts()
 
@@ -1282,7 +1188,7 @@ public class Group extends Owner implements Serializable {
    */
   public Stem getParentStem() {
     Stem parent = this.getParent_stem();
-    parent.setSession(this.s);
+    parent.setSession(this.getSession());
     return parent;
   } // public Stem getParentStem()
 
@@ -1296,7 +1202,7 @@ public class Group extends Owner implements Serializable {
    */
   public Set getPrivs(Subject subj) {
     return PrivilegeResolver.getInstance().getPrivs(
-      this.s, this, subj
+      this.getSession(), this, subj
     );
   } // public Set getPrivs(subj)
 
@@ -1311,28 +1217,15 @@ public class Group extends Owner implements Serializable {
   public Set getReaders() {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-        this.s, this, AccessPrivilege.READ
+        this.getSession(), this, AccessPrivilege.READ
       );
     } 
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.READ;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getReaders()
-
-  /**
-   * Get {@link GrouperSession} associated with this {@link Group}.
-   * <pre class="eg">
-   * GrouperSession s = g.getSession();
-   * </pre>
-   * @return  {@GrouperSession} associated this this group.
-   * @throws  RuntimeException if session not valid.
-   */
-  public GrouperSession getSession() {
-    GrouperSession.validate(this.s);
-    return this.s;
-  } // public GrouperSession getSession()
 
   /**
    * Get group types for this group.
@@ -1355,26 +1248,15 @@ public class Group extends Owner implements Serializable {
   public Set getUpdaters() {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-        this.s, this, AccessPrivilege.UPDATE
+        this.getSession(), this, AccessPrivilege.UPDATE
       );
     } 
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.UPDATE;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public set getUpdateres()
-
-  /**
-   * Get group UUID.
-   * <pre class="eg">
-   * String uuid = g.getUuid();
-   * </pre>
-   * @return  Group UUID.
-   */
-  public String getUuid() {
-    return this.getOwner_uuid();
-  }
 
   /**
    * Get subjects with the VIEW privilege on this group.
@@ -1386,13 +1268,13 @@ public class Group extends Owner implements Serializable {
   public Set getViewers() {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
-        this.s, this, AccessPrivilege.VIEW
+        this.getSession(), this, AccessPrivilege.VIEW
       );
     } 
     catch (SchemaException eS) { 
       String err = ERR_FNF + AccessPrivilege.VIEW;
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public Set getViewers()
 
@@ -1423,10 +1305,10 @@ public class Group extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     PrivilegeResolver.getInstance().grantPriv(
-      this.s, this, subj, priv
+      this.getSession(), this, subj, priv
     );
     sw.stop();
-    EL.groupGrantPriv(this.s, this.getName(), subj, priv, sw);
+    EL.groupGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
   }  // public void grantPriv(subj, priv)
 
   /**
@@ -1444,9 +1326,28 @@ public class Group extends Owner implements Serializable {
    */
   public boolean hasAdmin(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, AccessPrivilege.ADMIN
+      this.getSession(), this, subj, AccessPrivilege.ADMIN
     );
   } // public boolean hasAdmin(subj)
+
+  /**
+   * Does this {@link Group} have a {@link Composite} membership.
+   * <pre class="eg">
+   * if (g.hasComposite()) {
+   *   // this group has a composite membership
+   * }
+   * </pre>
+   * @return  Boolean true if group has a composite membership.
+   */
+  public boolean hasComposite() {
+    try {
+      Composite c = CompositeFinder.isOwner(this);
+      return true;
+    }
+    catch (CompositeNotFoundException eCNF) {
+      return false;
+    }
+  } // public boolean hasComposite()
 
   /**
    * Check whether the subject is an effective member of this group.
@@ -1469,7 +1370,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public boolean hasEffectiveMember(Subject subj)
 
@@ -1495,26 +1396,16 @@ public class Group extends Owner implements Serializable {
     String  msg = "hasEffectiveMember " + SubjectHelper.getPretty(subj) + " '" 
       + f.getName() + "': ";
     try {
-      Member m = MemberFinder.findBySubject(this.s, subj);
+      Member m = MemberFinder.findBySubject(this.getSession(), subj);
       rv = m.isEffectiveMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
       // TODO Fail silently?
-      GrouperLog.debug(LOG, this.s, msg + eMNF.getMessage());
+      GrouperLog.debug(LOG, this.getSession(), msg + eMNF.getMessage());
     }
-    GrouperLog.debug(LOG, this.s, msg + rv);
+    GrouperLog.debug(LOG, this.getSession(), msg + rv);
     return rv;
   } // public boolean hasEffectiveMember(subj, f)
-
-  /**
-   * Does this group have a {@link Factor} membership?
-   * <pre class="eg">
-   * boolean rv = g.hasFactor();
-   * </pre>
-   */
-  public boolean hasFactor() {
-    return this.hasType("hasFactor");
-  } // public boolean hasFactor()
 
   /**
    * Check whether the subject is an immediate member of this group.
@@ -1537,7 +1428,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public boolean hasImmediateMember(subj)
 
@@ -1563,14 +1454,14 @@ public class Group extends Owner implements Serializable {
     String  msg = "hasImmediateMember " + SubjectHelper.getPretty(subj) + " '" 
       + f.getName() + "': ";
     try {
-      Member m = MemberFinder.findBySubject(this.s, subj);
+      Member m = MemberFinder.findBySubject(this.getSession(), subj);
       rv = m.isImmediateMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
       // TODO Fail silently?
-      GrouperLog.debug(LOG, this.s, msg + eMNF.getMessage());
+      GrouperLog.debug(LOG, this.getSession(), msg + eMNF.getMessage());
     }
-    GrouperLog.debug(LOG, this.s, msg + rv);
+    GrouperLog.debug(LOG, this.getSession(), msg + rv);
     return rv;
   } // public boolean hasImmediateMember(subj, f)
 
@@ -1578,7 +1469,7 @@ public class Group extends Owner implements Serializable {
     return new HashCodeBuilder()
       .append(this.getCreator_id()  )
       .append(this.getCreate_time() )
-      .append(this.getOwner_uuid()  )
+      .append(this.getUuid()        )
       .toHashCode();
   }
 
@@ -1597,7 +1488,7 @@ public class Group extends Owner implements Serializable {
    */
   public boolean hasOptin(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, AccessPrivilege.OPTIN
+      this.getSession(), this, subj, AccessPrivilege.OPTIN
     );
   } // public boolean hasOption(subj)
 
@@ -1616,7 +1507,7 @@ public class Group extends Owner implements Serializable {
    */
   public boolean hasOptout(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, AccessPrivilege.OPTOUT
+      this.getSession(), this, subj, AccessPrivilege.OPTOUT
     );
   } // public boolean hasOptout(subj)
 
@@ -1641,7 +1532,7 @@ public class Group extends Owner implements Serializable {
       // If we don't have "members" we have serious issues
       String err = ERR_GDL + eS.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eS);
     }
   } // public boolean hasMember(subj)
 
@@ -1668,14 +1559,14 @@ public class Group extends Owner implements Serializable {
     String  msg = "hasMember " + SubjectHelper.getPretty(subj) + " '" 
       + f.getName() + "': ";
     try {
-      Member m = MemberFinder.findBySubject(this.s, subj);
+      Member m = MemberFinder.findBySubject(this.getSession(), subj);
       rv = m.isMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
       // TODO Fail silently?
-      GrouperLog.debug(LOG, this.s, msg + eMNF.getMessage());
+      GrouperLog.debug(LOG, this.getSession(), msg + eMNF.getMessage());
     }
-    GrouperLog.debug(LOG, this.s, msg + rv);
+    GrouperLog.debug(LOG, this.getSession(), msg + rv);
     return rv;
   } // public boolean hasMember(subj, f)
 
@@ -1694,7 +1585,7 @@ public class Group extends Owner implements Serializable {
    */
   public boolean hasRead(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, AccessPrivilege.READ
+      this.getSession(), this, subj, AccessPrivilege.READ
     );
   } // public boolean hasRead(subj)
 
@@ -1709,32 +1600,13 @@ public class Group extends Owner implements Serializable {
    * @param   type  The {@link GroupType} to check.
    */
   public boolean hasType(GroupType type) {
+    // if (this.getGroup_types().contains(type)) {
     Set types = this.getGroup_types();
     if (types.contains(type)) {
       return true;
     }
     return false;
-  } // public booean hasType(type)
-
-  /**
-   * Check whether group has the specified type.
-   * <pre class="eg">
-   * if (g.hasType("type")) {
-   *   // Group has type
-   * }
-   * </pre>
-   * @param   type  The {@link GroupType} to check.
-   */
-  public boolean hasType(String type) {
-    try {
-      return this.hasType( GroupTypeFinder.find(type) );
-    }
-    catch (SchemaException eS) {
-      // Ignore 
-      // TODO Or should I throw?
-    }
-    return false;
-  } // public boolean hasType(type)
+  }
 
   /**
    * Check whether the subject has UPDATE on this group.
@@ -1751,7 +1623,7 @@ public class Group extends Owner implements Serializable {
    */
   public boolean hasUpdate(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, AccessPrivilege.UPDATE
+      this.getSession(), this, subj, AccessPrivilege.UPDATE
     );
   } // public boolean hasUpdate(subj)
 
@@ -1770,19 +1642,26 @@ public class Group extends Owner implements Serializable {
    */
   public boolean hasView(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, AccessPrivilege.VIEW
+      this.getSession(), this, subj, AccessPrivilege.VIEW
     );
   } // public boolean hasView(subj)
 
   /**
-   * Is this group part of a {@link Factor} membership?
+   * Is this {@link Group} a factor in a {@link Composite} membership.
    * <pre class="eg">
-   * boolean rv = g.isFactor();
+   * if (g.isComposite()) {
+   *   // this group is a factor in one-or-more composite memberships.
+   * }
    * </pre>
+   * @return  Boolean true if group is a factor in a composite membership.
    */
-  public boolean isFactor() {
-    return this.hasType("isFactor");
-  } // public boolean isFactor()
+  public boolean isComposite() {
+    Set factors = CompositeFinder.isFactor(this);
+    if (factors.size() > 0) {
+      return true;
+    }
+    return false;
+  } // public boolean isComposite()
 
   /**
    * Revoke all privileges of the specified type on this group.
@@ -1810,10 +1689,10 @@ public class Group extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     PrivilegeResolver.getInstance().revokePriv(
-      this.s, this, priv
+      this.getSession(), this, priv
     );
     sw.stop();
-    EL.groupRevokePriv(this.s, this.getName(), priv, sw);
+    EL.groupRevokePriv(this.getSession(), this.getName(), priv, sw);
   } // public void revokePriv(priv)
 
   /**
@@ -1843,10 +1722,10 @@ public class Group extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     PrivilegeResolver.getInstance().revokePriv(
-      this.s, this, subj, priv
+      this.getSession(), this, subj, priv
     );
     sw.stop();
-    EL.groupRevokePriv(this.s, this.getName(), subj, priv, sw);
+    EL.groupRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
   } // public void revokePriv(subj, priv)
 
   /**
@@ -1876,52 +1755,41 @@ public class Group extends Owner implements Serializable {
             GroupModifyException, 
             InsufficientPrivilegeException
   {
-    // TODO s,AttributeNotFoundException,SchemaException,?
-    //      Or both?
-    StopWatch sw = new StopWatch();
-    sw.start();
-    String msg = "setAttribute: ";
-    if ( (value == null) || (value.equals("")) ) {
-      GrouperLog.debug(LOG, this.s, msg + "no value");
-      throw new GroupModifyException(msg + "no value");
-    }
+    // TODO s,AttributeNotFoundException,SchemaException,
     try {
+      StopWatch sw = new StopWatch();
+      sw.start();
       Field f = FieldFinder.find(attr);
-      PrivilegeResolver.getInstance().canWriteField(
-        this.s, this, this.s.getSubject(), f, FieldType.ATTRIBUTE
-      );
-      GrouperLog.debug(LOG, s, msg + " can write attr");
+      GroupValidator.canSetAttribute(this, f, value);
+
+      // TODO I'm not comfortable with this code
       Set       attrs = new LinkedHashSet();
-      boolean   found = false;
+      boolean   found = false; // So we know if we are adding or updating
       Iterator  iter  = this.getGroup_attributes().iterator();
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().equals(f)) {
-          // updating attribute
-          GrouperLog.debug(
-            LOG, this.s, "updating '" + a.getField().getName() + "'"
-          );
-          a.setValue(value);  
+          a.setValue(value); // updating
+          found = true;
         }
         attrs.add(a);
       }
       if (found == false) {
-        // adding new attribute
-        GrouperLog.debug(LOG, this.s, "adding '" + attr + "'");
-        attrs.add(new Attribute(this, f, value));
+        attrs.add(new Attribute(this, f, value)); // adding 
       }
+
       this.setGroup_attributes( this._updateSystemAttrs(f, value, attrs) );
       this.setModified();
       HibernateHelper.save(this);
+
       sw.stop();
-      EL.groupSetAttr(this.s, this.getName(), attr, value, sw);
+      EL.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
     }
     catch (SchemaException eS) {
-      GrouperLog.debug(LOG, this.s, msg + eS.getMessage());
-      throw new AttributeNotFoundException(msg + eS.getMessage());
+      throw new AttributeNotFoundException(eS.getMessage(), eS);
     }
     catch (Exception e) {
-      throw new GroupModifyException(e.getMessage());
+      throw new GroupModifyException(e.getMessage(), e);
     }
   } // public void setAttribute(attr, value)
 
@@ -1951,7 +1819,7 @@ public class Group extends Owner implements Serializable {
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
-        "unable to set description: " + eANF.getMessage()
+        "unable to set description: " + eANF.getMessage(), eANF
       );
     }
   } // public void setDescription(value)
@@ -1982,7 +1850,7 @@ public class Group extends Owner implements Serializable {
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
-        "unable to set extension: " + eANF.getMessage()
+        "unable to set extension: " + eANF.getMessage(), eANF
       );
     }
   } // public void setExtension(value)
@@ -2013,7 +1881,7 @@ public class Group extends Owner implements Serializable {
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
-        "unable to set displayExtension: " + eANF.getMessage()
+        "unable to set displayExtension: " + eANF.getMessage(), eANF
       );
     }
   } // public void setDisplayExtension(value)
@@ -2028,14 +1896,14 @@ public class Group extends Owner implements Serializable {
    */
   public Member toMember() {
     // TODO Does this need to be public?
-    GrouperSession.validate(this.s);
+    GrouperSession.validate(this.getSession());
     String msg = "toMember";
     GrouperLog.debug(LOG, s, msg);
     if (as_member == null) {
       try {
         GrouperLog.debug(LOG, s, msg + " finding group as member");
         as_member = MemberFinder.findBySubject(
-          this.s, this.toSubject()
+          this.getSession(), this.toSubject()
         );
         GrouperLog.debug(LOG, s, msg + " found: " + as_member);
       }  
@@ -2044,7 +1912,7 @@ public class Group extends Owner implements Serializable {
         // and should probably just give up
         String err = ERR_G2M + eMNF.getMessage();
         GrouperLog.error(LOG, s, err);
-        throw new RuntimeException(err);
+        throw new RuntimeException(err, eMNF);
       }
     }
     return as_member;
@@ -2059,33 +1927,33 @@ public class Group extends Owner implements Serializable {
    * @return  {@link Group} as a {@link Subject}
    */
   public Subject toSubject() {
-    GrouperSession.validate(s);
+    GrouperSession.validate(this.getSession());
     String msg = "toSubject";
     GrouperLog.debug(LOG, s, msg);
     if (as_subj == null) {
       try {
         GrouperLog.debug(LOG , s, msg + " find group as subject");
-        as_subj = SubjectFinder.findById(this.getUuid(), "group");
+        as_subj = SubjectFinder.findById(
+          this.getUuid(), "group", GrouperSourceAdapter.ID
+        );
         GrouperLog.debug(LOG, s, msg + " found: " + as_subj);
       }
-      catch (SubjectNotFoundException eSNF) {
+      catch (Exception e) {
         // If we can't find an existing group as a subject we have
         // major issues and shoudl probably just give up
-        String err = ERR_G2S + eSNF.getMessage();
+        String err = ERR_G2S + e.getMessage();
         GrouperLog.error(LOG, s, err);
-        throw new RuntimeException(err);
+        throw new RuntimeException(err, e);
       }
     }
     return as_subj;
   } // public Subject toSubject()
 
   public String toString() {
+    // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
-      .append("name"        , this.getName()        )
-      .append("displayName" , this.getDisplayName() )
-      .append("uuid"        , this.getUuid()        )
-      .append("creator"     , getCreator_id()       )
-      .append("modifier"    , getModifier_id()      )
+      .append("name"        , this._getAttributeNoPrivs("name") )
+      .append("uuid"        , this.getUuid()                    )
       .toString();
   } // public String toString()
 
@@ -2103,31 +1971,12 @@ public class Group extends Owner implements Serializable {
     hs.close();
   } // protected void initializeGroup()
 
-  protected static List setSession(GrouperSession s, List l) {
-    List      groups  = new ArrayList();
-    Iterator  iter    = l.iterator();
-    while (iter.hasNext()) {
-      Group g = (Group) iter.next();
-      g.setSession(s);
-      groups.add(g);
-    }
-    return groups;
-  } // protected static List setSession(s, l)
 
-
-  // Protected Instance Methods
-  // TODO DRY - why did moving this to Owner not work?
+  // Protected Instance Methods //
   protected void setModified() {
-    //this.setModifier_id( s.getMember()        );
-    //this.setModify_time( new Date().getTime() );
-    this.setModified(s.getMember());
-  } // protected void setModified()
-  // used by TxFactorAdd
-  protected void setModified(Member m) {
-    this.setModifier_id( m                    );
+    this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
-  } 
-  
+  } // private void setModified()
 
   protected void setDisplayName(String value) {
     Set       attrs = new LinkedHashSet();
@@ -2136,7 +1985,6 @@ public class Group extends Owner implements Serializable {
       Attribute a = (Attribute) iter.next();
       if (a.getField().getName().equals("displayName")) {
         a.setValue(value);
-        this.attr_dn = value;
       }
       attrs.add(a);
     }
@@ -2144,76 +1992,25 @@ public class Group extends Owner implements Serializable {
   } // protected void setDisplayName(value)
 
 
-  // Private Instance Methods
-
-  private void _addType(GroupType type) {
-    Set types = this.getGroup_types();
-    types.add(type);
-    this.setGroup_types(types);
-  } // private void _addType(type)
-
-  private void _canOPTIN(Subject subj, Field f) 
-    throws  InsufficientPrivilegeException
-  {
-    GrouperSession.validate(s);
-    boolean can = false;
-    String  msg = "_canOPTIN '" + f.getName() + "'";
-    String  err = msg;
-    GrouperLog.debug(LOG, this.s, msg);
-    if (
-      SubjectHelper.eq(s.getSubject(), subj)
-      && f.equals(getDefaultList())
-    )
-    {
-      try {
-        PrivilegeResolver.getInstance().canOPTIN(this.s, this, subj);
-        can = true;
-      }
-      catch (InsufficientPrivilegeException eIP) {
-        err = eIP.getMessage();
-      }
+  // Private Instance Methods //
+  private String _getAttributeNoPrivs(String attr) {
+    String    val   = null;
+    Map       attrs = this._getAttributesNoPrivs();
+    if (attrs.containsKey(attr)) {
+      Attribute a = (Attribute) attrs.get(attr);
+      val = a.getValue();
     }
-    if (can == false) {
-      GrouperLog.debug(LOG, this.s, msg + ": " + err);
-      throw new InsufficientPrivilegeException(err);
-    }
-  } // private void _canOPTIN(subj, f)
+    return val;
+  } // private String _getAttributeNoPrivs(attr)
 
-  private void _canOPTOUT(Subject subj, Field f)
-    throws  InsufficientPrivilegeException
-  {
-    GrouperSession.validate(s);
-    boolean can = false;
-    String  msg = "_canOPTOUT '" + f.getName() + "'";
-    String  err = msg;
-    GrouperLog.debug(LOG, this.s, msg);
-    if (
-      SubjectHelper.eq(s.getSubject(), subj)
-      && f.equals(getDefaultList())
-    )
-    {
-      try {
-        PrivilegeResolver.getInstance().canOPTOUT(this.s, this, subj);
-        can = true;
-      }
-      catch (InsufficientPrivilegeException eIP) {
-        err = eIP.getMessage();
-      }
-    }
-    if (can == false) {
-      GrouperLog.debug(LOG, this.s, msg + ": " + err);
-      throw new InsufficientPrivilegeException(err);
-    }
-  } // private void _canOPTOUT(subj, f)
-
-  private Map _getAttributes() {
+  private Map _getAttributesNoPrivs() {
     Iterator iter = this.getGroup_attributes().iterator();
     while (iter.hasNext()) {
       Attribute attr = (Attribute) iter.next();
       this.attrs.put(attr.getField().getName(), attr);
     }
     return this.attrs;
-  } // private Map _getAttributes()
+  } // private Map _getAttributesNoPrivs()
 
   private void _revokeAllAccessPrivs(String msg) 
     throws  InsufficientPrivilegeException,
@@ -2221,7 +2018,7 @@ public class Group extends Owner implements Serializable {
             SchemaException
   {
     // Proxy as root
-    GrouperSession orig = this.s;
+    GrouperSession orig = this.getSession();
     this.setSession(GrouperSessionFinder.getRootSession());
 
     GrouperLog.debug(LOG, orig, msg + " revoking ADMIN");
@@ -2252,7 +2049,7 @@ public class Group extends Owner implements Serializable {
   } // private void _setCreated()
 
   private Set _updateSystemAttrs(Field f, String value, Set attrs) 
-    throws  IllegalArgumentException
+    throws  ModelException
   {
     Set updated = new LinkedHashSet();
     if      (f.getName().equals("extension")) {
@@ -2260,14 +2057,11 @@ public class Group extends Owner implements Serializable {
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().getName().equals("name")) {
-          Stem.validateName(value);
+          AttributeValidator.namingValue(value);
           String newVal = Stem.constructName(
             this.getParentStem().getName(), value
           );
           a.setValue(newVal);
-          // Update the cached values
-          this.attr_e = value;
-          this.attr_n = newVal;
         }
         updated.add(a);
       }
@@ -2277,14 +2071,11 @@ public class Group extends Owner implements Serializable {
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
         if (a.getField().getName().equals("displayName")) {
-          Stem.validateName(value);
+          AttributeValidator.namingValue(value);
           String newVal = Stem.constructName(
             this.getParentStem().getDisplayName(), value
           );
           a.setValue(newVal);
-          // Update the cached values
-          this.attr_de = value;
-          this.attr_dn = newVal;
         }
         updated.add(a);
       }
@@ -2295,55 +2086,10 @@ public class Group extends Owner implements Serializable {
   } // private Set _updateSystemAttrs(f, value, attrs
 
 
-  // Hibernate Accessors
-  private String getId() {
-    return this.id;
+  // Getters //
+  private Set getGroup_attributes() {
+    return this.group_attributes;
   }
-
-  private void setId(String id) {
-    this.id = id;
-  }
-
-  private String getCreate_source() {
-    return this.create_source;
-  }
-
-  private void setCreate_source(String create_source) {
-    this.create_source = create_source;
-  }
-
-  private long getCreate_time() {
-    return this.create_time;
-  }
-
-  private void setCreate_time(long create_time) {
-    this.create_time = create_time;
-  }
-
-  private String getModify_source() {
-    return this.modify_source;
-  }
-
-  private void setModify_source(String modify_source) {
-    this.modify_source = modify_source;
-  }
-
-  private long getModify_time() {
-    return this.modify_time;
-  }
-
-  private void setModify_time(long modify_time) {
-    this.modify_time = modify_time;
-  }
-
-  private Member getCreator_id() {
-    return this.creator_id;
-  }
-
-  private void setCreator_id(Member creator_id) {
-    this.creator_id = creator_id;
-  }
-
   private Set getGroup_types() {
     // We only want to return the singleton instances of each group
     // type.  This saves from potential catastrophe when saving objects
@@ -2363,48 +2109,19 @@ public class Group extends Owner implements Serializable {
     }
     return this.types;
   }
-
-  private void setGroup_types(Set types) {
-    this.group_types = types;
-  }
-
-  private Member getModifier_id() {
-    return this.modifier_id;
-  }
-
-  private void setModifier_id(Member modifier_id) {
-    this.modifier_id = modifier_id;
-  }
-
   private Stem getParent_stem() {
     return this.parent_stem;
   }
 
-  protected void setParent_stem(Stem parent_stem) {
-    this.parent_stem = parent_stem;
-  }
-
-  private Set getGroup_attributes() {
-    return this.group_attributes;
-  }
-
+  // Setters //
   private void setGroup_attributes(Set group_attributes) {
     this.group_attributes = group_attributes;
   }
-
-  private int getVersion() {
-    return this.version;
+  private void setGroup_types(Set types) {
+    this.group_types = types;
   }
-
-  private void setVersion(int version) {
-    this.version = version;
-  }
-
-  private Status getStatus() {
-    return this.status;
-  }
-  private void setStatus(Status s) {
-    this.status = s;
+  protected void setParent_stem(Stem parent_stem) {
+    this.parent_stem = parent_stem;
   }
 
 }

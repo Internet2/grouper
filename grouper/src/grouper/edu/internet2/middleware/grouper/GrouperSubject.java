@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.10 2006-03-01 19:52:58 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.11 2006-05-23 19:10:23 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -47,27 +47,18 @@ public class GrouperSubject implements Subject {
   private SubjectType           type    = SubjectTypeEnum.valueOf("group");
 
 
-  // Constructors
-
-  // DRY
-  protected GrouperSubject(Group g) {
+  // Constructors //
+  protected GrouperSubject(Group g) 
+    throws  SourceUnavailableException
+  {
     this.g        = g;
     this.id       = g.getUuid();
     this.name     = g.getName();
-    this.adapter  = SubjectFinder.getGrouperSourceAdapter();
-  } // protected GrouperSubject(g)
-
-  // DRY
-  protected GrouperSubject(Group g, GrouperSourceAdapter sa) {
-    this.g        = g;
-    this.id       = g.getUuid();
-    this.name     = g.getName();
-    this.adapter  = sa;
-    this._addAttrs(); // Attach attributes
+    this.adapter  = (GrouperSourceAdapter) SubjectFinder.getSource(GrouperSourceAdapter.ID);
   } // protected GrouperSubject(g, sa)
 
 
-  // Public Instance Methods
+  // Public Instance Methods //
   public Map getAttributes() {
     this._addAttrs();
     return this.attrs;

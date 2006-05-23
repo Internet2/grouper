@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
+$Id: API,v 1.145 2006-05-23 19:10:22 blair Exp $
 
 ---
 
@@ -69,9 +69,6 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 * Set                 filterByScope(stem, candidates)
 * Set                 getResults(session)
 
-## ComplementFactor
-* Factor              ComplementFactor(group, group)
-
 ## ComplementFilter extends BaseQueryFilter
 
 ## Field
@@ -87,18 +84,18 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 * Set                 FieldFinder.findAll()
 * Set                 FieldFinder.findAllByType(fieldType)
 
-## Group
+## Group extends Owner
 * Field               Group.getDefaultList()
-* void                addFactor(factor)
+* void                addCompositeMember(ComplementType, Group, Group)
 * void                addMember(subject)
 * void                addMember(subject, field)
-* void                addType(Type)
+* void                addType(type)
 * void                delete()
 * void                deleteAttribute(attr)
-* void                deleteFactor()
+* void                deleteCompositeMember()
 * void                deleteMember(subject)
 * void                deleteMember(subject, field)
-* void                deleteType(Type)
+* void                deleteType(type)
 * Set                 getAdmins()
 * String              getAttribute(attr)
 * Map                 getAttributes()
@@ -130,16 +127,15 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 * Stem                getParentStem()
 * Set                 getPrivs(subject)
 * Set                 getReaders()
-* GrouperSession      getSession()
 * Set                 getTypes()
 * Set                 getUpdaters()
 * String              getUuid()
 * Set                 getViewers()
 * void                grantPriv(subject, access priv)
 * boolean             hasAdmin(subject)
+* boolean             hasComposite()
 * boolean             hasEffectiveMember(subject)
 * boolean             hasEffectiveMember(subject, field)
-* boolean             hasFactor()
 * boolean             hasImmediateMember(subject)
 * boolean             hasImmediateMember(subject, field)
 * boolean             hasOptin(subject)
@@ -147,11 +143,10 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 * boolean             hasMember(subject)
 * boolean             hasMember(subject, field)
 * boolean             hasRead(subject)
-* boolean             hasType(Type)
 * boolean             hasType(type)
 * boolean             hasUpdate(subject)
 * boolean             hasView(subject)
-* boolean             isFactor()
+* boolean             isComposite()
 * void                revokePriv(access priv)
 * void                revokePriv(subject, access priv) 
 * void                setAttribute(attr, value)
@@ -160,6 +155,10 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 * void                setExtension(value)
 * Member              toMember()
 * Subject             toSubject()
+
+## GroupAnyAttributeFilter extends BaseQueryFilter
+
+## GroupAttributeFilter extends BaseQueryFilter
 
 ## GroupCreatedAfterFilter extends BaseQueryFilter
 
@@ -181,9 +180,7 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 * Set                 getStems()
 
 ## GrouperSession
-* void                GrouperSession.flushCache(name)
 * GrouperSession      GrouperSession.start(subject)
-* void                GrouperSession.waitForAllTx()
 * String              getAccessClass()
 * Member              getMember()
 * String              getNamingClass()
@@ -191,22 +188,20 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 * Date                getStartTime()
 * Subject             getSubject()
 * void                stop()
-* void                waitForTx()
 
 ## GroupNameFilter extends BaseQueryFilter
 
 ## GroupType
 * GroupType           GroupType.createType(session, name)
-* Field               addField(session, name, FieldType, ReadAccessPrivilege, WriteAccessPrivilege, required)
+* Field               addAttribute(session, name, ReadAccessPrivilege, WriteAccessPrivilege, required)
+* Field               addList(session, name, ReadAccessPrivilege, WriteAccessPrivilege)
 * void                deleteField(session, name)
 * Set                 getFields()
 
 ## GroupTypeFinder
 * GroupType           GroupTypeFinder.find(name)
 * Set                 GroupTypeFinder.findAll()
-
-## IntersectionFactor
-* Factor              IntersectionFactor(group, group)
+* Set                 GroupTypeFinder.findAllAssignable()
 
 ## IntersectionFilter extends BaseQueryFilter
 
@@ -265,10 +260,11 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 * Field               getList()
 * Member              getMember()
 * Membership          getParentMembership()
+* Owner               getVia()
 * Group               getViaGroup()
 
 ## MembershipFinder
-* Set                 MembershipFinder.findEffectiveMemberships(session, group, subject, field, via, depth)
+* Set                 MembershipFinder.findEffectiveMemberships(session, group, subject, field, group, depth)
 * Membership          MembershipFinder.findImmediateMembership(session, group, subject, field)
 
 ## NamingPrivilege 
@@ -291,12 +287,10 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 
 ## QueryFilter extends BaseQueryFilter
 
-## SubjectHelper
-* boolean             SubjectHelper.eq(Subject, Subject)
-
 ## Stem extends Owner
 * Group               addChildGroup(extension, displayExtension)
 * Stem                addChildStem(extension, displayExtension)
+* void                delete()
 * Set                 getChildGroups()
 * Set                 getChildStems()
 * String              getCreateSource()
@@ -313,7 +307,6 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 * String              getName()
 * Stem                getParentStem()
 * Set                 getPrivs(subject)
-* GrouperSession      getSession()
 * Set                 getStemmers()
 * String              getUuid()
 * void                grantPriv(subject, naming priv)
@@ -323,6 +316,16 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 * void                revokePriv(subject, naming priv) 
 * void                setDescription(value)
 * void                setDisplayExtension(value) 
+
+## StemDisplayExtensionFilter extends BaseQueryFilter
+
+## StemDisplayNameFilter extends BaseQueryFilter
+
+## StemExtensionFilter extends BaseQueryFilter
+
+## StemNameFilter extends BaseQueryFilter
+
+## StemNameAnyFilter extends BaseQueryFilter
 
 ## StemCreatedAfterFilter extends BaseQueryFilter
 
@@ -338,15 +341,17 @@ $Id: API,v 1.144 2006-04-06 16:54:31 blair Exp $
 ## SubjectFinder
 * Subject             SubjectFinder.findById(id)  
 * Subject             SubjectFinder.findById(id, type)
+* Subject             SubjectFinder.findById(id, type, source)
 * Subject             SubjectFinder.findByIdentifier(id)  
 * Subject             SubjectFinder.findByIdentifier(id, type)
+* Subject             SubjectFinder.findByIdentifier(id, type, source)
 * Set                 SubjectFinder.findAll(query)
+* Set                 SubjectFinder.findAll(query, source)
 * Subject             SubjectFinder.findAllSubject()
-
-## UnionFactor
-* Factor              UnionFactor(group, group)
+* Source              SubjectFinder.getSource(id)
+* Set                 SubjectFinder.getSources()
+* Set                 SubjectFinder.getSources(type)
 
 ## UnionFilter extends BaseQueryFilter
-
 
 

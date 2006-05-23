@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.22 2006-04-06 16:36:40 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.23 2006-05-23 19:10:23 blair Exp $
  */
 public class RegistryReset {
 
@@ -66,6 +66,7 @@ public class RegistryReset {
       rr._addSubjects();
     }
     catch (Exception e) {
+      e.printStackTrace();
       rr._abort(e.getMessage());
     }
   } // public static void addTestSubjects()
@@ -96,6 +97,7 @@ public class RegistryReset {
       rr._emptyTables();
     }
     catch (Exception e) {
+      e.printStackTrace();
       rr._abort(e.getMessage());
     }
   } // public static void reset()
@@ -111,6 +113,7 @@ public class RegistryReset {
       rr._addSubjects();
     }
     catch (Exception e) {
+      e.printStackTrace();
       rr._abort(e.getMessage());
     }
   } // public static void resetRegistryAndAddTestSubjects()
@@ -140,16 +143,14 @@ public class RegistryReset {
   private void _emptyTables() 
     throws  HibernateException
   {
-    GrouperSession.waitForAllTx();  // Bah
-
     Session     hs  = HibernateHelper.getSession();
     Transaction tx  = hs.beginTransaction();
 
-    hs.delete("from TxQueue");    
     hs.delete("from Membership");
     hs.delete("from GrouperSession");
 
-    hs.delete("from Factor");
+    hs.delete("from Composite");
+    hs.delete("from Group");
     List l = hs.find("from Stem as ns where ns.stem_name like '" + Stem.ROOT_INT + "'");
     if (l.size() == 1) {
       Stem    root  = (Stem) l.get(0);
@@ -158,7 +159,7 @@ public class RegistryReset {
       root.setModify_source(null);
       root.setModify_time(  0   );
       hs.saveOrUpdate(root);
-      hs.delete("from Owner as o where o.owner_uuid != '" + uuid + "'");
+      hs.delete("from Owner as o where o.uuid != '" + uuid + "'");
     }
     else {
       hs.delete("from Owner");
@@ -168,8 +169,6 @@ public class RegistryReset {
     hs.delete(
       "from GroupType as t where (  "
       + "     t.name != 'base'      "
-      + "and  t.name != 'hasFactor' "
-      + "and  t.name != 'isFactor'  "
       + "and  t.name != 'naming'    "
       + ")"
     );
@@ -177,6 +176,7 @@ public class RegistryReset {
 
     tx.commit();
     hs.close();
+    Set types = GroupTypeFinder.findAll(); // So that we always refresh the cache
     CacheMgr.resetAllCaches();
   } // private void _emptyTables()
 

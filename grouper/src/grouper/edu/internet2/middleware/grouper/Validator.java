@@ -27,12 +27,13 @@ import  java.util.*;
  * Validator Utility Class.
  * <p />
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.6 2006-03-23 20:21:08 blair Exp $
+ * @version $Id: Validator.java,v 1.7 2006-05-23 19:10:23 blair Exp $
  */
 class Validator implements Serializable {
 
-  // Protected Class Methods
+  // FIXME Deprecate
 
+  // Protected Class Methods //
   protected static void canAddFieldToType(
     GrouperSession s, GroupType gt, String name, FieldType ft, Privilege read, Privilege write
   ) 
@@ -80,6 +81,22 @@ class Validator implements Serializable {
     _canModifyGroupType(s, g, type);
   } // protected static void canAddGroupType(s, g, type)
 
+  protected static void canDeleteStem(Stem ns) 
+    throws  InsufficientPrivilegeException,
+            StemDeleteException
+  {
+    if (ns.getName().equals(Stem.ROOT_EXT)) {
+      throw new StemDeleteException("cannot delete root stem");
+    }
+    PrivilegeResolver.getInstance().canSTEM(ns.getSession(), ns, ns.getSession().getSubject());
+    if (ns.getChild_stems().size() > 0) {
+      throw new StemDeleteException("cannot delete stem with child stems");
+    }
+    if (ns.getChild_groups().size() > 0) {
+      throw new StemDeleteException("cannot delete stem with child groups");
+    }
+  } // protected static void canDeleteStem(ns)
+
   protected static void canDeleteFieldFromType(
     GrouperSession s, GroupType type, Field f
   )
@@ -102,36 +119,6 @@ class Validator implements Serializable {
     }
     _canModifyGroupType(s, g, type);
   } // protected static void canAddGroupType(s, g, type)
-
-  // Don't allow circular memberships
-  protected static void isCircularMembership(Group g, Subject subj, Field f) 
-    throws  MemberAddException
-  {
-    if (f.getName().equals(GrouperConfig.LIST)) {
-      if (SubjectHelper.eq(g.toSubject(), subj)) {
-        throw new MemberAddException("attempt to create circular membership");
-      }
-    }
-  } // protected static void isCircularMembership(g, subj, f)
-
-  // Don't allow circular factors and ensure that left-and-right are
-  // groups - for now
-  protected static void validateFactor(Owner o, Factor f) 
-    throws  FactorAddException
-  {
-    if (f.getLeft()   == null) {
-      throw new FactorAddException("null left node");
-    }
-    if (f.getRight()  == null) {
-      throw new FactorAddException("null right node");
-    }
-    if (f.getLeft().equals(o)) {
-      throw new FactorAddException("circular left node");
-    }
-    if (f.getRight().equals(o)) {
-      throw new FactorAddException("circular right node");
-    }
-  } // protected static void validateFactor(f)
 
 
   // Private Class Methods

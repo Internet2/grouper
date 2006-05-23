@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.15 2006-03-10 20:36:54 blair Exp $
+ * @version $Id: StemFinder.java,v 1.16 2006-05-23 19:10:23 blair Exp $
  */
 public class StemFinder {
 
@@ -79,7 +79,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new StemNotFoundException(
-        "unable to find stem: " + eH.getMessage()
+        "unable to find stem: " + eH.getMessage(), eH
       );
     }
     if (ns == null) {
@@ -106,7 +106,7 @@ public class StemFinder {
     }
     catch (StemNotFoundException eSNF) {
       GrouperLog.fatal(LOG, s, ERR_FRS);
-      throw new RuntimeException(ERR_FRS);
+      throw new RuntimeException(ERR_FRS, eSNF);
     }
   } // public static Stem findRootStem(s)
 
@@ -136,9 +136,120 @@ public class StemFinder {
   } // public static Stem findByUuid(s, uuid)
 
 
-  // Protected Class Methods
+  // Protected Class Methods //
+  protected static Set findByApproximateDisplayExtension(GrouperSession s, String val) 
+    throws  QueryException
+  {
+    Set stems = new LinkedHashSet();
+    try {
+      Session   hs      = HibernateHelper.getSession();
+      Query     qry     = hs.createQuery(
+        "from Stem as ns where ns.display_extension like :value"
+      );
+      qry.setCacheable(GrouperConfig.QRY_SF_FBADE);
+      qry.setCacheRegion(GrouperConfig.QCR_SF_FBADE);
+      qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
+      Iterator  iter    = qry.iterate();
+      while (iter.hasNext()) {
+        Stem ns = (Stem) iter.next();
+        ns.setSession(s);
+        stems.add(ns);
+      }
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding stems: " + eH.getMessage(), eH
+      );
+    }
+    return stems;
+  } // protected static Set findByApproximateDisplayExtension(s, val)
 
-  protected static Set findByApproximateName(GrouperSession s, String name) 
+  protected static Set findByApproximateDisplayName(GrouperSession s, String val) 
+    throws  QueryException
+  {
+    Set stems = new LinkedHashSet();
+    try {
+      Session   hs      = HibernateHelper.getSession();
+      Query     qry     = hs.createQuery(
+        "from Stem as ns where ns.display_name like :value"
+      );
+      qry.setCacheable(GrouperConfig.QRY_SF_FBADN);
+      qry.setCacheRegion(GrouperConfig.QCR_SF_FBADN);
+      qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
+      Iterator  iter    = qry.iterate();
+      while (iter.hasNext()) {
+        Stem ns = (Stem) iter.next();
+        ns.setSession(s);
+        stems.add(ns);
+      }
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding stems: " + eH.getMessage(), eH
+      );
+    }
+    return stems;
+  } // protected static Set findByApproximateDisplayName(s, val)
+
+  protected static Set findByApproximateExtension(GrouperSession s, String val) 
+    throws  QueryException
+  {
+    Set stems = new LinkedHashSet();
+    try {
+      Session   hs      = HibernateHelper.getSession();
+      Query     qry     = hs.createQuery(
+        "from Stem as ns where ns.stem_extension like :value"
+      );
+      qry.setCacheable(GrouperConfig.QRY_SF_FBAE);
+      qry.setCacheRegion(GrouperConfig.QCR_SF_FBAE);
+      qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
+      Iterator  iter    = qry.iterate();
+      while (iter.hasNext()) {
+        Stem ns = (Stem) iter.next();
+        ns.setSession(s);
+        stems.add(ns);
+      }
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding stems: " + eH.getMessage(), eH
+      );
+    }
+    return stems;
+  } // protected static Set findByApproximateExtension(s, val)
+
+  protected static Set findByApproximateName(GrouperSession s, String val) 
+    throws  QueryException
+  {
+    Set stems = new LinkedHashSet();
+    try {
+      Session   hs      = HibernateHelper.getSession();
+      Query     qry     = hs.createQuery(
+        "from Stem as ns where ns.stem_name like :value"
+      );
+      qry.setCacheable(GrouperConfig.QRY_SF_FBAN);
+      qry.setCacheRegion(GrouperConfig.QCR_SF_FBAN);
+      qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
+      Iterator  iter    = qry.iterate();
+      while (iter.hasNext()) {
+        Stem ns = (Stem) iter.next();
+        ns.setSession(s);
+        stems.add(ns);
+      }
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding stems: " + eH.getMessage(), eH
+      );
+    }
+    return stems;
+  } // protected static Set findByApproximateName(s, val)
+
+  protected static Set findByApproximateNameAny(GrouperSession s, String name) 
     throws  QueryException
   {
     Set stems = new LinkedHashSet();
@@ -151,8 +262,8 @@ public class StemFinder {
         + "or lower(ns.stem_extension)    like :name "
         + "or lower(ns.display_extension) like :name" 
       );
-      qry.setCacheable(GrouperConfig.QRY_SF_FBAN);
-      qry.setCacheRegion(GrouperConfig.QCR_SF_FBAN);
+      qry.setCacheable(GrouperConfig.QRY_SF_FBANA);
+      qry.setCacheRegion(GrouperConfig.QCR_SF_FBANA);
       qry.setString("name", "%" + name.toLowerCase() + "%");
       Iterator  iter    = qry.iterate();
       while (iter.hasNext()) {
@@ -164,11 +275,11 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding stems: " + eH.getMessage()
+        "error finding stems: " + eH.getMessage(), eH
       );
     }
     return stems;
-  } // protected static Set findByApproximateName(s, name)
+  } // protected static Set findByApproximateNameAny(s, name)
 
   // @return  stems created after this date
   protected static Set findByCreatedAfter(GrouperSession s, Date d) 
@@ -185,11 +296,16 @@ public class StemFinder {
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
       hs.close();
-      stems.addAll( Stem.setSession(s, l) );
+      Iterator  iter = l.iterator();
+      while (iter.hasNext()) {
+        Stem ns = (Stem) iter.next();
+        ns.setSession(s);
+        stems.add(ns);
+      }
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding stems: " + eH.getMessage()
+        "error finding stems: " + eH.getMessage(), eH
       );  
     }
     return new LinkedHashSet(stems);
@@ -210,11 +326,16 @@ public class StemFinder {
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
       hs.close();
-      stems.addAll( Stem.setSession(s, l) );
+      Iterator  iter = l.iterator();
+      while (iter.hasNext()) {
+        Stem ns = (Stem) iter.next();
+        ns.setSession(s);
+        stems.add(ns);
+      }
     }
     catch (HibernateException eH) {
       throw new QueryException(
-        "error finding stems: " + eH.getMessage()
+        "error finding stems: " + eH.getMessage(), eH
       );  
     }
     return new LinkedHashSet(stems);
@@ -227,7 +348,7 @@ public class StemFinder {
       Stem    ns    = null;
       Session hs    = HibernateHelper.getSession();
       Query   qry   = hs.createQuery(
-        "from Stem as ns where ns.owner_uuid = :uuid"
+        "from Stem as ns where ns.uuid = :uuid"
       );
       qry.setCacheable(GrouperConfig.QRY_SF_FBU);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBU);
@@ -244,7 +365,7 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new StemNotFoundException(
-        "error finding stem: " + eH.getMessage()
+        "error finding stem: " + eH.getMessage(), eH
       );  
     }
   } // protected static Stem findByUuid(uuid)

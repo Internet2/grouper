@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.18 2006-03-16 20:59:57 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.19 2006-05-23 19:10:23 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -48,26 +48,25 @@ A list membership in the Groups Registry.
     <property 
       name="uuid"
       type="string"
+      not-null="true"
+      unique="true"
     >
       <column name="membership_uuid"
-              not-null="true"
               unique-key="members_idx"
               length="128"
       />
     </property>
-    <!-- group_id -->
-
+    <!-- uuid -->
 
     <!-- owner_id -->
-    <many-to-one
-      name="owner_id"
-      class="edu.internet2.middleware.grouper.Owner" 
-      cascade="none"
-      index="membership_owner_idx"
+    <many-to-one  name="owner_id"
+                  class="edu.internet2.middleware.grouper.Owner" 
+                  cascade="none"
     >
-      <column 
-        name="owner_id"
-        unique-key="members_idx"
+      <column name="owner_id"
+              unique-key="members_idx"
+              not-null="true"
+              index="membership_owner_idx"
       />
     </many-to-one>
     <!-- owner_id -->
@@ -77,11 +76,11 @@ A list membership in the Groups Registry.
       name="member_id"
       class="edu.internet2.middleware.grouper.Member" 
       cascade="none"
-      index="membership_member_idx"
     >
       <column name="member_id" 
               unique-key="members_idx"
               not-null="true"
+              index="membership_member_idx"
       />
     </many-to-one>
     <!-- member_id -->
@@ -90,31 +89,30 @@ A list membership in the Groups Registry.
     <property name="field"
               type="edu.internet2.middleware.grouper.FieldUserType"
               update="false"
-              index="membership_field_idx"
     >
       <column name="list_name"
               not-null="true"
               unique-key="members_idx"
               length="32"
+              index="membership_field_idx"
       />
       <column name="list_type"
               not-null="true"
               unique-key="members_idx"
               length="32"
+              index="membership_field_idx"
       />
     </property>
     <!-- field -->
 
     <!-- via_id -->
-    <many-to-one
-      name="via_id"
-      class="edu.internet2.middleware.grouper.Owner" 
-      cascade="none"
-      index="membership_via_idx"
+    <many-to-one  name="via_id"
+                  class="edu.internet2.middleware.grouper.Owner" 
+                  cascade="none"
     >
-      <column 
-        name="via_id"
-        unique-key="members_idx"
+      <column name="via_id"
+              unique-key="members_idx"
+              index="membership_via_idx"
       />
     </many-to-one>
     <!-- via_id -->
@@ -123,11 +121,11 @@ A list membership in the Groups Registry.
     <property name="depth"
               type="integer"
               not-null="true"
-              index="membership_depth_idx"
     >
       <column name="depth"
               sql-type="int"
               unique-key="members_idx"
+              index="membership_depth_idx"
       />
     </property>
     <!-- depth -->
@@ -138,17 +136,21 @@ A list membership in the Groups Registry.
       name="parent_membership"
       class="edu.internet2.middleware.grouper.Membership"
       cascade="none"
-      index="membership_parent_idx"
     >
-      <column name="parent_membership"/>
+      <column name="parent_membership"
+              index="membership_parent_idx"
+      />
     </many-to-one>
     <!-- parent_membership -->
 
     <!-- creator_id -->
     <many-to-one  name="creator_id"
                   class="edu.internet2.middleware.grouper.Member" 
-                  index="membership_creator_idx" 
-    />
+    >
+      <column name="creator_id"
+              index="membership_creator_idx" 
+      />
+    </many-to-one>
     <!-- creator_id -->
 
     <!-- create_time -->
@@ -156,20 +158,25 @@ A list membership in the Groups Registry.
               type="long"
               not-null="true"
               update="false"
+    >
+      <column name="create_time"
               index="membership_createtime_idx"
-    />
+      />
+    </property>
     <!-- create_time -->
 
     <!-- status -->
     <property name="status"
               type="edu.internet2.middleware.grouper.StatusUserType"
               update="false"
-              index="membership_status_idx"
     >
       <column name="status_type"
               length="128"
+              index="membership_status_idx"
       />
-      <column name="status_ttl"/>
+      <column name="status_ttl"
+              index="membership_status_idx"
+      />
     </property>
     <!-- status -->
 

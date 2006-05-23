@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.12 2006-02-14 20:30:59 blair Exp $
+ * @version $Id: GroupType.java,v 1.13 2006-05-23 19:10:23 blair Exp $
  *     
  */
 public class GroupType implements Serializable {
@@ -57,10 +57,12 @@ public class GroupType implements Serializable {
     super();
   }
 
-  protected GroupType(String name, Set fields) {
+  protected GroupType(String name, Set fields, boolean assignable, boolean internal) {
     this.setName(name);
     this.setFields(fields); 
-  } // protected GroupType(name, fields)
+    this.setAssignable(assignable);
+    this.setInternal(internal);
+  } // protected GroupType(name, fields, assignable, internal)
 
 
   // Public Class Methods
@@ -114,7 +116,7 @@ public class GroupType implements Serializable {
       throw new SchemaException(msg);
     }
     try {
-      type = new GroupType(name, new HashSet());
+      type = new GroupType(name, new HashSet(), true, false);
       type.setCreator_id(   s.getMember()         );
       type.setCreate_time(  new Date().getTime()  );
       HibernateHelper.save(type);
@@ -125,75 +127,72 @@ public class GroupType implements Serializable {
     catch (HibernateException eH) {
       String msg = "unable to add type: " + name + ": " + eH.getMessage();
       LOG.error(msg);
-      throw new SchemaException(msg);
+      throw new SchemaException(msg, eH);
     }
   } // public static GroupType createType(s, name)
 
-  // Public Instance Methods
+  // Public Instance Methods //
 
   /**
-   * Add a custom {@link Field} to a custom {@link GroupType}.
-   * <p/>
-   * Create a new custom field that can be used with this group type.
-   * If the field already exists, is one of the reserved system field
-   * types (<i>base</i> and <i>naming</i>), the type is neither an
-   * <i>attribute</i> nor a <i>list</i> or if the read and write
-   * privileges are not access privileges a {@link SchemaException}
-   * will be thrown.  If the subject is not root-like, an 
-   * {@link InsufficientPrivilegeException} will be thrown.
-   * <pre class="eg">
+   * Add a custom attribute {@link Field} to a custom {@link GroupType}.
    * try {
-   *   Field myField = type.addField(
-   *     "my field", FieldType.LIST, AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
+   *   Field myAttr = type.addAttribute(
+   *     "my attribute", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
    *   );
    * }
    * catch (InsufficientPrivilegeException eIP) {
-   *   // Not privileged to add field
+   *   // Not privileged to add attribute
    * }
    * catch (SchemaException eS) {
    *   // Invalid schema
    * }
    * </pre>
-   * @param   s         Add field within this session context.
-   * @param   name      Name of field.
-   * @param   type      {@link FieldType} of this {@link Field}.
+   * @param   s         Add attribute within this session context.
+   * @param   name      Name of attribute.
    * @param   read      {@link Privilege} required to write to this {@link Field}.
    * @param   write     {@link Privilege} required to write to this {@link Field}.
-   * @param   required  Is this field required.
+   * @param   required  Is this attribute required.
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
-  public Field addField(
-      GrouperSession s, String name, FieldType type, Privilege read, 
-      Privilege write, boolean required
+  public Field addAttribute(
+    GrouperSession s, String name, Privilege read, Privilege write, boolean required
   )
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    Field     f   = null;
-    StopWatch sw  = new StopWatch();
-    sw.start();
-    Validator.canAddFieldToType(s, this, name, type, read, write);
-    try {
-      boolean nullable = true;
-      if (required == true) {
-        nullable = false;
-      }
-      Set fields = this.getFields();
-      f = new Field(name, type, read, write, nullable);
-      fields.add(f);
-      this.setFields(fields);
-      HibernateHelper.save(this);
-      sw.stop();
-      EL.groupTypeAddField(s, this.getName(), name, sw);
-      return f;
-    }
-    catch (HibernateException eS) {
-      String msg = "unable to add field: " + name + ": " + eS.getMessage();
-      LOG.error(msg);
-      throw new SchemaException(msg);
-    }
-  } // public void addField(s, name, type, read, write, required)
+    return this._addField(s, name, FieldType.ATTRIBUTE, read, write, required);
+  } // public Field addAttribute(s, name, read, write, required)
+
+  /**
+   * Add a custom list {@link Field} to a custom {@link GroupType}.
+   * try {
+   *   Field myList = type.addList(
+   *     "my list", AccessPrivilege.VIEW, AccessPrivilege.UPDATE
+   *   );
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add list
+   * }
+   * catch (SchemaException eS) {
+   *   // Invalid schema
+   * }
+   * </pre>
+   * @param   s         Add list within this session context.
+   * @param   name      Name of list.
+   * @param   read      {@link Privilege} required to write to this {@link Field}.
+   * @param   write     {@link Privilege} required to write to this {@link Field}.
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   */
+  public Field addList(
+    GrouperSession s, String name, Privilege read, Privilege write
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    return this._addField(s, name, FieldType.LIST, read, write, false);
+  } // public Field addList(s, name, read, write)
 
   /**
    * Delete a custom {@link Field} from a custom {@link GroupType}.
@@ -276,14 +275,14 @@ public class GroupType implements Serializable {
     catch (HibernateException eH) {
       String msg = "cannot delete field: " + eH.getMessage();
       LOG.error(msg);
-      throw new SchemaException(msg);
+      throw new SchemaException(msg, eH);
     }
     finally {
       try {
         if (hs != null) { hs.close(); }
       }
       catch (HibernateException eH) {
-        throw new SchemaException(eH.getMessage());
+        throw new SchemaException(eH.getMessage(), eH);
       }
     }
   } // public void addField(s, name, type, read, write, required)
@@ -335,8 +334,51 @@ public class GroupType implements Serializable {
     return false;
   } // protected static boolean isSystemType(type)
 
-  // Hibernate Accessors
 
+  // Private Instance Methods //
+  private Field _addField(
+      GrouperSession s, String name, FieldType type, Privilege read, 
+      Privilege write, boolean required
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    Field     f   = null;
+    StopWatch sw  = new StopWatch();
+    sw.start();
+    Validator.canAddFieldToType(s, this, name, type, read, write);
+    try {
+      boolean nullable = true;
+      if (required == true) {
+        nullable = false;
+      }
+      Set fields = this.getFields();
+      f = new Field(name, type, read, write, nullable);
+      fields.add(f);
+      this.setFields(fields);
+      HibernateHelper.save(this);
+      sw.stop();
+      EL.groupTypeAddField(s, this.getName(), name, sw);
+      return f;
+    }
+    catch (HibernateException eS) {
+      String msg = "unable to add field: " + name + ": " + eS.getMessage();
+      LOG.error(msg);
+      throw new SchemaException(msg, eS);
+    }
+  } // private void _addField(s, name, type, read, write, required)
+
+
+  // Getters //
+  protected boolean getAssignable() {
+    return this.assignable;
+  }
+  private long getCreate_time() {
+    return this.create_time;
+  }
+  private Member getCreator_id() {
+    return this.creator_id;
+  }
   /**
    * Get group fields for this group type.
    * @return  A set of {@link Field} objects.
@@ -344,24 +386,12 @@ public class GroupType implements Serializable {
   public Set getFields() {
     return this.fields;
   } // public Set getFields()
-
-  protected void setFields(Set fields) {
-    Iterator iter = fields.iterator();
-    while (iter.hasNext()) {
-      Field f = (Field) iter.next();
-      f.setGroup_type(this); 
-    }
-    this.fields = fields;
-  } // protected void setFields(fields)
-  
   private String getId() {
     return this.id;
   } // private String getId()
-  
-  private void setId(String id) {
-    this.id = id;
-  } // private void setId()
-
+  protected boolean getInternal() {
+    return this.internal;
+  }
   /**
    * Get group type name.
    * @return  group type name.
@@ -370,37 +400,33 @@ public class GroupType implements Serializable {
     return this.name;
   } // public String getName()
 
-  private void setName(String name) {
-    this.name = name;
-  } // private void setName(name)
 
-  private Member getCreator_id() {
-    return this.creator_id;
-  }
-  private void setCreator_id(Member m) {
-    this.creator_id = m;
-  }
-  private long getCreate_time() {
-    return this.create_time;
+  // Setters //
+  private void setAssignable(boolean assignable) {
+    this.assignable = assignable;
   }
   private void setCreate_time(long time) {
     this.create_time = time;
   }
-
-  protected boolean getAssignable() {
-    return this.assignable;
-  } // protected boolean getAssignable()
-
-  protected void setAssignable(boolean assignable) {
-    this.assignable = assignable;
-  } // protected void setAssignable(assignable)
-
-  protected boolean getInternal() {
-    return this.internal;
-  } // protected boolean getInternal()
-
-  protected void setInternal(boolean internal) {
+  private void setCreator_id(Member m) {
+    this.creator_id = m;
+  }
+  protected void setFields(Set fields) {
+    Iterator iter = fields.iterator();
+    while (iter.hasNext()) {
+      Field f = (Field) iter.next();
+      f.setGroup_type(this); 
+    }
+    this.fields = fields;
+  } // protected void setFields(fields)
+  private void setId(String id) {
+    this.id = id;
+  } // private void setId()
+  private void setInternal(boolean internal) {
     this.internal = internal;
-  } // protected void setInternal(internal)
+  }
+  private void setName(String name) {
+    this.name = name;
+  } // private void setName(name)
 
 }

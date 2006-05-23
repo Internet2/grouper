@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.35 2006-03-16 20:59:57 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.36 2006-05-23 19:10:23 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -204,29 +204,18 @@ public class GrouperAccessAdapter implements AccessAdapter {
             InsufficientPrivilegeException,
             SchemaException
   {
-    GrouperSession.validate(s);
-    Field   f   = this._getField(priv);
-    String  msg = MSG_GP + "'" + f + "' " + SubjectHelper.getPretty(subj);
-    String  err = ERR_GP;
-    GrouperLog.debug(LOG, s, msg);
     try {
-      PrivilegeResolver.getInstance().canWriteField(
-        s, g, s.getSubject(), f, FieldType.ACCESS
-      );
-      GrouperLog.debug(LOG, s, msg + " can grant priv");
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + ": " + eIP.getMessage());
-      throw eIP;
-    }
-    try {
+      GrouperSessionValidator.validate(s);
+      Field f = this._getField(priv);
+      GroupValidator.canWriteField(s, g, s.getSubject(), f, FieldType.ACCESS);
       Membership.addImmediateMembership(s, g, subj, f);
     }
     catch (MemberAddException eMA) {
-      GrouperLog.debug(LOG, s, msg + ": " + eMA.getMessage());
-      throw new GrantPrivilegeException(eMA.getMessage());
+      throw new GrantPrivilegeException(eMA.getMessage(), eMA);
     }
-    GrouperLog.debug(LOG, s, msg + ": granted");
+    catch (ModelException eM) {
+      throw new GrantPrivilegeException(eM.getMessage(), eM);
+    }
   } // public void grantPriv(s, g, subj, priv)
 
   /**
@@ -285,56 +274,30 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException,
             SchemaException
   {
-    GrouperSession.validate(s);
-    String  msg = "revokePriv '" + priv + "'";
-    Field   f   = this._getField(priv);
-    GrouperLog.debug(LOG, s, msg);
-
     try {
-      PrivilegeResolver.getInstance().canWriteField(
-        s, g, s.getSubject(), f, FieldType.ACCESS
-      );
-      GrouperLog.debug(LOG, s, msg + " can revoke priv");
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + ": " + eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
-    }
+      GrouperSessionValidator.validate(s);
+      Field f = this._getField(priv);
+      GroupValidator.canWriteField(s, g, s.getSubject(), f, FieldType.ACCESS);
 
-    try {
       // The objects that will need updating and deleting
       Set     saves   = new LinkedHashSet();
       Set     deletes = new LinkedHashSet();
 
-      // Update stem modify time
       g.setModified();
       saves.add(g);
 
       try {
-        // Find privileges that need to be revoked
-        GrouperLog.debug(LOG, s, msg + " find privs to revoke");
+        // Find privileges that need to be revoked and then update registry
         deletes = Membership.deleteAllField(s, g, f);
-        GrouperLog.debug(
-          LOG, s, msg + " found privs to revoke: " + deletes.size()
-        );
+        HibernateHelper.saveAndDelete(saves, deletes);
       }
       catch (Exception e) {
-        String err = msg + " " + e.getMessage();
-        GrouperLog.debug(LOG, s, err);
-        throw new RevokePrivilegeException(err);
+        throw new RevokePrivilegeException(e.getMessage(), e);
       }
-
-      // And then update the registry
-      GrouperLog.debug(LOG, s, msg + " committing changes to registry");
-      HibernateHelper.saveAndDelete(saves, deletes);
-      GrouperLog.debug(LOG, s, msg + " revoked privs: " + deletes.size());
     }
-    catch (HibernateException eH) {
-      String err = msg + ": " + eH.getMessage();
-      GrouperLog.debug(LOG, s, err);
-      throw new RevokePrivilegeException(err);
+    catch (ModelException eM) {
+      throw new RevokePrivilegeException(eM.getMessage(), eM);
     }
-    GrouperLog.debug(LOG, s, msg + " revoked");
   } // public void revokePriv(s, g, priv)
 
   /**
@@ -365,33 +328,31 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException,
             SchemaException
   {
-    GrouperSession.validate(s);
-    Field   f   = this._getField(priv);
-    String  msg = MSG_GP + "'" + f + "' " + SubjectHelper.getPretty(subj);
-    String  err = ERR_RP;
-    GrouperLog.debug(LOG, s, msg);
     try {
-      PrivilegeResolver.getInstance().canWriteField(
-        s, g, s.getSubject(), f, FieldType.ACCESS
-      );
-      GrouperLog.debug(LOG, s, msg + " can revoke priv");
+      GrouperSessionValidator.validate(s);
+      Field f = this._getField(priv);
+      GroupValidator.canWriteField(s, g, s.getSubject(), f, FieldType.ACCESS);
+      MemberOf  mof     = Membership.delImmediateMembership(s, g, subj, f);
+      Set       saves   = mof.getSaves();
+      Set       deletes = mof.getDeletes();
+
+      // TODO Should this be in _Group_?  
+      // TODO Actually, should it done at all?
+      g.setModified();
+      saves.add(g);
+
+      // And then commit changes to registry
+      HibernateHelper.saveAndDelete(saves, deletes);
     }
-    catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + ": " + eIP.getMessage());
-      throw new InsufficientPrivilegeException(eIP.getMessage());
-    }
-    try {
-      Membership.delImmediateMembership(s, g, subj, f);
-    }
-    catch (MembershipNotFoundException eMNF) {
-      GrouperLog.debug(LOG, s, msg + ": " + eMNF.getMessage());
-      throw new RevokePrivilegeException(eMNF.getMessage());
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException(eH);
     }
     catch (MemberDeleteException eMD) {
-      GrouperLog.debug(LOG, s, msg + ": " + eMD.getMessage());
-      throw new RevokePrivilegeException(eMD.getMessage());
+      throw new RevokePrivilegeException(eMD);
     }
-    GrouperLog.debug(LOG, s, msg + ": revoked");
+    catch (ModelException eM) {
+      throw new RevokePrivilegeException(eM);
+    }
   } // public void revokePriv(s, g, subj, priv)
 
 

@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.108 2006-03-29 17:19:25 blair Exp $
+$Id: NEWS,v 1.109 2006-05-23 19:10:22 blair Exp $
 
 ---
 
@@ -10,30 +10,37 @@ $Id: NEWS,v 1.108 2006-03-29 17:19:25 blair Exp $
 Released: TBD
 
 ## Changes
+* UPDATE: Updated Subject API to version 0.1c.
+* BUGFIX: Several indices had gone missing in the Hibernate mapping
+  files as a result of various configuration changes over the past
+  months.
+* NEW: With an eye towards hopefully making migrations easier in
+  the future, we are now storing the schema version number in the
+  database.
+* NEW: `StemDisplayExtensionFilter`.
+* NEW: `StemDisplayNameFilter`.
+* NEW: `StemExtensionFilter`
+* NEW: `StemNameFilter`
+* UPDATE: Renamed `StemNameFilter` to `StemNameAnyFilter`
+* NEW: `Stem.delete()` allows empty stems to be deleted.
+* UPDATE: Replaced `GroupType.addField()` with `GroupType.addAttribute()`
+  and `GroupType.addList()`.
+* NEW: `SubjectFinder.findAll(query, source)` method.
+* NEW: `SubjectFinder.findByIdentifier(id, type, source)` method.
+* NEW: `SubjectFinder.findById(id, type, source)` method.
+* NEW: `SubjectFinder.getSource(id)` method.
+* NEW: `SubjectFinder.getSources(type)` method.
+* NEW: `SubjectFinder.getSources()` method.
+* NEW: `GroupTypeFinder.findAllAssignable()` returns all assignable group types.
+* NEW: `Group` and `Stem` extend from common parent: `Owner`.
+* UPDATE: Restore `GroupTypeFinder.findAll()` - return all public group types
 * BUGFIX: Several tests that were **supposed** to be testing against
   the epoch were not.  This was selectively causing errors while
   running the test harness, primarily on Windows.
-* NEW: Add `GroupTypeFinder.findAll()` - return all public group types
-* NEW: Add `GrouperSession.flushCache()` method for flushing ehcache
-  cache results
-* NEW: Add `addFactor()`, `hasFactor()`, `isFactor()` and `hasType()`
-  methods to `Group` which support (simple) Union group math
-  operations
-* NEW: Add internal `hasFactor` and `isFactor` group types
-* UPDATE: Map `owner` and `via` in `Membership` to `Owner`
-* UPDATE: `Group`, `Factor` and `Stem` now extend `Owner`
-* UPDATE: Add internal Hibernate mapping for JDBC Subject Adapter
-  tables to unify methods for creating, loading and resetting DDLs.
+* UPDDATE: Remove (outdated) schema files.
 * BUGFIX: Do not allow lists to be added to themselves.
 * BUGFIX: Moved `GrouperSourceAdapter` configuration back into
   `sources.xml` to fix integration with Signet.
-* NEW: Effective membership modification calculations, whether from
-  memberships or privileges, are now handled within GrouperDaemon.
-* UPDATE: HSQLDB now runs in server mode (within GrouperDaemon) by default
-* NEW: GrouperDaemon daemon process
-* UPDATE: Updated HSQLDB (`lib/hsqldb.jar`) to 1.8.0.2
-* UPDATE: Consolidated `ant schemaexport`, `ant db-init` and 
-  `ant db-init-jdbcsource` into `ant setup`
 * NEW: Delete custom fields from custom group types with the API
 * NEW: Add custom fields (attributes and lists) to custom group types 
   with the API

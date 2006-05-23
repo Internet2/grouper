@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.9 2006-03-28 20:18:55 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.10 2006-05-23 19:10:23 blair Exp $
  */
 public class GroupTypeFinder {
 
@@ -110,14 +110,33 @@ public class GroupTypeFinder {
     return values;
   } // public static Set findAll()
 
+  /**
+   * Find all assignable group types.
+   * <pre class="eg">
+   * Set types = GroupTypeFinder.findAllAssignable();
+   * </pre>
+   * @return  A {@link Set} of {@link GroupType} objects.
+   */
+  public static Set findAllAssignable() {
+    Set       types = new LinkedHashSet();
+    Iterator  iter  = findAll().iterator();
+    while (iter.hasNext()) {
+      GroupType t = (GroupType) iter.next();
+      if (t.getAssignable()) {
+        types.add(t);
+      }
+    }
+    return types;
+  } // public static Set findAllAssignable()
 
-  // Private Class Methods
+
+  // Private Class Methods //
   private static Set _findAll() {
     Set types = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery("from GroupType order by name asc");
-      qry.setCacheable(GrouperConfig.QRY_GTF_FA); // TODO Currently true but should it ever be?
+      qry.setCacheable(GrouperConfig.QRY_GTF_FA); 
       qry.setCacheRegion(GrouperConfig.QCR_GTF_FA);
       types.addAll(qry.list());
       hs.close();  
@@ -125,19 +144,37 @@ public class GroupTypeFinder {
     catch (HibernateException eH) {
       String err = ERR_NF + eH.getMessage();
       LOG.fatal(err);
-      throw new RuntimeException(err);
+      throw new RuntimeException(err, eH);
     }
     LOG.debug("found group types: " + types.size());
     return types;
-  } // public Static Set findAll()
+  } // private Static Set _findAll()
 
   private static void _updateKnownTypes() {
-    Iterator iter = _findAll().iterator();
-    while (iter.hasNext()) {
-      GroupType t = (GroupType) iter.next();
+    // TODO This method irks me still even if it is now more
+    //      functionally correct
+    Set typesInRegistry = _findAll();
+    // Look for types to add
+    Iterator addIter = typesInRegistry.iterator();
+    while (addIter.hasNext()) {
+      GroupType t = (GroupType) addIter.next();
       if (!types.containsKey(t.getName())) {
         types.put(t.getName(), t); // New type.  Add it to the cached list.
       }
+    }
+    // Look for types to remove
+    Set       toDel   = new LinkedHashSet();
+    Iterator  delIter = types.values().iterator();
+    while (delIter.hasNext()) {
+      GroupType t = (GroupType) delIter.next();
+      if (!typesInRegistry.contains(t)) {
+        toDel.add(t.getName());  
+      }
+    }
+    Iterator  toDelIter = toDel.iterator();
+    while (toDelIter.hasNext()) {
+      String type = (String) toDelIter.next();
+      types.remove(type);  
     }
   } // private static void _updateKnownTypes()
 
