@@ -3,29 +3,28 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.140 2006-05-23 19:10:22 blair Exp $
+$Id: ROADMAP,v 1.141 2006-05-24 17:03:06 blair Exp $
 
 ---
 
 # Grouper 1.0
 
-Estimated release: Late Spring 2006
+Estimated release: Early Summer 2006
 
 ## Features
 * Group Math
 * Custom group types, attributes and lists
 * Basic XML export-and-import of Groups Registry
 * Improved query performance through caching
-* Improved update performance through introduction of grouperd
-
 
 ---
 
 # Grouper 1.1
 
-Estimated release: 2006
+Estimated release: Late 2006
 
 ## Features
 * Group Aging
 * Membership Aging
+* XML Event Log
 

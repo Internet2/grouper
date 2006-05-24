@@ -4,110 +4,88 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.48 2006-05-23 19:10:22 blair Exp $
+$Id: TODO,v 1.49 2006-05-24 17:03:06 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Bugs
-* Privileges are not applied to Composites
+* Privileges are not applied to `Composite` objects, including getters
 * Logging of composite membership changes
+* Membership UUIDs can change, especially in effective mships and
+  possibly when updating composites
 
 ### Next Actions
-* code: union composites (sync)
-* admin: merge GROUPER_1_0_TAKE2 back into HEAD
-* code: complement composites (sync)
-* code: intersection composites (sync)
-* code: start populating membership creator
-* code: add `Group.canReadField(f)`
-* code: add `Group.canWriteField(f)`
-* code: privilege query filters
-* code: class to verify that setup is functional
-** find the root stem, exercise subject api, hibernate dialect + driver class, etc
-* code: non-hibernated root sessions (cleanup)
-* test: basic concurrency testing (i expect to find many bugs)
-* code: delete custom group types
+* code: remove unused status-and-aging-related code.  this will be
+  replaced by whatever we end up doing when we introduce group and
+  membership aging.
 * code: internalize cache management code?
-* code: add ??? `Member.canAdmin(group)` ???
-* code: add ??? `Member.canCreate(stem)` ???
-* code: add ??? `Member.canOptin(group)` ???
-* code: add ??? `Member.canOptout(group)` ???
-* code: add ??? `Member.canRead(group)` ???
-* code: add ??? `Member.canStem(stem)` ???
-* code: add ??? `Member.canUpdate(group)` ???
-* code: add ??? `Member.canView(group)` ???
-* code: privilege cleanup - `NamingResolver`
-* code: privilege cleanup - `AccessResolver`
-* code: privilege cleanup - Hibernate-backed `PrivilegeCache`
-* code: add `Group.canReadField(f, subj)`
-* code: add `Group.canWriteField(f, subj)`
+* code: add `Group.canReadField(Subject, Field)`
+* code: add `Group.canWriteField(Subject, Field)`
+* code: add intersection composites
+* code: add `ErrorLog`
+* code: add `Stem.canCreate(Subject)`
+* code: add `Stem.canStem(Subject)`
+* code: add complement composites
+* code: add `Group.canAdmin(Subject)`
+* code: add `Group.canOptin(Subject)`
+* code: add `Group.canOptout(Subject)`
+* code: add `Group.canRead(Subject)`
+* code: add `Group.canUpdate(Subject)`
+* code: add `Group.canView(Subject)`
+* review: FIXMEs
+* review: TODOs
+* code: delete custom group types
+* test: basic and preliminary concurrency testing (i expect to find many bugs)
 * code: add `Group.getTypes()` that will return all types that the
   group has, including base but excluding internal types
 * code: add `Group.getRemovableTypes()` that will return all types
   that can be removed from the group
-* code: remove (all|most) RTEs
-* code: toString cleanup
+* contrib: confirm that cdg still works and if possible add token expansion of features
+* refactor: review (and remove if possible) all RTEs
 
-### Maybe
-* code: API support for XML import+export
-* code: either remove status-related code or else think it out more thoroughly
-* code: `XmlLog`
-* code: `ErrorLog`
-* code: `DebugLog`
-* Daemon Support
-** code: add daemon (singleton?)
-** code: start+stop daemon via api
-** code: embed hsqldb within daemon 
-*** admin: update to latest hsqldb
-*** code: do not stop hsqldb if using non-embedded db
-** MAYBE code: add registry integrity thread to daemon
-** code: add getting-and-setting sync mode to sessions
-** code: add member (async)
-** code: delete member (async)
-** code: grant access privilege (async)
-** code: revoke access privilege (async)
-** code: grant naming privilege (async)
-** code: revoke naming privilege (async)
-** code: add union composite member (async)
-** code: delete union composite member (async)
-** code: add complement composite member (async)
-** code: delete complement composite member (async)
-** code: add intersection composite member (async)
-** code: delete intersection composite member (async)
-** test: concurrency, deletion and async mods
-** code: make thread sleep times (invisibly?) configurable
-* code: `Owner`-related cleanup
+### Later || Maybe
+* document: add `@since` to javadoc (just diff `doc/API`? for now
+  since i've been failing to add this?)
 * packaging: create binary-and-source distributions
-* code: unhibernate `GrouperSession`
-* code: enable batch fetching of `Membership` objects
-* code: order `Membership` queries by depth
-* code: add caching support to `SubjectFinder` methods that query by source
-* code: Don't assign `GrouperSystem` privileges
-* document: add `@since` to javadoc
-* library: update [jug](http://jug.safehaus.org/)
-* code: Deprecate `Membership.getViaGroup()`
-
----
-
-## Grouper 1.0.1
-* code: Grouper 1.0 bugfixes
-* code: import of operational attributes from xml
+* code: improved API support for XML import+export
+* code: class to verify that setup is functional
+** find the root stem, exercise subject api, hibernate dialect + driver class, etc
+* code: start populating `Membership` creator
+* code: privilege query filters
+* refactor: internal root sessions should not need to go through hibernate
+* refactor: privilege checking and caching
+** `NamingResolver`
+** `AccessResolver`
+** Hibernate-backed `PrivilegeCache`
+* code: add `DebugLog`
 
 ---
 
 ## Grouper 1.1
 * code: add group aging
 * code: add membership aging
+* code: add XML event log
 
 ---
 
 ## Future Releases 
 
+These items are not (necessarily) in any particular order.
+
 ### API
+* refactor: unhibernate `GrouperSession`
+* code: enable batch fetching of `Membership` objects
+* code: order `Membership` queries by depth
+* code: add caching support to `SubjectFinder` methods that query by source
+* code: Don't assign `GrouperSystem` privileges
+* library: update [jug](http://jug.safehaus.org/)
+* code: add `GrouperDaemon`
+** support for asynchronous methods
+** support for registry integrity validation
 * code: expose `HibernateSubject`
 * code: ws version of `GrouperSourceAdapter`
-* code: refactor `PrivilegeCache`
 * code: make cache usage more configurable
 * code: improved internal API model validation
 * code: `StemCreatedByFilter`
@@ -139,7 +117,7 @@ $Id: TODO,v 1.48 2006-05-23 19:10:22 blair Exp $
 
 ---
 
-$Id: TODO,v 1.48 2006-05-23 19:10:22 blair Exp $
+$Id: TODO,v 1.49 2006-05-24 17:03:06 blair Exp $
 
 
 
