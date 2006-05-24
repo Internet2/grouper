@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.30 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: Membership.java,v 1.31 2006-05-24 17:31:48 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -51,7 +51,6 @@ public class Membership implements Serializable {
   private Member      member_id;
   private Owner       owner_id;
   private Membership  parent_membership;
-  private Status      status;
   private String      uuid;
   private Owner       via_id;
 
@@ -506,9 +505,6 @@ public class Membership implements Serializable {
   protected Membership getParent_membership() {
     return this.parent_membership;
   }
-  private Status getStatus() {
-    return this.status;
-  }
   protected String getUuid() {
     return this.uuid;
   }
@@ -541,9 +537,6 @@ public class Membership implements Serializable {
   }
   private void setCreator_id(Member m) {
     this.creator_id = m;
-  }
-  private void setStatus(Status s) {
-    this.status = s;
   }
   private void setVia_id(Owner via) {
     this.via_id = via;

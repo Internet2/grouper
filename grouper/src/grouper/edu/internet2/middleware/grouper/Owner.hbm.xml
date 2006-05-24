@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Owner.hbm.xml,v 1.8 2006-05-23 19:10:23 blair Exp $ -->
+<!-- $Id: Owner.hbm.xml,v 1.9 2006-05-24 17:31:48 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Owner" table="grouper_owners">
@@ -112,21 +112,6 @@ An owner within the Groups Registry.
       />
     </property>
     <!-- uuid -->
-
-    <!-- status -->
-    <property name="status"
-              type="edu.internet2.middleware.grouper.StatusUserType"
-              update="false"
-    >
-      <column name="status_type"
-              length="128"
-              index="owner_status_idx"
-      />
-      <column name="status_ttl"
-              index="owner_status_idx"
-      />
-    </property>
-    <!-- status -->
 
 
     <joined-subclass  name="Stem" table="grouper_stems">

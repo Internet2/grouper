@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * An object that can have memberships assigned to it.
  * <p />
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.5 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: Owner.java,v 1.6 2006-05-24 17:31:48 blair Exp $
  *     
 */
 public abstract class Owner implements Serializable {
@@ -47,7 +47,6 @@ public abstract class Owner implements Serializable {
   private Member  modifier_id;
   private String  modify_source;
   private long    modify_time;
-  private Status  status;
   private String  uuid;
 
   // Transient Instance Variables
@@ -109,9 +108,6 @@ public abstract class Owner implements Serializable {
   protected long getModify_time() {
     return this.modify_time;
   }
-  protected Status getStatus() {
-    return this.status;
-  }
   /**
    * Return UUID.
    * <pre class="eg">
@@ -145,9 +141,6 @@ public abstract class Owner implements Serializable {
   }
   protected void setModify_time(long modify_time) {
     this.modify_time = modify_time;
-  }
-  protected void setStatus(Status s) {
-    this.status = s;
   }
   protected void setUuid(String uuid) {
     this.uuid = uuid;

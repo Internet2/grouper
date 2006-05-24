@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.49 2006-05-24 17:03:06 blair Exp $
+$Id: TODO,v 1.50 2006-05-24 17:31:48 blair Exp $
 
 ---
 
@@ -17,9 +17,6 @@ $Id: TODO,v 1.49 2006-05-24 17:03:06 blair Exp $
   possibly when updating composites
 
 ### Next Actions
-* code: remove unused status-and-aging-related code.  this will be
-  replaced by whatever we end up doing when we introduce group and
-  membership aging.
 * code: internalize cache management code?
 * code: add `Group.canReadField(Subject, Field)`
 * code: add `Group.canWriteField(Subject, Field)`
@@ -117,7 +114,7 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.49 2006-05-24 17:03:06 blair Exp $
+$Id: TODO,v 1.50 2006-05-24 17:31:48 blair Exp $
 
 
 

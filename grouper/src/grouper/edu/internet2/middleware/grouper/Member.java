@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.35 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: Member.java,v 1.36 2006-05-24 17:31:48 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -43,7 +43,6 @@ public class Member implements Serializable {
 
   // Hibernate Properties
   private String  id;
-  private Status  status;
   private String  subject_id;
   private String  subject_source;
   private String  subject_type;
@@ -1144,12 +1143,6 @@ public class Member implements Serializable {
     this.uuid = uuid;
   }
 
-  private Status getStatus() {
-    return this.status;
-  }
-  private void setStatus(Status s) {
-    this.status = s;
-  }
 
   private String getSubject_id() {
     return this.subject_id;
