@@ -4,7 +4,7 @@
 This file provides information on the third party libraries that ship
 with Grouper.
 
-$Id: README,v 1.19 2006-05-23 19:10:22 blair Exp $
+$Id: README,v 1.20 2006-05-24 18:12:06 blair Exp $
 
 ---
 
@@ -102,14 +102,6 @@ persistence and query service for Java."
 * Source:   <http://www.hibernate.org/>
 * License:  LGPL
 
-## hibernate-tools.jar
-
-Hibernate extensions for code and schema generation.
-
-* Version:  2.1.3
-* Source:   <http://www.hibernate.org/>
-* License:  LGPL
-
 ## hsqldb.jar
 
 "Lightweight 100% Java SQL Database Engine"
@@ -117,15 +109,6 @@ Hibernate extensions for code and schema generation.
 * Version:  1.7.2.11
 * Source:   <http://hsqldb.sourceforge.net/>
 * License:  Hypersonic License
-
-## jdom.jar
-
-"Java-based solution for accessing, manipulating,
-and outputting XML data from Java code."
-
-* Version:  1.0
-* Source:   <http://www.jdom.org/>
-* License:  _jdom.license.txt_
 
 ## jta.jar
 
@@ -172,16 +155,6 @@ logging services for purposes of application debugging and auditing."
 * Version:  3.0 (?)
 * Source:   <http://www.hibernate.org/>
 * License:  LGPL (?)
-
-## postgresql.jar
-
-"It allows Java programs to connect to a PostgreSQL database using
-standard, database independent Java code. It is a pure Java (Type IV)
-implementation"
-
-* Version:  74.216.jdbc3
-* Source:   http://jdbc.postgresql.org/
-* License:  BSD
 
 ## subject.jar
 
