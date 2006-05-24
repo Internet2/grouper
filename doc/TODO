@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.50 2006-05-24 17:31:48 blair Exp $
+$Id: TODO,v 1.51 2006-05-24 17:33:19 blair Exp $
 
 ---
 
@@ -17,7 +17,6 @@ $Id: TODO,v 1.50 2006-05-24 17:31:48 blair Exp $
   possibly when updating composites
 
 ### Next Actions
-* code: internalize cache management code?
 * code: add `Group.canReadField(Subject, Field)`
 * code: add `Group.canWriteField(Subject, Field)`
 * code: add intersection composites
@@ -114,7 +113,8 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.50 2006-05-24 17:31:48 blair Exp $
+$Id: TODO,v 1.51 2006-05-24 17:33:19 blair Exp $
+
 
 
 
