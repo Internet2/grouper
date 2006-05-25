@@ -7,6 +7,7 @@
 
 package com.devclue.grouper.stem;
 
+import  bsh.*;
 import  com.devclue.grouper.session.*;
 import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
@@ -15,7 +16,7 @@ import  java.util.*;
  * Query for stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemQ.java,v 1.1 2005-12-16 21:48:00 blair Exp $
+ * @version $Id: StemQ.java,v 1.2 2006-05-25 15:20:19 blair Exp $
  */
 public class StemQ {
 
@@ -74,6 +75,10 @@ public class StemQ {
     }
     System.exit(ev);
   } // public static void main(args)
+
+  public static void invoke(Interpreter env, CallStack stack, String name) {
+    System.err.println("QUERY FOR STEM WITH ARGUMENT (" + name + ")");
+  } // public static void invoke(env, stack, name)
 
 
   /*

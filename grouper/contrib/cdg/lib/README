@@ -4,10 +4,27 @@
 This file provides information on the third party libraries that ship
 with this distribution.
 
-$Id: README,v 1.1 2005-12-16 21:48:00 blair Exp $
+$Id: README,v 1.2 2006-05-25 15:20:19 blair Exp $
 
 ---
 
+## bsh.jar
+
+"Lightweight Scripting for Java"
+
+* Version:  2.0b4 
+* Source:   <http://beanshell.org/>
+* License:  LGPL
+
+## commons-cli.jar
+
+"The CLI library provides a simple and easy to use API for working
+with the command line arguments and options"
+
+* Version:  1.0
+* Source:   <http://jakarta.apache.org/commons/>
+* License:  Apache License, Version 2.0
+  
 ## ostermillerutils.jar
 
 CSV parsing library.

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.23 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.24 2006-05-25 15:20:20 blair Exp $
  */
 public class RegistryReset {
 
@@ -119,8 +119,8 @@ public class RegistryReset {
   } // public static void resetRegistryAndAddTestSubjects()
 
 
-  // Private Instance Methods
-  private void _addSubjects() 
+  // Private Instance Methods //
+  private void _addSubjects()   // FIXME  Remove
     throws  HibernateException
   {
     Session     hs  = HibernateHelper.getSession();

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.1 2005-12-16 21:47:59 blair Exp $ -->
+<!-- $Id: build.xml,v 1.2 2006-05-25 15:20:19 blair Exp $ -->
 
 <project name="com.devclue.grouper" default="build" basedir=".">
 
@@ -94,6 +94,16 @@
       tofile="${basedir}/${app.name}.jar"/>
   </target>
   <!-- jar -->
+
+  <!-- shell -->
+  <target name="shell" depends="build">
+    <java fork="yes"
+          classname="com.devclue.grouper.shell.GrouperShell"
+          failonerror="true">
+      <classpath refid="project.classpath"/>
+    </java>
+  </target>
+  <!-- shell -->
 
   <!-- test -->
   <target name="test" depends="test-run"/>
