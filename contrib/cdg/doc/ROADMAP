@@ -5,12 +5,13 @@ This file provides information on future cdg development.  The changes
 for each release may change dramatically as they are primarily
 motivated by whatever I feel like working on at the time.
 
-$Id: ROADMAP,v 1.1 2005-12-16 21:48:00 blair Exp $
+$Id: ROADMAP,v 1.2 2006-05-25 15:20:19 blair Exp $
 
 ---
 
 ## com.devclue.grouper 0.3
 
+* packaging: update copyright
 * UPDATE: Make better use of the new Grouper API
 * NEW: Let query methods return results as XML
 * DOCUMENT: Grouper API method calls used by each cdg method
