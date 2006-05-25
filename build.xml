@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.94 2006-05-23 19:10:22 blair Exp $ -->
+<!-- $Id: build.xml,v 1.95 2006-05-25 15:57:10 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -42,7 +42,10 @@
           description="compile the source " >
     <record name="${log.build}" action="start"/>
     <javac srcdir="${src.grouper}" destdir="${build.grouper}">
-      <classpath refid="project.classpath"/>
+      <classpath    refid="project.classpath" />
+<!--  FIXME Deal with this later
+      <compilerarg  value="-Xlint:unchecked"  />
+-->
     </javac>
     <record name="${log.build}" action="stop"/>
     <!-- include hibernate mappings -->
