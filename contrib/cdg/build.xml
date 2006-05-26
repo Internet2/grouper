@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.2 2006-05-25 15:20:19 blair Exp $ -->
+<!-- $Id: build.xml,v 1.3 2006-05-26 17:27:08 blair Exp $ -->
 
 <project name="com.devclue.grouper" default="build" basedir=".">
 
@@ -8,14 +8,14 @@
   <property name="build.cdg"        value="${build}/cdg"/>
   <property name="build.javadoc"    value="doc/html"/>
   <property name="build.javadoc"    value="doc/html"/>
-  <property name="build.test"       value="${build}/tests"/>
+  <property name="build.test"       value="${build}/test"/>
   <property name="impl.vendor"      value="devclue.com"/>
   <property name="impl.url"         value="http://grouper.devclue.com/"/>
   <property name="impl.version"     value="0.2"/>
   <property name="javadoc.packages" value="com.devclue.grouper.*,com.devclue.grouper.*.*"/>
   <property name="src"              value="${basedir}/src"/>
   <property name="src.cdg"          value="${src}/cdg"/>
-  <property name="src.test"         value="${src}/tests"/>
+  <property name="src.test"         value="${src}/test"/>
   <property name="test.data"        value="${src.test}/data"/>
 
   <property name="log.build"        value="${basedir}/build.log"/>
@@ -126,7 +126,7 @@
           classname="junit.textui.TestRunner"
           taskname="junit"
           failonerror="true">
-      <arg value="test.com.devclue.grouper.TestSuiteAll"/>
+      <arg value="com.devclue.grouper.TestSuiteAll"/>
       <classpath refid="project.classpath"/>
     </java>
     <record name="${log.test.run}" action="stop"/>

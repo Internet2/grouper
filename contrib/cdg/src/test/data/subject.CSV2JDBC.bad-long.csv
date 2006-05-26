@@ -1,5 +1,5 @@
 # 
 # com.devclue.grouper.subject.CSV2JDBC test CSV file
-# $Id: subject.CSV2JDBC.bad-long.csv,v 1.1 2005-12-16 21:48:00 blair Exp $
+# $Id: subject.CSV2JDBC.bad-long.csv,v 1.1 2006-05-26 17:27:08 blair Exp $
 #
 id0,type0,CN,uid0,a,touch,too,much
