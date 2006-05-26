@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.109 2006-05-23 19:10:22 blair Exp $
+$Id: NEWS,v 1.110 2006-05-26 17:15:13 blair Exp $
 
 ---
 
@@ -10,6 +10,9 @@ $Id: NEWS,v 1.109 2006-05-23 19:10:22 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:  Added _HibernateSubject_ for adding I2MI Subjects to the JDBC
+  Source Adapter table within the Groups Registry.
+* NEW:  Added support for composite memberships (unions) to groups.
 * UPDATE: Updated Subject API to version 0.1c.
 * BUGFIX: Several indices had gone missing in the Hibernate mapping
   files as a result of various configuration changes over the past
@@ -17,11 +20,11 @@ Released: TBD
 * NEW: With an eye towards hopefully making migrations easier in
   the future, we are now storing the schema version number in the
   database.
-* NEW: `StemDisplayExtensionFilter`.
-* NEW: `StemDisplayNameFilter`.
-* NEW: `StemExtensionFilter`
-* NEW: `StemNameFilter`
-* UPDATE: Renamed `StemNameFilter` to `StemNameAnyFilter`
+* NEW: _StemDisplayExtensionFilter_.
+* NEW: _StemDisplayNameFilter_.
+* NEW: _StemExtensionFilter_
+* NEW: _StemNameFilter_
+* UPDATE: Renamed _StemNameFilter_ to _StemNameAnyFilter_
 * NEW: `Stem.delete()` allows empty stems to be deleted.
 * UPDATE: Replaced `GroupType.addField()` with `GroupType.addAttribute()`
   and `GroupType.addList()`.
@@ -32,14 +35,14 @@ Released: TBD
 * NEW: `SubjectFinder.getSources(type)` method.
 * NEW: `SubjectFinder.getSources()` method.
 * NEW: `GroupTypeFinder.findAllAssignable()` returns all assignable group types.
-* NEW: `Group` and `Stem` extend from common parent: `Owner`.
+* NEW: _Group_ and _Stem_ extend from common parent: _Owner_.
 * UPDATE: Restore `GroupTypeFinder.findAll()` - return all public group types
 * BUGFIX: Several tests that were **supposed** to be testing against
   the epoch were not.  This was selectively causing errors while
   running the test harness, primarily on Windows.
 * UPDDATE: Remove (outdated) schema files.
 * BUGFIX: Do not allow lists to be added to themselves.
-* BUGFIX: Moved `GrouperSourceAdapter` configuration back into
+* BUGFIX: Moved _GrouperSourceAdapter_ configuration back into
   `sources.xml` to fix integration with Signet.
 * NEW: Delete custom fields from custom group types with the API
 * NEW: Add custom fields (attributes and lists) to custom group types 

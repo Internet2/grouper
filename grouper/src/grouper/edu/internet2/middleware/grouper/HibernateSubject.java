@@ -17,34 +17,36 @@
 
 package edu.internet2.middleware.grouper;
 
-
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
-
 /** 
  * Hibernate representation of the JDBC Subject table.
- * <p />
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.3 2006-05-26 17:15:13 blair Exp $
+ * @since   1.0
  */
-class HibernateSubject implements Serializable {
+public class HibernateSubject implements Serializable {
 
-  // TODO Move to different package?
-
-  // Hibernate Properties
+  // HIBERNATE PROPERTIES //
   private Set     attributes      = new LinkedHashSet();
   private String  name;
   private String  subjectID;
   private String  subjectTypeID;
 
 
-  // Constructors
+  // CONSTRUCTORS //
+  /**
+   * For Hibernate.
+   */
   public HibernateSubject() {
     super();
-  }
+  } // public HibernateSubject()
+
   protected HibernateSubject(
     String subjectID, String subjectTypeID, String name
   )
@@ -56,7 +58,47 @@ class HibernateSubject implements Serializable {
   } // protected HibernateSubject(subjectID, subjectTypeID, name)
 
 
-  // Public Instance Methods //
+  // PUBLIC CLASS METHODS //
+
+  /**
+   * Add a {@link Subject} to the <i>JDBC Subject</i> table.
+   * <pre class="eg">
+   * try {
+   *   Subject subj = HibernateSubject.add("id", "person", "name");
+   * }
+   * catch (HibernateException eH) {
+   *   // unable to add subject
+   * }
+   * </pre>
+   * @param   id    The subject id to assign to the subject.
+   * @param   type  The subject type to assign to the subject.
+   * @param   name  The name to assign to the subject.
+   * @return  The created {@link Subject}.
+   * @throws  HibernateException
+   * @since   1.0
+   */
+  public static HibernateSubject add(String id, String type, String name) 
+    throws  HibernateException  // TODO Throw something more user-friendly
+  {
+    try {
+      HibernateSubject subj = HibernateSubjectFinder.find(id, type);
+      throw new HibernateException(
+        "subject already exists: " + id + "/" + type + "/" + name
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      Session           hs    = HibernateHelper.getSession();
+      Transaction       tx    = hs.beginTransaction();
+      HibernateSubject  subj  = new HibernateSubject(id, type, name);
+      hs.save(subj);
+      tx.commit();
+      hs.close();
+      return subj;
+    }
+  } // public static HibernateSubject add(id, type, name)
+
+
+  // PUBLIC INSTANCE METHODS //
   public String toString() {
     return new ToStringBuilder(this)
       .append("id"    , this.getSubjectID()     )
@@ -66,22 +108,22 @@ class HibernateSubject implements Serializable {
   } // public String toString()
 
 
-  // Getters //
+  // GETTERS //
   private Set getAttributes() {
     return this.attributes;
   }
-  private String getName() {
+  public String getName() {
     return this.name;
   }
-  private String getSubjectID() {
+  public String getSubjectID() {
     return this.subjectID;
   }
-  private String getSubjectTypeID() {
+  public String getSubjectTypeID() {
     return this.subjectTypeID;
   }
 
 
-  // Setters //
+  // SETTERS //
   private void setAttributes(Set attrs) {
     this.attributes = attrs;
   }

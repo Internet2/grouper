@@ -30,47 +30,29 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.24 2006-05-25 15:20:20 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.25 2006-05-26 17:15:13 blair Exp $
  */
 public class RegistryReset {
 
-  /*
-   * TODO
-   * * Move subject adding to a different class?
-   */
-
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   private static final Log    LOG         = LogFactory.getLog(RegistryReset.class);
   private static final String SUBJ_TYPE   = "person"; 
 
 
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIABLES //
   private Session     hs;
   private Transaction tx;
 
 
-  // Constructors
+  // CONSTRUCTORS //
   private RegistryReset() {
     super();
   } // private RegistryReset()
 
 
-  // Public Class methods
- 
-  /**
-   * Add JDBC test subjects to the Groups Registry.
-   */ 
-  public static void addTestSubjects() {
-    RegistryReset rr = new RegistryReset();
-    try {
-      rr._addSubjects();
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      rr._abort(e.getMessage());
-    }
-  } // public static void addTestSubjects()
 
+  // PUBLIC CLASS METHODS //
+ 
   /**
    * Reset the Groups Registry.
    * <p>
@@ -102,11 +84,22 @@ public class RegistryReset {
     }
   } // public static void reset()
 
-  /**
-   * Attempt to reset the Groups Registry to a pristine state and then
-   * add JDBC test subjects.
-   */
-  public static void resetRegistryAndAddTestSubjects() {
+
+  // PROTECTED CLASS METHODS //
+  protected static void addTestSubjects() { 
+    // FIXME  Remove
+    RegistryReset rr = new RegistryReset();
+    try {
+      rr._addSubjects();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      rr._abort(e.getMessage());
+    }
+  } // protected static void addTestSubjects()
+
+  protected static void resetRegistryAndAddTestSubjects() { 
+    // FIXME  Remove
     RegistryReset rr = new RegistryReset();
     try {
       rr._emptyTables();
@@ -116,23 +109,20 @@ public class RegistryReset {
       e.printStackTrace();
       rr._abort(e.getMessage());
     }
-  } // public static void resetRegistryAndAddTestSubjects()
+  } // protected static void resetRegistryAndAddTestSubjects()
 
 
-  // Private Instance Methods //
-  private void _addSubjects()   // FIXME  Remove
+  // PRIVATE INSTANCE METHODS //
+  private void _addSubjects()   
     throws  HibernateException
   {
-    Session     hs  = HibernateHelper.getSession();
-    Transaction tx  = hs.beginTransaction();
+    // FIXME  Remove
     for (int i=0; i<10; i++) {
       String  id    = "test.subject." + i;
       String  name  = "my name is " + id;
-      hs.save(new HibernateSubject(id, SUBJ_TYPE, name));
+      HibernateSubject.add(id, SUBJ_TYPE, name);
     }
-    tx.commit();
-    hs.close();
-    CacheMgr.resetAllCaches();
+    CacheMgr.resetAllCaches();  // TODO ???
   } // private void _addSubjects()
 
   private void _abort(String err) {

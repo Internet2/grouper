@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.52 2006-05-24 18:12:06 blair Exp $
+$Id: TODO,v 1.53 2006-05-26 17:15:13 blair Exp $
 
 ---
 
@@ -48,6 +48,8 @@ $Id: TODO,v 1.52 2006-05-24 18:12:06 blair Exp $
 * code: improved API support for XML import+export
 * code: class to verify that setup is functional
 ** find the root stem, exercise subject api, hibernate dialect + driver class, etc
+* code: delete _HibernateSubject_ objects
+* code: modify _HibernateSubject_ objects
 * code: start populating `Membership` creator
 * code: privilege query filters
 * refactor: internal root sessions should not need to go through hibernate
@@ -113,7 +115,7 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.52 2006-05-24 18:12:06 blair Exp $
+$Id: TODO,v 1.53 2006-05-26 17:15:13 blair Exp $
 
 
 
