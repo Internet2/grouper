@@ -5,49 +5,32 @@ This file provides information on future cdg development.  The changes
 for each release may change dramatically as they are primarily
 motivated by whatever I feel like working on at the time.
 
-$Id: ROADMAP,v 1.2 2006-05-25 15:20:19 blair Exp $
+$Id: ROADMAP,v 1.3 2006-05-26 18:04:14 blair Exp $
 
 ---
 
-## com.devclue.grouper 0.3
+## com.devclue.grouper 1.0
 
-* packaging: update copyright
-* UPDATE: Make better use of the new Grouper API
-* NEW: Let query methods return results as XML
-* DOCUMENT: Grouper API method calls used by each cdg method
-* DOCUMENT: Add `package.html` files to each package
+### Next Actions
+* CODE      add _GrouperShell_ support for all existing methods
+* CODE      add, modify and delete group attributes
+* PACKAGING update copyright
 
----
+### Later
+* CODE      privilege granting, revoking and querying
 
-## com.devclue.grouper 0.4
-
-* NEW: _cdg.access.AccessGrant_
-* NEW: _cdg.access.AccessQ_
-* NEW: _cdg.access.AccessRevoke_
-* NEW: _cdg.naming.NamingGrant_
-* NEW: _cdg.naming.NamingQ_
-* NEW: _cdg.naming.NamingRevoke_
-
----
-
-## com.devclue.grouper 0.5
-
-* NEW: _cdg.group.HasMember_
-* NEW: _cdg.member.IsMember_
-* NEW: WS variant of _cdg.group.HasMember_ (Jetty/Axis/Simple?)
-* NEW: WS variant of _cdg.member.IsMember_ (Jetty/Axis/Simple?)
+### Maybe
+* DOCUMENT  grouper api method calls used by each cdg method 
+* DOCUMENT  add `package.html` to each package
 
 ---
 
 ## Future Releases
-
-* GraphViz output
-* Group modification
-* Group deletion
-* Stem modification
-* Subject modifcation
-* Bulk stem loads
-* Bulk group loads
-* Bulk membership loads
-* Subject deletion
+* CODE      hasMember and isMember support
+* CODE      ws variants of all methods
+* CODE      group deletion
+* CODE      stem modification
+* CODE      subject modification
+* CODE      subject deletion
+* CODE      graphviz output
 
