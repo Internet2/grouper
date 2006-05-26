@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.53 2006-05-26 17:15:13 blair Exp $
+$Id: TODO,v 1.54 2006-05-26 18:13:00 blair Exp $
 
 ---
 
@@ -17,54 +17,54 @@ $Id: TODO,v 1.53 2006-05-26 17:15:13 blair Exp $
   possibly when updating composites
 
 ### Next Actions
-* code: add `Group.canReadField(Subject, Field)`
-* code: add `Group.canWriteField(Subject, Field)`
-* code: add intersection composites
-* code: add `ErrorLog`
-* code: add `Stem.canCreate(Subject)`
-* code: add `Stem.canStem(Subject)`
-* code: add complement composites
-* code: add `Group.canAdmin(Subject)`
-* code: add `Group.canOptin(Subject)`
-* code: add `Group.canOptout(Subject)`
-* code: add `Group.canRead(Subject)`
-* code: add `Group.canUpdate(Subject)`
-* code: add `Group.canView(Subject)`
-* review: FIXMEs
-* review: TODOs
-* code: delete custom group types
-* test: basic and preliminary concurrency testing (i expect to find many bugs)
-* code: add `Group.getTypes()` that will return all types that the
+* CODE      add `Group.canReadField(Subject, Field)`
+* CODE      add `Group.canWriteField(Subject, Field)`
+* CODE      add intersection composites
+* CODE      add `ErrorLog`
+* CODE      add `Stem.canCreate(Subject)`
+* CODE      add `Stem.canStem(Subject)`
+* CODE      add complement composites
+* CODE      add `Group.canAdmin(Subject)`
+* CODE      add `Group.canOptin(Subject)`
+* CODE      add `Group.canOptout(Subject)`
+* CODE      add `Group.canRead(Subject)`
+* CODE      add `Group.canUpdate(Subject)`
+* CODE      add `Group.canView(Subject)`
+* REVIEW    FIXMEs
+* REVIEW    TODOs
+* CODE      delete custom group types
+* TEST      basic and preliminary concurrency testing (i expect to find many bugs)
+* CODE      add `Group.getTypes()` that will return all types that the
   group has, including base but excluding internal types
-* code: add `Group.getRemovableTypes()` that will return all types
+* CODE      add `Group.getRemovableTypes()` that will return all types
   that can be removed from the group
-* contrib: confirm that cdg still works and if possible add token expansion of features
-* refactor: review (and remove if possible) all RTEs
+* CONTRIB   complete cdg 1.0 feature list
+* REFACTOR  review (and remove if possible) all RTEs
 
 ### Later || Maybe
-* document: add `@since` to javadoc (just diff `doc/API`? for now
+* DOCUMENT  add `@since` to javadoc (just diff `doc/API`? for now
   since i've been failing to add this?)
-* packaging: create binary-and-source distributions
-* code: improved API support for XML import+export
-* code: class to verify that setup is functional
+* PACKAGING create binary-and-source distributions
+* CODE      improved API support for XML import+export
+* CODE      class to verify that setup is functional
 ** find the root stem, exercise subject api, hibernate dialect + driver class, etc
-* code: delete _HibernateSubject_ objects
-* code: modify _HibernateSubject_ objects
-* code: start populating `Membership` creator
-* code: privilege query filters
-* refactor: internal root sessions should not need to go through hibernate
-* refactor: privilege checking and caching
+* CODE      delete _HibernateSubject_ objects
+* CODE      modify _HibernateSubject_ objects
+* CODE      start populating `Membership` creator
+* CODE      privilege query filters
+* REFACTOR  internal root sessions should not need to go through hibernate
+* REFACTOR  privilege checking and caching
 ** `NamingResolver`
 ** `AccessResolver`
 ** Hibernate-backed `PrivilegeCache`
-* code: add `DebugLog`
+* CODE      add `DebugLog`
 
 ---
 
 ## Grouper 1.1
-* code: add group aging
-* code: add membership aging
-* code: add XML event log
+* CODE      add group aging
+* CODE      add membership aging
+* CODE      add XML event log
 
 ---
 
@@ -73,49 +73,48 @@ $Id: TODO,v 1.53 2006-05-26 17:15:13 blair Exp $
 These items are not (necessarily) in any particular order.
 
 ### API
-* refactor: unhibernate `GrouperSession`
-* code: enable batch fetching of `Membership` objects
-* code: order `Membership` queries by depth
-* code: add caching support to `SubjectFinder` methods that query by source
-* code: Don't assign `GrouperSystem` privileges
-* library: update [jug](http://jug.safehaus.org/)
-* code: add `GrouperDaemon`
+* REFACTDOR unhibernate `GrouperSession`
+* CODE      enable batch fetching of `Membership` objects
+* CODE      order `Membership` queries by depth
+* CODE      add caching support to `SubjectFinder` methods that query by source
+* CODE      Don't assign `GrouperSystem` privileges
+* PACKAGING update [jug](http://jug.safehaus.org/)
+* CODE      add `GrouperDaemon`
 ** support for asynchronous methods
 ** support for registry integrity validation
-* code: expose `HibernateSubject`
-* code: ws version of `GrouperSourceAdapter`
-* code: make cache usage more configurable
-* code: improved internal API model validation
-* code: `StemCreatedByFilter`
-* code: `StemModifiedByFilter`
-* code: `GroupCreatedByFilter`
-* code: `GroupModifiedByFilter`
-* code: `IsMemberFilter`
-* code: `IsImmediateMemberFilter`
-* code: `IsEffectiveMemberFilter`
-* code: ws-ify API
-* code: member aging
-* code: `Stem.addChildStem()` that takes an optional argument to
+* CODE      ws version of `GrouperSourceAdapter`
+* CODE      make cache usage more configurable
+* CODE      improved internal API model validation
+* CODE      `StemCreatedByFilter`
+* CODE      `StemModifiedByFilter`
+* CODE      `GroupCreatedByFilter`
+* CODE      `GroupModifiedByFilter`
+* CODE      `IsMemberFilter`
+* CODE      `IsImmediateMemberFilter`
+* CODE      `IsEffectiveMemberFilter`
+* CODE      ws-ify API
+* CODE      member aging
+* CODE      `Stem.addChildStem()` that takes an optional argument to
   override configuration defaults
-* code: `Stem.addChildGroup()` that takes an optional argument to
+* CODE      `Stem.addChildGroup()` that takes an optional argument to
   override configuration defaults
-* code: session proxying/"act as" support
-* code: search limits
-* code: paged search results
-* code: group hierarchy depth restrictions
-* code: make at least some events (mships, privs, children) observable for notification purposes
-* code: allow custom attributes and lists to be associated with more than one group type
-* code: rule-engine support and/or support for both enable- and disable-based aging
+* CODE      session proxying/"act as" support
+* CODE      search limits
+* CODE      paged search results
+* CODE      group hierarchy depth restrictions
+* CODE      make at least some events (mships, privs, children) observable for notification purposes
+* CODE      allow custom attributes and lists to be associated with more than one group type
+* CODE      rule-engine support and/or support for both enable- and disable-based aging
 
 ## Contributed Code
-* code: flatfile source adapter 
-* code `LaxAccessAdapter`
-* code `LaxNamingAdapter`
-* code: dns source adapter 
+* CODE      flatfile source adapter 
+* code      `LaxAccessAdapter`
+* code      `LaxNamingAdapter`
+* CODE      dns source adapter 
 
 ---
 
-$Id: TODO,v 1.53 2006-05-26 17:15:13 blair Exp $
+$Id: TODO,v 1.54 2006-05-26 18:13:00 blair Exp $
 
 
 
