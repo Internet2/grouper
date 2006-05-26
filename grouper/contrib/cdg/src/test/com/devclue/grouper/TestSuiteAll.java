@@ -5,7 +5,7 @@
  * You may use and distribute under the same terms as Grouper itself.
  */
 
-package test.com.devclue.grouper;
+package com.devclue.grouper;
 
 import  junit.framework.*;
 
@@ -13,7 +13,7 @@ import  junit.framework.*;
  * Run all <i>com.devclue.grouper</i> tests.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuiteAll.java,v 1.1 2005-12-16 21:48:00 blair Exp $
+ * @version $Id: TestSuiteAll.java,v 1.1 2006-05-26 17:27:08 blair Exp $
  */
 public class TestSuiteAll extends TestCase {
 

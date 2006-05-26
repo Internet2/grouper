@@ -5,7 +5,7 @@
  * You may use and distribute under the same terms as Grouper itself.
  */
 
-package test.com.devclue.grouper;
+package com.devclue.grouper;
 
 import  com.devclue.grouper.registry.*;
 import  com.devclue.grouper.subject.*;
@@ -20,7 +20,7 @@ import  junit.framework.*;
  * Test <i>com.devclue.grouper.subject.*</i> classes.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjects.java,v 1.2 2006-05-26 17:15:13 blair Exp $
+ * @version $Id: TestSubjects.java,v 1.1 2006-05-26 17:27:08 blair Exp $
  */
 public class TestSubjects extends TestCase {
 
