@@ -3,7 +3,14 @@
 
 This file provides information on com.devclue.grouper releases.
 
-$Id: NEWS,v 1.1 2005-12-16 21:48:00 blair Exp $
+$Id: NEWS,v 1.2 2006-05-26 17:15:13 blair Exp $
+
+---
+
+## com.devclue.grouper 0.3
+
+* UPDATE  _subject.SubjectAdd_ now uses Grouper's _HibernateSubject_ to
+  add subjects to the JDBC source.
 
 ---
 

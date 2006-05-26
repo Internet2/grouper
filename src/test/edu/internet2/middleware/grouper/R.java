@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: R.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: R.java,v 1.3 2006-05-26 17:15:13 blair Exp $
  */
 class R {
 
@@ -76,19 +76,13 @@ class R {
       }
     }
 
-    // TODO I **do not** understand why I can't just save the subjects
-    //      with HibernateHelper.
-    Session     hs  = HibernateHelper.getSession();
-    Transaction tx  = hs.beginTransaction();
     for (int i=0; i<nSubjects; i++) {
-      String id = _getSuffix(i);
-      HibernateSubject subj = new HibernateSubject(id, "person", "subject " + id); 
+      String            id    = _getSuffix(i);
+      String            name  = "subject " + id;
+      HibernateSubject  subj  = HibernateSubject.add(id, "person", name);
       r.subjects.put(id, subj);
       LOG.debug("created subject: " + subj);
-      hs.save(subj);
     }
-    tx.commit();
-    hs.close();
 
     return r;
   } // protected static R populateRegistry(nStems, nGroups, nSubjects)

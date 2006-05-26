@@ -17,27 +17,15 @@ import  java.util.*;
  * Populate I2MI's JDBC subject source from an input CSV file.
  * <p />
  * @author  blair christensen.
- * @version $Id: CSV2JDBC.java,v 1.1 2005-12-16 21:48:00 blair Exp $
+ * @version $Id: CSV2JDBC.java,v 1.2 2006-05-26 17:15:13 blair Exp $
  */
 public class CSV2JDBC {
 
-  /*
-   * PRIVATE CLASS CONSTANTS
-   */
-  private static final String N   = "name";
-  private static final String V   = "value";
-  private static final String SV  = "searchValue";
-
-
-  /*
-   * PRIVATE INSTANCE VARIABLES
-   */
+  // PRIVATE INSTANCE VARIABLES //
   private SubjectAdd sa;
 
 
-  /*
-   * CONSTRUCTORS
-   */
+  // CONSTRUCTORS //
 
   /**
    * Create a new CSV2JDBC object.
@@ -50,9 +38,7 @@ public class CSV2JDBC {
   } // public CSV2JDBC()
 
 
-  /*
-   * PUBLIC CLASS METHODS
-   */
+  // PUBLIC CLASS METHODS //
 
   /**
    * Read CSV on STDIN and add subjects to Groups Registry.
@@ -63,6 +49,7 @@ public class CSV2JDBC {
    * # This is a comment
    * subject id,subject type
    * subject id,subject type,name
+   * FIXME The line below no longer works
    * subject id,subject type,name attribute,loginID attribute
    * </pre>
    * <p>
@@ -94,9 +81,7 @@ public class CSV2JDBC {
   } // public static void main(args)
 
 
-  /*
-   * PUBLIC INSTANCE METHODS
-   */
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Add a list of {@link MockSubject} subjects.
@@ -157,9 +142,7 @@ public class CSV2JDBC {
   } // public List parseCSVFile(r)
 
 
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
+  // PRIVATE INSTANCE METHODS //
 
   // Parse "description" attribute
   private MockSubject _parseAttrDescription(MockSubject ms) {
