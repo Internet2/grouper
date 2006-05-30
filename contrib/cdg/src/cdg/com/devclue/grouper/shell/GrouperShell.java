@@ -15,18 +15,22 @@ import  java.util.*;
  * Grouper Management Shell.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.2 2006-05-26 17:53:21 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.3 2006-05-30 19:40:51 blair Exp $
  */
 public class GrouperShell {
 
   // PRIVATE INSTANCE VARIABLES //
-  Interpreter i;
+  private int               cnt = 0;
+  private PrintStream       err;
+  private Interpreter       i;
+  private BufferedReader    in;
+  private PrintStream       out;
 
 
   // MAIN //
 
   /**
-   * @since 0.3
+   * @since 1.0
    */
   public static void main(String args[]) {
     try {
@@ -45,13 +49,16 @@ public class GrouperShell {
   private GrouperShell() 
     throws  bsh.EvalError
   {
-    this.i = new Interpreter();
+    this.in   = new BufferedReader( new InputStreamReader(System.in) );
+    this.out  = System.out;
+    this.err  = System.err;
+    this.i = new Interpreter(this.in, this.out, this.err, true);
     this._importCommands();
   } // private GrouperShell()
 
 
   // PRIVATE INSTANCE METHODS //
-  //  @since  0.3
+  //  @since  1.0
   private void _importCommand(String name) 
     throws  bsh.EvalError
   {
@@ -59,33 +66,48 @@ public class GrouperShell {
     this.i.eval(cmd);
   } // private void _importCommand(name)
 
-  //  @since  0.3
+  //  @since  1.0
   private void _importCommands() 
     throws  bsh.EvalError
   {
     this._importCommand(  "group"   );
     this._importCommand(  "member"  );
+    this._importCommand(  "shell"   );
     this._importCommand(  "stem"    );
     this._importCommand(  "subject" );
   } // private void _importCommands()
 
-  //  @since  0.3
-  private void _run() 
-    throws  IOException
+  //  @since  1.0
+  private String _prompt() 
+    throws  bsh.EvalError,
+            IOException
   {
-    String          cmd = new String();
-    BufferedReader  in  = new BufferedReader(new InputStreamReader(System.in));
-    while ( (cmd = in.readLine() ) != null ) {
-      System.err.println("GOT: <<" + cmd + ">>");
+    Object prompt = this.i.eval("getBshPrompt()");
+    if (prompt == null) {
+      prompt = "%";
+    }
+    this.out.print(this.cnt++ + prompt.toString());
+    return this.in.readLine();
+  } // private String _prompt()
+
+  //  @since  1.0
+  private void _run() 
+    throws  bsh.EvalError,
+            IOException
+  {
+    String cmd = new String();
+    while ( (cmd = this._prompt()) != null ) {
       if ( cmd.equals("exit") || cmd.equals("quit") ) {
         break;
       }
       try {
-        Object obj = i.eval(cmd);
-        System.err.println("OBJ: <<" + obj + ">>");
+        Object obj = this.i.eval(cmd);
+        if (obj != null) {
+          this.out.println(obj.toString());
+        }
       }
       catch (bsh.EvalError eBEE) {
-        System.err.println("ERROR: " + eBEE.getMessage());
+        this.err.println("ERROR: " + eBEE.getMessage());
       }
     }
   } // private void _run()
