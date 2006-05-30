@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.5 2006-05-26 18:04:14 blair Exp $ -->
+<!-- $Id: build.xml,v 1.6 2006-05-30 19:40:51 blair Exp $ -->
 
 <project name="com.devclue.grouper" default="build" basedir=".">
 
@@ -54,6 +54,9 @@
     <javac srcdir="${src.cdg}" destdir="${build.cdg}">
       <classpath refid="project.classpath"/>
     </javac>
+    <copy todir="${build.cdg}">
+      <fileset dir="${src.cdg}" includes="**/*.bsh"/>
+    </copy>
     <record name="${log.build}" action="stop"/>
   </target>
   <!-- build -->
@@ -94,16 +97,6 @@
       tofile="${basedir}/${app.name}.jar"/>
   </target>
   <!-- jar -->
-
-  <!-- shell -->
-  <target name="shell" depends="build">
-    <java fork="yes"
-          classname="com.devclue.grouper.shell.GrouperShell"
-          failonerror="true">
-      <classpath refid="project.classpath"/>
-    </java>
-  </target>
-  <!-- shell -->
 
   <!-- test -->
   <target name="test" depends="test-run"/>

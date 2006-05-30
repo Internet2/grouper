@@ -1,0 +1,8 @@
+/*
+ * Basic Bsh Command Prompt
+ *
+ * This is pretty pointless at this time, no?
+ *
+ * $Id: getBshPrompt.bsh,v 1.1 2006-05-30 19:40:51 blair Exp $
+ */
+getBshPrompt() { return "% "; }
