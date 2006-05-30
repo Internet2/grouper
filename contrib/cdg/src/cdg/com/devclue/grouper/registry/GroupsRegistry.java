@@ -16,27 +16,21 @@ import  java.util.*;
  * Provides access to the Groups Registry outside of the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupsRegistry.java,v 1.1 2005-12-16 21:48:00 blair Exp $
+ * @version $Id: GroupsRegistry.java,v 1.2 2006-05-30 16:26:51 blair Exp $
  */
 public class GroupsRegistry {
 
-  /*
-   * PRIVATE CLASS CONSTANTS
-   */
-  private static final String CF = "hibernate.properties";
+  // PRIVATE CLASS CONSTANTS //
+  private static final String CF = GrouperConfig.HIBERNATE_CF;
 
 
-  /*
-   * PRIVATE INSTANCE VARIABLES
-   */
+  // PRIVATE INSTANCE VARIABLES //
   private Connection  conn;                           // JDBC connection
   private String      driver;                         // JDBC driver
   private Properties  properties  = new Properties(); // JDBC properties
 
 
-  /*
-   * CONSTRUCTORS
-   */
+  // CONSTRUCTORS //
 
   /**
    * Create a Registry object for interacting with the Groups Registry
@@ -52,9 +46,7 @@ public class GroupsRegistry {
   } // public GroupsRegistry()
 
 
-  /*
-   * PUBLIC INSTANCE METHODS
-   */
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Return a shared JDBC connection to the Groups Registry.
@@ -135,9 +127,7 @@ public class GroupsRegistry {
   } // public void stop()
 
 
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
+  // PRIVATE INSTANCE METHODS //
 
   // Connect to the Groups Registry via JDBC.
   private void _connect() {
