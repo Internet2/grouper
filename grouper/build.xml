@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.95 2006-05-25 15:57:10 blair Exp $ -->
+<!-- $Id: build.xml,v 1.96 2006-05-30 16:26:51 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -10,6 +10,7 @@
   <property name="impl.version"           value="0.9"/>
 
   <property name="conf"                   location="${basedir}/conf"/>
+  <property name="cf"                     value="${conf}/grouper.hibernate.properties"/>
 
   <property name="src"                    location="${basedir}/src"/>
   <property name="src.conf"               location="${src}/conf"/>
@@ -89,7 +90,7 @@
 
   <!-- db -->
   <target name="db" depends="init" description="Launch HSQLDB UI">
-    <property file="${conf}/hibernate.properties"/>
+    <property file="${cf}"/>
     <java fork="yes"
           classname="org.hsqldb.util.DatabaseManager"
           maxmemory="${max.memory}"
@@ -282,7 +283,7 @@
       classpathref="project.classpath"
     />
     <schemaexport
-      properties="${conf}/hibernate.properties"
+      properties="${cf}"
       quiet="yes"
       text="no"
       drop="no"

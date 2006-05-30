@@ -17,7 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 
-
+import  java.io.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.cfg.*;
@@ -31,21 +31,28 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.19 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.20 2006-05-30 16:26:51 blair Exp $
  */
 class HibernateHelper {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
+  private static final Configuration  CFG;
   private static final String         ERR_GP    = "attempt to delete transient object ";
   private static final String         ERR_INIT  = "unable to initialize hibernate: ";
   private static final SessionFactory FACTORY;
   private static final Log            LOG       = LogFactory.getLog(HibernateHelper.class);
 
 
-  // Create the static session FACTORY 
+  // STATIC //
   static {
     try {
-      FACTORY = new Configuration()
+      // Find the custom configuration file
+      InputStream in  = HibernateHelper.class.getResourceAsStream(GrouperConfig.HIBERNATE_CF);  
+      Properties  p   = new Properties();
+      p.load(in);
+      // And now load all configuration information
+      CFG     = new Configuration()
+        .addProperties(p)
         .addClass(Attribute.class)
         .addClass(Field.class)
         .addClass(GrouperSession.class)
@@ -56,8 +63,9 @@ class HibernateHelper {
         .addClass(Membership.class)
         .addClass(Owner.class)
         .addClass(Settings.class)
-        .buildSessionFactory()
         ;
+      // And finally create our session factory
+      FACTORY = CFG.buildSessionFactory();
     } 
     catch (Throwable t) {
       // Catch *all* the errors
@@ -68,7 +76,7 @@ class HibernateHelper {
   } // static
 
 
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
 
   protected static void delete(Object o) 
     throws HibernateException
@@ -221,7 +229,7 @@ class HibernateHelper {
   } // protected static void saveAndDelete(saves, deletes)
 
 
-  // Private Class Methods
+  // PRIVATE CLASS METHODS //
   private static Object _getPersistent(Session hs, Object o) {
     boolean persistent  = false;
     if (hs.contains(o)) {

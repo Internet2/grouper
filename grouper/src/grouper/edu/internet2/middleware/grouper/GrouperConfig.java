@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 
-
 import  java.io.*;
 import  java.util.*;
 import  org.apache.commons.lang.*;
@@ -28,12 +27,24 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.18 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.19 2006-05-30 16:26:51 blair Exp $
  *     
 */
 public class GrouperConfig {
 
-  // Protected Class Constants
+  // PUBLIC CLASS CONSTANTS //
+  
+  /**
+   * Grouper configuration file.
+   */
+  public static final String GROUPER_CF   = "/grouper.properties";
+  /**
+   * Hibernate configuration file.
+   */
+  public static final String HIBERNATE_CF = "/grouper.hibernate.properties";
+
+
+  // PROTECTED CLASS CONSTANTS //
   protected static final String ALL     = "GrouperAll";
   protected static final String BT      = "true";
   protected static final String GWG     = "groups.wheel.group";
@@ -48,7 +59,7 @@ public class GrouperConfig {
   protected static final String PNI     = "privileges.naming.interface";
   protected static final String ROOT    = "GrouperSystem";
 
-  // Protected Class Constants - Queries
+  // PROTECTED CLASS CONSTANTS -- QUERIES //
   // FIXME I really hate all of these
   protected static final String   QCR_CF_IF     = "edu.internet2.middleware.grouper.CompositeFinder.IsFactor";
   protected static final boolean  QRY_CF_IF     = true;
@@ -124,27 +135,26 @@ public class GrouperConfig {
   protected static final boolean  QRY_SF_FBU    = true;
 
 
-  // Private Class Constants
-  private static final String CF      = "/grouper.properties";
+  // PRIVATE CLASS CONSTANTS //
   private static final String ERR_GC  = "unable to read grouper configuration file: ";
   private static final Log    LOG     = LogFactory.getLog(GrouperConfig.class);
 
 
-  // Private Class Variables
+  // PRIVATE CLASS VARIABLES //
   private static GrouperConfig cfg;
 
 
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIABLES //
   private Properties properties = new Properties();
 
 
-  // Constructors
+  // CONSTRUCTORS //
   private GrouperConfig() {
     // nothing
   } // private GrouperConfig()
 
 
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   /**
    * Get Grouper configuration instance.
@@ -158,7 +168,7 @@ public class GrouperConfig {
   } // public static GrouperConfig getInstance()
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Get a Grouper configuration parameter.
@@ -174,9 +184,9 @@ public class GrouperConfig {
   } // public String getProperty(property)
 
 
-  // Private Class Methods
+  // PRIVATE CLASS METHODS //
   private static GrouperConfig _getConfiguration() {
-    InputStream in = GrouperConfig.class.getResourceAsStream(CF);
+    InputStream in = GrouperConfig.class.getResourceAsStream(GROUPER_CF);
     try {
       cfg = new GrouperConfig();
       cfg.properties.load(in);
