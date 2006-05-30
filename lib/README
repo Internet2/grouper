@@ -4,7 +4,7 @@
 This file provides information on the third party libraries that ship
 with Grouper.
 
-$Id: README,v 1.21 2006-05-25 15:20:19 blair Exp $
+$Id: README,v 1.22 2006-05-30 15:54:22 blair Exp $
 
 ---
 
@@ -135,7 +135,7 @@ tool (a la 'uuidgen')."
 "The Logging Services project is intended to provide cross-language
 logging services for purposes of application debugging and auditing."
 
-* Version:  1.4.8
+* Version:  1.2.8
 * Source:   <http://logging.apache.org/>
 * License:  Apache License, Version 2.0
 
