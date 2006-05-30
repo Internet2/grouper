@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.54 2006-05-26 18:13:00 blair Exp $
+$Id: TODO,v 1.55 2006-05-30 17:02:14 blair Exp $
 
 ---
 
@@ -78,7 +78,6 @@ These items are not (necessarily) in any particular order.
 * CODE      order `Membership` queries by depth
 * CODE      add caching support to `SubjectFinder` methods that query by source
 * CODE      Don't assign `GrouperSystem` privileges
-* PACKAGING update [jug](http://jug.safehaus.org/)
 * CODE      add `GrouperDaemon`
 ** support for asynchronous methods
 ** support for registry integrity validation
@@ -106,15 +105,19 @@ These items are not (necessarily) in any particular order.
 * CODE      allow custom attributes and lists to be associated with more than one group type
 * CODE      rule-engine support and/or support for both enable- and disable-based aging
 
-## Contributed Code
+### Contributed Code
 * CODE      flatfile source adapter 
-* code      `LaxAccessAdapter`
-* code      `LaxNamingAdapter`
+* CODE      `LaxAccessAdapter`
+* CODE      `LaxNamingAdapter`
 * CODE      dns source adapter 
+
+### Other
+* PACKAGING update *log4j* and *commons-logging*
+* PACKAGING update [jug](http://jug.safehaus.org/)
 
 ---
 
-$Id: TODO,v 1.54 2006-05-26 18:13:00 blair Exp $
+$Id: TODO,v 1.55 2006-05-30 17:02:14 blair Exp $
 
 
 
