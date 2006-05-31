@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.36 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.37 2006-05-31 22:44:40 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -207,7 +207,8 @@ public class GrouperAccessAdapter implements AccessAdapter {
     try {
       GrouperSessionValidator.validate(s);
       Field f = this._getField(priv);
-      GroupValidator.canWriteField(s, g, s.getSubject(), f, FieldType.ACCESS);
+      GroupValidator.isTypeEqual(f, FieldType.ACCESS);
+      GroupValidator.canWriteField(s, g, s.getSubject(), f);
       Membership.addImmediateMembership(s, g, subj, f);
     }
     catch (MemberAddException eMA) {
@@ -277,7 +278,8 @@ public class GrouperAccessAdapter implements AccessAdapter {
     try {
       GrouperSessionValidator.validate(s);
       Field f = this._getField(priv);
-      GroupValidator.canWriteField(s, g, s.getSubject(), f, FieldType.ACCESS);
+      GroupValidator.isTypeEqual(f, FieldType.ACCESS);
+      GroupValidator.canWriteField(s, g, s.getSubject(), f);
 
       // The objects that will need updating and deleting
       Set     saves   = new LinkedHashSet();
@@ -331,7 +333,8 @@ public class GrouperAccessAdapter implements AccessAdapter {
     try {
       GrouperSessionValidator.validate(s);
       Field f = this._getField(priv);
-      GroupValidator.canWriteField(s, g, s.getSubject(), f, FieldType.ACCESS);
+      GroupValidator.isTypeEqual(f, FieldType.ACCESS);
+      GroupValidator.canWriteField(s, g, s.getSubject(), f);
       MemberOf  mof     = Membership.delImmediateMembership(s, g, subj, f);
       Set       saves   = mof.getSaves();
       Set       deletes = mof.getDeletes();

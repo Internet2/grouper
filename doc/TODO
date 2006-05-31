@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.56 2006-05-31 17:03:55 blair Exp $
+$Id: TODO,v 1.57 2006-05-31 22:44:40 blair Exp $
 
 ---
 
@@ -17,21 +17,17 @@ $Id: TODO,v 1.56 2006-05-31 17:03:55 blair Exp $
   possibly when updating composites
 
 ### Next Actions
-* CODE      add `Group.canReadField(Field)`
-* CODE      add `Group.canReadField(Subject, Field)`
-* CODE      add `Group.canWriteField(Field)`
-* CODE      add `Group.canWriteField(Subject, Field)`
 * CODE      add intersection composites
 * CODE      add `ErrorLog`
-* CODE      add `Stem.canCreate(Subject)`
-* CODE      add `Stem.canStem(Subject)`
+* CODE      ??? add `Stem.canCreate(Subject)`
+* CODE      ??? add `Stem.canStem(Subject)`
 * CODE      add complement composites
-* CODE      add `Group.canAdmin(Subject)`
-* CODE      add `Group.canOptin(Subject)`
-* CODE      add `Group.canOptout(Subject)`
-* CODE      add `Group.canRead(Subject)`
-* CODE      add `Group.canUpdate(Subject)`
-* CODE      add `Group.canView(Subject)`
+* CODE      ??? add `Group.canAdmin(Subject)`
+* CODE      ??? add `Group.canOptin(Subject)`
+* CODE      ??? add `Group.canOptout(Subject)`
+* CODE      ??? add `Group.canRead(Subject)`
+* CODE      ??? add `Group.canUpdate(Subject)`
+* CODE      ??? add `Group.canView(Subject)`
 * REVIEW    FIXMEs
 * REVIEW    TODOs
 * CODE      delete custom group types
@@ -44,6 +40,8 @@ $Id: TODO,v 1.56 2006-05-31 17:03:55 blair Exp $
 * REFACTOR  review (and remove if possible) all RTEs
 
 ### Later || Maybe
+* CODE      Migrate error messages to *E*
+* CODE      Switch to *IllegalArgumentException* and *NullArgumentException*
 * DOCUMENT  add `@since` to javadoc (just diff `doc/API`? for now
   since i've been failing to add this?)
 * PACKAGING create binary-and-source distributions
@@ -119,7 +117,7 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.56 2006-05-31 17:03:55 blair Exp $
+$Id: TODO,v 1.57 2006-05-31 22:44:40 blair Exp $
 
 
 

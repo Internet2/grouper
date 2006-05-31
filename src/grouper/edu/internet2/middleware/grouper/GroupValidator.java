@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.3 2006-05-31 22:44:40 blair Exp $
  */
 class GroupValidator implements Serializable {
 
@@ -39,7 +39,6 @@ class GroupValidator implements Serializable {
   protected static final String ERR_DCFM  = "cannot delete composite membership from group with members";
   protected static final String ERR_DMFC  = "cannot delete member from composite membership";
   protected static final String ERR_DRA   = "cannot delete required attribute: ";
-  protected static final String ERR_FT    = "invalid field type: ";
   protected static final String ERR_GT    = "invalid group type: ";
   protected static final String ERR_AV    = "invalid attribute value";
 
@@ -52,9 +51,9 @@ class GroupValidator implements Serializable {
             ModelException,
             SchemaException
   {
-    canWriteField(
-      g.getSession(), g, g.getSession().getSubject(), Group.getDefaultList(), FieldType.LIST
-    );
+    Field f = Group.getDefaultList();
+    isTypeEqual(f, FieldType.LIST);
+    canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
     if (g.hasComposite()) {
       throw new ModelException(ERR_ACTC); // TODO TEST!
     }
@@ -69,7 +68,8 @@ class GroupValidator implements Serializable {
             SchemaException
   {
     try {
-      canWriteField(g.getSession(), g, g.getSession().getSubject(), f, FieldType.LIST);
+      isTypeEqual(f, FieldType.LIST);
+      canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
     }
     catch (InsufficientPrivilegeException eIP0) {
       try {
@@ -101,9 +101,9 @@ class GroupValidator implements Serializable {
             ModelException,
             SchemaException
   {
-    canWriteField(
-      g.getSession(), g, g.getSession().getSubject(), Group.getDefaultList(), FieldType.LIST
-    );
+    Field f = Group.getDefaultList();
+    isTypeEqual(f, FieldType.LIST); // TODO Why do I bother?
+    canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
     if (!g.hasComposite()) {
       throw new ModelException(ERR_DCFC); 
     }
@@ -115,7 +115,8 @@ class GroupValidator implements Serializable {
             SchemaException
   {
     try {
-      canWriteField(g.getSession(), g, g.getSession().getSubject(), f, FieldType.LIST);
+      isTypeEqual(f, FieldType.LIST);
+      canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
     }
     catch (InsufficientPrivilegeException eIP0) {
       try {
@@ -135,9 +136,8 @@ class GroupValidator implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    canWriteField(
-      g.getSession(), g, g.getSession().getSubject(), f, FieldType.ATTRIBUTE
-    );
+    isTypeEqual(f, FieldType.ATTRIBUTE);
+    canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
   } // protected static void canModAttribute(g, f)
 
   protected static void canOptin(Group g, Subject subj, Field f) 
@@ -168,17 +168,14 @@ class GroupValidator implements Serializable {
     PrivilegeResolver.getInstance().canOPTOUT(g.getSession(), g, subj);
   } // protected static void canOptin(g, subj, f)
 
+  // @since 1.0
   protected static void canReadField(
-    GrouperSession s, Group g, Subject subj, Field f, FieldType type
+    GrouperSession s, Group g, Subject subj, Field f
   )
     throws  InsufficientPrivilegeException,
             SchemaException
   {
     // FIXME Can I remove s?
-    // Validate the field type
-    if (!f.getType().equals(type)) {
-      throw new SchemaException(ERR_FT + f.getType());
-    }  
     // Validate that this group has the proper group type for this field
     if (!g.hasType( f.getGroupType() ) ) {
       throw new SchemaException(ERR_GT + f.getGroupType().toString());
@@ -187,7 +184,7 @@ class GroupValidator implements Serializable {
     PrivilegeResolver.getInstance().canPrivDispatch(
       s, g, subj, f.getReadPriv()
     );
-  } // protected static void canReadField(s, g, subj, f, type)
+  } // protected static void canReadField(s, g, subj, f)
 
   protected static void canSetAttribute(Group g, Field f, String value) 
     throws  InsufficientPrivilegeException,
@@ -206,17 +203,14 @@ class GroupValidator implements Serializable {
     canModAttribute(g, f);
   } // protected static void canSetAttribute(g, f, value)
 
+  // @since 1.0
   protected static void canWriteField(
-    GrouperSession s, Group g, Subject subj, Field f, FieldType type
+    GrouperSession s, Group g, Subject subj, Field f
   )
     throws  InsufficientPrivilegeException,
             SchemaException
   {
     // FIXME Can I remove s?
-    // Validate the field type
-    if (!f.getType().equals(type)) {
-      throw new SchemaException(ERR_FT + f.getType());
-    }  
     // Validate that this group has the proper group type for this field
     if (!g.hasType( f.getGroupType() ) ) {
       throw new SchemaException(ERR_GT + f.getGroupType().toString());
@@ -225,7 +219,40 @@ class GroupValidator implements Serializable {
     PrivilegeResolver.getInstance().canPrivDispatch(
       s, g, subj, f.getWritePriv()
     );
-  } // protected static void canWriteField(s, g, subj, f, type)
+  } // protected static void canWriteField(s, g, subj, f)
+
+  // is this field of the appropriate type
+  // @since 1.0
+  protected static void isTypeEqual(Field f, FieldType type)
+    throws  SchemaException
+  {
+    isTypeValid(f);
+    if (!f.getType().equals(type)) {
+      throw new SchemaException(E.FIELD_TYPE + f.getType());
+    }
+  } // protected static void isTypeEqual(f, type)
+
+  // is this f valid for groups
+  // @since 1.0
+  protected static void isTypeValid(Field f)
+    throws  IllegalArgumentException,
+            SchemaException
+  {
+    if (f == null) {
+      throw new IllegalArgumentException(E.FIELD_NULL);
+    }
+    if (
+      !
+      (
+            f.getType().equals( FieldType.ACCESS    )
+        ||  f.getType().equals( FieldType.ATTRIBUTE )
+        ||  f.getType().equals( FieldType.LIST      )
+      )
+    )
+    {
+      throw new SchemaException(E.FIELD_TYPE + f.getType());
+    }
+  } // protected static void isTypeValid(f)
 
 }
 

@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.110 2006-05-26 17:15:13 blair Exp $
+$Id: NEWS,v 1.111 2006-05-31 22:44:40 blair Exp $
 
 ---
 
@@ -10,6 +10,11 @@ $Id: NEWS,v 1.110 2006-05-26 17:15:13 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:  Added `Group.canReadField(Field)`.
+* NEW:  Added `Group.canReadField(Subject, Field)`.
+* NEW:  Added `Group.canWriteField(Field)`.
+* NEW:  Added `Group.canWriteField(Subject, Field)`.
+* UPDATE: Hibernate configuration moved to `conf/grouper.hibernate.properties`.
 * NEW:  Added _HibernateSubject_ for adding I2MI Subjects to the JDBC
   Source Adapter table within the Groups Registry.
 * NEW:  Added support for composite memberships (unions) to groups.
