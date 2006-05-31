@@ -31,11 +31,11 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.67 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: Group.java,v 1.68 2006-05-31 22:44:40 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL        = new EventLog();
   private static final String   ERR_AM    = "unable to add member: ";
   private static final String   ERR_DG    = "unable to delete group: ";
@@ -56,13 +56,13 @@ public class Group extends Owner implements Serializable {
   private static final String   MSG_DM    = "revoke member ";
 
 
-  // Hibernate Properties
+  // HIBERNATE PROPERTIES //
   private Set     group_attributes;
   private Set     group_types         = new LinkedHashSet(); 
   private Stem    parent_stem;
 
 
-  // Transient Instance Variables
+  // PRIVATE TRANSIENT INSTANCE VARIABLES //
   private transient Member          as_member = null;
   private transient Subject         as_subj   = null;
   private transient Map             attrs     = new HashMap();
@@ -71,7 +71,7 @@ public class Group extends Owner implements Serializable {
   private transient Set             types     = null;
 
 
-  // Constructors
+  // CONSTRUCTORS //
 
   /**
    * Default constructor for Hibernate.
@@ -119,7 +119,7 @@ public class Group extends Owner implements Serializable {
   } // protected Group(s, ns, extn, displayExtn)
  
 
-  // Public Class Methods //
+  // PUBLIC CLASS METHODS //
 
   /**
    * Retrieve default members {@link Field}.
@@ -141,7 +141,7 @@ public class Group extends Owner implements Serializable {
   } // public static Field getDefaultList()
 
  
-  // Public Instance Methods //
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Add a composite membership to this group.
@@ -299,6 +299,99 @@ public class Group extends Owner implements Serializable {
       throw new GroupModifyException(msg, e); 
     }
   } // public void addType(type)
+
+  /**
+   * Check whether the {@link Subject} that loaded this {@link Group} can
+   * read the specified {@link Field}.
+   * <pre class="eg">
+   * </pre>
+   * @param   f   Check privileges on this {@link Field}.
+   * @return  True if {@link Subject} can read {@link Field}, false otherwise.
+   * @throws  IllegalArgumentException if null {@link Field}
+   * @throws  SchemaException if invalid {@link Field}
+   * @since   1.0
+   */
+  public boolean canReadField(Field f) 
+    throws  IllegalArgumentException,
+            SchemaException
+  {
+    return this.canReadField(this.getSession().getSubject(), f);
+  } // public boolean canReadField(f)
+
+  /**
+   * Check whether the specified {@link Subject} can read the specified {@link Field}.
+   * <pre class="eg">
+   * </pre>
+   * @param   subj  Check privileges for this {@link Subject}.
+   * @param   f     Check privileges on this {@link Field}.
+   * @return  True if {@link Subject} can read {@link Field}, false otherwise.
+   * @throws  IllegalArgumentException if null {@link Subject} or {@link Field}
+   * @throws  SchemaException if invalid {@link Field}
+   * @throws  SubjectNotFoundException if invalid {@link Subject}
+   * @since   1.0
+   */
+  public boolean canReadField(Subject subj, Field f) 
+    throws  IllegalArgumentException,
+            SchemaException
+  {
+    if (subj == null) {
+      throw new IllegalArgumentException(E.SUBJ_NULL);
+    }
+    GroupValidator.isTypeValid(f);
+    try {
+      GroupValidator.canReadField(this.getSession(), this, subj, f);
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+    return true;
+  } // public boolean canReadField(subj, f)
+
+  /**
+   * Check whether the {@link Subject} that loaded this {@link Group} can
+   * write the specified {@link Field}.
+   * <pre class="eg">
+   * </pre>
+   * @param   f   Check privileges on this {@link Field}.
+   * @return  True if {@link Subject} can write {@link Field}, false otherwise.
+   * @throws  IllegalArgumentException if null {@link Field}
+   * @throws  SchemaException if invalid {@link Field}
+   * @since   1.0
+   */
+  public boolean canWriteField(Field f) 
+    throws  IllegalArgumentException,
+            SchemaException
+  {
+    return this.canWriteField(this.getSession().getSubject(), f);
+  } // public boolean canWriteField(f)
+
+  /**
+   * Check whether the specified {@link Subject} can write the specified {@link Field}.
+   * <pre class="eg">
+   * </pre>
+   * @param   subj  Check privileges for this {@link Subject}.
+   * @param   f     Check privileges on this {@link Field}.
+   * @return  True if {@link Subject} can write {@link Field}, false otherwise.
+   * @throws  IllegalArgumentException if null {@link Subject} or {@link Field}
+   * @throws  SchemaException if invalid {@link Field}
+   * @since   1.0
+   */
+  public boolean canWriteField(Subject subj, Field f) 
+    throws  IllegalArgumentException,
+            SchemaException
+  {
+    if (subj == null) {
+      throw new IllegalArgumentException(E.SUBJ_NULL);
+    }
+    GroupValidator.isTypeValid(f);
+    try {
+      GroupValidator.canWriteField(this.getSession(), this, subj, f);
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+    return true;
+  } // public boolean canWriteField(subj, f)
 
   /**
    * Delete this group from the Groups Registry.
@@ -673,16 +766,14 @@ public class Group extends Owner implements Serializable {
   {
     try {
       Field f = FieldFinder.find(attr);
-      if (!f.getType().equals(FieldType.ATTRIBUTE)) {
-        throw new SchemaException("not an attribute: " + attr);
-      }
+      GroupValidator.isTypeEqual(f, FieldType.ATTRIBUTE);
       if (!this.hasType( f.getGroupType() ) ) {
         throw new SchemaException(
           "group does not have group type: " + f.getGroupType().toString()
         );
       }
       GroupValidator.canReadField(
-        this.getSession(), this, this.getSession().getSubject(), f, FieldType.ATTRIBUTE
+        this.getSession(), this, this.getSession().getSubject(), f
       );
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -713,7 +804,7 @@ public class Group extends Owner implements Serializable {
       try {
         Field f = attr.getField();
         GroupValidator.canReadField(
-          this.getSession(), this, this.getSession().getSubject(), f, FieldType.ATTRIBUTE
+          this.getSession(), this, this.getSession().getSubject(), f
         );
         filtered.put(f.getName(), attr.getValue());
       }
@@ -1992,7 +2083,7 @@ public class Group extends Owner implements Serializable {
   } // protected void setDisplayName(value)
 
 
-  // Private Instance Methods //
+  // PRIVATE INSTANCE METHODS //
   private String _getAttributeNoPrivs(String attr) {
     String    val   = null;
     Map       attrs = this._getAttributesNoPrivs();
@@ -2086,7 +2177,7 @@ public class Group extends Owner implements Serializable {
   } // private Set _updateSystemAttrs(f, value, attrs
 
 
-  // Getters //
+  // GETTERS //
   private Set getGroup_attributes() {
     return this.group_attributes;
   }
@@ -2113,7 +2204,7 @@ public class Group extends Owner implements Serializable {
     return this.parent_stem;
   }
 
-  // Setters //
+  // SETTERS //
   private void setGroup_attributes(Set group_attributes) {
     this.group_attributes = group_attributes;
   }
