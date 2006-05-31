@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.55 2006-05-30 17:02:14 blair Exp $
+$Id: TODO,v 1.56 2006-05-31 17:03:55 blair Exp $
 
 ---
 
@@ -17,7 +17,9 @@ $Id: TODO,v 1.55 2006-05-30 17:02:14 blair Exp $
   possibly when updating composites
 
 ### Next Actions
+* CODE      add `Group.canReadField(Field)`
 * CODE      add `Group.canReadField(Subject, Field)`
+* CODE      add `Group.canWriteField(Field)`
 * CODE      add `Group.canWriteField(Subject, Field)`
 * CODE      add intersection composites
 * CODE      add `ErrorLog`
@@ -117,7 +119,7 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.55 2006-05-30 17:02:14 blair Exp $
+$Id: TODO,v 1.56 2006-05-31 17:03:55 blair Exp $
 
 
 
