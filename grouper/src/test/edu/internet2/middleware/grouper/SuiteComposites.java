@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteComposites.java,v 1.3 2006-06-02 17:35:07 blair Exp $
+ * @version $Id: SuiteComposites.java,v 1.4 2006-06-02 18:23:46 blair Exp $
  */
 public class SuiteComposites extends TestCase {
 
@@ -36,6 +36,7 @@ public class SuiteComposites extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(  SuiteCompositesModel.suite()  );
+    suite.addTest(  SuiteCompositesC.suite()      );
     suite.addTest(  SuiteCompositesI.suite()      );
     suite.addTest(  SuiteCompositesU.suite()      );
     return suite;
