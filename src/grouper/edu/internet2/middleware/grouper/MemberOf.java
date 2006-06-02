@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.17 2006-06-02 17:35:07 blair Exp $
+ * @version $Id: MemberOf.java,v 1.18 2006-06-02 18:23:46 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -261,11 +261,15 @@ class MemberOf implements Serializable {
   } // private Set _createNewMembershipObjects(members)
 
   // Evaluate a composite membership
+  // @since 1.0
   private Set _evalComposite() 
     throws  ModelException 
   {
     Set results = new LinkedHashSet();
-    if      (this.c.getType().equals(CompositeType.INTERSECTION)) {
+    if      (this.c.getType().equals(CompositeType.COMPLEMENT))   {
+      results.addAll( this._evalCompositeComplement() );
+    }
+    else if (this.c.getType().equals(CompositeType.INTERSECTION)) {
       results.addAll( this._evalCompositeIntersection() );
     }
     else if (this.c.getType().equals(CompositeType.UNION))        {
@@ -277,7 +281,20 @@ class MemberOf implements Serializable {
     return results;
   } // private Set _evalComposite()
 
-  // Evaluate a intersection composite membership
+  // Evaluate a complement composite membership
+  // @since 1.0
+  private Set _evalCompositeComplement() 
+    throws  ModelException
+  {
+    Set   tmp     = new LinkedHashSet();
+    Group left    = this.c.getLeftGroup();
+    Group right   = this.c.getRightGroup();
+    tmp.addAll(     left.getMembers()   );
+    tmp.removeAll(  right.getMembers()  );
+    return this._createNewMembershipObjects(tmp);
+  } // private Set _evalCompositeComplement()
+
+  // Evaluate an intersection composite membership
   // @since 1.0
   private Set _evalCompositeIntersection() 
     throws  ModelException

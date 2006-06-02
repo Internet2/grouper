@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.112 2006-06-02 17:35:07 blair Exp $
+$Id: NEWS,v 1.113 2006-06-02 18:23:45 blair Exp $
 
 ---
 
@@ -10,7 +10,7 @@ $Id: NEWS,v 1.112 2006-06-02 17:35:07 blair Exp $
 Released: TBD
 
 ## Changes
-* NEW:  Added support for composite memberships (intersections, unions) to groups.
+* NEW:  Added support for composite memberships (complements, intersections, unions) to groups.
 * NEW:  Added `Group.canReadField(Field)`.
 * NEW:  Added `Group.canReadField(Subject, Field)`.
 * NEW:  Added `Group.canWriteField(Field)`.
