@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.58 2006-06-02 16:38:08 blair Exp $
+$Id: TODO,v 1.59 2006-06-02 17:35:07 blair Exp $
 
 ---
 
@@ -17,9 +17,8 @@ $Id: TODO,v 1.58 2006-06-02 16:38:08 blair Exp $
   possibly when updating composites
 
 ### Next Actions
-* CODE      add intersection composites
-* CODE      add `ErrorLog`
 * CODE      add complement composites
+* CODE      add `ErrorLog`
 * CODE      add `Member.canCreate(Subject)`
 * CODE      add `Member.canStem(Subject)`
 * CODE      add `Member.canAdmin(Subject)`
@@ -117,7 +116,8 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.58 2006-06-02 16:38:08 blair Exp $
+$Id: TODO,v 1.59 2006-06-02 17:35:07 blair Exp $
+
 
 
 

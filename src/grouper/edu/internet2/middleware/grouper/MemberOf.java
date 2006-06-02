@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.16 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: MemberOf.java,v 1.17 2006-06-02 17:35:07 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -265,7 +265,10 @@ class MemberOf implements Serializable {
     throws  ModelException 
   {
     Set results = new LinkedHashSet();
-    if (this.c.getType().equals(CompositeType.UNION)) {
+    if      (this.c.getType().equals(CompositeType.INTERSECTION)) {
+      results.addAll( this._evalCompositeIntersection() );
+    }
+    else if (this.c.getType().equals(CompositeType.UNION))        {
       results.addAll( this._evalCompositeUnion() );
     }
     else {
@@ -274,11 +277,24 @@ class MemberOf implements Serializable {
     return results;
   } // private Set _evalComposite()
 
+  // Evaluate a intersection composite membership
+  // @since 1.0
+  private Set _evalCompositeIntersection() 
+    throws  ModelException
+  {
+    Set   tmp     = new LinkedHashSet();
+    Group left    = this.c.getLeftGroup();
+    Group right   = this.c.getRightGroup();
+    tmp.addAll(     left.getMembers()   );
+    tmp.retainAll(  right.getMembers()  );
+    return this._createNewMembershipObjects(tmp);
+  } // private Set _evalCompositeIntersection()
+
   // Evaluate a union composite membership
+  // @since 1.0
   private Set _evalCompositeUnion() 
     throws  ModelException
   {
-    Set   results = new LinkedHashSet();
     Set   tmp     = new LinkedHashSet();
     Group left    = this.c.getLeftGroup();
     Group right   = this.c.getRightGroup();
