@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.57 2006-05-31 22:44:40 blair Exp $
+$Id: TODO,v 1.58 2006-06-02 16:38:08 blair Exp $
 
 ---
 
@@ -19,15 +19,15 @@ $Id: TODO,v 1.57 2006-05-31 22:44:40 blair Exp $
 ### Next Actions
 * CODE      add intersection composites
 * CODE      add `ErrorLog`
-* CODE      ??? add `Stem.canCreate(Subject)`
-* CODE      ??? add `Stem.canStem(Subject)`
 * CODE      add complement composites
-* CODE      ??? add `Group.canAdmin(Subject)`
-* CODE      ??? add `Group.canOptin(Subject)`
-* CODE      ??? add `Group.canOptout(Subject)`
-* CODE      ??? add `Group.canRead(Subject)`
-* CODE      ??? add `Group.canUpdate(Subject)`
-* CODE      ??? add `Group.canView(Subject)`
+* CODE      add `Member.canCreate(Subject)`
+* CODE      add `Member.canStem(Subject)`
+* CODE      add `Member.canAdmin(Subject)`
+* CODE      add `Member.canOptin(Subject)`
+* CODE      add `Member.canOptout(Subject)`
+* CODE      add `Member.canRead(Subject)`
+* CODE      add `Member.canUpdate(Subject)`
+* CODE      add `Member.canView(Subject)`
 * REVIEW    FIXMEs
 * REVIEW    TODOs
 * CODE      delete custom group types
@@ -117,7 +117,7 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.57 2006-05-31 22:44:40 blair Exp $
+$Id: TODO,v 1.58 2006-06-02 16:38:08 blair Exp $
 
 
 
