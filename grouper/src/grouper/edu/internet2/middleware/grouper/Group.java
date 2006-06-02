@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.68 2006-05-31 22:44:40 blair Exp $
+ * @version $Id: Group.java,v 1.69 2006-06-02 17:35:07 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -161,6 +161,7 @@ public class Group extends Owner implements Serializable {
    * @param   right {@link Group} that is right factor of composite membership.
    * @throws  InsufficientPrivilegeException
    * @throws  MemberAddException
+   * @since   1.0
    */
   public void addCompositeMember(CompositeType type, Group left, Group right)
     throws  InsufficientPrivilegeException,
@@ -555,6 +556,7 @@ public class Group extends Owner implements Serializable {
    * </pre>
    * @throws  InsufficientPrivilegeException
    * @throws  MemberDeleteException
+   * @since   1.0
    */
   public void deleteCompositeMember()
     throws  InsufficientPrivilegeException,
