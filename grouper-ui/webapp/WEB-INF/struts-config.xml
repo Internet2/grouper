@@ -28,6 +28,7 @@
     <form-bean dynamic="true" name="BrowseFormBean"
                type="org.apache.struts.action.DynaActionForm">
       <form-property name="groupId" type="java.lang.String"/>
+      <form-property name="stemId" type="java.lang.String"/>
       <form-property name="start" type="java.lang.String"/>
       <form-property name="currentNode" type="java.lang.String"/>
 	   <form-property name="expandListField" type="java.lang.String"/>
