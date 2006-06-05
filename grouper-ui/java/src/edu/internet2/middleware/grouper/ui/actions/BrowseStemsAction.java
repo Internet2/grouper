@@ -104,7 +104,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: BrowseStemsAction.java,v 1.4 2006-02-24 13:40:58 isgwb Exp $
+ * @version $Id: BrowseStemsAction.java,v 1.5 2006-06-05 14:56:52 isgwb Exp $
  */
 public class BrowseStemsAction extends GrouperCapableAction {
 
@@ -139,7 +139,10 @@ public class BrowseStemsAction extends GrouperCapableAction {
 		String currentNodeId = (String)browseForm.get("currentNode");
 		if(isEmpty(request.getParameter("advancedSearch")))
 			setBrowseNode(currentNodeId,session);
-		
+		if(!isEmpty(currentNodeId)) {
+			GroupOrStem gos = GroupOrStem.findByID(grouperSession,currentNodeId);
+			if(gos.isStem()) browseForm.set("stemId",currentNodeId);
+		}
 		//Multiple Struts actions map to this class. Param 
 		//indicates the appropriate view
 		String param = mapping.getParameter();
