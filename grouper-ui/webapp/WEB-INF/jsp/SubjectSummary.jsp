@@ -3,7 +3,7 @@
 			the maintenance of the subject
 --%><%--
   @author Gary Brown.
-  @version $Id: SubjectSummary.jsp,v 1.3 2006-04-03 13:22:39 isgwb Exp $
+  @version $Id: SubjectSummary.jsp,v 1.4 2006-06-05 15:06:20 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="subjectSummary">
@@ -11,7 +11,7 @@
 		<tiles:put name="viewObject" beanName="subject" />
 		<tiles:put name="view" value="subjectInfo"/>
 	</tiles:insert>
-<tiles:insert definition="subjectInfoDef"/>
+
 <c:if test="${!empty grouperForm.map.callerPageId && grouperForm.map.subjectId!=lastSubjectSummaryForm.subjectId}">
 <div class="linkButton">
 		<tiles:insert definition="callerPageButtonDef"/>
@@ -31,7 +31,7 @@
 		<tiles:insert definition="changeSubjectSummaryScopeDef"/>
 	</div>
 	<h2 style="clear:left;" class="actionheader"><fmt:message bundle="${nav}" key="${scopeListData.titleKey}"/></h2>
-	<tiles:insert definition="dynamicTileDef">
+		<tiles:insert definition="dynamicTileDef">
 			<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
 			<tiles:put name="view" value="${scopeListData.view}"/>
 			<tiles:put name="headerView" value="${scopeListData.headerView}"/>
@@ -43,7 +43,7 @@
 			</tiles:put>
 			<tiles:put name="footerView" value="${scopeListData.footerView}"/>
 			<tiles:put name="pager" beanName="pager"/>
-	</tiles:insert>
+		</tiles:insert>
 		
 	<c:if test="${pager.count==0}">
 		<div class="searchCountZero"><fmt:message bundle="${nav}" key="${scopeListData.noResultsKey}"/></div>
