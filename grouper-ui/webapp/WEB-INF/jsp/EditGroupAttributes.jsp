@@ -33,12 +33,14 @@ Can save and
 		</div>
 	</div>
 </div>
+<c:if test="${!empty group.types}">
 <tiles:insert definition="dynamicTileDef">
 	<tiles:put name="viewObject" beanName="group" beanProperty="types"/>
 	<tiles:put name="view" value="editGroupAttributes"/>
 	<tiles:put name="itemView" value="editGroupAttributes"/>
 	<tiles:put name="listless" value="TRUE"/>
 </tiles:insert>
+</c:if>
 </div>
 <div class="formRow">
  <html:submit property="submit.save" value="${navMap['groups.action.attr-save']}"/>
