@@ -16,42 +16,36 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * A composite membership definition within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.2 2006-05-23 19:10:22 blair Exp $
- *     
-*/
+ * @version $Id: Composite.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @since   1.0
+ */
 public class Composite extends Owner implements Serializable {
 
   // FIXME What about privs?
 
-  // Private Class Constants //
-  private static final EventLog EL    = new EventLog();
-  private static final String   ERR_U = "unable to update composite membership: ";
-  private static final Log      LOG   = LogFactory.getLog(Composite.class);
-
-  // Hibernate Properties //
+  // HIBERNATE PROPERTIES //
   private Owner         left  = null;
   private Owner         owner = null;
   private Owner         right = null;
   private CompositeType type  = null;
 
 
-  // Constructors //
+  // CONSTRUCTORS //
+  // @since 1.0
   private Composite() {
     // Default constructor for Hibernate
   } // private Composite()
 
+  // @since 1.0
   protected Composite(GrouperSession s, Owner o, Owner l, Owner r, CompositeType type) 
     throws  ModelException
   {
@@ -67,7 +61,10 @@ public class Composite extends Owner implements Serializable {
   } // protected Composite(s, o, l, r, type)  
   
 
-  // Public Instance Methods //
+  // PUBLIC INSTANCE METHODS //
+  /**
+   * @since 1.0
+   */
   public boolean equals(Object other) {
     if (this == other) {
       return true;
@@ -82,6 +79,9 @@ public class Composite extends Owner implements Serializable {
       .isEquals();
   } // public boolean equals(other)
 
+  /**
+   * @since 1.0
+   */
   public int hashCode() {
     return new HashCodeBuilder()
       .append(this.getUuid()        )
@@ -90,11 +90,17 @@ public class Composite extends Owner implements Serializable {
       ;
   } // public int hashCode()
 
+  /**
+   * @since 1.0
+   */
   public void setModified() {
     // As composites can only be created and deleted at this time,
     // marking as modified is irrelevant. 
   } // public void setModified()
 
+  /**
+   * @since 1.0
+   */
   public String toString() {
     return  new ToStringBuilder(this)
       .append(  "type"  , this.getType().toString()       )
@@ -106,6 +112,7 @@ public class Composite extends Owner implements Serializable {
 
 
   // Protected Class Methods //
+  // @since 1.0
   protected static void update(Owner o) {
     Iterator iter = CompositeFinder.isFactor(o).iterator();
     while (iter.hasNext()) {
@@ -115,7 +122,8 @@ public class Composite extends Owner implements Serializable {
   } // protected static void update(o)
 
 
-  // Protected Instance Methods //
+  // PROTECTED INSTANCE METHODS //
+  // @since 1.0
   protected void update() {
     //  TODO  Assuming this is actually correct I am sure it can be
     //        improved upon.  At least it isn't as bad as the first
@@ -167,17 +175,20 @@ public class Composite extends Owner implements Serializable {
       }
     }
     catch (HibernateException eH) {
-      // FIXME  Log!
-      throw new RuntimeException(ERR_U + eH.getMessage(), eH);
+      String msg = E.COMP_UPDATE + eH.getMessage();
+      ErrorLog.fatal(Composite.class, msg);
+      throw new RuntimeException(msg, eH);
     }
     catch (ModelException eM) {
-      // FIXME  Log!
-      throw new RuntimeException(ERR_U + eM.getMessage(), eM);
+      String msg = E.COMP_UPDATE + eM.getMessage();
+      ErrorLog.fatal(Composite.class, msg);
+      throw new RuntimeException(msg, eM);
     }
   } // protected void update()
 
 
-  // Private Class Methods
+  // PRIVATE CLASS METHODS //
+  // @since 1.0
   private static void _update(Set mships) {
     Set       updates = new LinkedHashSet();
     Iterator  iterMS  = mships.iterator();
@@ -197,48 +208,59 @@ public class Composite extends Owner implements Serializable {
   } // private static void _update(mships)
 
 
-  // Getters //
+  // GETTERS //
+  // @since 1.0
   protected Owner getLeft() {
     return this.left;
   }
+  // @since 1.0
   protected Group getLeftGroup() {
     // TODO Should this through an exception upon failure?
     Group g = (Group) this.left;
     g.setSession( this.getSession() );
     return g;
   }
+  // @since 1.0
   protected Owner getOwner() {
     return this.owner;
   }
+  // @since 1.0
   protected Group getOwnerGroup() {
     Group g = (Group) this.owner;
     g.setSession( this.getSession() );
     return g;
   }
+  // @since 1.0
   protected Owner getRight() {
     return this.right;
   }
+  // @since 1.0
   protected Group getRightGroup() {
     // TODO Should this through an exception upon failure?
     Group g = (Group) this.right;
     g.setSession( this.getSession() );
     return g;
   }
+  // @since 1.0
   protected CompositeType getType() {
     return this.type;
   }
 
 
-  // Setters //
+  // SETTERS //
+  // @since 1.0
   private void setLeft(Owner l) {
     this.left = l;
   }
+  // @since 1.0
   private void setOwner(Owner o) {
     this.owner = o;
   }
+  // @since 1.0
   private void setRight(Owner r) {
     this.right = r;
   }
+  // @since 1.0
   private void setType(CompositeType type) {
     this.type = type;
   }

@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
@@ -24,14 +23,12 @@ import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.69 2006-06-02 17:35:07 blair Exp $
+ * @version $Id: Group.java,v 1.70 2006-06-05 19:54:40 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -39,18 +36,15 @@ public class Group extends Owner implements Serializable {
   private static final EventLog EL        = new EventLog();
   private static final String   ERR_AM    = "unable to add member: ";
   private static final String   ERR_DG    = "unable to delete group: ";
-  private static final String   ERR_GDL   = "members list does not exist: ";
   private static final String   ERR_G2M   = "could not convert group to member: ";
   private static final String   ERR_G2S   = "could not convert group to subject: ";
   private static final String   ERR_DM    = "unable to delete member: ";
-  private static final String   ERR_FNF   = "field not found: ";
   private static final String   ERR_GA    = "attribute not found: ";
   private static final String   ERR_NODE  = "group without displayExtension";
   private static final String   ERR_NODN  = "group without displayName";
   private static final String   ERR_NOE   = "group without extension";
   private static final String   ERR_NON   = "group without name";
   private static final String   ERR_S2G   = "could not convert subject to group: ";
-  private static final Log      LOG       = LogFactory.getLog(Group.class);
   private static final String   MSG_AM    = "add member ";
   private static final String   MSG_DG    = "group deleted: ";
   private static final String   MSG_DM    = "revoke member ";
@@ -134,9 +128,9 @@ public class Group extends Owner implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public static Field getDefaultList()
 
@@ -295,8 +289,8 @@ public class Group extends Owner implements Serializable {
       EL.groupAddType(this.getSession(), this.getName(), type, sw);
     }
     catch (Exception e) {
-      String msg = "unable to add type: " + type + ": " + e.getMessage();
-      LOG.error(msg);
+      String msg = E.GROUP_TYPEADD + type + ": " + e.getMessage();
+      ErrorLog.error(Group.class, msg);
       throw new GroupModifyException(msg, e); 
     }
   } // public void addType(type)
@@ -419,37 +413,25 @@ public class Group extends Owner implements Serializable {
     sw.start();
     GrouperSession.validate(this.getSession());
     String msg = "delete";
-    GrouperLog.debug(LOG, this.getSession(), msg);
     try {
       PrivilegeResolver.getInstance().canADMIN(this.getSession(), this, this.getSession().getSubject());
-      GrouperLog.debug(LOG, this.getSession(), msg + " canADMIN");
     }
     catch (InsufficientPrivilegeException eIP) {
       String err = msg + " cannot ADMIN: " + eIP.getMessage();
-      GrouperLog.debug(LOG, this.getSession(), err);
       throw new InsufficientPrivilegeException(err, eIP);
     } 
     try {
       Set deletes = new LinkedHashSet();
       msg += " '" + this.getName() + "'";
-      GrouperLog.debug(LOG, this.getSession(), msg);
 
       // And revoke all access privileges
-      GrouperLog.debug(LOG, this.getSession(), msg + " revoking access privs");
       this._revokeAllAccessPrivs(msg);
-      GrouperLog.debug(LOG, this.getSession(), msg + " access privs revoked");
 
       // And delete all memberships - as root
-      GrouperLog.debug(
-        LOG, this.getSession(), msg + " finding memberships to delete"
-      );
       deletes.addAll( 
         Membership.deleteAllFieldType(
           GrouperSessionFinder.getRootSession(), this, FieldType.LIST
         )
-      );
-      GrouperLog.debug(
-        LOG, this.getSession(), msg + " total membership to delete: " + deletes.size()
       );
 
       // Add the group last for good luck    
@@ -465,11 +447,9 @@ public class Group extends Owner implements Serializable {
       EL.groupDelete(this.getSession(), name, sw);
     }
     catch (InsufficientPrivilegeException eIP) {
-      LOG.debug(ERR_DG + eIP.getMessage());
       throw new InsufficientPrivilegeException(eIP.getMessage(), eIP);
     }
     catch (Exception e) {
-      LOG.debug(ERR_DG + e.getMessage());
       throw new GroupDeleteException(e.getMessage(), e);
     }
   } // public void delete()
@@ -708,8 +688,8 @@ public class Group extends Owner implements Serializable {
       EL.groupDelType(this.getSession(), this.getName(), type, sw);
     }
     catch (Exception e) {
-      String msg = "unable to delete type: " + type + ": " + e.getMessage();
-      LOG.error(msg);
+      String msg = E.GROUP_TYPEDEL + type + ": " + e.getMessage();
+      ErrorLog.error(Group.class, msg);
       throw new GroupModifyException(msg, e); 
     }
   } // public void deleteType(type)
@@ -743,9 +723,9 @@ public class Group extends Owner implements Serializable {
       );
     }
     catch (SchemaException eS) {
-      String err = ERR_FNF + AccessPrivilege.ADMIN;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.ADMIN;
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getAdmins()
 
@@ -940,9 +920,9 @@ public class Group extends Owner implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getEffectiveMembership()
 
@@ -975,9 +955,9 @@ public class Group extends Owner implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getEffectiveMembership()
 
@@ -1030,9 +1010,9 @@ public class Group extends Owner implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getImmediateMembers()
 
@@ -1064,9 +1044,9 @@ public class Group extends Owner implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getImmediateMemberships()
 
@@ -1099,9 +1079,9 @@ public class Group extends Owner implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getMembers()
 
@@ -1133,9 +1113,9 @@ public class Group extends Owner implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getMemberships()
 
@@ -1246,9 +1226,9 @@ public class Group extends Owner implements Serializable {
       );
     } 
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.OPTIN;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTIN;
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getOptins()
 
@@ -1266,9 +1246,9 @@ public class Group extends Owner implements Serializable {
       );
     } 
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.OPTOUT;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTOUT;
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getOptouts()
 
@@ -1314,9 +1294,9 @@ public class Group extends Owner implements Serializable {
       );
     } 
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.READ;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.READ;
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getReaders()
 
@@ -1345,9 +1325,9 @@ public class Group extends Owner implements Serializable {
       );
     } 
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.UPDATE;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.UPDATE;
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public set getUpdateres()
 
@@ -1365,9 +1345,9 @@ public class Group extends Owner implements Serializable {
       );
     } 
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.VIEW;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.VIEW;
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getViewers()
 
@@ -1461,9 +1441,9 @@ public class Group extends Owner implements Serializable {
     } 
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public boolean hasEffectiveMember(Subject subj)
 
@@ -1494,9 +1474,7 @@ public class Group extends Owner implements Serializable {
     }
     catch (MemberNotFoundException eMNF) {
       // TODO Fail silently?
-      GrouperLog.debug(LOG, this.getSession(), msg + eMNF.getMessage());
     }
-    GrouperLog.debug(LOG, this.getSession(), msg + rv);
     return rv;
   } // public boolean hasEffectiveMember(subj, f)
 
@@ -1519,9 +1497,9 @@ public class Group extends Owner implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public boolean hasImmediateMember(subj)
 
@@ -1552,9 +1530,7 @@ public class Group extends Owner implements Serializable {
     }
     catch (MemberNotFoundException eMNF) {
       // TODO Fail silently?
-      GrouperLog.debug(LOG, this.getSession(), msg + eMNF.getMessage());
     }
-    GrouperLog.debug(LOG, this.getSession(), msg + rv);
     return rv;
   } // public boolean hasImmediateMember(subj, f)
 
@@ -1623,9 +1599,9 @@ public class Group extends Owner implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public boolean hasMember(subj)
 
@@ -1657,9 +1633,7 @@ public class Group extends Owner implements Serializable {
     }
     catch (MemberNotFoundException eMNF) {
       // TODO Fail silently?
-      GrouperLog.debug(LOG, this.getSession(), msg + eMNF.getMessage());
     }
-    GrouperLog.debug(LOG, this.getSession(), msg + rv);
     return rv;
   } // public boolean hasMember(subj, f)
 
@@ -1991,20 +1965,16 @@ public class Group extends Owner implements Serializable {
     // TODO Does this need to be public?
     GrouperSession.validate(this.getSession());
     String msg = "toMember";
-    GrouperLog.debug(LOG, s, msg);
     if (as_member == null) {
       try {
-        GrouperLog.debug(LOG, s, msg + " finding group as member");
         as_member = MemberFinder.findBySubject(
           this.getSession(), this.toSubject()
         );
-        GrouperLog.debug(LOG, s, msg + " found: " + as_member);
       }  
       catch (MemberNotFoundException eMNF) {
         // If we can't convert a group to a member we have major issues
         // and should probably just give up
         String err = ERR_G2M + eMNF.getMessage();
-        GrouperLog.error(LOG, s, err);
         throw new RuntimeException(err, eMNF);
       }
     }
@@ -2022,20 +1992,16 @@ public class Group extends Owner implements Serializable {
   public Subject toSubject() {
     GrouperSession.validate(this.getSession());
     String msg = "toSubject";
-    GrouperLog.debug(LOG, s, msg);
     if (as_subj == null) {
       try {
-        GrouperLog.debug(LOG , s, msg + " find group as subject");
         as_subj = SubjectFinder.findById(
           this.getUuid(), "group", GrouperSourceAdapter.ID
         );
-        GrouperLog.debug(LOG, s, msg + " found: " + as_subj);
       }
       catch (Exception e) {
         // If we can't find an existing group as a subject we have
         // major issues and shoudl probably just give up
         String err = ERR_G2S + e.getMessage();
-        GrouperLog.error(LOG, s, err);
         throw new RuntimeException(err, e);
       }
     }
@@ -2114,24 +2080,12 @@ public class Group extends Owner implements Serializable {
     GrouperSession orig = this.getSession();
     this.setSession(GrouperSessionFinder.getRootSession());
 
-    GrouperLog.debug(LOG, orig, msg + " revoking ADMIN");
     this.revokePriv(AccessPrivilege.ADMIN);
-    GrouperLog.debug(LOG, orig, msg + " revoked ADMIN");
-    GrouperLog.debug(LOG, orig, msg + " revoking OPTIN");
     this.revokePriv(AccessPrivilege.OPTIN);
-    GrouperLog.debug(LOG, orig, msg + " revoked OPTIN");
-    GrouperLog.debug(LOG, orig, msg + " revoking OPTOUT");
     this.revokePriv(AccessPrivilege.OPTOUT);
-    GrouperLog.debug(LOG, orig, msg + " revoked OPTOUT");
-    GrouperLog.debug(LOG, orig, msg + " revoking READ");
     this.revokePriv(AccessPrivilege.READ);
-    GrouperLog.debug(LOG, orig, msg + " revoked READ");
-    GrouperLog.debug(LOG, orig, msg + " revoking UPDATE");
     this.revokePriv(AccessPrivilege.UPDATE);
-    GrouperLog.debug(LOG, orig, msg + " revoked UPDATE");
-    GrouperLog.debug(LOG, orig, msg + " revoking VIEW");
     this.revokePriv(AccessPrivilege.VIEW);
-    GrouperLog.debug(LOG, orig, msg + " revoked VIEW");
 
     this.setSession(orig);
   } // private void _revokeAllAccessPrivs(msg)
@@ -2196,7 +2150,7 @@ public class Group extends Owner implements Serializable {
           types.add( GroupTypeFinder.find( type.toString() ) );
         }
         catch (SchemaException eS) {
-          LOG.error(eS.getMessage()); // TODO
+          ErrorLog.error(Group.class, E.GROUP_SCHEMA + eS.getMessage());
         }
       }
     }

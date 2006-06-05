@@ -16,54 +16,58 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.logging.*;
 
 /** 
  * A (rudimentary and preliminary) settings object for the Groups
  * Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.2 2006-05-23 19:10:23 blair Exp $
- *     
-*/
+ * @version $Id: Settings.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @since   1.0
+ */
 class Settings implements Serializable {
 
-  // Private Class Constants //
-  private static final EventLog EL                      = new EventLog();
-  private static final Log      LOG                     = LogFactory.getLog(Settings.class);
-  private static final int      CURRENT_SCHEMA_VERSION  = 1;  // == 1.0
-                                                      //  0      == 0.9
+  // PRIVATE CLASS CONSTANTS //
+  private static final int  CURRENT_SCHEMA_VERSION  = 1;  // == 1.0
+                                                  //  0      == 0.9
 
-  // Private Transient Class Properties //
+
+  // PRIVATE TRANSIENT CLASS PROPERTIES //
   private static transient Settings _s = null;
 
-  // Hibernate Properties //
+
+  // HIBERNATE PROPERTIES //
   private String  id;
   private int     schemaVersion;
 
 
-  // Constructors //
+  // CONSTRUCTORS //
+
+  // @since 1.0
   private Settings() {
     // For Hibernate
   } // private Settings()
 
+  // @since 1.0
   protected Settings(int version) {
     this.setSchemaVersion(version);
   } // protected Settings(version)
 
 
-  // Protected Class Methods //
+  // PROTECTED CLASS METHODS //
+
+  // @since 1.0
   protected static int getCurrentSchemaVersion() {
     return CURRENT_SCHEMA_VERSION;
   } // protected static int getCurrentSchemaVersion()
 
+  // @since 1.0
   protected static Settings getSettings() {
-    String msg = "unable to retrieve settings: ";
+    String msg = E.SETTINGS;
     if (_s == null) {
       try {
         Session hs  = HibernateHelper.getSession();
@@ -79,26 +83,30 @@ class Settings implements Serializable {
       }
     }
     if (_s == null) {
-      LOG.fatal(msg);
+      ErrorLog.fatal(Settings.class, msg);
       throw new RuntimeException(msg);
     }
     return _s;
   } // protected static Settings getSettings()
 
 
-  // Getters //
+  // GETTERS //
+  // @since 1.0
   protected String getId() {
     return this.id;
   }
+  // @since 1.0
   protected int getSchemaVersion() {
     return this.schemaVersion;
   }
 
 
-  // Setters //
+  // SETTERS //
+  // @since 1.0
   protected void setId(String id) {
     this.id = id;
   }
+  // @since 1.0
   protected void setSchemaVersion(int version) {
     this.schemaVersion = version;
   }

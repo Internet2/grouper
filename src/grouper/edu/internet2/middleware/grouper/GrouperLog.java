@@ -16,48 +16,30 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
 import  java.util.*;
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;
-
 
 /** 
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.12 2006-05-23 19:10:23 blair Exp $
- *     
-*/
-class GrouperLog implements Serializable {
+ * @version $Id: GrouperLog.java,v 1.13 2006-06-05 19:54:40 blair Exp $
+ */
+class GrouperLog {
 
-  // Protected Class Constants
+  // FIXME DEPRECATE!
+
+  // PROTECTED CLASS CONSTANTS //
   // TODO Move to _ErrorLog_
-  protected static final String ERR_CMGR  = "unable to get cache manager: ";
   protected static final String ERR_GRS   = "unable to start root session: ";
-  protected static final String MSG_EC    = "emptied cache ";
 
 
-  // Protected Class Methods
-
-  protected static void debug(Log log, GrouperSession s, String msg) {
-    log.debug( _formatMsg(s, msg) );
-  } // protected static void debug(log, s, msg)
-
-  protected static void error(Log log, GrouperSession s, String msg) {
-    log.error( _formatMsg(s, msg) );
-  } // protected static void error(log, s, msg)
-
-  protected static void fatal(Log log, GrouperSession s, String msg) {
-    log.fatal( _formatMsg(s, msg) );
-  } // protected static void fatal(log, s, msg)
-
+  // PROTECTED CLASS METHODS //
   protected static void info(Log log, GrouperSession s, String msg) {
-    log.info( _formatMsg(s, msg) );
+    log.info( LogHelper.formatMsg(s, msg) );
   } // protected static void info(log, s, msg)
 
   // For effective membership event logging
@@ -75,16 +57,5 @@ class GrouperLog implements Serializable {
   {
     log.info("[" + sessionToString + "] " + msg + " (" + sw.getTime() + "ms)");
   } // protected static void info(log, sessionToString, msg, sw)
-
-  protected static void warn(Log log, GrouperSession s, String msg) {
-    log.warn( _formatMsg(s, msg) );
-  } // protected static void warn(log, s, msg)
-
-
-  // Private Class Methods
-  private static String _formatMsg(GrouperSession s, String msg) {
-    return "[" + s.toString() + "] " + msg;
-  } // private static String _formatMsg(s, msg)
-
 } // protected class GrouperLog
 

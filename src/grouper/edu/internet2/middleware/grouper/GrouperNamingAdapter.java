@@ -16,12 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  org.apache.commons.logging.*;
 
 
 /** 
@@ -32,29 +29,22 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.37 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.38 2006-06-05 19:54:40 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
-  // Private Class Constants
-  private static final String ERR_GP    = "grantPriv: unable to grant priv: ";
-  private static final String ERR_MMNF  = "membership member not found: ";
-  private static final String ERR_MSNF  = "membership stem not found: ";
-  private static final String ERR_RP    = "revokePriv: unable to revoke priv: ";
-  private static final Log    LOG       = LogFactory.getLog(GrouperNamingAdapter.class);
-  private static final String MSG_GP    = "grantPriv: ";
-
-
-  // Private Class Variables
+  // PRIVATE CLASS VARIABLES //
   private static Map priv2list = new HashMap();
 
+
+  // STATIC //
   static {
     priv2list.put(  NamingPrivilege.CREATE, "creators"  );
     priv2list.put(  NamingPrivilege.STEM  , "stemmers"  );
   } // static
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Get all subjects with this privilege on this stem.
@@ -127,10 +117,12 @@ public class GrouperNamingAdapter implements NamingAdapter {
       }
     }
     catch (MemberNotFoundException eMNF) {
-      GrouperLog.error(LOG, s, ERR_MMNF + eMNF.getMessage());
+      String msg = E.GPA_MNF + eMNF.getMessage();
+      ErrorLog.error(GrouperNamingAdapter.class, msg);
     }
     catch (StemNotFoundException eSNF) {
-      GrouperLog.error(LOG, s, ERR_MSNF + eSNF.getMessage());
+      String msg = E.GNA_SNF + eSNF.getMessage();
+      ErrorLog.error(GrouperNamingAdapter.class, msg);
     }
     return stems;
   } // public Set getStemsWhereSubjectHasPriv(s, subj, priv)
@@ -162,14 +154,15 @@ public class GrouperNamingAdapter implements NamingAdapter {
       while (iterP.hasNext()) {
         Privilege p = (Privilege) iterP.next();
         Field     f = this._getField(p);   
-        Iterator  iterM = MembershipFinder.findMemberships(ns, m, f).iterator();
+        Iterator  iterM = MembershipFinder.findMembershipsNoPrivsNoSession(ns, m, f).iterator();
         privs.addAll( this._getPrivs(s, ns, subj, m, p, iterM) );
-        Iterator  iterA = MembershipFinder.findMemberships(ns, all, f).iterator();
+        Iterator  iterA = MembershipFinder.findMembershipsNoPrivsNoSession(ns, all, f).iterator();
         privs.addAll( this._getPrivs(s, ns, subj, all, p, iterA) );
       }
     }
     catch (MemberNotFoundException eMNF) {
-      GrouperLog.error(LOG, s, ERR_MMNF + eMNF.getMessage());
+      String msg = E.GPA_MNF + eMNF.getMessage();
+      ErrorLog.error(GrouperNamingAdapter.class, msg);
     }
     catch (SchemaException eS) {
       // Well, this is strange.  Ignore.
@@ -245,7 +238,8 @@ public class GrouperNamingAdapter implements NamingAdapter {
       rv = m.isMember(ns, this._getField(priv));
     }
     catch (MemberNotFoundException eMNF) {
-      LOG.error(ERR_MMNF + eMNF.getMessage());
+      String msg = E.GPA_MNF + eMNF.getMessage();
+      ErrorLog.error(GrouperNamingAdapter.class, msg);
     }
     return rv;
   } // public boolean hasPriv(s, ns, subj, priv) 
@@ -357,7 +351,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   } // public void revokePriv(s, ns, subj, priv)
 
   
-  // Private Instance Methods //
+  // PRIVATE INSTANCE METHODS //
   private Field _getField(Privilege priv) 
     throws  SchemaException
   {

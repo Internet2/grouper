@@ -16,28 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.util.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * Query by stem attribute.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemNameFilter.java,v 1.4 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: StemNameFilter.java,v 1.5 2006-06-05 19:54:40 blair Exp $
  */
 public class StemNameFilter extends BaseQueryFilter {
 
-  // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(StemNameFilter.class);
-
-  // Private Instance Variables //
+  // PRIVATE INSTANCE VARIABLES //
   private Stem    ns;
   private String  val;
 
 
-  // Constructors //
+  // CONSTRUCTORS //
 
   /**
    * {@link QueryFilter} that returns stems matching the specified
@@ -54,7 +48,7 @@ public class StemNameFilter extends BaseQueryFilter {
   } // public StemNameFilter(value, ns)
 
 
-  // Public Instance Methods //
+  // PUBLIC INSTANCE METHODS //
   public Set getResults(GrouperSession s) 
     throws QueryException
   {

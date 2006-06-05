@@ -16,31 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.13 2006-05-23 19:10:23 blair Exp $
- *     
+ * @version $Id: GroupType.java,v 1.14 2006-06-05 19:54:40 blair Exp $
  */
 public class GroupType implements Serializable {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL  = new EventLog();
-  private static final Log      LOG = LogFactory.getLog(GroupType.class);
 
 
-  // Hibernate Properties
+  // HIBERNATE PROPERTIES //
   private boolean assignable    = true;
   private Member  creator_id;
   private long    create_time;
@@ -50,12 +44,10 @@ public class GroupType implements Serializable {
   private String  name;
 
 
-  // Constructors
-
-  // For Hibernate
+  // CONSTRUCTORS //
   public GroupType() {
     super();
-  }
+  } // public GroupType()
 
   protected GroupType(String name, Set fields, boolean assignable, boolean internal) {
     this.setName(name);
@@ -65,7 +57,7 @@ public class GroupType implements Serializable {
   } // protected GroupType(name, fields, assignable, internal)
 
 
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   /*
    * Create a new {@link GroupType}.  
@@ -99,8 +91,8 @@ public class GroupType implements Serializable {
     StopWatch sw    = new StopWatch();
     sw.start();
     if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
-      String msg = "subject not privileged to add group types";
-      LOG.error(msg);
+      String msg = E.GROUPTYPE_NOADD;
+      ErrorLog.error(GroupType.class, msg);
       throw new InsufficientPrivilegeException(msg);
     }
     try {
@@ -111,8 +103,8 @@ public class GroupType implements Serializable {
       // Ignore
     } 
     if (type != null) {
-      String msg = "type already exists: " + name;
-      LOG.error(msg);
+      String msg = E.GROUPTYPE_EXISTS + name;
+      ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     }
     try {
@@ -125,13 +117,14 @@ public class GroupType implements Serializable {
       return type;
     }
     catch (HibernateException eH) {
-      String msg = "unable to add type: " + name + ": " + eH.getMessage();
-      LOG.error(msg);
+      String msg = E.GROUPTYPE_ADD + name + ": " + eH.getMessage();
+      ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg, eH);
     }
   } // public static GroupType createType(s, name)
 
-  // Public Instance Methods //
+
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Add a custom attribute {@link Field} to a custom {@link GroupType}.
@@ -249,13 +242,13 @@ public class GroupType implements Serializable {
         size = qry.list().size();
       }
       else {
-        String msg = "cannot delete field of type: " + f.getType().toString();
-        LOG.error(msg);
+        String msg = E.GROUPTYPE_FIELDNODELTYPE + f.getType().toString();
+        ErrorLog.error(GroupType.class, msg);
         throw new SchemaException(msg);
       }
       if (size > 0) {
-        String msg = "cannot field that is in use";
-        LOG.error(msg);
+        String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
+        ErrorLog.error(GroupType.class, msg);
         throw new SchemaException(msg);
       }
       // And now all validation complete, delete the field
@@ -267,14 +260,14 @@ public class GroupType implements Serializable {
         EL.groupTypeDelField(s, this.getName(), name, sw);
       }
       else {
-        String msg = "type unexpectedly does not have field";
-        LOG.error(msg);
+        String msg = E.GROUPTYPE_FIELDNODELMISS;
+        ErrorLog.error(GroupType.class, msg);
         throw new SchemaException(msg);
       }
     }
     catch (HibernateException eH) {
-      String msg = "cannot delete field: " + eH.getMessage();
-      LOG.error(msg);
+      String msg = E.GROUPTYPE_FIELDDEL + eH.getMessage();
+      ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg, eH);
     }
     finally {
@@ -285,7 +278,7 @@ public class GroupType implements Serializable {
         throw new SchemaException(eH.getMessage(), eH);
       }
     }
-  } // public void addField(s, name, type, read, write, required)
+  } // public void deleteField(s, name)
 
   public boolean equals(Object other) {
     if (this == other) {
@@ -335,7 +328,7 @@ public class GroupType implements Serializable {
   } // protected static boolean isSystemType(type)
 
 
-  // Private Instance Methods //
+  // PRIVATE INSTANCE METHODSs //
   private Field _addField(
       GrouperSession s, String name, FieldType type, Privilege read, 
       Privilege write, boolean required
@@ -362,14 +355,14 @@ public class GroupType implements Serializable {
       return f;
     }
     catch (HibernateException eS) {
-      String msg = "unable to add field: " + name + ": " + eS.getMessage();
-      LOG.error(msg);
+      String msg = E.GROUPTYPE_FIELDADD + name + ": " + eS.getMessage();
+      ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg, eS);
     }
   } // private void _addField(s, name, type, read, write, required)
 
 
-  // Getters //
+  // GETTERS //
   protected boolean getAssignable() {
     return this.assignable;
   }
@@ -401,7 +394,7 @@ public class GroupType implements Serializable {
   } // public String getName()
 
 
-  // Setters //
+  // SETTERS //
   private void setAssignable(boolean assignable) {
     this.assignable = assignable;
   }

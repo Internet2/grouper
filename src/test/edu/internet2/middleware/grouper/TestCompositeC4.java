@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeC4.java,v 1.1 2006-06-02 18:23:46 blair Exp $
+ * @version $Id: TestCompositeC4.java,v 1.2 2006-06-05 19:54:40 blair Exp $
  */
 public class TestCompositeC4 extends TestCase {
 
@@ -55,11 +55,11 @@ public class TestCompositeC4 extends TestCase {
       a.addCompositeMember(CompositeType.COMPLEMENT, b, c);
       try {
         a.addMember( r.getSubject("a") );
-        Assert.fail("FAIL: expected exception: " + GroupValidator.ERR_AMTC);
+        Assert.fail("FAIL: expected exception: " + E.GROUP_AMTC);
       }
       catch (MemberAddException eMA) {
         Assert.assertTrue("OK: cannot add member to composite mship", true);
-        T.string("error message", GroupValidator.ERR_AMTC, eMA.getMessage());
+        T.string("error message", E.GROUP_AMTC, eMA.getMessage());
       }
       finally {
         r.rs.stop();

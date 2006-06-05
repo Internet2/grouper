@@ -16,40 +16,51 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
 import  org.apache.commons.lang.builder.*;
 
-
 /** 
  * Custom {@link CompositeType} user type.
  * <p />
  * @author  blair christensen.
- * @version $Id: CompositeTypeUserType.java,v 1.2 2006-05-23 19:10:22 blair Exp $    
+ * @version $Id: CompositeTypeUserType.java,v 1.3 2006-06-05 19:54:40 blair Exp $    
+ * @since   1.0
  */
 public class CompositeTypeUserType implements UserType {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   private static final int[] SQL_TYPES = { Types.VARCHAR };
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
 
+  /**
+   * @since 1.0
+   */
   public Object deepCopy(Object value) {
     return value;
   } // public Object deepCopy(value)
 
+  /**
+   * @since 1.0
+   */
   public boolean equals(Object x, Object y) {
     return x == y;
   } // public boolean equals(x, y)
 
+  /**
+   * @since 1.0
+   */
   public boolean isMutable() {
     return false;
   } // public boolean isMutable()
 
+  /**
+   * @since 1.0
+   */
   public Object nullSafeGet(
     ResultSet resultSet, String[] types, Object owner
   )
@@ -59,6 +70,9 @@ public class CompositeTypeUserType implements UserType {
     return resultSet.wasNull() ? null : CompositeType.getInstance(type);
   } // public Object nullSafeGet(resultSet, types, owner)
      
+  /**
+   * @since 1.0
+   */
   public void nullSafeSet(
     PreparedStatement statement, Object value, int index
   ) 
@@ -72,10 +86,16 @@ public class CompositeTypeUserType implements UserType {
     }
   } // public void nullSafeSet(statement, value, index)
  
+  /**
+   * @since 1.0
+   */
   public Class returnedClass() {
     return CompositeType.class;
   } // public Class returnedClass()
   
+  /**
+   * @since 1.0
+   */
   public int[] sqlTypes() {
     return SQL_TYPES;
   } // public int[] sqlTypes()

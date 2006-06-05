@@ -16,30 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.20 2006-05-23 19:10:23 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.21 2006-06-05 19:54:40 blair Exp $    
  */
 public class RegistryInstall {
 
-  // Private Class Constants
-  private static final String ERR_IS  = "unable to install schema: ";
-  private static final String ERR_ISG = "unable to install base stems and groups: ";
-  private static final Log    LOG     = LogFactory.getLog(RegistryInstall.class);
-
-
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   public static void main(String[] args) {
     // Install group types, fields and privileges
@@ -48,7 +38,7 @@ public class RegistryInstall {
   } // public static void main(args)
 
 
-  // Private Class Methods
+  // PRIVATE CLASS METHODS //
   private static void _installFieldsAndTypes() {
     Set base_f    = new LinkedHashSet();
     Set fields    = new LinkedHashSet();
@@ -173,14 +163,14 @@ public class RegistryInstall {
       objects.add(settings);
       HibernateHelper.save(objects);
       hs.close();
-      LOG.info("set schema version   : " + settings.getSchemaVersion()  );
-      LOG.info("group types installed: " + types.size()                 );
-      LOG.info("fields installed     : " + fields.size()                );
+      EventLog.info("set schema version   : " + settings.getSchemaVersion()  );
+      EventLog.info("group types installed: " + types.size()                 );
+      EventLog.info("fields installed     : " + fields.size()                );
     }
     catch (HibernateException eH) {
-      String err = ERR_IS + eH.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eH);
+      String msg = E.RI_IS + eH.getMessage();
+      ErrorLog.fatal(RegistryInstall.class, msg);
+      throw new RuntimeException(msg, eH);
     }
   } // private static void _installFieldsAndTypes()
 
@@ -192,12 +182,12 @@ public class RegistryInstall {
         )
       );
       Stem  root    = Stem.addRootStem(s);
-      LOG.info("root stem installed");
+      EventLog.info(s, M.STEM_ROOTINSTALL);
     }
     catch (Exception e) { 
-      String err = ERR_ISG + e.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, e);
+      String msg = E.RI_ISG + e.getMessage();
+      ErrorLog.fatal(RegistryInstall.class, msg);
+      throw new RuntimeException(msg, e);
     }
   } // private static void _installGroupsAndStems()
 

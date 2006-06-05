@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel3.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestCompositeModel3.java,v 1.3 2006-06-05 19:54:40 blair Exp $
  */
 public class TestCompositeModel3 extends TestCase {
 
@@ -55,7 +55,7 @@ public class TestCompositeModel3 extends TestCase {
     }
     catch (ModelException eM) {
       Assert.assertTrue("OK: did not create composite with null right", true);
-      T.string("error message", CompositeValidator.ERR_R, eM.getMessage());
+      T.string("error message", E.COMP_R, eM.getMessage());
     }
     catch (Exception e) {
       Assert.fail("unexpected exception: " + e.getMessage());

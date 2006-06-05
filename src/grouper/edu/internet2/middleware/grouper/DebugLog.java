@@ -16,20 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
-import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;
 
+
 /** 
- * Grouper API error logging.
+ * Grouper API debug logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: ErrorLog.java,v 1.2 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: DebugLog.java,v 1.1 2006-06-05 19:54:40 blair Exp $
  * @since   1.0
  */
-class ErrorLog {
+class DebugLog {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Log LOG;
@@ -37,20 +34,15 @@ class ErrorLog {
 
   // STATIC
   static {
-    LOG = LogFactory.getLog(ErrorLog.class);
+    LOG = LogFactory.getLog(DebugLog.class);
   } // static
 
 
   // PROTECTED CLASS METHODS //
   // @since 1.0
-  protected static void error(Class c, String msg) {
-    LOG.error(LogHelper.formatClass(c) + msg);
-  } // protected static void error(c, msg)
-
-  // @since 1.0
-  protected static void fatal(Class c, String msg) {
-    LOG.fatal(LogHelper.formatClass(c) + msg);
-  } // protected static void fatal(c, msg)
+  protected static void info(Class c, String msg) {
+    LOG.info(msg);
+  } // protected static void info(msg)
 
 }
 

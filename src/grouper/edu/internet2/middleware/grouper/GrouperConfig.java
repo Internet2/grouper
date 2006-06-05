@@ -16,21 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.*;
 import  java.util.*;
 import  org.apache.commons.lang.*;
-import  org.apache.commons.logging.*;
 
 
 /** 
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.19 2006-05-30 16:26:51 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.20 2006-06-05 19:54:40 blair Exp $
  *     
-*/
+ */
 public class GrouperConfig {
+
+  // FIXME  Refactor!
+
 
   // PUBLIC CLASS CONSTANTS //
   
@@ -135,11 +136,6 @@ public class GrouperConfig {
   protected static final boolean  QRY_SF_FBU    = true;
 
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final String ERR_GC  = "unable to read grouper configuration file: ";
-  private static final Log    LOG     = LogFactory.getLog(GrouperConfig.class);
-
-
   // PRIVATE CLASS VARIABLES //
   private static GrouperConfig cfg;
 
@@ -192,9 +188,9 @@ public class GrouperConfig {
       cfg.properties.load(in);
     }
     catch (IOException eIO) {
-      String err = ERR_GC + eIO.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eIO);
+      String msg = E.CONFIG_READ + eIO.getMessage();
+      ErrorLog.fatal(GrouperConfig.class, msg);
+      throw new RuntimeException(msg, eIO);
     }
     return cfg;     
   } // private static GrouperConfig _getConfiguration()

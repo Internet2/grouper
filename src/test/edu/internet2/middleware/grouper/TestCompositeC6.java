@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeC6.java,v 1.1 2006-06-02 18:23:46 blair Exp $
+ * @version $Id: TestCompositeC6.java,v 1.2 2006-06-05 19:54:40 blair Exp $
  */
 public class TestCompositeC6 extends TestCase {
 
@@ -55,11 +55,11 @@ public class TestCompositeC6 extends TestCase {
       a.addMember( r.getSubject("a") );
       try {
         a.addCompositeMember(CompositeType.COMPLEMENT, b, c);
-        Assert.fail("FAIL: expected exception: " + GroupValidator.ERR_ACTM);
+        Assert.fail("FAIL: expected exception: " + E.GROUP_ACTM);
       }
       catch (MemberAddException eMA) {
         Assert.assertTrue("OK: cannot add composite member to group with mship", true);
-        T.string("error message", GroupValidator.ERR_ACTM, eMA.getMessage());
+        T.string("error message", E.GROUP_ACTM, eMA.getMessage());
       }
       finally {
         r.rs.stop();

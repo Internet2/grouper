@@ -16,25 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  org.apache.commons.logging.*;
-
 
 /**
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.9 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.10 2006-06-05 19:54:40 blair Exp $
  */
 class SubjectHelper {
 
-  // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(SubjectHelper.class);
-
-
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
 
   protected static boolean eq(Subject a, Subject b) {
     if ( (a == null) || (b == null) ) {

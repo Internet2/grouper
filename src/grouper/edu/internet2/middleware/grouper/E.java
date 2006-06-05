@@ -17,24 +17,90 @@
 
 package edu.internet2.middleware.grouper;
 
-import  org.apache.commons.logging.*;
-
-
-/* 
+/**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.1 2006-05-31 22:44:40 blair Exp $
+ * @version $Id: E.java,v 1.2 2006-06-05 19:54:40 blair Exp $
+ * @since   1.0
  */
 class E {
 
   // PROTECTED CLASS CONSTANTS //
-  protected static final String FIELD_NULL  = "null field";
-  protected static final String FIELD_TYPE  = "invalid field type: ";
-  protected static final String SUBJ_NULL   = "null subject";
-
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(E.class);
+  protected static final String ATTR_NULL                 = "empty attribute value";
+  protected static final String ATTR_COLON                = "value contains colon";
+  protected static final String CACHE                     = "cache error: ";
+  protected static final String CACHE_INIT                = "unable to get cache manager: ";
+  protected static final String CACHE_NOTFOUND            = "cache not found: ";
+  protected static final String COMP_CL                   = "left factor is owner";
+  protected static final String COMP_CR                   = "right factor is owner";
+  protected static final String COMP_L                    = "no composite left factor";
+  protected static final String COMP_LC                   = "composite left factor is not a group";
+  protected static final String COMP_LR                   = "same left and right composite factors";
+  protected static final String COMP_NOTOWNER             = "not a composite owner";
+  protected static final String COMP_O                    = "no composite owner";
+  protected static final String COMP_OC                   = "invalid owner class";
+  protected static final String COMP_R                    = "no composite right factor";
+  protected static final String COMP_RC                   = "composite right factor is not a group";
+  protected static final String COMP_T                    = "no composite type";
+  protected static final String COMP_UPDATE               = "unable to update composite membership: ";
+  protected static final String CONFIG_READ               = "unable to read grouper configuration file: ";
+  protected static final String EVENT_EFFADD              = "unable to log effective membership addition: ";
+  protected static final String EVENT_EFFDEL              = "unable to log effective membership deletion";
+  protected static final String EVENT_EFFOWNER            = "effective membership owner not found: ";
+  protected static final String EVENT_EFFSUBJ             = "effective membership subject not found: ";
+  protected static final String FIELD_FINDALL             = "unable to find all fields: ";
+  protected static final String FIELD_FINDTYPE            = "unable to find all fields by type: ";
+  protected static final String FIELD_NULL                = "null field";
+  protected static final String FIELD_REQNOTFOUND         = "required field not found: ";
+  protected static final String FIELD_TYPE                = "invalid field type: ";
+  protected static final String FILTER_SCOPE              = "class cannot be filtered by scope: ";
+  protected static final String GAA_GNF                   = "membership group not found: ";
+  protected static final String GNA_SNF                   = "membership stem not found: ";
+  protected static final String GPA_MNF                   = "membership member not found: ";
+  protected static final String GROUP_ACTC                = "cannot add composite membership to group with composite membership";
+  protected static final String GROUP_ACTM                = "cannot add composite membership to group with members";
+  protected static final String GROUP_AMTC                = "cannot add member to composite membership";
+  protected static final String GROUP_AV                  = "invalid attribute value";
+  protected static final String GROUP_COI                 = "cannot OPTIN";
+  protected static final String GROUP_COO                 = "cannot OPTOUT";
+  protected static final String GROUP_DCFC                = "cannot delete non-existent composite membership";
+  protected static final String GROUP_DCFM                = "cannot delete composite membership from group with members";
+  protected static final String GROUP_DMFC                = "cannot delete member from composite membership";
+  protected static final String GROUP_DRA                 = "cannot delete required attribute: ";
+  protected static final String GROUP_GT                  = "invalid group type: ";
+  protected static final String GROUP_NODEFAULTLIST       = "'members' list does not exist: ";
+  protected static final String GROUP_NOTFOUND            = "unable to find group";
+  protected static final String GROUP_SCHEMA              = "group schema error: ";
+  protected static final String GROUP_TYPEADD             = "unable to add type: ";
+  protected static final String GROUP_TYPEDEL             = "unable to delete type: ";
+  protected static final String GROUPTYPE_ADD             = "unable to add type: ";
+  protected static final String GROUPTYPE_EXISTS          = "type already exists: ";
+  protected static final String GROUPTYPE_FIELDADD        = "unable to add field: ";
+  protected static final String GROUPTYPE_FIELDDEL        = "cannot delete field: ";
+  protected static final String GROUPTYPE_FIELDNODELINUSE = "cannot delete field that is in use: ";
+  protected static final String GROUPTYPE_FIELDNODELMISS  = "type unexpectedly does not have field";
+  protected static final String GROUPTYPE_FIELDNODELTYPE  = "cannot delete field of type: ";
+  protected static final String GROUPTYPE_FINDALL         = "unable to find group types: ";
+  protected static final String GROUPTYPE_INVALID         = "invalid group type: ";
+  protected static final String GROUPTYPE_NOADD           = "subject not privileged to add group types";
+  protected static final String HIBERNATE                 = "hibernate error: ";
+  protected static final String MEMBER_SUBJNOTFOUND       = "unable to find member as subject: ";
+  protected static final String NI                        = "NOT IMPLEMENTED: ";
+  protected static final String Q_G                       = "getting groups from ";
+  protected static final String Q_M                       = "getting members from ";
+  protected static final String Q_MS                      = "getting memberships from ";
+  protected static final String Q_S                       = "getting stems from ";
+  protected static final String RI_IS                     = "unable to install schema: ";
+  protected static final String RI_ISG                    = "unable to install base stems and groups: ";
+  protected static final String SC_NOTFOUND               = "subject cache not found: ";
+  protected static final String SF_IAS                    = "unable to initialize ALL subject: ";
+  protected static final String SF_INIT                   = "failed to initialize source manager: ";
+  protected static final String SF_SNF                    = "subject not found: ";
+  protected static final String SF_SNU                    = "subject not unique: ";
+  protected static final String SETTINGS                  = "unable to retrieve settings: ";
+  protected static final String STEM_ROOTNOTFOUND         = "unable to find root stem";
+  protected static final String STEM_ROOTINSTALL          = "unable to install root stem: ";
+  protected static final String SUBJ_NULL                 = "null subject";
 
 }
 

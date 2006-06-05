@@ -16,32 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.36 2006-05-24 17:31:48 blair Exp $
+ * @version $Id: Member.java,v 1.37 2006-06-05 19:54:40 blair Exp $
  */
 public class Member implements Serializable {
 
-  // Private Class Constants
-  private static final String ERR_FNF = "field not found: ";
-  private static final String ERR_GDL = "members list does not exist: ";
-  private static final String ERR_SNF = "unable to find member as subject: ";
-  private static final Log    LOG     = LogFactory.getLog(Member.class);
-
-
-  // Hibernate Properties
+  // HIBERNATE PROPERTIES //
   private String  id;
   private String  subject_id;
   private String  subject_source;
@@ -49,11 +38,12 @@ public class Member implements Serializable {
   private String  uuid;
 
 
-  // Private Transient Instance Properties
+  // PRIVATE TRANSIENT INSTANCE PROPERTIES //
   private transient GrouperSession  s     = null;
   private transient Subject         subj  = null;
 
-  // Constructors
+
+  // CONSTRUCTORS //
 
   /**
    * Default constructor for Hibernate.
@@ -74,7 +64,7 @@ public class Member implements Serializable {
   } // protected Member()
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Get groups where this member has an effective membership.
@@ -114,9 +104,9 @@ public class Member implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getEffectiveMemberships()
 
@@ -200,9 +190,9 @@ public class Member implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getImmediateMemberships()
 
@@ -236,9 +226,9 @@ public class Member implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getMemberships()
 
@@ -278,7 +268,7 @@ public class Member implements Serializable {
       );
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } // public Set getPrivs(g)
@@ -299,7 +289,7 @@ public class Member implements Serializable {
       );
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } // public Set getPrivs(ns)
@@ -359,9 +349,9 @@ public class Member implements Serializable {
       return this.getSubject().getSource();
     }
     catch (SubjectNotFoundException eSNF) {
-      String err = ERR_SNF + eSNF.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eSNF);
+      String msg = E.MEMBER_SUBJNOTFOUND + eSNF.getMessage();
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eSNF);
     }
   } // public Source getSubjectSource()
 
@@ -428,12 +418,12 @@ public class Member implements Serializable {
       );
     }
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.ADMIN;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.ADMIN;
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } // public Set hasAdmin()
@@ -469,12 +459,12 @@ public class Member implements Serializable {
       );
     } 
     catch (SchemaException eS) { 
-      String err = ERR_FNF + NamingPrivilege.CREATE;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.CREATE;
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } // public Set hasCreate()
@@ -510,12 +500,12 @@ public class Member implements Serializable {
       );
     }
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.OPTIN;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTIN;
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } // public Set hasOptin()
@@ -551,12 +541,12 @@ public class Member implements Serializable {
       );
     }
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.OPTOUT;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTOUT;
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } // public Set hasOptout()
@@ -592,12 +582,12 @@ public class Member implements Serializable {
       );
     }
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.READ;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.READ;
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } // public Set hasRead()
@@ -633,12 +623,12 @@ public class Member implements Serializable {
       );
     }
     catch (SchemaException eS) { 
-      String err = ERR_FNF + NamingPrivilege.STEM;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.STEM;
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } // public Set hasStem()
@@ -673,12 +663,12 @@ public class Member implements Serializable {
       );
     }
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.UPDATE;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.UPDATE;
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } // public Set hasUpdate()
@@ -714,12 +704,12 @@ public class Member implements Serializable {
       );
     }
     catch (SchemaException eS) { 
-      String err = ERR_FNF + AccessPrivilege.VIEW;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.VIEW;
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } // public Set hasView()
@@ -756,9 +746,9 @@ public class Member implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public boolean isEffectiveMember(g);
 
@@ -785,7 +775,6 @@ public class Member implements Serializable {
     ) 
     {
       rv = true;
-      GrouperLog.debug(LOG, this.getSession(), msg + this + "': " + rv);
     }
     else if (
       MembershipFinder.findEffectiveMemberships(
@@ -795,10 +784,6 @@ public class Member implements Serializable {
     {
       // TODO I wonder about this.
       rv = true;
-      GrouperLog.debug(LOG, this.getSession(), msg + GrouperConfig.ALL + "': " + rv);
-    }
-    else {
-      GrouperLog.debug(LOG, this.getSession(), msg + this + "': " + rv);
     }
     return rv;
   } // public boolean isEffectiveMember(g, f)
@@ -820,9 +805,9 @@ public class Member implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public boolean isImmediateMember(g)
 
@@ -851,7 +836,6 @@ public class Member implements Serializable {
       try {
         MembershipFinder.findImmediateMembership(this.getSession(), g, subj, f);
         rv = true;
-        GrouperLog.debug(LOG, this.getSession(), msg + this + "': " + rv);
       }
       catch (MembershipNotFoundException eMNF) {
         try {
@@ -859,7 +843,6 @@ public class Member implements Serializable {
             g, MemberFinder.findAllMember(), f
           );
           rv = true;
-          GrouperLog.debug(LOG, this.getSession(), msg + GrouperConfig.ALL + "': " + rv);
         }
         catch (MembershipNotFoundException anotherMNF) {
           // ignore
@@ -868,9 +851,6 @@ public class Member implements Serializable {
     }
     catch (SubjectNotFoundException eSNF) {
       // TODO Well, this is unexpected.
-    }
-    if (rv == false) {
-      GrouperLog.debug(LOG, this.getSession(), msg + this + "': " + rv);
     }
     return rv;
   } // public boolean isImmediateMember(g, f)
@@ -892,9 +872,9 @@ public class Member implements Serializable {
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
-      String err = ERR_GDL + eS.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      ErrorLog.fatal(Member.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public boolean isMember(g)
 
@@ -941,12 +921,10 @@ public class Member implements Serializable {
       if (this.subject_source.equals(InternalSourceAdapter.ID)) {
         if (this.subject_id.equals(GrouperConfig.ROOT)) {
           String err = "cannot change root subject id";
-          GrouperLog.debug(LOG, s, err);
           throw new InsufficientPrivilegeException(err);
         }
         if (this.subject_id.equals(GrouperConfig.ALL)) {
           String err = "cannot change ALL subject id";
-          GrouperLog.debug(LOG, s, err);
           throw new InsufficientPrivilegeException(err);
         }
       }
@@ -963,12 +941,9 @@ public class Member implements Serializable {
       }
     }
     if (this.getSubject_id().equals(oid)) {
-      GrouperLog.debug(LOG, this.getSession(), err);
       throw new InsufficientPrivilegeException(err);
     }
-    GrouperLog.info(
-      LOG, this.getSession(), "changed subjectId for " + this.getUuid() + ": " + id
-    );
+    EventLog.info(this.getSession(), M.MEMBER_CHANGESID + this.getUuid() + ": " + id);
   } // public void setSubjectId(id)
 
   public String toString() {
@@ -1026,7 +1001,7 @@ public class Member implements Serializable {
   } // public Group toGroup()
 
 
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
 
   // Add a new Member to the Registry
   protected static Member addMember(Subject subj) 
@@ -1046,7 +1021,7 @@ public class Member implements Serializable {
   } // protected static Member addMember(subj)
 
 
-  // Protected Instance Methods
+  // PROTECTED INSTANCE METHODS //
  
   // Find *all* memberships for this member 
   // @filtered  no
@@ -1078,7 +1053,7 @@ public class Member implements Serializable {
   } // protected void setSubject(subj)
 
 
-  // Private Instance Methods
+  // PRIVATE INSTANCE METHODS //
   private boolean _hasPriv(Group g, Privilege priv) {
     boolean rv = false;
     try {
@@ -1087,7 +1062,7 @@ public class Member implements Serializable {
       );
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return rv;
   } // private boolean _hasPriv(g, priv)
@@ -1100,7 +1075,7 @@ public class Member implements Serializable {
       );
     }
     catch (SubjectNotFoundException eSNF) {
-      LOG.error(ERR_SNF + eSNF.getMessage());
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return rv;
   } // private boolean _hasPriv(ns, priv)
@@ -1109,12 +1084,12 @@ public class Member implements Serializable {
     throws  SchemaException
   {
     boolean rv  = false;
-    Set mships = MembershipFinder.findMemberships(o, this, f);
+    Set mships = MembershipFinder.findMembershipsNoPrivsNoSession(o, this, f);
     if (mships.size() > 0) {
       rv = true;
     }
     else {
-      mships = MembershipFinder.findMemberships(
+      mships = MembershipFinder.findMembershipsNoPrivsNoSession(
         o, MemberFinder.findAllMember(), f
       );
       if (mships.size() > 0) {
@@ -1125,45 +1100,38 @@ public class Member implements Serializable {
   } // private boolean _isMember(o, f);
 
 
-  // Hibernate Accessors
+  // GETTERS //
   // TODO Make private again
   protected String getId() {
     return this.id;
   } 
-
-  private void setId(String id) {
-    this.id = id;
-  }
-
   private String getMember_id() {
     return this.uuid;
   }
-
-  private void setMember_id(String uuid) {
-    this.uuid = uuid;
-  }
-
-
   private String getSubject_id() {
     return this.subject_id;
   }
-
-  private void setSubject_id(String subject_id) {
-    this.subject_id = subject_id;
-  }
-
   private String getSubject_source() {
     return this.subject_source;
   }
-
-  private void setSubject_source(String subject_source) {
-    this.subject_source = subject_source;
-  }
-
   private String getSubject_type() {
     return this.subject_type;
   }
 
+
+  // SETTERS //
+  private void setId(String id) {
+    this.id = id;
+  }
+  private void setMember_id(String uuid) {
+    this.uuid = uuid;
+  }
+  private void setSubject_id(String subject_id) {
+    this.subject_id = subject_id;
+  }
+  private void setSubject_source(String subject_source) {
+    this.subject_source = subject_source;
+  }
   private void setSubject_type(String subject_type) {
     this.subject_type = subject_type;
   }

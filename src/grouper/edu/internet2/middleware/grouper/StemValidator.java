@@ -16,26 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
-import  org.apache.commons.logging.*;
 
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: StemValidator.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @since   1.0
  */
 class StemValidator implements Serializable {
 
-  // Protected Class Constants //
-  protected static final String ERR_FT  = "invalid field type: ";
+  // PROTECTED CLASS METHODS //
 
-  // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(StemValidator.class);
-
-  // Protected Class Methods //
+  // @since 1.0
   protected static void canWriteField(
     GrouperSession s, Stem ns, Subject subj, Field f, FieldType type
   )
@@ -45,7 +40,7 @@ class StemValidator implements Serializable {
     // FIXME Can I remove s?
     // Validate the field type
     if (!f.getType().equals(type)) {
-      throw new SchemaException(ERR_FT + f.getType());
+      throw new SchemaException(E.FIELD_TYPE + f.getType());
     }  
     // FIXME Should this be internalized?
     PrivilegeResolver.getInstance().canPrivDispatch(

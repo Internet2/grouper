@@ -16,44 +16,30 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.io.Serializable;
 import  java.util.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * Perform arbitrary queries against the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.9 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.10 2006-06-05 19:54:40 blair Exp $
  */
 public class GrouperQuery implements Serializable {
 
-  // Private Class Constants
-  private static final String ERR_G   = "getting groups from ";
-  private static final String ERR_M   = "getting members from ";
-  private static final String ERR_MS  = "getting memberships from ";
-  private static final String ERR_S   = "getting stems from ";
-  private static final String ERR_NI  = "not implemented: ";
-  private static final Log    LOG     = LogFactory.getLog(GrouperQuery.class);
-
-
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIABLES //
   private GrouperSession  s;
   private QueryFilter     filter;
 
 
-  // Constructors
-
+  // CONSTRUCTORS //
   private GrouperQuery(GrouperSession s, QueryFilter filter) {
     this.s      = s;
     this.filter = filter;
   } // private GrouperQuery(s, filter)
 
 
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   /**
    * Query the Groups Registry.
@@ -96,7 +82,7 @@ public class GrouperQuery implements Serializable {
   } // public static GrouperQuery createQuery(s, filter)
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Get groups matching query filter.
@@ -125,7 +111,7 @@ public class GrouperQuery implements Serializable {
         // Nothing
       }
       else {
-        LOG.error(ERR_NI + ERR_G + o.getClass());
+        ErrorLog.error(GrouperQuery.class, E.NI + E.Q_G + o.getClass());
       }
     }
     return groups;
@@ -154,7 +140,7 @@ public class GrouperQuery implements Serializable {
         // Nothing
       }
       else {
-        LOG.error(ERR_NI + ERR_M + o.getClass());
+        ErrorLog.error(GrouperQuery.class, E.NI + E.Q_M + o.getClass());
       }
     }
     // Now extract members from any memberships we found
@@ -195,7 +181,7 @@ public class GrouperQuery implements Serializable {
         // Nothing
       }
       else {
-        LOG.error(ERR_NI + ERR_MS + o.getClass());
+        ErrorLog.error(GrouperQuery.class, E.NI + E.Q_MS + o.getClass());
       }
     }
     return mships;
@@ -226,7 +212,7 @@ public class GrouperQuery implements Serializable {
         stems.add( (Stem) o );
       }
       else {
-        LOG.error(ERR_NI + ERR_S + o.getClass());
+        ErrorLog.error(GrouperQuery.class, E.NI + E.Q_S + o.getClass());
       }
     }
     return stems;

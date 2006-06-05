@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.31 2006-05-24 17:31:48 blair Exp $
+ * @version $Id: Membership.java,v 1.32 2006-06-05 19:54:40 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -173,7 +173,6 @@ public class Membership implements Serializable {
     Member m = this.getMember_id();
     if (m == null) {
       String msg = "unable to get member";
-      GrouperLog.debug(LOG, this.getSession(), msg);
       throw new MemberNotFoundException(msg);
     }
     m.setSession(this.getSession());
@@ -424,7 +423,6 @@ public class Membership implements Serializable {
       eff.setVia_id(  hasMS.getVia_id()             );  // hasMember m was effective
     } 
     eff.setParent_membership(ms);                       // ms is parent membership
-    GrouperLog.debug(LOG, s, "newEffectiveMembership: " + eff);
     return eff;       
   } // protected static Membership newEffectiveMembership(s, ms, hasMS)
 

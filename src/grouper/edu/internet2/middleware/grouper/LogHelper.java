@@ -16,41 +16,36 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
-import  org.apache.commons.lang.time.*;
-import  org.apache.commons.logging.*;
 
 /** 
- * Grouper API error logging.
+ * Grouper log helper class.
  * <p />
  * @author  blair christensen.
- * @version $Id: ErrorLog.java,v 1.2 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: LogHelper.java,v 1.1 2006-06-05 19:54:40 blair Exp $
  * @since   1.0
  */
-class ErrorLog {
+class LogHelper {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG;
-
-
-  // STATIC
-  static {
-    LOG = LogFactory.getLog(ErrorLog.class);
-  } // static
+  private static final String OPEN  = "[";
+  private static final String CLOSE = "] ";
 
 
   // PROTECTED CLASS METHODS //
   // @since 1.0
-  protected static void error(Class c, String msg) {
-    LOG.error(LogHelper.formatClass(c) + msg);
-  } // protected static void error(c, msg)
+  protected static String formatClass(Class c) {
+    return OPEN + c.getName() + CLOSE;
+  } // protected static String formatClass(c)
 
   // @since 1.0
-  protected static void fatal(Class c, String msg) {
-    LOG.fatal(LogHelper.formatClass(c) + msg);
-  } // protected static void fatal(c, msg)
+  protected static String formatMsg(GrouperSession s, String msg) {
+    return formatSession(s) + msg;
+  } // protected static String formatMsg(s, msg)
+
+  // @since 1.0
+  protected static String formatSession(GrouperSession s) {
+    return OPEN + s.toString() + CLOSE;
+  } // protected static String formatSession(s)
 
 }
 

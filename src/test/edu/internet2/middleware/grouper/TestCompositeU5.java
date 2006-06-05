@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU5.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestCompositeU5.java,v 1.3 2006-06-05 19:54:40 blair Exp $
  */
 public class TestCompositeU5 extends TestCase {
 
@@ -55,11 +55,11 @@ public class TestCompositeU5 extends TestCase {
       a.addCompositeMember(CompositeType.UNION, b, c);
       try {
         a.deleteMember( r.getSubject("a") );
-        Assert.fail("FAIL: expected exception: " + GroupValidator.ERR_DMFC);
+        Assert.fail("FAIL: expected exception: " + E.GROUP_DMFC);
       }
       catch (MemberDeleteException eMD) {
         Assert.assertTrue("OK: cannot del member from composite mship", true);
-        T.string("error message", GroupValidator.ERR_DMFC, eMD.getMessage());
+        T.string("error message", E.GROUP_DMFC, eMD.getMessage());
       }
       finally {
         r.rs.stop();

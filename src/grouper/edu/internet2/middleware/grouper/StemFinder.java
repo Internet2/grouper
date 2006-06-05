@@ -16,28 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
-import  org.apache.commons.logging.*;
-
 
 /**
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.16 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: StemFinder.java,v 1.17 2006-06-05 19:54:40 blair Exp $
  */
 public class StemFinder {
 
-  // Private Class Constants
-  private static final String ERR_FRS = "unable to find root stem";
-  private static final Log    LOG     = LogFactory.getLog(StemFinder.class);
-
-
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   /**
    * Find stem by name.
@@ -105,8 +96,9 @@ public class StemFinder {
       return StemFinder.findByName(s, Stem.ROOT_INT);
     }
     catch (StemNotFoundException eSNF) {
-      GrouperLog.fatal(LOG, s, ERR_FRS);
-      throw new RuntimeException(ERR_FRS, eSNF);
+      String msg = E.STEM_ROOTNOTFOUND;
+      ErrorLog.fatal(StemFinder.class, msg);
+      throw new RuntimeException(msg, eSNF);
     }
   } // public static Stem findRootStem(s)
 
@@ -136,7 +128,7 @@ public class StemFinder {
   } // public static Stem findByUuid(s, uuid)
 
 
-  // Protected Class Methods //
+  // PROTECTED CLASS METHODS //
   protected static Set findByApproximateDisplayExtension(GrouperSession s, String val) 
     throws  QueryException
   {

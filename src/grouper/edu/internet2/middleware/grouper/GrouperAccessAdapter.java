@@ -16,12 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  org.apache.commons.logging.*;
 
 
 /** 
@@ -32,23 +29,15 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.37 2006-05-31 22:44:40 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.38 2006-06-05 19:54:40 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
-  // Private Class Constants
-  private static final String ERR_GP    = "unable to grant priv: ";
-  private static final String ERR_MGNF  = "membership group not found: ";
-  private static final String ERR_MMNF  = "membership member not found: ";
-  private static final String ERR_RP    = "unable to revoke priv: ";
-  private static final Log    LOG       = LogFactory.getLog(GrouperAccessAdapter.class);
-  private static final String MSG_GP    = "grant priv ";
-  private static final String MSG_RP    = "revoke priv ";
-
-
-  // Private Class Variables
+  // PRIVATE CLASS VARIABLES //
   private static Map priv2list = new HashMap();
 
+
+  // STATIC //
   static {
     priv2list.put(  AccessPrivilege.ADMIN , "admins"    );
     priv2list.put(  AccessPrivilege.OPTIN , "optins"    );
@@ -58,7 +47,8 @@ public class GrouperAccessAdapter implements AccessAdapter {
     priv2list.put(  AccessPrivilege.VIEW  , "viewers"   );
   } // static
 
-  // Public Instance Methods
+
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Get all subjects with this privilege on this group.
@@ -133,10 +123,12 @@ public class GrouperAccessAdapter implements AccessAdapter {
       }
     }
     catch (GroupNotFoundException eGNF) {
-      LOG.error(ERR_MGNF + eGNF.getMessage());
+      String msg = E.GAA_GNF + eGNF.getMessage();
+      ErrorLog.error(GrouperAccessAdapter.class, msg);
     }
     catch (MemberNotFoundException eMNF) {
-      LOG.error(ERR_MMNF + eMNF.getMessage());
+      String msg = E.GPA_MNF + eMNF.getMessage();
+      ErrorLog.error(GrouperAccessAdapter.class, msg);
     }
     return groups;
   } // public Set getGroupsWhereSubjectHasPriv(s, subj, priv)
@@ -161,14 +153,15 @@ public class GrouperAccessAdapter implements AccessAdapter {
       while (iterP.hasNext()) {
         Privilege p = (Privilege) iterP.next();
         Field     f = this._getField(p);   
-        Iterator  iterM = MembershipFinder.findMemberships(g, m, f).iterator();
+        Iterator  iterM = MembershipFinder.findMembershipsNoPrivsNoSession(g, m, f).iterator();
         privs.addAll( this._getPrivs(s, g, subj, m, p, iterM) );
-        Iterator  iterA = MembershipFinder.findMemberships(g, all, f).iterator();
+        Iterator  iterA = MembershipFinder.findMembershipsNoPrivsNoSession(g, all, f).iterator();
         privs.addAll( this._getPrivs(s, g, subj, all, p, iterA) );
       }
     }
     catch (MemberNotFoundException eMNF) {
-      GrouperLog.error(LOG, s, ERR_MMNF + eMNF.getMessage());
+      String msg = E.GPA_MNF + eMNF.getMessage();
+      ErrorLog.error(GrouperAccessAdapter.class, msg);
     }
     catch (SchemaException eS) {
       // Well, this is strange.  Ignore.
@@ -245,7 +238,8 @@ public class GrouperAccessAdapter implements AccessAdapter {
       rv = m.isMember(g, this._getField(priv));
     }
     catch (MemberNotFoundException eMNF) {
-      LOG.error(ERR_MMNF + eMNF.getMessage());
+      String msg = E.GPA_MNF + eMNF.getMessage();
+      ErrorLog.error(GrouperAccessAdapter.class, msg);
     }
     return rv;
   } // public boolean hasPriv(s, g, subj, priv)
@@ -359,7 +353,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   } // public void revokePriv(s, g, subj, priv)
 
 
-  // Private Instance Methods
+  // PRIVATE INSTANCE METHODS //
   private Field _getField(Privilege priv) 
     throws  SchemaException
   {

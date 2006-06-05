@@ -16,43 +16,36 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.regex.*;
-import  org.apache.commons.logging.*;
 
 
 /** 
  * @author  blair christensen.
- * @version $Id: AttributeValidator.java,v 1.2 2006-05-23 19:10:22 blair Exp $
+ * @version $Id: AttributeValidator.java,v 1.3 2006-06-05 19:54:40 blair Exp $
  */
 class AttributeValidator implements Serializable {
 
-  // Protected Class Constants //
-  protected static final String ERR_AV  = "empty attribute value";
-  protected static final String ERR_VCC = "value contains colon";
-
-  // Private Class Constants //
-  private static final Log      LOG       = LogFactory.getLog(AttributeValidator.class);
+  // PRIVATE CLASS CONSTANTS //
   private static final Pattern  RE_COLON  = Pattern.compile(":");
   private static final Pattern  RE_WS     = Pattern.compile("^\\s*$");
 
-  // Protected Class Methods //
+  // PROTECTED CLASS METHODS //
   protected static void namingValue(String value)
     throws  ModelException
   {
     if (value == null) {
-      throw new ModelException(ERR_AV);
+      throw new ModelException(E.ATTR_NULL);
     }
     Matcher m = RE_COLON.matcher(value);
     if (m.find()) {
-      throw new ModelException(ERR_VCC);
+      throw new ModelException(E.ATTR_COLON);
     }
     m = RE_WS.matcher(value);
     if (m.find()) {
-      throw new ModelException(ERR_AV);
+      throw new ModelException(E.ATTR_NULL);
     }
   } // protected static void namingValue(value)
     

@@ -16,34 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.Serializable;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.2 2006-05-23 19:10:22 blair Exp $
- *     
-*/
+ * @version $Id: CompositeValidator.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @since   1.0
+ */
 class CompositeValidator implements Serializable {
 
-  // Protected Class Constants //
-  protected static final String ERR_CL  = "left factor is owner";
-  protected static final String ERR_CR  = "right factor is owner";
-  protected static final String ERR_L   = "no composite left factor";
-  protected static final String ERR_LC  = "composite left factor is not a group";
-  protected static final String ERR_LR  = "same left and right composite factors";
-  protected static final String ERR_O   = "no composite owner";
-  protected static final String ERR_OC  = "invalid owner class";
-  protected static final String ERR_R   = "no composite right factor";
-  protected static final String ERR_RC  = "composite right factor is not a group";
-  protected static final String ERR_T   = "no composite type";
+  // PROTECTED CLASS METHODS //
 
-  // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(CompositeValidator.class);
-
-  // Protected Class Methods //
+  // @since 1.0
   protected static void validate(Composite c) 
     throws  ModelException
   {
@@ -53,34 +37,34 @@ class CompositeValidator implements Serializable {
     Owner l = c.getLeft();
     Owner r = c.getRight();
     if (o == null) {
-      throw new ModelException(ERR_O);
+      throw new ModelException(E.COMP_O);
     }
     if (! ( (o instanceof Group) || (o instanceof Stem) ) ) {
-      throw new ModelException(ERR_OC);
+      throw new ModelException(E.COMP_OC);
     }
     if (l == null) {
-      throw new ModelException(ERR_L);
+      throw new ModelException(E.COMP_L);
     }
     if (!(l instanceof Group)) {
-      throw new ModelException(ERR_LC);
+      throw new ModelException(E.COMP_LC);
     }
     if (r == null) {
-      throw new ModelException(ERR_R);
+      throw new ModelException(E.COMP_R);
     }
     if (!(r instanceof Group)) {
-      throw new ModelException(ERR_RC);
+      throw new ModelException(E.COMP_RC);
     }
     if (l.equals(r)) {
-      throw new ModelException(ERR_LR);
+      throw new ModelException(E.COMP_LR);
     }
     if (o.equals(l)) {
-      throw new ModelException(ERR_CL);
+      throw new ModelException(E.COMP_CL);
     }
     if (o.equals(r)) {
-      throw new ModelException(ERR_CR);
+      throw new ModelException(E.COMP_CR);
     }
     if (c.getType() == null) {
-      throw new ModelException(ERR_T);
+      throw new ModelException(E.COMP_T);
     }
   } // protected static void validate(Composite c)
   
