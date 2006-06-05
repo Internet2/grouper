@@ -16,28 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
-import  org.apache.commons.logging.*;
 
 
 /**
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.12 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.13 2006-06-05 19:54:40 blair Exp $
  */
 public class GroupFinder {
 
-  // Private Class Constants
-  private static final String ERR_GNF = "unable to find group";
-  private static final Log    LOG     = LogFactory.getLog(GroupFinder.class);
-
-
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Find a group within the registry by name.
@@ -58,24 +50,20 @@ public class GroupFinder {
     throws GroupNotFoundException
   {
     GrouperSession.validate(s);
-    String msg = "findByName '" + name + "'";
-    GrouperLog.debug(LOG, s, msg);
     Group g = findByName(name);
-    GrouperLog.debug(LOG, s, msg + ": found");
     // Attach root session for VIEW check
     // TODO What problems might this cause?
     g.setSession(GrouperSessionFinder.getRootSession());
     try {
       PrivilegeResolver.getInstance().canVIEW(s, g, s.getSubject());
-      GrouperLog.debug(LOG, s, msg + ": visible");
       // Now attach proper session
       g.setSession(s);
       return g;
     }
     catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, s, msg + ": not visible");
+      // TODO
     }  
-    throw new GroupNotFoundException(ERR_GNF + " by name: " + name);
+    throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
   } // public static Group findByName(s, name)
 
   /**
@@ -110,11 +98,11 @@ public class GroupFinder {
     catch (InsufficientPrivilegeException eIP) {
       // Ignore
     }  
-    throw new GroupNotFoundException(ERR_GNF + " by uuid: " + uuid);
+    throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
   } // public static Group findByUuid(s, uuid)
 
 
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
 
   // @return  groups created after this date
   protected static Set findByCreatedAfter(GrouperSession s, Date d) 
@@ -291,19 +279,19 @@ public class GroupFinder {
       }
       hs.close();
       if (g == null) {
-        throw new GroupNotFoundException(ERR_GNF + " by name: " + name);
+        throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
       }
       return g; 
     }
     catch (HibernateException eH) {
       throw new GroupNotFoundException(
-        ERR_GNF + " by name: " + name + "(" + eH.getMessage() + ")", eH
+        E.GROUP_NOTFOUND + " by name: " + name + "(" + eH.getMessage() + ")", eH
       );
     }
   } // protected static Group findByName(name)
 
 
-  // Private Class Methods
+  // PRIVATE CLASS METHODS //
   private static Group _findByUuid(String uuid)
     throws  GroupNotFoundException
   {
@@ -322,13 +310,13 @@ public class GroupFinder {
       }
       hs.close();
       if (g == null) {
-        throw new GroupNotFoundException(ERR_GNF + " by uuid: " + uuid);
+        throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
       }
       return g; 
     }
     catch (HibernateException eH) {
       throw new GroupNotFoundException(
-        ERR_GNF + " by uuid: " + uuid + "(" + eH.getMessage() + ")", eH
+        E.GROUP_NOTFOUND + " by uuid: " + uuid + "(" + eH.getMessage() + ")", eH
       );  
     }
   } // private static Group _findByUuid(uuid)

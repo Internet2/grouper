@@ -16,8 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
@@ -25,42 +23,37 @@ import  net.sf.ehcache.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.logging.*;
 
-
 /** 
  * Privilege cache provider.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.4 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: PrivilegeCache.java,v 1.5 2006-06-05 19:54:40 blair Exp $
  *     
-*/
+ */
 class PrivilegeCache {
 
-  // Protected Class Constants
+  // PROTECTED CLASS CONSTANTS //
   protected static final String ACCESS  = "edu.internet2.middleware.grouper.PrivilegeCache.Access";
   protected static final String NAMING  = "edu.internet2.middleware.grouper.PrivilegeCache.Naming";
 
 
-  // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(PrivilegeCache.class);
-
-
-  // Private Class Variables
+  // PRIVATE CLASS VARABLES //
   private static Map caches = new HashMap();
 
 
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIABLES //
   private Cache   cache;
   private String  name;
 
 
-  // Constructors
+  // CONSTRUCTORS //
   private PrivilegeCache(Cache cache) {
     this.name   = cache.getName();
     this.cache  = cache;
   } // private PrivilegeCache()
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
   public String toString() {
     return new ToStringBuilder(this)
       .append("name"  , this.name   )
@@ -69,9 +62,7 @@ class PrivilegeCache {
   } // public String toString()
 
 
-  // Hibernate Accessors
-
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
   protected static PrivilegeCache getCache(String name) 
     throws  RuntimeException
   {
@@ -87,14 +78,14 @@ class PrivilegeCache {
   } // protected static PrivilegeCache getCache(name)
 
 
-  // Protected Instance Methods
+  // PROTECTED INSTANCE METHODS //
   protected Element get(Group g, Subject subj, Privilege p) {
     try {
       Element el= this.cache.get( this._getKey(g, subj, p) );
       return el;
     }
     catch (CacheException eC) { 
-      LOG.error(eC.getMessage());
+      ErrorLog.error(PrivilegeCache.class, E.CACHE + eC.getMessage());
       return null;
     }
   } // protected Element get(g, subj, p)
@@ -105,7 +96,7 @@ class PrivilegeCache {
       return el;
     }
     catch (CacheException eC) {
-      LOG.error(eC.getMessage());
+      ErrorLog.error(PrivilegeCache.class, E.CACHE + eC.getMessage());
       return null;
     }
   } // protected Element get(ns, subj, p)
@@ -130,11 +121,12 @@ class PrivilegeCache {
     int size = this.cache.getSize();
     if (size > 0) {
       this.cache.removeAll();
-      LOG.info(GrouperLog.MSG_EC + this.name + ": " + size);
+      DebugLog.info(PrivilegeCache.class, M.CACHE_EMPTIED + this.name + ": " + size);
     }
   } // protected void removeAll() 
 
-  // Private Instance Methods
+
+  // PRIVATE INSTANCE METHODS //
   private String _getKey(Group g, Subject subj, Privilege p) {
     return this._getKey(g.getUuid(), subj, p);
   } // private String _getKey(g, subj, p)

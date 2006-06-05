@@ -16,10 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  org.apache.commons.logging.*;
 
 
 /**
@@ -30,13 +28,12 @@ import  org.apache.commons.logging.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.25 2006-05-26 17:15:13 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.26 2006-06-05 19:54:40 blair Exp $
  */
 public class RegistryReset {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log    LOG         = LogFactory.getLog(RegistryReset.class);
-  private static final String SUBJ_TYPE   = "person"; 
+  private static final String SUBJ_TYPE = "person"; 
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -125,10 +122,10 @@ public class RegistryReset {
     CacheMgr.resetAllCaches();  // TODO ???
   } // private void _addSubjects()
 
-  private void _abort(String err) {
-    LOG.fatal(err);
-    throw new RuntimeException(err);
-  } // private void _abort(err)
+  private void _abort(String msg) {
+    ErrorLog.error(RegistryReset.class, msg);
+    throw new RuntimeException(msg);
+  } // private void _abort(msg)
 
   private void _emptyTables() 
     throws  HibernateException

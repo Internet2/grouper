@@ -16,36 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.3 2006-05-31 22:44:40 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.4 2006-06-05 19:54:40 blair Exp $
+ * @since   1.0
  */
 class GroupValidator implements Serializable {
 
-  // Protected Class Constants //
-  protected static final String ERR_ACTC  = "cannot add composite membership to group with composite membership";
-  protected static final String ERR_ACTM  = "cannot add composite membership to group with members";
-  protected static final String ERR_AMTC  = "cannot add member to composite membership";
-  protected static final String ERR_COI   = "cannot OPTIN";
-  protected static final String ERR_COO   = "cannot OPTOUT";
-  protected static final String ERR_DCFC  = "cannot delete non-existent composite membership";
-  protected static final String ERR_DCFM  = "cannot delete composite membership from group with members";
-  protected static final String ERR_DMFC  = "cannot delete member from composite membership";
-  protected static final String ERR_DRA   = "cannot delete required attribute: ";
-  protected static final String ERR_GT    = "invalid group type: ";
-  protected static final String ERR_AV    = "invalid attribute value";
+  // PROTECTED CLASS METHODS //
 
-  // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(GroupValidator.class);
-
-  // Protected Class Methods //
+  // @since 1.0
   protected static void canAddCompositeMember(Group g, Composite c)
     throws  InsufficientPrivilegeException,
             ModelException,
@@ -55,13 +39,14 @@ class GroupValidator implements Serializable {
     isTypeEqual(f, FieldType.LIST);
     canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
     if (g.hasComposite()) {
-      throw new ModelException(ERR_ACTC); // TODO TEST!
+      throw new ModelException(E.GROUP_ACTC); // TODO TEST!
     }
     if (g.getMembers().size() > 0) {
-      throw new ModelException(ERR_ACTM); // TODO ModelException
+      throw new ModelException(E.GROUP_ACTM); // TODO ModelException
     }
   } // protected static void canAddCompositeMember(g, c)
 
+  // @since 1.0
   protected static void canAddMember(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
             MemberAddException,
@@ -81,21 +66,23 @@ class GroupValidator implements Serializable {
       }
     }
     if ( (f.equals(Group.getDefaultList())) && (g.hasComposite()) ) {
-      throw new MemberAddException(ERR_AMTC); // TODO ModelException
+      throw new MemberAddException(E.GROUP_AMTC); // TODO ModelException
     }
   } // protected static void canAddMember(g, subj, f)
 
+  // @since 1.0
   protected static void canDelAttribute(Group g, Field f) 
     throws  InsufficientPrivilegeException,
             ModelException,
             SchemaException
   {
     if (f.getRequired()) {
-      throw new ModelException(ERR_DRA + f.getName());
+      throw new ModelException(E.GROUP_DRA + f.getName());
     }
     canModAttribute(g, f);
   } // protected static void canDelAttribute(g, f, value)
 
+  // @since 1.0
   protected static void canDelCompositeMember(Group g)
     throws  InsufficientPrivilegeException,
             ModelException,
@@ -105,10 +92,11 @@ class GroupValidator implements Serializable {
     isTypeEqual(f, FieldType.LIST); // TODO Why do I bother?
     canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
     if (!g.hasComposite()) {
-      throw new ModelException(ERR_DCFC); 
+      throw new ModelException(E.GROUP_DCFC); 
     }
   } // protected static void canDelCompositeMember(g)
 
+  // @since 1.0
   protected static void canDelMember(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
             MemberDeleteException,
@@ -128,10 +116,11 @@ class GroupValidator implements Serializable {
       }
     }
     if ( (f.equals(Group.getDefaultList())) && (g.hasComposite()) ) {
-      throw new MemberDeleteException(ERR_DMFC); // TODO ModelException
+      throw new MemberDeleteException(E.GROUP_DMFC); // TODO ModelException
     }
   } // protected static void canDelMember(g, subj, f)
 
+  // @since 1.0
   protected static void canModAttribute(Group g, Field f) 
     throws  InsufficientPrivilegeException,
             SchemaException
@@ -140,6 +129,7 @@ class GroupValidator implements Serializable {
     canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
   } // protected static void canModAttribute(g, f)
 
+  // @since 1.0
   protected static void canOptin(Group g, Subject subj, Field f) 
     throws  InsufficientPrivilegeException
   {
@@ -148,12 +138,13 @@ class GroupValidator implements Serializable {
       && f.equals(Group.getDefaultList()) 
     )
     {
-      throw new InsufficientPrivilegeException(ERR_COI);
+      throw new InsufficientPrivilegeException(E.GROUP_COI);
     } 
     // FIXME Refactor
     PrivilegeResolver.getInstance().canOPTIN(g.getSession(), g, subj);
   } // protected static void canOptin(g, subj, f)
 
+  // @since 1.0
   protected static void canOptout(Group g, Subject subj, Field f) 
     throws  InsufficientPrivilegeException
   {
@@ -162,7 +153,7 @@ class GroupValidator implements Serializable {
       && f.equals(Group.getDefaultList()) 
     )
     {
-      throw new InsufficientPrivilegeException(ERR_COO);
+      throw new InsufficientPrivilegeException(E.GROUP_COO);
     } 
     // FIXME Refactor
     PrivilegeResolver.getInstance().canOPTOUT(g.getSession(), g, subj);
@@ -178,7 +169,7 @@ class GroupValidator implements Serializable {
     // FIXME Can I remove s?
     // Validate that this group has the proper group type for this field
     if (!g.hasType( f.getGroupType() ) ) {
-      throw new SchemaException(ERR_GT + f.getGroupType().toString());
+      throw new SchemaException(E.GROUP_GT + f.getGroupType().toString());
     }
     // FIXME Should this be internalized?
     PrivilegeResolver.getInstance().canPrivDispatch(
@@ -186,13 +177,14 @@ class GroupValidator implements Serializable {
     );
   } // protected static void canReadField(s, g, subj, f)
 
+  // @since 1.0
   protected static void canSetAttribute(Group g, Field f, String value) 
     throws  InsufficientPrivilegeException,
             ModelException,
             SchemaException
   {
     if ( (value == null) || (value.equals("")) ) {
-      throw new ModelException(ERR_AV);
+      throw new ModelException(E.GROUP_AV);
     }
     if (f.getName().equals("displayExtension")) {
       AttributeValidator.namingValue(value);
@@ -213,7 +205,7 @@ class GroupValidator implements Serializable {
     // FIXME Can I remove s?
     // Validate that this group has the proper group type for this field
     if (!g.hasType( f.getGroupType() ) ) {
-      throw new SchemaException(ERR_GT + f.getGroupType().toString());
+      throw new SchemaException(E.GROUP_GT + f.getGroupType().toString());
     }
     // FIXME Should this be internalized?
     PrivilegeResolver.getInstance().canPrivDispatch(

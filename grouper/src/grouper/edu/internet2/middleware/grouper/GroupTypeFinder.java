@@ -16,34 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.Type;
-import  org.apache.commons.logging.*;
-
 
 /**
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.10 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.11 2006-06-05 19:54:40 blair Exp $
  */
 public class GroupTypeFinder {
 
-  // Private Class Constants
-  private static final String ERR_NF  = "unable to find group types: ";
-  private static final String ERR_TNF = "invalid group type: ";
-  private static final Log    LOG; //     = LogFactory.getLog(GroupTypeFinder.class);    
-
-  // Private Class Variables
+  // PRIVATE CLASS VARIABLES //
   private static Map types = new HashMap();
 
 
+  // STATIC //
   static {
-    LOG = LogFactory.getLog(GroupTypeFinder.class);
-    LOG.debug("finding group types");
+    DebugLog.info(GroupTypeFinder.class, "finding group types");
     // We need to initialize the known types at this point to try and
     // avoid running into Hibernate exceptions later on when attempting
     // to save objects.
@@ -51,12 +42,12 @@ public class GroupTypeFinder {
     while (iter.hasNext()) {
       GroupType t = (GroupType) iter.next();
       types.put(t.getName(), t);
-      LOG.debug("found group type '" + t.getName() + "': " + t);
+      DebugLog.info(GroupTypeFinder.class, "found group type: " + t);
     }
   } // static
 
 
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   /** 
    * Find a {@link GroupType}.
@@ -86,8 +77,9 @@ public class GroupTypeFinder {
     if (types.containsKey(name)) {
       return (GroupType) types.get(name);
     }
-    LOG.debug(ERR_TNF + name);
-    throw new SchemaException(ERR_TNF + name);
+    String msg = E.GROUPTYPE_INVALID + name;
+    ErrorLog.error(GroupTypeFinder.class, msg);
+    throw new SchemaException(msg);
   } // public static GroupType find(name)
 
   /**
@@ -130,7 +122,7 @@ public class GroupTypeFinder {
   } // public static Set findAllAssignable()
 
 
-  // Private Class Methods //
+  // PRIVATE CLASS METHODS //
   private static Set _findAll() {
     Set types = new LinkedHashSet();
     try {
@@ -142,11 +134,11 @@ public class GroupTypeFinder {
       hs.close();  
     }
     catch (HibernateException eH) {
-      String err = ERR_NF + eH.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eH);
+      String msg = E.GROUPTYPE_FINDALL + eH.getMessage();
+      ErrorLog.fatal(GroupTypeFinder.class, msg);
+      throw new RuntimeException(msg, eH);
     }
-    LOG.debug("found group types: " + types.size());
+    DebugLog.info(GroupTypeFinder.class, "found group types: " + types.size());
     return types;
   } // private Static Set _findAll()
 

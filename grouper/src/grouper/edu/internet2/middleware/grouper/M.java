@@ -18,26 +18,17 @@
 package edu.internet2.middleware.grouper;
 
 /**
+ * Grouper Messages.
  * @author  blair christensen.
- * @version $Id: CompositeNotFoundException.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: M.java,v 1.1 2006-06-05 19:54:40 blair Exp $
  * @since   1.0
  */
-class CompositeNotFoundException extends Exception {
-  // @since 1.0
-  public CompositeNotFoundException() { 
-    super(); 
-  }
-  // @since 1.0
-  public CompositeNotFoundException(String msg) { 
-    super(msg); 
-  }
-  // @since 1.0
-  public CompositeNotFoundException(String msg, Throwable cause) { 
-    super(msg, cause); 
-  }
-  // @since 1.0
-  public CompositeNotFoundException(Throwable cause) { 
-    super(cause); 
-  }
+class M {
+
+  // PROTECTED CLASS CONSTANTS //
+  protected static final String CACHE_EMPTIED     = "emptied cache: ";
+  protected static final String MEMBER_CHANGESID  = "changed subjectId for ";
+  protected static final String STEM_ROOTINSTALL  = "root stem installed";
+
 }
 

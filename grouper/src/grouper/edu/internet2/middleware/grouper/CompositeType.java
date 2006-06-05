@@ -16,31 +16,33 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.Serializable;
 import  java.util.*;
-
 
 /** 
  * Composite Type.
  * <p />
  * @author  blair christensen.
- * @version $Id: CompositeType.java,v 1.2 2006-05-23 19:10:22 blair Exp $    
+ * @version $Id: CompositeType.java,v 1.3 2006-06-05 19:54:40 blair Exp $    
+ * @since   1.0
  */
 public class CompositeType implements Serializable {
 
-  // Public Class Constants //
+  // PUBLIC CLASS CONSTANTS //
   public static final CompositeType COMPLEMENT    = new CompositeType("complement");
   public static final CompositeType INTERSECTION  = new CompositeType("intersection");
   public static final CompositeType UNION         = new CompositeType("union");
 
-  // Private Class Constants //
+
+  // PRIVATE CLASS CONSTANTS //
   private static final Map TYPES = new HashMap();
 
-  // Private Instance Variables //
+
+  // PRIVATE INSTANCE VARIABLES //
   private String type;
 
 
+  // STATIC //
   static {
     TYPES.put(  COMPLEMENT.toString()   , COMPLEMENT    );
     TYPES.put(  INTERSECTION.toString() , INTERSECTION  );
@@ -48,24 +50,36 @@ public class CompositeType implements Serializable {
   } // static
 
 
-  // Constructors //
+  // CONSTRUCTORS //
+  // @since 1.0
   private CompositeType(String type) {
     this.type = type;
   } // private CompositeType(type)
 
 
-  // Public Class Methods //
+  // PUBLIC CLASS METHODS //
+
+  /**
+   * @since 1.0
+   */
   public static CompositeType getInstance(String type) {
     return (CompositeType) TYPES.get(type);
   } // public static CompositeType getInstance(type)
 
 
-  // Public Instance Methods //
+  // PUBLIC INSTANCE METHODS //
+
+  /**
+   * @since 1.0
+   */
   public String toString() {
     return this.type;
   } // public String toString()
 
 
+  /**
+   * @since 1.0
+   */
   Object readResolve() {
     return getInstance(type);
   } // Object readResolve()

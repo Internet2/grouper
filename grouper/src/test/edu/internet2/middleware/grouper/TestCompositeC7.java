@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeC7.java,v 1.1 2006-06-02 18:23:46 blair Exp $
+ * @version $Id: TestCompositeC7.java,v 1.2 2006-06-05 19:54:40 blair Exp $
  */
 public class TestCompositeC7 extends TestCase {
 
@@ -55,11 +55,11 @@ public class TestCompositeC7 extends TestCase {
       a.addMember( r.getSubject("a") );
       try {
         a.deleteCompositeMember();
-        Assert.fail("FAIL: expected exception: " + GroupValidator.ERR_DCFC);
+        Assert.fail("FAIL: expected exception: " + E.GROUP_DCFC);
       }
       catch (MemberDeleteException eMD) {
         Assert.assertTrue("OK: cannot del composite from group with member", true);
-        T.string("error message", GroupValidator.ERR_DCFC, eMD.getMessage());
+        T.string("error message", E.GROUP_DCFC, eMD.getMessage());
       }
       finally {
         r.rs.stop();

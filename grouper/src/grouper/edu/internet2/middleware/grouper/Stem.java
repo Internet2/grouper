@@ -16,31 +16,27 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.53 2006-05-23 19:10:23 blair Exp $
- *     
-*/
+ * @version $Id: Stem.java,v 1.54 2006-06-05 19:54:40 blair Exp $
+ */
 public class Stem extends Owner implements Serializable {
 
-  // Protected Class Constants
+  // PROTECTED CLASS CONSTANTS //
   protected static final String ROOT_EXT  = "";   // Appease Oracle
   protected static final String ROOT_INT  = ":";  // Appease Oracle
 
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   // TODO use one in GrouperConfig
   private static final String   BT          = "true";
   // TODO move to GrouperConfig
@@ -53,12 +49,9 @@ public class Stem extends Owner implements Serializable {
   private static final String   CFG_SCGAC   = "stems.create.grant.all.create";
   private static final String   CFG_SCGAS   = "stems.create.grant.all.stem";
   private static final EventLog EL          = new EventLog();
-  private static final String   ERR_ARS     = "unable to install root stem: ";
-  private static final String   ERR_FNF     = "field not found: ";
-  private static final Log      LOG         = LogFactory.getLog(Stem.class);
 
 
-  // Hibernate Properties
+  // HIBERNATE PROPERITES //
   private Set     child_groups        = new LinkedHashSet();
   private Set     child_stems         = new LinkedHashSet();
   private String  display_extension;
@@ -69,12 +62,12 @@ public class Stem extends Owner implements Serializable {
   private String  stem_name;
 
 
-  // Transient Instance Variables
-  private transient Subject         creator;
-  private transient Subject         modifier;
+  // PRIVATE TRANSIENT ISNTANCE VARIABLES //
+  private transient Subject creator;
+  private transient Subject modifier;
 
 
-  // Constructors
+  // CONSTRUCTORS //
 
   /**
    * Default constructor for Hibernate.
@@ -95,7 +88,7 @@ public class Stem extends Owner implements Serializable {
   } // protected Stem(s)
   
 
-  // Public Instance Methods //
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Add a new group to the registry.
@@ -356,7 +349,7 @@ public class Stem extends Owner implements Serializable {
     catch (Exception e) {
       // @exception HibernateException
       // @exception SessionException
-      LOG.error(e.getMessage());
+      ErrorLog.error(Stem.class, e.getMessage());
     }
     return children;
   } // public Set getChildGroups()
@@ -382,7 +375,7 @@ public class Stem extends Owner implements Serializable {
       }
     }
     catch (HibernateException eH) {
-      GrouperLog.error(LOG, s, eH.getMessage());
+      ErrorLog.error(Stem.class, E.HIBERNATE + eH.getMessage());
     }
     return children;
   } // public Set getChildStems()
@@ -452,9 +445,9 @@ public class Stem extends Owner implements Serializable {
       );
     }
     catch (SchemaException eS) {
-      String err = ERR_FNF + NamingPrivilege.CREATE;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.CREATE;
+      ErrorLog.fatal(Stem.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getCreators()
 
@@ -642,9 +635,9 @@ public class Stem extends Owner implements Serializable {
       );
     }
     catch (SchemaException eS) {
-      String err = ERR_FNF + NamingPrivilege.STEM;
-      LOG.fatal(err);
-      throw new RuntimeException(err, eS);
+      String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.STEM;
+      ErrorLog.fatal(Stem.class, msg);
+      throw new RuntimeException(msg, eS);
     }
   } // public Set getStemmers()
 
@@ -919,17 +912,16 @@ public class Stem extends Owner implements Serializable {
   } // public String toString()
 
 
-  // Protected Class Methods
-
+  // PROTECTED CLASS METHODS //
   protected static Stem addRootStem(GrouperSession s) {
     Stem root = new Stem(s);
     try {
       HibernateHelper.save(root);
     }
     catch (HibernateException eH) {
-      String err = ERR_ARS + eH.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eH);
+      String msg = E.STEM_ROOTINSTALL + eH.getMessage();
+      ErrorLog.fatal(Stem.class, msg);
+      throw new RuntimeException(msg, eH);
     }
     return root;
   } // protected static Stem addRootStem(GrouperSession s)
@@ -949,7 +941,7 @@ public class Stem extends Owner implements Serializable {
   } // protected void setModified()
 
 
-  // Private Class Methods //
+  // PRIVATE CLASS METHODS //
 
   // The child_groups and child_stems collections have lazy
   // associations so we need to manually initialize as needed.
@@ -963,7 +955,9 @@ public class Stem extends Owner implements Serializable {
     hs.close();
   } // private static void _initializeChildGroupsAndStems(ns) 
 
-  // Private Instance Methods
+
+  // PRIVATE INSTANCE METHODS //
+
   private void _grantDefaultPrivsUponCreate(Group g)
     throws  GroupAddException
   {
@@ -1100,9 +1094,9 @@ public class Stem extends Owner implements Serializable {
       objects.addAll(this._renameChildGroups());
     }
     catch (HibernateException eH) {
-      String err = eH.getMessage();
-      GrouperLog.error(LOG, this.getSession(), err); 
-      throw new StemModifyException(err, eH);
+      String msg = E.HIBERNATE + eH.getMessage();
+      ErrorLog.error(Stem.class, msg);
+      throw new StemModifyException(msg, eH);
     }
     return objects;
   } // private Set _renameChildren()
@@ -1145,7 +1139,7 @@ public class Stem extends Owner implements Serializable {
   } // private void _setCreated()
 
 
-  // Getters //
+  // GETTERS //
   protected Set getChild_groups() { // Validator.canDeleteStem()
     return this.child_groups;
   }
@@ -1172,7 +1166,7 @@ public class Stem extends Owner implements Serializable {
   }
 
 
-  // Setters //
+  // SETTERS //
   private void setChild_groups(Set child_groups) {
     this.child_groups = child_groups;
   }

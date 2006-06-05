@@ -16,27 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
-import  org.apache.commons.logging.*;
-
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.2 2006-05-23 19:10:22 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @since   1.0
  */
 class CompositeFinder {
 
-  // Protected Class Constants //
-  protected static final String ERR_IO = "not a composite owner";
-
-  // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(CompositeFinder.class);
-
-
-  // Protected Class Methods //
+  // PROTECTED CLASS METHODS //
+  // @since 1.0
   protected static Set isFactor(Owner o) {
     Set composites = new LinkedHashSet();
     try {
@@ -64,6 +56,7 @@ class CompositeFinder {
     return composites;
   } // protected static Set isFactor(o)
 
+  // @since 1.0
   protected static Composite isOwner(Owner o) 
     throws  CompositeNotFoundException
   {
@@ -78,7 +71,7 @@ class CompositeFinder {
       Composite c   = (Composite) qry.uniqueResult();
       hs.close();
       if (c == null) {
-        throw new CompositeNotFoundException(ERR_IO);
+        throw new CompositeNotFoundException(E.COMP_NOTOWNER);
       }
       c.setSession(o.getSession());
       return c;

@@ -16,32 +16,23 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.Type;
-import  org.apache.commons.logging.*;
-
 
 /**
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.10 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.11 2006-06-05 19:54:40 blair Exp $
  */
 public class FieldFinder {
 
-  // Private Class Constants
-  private static final String ERR_FA  = "unable to find all fields: "; 
-  private static final String ERR_FAT = "unable to find all fields by type: "; 
-  private static final Log    LOG     = LogFactory.getLog(FieldFinder.class);    
-
-
-  // Private Class Variables
+  // PRIVATE CLASS VARIABLES //
   private static final Map fields  = new HashMap();
 
 
+  // STATIC
   static {
     Iterator iter = findAll().iterator();
     while (iter.hasNext()) {
@@ -51,7 +42,7 @@ public class FieldFinder {
   } // static 
 
 
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   /**
    * Get the specified field.
@@ -93,9 +84,9 @@ public class FieldFinder {
       hs.close();  
     }
     catch (HibernateException eH) {
-      String err = ERR_FA + eH.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eH);
+      String msg = E.FIELD_FINDALL + eH.getMessage();
+      ErrorLog.fatal(FieldFinder.class, msg);
+      throw new RuntimeException(msg, eH);
     }
     return fields;
   } // public Static Set findAll()
@@ -122,15 +113,15 @@ public class FieldFinder {
       hs.close();
     }
     catch (HibernateException eH) {
-      String err = ERR_FAT + eH.getMessage();
-      LOG.error(err);
-      throw new SchemaException(err, eH);
+      String msg = E.FIELD_FINDTYPE + eH.getMessage();
+      ErrorLog.error(FieldFinder.class, msg);
+      throw new SchemaException(msg, eH);
     }
     return fields;
   } // public static Set fieldAllByType(type)
 
 
-  // Private Class Methods //
+  // PRIVATE CLASS METHODS //
   private static void _updateKnownFields() {
     // TODO This method irks me still even if it is now more
     //      functionally correct

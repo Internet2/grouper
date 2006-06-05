@@ -16,22 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * Subject cache provider.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.2 2006-02-03 19:38:53 blair Exp $
- *     
-*/
+ * @version $Id: SubjectCache.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ */
 class SubjectCache {
 
   /*
@@ -41,40 +36,39 @@ class SubjectCache {
    *      we were caching subjects in 0.6.
    */
 
-  // Protected Class Constants
+  // PROTECTED CLASS CONSTANTS //
   protected static final String ID    = "edu.internet2.middleware.grouper.SubjectCache.Id";
   protected static final String IDFR  = "edu.internet2.middleware.grouper.SubjectCache.Identifier";
 
 
-  // Private Class Constants
-  private static final String ERR_CNF = "subject cache not found: ";
-  private static final Log    LOG     = LogFactory.getLog(SubjectCache.class);
+  // PRIVATE CLASS CONSTANTS //
   private static final Map    CACHES  = new HashMap();
 
 
+  // STATIC //
   static {
     CACHES.put( ID,   new SubjectCache(ID)    );
     CACHES.put( IDFR, new SubjectCache(IDFR)  );
   } // static
 
 
-  // Private Class Variables
+  // PRIVATE CLASS VARIABLES //
   private static Map caches = new HashMap();
 
 
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIALBES //
   private Map     cache;
   private String  name;
 
 
-  // Constructors
+  // CONSTRUCTORS //
   private SubjectCache(String name) {
     this.name   = name;
     this.cache  = new HashMap();
   } // private SubjectCache()
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
   public String toString() {
     return new ToStringBuilder(this)
       .append("name"  , this.name   )
@@ -82,22 +76,20 @@ class SubjectCache {
   } // public String toString()
 
 
-  // Hibernate Accessors
-
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
   protected static SubjectCache getCache(String name) 
     throws  RuntimeException
   {
     if (CACHES.containsKey(name)) {
       return (SubjectCache) CACHES.get(name);
     }
-    String err = ERR_CNF + name;
-    LOG.fatal(err);
-    throw new RuntimeException(err);
+    String msg = E.SC_NOTFOUND + name;
+    ErrorLog.fatal(SubjectCache.class, msg);
+    throw new RuntimeException(msg);
   } // protected static SubjectCache getCache(name)
 
 
-  // Protected Instance Methods
+  // PROTECTED INSTANCE METHODS //
   protected Subject get(String id, String type) {
     String key = this._getKey(id, type);
     if (this.cache.containsKey(key)) {
@@ -126,7 +118,7 @@ class SubjectCache {
   } // protected void put(subj)
 
 
-  // Private Instance Methods
+  // PRIVATE INSTANCE METHODS //
   private String _getKey(String id, String type) {
     // TODO memoize?
     String delim  = "|";

@@ -16,67 +16,58 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  org.apache.commons.lang.time.*;
-import  org.apache.commons.logging.*;
-
 
 /**
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.17 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.18 2006-06-05 19:54:40 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
-  // Private Class Constants //
-  private static final String         ERR_IAS   = "unable to initialize ALL subject: ";
-  private static final String         ERR_INIT  = "failed to initialize source manager: ";
-  private static final String         ERR_SNF   = "subject not found: ";
-  private static final String         ERR_SNU   = "subject not unique: ";
-  private static final Log            LOG       = LogFactory.getLog(SubjectFinder.class);
+  // PRIVATE CLASS CONSTANTS //
   private static final SourceManager  MGR;
   private static final Subject        ALL; 
 
 
-  // Static //
+  // STATIC //
   static {
-    LOG.debug("Initializing source manager");
+    DebugLog.info(SubjectFinder.class, "Initializing source manager");
     try {
       MGR = SourceManager.getInstance();
-      LOG.debug("Source manager initialized: " + MGR);
+      DebugLog.info(SubjectFinder.class, "Source manager initialized: " + MGR);
       // Add in internal source adapter
       BaseSourceAdapter isa = new InternalSourceAdapter(
         InternalSourceAdapter.ID, InternalSourceAdapter.NAME
       ); 
       MGR.loadSource(isa);
-      LOG.debug("Added source: " + isa.getId());
+      DebugLog.info(SubjectFinder.class, "Added source: " + isa.getId());
       // Add in group source adapter
-      LOG.info("Subject finder initialized");
+      DebugLog.info(SubjectFinder.class, "Subject finder initialized");
       try {
         ALL = SubjectFinder.findById(GrouperConfig.ALL, GrouperConfig.IST, InternalSourceAdapter.ID);
-        LOG.info("ALL subject initialized");
+        DebugLog.info(SubjectFinder.class, "ALL subject initialized");
       }
       catch (SubjectNotFoundException eSNF) {
-        String err = ERR_IAS + eSNF.getMessage();
-        LOG.fatal(err);
-        throw new RuntimeException(err, eSNF);
+        String msg = E.SF_IAS + eSNF.getMessage();
+        ErrorLog.fatal(SubjectFinder.class, msg);
+        throw new RuntimeException(msg, eSNF);
       }
     } 
     catch (Exception e) {
-      String err = ERR_INIT + e.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, e);
+      String msg = E.SF_INIT + e.getMessage();
+      ErrorLog.fatal(SubjectFinder.class, msg);
+      throw new RuntimeException(msg, e);
     }
   } // static
 
 
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   /**
    * Get a subject by id.
@@ -103,9 +94,9 @@ public class SubjectFinder implements Serializable {
       return (Subject) subjects.get(0);
     }
     else if (subjects.size() > 1) {
-      throw new SubjectNotFoundException(ERR_SNU + id); 
+      throw new SubjectNotFoundException(E.SF_SNU + id); 
     }
-    throw new SubjectNotFoundException(ERR_SNF + id);
+    throw new SubjectNotFoundException(E.SF_SNF + id);
   } 
 
   /**
@@ -139,9 +130,9 @@ public class SubjectFinder implements Serializable {
       return (Subject) subjects.get(0);
     }
     else if (subjects.size() > 1) {
-      throw new SubjectNotFoundException(ERR_SNU + id + "," + type); 
+      throw new SubjectNotFoundException(E.SF_SNU + id + "," + type); 
     }
-    throw new SubjectNotFoundException(ERR_SNF + id + "," + type);
+    throw new SubjectNotFoundException(E.SF_SNF + id + "," + type);
   } // public static Subject findById(id, type)
 
   /**
@@ -177,7 +168,7 @@ public class SubjectFinder implements Serializable {
     if (subj.getType().getName().equals(type)) {
       return subj;
     }
-    throw new SubjectNotFoundException(ERR_SNF + id + "," + type);
+    throw new SubjectNotFoundException(E.SF_SNF + id + "," + type);
   } // public static Subject findById(id, type, source)
 
   /**
@@ -206,9 +197,9 @@ public class SubjectFinder implements Serializable {
       return (Subject) subjects.get(0);
     }
     else if (subjects.size() > 1) {
-      throw new SubjectNotFoundException(ERR_SNU + id);
+      throw new SubjectNotFoundException(E.SF_SNU + id);
     }
-    throw new SubjectNotFoundException(ERR_SNF + id);
+    throw new SubjectNotFoundException(E.SF_SNF + id);
   }
 
   /**
@@ -245,9 +236,9 @@ public class SubjectFinder implements Serializable {
       return (Subject) subjects.get(0);
     }
     else if (subjects.size() > 1) {
-      throw new SubjectNotFoundException(ERR_SNU + id + "," + type); 
+      throw new SubjectNotFoundException(E.SF_SNU + id + "," + type); 
     }
-    throw new SubjectNotFoundException(ERR_SNF + id + "," + type);
+    throw new SubjectNotFoundException(E.SF_SNF + id + "," + type);
   }
 
   /**
@@ -280,7 +271,7 @@ public class SubjectFinder implements Serializable {
     if (subj.getType().getName().equals(type)) {
       return subj;
     }
-    throw new SubjectNotFoundException(ERR_SNF + id + "," + type);
+    throw new SubjectNotFoundException(E.SF_SNF + id + "," + type);
   } // public static Subject findByIdentifier(id, type, source)
 
   /**
@@ -308,7 +299,7 @@ public class SubjectFinder implements Serializable {
     while (iter.hasNext()) {
       Source sa = (Source) iter.next();
       Set found = sa.search(query);
-      LOG.debug("Found subjects in " + sa.getId() + ": " + found.size());
+      DebugLog.info(SubjectFinder.class, "Found subjects in " + sa.getId() + ": " + found.size());
       subjects.addAll(found);
     }
     return subjects;
@@ -397,10 +388,10 @@ public class SubjectFinder implements Serializable {
   } // public static Set getSources(type)
 
 
-  // Private Class Methods //
+  // PRIVATE CLASS METHODS //
   private static List _findById(String id, Iterator iter) {
     String msg = "_findById '" + id + "'";
-    LOG.debug(msg);
+    DebugLog.info(SubjectFinder.class, msg);
     Subject subj      = null;
     List    subjects  = new ArrayList();
     while (iter.hasNext()) {
@@ -408,15 +399,15 @@ public class SubjectFinder implements Serializable {
       String  _msg  = msg + " searching '" + sa.getId() + "'";
       try {
         subj = sa.getSubject(id);
-        LOG.debug(_msg + " found: " + subj);
+        DebugLog.info(SubjectFinder.class, _msg + " found: " + subj);
         SubjectCache.getCache(SubjectCache.ID).put(subj);
         subjects.add(subj);
       }
       catch (SubjectNotFoundException e) {
-        LOG.debug(_msg + " not found");
+        DebugLog.info(SubjectFinder.class, _msg + " not found");
       }
     }
-    LOG.debug(msg + " found: " + subjects.size());
+    DebugLog.info(SubjectFinder.class, msg + " found: " + subjects.size());
     return subjects;
   } // private static List _findById(id, iter) 
   private static List _findByIdentifier(String id, Iterator iter) {
@@ -426,12 +417,12 @@ public class SubjectFinder implements Serializable {
       Source sa = (Source) iter.next();
       try {
         subj = sa.getSubjectByIdentifier(id);
-        LOG.debug("Found subject in " + sa.getId() + ": " + id);
+        DebugLog.info(SubjectFinder.class, "Found subject in " + sa.getId() + ": " + id);
         SubjectCache.getCache(SubjectCache.IDFR).put(subj);
         subjects.add(subj);
       }
       catch (SubjectNotFoundException e) {
-        LOG.debug("Subject not found in " + sa.getId() + ": " + id);
+        DebugLog.info(SubjectFinder.class, "Subject not found in " + sa.getId() + ": " + id);
       }
     }
     return subjects;

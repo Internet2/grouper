@@ -16,46 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
-import  org.apache.commons.logging.*;
-
 
 /**
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.32 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.33 2006-06-05 19:54:40 blair Exp $
  */
 public class MembershipFinder {
 
-  // Private Class Constants
-  private static final Log    LOG                 = LogFactory.getLog(MembershipFinder.class);
-  private static final String MSG_FAMSHIPS_PRO    = "protected findAllMemberships";
-  private static final String MSG_FCMSHIPS_PRO    = "protected findChildMemberships";
-  private static final String MSG_FEMS_PRO        = "protected findEffectiveMembers";
-  private static final String MSG_FEMSHIP_PRO     = "protected findEffectiveMembership";
-  private static final String MSG_FEMSHIPSG_PRO   = "protected findEffectiveMemberships group";
-  private static final String MSG_FEMSHIPSM_PRO   = "protected findEffectiveMemberships member";
-  private static final String MSG_FEMSHIPSOM_PRO  = "protected findEffectMemberships owner member";
-  private static final String MSG_FEMSHIP_PUB     = "public findEffectiveMembership";
-  private static final String MSG_FIMS_PRO        = "protected findImmediateMembers";
-  private static final String MSG_FIMSHIP_PRO     = "protected findImmediateMembership";
-  private static final String MSG_FIMSHIP_PUB     = "public findImmeidateMembership";
-  private static final String MSG_FIMSHIPSO_PRO   = "protected findImmediateMemberships owner";
-  private static final String MSG_FIMSHIPSM_PRO   = "protected findImmediateMemberships member";
-  private static final String MSG_FMS_PRO         = "protected findMembers";
-  private static final String MSG_FMSHIPS         = "private _filterMemberships";
-  private static final String MSG_FMSHIPSO_PRO    = "protected findMemberships group";
-  private static final String MSG_FMSHIPSM_PRO    = "protected findMemberships member";
-  private static final String MSG_FMSHIPSOM_PRO   = "protected findMemberships owner member";
-
-
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   /**
    * Return the effective membership if it exists.
@@ -79,12 +54,10 @@ public class MembershipFinder {
             SchemaException
   {
     /* 
-     * @caller    PUBLIC
      * @filtered  true
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FEMSHIP_PUB);
     Set mships = new LinkedHashSet();
     try {
       Member      m     = MemberFinder.findBySubject(s, subj);
@@ -132,13 +105,10 @@ public class MembershipFinder {
             SchemaException
   {
     /* 
-     * @caller    PUBLIC
-     * @caller    private Membership._membershipsToDelete(s, g, subj, f)
      * @filtered  true
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FIMSHIP_PUB);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
       Membership  ms  = findImmediateMembership(g, m, f);
@@ -158,16 +128,14 @@ public class MembershipFinder {
 
 
 
-  // Protected Class Methods //
+  // PROTECTED CLASS METHODS //
 
   protected static Set findAllMemberships(GrouperSession s, Member m) {
     /*
-     * @caller    protected Member.getAllMemberships()
      * @filtered  false
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FAMSHIPS_PRO);
     Set mships  = new LinkedHashSet();
     try {
       Session   hs    = HibernateHelper.getSession();
@@ -186,7 +154,7 @@ public class MembershipFinder {
       hs.close();
     }
     catch (HibernateException eH) {
-      GrouperLog.error(LOG, s, MSG_FAMSHIPS_PRO + ": " + eH.getMessage());
+      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
     return mships;
   } // protected static Set findAllMemberships(s, m)
@@ -225,12 +193,10 @@ public class MembershipFinder {
 
   protected static Set findChildMemberships(GrouperSession s, Membership ms) { 
     /*
-     * @caller    public Membership.getChildMemberships()
      * @filtered  true
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FCMSHIPS_PRO);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -242,24 +208,20 @@ public class MembershipFinder {
       qry.setString("msid", ms.getId());
       List    l   = qry.list();
       hs.close();
-      GrouperLog.debug(LOG, s, MSG_FCMSHIPS_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, ms.getList(), l) );
     }
     catch (HibernateException eH) {
-      GrouperLog.error(LOG, s, MSG_FCMSHIPS_PRO + ": " + eH.getMessage());
+      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
-    GrouperLog.debug(LOG, s, MSG_FCMSHIPS_PRO + " filtered: " + mships.size());
     return mships;
   } // protected static Set findChildMemberships(s, ms)
  
   protected static Set findEffectiveMembers(GrouperSession s, Group g, Field f) {
     /*
-     * @caller    public Group.getEffectiveMembers(f)
      * @filtered  true  MembershipFinder.findEffectiveMemberships(s, g, f) 
      * @session   true  MembershipFinder.findEffectiveMemberships(s, g, f)
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FEMS_PRO);
     Set       members = new LinkedHashSet();
     Iterator  iter    = findEffectiveMemberships(s, g, f).iterator();
     while (iter.hasNext()) {
@@ -280,12 +242,9 @@ public class MembershipFinder {
     throws MembershipNotFoundException
   {
     /*
-     * @caller    private Membership._membershipsToDelete(s, imm)
-     * @caller    public  MembershipFinder.findEffectiveMemberships(s, g, subj, f, via, depth) 
      * @filtered  false
      * @session   false
      */
-    LOG.debug(MSG_FEMSHIP_PRO);
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -320,13 +279,10 @@ public class MembershipFinder {
   )
   {
     /*
-     * @caller    public    Group.getEffectiveMemberships(f)
-     * @caller    protected MembershipFinder.findEffectiveMembers(s, g, field)
      * @filtered  true
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FEMSHIPSG_PRO);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -344,13 +300,11 @@ public class MembershipFinder {
       qry.setString(    "ftype" , f.getType().toString());
       List    l     = qry.list();
       hs.close();
-      GrouperLog.debug(LOG, s, MSG_FEMSHIPSG_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
     }
     catch (HibernateException eH) {
-      GrouperLog.error(LOG, s, MSG_FEMSHIPSG_PRO + ": " + eH.getMessage());
+      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
-    GrouperLog.debug(LOG, s, MSG_FEMSHIPSG_PRO + " filtered: " + mships.size());
     return mships;
   } // protected static Set findEffectiveMemberships(s, g, f)
 
@@ -359,12 +313,10 @@ public class MembershipFinder {
   )
   {
     /*
-     * @caller    public Member.getEffectiveMemberships(f)
      * @filtered  true
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FEMSHIPSM_PRO);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -382,13 +334,11 @@ public class MembershipFinder {
       qry.setString("ftype" , f.getType().toString());
       List    l   = qry.list();
       hs.close();
-      GrouperLog.debug(LOG, s, MSG_FEMSHIPSM_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
     }
     catch (HibernateException eH) {
-      GrouperLog.error(LOG, s, MSG_FEMSHIPSM_PRO + ": " + eH.getMessage());
+      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
-    GrouperLog.debug(LOG, s, MSG_FEMSHIPSM_PRO + " filtered: " + mships.size());
     return mships;
   } // protected static Set findEffectiveMemberships(s, m, f)
 
@@ -397,11 +347,9 @@ public class MembershipFinder {
   )
   {
     /*
-     * @caller    public  Member.isEffectiveMember(Group g, Field f)
      * @filtered  false
      * @session   false
      */
-    LOG.debug(MSG_FEMSHIPSOM_PRO); 
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -423,19 +371,17 @@ public class MembershipFinder {
       hs.close();
     }
     catch (HibernateException eH) {
-      LOG.error(MSG_FEMSHIPSOM_PRO + ": " + eH.getMessage());
+      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
     return mships;
   } // protected static Membership findEffectiveMemberships(o, m, f)
 
   protected static Set findImmediateMembers(GrouperSession s, Group g, Field f) {
     /*
-     * @caller    public Group.getImmediateMembers(f)
      * @filtered  true  MembershipFinder.findImmediateMemberships(s, g, f) 
      * @session   true  MembershipFinder.findImmediateMemberships(s, g, f)
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FIMS_PRO);
     Set       members = new LinkedHashSet();
     Iterator  iter    = findImmediateMemberships(s, g, f).iterator();
     while (iter.hasNext()) {
@@ -454,14 +400,9 @@ public class MembershipFinder {
     throws  MembershipNotFoundException
   {
     /*
-     * @caller    private   Membership._addMembership(s, o, m, f)
-     * @caller    private   Membership._membersToDelete(s, ns, subj, f)
-     * @caller    public    MembershipFinder.findImmediateMembership(s, g, subj, f)
-     * @caller    protected MembershipFinder.findImmediateMembership(s, oid, m, f)
      * @filtered  false
      * @session   false
      */
-    LOG.debug(MSG_FIMSHIP_PRO);
     List mships = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -497,14 +438,10 @@ public class MembershipFinder {
   )
   {
     /*
-     * @caller    public    Group.getImmediateMemberships(f)
-     * @caller    protected Membership.deleteAllField(s, ns, f)
-     * @caller    protected MembershipFinder.findImmediateMembers(s, g, field)
      * @filtered  true
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FIMSHIPSO_PRO);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -522,13 +459,11 @@ public class MembershipFinder {
       qry.setString(    "ftype" , f.getType().toString());
       List    l   = qry.list();
       hs.close();
-      GrouperLog.debug(LOG, s, MSG_FIMSHIPSO_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
     }
     catch (HibernateException eH) {
-      GrouperLog.error(LOG, s, MSG_FIMSHIPSO_PRO + ": " + eH.getMessage());
+      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
-    GrouperLog.debug(LOG, s, MSG_FIMSHIPSO_PRO + " filtered: " + mships.size());
     return mships;
   } // protected static Set findImmediateMemberships(s, o, f)
 
@@ -537,12 +472,10 @@ public class MembershipFinder {
   )
   {
     /*
-     * @caller    public MembershipFinder.findImmediateMemberships(f)
      * @filtered  true
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FIMSHIPSM_PRO);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -560,24 +493,20 @@ public class MembershipFinder {
       qry.setString("ftype" , f.getType().toString());
       List    l   = qry.list();
       hs.close();
-      GrouperLog.debug(LOG, s, MSG_FIMSHIPSM_PRO + " unfiltered: " + l.size());
       mships.addAll( _filterMemberships(s, f, l) );
     }
     catch (HibernateException eH) {
-      GrouperLog.error(LOG, s, MSG_FIMSHIPSM_PRO + ": " + eH.getMessage());
+      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
-    GrouperLog.debug(LOG, s, MSG_FIMSHIPSM_PRO + " filtered: " + mships.size());
     return mships;
   } // protected static Set findImmediateMemberships(s, m, f)
 
   protected static Set findMembers(GrouperSession s, Group g, Field f) {
     /*
-     * @caller    public Group.getMembers(f)
      * @filtered  true  MembershipFinder.findMemberships(s, g, f) 
      * @session   true  MembershipFinder.findMemberships(s, g, f)
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FMS_PRO);
     Set       members = new LinkedHashSet();
     Iterator  iter    = findMemberships(s, g, f).iterator();
     while (iter.hasNext()) {
@@ -594,13 +523,10 @@ public class MembershipFinder {
 
   protected static Set findSubjects(GrouperSession s, Owner o, Field f) {
     /*
-     * @caller    public GrouperAccessAdapter.getSubjectsWithPriv(s, g, priv)
-     * @caller    public GrouperNamingAdapter.getSubjectsWithPriv(s, ns, priv)
      * @filtered  true  MembershipFinder.findMemberships(s, oid, f)
      * @session   true  MembershipFinder.findMemberships(s, oid, f)
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FMS_PRO);
     Set       subjs = new LinkedHashSet();
     Iterator  iter  = findMemberships(s, o, f).iterator();
     while (iter.hasNext()) {
@@ -622,14 +548,10 @@ public class MembershipFinder {
   )
   {
     /*
-     * @caller    public GrouperAccessAdapter.getGroupsWhereSubjectHasPriv(s, subj, priv)
-     * @caller    public GrouperNamingAdapter.getStemsWhereSubjectHasPriv(s, subj, priv)
-     * @caller    public Member.getMemberships(f)
      * @filtered  true
      * @session   true
      */
     GrouperSession.validate(s);
-    GrouperLog.debug(LOG, s, MSG_FMSHIPSM_PRO);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -650,7 +572,6 @@ public class MembershipFinder {
       qry.setString("mid", all.getId());
       l.addAll(qry.list());
       hs.close();
-      GrouperLog.debug(LOG, s, MSG_FMSHIPSM_PRO + " unfiltered: " + l.size());
 
       // If the session's member is equivalent to the member that we
       // are searching for, don't filter the results - but still attach
@@ -669,16 +590,13 @@ public class MembershipFinder {
       }
     }
     catch (HibernateException eH) {
-      GrouperLog.error(LOG, s, MSG_FMSHIPSM_PRO + ": " + eH.getMessage());
+      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
-    GrouperLog.debug(LOG, s, MSG_FMSHIPSM_PRO + " filtered: " + mships.size());
     return mships;
   } // protected static Set findMemberships(s, m, f)
 
   protected static Set findMemberships(GrouperSession s, Owner o, Field f) {
     /*
-     * @caller    public    Group.getMemberships(f)
-     * @caller    protected MembershipFinder.findMembers(s, g, f)
      * @filtered  true
      * @session   true
      */
@@ -702,23 +620,17 @@ public class MembershipFinder {
       mships.addAll( _filterMemberships(s, f, l) );
     }
     catch (HibernateException eH) {
-      GrouperLog.error(LOG, s, MSG_FMSHIPSO_PRO + ": " + eH.getMessage());
+      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
     return mships;
   } // protected static Set findMemberships(s, o, f)
 
-  protected static Set findMemberships(
+  protected static Set findMembershipsNoPrivsNoSession(
     Owner o, Member m, Field f
   )
   {
-    /*
-     * @caller    public  GrouperAccessAdapter.getPrivs(s, g, subj)
-     * @caller    public  GrouperNamingAdapter.getPrivs(s, ns, subj)
-     * @caller    public  Member.isMember(g, f)
-     * @filtered  false
-     * @session   false
-     */
-    LOG.debug(MSG_FMSHIPSOM_PRO); 
+     // @filtered  false
+     // @session   false
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -739,13 +651,13 @@ public class MembershipFinder {
       hs.close();
     }
     catch (HibernateException eH) {
-      LOG.error(MSG_FMSHIPSOM_PRO + ": " + eH.getMessage());
+      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
     return mships;
-  } // protected static Membership findMemberships(o, m, f)
+  } // protected static Membership findMembershipsNoPrivsNoSession(o, m, f)
 
 
-  // Private Class Methods
+  // PRIVATE CLASS METHODS //
   private static Set _filterMemberships(GrouperSession s, Field f, List l) {
     GrouperSession.validate(s);
     Set       mships  = new LinkedHashSet();

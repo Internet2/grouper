@@ -16,34 +16,23 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
 import  java.util.*;
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;
-
 
 /** 
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.11 2006-05-23 19:10:22 blair Exp $
- *     
-*/
-class EventLog implements Serializable {
+ * @version $Id: EventLog.java,v 1.12 2006-06-05 19:54:40 blair Exp $
+ */
+class EventLog {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   private static final Log LOG = LogFactory.getLog(EventLog.class);
-
-  // event log errors
-  private static final String ERR_EFF_LOG = "unable to log effective membership: ";
-  private static final String ERR_EFF_ONF = "effective membership owner not found";
-  private static final String ERR_EFF_SNF = "effective membership subject not found";
-
-  // event log messages
+  // FIXME Relocate to M
   private static final String G_AM        = "add member: group=";
   private static final String G_AM_E      = "add effective member: group=";
   private static final String G_AT        = "add type: group=";
@@ -72,7 +61,7 @@ class EventLog implements Serializable {
   private static final String S_SA        = "set stem attr: stem=";
 
 
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIALBES //
   private GrouperConfig cfg;
   private boolean       log_eff_group_add = false;
   private boolean       log_eff_group_del = false;
@@ -80,8 +69,7 @@ class EventLog implements Serializable {
   private boolean       log_eff_stem_del  = false;
 
 
-  // Constructors
-
+  // CONSTRUCTORS //
   protected EventLog() {
     super();
     this.cfg = GrouperConfig.getInstance();
@@ -100,7 +88,20 @@ class EventLog implements Serializable {
   } // protected EventLog()
 
 
-  // Protected Instance Methods
+  // PROTECTED CLASS METHODS //
+
+  // @since 1.0
+  protected static void info(String msg) {
+    LOG.info(msg);
+  } // protected static void info(msg)
+
+  // @since 1.0
+  protected static void info(GrouperSession s, String msg) {
+    LOG.info(LogHelper.formatSession(s) + msg);
+  } // protected static void info(s, msg)
+
+
+  // PROTECTED INSTANCE METHODS //
 
   protected void addEffMembers(
     GrouperSession s, Object o, Subject subj, Field f, Set effs
@@ -136,7 +137,7 @@ class EventLog implements Serializable {
     }
     else {
       // FIXME Better message
-      GrouperLog.error(LOG, s, "unable to log deletion of effective memberships");
+      ErrorLog.error(EventLog.class, E.EVENT_EFFDEL);
     }
   }
 
@@ -279,7 +280,7 @@ class EventLog implements Serializable {
   } // protected void stemSetAttr(s, stem, attr, val, sw);
 
 
-  // Private Instance Methods
+  // PRIVATE INSTANCE METHODS //
 
   private void _addEffs(
     GrouperSession s, String name, Subject subj, Field f, Set effs
@@ -303,7 +304,7 @@ class EventLog implements Serializable {
       root.stop();
     }
     catch (SessionException eS) {
-      GrouperLog.error(LOG, s, ERR_EFF_LOG + eS.getMessage());
+      ErrorLog.error(EventLog.class, E.EVENT_EFFADD + eS.getMessage());
     }
   } // private void _addEffs(s, name, subj, f, effs)
 
@@ -329,7 +330,7 @@ class EventLog implements Serializable {
       root.stop();
     }
     catch (SessionException eS) {
-      GrouperLog.error(LOG, s, ERR_EFF_LOG + eS.getMessage());
+      ErrorLog.error(EventLog.class, E.EVENT_EFFADD + eS.getMessage());
     }
   } // private void _delEffs(s, name, subj, f, effs)
 
@@ -351,7 +352,7 @@ class EventLog implements Serializable {
         msg += "stem=" + ns.getName();
       }
       catch (StemNotFoundException eSNF) {
-        GrouperLog.error(LOG, s, ERR_EFF_ONF);
+        ErrorLog.error(EventLog.class, E.EVENT_EFFOWNER + eSNF.getMessage());
         msg += "owner=???";
       }
     }   
@@ -363,7 +364,7 @@ class EventLog implements Serializable {
       msg += " subject=" + SubjectHelper.getPretty(subject);
     }
     catch (Exception e) {
-      GrouperLog.error(LOG, s, ERR_EFF_SNF);
+      ErrorLog.error(EventLog.class, E.EVENT_EFFSUBJ + e.getMessage());
       msg += "subject=???";
     }
     // Get added or removed message that caused this effective membership change

@@ -16,46 +16,41 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.util.*;
 import  net.sf.ehcache.*;
 import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * Grouper Cache Manager
  * <p />
  * @author  blair christensen.
- * @version $Id: CacheMgr.java,v 1.4 2006-05-23 19:10:22 blair Exp $
+ * @version $Id: CacheMgr.java,v 1.5 2006-06-05 19:54:40 blair Exp $
  *     
-*/
+ */
 class CacheMgr {
 
-  // Private Class Constants
-  private static final String       ERR_CNF = "cache not found: ";
-  private static final CacheManager MGR;
-  private static final Log          LOG     = LogFactory.getLog(CacheMgr.class);
-
-
+  // STATIC //
   static {
     try {
       MGR = CacheManager.create();
     }
     catch (CacheException eC) {
-      String err = GrouperLog.ERR_CMGR + eC.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eC);
+      String msg = E.CACHE_INIT + eC.getMessage();
+      ErrorLog.fatal(CacheMgr.class, msg);
+      throw new RuntimeException(msg, eC);
     }
   } // static
 
+
+  // PRIVATE CLASS CONSTANTS //
+  private static final CacheManager MGR;
+
   
-  // Private Class Variables
+  // PRIVATE CLASS VARIABLES //
   private static Map caches = new HashMap();
 
 
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
   protected static Cache getCache(String name) 
     throws  RuntimeException
   {
@@ -70,9 +65,9 @@ class CacheMgr {
       }
     }
     if (cache == null) {
-      String err = ERR_CNF + name;
-      LOG.fatal(err);
-      throw new RuntimeException(err);
+      String msg = E.CACHE_NOTFOUND + name;
+      ErrorLog.fatal(CacheMgr.class, msg);
+      throw new RuntimeException(msg);
     }
     return cache;
   } // protected static Cache getCache(name)
@@ -81,7 +76,6 @@ class CacheMgr {
     Set       caches  = new LinkedHashSet();
     String[]  names   = MGR.getCacheNames();
     for (int i=0; i<names.length; i++) {
-      //caches.add( MGR.getCache(names[i]) );
       Cache cache = MGR.getCache(names[i]);
       if (cache.getMemoryStoreSize() > 0) {
         caches.add(cache);
@@ -98,14 +92,14 @@ class CacheMgr {
         int   size  = cache.getSize();
         if (size > 0) {
           cache.removeAll();
-          LOG.info(GrouperLog.MSG_EC + cache.getName() + ": " + size);
+          DebugLog.info(CacheMgr.class, M.CACHE_EMPTIED + cache.getName() + ": " + size); 
         }
       }
     }
     catch (Exception e) {
-      String err = GrouperLog.ERR_CMGR + e.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, e);
+      String msg = E.CACHE + e.getMessage();
+      ErrorLog.fatal(CacheMgr.class, msg);
+      throw new RuntimeException(msg, e);
     }
   } // protected static void resetAllCaches()
 

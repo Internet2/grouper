@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege resolution class.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.37 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.38 2006-06-05 19:54:40 blair Exp $
  *     
 */
 public class PrivilegeResolver {
@@ -122,13 +122,11 @@ public class PrivilegeResolver {
       can = true;
     }
     if (can == false) {
-      GrouperLog.debug(LOG, s, msg + "no");
       throw new InsufficientPrivilegeException(
         s.getSubject().getId() + " does not have " + priv + " on '" 
         + g.getName() + "'"
       );
     }
-    GrouperLog.debug(LOG, s, msg);
   } // protected void canADMIN(s, g, subj)
 
   protected void canCREATE(GrouperSession s, Stem ns, Subject subj)
@@ -147,7 +145,6 @@ public class PrivilegeResolver {
         + ns.getName() + "'"
       );
     }
-    GrouperLog.debug(LOG, s, msg);
   } // protected void canCREATE(s, ns, subj)
 
   protected void canOPTIN(GrouperSession s, Group g, Subject subj)
@@ -171,17 +168,14 @@ public class PrivilegeResolver {
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
     )
     {
-      GrouperLog.debug(LOG, s, msg + "UPDATE");
       can = true;
     }
     if (can == false) {
-      GrouperLog.debug(LOG, s, msg + "no");
       throw new InsufficientPrivilegeException(
         s.getSubject().getId() + " does not have " + priv + " on '" 
         + g.getName() + "'"
       );
     }
-    GrouperLog.debug(LOG, s, msg);
   } // protected void canOPTIN(s, g, subj)
 
   protected void canOPTOUT(GrouperSession s, Group g, Subject subj)
@@ -209,13 +203,11 @@ public class PrivilegeResolver {
       can = true;
     }
     if (can == false) {
-      GrouperLog.debug(LOG, s, msg + "no");
       throw new InsufficientPrivilegeException(
         s.getSubject().getId() + " does not have " + priv + " on '" 
         + g.getName() + "'"
       );
     }
-    GrouperLog.debug(LOG, s, msg);
   } // protected void canOPTOUT(s, g, subj)
 
   protected void canPrivDispatch(
@@ -226,31 +218,24 @@ public class PrivilegeResolver {
   {
     String msg = "canPrivDispatch '" + priv.getName().toUpperCase() + "': ";
     if      (priv.equals(AccessPrivilege.ADMIN))  { 
-      GrouperLog.debug(LOG, s, msg + "canADMIN");
       this.canADMIN(s, g, subj);
     }
     else if (priv.equals(AccessPrivilege.OPTIN))  {
-      GrouperLog.debug(LOG, s, msg + "canOPTIN");
       this.canOPTIN(s, g, subj);
     }
     else if (priv.equals(AccessPrivilege.OPTOUT)) {
-      GrouperLog.debug(LOG, s, msg + "canOPTOUT");
       this.canOPTOUT(s, g, subj);
     }
     else if (priv.equals(AccessPrivilege.READ))   {
-      GrouperLog.debug(LOG, s, msg + "canREAD");
       this.canREAD(s, g, subj);
     }
     else if (priv.equals(AccessPrivilege.UPDATE)) {
-      GrouperLog.debug(LOG, s, msg + "canUPDATE");
       this.canUPDATE(s, g, subj);
     }
     else if (priv.equals(AccessPrivilege.VIEW))   {
-      GrouperLog.debug(LOG, s, msg + "canVIEW");
       this.canVIEW(s, g, subj);
     }
     else if (priv.equals(AccessPrivilege.SYSTEM))  {
-      GrouperLog.debug(LOG, s, msg + "system maintained");
       throw new InsufficientPrivilegeException("system maintained");
     }
     else {
@@ -298,7 +283,6 @@ public class PrivilegeResolver {
         + g.getName() + "'"
       );
     }
-    GrouperLog.debug(LOG, s, msg);
   } // protected void canREAD(s, g, subj)
 
   protected void canSTEM(GrouperSession s, Stem ns, Subject subj)
@@ -317,7 +301,6 @@ public class PrivilegeResolver {
         + ns.getName() + "'"
       );
     }
-    GrouperLog.debug(LOG, s, msg);
   } // protected void canSTEM(s, ns, subj)
 
   protected void canUPDATE(GrouperSession s, Group g, Subject subj)
@@ -338,13 +321,11 @@ public class PrivilegeResolver {
       can = true;
     }
     if (can == false) {
-      GrouperLog.debug(LOG, s, msg + "no");
       throw new InsufficientPrivilegeException(
         s.getSubject().getId() + " does not have " + priv + " on '" 
         + g.getName() + "'"
       );
     }
-    GrouperLog.debug(LOG, s, msg);
   } // protected void canUPDATE(s, g, subj)
 
   protected void canVIEW(GrouperSession s, Group g, Subject subj)
@@ -394,13 +375,11 @@ public class PrivilegeResolver {
       can = true;
     }
     if (can == false) {
-      GrouperLog.debug(LOG, s, msg + "no");
       throw new InsufficientPrivilegeException(
         s.getSubject().getId() + " does not have " + priv + " on '" 
         + g.getName() + "'"
       );
     }
-    GrouperLog.debug(LOG, s, msg);
   } // protected void canVIEW(s, g, subj)
   // TODO Can I remove s or subj?
 
@@ -551,30 +530,24 @@ public class PrivilegeResolver {
     boolean rv = false;
     String  msg = "hasPriv: " + SubjectHelper.getPretty(subj) 
       + " " + priv + ": ";
-    GrouperLog.debug(LOG, s, msg + "checking");
     Element el = this.ac.get(g, subj, priv);
     if (el != null) {
       if (el.getValue().equals(GrouperConfig.BT)) {
         rv = true;
       }
-      GrouperLog.debug(LOG, s, msg + rv + " (cached)");
     }
     else if (this.isRoot(subj)) {
       rv = true;  
-      GrouperLog.debug(LOG, s, msg + rv + " (isRoot)");
     }
     else {
       try {
         rv = access.hasPriv(s, g, subj, priv);
-        GrouperLog.debug(LOG, s, msg + rv);
         if (rv == false) {
           rv = this._isAll(s, g, priv);
-          GrouperLog.debug(LOG, s, msg + rv + " (ALL)");
         } 
       }
       catch (SchemaException eS) {
         rv = false;
-        GrouperLog.debug(LOG, s, msg + rv + "(" + eS.getMessage() + ")");
         return rv;
       }
     }
@@ -592,30 +565,24 @@ public class PrivilegeResolver {
     boolean rv = false;
     String  msg = "hasPriv: " + SubjectHelper.getPretty(subj) 
       + " " + priv + ": ";
-    GrouperLog.debug(LOG, s, msg + "checking");
     Element el = this.nc.get(ns, subj, priv);
     if (el != null) {
       if (el.getValue().equals(GrouperConfig.BT)) {
         rv = true;
       }
-      GrouperLog.debug(LOG, s, msg + rv + " (cached)");
     }
     else if (this.isRoot(subj)) {
       rv = true;  
-      GrouperLog.debug(LOG, s, msg + rv + " (isRoot)");
     }
     else {
       try {
         rv = naming.hasPriv(s, ns, subj, priv);
-        GrouperLog.debug(LOG, s, msg + rv);
         if (rv == false) {
           rv = this._isAll(s, ns, priv);
-          GrouperLog.debug(LOG, s, msg + rv + " (ALL)");
         } 
       }
       catch (SchemaException eS) {
         rv = false;
-        GrouperLog.debug(LOG, s, msg + rv + "(" + eS.getMessage() + ")");
         return rv;
       }
     }
@@ -632,9 +599,7 @@ public class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     String msg = "revokePriv '" + priv + "'";
-    GrouperLog.debug(LOG, s, msg);
     this.access.revokePriv(s, g, priv);
-    GrouperLog.debug(LOG, s, msg + " revoked");
     // FIXME
     try {
       this.ac.removeAll();
