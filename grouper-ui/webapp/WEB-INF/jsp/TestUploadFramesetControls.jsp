@@ -70,6 +70,10 @@ a, a:visited {
 	background-color:ffffff;	
 }
 
+.errorMessage {
+	color:#ff0000;
+}
+
 .messageHeader {
 	font-weight:bold;
 }
@@ -122,11 +126,16 @@ function prevPage() {
 </head>
 <body bgcolor="cccccc" onload="setCurPage(1)">
 <div id="top">
-<a href="populateUploadTest.do" target="_top">Load...</a><hr />
+<table><tr><td><a href="populateUploadTest.do" target="_top">Load...</a></td><td>
 <form id="controlForm" onsubmit="setCurPage(this.count.value);return false;">
 <input type="button" value="&lt;" onclick="prevPage()"/><input type="text" name="count" size="3"/><input type="button" value="&gt;" onclick="nextPage()"/>
-</form>
+</form></td></tr></table>
 </div>
+<table border="1px" cellpadding="0" cellspacing="0">
+<c:forEach var="attr" items="${uploadUser}">
+<tr><td><c:out value="${attr.key}"/></td><td><c:out value="${attr.value}"/></td></tr>
+</c:forEach>
+</table>
 <div id="wrapper">
 <div id="links">
 <ul>
@@ -143,7 +152,17 @@ function prevPage() {
 <div id="messages<c:out value="${page.no}"/>" class="messages">
 <div class="messageHeader"><c:out value="${test.id}"/><hr/></div>
 <c:forEach var="msg" items="${page.messages}">
-<span class="message"><c:out value="${msg.message}"/></span><hr />
+<c:choose>
+	<c:when test="${msg.isError}">
+		<span class="errorMessage"><c:out value="${msg.message}"/></span>	
+	</c:when>
+	<c:otherwise>
+		<span class="message"><c:out value="${msg.message}"/></span>
+	</c:otherwise>
+</c:choose>
+
+
+<hr />
 </c:forEach>
 </c:forEach></div>
 </c:forEach>
