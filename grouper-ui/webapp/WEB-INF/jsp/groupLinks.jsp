@@ -3,7 +3,7 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.4 2006-02-21 16:24:03 isgwb Exp $
+  @version $Id: groupLinks.jsp,v 1.5 2006-06-05 15:05:16 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -21,7 +21,7 @@
 		
 	</c:if>
 	
-	<c:if test="${groupPrivs.ADMIN}">
+	<c:if test="${groupPrivs.ADMIN && !empty group.types}">
 		
 			<html:link page="/populateEditGroupAttributes.do" name="group">
 				<fmt:message bundle="${nav}" key="groups.action.edit-attr"/>
