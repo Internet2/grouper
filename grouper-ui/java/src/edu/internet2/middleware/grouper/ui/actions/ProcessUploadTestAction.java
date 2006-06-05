@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,9 +35,11 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.upload.FormFile;
+import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
@@ -48,7 +51,7 @@ import edu.internet2.middleware.grouper.ui.util.DOMHelper;
  * Uploads output file from JUnit / HtmlUnit tests and generates 'slide show'
  * 
  * @author Gary Brown.
- * @version $Id: ProcessUploadTestAction.java,v 1.2 2006-04-03 12:44:55 isgwb Exp $
+ * @version $Id: ProcessUploadTestAction.java,v 1.3 2006-06-05 14:58:49 isgwb Exp $
  */
 public class ProcessUploadTestAction extends GrouperCapableAction {
 	
@@ -82,6 +85,17 @@ public class ProcessUploadTestAction extends GrouperCapableAction {
 					files[i].delete();
 				}
 			}
+		}
+		Element userE = uk.ac.bris.is.xml.DOMHelper.getImmediateElement(doc.getDocumentElement(),"user");
+		if(userE!=null) {
+			NamedNodeMap user = userE.getAttributes();
+			Map userMap = new LinkedHashMap();
+			for(int i=0;i<user.getLength();i++) {
+				Attr attr = (Attr)user.item(i);
+				userMap.put(attr.getName(),attr.getValue());
+			}
+			session.setAttribute("uploadUser",userMap);
+			
 		}
 		NodeList nodes = doc.getElementsByTagName("test");
 		Element el;

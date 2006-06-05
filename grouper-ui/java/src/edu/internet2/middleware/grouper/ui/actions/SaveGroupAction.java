@@ -129,7 +129,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.7 2006-04-03 12:45:35 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.8 2006-06-05 15:00:30 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -273,7 +273,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 			for(int i=0;i<selectedGroupTypes.length;i++) {
 				type = GroupTypeFinder.find(selectedGroupTypes[i]);
 				selected.add(type);
-				if(!curGroupTypes.contains(selectedGroupTypes[i])) group.addType(type);
+				if(!curGroupTypes.contains(type)) group.addType(type);
 			}
 		}
 		Iterator it = curGroupTypes.iterator();
