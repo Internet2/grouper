@@ -16,26 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  org.apache.commons.logging.*;
 import  org.apache.commons.lang.builder.*;
-
 
 /**
  * {@link Membership} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.3 2006-06-06 18:49:59 blair Exp $
  */
 class MembershipHelper {
 
-  // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(MembershipHelper.class);
-
-
-  // Protected Class Methods //
+  // PROTECTED CLASS METHODS //
   protected static String getPretty(Membership ms) {
     ms.setSession(ms.getSession()); // TODO Is this still necessary?
     String  via = new String();
@@ -59,7 +52,7 @@ class MembershipHelper {
     }
     else if (o instanceof Group) {
       Group   g   = (Group) o;
-      return new ToStringBuilder(ms)  //, ToStringStyle.SIMPLE_STYLE)
+      return new ToStringBuilder(ms)
         .append(  "group"   , g.getName()             )
         .append(  "subject" , ms.getMember_id()       )
         .append(  "field"   , ms.getField().getName() )
@@ -69,7 +62,7 @@ class MembershipHelper {
     }
     else if (o instanceof Stem) {
       Stem ns = (Stem) o;
-      return new ToStringBuilder(ms)  //, ToStringStyle.SIMPLE_STYLE)
+      return new ToStringBuilder(ms)
         .append(  "stem"    , ns.getName()            )
         .append(  "subject" , ms.getMember_id()       )
         .append(  "field"   , ms.getField().getName() ) 

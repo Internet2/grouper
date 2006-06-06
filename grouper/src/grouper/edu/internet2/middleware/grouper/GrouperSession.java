@@ -16,8 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
@@ -26,47 +24,47 @@ import  net.sf.ehcache.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * Context for interacting with the Grouper API and Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.21 2006-05-23 19:10:23 blair Exp $
- *     
-*/
+ * @version $Id: GrouperSession.java,v 1.22 2006-06-06 18:49:59 blair Exp $
+ */
 public class GrouperSession implements Serializable {
 
-  // Private Class Constants //
+  // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL        = new EventLog();
-  private static final Log      LOG       = LogFactory.getLog(GrouperSession.class);
+  // TODO Move to *E*
   private static final String   ERR_GS    = "unable to get subject associated with session";
   private static final String   ERR_START = "unable to start session: ";
   private static final String   ERR_STOP  = "unable to stop session: ";
 
-  // Hibernate Properties //
+
+  // HIBERNATE PROPERTIES //
   private String  id;
   private Member  member_id;
   private String  session_id;
   private Date    start_time;
 
-  // Private Class Variables //
+
+  // PRIVATE CLASS VARIABLES //
   private static Subject root = null;
 
-  // Private Transient Instance Variables //
+
+  // PRIVATE TRANSIENT INSTANCE VARIABLES //
   private transient Subject subj  = null;
   private transient String  who;
   private transient String  type;
 
 
-  // Constructors //
+  // CONSTRUCTORS //
   private GrouperSession() { 
     // Default constructor for Hibernate
   } // private GrouperSession()
 
 
-  // Public Class Methods //
+  // PUBLIC CLASS METHODS //
 
   /**
    * Start a session for interacting with the Grouper API.
@@ -98,9 +96,9 @@ public class GrouperSession implements Serializable {
     catch (Exception e) {
       // @exception HibernateException
       // @MemberNotFoundException
-      String err = ERR_START + e.getMessage();
-      LOG.fatal(err);
-      throw new SessionException(err, e);
+      String msg = ERR_START + e.getMessage();
+      ErrorLog.fatal(GrouperSession.class, msg);
+      throw new SessionException(msg, e);
     }
   } // public static GrouperSession start(subject)
 
@@ -112,23 +110,23 @@ public class GrouperSession implements Serializable {
         );
       }
       catch (Exception e) {
-        String err = GrouperLog.ERR_GRS + e.getMessage();
-        LOG.fatal(err);
-        throw new RuntimeException(err, e);
+        String msg = E.S_NOSTARTROOT + e.getMessage();
+        ErrorLog.fatal(GrouperSession.class, msg);
+        throw new RuntimeException(msg, e);
       }
     }
     try {
       return _getSession(root);
     }
     catch (Exception e) {
-      String err = GrouperLog.ERR_GRS + e.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, e);
+      String msg = E.S_NOSTARTROOT + e.getMessage();
+      ErrorLog.fatal(GrouperSession.class, msg);
+      throw new RuntimeException(msg, e);
     }
   } // protected static GrouperSession startTransient()
 
 
-  // Public instance methods
+  // PUBLIC INSTANCE METHODS //
 
   public boolean equals(Object other) {
     if ( (this == other ) ) return true;
@@ -214,8 +212,9 @@ public class GrouperSession implements Serializable {
       }
     }
     if (this.subj == null) {
-      LOG.fatal(ERR_GS);
-      throw new RuntimeException(ERR_GS);
+      String msg = ERR_GS;
+      ErrorLog.fatal(GrouperSession.class, msg);
+      throw new RuntimeException(msg);
     }
     return this.subj;
   } // public Subject getSubject()
@@ -255,9 +254,9 @@ public class GrouperSession implements Serializable {
       this.subj = null;
     }
     catch (HibernateException eH) {
-      String err = ERR_STOP + eH.getMessage();
-      LOG.error(err);
-      throw new SessionException(err, eH);
+      String msg = ERR_STOP + eH.getMessage();
+      ErrorLog.error(GrouperSession.class, msg);
+      throw new SessionException(msg, eH);
     }
   } // public void stop()
 
@@ -270,7 +269,7 @@ public class GrouperSession implements Serializable {
   } // public String toString()
 
 
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
   // TODO Deprecate
   protected static void validate(GrouperSession s) {
     try {
@@ -294,7 +293,7 @@ public class GrouperSession implements Serializable {
   } // protected static void validate(s)
 
 
-  // Private Static Methods
+  // PRIVATE STATIC METHODS //
   private static GrouperSession _getSession(Subject subj) 
     throws  MemberNotFoundException
   {
@@ -314,37 +313,33 @@ public class GrouperSession implements Serializable {
   } // private GrouperSession(subj) 
 
 
-  // Hibernate Accessors
+  // GETTERS //
   private String getId() {
     return this.id;
   }
-
-  private void setId(String id) {
-    this.id = id;
+  private Member getMember_id() {
+    return this.member_id;
   }
-
+  private String getSession_id() {
+    return this.session_id;
+  }
   private Date getStart_time() {
     return this.start_time;
   }
 
-  private void setStart_time(Date start_time) {
-    this.start_time = start_time;
-  }
 
-  private String getSession_id() {
-    return this.session_id;
+  // SETTERS //
+  private void setId(String id) {
+    this.id = id;
   }
-
+  private void setMember_id(Member member_id) {
+    this.member_id = member_id;
+  }
   private void setSession_id(String session_id) {
     this.session_id = session_id;
   }
-
-  private Member getMember_id() {
-    return this.member_id;
-  }
-
-  private void setMember_id(Member member_id) {
-    this.member_id = member_id;
+  private void setStart_time(Date start_time) {
+    this.start_time = start_time;
   }
 
 }

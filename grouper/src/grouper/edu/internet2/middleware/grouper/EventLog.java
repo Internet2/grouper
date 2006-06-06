@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.12 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: EventLog.java,v 1.13 2006-06-06 18:49:59 blair Exp $
  */
 class EventLog {
 
@@ -100,6 +100,21 @@ class EventLog {
     LOG.info(LogHelper.formatSession(s) + msg);
   } // protected static void info(s, msg)
 
+  // @since 1.0
+  protected static void info(GrouperSession s, String msg, StopWatch sw) {
+    EventLog.info(s.toString(), msg, sw);
+  } // protected static void info(log, sessionToString, msg, sw)
+
+  // @since 1.0
+  protected static void info(
+    String sessionToString, String msg, StopWatch sw
+  ) 
+  {
+    LOG.info(
+      LogHelper.formatSession(sessionToString) + msg + LogHelper.formatStopWatch(sw)
+    );
+  } // protected static void info(log, sessionToString, msg, sw)
+
 
   // PROTECTED INSTANCE METHODS //
 
@@ -152,7 +167,7 @@ class EventLog {
     GrouperSession s, String group, GroupType type, StopWatch sw
   ) 
   {
-    GrouperLog.info(LOG, s.toString(), G_AT + group + " " + type, sw);
+    EventLog.info(s, G_AT + group + " " + type, sw);
   }
 
   protected void groupDelAttr(
@@ -163,7 +178,7 @@ class EventLog {
   } // protected void groupDelAttr(s, group, attr, val, sw);
 
   protected void groupDelete(GrouperSession s, String group, StopWatch sw) {
-    GrouperLog.info(LOG, s.toString(), G_D + group, sw);
+    EventLog.info(s, G_D + group, sw);
   } // protected void groupDelete(s, group, sw)
 
   protected void groupDelMember(
@@ -177,7 +192,7 @@ class EventLog {
     GrouperSession s, String group, GroupType type, StopWatch sw
   ) 
   {
-    GrouperLog.info(LOG, s.toString(), G_DT + group + " " + type, sw);
+    EventLog.info(s, G_DT + group + " " + type, sw);
   }
 
   protected void groupGrantPriv(
@@ -212,43 +227,43 @@ class EventLog {
     GrouperSession s, String type, StopWatch sw
   )
   {
-    GrouperLog.info(LOG, s.toString(), GT_AT + type, sw);
+    EventLog.info(s, GT_AT + type, sw);
   } // protected void groupTypeAdd(s, group, attr, val, sw);
 
   protected void groupTypeAddField(
     GrouperSession s, String type, String name, StopWatch sw
   )
   {
-    GrouperLog.info(LOG, s.toString(), GT_AF + name + " to " + type, sw);
+    EventLog.info(s, GT_AF + name + " to " + type, sw);
   } // protected void groupAddField(s, group, attr, val, sw);
 
   protected void groupTypeDelField(
     GrouperSession s, String type, String name, StopWatch sw
   )
   {
-    GrouperLog.info(LOG, s.toString(), GT_DF + name + " from " + type, sw);
+    EventLog.info(s, GT_DF + name + " from " + type, sw);
   } // protected void groupDelField(s, group, attr, val, sw);
 
   protected void sessionStart(String sessionToString, StopWatch sw) {
-    GrouperLog.info(LOG, sessionToString, GS_START, sw);
+    EventLog.info(sessionToString, GS_START, sw);
   } // protected sessionStart(sessionToString, sw)
 
   protected void sessionStop(String sessionToString, long start, StopWatch sw) {
     Date now  = new Date();
     long dur  = now.getTime() - start;
-    GrouperLog.info(LOG, sessionToString, GS_STOP + dur + "ms", sw);
+    EventLog.info(sessionToString, GS_STOP + dur + "ms", sw);
   } // protected sessionStop(sessionToString, start, sw)
 
   protected void stemAddChildGroup(GrouperSession s, String name, StopWatch sw) {
-    GrouperLog.info(LOG, s.toString(), S_ACG + name, sw);
+    EventLog.info(s, S_ACG + name, sw);
   } // protected void stemAddChildGroup(s, name, sw)
 
   protected void stemAddChildStem(GrouperSession s, String name, StopWatch sw) {
-    GrouperLog.info(LOG, s.toString(), S_ACS + name, sw);
+    EventLog.info(s, S_ACS + name, sw);
   } // protected void stemAddChildGroup(s, name, sw)
 
   protected void stemDelete(GrouperSession s, String stem, StopWatch sw) {
-    GrouperLog.info(LOG, s.toString(), S_D + stem, sw);
+    EventLog.info(s, S_D + stem, sw);
   } // protected void stemDelete(s, stem, sw)
 
   protected void stemGrantPriv(
@@ -382,7 +397,7 @@ class EventLog {
     // membership change
     msg += " subject=" + SubjectHelper.getPretty(subj) + ")";
     // Now log it
-    GrouperLog.info(LOG, s.toString(), msg);
+    LOG.info( LogHelper.formatMsg(s, msg) );
     // Reset to the original session
     eff.setSession(s);
   } // private void _eff(root, s, msg, name, subj, f, eff, field)
@@ -391,8 +406,8 @@ class EventLog {
     GrouperSession s, String msg, String name, Subject subj, Privilege p, StopWatch sw
   )
   {
-    GrouperLog.info(
-      LOG, s.toString(), 
+    EventLog.info(
+      s,
       msg + name + " priv=" + p.getName() + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
@@ -403,8 +418,8 @@ class EventLog {
     GrouperSession s, String msg, String group, Subject subj, Field f, StopWatch sw
   )
   {
-    GrouperLog.info(
-      LOG, s.toString(),
+    EventLog.info(
+      s,
       msg + group + " list=" + f.getName() + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
@@ -415,8 +430,8 @@ class EventLog {
     GrouperSession s, String msg, String name, Privilege p, StopWatch sw
   )
   {
-    GrouperLog.info(
-      LOG, s.toString(), msg + name + " priv=" + p.getName(), sw
+    EventLog.info(
+      s, msg + name + " priv=" + p.getName(), sw
     );
   } // private void _revokePriv(s, msg, name, p, sw)
 
@@ -424,8 +439,8 @@ class EventLog {
     GrouperSession s, String msg, String name, Subject subj, Privilege p, StopWatch sw
   )
   {
-    GrouperLog.info(
-      LOG, s.toString(), 
+    EventLog.info(
+      s,
       msg + name + " priv=" + p.getName() + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
@@ -436,9 +451,7 @@ class EventLog {
     GrouperSession s, String msg, String name, String attr, String val, StopWatch sw
   )
   {
-    GrouperLog.info(
-      LOG, s.toString(), msg + name + " attr=" + attr + " value=" + val, sw
-    );
+    EventLog.info(s, msg + name + " attr=" + attr + " value=" + val, sw);
   } // private void _setAttr(s, msg, attr, val, sw)
 }
 

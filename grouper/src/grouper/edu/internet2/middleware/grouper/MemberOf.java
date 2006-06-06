@@ -16,30 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.18 2006-06-02 18:23:46 blair Exp $
+ * @version $Id: MemberOf.java,v 1.19 2006-06-06 18:49:59 blair Exp $
  */
 class MemberOf implements Serializable {
 
-  // Protected Class Constants //
+  // PROTECTED CLASS CONSTANTS //
+  // TODO Move to *E*
   protected static final String ERR_CT  = "invalid composite type: ";
 
-  // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(MemberOf.class);
 
-
-  // Private Instance Variables //
+  // PRIVATE INSTANCE VARIABLES //
   private Composite       c;
   private Set             deletes     = new LinkedHashSet();
   private Set             effDeletes  = new LinkedHashSet();
@@ -53,7 +47,7 @@ class MemberOf implements Serializable {
   private Set             saves       = new LinkedHashSet();
 
 
-  // Constructors //
+  // CONSTRUCTORS //
   private MemberOf(GrouperSession s, Owner o, Member m, Membership ms) {
     this.f  = ms.getList();
     this.m  = m;
@@ -63,6 +57,7 @@ class MemberOf implements Serializable {
     this._setSessions();
   } // private MemberOf(s, o, m, ms)
 
+  // @since 1.0
   private MemberOf(GrouperSession s, Owner o, Composite c) {
     this.c    = c;
     this.f    = Group.getDefaultList();
@@ -72,9 +67,10 @@ class MemberOf implements Serializable {
   } // private MemberOf(s, o, c)
 
 
-  // Protected Class Methods //
+  // PROTECTED CLASS METHODS //
  
   // Calculate addition of a composite membership 
+  // @since 1.0
   protected static MemberOf addComposite(
     GrouperSession s, Owner o, Composite c
   )
@@ -90,6 +86,7 @@ class MemberOf implements Serializable {
     return mof;
   } // protected static MemberOf addComposite(s, o, c)
 
+  // @since 1.0
   protected static MemberOf addImmediate(
     GrouperSession s, Owner o, Membership ms, Member m
   )
@@ -108,6 +105,7 @@ class MemberOf implements Serializable {
   } // protected static MemberOf addImmediate(s, o, m, ms)
 
   // Calculate deletion of a composite membership 
+  // @since 1.0
   //  TODO  Why do I need to include o?  Can't I just get that from c?
   protected static MemberOf delComposite(
     GrouperSession s, Owner o, Composite c
@@ -141,6 +139,7 @@ class MemberOf implements Serializable {
     return mof;
   } // protected static MemberOf delComposite(s, o, c)
 
+  // @since 1.0
   protected static MemberOf delImmediate(
     GrouperSession s, Owner o, Membership ms, Member m
   )
@@ -163,22 +162,27 @@ class MemberOf implements Serializable {
   } // protected static MemberOf delImmediate(s, o, m, ms)
 
 
-  // Protected Instance Methods //
+  // PROTECTED INSTANCE METHODS //
+
+  // @since 1.0
   protected Set getDeletes() {
     return this.deletes;
   } // protected Set getDeletes()
+  // @since 1.0
   protected Set getEffDeletes() {
     return this.effDeletes;
   } // protected Set getEffDeletes()
+  // @since 1.0
   protected Set getEffSaves() {
     return this.effSaves;
   } // protected Set getEffSaves()
+  // @since 1.0
   protected Set getSaves() {
     return this.saves;
   } // protected Set getSaves()
 
 
-  // Private Instance Methods //
+  // PRIVATE INSTANCE METHODS //
 
   // Add m's hasMembers to o
   private Set _addHasMembersToOwner(Set hasMembers) 

@@ -16,29 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.io.Serializable;
-import  org.apache.commons.logging.*;
-
 
 /**
  * Find sessions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionFinder.java,v 1.9 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperSessionFinder.java,v 1.10 2006-06-06 18:49:59 blair Exp $
  */
 class GrouperSessionFinder implements Serializable {
 
-  // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(GrouperSessionFinder.class);
-
-
-  // Private Class Variables
+  // PRIVATE CLASS VARIABLES //
   private static GrouperSession root = null;
 
 
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
 
   // TODO Deprecate
   protected static GrouperSession getRootSession() {

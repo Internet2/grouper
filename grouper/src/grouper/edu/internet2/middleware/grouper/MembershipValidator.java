@@ -16,20 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.3 2006-06-06 18:49:59 blair Exp $
+ * @since   1.0
  */
 class MembershipValidator implements Serializable {
 
-  // Protected Class Constants //
+  // PROTECTED CLASS CONSTANTS //
+  // TODO Move to *E*
   protected static final String ERR_CM  = "cannot create a circular membership";
   protected static final String ERR_D   = "membership has invalid depth: ";
   protected static final String ERR_FT  = "membership has invalid field type: ";
@@ -42,10 +41,10 @@ class MembershipValidator implements Serializable {
   protected static final String ERR_V   = "composite membership has null via";
   protected static final String ERR_VC  = "composite membership has invalid via class: ";
 
-  // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(MembershipValidator.class);
 
-  // Protected Class Methods //
+  // PROTECTED CLASS METHODS //
+
+  // @since 1.0
   protected static void validateComposite(Membership ms)
     throws  ModelException
   {
@@ -69,6 +68,7 @@ class MembershipValidator implements Serializable {
     }
   } // protected static void validateComposite(ms)
 
+  // @since 1.0
   protected static void validateImmediate(Membership ms)
     throws  ModelException
   {
@@ -89,7 +89,9 @@ class MembershipValidator implements Serializable {
   } // protected static void validateImmediate(ms)
 
 
-  // Private Class Methods //
+  // PRIVATE CLASS METHODS //
+
+  // @since 1.0
   private static void _validate(Membership ms) 
     throws  ModelException
   {
@@ -134,6 +136,7 @@ class MembershipValidator implements Serializable {
   } // private static void _validate(ms)
 
   // Verify that membership doesn't already exist
+  // @since 1.0
   private static void _validateDoesNotExist(Membership ms) 
     throws  ModelException
   {

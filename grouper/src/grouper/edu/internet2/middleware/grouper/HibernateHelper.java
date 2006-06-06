@@ -16,13 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.cfg.*;
-import  org.apache.commons.logging.*;
-
 
 /**
  * Hibernate utility helper class.
@@ -31,16 +28,16 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.20 2006-05-30 16:26:51 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.21 2006-06-06 18:49:59 blair Exp $
  */
 class HibernateHelper {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Configuration  CFG;
+  // TODO Move to *E*
   private static final String         ERR_GP    = "attempt to delete transient object ";
   private static final String         ERR_INIT  = "unable to initialize hibernate: ";
   private static final SessionFactory FACTORY;
-  private static final Log            LOG       = LogFactory.getLog(HibernateHelper.class);
 
 
   // STATIC //
@@ -69,8 +66,8 @@ class HibernateHelper {
     } 
     catch (Throwable t) {
       // Catch *all* the errors
-      String err = ERR_INIT + t.getMessage();
-      LOG.fatal(err);
+      String msg = ERR_INIT + t.getMessage();
+      ErrorLog.fatal(HibernateHelper.class, msg);
       throw new ExceptionInInitializerError(t);
     }
   } // static
@@ -93,7 +90,7 @@ class HibernateHelper {
   { 
     Object  err = null;
     String  msg = "delete";
-    LOG.debug(msg + ": will delete " + objects.size());
+    DebugLog.info(HibernateHelper.class, msg + ": will delete " + objects.size());
     try {
       Session     hs = HibernateHelper.getSession();
       Transaction tx = hs.beginTransaction();
@@ -102,9 +99,9 @@ class HibernateHelper {
         while (iter.hasNext()) {
           Object o = iter.next();
           err = o;
-          LOG.debug(msg + ": deleting " + o);
+          DebugLog.info(HibernateHelper.class, msg + ": deleting " + o);
           hs.delete( _getPersistent(hs, o) );
-          LOG.debug(msg + ": deleted " + o);
+          DebugLog.info(HibernateHelper.class, msg + ": deleted " + o);
         }
         tx.commit();
       }
@@ -118,10 +115,11 @@ class HibernateHelper {
       }
     }
     catch (HibernateException eH) {
-      LOG.error(eH.getMessage());
-      throw new HibernateException(eH.getMessage(), eH);
+      msg = E.HIBERNATE + eH.getMessage();
+      ErrorLog.error(HibernateHelper.class, msg);
+      throw new HibernateException(msg, eH);
     }
-    LOG.info(msg + ": deleted " + objects.size());
+    DebugLog.info(HibernateHelper.class, msg + ": deleted " + objects.size());
   } // protected static void delete(objects)
 
   // @return  A Hibernate session 
@@ -148,7 +146,7 @@ class HibernateHelper {
   { 
     Object err = null;
     String  msg = "save";
-    LOG.debug(msg + ": will save " + objects.size());
+    DebugLog.info(HibernateHelper.class, msg + ": will save " + objects.size());
     try {
       Session     hs = HibernateHelper.getSession();
       Transaction tx = hs.beginTransaction();
@@ -157,9 +155,9 @@ class HibernateHelper {
         while (iter.hasNext()) {
           Object o = iter.next();
           err = o;
-          LOG.debug(msg + ": saving " + o);
+          DebugLog.info(HibernateHelper.class, msg + ": saving " + o);
           hs.saveOrUpdate(o);
-          LOG.debug(msg + ": saved " + o);
+          DebugLog.info(HibernateHelper.class, msg + ": saved " + o);
         }
         tx.commit();
       }
@@ -173,10 +171,11 @@ class HibernateHelper {
       }
     }
     catch (HibernateException eH) {
-      LOG.error(eH.getMessage());
-      throw new HibernateException(eH.getMessage(), eH);
+      msg = E.HIBERNATE + eH.getMessage();
+      ErrorLog.error(HibernateHelper.class, msg);
+      throw new HibernateException(msg, eH);
     }
-    LOG.info(msg + ": saved " + objects.size());
+    DebugLog.info(HibernateHelper.class, msg + ": saved " + objects.size());
   } // protected static void save(objects)
 
   protected static void saveAndDelete(Set saves, Set deletes)
@@ -222,10 +221,11 @@ class HibernateHelper {
       }
     }
     catch (HibernateException eH) {
-      LOG.error(eH.getMessage());
-      throw new HibernateException(eH.getMessage(), eH);
+      String msg = E.HIBERNATE + eH.getMessage();
+      ErrorLog.error(HibernateHelper.class, msg);
+      throw new HibernateException(msg, eH);
     }
-    LOG.info("saved: " + saves.size() + " deleted: " + deletes.size());
+    DebugLog.info(HibernateHelper.class, "saved: " + saves.size() + " deleted: " + deletes.size());
   } // protected static void saveAndDelete(saves, deletes)
 
 
@@ -251,10 +251,10 @@ class HibernateHelper {
         throw new RuntimeException();
       }
       catch (RuntimeException eR) {
-        String err = ERR_GP + o + ":" + eR.getMessage();
-        LOG.fatal(err);
+        String msg = ERR_GP + o + ":" + eR.getMessage();
+        ErrorLog.fatal(HibernateHelper.class, msg);
         eR.printStackTrace();
-        throw new RuntimeException(err, eR);
+        throw new RuntimeException(msg, eR);
       }
     }
     return o;

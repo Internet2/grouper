@@ -16,37 +16,33 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.lang.reflect.*;
 import  java.util.*;
 import  net.sf.ehcache.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * Privilege resolution class.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.38 2006-06-05 19:54:40 blair Exp $
- *     
-*/
+ * @version $Id: PrivilegeResolver.java,v 1.39 2006-06-06 18:49:59 blair Exp $
+ */
 public class PrivilegeResolver {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
+  // TODO Move to *E*
   private static final String ERR_CI    = "unable to instantiate interface ";  
   private static final String ERR_RPC   = "unable to reset privilege caches: ";
-  private static final Log    LOG       = LogFactory.getLog(PrivilegeResolver.class);
+  // TODO Move to *M*
   private static final String MSG_RPC   = "reset privilege cache: ";
 
 
-  // Private Class Variables
+  // PRIVATE CLASS VARIABLES //
   private static PrivilegeResolver pr = null;
 
 
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIABLES //
   private PrivilegeCache  ac;
   private AccessAdapter   access; 
   private PrivilegeCache  nc;
@@ -54,13 +50,13 @@ public class PrivilegeResolver {
   private boolean         use_wheel = true;
 
 
-  // Constructors
+  // CONSTRUCTORS //
   private PrivilegeResolver() {
     // nothing
   } // private PrivilegeResolver()
 
 
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   /**
    * Remove all entries from the access and naming privilege caches.
@@ -74,21 +70,22 @@ public class PrivilegeResolver {
       PrivilegeResolver pr = PrivilegeResolver.getInstance();
       if (pr.ac != null) {
         pr.ac.removeAll();
-        LOG.info(MSG_RPC + PrivilegeCache.ACCESS);
+        DebugLog.info(PrivilegeResolver.class, MSG_RPC + PrivilegeCache.ACCESS);
       }
       if (pr.nc != null) {
         pr.nc.removeAll();
-        LOG.info(MSG_RPC + PrivilegeCache.NAMING);
+        DebugLog.info(PrivilegeResolver.class, MSG_RPC + PrivilegeCache.NAMING);
       }
     }
     catch (Exception e) {
-      String err = ERR_RPC + e.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, e);
+      String msg = ERR_RPC + e.getMessage();
+      ErrorLog.fatal(PrivilegeResolver.class, msg);
+      throw new RuntimeException(msg, e);
     }
   } // public static void resetPrivilegeCaches()
 
-  // Protected Class Methods
+
+  // PROTECTED CLASS METHODS //
   protected static PrivilegeResolver getInstance() {
     if (pr == null) {
       GrouperConfig cfg = GrouperConfig.getInstance();
@@ -109,7 +106,7 @@ public class PrivilegeResolver {
   } // protected static PrivilegeResolver getInstance()
 
 
-  // Protected Instance Methods
+  // PROTECTED INSTANCE METHODS //
 
   protected void canADMIN(GrouperSession s, Group g, Subject subj)
     throws  InsufficientPrivilegeException
@@ -482,7 +479,7 @@ public class PrivilegeResolver {
       this.ac.removeAll();
     }
     catch (Exception e) {
-      LOG.error(ERR_RPC + e.getMessage());
+      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
     }
   } // protected void grantPriv(s, g, subj, priv)
 
@@ -500,7 +497,7 @@ public class PrivilegeResolver {
       this.nc.removeAll();
     }
     catch (Exception e) {
-      LOG.error(ERR_RPC + e.getMessage());
+      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
     }
   } // protected void grantPriv(s, ns, subj, priv)
 
@@ -605,7 +602,7 @@ public class PrivilegeResolver {
       this.ac.removeAll();
     }
     catch (Exception e) {
-      LOG.error(ERR_RPC + e.getMessage());
+      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
     }
   } // protected void revokePriv(s, g, priv)
 
@@ -621,7 +618,7 @@ public class PrivilegeResolver {
       this.nc.removeAll();
     }
     catch (Exception e) {
-      LOG.error(ERR_RPC + e.getMessage());
+      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
     }
   } // protected void revokePriv(s, ns, priv)
 
@@ -639,7 +636,7 @@ public class PrivilegeResolver {
       this.ac.removeAll();
     }
     catch (Exception e) {
-      LOG.error(ERR_RPC + e.getMessage());
+      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
     }
   } // protected void revokePriv(s, g, subj, priv)
 
@@ -657,12 +654,12 @@ public class PrivilegeResolver {
       this.nc.removeAll();
     }
     catch (Exception e) {
-      LOG.error(ERR_RPC + e.getMessage());
+      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
     }
   } // protected void revokePriv(s, ns, subj, priv)
 
 
-  // Private Class Methods
+  // PRIVATE CLASS METHODS //
   private static Object _createInterface(String name) {
     try {
       Class   classType     = Class.forName(name);
@@ -672,12 +669,14 @@ public class PrivilegeResolver {
       return con.newInstance(params);
     }
     catch (Exception e) {
-      String err = ERR_CI + name + ": " + e.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, e);
+      String msg = ERR_CI + name + ": " + e.getMessage();
+      ErrorLog.fatal(PrivilegeResolver.class, msg);
+      throw new RuntimeException(msg, e);
     }
   } // private static Object _createInterface(name)
 
+
+  // PRIVATE INSTANCE METHODS //
   private boolean _isAll(GrouperSession s, Group g, Privilege priv) 
     throws  SchemaException
   {
@@ -704,7 +703,8 @@ public class PrivilegeResolver {
       catch (GroupNotFoundException eGNF) {
         // Group not found.  Oh well.
         // TODO The problem is that the test suite deletes it.  
-        LOG.error(
+        ErrorLog.error(
+          PrivilegeResolver.class, 
           "disabling wheel group.  enabled but found found: " + name
         );
         this.use_wheel = false;
@@ -713,7 +713,7 @@ public class PrivilegeResolver {
         root.stop();
       }
       catch (SessionException eS) {
-        LOG.error(eS.getMessage());
+        ErrorLog.error(PrivilegeResolver.class, eS.getMessage());
       }
     } 
     else {

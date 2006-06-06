@@ -16,29 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.11 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.12 2006-06-06 18:49:59 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   private static final Set  ATTR_VALUES = new LinkedHashSet();
-  private static final Log  LOG         = LogFactory.getLog(GrouperSubject.class);
 
 
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIABLES //
   private GrouperSourceAdapter  adapter = null;
   private Map                   attrs   = new HashMap(); 
   private Group                 g       = null;
@@ -47,7 +42,7 @@ public class GrouperSubject implements Subject {
   private SubjectType           type    = SubjectTypeEnum.valueOf("group");
 
 
-  // Constructors //
+  // CONSTRUCTORS //
   protected GrouperSubject(Group g) 
     throws  SourceUnavailableException
   {
@@ -58,7 +53,7 @@ public class GrouperSubject implements Subject {
   } // protected GrouperSubject(g, sa)
 
 
-  // Public Instance Methods //
+  // PUBLIC INSTANCE METHODS //
   public Map getAttributes() {
     this._addAttrs();
     return this.attrs;
@@ -97,7 +92,7 @@ public class GrouperSubject implements Subject {
   } // public SubjectType getType()
 
 
-  // Private Instance Methods
+  // PRIVATE INSTANCE METHODS
   private void _addAttr(String attr, String value) {
     // TODO Should I be applying a regex to the attr name?  The current check
     //      is fairly naive - but I guess right now only *I* can add items so
@@ -111,7 +106,8 @@ public class GrouperSubject implements Subject {
     ) 
     {
       this.attrs.put(attr, value);
-      LOG.debug(
+      DebugLog.info(
+        GrouperSubject.class,
         "[" + this.name + "] attached attribute: '" + attr + "' = '" + value + "'"
       );
     }
@@ -128,7 +124,8 @@ public class GrouperSubject implements Subject {
       hs.close();
     }
     catch (HibernateException eH) {
-      LOG.error("unable to refresh group subject: " + this.name);
+      String msg = "unable to refresh group subject (" + this.name + "): " + eH.getMessage();
+      ErrorLog.error(GrouperSubject.class, msg);
     }
     try {
       // Don't bother with any of the create* attrs unless we can find
@@ -158,7 +155,10 @@ public class GrouperSubject implements Subject {
       String key = (String) iter.next();
       this._addAttr(key, (String) attrs.get(key));
     }
-    LOG.debug("[" + this.name + "] attached attributes: " + this.attrs.size());
+    DebugLog.info(
+      GrouperSubject.class, 
+      "[" + this.name + "] attached attributes: " + this.attrs.size()
+    );
   } // private void _addAttrs(g)
 }
 
