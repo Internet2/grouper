@@ -16,28 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.Serializable;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperSessionValidator.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GrouperSessionValidator.java,v 1.3 2006-06-06 18:49:59 blair Exp $
+ * @since   1.0
  */
 class GrouperSessionValidator implements Serializable {
 
-  // Protected Class Constants //
+  // PROTECTED CLASS CONSTANTS //
+  // TODO Move to *E*
   protected static final String ERR_I = "null session id";
   protected static final String ERR_O = "null session object";
   protected static final String ERR_M = "null session member";
   protected static final String ERR_T = "null session start time";
 
-  // Private Class Constants //
-  private static final Log LOG = LogFactory.getLog(GrouperSessionValidator.class);
 
-
-  // Protected Class Methods //
+  // PROTECTED CLASS METHODS //
   protected static void validate(GrouperSession s)
     throws  ModelException
   {

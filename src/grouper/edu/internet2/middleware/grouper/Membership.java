@@ -16,33 +16,29 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.32 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: Membership.java,v 1.33 2006-06-06 18:49:59 blair Exp $
  */
 public class Membership implements Serializable {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
+  // TODO Move to *E*
   private static final String   ERR_IO  = "class cannot contain membership: ";
   private static final String   ERR_NO  = "membership has no owner: ";
-  private static final Log      LOG     = LogFactory.getLog(Membership.class);
   private static final EventLog EL      = new EventLog();
 
 
-  // Hibernate Properties
+  // HIBERNATE PROPERTIES //
   private Member      creator_id;
   private long        create_time;
   private int         depth;
@@ -55,11 +51,11 @@ public class Membership implements Serializable {
   private Owner       via_id;
 
   
-  // Private Transient Instance Variables
+  // PRIVATE TRANSIENT INSTANCE VARIABLES //
   private transient GrouperSession  s;
 
 
-  // Constructors //
+  // CONSTRUCTORS //
   private Membership() {
     // Default constructor for Hibernate.
   }
@@ -92,7 +88,7 @@ public class Membership implements Serializable {
   } // protected Membership(o, m, f, via)
 
 
-  // Public Instance Methods //
+  // PUBLIC INSTANCE METHODS //
 
   public boolean equals(Object other) {
     if (this == other) {
@@ -266,7 +262,8 @@ public class Membership implements Serializable {
   } // public String toString()
 
 
-  // Protected Class Methods //
+  // PROTECTED CLASS METHODS //
+
   protected static void addImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f
   )
@@ -448,7 +445,8 @@ public class Membership implements Serializable {
   } // protected void setSession(s)
 
 
-  // Private Class Methods //
+  // PRIVATE CLASS METHODS //
+
   // TODO REFACTOR/DRY
   protected static Set getPersistent(GrouperSession s, Set mships) 
     throws  HibernateException,
@@ -478,7 +476,7 @@ public class Membership implements Serializable {
   } // protected static Set getPersistant(s, mships)
 
  
-  // Getters // 
+  // GETTERS // 
   private long getCreate_time() {
     return this.create_time;
   }
@@ -511,7 +509,7 @@ public class Membership implements Serializable {
   }
 
 
-  // Setters //
+  // SETTERS //
   private void setDepth(int depth) {
     this.depth = depth;
   }

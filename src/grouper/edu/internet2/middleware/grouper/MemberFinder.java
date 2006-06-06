@@ -16,30 +16,26 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
-import  org.apache.commons.logging.*;
-
 
 /**
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.12 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.13 2006-06-06 18:49:59 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
+  // TODO Move to *E*
   private static final String ERR_FAM = "unable to find ALL subject as member: ";
-  private static final Log    LOG     = LogFactory.getLog(MemberFinder.class);
 
 
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
 
   /**
    * Convert a {@link Subject} to a {@link Member}.
@@ -114,16 +110,16 @@ public class MemberFinder implements Serializable {
   } // public static Member findByUuid(s, uuid)
 
   
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
 
   protected static Member findAllMember() {
     try {
       return MemberFinder.findBySubject(SubjectFinder.findAllSubject()); 
     }
     catch (MemberNotFoundException eMNF) {
-      String err = ERR_FAM + eMNF.getMessage();
-      LOG.fatal(err);
-      throw new RuntimeException(err, eMNF);
+      String msg = ERR_FAM + eMNF.getMessage();
+      ErrorLog.fatal(MemberFinder.class, msg);
+      throw new RuntimeException(msg, eMNF);
     }
   } // protected static Member findAllMember()
 
@@ -131,10 +127,10 @@ public class MemberFinder implements Serializable {
     throws  MemberNotFoundException
   {
     String msg = "findBySubject";
-    LOG.debug(msg);
+    DebugLog.info(MemberFinder.class, msg);
     if (subj == null) {
       String err = msg + " null subject";
-      LOG.debug(err);
+      DebugLog.info(MemberFinder.class, err);
       throw new MemberNotFoundException(err);
     }
     try {
@@ -152,7 +148,7 @@ public class MemberFinder implements Serializable {
       qry.setString("type",   subj.getType().getName());
       qry.setString("source", subj.getSource().getId());
       List    members = qry.list();
-      LOG.debug(msg + " found: " + members.size());
+      DebugLog.info(MemberFinder.class, msg + " found: " + members.size());
       if (members.size() == 1) {
         // The member already exists
         m = (Member) members.get(0);
@@ -160,20 +156,20 @@ public class MemberFinder implements Serializable {
       hs.close();
       if (m != null) {
         m.setSubject(subj);
-        LOG.debug(msg + " found existing member: " + m);
+        DebugLog.info(MemberFinder.class, msg + " found existing member: " + m);
         return m;
       }
       else {
         // Create a new member
         m = Member.addMember(subj);
-        LOG.debug(msg + " created new member: " + m);
+        DebugLog.info(MemberFinder.class, msg + " created new member: " + m);
         return m;
       }
     }
     catch (HibernateException eH) {
-      String err = msg + " member not found nor created: " + eH.getMessage();
-      LOG.error(err);
-      throw new MemberNotFoundException(err, eH);
+      msg += " member not found nor created: " + eH.getMessage();
+      ErrorLog.error(MemberFinder.class, msg);
+      throw new MemberNotFoundException(msg, eH);
     }
   } // protected static Member findBySubject(subj)
 }

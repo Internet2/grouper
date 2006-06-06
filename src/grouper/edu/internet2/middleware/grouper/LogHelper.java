@@ -16,25 +16,28 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  org.apache.commons.lang.time.*;
 
 /** 
  * Grouper log helper class.
  * <p />
  * @author  blair christensen.
- * @version $Id: LogHelper.java,v 1.1 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: LogHelper.java,v 1.2 2006-06-06 18:49:59 blair Exp $
  * @since   1.0
  */
 class LogHelper {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final String OPEN  = "[";
-  private static final String CLOSE = "] ";
+  private static final String OPEN_B  = "[";
+  private static final String OPEN_P  = " (";
+  private static final String CLOSE_B = "] ";
+  private static final String CLOSE_P = "ms)";
 
 
   // PROTECTED CLASS METHODS //
   // @since 1.0
   protected static String formatClass(Class c) {
-    return OPEN + c.getName() + CLOSE;
+    return OPEN_B + c.getName() + CLOSE_B;
   } // protected static String formatClass(c)
 
   // @since 1.0
@@ -44,8 +47,18 @@ class LogHelper {
 
   // @since 1.0
   protected static String formatSession(GrouperSession s) {
-    return OPEN + s.toString() + CLOSE;
+    return formatSession(s.toString());
   } // protected static String formatSession(s)
+
+  // @since 1.0
+  protected static String formatSession(String s) {
+    return OPEN_B + s + CLOSE_B;
+  } // protected static String formatSession(s)
+
+  // @since 1.0 
+  protected static String formatStopWatch(StopWatch sw) {
+    return OPEN_P + sw.getTime() + CLOSE_P;
+  } // protected static String formatStopWatch(sw)
 
 }
 

@@ -28,12 +28,13 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.70 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: Group.java,v 1.71 2006-06-06 18:49:59 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL        = new EventLog();
+  // TODO Move to *E*
   private static final String   ERR_AM    = "unable to add member: ";
   private static final String   ERR_DG    = "unable to delete group: ";
   private static final String   ERR_G2M   = "could not convert group to member: ";
@@ -45,6 +46,7 @@ public class Group extends Owner implements Serializable {
   private static final String   ERR_NOE   = "group without extension";
   private static final String   ERR_NON   = "group without name";
   private static final String   ERR_S2G   = "could not convert subject to group: ";
+  // TODO Move to *M*
   private static final String   MSG_AM    = "add member ";
   private static final String   MSG_DG    = "group deleted: ";
   private static final String   MSG_DM    = "revoke member ";

@@ -16,30 +16,26 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.logging.*;
-
 
 /** 
  * An object that can have memberships assigned to it.
  * <p />
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.6 2006-05-24 17:31:48 blair Exp $
- *     
-*/
+ * @version $Id: Owner.java,v 1.7 2006-06-06 18:49:59 blair Exp $
+ * @since   1.0
+ */
 public abstract class Owner implements Serializable {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL  = new EventLog();
-  private static final Log      LOG = LogFactory.getLog(Owner.class);
 
 
-  // Hibernate Properties
+  // HIBERNATE PROPERTIES //
   private String  id;
   private String  create_source;
   private long    create_time;
@@ -49,35 +45,43 @@ public abstract class Owner implements Serializable {
   private long    modify_time;
   private String  uuid;
 
-  // Transient Instance Variables
+  // PROTECTED TRANSIENT INSTANCE VARIABLES //
   protected transient GrouperSession  s;
   
 
-  // Constructors
+  // CONSTRUCTORS //
 
   /**
    * Default constructor for Hibernate.
+   * @since 1.0
    */
   public Owner() {
     // Nothing
-  }
+  } // public Owner() 
 
 
-  // Protected Abstract Instance Methods //
+  // PROTECTED ABSTRACT INSTANCE METHODS //
+
+  // @since 1.0
   protected abstract void setModified();
 
 
-  // Protected Instance Methods //
+  // PROTECTED INSTANCE METHODS //
+
+  // @since 1.0
   protected GrouperSession getSession() {
     GrouperSession.validate(this.s);
     return this.s;
   } // protected GrouperSession getSession()
 
-  // FIXME
+  // @since 1.0
+  // FIXME Deprecate?
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
     this.s = s;
   } // protected void setSession(s)
+
+  // @since 1.0
   protected void setSessionNew(GrouperSession s) 
     throws  ModelException
   {
@@ -86,25 +90,32 @@ public abstract class Owner implements Serializable {
   } // protected void setSession(s)
 
 
-  // Getters //
+  // GETTERS //
+  // @since 1.0
   protected String getCreate_source() {
     return this.create_source;
   }
+  // @since 1.0
   protected long getCreate_time() {
     return this.create_time;
   }
+  // @since 1.0
   protected Member getCreator_id() {
     return this.creator_id;
   }
+  // @since 1.0
   protected String getId() {
     return this.id;
   }
+  // @since 1.0
   protected Member getModifier_id() {
     return this.modifier_id;
   }
+  // @since 1.0
   protected String getModify_source() {
     return this.modify_source;
   }
+  // @since 1.0
   protected long getModify_time() {
     return this.modify_time;
   }
@@ -114,34 +125,43 @@ public abstract class Owner implements Serializable {
    * String uuid = o.getUuid();
    * </pre>
    * @return  UUID of object.
+   * @since   1.0
    */
   public String getUuid() {
     return this.uuid;
   } // public String getUuid()
 
 
-  // Setters //
+  // SETTERS //
+  // @since 1.0
   protected void setId(String id) {
     this.id = id;
   }
+  // @since 1.0
   protected void setCreate_source(String create_source) {
     this.create_source = create_source;
   }
+  // @since 1.0
   protected void setCreate_time(long create_time) {
     this.create_time = create_time;
   }
+  // @since 1.0
   protected void setCreator_id(Member creator_id) {
     this.creator_id = creator_id;
   }
+  // @since 1.0
   protected void setModifier_id(Member modifier_id) {
       this.modifier_id = modifier_id;
   }
+  // @since 1.0
   protected void setModify_source(String modify_source) {
     this.modify_source = modify_source;
   }
+  // @since 1.0
   protected void setModify_time(long modify_time) {
     this.modify_time = modify_time;
   }
+  // @since 1.0
   protected void setUuid(String uuid) {
     this.uuid = uuid;
   }

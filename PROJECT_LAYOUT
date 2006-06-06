@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: PROJECT_LAYOUT,v 1.8 2006-05-30 16:26:51 blair Exp $
+$Id: PROJECT_LAYOUT,v 1.9 2006-06-06 18:49:59 blair Exp $
 
 ---
 
@@ -81,7 +81,7 @@ Destination for compiled .jar files.
 
 ### run/
 
-HSQLDB data directory and log4j log directory.
+HSQLDB data directory.
 
 ---
 
