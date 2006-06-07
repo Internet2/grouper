@@ -1,4 +1,6 @@
 /*--
+$Id: JNDISubject.java,v 1.2 2006-06-07 19:00:43 esluss Exp $
+$Date: 2006-06-07 19:00:43 $
 
 Copyright 2005 Internet2.  All Rights Reserved.
 See doc/license.txt in this distribution.
