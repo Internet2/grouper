@@ -1,5 +1,7 @@
 /*--
- 
+$Id: JNDISourceAdapter.java,v 1.4 2006-06-07 18:58:10 esluss Exp $
+$Date: 2006-06-07 18:58:10 $
+
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
  */
@@ -23,6 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import javax.naming.*;
 import javax.naming.directory.*;
@@ -33,11 +36,12 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
 
 
 /**
- * JNDI Source  * <br>
+ * JNDI Source 
  *
  */
 public class JNDISourceAdapter
@@ -56,9 +60,10 @@ public class JNDISourceAdapter
     // Return scope for searching as a int - associate the string with the int
     protected static HashMap scopeStrings = new HashMap();
     static {
-        scopeStrings.put("OBJECT_SCOPE",    new Integer(SearchControls.OBJECT_SCOPE)  );
-        scopeStrings.put("ONELEVEL_SCOPE",  new Integer(SearchControls.ONELEVEL_SCOPE));
-        scopeStrings.put("SUBTREE_SCOPE",   new Integer(SearchControls.SUBTREE_SCOPE) );
+        scopeStrings.put("OBJECT_SCOPE", Integer.valueOf(SearchControls.OBJECT_SCOPE));
+        scopeStrings.put("ONELEVEL_SCOPE", Integer.valueOf(SearchControls.ONELEVEL_SCOPE));
+        scopeStrings.put("SUBTREE_SCOPE", Integer.valueOf(SearchControls.SUBTREE_SCOPE));
+        
     }
     protected static int getScope(String scope ) {
         Integer s = (Integer) scopeStrings.get(scope.toUpperCase());
@@ -87,7 +92,7 @@ public class JNDISourceAdapter
      * {@inheritDoc}
      */
     public Subject getSubject(String id)
-    throws SubjectNotFoundException {
+    throws SubjectNotFoundException,SubjectNotUniqueException {
         Subject subject = null;
         Search search = getSearch("searchSubject");
         if (search == null) {
@@ -108,7 +113,7 @@ public class JNDISourceAdapter
      * {@inheritDoc}
      */
     public Subject getSubjectByIdentifier(String id)
-    throws SubjectNotFoundException {
+    throws SubjectNotFoundException,SubjectNotUniqueException {
         Subject subject = null;
         Search search = getSearch("searchSubjectByIdentifier");
         if (search == null) {
@@ -256,11 +261,19 @@ public class JNDISourceAdapter
             Map attributes = new HashMap();
             Search search = getSearch("searchSubject");
             if (search == null) {
-                log.error("searchType: search not defined.");
+                log.error("searchType: \"search\" not defined.");
                 return attributes;
             }
             //setting attributeNames to null will cause all attributes for a subject to be returned
             String[] attributeNames = null;
+            Set attributeNameSet = this.getAttributes();
+            if (attributeNameSet.size()==0) {
+                attributeNames = null;
+            } else {
+                attributeNames = new String[attributeNameSet.size()];
+                int i = 0;
+                for (Iterator it = attributeNameSet.iterator(); it.hasNext(); attributeNames[i++]= (String) it.next());
+            }
             try {
                 Attributes ldapAttributes = getLdapUnique(search,subject.getId(), attributeNames);
                 for (NamingEnumeration e = ldapAttributes.getAll(); e.hasMore();) {
@@ -276,6 +289,8 @@ public class JNDISourceAdapter
                 subject.setAttributes(attributes);
             } catch (SubjectNotFoundException ex ) {
                 log.error("SubjectNotFound: "+ subject.getId() +" " + ex.getMessage(), ex);
+            } catch (SubjectNotUniqueException ex ) {
+                log.error("SubjectNotUnique: "+ subject.getId() +" " + ex.getMessage(), ex);
             } catch (NamingException ex ) {
                 log.error("LDAP Naming Except: " + ex.getMessage(), ex);
             }
@@ -332,7 +347,7 @@ public class JNDISourceAdapter
         }
         
         
-        protected Attributes getLdapUnique( Search search, String searchValue, String[] attributeNames) throws SubjectNotFoundException  {
+        protected Attributes getLdapUnique( Search search, String searchValue, String[] attributeNames) throws SubjectNotFoundException,SubjectNotUniqueException  {
             Attributes attributes = null;
             NamingEnumeration results = getLdapResults(search, searchValue, attributeNames);
             
@@ -348,7 +363,7 @@ public class JNDISourceAdapter
                 if ( results.hasMore()) {
                     si = (SearchResult) results.next();
                     String errMsg ="Search is not unique:" + si.getName() + "\n";
-                    throw new SubjectNotFoundException( errMsg );
+                    throw new SubjectNotUniqueException( errMsg );
                 }
             } catch (NamingException ex) {
                 log.error("Ldap NamingException: " + ex.getMessage(), ex);
