@@ -1,6 +1,6 @@
 /*--
-$Id: BaseSourceAdapter.java,v 1.3 2006-03-12 23:10:50 tbarton Exp $
-$Date: 2006-03-12 23:10:50 $
+$Id: BaseSourceAdapter.java,v 1.4 2006-06-07 19:00:06 esluss Exp $
+$Date: 2006-06-07 19:00:06 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -19,6 +19,8 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+//esluss - added SubjectNotUniqueException
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
 
 
@@ -37,6 +39,7 @@ public abstract class BaseSourceAdapter
     protected Properties params = new Properties();
     //The three different kinds of searches: 
     protected HashMap searches = new HashMap();
+    protected Set attributes = new HashSet();
     
     /**
      * Default constructor.
@@ -96,13 +99,13 @@ public abstract class BaseSourceAdapter
      * {@inheritDoc}
      */
     public abstract Subject getSubject(String id)
-    throws SubjectNotFoundException;
+    throws SubjectNotFoundException,SubjectNotUniqueException;
     
     /**
      * {@inheritDoc}
      */
     public abstract Subject getSubjectByIdentifier(String id)
-    throws SubjectNotFoundException;
+    throws SubjectNotFoundException,SubjectNotUniqueException;
     
     /**
      * {@inheritDoc}
@@ -171,6 +174,16 @@ public abstract class BaseSourceAdapter
     protected Properties getInitParams() {
         return this.params;
         
+    }
+
+//esluss - added addAttribute and getAttribute. review
+    
+    public void addAttribute(String attributeName) {
+        this.attributes.add(attributeName);
+    }
+    
+    protected Set getAttributes() {
+        return this.attributes;
     }
     
     
