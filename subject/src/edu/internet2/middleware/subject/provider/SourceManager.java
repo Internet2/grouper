@@ -1,10 +1,11 @@
 /*--
-$Id: SourceManager.java,v 1.4 2006-04-28 17:11:04 blair Exp $
-$Date: 2006-04-28 17:11:04 $
- 
+$Id: SourceManager.java,v 1.5 2006-06-07 18:57:04 esluss Exp $
+$Date: 2006-06-07 18:57:04 $
+
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
  */
+
 package edu.internet2.middleware.subject.provider;
 
 import java.io.InputStream;
@@ -28,7 +29,6 @@ import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 
-
 /**
  * Factory to load and get Sources.  Sources are defined
  * in a configuration file named, sources.xml, and must
@@ -36,15 +36,15 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class SourceManager {
-    
+
     private static final String CONFIG_FILE = "/sources.xml";
-    
+
     private static Log log = LogFactory.getLog(SourceManager.class);
-    
+
     private static SourceManager manager;
     private Map source2TypeMap = new HashMap();
     private Map sourceMap       = new HashMap();
-    
+
     /**
      * Default constructor.
      * @throws Exception
@@ -53,7 +53,7 @@ public class SourceManager {
     throws Exception {
         init();
     }
-    
+
     /**
      * Returns the singleton instance of SourceManager.
      *
@@ -65,7 +65,7 @@ public class SourceManager {
         }
         return manager;
     }
-    
+
     /**
      * Gets Source for the argument source ID.
      * @param sourceId
@@ -80,7 +80,7 @@ public class SourceManager {
         }
         return source;
     }
-    
+
     /**
      * Returns a Collection of Sources.
      * @return Collection
@@ -88,7 +88,7 @@ public class SourceManager {
     public Collection getSources() {
         return this.sourceMap.values();
     }
-    
+
     /**
      * Returns a Collection of Sources that
      * supports the argument SubjectType.
@@ -100,7 +100,7 @@ public class SourceManager {
         }
         return (Collection) new HashSet();
     }
-    
+
     /**
      * Initialize this SourceManager.
      * @throws Exception
@@ -116,7 +116,7 @@ public class SourceManager {
                     "Error initializing SourceManager", ex);
         }
     }
-    
+
     /**
      * (non-javadoc)
      * @param source
@@ -139,8 +139,8 @@ public class SourceManager {
             log.error("Unable to init Source: " + source.getId(), ex);
         }
     }
-    
-    
+
+
     /**
      * Parses sources.xml config file using org.apache.commons.digester.Digester.
      */
@@ -158,21 +158,22 @@ public class SourceManager {
         digester.addCallMethod("sources/source/init-param","addInitParam", 2);
         digester.addCallParam("sources/source/init-param/param-name", 0);
         digester.addCallParam("sources/source/init-param/param-value", 1);
-        
+        digester.addCallMethod("sources/source/attribute", "addAttribute",0);
+
         digester.addObjectCreate("sources/source/search","edu.internet2.middleware.subject.provider.Search" );
         digester.addCallMethod("sources/source/search/searchType","setSearchType",0);
         digester.addCallMethod("sources/source/search/param", "addParam",2);
         digester.addCallParam("sources/source/search/param/param-name",0);
         digester.addCallParam("sources/source/search/param/param-value",1);
         digester.addSetNext("sources/source/search","loadSearch");
-        
+
         digester.addSetNext("sources/source", "loadSource");
         InputStream is = this.getClass().getResourceAsStream(CONFIG_FILE);
         log.debug("Parsing config input stream: " + is);
         digester.parse(is);
         is.close();
     }
-    
+
     /**
      * Validates sources.xml config file.
      */
@@ -186,7 +187,7 @@ public class SourceManager {
                         + ", params = " + source.getInitParams());
                 source.init();
                 if (source.getId().equals("example")) {
-                    
+
                     Subject subject = source.getSubject("70061854");
                     //Subject subject = source.getSubject("xxxxx");
                     log.debug("getSubject id: " + subject.getId() + " name: " + subject.getName() + " description:" + subject.getDescription());
@@ -199,9 +200,69 @@ public class SourceManager {
                         subject = (Subject) it.next();
                         log.debug("id: " + subject.getId() + " name: " + subject.getName() + " description:" + subject.getDescription());
                         Map attrs = subject.getAttributes();
+                        for (Iterator it2 = attrs.keySet().iterator(); it2.hasNext(); log.debug((String)it2.next()));
                     }
+
+                } else if (source.getId().equals("jdbc")) {
+                    Subject subject = source.getSubject("37413");
                     
-                }
+                    //Subject subject = source.getSubject("xxxxx");
+                    log.debug("getSubject id: " + subject.getId() + " name: " + subject.getName() + " description:" + subject.getDescription());
+                    subject = source.getSubjectByIdentifier("abean");
+                    log.debug("getSubjectByIdentifier id: " + subject.getId() + " name: " + subject.getName() + " description:" + subject.getDescription());
+                    log.debug("Starting barton search");
+                    Set subjectSet = source.search("smith");
+                    log.debug("num elements found: " + subjectSet.size());
+                    for (Iterator it = subjectSet.iterator(); it.hasNext();) {
+                        subject = (Subject) it.next();
+                        log.debug("id: " + subject.getId() + " name: " + subject.getName() + " description:" + subject.getDescription());
+                        Map attrs = subject.getAttributes();
+                        for (Iterator it2 = attrs.keySet().iterator(); 
+                              it2.hasNext(); 
+                               log.debug((String)it2.next()));
+                    }
+                    subjectSet = source.search("bean");
+                    log.debug("num elements found: " + subjectSet.size());
+                    for (Iterator it = subjectSet.iterator(); it.hasNext();) {
+                        subject = (Subject) it.next();
+                        log.debug("id: " + subject.getId() + " name: " + subject.getName() + " description:" + subject.getDescription());
+                        Map attrs = subject.getAttributes();
+                        for (Iterator it2 = attrs.keySet().iterator(); 
+                              it2.hasNext(); 
+                               log.debug((String)it2.next()));
+                    }
+                    subjectSet = source.search("smith");
+                    log.debug("num elements found: " + subjectSet.size());
+                    for (Iterator it = subjectSet.iterator(); it.hasNext();) {
+                        subject = (Subject) it.next();
+                        log.debug("id: " + subject.getId() + " name: " + subject.getName() + " description:" + subject.getDescription());
+                        Map attrs = subject.getAttributes();
+                        for (Iterator it2 = attrs.keySet().iterator(); 
+                              it2.hasNext(); 
+                               log.debug((String)it2.next()));
+                    }
+                    subjectSet = source.search("bean");
+                    log.debug("num elements found: " + subjectSet.size());
+                    for (Iterator it = subjectSet.iterator(); it.hasNext();) {
+                        subject = (Subject) it.next();
+                        log.debug("id: " + subject.getId() + " name: " + subject.getName() + " description:" + subject.getDescription());
+                        Map attrs = subject.getAttributes();
+                        for (Iterator it2 = attrs.keySet().iterator(); 
+                              it2.hasNext(); 
+                               log.debug((String)it2.next()));
+                    }
+                    subjectSet = source.search("smith");
+                    log.debug("num elements found: " + subjectSet.size());
+                    for (Iterator it = subjectSet.iterator(); it.hasNext();) {
+                        subject = (Subject) it.next();
+                        log.debug("id: " + subject.getId() + " name: " + subject.getName() + " description:" + subject.getDescription());
+                        Map attrs = subject.getAttributes();
+                        for (Iterator it2 = attrs.keySet().iterator(); 
+                              it2.hasNext(); 
+                               log.debug((String)it2.next()));
+                    }
+
+               }
             }
         } catch (Exception ex) {
             log.error("Exception occurred: " + ex.getMessage(), ex);
