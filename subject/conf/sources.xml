@@ -1,31 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-Sample subject resolver configuration.  
-
-Uncomment and modify as appropriate the different source adapters
-listed below.
-
-$Id: sources.xml,v 1.4 2006-04-28 17:08:06 blair Exp $
+Grouper's subject resolver configuration
+$Id: sources.xml,v 1.5 2006-06-08 00:13:01 esluss Exp $
 -->
 
 <sources>
 
-  <!-- Group Subject Resolver -->
-<!--
-  <source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter">
-    <id>g:gsa</id>
-    <name>Grouper: Group Source Adapter</name>
-    <type>group</type>
-  </source>
--->
-  <!-- Group Subject Resolver -->
 
-  <!-- JNDI Subject Adapter -->
+
+  <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
+    <id>jdbc</id>
+    <name>JDBC Source Adapter</name>
+    <type>person</type>
+    
+    <init-param>
+      <param-name>maxActive</param-name>
+      <param-value>1</param-value>
+    </init-param>
+    <init-param>
+      <param-name>maxIdle</param-name>
+      <param-value>2</param-value>
+    </init-param>
+     
+    <init-param>
+      <param-name>maxWait</param-name>
+      <param-value>50</param-value>
+    </init-param>
+    
+    <init-param>
+      <param-name>dbDriver</param-name>
+      <param-value>org.hsqldb.jdbcDriver</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbUrl</param-name>
+   <!-- <param-value>jdbc:hsqldb:hsql://localhost/grouper</param-value>  -->	
+      <param-value>jdbc:hsqldb:hsql://localhost/uc-subjects</param-value>
+    </init-param>
+
+
+    <init-param>
+      <param-name>dbUser</param-name>
+      <param-value>sa</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbPwd</param-name>
+      <param-value></param-value>
+    </init-param>
+    
+     <init-param>
+      <param-name>SubjectID_AttributeType</param-name>
+      <param-value>id</param-value>
+    </init-param>
+    <init-param>
+      <param-name>Name_AttributeType</param-name>
+      <param-value>name</param-value>
+    </init-param>
+    <init-param>
+      <param-name>Description_AttributeType</param-name>
+      <param-value>name</param-value>
+    </init-param>
+    
+    <search>
+        <searchType>searchSubject</searchType>
+        <param>
+            <param-name>sql</param-name>
+            <param-value>
+                select id, 
+                  concat(firstname, concat(' ', lastname)) as name, 
+                  concat(lastname, concat(', ', firstname)) as lfname,
+                  lastname, firstname, middlename,
+                  account.name as loginid,
+                  department, curriculum, appointment
+                from individual 
+                  left join account on (account.individualid = id)
+                  left join faculty on (faculty.individualid = id)
+                  left join staff on (staff.individualid = id)
+                  left join student on (student.individualid = id)
+                where (id='%TERM%')
+            </param-value>
+       </param>
+    </search>
+    <search>
+        <searchType>searchSubjectByIdentifier</searchType>
+        <param>
+            <param-name>sql</param-name>
+            <param-value>
+                select id, 
+                  concat(firstname, concat(' ', lastname)) as name, 
+                  concat(lastname, concat(', ', firstname)) as lfname,
+                  lastname, firstname, middlename,
+                  account.name as loginid,
+                  department, curriculum, appointment
+                from individual 
+                  left join account on (account.individualid = id)
+                  left join faculty on (faculty.individualid = id)
+                  left join staff on (staff.individualid = id)
+                  left join student on (student.individualid = id)
+                where (account.name='%TERM%')
+            </param-value>
+        </param>
+    </search>
+    <search>
+       <searchType>search</searchType>
+        <param>
+            <param-name>sql</param-name>
+            <param-value>
+                select id, 
+                  concat(firstname, concat(' ', lastname)) as name, 
+                  concat(lastname, concat(', ', firstname)) as lfname,
+                  lastname, firstname, middlename,
+                  account.name as loginid,
+                  department, curriculum, appointment
+                from individual 
+                  left join account on (account.individualid = id)
+                  left join faculty on (faculty.individualid = id)
+                  left join staff on (staff.individualid = id)
+                  left join student on (student.individualid = id)
+                where (firstname like '%%TERM%%')
+                  or (lastname like '%%TERM%%') 
+                  or (department like '%%TERM%%') 
+                  or (account.name like '%%TERM%%')
+            </param-value>
+        </param>
+    </search>
+    
+    
+  </source>
+
+
 <!--
   <source adapterClass="edu.internet2.middleware.subject.provider.JNDISourceAdapter">
-    <id>kitn-person</id>
-    <name>KITN People</name>
+    <id>example</id>
+    <name>Example Edu</name>
     <type>person</type>
     <init-param>
       <param-name>INITIAL_CONTEXT_FACTORY</param-name>
@@ -41,15 +148,15 @@ $Id: sources.xml,v 1.4 2006-04-28 17:08:06 blair Exp $
     </init-param>
     <init-param>
       <param-name>SECURITY_PRINCIPAL</param-name>
-      <param-value>cn=manager,dc=sgif,dc=org</param-value>
+      <param-value>cn=Manager,dc=example,dc=edu</param-value>
     </init-param>
     <init-param>
       <param-name>SECURITY_CREDENTIALS</param-name>
-      <param-value>%PASSWD%</param-value>
+      <param-value>secret</param-value>
     </init-param>
-    <init-param>
+     <init-param>
       <param-name>SubjectID_AttributeType</param-name>
-      <param-value>kitnEduPersonRegID</param-value>
+      <param-value>exampleEduRegID</param-value>
     </init-param>
     <init-param>
       <param-name>Name_AttributeType</param-name>
@@ -59,17 +166,16 @@ $Id: sources.xml,v 1.4 2006-04-28 17:08:06 blair Exp $
       <param-name>Description_AttributeType</param-name>
       <param-value>description</param-value>
     </init-param>
--->
     
-    <!-- Scope Values can be: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE -->
-    <!-- For filter use -->
-<!--
+    /// Scope Values can be: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE 
+    /// For filter use 
+    
     <search>
         <searchType>searchSubject</searchType>
         <param>
             <param-name>filter</param-name>
             <param-value>
-                (&amp; (kitnEduPersonRegId=%TERM%)(objectclass=kitnEduPerson))
+                (&amp; (exampleEduRegId=%TERM%) (objectclass=exampleEduPerson))
             </param-value>
         </param>
         <param>
@@ -81,17 +187,17 @@ $Id: sources.xml,v 1.4 2006-04-28 17:08:06 blair Exp $
         <param>
             <param-name>base</param-name>
             <param-value>
-                ou=people,dc=kitn,dc=edu
+                ou=people,dc=example,dc=edu
             </param-value>
         </param>
-            
+         
     </search>
     <search>
         <searchType>searchSubjectByIdentifier</searchType>
         <param>
             <param-name>filter</param-name>
             <param-value>
-                (&amp; (uid=%TERM%)(objectclass=kitnEduPerson))
+                (&amp; (uid=%TERM%) (objectclass=exampleEduPerson))
             </param-value>
         </param>
         <param>
@@ -103,17 +209,17 @@ $Id: sources.xml,v 1.4 2006-04-28 17:08:06 blair Exp $
         <param>
             <param-name>base</param-name>
             <param-value>
-                ou=people,dc=kitn,dc=edu
+                ou=people,dc=example,dc=edu
             </param-value>
         </param>
     </search>
     
     <search>
        <searchType>search</searchType>
-        <param>
+         <param>
             <param-name>filter</param-name>
             <param-value>
-                (&amp;(|(uid=%TERM%)(cn=*%TERM%*)(kitnEduPersonRegId=%TERM%))(objectclass=kitnEduPerson))
+                (&amp; (|(uid=%TERM%)(cn=*%TERM%*)(exampleEduRegId=%TERM%))(objectclass=exampleEduPerson))
             </param-value>
         </param>
         <param>
@@ -122,59 +228,18 @@ $Id: sources.xml,v 1.4 2006-04-28 17:08:06 blair Exp $
                 SUBTREE_SCOPE            
             </param-value>
         </param>
-        <param>
+         <param>
             <param-name>base</param-name>
             <param-value>
-                ou=people,dc=kitn,dc=edu
+                ou=people,dc=example,dc=edu
             </param-value>
         </param>
     </search>
+    ///Attributes you would like to display when doing a search 
+    <attribute>sn</attribute>
+    <attribute>department</attribute>
    
   </source>
 -->
-  <!-- JNDI Subject Adapter -->
-
-  <!-- JDBC Subject Adapter -->
-<!--
-  <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
-    <id>uob</id>
-    <name>UoB Subject Source</name>
-    <type>person</type>
-    <init-param>
-      <param-name>maxActive</param-name>
-      <param-value>4</param-value>
-    </init-param>
-    <init-param>
-      <param-name>maxIdle</param-name>
-      <param-value>2</param-value>
-    </init-param>
-    <init-param>
-      <param-name>maxWait</param-name>
-      <param-value>5</param-value>
-    </init-param>
--->
-
-    <!--  Database connection properties  -->
-<!--
-    <init-param>
-      <param-name>dbDriver</param-name>
-      <param-value>org.hsqldb.jdbcDriver</param-value>
-    </init-param>
-    <init-param>
-      <param-name>dbUrl</param-name>
-      <param-value>jdbc:hsqldb:hsql://localhost:9002/uob-subjects</param-value>
-    </init-param>
-    <init-param>
-      <param-name>dbUser</param-name>
-      <param-value>sa</param-value>
-    </init-param>
-    <init-param>
-      <param-name>dbPwd</param-name>
-      <param-value></param-value>
-    </init-param>
-  </source>
--->
-  <!-- JDBC Subject Adapter -->
-
 </sources>
 
