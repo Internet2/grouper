@@ -1,5 +1,5 @@
 /*
- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/resource/ResLoaderApp.java,v 1.1 2006-05-09 01:59:35 ddonn Exp $
+ $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/resource/ResLoaderApp.java,v 1.2 2006-06-08 18:32:49 ddonn Exp $
 
  Copyright (c) 2006 Internet2, Stanford University
 
@@ -38,17 +38,9 @@ import java.util.ResourceBundle;
 
 public class ResLoaderApp
 {
-	private static final String			BUNDLE_NAME =
-		"edu.internet2.middleware.signet.SignetResApp"; //$NON-NLS-1$
-
-	private static final ResourceBundle	RESOURCE_BUNDLE	=
-		ResourceBundle.getBundle(BUNDLE_NAME);
-
-	private static final String			verBundleName =
-		"edu.internet2.middleware.signet.signet_version"; //$NON-NLS-1$
-
-	private static final ResourceBundle	verBundle =
-		ResourceBundle.getBundle(verBundleName);
+	private static final ResourceBundle	signetBundle =	ResourceBundle.getBundle("signet");
+	private static final ResourceBundle	appBundle	= 
+			ResourceBundle.getBundle(signetBundle.getString("signet.app.resource"));
 
 	private ResLoaderApp()
 	{
@@ -56,10 +48,10 @@ public class ResLoaderApp
 
 	public static String getString(String key)
 	{
-		try { return (verBundle.getString(key)); }
+		try { return (signetBundle.getString(key)); }
 		catch (MissingResourceException e)
 		{
-			try { return (RESOURCE_BUNDLE.getString(key)); }
+			try { return (appBundle.getString(key)); }
 			catch (MissingResourceException e2)
 			{
 				return '!' + key + '!';
