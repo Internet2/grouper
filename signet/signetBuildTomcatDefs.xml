@@ -1,0 +1,52 @@
+<!--
+	$Header: /home/hagleyj/i2mi/signet/signetBuildTomcatDefs.xml,v 1.1 2006-06-08 21:16:04 ddonn Exp $
+
+	Tomcat-specific Ant tasks
+
+	This file is a snipet from the Tomcat example Ant build tasks.
+	It has been modified for use with Signet such that a separate .properties
+	file should have the following definitions, and be included _before_ the
+	<import> of this file in the Signet Ant build:
+		tomcat.manager.username=your tomcat manager username
+		tomcat.manager.password=your tomcat manager password
+		tomcat.manager.url=URL of your tomcat instance
+		tomcat.signet.dir=path to where Signet should be installed
+ -->
+
+<project name="tomcat-ant-build-defs" basedir="." >
+
+	<!-- ================== Custom Ant Task Definitions ======================= -->
+	<!--
+	  These properties define custom tasks for the Ant build tool that interact
+	  with the "/manager" web application installed with Tomcat 5.  Before they
+	  can be successfully utilized, you must perform the following steps:
+	  - Copy the file "server/lib/catalina-ant.jar" from your Tomcat 5
+	    installation into the "lib" directory of your Ant installation.
+	  - Create a "build.properties" file in your application's top-level
+	    source directory (or your user login home directory) that defines
+	    appropriate values for the "manager.password", "manager.url", and
+	    "manager.username" properties described above.
+	  For more information about the Manager web application, and the functionality
+	  of these tasks, see <http://localhost:8080/tomcat-docs/manager-howto.html>.
+	-->
+	<taskdef name="deploy"		classname="org.apache.catalina.ant.DeployTask" />
+	<taskdef name="list"		classname="org.apache.catalina.ant.ListTask" />
+	<taskdef name="reload"		classname="org.apache.catalina.ant.ReloadTask" />
+	<taskdef name="start"		classname="org.apache.catalina.ant.StartTask" />
+	<taskdef name="stop"		classname="org.apache.catalina.ant.StopTask" />
+	<taskdef name="undeploy"	classname="org.apache.catalina.ant.UndeployTask" />
+
+	<!--
+	#
+	# Tomcat properties that satisfy the manager.* property definition requirements
+	# specified above. Modify these values as required for your environment.
+	#
+	-->
+	<property name="tomcat.manager.username" value="admin" />
+	<property name="tomcat.manager.password" value="admin" />
+	<property name="tomcat.manager.url" value="http://localhost:8080/manager" />
+	<property name="tomcat.manager.signetpath" value="/${signet_basename}" />
+	<property name="catalina_home" value="/JavaDev/Tomcat 5.5" />
+
+	
+</project>
