@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.38 2006-06-08 21:16:04 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.39 2006-06-08 21:58:16 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -202,7 +202,7 @@
 
 	<!-- - - - - - - - - target: assemble_all - - - - - - - - - -->
 	<target name="assemble_all"
-			depends="create_distdirs, copy_config_files, copy_libs, copy_sql, configure_hibernate" >
+			depends="create_distdirs, copy_config_files, copy_libs, copy_sql, copy_util_scripts, configure_hibernate" >
 	</target>
 
 
@@ -334,6 +334,21 @@
 				dir="" >
 			<include name="" />
 		</fileset>
+	</target>
+
+
+	<!-- - - - - - - - - target: copy_util_scripts - -->
+	<target name="copy_util_scripts" 
+			depends="create_distdirs" >
+		<copy todir="${dist.util.dir}" >
+			<fileset dir="${source_util.dir}" >
+				<include name="AssignmentReconcile/*" />
+				<include name="SignetProxy/*" />
+				<include name="SubjectFileLoader/*" />
+				<include name="SubsystemXmlLoader/*" />
+				<include name="TreeXmlLoader/*" />
+			</fileset>
+		</copy>
 	</target>
 
 
