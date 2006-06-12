@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.63 2006-06-06 18:49:59 blair Exp $
+$Id: TODO,v 1.64 2006-06-12 16:53:59 blair Exp $
 
 ---
 
@@ -53,7 +53,6 @@ $Id: TODO,v 1.63 2006-06-06 18:49:59 blair Exp $
 * REFACTOR  privilege checking and caching
 ** `NamingResolver`
 ** `AccessResolver`
-** Hibernate-backed `PrivilegeCache`
 
 ---
 
@@ -101,6 +100,10 @@ These items are not (necessarily) in any particular order.
 * CODE      allow custom attributes and lists to be associated with more than one group type
 * CODE      rule-engine support and/or support for both enable- and disable-based aging
 
+### Internals
+* DB        Keep schema version accurate
+* CODE      Generic privilege and subject cache, presumably backed by ehcache and possibly Hibernate
+
 ### Contributed Code
 * CODE      flatfile source adapter 
 * CODE      `LaxAccessAdapter`
@@ -113,5 +116,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.63 2006-06-06 18:49:59 blair Exp $
+$Id: TODO,v 1.64 2006-06-12 16:53:59 blair Exp $
 
