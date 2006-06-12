@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: PROJECT_LAYOUT,v 1.9 2006-06-06 18:49:59 blair Exp $
+$Id: PROJECT_LAYOUT,v 1.10 2006-06-12 19:40:13 blair Exp $
 
 ---
 
@@ -39,6 +39,10 @@ Configuration directory.
 ### conf/ehcache.xml
 
 Hibernate cache configuration file.  
+
+### conf/grouper.findbugs
+
+[FindBugs](http://findbugs.sourceforge.net/) configuration file.
 
 ### conf/grouper.hibernate.properties
 
