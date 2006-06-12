@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.97 2006-06-06 18:49:59 blair Exp $ -->
+<!-- $Id: build.xml,v 1.98 2006-06-12 19:40:13 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -19,6 +19,7 @@
 
   <property name="build"                  location="${basedir}/build"/>
   <property name="dist"                   location="${basedir}/dist"/>
+  <property name="dist.run"               location="${dist}/run"/>
   <property name="build.grouper"          location="${build}/grouper"/>
   <property name="build.javadoc"          location="${dist}/api"/>
   <property name="build.lib"              location="${build}/lib"/>
@@ -195,6 +196,28 @@
   </target>
   <!-- ensure-test-name -->
 
+  <!-- findbugs -->
+  <target name="findbugs" depends="dist,dist-lib">
+    <taskdef  name="findbugs"       classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+    <property name="findbugs.home"  value="/Users/blair/Applications/findbugs-1.0.0"/>
+    <findbugs home="${findbugs.home}"
+              projectFile="${conf}/grouper.findbugs"
+              effort="max"
+              reportLevel="low"
+              output="html"
+              outputFile="${dist.run}/findbugs_grouper.html"
+    >
+      <auxClassPath>
+        <fileset dir="${lib}">
+          <include name="**/*.jar"/>
+        </fileset>
+      </auxClassPath>
+      <sourcePath path="${src.grouper}"/>
+      <class location="${dist}/lib/${app.name}.jar"/>
+    </findbugs>
+  </target>
+  <!-- findbugs -->
+
   <!-- html -->
   <target name="html" depends="build" description="generate public api docs" >
     <delete dir="${build.javadoc}"/>
@@ -220,7 +243,7 @@
     <mkdir dir="${build.sql}"     />
     <mkdir dir="${build.test}"    />
     <mkdir dir="${dist}"          />
-    <mkdir dir="${dist}/run"      />
+    <mkdir dir="${dist.run}"      />
     <!-- only define our classpath once -->
     <path id="project.classpath">
       <pathelement path="${classpath}"/>
@@ -235,6 +258,25 @@
     </path>
   </target>
   <!-- init -->
+
+  <!-- pmd -->
+  <target name="pmd" depends="init">
+    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"/>
+    <pmd shortFilenames="true">
+      <ruleset>rulesets/favorites.xml</ruleset>
+      <ruleset>basic</ruleset>
+      <formatter  type="html" 
+                  toFile="pmd_report.html"
+                  toConsole="true"
+                  linkPrefix="http://pmd.sourceforge.net/xref/"
+      />
+      <fileset dir="${src.grouper}">
+        <include name="**/*.java"/>
+        <exclude name="**/stress/**"/>
+      </fileset>
+    </pmd>
+  </target>
+  <!-- pmd -->
 
   <!-- runtest -->
   <target name="runtest" 
@@ -277,7 +319,7 @@
   <target name="schemaexport" depends="build">
     <record name="${log.schema}" action="start"/>
     <mkdir dir="${dist}" />
-    <mkdir dir="${dist}/run" />
+    <mkdir dir="${dist.run}" />
     <taskdef name="schemaexport"
       classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
       classpathref="project.classpath"
