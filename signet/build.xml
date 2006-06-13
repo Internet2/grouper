@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.39 2006-06-08 21:58:16 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.40 2006-06-13 21:25:40 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -98,7 +98,7 @@
     <!-- =============== target: javadoc =================== -->
 	<target name="javadoc"
 			description="Create the JavaDocs"
-			depends="create_sourcepath" >
+			depends="create_sourcepath, create_classpath" >
 		<path id="javadoc.src.path">
 			<pathelement location="${source_java.dir}" />
 			<pathelement location="${alt.local.java.dir}" />
@@ -196,7 +196,6 @@
 			<fileset refid="source.lib.fileset" />
 			<fileset refid="alt.local.lib.fileset" />
 		</path>
-
 	</target>
 
 
@@ -589,6 +588,27 @@
 	</target>
 
 
+	<!-- - - - - - - - - target: copy_altweb_metainf_yes - -->
+	<target name="copy_altweb_metainf_yes"
+			depends="copy_altweb_metainf_no"
+			if="alt.local.webmetainf.dir" >
+		<fileset id="alt.local.webmetainf.fileset"
+				dir="alt.local.webmetainf.dir" >
+			<include name="**/*" />
+		</fileset>
+	</target>
+
+
+	<!-- - - - - - - - - target: copy_altweb_metainf_no - -->
+	<target name="copy_altweb_metainf_no"
+			unless="alt.local.webmetainf.dir" >
+		<fileset id="alt.local.webmetainf.fileset"
+				dir="" >
+			<include name="" />
+		</fileset>
+	</target>
+
+
 	<!-- - - - - - - - - target: copy_web_scripts - -->
 <!--
 	<target name="copy_web_scripts"
@@ -781,12 +801,15 @@
 
 	<!-- - - - - - - - - target: create_war_file - -->
 	<target name="create_war_file"
-			depends="create_config_fileset, create_altconfig_fileset_yes, copy_libs, copy_altweb_configs_yes, copy_altweb_images_yes, copy_altweb_jsps_yes, copy_altweb_scripts_yes, copy_altweb_styles_yes, copy_altweb_tiles_yes" >
+			depends="create_config_fileset, create_altconfig_fileset_yes, copy_libs, copy_altweb_configs_yes, copy_altweb_images_yes, copy_altweb_metainf_yes, copy_altweb_jsps_yes, copy_altweb_scripts_yes, copy_altweb_styles_yes, copy_altweb_tiles_yes" >
 
 		<war destfile="${signet.war}" 
 				webxml="${source_webapp.config.dir}/web.xml" >
 
 			<fileset dir="${source_webapp.dir}" includes="index.jsp" />
+
+			<metainf dir="${source_webapp.metainf.dir}" />
+			<metainf refid="alt.local.webmetainf.fileset" />
 
 			<webinf dir="${source_webapp.images.dir}"		prefix="${dirname.images}" />
 			<webinf refid="alt.local.webimages.fileset"		prefix="${dirname.images}" />
