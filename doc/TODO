@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.64 2006-06-12 16:53:59 blair Exp $
+$Id: TODO,v 1.65 2006-06-13 17:40:39 blair Exp $
 
 ---
 
@@ -17,14 +17,6 @@ $Id: TODO,v 1.64 2006-06-12 16:53:59 blair Exp $
   possibly when updating composites
 
 ### Next Actions
-* CODE      add `Member.canCreate(Subject)`
-* CODE      add `Member.canStem(Subject)`
-* CODE      add `Member.canAdmin(Subject)`
-* CODE      add `Member.canOptin(Subject)`
-* CODE      add `Member.canOptout(Subject)`
-* CODE      add `Member.canRead(Subject)`
-* CODE      add `Member.canUpdate(Subject)`
-* CODE      add `Member.canView(Subject)`
 * REVIEW    FIXMEs
 * REVIEW    TODOs
 * CODE      delete custom group types
@@ -34,7 +26,7 @@ $Id: TODO,v 1.64 2006-06-12 16:53:59 blair Exp $
 * CODE      add `Group.getRemovableTypes()` that will return all types
   that can be removed from the group
 * CONTRIB   complete cdg 1.0 feature list
-* REFACTOR  review (and remove if possible) all RTEs
+* REVIEW    review all RTEs
 
 ### Later || Maybe
 * CODE      Migrate error messages to *E*
@@ -116,5 +108,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.64 2006-06-12 16:53:59 blair Exp $
+$Id: TODO,v 1.65 2006-06-13 17:40:39 blair Exp $
 

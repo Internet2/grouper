@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.114 2006-06-06 18:49:59 blair Exp $
+$Id: NEWS,v 1.115 2006-06-13 17:40:39 blair Exp $
 
 ---
 
@@ -10,6 +10,16 @@ $Id: NEWS,v 1.114 2006-06-06 18:49:59 blair Exp $
 Released: TBD
 
 ## Changes
+* BUGFIX: The *Member* returned by `GrouperSession.getMembers()` would
+  not have a *GrouperSession* associated with it.
+* NEW:  Added `Member.canCreate(Subject)`.
+* NEW:  Added `Member.canStem(Subject)`.
+* NEW:  Added `Member.canAdmin(Subject)`.
+* NEW:  Added `Member.canOptin(Subject)`.
+* NEW:  Added `Member.canOptout(Subject)`.
+* NEW:  Added `Member.canRead(Subject)`.
+* NEW:  Added `Member.canUpdate(Subject)`.
+* NEW:  Added `Member.canView(Subject)`.
 * NEW:  Error Log
 * NEW:  Debug Log
 * NEW:  Added support for composite memberships (complements, intersections, unions) to groups.

@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.71 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: Group.java,v 1.72 2006-06-13 17:40:39 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -331,9 +331,7 @@ public class Group extends Owner implements Serializable {
     throws  IllegalArgumentException,
             SchemaException
   {
-    if (subj == null) {
-      throw new IllegalArgumentException(E.SUBJ_NULL);
-    }
+    Validator.argNotNull(subj, E.SUBJ_NULL);
     GroupValidator.isTypeValid(f);
     try {
       GroupValidator.canReadField(this.getSession(), this, subj, f);
@@ -377,9 +375,7 @@ public class Group extends Owner implements Serializable {
     throws  IllegalArgumentException,
             SchemaException
   {
-    if (subj == null) {
-      throw new IllegalArgumentException(E.SUBJ_NULL);
-    }
+    Validator.argNotNull(subj, E.SUBJ_NULL);
     GroupValidator.isTypeValid(f);
     try {
       GroupValidator.canWriteField(this.getSession(), this, subj, f);

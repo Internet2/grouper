@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test Groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteGroups.java,v 1.3 2006-05-31 22:44:40 blair Exp $
+ * @version $Id: SuiteGroups.java,v 1.4 2006-06-13 17:40:39 blair Exp $
  */
 public class SuiteGroups extends TestCase {
 
@@ -67,6 +67,11 @@ public class SuiteGroups extends TestCase {
     suite.addTestSuite( TestGroup29.class       );  // canWriteField(Subject, Field) 
     suite.addTestSuite( TestGroup30.class       );  // canWriteField(Subject, Field) - !root
     suite.addTestSuite( TestGroup31.class       );  // fail: canWriteField(Subject, Field) - !root, can't write
+    // TODO Split!
+    suite.addTestSuite( TestGroup.class               );
+    suite.addTestSuite( TestGroupAddMemberGroup.class );
+    suite.addTestSuite( TestGroupDeleteMember.class   );
+    suite.addTestSuite( TestGroupToMember.class       );
     return suite;
   } // static public Test suite()
 

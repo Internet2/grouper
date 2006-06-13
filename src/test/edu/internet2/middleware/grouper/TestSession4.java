@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession4.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestSession4.java,v 1.3 2006-06-13 17:40:39 blair Exp $
  */
 public class TestSession4 extends TestCase {
 
@@ -61,19 +61,25 @@ public class TestSession4 extends TestCase {
     try { 
       s.stop();
       Assert.assertTrue("stopped session", true);
-      Assert.assertNull("null member", s.getMember());
       try {
-        Subject subj = s.getSubject();
-        Assert.fail("got subject");
+        s.getMember();
+        Assert.fail("FAIL: got member");
+      }
+      catch (NullPointerException eNP) {
+        Assert.assertTrue("OK: failed to get member", true);
+      }
+      try {
+        s.getSubject();
+        Assert.fail("FAIL: got subject");
       }
       catch (RuntimeException eR) {
-        Assert.assertTrue("failed to get subject", true);
+        Assert.assertTrue("OK: failed to get subject", true);
       }
       Assert.assertNull("null session id", s.getSessionId());
       Assert.assertNull("null start time", s.getStartTime());
     }
     catch (Exception e) {
-      Assert.fail("failed to stop session: " + e.getMessage());
+      T.e(e);
     }
   } // public void testUseStoppedSession()
 

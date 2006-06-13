@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteStems.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: SuiteStems.java,v 1.3 2006-06-13 17:40:39 blair Exp $
  */
 public class SuiteStems extends TestCase {
 
@@ -43,7 +43,10 @@ public class SuiteStems extends TestCase {
     suite.addTestSuite( TestStem6.class );  // create attrs
     suite.addTestSuite( TestStem7.class );  // modify attrs - !mod'd
     suite.addTestSuite( TestStem8.class );  // modify attrs - mod'd
-    suite.addTestSuite( TestStem.class  );  // TODO Split
+    // TODO Split!
+    suite.addTestSuite( TestStem.class              );
+    suite.addTestSuite( TestStemAddChildGroup.class );
+    suite.addTestSuite( TestStemAddChildStem.class  );
     return suite;
   } // static public Test suite()
 
