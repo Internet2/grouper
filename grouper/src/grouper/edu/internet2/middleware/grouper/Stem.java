@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.54 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: Stem.java,v 1.55 2006-06-13 19:29:37 blair Exp $
  */
 public class Stem extends Owner implements Serializable {
 
@@ -37,8 +37,6 @@ public class Stem extends Owner implements Serializable {
 
 
   // PRIVATE CLASS CONSTANTS //
-  // TODO use one in GrouperConfig
-  private static final String   BT          = "true";
   // TODO move to GrouperConfig
   private static final String   CFG_GCGAA   = "groups.create.grant.all.admin";
   private static final String   CFG_GCGAOI  = "groups.create.grant.all.optin";
@@ -932,7 +930,7 @@ public class Stem extends Owner implements Serializable {
     if (stem.equals(ROOT_EXT)) {
       return extn;
     }
-    return stem + ":" + extn;
+    return stem + ROOT_INT + extn;
   } // protected static String constructName(stem, extn)
 
   protected void setModified() {
@@ -1049,7 +1047,7 @@ public class Stem extends Owner implements Serializable {
   {
     GrouperConfig cfg = GrouperConfig.getInstance();
     Subject       all = SubjectFinder.findAllSubject();
-    if (cfg.getProperty(opt).equals(BT)) {
+    if (cfg.getProperty(opt).equals(GrouperConfig.BT)) {
       StopWatch sw = new StopWatch();
       sw.start();
       String msg = " granted " + p.getName() + " to " + SubjectHelper.getPretty(all);

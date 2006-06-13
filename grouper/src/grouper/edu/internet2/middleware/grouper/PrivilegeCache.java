@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * Privilege cache provider.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.5 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: PrivilegeCache.java,v 1.6 2006-06-13 19:29:37 blair Exp $
  *     
  */
 class PrivilegeCache {
@@ -35,6 +35,10 @@ class PrivilegeCache {
   // PROTECTED CLASS CONSTANTS //
   protected static final String ACCESS  = "edu.internet2.middleware.grouper.PrivilegeCache.Access";
   protected static final String NAMING  = "edu.internet2.middleware.grouper.PrivilegeCache.Naming";
+
+
+  // PRIVATE CLASS CONSTANTS //
+  private static final String DELIM = "|";
 
 
   // PRIVATE CLASS VARABLES //
@@ -137,10 +141,9 @@ class PrivilegeCache {
 
   private String _getKey(String uuid, Subject subj, Privilege p) {
     // TODO memoize?
-    String delim  = "|";
-    String key    = uuid + delim 
-      + subj.getId() + delim + subj.getType().getName() + subj.getSource().getId() 
-      + delim + p.getName();
+    String key    = uuid + DELIM 
+      + subj.getId() + DELIM + subj.getType().getName() + subj.getSource().getId() 
+      + DELIM + p.getName();
     return key;
   } // private String _getKey(uuid, subj, p)
 

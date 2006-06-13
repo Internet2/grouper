@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * Subject cache provider.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: SubjectCache.java,v 1.4 2006-06-13 19:29:37 blair Exp $
  */
 class SubjectCache {
 
@@ -43,6 +43,7 @@ class SubjectCache {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Map    CACHES  = new HashMap();
+  private static final String DELIM   = "|";
 
 
   // STATIC //
@@ -121,9 +122,7 @@ class SubjectCache {
   // PRIVATE INSTANCE METHODS //
   private String _getKey(String id, String type) {
     // TODO memoize?
-    String delim  = "|";
-    String key    = id + delim + type;
-    return key;
+    return id + DELIM + type;
   } // private String _getKey(id, type)
 
 }

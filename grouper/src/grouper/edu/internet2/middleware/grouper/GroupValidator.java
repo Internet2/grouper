@@ -22,7 +22,7 @@ import  java.io.Serializable;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.5 2006-06-13 17:40:39 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.6 2006-06-13 19:29:37 blair Exp $
  * @since   1.0
  */
 class GroupValidator implements Serializable {
@@ -140,7 +140,6 @@ class GroupValidator implements Serializable {
     {
       throw new InsufficientPrivilegeException(E.GROUP_COI);
     } 
-    // FIXME Refactor
     PrivilegeResolver.getInstance().canOPTIN(g.getSession(), g, subj);
   } // protected static void canOptin(g, subj, f)
 
@@ -155,7 +154,6 @@ class GroupValidator implements Serializable {
     {
       throw new InsufficientPrivilegeException(E.GROUP_COO);
     } 
-    // FIXME Refactor
     PrivilegeResolver.getInstance().canOPTOUT(g.getSession(), g, subj);
   } // protected static void canOptin(g, subj, f)
 
@@ -171,7 +169,6 @@ class GroupValidator implements Serializable {
     if (!g.hasType( f.getGroupType() ) ) {
       throw new SchemaException(E.GROUP_GT + f.getGroupType().toString());
     }
-    // FIXME Should this be internalized?
     PrivilegeResolver.getInstance().canPrivDispatch(
       s, g, subj, f.getReadPriv()
     );
@@ -207,7 +204,6 @@ class GroupValidator implements Serializable {
     if (!g.hasType( f.getGroupType() ) ) {
       throw new SchemaException(E.GROUP_GT + f.getGroupType().toString());
     }
-    // FIXME Should this be internalized?
     PrivilegeResolver.getInstance().canPrivDispatch(
       s, g, subj, f.getWritePriv()
     );

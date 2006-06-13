@@ -22,7 +22,7 @@ import  java.io.Serializable;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.3 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.4 2006-06-13 19:29:37 blair Exp $
  * @since   1.0
  */
 class MembershipValidator implements Serializable {
@@ -130,7 +130,7 @@ class MembershipValidator implements Serializable {
         }
       }
       catch (SubjectNotFoundException eSNF) {
-        throw new ModelException(eSNF.getMessage(), eSNF); // FIXME
+        throw new ModelException(eSNF);
       }
     }
   } // private static void _validate(ms)

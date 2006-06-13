@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.33 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: Membership.java,v 1.34 2006-06-13 19:29:37 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -300,7 +300,6 @@ public class Membership implements Serializable {
     } 
   } // protected static void delImmediateMembership(s, o, subj, f)
 
-  // FIXME  return mof?
   protected static Set deleteAllField(GrouperSession s, Owner o, Field f)
     throws  MemberDeleteException,
             SchemaException
@@ -373,8 +372,7 @@ public class Membership implements Serializable {
   } // protected static Set deleteAllFieldType(s, o, f)
 
 
-  // Protected Instance Methods //
-  // FIXME No RTE
+  // PROTECTED INSTANCE METHODS //
   protected GrouperSession getSession() {
     try {
       GrouperSessionValidator.validate(this.s);
