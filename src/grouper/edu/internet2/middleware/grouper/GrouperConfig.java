@@ -20,18 +20,13 @@ import  java.io.*;
 import  java.util.*;
 import  org.apache.commons.lang.*;
 
-
 /** 
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.20 2006-06-05 19:54:40 blair Exp $
- *     
+ * @version $Id: GrouperConfig.java,v 1.21 2006-06-13 19:29:37 blair Exp $
  */
 public class GrouperConfig {
-
-  // FIXME  Refactor!
-
 
   // PUBLIC CLASS CONSTANTS //
   

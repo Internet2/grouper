@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: R.java,v 1.3 2006-05-26 17:15:13 blair Exp $
+ * @version $Id: R.java,v 1.4 2006-06-13 19:29:37 blair Exp $
  */
 class R {
 
@@ -92,7 +92,7 @@ class R {
   protected Group getGroup(String stem, String group) 
     throws  Exception
   {
-    String key = stem + ":" + group; // FIXME 
+    String key = Stem.constructName(stem, group);
     if (this.groups.containsKey(key)) {
       return (Group) this.groups.get(key);
     }
@@ -112,6 +112,8 @@ class R {
     throws  Exception
   {
     // TODO Bah.  We stash HibernateSubjects but we need Subjects.  
+    //      Perhaps I should have a convenience method to return the
+    //      real thing?
     if (this.subjects.containsKey(id)) {
       return SubjectFinder.findById(id, "person");
     }

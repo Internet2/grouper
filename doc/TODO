@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.65 2006-06-13 17:40:39 blair Exp $
+$Id: TODO,v 1.66 2006-06-13 19:29:37 blair Exp $
 
 ---
 
@@ -15,11 +15,12 @@ $Id: TODO,v 1.65 2006-06-13 17:40:39 blair Exp $
 * Logging of composite membership changes
 * Membership UUIDs can change, especially in effective mships and
   possibly when updating composites
+** Clean up `Composite.update()` once fixed
+** Clean up `Membership.getPersistent()` once fixed
 
 ### Next Actions
-* REVIEW    FIXMEs
-* REVIEW    TODOs
 * CODE      delete custom group types
+* CODE      Fix some issues reported by FindBugs, PMD and CPD
 * TEST      basic and preliminary concurrency testing (i expect to find many bugs)
 * CODE      add `Group.getTypes()` that will return all types that the
   group has, including base but excluding internal types
@@ -27,9 +28,12 @@ $Id: TODO,v 1.65 2006-06-13 17:40:39 blair Exp $
   that can be removed from the group
 * CONTRIB   complete cdg 1.0 feature list
 * REVIEW    review all RTEs
+* REVIEW    FIXMEs
+* REVIEW    TODOs
 
 ### Later || Maybe
 * CODE      Migrate error messages to *E*
+* CODE      Migrate messages to *M*
 * CODE      Switch to *IllegalArgumentException* and *NullArgumentException*
 * DOCUMENT  add `@since` to javadoc (just diff `doc/API`? for now
   since i've been failing to add this?)
@@ -94,7 +98,24 @@ These items are not (necessarily) in any particular order.
 
 ### Internals
 * DB        Keep schema version accurate
+* REFACTOR  Deprecate `Membership.newEffectiveMembership(s, ms, hasMS, offset)`
+* REFACTOR  Deprecate *GrouperSessionFinder*
+* REFACTOR  Deprecate `GrouperSession.validate()`
+* REFACTOR  Make *ErrorLog* static
+* REFACTOR  *GrouperConfig*
+* REFACTOR  Deprecate the !*ModelException* throwing `Owner.setSession(s)`
+* REFACTOR  `PrivilegeResolver.isRoot(subj)`
+* REFACTOR  `StemValidator.canWriteField()` should not require a session argument
+* REFACTOR  `GroupValidator.canReadField()` and
+  `GroupValidator.canWriteField()` should not require a session argument
+* REFACTOR  Deprecate-or-relocate most methods in *Validator*
+* CODE      Cache results of `SubjectFinder.findById(id, type, source)`
+* CODE      Cache results of `SubjectFinder.findByIdentifier(id, type, source)`
+* CODE      Cache results of `SubjectFinder.findAll(query, source)`
+* REFACTOR  Do not add test subjects in *RegistryReset*
+** In particular the ehcache + hibernate query related constants
 * CODE      Generic privilege and subject cache, presumably backed by ehcache and possibly Hibernate
+** Do not flush all cached privileges upon every privilege grant-and-revoke
 
 ### Contributed Code
 * CODE      flatfile source adapter 
@@ -108,5 +129,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.65 2006-06-13 17:40:39 blair Exp $
+$Id: TODO,v 1.66 2006-06-13 19:29:37 blair Exp $
 

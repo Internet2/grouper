@@ -25,12 +25,10 @@ import  org.apache.commons.lang.builder.*;
  * A composite membership definition within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: Composite.java,v 1.4 2006-06-13 19:29:37 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner implements Serializable {
-
-  // FIXME What about privs?
 
   // HIBERNATE PROPERTIES //
   private Owner         left  = null;
@@ -49,7 +47,8 @@ public class Composite extends Owner implements Serializable {
   protected Composite(GrouperSession s, Owner o, Owner l, Owner r, CompositeType type) 
     throws  ModelException
   {
-    this.setSessionNew(   s                     ); // FIXME
+    // TODO I had a FIXME here without any context.  I wonder what I had in mind?
+    this.setSessionNew(   s                     ); 
     this.setCreator_id(   s.getMember()         );
     this.setCreate_time(  new Date().getTime()  );
     this.setUuid(         GrouperUuid.getUuid() );
@@ -171,7 +170,6 @@ public class Composite extends Owner implements Serializable {
         HibernateHelper.saveAndDelete(adds, deletes);
         Composite._update(deletes);
         Composite._update(adds);
-        //  FIXME LOG! additions + deletions
       }
     }
     catch (HibernateException eH) {

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.38 2006-06-13 17:40:39 blair Exp $
+ * @version $Id: Member.java,v 1.39 2006-06-13 19:29:37 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -89,7 +89,7 @@ public class Member implements Serializable {
       return false;
     }
     catch (SubjectNotFoundException eSNF) {
-      return false; // TODO Is this right?
+      return false; 
     }
   } // public boolean canAdmin(g)
 
@@ -116,7 +116,7 @@ public class Member implements Serializable {
       return false;
     }
     catch (SubjectNotFoundException eSNF) {
-      return false; // TODO Is this right?
+      return false; 
     }
   } // public boolean canCreate(ns)
 
@@ -143,7 +143,7 @@ public class Member implements Serializable {
       return false;
     }
     catch (SubjectNotFoundException eSNF) {
-      return false; // TODO Is this right?
+      return false;
     }
   } // public boolean canOptin(g)
 
@@ -170,7 +170,7 @@ public class Member implements Serializable {
       return false;
     }
     catch (SubjectNotFoundException eSNF) {
-      return false; // TODO Is this right?
+      return false;
     }
   } // public boolean canOptout(g)
 
@@ -197,7 +197,7 @@ public class Member implements Serializable {
       return false;
     }
     catch (SubjectNotFoundException eSNF) {
-      return false; // TODO Is this right?
+      return false;
     }
   } // public boolean canRead(g)
 
@@ -224,7 +224,7 @@ public class Member implements Serializable {
       return false;
     }
     catch (SubjectNotFoundException eSNF) {
-      return false; // TODO Is this right?
+      return false;
     }
   } // public boolean canStem(ns)
 
@@ -251,7 +251,7 @@ public class Member implements Serializable {
       return false;
     }
     catch (SubjectNotFoundException eSNF) {
-      return false; // TODO Is this right?
+      return false;
     }
   } // public boolean canUPDATE(g)
 
@@ -278,7 +278,7 @@ public class Member implements Serializable {
       return false;
     }
     catch (SubjectNotFoundException eSNF) {
-      return false; // TODO Is this right?
+      return false; 
     }
   } // public boolean canView(g)
 

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem7.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestStem7.java,v 1.3 2006-06-13 19:29:37 blair Exp $
  */
 public class TestStem7 extends TestCase {
 
@@ -61,13 +61,13 @@ public class TestStem7 extends TestCase {
     //      the granting of STEM at stem creation.  Fuck.
     try {
       Subject modifier = edu.getModifySubject();
-      Assert.assertNotNull("FIXME modifier !null", modifier);
+      Assert.assertNotNull("modifier !null", modifier);
       Assert.assertTrue(
-        "FIXME modifier", SubjectHelper.eq(modifier, s.getSubject())
+        "modifier", SubjectHelper.eq(modifier, s.getSubject())
       );
     }
     catch (SubjectNotFoundException eSNF) {
-      Assert.fail("FIXME no modify subject");
+      Assert.fail("no modify subject");
     }
     Date  d       = edu.getModifyTime();
     Assert.assertNotNull("modify time !null", d);
