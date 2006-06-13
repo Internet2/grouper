@@ -24,14 +24,14 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.3 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.4 2006-06-13 20:01:32 blair Exp $
  */
 class MembershipHelper {
 
   // PROTECTED CLASS METHODS //
   protected static String getPretty(Membership ms) {
     ms.setSession(ms.getSession()); // TODO Is this still necessary?
-    String  via = new String();
+    String  via = GrouperConfig.EMPTY_STRING;
     if (ms.getVia_id() != null) {
       if (ms.getVia_id() instanceof Composite) {
         Composite c = (Composite) ms.getVia_id();

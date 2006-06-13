@@ -24,7 +24,7 @@ import  java.util.*;
  * Query by stems created after the specified date.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemCreatedBeforeFilter.java,v 1.4 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: StemCreatedBeforeFilter.java,v 1.5 2006-06-13 20:01:32 blair Exp $
  */
 public class StemCreatedBeforeFilter extends BaseQueryFilter {
 
@@ -43,7 +43,7 @@ public class StemCreatedBeforeFilter extends BaseQueryFilter {
    * @param   ns  Restrict results to within this stem.
    */
   public StemCreatedBeforeFilter(Date d, Stem ns) {
-    this.d  = d;
+    this.d  = (Date) d.clone();
     this.ns = ns;
   } // public StemCreatedBeforeFilter(d, ns)
 

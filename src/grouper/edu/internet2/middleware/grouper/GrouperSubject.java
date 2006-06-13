@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.12 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.13 2006-06-13 20:01:32 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -64,7 +64,7 @@ public class GrouperSubject implements Subject {
     if (this.attrs.containsKey(name)) {
       return (String) this.attrs.get(name);
     }
-    return new String();
+    return GrouperConfig.EMPTY_STRING;
   } // public String getAttributevalue(name)
 
   public Set getAttributeValues(String name) {
