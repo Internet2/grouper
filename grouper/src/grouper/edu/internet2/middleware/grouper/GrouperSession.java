@@ -29,7 +29,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.22 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.23 2006-06-13 17:40:39 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -152,13 +152,18 @@ public class GrouperSession implements Serializable {
    /**
    * Get the {@link Member} associated with this API session.
    * <pre class="eg">
-   * // Get this session's Subject as a Member object.
    * Member m = s.getMember(); 
    * </pre>
    * @return  A {@link Member} object.
+   * @throws  NullPointerException if {@link Member} null.
    */
-  public Member getMember() {
-    return this.getMember_id();
+  public Member getMember() 
+    throws  NullPointerException
+  {
+    Member m = this.getMember_id();
+    Validator.valueNotNull(m, E.MEMBER_NULL);
+    m.setSession(this);
+    return m;
   } // public Member getMember()
 
   /**

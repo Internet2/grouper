@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.3 2006-06-13 17:40:39 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -43,7 +43,10 @@ public class SuiteDefault extends TestCase {
     suite.addTest(  SuiteGroups.suite()     );
     suite.addTest(  SuiteComposites.suite() );
     suite.addTest(  SuiteSubjects.suite()   );
+    suite.addTest(  SuiteMembers.suite()    );
     suite.addTest(  SuiteQueries.suite()    );
+
+    // TODO Migrate
 
     suite.addTestSuite(TestBugsClosed.class);
     suite.addTestSuite(TestBugsOpen.class);
@@ -52,13 +55,7 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestField.class);
     suite.addTestSuite(TestGrFiFindByName.class);
     suite.addTestSuite(TestGrFiFindByUuid.class);
-    suite.addTestSuite(TestGroup.class);
-    suite.addTestSuite(TestGroupAddMemberGroup.class);
-    suite.addTestSuite(TestGroupDeleteMember.class);
-    suite.addTestSuite(TestGroupToMember.class);
-    suite.addTestSuite(TestMember.class);
     suite.addTestSuite(TestMemberFinder.class);
-    suite.addTestSuite(TestMemberToGroup.class);
     suite.addTestSuite(TestMemberOf.class);
     // TODO suite.addTestSuite(TestMemberOfAccessPrivs.class);
     // TODO suite.addTestSuite(TestMemberOfNamingPrivs.class);
@@ -72,8 +69,6 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestPrivSTEM.class);     // TODO group-with-priv checks
     suite.addTestSuite(TestPrivVIEW.class);     // TODO group-with-priv checks
     suite.addTestSuite(TestPrivUPDATE.class);   // TODO group-with-priv checks
-    suite.addTestSuite(TestStemAddChildGroup.class);
-    suite.addTestSuite(TestStemAddChildStem.class);
     suite.addTestSuite(TestStemFinder.class);
     suite.addTestSuite(TestWrongFieldType.class); 
     // TODO suite.addTestSuite(TestWheelGroup.class); 

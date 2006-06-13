@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.37 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: Member.java,v 1.38 2006-06-13 17:40:39 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -65,6 +65,222 @@ public class Member implements Serializable {
 
 
   // PUBLIC INSTANCE METHODS //
+
+  /**
+   * Can this {@link Member} <b>ADMIN</b> on this {@link Group}.
+   * <pre class="eg">
+   * boolean rv = m.canAdmin(g);
+   * </pre>
+   * @param   ns  Check privileges on this {@link Group}.
+   * @throws  IllegalArgumentException if null {@link Group}
+   * @since   1.0
+   */
+  public boolean canAdmin(Group g) 
+    throws  IllegalArgumentException
+  {
+    Validator.argNotNull(g, E.GROUP_NULL);
+    try {
+      PrivilegeResolver.getInstance().canADMIN(
+        this.getSession(), g, this.getSubject()
+      );
+      return true;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; // TODO Is this right?
+    }
+  } // public boolean canAdmin(g)
+
+  /**
+   * Can this {@link Member} <b>CREATE</b> on this {@link Stem}.
+   * <pre class="eg">
+   * boolean rv = m.canCreate(ns);
+   * </pre>
+   * @param   ns  Check privileges on this {@link Stem}.
+   * @throws  IllegalArgumentException if null {@link Stem}
+   * @since   1.0
+   */
+  public boolean canCreate(Stem ns) 
+    throws  IllegalArgumentException
+  {
+    Validator.argNotNull(ns, E.STEM_NULL);
+    try {
+      PrivilegeResolver.getInstance().canCREATE(
+        this.getSession(), ns, this.getSubject()
+      );
+      return true;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; // TODO Is this right?
+    }
+  } // public boolean canCreate(ns)
+
+  /**
+   * Can this {@link Member} <b>OPTIN</b> on this {@link Group}.
+   * <pre class="eg">
+   * boolean rv = m.canAdmin(g);
+   * </pre>
+   * @param   g   Check privileges on this {@link Group}.
+   * @throws  IllegalArgumentException if null {@link Group}
+   * @since   1.0
+   */
+  public boolean canOptin(Group g) 
+    throws  IllegalArgumentException
+  {
+    Validator.argNotNull(g, E.GROUP_NULL);
+    try {
+      PrivilegeResolver.getInstance().canOPTIN(
+        this.getSession(), g, this.getSubject()
+      );
+      return true;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; // TODO Is this right?
+    }
+  } // public boolean canOptin(g)
+
+  /**
+   * Can this {@link Member} <b>OPTOUT</b> on this {@link Group}.
+   * <pre class="eg">
+   * boolean rv = m.canOptout(g);
+   * </pre>
+   * @param   g   Check privileges on this {@link Group}.
+   * @throws  IllegalArgumentException if null {@link Group}
+   * @since   1.0
+   */
+  public boolean canOptout(Group g) 
+    throws  IllegalArgumentException
+  {
+    Validator.argNotNull(g, E.GROUP_NULL);
+    try {
+      PrivilegeResolver.getInstance().canOPTOUT(
+        this.getSession(), g, this.getSubject()
+      );
+      return true;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; // TODO Is this right?
+    }
+  } // public boolean canOptout(g)
+
+  /**
+   * Can this {@link Member} <b>READ</b> on this {@link Group}.
+   * <pre class="eg">
+   * boolean rv = m.canRead(g);
+   * </pre>
+   * @param   g   Check privileges on this {@link Group}.
+   * @throws  IllegalArgumentException if null {@link Group}
+   * @since   1.0
+   */
+  public boolean canRead(Group g)
+    throws  IllegalArgumentException
+  {
+    Validator.argNotNull(g, E.GROUP_NULL);
+    try {
+      PrivilegeResolver.getInstance().canREAD(
+        this.getSession(), g, this.getSubject()
+      );
+      return true;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; // TODO Is this right?
+    }
+  } // public boolean canRead(g)
+
+  /**
+   * Can this {@link Member} <b>STEM</b> on this {@link Stem}.
+   * <pre class="eg">
+   * boolean rv = m.canStem(ns);
+   * </pre>
+   * @param   ns  Check privileges on this {@link Stem}.
+   * @throws  IllegalArgumentException if null {@link Stem}
+   * @since   1.0
+   */
+  public boolean canStem(Stem ns) 
+    throws  IllegalArgumentException
+  {
+    Validator.argNotNull(ns, E.STEM_NULL);
+    try {
+      PrivilegeResolver.getInstance().canSTEM(
+        this.getSession(), ns, this.getSubject()
+      );
+      return true;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; // TODO Is this right?
+    }
+  } // public boolean canStem(ns)
+
+  /**
+   * Can this {@link Member} <b>UPDATE</b> on this {@link Group}.
+   * <pre class="eg">
+   * boolean rv = m.canUpdate(g);
+   * </pre>
+   * @param   g   Check privileges on this {@link Group}.
+   * @throws  IllegalArgumentException if null {@link Group}
+   * @since   1.0
+   */
+  public boolean canUpdate(Group g) 
+    throws  IllegalArgumentException
+  {
+    Validator.argNotNull(g, E.GROUP_NULL);
+    try {
+      PrivilegeResolver.getInstance().canUPDATE(
+        this.getSession(), g, this.getSubject()
+      );
+      return true;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; // TODO Is this right?
+    }
+  } // public boolean canUPDATE(g)
+
+  /**
+   * Can this {@link Member} <b>VIEW</b> on this {@link Group}.
+   * <pre class="eg">
+   * boolean rv = m.canView(g);
+   * </pre>
+   * @param   g   Check privileges on this {@link Group}.
+   * @throws  IllegalArgumentException if null {@link Group}
+   * @since   1.0
+   */
+  public boolean canView(Group g) 
+    throws  IllegalArgumentException
+  {
+    Validator.argNotNull(g, E.GROUP_NULL);
+    try {
+      PrivilegeResolver.getInstance().canVIEW(
+        this.getSession(), g, this.getSubject()
+      );
+      return true;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; // TODO Is this right?
+    }
+  } // public boolean canView(g)
 
   /**
    * Get groups where this member has an effective membership.

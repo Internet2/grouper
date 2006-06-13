@@ -24,14 +24,38 @@ import  java.util.*;
 
 
 /** 
- * Validator Utility Class.
+ * Validation methods that apply to multiple Grouper classes.
  * <p />
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.7 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: Validator.java,v 1.8 2006-06-13 17:40:39 blair Exp $
  */
 class Validator implements Serializable {
 
-  // FIXME Deprecate
+  // PROTECTED CLASS METHODS //
+  
+  // Throw IAE if argument is null
+  // @since 1.0
+  protected static void argNotNull(Object o, String msg)
+    throws  IllegalArgumentException
+  {
+    if (o == null) {
+      throw new IllegalArgumentException(msg);
+    }
+  } // protected static void argNotNull(o, msg)
+
+  // Throw NPE if value is null
+  // @since 1.0
+  protected static void valueNotNull(Object o, String msg) 
+    throws  NullPointerException
+  {
+    if (o == null) {
+      throw new NullPointerException(msg);
+    }   
+  } // protected static void valueNotNull(o, msg)
+
+
+  // FIXME Deprecate.  Perhaps just the below methods rather than the
+  //       entire class?
 
   // Protected Class Methods //
   protected static void canAddFieldToType(

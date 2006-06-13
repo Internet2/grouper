@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.3 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: E.java,v 1.4 2006-06-13 17:40:39 blair Exp $
  * @since   1.0
  */
 class E {
@@ -70,6 +70,7 @@ class E {
   protected static final String GROUP_GT                  = "invalid group type: ";
   protected static final String GROUP_NODEFAULTLIST       = "'members' list does not exist: ";
   protected static final String GROUP_NOTFOUND            = "unable to find group";
+  protected static final String GROUP_NULL                = "null group";
   protected static final String GROUP_SCHEMA              = "group schema error: ";
   protected static final String GROUP_TYPEADD             = "unable to add type: ";
   protected static final String GROUP_TYPEDEL             = "unable to delete type: ";
@@ -84,6 +85,7 @@ class E {
   protected static final String GROUPTYPE_INVALID         = "invalid group type: ";
   protected static final String GROUPTYPE_NOADD           = "subject not privileged to add group types";
   protected static final String HIBERNATE                 = "hibernate error: ";
+  protected static final String MEMBER_NULL               = "null member";
   protected static final String MEMBER_SUBJNOTFOUND       = "unable to find member as subject: ";
   protected static final String NI                        = "NOT IMPLEMENTED: ";
   protected static final String Q_G                       = "getting groups from ";
@@ -99,6 +101,7 @@ class E {
   protected static final String SF_SNF                    = "subject not found: ";
   protected static final String SF_SNU                    = "subject not unique: ";
   protected static final String SETTINGS                  = "unable to retrieve settings: ";
+  protected static final String STEM_NULL                 = "null stem";
   protected static final String STEM_ROOTNOTFOUND         = "unable to find root stem";
   protected static final String STEM_ROOTINSTALL          = "unable to install root stem: ";
   protected static final String SUBJ_NULL                 = "null subject";

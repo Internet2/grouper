@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.146 2006-05-31 22:44:39 blair Exp $
+$Id: API,v 1.147 2006-06-13 17:40:39 blair Exp $
 
 ---
 
@@ -210,6 +210,14 @@ $Id: API,v 1.146 2006-05-31 22:44:39 blair Exp $
 ## IntersectionFilter extends BaseQueryFilter
 
 ## Member
+* boolean             canCreate(Stem)
+* boolean             canStem(Stem)
+* boolean             canAdmin(Group)
+* boolean             canOptin(Group)
+* boolean             canOptout(Group)
+* boolean             canRead(Group)
+* boolean             canUpdate(Group)
+* boolean             canView(Group)
 * Set                 getEffectiveGroups()
 * Set                 getEffectiveMemberships()
 * Set                 getEffectiveMemberships(field)
