@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.98 2006-06-12 19:40:13 blair Exp $ -->
+<!-- $Id: build.xml,v 1.99 2006-06-13 17:54:28 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -229,9 +229,9 @@
               stylesheetfile="${basedir}/doc/stylesheet.css"
               classpathref="project.classpath" 
     >
-    <packageset dir="${src.grouper}" defaultexcludes="yes">
-      <exclude name="edu/internet2/middleware/grouper/stress/**"/>
-    </packageset>
+      <packageset dir="${src.grouper}" defaultexcludes="yes">
+        <exclude name="edu/internet2/middleware/grouper/stress/**"/>
+      </packageset>
     </javadoc>
   </target>
   <!-- html -->
@@ -266,9 +266,9 @@
       <ruleset>rulesets/favorites.xml</ruleset>
       <ruleset>basic</ruleset>
       <formatter  type="html" 
-                  toFile="pmd_report.html"
-                  toConsole="true"
-                  linkPrefix="http://pmd.sourceforge.net/xref/"
+                  toFile="${dist.run}/pmd_grouper.html"
+                  toConsole="false"
+                  linkPrefix="http://macinthrope.uchicago.edu/~blair/grouper/api/"
       />
       <fileset dir="${src.grouper}">
         <include name="**/*.java"/>
