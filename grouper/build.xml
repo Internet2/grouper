@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.100 2006-06-13 18:05:00 blair Exp $ -->
+<!-- $Id: build.xml,v 1.101 2006-06-13 18:09:53 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -92,7 +92,7 @@
   <!-- cpd -->
   <target name="cpd">
     <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" />
-    <cpd minimumTokenCount="75" outputFile="${dist.run}/cpd.txt">
+    <cpd minimumTokenCount="100" outputFile="${dist.run}/cpd.txt">
       <fileset dir="${src.grouper}">
         <include name="**/*.java"/>
         <exclude name="**/stress/**"/>
