@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.72 2006-06-13 17:40:39 blair Exp $
+ * @version $Id: Group.java,v 1.73 2006-06-13 20:01:32 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
@@ -485,8 +485,8 @@ public class Group extends Owner implements Serializable {
       Set       saves   = new LinkedHashSet();
       Set       deletes = new LinkedHashSet();
       Set       attrs   = new LinkedHashSet();
-      boolean   found   = false;        // so we know if there was actually anything to delete
-      String    val     = new String(); // for logging purposes
+      boolean   found   = false; // so we know if there was actually anything to delete
+      String    val     = GrouperConfig.EMPTY_STRING; // for logging purposes
       Iterator  iter    = this.getGroup_attributes().iterator();
       while (iter.hasNext()) {
         Attribute a = (Attribute) iter.next();
@@ -764,7 +764,7 @@ public class Group extends Owner implements Serializable {
     }
     String val = this._getAttributeNoPrivs(attr);
     if (val == null) {
-      return new String();
+      return GrouperConfig.EMPTY_STRING;
     }
     return val;
   } // public String getAttribute(attr)
@@ -806,7 +806,7 @@ public class Group extends Owner implements Serializable {
   public String getCreateSource() {
     String source = this.getCreate_source();
     if (source == null) {
-      source = new String();
+      source = GrouperConfig.EMPTY_STRING;
     }
     return source;
   } // public String getCreateSource()
@@ -859,7 +859,7 @@ public class Group extends Owner implements Serializable {
     }
     catch (AttributeNotFoundException eANF) {
       // Lack of a description is acceptable
-      return new String();
+      return GrouperConfig.EMPTY_STRING;
     }
   } // public String getDescription()
 
@@ -1143,7 +1143,7 @@ public class Group extends Owner implements Serializable {
   public String getModifySource() {
     String source = this.getModify_source();
     if (source == null) {
-      source = new String();
+      source = GrouperConfig.EMPTY_STRING;
     }
     return source;
   } // public String getModifySource()

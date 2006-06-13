@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.21 2006-06-13 19:29:37 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.22 2006-06-13 20:01:32 blair Exp $
  */
 public class GrouperConfig {
 
@@ -41,19 +41,20 @@ public class GrouperConfig {
 
 
   // PROTECTED CLASS CONSTANTS //
-  protected static final String ALL     = "GrouperAll";
-  protected static final String BT      = "true";
-  protected static final String GWG     = "groups.wheel.group";
-  protected static final String GWU     = "groups.wheel.use";
-  protected static final String IST     = "application";
-  protected static final String LIST    = "members";
-  protected static final String MSLGEA  = "memberships.log.group.effective.add";
-  protected static final String MSLGED  = "memberships.log.group.effective.del";
-  protected static final String MSLSEA  = "memberships.log.stem.effective.add";
-  protected static final String MSLSED  = "memberships.log.stem.effective.del";
-  protected static final String PAI     = "privileges.access.interface";
-  protected static final String PNI     = "privileges.naming.interface";
-  protected static final String ROOT    = "GrouperSystem";
+  protected static final String ALL           = "GrouperAll";
+  protected static final String BT            = "true";
+  protected static final String EMPTY_STRING  = "";
+  protected static final String GWG           = "groups.wheel.group";
+  protected static final String GWU           = "groups.wheel.use";
+  protected static final String IST           = "application";
+  protected static final String LIST          = "members";
+  protected static final String MSLGEA        = "memberships.log.group.effective.add";
+  protected static final String MSLGED        = "memberships.log.group.effective.del";
+  protected static final String MSLSEA        = "memberships.log.stem.effective.add";
+  protected static final String MSLSED        = "memberships.log.stem.effective.del";
+  protected static final String PAI           = "privileges.access.interface";
+  protected static final String PNI           = "privileges.naming.interface";
+  protected static final String ROOT          = "GrouperSystem";
 
   // PROTECTED CLASS CONSTANTS -- QUERIES //
   // FIXME I really hate all of these
@@ -167,7 +168,7 @@ public class GrouperConfig {
    *   parameter is invalid.
    */
   public String getProperty(String property) {
-    String value = new String();
+    String value = GrouperConfig.EMPTY_STRING;
     if ( (property != null) && (this.properties.containsKey(property)) ) {
       value = StringUtils.strip( this.properties.getProperty(property) );
     }

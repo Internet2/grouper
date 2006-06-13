@@ -28,17 +28,12 @@ import  net.sf.hibernate.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.26 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.27 2006-06-13 20:01:32 blair Exp $
  */
 public class RegistryReset {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String SUBJ_TYPE = "person"; 
-
-
-  // PRIVATE INSTANCE VARIABLES //
-  private Session     hs;
-  private Transaction tx;
 
 
   // CONSTRUCTORS //

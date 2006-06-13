@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.55 2006-06-13 19:29:37 blair Exp $
+ * @version $Id: Stem.java,v 1.56 2006-06-13 20:01:32 blair Exp $
  */
 public class Stem extends Owner implements Serializable {
 
@@ -389,7 +389,7 @@ public class Stem extends Owner implements Serializable {
   public String getCreateSource() {
     String source = this.getCreate_source();
     if (source == null) {
-      source = new String();
+      source = GrouperConfig.EMPTY_STRING;
     }
     return source;
   } // public String getCreateSource()
@@ -460,7 +460,7 @@ public class Stem extends Owner implements Serializable {
   public String getDescription() {
     String desc = this.getStem_description();
     if (desc == null) {
-      desc = new String();
+      desc = GrouperConfig.EMPTY_STRING;
     }
     return desc;
   } // public String getDescription()
@@ -524,7 +524,7 @@ public class Stem extends Owner implements Serializable {
   public String getModifySource() {
     String source = this.getModify_source();
     if (source == null) {
-      source = new String();
+      source = GrouperConfig.EMPTY_STRING;
     }
     return source;
   } // public String getModifySource()

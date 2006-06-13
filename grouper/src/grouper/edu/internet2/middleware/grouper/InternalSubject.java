@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.6 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: InternalSubject.java,v 1.7 2006-06-13 20:01:32 blair Exp $
  */
 public class InternalSubject implements Subject {
 
@@ -34,9 +34,9 @@ public class InternalSubject implements Subject {
 
   private Source      adapter = new InternalSourceAdapter();
   private Map         attrs   = new HashMap();
-  private String      desc    = new String();
-  private String      id      = new String();
-  private String      name    = new String();
+  private String      desc    = GrouperConfig.EMPTY_STRING;
+  private String      id      = GrouperConfig.EMPTY_STRING;
+  private String      name    = GrouperConfig.EMPTY_STRING;
   private SubjectType type    = SubjectTypeEnum.valueOf(GrouperConfig.IST);
 
 
@@ -98,7 +98,7 @@ public class InternalSubject implements Subject {
         return (String) iter.next();
       }  
     }
-    return new String();
+    return GrouperConfig.EMPTY_STRING;
   } // public String getAttributeValue(name)
 
   /**

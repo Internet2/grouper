@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * Privilege cache provider.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.6 2006-06-13 19:29:37 blair Exp $
+ * @version $Id: PrivilegeCache.java,v 1.7 2006-06-13 20:01:32 blair Exp $
  *     
  */
 class PrivilegeCache {
@@ -106,16 +106,12 @@ class PrivilegeCache {
   } // protected Element get(ns, subj, p)
 
   protected void put(Group g, Subject subj, Privilege p, boolean has) {
-    Element el = new Element(
-      this._getKey(g, subj, p), new Boolean(has).toString()
-    );
+    Element el = new Element( this._getKey(g, subj, p), Boolean.toString(has) );
     this.cache.put(el);
   } // protected void put(g, subj, p, has)
 
   protected void put(Stem ns, Subject subj, Privilege p, boolean has) {
-    Element el = new Element(
-      this._getKey(ns, subj, p), new Boolean(has).toString()
-    );
+    Element el = new Element( this._getKey(ns, subj, p), Boolean.toString(has) );
     this.cache.put(el); 
   } // protected void put(ns, subj, p, has)
 
