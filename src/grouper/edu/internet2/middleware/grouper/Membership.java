@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
@@ -27,9 +26,9 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.35 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: Membership.java,v 1.36 2006-06-15 04:04:30 blair Exp $
  */
-public class Membership implements Serializable {
+public class Membership {
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL      = new EventLog();

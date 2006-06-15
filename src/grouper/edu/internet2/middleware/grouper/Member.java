@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
@@ -26,9 +25,9 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.40 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: Member.java,v 1.41 2006-06-15 04:04:30 blair Exp $
  */
-public class Member implements Serializable {
+public class Member {
 
   // HIBERNATE PROPERTIES //
   private String  id;
