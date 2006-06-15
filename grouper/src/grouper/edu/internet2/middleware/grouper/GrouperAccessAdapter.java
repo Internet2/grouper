@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.38 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.39 2006-06-15 03:58:30 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -154,9 +154,9 @@ public class GrouperAccessAdapter implements AccessAdapter {
         Privilege p = (Privilege) iterP.next();
         Field     f = this._getField(p);   
         Iterator  iterM = MembershipFinder.findMembershipsNoPrivsNoSession(g, m, f).iterator();
-        privs.addAll( this._getPrivs(s, g, subj, m, p, iterM) );
+        privs.addAll( this._getPrivs(s, subj, m, p, iterM) );
         Iterator  iterA = MembershipFinder.findMembershipsNoPrivsNoSession(g, all, f).iterator();
-        privs.addAll( this._getPrivs(s, g, subj, all, p, iterA) );
+        privs.addAll( this._getPrivs(s, subj, all, p, iterA) );
       }
     }
     catch (MemberNotFoundException eMNF) {
@@ -365,7 +365,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
 
   // Return appropriate _AccessPrivilege_ objects 
   private Set _getPrivs(
-    GrouperSession s, Group g, Subject subj, Member m, Privilege p, Iterator iter
+    GrouperSession s, Subject subj, Member m, Privilege p, Iterator iter
   )
     throws  SchemaException
   {
@@ -404,7 +404,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
       }
     }
     return privs;
-  } // private Set _get(s, g, subj, m, p, iter)
+  } // private Set _get(s, subj, m, p, iter)
 
 }
 

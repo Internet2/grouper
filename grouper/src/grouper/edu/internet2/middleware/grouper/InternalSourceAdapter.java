@@ -30,7 +30,7 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.10 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.11 2006-06-15 03:58:30 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -40,9 +40,9 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private Subject all   = null;
-  private Set     types = new LinkedHashSet();
-  private Subject root  = null;
+  private Subject all     = null;
+  private Subject root    = null;
+  private Set     _types  = new LinkedHashSet();
 
 
   // CONSTRUCTORS //
@@ -110,17 +110,16 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   /**
    * Gets the SubjectTypes supported by this source.
    * <pre class="eg">
-   * // Return subject types supported by this source.
    * SourceAdapter  sa    = new InternalSourceAdapter();
    * Set            types = sa.getSubjectTypes();
    * </pre>
    * @return  Subject type supported by this source.
    */
   public Set getSubjectTypes() {
-    if (types.size() != 1) {
-      types.add( SubjectTypeEnum.valueOf(GrouperConfig.IST) );
+    if (_types.size() != 1) {
+      _types.add( SubjectTypeEnum.valueOf(GrouperConfig.IST) );
     }
-    return types;
+    return _types;
   } // public Set getSubjectTypes()
 
   /**

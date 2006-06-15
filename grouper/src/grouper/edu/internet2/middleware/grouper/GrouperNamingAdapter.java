@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.38 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.39 2006-06-15 03:58:30 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -155,9 +155,9 @@ public class GrouperNamingAdapter implements NamingAdapter {
         Privilege p = (Privilege) iterP.next();
         Field     f = this._getField(p);   
         Iterator  iterM = MembershipFinder.findMembershipsNoPrivsNoSession(ns, m, f).iterator();
-        privs.addAll( this._getPrivs(s, ns, subj, m, p, iterM) );
+        privs.addAll( this._getPrivs(s, subj, m, p, iterM) );
         Iterator  iterA = MembershipFinder.findMembershipsNoPrivsNoSession(ns, all, f).iterator();
-        privs.addAll( this._getPrivs(s, ns, subj, all, p, iterA) );
+        privs.addAll( this._getPrivs(s, subj, all, p, iterA) );
       }
     }
     catch (MemberNotFoundException eMNF) {
@@ -363,7 +363,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
 
   // Return appropriate _NamingPrivilege_ objects 
   private Set _getPrivs(
-    GrouperSession s, Stem ns, Subject subj, Member m, Privilege p, Iterator iter
+    GrouperSession s, Subject subj, Member m, Privilege p, Iterator iter
   )
     throws  SchemaException
   {
@@ -402,7 +402,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       }
     }
     return privs;
-  } // private Set _get(s, g, subj, m, p, iter)
+  } // private Set _get(s, subj, m, p, iter)
 
 }
 

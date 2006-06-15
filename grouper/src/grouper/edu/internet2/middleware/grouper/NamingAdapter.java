@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.13 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: NamingAdapter.java,v 1.14 2006-06-15 03:58:30 blair Exp $
  */
 public interface NamingAdapter {
 
@@ -46,7 +46,7 @@ public interface NamingAdapter {
    * @return  Set of {@link Subject} objects.
    * @throws  SchemaException
    */
-  public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv)
+  Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv)
     throws  SchemaException;
 
   /**
@@ -67,7 +67,7 @@ public interface NamingAdapter {
    * @return  Set of {@link Stem} objects.
    * @throws  SchemaException
    */
-  public Set getStemsWhereSubjectHasPriv(
+  Set getStemsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
   ) 
     throws  SchemaException;
@@ -82,7 +82,7 @@ public interface NamingAdapter {
    * @param   subj  Get privileges for this subject.
    * @return  Set of {@link NamingPrivilege} objects.
    */
-  public Set getPrivs(GrouperSession s, Stem ns, Subject subj);
+  Set getPrivs(GrouperSession s, Stem ns, Subject subj);
 
   /**
    * Grant the privilege to the subject on this stem.
@@ -105,7 +105,7 @@ public interface NamingAdapter {
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
-  public void grantPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
+  void grantPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws  GrantPrivilegeException, 
             InsufficientPrivilegeException,
             SchemaException
@@ -127,7 +127,7 @@ public interface NamingAdapter {
    * @param   priv  Check this privilege.   
    * @throws  SchemaException
    */
-  public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
+  boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws SchemaException;
 
   /**
@@ -150,7 +150,7 @@ public interface NamingAdapter {
    * @throws  RevokePrivilegeException
    * @throws  SchemaException
    */
-  public void revokePriv(GrouperSession s, Stem ns, Privilege priv)
+  void revokePriv(GrouperSession s, Stem ns, Privilege priv)
     throws  InsufficientPrivilegeException, 
             RevokePrivilegeException,
             SchemaException
@@ -177,7 +177,7 @@ public interface NamingAdapter {
    * @throws  RevokePrivilegeException
    * @throws  SchemaException
    */
-  public void revokePriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
+  void revokePriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws  InsufficientPrivilegeException, 
             RevokePrivilegeException,
             SchemaException
