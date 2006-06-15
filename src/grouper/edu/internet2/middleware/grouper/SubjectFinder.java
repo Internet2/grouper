@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
 import  java.util.*;
 import  org.apache.commons.lang.time.*;
 
@@ -26,9 +25,9 @@ import  org.apache.commons.lang.time.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.18 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.19 2006-06-15 03:53:01 blair Exp $
  */
-public class SubjectFinder implements Serializable {
+public class SubjectFinder {
 
   // PRIVATE CLASS CONSTANTS //
   private static final SourceManager  MGR;

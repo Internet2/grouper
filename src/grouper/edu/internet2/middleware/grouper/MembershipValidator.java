@@ -18,14 +18,13 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.4 2006-06-13 19:29:37 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.5 2006-06-15 03:53:01 blair Exp $
  * @since   1.0
  */
-class MembershipValidator implements Serializable {
+class MembershipValidator {
 
   // PROTECTED CLASS CONSTANTS //
   // TODO Move to *E*
