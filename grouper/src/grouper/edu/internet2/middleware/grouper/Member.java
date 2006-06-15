@@ -21,11 +21,12 @@ import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.lang.time.*;
 
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.41 2006-06-15 04:04:30 blair Exp $
+ * @version $Id: Member.java,v 1.42 2006-06-15 19:47:13 blair Exp $
  */
 public class Member {
 
@@ -1127,6 +1128,9 @@ public class Member {
   public void setSubjectId(String id) 
     throws  InsufficientPrivilegeException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
+
     // Don't let ALL and root be updated
     if (this.subject_type.equals(GrouperConfig.IST)) {
       if (this.subject_source.equals(InternalSourceAdapter.ID)) {
@@ -1151,10 +1155,16 @@ public class Member {
         msg = e.getMessage();
       }
     }
+    // TODO WTF?
     if (this.getSubject_id().equals(oid)) {
       throw new InsufficientPrivilegeException(msg);
     }
-    EventLog.info(this.getSession(), M.MEMBER_CHANGESID + this.getUuid() + ": " + id);
+    sw.stop();
+    EventLog.info(
+      this.getSession(),
+      M.MEMBER_CHANGESID + U.q(this.getUuid()) + " old=" + U.q(oid) + " new=" + U.q(id),
+      sw
+    );
   } // public void setSubjectId(id)
 
   public String toString() {

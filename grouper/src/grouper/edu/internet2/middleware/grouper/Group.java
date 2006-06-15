@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.76 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: Group.java,v 1.77 2006-06-15 19:47:13 blair Exp $
  */
 public class Group extends Owner {
 
@@ -278,7 +278,11 @@ public class Group extends Owner {
       HibernateHelper.save(this);
       hs.close();
       sw.stop();
-      EL.groupAddType(this.getSession(), this.getName(), type, sw);
+      EventLog.info(
+        this.getSession(),
+        M.GROUP_ADDTYPE + U.q(this.getName()) + " type=" + U.q(type.toString()),
+        sw
+      );
     }
     catch (Exception e) {
       String msg = E.GROUP_TYPEADD + type + ": " + e.getMessage();
@@ -424,7 +428,7 @@ public class Group extends Owner {
       HibernateHelper.delete(deletes);
       // TODO info
       sw.stop();
-      EL.groupDelete(this.getSession(), name, sw);
+      EventLog.info(this.getSession(), M.GROUP_DEL + U.q(name), sw);
     }
     catch (InsufficientPrivilegeException eIP) {
       throw new InsufficientPrivilegeException(eIP.getMessage(), eIP);
@@ -665,7 +669,11 @@ public class Group extends Owner {
       HibernateHelper.save(this);
       hs.close();
       sw.stop();
-      EL.groupDelType(this.getSession(), this.getName(), type, sw);
+      EventLog.info(
+        this.getSession(),
+        M.GROUP_DELTYPE + U.q(this.getName()) + " type=" + U.q(type.toString()),
+        sw
+      );
     }
     catch (Exception e) {
       String msg = E.GROUP_TYPEDEL + type + ": " + e.getMessage();
