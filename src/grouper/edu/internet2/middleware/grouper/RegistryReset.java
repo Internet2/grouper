@@ -28,7 +28,7 @@ import  net.sf.hibernate.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.28 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.29 2006-06-15 17:45:34 blair Exp $
  */
 public class RegistryReset {
 
@@ -158,7 +158,9 @@ public class RegistryReset {
 
     tx.commit();
     hs.close();
-    GroupTypeFinder.findAll(); // So that we always refresh the cache
+    // TODO Now update the cached types + fields
+    GroupTypeFinder.updateKnownTypes();
+    FieldFinder.updateKnownFields();
     CacheMgr.resetAllCaches();
   } // private void _emptyTables()
 

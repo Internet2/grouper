@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.15 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: EventLog.java,v 1.16 2006-06-15 17:45:34 blair Exp $
  */
 class EventLog {
 
@@ -50,7 +50,6 @@ class EventLog {
   private static final String GS_STOP     = "session stopped: duration=";
   private static final String GT_AF       = "add group field: ";
   private static final String GT_AT       = "add group type: ";
-  private static final String GT_DF       = "delete group field: ";
   private static final String S_ACG       = "add group: ";  
   private static final String S_ACS       = "add stem: ";  
   private static final String S_D         = "stem delete: ";
@@ -236,13 +235,6 @@ class EventLog {
   {
     EventLog.info(s, GT_AF + name + " to " + type, sw);
   } // protected void groupAddField(s, group, attr, val, sw);
-
-  protected void groupTypeDelField(
-    GrouperSession s, String type, String name, StopWatch sw
-  )
-  {
-    EventLog.info(s, GT_DF + name + " from " + type, sw);
-  } // protected void groupDelField(s, group, attr, val, sw);
 
   protected void sessionStart(String sessionToString, StopWatch sw) {
     EventLog.info(sessionToString, GS_START, sw);

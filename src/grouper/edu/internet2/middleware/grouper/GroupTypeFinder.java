@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.Type;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.11 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.12 2006-06-15 17:45:34 blair Exp $
  */
 public class GroupTypeFinder {
 
@@ -73,7 +73,7 @@ public class GroupTypeFinder {
       return (GroupType) types.get(name);
     }
     // If not, refresh known types as it may be new and try again. 
-    _updateKnownTypes();
+    updateKnownTypes();
     if (types.containsKey(name)) {
       return (GroupType) types.get(name);
     }
@@ -90,7 +90,7 @@ public class GroupTypeFinder {
    * @return  A {@link Set} of {@link GroupType} objects.
    */
   public static Set findAll() {
-    _updateKnownTypes();
+    updateKnownTypes();
     Set       values  = new LinkedHashSet();
     Iterator  iter    = types.values().iterator();
     while (iter.hasNext()) {
@@ -122,27 +122,9 @@ public class GroupTypeFinder {
   } // public static Set findAllAssignable()
 
 
-  // PRIVATE CLASS METHODS //
-  private static Set _findAll() {
-    Set types = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery("from GroupType order by name asc");
-      qry.setCacheable(GrouperConfig.QRY_GTF_FA); 
-      qry.setCacheRegion(GrouperConfig.QCR_GTF_FA);
-      types.addAll(qry.list());
-      hs.close();  
-    }
-    catch (HibernateException eH) {
-      String msg = E.GROUPTYPE_FINDALL + eH.getMessage();
-      ErrorLog.fatal(GroupTypeFinder.class, msg);
-      throw new RuntimeException(msg, eH);
-    }
-    DebugLog.info(GroupTypeFinder.class, "found group types: " + types.size());
-    return types;
-  } // private Static Set _findAll()
-
-  private static void _updateKnownTypes() {
+  // PROTECTED CLASS METHODS //
+  // @since 1.0
+  protected static void updateKnownTypes() {
     // TODO This method irks me still even if it is now more
     //      functionally correct
     Set typesInRegistry = _findAll();
@@ -168,7 +150,28 @@ public class GroupTypeFinder {
       String type = (String) toDelIter.next();
       types.remove(type);  
     }
-  } // private static void _updateKnownTypes()
+  } // protected static void updateKnownTypes()
+
+
+  // PRIVATE CLASS METHODS //
+  private static Set _findAll() {
+    Set types = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery("from GroupType order by name asc");
+      qry.setCacheable(GrouperConfig.QRY_GTF_FA); 
+      qry.setCacheRegion(GrouperConfig.QCR_GTF_FA);
+      types.addAll(qry.list());
+      hs.close();  
+    }
+    catch (HibernateException eH) {
+      String msg = E.GROUPTYPE_FINDALL + eH.getMessage();
+      ErrorLog.fatal(GroupTypeFinder.class, msg);
+      throw new RuntimeException(msg, eH);
+    }
+    DebugLog.info(GroupTypeFinder.class, "found group types: " + types.size());
+    return types;
+  } // private Static Set _findAll()
 
 }
 

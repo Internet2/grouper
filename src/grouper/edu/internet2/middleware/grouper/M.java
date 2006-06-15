@@ -20,15 +20,17 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Messages.
  * @author  blair christensen.
- * @version $Id: M.java,v 1.1 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: M.java,v 1.2 2006-06-15 17:45:34 blair Exp $
  * @since   1.0
  */
 class M {
 
   // PROTECTED CLASS CONSTANTS //
-  protected static final String CACHE_EMPTIED     = "emptied cache: ";
-  protected static final String MEMBER_CHANGESID  = "changed subjectId for ";
-  protected static final String STEM_ROOTINSTALL  = "root stem installed";
+  protected static final String CACHE_EMPTIED       = "emptied cache: ";
+  protected static final String GROUPTYPE_DEL       = "deleted group type: ";
+  protected static final String GROUPTYPE_DELFIELD  = "deleted group field: ";
+  protected static final String MEMBER_CHANGESID    = "changed subjectId for ";
+  protected static final String STEM_ROOTINSTALL    = "root stem installed";
 
 }
 

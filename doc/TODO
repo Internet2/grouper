@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.67 2006-06-13 20:01:32 blair Exp $
+$Id: TODO,v 1.68 2006-06-15 17:45:33 blair Exp $
 
 ---
 
@@ -19,15 +19,14 @@ $Id: TODO,v 1.67 2006-06-13 20:01:32 blair Exp $
 ** Clean up `Membership.getPersistent()` once fixed
 
 ### Next Actions
-* CODE      delete custom group types
-* CODE      Fix some issues reported by FindBugs, PMD and CPD
-* TEST      basic and preliminary concurrency testing (i expect to find many bugs)
 * CODE      add `Group.getTypes()` that will return all types that the
   group has, including base but excluding internal types
 * CODE      add `Group.getRemovableTypes()` that will return all types
   that can be removed from the group
-* CONTRIB   complete cdg 1.0 feature list
 * REVIEW    review all RTEs
+* CONTRIB   complete cdg 1.0 feature list
+* CODE      Fix some issues reported by FindBugs, PMD and CPD
+* TEST      basic and preliminary concurrency testing (i expect to find many bugs)
 * REVIEW    FIXMEs
 * REVIEW    TODOs
 
@@ -129,6 +128,6 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.67 2006-06-13 20:01:32 blair Exp $
+$Id: TODO,v 1.68 2006-06-15 17:45:33 blair Exp $
 
 

@@ -4,32 +4,32 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.147 2006-06-13 17:40:39 blair Exp $
+$Id: API,v 1.148 2006-06-15 17:45:33 blair Exp $
 
 ---
 
 # Interfaces
 
 ## AccessAdapter
-* Set                 getSubjectsWithPriv(session, group, access priv)
-* Set                 getGroupsWhereSubjectHasPriv(session, subject, access priv)
-* Set                 getPrivs(session, group, subject)
-* void                grantPriv(session, group, subject, access priv)
-* boolean             hasPriv(session, group, subject, access priv)
-* void                revokePriv(session, group, access priv)
-* void                revokePriv(session, group, subject, access priv)
+* Set                 getSubjectsWithPriv(GrouperSession, group, access priv)
+* Set                 getGroupsWhereSubjectHasPriv(GrouperSession, subject, access priv)
+* Set                 getPrivs(GrouperSession, group, subject)
+* void                grantPriv(GrouperSession, group, subject, access priv)
+* boolean             hasPriv(GrouperSession, group, subject, access priv)
+* void                revokePriv(GrouperSession, group, access priv)
+* void                revokePriv(GrouperSession, group, subject, access priv)
 
 ## NamingAdapter
-* Set                 getSubjectsWithPriv(session, stem, naming priv)
-* Set                 getStemsWhereSubjectHasPriv(session, subject, naming priv)
-* Set                 getPrivs(session, stem, subject)
-* void                grantPriv(session, stem, subject, naming priv)
-* boolean             hasPriv(session, stem, subject, naming priv)
-* void                revokePriv(session, stem, naming priv)
-* void                revokePriv(session, stem, subject, naming priv)
+* Set                 getSubjectsWithPriv(GrouperSession, stem, naming priv)
+* Set                 getStemsWhereSubjectHasPriv(GrouperSession, subject, naming priv)
+* Set                 getPrivs(GrouperSession, stem, subject)
+* void                grantPriv(GrouperSession, stem, subject, naming priv)
+* boolean             hasPriv(GrouperSession, stem, subject, naming priv)
+* void                revokePriv(GrouperSession, stem, naming priv)
+* void                revokePriv(GrouperSession, stem, subject, naming priv)
 
 ## QueryFilter
-* Set                 getResults(session)
+* Set                 getResults(GrouperSession)
 
 ---
 
@@ -48,7 +48,7 @@ $Id: API,v 1.147 2006-06-13 17:40:39 blair Exp $
 * QueryException
 * RevokePrivilegeException
 * SchemaException
-* SessionException
+* GrouperSessionException
 * StemAddException
 * StemModifyException
 * StemNotFoundException
@@ -67,7 +67,7 @@ $Id: API,v 1.147 2006-06-13 17:40:39 blair Exp $
 
 ## BaseQueryFilter implements QueryFilter
 * Set                 filterByScope(stem, candidates)
-* Set                 getResults(session)
+* Set                 getResults(GrouperSession)
 
 ## ComplementFilter extends BaseQueryFilter
 
@@ -169,26 +169,26 @@ $Id: API,v 1.147 2006-06-13 17:40:39 blair Exp $
 ## GroupCreatedBeforeFilter extends BaseQueryFilter
 
 ## GroupFinder
-* Group               GroupFinder.findByName(session, name)
-* Group               GroupFinder.findByUuid(session, uuid)
+* Group               GroupFinder.findByName(GrouperSession, name)
+* Group               GroupFinder.findByUuid(GrouperSession, uuid)
 
 ## GrouperAccessAdapter implements AccessAdapter
 
 ## GrouperNamingAdapter implements NamingAdapter
 
 ## GrouperQuery
-* GrouperQuery        GrouperQuery.createQuery(session, filter)
+* GrouperQuery        GrouperQuery.createQuery(GrouperSession, filter)
 * Set                 getGroups()
 * Set                 getMembers()
 * Set                 getMemberships()
 * Set                 getStems()
 
-## GrouperSession
-* GrouperSession      GrouperSession.start(subject)
+## GrouperGrouperSession
+* GrouperGrouperSession      GrouperGrouperSession.start(subject)
 * String              getAccessClass()
 * Member              getMember()
 * String              getNamingClass()
-* String              getSessionId()
+* String              getGrouperSessionId()
 * Date                getStartTime()
 * Subject             getSubject()
 * void                stop()
@@ -196,10 +196,11 @@ $Id: API,v 1.147 2006-06-13 17:40:39 blair Exp $
 ## GroupNameFilter extends BaseQueryFilter
 
 ## GroupType
-* GroupType           GroupType.createType(session, name)
-* Field               addAttribute(session, name, ReadAccessPrivilege, WriteAccessPrivilege, required)
-* Field               addList(session, name, ReadAccessPrivilege, WriteAccessPrivilege)
-* void                deleteField(session, name)
+* GroupType           GroupType.createType(GrouperSession, name)
+* Field               addAttribute(GrouperSession, name, ReadAccessPrivilege, WriteAccessPrivilege, required)
+* Field               addList(GrouperSession, name, ReadAccessPrivilege, WriteAccessPrivilege)
+* void                delete(GrouperSession)
+* void                deleteField(GrouperSession, name)
 * Set                 getFields()
 
 ## GroupTypeFinder
@@ -262,8 +263,8 @@ $Id: API,v 1.147 2006-06-13 17:40:39 blair Exp $
 * Group               toGroup()
 
 ## MemberFinder
-* Member              MemberFinder.findByUuid(session, uuid)
-* Member              MemberFinder.findBySubject(session, subject)
+* Member              MemberFinder.findByUuid(GrouperSession, uuid)
+* Member              MemberFinder.findBySubject(GrouperSession, subject)
 
 ## Membership
 * Set                 getChildMemberships()
@@ -276,8 +277,8 @@ $Id: API,v 1.147 2006-06-13 17:40:39 blair Exp $
 * Group               getViaGroup()
 
 ## MembershipFinder
-* Set                 MembershipFinder.findEffectiveMemberships(session, group, subject, field, group, depth)
-* Membership          MembershipFinder.findImmediateMembership(session, group, subject, field)
+* Set                 MembershipFinder.findEffectiveMemberships(GrouperSession, group, subject, field, group, depth)
+* Membership          MembershipFinder.findImmediateMembership(GrouperSession, group, subject, field)
 
 ## NamingPrivilege 
 * String              getImplementationName()
@@ -344,9 +345,9 @@ $Id: API,v 1.147 2006-06-13 17:40:39 blair Exp $
 ## StemCreatedBeforeFilter extends BaseQueryFilter
 
 ## StemFinder
-* Stem                StemFinder.findByName(session, name)
-* Stem                StemFinder.findByUuid(session, uuid)
-* Stem                StemFinder.findRootStem(session)
+* Stem                StemFinder.findByName(GrouperSession, name)
+* Stem                StemFinder.findByUuid(GrouperSession, uuid)
+* Stem                StemFinder.findRootStem(GrouperSession)
 
 ## StemNameFilter extends BaseQueryFilter
 
