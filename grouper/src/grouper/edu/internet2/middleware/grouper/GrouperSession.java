@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.ehcache.*;
 import  net.sf.hibernate.*;
@@ -29,9 +28,9 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.24 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.25 2006-06-15 04:10:34 blair Exp $
  */
-public class GrouperSession implements Serializable {
+public class GrouperSession {
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL        = new EventLog();

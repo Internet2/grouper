@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
@@ -26,10 +25,10 @@ import  org.apache.commons.lang.builder.*;
  * Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: Settings.java,v 1.4 2006-06-15 04:10:34 blair Exp $
  * @since   1.0
  */
-class Settings implements Serializable {
+class Settings {
 
   // PRIVATE CLASS CONSTANTS //
   private static final int  CURRENT_SCHEMA_VERSION  = 1;  // == 1.0

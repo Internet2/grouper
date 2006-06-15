@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
@@ -28,9 +27,9 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.74 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: Group.java,v 1.75 2006-06-15 04:10:34 blair Exp $
  */
-public class Group extends Owner implements Serializable {
+public class Group extends Owner {
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL        = new EventLog();

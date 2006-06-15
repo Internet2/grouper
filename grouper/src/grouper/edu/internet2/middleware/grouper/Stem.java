@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.time.*;
@@ -27,9 +26,9 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.57 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: Stem.java,v 1.58 2006-06-15 04:10:34 blair Exp $
  */
-public class Stem extends Owner implements Serializable {
+public class Stem extends Owner {
 
   // PROTECTED CLASS CONSTANTS //
   protected static final String ROOT_EXT  = GrouperConfig.EMPTY_STRING; // Appease Oracle
