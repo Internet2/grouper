@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.Serializable;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.4 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.5 2006-06-15 03:53:01 blair Exp $
  * @since   1.0
  */
-class CompositeValidator implements Serializable {
+class CompositeValidator {
 
   // PROTECTED CLASS METHODS //
 

@@ -18,14 +18,13 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.7 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.8 2006-06-15 03:53:01 blair Exp $
  * @since   1.0
  */
-class GroupValidator implements Serializable {
+class GroupValidator {
 
   // PROTECTED CLASS METHODS //
 

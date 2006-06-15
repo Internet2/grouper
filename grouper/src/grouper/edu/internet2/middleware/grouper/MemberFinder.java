@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
@@ -26,9 +25,9 @@ import  net.sf.hibernate.type.*;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.13 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.14 2006-06-15 03:53:01 blair Exp $
  */
-public class MemberFinder implements Serializable {
+public class MemberFinder {
 
   // PRIVATE CLASS CONSTANTS //
   // TODO Move to *E*

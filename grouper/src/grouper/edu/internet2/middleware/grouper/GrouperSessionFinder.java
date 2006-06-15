@@ -16,15 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.Serializable;
 
 /**
  * Find sessions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionFinder.java,v 1.10 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: GrouperSessionFinder.java,v 1.11 2006-06-15 03:53:01 blair Exp $
  */
-class GrouperSessionFinder implements Serializable {
+class GrouperSessionFinder {
 
   // PRIVATE CLASS VARIABLES //
   private static GrouperSession root = null;

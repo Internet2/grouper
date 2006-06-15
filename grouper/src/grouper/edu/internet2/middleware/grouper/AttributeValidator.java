@@ -18,15 +18,14 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
 import  java.util.regex.*;
 
 
 /** 
  * @author  blair christensen.
- * @version $Id: AttributeValidator.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: AttributeValidator.java,v 1.4 2006-06-15 03:53:01 blair Exp $
  */
-class AttributeValidator implements Serializable {
+class AttributeValidator {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Pattern  RE_COLON  = Pattern.compile(":");
