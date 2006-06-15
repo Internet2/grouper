@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateSubjectAttribute.hbm.xml,v 1.2 2006-05-23 19:10:23 blair Exp $ -->
+<!-- $Id: HibernateSubjectAttribute.hbm.xml,v 1.3 2006-06-15 00:07:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="HibernateSubjectAttribute" table="SubjectAttribute">
@@ -32,10 +32,10 @@
 
     <!-- id -->
     <composite-id>
-      <key-many-to-one  name="subjectID"  
+      <key-many-to-one  name="subjectId"  
                         class="edu.internet2.middleware.grouper.HibernateSubject"
       >
-        <column name="subjectID"
+        <column name="subjectId"
                 not-null="true"
                 index="subjectattribute_id_idx"
         />

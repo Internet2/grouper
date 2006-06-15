@@ -20,7 +20,7 @@ import  java.io.Serializable;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.4 2006-06-15 00:07:02 blair Exp $
  * @since   1.0
  */
 class CompositeValidator implements Serializable {
@@ -36,24 +36,23 @@ class CompositeValidator implements Serializable {
     Owner o = c.getOwner();
     Owner l = c.getLeft();
     Owner r = c.getRight();
-    if (o == null) {
-      throw new ModelException(E.COMP_O);
-    }
-    if (! ( (o instanceof Group) || (o instanceof Stem) ) ) {
-      throw new ModelException(E.COMP_OC);
-    }
-    if (l == null) {
-      throw new ModelException(E.COMP_L);
-    }
-    if (!(l instanceof Group)) {
-      throw new ModelException(E.COMP_LC);
-    }
-    if (r == null) {
-      throw new ModelException(E.COMP_R);
-    }
-    if (!(r instanceof Group)) {
-      throw new ModelException(E.COMP_RC);
-    }
+    _notNull(o, E.COMP_O);
+    _rightOwnerClass(o);
+    _notNull(l, E.COMP_L);
+    _rightFactorClass(l, E.COMP_LC);
+    _notNull(r, E.COMP_R);
+    _rightFactorClass(r, E.COMP_RC);
+    _notCyclic(o, l, r);
+    _notNull(c.getType(), E.COMP_T);
+  } // protected static void validate(Composite c)
+
+
+  // PRIVATE CLASS METHODS //  
+
+  // @since 1.0
+  private static void _notCyclic(Owner o, Owner l, Owner r)
+    throws  ModelException
+  {
     if (l.equals(r)) {
       throw new ModelException(E.COMP_LR);
     }
@@ -63,10 +62,35 @@ class CompositeValidator implements Serializable {
     if (o.equals(r)) {
       throw new ModelException(E.COMP_CR);
     }
-    if (c.getType() == null) {
-      throw new ModelException(E.COMP_T);
+  } // private static void _notCyclic(o, l, r)
+
+  // @since 1.0
+  private static void _notNull(Object obj, String msg) 
+    throws  ModelException
+  {
+    if (obj == null) {
+      throw new ModelException(msg);
     }
-  } // protected static void validate(Composite c)
-  
+  } // private static void _notNull(obj, msg)
+
+  // @since 1.0
+  private static void _rightFactorClass(Owner f, String msg)
+    throws  ModelException
+  {
+    if (!(f instanceof Group)) {
+      throw new ModelException(msg);
+    }
+  } // private static void _rightFactorClass(f, msg)
+
+  // @since 1.0
+  private static void _rightOwnerClass(Owner o) 
+    throws  ModelException
+  {
+    // TODO Shouldn't this really restrict to *Group*, at least for now?
+    if ( !( (o instanceof Group) || (o instanceof Stem) ) ) {
+      throw new ModelException(E.COMP_OC);
+    }
+  } // private static void _rightOwnerClass(o)
+
 }
 

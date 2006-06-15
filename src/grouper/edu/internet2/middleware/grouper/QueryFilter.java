@@ -24,7 +24,7 @@ import  java.util.*;
  * Interface for querying the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: QueryFilter.java,v 1.3 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: QueryFilter.java,v 1.4 2006-06-15 00:07:02 blair Exp $
  */
 public interface QueryFilter {
 
@@ -37,7 +37,7 @@ public interface QueryFilter {
    * @return  Objects that match filter constraints.
    * @throws  QueryException
    */
-  public Set getResults(GrouperSession s)  throws QueryException;
+  Set getResults(GrouperSession s) throws QueryException;
 
 }
 

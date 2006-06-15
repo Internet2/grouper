@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.17 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: StemFinder.java,v 1.18 2006-06-15 00:07:02 blair Exp $
  */
 public class StemFinder {
 
@@ -375,6 +375,7 @@ public class StemFinder {
       }
     }
     catch (StemNotFoundException eSNF) {
+      ErrorLog.error(StemFinder.class, E.STEMF_ISCHILDGROUP + eSNF.getMessage());
       // Nothing
     }
     return false;
@@ -393,7 +394,7 @@ public class StemFinder {
       }
     }
     catch (StemNotFoundException eSNF) {
-      // Nothing
+      ErrorLog.error(StemFinder.class, E.STEMF_ISCHILDSTEM + eSNF.getMessage());
     }
     return false;
   } // protected static boolean isChild(ns, stem)

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.39 2006-06-13 19:29:37 blair Exp $
+ * @version $Id: Member.java,v 1.40 2006-06-15 00:07:02 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -984,8 +984,7 @@ public class Member implements Serializable {
   public boolean isEffectiveMember(Group g, Field f) 
     throws  SchemaException
   {
-    boolean rv  = false;
-    String  msg = "isEffectiveMember '" + f.getName() + "' '";
+    boolean rv = false;
     if (
       MembershipFinder.findEffectiveMemberships(g, this, f).size() > 0
     ) 
@@ -1043,12 +1042,9 @@ public class Member implements Serializable {
   public boolean isImmediateMember(Group g, Field f) 
     throws  SchemaException
   {
-    boolean rv  = false;
-    String  msg = "isImmediateMember '" + g.getName() + "' '" 
-      + f.getName() + "' ";
+    boolean rv = false;
     try {
       Subject subj = this.getSubject();
-      msg += SubjectHelper.getPretty(subj) + " ";
       try {
         MembershipFinder.findImmediateMembership(this.getSession(), g, subj, f);
         rv = true;
@@ -1066,7 +1062,7 @@ public class Member implements Serializable {
       }
     }
     catch (SubjectNotFoundException eSNF) {
-      // TODO Well, this is unexpected.
+      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return rv;
   } // public boolean isImmediateMember(g, f)
@@ -1145,19 +1141,19 @@ public class Member implements Serializable {
         }
       }
     } 
-    String  oid = this.getSubject_id();
-    String err = "not privileged to change subjectId";
+    String oid = this.getSubject_id();
+    String msg = "not privileged to change subjectId";
     if (PrivilegeResolver.getInstance().isRoot(this.getSession().getSubject())) {
       try {
         this.setSubject_id(id);
         HibernateHelper.save(this);
       }
       catch (Exception e) {
-        err = e.getMessage();
+        msg = e.getMessage();
       }
     }
     if (this.getSubject_id().equals(oid)) {
-      throw new InsufficientPrivilegeException(err);
+      throw new InsufficientPrivilegeException(msg);
     }
     EventLog.info(this.getSession(), M.MEMBER_CHANGESID + this.getUuid() + ": " + id);
   } // public void setSubjectId(id)

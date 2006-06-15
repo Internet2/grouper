@@ -20,7 +20,7 @@ import  java.io.Serializable;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperSessionValidator.java,v 1.3 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: GrouperSessionValidator.java,v 1.4 2006-06-15 00:07:02 blair Exp $
  * @since   1.0
  */
 class GrouperSessionValidator implements Serializable {
@@ -37,17 +37,14 @@ class GrouperSessionValidator implements Serializable {
   protected static void validate(GrouperSession s)
     throws  ModelException
   {
-    if (s == null) {
-      throw new ModelException(ERR_O);
+    try {
+      Validator.valueNotNull( s                 , ERR_O );
+      Validator.valueNotNull( s.getMember_id()  , ERR_M );
+      Validator.valueNotNull( s.getSession_id() , ERR_I );
+      Validator.valueNotNull( s.getStart_time() , ERR_T );
     }
-    if (s.getMember()     == null) {
-      throw new ModelException(ERR_M);
-    }
-    if (s.getSessionId()  == null) {
-      throw new ModelException(ERR_I);
-    }
-    if (s.getStartTime()  == null) {
-      throw new ModelException(ERR_T);
+    catch (NullPointerException eNP) {
+      throw new ModelException(eNP.getMessage(), eNP);
     }
   } // protected static void validate(s)
 

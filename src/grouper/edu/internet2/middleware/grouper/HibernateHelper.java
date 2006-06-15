@@ -28,7 +28,7 @@ import  net.sf.hibernate.cfg.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.21 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.22 2006-06-15 00:07:02 blair Exp $
  */
 class HibernateHelper {
 
@@ -243,7 +243,7 @@ class HibernateHelper {
         }
       }
       catch (HibernateException eH) {
-        // ignore
+        ErrorLog.error(HibernateHelper.class, E.HH_GETPERSISTENT + eH.getMessage());
       }
     }
     if (persistent == false) {

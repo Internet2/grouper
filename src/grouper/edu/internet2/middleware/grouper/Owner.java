@@ -26,14 +26,10 @@ import  org.apache.commons.lang.builder.*;
  * An object that can have memberships assigned to it.
  * <p />
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.7 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: Owner.java,v 1.8 2006-06-15 00:07:02 blair Exp $
  * @since   1.0
  */
 public abstract class Owner implements Serializable {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final EventLog EL  = new EventLog();
-
 
   // HIBERNATE PROPERTIES //
   private String  id;
@@ -56,7 +52,7 @@ public abstract class Owner implements Serializable {
    * @since 1.0
    */
   public Owner() {
-    // Nothing
+    super();
   } // public Owner() 
 
 

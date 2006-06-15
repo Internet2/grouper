@@ -29,14 +29,13 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.23 2006-06-13 17:40:39 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.24 2006-06-15 00:07:02 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL        = new EventLog();
   // TODO Move to *E*
-  private static final String   ERR_GS    = "unable to get subject associated with session";
   private static final String   ERR_START = "unable to start session: ";
   private static final String   ERR_STOP  = "unable to stop session: ";
 
@@ -213,13 +212,10 @@ public class GrouperSession implements Serializable {
         this.subj = this.getMember_id().getSubject();
       }
       catch (Exception e) {
-        // Ignore
+        String msg = E.S_GETSUBJECT + e.getMessage();
+        ErrorLog.fatal(GrouperSession.class, msg);
+        throw new RuntimeException(msg);
       }
-    }
-    if (this.subj == null) {
-      String msg = ERR_GS;
-      ErrorLog.fatal(GrouperSession.class, msg);
-      throw new RuntimeException(msg);
     }
     return this.subj;
   } // public Subject getSubject()
@@ -278,22 +274,11 @@ public class GrouperSession implements Serializable {
   // TODO Deprecate
   protected static void validate(GrouperSession s) {
     try {
-      if (s == null) {
-        throw new RuntimeException("null session object");
-      }
-      if (s.member_id == null) {
-        throw new RuntimeException("null session member");
-      }
-      if (s.session_id == null) {
-        throw new RuntimeException("null session id");
-      }
-      if (s.start_time == null) {
-        throw new RuntimeException("null session start time");
-      }
+      GrouperSessionValidator.validate(s);
     }
-    catch (RuntimeException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e.getMessage(), e);
+    catch (ModelException eM) {
+      eM.printStackTrace();
+      throw new RuntimeException(eM.getMessage(), eM);
     }
   } // protected static void validate(s)
 
@@ -307,7 +292,8 @@ public class GrouperSession implements Serializable {
     s.subj  = subj;
     s.who   = subj.getId();
     s.type  = subj.getType().getName();
-    if (s.type.equals(SubjectTypeEnum.valueOf("group"))) {
+    //if (s.type.equals(SubjectTypeEnum.valueOf("group"))) {
+    if (s.type.equals("group")) { // FIXME
       s.who = subj.getName();
     }
     // Persistent
@@ -322,13 +308,13 @@ public class GrouperSession implements Serializable {
   private String getId() {
     return this.id;
   }
-  private Member getMember_id() {
+  protected Member getMember_id() {
     return this.member_id;
   }
-  private String getSession_id() {
+  protected String getSession_id() {
     return this.session_id;
   }
-  private Date getStart_time() {
+  protected Date getStart_time() {
     return this.start_time;
   }
 

@@ -16,32 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.util.*;
-
 
 /** 
  * Null {@link QueryFilter} that will never return any results.
  * <p />
  * @author  blair christensen.
- * @version $Id: NullFilter.java,v 1.5 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: NullFilter.java,v 1.6 2006-06-15 00:07:02 blair Exp $
  */
 public class NullFilter extends BaseQueryFilter {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   private static final Set RESULTS = new LinkedHashSet();
 
 
-  // Constructors
-
-  /**
-   */
-  public NullFilter() {
-    // Nothing
-  } // public NullFilter()
-
-
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
 
   public Set getResults(GrouperSession s) {
     GrouperSession.validate(s);

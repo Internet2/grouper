@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.13 2006-06-13 20:01:32 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.14 2006-06-15 00:07:02 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -136,7 +136,7 @@ public class GrouperSubject implements Subject {
       this._addAttr("createTime"        , this.g.getCreateTime().toString() ); 
     }
     catch (SubjectNotFoundException eSNF0) {
-      // No creator?
+      ErrorLog.error(GrouperSubject.class, E.GSUBJ_NOCREATOR + eSNF0.getMessage());
     }
     try {
       // Don't bother with any of the modify* attrs unless we can find
@@ -147,7 +147,7 @@ public class GrouperSubject implements Subject {
       this._addAttr("modifyTime"        , this.g.getModifyTime().toString() ); 
     }
     catch (SubjectNotFoundException eSNF1) {
-      // No modifier?
+      // No modifier
     }
     Map       attrs = this.g.getAttributes();
     Iterator  iter  = attrs.keySet().iterator();

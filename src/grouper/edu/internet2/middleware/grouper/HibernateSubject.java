@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * Hibernate representation of the JDBC Subject table.
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.3 2006-05-26 17:15:13 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.4 2006-06-15 00:07:02 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {
@@ -35,27 +35,29 @@ public class HibernateSubject implements Serializable {
   // HIBERNATE PROPERTIES //
   private Set     attributes      = new LinkedHashSet();
   private String  name;
-  private String  subjectID;
-  private String  subjectTypeID;
+  private String  subjectId;
+  private String  subjectTypeId;
 
 
   // CONSTRUCTORS //
   /**
    * For Hibernate.
+   * @since 1.0
    */
   public HibernateSubject() {
     super();
   } // public HibernateSubject()
 
+  // @since 1.0
   protected HibernateSubject(
-    String subjectID, String subjectTypeID, String name
+    String subjectId, String subjectTypeId, String name
   )
   {
     this.setAttributes(     new LinkedHashSet() );
     this.setName(           name                );
-    this.setSubjectID(      subjectID           );
-    this.setSubjectTypeID(  subjectTypeID       );
-  } // protected HibernateSubject(subjectID, subjectTypeID, name)
+    this.setSubjectId(      subjectId           );
+    this.setSubjectTypeId(  subjectTypeId       );
+  } // protected HibernateSubject(subjectId, subjectTypeId, name)
 
 
   // PUBLIC CLASS METHODS //
@@ -81,7 +83,7 @@ public class HibernateSubject implements Serializable {
     throws  HibernateException  // TODO Throw something more user-friendly
   {
     try {
-      HibernateSubject subj = HibernateSubjectFinder.find(id, type);
+      HibernateSubjectFinder.find(id, type);
       throw new HibernateException(
         "subject already exists: " + id + "/" + type + "/" + name
       );
@@ -99,42 +101,53 @@ public class HibernateSubject implements Serializable {
 
 
   // PUBLIC INSTANCE METHODS //
+  /**
+   * @since 1.0
+   */
   public String toString() {
     return new ToStringBuilder(this)
-      .append("id"    , this.getSubjectID()     )
-      .append("type"  , this.getSubjectTypeID() )
+      .append("id"    , this.getSubjectId()     )
+      .append("type"  , this.getSubjectTypeId() )
       .append("name"  , this.getName()          )
       .toString();
   } // public String toString()
 
 
   // GETTERS //
+  // @since 1.0
   private Set getAttributes() {
     return this.attributes;
   }
+  // @since 1.0
   public String getName() {
     return this.name;
   }
-  public String getSubjectID() {
-    return this.subjectID;
+  // @since 1.0
+  public String getSubjectId() {
+    return this.subjectId;
   }
-  public String getSubjectTypeID() {
-    return this.subjectTypeID;
+  // @since 1.0
+  public String getSubjectTypeId() {
+    return this.subjectTypeId;
   }
 
 
   // SETTERS //
+  // @since 1.0
   private void setAttributes(Set attrs) {
     this.attributes = attrs;
   }
+  // @since 1.0
   private void setName(String name) {
     this.name = name;
   }
-  private void setSubjectID(String id) {
-    this.subjectID = id;
+  // @since 1.0
+  private void setSubjectId(String id) {
+    this.subjectId = id;
   }
-  private void setSubjectTypeID(String id) {
-    this.subjectTypeID = id;
+  // @since 1.0
+  private void setSubjectTypeId(String id) {
+    this.subjectTypeId = id;
   }
     
 }
