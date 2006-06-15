@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.time.*;
@@ -26,10 +25,10 @@ import  org.apache.commons.lang.builder.*;
  * An object that can have memberships assigned to it.
  * <p />
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.8 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: Owner.java,v 1.9 2006-06-15 04:10:34 blair Exp $
  * @since   1.0
  */
-public abstract class Owner implements Serializable {
+public abstract class Owner {
 
   // HIBERNATE PROPERTIES //
   private String  id;
