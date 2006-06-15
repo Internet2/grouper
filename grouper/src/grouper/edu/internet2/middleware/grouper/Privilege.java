@@ -16,42 +16,37 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.io.Serializable;
 import  java.util.*;
-
 
 /** 
  * Privilege schema specification.
  * <p />
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.12 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: Privilege.java,v 1.13 2006-06-15 04:23:43 blair Exp $
  */
 public class Privilege implements Serializable {
 
-  // Private Class Constants
-  private static final Privilege ADMIN  = new Privilege("admin" );
-  private static final Privilege CREATE = new Privilege("create");
-  private static final Privilege OPTIN  = new Privilege("optin" );
-  private static final Privilege OPTOUT = new Privilege("optout");
-  private static final Privilege READ   = new Privilege("read"  );
-  private static final Privilege STEM   = new Privilege("stem"  );
-  private static final Privilege SYSTEM = new Privilege("system");
-  private static final Privilege UPDATE = new Privilege("update");
-  private static final Privilege VIEW   = new Privilege("view"  );
+  // PRIVATE CLASS CONSTANTS //
+  private static final Set        ACCESS  = new LinkedHashSet();
+  private static final Privilege  ADMIN   = new Privilege("admin" );
+  private static final Privilege  CREATE  = new Privilege("create");
+  private static final Set        NAMING  = new LinkedHashSet();
+  private static final Privilege  OPTIN   = new Privilege("optin" );
+  private static final Privilege  OPTOUT  = new Privilege("optout");
+  private static final Map        PRIVS   = new HashMap();
+  private static final Privilege  READ    = new Privilege("read"  );
+  private static final Privilege  STEM    = new Privilege("stem"  );
+  private static final Privilege  SYSTEM  = new Privilege("system");
+  private static final Privilege  UPDATE  = new Privilege("update");
+  private static final Privilege  VIEW    = new Privilege("view"  );
 
 
-  // Private Class Constants
-  private static final Set ACCESS = new LinkedHashSet();
-  private static final Set NAMING = new LinkedHashSet();
-  private static final Map PRIVS  = new HashMap();
-
-
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIABLES //
   private String name;
 
 
+  // STATIC //
   static {
     PRIVS.put(  ADMIN.toString()  , ADMIN   );
     ACCESS.add( ADMIN                       );
@@ -73,13 +68,13 @@ public class Privilege implements Serializable {
   } // static
 
 
-  // Constructors
+  // CONSTRUCTORS //
   private Privilege(String name) {
     this.name = name;
   } // private Privilege(name)
 
 
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
   public static Set getAccessPrivs() {
     return ACCESS;
   } // public static Set getAccessPrivs()
@@ -108,12 +103,11 @@ public class Privilege implements Serializable {
   } // public static boolean isNaming(p)
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
   public String getName() {
     return this.name;
   } // public String getName()
 
-  // Public Instance Methods
   public String toString() {
     return this.getName();
   } // public String toString()
