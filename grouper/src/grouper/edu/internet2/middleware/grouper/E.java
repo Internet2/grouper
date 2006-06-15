@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.5 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: E.java,v 1.6 2006-06-15 17:45:34 blair Exp $
  * @since   1.0
  */
 class E {
@@ -82,6 +82,8 @@ class E {
   protected static final String GROUP_TYPEADD             = "unable to add type: ";
   protected static final String GROUP_TYPEDEL             = "unable to delete type: ";
   protected static final String GROUPTYPE_ADD             = "unable to add type: ";
+  protected static final String GROUPTYPE_DEL             = "unable to delete type: ";
+  protected static final String GROUPTYPE_DELINUSE        = "cannot delete group type that is being used";
   protected static final String GROUPTYPE_EXISTS          = "type already exists: ";
   protected static final String GROUPTYPE_FIELDADD        = "unable to add field: ";
   protected static final String GROUPTYPE_FIELDDEL        = "cannot delete field: ";
@@ -91,6 +93,8 @@ class E {
   protected static final String GROUPTYPE_FINDALL         = "unable to find group types: ";
   protected static final String GROUPTYPE_INVALID         = "invalid group type: ";
   protected static final String GROUPTYPE_NOADD           = "subject not privileged to add group types";
+  protected static final String GROUPTYPE_NODEL           = "subject not privileged to delete group types";
+  protected static final String GROUPTYPE_NODELSYS        = "cannot delete system group type: ";
   protected static final String GSA_SEARCH                = "error searching: ";
   protected static final String GSUBJ_NOCREATOR           = "group creator not found: ";
   protected static final String HH_GETPERSISTENT          = "error getting persistent object: ";

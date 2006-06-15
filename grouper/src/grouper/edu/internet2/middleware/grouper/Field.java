@@ -17,13 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 import  java.io.Serializable;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.9 2006-06-15 04:45:58 blair Exp $    
+ * @version $Id: Field.java,v 1.10 2006-06-15 17:45:34 blair Exp $    
  */
 public class Field implements Serializable {
 
@@ -114,6 +115,45 @@ public class Field implements Serializable {
       .append("field type"  , this.getField_type()  )
       .toString();
   } // public String toString()
+
+
+  // PROTECTED INSTANCE METHODS //
+  // @since 1.0
+  protected boolean inUse() 
+    throws  SchemaException
+  {
+    try {
+      Session hs    = HibernateHelper.getSession();
+      Query   qry   = null;
+      int     size  = 0;
+      if      (this.getType().equals(FieldType.ATTRIBUTE)) {
+        qry = hs.createQuery(
+          "from Attribute as a where a.field.name = :name"
+        );
+      }
+      else if (this.getType().equals(FieldType.LIST))      {
+        qry = hs.createQuery(
+          "from Membership as ms where ms.field.name = :name"
+        );
+      }
+      if (qry == null) {
+        String msg = E.GROUPTYPE_FIELDNODELTYPE + this.getType().toString();
+        ErrorLog.error(GroupType.class, msg);
+        throw new SchemaException(msg);
+      }
+      qry.setCacheable(false);
+      qry.setString("name", this.getField_name());
+      if (qry.list().size() > 0) {
+        return true;
+      }
+    }
+    catch (HibernateException eH) {
+      String msg = E.HIBERNATE + eH.getMessage();
+      ErrorLog.error(Field.class, msg);
+      throw new SchemaException(msg, eH);
+    }
+    return false;
+  } // protected boolean inUse()
 
 
   // GETTERS //

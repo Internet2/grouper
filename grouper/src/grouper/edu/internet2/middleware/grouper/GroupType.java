@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
@@ -25,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.15 2006-06-15 04:23:43 blair Exp $
+ * @version $Id: GroupType.java,v 1.16 2006-06-15 17:45:34 blair Exp $
  */
 public class GroupType {
 
@@ -108,8 +109,8 @@ public class GroupType {
     }
     try {
       type = new GroupType(name, new HashSet(), true, false);
-      type.setCreator_id(   s.getMember()         );
-      type.setCreate_time(  new Date().getTime()  );
+      type.setCreator_id(   s.getMember()                   );
+      type.setCreate_time(  new java.util.Date().getTime()  );
       HibernateHelper.save(type);
       sw.stop();
       EL.groupTypeAdd(s, name, sw);
@@ -186,6 +187,84 @@ public class GroupType {
     return this._addField(s, name, FieldType.LIST, read, write, false);
   } // public Field addList(s, name, read, write)
 
+  /*
+   * Delete a custom {@link GroupType} definition.
+   * <p/>
+   * <pre class="eg">
+   * try {
+   *   aGroupType.delete(s);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Subject not privileged to delete group type.
+   * }
+   * catch (SchemaException eS) {
+   *   // Type could not be deleted
+   * }
+   * </pre>
+   * @param   s     Delete type within this session context.
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   * @since   1.0
+   */
+  public void delete(GrouperSession s) 
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    StopWatch sw = new StopWatch();
+    sw.start();
+    if (isSystemType(this)) {
+      String msg = E.GROUPTYPE_NODELSYS + this.getName();
+      ErrorLog.error(GroupType.class, msg);
+      throw new SchemaException(msg);
+    } 
+    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
+      String msg = E.GROUPTYPE_NODEL;
+      ErrorLog.error(GroupType.class, msg);
+      throw new InsufficientPrivilegeException(msg);
+    }
+    try {
+      // TODO I **really** should not need to drop down to JDBC for this
+      //      And, of course, I can't even iterator through this type's
+      //      fields to check if they are in use - because it might not
+      //      have any fields!
+      Session           hs  = HibernateHelper.getSession();
+      Connection        c   = hs.connection();
+      PreparedStatement st  = c.prepareStatement(
+        "select count(ggt.type_id) from grouper_groups_types ggt where ggt.type_id = ?"
+      );
+      st.setString(1, this.getId());
+      ResultSet         rs  = st.executeQuery();
+      if (rs.next()) {
+        int size = rs.getInt(1);
+        if (size > 0) {
+          String msg = E.GROUPTYPE_DELINUSE;
+          ErrorLog.error(GroupType.class, msg);
+          throw new SchemaException(msg);
+        }
+      }
+      hs.close();
+
+      // Now delete the type
+      String typeName = this.getName(); // For logging purposes
+      HibernateHelper.delete(this);
+      sw.stop();
+      EventLog.info(s, M.GROUPTYPE_DEL + typeName, sw);
+      // TODO Now update the cached types + fields
+      GroupTypeFinder.updateKnownTypes();
+      FieldFinder.updateKnownFields();
+    }
+    catch (HibernateException eH) {
+      String msg = E.GROUPTYPE_DEL + eH.getMessage();
+      ErrorLog.error(GroupType.class, msg);
+      throw new SchemaException(msg, eH);
+    }
+    catch (SQLException eSQL) {
+      String msg = E.GROUPTYPE_DEL + eSQL.getMessage();
+      ErrorLog.error(GroupType.class, msg);
+      throw new SchemaException(msg, eSQL);
+    }
+  } // public void delete(s)
+
   /**
    * Delete a custom {@link Field} from a custom {@link GroupType}.
    * <p/>
@@ -219,44 +298,19 @@ public class GroupType {
     sw.start();
     Field     f   = FieldFinder.find(name);  
     Validator.canDeleteFieldFromType(s, this, f);
-    // Now see if the field is in use
-    Session hs = null;
+    if (f.inUse()) {
+      String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
+      ErrorLog.error(GroupType.class, msg);
+      throw new SchemaException(msg);
+    }
+    // With validation complete, delete the field
     try {
-      int size  = 0;
-      hs        = HibernateHelper.getSession();
-      if      (f.getType().equals(FieldType.ATTRIBUTE)) {
-        Query qry = hs.createQuery(
-          "from Attribute as a where a.field.name = :name"
-        );
-        qry.setCacheable(false);
-        qry.setString("name", name);
-        size = qry.list().size();
-      }
-      else if (f.getType().equals(FieldType.LIST))      {
-        Query qry = hs.createQuery(
-          "from Membership as ms where ms.field.name = :name"
-        );
-        qry.setCacheable(false);
-        qry.setString("name", name);
-        size = qry.list().size();
-      }
-      else {
-        String msg = E.GROUPTYPE_FIELDNODELTYPE + f.getType().toString();
-        ErrorLog.error(GroupType.class, msg);
-        throw new SchemaException(msg);
-      }
-      if (size > 0) {
-        String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
-        ErrorLog.error(GroupType.class, msg);
-        throw new SchemaException(msg);
-      }
-      // And now all validation complete, delete the field
       Set fields = this.getFields();
       if (fields.remove(f)) {
         this.setFields(fields);
         HibernateHelper.save(this);
         sw.stop();
-        EL.groupTypeDelField(s, this.getName(), name, sw);
+        EventLog.info(s, M.GROUPTYPE_DELFIELD + f.getName() + " from " + this.getName(), sw);
       }
       else {
         String msg = E.GROUPTYPE_FIELDNODELMISS;
@@ -268,14 +322,6 @@ public class GroupType {
       String msg = E.GROUPTYPE_FIELDDEL + eH.getMessage();
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg, eH);
-    }
-    finally {
-      try {
-        if (hs != null) { hs.close(); }
-      }
-      catch (HibernateException eH) {
-        throw new SchemaException(eH.getMessage(), eH);
-      }
     }
   } // public void deleteField(s, name)
 

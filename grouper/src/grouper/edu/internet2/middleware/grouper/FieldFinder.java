@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.Type;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.11 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.12 2006-06-15 17:45:34 blair Exp $
  */
 public class FieldFinder {
 
@@ -60,7 +60,7 @@ public class FieldFinder {
       return (Field) fields.get(name);
     }
     // If not, refresh known types as it may be new and try again. 
-    _updateKnownFields();
+    updateKnownFields();
     if (fields.containsKey(name)) {
       return (Field) fields.get(name);
     }
@@ -74,6 +74,7 @@ public class FieldFinder {
    * </pre>
    */
   public static Set findAll() {
+    // TODO Why doesn't this refresh the known fields?
     Set fields = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -121,8 +122,9 @@ public class FieldFinder {
   } // public static Set fieldAllByType(type)
 
 
-  // PRIVATE CLASS METHODS //
-  private static void _updateKnownFields() {
+  // PROTECTED CLASS METHODS //
+  // @since 1.0
+  protected static void updateKnownFields() {
     // TODO This method irks me still even if it is now more
     //      functionally correct
     Set fieldsInRegistry = findAll();
@@ -148,7 +150,7 @@ public class FieldFinder {
       String field = (String) toDelIter.next();
       fields.remove(field);  
     }
-  } // private static void _updateKnownFields()
+  } // protected static void updateKnownFields()
 
 }
 
