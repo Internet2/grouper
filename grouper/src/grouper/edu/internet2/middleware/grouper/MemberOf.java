@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 
@@ -24,9 +23,9 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.19 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: MemberOf.java,v 1.20 2006-06-15 04:04:30 blair Exp $
  */
-class MemberOf implements Serializable {
+class MemberOf {
 
   // PROTECTED CLASS CONSTANTS //
   // TODO Move to *E*

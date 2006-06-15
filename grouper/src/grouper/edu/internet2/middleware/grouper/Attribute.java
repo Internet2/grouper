@@ -16,21 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
-import  java.io.Serializable;
 import  org.apache.commons.lang.builder.*;
-
 
 /** 
  * A group attribute within the Groups registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.8 2006-06-13 20:01:32 blair Exp $
+ * @version $Id: Attribute.java,v 1.9 2006-06-15 04:04:30 blair Exp $
  */
-class Attribute implements Serializable {
+class Attribute {
 
-  // Hibernate Properties
+  // HIBERNATE PROPERTIES //
   private Field   field;
   private Group   group;
   private String  id;
@@ -38,9 +34,11 @@ class Attribute implements Serializable {
   private int     version;
 
 
-  // Constructors
+  // CONSTRUCTORS //
 
-  // For Hibernate
+  /**
+   * For Hibernate.
+   */
   public Attribute() {
     super();
   } // public Attribute()
@@ -52,7 +50,7 @@ class Attribute implements Serializable {
   } // protected Attribute(g, f, val)
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
   public String toString() {
     return new ToStringBuilder(this)
            .append("value", getValue())
@@ -80,44 +78,37 @@ class Attribute implements Serializable {
            .toHashCode();
   }
 
-  // Hibernate Accessors
-
-  private String getId() {
-    return this.id;
-  }
-
-  private void setId(String id) {
-    this.id = id;
-  }
-
-  protected String getValue() {
-    return this.value;
-  }
-
-  protected void setValue(String value) {
-    this.value = value;
-  }
-
-  protected Group getGroup() {
-    return this.group;
-  }
-
-  private void setGroup(Group group) {
-    this.group = group;
-  }
-
+  // GETTERS //
   protected Field getField() {
     return this.field;
   }
-
-  private void setField(Field field) {
-    this.field = field;
+  protected Group getGroup() {
+    return this.group;
   }
-
+  private String getId() {
+    return this.id;
+  }
+  protected String getValue() {
+    return this.value;
+  }
   private int getVersion() {
     return this.version;
   }
 
+
+  // SETTERS //
+  private void setField(Field field) {
+    this.field = field;
+  }
+  private void setGroup(Group group) {
+    this.group = group;
+  }
+  private void setId(String id) {
+    this.id = id;
+  }
+  protected void setValue(String value) {
+    this.value = value;
+  }
   private void setVersion(int version) {
     this.version = version;
   }
