@@ -21,9 +21,9 @@ import  org.doomdark.uuid.UUIDGenerator;
 
 /** 
  * Generate UUIDs.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperUuid.java,v 1.3 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GrouperUuid.java,v 1.4 2006-06-15 04:45:59 blair Exp $
  *     
 */
 class GrouperUuid {

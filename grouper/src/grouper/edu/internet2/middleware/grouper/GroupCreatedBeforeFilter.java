@@ -22,9 +22,9 @@ import  java.util.*;
 
 /** 
  * Query by groups created after the specified date.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: GroupCreatedBeforeFilter.java,v 1.5 2006-06-13 20:01:32 blair Exp $
+ * @version $Id: GroupCreatedBeforeFilter.java,v 1.6 2006-06-15 04:45:58 blair Exp $
  */
 public class GroupCreatedBeforeFilter extends BaseQueryFilter {
 

@@ -26,9 +26,9 @@ import  org.apache.commons.lang.time.*;
 
 /** 
  * Context for interacting with the Grouper API and Groups Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.25 2006-06-15 04:10:34 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.26 2006-06-15 04:45:58 blair Exp $
  */
 public class GrouperSession {
 

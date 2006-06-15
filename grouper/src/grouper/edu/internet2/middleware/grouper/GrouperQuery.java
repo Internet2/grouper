@@ -20,9 +20,9 @@ import  java.util.*;
 
 /** 
  * Perform arbitrary queries against the Groups Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.11 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.12 2006-06-15 04:45:58 blair Exp $
  */
 public class GrouperQuery {
 

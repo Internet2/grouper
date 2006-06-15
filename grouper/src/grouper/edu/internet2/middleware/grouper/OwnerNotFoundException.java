@@ -20,9 +20,9 @@ package edu.internet2.middleware.grouper;
 /**
  * Exception thrown when an {link Owner} is not found within the Groups
  * Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: OwnerNotFoundException.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: OwnerNotFoundException.java,v 1.3 2006-06-15 04:45:59 blair Exp $
  */
 public class OwnerNotFoundException extends Exception {
   public OwnerNotFoundException() { 

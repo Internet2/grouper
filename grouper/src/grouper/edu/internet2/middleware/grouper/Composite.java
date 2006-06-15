@@ -22,9 +22,9 @@ import  org.apache.commons.lang.builder.*;
 
 /** 
  * A composite membership definition within the Groups Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.6 2006-06-15 04:15:52 blair Exp $
+ * @version $Id: Composite.java,v 1.7 2006-06-15 04:45:58 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {

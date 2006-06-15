@@ -20,9 +20,9 @@ import  java.util.*;
 
 /** 
  * Null {@link QueryFilter} that will never return any results.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: NullFilter.java,v 1.6 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: NullFilter.java,v 1.7 2006-06-15 04:45:59 blair Exp $
  */
 public class NullFilter extends BaseQueryFilter {
 

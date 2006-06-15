@@ -26,9 +26,9 @@ import  org.apache.commons.lang.builder.*;
 
 /** 
  * Custom {@link FieldType} user type.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: FieldTypeUserType.java,v 1.4 2006-02-03 19:38:53 blair Exp $    
+ * @version $Id: FieldTypeUserType.java,v 1.5 2006-06-15 04:45:58 blair Exp $    
  */
 public class FieldTypeUserType implements UserType {
 

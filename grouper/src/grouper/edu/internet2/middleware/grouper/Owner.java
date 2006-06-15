@@ -23,9 +23,9 @@ import  org.apache.commons.lang.builder.*;
 
 /** 
  * An object that can have memberships assigned to it.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.9 2006-06-15 04:10:34 blair Exp $
+ * @version $Id: Owner.java,v 1.10 2006-06-15 04:45:59 blair Exp $
  * @since   1.0
  */
 public abstract class Owner {

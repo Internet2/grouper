@@ -20,9 +20,9 @@ import  org.apache.commons.lang.time.*;
 
 /** 
  * Grouper log helper class.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: LogHelper.java,v 1.2 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: LogHelper.java,v 1.3 2006-06-15 04:45:59 blair Exp $
  * @since   1.0
  */
 class LogHelper {

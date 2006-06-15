@@ -21,9 +21,9 @@ import  net.sf.hibernate.*;
 
 /** 
  * Perform <i>member of</i> calculation.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.20 2006-06-15 04:04:30 blair Exp $
+ * @version $Id: MemberOf.java,v 1.21 2006-06-15 04:45:59 blair Exp $
  */
 class MemberOf {
 

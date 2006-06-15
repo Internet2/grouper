@@ -20,9 +20,9 @@ import  java.util.*;
 
 /** 
  * Query by stem attribute.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: StemNameFilter.java,v 1.5 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: StemNameFilter.java,v 1.6 2006-06-15 04:45:59 blair Exp $
  */
 public class StemNameFilter extends BaseQueryFilter {
 

@@ -22,9 +22,9 @@ import  org.apache.commons.lang.builder.*;
 
 /** 
  * Grouper Cache Manager
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: CacheMgr.java,v 1.5 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: CacheMgr.java,v 1.6 2006-06-15 04:45:58 blair Exp $
  *     
  */
 class CacheMgr {

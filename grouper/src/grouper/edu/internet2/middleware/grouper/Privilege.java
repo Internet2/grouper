@@ -21,9 +21,9 @@ import  java.util.*;
 
 /** 
  * Privilege schema specification.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.13 2006-06-15 04:23:43 blair Exp $
+ * @version $Id: Privilege.java,v 1.14 2006-06-15 04:45:59 blair Exp $
  */
 public class Privilege implements Serializable {
 

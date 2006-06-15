@@ -16,35 +16,33 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.Serializable;
 import  java.util.*;
-//import  org.apache.commons.lang.builder.*;
-
 
 /** 
  * Field Type.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: FieldType.java,v 1.7 2006-02-03 19:38:53 blair Exp $    
+ * @version $Id: FieldType.java,v 1.8 2006-06-15 04:45:58 blair Exp $    
  */
 public class FieldType implements Serializable {
 
-  // Public Class Constants
+  // PUBLIC CLASS CONSTANTS //
   public static final FieldType ACCESS    = new FieldType("access");
   public static final FieldType ATTRIBUTE = new FieldType("attribute");
   public static final FieldType LIST      = new FieldType("list");
   public static final FieldType NAMING    = new FieldType("naming");
 
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   private static final Map      TYPES     = new HashMap();
 
 
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIABLES //
   private String type;
 
 
+  // STATIC //
   static {
     TYPES.put(ACCESS.toString(),    ACCESS);
     TYPES.put(ATTRIBUTE.toString(), ATTRIBUTE);
@@ -53,19 +51,19 @@ public class FieldType implements Serializable {
   } // static
 
 
-  // Constructors
+  // CONSTRUCTORS //
   private FieldType(String type) {
     this.type = type;
   } // private FieldType(type)
 
 
-  // Public Class Methods
+  // PUBLIC CLASS METHODS //
   public static FieldType getInstance(String type) {
     return (FieldType) TYPES.get(type);
   } // public static FieldType getInstance(type)
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
   public String toString() {
     return this.type;
   } // public String toString()

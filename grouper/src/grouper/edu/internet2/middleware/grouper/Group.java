@@ -25,9 +25,9 @@ import  org.apache.commons.lang.time.*;
 
 /** 
  * A group within the Groups Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.75 2006-06-15 04:10:34 blair Exp $
+ * @version $Id: Group.java,v 1.76 2006-06-15 04:45:58 blair Exp $
  */
 public class Group extends Owner {
 

@@ -22,9 +22,9 @@ import  java.util.*;
 
 /** 
  * Returns the union of two other query filters.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: UnionFilter.java,v 1.4 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: UnionFilter.java,v 1.5 2006-06-15 04:45:59 blair Exp $
  */
 public class UnionFilter extends BaseQueryFilter {
 

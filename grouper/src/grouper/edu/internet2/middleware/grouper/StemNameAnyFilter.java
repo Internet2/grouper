@@ -22,9 +22,9 @@ import  java.util.*;
 
 /** 
  * Query by group name.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: StemNameAnyFilter.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: StemNameAnyFilter.java,v 1.3 2006-06-15 04:45:59 blair Exp $
  */
 public class StemNameAnyFilter extends BaseQueryFilter {
 

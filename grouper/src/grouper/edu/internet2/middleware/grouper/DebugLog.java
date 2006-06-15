@@ -21,9 +21,9 @@ import  org.apache.commons.logging.*;
 
 /** 
  * Grouper API debug logging.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: DebugLog.java,v 1.1 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: DebugLog.java,v 1.2 2006-06-15 04:45:58 blair Exp $
  * @since   1.0
  */
 class DebugLog {

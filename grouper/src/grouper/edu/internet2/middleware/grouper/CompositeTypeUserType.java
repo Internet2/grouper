@@ -24,9 +24,9 @@ import  org.apache.commons.lang.builder.*;
 
 /** 
  * Custom {@link CompositeType} user type.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeTypeUserType.java,v 1.3 2006-06-05 19:54:40 blair Exp $    
+ * @version $Id: CompositeTypeUserType.java,v 1.4 2006-06-15 04:45:58 blair Exp $    
  * @since   1.0
  */
 public class CompositeTypeUserType implements UserType {

@@ -21,9 +21,9 @@ import  java.util.*;
 
 /** 
  * Query by stem attribute.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: StemDisplayExtensionFilter.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: StemDisplayExtensionFilter.java,v 1.4 2006-06-15 04:45:59 blair Exp $
  */
 public class StemDisplayExtensionFilter extends BaseQueryFilter {
 

@@ -21,9 +21,9 @@ import  java.util.*;
 
 /** 
  * Composite Type.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeType.java,v 1.3 2006-06-05 19:54:40 blair Exp $    
+ * @version $Id: CompositeType.java,v 1.4 2006-06-15 04:45:58 blair Exp $    
  * @since   1.0
  */
 public class CompositeType implements Serializable {

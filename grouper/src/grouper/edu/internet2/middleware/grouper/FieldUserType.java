@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.Serializable;
 import  java.sql.*;
 import  java.util.*;
@@ -24,16 +23,15 @@ import  net.sf.hibernate.*;
 import  net.sf.hibernate.engine.*;
 import  net.sf.hibernate.type.*;
 
-
 /** 
  * Custom {@link Field} user type.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: FieldUserType.java,v 1.6 2006-05-23 19:10:23 blair Exp $    
+ * @version $Id: FieldUserType.java,v 1.7 2006-06-15 04:45:58 blair Exp $    
  */
 public class FieldUserType implements CompositeUserType {
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
   public Object assemble(
     Serializable cached, SessionImplementor session, Object owner
   )
