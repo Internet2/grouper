@@ -22,7 +22,7 @@ import  java.io.Serializable;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.6 2006-06-13 19:29:37 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.7 2006-06-15 00:07:02 blair Exp $
  * @since   1.0
  */
 class GroupValidator implements Serializable {
@@ -180,7 +180,7 @@ class GroupValidator implements Serializable {
             ModelException,
             SchemaException
   {
-    if ( (value == null) || (value.equals("")) ) {
+    if ( (value == null) || (value.equals(GrouperConfig.EMPTY_STRING)) ) {
       throw new ModelException(E.GROUP_AV);
     }
     if (f.getName().equals("displayExtension")) {

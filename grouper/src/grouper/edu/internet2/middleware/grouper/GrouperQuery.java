@@ -16,16 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.Serializable;
 import  java.util.*;
 
 /** 
  * Perform arbitrary queries against the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.10 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.11 2006-06-15 00:07:02 blair Exp $
  */
-public class GrouperQuery implements Serializable {
+public class GrouperQuery {
 
   // PRIVATE INSTANCE VARIABLES //
   private GrouperSession  s;

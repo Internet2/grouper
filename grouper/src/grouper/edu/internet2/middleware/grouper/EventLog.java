@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.13 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: EventLog.java,v 1.14 2006-06-15 00:07:02 blair Exp $
  */
 class EventLog {
 
@@ -383,7 +383,7 @@ class EventLog {
       msg += "subject=???";
     }
     // Get added or removed message that caused this effective membership change
-    msg += " (" + name + " ";;
+    msg += " (" + name + " ";
     if      (f.getType().equals(FieldType.ACCESS)) {
       msg += "priv=" + f.getName();
     }

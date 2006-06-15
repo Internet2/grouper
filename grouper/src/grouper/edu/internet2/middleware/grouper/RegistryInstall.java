@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.21 2006-06-05 19:54:40 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.22 2006-06-15 00:07:02 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -181,7 +181,7 @@ public class RegistryInstall {
           GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID
         )
       );
-      Stem  root    = Stem.addRootStem(s);
+      Stem.addRootStem(s);
       EventLog.info(s, M.STEM_ROOTINSTALL);
     }
     catch (Exception e) { 

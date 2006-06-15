@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU1.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestCompositeU1.java,v 1.3 2006-06-15 00:07:02 blair Exp $
  */
 public class TestCompositeU1 extends TestCase {
 
@@ -62,7 +62,7 @@ public class TestCompositeU1 extends TestCase {
     }
     catch (InsufficientPrivilegeException eIP) {
       Assert.assertTrue("OK: cannot del union without privileges", true);
-      String exp = "a does not have update on 'i2:a:a'"; // TODO fragile
+      String exp = "cannot UPDATE"; // TODO fragile
       T.string("error message", exp, eIP.getMessage());
     }
     catch (Exception e) {

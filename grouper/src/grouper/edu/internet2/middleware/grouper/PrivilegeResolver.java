@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.39 2006-06-06 18:49:59 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.40 2006-06-15 00:07:02 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -43,10 +43,10 @@ public class PrivilegeResolver {
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private PrivilegeCache  ac;
-  private AccessAdapter   access; 
-  private PrivilegeCache  nc;
-  private NamingAdapter   naming;
+  private PrivilegeCache  ac        = null;
+  private AccessAdapter   access    = null; 
+  private PrivilegeCache  nc        = null;
+  private NamingAdapter   naming    = null;
   private boolean         use_wheel = true;
 
 
@@ -113,16 +113,11 @@ public class PrivilegeResolver {
   {
     boolean   can   = false;
     Privilege priv  = AccessPrivilege.ADMIN;
-    String    msg   = "canADMIN: ";
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      msg += "ADMIN";
       can = true;
     }
     if (can == false) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
+      throw new InsufficientPrivilegeException("cannot ADMIN");
     }
   } // protected void canADMIN(s, g, subj)
 
@@ -131,16 +126,11 @@ public class PrivilegeResolver {
   {
     boolean   can   = false;
     Privilege priv  = NamingPrivilege.CREATE;
-    String    msg   = "canCREATE: ";
     if (PrivilegeResolver.getInstance().hasPriv(s, ns, subj, priv)) {
-      msg += "CREATE";
       can = true;
     }
     if (can == false) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + ns.getName() + "'"
-      );
+      throw new InsufficientPrivilegeException("cannot CREATE");
     }
   } // protected void canCREATE(s, ns, subj)
 
@@ -149,16 +139,13 @@ public class PrivilegeResolver {
   {
     boolean   can   = false;
     Privilege priv  = AccessPrivilege.OPTIN;
-    String    msg   = "canOPTIN: ";
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      msg += "OPTIN";
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
     )
     {
-      msg += "ADMIN";
       can = true;
     }
     else if (
@@ -168,10 +155,7 @@ public class PrivilegeResolver {
       can = true;
     }
     if (can == false) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
+      throw new InsufficientPrivilegeException("cannot OPTIN");
     }
   } // protected void canOPTIN(s, g, subj)
 
@@ -180,30 +164,23 @@ public class PrivilegeResolver {
   {
     boolean   can   = false;
     Privilege priv  = AccessPrivilege.OPTOUT;
-    String    msg   = "canOPTOUT: ";
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      msg += "OPTOUT";
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
     )
     {
-      msg += "ADMIN";
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
     )
     {
-      msg += "UPDATE";
       can = true;
     }
     if (can == false) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
+      throw new InsufficientPrivilegeException("cannot OPTOUT");
     }
   } // protected void canOPTOUT(s, g, subj)
 
@@ -213,7 +190,6 @@ public class PrivilegeResolver {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    String msg = "canPrivDispatch '" + priv.getName().toUpperCase() + "': ";
     if      (priv.equals(AccessPrivilege.ADMIN))  { 
       this.canADMIN(s, g, subj);
     }
@@ -264,21 +240,16 @@ public class PrivilegeResolver {
     Privilege priv  = AccessPrivilege.READ;
     String    msg   = "canREAD: ";
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      msg += "READ";
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
     )
     {
-      msg += "ADMIN";
       can = true;
     }
     if (can == false) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
+      throw new InsufficientPrivilegeException("cannot READ");
     }
   } // protected void canREAD(s, g, subj)
 
@@ -287,16 +258,11 @@ public class PrivilegeResolver {
   {
     boolean   can   = false;
     Privilege priv  = NamingPrivilege.STEM;
-    String    msg   = "canSTEM: ";
     if (PrivilegeResolver.getInstance().hasPriv(s, ns, subj, priv)) {
-      msg += "STEM";
       can = true;
     }
     if (can == false) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + ns.getName() + "'"
-      );
+      throw new InsufficientPrivilegeException("cannot STEM");
     }
   } // protected void canSTEM(s, ns, subj)
 
@@ -305,23 +271,17 @@ public class PrivilegeResolver {
   {
     boolean   can   = false;
     Privilege priv  = AccessPrivilege.UPDATE;
-    String    msg   = "canUPDATE: ";
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      msg += "UPDATE";
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
     )
     {
-      msg += "ADMIN";
       can = true;
     }
     if (can == false) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
+      throw new InsufficientPrivilegeException("cannot UPDATE");
     }
   } // protected void canUPDATE(s, g, subj)
 
@@ -331,51 +291,41 @@ public class PrivilegeResolver {
     // TODO This is ugly
     boolean   can   = false;
     Privilege priv  = AccessPrivilege.VIEW;
-    String    msg   = "canVIEW ";
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      msg += "VIEW";
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.READ)
     )
     {
-      msg += "READ";
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
     )
     {
-      msg += "ADMIN";
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
     )
     {
-      msg += "UPDATE";
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTIN)
     )
     {
-      msg += "OPTIN";
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
     )
     {
-      msg += "OPTOUT";
       can = true;
     }
     if (can == false) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
+      throw new InsufficientPrivilegeException("cannot VIEW");
     }
   } // protected void canVIEW(s, g, subj)
   // TODO Can I remove s or subj?
@@ -525,8 +475,6 @@ public class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     boolean rv = false;
-    String  msg = "hasPriv: " + SubjectHelper.getPretty(subj) 
-      + " " + priv + ": ";
     Element el = this.ac.get(g, subj, priv);
     if (el != null) {
       if (el.getValue().equals(GrouperConfig.BT)) {
@@ -560,8 +508,6 @@ public class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     boolean rv = false;
-    String  msg = "hasPriv: " + SubjectHelper.getPretty(subj) 
-      + " " + priv + ": ";
     Element el = this.nc.get(ns, subj, priv);
     if (el != null) {
       if (el.getValue().equals(GrouperConfig.BT)) {

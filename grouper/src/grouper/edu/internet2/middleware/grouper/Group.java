@@ -28,28 +28,19 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.73 2006-06-13 20:01:32 blair Exp $
+ * @version $Id: Group.java,v 1.74 2006-06-15 00:07:02 blair Exp $
  */
 public class Group extends Owner implements Serializable {
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL        = new EventLog();
   // TODO Move to *E*
-  private static final String   ERR_AM    = "unable to add member: ";
-  private static final String   ERR_DG    = "unable to delete group: ";
   private static final String   ERR_G2M   = "could not convert group to member: ";
   private static final String   ERR_G2S   = "could not convert group to subject: ";
-  private static final String   ERR_DM    = "unable to delete member: ";
-  private static final String   ERR_GA    = "attribute not found: ";
   private static final String   ERR_NODE  = "group without displayExtension";
   private static final String   ERR_NODN  = "group without displayName";
   private static final String   ERR_NOE   = "group without extension";
   private static final String   ERR_NON   = "group without name";
-  private static final String   ERR_S2G   = "could not convert subject to group: ";
-  // TODO Move to *M*
-  private static final String   MSG_AM    = "add member ";
-  private static final String   MSG_DG    = "group deleted: ";
-  private static final String   MSG_DM    = "revoke member ";
 
 
   // HIBERNATE PROPERTIES //
@@ -410,20 +401,12 @@ public class Group extends Owner implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     GrouperSession.validate(this.getSession());
-    String msg = "delete";
-    try {
-      PrivilegeResolver.getInstance().canADMIN(this.getSession(), this, this.getSession().getSubject());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      String err = msg + " cannot ADMIN: " + eIP.getMessage();
-      throw new InsufficientPrivilegeException(err, eIP);
-    } 
+    PrivilegeResolver.getInstance().canADMIN(this.getSession(), this, this.getSession().getSubject());
     try {
       Set deletes = new LinkedHashSet();
-      msg += " '" + this.getName() + "'";
 
       // And revoke all access privileges
-      this._revokeAllAccessPrivs(msg);
+      this._revokeAllAccessPrivs();
 
       // And delete all memberships - as root
       deletes.addAll( 
@@ -789,7 +772,7 @@ public class Group extends Owner implements Serializable {
         filtered.put(f.getName(), attr.getValue());
       }
       catch (Exception e) {
-        //  FIXME ???
+        ErrorLog.error(Group.class, E.GROUP_GETATTRS + e.getMessage());
       }
     }
     return filtered;
@@ -1412,7 +1395,7 @@ public class Group extends Owner implements Serializable {
    */
   public boolean hasComposite() {
     try {
-      Composite c = CompositeFinder.isOwner(this);
+      CompositeFinder.isOwner(this);
       return true;
     }
     catch (CompositeNotFoundException eCNF) {
@@ -1463,15 +1446,13 @@ public class Group extends Owner implements Serializable {
   public boolean hasEffectiveMember(Subject subj, Field f) 
     throws  SchemaException
   {
-    boolean rv  = false;
-    String  msg = "hasEffectiveMember " + SubjectHelper.getPretty(subj) + " '" 
-      + f.getName() + "': ";
+    boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(this.getSession(), subj);
       rv = m.isEffectiveMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
-      // TODO Fail silently?
+      ErrorLog.error(Group.class, E.GROUP_HEM + eMNF.getMessage());
     }
     return rv;
   } // public boolean hasEffectiveMember(subj, f)
@@ -1519,15 +1500,13 @@ public class Group extends Owner implements Serializable {
   public boolean hasImmediateMember(Subject subj, Field f) 
     throws  SchemaException
   {
-    boolean rv  = false;
-    String  msg = "hasImmediateMember " + SubjectHelper.getPretty(subj) + " '" 
-      + f.getName() + "': ";
+    boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(this.getSession(), subj);
       rv = m.isImmediateMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
-      // TODO Fail silently?
+      ErrorLog.error(Group.class, E.GROUP_HIM + eMNF.getMessage());
     }
     return rv;
   } // public boolean hasImmediateMember(subj, f)
@@ -1539,44 +1518,6 @@ public class Group extends Owner implements Serializable {
       .append(this.getUuid()        )
       .toHashCode();
   }
-
-  /**
-   * Check whether the subject has OPTIN on this group.
-   * <pre class="eg">
-   * if (g.hasOptin(subj)) {
-   *   // Has OPTIN
-   * }
-   * else {
-   *   // Does not have OPTIN
-   * }
-   * </pre>
-   * @param   subj  Check this subject.
-   * @return  Boolean true if subject has OPTIN.
-   */
-  public boolean hasOptin(Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(
-      this.getSession(), this, subj, AccessPrivilege.OPTIN
-    );
-  } // public boolean hasOption(subj)
-
-  /**
-   * Check whether the subject has OPTOUT on this group.
-   * <pre class="eg">
-   * if (g.hasOptout(subj)) {
-   *   // has OPTOUT
-   * }
-   * else {
-   *   // Does not have OPTOUT
-   * }
-   * </pre>
-   * @param   subj  Check this subject.
-   * @return  Boolean true if subject has OPTOUT.
-   */
-  public boolean hasOptout(Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(
-      this.getSession(), this, subj, AccessPrivilege.OPTOUT
-    );
-  } // public boolean hasOptout(subj)
 
   /**
    * Check whether the subject is a member of this group.
@@ -1622,18 +1563,54 @@ public class Group extends Owner implements Serializable {
     throws  SchemaException
   {
     // TODO I should probably have _Member_ call _Group_ and not the inverse
-    boolean rv  = false;
-    String  msg = "hasMember " + SubjectHelper.getPretty(subj) + " '" 
-      + f.getName() + "': ";
+    boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(this.getSession(), subj);
       rv = m.isMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
-      // TODO Fail silently?
+      ErrorLog.error(Group.class, E.GROUP_HM + eMNF.getMessage());
     }
     return rv;
   } // public boolean hasMember(subj, f)
+
+  /**
+   * Check whether the subject has OPTIN on this group.
+   * <pre class="eg">
+   * if (g.hasOptin(subj)) {
+   *   // Has OPTIN
+   * }
+   * else {
+   *   // Does not have OPTIN
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has OPTIN.
+   */
+  public boolean hasOptin(Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(
+      this.getSession(), this, subj, AccessPrivilege.OPTIN
+    );
+  } // public boolean hasOption(subj)
+
+  /**
+   * Check whether the subject has OPTOUT on this group.
+   * <pre class="eg">
+   * if (g.hasOptout(subj)) {
+   *   // has OPTOUT
+   * }
+   * else {
+   *   // Does not have OPTOUT
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has OPTOUT.
+   */
+  public boolean hasOptout(Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(
+      this.getSession(), this, subj, AccessPrivilege.OPTOUT
+    );
+  } // public boolean hasOptout(subj)
 
   /**
    * Check whether the subject has READ on this group.
@@ -1962,7 +1939,6 @@ public class Group extends Owner implements Serializable {
   public Member toMember() {
     // TODO Does this need to be public?
     GrouperSession.validate(this.getSession());
-    String msg = "toMember";
     if (as_member == null) {
       try {
         as_member = MemberFinder.findBySubject(
@@ -1972,8 +1948,8 @@ public class Group extends Owner implements Serializable {
       catch (MemberNotFoundException eMNF) {
         // If we can't convert a group to a member we have major issues
         // and should probably just give up
-        String err = ERR_G2M + eMNF.getMessage();
-        throw new RuntimeException(err, eMNF);
+        String msg = ERR_G2M + eMNF.getMessage();
+        throw new RuntimeException(msg, eMNF);
       }
     }
     return as_member;
@@ -1989,7 +1965,6 @@ public class Group extends Owner implements Serializable {
    */
   public Subject toSubject() {
     GrouperSession.validate(this.getSession());
-    String msg = "toSubject";
     if (as_subj == null) {
       try {
         as_subj = SubjectFinder.findById(
@@ -1999,8 +1974,8 @@ public class Group extends Owner implements Serializable {
       catch (Exception e) {
         // If we can't find an existing group as a subject we have
         // major issues and shoudl probably just give up
-        String err = ERR_G2S + e.getMessage();
-        throw new RuntimeException(err, e);
+        String msg = ERR_G2S + e.getMessage();
+        throw new RuntimeException(msg, e);
       }
     }
     return as_subj;
@@ -2069,7 +2044,7 @@ public class Group extends Owner implements Serializable {
     return this.attrs;
   } // private Map _getAttributesNoPrivs()
 
-  private void _revokeAllAccessPrivs(String msg) 
+  private void _revokeAllAccessPrivs() 
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException, 
             SchemaException
@@ -2086,7 +2061,7 @@ public class Group extends Owner implements Serializable {
     this.revokePriv(AccessPrivilege.VIEW);
 
     this.setSession(orig);
-  } // private void _revokeAllAccessPrivs(msg)
+  } // private void _revokeAllAccessPrivs()
 
   private void _setCreated() {
     this.setCreator_id( s.getMember()         );

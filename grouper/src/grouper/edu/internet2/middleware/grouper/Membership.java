@@ -27,14 +27,11 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.34 2006-06-13 19:29:37 blair Exp $
+ * @version $Id: Membership.java,v 1.35 2006-06-15 00:07:02 blair Exp $
  */
 public class Membership implements Serializable {
 
   // PRIVATE CLASS CONSTANTS //
-  // TODO Move to *E*
-  private static final String   ERR_IO  = "class cannot contain membership: ";
-  private static final String   ERR_NO  = "membership has no owner: ";
   private static final EventLog EL      = new EventLog();
 
 

@@ -16,12 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
-
 
 /** 
  * Source adapter for using Grouper groups as I2MI Subjects.
@@ -41,20 +39,20 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.9 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.10 2006-06-15 00:07:02 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
-  // Public Class Constants
+  // PUBLIC CLASS CONSTANTS //
   public static final String ID   = "g:gsa";
   public static final String NAME = "Grouper: Group Source Adapter";
 
 
-  // Private Instance Variables
-  private Set types = new LinkedHashSet();
+  // PRIVATE INSTANCE VARIABLES //
+  private Set _types = new LinkedHashSet();
 
 
-  // Constructors
+  // CONSTRUCTORS //
 
   /**
    * Allocates new GrouperSourceAdapter.
@@ -71,7 +69,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   }
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Get a {@link Group} subject by UUID.
@@ -154,17 +152,16 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   /**
    * Gets the SubjectTypes supported by this source.
    * <pre class="eg">
-   * // Return subject types supported by this source.
    * SourceAdapter  sa    = new GrouperSourceAdapter();
    * Set            types = sa.getSubjectTypes();
    * </pre>
    * @return  Subject types supported by this source.
    */
   public Set getSubjectTypes() {
-    if (types.size() != 1) {
-      types.add( SubjectTypeEnum.valueOf("group") );
+    if (_types.size() != 1) {
+      _types.add( SubjectTypeEnum.valueOf("group") );
     }
-    return types;
+    return _types;
   } // public Set getSubjectTypes()
 
   /** 
@@ -209,7 +206,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
       }
     }
     catch (QueryException eQ) {
-      // TODO Ignore?
+      ErrorLog.error(GrouperSourceAdapter.class, E.GSA_SEARCH + eQ.getMessage());
     } 
     return subjs;
   } // public Set search(searchValue)

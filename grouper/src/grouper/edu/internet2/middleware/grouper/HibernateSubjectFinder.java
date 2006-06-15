@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
@@ -27,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /*
  * Find {@link HibernateSubject}s.
  * @author  blair christensen.
- * @version $Id: HibernateSubjectFinder.java,v 1.1 2006-05-26 17:15:13 blair Exp $
+ * @version $Id: HibernateSubjectFinder.java,v 1.2 2006-06-15 00:07:02 blair Exp $
  * @since   1.0
  */
 class HibernateSubjectFinder implements Serializable {
@@ -42,8 +41,8 @@ class HibernateSubjectFinder implements Serializable {
     Session hs  = HibernateHelper.getSession();
     Query   qry = hs.createQuery(
       "from HibernateSubject as hs where  " 
-      + "     hs.subjectID      = :id     "
-      + " and hs.subjectTypeID  = :type   "
+      + "     hs.subjectId      = :id     "
+      + " and hs.subjectTypeId  = :type   "
     );
     qry.setCacheable(false);  // TODO
     qry.setString(  "id"    , id    );

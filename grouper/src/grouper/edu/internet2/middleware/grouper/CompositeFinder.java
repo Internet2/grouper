@@ -22,7 +22,7 @@ import  net.sf.hibernate.type.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.3 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.4 2006-06-15 00:07:02 blair Exp $
  * @since   1.0
  */
 class CompositeFinder {
@@ -51,7 +51,7 @@ class CompositeFinder {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO Ignore
+      ErrorLog.error(CompositeFinder.class, E.COMPF_ISFACTOR + eH.getMessage());
     }
     return composites;
   } // protected static Set isFactor(o)

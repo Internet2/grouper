@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
@@ -31,22 +30,22 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.9 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.10 2006-06-15 00:07:02 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
-  // Public Class Constants
+  // PUBLIC CLASS CONSTANTS //
   public static final String ID   = "g:isa";
   public static final String NAME = "Grouper: Internal Source Adapter";
 
 
-  // Private Instance Variables
+  // PRIVATE INSTANCE VARIABLES //
   private Subject all   = null;
   private Set     types = new LinkedHashSet();
   private Subject root  = null;
 
 
-  // Constructors
+  // CONSTRUCTORS //
 
   /**
    * Allocates new InternalSourceAdapter.
@@ -71,7 +70,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   } // public InternalSourceAdapter(name, id)
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Gets a Subject by its ID.
@@ -152,6 +151,8 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * @return  Subjects matching search value.
    */
   public Set search(String searchValue) {
+    // TODO The javadoc says this will never resolve anything
+    //      but the code actually can resolve.  Which correct?
     Set results = new LinkedHashSet();
     try {
       results.add(this._resolveSubject(searchValue));
@@ -163,7 +164,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   } // public Set search(searchValue)
 
 
-  // Private Instance Methods
+  // PRIVATE INSTANCE METHODS //
 
   // Resolve an internal subject
   private Subject _resolveSubject(String qry) 

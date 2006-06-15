@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * A composite membership definition within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.4 2006-06-13 19:29:37 blair Exp $
+ * @version $Id: Composite.java,v 1.5 2006-06-15 00:07:02 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner implements Serializable {
@@ -131,10 +131,7 @@ public class Composite extends Owner implements Serializable {
     try {
       GrouperSession  rs  = GrouperSessionFinder.getRootSession();
       this.setSession(rs);
-      CompositeType   t   = this.getType();
       Group           g   = this.getOwnerGroup();
-      Group           l   = this.getLeftGroup();
-      Group           r   = this.getRightGroup();
       MemberOf        mof = MemberOf.addComposite(rs, g, this);
 
       Set cur     = g.getMemberships();       // Current mships

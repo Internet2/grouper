@@ -25,7 +25,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.13 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.14 2006-06-15 00:07:02 blair Exp $
  */
 public class GroupFinder {
 
@@ -61,7 +61,7 @@ public class GroupFinder {
       return g;
     }
     catch (InsufficientPrivilegeException eIP) {
-      // TODO
+      ErrorLog.error(GroupFinder.class, E.GF_FBNAME + eIP.getMessage());
     }  
     throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
   } // public static Group findByName(s, name)
@@ -96,7 +96,7 @@ public class GroupFinder {
       return g;
     }
     catch (InsufficientPrivilegeException eIP) {
-      // Ignore
+      ErrorLog.error(GroupFinder.class, E.GF_FBUUID + eIP.getMessage());
     }  
     throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
   } // public static Group findByUuid(s, uuid)

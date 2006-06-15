@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateSubject.hbm.xml,v 1.2 2006-05-23 19:10:23 blair Exp $ -->
+<!-- $Id: HibernateSubject.hbm.xml,v 1.3 2006-06-15 00:07:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="HibernateSubject" table="Subject">
@@ -31,29 +31,29 @@
     <cache usage="read-write"/>
 
     <!-- id -->
-    <id name="subjectID" 
+    <id name="subjectId" 
         type="string"
         unsaved-value="null"
         length="64"
     >
-      <column name="subjectID"
+      <column name="subjectId"
               index="subject_idx"
       />
       <generator class="assigned"/>
     </id>
     <!-- id -->
 
-    <!-- subjectTypeID -->
-    <property name="subjectTypeID"
+    <!-- subjectTypeId -->
+    <property name="subjectTypeId"
               type="string"
     >
-      <column name="subjectTypeID"
+      <column name="subjectTypeId"
               not-null="true"
               length="32"
               index="subject_idx"
       />
     </property>
-    <!-- subjectTypeID -->
+    <!-- subjectTypeId -->
          
     <!-- name -->
     <property name="name"
@@ -70,7 +70,7 @@
     <set  name="attributes"
           cascade="all"
     >
-      <key column="subjectID"/>
+      <key column="subjectId"/>
       <one-to-many class="edu.internet2.middleware.grouper.HibernateSubjectAttribute" />
     </set>
     <!-- attributes -->

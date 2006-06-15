@@ -16,90 +16,108 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  java.io.Serializable;
 import  org.apache.commons.lang.builder.*;
-
 
 /** 
  * Hibernate representation of the JDBC SubjectAttribute table.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateSubjectAttribute.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: HibernateSubjectAttribute.java,v 1.3 2006-06-15 00:07:02 blair Exp $
+ * @since   1.0
  */
 class HibernateSubjectAttribute implements Serializable {
 
   // TODO Move to different package?
 
-  // Hibernate Properties
+  // HIBERNATE PROPERTIES //
   private String            name;
   private String            searchValue;
-  private HibernateSubject  subjectID;
+  private HibernateSubject  subjectId;
   private String            value;
 
 
-  // Constructors
+  // CONSTRUCTORS //
+  /**
+   * For Hibernate.
+   * @since 1.0
+   */
   public HibernateSubjectAttribute() {
     super();
   } // public Attribute()
+
+  // @since 1.0
   protected HibernateSubjectAttribute(
     HibernateSubject id, String name, String value, String searchVal
   )
   {
     this.name         = name;
     this.searchValue  = searchVal;
-    this.subjectID    = id;
+    this.subjectId    = id;
     this.value        = value;
   } // protected HibernateSubjectAttribute(id, name, value, searchVal)
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
+  /**
+   * @since 1.0
+   */
   public boolean equals(Object other) {
     if ( (this == other ) ) return true;
     if ( !(other instanceof HibernateSubjectAttribute) ) return false;
     HibernateSubjectAttribute castOther = (HibernateSubjectAttribute) other;
     return new EqualsBuilder()
-      .append(this.getSubjectID() , castOther.getSubjectID()  )
+      .append(this.getSubjectId() , castOther.getSubjectId()  )
       .append(this.getName()      , castOther.getName()       )
       .append(this.getValue()     , castOther.getValue()      )
       .isEquals();
   } // public boolean equals(other)
 
+  /**
+   * @since 1.0
+   */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append(getSubjectID())
+      .append(getSubjectId())
       .append(getName()     )
       .append(getValue()    )
       .toHashCode();
   } // public int hashCode()
 
 
-  // Getters //
+  // GETTERS //
+  // @since 1.0
   private String getName() {
     return this.name;
   }
+  // @since 1.0
   private String getSearchValue() {
     return this.searchValue;
   }
-  private HibernateSubject getSubjectID() {
-    return this.subjectID;
+  // @since 1.0
+  private HibernateSubject getSubjectId() {
+    return this.subjectId;
   }
+  // @since 1.0
   private String getValue() {
     return this.value;
   }
 
 
-  // Setters //
+  // SETTERS //
+  // @since 1.0
   private void setName(String name) {
     this.name = name;
   }
+  // @since 1.0
   private void setSearchValue(String value) {
     this.searchValue = value;
   }
-  private void setSubjectID(HibernateSubject subj) {
-    this.subjectID = subj;
+  // @since 1.0
+  private void setSubjectId(HibernateSubject subj) {
+    this.subjectId = subj;
   }
+  // @since 1.0
   private void setValue(String value) {
     this.value = value;
   }

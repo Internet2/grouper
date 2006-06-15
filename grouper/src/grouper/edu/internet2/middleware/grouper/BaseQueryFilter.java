@@ -23,18 +23,12 @@ import  java.util.*;
  * Base {@link QueryFilter} that all other query filters should extend.
  * <p />
  * @author  blair christensen.
- * @version $Id: BaseQueryFilter.java,v 1.6 2006-06-05 19:54:40 blair Exp $
+ * @version $Id: BaseQueryFilter.java,v 1.7 2006-06-15 00:07:02 blair Exp $
  */
 public class BaseQueryFilter implements QueryFilter {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Set RESULTS = new LinkedHashSet();
-
-
-  // CONSTRUCTORS //
-  public BaseQueryFilter() {
-    // Nothing
-  } // public NullFilter()
 
 
   // PUBLIC INSTANCE METHODS //

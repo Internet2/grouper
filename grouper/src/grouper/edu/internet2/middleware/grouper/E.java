@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.4 2006-06-13 17:40:39 blair Exp $
+ * @version $Id: E.java,v 1.5 2006-06-15 00:07:02 blair Exp $
  * @since   1.0
  */
 class E {
@@ -43,6 +43,7 @@ class E {
   protected static final String COMP_RC                   = "composite right factor is not a group";
   protected static final String COMP_T                    = "no composite type";
   protected static final String COMP_UPDATE               = "unable to update composite membership: ";
+  protected static final String COMPF_ISFACTOR            = "error determing where object is a factor: ";
   protected static final String CONFIG_READ               = "unable to read grouper configuration file: ";
   protected static final String EVENT_EFFADD              = "unable to log effective membership addition: ";
   protected static final String EVENT_EFFDEL              = "unable to log effective membership deletion";
@@ -55,6 +56,8 @@ class E {
   protected static final String FIELD_TYPE                = "invalid field type: ";
   protected static final String FILTER_SCOPE              = "class cannot be filtered by scope: ";
   protected static final String GAA_GNF                   = "membership group not found: ";
+  protected static final String GF_FBNAME                 = "error finding group by name: ";
+  protected static final String GF_FBUUID                 = "error finding group by uuid: ";
   protected static final String GNA_SNF                   = "membership stem not found: ";
   protected static final String GPA_MNF                   = "membership member not found: ";
   protected static final String GROUP_ACTC                = "cannot add composite membership to group with composite membership";
@@ -67,7 +70,11 @@ class E {
   protected static final String GROUP_DCFM                = "cannot delete composite membership from group with members";
   protected static final String GROUP_DMFC                = "cannot delete member from composite membership";
   protected static final String GROUP_DRA                 = "cannot delete required attribute: ";
+  protected static final String GROUP_GETATTRS            = "error retrieving group attributes: ";
   protected static final String GROUP_GT                  = "invalid group type: ";
+  protected static final String GROUP_HEM                 = "error checking for effective membership: ";
+  protected static final String GROUP_HIM                 = "error checking for immediate membership: ";
+  protected static final String GROUP_HM                  = "error checking for membership: ";
   protected static final String GROUP_NODEFAULTLIST       = "'members' list does not exist: ";
   protected static final String GROUP_NOTFOUND            = "unable to find group";
   protected static final String GROUP_NULL                = "null group";
@@ -84,9 +91,13 @@ class E {
   protected static final String GROUPTYPE_FINDALL         = "unable to find group types: ";
   protected static final String GROUPTYPE_INVALID         = "invalid group type: ";
   protected static final String GROUPTYPE_NOADD           = "subject not privileged to add group types";
+  protected static final String GSA_SEARCH                = "error searching: ";
+  protected static final String GSUBJ_NOCREATOR           = "group creator not found: ";
+  protected static final String HH_GETPERSISTENT          = "error getting persistent object: ";
   protected static final String HIBERNATE                 = "hibernate error: ";
   protected static final String MEMBER_NULL               = "null member";
   protected static final String MEMBER_SUBJNOTFOUND       = "unable to find member as subject: ";
+  protected static final String MSF_FINDSUBJECTS          = "error finding subjects: ";
   protected static final String NI                        = "NOT IMPLEMENTED: ";
   protected static final String Q_G                       = "getting groups from ";
   protected static final String Q_M                       = "getting members from ";
@@ -95,15 +106,19 @@ class E {
   protected static final String RI_IS                     = "unable to install schema: ";
   protected static final String RI_ISG                    = "unable to install base stems and groups: ";
   protected static final String S_NOSTARTROOT             = "unable to start root session: ";
+  protected static final String S_GETSUBJECT              = "unable to get subject associated with session: ";
   protected static final String SC_NOTFOUND               = "subject cache not found: ";
   protected static final String SF_IAS                    = "unable to initialize ALL subject: ";
   protected static final String SF_INIT                   = "failed to initialize source manager: ";
   protected static final String SF_SNF                    = "subject not found: ";
   protected static final String SF_SNU                    = "subject not unique: ";
   protected static final String SETTINGS                  = "unable to retrieve settings: ";
+  protected static final String STEM_GETCHILDGROUPS       = "error getting child groups: ";
   protected static final String STEM_NULL                 = "null stem";
   protected static final String STEM_ROOTNOTFOUND         = "unable to find root stem";
   protected static final String STEM_ROOTINSTALL          = "unable to install root stem: ";
+  protected static final String STEMF_ISCHILDGROUP        = "error checking if group is child: ";
+  protected static final String STEMF_ISCHILDSTEM         = "error checking if stem is child: ";
   protected static final String SUBJ_NULL                 = "null subject";
 
 }

@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * Subject cache provider.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.4 2006-06-13 19:29:37 blair Exp $
+ * @version $Id: SubjectCache.java,v 1.5 2006-06-15 00:07:02 blair Exp $
  */
 class SubjectCache {
 
@@ -51,10 +51,6 @@ class SubjectCache {
     CACHES.put( ID,   new SubjectCache(ID)    );
     CACHES.put( IDFR, new SubjectCache(IDFR)  );
   } // static
-
-
-  // PRIVATE CLASS VARIABLES //
-  private static Map caches = new HashMap();
 
 
   // PRIVATE INSTANCE VARIALBES //
@@ -103,10 +99,7 @@ class SubjectCache {
     String key = this._getKey(subj.getId(), subj.getType().getName());
     if (this.cache.containsKey(key)) {
       Subject cached = (Subject) this.cache.get(key);
-      if (SubjectHelper.eq(subj, cached)) {
-        // Already cached. Skip.
-      }
-      else {
+      if (!SubjectHelper.eq(subj, cached)) {
         // Already cached but not the same subject.  Presumably this is
         // a subject that cannot be uniquely resolved.  Remove it from
         // the cache.
