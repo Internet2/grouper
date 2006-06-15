@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.16 2006-06-15 17:45:34 blair Exp $
+ * @version $Id: GroupType.java,v 1.17 2006-06-15 19:47:13 blair Exp $
  */
 public class GroupType {
 
@@ -113,7 +113,7 @@ public class GroupType {
       type.setCreate_time(  new java.util.Date().getTime()  );
       HibernateHelper.save(type);
       sw.stop();
-      EL.groupTypeAdd(s, name, sw);
+      EventLog.info(s, M.GROUPTYPE_ADD + U.q(type.toString()), sw);
       return type;
     }
     catch (HibernateException eH) {
@@ -248,7 +248,7 @@ public class GroupType {
       String typeName = this.getName(); // For logging purposes
       HibernateHelper.delete(this);
       sw.stop();
-      EventLog.info(s, M.GROUPTYPE_DEL + typeName, sw);
+      EventLog.info(s, M.GROUPTYPE_DEL + U.q(typeName), sw);
       // TODO Now update the cached types + fields
       GroupTypeFinder.updateKnownTypes();
       FieldFinder.updateKnownFields();
@@ -310,7 +310,11 @@ public class GroupType {
         this.setFields(fields);
         HibernateHelper.save(this);
         sw.stop();
-        EventLog.info(s, M.GROUPTYPE_DELFIELD + f.getName() + " from " + this.getName(), sw);
+        EventLog.info(
+          s,
+          M.GROUPTYPE_DELFIELD + U.q(f.getName()) + " type=" + U.q(this.getName()),
+          sw
+        );
       }
       else {
         String msg = E.GROUPTYPE_FIELDNODELMISS;
@@ -396,7 +400,12 @@ public class GroupType {
       this.setFields(fields);
       HibernateHelper.save(this);
       sw.stop();
-      EL.groupTypeAddField(s, this.getName(), name, sw);
+      EventLog.info(
+        s, 
+        M.GROUPTYPE_ADDFIELD + U.q(f.getName()) + " ftype=" + U.q(type.toString()) 
+        + " gtype=" + U.q(this.getName()),
+        sw
+      );
       return f;
     }
     catch (HibernateException eS) {

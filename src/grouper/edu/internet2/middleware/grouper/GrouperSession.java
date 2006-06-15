@@ -28,16 +28,9 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.26 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.27 2006-06-15 19:47:13 blair Exp $
  */
 public class GrouperSession {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final EventLog EL        = new EventLog();
-  // TODO Move to *E*
-  private static final String   ERR_START = "unable to start session: ";
-  private static final String   ERR_STOP  = "unable to stop session: ";
-
 
   // HIBERNATE PROPERTIES //
   private String  id;
@@ -88,13 +81,13 @@ public class GrouperSession {
       objects.add(s);
       HibernateHelper.save(objects);
       sw.stop();
-      EL.sessionStart(s.toString(), sw);
+      EventLog.info(s.toString(), M.S_START, sw);
       return s;
     }
     catch (Exception e) {
       // @exception HibernateException
       // @MemberNotFoundException
-      String msg = ERR_START + e.getMessage();
+      String msg = E.S_START + e.getMessage();
       ErrorLog.fatal(GrouperSession.class, msg);
       throw new SessionException(msg, e);
     }
@@ -246,7 +239,9 @@ public class GrouperSession {
         HibernateHelper.delete(this);
         this.setId(null);
         sw.stop();
-        EL.sessionStop(sessionToString, start, sw);
+        Date  now = new Date();
+        long  dur = now.getTime() - start;
+        EventLog.info(sessionToString, M.S_STOP + dur + "ms", sw);
       }
       this.setMember_id(null);
       this.setSession_id(null);
@@ -254,7 +249,7 @@ public class GrouperSession {
       this.subj = null;
     }
     catch (HibernateException eH) {
-      String msg = ERR_STOP + eH.getMessage();
+      String msg = E.S_STOP + eH.getMessage();
       ErrorLog.error(GrouperSession.class, msg);
       throw new SessionException(msg, eH);
     }
@@ -262,9 +257,9 @@ public class GrouperSession {
 
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-      .append("session_id"    , this.getSession_id())
-      .append("subject_id"    , this.who            )
-      .append("subject_type"  , this.type           )
+      .append("session_id"    , this.getSession_id()  )
+      .append("subject_id"    , U.q(this.who)         )
+      .append("subject_type"  , U.q(this.type)        )
       .toString();
   } // public String toString()
 

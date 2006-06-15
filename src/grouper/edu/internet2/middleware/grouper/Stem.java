@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.59 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: Stem.java,v 1.60 2006-06-15 19:47:13 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -162,7 +162,7 @@ public class Stem extends Owner {
       HibernateHelper.save(objects);
 
       sw.stop();
-      EL.stemAddChildGroup(this.getSession(), child.getName(), sw);
+      EventLog.info(s, M.GROUP_ADD + U.q(child.getName()), sw);
       _grantDefaultPrivsUponCreate(child);
 
       return child; // And return the newly created group
@@ -248,7 +248,7 @@ public class Stem extends Owner {
         objects.add(this);
         HibernateHelper.save(objects);
         sw.stop();
-        EL.stemAddChildStem(this.getSession(), child.getName(), sw);
+        EventLog.info(s, M.STEM_ADD + U.q(child.getName()), sw);
         _grantDefaultPrivsUponCreate(child);
         return child;
       }
@@ -290,7 +290,7 @@ public class Stem extends Owner {
       this._revokeAllNamingPrivs();   // Revoke privs
       HibernateHelper.delete(this);   // And delete
       sw.stop();
-      EL.stemDelete(this.getSession(), name, sw);
+      EventLog.info(this.getSession(), M.STEM_DEL + U.q(name), sw);
     }
     catch (Exception e) {
       throw new StemDeleteException(e.getMessage(), e);

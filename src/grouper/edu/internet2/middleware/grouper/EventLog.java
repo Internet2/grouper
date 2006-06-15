@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.16 2006-06-15 17:45:34 blair Exp $
+ * @version $Id: EventLog.java,v 1.17 2006-06-15 19:47:13 blair Exp $
  */
 class EventLog {
 
@@ -35,24 +35,14 @@ class EventLog {
   // FIXME Relocate to M
   private static final String G_AM        = "add member: group=";
   private static final String G_AM_E      = "add effective member: group=";
-  private static final String G_AT        = "add type: group=";
-  private static final String G_D         = "group delete: ";
   private static final String G_DA        = "delete group attr: group=";
   private static final String G_DM        = "delete member: group=";
   private static final String G_DM_E      = "delete effective member: group=";
-  private static final String G_DT        = "delete type: group=";
   private static final String G_GP        = "grant access priv: group=";
   private static final String G_GP_E      = "grant effective access priv: group=";
   private static final String G_RP        = "revoke access priv: group=";
   private static final String G_RP_E      = "revoke effective access priv: group=";
   private static final String G_SA        = "set group attr: group=";
-  private static final String GS_START    = "session started";
-  private static final String GS_STOP     = "session stopped: duration=";
-  private static final String GT_AF       = "add group field: ";
-  private static final String GT_AT       = "add group type: ";
-  private static final String S_ACG       = "add group: ";  
-  private static final String S_ACS       = "add stem: ";  
-  private static final String S_D         = "stem delete: ";
   private static final String S_GP        = "grant naming priv: stem=";
   private static final String S_GP_E      = "grant effective naming priv: stem=";
   private static final String S_RP        = "revoke naming priv: stem=";
@@ -141,12 +131,12 @@ class EventLog {
   {
     if      (o instanceof Group) {
       if (this.log_eff_group_del == true) {
-        this._delEffs(s, "group=" + ( (Group) o).getName(), subj, f, effs);
+        this._delEffs(s, "group=" + U.q( ( (Group) o).getName() ), subj, f, effs);
       }
     }
     else if (o instanceof Stem) {
       if (this.log_eff_stem_del == true) {
-        this._delEffs(s, "stem=" + ( (Stem) o).getName(), subj, f, effs);
+        this._delEffs(s, "stem=" + U.q( ( (Stem) o).getName() ), subj, f, effs);
       }
     }
     else {
@@ -162,13 +152,6 @@ class EventLog {
     this._member(s, G_AM, group, subj, f, sw);
   } // protected void groupAddMember(s, group, subj, f, sw)
 
-  protected void groupAddType(
-    GrouperSession s, String group, GroupType type, StopWatch sw
-  ) 
-  {
-    EventLog.info(s, G_AT + group + " " + type, sw);
-  }
-
   protected void groupDelAttr(
     GrouperSession s, String group, String attr, String val, StopWatch sw
   )
@@ -176,23 +159,12 @@ class EventLog {
     this._setAttr(s, G_DA, group, attr, val, sw);
   } // protected void groupDelAttr(s, group, attr, val, sw);
 
-  protected void groupDelete(GrouperSession s, String group, StopWatch sw) {
-    EventLog.info(s, G_D + group, sw);
-  } // protected void groupDelete(s, group, sw)
-
   protected void groupDelMember(
     GrouperSession s, String group, Subject subj, Field f, StopWatch sw
   )
   {
     this._member(s, G_DM, group, subj, f, sw);
   } // protected void groupDelMember(s, group, subj, f, sw)
-
-  protected void groupDelType(
-    GrouperSession s, String group, GroupType type, StopWatch sw
-  ) 
-  {
-    EventLog.info(s, G_DT + group + " " + type, sw);
-  }
 
   protected void groupGrantPriv(
     GrouperSession s, String group, Subject subj, Privilege p, StopWatch sw
@@ -221,42 +193,6 @@ class EventLog {
   {
     this._setAttr(s, G_SA, group, attr, val, sw);
   } // protected void groupSetAttr(s, group, attr, val, sw);
-
-  protected void groupTypeAdd(
-    GrouperSession s, String type, StopWatch sw
-  )
-  {
-    EventLog.info(s, GT_AT + type, sw);
-  } // protected void groupTypeAdd(s, group, attr, val, sw);
-
-  protected void groupTypeAddField(
-    GrouperSession s, String type, String name, StopWatch sw
-  )
-  {
-    EventLog.info(s, GT_AF + name + " to " + type, sw);
-  } // protected void groupAddField(s, group, attr, val, sw);
-
-  protected void sessionStart(String sessionToString, StopWatch sw) {
-    EventLog.info(sessionToString, GS_START, sw);
-  } // protected sessionStart(sessionToString, sw)
-
-  protected void sessionStop(String sessionToString, long start, StopWatch sw) {
-    Date now  = new Date();
-    long dur  = now.getTime() - start;
-    EventLog.info(sessionToString, GS_STOP + dur + "ms", sw);
-  } // protected sessionStop(sessionToString, start, sw)
-
-  protected void stemAddChildGroup(GrouperSession s, String name, StopWatch sw) {
-    EventLog.info(s, S_ACG + name, sw);
-  } // protected void stemAddChildGroup(s, name, sw)
-
-  protected void stemAddChildStem(GrouperSession s, String name, StopWatch sw) {
-    EventLog.info(s, S_ACS + name, sw);
-  } // protected void stemAddChildGroup(s, name, sw)
-
-  protected void stemDelete(GrouperSession s, String stem, StopWatch sw) {
-    EventLog.info(s, S_D + stem, sw);
-  } // protected void stemDelete(s, stem, sw)
 
   protected void stemGrantPriv(
     GrouperSession s, String stem, Subject subj, Privilege p, StopWatch sw
@@ -351,12 +287,12 @@ class EventLog {
     // Get eff owner
     try {
       Group g = eff.getGroup();
-      msg += "group=" + g.getName();
+      msg += "group=" + U.q(g.getName());
     }
     catch (GroupNotFoundException eGNF) {
       try {
         Stem ns = eff.getStem();
-        msg += "stem=" + ns.getName();
+        msg += "stem=" + U.q(ns.getName());
       }
       catch (StemNotFoundException eSNF) {
         ErrorLog.error(EventLog.class, E.EVENT_EFFOWNER + eSNF.getMessage());
@@ -364,7 +300,7 @@ class EventLog {
       }
     }   
     // Get eff field
-    msg += " " + field + eff.getList().getName();
+    msg += " " + field + U.q(eff.getList().getName());
     // Get eff subject
     try {
       Subject subject = eff.getMember().getSubject();
@@ -377,13 +313,13 @@ class EventLog {
     // Get added or removed message that caused this effective membership change
     msg += " (" + name + " ";
     if      (f.getType().equals(FieldType.ACCESS)) {
-      msg += "priv=" + f.getName();
+      msg += "priv=" + U.q(f.getName());
     }
     else if (f.getType().equals(FieldType.LIST)) {
-      msg += "list=" + f.getName();
+      msg += "list=" + U.q(f.getName());
     }
     else if (f.getType().equals(FieldType.NAMING)) {
-      msg += "priv=" + f.getName();
+      msg += "priv=" + U.q(f.getName());
     }
     // Get added or removed subject that caused this effective
     // membership change
@@ -400,7 +336,7 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + name + " priv=" + p.getName() + " subject=" 
+      msg + U.q(name) + " priv=" + U.q(p.getName()) + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
     );
@@ -412,7 +348,7 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + group + " list=" + f.getName() + " subject=" 
+      msg + U.q(group) + " list=" + U.q(f.getName()) + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
     );
@@ -423,7 +359,7 @@ class EventLog {
   )
   {
     EventLog.info(
-      s, msg + name + " priv=" + p.getName(), sw
+      s, msg + U.q(name) + " priv=" + U.q(p.getName()), sw
     );
   } // private void _revokePriv(s, msg, name, p, sw)
 
@@ -433,7 +369,7 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + name + " priv=" + p.getName() + " subject=" 
+      msg + U.q(name) + " priv=" + U.q(p.getName()) + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
     );
@@ -443,7 +379,7 @@ class EventLog {
     GrouperSession s, String msg, String name, String attr, String val, StopWatch sw
   )
   {
-    EventLog.info(s, msg + name + " attr=" + attr + " value=" + val, sw);
+    EventLog.info(s, msg + U.q(name) + " attr=" + U.q(attr) + " value=" + U.q(val), sw);
   } // private void _setAttr(s, msg, attr, val, sw)
 }
 
