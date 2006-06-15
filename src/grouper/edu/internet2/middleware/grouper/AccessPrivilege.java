@@ -26,9 +26,9 @@ import  org.apache.commons.lang.builder.*;
 
 /** 
  * An instance of a granted access privilege.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.12 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: AccessPrivilege.java,v 1.13 2006-06-15 04:45:58 blair Exp $
  */
 public class AccessPrivilege {
 

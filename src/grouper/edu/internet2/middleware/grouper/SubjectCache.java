@@ -23,9 +23,9 @@ import  org.apache.commons.lang.builder.*;
 
 /** 
  * Subject cache provider.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.5 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: SubjectCache.java,v 1.6 2006-06-15 04:45:59 blair Exp $
  */
 class SubjectCache {
 

@@ -25,9 +25,9 @@ import  org.apache.commons.logging.*;
 
 /** 
  * Privilege cache provider.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.7 2006-06-13 20:01:32 blair Exp $
+ * @version $Id: PrivilegeCache.java,v 1.8 2006-06-15 04:45:59 blair Exp $
  *     
  */
 class PrivilegeCache {

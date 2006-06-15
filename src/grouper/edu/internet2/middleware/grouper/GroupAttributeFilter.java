@@ -22,9 +22,9 @@ import  java.util.*;
 
 /** 
  * Query by group attribute.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: GroupAttributeFilter.java,v 1.2 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GroupAttributeFilter.java,v 1.3 2006-06-15 04:45:58 blair Exp $
  */
 public class GroupAttributeFilter extends BaseQueryFilter {
 

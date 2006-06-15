@@ -24,9 +24,9 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.7 2006-06-13 20:01:32 blair Exp $
+ * @version $Id: InternalSubject.java,v 1.8 2006-06-15 04:45:59 blair Exp $
  */
 public class InternalSubject implements Subject {
 

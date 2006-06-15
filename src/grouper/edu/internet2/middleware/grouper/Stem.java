@@ -24,9 +24,9 @@ import  org.apache.commons.lang.builder.*;
 
 /** 
  * A namespace within the Groups Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.58 2006-06-15 04:10:34 blair Exp $
+ * @version $Id: Stem.java,v 1.59 2006-06-15 04:45:59 blair Exp $
  */
 public class Stem extends Owner {
 

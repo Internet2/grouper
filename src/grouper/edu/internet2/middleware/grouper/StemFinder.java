@@ -22,9 +22,9 @@ import  net.sf.hibernate.type.*;
 
 /**
  * Find stems within the Groups Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.18 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: StemFinder.java,v 1.19 2006-06-15 04:45:59 blair Exp $
  */
 public class StemFinder {
 

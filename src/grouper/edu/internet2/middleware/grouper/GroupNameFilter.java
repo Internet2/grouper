@@ -22,9 +22,9 @@ import  java.util.*;
 
 /** 
  * Query by group name.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: GroupNameFilter.java,v 1.3 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: GroupNameFilter.java,v 1.4 2006-06-15 04:45:58 blair Exp $
  */
 public class GroupNameFilter extends BaseQueryFilter {
 

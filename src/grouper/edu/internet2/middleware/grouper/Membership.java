@@ -24,9 +24,9 @@ import  org.apache.commons.lang.builder.*;
 
 /** 
  * A list membership in the Groups Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.36 2006-06-15 04:04:30 blair Exp $
+ * @version $Id: Membership.java,v 1.37 2006-06-15 04:45:59 blair Exp $
  */
 public class Membership {
 

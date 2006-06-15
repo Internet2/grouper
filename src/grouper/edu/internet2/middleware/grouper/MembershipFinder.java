@@ -24,9 +24,9 @@ import  net.sf.hibernate.type.*;
 
 /**
  * Find memberships within the Groups Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.34 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.35 2006-06-15 04:45:59 blair Exp $
  */
 public class MembershipFinder {
 

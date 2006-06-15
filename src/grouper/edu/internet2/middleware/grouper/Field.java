@@ -16,20 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.io.Serializable;
 import  org.apache.commons.lang.builder.*;
 
-
 /** 
  * Schema specification for a Group attribute or list.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.8 2006-02-03 19:38:53 blair Exp $    
+ * @version $Id: Field.java,v 1.9 2006-06-15 04:45:58 blair Exp $    
  */
 public class Field implements Serializable {
 
-  // Hibernate Properties
+  // HIBERNATE PROPERTIES //
   private String    field_name;
   private FieldType field_type;
   private GroupType group_type;
@@ -39,9 +37,11 @@ public class Field implements Serializable {
   private Privilege write_priv;
 
     
-  // Constructors
-    
-  // For Hibernate
+  // CONSTRUCTORS //
+  
+  /**
+   * For Hibernate.
+   */  
   public Field() {
     super();
   }
@@ -58,7 +58,7 @@ public class Field implements Serializable {
   } // protected Field(field, type, read, write)
 
 
-  // Public Instance Methods
+  // PUBLIC INSTANCE METHODS //
   public boolean equals(Object other) {
     if (this == other) { 
       return true;
@@ -116,63 +116,52 @@ public class Field implements Serializable {
   } // public String toString()
 
 
-  // Hibernate Accessors
-  private String getId() {
-    return this.id;
-  }
-
-  private void setId(String id) {
-    this.id = id;
-  }
-
+  // GETTERS //
   private String getField_name() {
     return this.field_name;
   }
-
-  private void setField_name(String field_name) {
-    this.field_name = field_name;
-  }
-
   private FieldType getField_type() {
     return this.field_type;
   }
-
-  private void setField_type(FieldType type) {
-    this.field_type = type;
-  }
-
   private GroupType getGroup_type() {
     return this.group_type;
   }
-
-  protected void setGroup_type(GroupType type) {
-    this.group_type = type;
+  private String getId() {
+    return this.id;
   }
-
   private boolean getNullable() {
     return this.nullable;
   }
-
-  private void setNullable(boolean nullable) {
-    this.nullable = nullable;
-  }
-
   private Privilege getRead_priv() {
     return this.read_priv;
   }
-
-  private void setRead_priv(Privilege read) {
-    this.read_priv = read;
-  }
-
   private Privilege getWrite_priv() {
     return this.write_priv;
   }
 
+
+  // SETTERS //
+  private void setField_name(String field_name) {
+    this.field_name = field_name;
+  }
+  private void setField_type(FieldType type) {
+    this.field_type = type;
+  }
+  protected void setGroup_type(GroupType type) {
+    this.group_type = type;
+  }
+  private void setId(String id) {
+    this.id = id;
+  }
+  private void setNullable(boolean nullable) {
+    this.nullable = nullable;
+  }
+  private void setRead_priv(Privilege read) {
+    this.read_priv = read;
+  }
   private void setWrite_priv(Privilege write) {
     this.write_priv = write;
   }
-
 
 }
 

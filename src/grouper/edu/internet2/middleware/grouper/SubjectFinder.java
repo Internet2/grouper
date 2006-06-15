@@ -23,9 +23,9 @@ import  org.apache.commons.lang.time.*;
 
 /**
  * Find I2MI subjects.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.19 2006-06-15 03:53:01 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.20 2006-06-15 04:45:59 blair Exp $
  */
 public class SubjectFinder {
 

@@ -24,9 +24,9 @@ import  net.sf.ehcache.*;
 
 /** 
  * Privilege resolution class.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.40 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.41 2006-06-15 04:45:59 blair Exp $
  */
 public class PrivilegeResolver {
 

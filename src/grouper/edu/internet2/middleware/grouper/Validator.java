@@ -24,9 +24,9 @@ import  java.util.*;
 
 /** 
  * Validation methods that apply to multiple Grouper classes.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.9 2006-06-15 03:53:01 blair Exp $
+ * @version $Id: Validator.java,v 1.10 2006-06-15 04:45:59 blair Exp $
  */
 class Validator {
 

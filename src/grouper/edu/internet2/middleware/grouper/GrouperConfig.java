@@ -22,9 +22,9 @@ import  org.apache.commons.lang.*;
 
 /** 
  * Grouper configuration information.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.22 2006-06-13 20:01:32 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.23 2006-06-15 04:45:58 blair Exp $
  */
 public class GrouperConfig {
 

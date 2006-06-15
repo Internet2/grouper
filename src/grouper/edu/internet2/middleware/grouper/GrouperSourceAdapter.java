@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.10 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.11 2006-06-15 04:45:59 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -112,7 +112,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   /**
    * Gets a {@link Group} subject by its name.
-   * <p />
+   * <p/>
    * <pre class="eg">
    * // Use it within the Grouper API
    * try {
@@ -178,7 +178,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   /**
    * Searches for {@link Group} subjects by naming attributes.
-   * <p />
+   * <p/>
    * <p>
    * This method performs a fuzzy search on the <i>stem</i>,
    * <i>extension</i>, <i>displayExtension</i>, <i>name</i> and

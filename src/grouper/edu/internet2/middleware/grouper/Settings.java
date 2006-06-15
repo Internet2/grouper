@@ -23,9 +23,9 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A (rudimentary and preliminary) settings object for the Groups
  * Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.4 2006-06-15 04:10:34 blair Exp $
+ * @version $Id: Settings.java,v 1.5 2006-06-15 04:45:59 blair Exp $
  * @since   1.0
  */
 class Settings {

@@ -23,9 +23,9 @@ import  net.sf.hibernate.*;
 
 /** 
  * Install the Groups Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.22 2006-06-15 00:07:02 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.23 2006-06-15 04:45:59 blair Exp $    
  */
 public class RegistryInstall {
 

@@ -23,9 +23,9 @@ import  net.sf.hibernate.*;
 
 /** 
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.14 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.15 2006-06-15 04:45:59 blair Exp $
  */
 public class GrouperSubject implements Subject {
 

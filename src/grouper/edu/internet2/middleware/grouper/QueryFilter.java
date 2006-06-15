@@ -22,9 +22,9 @@ import  java.util.*;
 
 /** 
  * Interface for querying the Groups Registry.
- * <p />
+ * <p/>
  * @author  blair christensen.
- * @version $Id: QueryFilter.java,v 1.4 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: QueryFilter.java,v 1.5 2006-06-15 04:45:59 blair Exp $
  */
 public interface QueryFilter {
 
