@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
@@ -25,10 +24,10 @@ import  org.apache.commons.lang.builder.*;
  * A composite membership definition within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.5 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: Composite.java,v 1.6 2006-06-15 04:15:52 blair Exp $
  * @since   1.0
  */
-public class Composite extends Owner implements Serializable {
+public class Composite extends Owner {
 
   // HIBERNATE PROPERTIES //
   private Owner         left  = null;
@@ -38,12 +37,10 @@ public class Composite extends Owner implements Serializable {
 
 
   // CONSTRUCTORS //
-  // @since 1.0
   private Composite() {
-    // Default constructor for Hibernate
+    super();
   } // private Composite()
 
-  // @since 1.0
   protected Composite(GrouperSession s, Owner o, Owner l, Owner r, CompositeType type) 
     throws  ModelException
   {
