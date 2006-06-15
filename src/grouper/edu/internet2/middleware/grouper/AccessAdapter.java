@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.11 2006-02-03 19:38:53 blair Exp $
+ * @version $Id: AccessAdapter.java,v 1.12 2006-06-15 03:58:30 blair Exp $
  */
 public interface AccessAdapter {
 
@@ -46,7 +46,7 @@ public interface AccessAdapter {
    * @return  Set of {@link Subject} objects.
    * @throws  SchemaException
    */
-  public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv)
+  Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv)
     throws  SchemaException;
 
   /**
@@ -67,7 +67,7 @@ public interface AccessAdapter {
    * @return  Set of {@link Group} objects.
    * @throws  SchemaException
    */
-  public Set getGroupsWhereSubjectHasPriv(
+  Set getGroupsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
   ) 
     throws  SchemaException;
@@ -82,7 +82,7 @@ public interface AccessAdapter {
    * @param   subj  Get privileges for this member.
    * @return  Set of privileges.
    */
-  public Set getPrivs(GrouperSession s, Group g, Subject subj);
+  Set getPrivs(GrouperSession s, Group g, Subject subj);
 
   /**
    * Grant the privilege to the subject on this group.
@@ -108,7 +108,7 @@ public interface AccessAdapter {
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
-  public void grantPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
+  void grantPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws  GrantPrivilegeException, 
             InsufficientPrivilegeException,
             SchemaException
@@ -130,7 +130,7 @@ public interface AccessAdapter {
    * @param   priv  Check this privilege.   
    * @throws  SchemaException
    */
-  public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
+  boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws SchemaException;
 
   /**
@@ -153,7 +153,7 @@ public interface AccessAdapter {
    * @throws  RevokePrivilegeException
    * @throws  SchemaException
    */
-  public void revokePriv(GrouperSession s, Group g, Privilege priv)
+  void revokePriv(GrouperSession s, Group g, Privilege priv)
     throws  InsufficientPrivilegeException, 
             RevokePrivilegeException,
             SchemaException
@@ -180,7 +180,7 @@ public interface AccessAdapter {
    * @throws  RevokePrivilegeException
    * @throws  SchemaException
    */
-  public void revokePriv(GrouperSession s, Group g, Subject subj, Privilege priv)
+  void revokePriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws  InsufficientPrivilegeException, 
             RevokePrivilegeException,
             SchemaException
