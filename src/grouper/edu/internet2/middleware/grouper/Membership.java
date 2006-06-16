@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.38 2006-06-16 17:30:01 blair Exp $
+ * @version $Id: Membership.java,v 1.39 2006-06-16 18:42:20 blair Exp $
  */
 public class Membership {
 
@@ -238,10 +238,10 @@ public class Membership {
   public Group getViaGroup() 
     throws GroupNotFoundException
   {
-    Group via = (Group) this.getVia_id();
+    Owner via = this.getVia_id();
     if ( (via != null) && (via instanceof Group) ) {
       via.setSession(this.getSession());
-      return via;
+      return (Group) via;
     }
     throw new GroupNotFoundException();
   } // public Group getViaGroup()
