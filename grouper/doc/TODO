@@ -4,15 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.73 2006-06-16 18:42:20 blair Exp $
+$Id: TODO,v 1.74 2006-06-16 19:04:17 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* BUG       `Group.delete()` doesn't remove composites.  Add:
-    if(group.hasComposite()) group.deleteCompositeMember();
 * BUG       No logging of composites
 * BUG       Membership UUIDs can change, especially in effective
   mships and possibly when updating composites
@@ -130,7 +128,7 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.73 2006-06-16 18:42:20 blair Exp $
+$Id: TODO,v 1.74 2006-06-16 19:04:17 blair Exp $
 
 
 

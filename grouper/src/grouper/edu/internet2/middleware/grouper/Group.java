@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.80 2006-06-16 18:25:21 blair Exp $
+ * @version $Id: Group.java,v 1.81 2006-06-16 19:04:17 blair Exp $
  */
 public class Group extends Owner {
 
@@ -410,6 +410,11 @@ public class Group extends Owner {
 
       // And revoke all access privileges
       this._revokeAllAccessPrivs();
+
+      // Delete composite membership if it exists
+      if (this.hasComposite()) {
+        this.deleteCompositeMember();
+      }
 
       // And delete all memberships - as root
       deletes.addAll( 
