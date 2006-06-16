@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.149 2006-06-16 17:30:01 blair Exp $
+$Id: API,v 1.150 2006-06-16 18:25:21 blair Exp $
 
 ---
 
@@ -70,6 +70,15 @@ $Id: API,v 1.149 2006-06-16 17:30:01 blair Exp $
 * Set                 getResults(GrouperSession)
 
 ## ComplementFilter extends BaseQueryFilter
+
+## Composite extends Owner
+* Group               getLeftGroup()
+* Group               getOwnerGroup()
+* Group               getRightGroup()
+
+## CompositeFinder
+* Set                 CompositeFinder.findAsFactor(Group)
+* Composite           CompositeFinder.findAsOwner(Group)
 
 ## Field
 * GroupType           getGroupType()

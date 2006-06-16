@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.118 2006-06-16 17:30:01 blair Exp $
+$Id: NEWS,v 1.119 2006-06-16 18:25:21 blair Exp $
 
 ---
 
@@ -10,6 +10,13 @@ $Id: NEWS,v 1.118 2006-06-16 17:30:01 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:  Added *CompositeFinder*
+* NEW:  Added `CompositeFinder.findAsFactor()`
+* NEW:  Added `CompositeFinder.findAsOwner()`
+* NEW:  Added `Composite.getLeftGroup()`
+* NEW:  Added `Composite.getOwnerGroup()`
+* NEW:  Added `Composite.getRightGroup()`
+* NEW:  Added `Composite.getType()`
 * NEW:  Added `MembershipFinder.findCompositeMembership(GrouperSession, Group, Subject)`
 * NEW:  Added `Group.getCompositeMembers()`
 * NEW:  Added `Group.getCompositeMemberships()`

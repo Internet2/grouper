@@ -22,14 +22,75 @@ import  net.sf.hibernate.type.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.4 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.5 2006-06-16 18:25:21 blair Exp $
  * @since   1.0
  */
-class CompositeFinder {
+public class CompositeFinder {
+
+  // PUBLIC CLASS METHODS //
+
+  /**
+   * Find where the specified {@link Group} is a {@link Composite}
+   * factor.
+   * <pre class="eg">
+   * Set composites = CompositeFinder.findAsFactor(g);
+   * </pre>
+   * @param   g   Search on this {@link Group}.
+   * @return  A set of {@link Composite} objects.
+   * @since   1.0
+   */
+  public static Set findAsFactor(Group g) {
+    Set             where = new LinkedHashSet();
+    GrouperSession  s     = g.getSession();
+    Member          m     = s.getMember();
+    Iterator        iter  = findAsFactorNoPriv(g).iterator();
+    while (iter.hasNext()) {
+      Composite c = (Composite) iter.next();
+      c.setSession(s);
+      try {
+        if (m.canView(c.getOwnerGroup())) {
+          where.add(c);
+        }
+      }
+      catch (GroupNotFoundException eGNF) {
+        // ignore
+      }
+    } 
+    return where;
+  } // public static Set findAsFactor(g)
+
+  /**
+   * Find {@link Composite} owned by this {@link Group}.
+   * factor.
+   * <pre class="eg">
+   * Composite c = CompositeFinder.findAsOwner(g);
+   * </pre>
+   * @param   g   Search on this {@link Group}.
+   * @return  c   {@link Composite} owned by this {@link Group}.
+   * @throws  CompositeNotFoundException
+   * @since   1.0
+   */
+  public static Composite findAsOwner(Group g) 
+    throws  CompositeNotFoundException
+  {
+    Composite c = findAsOwnerNoPriv(g);
+    GrouperSession  s     = g.getSession();
+    Member          m     = s.getMember();
+    try {
+      if (m.canView(c.getOwnerGroup())) {
+        return c;
+      }
+      throw new CompositeNotFoundException();
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new CompositeNotFoundException();
+    }
+  } // public static Composite findAsOwner(g)
+
 
   // PROTECTED CLASS METHODS //
   // @since 1.0
-  protected static Set isFactor(Owner o) {
+  protected static Set findAsFactorNoPriv(Owner o) {
     Set composites = new LinkedHashSet();
     try {
       Session   hs  = HibernateHelper.getSession();
@@ -54,10 +115,10 @@ class CompositeFinder {
       ErrorLog.error(CompositeFinder.class, E.COMPF_ISFACTOR + eH.getMessage());
     }
     return composites;
-  } // protected static Set isFactor(o)
+  } // protected static Set findAsFactorNoPriv(o)
 
   // @since 1.0
-  protected static Composite isOwner(Owner o) 
+  protected static Composite findAsOwnerNoPriv(Owner o) 
     throws  CompositeNotFoundException
   {
     try {
@@ -79,7 +140,7 @@ class CompositeFinder {
     catch (HibernateException eH) {
       throw new CompositeNotFoundException(eH.getMessage(), eH);
     }
-  } // protected static Composite isOwner(o)
+  } // protected static Composite findAsOwnerNoPriv(o)
 
 }
 

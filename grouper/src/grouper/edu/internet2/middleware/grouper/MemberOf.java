@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.21 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: MemberOf.java,v 1.22 2006-06-16 18:25:21 blair Exp $
  */
 class MemberOf {
 
@@ -289,12 +289,17 @@ class MemberOf {
   private Set _evalCompositeComplement() 
     throws  ModelException
   {
-    Set   tmp     = new LinkedHashSet();
-    Group left    = this.c.getLeftGroup();
-    Group right   = this.c.getRightGroup();
-    tmp.addAll(     left.getMembers()   );
-    tmp.removeAll(  right.getMembers()  );
+    try {
+      Set   tmp   = new LinkedHashSet();
+      Group left  = this.c.getLeftGroup();
+      Group right = this.c.getRightGroup();
+      tmp.addAll(     left.getMembers()   );
+      tmp.removeAll(  right.getMembers()  );
     return this._createNewMembershipObjects(tmp);
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new ModelException(eGNF);
+    }
   } // private Set _evalCompositeComplement()
 
   // Evaluate an intersection composite membership
@@ -302,12 +307,17 @@ class MemberOf {
   private Set _evalCompositeIntersection() 
     throws  ModelException
   {
-    Set   tmp     = new LinkedHashSet();
-    Group left    = this.c.getLeftGroup();
-    Group right   = this.c.getRightGroup();
-    tmp.addAll(     left.getMembers()   );
-    tmp.retainAll(  right.getMembers()  );
-    return this._createNewMembershipObjects(tmp);
+    try {
+      Set   tmp   = new LinkedHashSet();
+      Group left  = this.c.getLeftGroup();
+      Group right = this.c.getRightGroup();
+      tmp.addAll(     left.getMembers()   );
+      tmp.retainAll(  right.getMembers()  );
+      return this._createNewMembershipObjects(tmp);
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new ModelException(eGNF);
+    }
   } // private Set _evalCompositeIntersection()
 
   // Evaluate a union composite membership
@@ -315,12 +325,17 @@ class MemberOf {
   private Set _evalCompositeUnion() 
     throws  ModelException
   {
-    Set   tmp     = new LinkedHashSet();
-    Group left    = this.c.getLeftGroup();
-    Group right   = this.c.getRightGroup();
-    tmp.addAll( left.getMembers() );
-    tmp.addAll( right.getMembers()  );
-    return this._createNewMembershipObjects(tmp);
+    try {
+      Set   tmp   = new LinkedHashSet();
+      Group left  = this.c.getLeftGroup();
+      Group right = this.c.getRightGroup();
+      tmp.addAll( left.getMembers() );
+      tmp.addAll( right.getMembers()  );
+      return this._createNewMembershipObjects(tmp);
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new ModelException(eGNF);
+    }
   } // private Set _evalCompositeUnion()
 
   // Evaluate an immediate membership

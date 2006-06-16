@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.8 2006-06-16 17:30:01 blair Exp $
+ * @version $Id: Composite.java,v 1.9 2006-06-16 18:25:21 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -76,6 +76,96 @@ public class Composite extends Owner {
   } // public boolean equals(other)
 
   /**
+   * Return this {@link Composite}'s left factor.
+   * <pre class="eg">
+   * try {
+   *   Group left = c.getLeftGroup();
+   * }
+   * catch (GroupNotFoundException eGNF) {
+   *   // unable to retrieve group
+   * }
+   * </pre>
+   * @return  Left factor {@link Group}.
+   * @throws  GroupNotFoundException
+   * @since   1.0
+   */
+  public Group getLeftGroup() 
+    throws  GroupNotFoundException
+  {
+    Group g = (Group) this.left;
+    try {
+      Validator.valueNotNull(g, E.GROUP_NULL);
+      GrouperSession s = this.getSession();
+      g.setSession(s);
+      s.getMember().canView(g);
+      return g;
+    }
+    catch (Exception e) {
+      throw new GroupNotFoundException(e);
+    }
+  } // public Group getLeftGroup()
+
+  /**
+   * Return this {@link Composite}'s owner.
+   * <pre class="eg">
+   * try {
+   *   Group owner = c.geOwnerGroup();
+   * }
+   * catch (GroupNotFoundException eGNF) {
+   *   // unable to retrieve group
+   * }
+   * </pre>
+   * @return  Owner {@link Group}.
+   * @throws  GroupNotFoundException
+   * @since   1.0
+   */
+  public Group getOwnerGroup() 
+    throws  GroupNotFoundException
+  {
+    Group g = (Group) this.owner;
+    try {
+      Validator.valueNotNull(g, E.GROUP_NULL);
+      GrouperSession s = this.getSession();
+      g.setSession(s);
+      s.getMember().canView(g);
+      return g;
+    }
+    catch (Exception e) {
+      throw new GroupNotFoundException(e);
+    }
+  } // public Group getOwnerGroup()
+
+  /**
+   * Return this {@link Composite}'s right factor.
+   * <pre class="eg">
+   * try {
+   *   Group right = c.getRightGroup();
+   * }
+   * catch (GroupNotFoundException eGNF) {
+   *   // unable to retrieve group
+   * }
+   * </pre>
+   * @return  Right factor {@link Group}.
+   * @throws  GroupNotFoundException
+   * @since   1.0
+   */
+  public Group getRightGroup() 
+    throws  GroupNotFoundException
+  {
+    Group g = (Group) this.right;
+    try {
+      Validator.valueNotNull(g, E.GROUP_NULL);
+      GrouperSession s = this.getSession();
+      g.setSession(s);
+      s.getMember().canView(g);
+      return g;
+    }
+    catch (Exception e) {
+      throw new GroupNotFoundException(e);
+    }
+  } // public Group getLeftGroup()
+
+  /**
    * @since 1.0
    */
   public int hashCode() {
@@ -98,11 +188,22 @@ public class Composite extends Owner {
    * @since 1.0
    */
   public String toString() {
+    String  left  = GrouperConfig.EMPTY_STRING;
+    String  owner = GrouperConfig.EMPTY_STRING;
+    String  right = GrouperConfig.EMPTY_STRING;
+    try {
+      owner = this.getOwnerGroup().getName();
+      left  = this.getOwnerGroup().getName();
+      right = this.getOwnerGroup().getName();
+    }
+    catch (GroupNotFoundException eGNF) {
+      // Ignore
+    }
     return  new ToStringBuilder(this)
-      .append(  "type"  , this.getType().toString()       )
-      .append(  "group" , this.getOwnerGroup().getName()  )
-      .append(  "left"  , this.getLeftGroup().getName()   )
-      .append(  "right" , this.getRightGroup().getName()  )
+      .append(  "type"  , this.getType().toString() )
+      .append(  "group" , owner                     )
+      .append(  "left"  , left                      )
+      .append(  "right" , right                     )
       .toString();
   } // public String toString()
 
@@ -110,7 +211,7 @@ public class Composite extends Owner {
   // Protected Class Methods //
   // @since 1.0
   protected static void update(Owner o) {
-    Iterator iter = CompositeFinder.isFactor(o).iterator();
+    Iterator iter = CompositeFinder.findAsFactorNoPriv(o).iterator();
     while (iter.hasNext()) {
       Composite c = (Composite) iter.next();
       c.update();
@@ -166,6 +267,11 @@ public class Composite extends Owner {
         Composite._update(adds);
       }
     }
+    catch (GroupNotFoundException eGNF) {
+      String msg = E.COMP_UPDATE + eGNF.getMessage();
+      ErrorLog.fatal(Composite.class, msg);
+      throw new RuntimeException(msg, eGNF);
+    }
     catch (HibernateException eH) {
       String msg = E.COMP_UPDATE + eH.getMessage();
       ErrorLog.fatal(Composite.class, msg);
@@ -191,7 +297,7 @@ public class Composite extends Owner {
     Iterator  iterU   = updates.iterator();
     while (iterU.hasNext()) {
       Owner     o     = (Owner) iterU.next();
-      Iterator  iter  = CompositeFinder.isFactor(o).iterator();
+      Iterator  iter  = CompositeFinder.findAsFactorNoPriv(o).iterator();
       while (iter.hasNext()) {
         Composite c = (Composite) iter.next();
         c.update();
@@ -206,37 +312,24 @@ public class Composite extends Owner {
     return this.left;
   }
   // @since 1.0
-  protected Group getLeftGroup() {
-    // TODO Should this through an exception upon failure?
-    Group g = (Group) this.left;
-    g.setSession( this.getSession() );
-    return g;
-  }
-  // @since 1.0
   protected Owner getOwner() {
     return this.owner;
-  }
-  // @since 1.0
-  protected Group getOwnerGroup() {
-    Group g = (Group) this.owner;
-    g.setSession( this.getSession() );
-    return g;
   }
   // @since 1.0
   protected Owner getRight() {
     return this.right;
   }
-  // @since 1.0
-  protected Group getRightGroup() {
-    // TODO Should this through an exception upon failure?
-    Group g = (Group) this.right;
-    g.setSession( this.getSession() );
-    return g;
-  }
-  // @since 1.0
-  protected CompositeType getType() {
+  /**
+   * Return this composite's type.
+   * <pre class="eg">
+   * CompositeType type = c.getType();
+   * </pre>
+   * @return  {@link CompositeType} of this {@link Composite}.
+   * @since   1.0
+   */
+  public CompositeType getType() {
     return this.type;
-  }
+  } // public CompositeType getType()
 
 
   // SETTERS //

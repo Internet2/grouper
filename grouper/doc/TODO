@@ -4,24 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.71 2006-06-16 17:30:01 blair Exp $
+$Id: TODO,v 1.72 2006-06-16 18:25:21 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* CODE      *CompositeFinder*
-** Make public
-** Rename `isFactor()`
-** Rename `isOwner()
-** Add public `isFactor()` wrapper
-** Add public `isOwner()` wrapper
-* CODE      *Composite*
-** make public: `getLeftGroup()` + privs
-** make public: `getRightGroup()` + privs
-** make public: `getOwnerGroup()` + privs
-** make public: `getType()`
 * BUG       `Membership.getViaGroup()` does not handle composites
 * BUG       `Group.delete()` doesn't remove composites.  Add:
     if(group.hasComposite()) group.deleteCompositeMember();
@@ -31,6 +20,12 @@ $Id: TODO,v 1.71 2006-06-16 17:30:01 blair Exp $
 ** Clean up `Composite.update()` once fixed
 ** Clean up `Membership.getPersistent()` once fixed
 * LIBRARIES update subject api
+* TEST      `CompositeFinder.findAsFactor()`
+* TEST      `CompositeFinder.findAsOwner()`
+* TEST      `Composite.getLeftGroup()`
+* TEST      `Composite.getOwnerGroup()`
+* TEST      `Composite.getRightGroup()`
+* TEST      `Composite.getType()`
 * REVIEW    review all RTEs
 * CONTRIB   complete cdg 1.0 feature list
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
@@ -136,5 +131,6 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.71 2006-06-16 17:30:01 blair Exp $
+$Id: TODO,v 1.72 2006-06-16 18:25:21 blair Exp $
+
 
