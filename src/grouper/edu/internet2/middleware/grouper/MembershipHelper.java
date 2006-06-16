@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.4 2006-06-13 20:01:32 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.5 2006-06-16 18:25:21 blair Exp $
  */
 class MembershipHelper {
 
@@ -35,10 +35,21 @@ class MembershipHelper {
     if (ms.getVia_id() != null) {
       if (ms.getVia_id() instanceof Composite) {
         Composite c = (Composite) ms.getVia_id();
+        String  left  = GrouperConfig.EMPTY_STRING;
+        String  owner = GrouperConfig.EMPTY_STRING;
+        String  right = GrouperConfig.EMPTY_STRING;
+        try {
+          owner = c.getOwnerGroup().getName();
+          left  = c.getLeftGroup().getName();
+          right = c.getRightGroup().getName();
+        }
+        catch (GroupNotFoundException eGNF) {
+          // Ignore
+        }
         via = c.getType().toString() 
-          + "/group=" + c.getOwnerGroup().getName()
-          + "/left="  + c.getLeftGroup().getName() 
-          + "/right=" + c.getRightGroup().getName()
+          + "/group=" + owner
+          + "/left="  + left
+          + "/right=" + right
           ;
       }
       else {

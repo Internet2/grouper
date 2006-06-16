@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.79 2006-06-16 17:30:01 blair Exp $
+ * @version $Id: Group.java,v 1.80 2006-06-16 18:25:21 blair Exp $
  */
 public class Group extends Owner {
 
@@ -530,7 +530,7 @@ public class Group extends Owner {
       StopWatch sw  = new StopWatch();
       sw.start();
       GroupValidator.canDelCompositeMember(this);
-      Composite c   = CompositeFinder.isOwner(this);
+      Composite c   = CompositeFinder.findAsOwnerNoPriv(this);
       MemberOf  mof = MemberOf.delComposite(this.getSession(), this, c);
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
       //  FIXME LOG! imms + effs
@@ -1469,7 +1469,7 @@ public class Group extends Owner {
    */
   public boolean hasComposite() {
     try {
-      CompositeFinder.isOwner(this);
+      CompositeFinder.findAsOwnerNoPriv(this);
       return true;
     }
     catch (CompositeNotFoundException eCNF) {
@@ -1772,7 +1772,7 @@ public class Group extends Owner {
    * @return  Boolean true if group is a factor in a composite membership.
    */
   public boolean isComposite() {
-    Set factors = CompositeFinder.isFactor(this);
+    Set factors = CompositeFinder.findAsFactorNoPriv(this);
     if (factors.size() > 0) {
       return true;
     }
