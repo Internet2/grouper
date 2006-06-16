@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.42 2006-06-15 19:47:13 blair Exp $
+ * @version $Id: Member.java,v 1.43 2006-06-16 17:30:01 blair Exp $
  */
 public class Member {
 
@@ -1051,8 +1051,8 @@ public class Member {
       }
       catch (MembershipNotFoundException eMNF) {
         try {
-          MembershipFinder.findImmediateMembership(
-            g, MemberFinder.findAllMember(), f
+          MembershipFinder.findMembershipByTypeNoPrivNoSession(
+            g, MemberFinder.findAllMember(), f, MembershipType.I
           );
           rv = true;
         }

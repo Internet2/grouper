@@ -26,25 +26,26 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.37 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: Membership.java,v 1.38 2006-06-16 17:30:01 blair Exp $
  */
 public class Membership {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final EventLog EL      = new EventLog();
+  private static final EventLog EL = new EventLog();
 
 
   // HIBERNATE PROPERTIES //
-  private Member      creator_id;
-  private long        create_time;
-  private int         depth;
-  private Field       field;
-  private String      id;
-  private Member      member_id;
-  private Owner       owner_id;
-  private Membership  parent_membership;
-  private String      uuid;
-  private Owner       via_id;
+  private Member          creator_id;
+  private long            create_time;
+  private int             depth;
+  private Field           field;
+  private String          id;
+  private Member          member_id;
+  private Owner           owner_id;
+  private Membership      parent_membership;
+  private MembershipType  type;
+  private String          uuid;
+  private Owner           via_id;
 
   
   // PRIVATE TRANSIENT INSTANCE VARIABLES //
@@ -61,6 +62,7 @@ public class Membership {
     this.setOwner_id(           o                     );
     this.setMember_id(          m                     );
     this.setField(              f                     );
+    this.setMship_type(         MembershipType.I      );
     this.setUuid(               GrouperUuid.getUuid() );
     this.setDepth(              0                     );
     this.setVia_id(             null                  );
@@ -75,6 +77,7 @@ public class Membership {
     this.setOwner_id(           o                     );
     this.setMember_id(          m                     );
     this.setField(              f                     );
+    this.setMship_type(         MembershipType.C      );
     this.setUuid(               GrouperUuid.getUuid() );
     this.setDepth(              0                     );
     this.setVia_id(             via                   );
@@ -287,7 +290,9 @@ public class Membership {
       GrouperSessionValidator.validate(s); 
       // Who we're deleting
       Member      m   = PrivilegeResolver.getInstance().canViewSubject(s, subj);
-      Membership  imm = MembershipFinder.findImmediateMembership(o, m, f);
+      Membership  imm = MembershipFinder.findMembershipByTypeNoPrivNoSession(
+        o, m, f, MembershipType.I
+      );
       imm.setSession(s);
       return MemberOf.delImmediate(s, o, imm, m);
     }
@@ -320,7 +325,9 @@ public class Membership {
       }
 
       // Now deal with immediate members
-      Iterator iterHas = MembershipFinder.findImmediateMemberships(root, o, f).iterator();
+      Iterator iterHas = MembershipFinder.findMembershipsByType(
+        root, o, f, MembershipType.I
+      ).iterator();
       while (iterHas.hasNext()) {
         Membership  ms  = (Membership) iterHas.next();
         MemberOf    mof = Membership.delImmediateMembership(s, o, ms.getMember().getSubject(), f);
@@ -400,20 +407,21 @@ public class Membership {
   { 
     Membership eff = new Membership();
     eff.s = s;
-    eff.setUuid(      GrouperUuid.getUuid()         );  // assign uuid
-    eff.setOwner_id(  ms.getOwner_id()              );  // original owner
-    eff.setMember_id( hasMS.getMember()             );  // hasMember m
-    eff.setField(     ms.getList()                  );  // original f
-    eff.setDepth(                                       // increment the depth
+    eff.setUuid(        GrouperUuid.getUuid()         );  // assign uuid
+    eff.setOwner_id(    ms.getOwner_id()              );  // original owner
+    eff.setMember_id(   hasMS.getMember()             );  // hasMember m
+    eff.setField(       ms.getList()                  );  // original f
+    eff.setMship_type(  MembershipType.E              );  // assign type
+    eff.setDepth(                                         // increment the depth
       ms.getDepth() + hasMS.getDepth() + offset         
     );
     if (hasMS.getDepth() == 0) {
-      eff.setVia_id(  hasMS.getOwner_id()           );  // hasMember m was immediate
+      eff.setVia_id(    hasMS.getOwner_id()           );  // hasMember m was immediate
     }
     else {
-      eff.setVia_id(  hasMS.getVia_id()             );  // hasMember m was effective
+      eff.setVia_id(    hasMS.getVia_id()             );  // hasMember m was effective
     } 
-    eff.setParent_membership(ms);                       // ms is parent membership
+    eff.setParent_membership(ms);                         // ms is parent membership
     return eff;       
   } // protected static Membership newEffectiveMembership(s, ms, hasMS)
 
@@ -489,6 +497,9 @@ public class Membership {
   protected Member getMember_id() {
     return this.member_id;
   }
+  private MembershipType getMship_type() {
+    return this.type;
+  }
   protected Owner getOwner_id() {
     return this.owner_id;
   }
@@ -515,6 +526,9 @@ public class Membership {
   }
   private void setMember_id(Member member_id) {
     this.member_id = member_id;
+  }
+  private void setMship_type(MembershipType type) {
+    this.type = type;
   }
   private void setOwner_id(Owner o) {
     this.owner_id = o;

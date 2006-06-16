@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.provider.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.5 2006-06-15 03:53:01 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.6 2006-06-16 17:30:01 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
@@ -140,8 +140,8 @@ class MembershipValidator {
     throws  ModelException
   {
     try {
-      MembershipFinder.findImmediateMembership(
-        ms.getOwner_id(), ms.getMember_id(), ms.getField()
+      MembershipFinder.findMembershipByTypeNoPrivNoSession(
+        ms.getOwner_id(), ms.getMember_id(), ms.getField(), MembershipType.I
       );
       throw new ModelException(ERR_MAE);
     }

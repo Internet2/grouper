@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeC18.java,v 1.1 2006-06-02 18:23:46 blair Exp $
+ * @version $Id: TestCompositeC18.java,v 1.2 2006-06-16 17:30:01 blair Exp $
  */
 public class TestCompositeC18 extends TestCase {
 
@@ -86,13 +86,13 @@ public class TestCompositeC18 extends TestCase {
       Assert.assertFalse( "f !isComposite"  , f.isComposite()   );
       Assert.assertFalse( "g !isComposite"  , g.isComposite()   );
 
-      T.amount( "a members", 1, a.getMembers().size() );
+      T.amount( "a members", 1, a.getImmediateMembers().size() );
       Assert.assertTrue(  "a has subjA",  a.hasMember(subjA)  );
-      T.amount( "b members", 1, b.getMembers().size() );
+      T.amount( "b members", 1, b.getImmediateMembers().size() );
       Assert.assertTrue(  "b has subjB",  b.hasMember(subjB)  );
-      T.amount( "c members", 1, c.getMembers().size() );
+      T.amount( "c members", 1, c.getImmediateMembers().size() );
       Assert.assertTrue(  "c has subjA",  c.hasMember(subjA)  );
-      T.amount( "d members", 1, d.getMembers().size() );
+      T.amount( "d members", 1, d.getImmediateMembers().size() );
       Assert.assertTrue(  "d has subjB",  d.hasMember(subjB)  );
       T.amount( "e members", 1, e.getMembers().size() );
       Assert.assertTrue(  "e has subjA",  e.hasMember(subjA)  );

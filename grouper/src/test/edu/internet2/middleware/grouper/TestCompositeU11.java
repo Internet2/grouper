@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU11.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestCompositeU11.java,v 1.3 2006-06-16 17:30:01 blair Exp $
  */
 public class TestCompositeU11 extends TestCase {
 
@@ -63,9 +63,7 @@ public class TestCompositeU11 extends TestCase {
       Assert.assertTrue(  "b isComposite"   , b.isComposite()   );
       Assert.assertTrue(  "c isComposite"   , c.isComposite()   );
       T.amount("a members", 1, a.getMembers().size());
-      Membership ms = MembershipFinder.findImmediateMembership(
-        r.rs, a, subjA, f
-      );
+      Membership ms = MembershipFinder.findCompositeMembership(r.rs, a, subjA);
       Assert.assertNotNull( "imm ms"    , ms);
       Assert.assertEquals(  "ms group"  , a     , ms.getGroup()   );
       Assert.assertTrue(    "ms subj"   , SubjectHelper.eq(subjA, ms.getMember().getSubject())  );
