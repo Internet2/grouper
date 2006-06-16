@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test Groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteGroups.java,v 1.5 2006-06-16 15:01:46 blair Exp $
+ * @version $Id: SuiteGroups.java,v 1.6 2006-06-16 18:42:20 blair Exp $
  */
 public class SuiteGroups extends TestCase {
 
@@ -70,6 +70,7 @@ public class SuiteGroups extends TestCase {
     suite.addTestSuite( TestGroup32.class       );  // getTypes() + getRemovableTypes() - default
     suite.addTestSuite( TestGroup33.class       );  // getTypes() + getRemovableTypes() - with custom type
     suite.addTestSuite( TestGroup34.class       );  // getTypes() + getRemovableTypes() - with custom type + !root subject
+    suite.addTestSuite( TestGroup35.class       );  // fail: getViaGroup() when composite
     // TODO Split!
     suite.addTestSuite( TestGroup.class               );
     suite.addTestSuite( TestGroupAddMemberGroup.class );

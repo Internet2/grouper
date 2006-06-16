@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.119 2006-06-16 18:25:21 blair Exp $
+$Id: NEWS,v 1.120 2006-06-16 18:42:20 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS,v 1.119 2006-06-16 18:25:21 blair Exp $
 Released: TBD
 
 ## Changes
+* BUGFIX: `Membership.getViaGroup()` does not handle composites
 * NEW:  Added *CompositeFinder*
 * NEW:  Added `CompositeFinder.findAsFactor()`
 * NEW:  Added `CompositeFinder.findAsOwner()`
