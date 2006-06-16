@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.10 2006-06-15 17:45:34 blair Exp $    
+ * @version $Id: Field.java,v 1.11 2006-06-16 15:01:46 blair Exp $    
  */
 public class Field implements Serializable {
 
@@ -123,9 +123,8 @@ public class Field implements Serializable {
     throws  SchemaException
   {
     try {
-      Session hs    = HibernateHelper.getSession();
-      Query   qry   = null;
-      int     size  = 0;
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = null;
       if      (this.getType().equals(FieldType.ATTRIBUTE)) {
         qry = hs.createQuery(
           "from Attribute as a where a.field.name = :name"

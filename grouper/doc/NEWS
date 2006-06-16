@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.116 2006-06-15 17:45:33 blair Exp $
+$Id: NEWS,v 1.117 2006-06-16 15:01:46 blair Exp $
 
 ---
 
@@ -10,6 +10,9 @@ $Id: NEWS,v 1.116 2006-06-15 17:45:33 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:  Added `Group.getRemovableTypes()` that will return all group
+  types that can be removed by the current subject.
+* UPDATE: `Group.getTypes()` will not return internal group types.
 * NEW:  Added `GroupType.delete(Session)`
 * BUGFIX: The *Member* returned by `GrouperSession.getMembers()` would
   not have a *GrouperSession* associated with it.

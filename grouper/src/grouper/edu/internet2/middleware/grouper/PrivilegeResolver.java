@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.41 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.42 2006-06-16 15:01:46 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -238,7 +238,6 @@ public class PrivilegeResolver {
   {
     boolean   can   = false;
     Privilege priv  = AccessPrivilege.READ;
-    String    msg   = "canREAD: ";
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
       can = true;
     }
@@ -541,7 +540,6 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    String msg = "revokePriv '" + priv + "'";
     this.access.revokePriv(s, g, priv);
     // FIXME
     try {

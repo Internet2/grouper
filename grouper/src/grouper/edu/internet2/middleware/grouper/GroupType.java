@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.io.Serializable;
 import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -26,13 +27,9 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.17 2006-06-15 19:47:13 blair Exp $
+ * @version $Id: GroupType.java,v 1.18 2006-06-16 15:01:46 blair Exp $
  */
-public class GroupType {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final EventLog EL  = new EventLog();
-
+public class GroupType implements Serializable {
 
   // HIBERNATE PROPERTIES //
   private boolean assignable    = true;

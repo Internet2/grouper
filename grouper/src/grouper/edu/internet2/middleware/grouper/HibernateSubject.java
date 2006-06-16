@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
+import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
@@ -26,10 +27,10 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * Hibernate representation of the JDBC Subject table.
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.5 2006-06-15 04:15:52 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.6 2006-06-16 15:01:46 blair Exp $
  * @since   1.0
  */
-public class HibernateSubject {
+public class HibernateSubject implements Serializable {
 
   // HIBERNATE PROPERTIES //
   private Set     attributes      = new LinkedHashSet();

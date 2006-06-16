@@ -26,7 +26,7 @@ import  java.util.*;
  * Validation methods that apply to multiple Grouper classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.10 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: Validator.java,v 1.11 2006-06-16 15:01:46 blair Exp $
  */
 class Validator {
 
@@ -101,7 +101,7 @@ class Validator {
     if (g.hasType(type)) {
       throw new GroupModifyException("already has type");
     }
-    _canModifyGroupType(s, g, type);
+    GroupValidator.canModGroupType(s, g, type);
   } // protected static void canAddGroupType(s, g, type)
 
   protected static void canDeleteStem(Stem ns) 
@@ -132,19 +132,8 @@ class Validator {
     }
   } // protected static void canDeleteFieldFromType(s, type, f)
 
-  protected static void canDeleteGroupType(GrouperSession s, Group g, GroupType type) 
-    throws  GroupModifyException,
-            InsufficientPrivilegeException,
-            SchemaException
-  {
-    if (!g.hasType(type)) {
-      throw new GroupModifyException("does not have type");
-    }
-    _canModifyGroupType(s, g, type);
-  } // protected static void canAddGroupType(s, g, type)
 
-
-  // Private Class Methods
+  // PRIVATE CLASS METHODS //
 
   private static void _canModifyField(GrouperSession s, GroupType type) 
     throws  InsufficientPrivilegeException,
@@ -157,17 +146,6 @@ class Validator {
       throw new SchemaException("cannot modify fields on system-maintained groups");
     }
   } // private static void _canModifyField(s, type)
-
-  private static void _canModifyGroupType(GrouperSession s, Group g, GroupType type) 
-    throws  GroupModifyException,
-            InsufficientPrivilegeException,
-            SchemaException
-  {
-    if (GroupType.isSystemType(type)) {
-      throw new SchemaException("cannot edit system group types");
-    }
-    PrivilegeResolver.getInstance().canADMIN(s, g, s.getSubject());
-  } // private static void _canModifyGroupType(s, g, type)
 
 }
 
