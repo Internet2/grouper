@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.provider.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.8 2006-06-15 03:53:01 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.9 2006-06-16 15:01:46 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -120,6 +120,18 @@ class GroupValidator {
   } // protected static void canDelMember(g, subj, f)
 
   // @since 1.0
+  protected static void canDelGroupType(GrouperSession s, Group g, GroupType type) 
+    throws  InsufficientPrivilegeException,
+            ModelException,
+            SchemaException
+  {
+    if (!g.hasType(type)) {
+      throw new ModelException("does not have type");
+    }
+    canModGroupType(s, g, type);
+  } // protected static void canDelGroupType(s, g, type)
+
+  // @since 1.0
   protected static void canModAttribute(Group g, Field f) 
     throws  InsufficientPrivilegeException,
             SchemaException
@@ -127,6 +139,17 @@ class GroupValidator {
     isTypeEqual(f, FieldType.ATTRIBUTE);
     canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
   } // protected static void canModAttribute(g, f)
+
+  // @since 1.0
+  protected static void canModGroupType(GrouperSession s, Group g, GroupType type) 
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    if (GroupType.isSystemType(type)) {
+      throw new SchemaException("cannot edit system group types");
+    }
+    PrivilegeResolver.getInstance().canADMIN(s, g, s.getSubject());
+  } // protected static void canModGroupType(s, g, type)
 
   // @since 1.0
   protected static void canOptin(Group g, Subject subj, Field f) 

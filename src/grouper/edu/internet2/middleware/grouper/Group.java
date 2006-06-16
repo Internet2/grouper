@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.77 2006-06-15 19:47:13 blair Exp $
+ * @version $Id: Group.java,v 1.78 2006-06-16 15:01:46 blair Exp $
  */
 public class Group extends Owner {
 
@@ -659,8 +659,8 @@ public class Group extends Owner {
             InsufficientPrivilegeException,
             SchemaException
   {
-    Validator.canDeleteGroupType(this.getSession(), this, type);
     try {
+      GroupValidator.canDelGroupType(this.getSession(), this, type);
       StopWatch sw    = new StopWatch();
       Session   hs    = HibernateHelper.getSession();
       Set       types = this.getGroup_types();
@@ -1289,6 +1289,29 @@ public class Group extends Owner {
   } // public Set getReaders()
 
   /**
+   * Get removable group types for this group.
+   * <pre class="eg">
+   * Set types = g.getRemovableTypes();
+   * </pre>
+   * @return  Set of removable group types.
+   * @since   1.0
+   */
+  public Set getRemovableTypes() {
+    Set types = new LinkedHashSet();
+    // Only root-like subjects can remove types
+    if (PrivilegeResolver.getInstance().isRoot(this.getSession().getSubject())) {
+      Iterator iter = this.getTypes().iterator();
+      while (iter.hasNext()) {
+        GroupType t = (GroupType) iter.next();
+        if (t.getAssignable()) {
+          types.add(t);
+        }
+      }
+    }
+    return types;
+  } // public Set getRemovableTypes()
+
+  /**
    * Get group types for this group.
    * <pre class="eg">
    * Set types = g.getTypes();
@@ -1296,7 +1319,15 @@ public class Group extends Owner {
    * @return  Set of group types.
    */
   public Set getTypes() {
-    return this.getGroup_types();
+    Set       types = new LinkedHashSet();
+    Iterator  iter  = this.getGroup_types().iterator();
+    while (iter.hasNext()) {
+      GroupType t = (GroupType) iter.next();
+      if (!t.getInternal()) {
+        types.add(t);
+      }
+    }
+    return types;
   } // public Set getTypes()
 
   /**
