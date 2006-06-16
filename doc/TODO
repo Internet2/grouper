@@ -4,15 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.70 2006-06-16 15:30:38 blair Exp $
+$Id: TODO,v 1.71 2006-06-16 17:30:01 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* CODE      Add `Group.getCompositeMembers()` 
-* CODE      Add *Membership* types
 * CODE      *CompositeFinder*
 ** Make public
 ** Rename `isFactor()`
@@ -32,6 +30,7 @@ $Id: TODO,v 1.70 2006-06-16 15:30:38 blair Exp $
   mships and possibly when updating composites
 ** Clean up `Composite.update()` once fixed
 ** Clean up `Membership.getPersistent()` once fixed
+* LIBRARIES update subject api
 * REVIEW    review all RTEs
 * CONTRIB   complete cdg 1.0 feature list
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
@@ -132,12 +131,10 @@ These items are not (necessarily) in any particular order.
 * CODE      dns source adapter 
 
 ### Other
-* PACKAGING update *log4j* and *commons-logging*
-* PACKAGING update [jug](http://jug.safehaus.org/)
+* LIBRARIES update *log4j* and *commons-logging*
+* LIBRARIES update [jug](http://jug.safehaus.org/)
 
 ---
 
-$Id: TODO,v 1.70 2006-06-16 15:30:38 blair Exp $
-
-
+$Id: TODO,v 1.71 2006-06-16 17:30:01 blair Exp $
 

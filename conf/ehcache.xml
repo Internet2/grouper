@@ -328,23 +328,7 @@
           overflowToDisk="false"
   />
        
-  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsOwner"
-          maxElementsInMemory="1000"
-          eternal="false"
-          timeToIdleSeconds="300"
-          timeToLiveSeconds="600"
-          overflowToDisk="false"
-  />
-       
   <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsOwnerMember"
-          maxElementsInMemory="1000"
-          eternal="false"
-          timeToIdleSeconds="300"
-          timeToLiveSeconds="600"
-          overflowToDisk="false"
-  />
-      
-  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMemberships"
           maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="300"
@@ -361,6 +345,22 @@
   />
       
   <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMembershipsOwner"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+      
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindMembershipByType"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="300"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+  />
+      
+  <cache  name="edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsByType"
           maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="300"

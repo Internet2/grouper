@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.7 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: Composite.java,v 1.8 2006-06-16 17:30:01 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -145,8 +145,8 @@ public class Composite extends Owner {
       while (i.hasNext()) {
         Membership ms = (Membership) i.next();
         try {
-          Membership exists = MembershipFinder.findImmediateMembership(
-            ms.getOwner_id(), ms.getMember_id(), ms.getField()
+          Membership exists = MembershipFinder.findMembershipByTypeNoPrivNoSession(
+            ms.getOwner_id(), ms.getMember_id(), ms.getField(), MembershipType.C
           );
           exists.setSession(rs);
           evaled.add(exists);

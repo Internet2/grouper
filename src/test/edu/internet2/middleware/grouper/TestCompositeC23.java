@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeC23.java,v 1.1 2006-06-02 18:23:46 blair Exp $
+ * @version $Id: TestCompositeC23.java,v 1.2 2006-06-16 17:30:01 blair Exp $
  */
 public class TestCompositeC23 extends TestCase {
 
@@ -71,7 +71,7 @@ public class TestCompositeC23 extends TestCase {
       Assert.assertTrue(  "b isComposite"   , b.isComposite()   );
       Assert.assertFalse( "c !isComposite"  , c.isComposite()   );
 
-      T.amount( "a members", 1, a.getMembers().size() );
+      T.amount( "a members", 1, a.getImmediateMembers().size() );
       Assert.assertTrue("a has subjA", a.hasMember(subjA));
       T.amount( "b members", 0, b.getMembers().size() );
       T.amount( "c members", 1, c.getMembers().size() );

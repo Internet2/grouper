@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.23 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.24 2006-06-16 17:30:01 blair Exp $
  */
 public class GrouperConfig {
 
@@ -96,22 +96,20 @@ public class GrouperConfig {
   protected static final boolean  QRY_MSF_FEM   = true;
   protected static final String   QCR_MSF_FEMM  = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsMember";
   protected static final boolean  QRY_MSF_FEMM  = true;
-  protected static final String   QCR_MSF_FEMO  = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsOwner";
-  protected static final boolean  QRY_MSF_FEMO  = true;
   protected static final String   QCR_MSF_FEMOM = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsOwnerMember";
   protected static final boolean  QRY_MSF_FEMOM = true;
-  protected static final String   QCR_MSF_FIM   = "edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMemberships";
-  protected static final boolean  QRY_MSF_FIM   = true;
   protected static final String   QCR_MSF_FIMM  = "edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMembershipsMember";
   protected static final boolean  QRY_MSF_FIMM  = true;
-  protected static final String   QCR_MSF_FIMO  = "edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMembershipsOwner";
-  protected static final boolean  QRY_MSF_FIMO  = true;
   protected static final String   QCR_MSF_FM    = "edu.internet2.middleware.grouper.MembershipFinder.FindMemberships";
   protected static final boolean  QRY_MSF_FM    = true;
   protected static final String   QCR_MSF_FMO   = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwner";
   protected static final boolean  QRY_MSF_FMO   = true;
   protected static final String   QCR_MSF_FMOM  = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwnerMember";
   protected static final boolean  QRY_MSF_FMOM  = true;
+  protected static final String   QCR_MSF_FMSBT   = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipByType";
+  protected static final boolean  QRY_MSF_FMSBT   = true;
+  protected static final String   QCR_MSF_FMSBT_C = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsByType";
+  protected static final boolean  QRY_MSF_FMSBT_C = true;
   protected static final String   QCR_SF_FBADE  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayExtension";
   protected static final boolean  QRY_SF_FBADE  = true;
   protected static final String   QCR_SF_FBADN  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayName";

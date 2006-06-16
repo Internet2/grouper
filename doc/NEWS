@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.117 2006-06-16 15:01:46 blair Exp $
+$Id: NEWS,v 1.118 2006-06-16 17:30:01 blair Exp $
 
 ---
 
@@ -10,6 +10,9 @@ $Id: NEWS,v 1.117 2006-06-16 15:01:46 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:  Added `MembershipFinder.findCompositeMembership(GrouperSession, Group, Subject)`
+* NEW:  Added `Group.getCompositeMembers()`
+* NEW:  Added `Group.getCompositeMemberships()`
 * NEW:  Added `Group.getRemovableTypes()` that will return all group
   types that can be removed by the current subject.
 * UPDATE: `Group.getTypes()` will not return internal group types.

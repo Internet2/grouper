@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.78 2006-06-16 15:01:46 blair Exp $
+ * @version $Id: Group.java,v 1.79 2006-06-16 17:30:01 blair Exp $
  */
 public class Group extends Owner {
 
@@ -786,6 +786,34 @@ public class Group extends Owner {
   } // public Map getAttributes()
 
   /**
+   * Get composite {@link Member}s of this group.
+   * <pre class="eg">
+   * Set members = g.getCompositeMembers();
+   * </pre>
+   * @return  A set of {@link Member} objects.
+   * @since   1.0
+   */
+  public Set getCompositeMembers() {
+    return MembershipFinder.findMembersByType(
+      this.getSession(), this, Group.getDefaultList(), MembershipType.C
+    );
+  } // public Set getCompositeMembers()
+
+  /**
+   * Get composite {@link Membership}s of this group.
+   * <pre class="eg">
+   * Set mships = g.getCompositeMembers();
+   * </pre>
+   * @return  A set of {@link Memberships} objects.
+   * @since   1.0
+   */
+  public Set getCompositeMemberships() {
+    return MembershipFinder.findMembershipsByType(
+      this.getSession(), this, Group.getDefaultList(), MembershipType.C
+    );
+  } // public Set getCompositeMemberships()
+
+  /**
    * Get (optional and questionable) create source for this group.
    * <pre class="eg">
    * // Get create source
@@ -927,7 +955,9 @@ public class Group extends Owner {
   public Set getEffectiveMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findEffectiveMembers(this.getSession(), this, f);
+    return MembershipFinder.findMembersByType(
+      this.getSession(), this, f, MembershipType.E
+    );
   }  // public Set getEffectiveMembers(f)
 
   /**
@@ -961,7 +991,9 @@ public class Group extends Owner {
   public Set getEffectiveMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findEffectiveMemberships(this.getSession(), this, f);
+    return MembershipFinder.findMembershipsByType(
+      this.getSession(), this, f, MembershipType.E
+    );
   } // public Set getEffectiveMemberships(f)
 
   /**
@@ -1016,7 +1048,9 @@ public class Group extends Owner {
   public Set getImmediateMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findImmediateMembers(this.getSession(), this, f);
+    return MembershipFinder.findMembersByType(
+      this.getSession(), this, f, MembershipType.I
+    );
   } // public Set getImmediateMembers(f)
 
   /**
@@ -1051,7 +1085,9 @@ public class Group extends Owner {
     throws  SchemaException
   {
     GrouperSession.validate(this.getSession());
-    return MembershipFinder.findImmediateMemberships(this.getSession(), this, f);
+    return MembershipFinder.findMembershipsByType(
+      this.getSession(), this, f, MembershipType.I
+    );
   } // public Set getImmediateMemberships(f)
 
   /**

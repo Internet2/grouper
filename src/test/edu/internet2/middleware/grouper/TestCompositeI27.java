@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeI27.java,v 1.1 2006-06-02 17:35:07 blair Exp $
+ * @version $Id: TestCompositeI27.java,v 1.2 2006-06-16 17:30:01 blair Exp $
  */
 public class TestCompositeI27 extends TestCase {
 
@@ -69,6 +69,8 @@ public class TestCompositeI27 extends TestCase {
 
       T.amount("c members", 1, c.getMembers().size());
       Assert.assertTrue("c has subjA", c.hasMember(subjA));
+      T.amount("c comp members", 1, c.getCompositeMembers().size());
+      T.amount("c comp mships", 1, c.getCompositeMemberships().size());
 
       T.amount("d members", 2, d.getMembers().size());
       Assert.assertTrue("d has cSubj", d.hasMember(cSubj));
