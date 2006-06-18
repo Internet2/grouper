@@ -20,13 +20,17 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Messages.
  * @author  blair christensen.
- * @version $Id: M.java,v 1.3 2006-06-15 19:47:13 blair Exp $
+ * @version $Id: M.java,v 1.4 2006-06-18 01:47:34 blair Exp $
  * @since   1.0
  */
 class M {
 
   // PROTECTED CLASS CONSTANTS //
   protected static final String CACHE_EMPTIED       = "emptied cache: ";
+  protected static final String COMP_ADD            = "composite add: group=";
+  protected static final String COMP_DEL            = "composite delete: group=";
+  protected static final String COMP_MEMADD         = "add composite member: group=";
+  protected static final String COMP_MEMDEL         = "delete composite member: group=";
   protected static final String GROUP_ADD           = "add group: ";
   protected static final String GROUP_ADDTYPE       = "group add type: group=";
   protected static final String GROUP_DEL           = "delete group: ";

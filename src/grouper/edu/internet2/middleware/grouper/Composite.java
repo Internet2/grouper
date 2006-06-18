@@ -19,12 +19,13 @@ package edu.internet2.middleware.grouper;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.lang.time.*;
 
 /** 
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.9 2006-06-16 18:25:21 blair Exp $
+ * @version $Id: Composite.java,v 1.10 2006-06-18 01:47:34 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -92,7 +93,7 @@ public class Composite extends Owner {
   public Group getLeftGroup() 
     throws  GroupNotFoundException
   {
-    Group g = (Group) this.left;
+    Group g = (Group) this.getLeft();
     try {
       Validator.valueNotNull(g, E.GROUP_NULL);
       GrouperSession s = this.getSession();
@@ -122,7 +123,7 @@ public class Composite extends Owner {
   public Group getOwnerGroup() 
     throws  GroupNotFoundException
   {
-    Group g = (Group) this.owner;
+    Group g = (Group) this.getOwner();
     try {
       Validator.valueNotNull(g, E.GROUP_NULL);
       GrouperSession s = this.getSession();
@@ -152,7 +153,7 @@ public class Composite extends Owner {
   public Group getRightGroup() 
     throws  GroupNotFoundException
   {
-    Group g = (Group) this.right;
+    Group g = (Group) this.getRight();
     try {
       Validator.valueNotNull(g, E.GROUP_NULL);
       GrouperSession s = this.getSession();
@@ -188,22 +189,11 @@ public class Composite extends Owner {
    * @since 1.0
    */
   public String toString() {
-    String  left  = GrouperConfig.EMPTY_STRING;
-    String  owner = GrouperConfig.EMPTY_STRING;
-    String  right = GrouperConfig.EMPTY_STRING;
-    try {
-      owner = this.getOwnerGroup().getName();
-      left  = this.getOwnerGroup().getName();
-      right = this.getOwnerGroup().getName();
-    }
-    catch (GroupNotFoundException eGNF) {
-      // Ignore
-    }
-    return  new ToStringBuilder(this)
+    return  new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append(  "type"  , this.getType().toString() )
-      .append(  "group" , owner                     )
-      .append(  "left"  , left                      )
-      .append(  "right" , right                     )
+      .append(  "owner" , U.q(this.getOwnerName() ) )
+      .append(  "left"  , U.q(this.getLeftName()  ) )
+      .append(  "right" , U.q(this.getRightName() ) )
       .toString();
   } // public String toString()
 
@@ -220,6 +210,46 @@ public class Composite extends Owner {
 
 
   // PROTECTED INSTANCE METHODS //
+
+  // @since 1.0
+  protected String getLeftName() {
+    try {
+      Group g = (Group) this.getLeft();
+      Validator.valueNotNull(g, E.GROUP_NULL);
+      return g.getName();
+    }
+    catch (Exception e) {
+      // TODO ErrorLog?
+      return GrouperConfig.EMPTY_STRING;
+    }
+  } // protected String getLeftName()
+
+  // @since 1.0
+  protected String getOwnerName() {
+    try {
+      Group g = (Group) this.getOwner();
+      Validator.valueNotNull(g, E.GROUP_NULL);
+      return g.getName();
+    }
+    catch (Exception e) {
+      // TODO ErrorLog?
+      return GrouperConfig.EMPTY_STRING;
+    }
+  } // protected String getOwnerName()
+
+  // @since 1.0
+  protected String getRightName() {
+    try {
+      Group g = (Group) this.getRight();
+      Validator.valueNotNull(g, E.GROUP_NULL);
+      return g.getName();
+    }
+    catch (Exception e) {
+      // TODO ErrorLog?
+      return GrouperConfig.EMPTY_STRING;
+    }
+  } // protected String getRightName()
+
   // @since 1.0
   protected void update() {
     //  TODO  Assuming this is actually correct I am sure it can be
@@ -227,6 +257,8 @@ public class Composite extends Owner {
     //        (functional) approach taken.  Or even the second, third
     //        or fourth approaches!
     try {
+      StopWatch sw  = new StopWatch();
+      sw.start();
       GrouperSession  rs  = GrouperSessionFinder.getRootSession();
       this.setSession(rs);
       Group           g   = this.getOwnerGroup();
@@ -263,6 +295,8 @@ public class Composite extends Owner {
 
       if ( (adds.size() > 0) || (deletes.size() > 0) ) {
         HibernateHelper.saveAndDelete(adds, deletes);
+        EventLog.compositeUpdate(this, adds, deletes, sw);
+        sw.stop();
         Composite._update(deletes);
         Composite._update(adds);
       }

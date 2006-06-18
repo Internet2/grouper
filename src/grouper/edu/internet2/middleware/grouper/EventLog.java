@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.17 2006-06-15 19:47:13 blair Exp $
+ * @version $Id: EventLog.java,v 1.18 2006-06-18 01:47:34 blair Exp $
  */
 class EventLog {
 
@@ -78,6 +78,77 @@ class EventLog {
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since 1.0
+  protected static void compositeUpdate(
+    Composite c, Set saves, Set deletes, StopWatch sw
+  )
+  {
+    EventLog.groupAddAndDelCompositeMembers(
+      c.getSession(), c, saves, deletes, sw
+    );
+  } // protected static void compositeUpdate(c, saves, deletes)
+
+  // @since 1.0
+  protected static void groupAddAndDelCompositeMembers(
+    GrouperSession s, Composite c, Set saves, Set deletes, StopWatch sw
+  )
+  {
+    Iterator iter = saves.iterator();
+    while (iter.hasNext()) {
+      Object obj = iter.next();
+      if (obj instanceof Membership) {
+        Membership ms = (Membership) obj;
+        _member(s, M.COMP_MEMADD, c.getOwnerName(), ms, sw);
+      }
+    }
+    iter = deletes.iterator();
+    while (iter.hasNext()) {
+      Object obj = iter.next();
+      if (obj instanceof Membership) {
+        Membership ms = (Membership) obj;
+        _member(s, M.COMP_MEMDEL, c.getOwnerName(), ms, sw);
+      }
+    }
+  } // protected static void groupAddAndDelCompositeMembers(s, c, mof, sw)
+
+  // @since 1.0
+  protected static void groupAddComposite(
+    GrouperSession s, Composite c, MemberOf mof, StopWatch sw
+  )
+  {
+    EventLog.info(
+      s, 
+      M.COMP_ADD 
+      + U.q(c.getOwnerName()                    )
+      + " type="  + U.q(c.getType().toString()  )
+      + " left="  + U.q(c.getLeftName()         )
+      + " right=" + U.q(c.getRightName()        ),
+      sw
+    );
+    EventLog.groupAddAndDelCompositeMembers(
+      s, c, mof.getSaves(), mof.getDeletes(), sw
+    );
+  } // protected static void groupAddComposite(s, c, mof, sw)
+
+  // @since 1.0
+  protected static void groupDelComposite(
+    GrouperSession s, Composite c, MemberOf mof, StopWatch sw
+  )
+  {
+    EventLog.info(
+      s, 
+      M.COMP_DEL 
+      + U.q(c.getOwnerName()                    )
+      + " type="  + U.q(c.getType().toString()  )
+      + " left="  + U.q(c.getLeftName()         )
+      + " right=" + U.q(c.getRightName()        ),
+      sw
+    );
+    EventLog.groupAddAndDelCompositeMembers(
+      s, c, mof.getSaves(), mof.getDeletes(), sw
+    );
+  } // protected static void groupDelComposite(s, c, mof, sw)
 
   // @since 1.0
   protected static void info(String msg) {
@@ -223,6 +294,30 @@ class EventLog {
   } // protected void stemSetAttr(s, stem, attr, val, sw);
 
 
+  // PRIVATE STATIC METHODS //
+
+  // @since 1.0
+  private static void _member(
+    GrouperSession s, String msg, String where, Membership ms, StopWatch sw
+  )
+  {
+    String subject = GrouperConfig.EMPTY_STRING;
+    try {
+      subject = SubjectHelper.getPretty(ms.getMember().getSubject());
+    }
+    catch (Exception e) {
+      // TODO Oh well!
+    }
+    EventLog.info(
+      s,
+      msg           + U.q(where) 
+      + " list="    + U.q(ms.getList().getName())  
+      + " subject=" + subject,
+      sw
+    );
+  } // private void _member(s, msg, where, subj, f, sw)
+
+
   // PRIVATE INSTANCE METHODS //
 
   private void _addEffs(
@@ -342,6 +437,7 @@ class EventLog {
     );
   } // private void _grantPriv(s, msg, name, subj, p, sw)
 
+  // TODO Deprecate
   private void _member(
     GrouperSession s, String msg, String group, Subject subj, Field f, StopWatch sw
   )
