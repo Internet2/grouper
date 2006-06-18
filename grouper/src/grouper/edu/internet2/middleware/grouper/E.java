@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.7 2006-06-15 19:47:13 blair Exp $
+ * @version $Id: E.java,v 1.8 2006-06-18 19:39:00 blair Exp $
  * @since   1.0
  */
 class E {
@@ -102,6 +102,11 @@ class E {
   protected static final String MEMBER_NULL               = "null member";
   protected static final String MEMBER_SUBJNOTFOUND       = "unable to find member as subject: ";
   protected static final String MSF_FINDSUBJECTS          = "error finding subjects: ";
+  protected static final String MSF_FINDALLCHILDREN       = "error finding all child memberships: ";
+  protected static final String MSF_FINDALLVIA            = "error finding all via memberships: ";
+  protected static final String MSV_CIRCULAR              = "cannot create a circular membership";
+  protected static final String MSV_NO_PARENT             = "no parent membership";
+  protected static final String MSV_TYPE                  = "invalid membership type: ";
   protected static final String NI                        = "NOT IMPLEMENTED: ";
   protected static final String Q_G                       = "getting groups from ";
   protected static final String Q_M                       = "getting members from ";

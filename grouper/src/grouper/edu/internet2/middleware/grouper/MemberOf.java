@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.22 2006-06-16 18:25:21 blair Exp $
+ * @version $Id: MemberOf.java,v 1.23 2006-06-18 19:39:00 blair Exp $
  */
 class MemberOf {
 
@@ -89,13 +89,12 @@ class MemberOf {
   protected static MemberOf addImmediate(
     GrouperSession s, Owner o, Membership ms, Member m
   )
-    throws  GroupNotFoundException, // TODO 
-            MemberNotFoundException // TODO
+    throws  ModelException
   {
     MemberOf  mof = new MemberOf(s, o, m, ms);
     mof.saves.add(m);       // Save the member
-    mof.effSaves.addAll( mof._evalImmediate() );  // Find the new effs
-    mof.saves.addAll(   mof.effSaves          );
+    mof.effSaves.addAll( mof._evalAddImmediate()  );  // Find the new effs
+    mof.saves.addAll(   mof.effSaves              );
     mof._resetSessions();
     mof.o.setModified();
     mof.saves.add(ms);      // Save the immediate
@@ -148,9 +147,23 @@ class MemberOf {
             MembershipNotFoundException
   {
     MemberOf  mof = new MemberOf(s, o, m, ms);
-    // TODO This seems overly complicated.  Why don't I just query for
-    //      the appropriate members?
-    mof.effDeletes.addAll( Membership.getPersistent(s, mof._evalImmediate()) );
+
+    // Find child memberships that need deletion
+    Iterator iter = MembershipFinder.findAllChildrenNoSessionNoPriv(ms).iterator();
+    while (iter.hasNext()) {
+      Membership child = (Membership) iter.next();
+      child.setSession(s);
+      mof.effDeletes.add(child);
+    }
+    // Find all effective memberships that need deletion
+    iter = MembershipFinder.findAllViaNoSessionNoPriv(ms).iterator();
+    while (iter.hasNext()) {
+      Membership eff = (Membership) iter.next();
+      eff.setSession(s);
+      mof.effDeletes.add(eff);
+    }
+
+    // And now set everything else
     mof.deletes.addAll(mof.effDeletes);
     mof.deletes.add(ms);
     mof._resetSessions();
@@ -185,16 +198,13 @@ class MemberOf {
 
   // Add m's hasMembers to o
   private Set _addHasMembersToOwner(Set hasMembers) 
-    throws  GroupNotFoundException, // TODO
-            MemberNotFoundException
+    throws  ModelException
   {
     Set     mships  = new LinkedHashSet();
     Iterator iter = hasMembers.iterator();
     while (iter.hasNext()) {
-      Membership hasMS = (Membership) iter.next();
-      Membership  eff = Membership.newEffectiveMembership(
-        this.s, this.ms, hasMS, 1
-      );
+      Membership  hasMS = (Membership) iter.next();
+      Membership  eff   = new Membership(this.s, this.ms, hasMS, 1);
       mships.add(eff);
     }
     return mships;
@@ -202,8 +212,7 @@ class MemberOf {
 
   // Add m's hasMembers to where g isMember
   private Set _addHasMembersToWhereGroupIsMember(Set isMember, Set hasMembers) 
-    throws  GroupNotFoundException, // TODO
-            MemberNotFoundException
+    throws  ModelException
   {
     Set     mships  = new LinkedHashSet();
 
@@ -215,9 +224,7 @@ class MemberOf {
         Iterator hasIter = hasMembers.iterator();
         while (hasIter.hasNext()) {
           Membership  hasMS = (Membership) hasIter.next();
-          Membership  eff   = Membership.newEffectiveMembership(
-            this.s, isMS, hasMS, 2
-          );
+          Membership  eff   = new Membership(this.s, isMS, hasMS, 2);
           mships.add(eff);
         }
       }
@@ -228,8 +235,7 @@ class MemberOf {
 
   // Add m to where g isMember
   private Set _addMemberToWhereGroupIsMember(Set isMember) 
-    throws  GroupNotFoundException,
-            MemberNotFoundException
+    throws  ModelException
   {
     Set     mships  = new LinkedHashSet();
 
@@ -238,9 +244,7 @@ class MemberOf {
       Iterator isIter = isMember.iterator();
       while (isIter.hasNext()) {
         Membership  isMS  = (Membership) isIter.next();
-        Membership  eff   = Membership.newEffectiveMembership(
-          this.s, isMS, this.ms, 1
-        );
+        Membership  eff   = new Membership(this.s, isMS, this.ms, 1);
         mships.add(eff);
       }
     }
@@ -339,9 +343,8 @@ class MemberOf {
   } // private Set _evalCompositeUnion()
 
   // Evaluate an immediate membership
-  private Set _evalImmediate() 
-    throws  GroupNotFoundException, // TODO
-            MemberNotFoundException // TODO
+  private Set _evalAddImmediate() 
+    throws  ModelException
   {
     Set results   = new LinkedHashSet();
     // If we are working on a group, where is it a member
@@ -358,22 +361,27 @@ class MemberOf {
     // Add members of m to where o is a member if f == "members"
     results.addAll( this._addHasMembersToWhereGroupIsMember(isMember, hasMembers) );
     return results;
-  } // private Set _evalImmediate()
+  } // private Set _evalAddImmediate()
 
   // Find m's hasMembers
   private Set _findMembersOfMember() 
-    throws  GroupNotFoundException
+    throws  ModelException
   {
     Set     hasMembers  = new LinkedHashSet();
 
     // If member is a group, convert to group and find its members.
     if (this.m.getSubjectTypeId().equals("group")) {
-      // Convert member back to a group
-      Group gAsM = this.m.toGroup();
-      // And attach root session for better looking up of memberships
-      gAsM.setSession(this.root);
-      // Find members of m 
-      hasMembers = gAsM.getMemberships();
+      try {
+        // Convert member back to a group
+        Group gAsM = this.m.toGroup();
+        // And attach root session for better looking up of memberships
+        gAsM.setSession(this.root);
+        // Find members of m 
+        hasMembers = gAsM.getMemberships();
+      }
+      catch (GroupNotFoundException eGNF) {
+        throw new ModelException(eGNF);
+      }
     }
     return hasMembers;
   } // private Set _findMembersOfMember()
