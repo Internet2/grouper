@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.10 2006-06-18 01:47:34 blair Exp $
+ * @version $Id: Composite.java,v 1.11 2006-06-18 19:39:00 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -264,33 +264,11 @@ public class Composite extends Owner {
       Group           g   = this.getOwnerGroup();
       MemberOf        mof = MemberOf.addComposite(rs, g, this);
 
-      Set cur     = g.getMemberships();       // Current mships
-      // TODO Improve. Sanify.  And so forth.
-      // This one is a little more complicated.  What we want is to get
-      // the list of memberships that the composite should have.  We
-      // retrieve that with `mof.getEffSaves()`.  However, the
-      // memberships in that set will never be equal to current set of
-      // memberships as each membership will have a new uuid.
-      //
-      // **sigh**
-      Set evaled  = new LinkedHashSet();
-      Iterator i  = mof.getEffSaves().iterator();
-      while (i.hasNext()) {
-        Membership ms = (Membership) i.next();
-        try {
-          Membership exists = MembershipFinder.findMembershipByTypeNoPrivNoSession(
-            ms.getOwner_id(), ms.getMember_id(), ms.getField(), MembershipType.C
-          );
-          exists.setSession(rs);
-          evaled.add(exists);
-        }
-        catch (MembershipNotFoundException eMNF) {
-          evaled.add(ms);
-        }        
-      }
-      Set deletes = new LinkedHashSet(cur);     // deletes  = cur - evaled
-      deletes.removeAll(evaled);
-      Set adds    = new LinkedHashSet(evaled);  // adds     = evaled - cur
+      Set cur     = g.getMemberships();         // Current mships
+      Set should  = mof.getEffSaves();          // What mships should be
+      Set deletes = new LinkedHashSet(cur);     // deletes  = cur - should
+      deletes.removeAll(should);
+      Set adds    = new LinkedHashSet(should);  // adds     = should - cur
       adds.removeAll(cur);
 
       if ( (adds.size() > 0) || (deletes.size() > 0) ) {

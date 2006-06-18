@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.36 2006-06-16 17:30:01 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.37 2006-06-18 19:39:00 blair Exp $
  */
 public class MembershipFinder {
 
@@ -170,6 +170,25 @@ public class MembershipFinder {
 
   // PROTECTED CLASS METHODS //
 
+  // @since 1.0
+  protected static Set findAllChildrenNoSessionNoPriv(Membership ms) {
+    Set children  = new LinkedHashSet();
+    try {
+      GrouperSession  root  = GrouperSession.startTransient();
+      Iterator        iter  = findChildMemberships(root, ms).iterator();
+      while (iter.hasNext()) {
+        Membership child = (Membership) iter.next();
+        children.add(child);
+        children.addAll(findAllChildrenNoSessionNoPriv(child));
+      }
+      root.stop();
+    }
+    catch (SessionException eS) {
+      ErrorLog.error(MembershipFinder.class, E.MSF_FINDALLCHILDREN + eS.getMessage());
+    }
+    return children;
+  } // protected static Set findAllChildrenNoSessionNoPriv(ms)
+
   protected static Set findAllMemberships(GrouperSession s, Member m) {
     /*
      * @filtered  false
@@ -199,7 +218,34 @@ public class MembershipFinder {
     return mships;
   } // protected static Set findAllMemberships(s, m)
 
-  // FIXME  Does this even work?
+  // @since 1.0
+  protected static Set findAllViaNoSessionNoPriv(Membership ms) {
+    // @filtered  false
+    // @session   false
+    Set via = new LinkedHashSet();
+    try {
+      Session   hs  = HibernateHelper.getSession();
+      Query     qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.member_id  = :member "
+        + "and  ms.via_id     = :via    "
+      );
+      qry.setCacheable(false);  // Don't cache
+      qry.setParameter( "member"  , ms.getMember_id() );
+      qry.setParameter( "via"     , ms.getOwner_id()  );
+      Iterator  iter  = qry.iterate();
+      while (iter.hasNext()) {
+        Membership eff = (Membership) iter.next();
+        via.add(eff);
+      }
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      ErrorLog.error(MembershipFinder.class, E.MSF_FINDALLVIA + eH.getMessage());
+    }
+    return via;
+  } // protected static Set findAllViaNoSessionNoPriv(ms)
+
   protected static Membership findByUuid(GrouperSession s, String uuid) 
     throws MembershipNotFoundException
   {

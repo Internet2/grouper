@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.3 2006-06-13 17:40:39 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.4 2006-06-18 19:39:00 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -36,15 +36,17 @@ public class SuiteDefault extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
 
-    suite.addTest(  SuiteSettings.suite()   );
-    suite.addTest(  SuiteSessions.suite()   );
-    suite.addTest(  SuiteStems.suite()      );
-    suite.addTest(  SuiteGroupTypes.suite() );
-    suite.addTest(  SuiteGroups.suite()     );
-    suite.addTest(  SuiteComposites.suite() );
-    suite.addTest(  SuiteSubjects.suite()   );
-    suite.addTest(  SuiteMembers.suite()    );
-    suite.addTest(  SuiteQueries.suite()    );
+    suite.addTest(  SuiteSettings.suite()     );
+    suite.addTest(  SuiteSessions.suite()     );
+    suite.addTest(  SuiteStems.suite()        );
+    suite.addTest(  SuiteGroupTypes.suite()   );
+    suite.addTest(  SuiteGroups.suite()       );
+    suite.addTest(  SuiteComposites.suite()   );
+    suite.addTest(  SuiteSubjects.suite()     );
+    suite.addTest(  SuiteMembers.suite()      );
+    suite.addTest(  SuiteMemberships.suite()  );
+    suite.addTest(  SuiteMemberOf.suite()     );
+    suite.addTest(  SuiteQueries.suite()      );
 
     // TODO Migrate
 
@@ -56,10 +58,8 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestGrFiFindByName.class);
     suite.addTestSuite(TestGrFiFindByUuid.class);
     suite.addTestSuite(TestMemberFinder.class);
-    suite.addTestSuite(TestMemberOf.class);
     // TODO suite.addTestSuite(TestMemberOfAccessPrivs.class);
     // TODO suite.addTestSuite(TestMemberOfNamingPrivs.class);
-    suite.addTestSuite(TestMembership.class);
     suite.addTestSuite(TestNamingPrivilege.class);
     suite.addTestSuite(TestPrivADMIN.class);    // TODO group-with-priv checks
     suite.addTestSuite(TestPrivCREATE.class);  

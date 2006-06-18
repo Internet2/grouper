@@ -21,15 +21,15 @@ import  edu.internet2.middleware.subject.provider.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.6 2006-06-16 17:30:01 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.7 2006-06-18 19:39:00 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
 
   // PROTECTED CLASS CONSTANTS //
   // TODO Move to *E*
-  protected static final String ERR_CM  = "cannot create a circular membership";
   protected static final String ERR_D   = "membership has invalid depth: ";
+  protected static final String ERR_EV  = "effective membership has no via";
   protected static final String ERR_FT  = "membership has invalid field type: ";
   protected static final String ERR_IV  = "immediate membership has via";
   protected static final String ERR_M   = "membership has null member";
@@ -37,8 +37,8 @@ class MembershipValidator {
   protected static final String ERR_O   = "membership has null owner";
   protected static final String ERR_OC  = "membership has invalid owner class: ";
   protected static final String ERR_PMS = "immediate membership has parent membership";
-  protected static final String ERR_V   = "composite membership has null via";
-  protected static final String ERR_VC  = "composite membership has invalid via class: ";
+  protected static final String ERR_V   = "membership has null via";
+  protected static final String ERR_VC  = "membership has invalid via class: ";
 
 
   // PROTECTED CLASS METHODS //
@@ -47,7 +47,7 @@ class MembershipValidator {
   protected static void validateComposite(Membership ms)
     throws  ModelException
   {
-    _validate(ms); 
+    _validate(ms, MembershipType.C); 
     // TODO _validateDoesNotExist(ms);
     // Verify Depth
     if (ms.getDepth() != 0) {
@@ -68,10 +68,34 @@ class MembershipValidator {
   } // protected static void validateComposite(ms)
 
   // @since 1.0
+  protected static void validateEffective(Membership ms)
+    throws  ModelException
+  {
+    _validate(ms, MembershipType.E); 
+    _validateDoesNotExist(ms);
+    // Verify Depth
+    if (!(ms.getDepth() > 0)) {
+      throw new ModelException(ERR_D + ms.getDepth());
+    }
+    // Verify Via
+    Owner via = ms.getVia_id();
+    if (via == null) {
+      throw new ModelException(ERR_EV);
+    }
+    if (!(via instanceof Group)) {
+      throw new ModelException(ERR_VC + via.getClass().getName());
+    }
+    // Verify Parent Membership
+    if (ms.getParent_membership() == null) {
+      throw new ModelException(E.MSV_NO_PARENT);
+    }
+  } // protected static void validateEffective(ms)
+
+  // @since 1.0
   protected static void validateImmediate(Membership ms)
     throws  ModelException
   {
-    _validate(ms); 
+    _validate(ms, MembershipType.I); 
     _validateDoesNotExist(ms);
     // Verify Depth
     if (ms.getDepth() != 0) {
@@ -91,13 +115,18 @@ class MembershipValidator {
   // PRIVATE CLASS METHODS //
 
   // @since 1.0
-  private static void _validate(Membership ms) 
+  private static void _validate(Membership ms, MembershipType type) 
     throws  ModelException
   {
     GrouperSessionValidator.validate(ms.getSession());
-    Owner   o = ms.getOwner_id();
-    Member  m = ms.getMember_id();
-    Field   f = ms.getField();
+    MembershipType  t = ms.getMship_type();
+    Owner           o = ms.getOwner_id();
+    Member          m = ms.getMember_id();
+    Field           f = ms.getField();
+    // Verify type
+    if (!t.equals(type)) {
+      throw new ModelException(E.MSV_TYPE + t);
+    }
     // Verify Owner
     if (o == null) {
       throw new ModelException(ERR_O);
@@ -125,14 +154,14 @@ class MembershipValidator {
       Group g = (Group) o;
       try {
         if (SubjectHelper.eq(g.toSubject(), m.getSubject())) {
-          throw new ModelException(ERR_CM);
+          throw new ModelException(E.MSV_CIRCULAR);
         }
       }
       catch (SubjectNotFoundException eSNF) {
         throw new ModelException(eSNF);
       }
     }
-  } // private static void _validate(ms)
+  } // private static void _validate(ms, type)
 
   // Verify that membership doesn't already exist
   // @since 1.0

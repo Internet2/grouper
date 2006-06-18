@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.39 2006-06-16 18:42:20 blair Exp $
+ * @version $Id: Membership.java,v 1.40 2006-06-18 19:39:00 blair Exp $
  */
 public class Membership {
 
@@ -56,6 +56,8 @@ public class Membership {
   private Membership() {
     // Default constructor for Hibernate.
   }
+
+  // Immediate
   protected Membership(Owner o, Member m, Field f)
     throws  ModelException
   {
@@ -71,6 +73,37 @@ public class Membership {
     MembershipValidator.validateImmediate(this);
   } // protected Membership(o, m, f)
 
+  // Effective
+  protected Membership(
+    GrouperSession s, Membership ms, Membership hasMS, int offset
+  )
+    throws  ModelException
+  { 
+    this.setOwner_id(           ms.getOwner_id()      );
+    try {
+      this.setMember_id(          hasMS.getMember()     );  // hasMember m
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new ModelException(eMNF);
+    }
+    this.setField(              ms.getList()          );  // original f
+    this.setMship_type(         MembershipType.E      );
+    this.setUuid(               GrouperUuid.getUuid() );
+    this.setDepth(                                        // increment depth with proper offset
+      ms.getDepth() + hasMS.getDepth() + offset
+    );
+    if (hasMS.getDepth() == 0) {
+      this.setVia_id(           hasMS.getOwner_id()   );  // hasMember m was immediate
+    }
+    else {
+      this.setVia_id(           hasMS.getVia_id()     );  // hasMember m was effective
+    } 
+    this.setParent_membership(  ms                    );  // ms is parent
+    this.setSession(            s                     );
+    MembershipValidator.validateEffective(this);
+  } // protected static Membership newEffectiveMembership(s, ms, hasMS)
+
+  // Composite
   protected Membership(Owner o, Member m, Field f, Composite via)
     throws  ModelException
   {
@@ -398,34 +431,6 @@ public class Membership {
     throw new StemNotFoundException();
   } // public Stem getStem()
 
-  // FIXME Deprecate
-  protected static Membership newEffectiveMembership(
-    GrouperSession s, Membership ms, Membership hasMS, int offset
-  )
-    throws  GroupNotFoundException,
-            MemberNotFoundException
-  { 
-    Membership eff = new Membership();
-    eff.s = s;
-    eff.setUuid(        GrouperUuid.getUuid()         );  // assign uuid
-    eff.setOwner_id(    ms.getOwner_id()              );  // original owner
-    eff.setMember_id(   hasMS.getMember()             );  // hasMember m
-    eff.setField(       ms.getList()                  );  // original f
-    eff.setMship_type(  MembershipType.E              );  // assign type
-    eff.setDepth(                                         // increment the depth
-      ms.getDepth() + hasMS.getDepth() + offset         
-    );
-    if (hasMS.getDepth() == 0) {
-      eff.setVia_id(    hasMS.getOwner_id()           );  // hasMember m was immediate
-    }
-    else {
-      eff.setVia_id(    hasMS.getVia_id()             );  // hasMember m was effective
-    } 
-    eff.setParent_membership(ms);                         // ms is parent membership
-    return eff;       
-  } // protected static Membership newEffectiveMembership(s, ms, hasMS)
-
-
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
     this.s = s;
@@ -447,37 +452,6 @@ public class Membership {
   } // protected void setSession(s)
 
 
-  // PRIVATE CLASS METHODS //
-
-  // TODO REFACTOR/DRY
-  protected static Set getPersistent(GrouperSession s, Set mships) 
-    throws  HibernateException,
-            MemberNotFoundException,
-            MembershipNotFoundException
-  {
-    Set       persistent  = new LinkedHashSet();
-    Iterator  iter        = mships.iterator();
-    Session   hs          = HibernateHelper.getSession();
-    while (iter.hasNext()) {
-      Membership ms   = (Membership) iter.next();
-      // FIXME  What a monstrosity.
-      //        Ideally I'd just find by uuid but I believe that UUIDs
-      //        for effective mships are broken at the moment.  Woe.
-      Iterator  effs  = MembershipFinder.findEffectiveMemberships(
-        ms.getOwner_id(), ms.getMember().getId(), 
-        ms.getList(), ms.getVia_id(), ms.getDepth()
-      ).iterator();
-      while (effs.hasNext()) {
-        Membership eff = (Membership) effs.next();
-        eff.setSession(s);
-        persistent.add(eff);
-      }
-    }
-    hs.close();
-    return persistent;
-  } // protected static Set getPersistant(s, mships)
-
- 
   // GETTERS // 
   private long getCreate_time() {
     return this.create_time;
@@ -497,7 +471,7 @@ public class Membership {
   protected Member getMember_id() {
     return this.member_id;
   }
-  private MembershipType getMship_type() {
+  protected MembershipType getMship_type() {
     return this.type;
   }
   protected Owner getOwner_id() {
