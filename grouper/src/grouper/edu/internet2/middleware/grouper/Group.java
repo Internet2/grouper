@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.81 2006-06-16 19:04:17 blair Exp $
+ * @version $Id: Group.java,v 1.82 2006-06-18 01:47:34 blair Exp $
  */
 public class Group extends Owner {
 
@@ -160,9 +160,9 @@ public class Group extends Owner {
       GroupValidator.canAddCompositeMember(this, c);
       MemberOf  mof = MemberOf.addComposite(this.getSession(), this, c);
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      EventLog.groupAddComposite(this.getSession(), c, mof, sw);
       Composite.update(this);
       sw.stop();
-      //  FIXME LOG! imms + effs
     }
     catch (HibernateException eH) {
       throw new MemberAddException(eH);
@@ -538,7 +538,7 @@ public class Group extends Owner {
       Composite c   = CompositeFinder.findAsOwnerNoPriv(this);
       MemberOf  mof = MemberOf.delComposite(this.getSession(), this, c);
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
-      //  FIXME LOG! imms + effs
+      EventLog.groupDelComposite(this.getSession(), c, mof, sw);
       Composite.update(this);
       sw.stop();
     }

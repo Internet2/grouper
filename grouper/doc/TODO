@@ -4,14 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.74 2006-06-16 19:04:17 blair Exp $
+$Id: TODO,v 1.75 2006-06-18 01:47:34 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* BUG       No logging of composites
 * BUG       Membership UUIDs can change, especially in effective
   mships and possibly when updating composites
 ** Clean up `Composite.update()` once fixed
@@ -128,7 +127,7 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.74 2006-06-16 19:04:17 blair Exp $
+$Id: TODO,v 1.75 2006-06-18 01:47:34 blair Exp $
 
 
 
