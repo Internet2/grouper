@@ -22,7 +22,7 @@ import  net.sf.hibernate.type.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.5 2006-06-16 18:25:21 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.6 2006-06-19 16:21:52 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {
@@ -53,7 +53,7 @@ public class CompositeFinder {
         }
       }
       catch (GroupNotFoundException eGNF) {
-        // ignore
+        ErrorLog.error(CompositeFinder.class, E.COMPF_FINDASFACTOR + eGNF.getMessage());
       }
     } 
     return where;

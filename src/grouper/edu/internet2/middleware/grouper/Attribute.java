@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * A group attribute within the Groups registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.9 2006-06-15 04:04:30 blair Exp $
+ * @version $Id: Attribute.java,v 1.10 2006-06-19 16:21:52 blair Exp $
  */
 class Attribute {
 
@@ -44,9 +44,9 @@ class Attribute {
   } // public Attribute()
 
   protected Attribute(Group g, Field f, String val) {
-    this.field  = f;
-    this.group  = g;
-    this.value  = val;
+    this.setField(  f   );
+    this.setGroup(  g   );
+    this.setValue(  val );
   } // protected Attribute(g, f, val)
 
 

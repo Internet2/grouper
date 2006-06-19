@@ -20,13 +20,13 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.8 2006-06-18 19:39:00 blair Exp $
+ * @version $Id: E.java,v 1.9 2006-06-19 16:21:52 blair Exp $
  * @since   1.0
  */
 class E {
 
   // PROTECTED CLASS CONSTANTS //
-  protected static final String ATTR_NULL                 = "empty attribute value";
+  protected static final String ATTR_NULL                 = "null attribute value";
   protected static final String ATTR_COLON                = "value contains colon";
   protected static final String CACHE                     = "cache error: ";
   protected static final String CACHE_INIT                = "unable to get cache manager: ";
@@ -43,6 +43,7 @@ class E {
   protected static final String COMP_RC                   = "composite right factor is not a group";
   protected static final String COMP_T                    = "no composite type";
   protected static final String COMP_UPDATE               = "unable to update composite membership: ";
+  protected static final String COMPF_FINDASFACTOR        = "error retrieving owner group: ";
   protected static final String COMPF_ISFACTOR            = "error determing where object is a factor: ";
   protected static final String CONFIG_READ               = "unable to read grouper configuration file: ";
   protected static final String EVENT_EFFADD              = "unable to log effective membership addition: ";

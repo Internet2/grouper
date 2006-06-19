@@ -20,10 +20,9 @@ import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.regex.*;
 
-
 /** 
  * @author  blair christensen.
- * @version $Id: AttributeValidator.java,v 1.4 2006-06-15 03:53:01 blair Exp $
+ * @version $Id: AttributeValidator.java,v 1.5 2006-06-19 16:21:52 blair Exp $
  */
 class AttributeValidator {
 
@@ -31,22 +30,38 @@ class AttributeValidator {
   private static final Pattern  RE_COLON  = Pattern.compile(":");
   private static final Pattern  RE_WS     = Pattern.compile("^\\s*$");
 
+
   // PROTECTED CLASS METHODS //
   protected static void namingValue(String value)
     throws  ModelException
   {
-    if (value == null) {
-      throw new ModelException(E.ATTR_NULL);
-    }
+    Validator.notNullPerModel(value, E.ATTR_NULL);
+    noColon(value);
+    notJustWhiteSpace(value);
+  } // protected static void namingValue(value)
+   
+
+  // PRIVATE CLASS METHODS // 
+
+  // @since 1.0
+  private static void noColon(String value) 
+    throws  ModelException
+  {
     Matcher m = RE_COLON.matcher(value);
     if (m.find()) {
       throw new ModelException(E.ATTR_COLON);
     }
-    m = RE_WS.matcher(value);
+  } // private static void noColon(value)
+ 
+  // @since 1.0
+  private static void notJustWhiteSpace(String value) 
+    throws  ModelException
+  {
+    Matcher m = RE_WS.matcher(value);
     if (m.find()) {
       throw new ModelException(E.ATTR_NULL);
     }
-  } // protected static void namingValue(value)
-    
+  } // private static void notJustWhiteSpace(value)
+
 }
 
