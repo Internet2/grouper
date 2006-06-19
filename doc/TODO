@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.78 2006-06-19 15:17:40 blair Exp $
+$Id: TODO,v 1.79 2006-06-19 17:00:57 blair Exp $
 
 ---
 
@@ -117,9 +117,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.78 2006-06-19 15:17:40 blair Exp $
-
-
-
-
+$Id: TODO,v 1.79 2006-06-19 17:00:57 blair Exp $
 

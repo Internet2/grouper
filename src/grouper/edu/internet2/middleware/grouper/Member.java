@@ -27,9 +27,13 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.45 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: Member.java,v 1.46 2006-06-19 17:00:57 blair Exp $
  */
 public class Member implements Serializable {
+
+  // PUBLIC CLASS CONSTANTS //
+  public static final long serialVersionUID = 2348656645982471668L;
+
 
   // HIBERNATE PROPERTIES //
   private String  id;

@@ -23,15 +23,16 @@ import  java.util.*;
  * Composite Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeType.java,v 1.4 2006-06-15 04:45:58 blair Exp $    
+ * @version $Id: CompositeType.java,v 1.5 2006-06-19 17:00:57 blair Exp $    
  * @since   1.0
  */
 public class CompositeType implements Serializable {
 
   // PUBLIC CLASS CONSTANTS //
-  public static final CompositeType COMPLEMENT    = new CompositeType("complement");
-  public static final CompositeType INTERSECTION  = new CompositeType("intersection");
-  public static final CompositeType UNION         = new CompositeType("union");
+  public static final CompositeType COMPLEMENT        = new CompositeType("complement");
+  public static final CompositeType INTERSECTION      = new CompositeType("intersection");
+  public static final CompositeType UNION             = new CompositeType("union");
+  public static final long          serialVersionUID  = 8723086294472152215L;
 
 
   // PRIVATE CLASS CONSTANTS //

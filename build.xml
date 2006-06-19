@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.101 2006-06-13 18:09:53 blair Exp $ -->
+<!-- $Id: build.xml,v 1.102 2006-06-19 17:00:57 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -196,11 +196,11 @@
   </target>
   <!-- dist-lib -->
 
-  <!-- ensure-stress-name -->
-  <target name="ensure-stress-name" unless="name">
-    <fail message="You must run this target with -Dname=StressName"/>
+  <!-- ensure-name -->
+  <target name="ensure-name" unless="name">
+    <fail message="You must run this target with -Dname=NAME"/>
   </target>
-  <!-- ensure-stress-name -->
+  <!-- ensure-name -->
 
   <!-- ensure-test-name -->
   <target name="ensure-test-name" unless="test">
@@ -268,6 +268,9 @@
       <pathelement  location="${build.test}"/>
       <pathelement  location="${user.home}/.ant/lib/clover.jar"/>
     </path>
+    <pathconvert  property="project.classpath.string" 
+                  refid="project.classpath"
+    />
   </target>
   <!-- init -->
 
@@ -351,10 +354,23 @@
   </target>
   <!-- schemaexport -->
 
+  <!-- serialver -->
+  <target name="serialver" 
+          description="Runs serialver on class specified with -Dname="
+          depends="build, ensure-name"
+  >
+    <exec executable="serialver">
+      <arg  value="-classpath"                                />
+      <arg  value="${project.classpath.string}"               />
+      <arg  value="edu.internet2.middleware.grouper.${name}"  />
+    </exec>  
+  </target>
+  <!-- serialver -->
+
   <!-- stress -->
   <target name="stress" 
           description="Runs the stress case specified on the command line with -Dname="
-          depends="build, ensure-stress-name">
+          depends="build, ensure-name">
     <java fork="yes"
           maxmemory="${max.memory}"
           classname="edu.internet2.middleware.grouper.stress.${name}"
@@ -377,7 +393,7 @@
   <!-- stressprof -->
   <target name="stressprof" 
           description="Runs and profiles the stress case specified on the command line with -Dname="
-          depends="build, ensure-stress-name">
+          depends="build, ensure-name">
     <java fork="yes"
           maxmemory="${max.memory}"
           classname="edu.internet2.middleware.grouper.stress.${name}"
