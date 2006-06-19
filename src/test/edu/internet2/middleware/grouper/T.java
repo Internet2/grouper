@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: T.java,v 1.3 2006-06-19 02:06:45 blair Exp $
  */
 public class T {
 
@@ -59,15 +59,33 @@ public class T {
     T.amount(g.getName() + " eff members", exp, g.getEffectiveMembers().size());
   } // protected static void getEffectiveMembers(g, exp)
 
+  // @since 1.0
+  protected static void getEffectiveMemberships(Group g, int exp) {
+    LOG.debug("getEffectiveMemberships()");
+    T.amount(g.getName() + " eff mships", exp, g.getEffectiveMemberships().size());
+  } // protected static void getEffectiveMemberships(g, exp)
+
   protected static void getImmediateMembers(Group g, int exp) {
     LOG.debug("getImmediateMembers()");
     T.amount(g.getName() + " imm members", exp, g.getImmediateMembers().size());
   } // protected static void getImmediateMembers(g, exp)
 
+  // @since 1.0
+  protected static void getImmediateMemberships(Group g, int exp) {
+    LOG.debug("getImmediateMemberships()");
+    T.amount(g.getName() + " imm mships", exp, g.getImmediateMemberships().size());
+  } // protected static void getImmediateMemberships(g, exp)
+
   protected static void getMembers(Group g, int exp) {
     LOG.debug("getMembers()");
     T.amount(g.getName() + " members", exp, g.getMembers().size());
   } // protected static void getMembers(g, exp)
+
+  // @since 1.0
+  protected static void getMemberships(Group g, int exp) {
+    LOG.debug("getMemberships()");
+    T.amount(g.getName() + " mships", exp, g.getMemberships().size());
+  } // protected static void getMemberships(g, exp)
 
   // Stem //
   protected static void getChildGroups(Stem ns, int exp) {

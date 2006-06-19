@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.provider.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.7 2006-06-18 19:39:00 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.8 2006-06-19 02:06:45 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
@@ -72,7 +72,7 @@ class MembershipValidator {
     throws  ModelException
   {
     _validate(ms, MembershipType.E); 
-    _validateDoesNotExist(ms);
+    // TODO? _validateDoesNotExist(ms);
     // Verify Depth
     if (!(ms.getDepth() > 0)) {
       throw new ModelException(ERR_D + ms.getDepth());
@@ -97,6 +97,7 @@ class MembershipValidator {
   {
     _validate(ms, MembershipType.I); 
     _validateDoesNotExist(ms);
+    _notCircular(ms);
     // Verify Depth
     if (ms.getDepth() != 0) {
       throw new ModelException(ERR_D + ms.getDepth());
@@ -113,6 +114,27 @@ class MembershipValidator {
 
 
   // PRIVATE CLASS METHODS //
+
+  // @since 1.0
+  private static void _notCircular(Membership ms) 
+    throws  ModelException
+  {
+    Owner           o = ms.getOwner_id();
+    Member          m = ms.getMember_id();
+    Field           f = ms.getField();
+
+    if ( (o instanceof Group) && (f.getName().equals(GrouperConfig.LIST)) ) {
+      Group g = (Group) o;
+      try {
+        if (SubjectHelper.eq(g.toSubject(), m.getSubject())) {
+          throw new ModelException(E.MSV_CIRCULAR);
+        }
+      }
+      catch (SubjectNotFoundException eSNF) {
+        throw new ModelException(eSNF);
+      }
+    }
+  } // private static void _notCircular(ms)
 
   // @since 1.0
   private static void _validate(Membership ms, MembershipType type) 
@@ -148,18 +170,6 @@ class MembershipValidator {
     )
     {
       throw new ModelException(ERR_FT + f.getType());
-    }
-    // Verify that it is not a circular membership
-    if ( (o instanceof Group) && (f.getName().equals(GrouperConfig.LIST)) ) {
-      Group g = (Group) o;
-      try {
-        if (SubjectHelper.eq(g.toSubject(), m.getSubject())) {
-          throw new ModelException(E.MSV_CIRCULAR);
-        }
-      }
-      catch (SubjectNotFoundException eSNF) {
-        throw new ModelException(eSNF);
-      }
     }
   } // private static void _validate(ms, type)
 
