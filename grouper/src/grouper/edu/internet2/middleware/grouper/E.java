@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.9 2006-06-19 16:21:52 blair Exp $
+ * @version $Id: E.java,v 1.10 2006-06-19 19:37:54 blair Exp $
  * @since   1.0
  */
 class E {
@@ -126,6 +126,7 @@ class E {
   protected static final String SF_SNU                    = "subject not unique: ";
   protected static final String SETTINGS                  = "unable to retrieve settings: ";
   protected static final String STEM_GETCHILDGROUPS       = "error getting child groups: ";
+  protected static final String STEM_GETCHILDSTEMS        = "error getting child stems: ";
   protected static final String STEM_NULL                 = "null stem";
   protected static final String STEM_ROOTNOTFOUND         = "unable to find root stem";
   protected static final String STEM_ROOTINSTALL          = "unable to install root stem: ";

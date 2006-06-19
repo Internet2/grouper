@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Owner.hbm.xml,v 1.9 2006-05-24 17:31:48 blair Exp $ -->
+<!-- $Id: Owner.hbm.xml,v 1.10 2006-06-19 19:37:54 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Owner" table="grouper_owners">
@@ -129,7 +129,7 @@ An owner within the Groups Registry.
         <key column="parent_stem"/>
         <one-to-many class="edu.internet2.middleware.grouper.Group" />
       </set>
-      <!-- child_stems -->
+      <!-- child_groups -->
 
       <!-- child_stems -->
       <set  

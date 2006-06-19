@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteStems.java,v 1.3 2006-06-13 17:40:39 blair Exp $
+ * @version $Id: SuiteStems.java,v 1.4 2006-06-19 19:37:54 blair Exp $
  */
 public class SuiteStems extends TestCase {
 
@@ -36,6 +36,8 @@ public class SuiteStems extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( TestStem0.class );  // delete empty stem
+    suite.addTestSuite( TestStem9.class );  // delete empty stem in new session and do 
+                                            // not throw lazy initialization error
     suite.addTestSuite( TestStem1.class );  // fail: delete stem with child stems
     suite.addTestSuite( TestStem2.class );  // fail: delete stem with child groups
     suite.addTestSuite( TestStem3.class );  // fail: delete stem without stem
