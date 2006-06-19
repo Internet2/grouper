@@ -26,7 +26,7 @@ import  java.util.*;
  * Validation methods that apply to multiple Grouper classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.12 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: Validator.java,v 1.13 2006-06-19 16:21:52 blair Exp $
  */
 class Validator {
 
@@ -42,16 +42,15 @@ class Validator {
     }
   } // protected static void argNotNull(o, msg)
 
-  // TODO
-  //protected static void notNull(Object o, Class klass, Exception e) 
-  //  throws  Exception
-  //{
-  //  if (o == null) {
-  //    ErrorLog.error(klass, e.getMessage());
-  //    throw e;
-  //  }
-  //} // protected static void notNull(o, klass, e)
-  
+  // @since 1.0
+  protected static void notNullPerModel(Object o, String msg) 
+    throws  ModelException
+  {
+    if (o == null) {
+      throw new ModelException(msg);
+    }
+  } // protected static void notNullPerModel(o, msg)
+
   // Throw NPE if value is null
   // @since 1.0
   protected static void valueNotNull(Object o, String msg) 
