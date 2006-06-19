@@ -27,9 +27,13 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.18 2006-06-16 15:01:46 blair Exp $
+ * @version $Id: GroupType.java,v 1.19 2006-06-19 17:00:57 blair Exp $
  */
 public class GroupType implements Serializable {
+
+  // PUBLIC CLASS CONSTANTS //
+  public static final long serialVersionUID = 8214760621248803096L;
+
 
   // HIBERNATE PROPERTIES //
   private boolean assignable    = true;

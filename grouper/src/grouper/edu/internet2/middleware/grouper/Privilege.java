@@ -23,9 +23,13 @@ import  java.util.*;
  * Privilege schema specification.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.14 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: Privilege.java,v 1.15 2006-06-19 17:00:57 blair Exp $
  */
 public class Privilege implements Serializable {
+
+  // PUBLIC CLASS CONSTANTS ///
+  public static final long serialVersionUID = 931658631999330719L;
+
 
   // PRIVATE CLASS CONSTANTS //
   private static final Set        ACCESS  = new LinkedHashSet();

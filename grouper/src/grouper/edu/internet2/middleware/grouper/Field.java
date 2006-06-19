@@ -24,9 +24,13 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.11 2006-06-16 15:01:46 blair Exp $    
+ * @version $Id: Field.java,v 1.12 2006-06-19 17:00:57 blair Exp $    
  */
 public class Field implements Serializable {
+
+  // PUBLIC CLASS CONSTANTS //
+  public static final long serialVersionUID = 2072790175332537149L;
+
 
   // HIBERNATE PROPERTIES //
   private String    field_name;

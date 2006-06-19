@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.15 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.16 2006-06-19 17:00:57 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -150,10 +150,10 @@ public class GrouperSubject implements Subject {
       // No modifier
     }
     Map       attrs = this.g.getAttributes();
-    Iterator  iter  = attrs.keySet().iterator();
+    Iterator  iter  = attrs.entrySet().iterator();
     while (iter.hasNext()) {
-      String key = (String) iter.next();
-      this._addAttr(key, (String) attrs.get(key));
+      Map.Entry e = (Map.Entry) iter.next();
+      this._addAttr(  (String) e.getKey(), (String) e.getValue() );
     }
     DebugLog.info(
       GrouperSubject.class, 

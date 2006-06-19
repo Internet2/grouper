@@ -27,10 +27,14 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * Hibernate representation of the JDBC Subject table.
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.6 2006-06-16 15:01:46 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.7 2006-06-19 17:00:57 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {
+
+  // PUBLIC CLASS CONSTANTS //
+  public static final long serialVersionUID = -3413627300057683379L;
+
 
   // HIBERNATE PROPERTIES //
   private Set     attributes      = new LinkedHashSet();

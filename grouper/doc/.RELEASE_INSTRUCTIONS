@@ -3,12 +3,13 @@
 
 Instructions for preparing a Grouper release.
 
-$Id: .RELEASE_INSTRUCTIONS,v 1.3 2005-12-19 21:45:30 blair Exp $
+$Id: .RELEASE_INSTRUCTIONS,v 1.4 2006-06-19 17:00:57 blair Exp $
 
 ---
 
 ## To Prepare For A Release:
 
+* Update *serialVersionUID* as appropriate
 * Test CVS
   * OSX/HSQLDB
   * OSX/Postgres

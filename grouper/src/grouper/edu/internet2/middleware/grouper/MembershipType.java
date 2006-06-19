@@ -23,10 +23,14 @@ import  java.util.*;
  * MembershipType schema specification.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipType.java,v 1.1 2006-06-16 17:30:01 blair Exp $
+ * @version $Id: MembershipType.java,v 1.2 2006-06-19 17:00:57 blair Exp $
  * @since   1.0
  */
 public class MembershipType implements Serializable {
+  
+  // PUBLIC CLASS CONSTANTS //
+  public static final long serialVersionUID = -1176278645293903376L;
+
 
   // PROTECTED CLASS CONSTANTS //
   protected static final MembershipType C = new MembershipType("composite");

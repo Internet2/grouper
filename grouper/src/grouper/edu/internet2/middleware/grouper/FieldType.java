@@ -23,15 +23,16 @@ import  java.util.*;
  * Field Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldType.java,v 1.8 2006-06-15 04:45:58 blair Exp $    
+ * @version $Id: FieldType.java,v 1.9 2006-06-19 17:00:57 blair Exp $    
  */
 public class FieldType implements Serializable {
 
   // PUBLIC CLASS CONSTANTS //
-  public static final FieldType ACCESS    = new FieldType("access");
-  public static final FieldType ATTRIBUTE = new FieldType("attribute");
-  public static final FieldType LIST      = new FieldType("list");
-  public static final FieldType NAMING    = new FieldType("naming");
+  public static final FieldType ACCESS            = new FieldType("access");
+  public static final FieldType ATTRIBUTE         = new FieldType("attribute");
+  public static final FieldType LIST              = new FieldType("list");
+  public static final FieldType NAMING            = new FieldType("naming");
+  public static final long      serialVersionUID  = -2133978355688724546L;
 
 
   // PRIVATE CLASS CONSTANTS //
