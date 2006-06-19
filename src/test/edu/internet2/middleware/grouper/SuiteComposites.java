@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteComposites.java,v 1.4 2006-06-02 18:23:46 blair Exp $
+ * @version $Id: SuiteComposites.java,v 1.5 2006-06-19 14:27:42 blair Exp $
  */
 public class SuiteComposites extends TestCase {
 
@@ -35,10 +35,16 @@ public class SuiteComposites extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest(  SuiteCompositesModel.suite()  );
-    suite.addTest(  SuiteCompositesC.suite()      );
-    suite.addTest(  SuiteCompositesI.suite()      );
-    suite.addTest(  SuiteCompositesU.suite()      );
+    suite.addTest(      SuiteCompositesModel.suite()  );
+    suite.addTest(      SuiteCompositesC.suite()      );
+    suite.addTest(      SuiteCompositesI.suite()      );
+    suite.addTest(      SuiteCompositesU.suite()      );
+    suite.addTestSuite( TestComposite0.class          );  // `CompositeFinder.findAsFactor()`
+    suite.addTestSuite( TestComposite1.class          );  // `CompositeFinder.findAsOwner()`
+    suite.addTestSuite( TestComposite2.class          );  // `Composite.getType()`
+    suite.addTestSuite( TestComposite3.class          );  // `Composite.getOwnerGroup()`
+    suite.addTestSuite( TestComposite4.class          );  // `Composite.getLeftGroup()`
+    suite.addTestSuite( TestComposite5.class          );  // `Composite.getRightGroup()`
     return suite;
   } // static public Test suite()
 

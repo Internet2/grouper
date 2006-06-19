@@ -4,21 +4,15 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.76 2006-06-18 19:39:00 blair Exp $
+$Id: TODO,v 1.77 2006-06-19 14:27:42 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* LIBRARIES update subject api
-* TEST      `CompositeFinder.findAsFactor()`
-* TEST      `CompositeFinder.findAsOwner()`
-* TEST      `Composite.getLeftGroup()`
-* TEST      `Composite.getOwnerGroup()`
-* TEST      `Composite.getRightGroup()`
-* TEST      `Composite.getType()`
 * REVIEW    review all RTEs
+* LIBRARIES update subject api
 * CONTRIB   complete cdg 1.0 feature list
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
 * TEST      basic and preliminary concurrency testing (i expect to find many bugs)
@@ -124,7 +118,7 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.76 2006-06-18 19:39:00 blair Exp $
+$Id: TODO,v 1.77 2006-06-19 14:27:42 blair Exp $
 
 
 
