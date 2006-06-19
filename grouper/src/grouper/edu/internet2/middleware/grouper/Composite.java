@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.11 2006-06-18 19:39:00 blair Exp $
+ * @version $Id: Composite.java,v 1.12 2006-06-19 15:17:40 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -281,18 +281,15 @@ public class Composite extends Owner {
     }
     catch (GroupNotFoundException eGNF) {
       String msg = E.COMP_UPDATE + eGNF.getMessage();
-      ErrorLog.fatal(Composite.class, msg);
-      throw new RuntimeException(msg, eGNF);
+      ErrorLog.error(Composite.class, msg);
     }
     catch (HibernateException eH) {
       String msg = E.COMP_UPDATE + eH.getMessage();
-      ErrorLog.fatal(Composite.class, msg);
-      throw new RuntimeException(msg, eH);
+      ErrorLog.error(Composite.class, msg);
     }
     catch (ModelException eM) {
       String msg = E.COMP_UPDATE + eM.getMessage();
-      ErrorLog.fatal(Composite.class, msg);
-      throw new RuntimeException(msg, eM);
+      ErrorLog.error(Composite.class, msg);
     }
   } // protected void update()
 

@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.42 2006-06-16 15:01:46 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.43 2006-06-19 15:17:40 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -63,9 +63,11 @@ public class PrivilegeResolver {
    * <pre class="eg">
    * PrivilegeResolver.resetPrivilegeCaches();
    * </pre>
-   * @throws  RuntimeException 
+   * @throws  GrouperRuntimeException 
    */
-  public static void resetPrivilegeCaches() {
+  public static void resetPrivilegeCaches() 
+    throws  GrouperRuntimeException
+  {
     try {
       PrivilegeResolver pr = PrivilegeResolver.getInstance();
       if (pr.ac != null) {
@@ -80,7 +82,7 @@ public class PrivilegeResolver {
     catch (Exception e) {
       String msg = ERR_RPC + e.getMessage();
       ErrorLog.fatal(PrivilegeResolver.class, msg);
-      throw new RuntimeException(msg, e);
+      throw new GrouperRuntimeException(msg, e);
     }
   } // public static void resetPrivilegeCaches()
 
@@ -604,7 +606,9 @@ public class PrivilegeResolver {
 
 
   // PRIVATE CLASS METHODS //
-  private static Object _createInterface(String name) {
+  private static Object _createInterface(String name) 
+    throws  GrouperRuntimeException
+  {
     try {
       Class   classType     = Class.forName(name);
       Class[] paramsClass   = new Class[] { };
@@ -615,7 +619,7 @@ public class PrivilegeResolver {
     catch (Exception e) {
       String msg = ERR_CI + name + ": " + e.getMessage();
       ErrorLog.fatal(PrivilegeResolver.class, msg);
-      throw new RuntimeException(msg, e);
+      throw new GrouperRuntimeException(msg, e);
     }
   } // private static Object _createInterface(name)
 

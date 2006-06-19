@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.5 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: Settings.java,v 1.6 2006-06-19 15:17:40 blair Exp $
  * @since   1.0
  */
 class Settings {
@@ -65,7 +65,9 @@ class Settings {
   } // protected static int getCurrentSchemaVersion()
 
   // @since 1.0
-  protected static Settings getSettings() {
+  protected static Settings getSettings() 
+    throws  GrouperRuntimeException
+  {
     String msg = E.SETTINGS;
     if (_s == null) {
       try {
@@ -83,7 +85,7 @@ class Settings {
     }
     if (_s == null) {
       ErrorLog.fatal(Settings.class, msg);
-      throw new RuntimeException(msg);
+      throw new GrouperRuntimeException(msg);
     }
     return _s;
   } // protected static Settings getSettings()

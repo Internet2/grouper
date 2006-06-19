@@ -28,7 +28,7 @@ import  net.sf.hibernate.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.29 2006-06-15 17:45:34 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.30 2006-06-19 15:17:40 blair Exp $
  */
 public class RegistryReset {
 
@@ -117,9 +117,11 @@ public class RegistryReset {
     CacheMgr.resetAllCaches();  // TODO ???
   } // private void _addSubjects()
 
-  private void _abort(String msg) {
+  private void _abort(String msg) 
+    throws  GrouperRuntimeException
+  {
     ErrorLog.error(RegistryReset.class, msg);
-    throw new RuntimeException(msg);
+    throw new GrouperRuntimeException(msg);
   } // private void _abort(msg)
 
   private void _emptyTables() 

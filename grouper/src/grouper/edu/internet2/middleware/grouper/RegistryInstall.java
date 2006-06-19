@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.23 2006-06-15 04:45:59 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.24 2006-06-19 15:17:40 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -39,7 +39,9 @@ public class RegistryInstall {
 
 
   // PRIVATE CLASS METHODS //
-  private static void _installFieldsAndTypes() {
+  private static void _installFieldsAndTypes() 
+    throws  GrouperRuntimeException
+  {
     Set base_f    = new LinkedHashSet();
     Set fields    = new LinkedHashSet();
     Set naming_f  = new LinkedHashSet();
@@ -170,11 +172,13 @@ public class RegistryInstall {
     catch (HibernateException eH) {
       String msg = E.RI_IS + eH.getMessage();
       ErrorLog.fatal(RegistryInstall.class, msg);
-      throw new RuntimeException(msg, eH);
+      throw new GrouperRuntimeException(msg, eH);
     }
   } // private static void _installFieldsAndTypes()
 
-  private static void _installGroupsAndStems() {
+  private static void _installGroupsAndStems() 
+    throws  GrouperRuntimeException
+  {
     try {
       GrouperSession s = GrouperSession.start(
         SubjectFinder.findById(
@@ -187,7 +191,7 @@ public class RegistryInstall {
     catch (Exception e) { 
       String msg = E.RI_ISG + e.getMessage();
       ErrorLog.fatal(RegistryInstall.class, msg);
-      throw new RuntimeException(msg, e);
+      throw new GrouperRuntimeException(msg, e);
     }
   } // private static void _installGroupsAndStems()
 

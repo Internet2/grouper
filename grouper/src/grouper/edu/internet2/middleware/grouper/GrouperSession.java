@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.27 2006-06-15 19:47:13 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.28 2006-06-19 15:17:40 blair Exp $
  */
 public class GrouperSession {
 
@@ -93,7 +93,9 @@ public class GrouperSession {
     }
   } // public static GrouperSession start(subject)
 
-  protected static GrouperSession startTransient() {
+  protected static GrouperSession startTransient() 
+    throws  GrouperRuntimeException
+  {
     if (root == null) {
       try {
         root = SubjectFinder.findById(
@@ -103,7 +105,7 @@ public class GrouperSession {
       catch (Exception e) {
         String msg = E.S_NOSTARTROOT + e.getMessage();
         ErrorLog.fatal(GrouperSession.class, msg);
-        throw new RuntimeException(msg, e);
+        throw new GrouperRuntimeException(msg, e);
       }
     }
     try {
@@ -112,7 +114,7 @@ public class GrouperSession {
     catch (Exception e) {
       String msg = E.S_NOSTARTROOT + e.getMessage();
       ErrorLog.fatal(GrouperSession.class, msg);
-      throw new RuntimeException(msg, e);
+      throw new GrouperRuntimeException(msg, e);
     }
   } // protected static GrouperSession startTransient()
 
@@ -193,12 +195,14 @@ public class GrouperSession {
   /**
    * Get the {@link Subject} associated with this API session.
    * <pre class="eg">
-   * // Get this session's Subject.
    * Subject subj = s.getSubject(); 
    * </pre>
    * @return  A {@link Subject} object.
+   * @throws  GrouperRuntimeException
    */
-  public Subject getSubject() {
+  public Subject getSubject() 
+    throws  GrouperRuntimeException
+  {
     if (this.subj == null) {
       try {
         this.subj = this.getMember_id().getSubject();
@@ -206,7 +210,7 @@ public class GrouperSession {
       catch (Exception e) {
         String msg = E.S_GETSUBJECT + e.getMessage();
         ErrorLog.fatal(GrouperSession.class, msg);
-        throw new RuntimeException(msg);
+        throw new GrouperRuntimeException(msg);
       }
     }
     return this.subj;

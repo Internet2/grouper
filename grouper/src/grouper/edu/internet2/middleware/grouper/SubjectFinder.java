@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.20 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.21 2006-06-19 15:17:40 blair Exp $
  */
 public class SubjectFinder {
 
@@ -55,13 +55,13 @@ public class SubjectFinder {
       catch (SubjectNotFoundException eSNF) {
         String msg = E.SF_IAS + eSNF.getMessage();
         ErrorLog.fatal(SubjectFinder.class, msg);
-        throw new RuntimeException(msg, eSNF);
+        throw new GrouperRuntimeException(msg, eSNF);
       }
     } 
     catch (Exception e) {
       String msg = E.SF_INIT + e.getMessage();
       ErrorLog.fatal(SubjectFinder.class, msg);
-      throw new RuntimeException(msg, e);
+      throw new GrouperRuntimeException(msg, e);
     }
   } // static
 

@@ -25,7 +25,7 @@ import  net.sf.hibernate.type.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.15 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.16 2006-06-19 15:17:40 blair Exp $
  */
 public class MemberFinder {
 
@@ -111,14 +111,16 @@ public class MemberFinder {
   
   // PROTECTED CLASS METHODS //
 
-  protected static Member findAllMember() {
+  protected static Member findAllMember() 
+    throws  GrouperRuntimeException
+  {
     try {
       return MemberFinder.findBySubject(SubjectFinder.findAllSubject()); 
     }
     catch (MemberNotFoundException eMNF) {
       String msg = ERR_FAM + eMNF.getMessage();
       ErrorLog.fatal(MemberFinder.class, msg);
-      throw new RuntimeException(msg, eMNF);
+      throw new GrouperRuntimeException(msg, eMNF);
     }
   } // protected static Member findAllMember()
 
