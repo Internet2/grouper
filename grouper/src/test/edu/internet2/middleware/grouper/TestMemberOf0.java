@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberOf0.java,v 1.1 2006-06-18 19:39:00 blair Exp $
+ * @version $Id: TestMemberOf0.java,v 1.2 2006-06-19 02:06:45 blair Exp $
  */
 public class TestMemberOf0 extends TestCase {
 
@@ -55,36 +55,51 @@ public class TestMemberOf0 extends TestCase {
 
       // Add subjA to gA
       gA.addMember(subjA);
-      T.getMembers(gA, 1);
-      T.getImmediateMembers(gA, 1);
-      T.getEffectiveMembers(gA, 0);
+      T.getMemberships(gA, 1);
+      T.getImmediateMemberships(gA, 1);
+      T.getEffectiveMemberships(gA, 0);
 
       // Add subjB to gB
       gB.addMember(subjB);
-      T.getMembers(gB, 1);
-      T.getImmediateMembers(gB, 1);
-      T.getEffectiveMembers(gB, 0);
+      T.getMemberships(gB, 1);
+      T.getImmediateMemberships(gB, 1);
+      T.getEffectiveMemberships(gB, 0);
 
       // Add gB to gA
       gA.addMember(gB.toSubject());
-      T.getMembers(gA, 3);
-      T.getMembers(gB, 1);
-      T.getImmediateMembers(gA, 2);
-      T.getImmediateMembers(gB, 1);
-      T.getEffectiveMembers(gA, 1);
-      T.getEffectiveMembers(gB, 0);
+      T.getMemberships(gA, 3);
+      T.getMemberships(gB, 1);
+      T.getImmediateMemberships(gA, 2);
+      T.getImmediateMemberships(gB, 1);
+      T.getEffectiveMemberships(gA, 1);
+      T.getEffectiveMemberships(gB, 0);
 
-      try {
-        // Add gA to gB - circular membership
-        gB.addMember(gA.toSubject());
-        Assert.fail("FAIL: added circular membership");
-      }
-      catch (MemberAddException eMA) {
-        T.string("OK: no circular mship", E.MSV_CIRCULAR, eMA.getMessage());
-      }
-      finally {
-        r.rs.stop();
-      }
+      // Add gA to gB
+
+      gB.addMember(gA.toSubject());
+      // gA -> gB
+      //
+      // * subjA -> gA
+      // * gB -> gA
+      // * subjB -> gB -> gA
+      // + gA -> gB -> gA
+      // + subjA -> gA -> gB -> gA
+      // + gB -> gA -> gB -> gA
+      // + subjB -> gB -> gA -> gB -> gA
+      //
+      // * subjB -> gB
+      // + gA -> gB
+      // + subjA -> gA -> gB
+      // + gB -> gA -> gB
+      // + subjB -> gB -> gA -> gB
+      T.getMemberships(gA, 7);
+      T.getMemberships(gB, 5);
+      T.getImmediateMemberships(gA, 2);
+      T.getImmediateMemberships(gB, 2);
+      T.getEffectiveMemberships(gA, 5);
+      T.getEffectiveMemberships(gB, 3);
+
+      r.rs.stop();
     }
     catch (Exception e) {
       T.e(e);
