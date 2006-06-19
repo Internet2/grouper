@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.Type;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.12 2006-06-15 17:45:34 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.13 2006-06-19 15:17:40 blair Exp $
  */
 public class GroupTypeFinder {
 
@@ -154,7 +154,9 @@ public class GroupTypeFinder {
 
 
   // PRIVATE CLASS METHODS //
-  private static Set _findAll() {
+  private static Set _findAll() 
+    throws  GrouperRuntimeException
+  {
     Set types = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -167,7 +169,7 @@ public class GroupTypeFinder {
     catch (HibernateException eH) {
       String msg = E.GROUPTYPE_FINDALL + eH.getMessage();
       ErrorLog.fatal(GroupTypeFinder.class, msg);
-      throw new RuntimeException(msg, eH);
+      throw new GrouperRuntimeException(msg, eH);
     }
     DebugLog.info(GroupTypeFinder.class, "found group types: " + types.size());
     return types;

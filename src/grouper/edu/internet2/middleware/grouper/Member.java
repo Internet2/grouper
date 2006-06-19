@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.44 2006-06-16 19:23:35 blair Exp $
+ * @version $Id: Member.java,v 1.45 2006-06-19 15:17:40 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -314,8 +314,11 @@ public class Member implements Serializable {
    * Set effectives = m.getEffectiveMemberships();
    * </pre>
    * @return  Set of {@link Membership} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set getEffectiveMemberships() {
+  public Set getEffectiveMemberships() 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.getEffectiveMemberships(Group.getDefaultList());
     }
@@ -323,7 +326,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getEffectiveMemberships()
 
@@ -400,8 +403,11 @@ public class Member implements Serializable {
    * Set immediates = m.getImmediateMemberships();
    * </pre>
    * @return  Set of {@link Membership} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set getImmediateMemberships() {
+  public Set getImmediateMemberships() 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.getImmediateMemberships(Group.getDefaultList());
     }
@@ -409,7 +415,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getImmediateMemberships()
 
@@ -436,8 +442,11 @@ public class Member implements Serializable {
    * Set groups = m.getMemberships();
    * </pre>
    * @return  Set of {@link Membership} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set getMemberships() {
+  public Set getMemberships() 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.getMemberships(Group.getDefaultList());
     }
@@ -445,7 +454,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getMemberships()
 
@@ -556,19 +565,21 @@ public class Member implements Serializable {
   /**
    * Get the {@link Source} of the subject that maps to this member.
    * <pre class="eg">
-   * // Get this member's source.
    * Source sa = m.getSubjectSource();
    * </pre>
    * @return  Subject's {@link Source}
+   * @thrwos  GrouperRuntimeException
    */ 
-  public Source getSubjectSource() {
+  public Source getSubjectSource() 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.getSubject().getSource();
     }
     catch (SubjectNotFoundException eSNF) {
       String msg = E.MEMBER_SUBJNOTFOUND + eSNF.getMessage();
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eSNF);
+      throw new GrouperRuntimeException(msg, eSNF);
     }
   } // public Source getSubjectSource()
 
@@ -622,12 +633,14 @@ public class Member implements Serializable {
   /**
    * Get groups where this member has the ADMIN privilege.
    * <pre class="eg">
-   * // Get groups where this member has the ADMIN privilege.
    * Set admin = m.hasAdmin();
    * </pre>
    * @return  Set of {@link Group} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set hasAdmin() {
+  public Set hasAdmin() 
+    throws  GrouperRuntimeException
+{
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
@@ -637,7 +650,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.ADMIN;
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -663,12 +676,14 @@ public class Member implements Serializable {
   /**
    * Get stems where this member has the CREATE privilege.
    * <pre class="eg">
-   * // Get stems where this member has the CREATE privilege.
    * Set create = m.hasCreate();
    * </pre>
    * @return  Set of {@link Stem} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set hasCreate() {
+  public Set hasCreate() 
+    throws  GrouperRuntimeException
+  {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
@@ -678,7 +693,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.CREATE;
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -704,12 +719,14 @@ public class Member implements Serializable {
   /**
    * Get groups where this member has the OPTIN privilege.
    * <pre class="eg">
-   * // Get groups where this member has the OPTIN privilege.
    * Set optin = m.hasOptin();
    * </pre>
    * @return  Set of {@link Group} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set hasOptin() {
+  public Set hasOptin() 
+    throws  GrouperRuntimeException
+  {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
@@ -719,7 +736,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTIN;
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -745,12 +762,14 @@ public class Member implements Serializable {
   /**
    * Get groups where this member has the OPTOUT privilege.
    * <pre class="eg">
-   * // Get groups where this member has the OPTOUT privilege.
    * Set optout = m.hasOptout();
    * </pre>
    * @return  Set of {@link Group} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set hasOptout() {
+  public Set hasOptout() 
+    throws  GrouperRuntimeException
+  {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
@@ -760,7 +779,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTOUT;
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -786,12 +805,14 @@ public class Member implements Serializable {
   /**
    * Get groups where this member has the READ privilege.
    * <pre class="eg">
-   * // Get groups where this member has the READ privilege.
    * Set read = m.hasRead();
    * </pre>
    * @return  Set of {@link Group} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set hasRead() {
+  public Set hasRead() 
+    throws  GrouperRuntimeException
+  {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
@@ -801,7 +822,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.READ;
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -827,12 +848,14 @@ public class Member implements Serializable {
   /**
    * Get stems where this member has the STEM privilege.
    * <pre class="eg">
-   * // Get stems where this member has the STEM privilege.
    * Set stem = m.hasStem();
    * </pre>
    * @return  Set of {@link Stem} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set hasStem() {
+  public Set hasStem()
+    throws  GrouperRuntimeException
+  {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
@@ -842,7 +865,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.STEM;
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -867,12 +890,14 @@ public class Member implements Serializable {
   /**
    * Get groups where this member has the UPDATE privilege.
    * <pre class="eg">
-   * // Get groups where this member has the UPDATE privilege.
    * Set update = m.hasUpdate();
    * </pre>
    * @return  Set of {@link Group} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set hasUpdate() {
+  public Set hasUpdate() 
+    throws  GrouperRuntimeException
+  {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
@@ -882,7 +907,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.UPDATE;
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -908,12 +933,14 @@ public class Member implements Serializable {
   /**
    * Get groups where this member has the VIEW privilege.
    * <pre class="eg">
-   * // Get groups where this member has the VIEW privilege.
    * Set view = m.hasView();
    * </pre>
    * @return  Set of {@link Group} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set hasView() {
+  public Set hasView() 
+    throws  GrouperRuntimeException
+  {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
@@ -923,7 +950,7 @@ public class Member implements Serializable {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.VIEW;
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -949,15 +976,17 @@ public class Member implements Serializable {
   /**
    * Test whether a member effectively belongs to a group.
    * <pre class="eg">
-   * // Does this member effectively belong to the specified group?
    * if (m.isEffectiveMember(g)) {
    *   // Is an effective member
    * }
    * </pre>
    * @param   g   Test for membership in this group.
    * @return  Boolean true if is a member.
+   * @throws  GrouperRuntimeException
    */
-  public boolean isEffectiveMember(Group g) {
+  public boolean isEffectiveMember(Group g) 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.isEffectiveMember(g, Group.getDefaultList());
     }
@@ -965,7 +994,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public boolean isEffectiveMember(g);
 
@@ -1007,15 +1036,17 @@ public class Member implements Serializable {
   /**
    * Test whether a member immediately belongs to a group.
    * <pre class="eg">
-   * // Does this member immediately belong to the specified group?
    * if (m.isImmediateMember(g)) {
    *   // Is an immediate member
    * }
    * </pre>
    * @param   g   Test for membership in this group.
    * @return  Boolean true if is a member.
+   * @throws  GrouperRuntimeException
    */
-  public boolean isImmediateMember(Group g) {
+  public boolean isImmediateMember(Group g) 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.isImmediateMember(g, Group.getDefaultList());
     }
@@ -1023,7 +1054,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public boolean isImmediateMember(g)
 
@@ -1071,15 +1102,17 @@ public class Member implements Serializable {
   /**
    * Test whether a member belongs to a group.
    * <pre class="eg">
-   * // Does this member belong to the specified group?
    * if (m.isMember(g)) {
    *   // Is a member
    * }
    * </pre>
    * @param   g   Test for membership in this group.
    * @return  Boolean true if is a member.
+   * @throws  GrouperRuntimeException
    */
-  public boolean isMember(Group g) {
+  public boolean isMember(Group g) 
+    throws  GrouperRuntimeException
+  {
     try {
       return this._isMember(g, Group.getDefaultList());
     }
@@ -1087,7 +1120,7 @@ public class Member implements Serializable {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Member.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public boolean isMember(g)
 

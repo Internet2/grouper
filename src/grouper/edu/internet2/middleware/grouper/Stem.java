@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.60 2006-06-15 19:47:13 blair Exp $
+ * @version $Id: Stem.java,v 1.61 2006-06-19 15:17:40 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -434,8 +434,11 @@ public class Stem extends Owner {
    * Set creators = ns.getCreators();
    * </pre>
    * @return  Set of {@link Subject} objects
+   * @throws  GrouperRuntimeException
    */
-  public Set getCreators() {
+  public Set getCreators() 
+    throws  GrouperRuntimeException
+  {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
         this.getSession(), this, NamingPrivilege.CREATE
@@ -444,7 +447,7 @@ public class Stem extends Owner {
     catch (SchemaException eS) {
       String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.CREATE;
       ErrorLog.fatal(Stem.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getCreators()
 
@@ -624,8 +627,11 @@ public class Stem extends Owner {
    * Set stemmers = ns.getStemmers();
    * </pre>
    * @return  Set of {@link Subject} objects
+   * @throws  GrouperRuntimeException
    */
-  public Set getStemmers() {
+  public Set getStemmers() 
+    throws  GrouperRuntimeException
+  {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
         this.getSession(), this, NamingPrivilege.STEM
@@ -634,7 +640,7 @@ public class Stem extends Owner {
     catch (SchemaException eS) {
       String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.STEM;
       ErrorLog.fatal(Stem.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getStemmers()
 
@@ -910,7 +916,9 @@ public class Stem extends Owner {
 
 
   // PROTECTED CLASS METHODS //
-  protected static Stem addRootStem(GrouperSession s) {
+  protected static Stem addRootStem(GrouperSession s) 
+    throws  GrouperRuntimeException
+  {
     Stem root = new Stem(s);
     try {
       HibernateHelper.save(root);
@@ -918,7 +926,7 @@ public class Stem extends Owner {
     catch (HibernateException eH) {
       String msg = E.STEM_ROOTINSTALL + eH.getMessage();
       ErrorLog.fatal(Stem.class, msg);
-      throw new RuntimeException(msg, eH);
+      throw new GrouperRuntimeException(msg, eH);
     }
     return root;
   } // protected static Stem addRootStem(GrouperSession s)

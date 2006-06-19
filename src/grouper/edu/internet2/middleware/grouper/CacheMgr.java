@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * Grouper Cache Manager
  * <p/>
  * @author  blair christensen.
- * @version $Id: CacheMgr.java,v 1.6 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: CacheMgr.java,v 1.7 2006-06-19 15:17:40 blair Exp $
  *     
  */
 class CacheMgr {
@@ -37,7 +37,7 @@ class CacheMgr {
     catch (CacheException eC) {
       String msg = E.CACHE_INIT + eC.getMessage();
       ErrorLog.fatal(CacheMgr.class, msg);
-      throw new RuntimeException(msg, eC);
+      throw new GrouperRuntimeException(msg, eC);
     }
   } // static
 
@@ -52,7 +52,7 @@ class CacheMgr {
 
   // PROTECTED CLASS METHODS //
   protected static Cache getCache(String name) 
-    throws  RuntimeException
+    throws  GrouperRuntimeException
   {
     Cache cache = null;
     if (caches.containsKey(name)) {
@@ -67,7 +67,7 @@ class CacheMgr {
     if (cache == null) {
       String msg = E.CACHE_NOTFOUND + name;
       ErrorLog.fatal(CacheMgr.class, msg);
-      throw new RuntimeException(msg);
+      throw new GrouperRuntimeException(msg);
     }
     return cache;
   } // protected static Cache getCache(name)
@@ -84,7 +84,9 @@ class CacheMgr {
     return caches;
   } // protected static Set getCaches()
 
-  protected static void resetAllCaches() {
+  protected static void resetAllCaches() 
+    throws  GrouperRuntimeException
+  {
     try {
       Iterator iter = getCaches().iterator();
       while (iter.hasNext()) {
@@ -99,7 +101,7 @@ class CacheMgr {
     catch (Exception e) {
       String msg = E.CACHE + e.getMessage();
       ErrorLog.fatal(CacheMgr.class, msg);
-      throw new RuntimeException(msg, e);
+      throw new GrouperRuntimeException(msg, e);
     }
   } // protected static void resetAllCaches()
 

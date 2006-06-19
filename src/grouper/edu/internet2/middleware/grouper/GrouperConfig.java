@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.24 2006-06-16 17:30:01 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.25 2006-06-19 15:17:40 blair Exp $
  */
 public class GrouperConfig {
 
@@ -175,7 +175,9 @@ public class GrouperConfig {
 
 
   // PRIVATE CLASS METHODS //
-  private static GrouperConfig _getConfiguration() {
+  private static GrouperConfig _getConfiguration() 
+    throws  GrouperRuntimeException
+  {
     InputStream in = GrouperConfig.class.getResourceAsStream(GROUPER_CF);
     try {
       cfg = new GrouperConfig();
@@ -184,7 +186,7 @@ public class GrouperConfig {
     catch (IOException eIO) {
       String msg = E.CONFIG_READ + eIO.getMessage();
       ErrorLog.fatal(GrouperConfig.class, msg);
-      throw new RuntimeException(msg, eIO);
+      throw new GrouperRuntimeException(msg, eIO);
     }
     return cfg;     
   } // private static GrouperConfig _getConfiguration()

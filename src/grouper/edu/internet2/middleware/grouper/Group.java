@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.82 2006-06-18 01:47:34 blair Exp $
+ * @version $Id: Group.java,v 1.83 2006-06-19 15:17:40 blair Exp $
  */
 public class Group extends Owner {
 
@@ -113,8 +113,11 @@ public class Group extends Owner {
    * Field members = Group.getDefaultList();
    * </pre>
    * @return  The "members" {@link Field}
+   * @throws  GrouperRuntimeException
    */
-  public static Field getDefaultList() {
+  public static Field getDefaultList() 
+    throws  GrouperRuntimeException
+  {
     try {
       return FieldFinder.find(GrouperConfig.LIST);
     }
@@ -122,7 +125,7 @@ public class Group extends Owner {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public static Field getDefaultList()
 
@@ -708,8 +711,11 @@ public class Group extends Owner {
    * Set admins = g.getAdmins();
    * </pre>
    * @return  Set of subjects with ADMIN
+   * @throws  GrouperRuntimeException
    */
-  public Set getAdmins() {
+  public Set getAdmins() 
+    throws  GrouperRuntimeException
+  {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.ADMIN
@@ -718,7 +724,7 @@ public class Group extends Owner {
     catch (SchemaException eS) {
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.ADMIN;
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getAdmins()
 
@@ -892,8 +898,11 @@ public class Group extends Owner {
    * String displayExtn = g.getDisplayExtension();
    * </pre>
    * @return  Gruop displayExtension.
+   * @throws  GrouperRuntimeException
    */
-  public String getDisplayExtension() {
+  public String getDisplayExtension() 
+    throws  GrouperRuntimeException
+  {
     //  TODO  Do I need to validate privs here or not?  If one has
     //        retrieved a group then one has at least VIEW and thus this
     //        attribute should be available, no?  As long as I don't make
@@ -902,7 +911,8 @@ public class Group extends Owner {
     String val = this._getAttributeNoPrivs("displayExtension");
     if (val == null) {
       //  A group without this attribute is VERY faulty
-      throw new RuntimeException(ERR_NODE);
+      ErrorLog.fatal(Group.class, ERR_NODE);
+      throw new GrouperRuntimeException(ERR_NODE);
     }
     return val;
   } // public String getDisplayExtension()
@@ -913,8 +923,11 @@ public class Group extends Owner {
    * String displayName = g.getDisplayName();
    * </pre>
    * @return  Group displayName.
+   * @throws  GrouperRuntimeException
    */
-  public String getDisplayName() {
+  public String getDisplayName() 
+    throws  GrouperRuntimeException
+  {
     //  TODO  Do I need to validate privs here or not?  If one has
     //        retrieved a group then one has at least VIEW and thus this
     //        attribute should be available, no?  As long as I don't make
@@ -923,7 +936,8 @@ public class Group extends Owner {
     String val = this._getAttributeNoPrivs("displayName");
     if (val == null) {
       //  A group without this attribute is VERY faulty
-      throw new RuntimeException(ERR_NODN);
+      ErrorLog.fatal(Group.class, ERR_NODN);
+      throw new GrouperRuntimeException(ERR_NODN);
     }
     return val;
   } // public String getDisplayName()
@@ -934,8 +948,11 @@ public class Group extends Owner {
    * Set effectives = g.getEffectiveMembers();
    * </pre>
    * @return  A set of {@link Member} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set getEffectiveMembers() {
+  public Set getEffectiveMembers() 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.getEffectiveMembers(getDefaultList());
     }
@@ -943,7 +960,7 @@ public class Group extends Owner {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getEffectiveMembership()
 
@@ -971,8 +988,11 @@ public class Group extends Owner {
    * Set effectives = g.getEffectiveMemberships();
    * </pre>
    * @return  A set of {@link Membership} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set getEffectiveMemberships() {
+  public Set getEffectiveMemberships() 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.getEffectiveMemberships(getDefaultList());
     }
@@ -980,7 +1000,7 @@ public class Group extends Owner {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getEffectiveMembership()
 
@@ -1007,6 +1027,7 @@ public class Group extends Owner {
    * String extension = g.getExtension();
    * </pre>
    * @return  Group extension.
+   * @throws  GrouperRuntimeException
    */
   public String getExtension() {
     //  TODO  Do I need to validate privs here or not?  If one has
@@ -1017,7 +1038,8 @@ public class Group extends Owner {
     String val = this._getAttributeNoPrivs("extension");
     if (val == null) {
       //  A group without this attribute is VERY faulty
-      throw new RuntimeException(ERR_NOE);
+      ErrorLog.error(Group.class, ERR_NOE);
+      throw new GrouperRuntimeException(ERR_NOE);
     }
     return val;
   } // public String getExtension()
@@ -1028,8 +1050,11 @@ public class Group extends Owner {
    * Set immediates = g.getImmediateMembers();
    * </pre>
    * @return  A set of {@link Member} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set getImmediateMembers() {
+  public Set getImmediateMembers() 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.getImmediateMembers(getDefaultList());
     }
@@ -1037,7 +1062,7 @@ public class Group extends Owner {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getImmediateMembers()
 
@@ -1064,8 +1089,11 @@ public class Group extends Owner {
    * Set immediates = g.getImmediateMemberships();
    * </pre>
    * @return  A set of {@link Membership} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set getImmediateMemberships() {
+  public Set getImmediateMemberships() 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.getImmediateMemberships(getDefaultList());
     }
@@ -1073,7 +1101,7 @@ public class Group extends Owner {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getImmediateMemberships()
 
@@ -1101,8 +1129,11 @@ public class Group extends Owner {
    * Set members = g.getMembers();
    * </pre>
    * @return  A set of {@link Member} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set getMembers() {
+  public Set getMembers() 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.getMembers(getDefaultList());
     }
@@ -1110,7 +1141,7 @@ public class Group extends Owner {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getMembers()
 
@@ -1135,8 +1166,11 @@ public class Group extends Owner {
    * Set memberships = g.getMemberships();
    * </pre>
    * @return  A set of {@link Membership} objects.
+   * @throws  GrouperRuntimeException
    */
-  public Set getMemberships() {
+  public Set getMemberships() 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.getMemberships(getDefaultList());
     }
@@ -1144,7 +1178,7 @@ public class Group extends Owner {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getMemberships()
 
@@ -1226,8 +1260,11 @@ public class Group extends Owner {
    * String name = g.getName();
    * </pre>
    * @return  Group name.
+   * @throws  GrouperRuntimeException
    */
-  public String getName() {
+  public String getName() 
+    throws  GrouperRuntimeException
+  {
     //  TODO  Do I need to validate privs here or not?  If one has
     //        retrieved a group then one has at least VIEW and thus this
     //        attribute should be available, no?  As long as I don't make
@@ -1236,7 +1273,8 @@ public class Group extends Owner {
     String val = this._getAttributeNoPrivs("name");
     if (val == null) {
       //  A group without this attribute is VERY faulty
-      throw new RuntimeException(ERR_NON);
+      ErrorLog.error(Group.class, ERR_NON);
+      throw new GrouperRuntimeException(ERR_NON);
     }
     return val;
   } // public String getName()
@@ -1247,8 +1285,11 @@ public class Group extends Owner {
    * Set optins = g.getOptins();
    * </pre>
    * @return  Set of subjects with OPTIN
+   * @throws  GrouperRuntimeException
    */
-  public Set getOptins() {
+  public Set getOptins() 
+    throws  GrouperRuntimeException
+  {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.OPTIN
@@ -1257,7 +1298,7 @@ public class Group extends Owner {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTIN;
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getOptins()
 
@@ -1267,8 +1308,11 @@ public class Group extends Owner {
    * Set admins = g.getOptouts();
    * </pre>
    * @return  Set of subjects with OPTOUT
+   * @throws  GrouperRuntimeException
    */
-  public Set getOptouts() {
+  public Set getOptouts() 
+    throws  GrouperRuntimeException
+  {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.OPTOUT
@@ -1277,7 +1321,7 @@ public class Group extends Owner {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTOUT;
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getOptouts()
 
@@ -1315,8 +1359,11 @@ public class Group extends Owner {
    * Set readers = g.getReaders();
    * </pre>
    * @return  Set of subjects with READ
+   * @throws  GrouperRuntimeException
    */
-  public Set getReaders() {
+  public Set getReaders() 
+    throws  GrouperRuntimeException
+  {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.READ
@@ -1325,7 +1372,7 @@ public class Group extends Owner {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.READ;
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getReaders()
 
@@ -1377,8 +1424,11 @@ public class Group extends Owner {
    * Set updaters = g.getUpdaters();
    * </pre>
    * @return  Set of subjects with UPDATE
+   * @throws  GrouperRuntimeException
    */
-  public Set getUpdaters() {
+  public Set getUpdaters() 
+    throws  GrouperRuntimeException
+  {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.UPDATE
@@ -1387,7 +1437,7 @@ public class Group extends Owner {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.UPDATE;
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public set getUpdateres()
 
@@ -1397,8 +1447,11 @@ public class Group extends Owner {
    * Set viewers = g.getViewers();
    * </pre>
    * @return  Set of subjects with VIEW
+   * @throws  GrouperRuntimeException
    */
-  public Set getViewers() {
+  public Set getViewers() 
+    throws  GrouperRuntimeException
+  {
     try {
       return PrivilegeResolver.getInstance().getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.VIEW
@@ -1407,7 +1460,7 @@ public class Group extends Owner {
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.VIEW;
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getViewers()
 
@@ -1494,8 +1547,11 @@ public class Group extends Owner {
    * </pre>
    * @param   subj  Check this subject.
    * @return  Boolean true if subject belongs to this group.
+   * @throws  GrouperRuntimeException
    */
-  public boolean hasEffectiveMember(Subject subj) {
+  public boolean hasEffectiveMember(Subject subj) 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.hasEffectiveMember(subj, getDefaultList());
     } 
@@ -1503,7 +1559,7 @@ public class Group extends Owner {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public boolean hasEffectiveMember(Subject subj)
 
@@ -1548,8 +1604,11 @@ public class Group extends Owner {
    * </pre>
    * @param   subj  Check this subject.
    * @return  Boolean true if subject belongs to this group.
+   * @throws  GrouperRuntimeException
    */
-  public boolean hasImmediateMember(Subject subj) {
+  public boolean hasImmediateMember(Subject subj) 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.hasImmediateMember(subj, getDefaultList());
     }
@@ -1557,7 +1616,7 @@ public class Group extends Owner {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public boolean hasImmediateMember(subj)
 
@@ -1610,8 +1669,11 @@ public class Group extends Owner {
    * </pre>
    * @param   subj  Check this subject.
    * @return  Boolean true if subject belongs to this group.
+   * @throws  GrouperRuntimeException
    */
-  public boolean hasMember(Subject subj) {
+  public boolean hasMember(Subject subj) 
+    throws  GrouperRuntimeException
+  {
     try {
       return this.hasMember(subj, getDefaultList());
     }
@@ -1619,7 +1681,7 @@ public class Group extends Owner {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new RuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eS);
     }
   } // public boolean hasMember(subj)
 
@@ -2014,8 +2076,11 @@ public class Group extends Owner {
    * Member m = g.toMember();
    * </pre>
    * @return  {@link Group} as a {@link Member}
+   * @throws  GrouperRuntimeException
    */
-  public Member toMember() {
+  public Member toMember() 
+    throws  GrouperRuntimeException
+  {
     // TODO Does this need to be public?
     GrouperSession.validate(this.getSession());
     if (as_member == null) {
@@ -2028,7 +2093,8 @@ public class Group extends Owner {
         // If we can't convert a group to a member we have major issues
         // and should probably just give up
         String msg = ERR_G2M + eMNF.getMessage();
-        throw new RuntimeException(msg, eMNF);
+        ErrorLog.fatal(Group.class, msg);
+        throw new GrouperRuntimeException(msg, eMNF);
       }
     }
     return as_member;
@@ -2041,8 +2107,11 @@ public class Group extends Owner {
    * Subject subj = g.toSubject();
    * </pre>
    * @return  {@link Group} as a {@link Subject}
+   * @throws  GrouperRuntimeException
    */
-  public Subject toSubject() {
+  public Subject toSubject() 
+    throws  GrouperRuntimeException
+  {
     GrouperSession.validate(this.getSession());
     if (as_subj == null) {
       try {
@@ -2054,7 +2123,8 @@ public class Group extends Owner {
         // If we can't find an existing group as a subject we have
         // major issues and shoudl probably just give up
         String msg = ERR_G2S + e.getMessage();
-        throw new RuntimeException(msg, e);
+        ErrorLog.fatal(Group.class, msg);
+        throw new GrouperRuntimeException(msg, e);
       }
     }
     return as_subj;

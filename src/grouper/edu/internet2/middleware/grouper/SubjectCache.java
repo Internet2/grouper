@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * Subject cache provider.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.6 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: SubjectCache.java,v 1.7 2006-06-19 15:17:40 blair Exp $
  */
 class SubjectCache {
 
@@ -75,14 +75,14 @@ class SubjectCache {
 
   // PROTECTED CLASS METHODS //
   protected static SubjectCache getCache(String name) 
-    throws  RuntimeException
+    throws  GrouperRuntimeException
   {
     if (CACHES.containsKey(name)) {
       return (SubjectCache) CACHES.get(name);
     }
     String msg = E.SC_NOTFOUND + name;
     ErrorLog.fatal(SubjectCache.class, msg);
-    throw new RuntimeException(msg);
+    throw new GrouperRuntimeException(msg);
   } // protected static SubjectCache getCache(name)
 
 

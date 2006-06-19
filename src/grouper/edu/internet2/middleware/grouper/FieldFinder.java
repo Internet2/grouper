@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.Type;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.12 2006-06-15 17:45:34 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.13 2006-06-19 15:17:40 blair Exp $
  */
 public class FieldFinder {
 
@@ -72,8 +72,12 @@ public class FieldFinder {
    * <pre class="eg">
    * Set fields = FieldFinder.findAll();
    * </pre>
+   * @return  {@link Set} of {@link Field} objects.
+   * @throws  GrouperRuntimeException
    */
-  public static Set findAll() {
+  public static Set findAll() 
+    throws  GrouperRuntimeException
+  {
     // TODO Why doesn't this refresh the known fields?
     Set fields = new LinkedHashSet();
     try {
@@ -87,7 +91,7 @@ public class FieldFinder {
     catch (HibernateException eH) {
       String msg = E.FIELD_FINDALL + eH.getMessage();
       ErrorLog.fatal(FieldFinder.class, msg);
-      throw new RuntimeException(msg, eH);
+      throw new GrouperRuntimeException(msg, eH);
     }
     return fields;
   } // public Static Set findAll()

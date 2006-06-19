@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * Privilege cache provider.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.8 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: PrivilegeCache.java,v 1.9 2006-06-19 15:17:40 blair Exp $
  *     
  */
 class PrivilegeCache {
@@ -68,7 +68,7 @@ class PrivilegeCache {
 
   // PROTECTED CLASS METHODS //
   protected static PrivilegeCache getCache(String name) 
-    throws  RuntimeException
+    throws  GrouperRuntimeException
   {
     if (caches.containsKey(name)) {
       return (PrivilegeCache) caches.get(name);
