@@ -18,16 +18,39 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
+import  net.sf.hibernate.*;
 
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.4 2006-06-15 03:53:01 blair Exp $
+ * @version $Id: StemValidator.java,v 1.5 2006-06-19 19:37:54 blair Exp $
  * @since   1.0
  */
 class StemValidator {
 
   // PROTECTED CLASS METHODS //
+
+  // @since 1.0
+  protected static void canDeleteStem(Stem ns) 
+    throws  InsufficientPrivilegeException,
+            StemDeleteException
+  {
+    if (ns.getName().equals(Stem.ROOT_EXT)) {
+      throw new StemDeleteException("cannot delete root stem");
+    }
+    PrivilegeResolver.getInstance().canSTEM(ns.getSession(), ns, ns.getSession().getSubject());
+    try {
+      if (ns.getChildStemsNpHi().size() > 0) {
+        throw new StemDeleteException("cannot delete stem with child stems");
+      }
+      if (ns.getChildGroupsNpHi().size() > 0) {
+        throw new StemDeleteException("cannot delete stem with child groups");
+      }
+    }
+    catch (HibernateException eH){
+      throw new StemDeleteException(eH.getMessage(), eH);
+    }
+  } // protected static void canDeleteStem(ns)
 
   // @since 1.0
   protected static void canWriteField(

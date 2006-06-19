@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.61 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: Stem.java,v 1.62 2006-06-19 19:37:54 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -148,7 +148,7 @@ public class Stem extends Owner {
       // Set parent
       child.setParent_stem(this);
       // Add to children 
-      Set children  = this.getChild_groups();
+      Set children  = this.getChildGroupsNpHi();
       children.add(child);
       this.setChild_groups(children);
       // Now create as member
@@ -239,7 +239,7 @@ public class Stem extends Owner {
         // Set parent
         child.setParent_stem(this);
         // Add to children 
-        Set children  = this.getChild_stems();
+        Set children  = this.getChildStemsNpHi();
         children.add(child);
         this.setChild_stems(children);
         // And save
@@ -284,7 +284,7 @@ public class Stem extends Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     GrouperSession.validate(this.getSession());
-    Validator.canDeleteStem(this);
+    StemValidator.canDeleteStem(this);
     try {
       String name = this.getName();   // Preserve name for logging
       this._revokeAllNamingPrivs();   // Revoke privs
@@ -323,25 +323,29 @@ public class Stem extends Owner {
     GrouperSession.validate(this.getSession());
     Set children  = new LinkedHashSet();
     try {
-      _initializeChildGroupsAndStems(this);
-      Iterator iter = this.getChild_groups().iterator();
-      // Perform check as root
-      GrouperSession root = GrouperSessionFinder.getTransientRootSession();
-      while (iter.hasNext()) {
-        Group child = (Group) iter.next();
-        child.setSession(root);
-        try {
-          PrivilegeResolver.getInstance().canVIEW(
-            root, child, s.getSubject()
-          );
-          child.setSession(this.getSession());
-          children.add(child);
+      try {
+        Iterator iter = this.getChildGroupsNpHi().iterator();
+        // Perform check as root
+        GrouperSession root = GrouperSessionFinder.getTransientRootSession();
+        while (iter.hasNext()) {
+          Group child = (Group) iter.next();
+          child.setSession(root);
+          try {
+            PrivilegeResolver.getInstance().canVIEW(
+              root, child, s.getSubject()
+            );
+            child.setSession(this.getSession());
+            children.add(child);
+          }
+          catch (InsufficientPrivilegeException eIP) {
+            ErrorLog.error(Stem.class, E.STEM_GETCHILDGROUPS + eIP.getMessage());
+          }
         }
-        catch (InsufficientPrivilegeException eIP) {
-          ErrorLog.error(Stem.class, E.STEM_GETCHILDGROUPS + eIP.getMessage());
-        }
+        root.stop();
       }
-      root.stop();
+      catch (HibernateException eH) {
+        ErrorLog.error(Stem.class, E.STEM_GETCHILDGROUPS + eH.getMessage());
+      }
     }
     catch (Exception e) {
       // @exception HibernateException
@@ -363,8 +367,7 @@ public class Stem extends Owner {
     GrouperSession.validate(s);
     Set children = new LinkedHashSet();
     try {
-      _initializeChildGroupsAndStems(this); 
-      Iterator iter = this.getChild_stems().iterator();
+      Iterator iter = this.getChildStemsNpHi().iterator();
       while (iter.hasNext()) {
         Stem child = (Stem) iter.next();
         child.setSession(this.getSession());
@@ -372,7 +375,7 @@ public class Stem extends Owner {
       }
     }
     catch (HibernateException eH) {
-      ErrorLog.error(Stem.class, E.HIBERNATE + eH.getMessage());
+      ErrorLog.error(Stem.class, E.STEM_GETCHILDSTEMS + eH.getMessage());
     }
     return children;
   } // public Set getChildStems()
@@ -940,6 +943,25 @@ public class Stem extends Owner {
     return stem + ROOT_INT + extn;
   } // protected static String constructName(stem, extn)
 
+
+  // PROTECTED INSTANCE METHODS //
+  
+  // @since 1.0
+  protected Set getChildGroupsNpHi() 
+    throws  HibernateException
+  {
+    _initializeChildGroupsAndStems(this);
+    return this.getChild_groups();
+  } // protected Set getChildGroupsNpHi()
+
+  // @since 1.0
+  protected Set getChildStemsNpHi() 
+    throws  HibernateException
+  {
+    _initializeChildGroupsAndStems(this);
+    return this.getChild_stems();
+  } // protected Set getChildStemsNpHi()
+
   protected void setModified() {
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
@@ -950,13 +972,16 @@ public class Stem extends Owner {
 
   // The child_groups and child_stems collections have lazy
   // associations so we need to manually initialize as needed.
+  // TODO Deprecate in favor of `getChildGroupsNpHi()` and `getChildStemsNpHi()`?
   private static void _initializeChildGroupsAndStems(Stem ns) 
     throws  HibernateException
   {
-    Session hs = HibernateHelper.getSession();
+    Session     hs  = HibernateHelper.getSession();
+    Transaction tx  = hs.beginTransaction();
     hs.load(ns, ns.getId());
     Hibernate.initialize( ns.getChild_stems() );
     Hibernate.initialize( ns.getChild_groups() );
+    tx.commit();
     hs.close();
   } // private static void _initializeChildGroupsAndStems(ns) 
 
@@ -1075,7 +1100,7 @@ public class Stem extends Owner {
   private Set _renameChildGroups() 
     throws  HibernateException
   {
-    Set objects = new LinkedHashSet();
+    Set       objects = new LinkedHashSet();
     Iterator iter = this.getChild_groups().iterator();
     while (iter.hasNext()) {
       Group child = (Group) iter.next();
@@ -1108,7 +1133,7 @@ public class Stem extends Owner {
   private Set _renameChildStemsAndGroups() 
     throws  HibernateException
   {
-    Set objects = new LinkedHashSet();
+    Set       objects = new LinkedHashSet();
     Iterator iter = this.getChild_stems().iterator();
     while (iter.hasNext()) {
       Stem child = (Stem) iter.next();    
@@ -1144,10 +1169,10 @@ public class Stem extends Owner {
 
 
   // GETTERS //
-  protected Set getChild_groups() { // Validator.canDeleteStem()
+  private Set getChild_groups() { 
     return this.child_groups;
   }
-  protected Set getChild_stems() {  // Validator.canDeleteStem()
+  private Set getChild_stems() { 
     return this.child_stems;
   }
   private String getDisplay_extension() {

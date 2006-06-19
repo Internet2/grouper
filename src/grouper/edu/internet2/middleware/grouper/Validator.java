@@ -26,7 +26,7 @@ import  java.util.*;
  * Validation methods that apply to multiple Grouper classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.13 2006-06-19 16:21:52 blair Exp $
+ * @version $Id: Validator.java,v 1.14 2006-06-19 19:37:54 blair Exp $
  */
 class Validator {
 
@@ -112,22 +112,6 @@ class Validator {
     }
     GroupValidator.canModGroupType(s, g, type);
   } // protected static void canAddGroupType(s, g, type)
-
-  protected static void canDeleteStem(Stem ns) 
-    throws  InsufficientPrivilegeException,
-            StemDeleteException
-  {
-    if (ns.getName().equals(Stem.ROOT_EXT)) {
-      throw new StemDeleteException("cannot delete root stem");
-    }
-    PrivilegeResolver.getInstance().canSTEM(ns.getSession(), ns, ns.getSession().getSubject());
-    if (ns.getChild_stems().size() > 0) {
-      throw new StemDeleteException("cannot delete stem with child stems");
-    }
-    if (ns.getChild_groups().size() > 0) {
-      throw new StemDeleteException("cannot delete stem with child groups");
-    }
-  } // protected static void canDeleteStem(ns)
 
   protected static void canDeleteFieldFromType(
     GrouperSession s, GroupType type, Field f
