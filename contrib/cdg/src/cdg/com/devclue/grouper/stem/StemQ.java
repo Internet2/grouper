@@ -6,8 +6,6 @@
  */
 
 package com.devclue.grouper.stem;
-
-import  bsh.*;
 import  com.devclue.grouper.session.*;
 import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
@@ -16,13 +14,11 @@ import  java.util.*;
  * Query for stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemQ.java,v 1.2 2006-05-25 15:20:19 blair Exp $
+ * @version $Id: StemQ.java,v 1.3 2006-06-20 18:02:11 blair Exp $
  */
 public class StemQ {
 
-  /*
-   * CONSTRUCTORS
-   */
+  // CONSTRUCTORS //
 
   /**
    * Create a new StemQ object.
@@ -35,10 +31,7 @@ public class StemQ {
   } // public StemQ()
 
 
-  /*
-   * PUBLIC CLASS METHODS
-   */
-
+  // MAIN //
   /**
    * Query each stem named <b>like</b> the command line arguments.
    * <p>Stems printed to STDOUT if found.</p>
@@ -76,14 +69,8 @@ public class StemQ {
     System.exit(ev);
   } // public static void main(args)
 
-  public static void invoke(Interpreter env, CallStack stack, String name) {
-    System.err.println("QUERY FOR STEM WITH ARGUMENT (" + name + ")");
-  } // public static void invoke(env, stack, name)
 
-
-  /*
-   * PUBLIC INSTANCE METHODS
-   */
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Perform fuzzy query for stems by <i>name</i> and <i>displayName</i>.
@@ -106,7 +93,7 @@ public class StemQ {
       return gq.getStems();
     }
     catch (Exception e) {
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException(e.getMessage(), e);
     }
   } // public Set getStems(name)
 
