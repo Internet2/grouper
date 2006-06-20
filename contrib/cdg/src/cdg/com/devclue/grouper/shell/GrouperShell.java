@@ -24,7 +24,11 @@ import  java.util.*;
  *   <li><b>addStem(parent, extension, displayExtension)</b> - Add stem
  *     beneath <i>parent</i> stem with the specified <i>extension</i>
  *     and <i>displayExtension</i>.</li>
+ *   <li><b>delStem(name)</b> - Delete stem with the specified
+ *     <i>name</i>.</li>
  *   <li><b>exit</b> - Terminate shell.</li>
+ *   <li><b>getStems(name)</b> - Find all stems with <i>name</i> in any
+ *     naming attribute value.</li>
  *   <li><b>quit</b> - Terminate shell.</li>
  * </ul> 
  * <h3>Variables</h3>
@@ -33,7 +37,7 @@ import  java.util.*;
  *    upon failure.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.4 2006-06-20 18:02:11 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.5 2006-06-20 18:26:43 blair Exp $
  * @since   1.0
  */
 public class GrouperShell {
@@ -165,11 +169,7 @@ public class GrouperShell {
   private void _importCommands() 
     throws  bsh.EvalError
   {
-    this._importCommand(  "group"   );
-    this._importCommand(  "member"  );
     this._importCommand(  "shell"   );
-    this._importCommand(  "stem"    );
-    this._importCommand(  "subject" );
   } // private void _importCommands()
 
   //  @since  1.0
@@ -203,7 +203,7 @@ public class GrouperShell {
         }
       }
       catch (bsh.EvalError eBEE) {
-        this.i.error("ERROR! " + eBEE.getMessage());
+        this.i.error(eBEE.getMessage());
       }
     }
   } // private void _run()

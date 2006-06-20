@@ -16,7 +16,7 @@ import  java.util.*;
  * Stem Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.1 2006-06-20 18:02:11 blair Exp $
+ * @version $Id: StemHelper.java,v 1.2 2006-06-20 18:26:43 blair Exp $
  * @since   1.0
  */
 class StemHelper {
@@ -51,13 +51,51 @@ class StemHelper {
     }
   } // protected static void _addStem(i, parent, extn, displayExtn)
 
+  // @since 1.0 
+  protected static void delStem(Interpreter i, String name) {
+    try {
+      GrouperSession  s   = GrouperShell.getSession(i);
+      Stem            ns  = StemFinder.findByName(s, name);
+      ns.delete();
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      GrouperShell.error(i, eIP);
+    }
+    catch (StemDeleteException eNSD)            {
+      GrouperShell.error(i, eNSD);
+    }
+    catch (StemNotFoundException eNSNF)         {
+      GrouperShell.error(i, eNSNF);
+    }
+  } // protected static void delStem(i, name)
+
   // @since 1.0
   protected static String getPretty(Stem ns) {
-    return  "name="           + ns.getName() 
-            + " displayName=" + ns.getDisplayName()
-            + " uuid="        + ns.getUuid()
+    return    "name="         + U.q(  ns.getName()        )
+            + "displayName="  + U.q(  ns.getDisplayName() )
+            + "uuid="         + U.q(  ns.getUuid()        )
             ;
   } // protected static String getPretty(ns)
-  
-}
+ 
+  // @since 1.0 
+  protected static void getStems(Interpreter i, String name) {
+    try {
+      GrouperSession  s     = GrouperShell.getSession(i);
+      Stem            root  = StemFinder.findRootStem(s);
+      GrouperQuery    gq    = GrouperQuery.createQuery(
+        s, 
+        new StemNameAnyFilter(name, root)
+      );
+      Iterator iter = gq.getStems().iterator();
+      while (iter.hasNext()) {
+        Stem ns = (Stem) iter.next();
+        i.println( StemHelper.getPretty(ns) );
+      }
+    }
+    catch (QueryException eQ) {
+      GrouperShell.error(i, eQ);
+    }
+  } // protected static void getStems(i, name)
+
+} // class StemHelper
 
