@@ -1,21 +1,22 @@
-<!-- $Id: build.xml,v 1.6 2006-05-30 19:40:51 blair Exp $ -->
+<!-- $Id: build.xml,v 1.7 2006-06-20 18:02:11 blair Exp $ -->
 
 <project name="com.devclue.grouper" default="build" basedir=".">
 
   <!-- Global Properties -->
   <property name="app.name"         value="cdg"/>
   <property name="build"            value="${basedir}/build"/>
-  <property name="build.cdg"        value="${build}/cdg"/>
-  <property name="build.javadoc"    value="doc/html"/>
-  <property name="build.javadoc"    value="doc/html"/>
-  <property name="build.test"       value="${build}/test"/>
+  <property name="build.bin"        value="${basedir}/bin"  />
+  <property name="build.cdg"        value="${build}/cdg"    />
+  <property name="build.javadoc"    value="doc/html"        />
+  <property name="build.test"       value="${build}/test"   />
   <property name="impl.vendor"      value="devclue.com"/>
   <property name="impl.url"         value="http://grouper.devclue.com/"/>
   <property name="impl.version"     value="1.0"/>
   <property name="javadoc.packages" value="com.devclue.grouper.*,com.devclue.grouper.*.*"/>
-  <property name="src"              value="${basedir}/src"/>
-  <property name="src.cdg"          value="${src}/cdg"/>
-  <property name="src.test"         value="${src}/test"/>
+  <property name="src"              value="${basedir}/src"  />
+  <property name="src.bin"          value="${src}/bin"      />
+  <property name="src.cdg"          value="${src}/cdg"      />
+  <property name="src.test"         value="${src}/test"     />
   <property name="test.data"        value="${src.test}/data"/>
 
   <property name="log.build"        value="${basedir}/build.log"/>
@@ -26,6 +27,7 @@
   <!-- init -->
   <target name="init">
     <tstamp />
+    <mkdir dir="${build.bin}" />
     <mkdir dir="${build.cdg}" />
     <mkdir dir="${build.test}" />
     <dirname property="src.grouper" file="../../PROJECT_LAYOUT"/>
@@ -57,6 +59,17 @@
     <copy todir="${build.cdg}">
       <fileset dir="${src.cdg}" includes="**/*.bsh"/>
     </copy>
+
+    <filter token="CDG_HOME"      value="${basedir}"      />
+    <filter token="GROUPER_HOME"  value="${src.grouper}"  />
+    <copy todir="${build.bin}" filtering="true">
+      <fileset dir="${src.bin}"/>
+    </copy>
+    <chmod  dir="${build.bin}"  
+            perm="ugo+rx" 
+            includes="**/*.sh"
+    />
+
     <record name="${log.build}" action="stop"/>
   </target>
   <!-- build -->
@@ -64,6 +77,7 @@
   <!-- clean -->
   <target name="clean">
     <delete dir="${build}"/>
+    <delete dir="${build.bin}"/>
     <delete dir="${src.grouper}"/>
   </target>
   <!-- clean -->

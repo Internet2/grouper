@@ -6,7 +6,6 @@
  */
 
 package com.devclue.grouper.stem;
-
 import  com.devclue.grouper.session.*;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
@@ -16,13 +15,11 @@ import  java.util.*;
  * Add stems to the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemAdd.java,v 1.1 2005-12-16 21:48:00 blair Exp $
+ * @version $Id: StemAdd.java,v 1.2 2006-06-20 18:02:11 blair Exp $
  */
 public class StemAdd {
 
-  /*
-   * CONSTRUCTORS
-   */
+  // CONSTRUCTORS //
 
   /**
    * Create a new StemAdd object.
@@ -35,10 +32,7 @@ public class StemAdd {
   } // public StemAdd()
 
 
-  /*
-   * PUBLIC CLASS METHODS
-   */
-
+  // MAIN //
   /**
    * Add stem or root stem depending upon command line arguments.
    * <p>Stem is printed to STDOUT if created.</p>
@@ -80,9 +74,7 @@ public class StemAdd {
   } // public static void main(args)
 
 
-  /*
-   * PUBLIC INSTANCE METHODS
-   */
+  // PUBLIC INSTANCE METHODS //
 
   /**
    * Add a root stem.
@@ -107,7 +99,7 @@ public class StemAdd {
       return root.addChildStem(extension, extension);
     }
     catch (Exception e) {
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException(e.getMessage(), e);
     }
   } // public Stem addRootStem(extension)
 
@@ -135,7 +127,7 @@ public class StemAdd {
       return parent.addChildStem(extension, extension);
     }
     catch (Exception e) {
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException(e.getMessage(), e);
     }
   } // public Stem addStem(stem, extension)
 
