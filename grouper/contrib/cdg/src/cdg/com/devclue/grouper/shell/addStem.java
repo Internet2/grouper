@@ -7,16 +7,13 @@
 
 package com.devclue.grouper.shell;
 import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /**
  * Add stem.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addStem.java,v 1.1 2006-06-20 18:02:11 blair Exp $
+ * @version $Id: addStem.java,v 1.2 2006-06-20 18:26:43 blair Exp $
  * @since   1.0
  */
 public class addStem {
