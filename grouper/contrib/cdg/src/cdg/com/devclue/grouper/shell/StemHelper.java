@@ -16,7 +16,7 @@ import  java.util.*;
  * Stem Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.2 2006-06-20 18:26:43 blair Exp $
+ * @version $Id: StemHelper.java,v 1.3 2006-06-20 19:53:17 blair Exp $
  * @since   1.0
  */
 class StemHelper {
@@ -49,7 +49,7 @@ class StemHelper {
     catch (StemNotFoundException eNSNF)         {
       GrouperShell.error(i, eNSNF);
     }
-  } // protected static void _addStem(i, parent, extn, displayExtn)
+  } // protected static void addStem(i, parent, extn, displayExtn)
 
   // @since 1.0 
   protected static void delStem(Interpreter i, String name) {

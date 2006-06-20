@@ -10,27 +10,27 @@ import  bsh.*;
 import  java.util.*;
 
 /**
- * Delete a stem.
+ * Delete a group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delStem.java,v 1.2 2006-06-20 19:53:17 blair Exp $
+ * @version $Id: delGroup.java,v 1.1 2006-06-20 19:53:17 blair Exp $
  * @since   1.0
  */
-public class delStem {
+public class delGroup {
 
   // PUBLIC CLASS METHODS //
 
   /**
-   * Delete a stem.
+   * Delete a  stem.
    * <p/>
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
-   * @param   name  <i>name</i> of {@link Stem} to delete.
+   * @param   name  <i>name</i> of {@link Group} to delete.
    * @since   1.0
    */
   public static void invoke(Interpreter i, CallStack stack, String name) {
-    StemHelper.delStem(i, name);
+    GroupHelper.delGroup(i, name);
   } // public static void invoke(i, stack, parent, name)
 
-} // public class delStem
+} // public class delGroup
 
