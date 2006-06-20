@@ -21,12 +21,19 @@ import  java.util.*;
  * <ul>
  *   <li><b>addRootStem(extension, displayExtension)</b> - Add root
  *     stem with the specified <i>extension</i> and <i>displayExtension</i>.</li>
+ *   <li><b>addGroup(parent, extension, displayExtension)</b> - Add
+ *     group beneath <i>parent</i> stem with the specified <i>extension</i>
+ *     and <i>displayExtension</i>.</li>
  *   <li><b>addStem(parent, extension, displayExtension)</b> - Add stem
  *     beneath <i>parent</i> stem with the specified <i>extension</i>
  *     and <i>displayExtension</i>.</li>
+ *   <li><b>delGroup(name)</b> - Delete group with the specified
+ *     <i>name</i>.</li>
  *   <li><b>delStem(name)</b> - Delete stem with the specified
  *     <i>name</i>.</li>
  *   <li><b>exit</b> - Terminate shell.</li>
+ *   <li><b>getGroups(name)</b> - Find all groups with <i>name</i> in any
+ *     naming attribute value.</li>
  *   <li><b>getStems(name)</b> - Find all stems with <i>name</i> in any
  *     naming attribute value.</li>
  *   <li><b>history()</b> - Print commands that have been run.</li>
@@ -42,7 +49,7 @@ import  java.util.*;
  *    upon failure.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.6 2006-06-20 19:40:47 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.7 2006-06-20 19:53:17 blair Exp $
  * @since   1.0
  */
 public class GrouperShell {
