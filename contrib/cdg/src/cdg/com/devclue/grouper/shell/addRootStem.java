@@ -7,13 +7,16 @@
 
 package com.devclue.grouper.shell;
 import  bsh.*;
+import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /**
  * Add stem.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addRootStem.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @version $Id: addRootStem.java,v 1.3 2006-06-21 22:33:54 blair Exp $
  * @since   0.0.1
  */
 public class addRootStem {
@@ -27,14 +30,17 @@ public class addRootStem {
    * @param   stack       BeanShell call stack.
    * @param   extn        <i>extension</i> of {@link Stem}.
    * @param   displayExtn <i>displayExtension</i> of {@link Stem}.
+   * @return  Added {@link Stem}.
+   * @throws  GrouperShellException
    * @since   0.0.1
    */
-  public static void invoke(
+  public static Stem invoke(
     Interpreter i, CallStack stack, String extn, String displayExtn
   ) 
+    throws  GrouperShellException
   {
-    StemHelper.addStem(i, null, extn, displayExtn);
-  } // public static void invoke(i, stack, name)
+    return StemHelper.addStem(i, null, extn, displayExtn);
+  } // public static Stem invoke(i, stack, name)
 
 } // public class addRootStem
 

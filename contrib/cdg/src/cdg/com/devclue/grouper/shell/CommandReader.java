@@ -13,7 +13,7 @@ import  java.io.*;
  * {@link GrouperShell} Command Reader.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CommandReader.java,v 1.1 2006-06-21 20:28:55 blair Exp $
+ * @version $Id: CommandReader.java,v 1.2 2006-06-21 22:33:54 blair Exp $
  * @since   0.0.1
  */
 class CommandReader {
@@ -54,26 +54,27 @@ class CommandReader {
   } // protected CommandReader(args)
 
 
-  // PUBLIC INSTANCE METHODS //
+  // PROTECTED INSTANCE METHODS //
 
-  /**
-   * @throws  GrouperShellException
-   * @since   0.0.1
-   */
-  public Interpreter getInterpreter() 
+  // @since   0.0.1
+  protected int getCnt() {
+    return this.cnt++;  // Well that's certainly an unexpected side effect!
+  } // protected int getCnt()
+
+   // @throws  GrouperShellException
+   // @since   0.0.1
+  protected Interpreter getInterpreter() 
     throws  GrouperShellException
   {
     if (this.i == null) {
       throw new GrouperShellException(E.I_NULL);
     }
     return this.i;
-  } // public Interpreter getInterpreter()
+  } // protected Interpreter getInterpreter()
 
-  /**
-   * @throws  GrouperShellException
-   * @since   0.0.1
-   */
-  public String next() 
+   // @throws  GrouperShellException
+   // @since   0.0.1
+  protected String next() 
     throws  GrouperShellException
   {
     if (this.prompt != null) {
@@ -81,19 +82,12 @@ class CommandReader {
     }
     try {
       String cmd = this.in.readLine();
-      try {
-        GrouperShell.setHistory(this.i, cnt, cmd);
-      }
-      catch (bsh.EvalError eBEE) {
-        this.i.error(E.GSH_SETHISTORY + eBEE.getMessage());
-      }
-      cnt++;
       return cmd;
     }
     catch (IOException eIO) {
       throw new GrouperShellException(eIO);
     }
-  } // public String next()
- 
+  } // protected String next()
+
 } // class CommandReader
 

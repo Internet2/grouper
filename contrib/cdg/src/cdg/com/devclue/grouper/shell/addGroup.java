@@ -7,13 +7,16 @@
 
 package com.devclue.grouper.shell;
 import  bsh.*;
+import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /**
  * Add group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addGroup.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @version $Id: addGroup.java,v 1.3 2006-06-21 22:33:54 blair Exp $
  * @since   0.0.1
  */
 public class addGroup {
@@ -28,14 +31,31 @@ public class addGroup {
    * @param   parent      <i>name</i> of parent {@link Group}.
    * @param   extn        <i>extension</i> of {@link Group}.
    * @param   displayExtn <i>displayExtension</i> of {@link Group}.
+   * @return  Added {@link Group}.
+   * @throws  GrouperShellException
    * @since   0.0.1
    */
-  public static void invoke(
+  public static Group invoke(
     Interpreter i, CallStack stack, String parent, String extn, String displayExtn
   ) 
+    throws  GrouperShellException
   {
-    GroupHelper.addGroup(i, parent, extn, displayExtn);
-  } // public static void invoke(i, stack, parent, name)
+    try {
+      GrouperSession  s   = GrouperShell.getSession(i);
+      Stem            ns  = StemFinder.findByName(s, parent);
+      return ns.addChildGroup(extn, displayExtn);
+    }
+    catch (GroupAddException eGA)               {
+      GrouperShell.error(i, eGA);
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      GrouperShell.error(i, eIP);
+    }
+    catch (StemNotFoundException eNSNF)         {
+      GrouperShell.error(i, eNSNF);
+    }
+    throw new GrouperShellException();
+  } // protected static Group addGroup(i, parent, extn, displayExtn)
 
 } // public class addGroup
 

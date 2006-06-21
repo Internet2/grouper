@@ -13,15 +13,19 @@ import  java.util.*;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @version $Id: ShellHelper.java,v 1.3 2006-06-21 22:33:54 blair Exp $
  * @since   0.0.1
  */
 class ShellHelper {
 
   // PROTECTED CLASS METHODS //
 
+  // @return  True if suceeds.
+  // @throws  GrouperShellException
   // @since 0.0.1
-  protected static void eval(Interpreter i, int idx) {
+  protected static boolean eval(Interpreter i, int idx) 
+    throws  GrouperShellException
+  {
     try {
       List    history = GrouperShell.getHistory(i);
       // An ugly way of getting the last command
@@ -30,20 +34,25 @@ class ShellHelper {
       }
       String cmd = (String) history.get(idx);
       i.eval(cmd);
+      return true;
     }
     catch (ArrayIndexOutOfBoundsException eAIOOB) {
-      GrouperShell.error(i, eAIOOB, E.OUTOFBOUNDS);
+      throw new GrouperShellException(E.OUTOFBOUNDS, eAIOOB);
     }
     catch (bsh.EvalError eBEE)                    {
-      GrouperShell.error(i, eBEE);
+      throw new GrouperShellException(eBEE);
     }
     catch (IndexOutOfBoundsException eIOOB) {
-      GrouperShell.error(i, eIOOB, E.OUTOFBOUNDS);
+      throw new GrouperShellException(E.OUTOFBOUNDS, eIOOB);
     }
-  } // protected static void eval(i, idx)
+  } // protected static boolean eval(i, idx)
 
-  // @since 0.0.1
-  protected static void history(Interpreter i, int cnt) {
+  // @return  True if suceeds.
+  // @throws  GrouperShellException
+  // @since   0.0.1
+  protected static boolean history(Interpreter i, int cnt) 
+    throws  GrouperShellException
+  {
     try {
       List      history = GrouperShell.getHistory(i);  
       Object[]  cmds    = history.toArray();
@@ -55,14 +64,15 @@ class ShellHelper {
       for (int idx=offset; idx<cmds.length; idx++) {
         i.println("[" + idx + "] "  + cmds[idx]);
       }
+      return true;
     }
     catch (ArrayIndexOutOfBoundsException eAIOOB) {
-      GrouperShell.error(i, eAIOOB, E.OUTOFBOUNDS);
+      throw new GrouperShellException(E.OUTOFBOUNDS, eAIOOB);
     }
     catch (bsh.EvalError eBEE) {
-      GrouperShell.error(i, eBEE);
+      throw new GrouperShellException(eBEE);
     }
-  } // protected static void history(i, cnt)
+  } // protected static boolean history(i, cnt)
 
 } // class ShellHelper
 
