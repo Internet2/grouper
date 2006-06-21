@@ -12,8 +12,8 @@ import  java.util.*;
  * Utility Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: U.java,v 1.1 2006-06-20 18:26:43 blair Exp $
- * @since   1.0
+ * @version $Id: U.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 class U {
 
@@ -24,7 +24,7 @@ class U {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.0
+  // @since 0.0.1
   protected static String q(String txt) {
     return Q_OPEN + txt + Q_CLOSE;
   } // protected static String q(txt)

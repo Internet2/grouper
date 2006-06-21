@@ -1,0 +1,22 @@
+/*
+ * For GrouperShell testing.
+ * $Id: assert.bsh,v 1.1 2006-06-21 20:28:55 blair Exp $
+ */
+assert(boolean condition) {
+  if (condition) {
+    print(
+      "OK " 
+      + "Line: "  + this.namespace.getInvocationLine()
+      + " : "     + this.namespace.getInvocationText()
+    );
+  }
+  else {
+    print(
+        "FAIL " 
+      + "Line: "  + this.namespace.getInvocationLine()
+      + " : "     + this.namespace.getInvocationText()
+      + " : while evaluating file: "+getSourceFileInfo()
+    );
+    super.test_failed = true;
+  }
+}

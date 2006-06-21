@@ -16,8 +16,8 @@ import  java.util.*;
  * Query for groups by name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getGroups.java,v 1.1 2006-06-20 19:53:17 blair Exp $
- * @since   1.0
+ * @version $Id: getGroups.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 public class getGroups {
 
@@ -29,7 +29,7 @@ public class getGroups {
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   name        Find groups with <i>name</i> as part of their name.
-   * @since   1.0
+   * @since   0.0.1
    */
   public static void invoke(Interpreter i, CallStack stack, String name) 
   {
