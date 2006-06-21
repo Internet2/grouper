@@ -13,8 +13,8 @@ import  java.util.*;
  * Add stem.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addStem.java,v 1.3 2006-06-20 19:53:17 blair Exp $
- * @since   1.0
+ * @version $Id: addStem.java,v 1.4 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 public class addStem {
 
@@ -28,7 +28,7 @@ public class addStem {
    * @param   parent      <i>name</i> of parent {@link Stem}.
    * @param   extn        <i>extension</i> of {@link Stem}.
    * @param   displayExtn <i>displayExtension</i> of {@link Stem}.
-   * @since   1.0
+   * @since   0.0.1
    */
   public static void invoke(
     Interpreter i, CallStack stack, String parent, String extn, String displayExtn

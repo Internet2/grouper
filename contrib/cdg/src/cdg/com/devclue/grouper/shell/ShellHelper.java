@@ -13,14 +13,14 @@ import  java.util.*;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.1 2006-06-20 19:40:47 blair Exp $
- * @since   1.0
+ * @version $Id: ShellHelper.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 class ShellHelper {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.0
+  // @since 0.0.1
   protected static void eval(Interpreter i, int idx) {
     try {
       List    history = GrouperShell.getHistory(i);
@@ -42,7 +42,7 @@ class ShellHelper {
     }
   } // protected static void eval(i, idx)
 
-  // @since 1.0
+  // @since 0.0.1
   protected static void history(Interpreter i, int cnt) {
     try {
       List      history = GrouperShell.getHistory(i);  

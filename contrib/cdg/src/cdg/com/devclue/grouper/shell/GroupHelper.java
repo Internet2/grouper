@@ -16,14 +16,14 @@ import  java.util.*;
  * Group Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.1 2006-06-20 19:53:17 blair Exp $
- * @since   1.0
+ * @version $Id: GroupHelper.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 class GroupHelper {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.0
+  // @since 0.0.1
   protected static void addGroup(
     Interpreter i, String parent, String extn, String displayExtn
   ) 
@@ -45,7 +45,7 @@ class GroupHelper {
     }
   } // protected static void addGroup(i, parent, extn, displayExtn)
 
-  // @since 1.0 
+  // @since 0.0.1 
   protected static void delGroup(Interpreter i, String name) {
     try {
       GrouperSession  s = GrouperShell.getSession(i);
@@ -63,7 +63,7 @@ class GroupHelper {
     }
   } // protected static void delStem(i, name)
 
-  // @since 1.0 
+  // @since 0.0.1 
   protected static void getGroups(Interpreter i, String name) {
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
@@ -83,7 +83,7 @@ class GroupHelper {
     }
   } // protected static void getStems(i, name)
 
-  // @since 1.0
+  // @since 0.0.1
   protected static String getPretty(Group g) {
     return    "name="         + U.q(  g.getName()         )
             + "displayName="  + U.q(  g.getDisplayName()  )

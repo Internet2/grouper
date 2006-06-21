@@ -12,13 +12,16 @@ import  java.util.*;
  * {@link GrouperShell} error messages.
  * <p />
  * @author  blair christensen.
- * @version $Id: E.java,v 1.1 2006-06-20 19:40:47 blair Exp $
- * @since   1.0
+ * @version $Id: E.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 class E {
 
   // PROTECTED CLASS CONSTANTS //
-  protected static final String OUTOFBOUNDS = "index out of bounds";
+  protected static final String GSH_SETHISTORY  = "unable to update gsh command history: ";
+  protected static final String I_IMPORT        = "unable to import default interpreter commands: ";
+  protected static final String I_NULL          = "null interpreter";
+  protected static final String OUTOFBOUNDS     = "index out of bounds";
 
 } // class E
 

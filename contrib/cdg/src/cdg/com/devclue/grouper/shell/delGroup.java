@@ -13,8 +13,8 @@ import  java.util.*;
  * Delete a group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delGroup.java,v 1.1 2006-06-20 19:53:17 blair Exp $
- * @since   1.0
+ * @version $Id: delGroup.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 public class delGroup {
 
@@ -26,7 +26,7 @@ public class delGroup {
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   name  <i>name</i> of {@link Group} to delete.
-   * @since   1.0
+   * @since   0.0.1
    */
   public static void invoke(Interpreter i, CallStack stack, String name) {
     GroupHelper.delGroup(i, name);

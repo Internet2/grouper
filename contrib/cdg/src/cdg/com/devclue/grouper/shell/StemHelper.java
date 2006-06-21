@@ -16,14 +16,14 @@ import  java.util.*;
  * Stem Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.3 2006-06-20 19:53:17 blair Exp $
- * @since   1.0
+ * @version $Id: StemHelper.java,v 1.4 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 class StemHelper {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.0
+  // @since 0.0.1
   protected static void addStem(
     Interpreter i, String parent, String extn, String displayExtn
   ) 
@@ -51,7 +51,7 @@ class StemHelper {
     }
   } // protected static void addStem(i, parent, extn, displayExtn)
 
-  // @since 1.0 
+  // @since 0.0.1 
   protected static void delStem(Interpreter i, String name) {
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
@@ -69,7 +69,7 @@ class StemHelper {
     }
   } // protected static void delStem(i, name)
 
-  // @since 1.0
+  // @since 0.0.1
   protected static String getPretty(Stem ns) {
     return    "name="         + U.q(  ns.getName()        )
             + "displayName="  + U.q(  ns.getDisplayName() )
@@ -77,7 +77,7 @@ class StemHelper {
             ;
   } // protected static String getPretty(ns)
  
-  // @since 1.0 
+  // @since 0.0.1 
   protected static void getStems(Interpreter i, String name) {
     try {
       GrouperSession  s     = GrouperShell.getSession(i);

@@ -13,8 +13,8 @@ import  java.util.*;
  * {@link GrouperShell} History.
  * <p/>
  * @author  blair christensen.
- * @version $Id: history.java,v 1.1 2006-06-20 19:40:47 blair Exp $
- * @since   1.0
+ * @version $Id: history.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 public class history {
 
@@ -25,7 +25,7 @@ public class history {
    * <p/>
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
-   * @since   1.0
+   * @since   0.0.1
    */
   public static void invoke(Interpreter i, CallStack stack) {
     ShellHelper.history(i, -1);
@@ -37,7 +37,7 @@ public class history {
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   cnt   Print the last <i>cnt</i> commands.
-   * @since   1.0
+   * @since   0.0.1
    */
   public static void invoke(Interpreter i, CallStack stack, int cnt) {
     ShellHelper.history(i, cnt);

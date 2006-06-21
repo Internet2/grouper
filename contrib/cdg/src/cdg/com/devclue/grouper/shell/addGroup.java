@@ -13,8 +13,8 @@ import  java.util.*;
  * Add group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addGroup.java,v 1.1 2006-06-20 19:53:17 blair Exp $
- * @since   1.0
+ * @version $Id: addGroup.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 public class addGroup {
 
@@ -28,7 +28,7 @@ public class addGroup {
    * @param   parent      <i>name</i> of parent {@link Group}.
    * @param   extn        <i>extension</i> of {@link Group}.
    * @param   displayExtn <i>displayExtension</i> of {@link Group}.
-   * @since   1.0
+   * @since   0.0.1
    */
   public static void invoke(
     Interpreter i, CallStack stack, String parent, String extn, String displayExtn

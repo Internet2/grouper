@@ -41,6 +41,8 @@ import  java.util.*;
  *     have been run.</li>
  *   <li><b>last()</b> - Run the last command executed.</li>
  *   <li><b>last(n)</b> - Execute command number <i>n</i>.</li>
+ *   <li><b>registryReset()</b> - Restore the Groups Registry to a
+ *     default state.</li>
  *   <li><b>quit</b> - Terminate shell.</li>
  * </ul> 
  * <h3>Variables</h3>
@@ -49,8 +51,8 @@ import  java.util.*;
  *    upon failure.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.7 2006-06-20 19:53:17 blair Exp $
- * @since   1.0
+ * @version $Id: GrouperShell.java,v 1.8 2006-06-21 20:28:55 blair Exp $
+ * @since   0.0.1
  */
 public class GrouperShell {
 
@@ -58,35 +60,38 @@ public class GrouperShell {
   protected static final String GSH_DEBUG   = "GSH_DEBUG";
   protected static final String GSH_HISTORY = "_GSH_HISTORY";
   protected static final String GSH_SESSION = "_GSH_GROUPER_SESSION";
-
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final String   NAME    = "gsh";
-  private static final String   VERSION = "0.0.1";
+  protected static final String NAME        = "gsh";
+  protected static final String VERSION     = "0.0.1";
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private int             cnt   = 0;
-  private PrintStream     err;
-  private Interpreter     i;
-  private BufferedReader  in;
-  private PrintStream     out;
+  private Interpreter   i = null;
+  private CommandReader r = null;
 
 
   // MAIN //
 
   /**
-   * @since 1.0
+   * Run {@link GrouperShell}.
+   * <pre class="eg">
+   * // Launch GrouperShell in interactive mode
+   * % gsh.sh
+   *
+   * // Run GrouperShell script
+   * % gsh.sh script.gsh
+   * 
+   * // Read commands from STDIN
+   * % gsh.sh - 
+   * </pre>
+   * @since 0.0.1
    */
-    
   public static void main(String args[]) {
     try {
-      GrouperShell shell = new GrouperShell();
+      GrouperShell shell = new GrouperShell( new CommandReader(args) );
       shell._run();
-    
     }
-    catch (Exception e) {
-      System.err.println(e.getMessage());
+    catch (GrouperShellException eGS) {
+      System.err.println(eGS.getMessage());
       System.exit(1);
     }
     System.exit(0);
@@ -94,25 +99,25 @@ public class GrouperShell {
 
 
   // CONSTRUCTORS //
-  private GrouperShell() 
-    throws  bsh.EvalError
+
+  // @throws  GrouperShellException
+  // @since   0.0.1
+  private GrouperShell(CommandReader r) 
+    throws  GrouperShellException
   {
-    this.in   = new BufferedReader( new InputStreamReader(System.in) );
-    this.out  = System.out;
-    this.err  = System.err;
-    this.i    = new Interpreter(this.in, this.out, this.err, true);
-    this._importCommands();
+    this.i  = r.getInterpreter();
+    this.r  = r;
   } // private GrouperShell()
 
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.0
+  // @since   0.0.1
   protected static void error(Interpreter i, Exception e) {
     error(i, e, e.getMessage());
   } // protected static void error(i, e)
 
-  // @since   1.0
+  // @since   0.0.1
   protected static void error(Interpreter i, Exception e, String msg) {
     i.error(msg);
     try {
@@ -132,7 +137,7 @@ public class GrouperShell {
   } // protected static void error(i, e, msg)
 
   // @throws  bsh.EvalError
-  // @since   1.0
+  // @since   0.0.1
   protected static Object get(Interpreter i, String key) 
     throws  bsh.EvalError
   {
@@ -140,7 +145,7 @@ public class GrouperShell {
   } // protected static Object set(i, key)
 
   // @throws  bsh.EvalError
-  // @since   1.0
+  // @since   0.0.1
   protected static List getHistory(Interpreter i) 
     throws  bsh.EvalError
   {
@@ -153,10 +158,10 @@ public class GrouperShell {
 
   // @throws  bsh.EvalError
 
-  // @throws  GrouperRuntimeException
-  // @since   1.0
+  // @throws  GrouperShellException
+  // @since   0.0.1
   protected static GrouperSession getSession(Interpreter i) 
-    throws  GrouperRuntimeException
+    throws  GrouperShellException
   {
     try {
       GrouperSession s = (GrouperSession) GrouperShell.get(i, GSH_SESSION);
@@ -174,19 +179,20 @@ public class GrouperShell {
       if (i != null) {
         i.error(e.getMessage());
       }
-      throw new GrouperRuntimeException(e);
+      throw new GrouperShellException(e);
     }
   } // protected static GrouperSession getSession(i)
 
   // @throws  bsh.EvalError
-  // @since   1.0
+  // @since   0.0.1
   protected static void set(Interpreter i, String key, Object obj) 
     throws  bsh.EvalError
   {
     i.set(key, obj);  
   } // protected static void set(i, key, obj)
 
-  // @since   1.0
+  // @throws  bsh.EvalError
+  // @since   0.0.1
   protected static void setHistory(Interpreter i, int cnt, String cmd) 
     throws  bsh.EvalError
   {
@@ -198,67 +204,40 @@ public class GrouperShell {
 
   // PRIVATE INSTANCE METHODS //
 
-  // @throws  bsh.EvalError
-  // @since   1.0
-  private void _importCommand(String name) 
-    throws  bsh.EvalError
-  {
-    String cmd = "importCommands(\"com.devclue.grouper." + name + "\")";
-    this.i.eval(cmd);
-  } // private void _importCommand(name)
-
-  //  @since  1.0
-  private void _importCommands() 
-    throws  bsh.EvalError
-  {
-    this._importCommand(  "shell"   );
-  } // private void _importCommands()
-
-  //  @since  1.0
-  private String _prompt() 
-    throws  bsh.EvalError,
-            IOException
-  {
-    Object prompt = this.i.eval("getBshPrompt()");
-    if (prompt == null) {
-      prompt = "%";
-    }
-    //this.out.print(NAME + "-" + VERSION + " " + this.cnt++ + prompt.toString());
-    //return this.in.readLine();
-    this.out.print(NAME + "-" + VERSION + " " + this.cnt + prompt.toString());
-    String cmd = this.in.readLine();
-    GrouperShell.setHistory(this.i, cnt, cmd);
-    cnt++;
-    return cmd;
-  } // private String _prompt()
-
-  //  @since  1.0
+  // @throws  GrouperShellException
+  // @since   0.0.1
   private void _run() 
-    throws  bsh.EvalError,
-            IOException
+    throws  GrouperShellException
   {
     String cmd = new String();
-    while ( (cmd = this._prompt()) != null ) {
+    try {
+      this.i.eval("importCommands(\"com.devclue.grouper.shell\")");
+    }
+    catch (bsh.EvalError eBBB) {
+      throw new GrouperShellException(E.I_IMPORT + eBBB.getMessage(), eBBB);
+    }
+    while ( (cmd = r.next()) != null) {
+      // TODO Replace with something cleaner
       if ( cmd.equals("exit") || cmd.equals("quit") ) {
         this._stopSession();
         break;
       }
       try {
-        Object obj = this.i.eval(cmd);
+        Object obj = i.eval(cmd);
         if (obj != null) {
-          this.out.println(obj.toString());
+          this.i.println(obj.toString());
         }
       }
       catch (bsh.EvalError eBEE) {
         this.i.error(eBEE.getMessage());
       }
     }
-  } // private void _run()
+  } // private void _run(r)
 
-  // @throws  GrouperRuntimeException
-  // @since   1.0
+  // @throws  GrouperShellException
+  // @since   0.0.1
   private void _stopSession() 
-    throws  GrouperRuntimeException
+    throws  GrouperShellException
   {
     try {
       GrouperSession s = (GrouperSession) GrouperShell.getSession(this.i);
@@ -271,7 +250,7 @@ public class GrouperShell {
       if (i != null) {
         this.i.error(e.getMessage());
       }
-      throw new GrouperRuntimeException(e);
+      throw new GrouperShellException(e);
     }
   } // private void _stopSession()
 
