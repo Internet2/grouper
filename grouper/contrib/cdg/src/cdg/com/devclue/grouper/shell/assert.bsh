@@ -1,18 +1,14 @@
 /*
  * For GrouperShell testing.
- * $Id: assert.bsh,v 1.1 2006-06-21 20:28:55 blair Exp $
+ * $Id: assert.bsh,v 1.2 2006-06-21 22:33:54 blair Exp $
  */
-assert(boolean condition) {
+assert(String msg, boolean condition) {
   if (condition) {
-    print(
-      "OK " 
-      + "Line: "  + this.namespace.getInvocationLine()
-      + " : "     + this.namespace.getInvocationText()
-    );
+    print("OK (" + msg + ")");  
   }
   else {
     print(
-        "FAIL " 
+        "FAIL (" + msg + ") " 
       + "Line: "  + this.namespace.getInvocationLine()
       + " : "     + this.namespace.getInvocationText()
       + " : while evaluating file: "+getSourceFileInfo()

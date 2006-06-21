@@ -41,7 +41,7 @@ import  java.util.*;
  *     have been run.</li>
  *   <li><b>last()</b> - Run the last command executed.</li>
  *   <li><b>last(n)</b> - Execute command number <i>n</i>.</li>
- *   <li><b>registryReset()</b> - Restore the Groups Registry to a
+ *   <li><b>resetRegistry()</b> - Restore the Groups Registry to a
  *     default state.</li>
  *   <li><b>quit</b> - Terminate shell.</li>
  * </ul> 
@@ -51,7 +51,7 @@ import  java.util.*;
  *    upon failure.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.8 2006-06-21 20:28:55 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.9 2006-06-21 22:33:54 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -211,22 +211,35 @@ public class GrouperShell {
   {
     String cmd = new String();
     try {
-      this.i.eval("importCommands(\"com.devclue.grouper.shell\")");
+      this.i.eval(  "importCommands(\"com.devclue.grouper.shell\")"                 );
+      this.i.eval(  "importCommands(\"edu.internet2.middleware.grouper\")"          );
+      this.i.eval(  "importCommands(\"edu.internet2.middleware.subject\")"          );
+      this.i.eval(  "importCommands(\"edu.internet2.middleware.subject.provider\")" );
+      this.i.eval(  "import edu.internet2.middleware.grouper.*;"                    );
+      this.i.eval(  "import edu.internet2.middleware.subject.*;"                    );
+      this.i.eval(  "import edu.internet2.middleware.subject.provider.*;"           );
     }
     catch (bsh.EvalError eBBB) {
       throw new GrouperShellException(E.I_IMPORT + eBBB.getMessage(), eBBB);
     }
     while ( (cmd = r.next()) != null) {
       // TODO Replace with something cleaner
+      if ( cmd.startsWith("#") || cmd.startsWith("//") ) {
+        continue;
+      }
       if ( cmd.equals("exit") || cmd.equals("quit") ) {
         this._stopSession();
         break;
       }
+      // /TODO
       try {
-        Object obj = i.eval(cmd);
-        if (obj != null) {
-          this.i.println(obj.toString());
-        }
+        setHistory(this.i, this.r.getCnt(), cmd);
+      }
+      catch (bsh.EvalError eBEE) {
+        this.i.error(E.GSH_SETHISTORY + eBEE.getMessage());
+      }
+      try {
+        i.eval(cmd);
       }
       catch (bsh.EvalError eBEE) {
         this.i.error(eBEE.getMessage());

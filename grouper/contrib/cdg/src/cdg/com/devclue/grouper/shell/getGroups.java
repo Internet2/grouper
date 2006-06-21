@@ -16,7 +16,7 @@ import  java.util.*;
  * Query for groups by name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getGroups.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @version $Id: getGroups.java,v 1.3 2006-06-21 22:33:54 blair Exp $
  * @since   0.0.1
  */
 public class getGroups {
@@ -29,12 +29,26 @@ public class getGroups {
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   name        Find groups with <i>name</i> as part of their name.
+   * @return  {@link Set} of {@link Group}s.
+   * @throws  GrouperShellException
    * @since   0.0.1
    */
-  public static void invoke(Interpreter i, CallStack stack, String name) 
+  public static Set invoke(Interpreter i, CallStack stack, String name) 
+    throws  GrouperShellException
   {
-    GroupHelper.getGroups(i, name);
-  } // public static void invoke(i, stack, name)
+    try {
+      GrouperSession  s     = GrouperShell.getSession(i);
+      Stem            root  = StemFinder.findRootStem(s);
+      GrouperQuery    gq    = GrouperQuery.createQuery(
+        s, 
+        new GroupNameFilter(name, root)
+      );
+      return gq.getGroups();
+    }
+    catch (QueryException eQ) {
+      throw new GrouperShellException(eQ);
+    }
+  } // public static Set invoke(i, stack, name)
 
 } // public class getGroups
 

@@ -7,29 +7,34 @@
 
 package com.devclue.grouper.shell;
 import  bsh.*;
+import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /**
- * Restore the Groups Registry to a default state.
+ * Reset Groups Registry to default state.
  * <p/>
  * @author  blair christensen.
- * @version $Id: registryReset.java,v 1.1 2006-06-21 20:28:55 blair Exp $
+ * @version $Id: resetRegistry.java,v 1.1 2006-06-21 22:33:54 blair Exp $
  * @since   0.0.1
  */
-public class registryReset {
+public class resetRegistry {
 
   // PUBLIC CLASS METHODS //
 
   /**
-   * Restore the Groups Registry to a default state.
+   * Reset Groups Registry to default state.
    * <p/>
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
+   * @return  True if succeeds.
    * @since   0.0.1
    */
   public static boolean invoke(Interpreter i, CallStack stack) {
-    return RegistryHelper.reset(i);
-  } // public static void invoke(i, stack, parent, name)
+    RegistryReset.reset();
+    return true;    
+  } // public static boolean invoke(i, stack, name)
 
-} // public class registryReset
+} // public class resetRegistry
 

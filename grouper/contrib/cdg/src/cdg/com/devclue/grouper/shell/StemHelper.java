@@ -16,17 +16,20 @@ import  java.util.*;
  * Stem Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.4 2006-06-21 20:28:55 blair Exp $
+ * @version $Id: StemHelper.java,v 1.5 2006-06-21 22:33:54 blair Exp $
  * @since   0.0.1
  */
 class StemHelper {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 0.0.1
-  protected static void addStem(
+  // @return  Added {@link Stem}.
+  // @throws  GrouperShellException
+  // @since   0.0.1
+  protected static Stem addStem(
     Interpreter i, String parent, String extn, String displayExtn
   ) 
+    throws  GrouperShellException
   {
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
@@ -37,65 +40,18 @@ class StemHelper {
       else {
         nsP = StemFinder.findByName(s, parent);
       }
-      Stem ns = nsP.addChildStem(extn, displayExtn);
-      i.println( StemHelper.getPretty(ns) ); 
+      return nsP.addChildStem(extn, displayExtn);
     }
     catch (InsufficientPrivilegeException eIP)  {
-      GrouperShell.error(i, eIP);
+      throw new GrouperShellException(eIP);
     }
     catch (StemAddException eNSA)               {
-      GrouperShell.error(i, eNSA);
+      throw new GrouperShellException(eNSA);
     }
     catch (StemNotFoundException eNSNF)         {
-      GrouperShell.error(i, eNSNF);
+      throw new GrouperShellException(eNSNF);
     }
-  } // protected static void addStem(i, parent, extn, displayExtn)
-
-  // @since 0.0.1 
-  protected static void delStem(Interpreter i, String name) {
-    try {
-      GrouperSession  s   = GrouperShell.getSession(i);
-      Stem            ns  = StemFinder.findByName(s, name);
-      ns.delete();
-    }
-    catch (InsufficientPrivilegeException eIP)  {
-      GrouperShell.error(i, eIP);
-    }
-    catch (StemDeleteException eNSD)            {
-      GrouperShell.error(i, eNSD);
-    }
-    catch (StemNotFoundException eNSNF)         {
-      GrouperShell.error(i, eNSNF);
-    }
-  } // protected static void delStem(i, name)
-
-  // @since 0.0.1
-  protected static String getPretty(Stem ns) {
-    return    "name="         + U.q(  ns.getName()        )
-            + "displayName="  + U.q(  ns.getDisplayName() )
-            + "uuid="         + U.q(  ns.getUuid()        )
-            ;
-  } // protected static String getPretty(ns)
- 
-  // @since 0.0.1 
-  protected static void getStems(Interpreter i, String name) {
-    try {
-      GrouperSession  s     = GrouperShell.getSession(i);
-      Stem            root  = StemFinder.findRootStem(s);
-      GrouperQuery    gq    = GrouperQuery.createQuery(
-        s, 
-        new StemNameAnyFilter(name, root)
-      );
-      Iterator iter = gq.getStems().iterator();
-      while (iter.hasNext()) {
-        Stem ns = (Stem) iter.next();
-        i.println( StemHelper.getPretty(ns) );
-      }
-    }
-    catch (QueryException eQ) {
-      GrouperShell.error(i, eQ);
-    }
-  } // protected static void getStems(i, name)
+  } // protected static Stem addStem(i, parent, extn, displayExtn)
 
 } // class StemHelper
 
