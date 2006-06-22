@@ -16,7 +16,7 @@ import  java.util.*;
  * Delete a stem.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delStem.java,v 1.5 2006-06-22 15:03:09 blair Exp $
+ * @version $Id: delStem.java,v 1.6 2006-06-22 17:46:29 blair Exp $
  * @since   0.0.1
  */
 public class delStem {
@@ -36,6 +36,7 @@ public class delStem {
   public static boolean invoke(Interpreter i, CallStack stack, String name) 
     throws  GrouperShellException
   {
+    GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
       Stem            ns  = StemFinder.findByName(s, name);

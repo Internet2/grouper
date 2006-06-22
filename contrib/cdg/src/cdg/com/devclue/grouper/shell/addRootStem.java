@@ -16,7 +16,7 @@ import  java.util.*;
  * Add stem.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addRootStem.java,v 1.3 2006-06-21 22:33:54 blair Exp $
+ * @version $Id: addRootStem.java,v 1.4 2006-06-22 17:46:29 blair Exp $
  * @since   0.0.1
  */
 public class addRootStem {
@@ -39,6 +39,7 @@ public class addRootStem {
   ) 
     throws  GrouperShellException
   {
+    GrouperShell.setOurCommand(i, true);
     return StemHelper.addStem(i, null, extn, displayExtn);
   } // public static Stem invoke(i, stack, name)
 

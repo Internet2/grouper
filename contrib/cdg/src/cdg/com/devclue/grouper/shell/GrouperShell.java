@@ -56,18 +56,22 @@ import  java.util.*;
  *    of the returned objects.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.11 2006-06-22 16:03:51 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.12 2006-06-22 17:46:29 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
 
   // PROTECTED CLASS CONSTANTS //
-  protected static final String GSH_DEBUG   = "GSH_DEBUG";
-  protected static final String GSH_DEVEL   = "GSH_DEVEL";
-  protected static final String GSH_HISTORY = "_GSH_HISTORY";
-  protected static final String GSH_SESSION = "_GSH_GROUPER_SESSION";
   protected static final String NAME        = "gsh";
   protected static final String VERSION     = "0.0.1";
+
+
+  // PRIVATE CLASS CONSTANTS //
+  private static final String GSH_DEBUG   = "GSH_DEBUG";
+  private static final String GSH_DEVEL   = "GSH_DEVEL";
+  private static final String GSH_HISTORY = "_GSH_HISTORY";
+  private static final String GSH_OURS    = "_GSH_OURS";
+  private static final String GSH_SESSION = "_GSH_GROUPER_SESSION";
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -158,8 +162,6 @@ public class GrouperShell {
     return history;
   } // protected static List getHistory(i)
 
-  // @throws  bsh.EvalError
-
   // @throws  GrouperShellException
   // @since   0.0.1
   protected static GrouperSession getSession(Interpreter i) 
@@ -185,6 +187,12 @@ public class GrouperShell {
     }
   } // protected static GrouperSession getSession(i)
 
+  // @return  True if last command run was a GrouperShell command.
+  // @since   0.0.1
+  protected static boolean isOurCommand(Interpreter i) {
+    return _isTrue(i, GSH_OURS);
+  } // protected static boolean isOurCommand()
+
   // @throws  bsh.EvalError
   // @since   0.0.1
   protected static void set(Interpreter i, String key, Object obj) 
@@ -192,6 +200,11 @@ public class GrouperShell {
   {
     i.set(key, obj);  
   } // protected static void set(i, key, obj)
+
+  // @since   0.0.1
+  protected static boolean isDevel(Interpreter i) {
+    return _isTrue(i, GSH_DEVEL);
+  } // protected static boolean isDevel(i)
 
   // @throws  bsh.EvalError
   // @since   0.0.1
@@ -203,17 +216,22 @@ public class GrouperShell {
     GrouperShell.set(i, GSH_HISTORY, history);
   } // protected static void setHistory(i, cnt, cmd)
 
+  // @since   0.0.1
+  protected static void setOurCommand(Interpreter i, boolean b) {
+    try {
+      GrouperShell.set(i, GSH_OURS, b);
+    }
+    catch (bsh.EvalError eBEE) {
+      i.error(eBEE.getMessage());
+    }
+  } // protected static void setOurCommand(i, b)
+
 
   // PRIVATE CLASS METHODS //
 
   // @since   0.0.1
   private static boolean _isDebug(Interpreter i) {
     return _isTrue(i, GSH_DEBUG);
-  } // private static boolean _isDebug(i)
-
-  // @since   0.0.1
-  private static boolean _isDevel(Interpreter i) {
-    return _isTrue(i, GSH_DEVEL);
   } // private static boolean _isDebug(i)
 
   // @since   0.0.1
@@ -266,26 +284,8 @@ public class GrouperShell {
         this._stopSession();
         break;
       }
-      // Update command history
-      try {
-        setHistory(this.i, this.r.getCnt(), cmd);
-      }
-      catch (bsh.EvalError eBEE) {
-        this.i.error(E.GSH_SETHISTORY + eBEE.getMessage());
-      }
       // Now try to eval the command
-      try {
-        Object obj = this.i.eval(cmd);
-        // If we aren't in devel mode, just print out the results
-        if (!_isDevel(this.i)) {
-          p.pp(this.i, obj);
-        }
-      }
-      catch (bsh.EvalError eBEE) {
-        // TODO ???
-        // this.i.error("EVAL ERROR.GET: " + eBEE.getErrorText());
-        // this.i.error("EVAL ERROR.GM : " + eBEE.getMessage());
-      }
+      cmd = ShellHelper.eval(i, cmd);
     }
   } // private void _run(r)
 

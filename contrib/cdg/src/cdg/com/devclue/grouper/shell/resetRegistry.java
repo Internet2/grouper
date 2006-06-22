@@ -16,7 +16,7 @@ import  java.util.*;
  * Reset Groups Registry to default state.
  * <p/>
  * @author  blair christensen.
- * @version $Id: resetRegistry.java,v 1.1 2006-06-21 22:33:54 blair Exp $
+ * @version $Id: resetRegistry.java,v 1.2 2006-06-22 17:46:29 blair Exp $
  * @since   0.0.1
  */
 public class resetRegistry {
@@ -32,6 +32,7 @@ public class resetRegistry {
    * @since   0.0.1
    */
   public static boolean invoke(Interpreter i, CallStack stack) {
+    GrouperShell.setOurCommand(i, true);
     RegistryReset.reset();
     return true;    
   } // public static boolean invoke(i, stack, name)
