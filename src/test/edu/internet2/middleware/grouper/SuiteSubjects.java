@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteSubjects.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: SuiteSubjects.java,v 1.3 2006-06-22 14:08:36 blair Exp $
  */
 public class SuiteSubjects extends TestCase {
 
@@ -44,7 +44,7 @@ public class SuiteSubjects extends TestCase {
     suite.addTestSuite( TestSubject6.class  );  // SubjectFinder.findByIdentifier(id, type, source)
     suite.addTestSuite( TestSubject7.class  );  // fail: SubjectFinder.findByIdentifier(id, type, source)
     suite.addTestSuite( TestSubject8.class  );  // SubjectFinder.findByAll(query, source)
-    suite.addTestSuite( TestSubject9.class  );  // fail: SubjectFinder.findByAll(query, source)
+    suite.addTestSuite( TestSubject10.class );  // GrouperSubject.equal()
     // TODO split 
     suite.addTestSuite( TestGrouperSourceAdapter.class  );
     suite.addTestSuite( TestGrouperSubject.class        );
