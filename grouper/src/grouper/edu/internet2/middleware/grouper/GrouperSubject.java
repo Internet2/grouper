@@ -20,12 +20,13 @@ import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  org.apache.commons.lang.builder.*;
 
 /** 
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.16 2006-06-19 17:00:57 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.17 2006-06-22 14:08:36 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -54,6 +55,26 @@ public class GrouperSubject implements Subject {
 
 
   // PUBLIC INSTANCE METHODS //
+
+  /**
+   * @since 1.0
+   */
+  public boolean equals(Object other) {
+    // TODO Why don't I just call `SubjectHelper.eq(this, other)?
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Subject)) {
+      return false;
+    }
+    Subject otherSubject = (Subject) other;
+    return new EqualsBuilder()
+      .append(  this.getId()              , otherSubject.getId()              )
+      .append(  this.getSource().getId()  , otherSubject.getSource().getId()  )
+      .append(  this.getType().getName()  , otherSubject.getType().getName()  )
+      .isEquals();
+  } // public boolean equals(other)
+
   public Map getAttributes() {
     this._addAttrs();
     return this.attrs;
