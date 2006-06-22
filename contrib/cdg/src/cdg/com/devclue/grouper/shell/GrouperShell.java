@@ -41,23 +41,29 @@ import  java.util.*;
  *     have been run.</li>
  *   <li><b>last()</b> - Run the last command executed.</li>
  *   <li><b>last(n)</b> - Execute command number <i>n</i>.</li>
+ *   <li><b>p(command)</b> - Pretty print results.  This command is
+ *     more useful when <i>GSH_DEVEL</i> is enabled.</li>
  *   <li><b>resetRegistry()</b> - Restore the Groups Registry to a
  *     default state.</li>
  *   <li><b>quit</b> - Terminate shell.</li>
  * </ul> 
  * <h3>Variables</h3>
  * <ul>
- *  <li><b>GSH_DEBUG</b> - If set to true, stack traces will be printed
+ *  <li><b>GSH_DEBUG</b> - If set to <i>true</i>, stack traces will be printed
  *    upon failure.</li>
+ *  <li><b>GSH_DEVEL</b> - If set to <i>true</i>, commands will return
+ *    objects that can be manipulated rather than printing out summaries
+ *    of the returned objects.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.10 2006-06-22 15:03:09 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.11 2006-06-22 16:03:51 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
 
   // PROTECTED CLASS CONSTANTS //
   protected static final String GSH_DEBUG   = "GSH_DEBUG";
+  protected static final String GSH_DEVEL   = "GSH_DEVEL";
   protected static final String GSH_HISTORY = "_GSH_HISTORY";
   protected static final String GSH_SESSION = "_GSH_GROUPER_SESSION";
   protected static final String NAME        = "gsh";
@@ -126,19 +132,8 @@ public class GrouperShell {
     throws  GrouperShellException
   {
     i.error(msg);
-    try {
-      Object obj = GrouperShell.get(i, GSH_DEBUG);
-      if (
-                (obj != null)
-            &&  (obj instanceof Boolean)
-            &&  (obj.equals(Boolean.TRUE))
-         )
-      {
-        e.printStackTrace();
-      }
-    }
-    catch (bsh.EvalError eBEE) {
-      i.error(eBEE.getMessage());
+    if (_isDebug(i)) {
+      e.printStackTrace();
     }
     throw new GrouperShellException(msg, e);
   } // protected static void error(i, e, msg)
@@ -209,6 +204,39 @@ public class GrouperShell {
   } // protected static void setHistory(i, cnt, cmd)
 
 
+  // PRIVATE CLASS METHODS //
+
+  // @since   0.0.1
+  private static boolean _isDebug(Interpreter i) {
+    return _isTrue(i, GSH_DEBUG);
+  } // private static boolean _isDebug(i)
+
+  // @since   0.0.1
+  private static boolean _isDevel(Interpreter i) {
+    return _isTrue(i, GSH_DEVEL);
+  } // private static boolean _isDebug(i)
+
+  // @since   0.0.1
+  private static boolean _isTrue(Interpreter i, String var) {
+    boolean rv = false;
+    try {
+      Object  obj = GrouperShell.get(i, var);
+    if (
+                (obj != null)
+            &&  (obj instanceof Boolean)
+            &&  (obj.equals(Boolean.TRUE))
+         )
+      {
+        rv = true;
+      }
+    }
+    catch (bsh.EvalError eBEE) {
+      i.error(eBEE.getMessage());
+    }
+    return rv;
+  } // private static boolean _isTrue(i, var)
+
+
   // PRIVATE INSTANCE METHODS //
 
   // @throws  GrouperShellException
@@ -247,7 +275,11 @@ public class GrouperShell {
       }
       // Now try to eval the command
       try {
-        i.eval(cmd);
+        Object obj = this.i.eval(cmd);
+        // If we aren't in devel mode, just print out the results
+        if (!_isDevel(this.i)) {
+          p.pp(this.i, obj);
+        }
       }
       catch (bsh.EvalError eBEE) {
         // TODO ???
