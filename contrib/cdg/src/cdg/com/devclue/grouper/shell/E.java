@@ -12,12 +12,13 @@ import  java.util.*;
  * {@link GrouperShell} error messages.
  * <p />
  * @author  blair christensen.
- * @version $Id: E.java,v 1.2 2006-06-21 20:28:55 blair Exp $
+ * @version $Id: E.java,v 1.3 2006-06-22 19:20:44 blair Exp $
  * @since   0.0.1
  */
 class E {
 
   // PROTECTED CLASS CONSTANTS //
+  protected static final String BSH_EVAL        = "unable to evaluate command: ";
   protected static final String GSH_SETHISTORY  = "unable to update gsh command history: ";
   protected static final String I_IMPORT        = "unable to import default interpreter commands: ";
   protected static final String I_NULL          = "null interpreter";
