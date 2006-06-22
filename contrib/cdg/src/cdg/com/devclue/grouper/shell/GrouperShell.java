@@ -54,9 +54,11 @@ import  java.util.*;
  *  <li><b>GSH_DEVEL</b> - If set to <i>true</i>, commands will return
  *    objects that can be manipulated rather than printing out summaries
  *    of the returned objects.</li>
+ *  <li><b>GSH_TIMER</b> - If set to <i>true</i> the time taken to
+ *    evaluate each command will be displayed.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.12 2006-06-22 17:46:29 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.13 2006-06-22 18:03:11 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -72,6 +74,7 @@ public class GrouperShell {
   private static final String GSH_HISTORY = "_GSH_HISTORY";
   private static final String GSH_OURS    = "_GSH_OURS";
   private static final String GSH_SESSION = "_GSH_GROUPER_SESSION";
+  private static final String GSH_TIMER   = "GSH_TIMER";
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -192,6 +195,12 @@ public class GrouperShell {
   protected static boolean isOurCommand(Interpreter i) {
     return _isTrue(i, GSH_OURS);
   } // protected static boolean isOurCommand()
+
+  // @return  True if commands should be timed.
+  // @since   0.0.1
+  protected static boolean isTimed(Interpreter i) {
+    return _isTrue(i, GSH_TIMER);
+  } // protected static boolean isTimed()
 
   // @throws  bsh.EvalError
   // @since   0.0.1
