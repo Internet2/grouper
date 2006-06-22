@@ -27,13 +27,19 @@ import  java.util.*;
  *   <li><b>addStem(parent, extension, displayExtension)</b> - Add stem
  *     beneath <i>parent</i> stem with the specified <i>extension</i>
  *     and <i>displayExtension</i>.</li>
+ *   <li><b>addSubject(id, type, name)</b> - Add a {@link HibernateSubject}
+ *     to the Groups Registry.</li>
  *   <li><b>delGroup(name)</b> - Delete group with the specified
  *     <i>name</i>.</li>
  *   <li><b>delStem(name)</b> - Delete stem with the specified
  *     <i>name</i>.</li>
  *   <li><b>exit</b> - Terminate shell.</li>
+ *   <li><b>findSubject(id)</b> - Find a subject.</li>
+ *   <li><b>findSubject(id, type)</b> - Find a subject.</li>
+ *   <li><b>findSubject(id, type, source)</b> - Find a subject.</li>
  *   <li><b>getGroups(name)</b> - Find all groups with <i>name</i> in any
  *     naming attribute value.</li>
+ *   <li><b>getSources()</b> - Find all Subject sources.</li>
  *   <li><b>getStems(name)</b> - Find all stems with <i>name</i> in any
  *     naming attribute value.</li>
  *   <li><b>history()</b> - Print commands that have been run.</li>
@@ -59,7 +65,7 @@ import  java.util.*;
  *    evaluate each command will be displayed.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.14 2006-06-22 18:07:17 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.15 2006-06-22 19:20:44 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -140,7 +146,7 @@ public class GrouperShell {
     throws  GrouperShellException
   {
     i.error(msg);
-    if (_isDebug(i)) {
+    if (isDebug(i)) {
       e.printStackTrace();
     }
     throw new GrouperShellException(msg, e);
@@ -191,6 +197,11 @@ public class GrouperShell {
     }
   } // protected static GrouperSession getSession(i)
 
+  // @since   0.0.1
+  protected static boolean isDebug(Interpreter i) {
+    return _isTrue(i, GSH_DEBUG);
+  } // protected static boolean isDebug(i)
+
   // @return  True if last command run was a GrouperShell command.
   // @since   0.0.1
   protected static boolean isOurCommand(Interpreter i) {
@@ -238,11 +249,6 @@ public class GrouperShell {
 
 
   // PRIVATE CLASS METHODS //
-
-  // @since   0.0.1
-  private static boolean _isDebug(Interpreter i) {
-    return _isTrue(i, GSH_DEBUG);
-  } // private static boolean _isDebug(i)
 
   // @since   0.0.1
   private static boolean _isTrue(Interpreter i, String var) {

@@ -16,7 +16,7 @@ import  java.util.*;
  * Pretty print results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.5 2006-06-22 18:07:17 blair Exp $
+ * @version $Id: p.java,v 1.6 2006-06-22 19:20:44 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -44,22 +44,31 @@ public class p {
   protected static void pp(Interpreter i, Object obj) {
     if ( (obj != null) && (GrouperShell.isOurCommand(i)) ) {
       // FIXME Can't I do this properly with reflection?
-      if      (obj instanceof Boolean)  {
+      if      (obj instanceof Boolean)          {
         i.println(obj);
       }
-      else if (obj instanceof Group)    {
+      else if (obj instanceof Group)            {
         _pp(i, (Group) obj);
       }
-      else if (obj instanceof Set)      {
+      else if (obj instanceof HibernateSubject) {
+        _pp(i, (HibernateSubject) obj);
+      }
+      else if (obj instanceof Set)              {
         _pp(i, (Set) obj); 
       }
-      else if (obj instanceof Stem)     {
+      else if (obj instanceof Source)           {
+        _pp(i, (Source) obj);
+      }
+      else if (obj instanceof Stem)             {
         _pp(i, (Stem) obj); 
       }
-      else if (obj instanceof String)   {
+      else if (obj instanceof String)           {
         i.println(obj);
       }
-      else {
+      else if (obj instanceof Subject)          {
+        _pp(i, (Subject) obj);
+      }
+      else                                      {
         _pp(i, obj);  // fall back to the default
       }
     }
@@ -79,6 +88,17 @@ public class p {
       );
   } // private static void _pp(i, ns)
 
+  // Handle {@link HibernateSubject}s
+  // @since   0.0.1
+  private static void _pp(Interpreter i, HibernateSubject subj) {
+      i.println(
+        "hibernatesubject: " 
+        + "id="     + U.q(  subj.getSubjectId()       )
+        + "type="   + U.q(  subj.getSubjectTypeId()   )
+        + "name="   + U.q(  subj.getName()            )
+      );
+  } // private static void _pp(i, subj)
+
   // Default pretty printer
   // @since   0.0.1
   private static void _pp(Interpreter i, Object obj) {
@@ -94,6 +114,17 @@ public class p {
     }
   } // private static void _pp(i, obj)
 
+  // Handle {@link Source}s
+  // @since   0.0.1
+  private static void _pp(Interpreter i, Source src) {
+      i.println(
+        "source: "
+        + "id="     + U.q(  src.getId()               )
+        + "name="   + U.q(  src.getName()             )
+        + "class="  + U.q(  src.getClass().getName()  )
+      );
+  } // private static void _pp(i, src)
+
   // Handle {@link Stem}s
   // @since   0.0.1
   private static void _pp(Interpreter i, Stem ns) {
@@ -104,6 +135,18 @@ public class p {
         + "uuid="         + U.q(ns.getUuid()        )
       );
   } // private static void _pp(i, ns)
+
+  // Handle {@link Subject}s
+  // @since   0.0.1
+  private static void _pp(Interpreter i, Subject subj) {
+      i.println(
+        "subject: " 
+        + "id="     + U.q(  subj.getId()              )
+        + "type="   + U.q(  subj.getType().getName()  )
+        + "source=" + U.q(  subj.getSource().getId()  )
+        + "name="   + U.q(  subj.getName()            )
+      );
+  } // private static void _pp(i, subj)
 
 } // public class p
 

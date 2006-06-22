@@ -14,7 +14,7 @@ import  org.apache.commons.lang.time.*;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.6 2006-06-22 18:03:11 blair Exp $
+ * @version $Id: ShellHelper.java,v 1.7 2006-06-22 19:20:44 blair Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -35,7 +35,9 @@ class ShellHelper {
       }
     }
     catch (bsh.EvalError eBEE) {
-      // TODO ???
+      if (GrouperShell.isDebug(i)) {
+        i.error(E.BSH_EVAL + eBEE.getMessage());
+      }
     }
     // Now update the command history
     try {

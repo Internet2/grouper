@@ -1,11 +1,31 @@
 #
 # GrouperShell Tests
-# $Id: test.gsh,v 1.1 2006-06-21 22:33:53 blair Exp $
+# $Id: test.gsh,v 1.2 2006-06-22 19:20:44 blair Exp $
 #
+version   = "0.0.1"
 rootExtn  = "uchicago"
 nsExtn    = "nsit"
 gExtn     = "nbs"
+subjType  = "person"
+subjIdALL = "GrouperAll"
+subjIdGS  = "GrouperSystem"
+subjIdA   = "subj.A"
+subjNameA = "subject a"
+#
+assert( "gsh version " + version  , version().equals(version)               )
 assert( "reset registry"          , resetRegistry()                         )
+assert( "3 sources"               , getSources().size() == 3                )
+subjGS    = findSubject(subjIdGS)
+assert( "found GrouperSystem"     , subjGS.getId().equals(subjIdGS)         )
+subjALL   = findSubject(subjIdALL)
+assert( "found GrouperAll"        , subjGS.getId().equals(subjIdALL)        )
+subjA     = addSubject(subjIdA, subjType, subjNameA)      
+subj      = findSubject(subjIdA)
+assert( "find subject: i"         , subj.getId().equals(subjA.getId())      )
+subj      = findSubject(subjIdA, subjType)
+assert( "find subject: i, t"      , subj.getId().equals(subjA.getId())      )
+subj      = findSubject(subjIdA, subjType, subjNameA)
+assert( "find subject: i, t, n"   , subj.getId().equals(subjA.getId())      )
 assert( "0 stems after reset"     , getStems("").size() == 0                )
 assert( "0 groups after reset"    , getGroups("").size() == 0               )
 root      = addRootStem(rootExtn, rootExtn)
