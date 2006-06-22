@@ -24,6 +24,8 @@ import  java.util.*;
  *   <li><b>addGroup(parent, extension, displayExtension)</b> - Add
  *     group beneath <i>parent</i> stem with the specified <i>extension</i>
  *     and <i>displayExtension</i>.</li>
+ *   <li><b>addMember(group, subject id)</b> - Add subject as a member
+ *     to the group.</li>
  *   <li><b>addStem(parent, extension, displayExtension)</b> - Add stem
  *     beneath <i>parent</i> stem with the specified <i>extension</i>
  *     and <i>displayExtension</i>.</li>
@@ -31,6 +33,8 @@ import  java.util.*;
  *     to the Groups Registry.</li>
  *   <li><b>delGroup(name)</b> - Delete group with the specified
  *     <i>name</i>.</li>
+ *   <li><b>delMember(group, subject id)</b> - Remove subject as a
+ *     member of the group.</li>
  *   <li><b>delStem(name)</b> - Delete stem with the specified
  *     <i>name</i>.</li>
  *   <li><b>exit</b> - Terminate shell.</li>
@@ -39,9 +43,12 @@ import  java.util.*;
  *   <li><b>findSubject(id, type, source)</b> - Find a subject.</li>
  *   <li><b>getGroups(name)</b> - Find all groups with <i>name</i> in any
  *     naming attribute value.</li>
+ *   <li><b>getMembers(group)</b> - Get members of the group.</li>
  *   <li><b>getSources()</b> - Find all Subject sources.</li>
  *   <li><b>getStems(name)</b> - Find all stems with <i>name</i> in any
  *     naming attribute value.</li>
+ *   <li><b>hasMember(group, subject id)</b> - Is subject a member of
+ *   this group.</li>
  *   <li><b>history()</b> - Print commands that have been run.</li>
  *   <li><b>history(n)</b> - Print the last <i>n</i> commands that
  *     have been run.</li>
@@ -65,7 +72,7 @@ import  java.util.*;
  *    evaluate each command will be displayed.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.15 2006-06-22 19:20:44 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.16 2006-06-22 19:51:03 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {

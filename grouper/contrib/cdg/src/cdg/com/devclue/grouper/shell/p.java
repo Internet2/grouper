@@ -16,7 +16,7 @@ import  java.util.*;
  * Pretty print results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.6 2006-06-22 19:20:44 blair Exp $
+ * @version $Id: p.java,v 1.7 2006-06-22 19:51:03 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -52,6 +52,9 @@ public class p {
       }
       else if (obj instanceof HibernateSubject) {
         _pp(i, (HibernateSubject) obj);
+      }
+      else if (obj instanceof Member)           {
+        _pp(i, (Member) obj);
       }
       else if (obj instanceof Set)              {
         _pp(i, (Set) obj); 
@@ -98,6 +101,18 @@ public class p {
         + "name="   + U.q(  subj.getName()            )
       );
   } // private static void _pp(i, subj)
+
+  // Handle {@link Member}s
+  // @since   0.0.1
+  private static void _pp(Interpreter i, Member m) {
+      i.println(
+        "member: " 
+        + "id="     + U.q(  m.getSubjectId()        )
+        + "type="   + U.q(  m.getSubjectTypeId()    )
+        + "source=" + U.q(  m.getSubjectSourceId()  )
+        + "uuid="   + U.q(  m.getUuid()             )
+      );
+  } // private static void _pp(i, m)
 
   // Default pretty printer
   // @since   0.0.1
