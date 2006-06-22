@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.17 2006-06-22 14:08:36 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.18 2006-06-22 18:14:17 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -111,6 +111,18 @@ public class GrouperSubject implements Subject {
   public SubjectType getType() {
     return this.type;
   } // public SubjectType getType()
+
+  /**
+   * @since 1.0
+   */ 
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append(  this.getId()              )
+      .append(  this.getSource().getId()  )
+      .append(  this.getType().getName()  )
+      .toHashCode()
+      ;
+  } // public int hashCode()
 
 
   // PRIVATE INSTANCE METHODS
