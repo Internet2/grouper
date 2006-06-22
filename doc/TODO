@@ -4,13 +4,14 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.79 2006-06-19 17:00:57 blair Exp $
+$Id: TODO,v 1.80 2006-06-22 18:14:17 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
+* CODE      Implement `GrouperSubject.hashCode()`
 * CONTRIB   complete cdg 1.0 feature list
 * LIBRARIES update subject api
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
@@ -117,5 +118,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.79 2006-06-19 17:00:57 blair Exp $
+$Id: TODO,v 1.80 2006-06-22 18:14:17 blair Exp $
 
