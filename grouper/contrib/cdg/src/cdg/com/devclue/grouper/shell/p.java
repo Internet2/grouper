@@ -13,10 +13,10 @@ import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /**
- * Print returned results.
+ * Pretty print results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.2 2006-06-22 15:03:09 blair Exp $
+ * @version $Id: p.java,v 1.3 2006-06-22 16:03:51 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -24,17 +24,82 @@ public class p {
   // PUBLIC CLASS METHODS //
 
   /**
-   * FIXME Print returned results.
+   * Pretty print results.
    * <p/>
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   obj   Object to print.
    * @since   0.0.1
    */
-  public static boolean invoke(Interpreter i, CallStack stack, Object obj) {
-    i.println("I AM: (" + obj.getClass() + ") (" + obj.toString() + ")");
-    return true;
-  } // public static boolean invoke(i, stack, obj)
+  public static void invoke(Interpreter i, CallStack stack, Object obj) {
+    pp(i, obj);
+  } // public static void invoke(i, stack, obj)
+
+
+  // PROTECTED CLASS METHODS //
+
+  // Pretty print results
+  // @since   0.0.1
+  protected static void pp(Interpreter i, Object obj) {
+    if (obj != null) {
+      // FIXME Can't I do this properly with reflection?
+      if      (obj instanceof Boolean)  {
+        i.println(obj);
+      }
+      else if (obj instanceof Group)    {
+        _pp(i, (Group) obj);
+      }
+      else if (obj instanceof Set)      {
+        _pp(i, (Set) obj); 
+      }
+      else if (obj instanceof Stem)     {
+        _pp(i, (Stem) obj); 
+      }
+      else {
+        _pp(i, obj);  // fall back to the default
+      }
+    }
+  } // protected static void pp(i, obj)
+
+
+  // PRIVATE CLASS METHODS //
+ 
+  // Handle {@link Group}s
+  // @since   0.0.1
+  private static void _pp(Interpreter i, Group g) {
+      i.println(
+        "group: "
+        + "name="         + U.q(g.getName()         ) 
+        + "displayName="  + U.q(g.getDisplayName()  )  
+        + "uuid="         + U.q(g.getUuid()         )
+      );
+  } // private static void _pp(i, ns)
+
+  // Default pretty printer
+  // @since   0.0.1
+  private static void _pp(Interpreter i, Object obj) {
+    i.println(obj.getClass().getName() + ": " + obj.toString());
+  } // private static void _pp(i, obj)
+    
+  // Handle {@link Set}s
+  // @since   0.0.1
+  private static void _pp(Interpreter i, Set obj) {
+    Iterator iter = obj.iterator();
+    while (iter.hasNext()) {
+      pp(i, iter.next());
+    }
+  } // private static void _pp(i, obj)
+
+  // Handle {@link Stem}s
+  // @since   0.0.1
+  private static void _pp(Interpreter i, Stem ns) {
+      i.println(
+        "stem: " 
+        + "name="         + U.q(ns.getName()        ) 
+        + "displayName="  + U.q(ns.getDisplayName() )  
+        + "uuid="         + U.q(ns.getUuid()        )
+      );
+  } // private static void _pp(i, ns)
 
 } // public class p
 
