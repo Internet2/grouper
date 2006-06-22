@@ -16,7 +16,7 @@ import  java.util.*;
  * Pretty print results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.3 2006-06-22 16:03:51 blair Exp $
+ * @version $Id: p.java,v 1.4 2006-06-22 17:46:29 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -32,6 +32,7 @@ public class p {
    * @since   0.0.1
    */
   public static void invoke(Interpreter i, CallStack stack, Object obj) {
+    GrouperShell.setOurCommand(i, true);
     pp(i, obj);
   } // public static void invoke(i, stack, obj)
 
@@ -41,7 +42,7 @@ public class p {
   // Pretty print results
   // @since   0.0.1
   protected static void pp(Interpreter i, Object obj) {
-    if (obj != null) {
+    if ( (obj != null) && (GrouperShell.isOurCommand(i)) ) {
       // FIXME Can't I do this properly with reflection?
       if      (obj instanceof Boolean)  {
         i.println(obj);

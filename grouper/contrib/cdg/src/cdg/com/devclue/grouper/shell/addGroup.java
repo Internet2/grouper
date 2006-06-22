@@ -16,7 +16,7 @@ import  java.util.*;
  * Add group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addGroup.java,v 1.3 2006-06-21 22:33:54 blair Exp $
+ * @version $Id: addGroup.java,v 1.4 2006-06-22 17:46:29 blair Exp $
  * @since   0.0.1
  */
 public class addGroup {
@@ -40,6 +40,7 @@ public class addGroup {
   ) 
     throws  GrouperShellException
   {
+    GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
       Stem            ns  = StemFinder.findByName(s, parent);
@@ -55,7 +56,7 @@ public class addGroup {
       GrouperShell.error(i, eNSNF);
     }
     throw new GrouperShellException();
-  } // protected static Group addGroup(i, parent, extn, displayExtn)
+  } // public static Group invoke(i, stack, parent, extn, displayExtn)
 
 } // public class addGroup
 

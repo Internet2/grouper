@@ -16,7 +16,7 @@ import  java.util.*;
  * Delete a group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delGroup.java,v 1.4 2006-06-22 15:03:09 blair Exp $
+ * @version $Id: delGroup.java,v 1.5 2006-06-22 17:46:29 blair Exp $
  * @since   0.0.1
  */
 public class delGroup {
@@ -36,6 +36,7 @@ public class delGroup {
   public static boolean invoke(Interpreter i, CallStack stack, String name) 
     throws  GrouperShellException
   {
+    GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
       Group           g = GroupFinder.findByName(s, name);

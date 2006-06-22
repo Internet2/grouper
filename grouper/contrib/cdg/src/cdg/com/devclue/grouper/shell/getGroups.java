@@ -16,7 +16,7 @@ import  java.util.*;
  * Query for groups by name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getGroups.java,v 1.4 2006-06-22 15:03:09 blair Exp $
+ * @version $Id: getGroups.java,v 1.5 2006-06-22 17:46:29 blair Exp $
  * @since   0.0.1
  */
 public class getGroups {
@@ -36,6 +36,7 @@ public class getGroups {
   public static Set invoke(Interpreter i, CallStack stack, String name) 
     throws  GrouperShellException
   {
+    GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
       Stem            root  = StemFinder.findRootStem(s);
