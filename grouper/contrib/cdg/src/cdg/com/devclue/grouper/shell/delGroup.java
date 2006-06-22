@@ -16,7 +16,7 @@ import  java.util.*;
  * Delete a group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delGroup.java,v 1.3 2006-06-21 22:33:54 blair Exp $
+ * @version $Id: delGroup.java,v 1.4 2006-06-22 15:03:09 blair Exp $
  * @since   0.0.1
  */
 public class delGroup {
@@ -43,14 +43,15 @@ public class delGroup {
       return true;
     }
     catch (GroupDeleteException eGD)            {
-      throw new GrouperShellException(eGD);
+      GrouperShell.error(i, eGD);
     }
     catch (GroupNotFoundException eGNF)         {
-      throw new GrouperShellException(eGNF);
+      GrouperShell.error(i, eGNF);
     }
     catch (InsufficientPrivilegeException eIP)  {
-      throw new GrouperShellException(eIP);
+      GrouperShell.error(i, eIP);
     }
+    return false;
   } // public static boolean invoke(i, stack, name)
 
 } // public class delGroup

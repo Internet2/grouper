@@ -16,7 +16,7 @@ import  java.util.*;
  * Delete a stem.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delStem.java,v 1.4 2006-06-21 22:33:54 blair Exp $
+ * @version $Id: delStem.java,v 1.5 2006-06-22 15:03:09 blair Exp $
  * @since   0.0.1
  */
 public class delStem {
@@ -43,14 +43,15 @@ public class delStem {
       return true;
     }
     catch (InsufficientPrivilegeException eIP)  {
-      throw new GrouperShellException(eIP);
+      GrouperShell.error(i, eIP);
     }
     catch (StemDeleteException eNSD)            {
-      throw new GrouperShellException(eNSD);
+      GrouperShell.error(i, eNSD);
     }
     catch (StemNotFoundException eNSNF)         {
-      throw new GrouperShellException(eNSNF);
+      GrouperShell.error(i, eNSNF);
     }
+    return false;
   } // public static boolean invoke(i, stack, name)
 
 } // public class delStem

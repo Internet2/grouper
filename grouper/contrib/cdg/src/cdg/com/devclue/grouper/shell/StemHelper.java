@@ -16,7 +16,7 @@ import  java.util.*;
  * Stem Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.5 2006-06-21 22:33:54 blair Exp $
+ * @version $Id: StemHelper.java,v 1.6 2006-06-22 15:03:09 blair Exp $
  * @since   0.0.1
  */
 class StemHelper {
@@ -43,14 +43,15 @@ class StemHelper {
       return nsP.addChildStem(extn, displayExtn);
     }
     catch (InsufficientPrivilegeException eIP)  {
-      throw new GrouperShellException(eIP);
+      GrouperShell.error(i, eIP);
     }
     catch (StemAddException eNSA)               {
-      throw new GrouperShellException(eNSA);
+      GrouperShell.error(i, eNSA);
     }
     catch (StemNotFoundException eNSNF)         {
-      throw new GrouperShellException(eNSNF);
+      GrouperShell.error(i, eNSNF);
     }
+    throw new GrouperShellException();
   } // protected static Stem addStem(i, parent, extn, displayExtn)
 
 } // class StemHelper
