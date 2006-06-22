@@ -16,7 +16,7 @@ import  java.util.*;
  * Query for stems by name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getStems.java,v 1.4 2006-06-21 22:33:54 blair Exp $
+ * @version $Id: getStems.java,v 1.5 2006-06-22 15:03:09 blair Exp $
  * @since   0.0.1
  */
 public class getStems {
@@ -46,8 +46,9 @@ public class getStems {
       return gq.getStems();
     }
     catch (QueryException eQ) {
-      throw new GrouperShellException(eQ);
+      GrouperShell.error(i, eQ);
     }
+    throw new GrouperShellException();
   } // protected static Set getStems(i, name)
 
 } // public class getStems

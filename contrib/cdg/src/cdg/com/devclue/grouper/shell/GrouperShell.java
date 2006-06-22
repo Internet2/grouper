@@ -6,7 +6,7 @@
  */
 
 package com.devclue.grouper.shell;
-import  bsh.Interpreter;
+import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
@@ -51,7 +51,7 @@ import  java.util.*;
  *    upon failure.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.9 2006-06-21 22:33:54 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.10 2006-06-22 15:03:09 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -112,13 +112,19 @@ public class GrouperShell {
 
   // PROTECTED CLASS METHODS //
 
+  // @throws  GrouperShellException
   // @since   0.0.1
-  protected static void error(Interpreter i, Exception e) {
+  protected static void error(Interpreter i, Exception e) 
+    throws  GrouperShellException
+  {
     error(i, e, e.getMessage());
   } // protected static void error(i, e)
 
+  // @throws  GrouperShellException
   // @since   0.0.1
-  protected static void error(Interpreter i, Exception e, String msg) {
+  protected static void error(Interpreter i, Exception e, String msg) 
+    throws  GrouperShellException
+  {
     i.error(msg);
     try {
       Object obj = GrouperShell.get(i, GSH_DEBUG);
@@ -134,6 +140,7 @@ public class GrouperShell {
     catch (bsh.EvalError eBEE) {
       i.error(eBEE.getMessage());
     }
+    throw new GrouperShellException(msg, e);
   } // protected static void error(i, e, msg)
 
   // @throws  bsh.EvalError
@@ -223,7 +230,7 @@ public class GrouperShell {
       throw new GrouperShellException(E.I_IMPORT + eBBB.getMessage(), eBBB);
     }
     while ( (cmd = r.next()) != null) {
-      // TODO Replace with something cleaner
+      // TODO Replace these with something cleaner
       if ( cmd.startsWith("#") || cmd.startsWith("//") ) {
         continue;
       }
@@ -231,18 +238,21 @@ public class GrouperShell {
         this._stopSession();
         break;
       }
-      // /TODO
+      // Update command history
       try {
         setHistory(this.i, this.r.getCnt(), cmd);
       }
       catch (bsh.EvalError eBEE) {
         this.i.error(E.GSH_SETHISTORY + eBEE.getMessage());
       }
+      // Now try to eval the command
       try {
         i.eval(cmd);
       }
       catch (bsh.EvalError eBEE) {
-        this.i.error(eBEE.getMessage());
+        // TODO ???
+        // this.i.error("EVAL ERROR.GET: " + eBEE.getErrorText());
+        // this.i.error("EVAL ERROR.GM : " + eBEE.getMessage());
       }
     }
   } // private void _run(r)

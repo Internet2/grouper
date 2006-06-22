@@ -13,7 +13,7 @@ import  java.util.*;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.3 2006-06-21 22:33:54 blair Exp $
+ * @version $Id: ShellHelper.java,v 1.4 2006-06-22 15:03:09 blair Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -37,14 +37,15 @@ class ShellHelper {
       return true;
     }
     catch (ArrayIndexOutOfBoundsException eAIOOB) {
-      throw new GrouperShellException(E.OUTOFBOUNDS, eAIOOB);
+      GrouperShell.error(i, eAIOOB, E.OUTOFBOUNDS);
     }
     catch (bsh.EvalError eBEE)                    {
-      throw new GrouperShellException(eBEE);
+      GrouperShell.error(i, eBEE);
     }
     catch (IndexOutOfBoundsException eIOOB) {
-      throw new GrouperShellException(E.OUTOFBOUNDS, eIOOB);
+      GrouperShell.error(i, eIOOB, E.OUTOFBOUNDS);
     }
+    return false;
   } // protected static boolean eval(i, idx)
 
   // @return  True if suceeds.
@@ -67,11 +68,12 @@ class ShellHelper {
       return true;
     }
     catch (ArrayIndexOutOfBoundsException eAIOOB) {
-      throw new GrouperShellException(E.OUTOFBOUNDS, eAIOOB);
+      GrouperShell.error(i, eAIOOB, E.OUTOFBOUNDS);
     }
     catch (bsh.EvalError eBEE) {
-      throw new GrouperShellException(eBEE);
+      GrouperShell.error(i, eBEE);
     }
+    return false;
   } // protected static boolean history(i, cnt)
 
 } // class ShellHelper

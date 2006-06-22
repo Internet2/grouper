@@ -16,7 +16,7 @@ import  java.util.*;
  * Print returned results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.1 2006-06-21 22:33:54 blair Exp $
+ * @version $Id: p.java,v 1.2 2006-06-22 15:03:09 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -32,7 +32,8 @@ public class p {
    * @since   0.0.1
    */
   public static boolean invoke(Interpreter i, CallStack stack, Object obj) {
-    i.println("I AM: " + obj.getClass());
+    i.println("I AM: (" + obj.getClass() + ") (" + obj.toString() + ")");
+    return true;
   } // public static boolean invoke(i, stack, obj)
 
 } // public class p
