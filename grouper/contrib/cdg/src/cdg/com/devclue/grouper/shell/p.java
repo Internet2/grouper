@@ -16,7 +16,7 @@ import  java.util.*;
  * Pretty print results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.4 2006-06-22 17:46:29 blair Exp $
+ * @version $Id: p.java,v 1.5 2006-06-22 18:07:17 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -55,6 +55,9 @@ public class p {
       }
       else if (obj instanceof Stem)     {
         _pp(i, (Stem) obj); 
+      }
+      else if (obj instanceof String)   {
+        i.println(obj);
       }
       else {
         _pp(i, obj);  // fall back to the default

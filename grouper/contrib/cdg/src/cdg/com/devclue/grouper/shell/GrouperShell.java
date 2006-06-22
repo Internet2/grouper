@@ -46,6 +46,7 @@ import  java.util.*;
  *   <li><b>resetRegistry()</b> - Restore the Groups Registry to a
  *     default state.</li>
  *   <li><b>quit</b> - Terminate shell.</li>
+ *   <li><b>version()</b> - Return version information.</li>
  * </ul> 
  * <h3>Variables</h3>
  * <ul>
@@ -58,7 +59,7 @@ import  java.util.*;
  *    evaluate each command will be displayed.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.13 2006-06-22 18:03:11 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.14 2006-06-22 18:07:17 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
