@@ -8,12 +8,13 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  java.util.*;
+import  org.apache.commons.lang.time.*;
 
 /**
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.5 2006-06-22 17:46:29 blair Exp $
+ * @version $Id: ShellHelper.java,v 1.6 2006-06-22 18:03:11 blair Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -23,6 +24,8 @@ class ShellHelper {
   // @return  Evaluated command.
   // @since   0.0.1
   protected static String eval(Interpreter i, String cmd) {
+    StopWatch sw = new StopWatch();
+    sw.start();
     try {
       GrouperShell.setOurCommand(i, false); // Default to false
       Object obj = i.eval(cmd);
@@ -34,17 +37,26 @@ class ShellHelper {
     catch (bsh.EvalError eBEE) {
       // TODO ???
     }
-      // Now update the command history
-      try {
-        // Unless it involves references to `last`
-        if (!cmd.startsWith("last(")) {
-          List history = GrouperShell.getHistory(i);
-          GrouperShell.setHistory(i, history.size(), cmd);
-        }
+    // Now update the command history
+    try {
+      // Unless it involves references to `last`
+      // TODO Add methods for this
+      if (!cmd.startsWith("last(")) {
+        List history = GrouperShell.getHistory(i);
+        GrouperShell.setHistory(i, history.size(), cmd);
       }
-      catch (bsh.EvalError eBEE) {
-        i.error(E.GSH_SETHISTORY + eBEE.getMessage());
-      }
+    }
+    catch (bsh.EvalError eBEE) {
+      i.error(E.GSH_SETHISTORY + eBEE.getMessage());
+    }
+    sw.stop();
+    // If command are timed and this was not a `last` command output
+    // how long it took to evaluate.
+    // TODO Add methods for this
+    // TODO Should we only time internal methods?  No, probably not.
+    if ( (GrouperShell.isTimed(i)) && (!cmd.startsWith("last(")) ) {
+      i.println( "time: " + sw.getTime() + "ms command=" + U.q(cmd) );
+    }
     return cmd;
   } // protected static String  eval(i, cmd)
 
