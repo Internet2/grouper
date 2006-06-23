@@ -1,0 +1,56 @@
+
+# README
+
+com.devclue.grouper (cdg) is a collection of Java classes (both
+libraries and applications) that use the [Grouper][0] API to assist in
+initializing and maintaining a Groups Registry.
+
+This is a modified version of cdg for inclusion with Grouper.
+
+See <http://grouper.devclue.com/> for the original version and updates.
+
+$Id: README,v 1.1 2006-06-23 17:30:09 blair Exp $
+
+---
+
+## Build
+
+Build cdg.
+
+    % ant build
+
+## Test
+
+Test the Java classes as libraries.
+
+    % ant test
+
+Test the Java classes as applications.
+
+    % ./test-cli.sh
+
+
+## Use
+
+Information on using cdg as either a library or an application can be
+found in the javadoc located in `doc/html`.
+
+    % ant jar
+
+Builds a jar of all the cdg classes.  
+
+To use cdg, either as an application or a library, you will need to
+include the following in your classpath:
+* com.devclue.grouper.jar
+* Grouper.jar
+* Grouper-lib.jar
+* Grouper configuration directory
+* `java/lib/ostermillerutils.jar` if using _cdg.subject.CSV2JDBC_
+
+See `doc/html/index.html` for information on how to use cdg as either a
+library or an application.
+
+---
+
+[0]: <http://middleware.internet2.edu/dir/groups/grouper/>
+

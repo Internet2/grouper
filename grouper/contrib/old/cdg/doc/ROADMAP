@@ -1,0 +1,25 @@
+
+# com.devclue.grouper Development Roadmap
+
+This file provides information on future cdg development.  The changes
+for each release may change dramatically as they are primarily
+motivated by whatever I feel like working on at the time.
+
+$Id: ROADMAP,v 1.1 2006-06-23 17:30:09 blair Exp $
+
+---
+
+## com.devclue.grouper 1.0
+* _GrouperShell_ version 0.0.1
+
+---
+
+## com.devclue.grouper 1.n
+* Added _GrouperShell_ functionality
+
+---
+
+## com.devclue.grouper 1.n+1
+* Added _GrouperShell_ functionality
+* Basic web services support for select methods
+

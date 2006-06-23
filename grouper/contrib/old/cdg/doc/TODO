@@ -1,0 +1,33 @@
+
+# cdg Development TODO List
+
+This file provides more detailed information on future cdg development
+as listed in _doc/ROADMAP_.
+
+$Id: TODO,v 1.1 2006-06-23 17:30:09 blair Exp $
+
+---
+
+## com.devclue.grouper 1.0
+* CODE      *GrouperShell*  add, delete and get composites commands
+* CODE      *GrouperShell*  modify stem attributes commands
+* CODE      *GrouperShell*  modify group attributes commands
+* CODE      *GrouperShell*  grant, revoke and check access privs commands
+* CODE      *GrouperShell*  grant, revoke and check naming privs commands
+* PACKAGING versionize third party .jar files 
+* CODE      *GrouperShell*  help() command
+* PACKAGING split *GrouperShell* off from *cdg*?
+* PACKAGING update copyright
+
+---
+
+## com.devclue.grouper 1.n
+* CODE  *GrouperShell* - Object shortcuts for method stubs
+* CODE  *GrouperShell* - *HibernateSubject* deletion
+
+---
+
+## com.devclue.grouper 1.n+1
+* Added _GrouperShell_ functionality
+* Basic web services support for select methods
+
