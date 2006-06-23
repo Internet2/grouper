@@ -1,0 +1,14 @@
+
+# GrouperShell Bugs
+
+This file provides information on known *GrouperShell* bugs.
+
+$Id: BUGS.txt,v 1.1 2006-06-23 17:37:59 blair Exp $
+
+---
+
+## GrouperShell 0.0.1
+* 20060623  The handling of *GrouperShell* errors remains muddled,
+		        especially in regard to throwing proper
+		        failure-indicating return values.
+
