@@ -1,0 +1,34 @@
+
+# GrouperShell Development TODO List
+
+This file provides more detailed information on future *GrouperShell*
+development as listed in _doc/ROADMAP_.
+
+$Id: TODO.txt,v 1.1 2006-06-23 17:30:09 blair Exp $
+
+---
+
+## GrouperShell 0.0.1
+* CODE  add, delete and get composites commands
+* CODE  modify stem attributes commands
+* CODE  modify group attributes commands
+* CODE  grant, revoke and check access privs commands
+* CODE  grant, revoke and check naming privs commands
+* CODE  help() command
+
+---
+
+## GrouperShell 0.0.2
+* CODE  Object shortcuts for method stubs
+
+---
+
+## GrouperShell 0.1.0
+* CODE  *HibernateSubject* deletion
+* CODE  *HibernateSubject* attribute querying and modification
+
+---
+
+## GrouperShell 0.2.0
+* CODE  Sync membership between a group in Grouper and LDAP
+
