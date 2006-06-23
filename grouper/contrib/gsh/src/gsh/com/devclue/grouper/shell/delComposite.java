@@ -13,43 +13,49 @@ import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /**
- * Get members of a group.
+ * Delete a composite member.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getMembers.java,v 1.2 2006-06-23 19:48:43 blair Exp $
+ * @version $Id: delComposite.java,v 1.1 2006-06-23 19:48:43 blair Exp $
  * @since   0.0.1
  */
-public class getMembers {
+public class delComposite {
 
   // PUBLIC CLASS METHODS //
 
   /**
-   * Get members of a group.
+   * Delete a composite member.
    * <p/>
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
-   * @param   group       Get {@link Member}s of this {@link Group}.
-   * @return  {@link Set} of {@link Member}s.
+   * @param   group       Delete {@link Composite} from {@link Group} with this name.
+   * @return  True if succeeds.
    * @throws  GrouperShellException
    * @since   0.0.1
    */
-  public static Set invoke(
+  public static boolean invoke(
     Interpreter i, CallStack stack, String group
   ) 
     throws  GrouperShellException
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      GrouperSession  s = GrouperShell.getSession(i);
-      Group           g = GroupFinder.findByName(s, group);
-      Set members = g.getMembers();
-      return g.getMembers();
+      GrouperSession  s     = GrouperShell.getSession(i);
+      Group           g     = GroupFinder.findByName(s, group);
+      g.deleteCompositeMember();
+      return true;
     }
     catch (GroupNotFoundException eGNF)         {
       GrouperShell.error(i, eGNF);
     }
-    return null;
-  } // public static Set invoke(i, stack, group)
+    catch (InsufficientPrivilegeException eIP)  {
+      GrouperShell.error(i, eIP);
+    }
+    catch (MemberDeleteException eMD)           {
+      GrouperShell.error(i, eMD);
+    }
+    return false;
+  } // public static boolean invoke(i, stack, group)
 
-} // public class getMembers
+} // public class delComposite
 
