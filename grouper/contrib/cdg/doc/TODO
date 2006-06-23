@@ -4,7 +4,7 @@
 This file provides more detailed information on future cdg development
 as listed in _doc/ROADMAP_.
 
-$Id: TODO,v 1.1 2006-06-22 20:04:21 blair Exp $
+$Id: TODO,v 1.2 2006-06-23 13:38:58 blair Exp $
 
 ---
 
@@ -14,7 +14,9 @@ $Id: TODO,v 1.1 2006-06-22 20:04:21 blair Exp $
 * CODE      *GrouperShell*  modify group attributes commands
 * CODE      *GrouperShell*  grant, revoke and check access privs commands
 * CODE      *GrouperShell*  grant, revoke and check naming privs commands
+* PACKAGING versionize third party .jar files 
 * CODE      *GrouperShell*  help() command
+* PACKAGING split *GrouperShell* off from *cdg*?
 * PACKAGING update copyright
 
 ---

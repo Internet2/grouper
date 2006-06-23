@@ -4,14 +4,15 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.80 2006-06-22 18:14:17 blair Exp $
+$Id: TODO,v 1.81 2006-06-23 13:38:58 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* CODE      Implement `GrouperSubject.hashCode()`
+* TEST      oracle
+* PACKAGING versionize third party .jar files
 * CONTRIB   complete cdg 1.0 feature list
 * LIBRARIES update subject api
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
@@ -24,8 +25,6 @@ $Id: TODO,v 1.80 2006-06-22 18:14:17 blair Exp $
 * CODE      Migrate error messages to *E*
 * CODE      Migrate messages to *M*
 * CODE      Switch to *IllegalArgumentException* and *NullArgumentException*
-* DOCUMENT  add `@since` to javadoc (just diff `doc/API`? for now
-  since i've been failing to add this?)
 * PACKAGING create binary-and-source distributions
 * CODE      improved API support for XML import+export
 * CODE      class to verify that setup is functional
@@ -118,5 +117,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.80 2006-06-22 18:14:17 blair Exp $
+$Id: TODO,v 1.81 2006-06-23 13:38:58 blair Exp $
 
