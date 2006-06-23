@@ -16,7 +16,7 @@ import  java.util.*;
  * Pretty print results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.1 2006-06-23 17:30:09 blair Exp $
+ * @version $Id: p.java,v 1.2 2006-06-23 19:48:43 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -42,7 +42,8 @@ public class p {
   // Pretty print results
   // @since   0.0.1
   protected static void pp(Interpreter i, Object obj) {
-    if ( (obj != null) && (GrouperShell.isOurCommand(i)) ) {
+    //if ( (obj != null) && (GrouperShell.isOurCommand(i)) ) {
+    if (obj != null) {
       // FIXME Can't I do this properly with reflection?
       if      (obj instanceof Boolean)          {
         i.println(obj);

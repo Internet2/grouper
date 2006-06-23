@@ -3,7 +3,7 @@
 
 This file provides information on known *GrouperShell* bugs.
 
-$Id: BUGS.txt,v 1.1 2006-06-23 17:37:59 blair Exp $
+$Id: BUGS.txt,v 1.2 2006-06-23 19:48:43 blair Exp $
 
 ---
 
@@ -11,4 +11,6 @@ $Id: BUGS.txt,v 1.1 2006-06-23 17:37:59 blair Exp $
 * 20060623  The handling of *GrouperShell* errors remains muddled,
 		        especially in regard to throwing proper
 		        failure-indicating return values.
+* 20060623  Multiline commands are **not** handled properly.  Long lines are
+            your friend at the moment.
 

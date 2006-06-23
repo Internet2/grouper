@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.1 2006-06-23 17:30:09 blair Exp $ -->
+<!-- $Id: build.xml,v 1.2 2006-06-23 19:48:43 blair Exp $ -->
 
 <project name="GrouperShell" default="build" basedir=".">
 
@@ -146,9 +146,16 @@
 
   <!-- test -->
   <target name="test" 
-          depends="test-run"
+          depends="test-build"
           description="run tests"
-  />
+  >
+    <antcall  target="test-run">
+      <param  name="name" value="test"/>
+    </antcall>
+    <antcall  target="test-run">
+      <param  name="name" value="composites"/>
+    </antcall>
+  </target>
   <!-- test -->
 
   <!-- test-build -->
@@ -167,15 +174,19 @@
   <!-- test-run -->
   <target name="test-run" 
           depends="test-build"
-          description="run tests"
+          description="run a specified GrouperShell test script"
   >
-    <record name="${log.test.run}" action="start"/>
+    <record name="${log.test.run}" 
+            action="start"
+            append="yes"
+    />
+    <echo message="running test: ${name}" />
     <java fork="yes"
           classname="com.devclue.grouper.shell.GrouperShell"
           taskname="junit"
           failonerror="true"
     >
-      <arg value="${src.test}/test.gsh"/>
+      <arg value="${src.test}/${name}.gsh"/>
       <classpath refid="project.classpath"/>
     </java>
     <record name="${log.test.run}" action="stop"/>

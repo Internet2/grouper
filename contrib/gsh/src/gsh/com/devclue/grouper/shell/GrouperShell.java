@@ -17,20 +17,25 @@ import  java.util.*;
 /**
  * Grouper Management Shell.
  * <p/>
+ * <p>FIXME Move to `package.html`</p>
  * <h3>Supported Commands</h3>
  * <ul>
- *   <li><b>addRootStem(extension, displayExtension)</b> - Add root
- *     stem with the specified <i>extension</i> and <i>displayExtension</i>.</li>
+ *   <li><b>addComposite(group, type, left group, right group)</b> - Add
+ *     composite membership.</li>
  *   <li><b>addGroup(parent, extension, displayExtension)</b> - Add
  *     group beneath <i>parent</i> stem with the specified <i>extension</i>
  *     and <i>displayExtension</i>.</li>
  *   <li><b>addMember(group, subject id)</b> - Add subject as a member
  *     to the group.</li>
+ *   <li><b>addRootStem(extension, displayExtension)</b> - Add root
+ *     stem with the specified <i>extension</i> and <i>displayExtension</i>.</li>
  *   <li><b>addStem(parent, extension, displayExtension)</b> - Add stem
  *     beneath <i>parent</i> stem with the specified <i>extension</i>
  *     and <i>displayExtension</i>.</li>
  *   <li><b>addSubject(id, type, name)</b> - Add a {@link HibernateSubject}
  *     to the Groups Registry.</li>
+ *   <li><b>delComposite(group)</b> - Delete composite membership from the
+ *     specified group.</li>
  *   <li><b>delGroup(name)</b> - Delete group with the specified
  *     <i>name</i>.</li>
  *   <li><b>delMember(group, subject id)</b> - Remove subject as a
@@ -72,7 +77,7 @@ import  java.util.*;
  *    evaluate each command will be displayed.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.1 2006-06-23 17:30:09 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.2 2006-06-23 19:48:43 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {

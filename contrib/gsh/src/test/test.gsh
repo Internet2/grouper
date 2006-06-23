@@ -1,10 +1,16 @@
 #
 # GrouperShell Tests
-# $Id: test.gsh,v 1.1 2006-06-23 17:30:09 blair Exp $
+# $Id: test.gsh,v 1.2 2006-06-23 19:48:43 blair Exp $
 #
-importCommands("com.devclue.grouper.shell.test")
-#GSH_DEVEL = true
+
 #
+# FIXME Split and deprecate
+#
+
+#
+# SETUP
+#
+GSH_DEVEL = true
 version   = "0.0.1"
 rootExtn  = "uchicago"
 nsExtn    = "nsit"
@@ -14,6 +20,10 @@ subjIdALL = "GrouperAll"
 subjIdGS  = "GrouperSystem"
 subjIdA   = "subj.A"
 subjNameA = "subject a"
+
+#
+# TEST
+#
 #
 assert( "gsh version " + version    , version().equals(version)               )
 assert( "reset registry"            , resetRegistry()                         )
@@ -69,4 +79,8 @@ assert( "history()"                 , history()                               )
 assert( "history(1)"                , history(1)                              )
 assert( "last()"                    , last()                                  )
 assert( "last(0)"                   , last(0)                                 )
+
+#
+# TEARDOWN
+#
 quit
