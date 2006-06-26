@@ -31,7 +31,7 @@ public interface Source {
 	/**
 	 * Gets the SubjectTypes supported by this source.
 	 */
-	public HashMap getSubjectTypes();
+	public java.util.Set getSubjectTypes();
 	
 	/**
 	 * Gets a Subject by its ID.
