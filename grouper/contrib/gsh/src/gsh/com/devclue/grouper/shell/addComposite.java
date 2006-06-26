@@ -16,7 +16,7 @@ import  java.util.*;
  * Add a composite member.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addComposite.java,v 1.1 2006-06-23 19:48:43 blair Exp $
+ * @version $Id: addComposite.java,v 1.2 2006-06-26 14:29:24 blair Exp $
  * @since   0.0.1
  */
 public class addComposite {
@@ -32,7 +32,6 @@ public class addComposite {
    * @param   type        {@link CompositeType}.
    * @param   left        Left factor {@link Group}.
    * @param   right       Right factor {@link Group}.
-   * @param   subjId      Add {@link Subject} with this <i>subject id</i> as a member.
    * @return  True if succeeds.
    * @throws  GrouperShellException
    * @since   0.0.1

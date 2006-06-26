@@ -17,7 +17,7 @@ import  net.sf.hibernate.*;
  * Find a {@link Subject}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: findSubject.java,v 1.1 2006-06-23 17:30:09 blair Exp $
+ * @version $Id: findSubject.java,v 1.2 2006-06-26 14:29:24 blair Exp $
  * @since   0.0.1
  */
 public class findSubject {
@@ -30,7 +30,7 @@ public class findSubject {
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   id          Subject <i>id</i>.
-   * @return  Found {@link HibernatedSubject}.
+   * @return  Found {@link HibernateSubject}.
    * @throws  GrouperShellException
    * @since   0.0.1
    */
@@ -56,7 +56,7 @@ public class findSubject {
    * @param   stack       BeanShell call stack.
    * @param   id          Subject <i>id</i>.
    * @param   type        Subject <i>type</i>.
-   * @return  Found {@link HibernatedSubject}.
+   * @return  Found {@link HibernateSubject}.
    * @throws  GrouperShellException
    * @since   0.0.1
    */
@@ -83,7 +83,7 @@ public class findSubject {
    * @param   id          Subject <i>id</i>.
    * @param   type        Subject <i>type</i>.
    * @param   source      Subject <i>source</i>.
-   * @return  Found {@link HibernatedSubject}.
+   * @return  Found {@link HibernateSubject}.
    * @throws  GrouperShellException
    * @since   0.0.1
    */

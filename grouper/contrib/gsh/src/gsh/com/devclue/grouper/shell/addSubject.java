@@ -17,7 +17,7 @@ import  net.sf.hibernate.*;
  * Add {@link HibernateSubject} to Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addSubject.java,v 1.1 2006-06-23 17:30:09 blair Exp $
+ * @version $Id: addSubject.java,v 1.2 2006-06-26 14:29:24 blair Exp $
  * @since   0.0.1
  */
 public class addSubject {
@@ -32,7 +32,7 @@ public class addSubject {
    * @param   id          Subject <i>id</i>.
    * @param   type        Subject <i>type</i>.
    * @param   name        Subject <i>name</i>.
-   * @return  Added {@link HibernatedSubject}.
+   * @return  Added {@link HibernateSubject}.
    * @throws  GrouperShellException
    * @since   0.0.1
    */
