@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * Hibernate representation of the JDBC Subject table.
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.7 2006-06-19 17:00:57 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.8 2006-06-26 13:59:46 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {
@@ -105,6 +105,15 @@ public class HibernateSubject implements Serializable {
 
 
   // PUBLIC INSTANCE METHODS //
+  /**
+   * To mimic {@link Subject}.
+   * @return  <i>subject id</i>
+   * @since   1.0
+   */
+  public String getId() {
+    return this.getSubjectId();
+  } // public String getId()
+
   /**
    * @since 1.0
    */
