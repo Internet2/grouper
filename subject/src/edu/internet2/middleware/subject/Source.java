@@ -1,5 +1,6 @@
-
 package edu.internet2.middleware.subject;
+import java.util.HashMap;
+
 
 
 /**
@@ -30,27 +31,27 @@ public interface Source {
 	/**
 	 * Gets the SubjectTypes supported by this source.
 	 */
-	public java.util.Set getSubjectTypes();
+	public HashMap getSubjectTypes();
 	
 	/**
 	 * Gets a Subject by its ID.
 	 */
-	public Subject getSubject(String id)
-		throws SubjectNotFoundException;
+	public Subject getSubject(String id, String typeid)
+		throws SubjectNotFoundException,SubjectNotUniqueException;
 
 	/**
 	 * Gets a Subject by other well-known identifiers, aside
 	 * from the subject ID, for example, login ID.
 	 */
-	public Subject getSubjectByIdentifier(String id)
-		throws SubjectNotFoundException;
+	public Subject getSubjectByIdentifier(String id, String typeid)
+		throws SubjectNotFoundException,SubjectNotUniqueException;
 	
 	/**
 	 * Unstructured search for Subjects. Each implementation
 	 * utilizes its own search algorithm tailored to
 	 * the Subject repository and schema.
 	 */
-	public java.util.Set search(String searchValue);
+	public java.util.Set search(String searchValue, String typeid);
 	
 	/**
 	 * Called by SourceManager when it loads this source.
