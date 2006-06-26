@@ -36,14 +36,14 @@ public interface Source {
 	/**
 	 * Gets a Subject by its ID.
 	 */
-	public Subject getSubject(String id, String typeid)
+	public Subject getSubject(String id)
 		throws SubjectNotFoundException,SubjectNotUniqueException;
 
 	/**
 	 * Gets a Subject by other well-known identifiers, aside
 	 * from the subject ID, for example, login ID.
 	 */
-	public Subject getSubjectByIdentifier(String id, String typeid)
+	public Subject getSubjectByIdentifier(String id)
 		throws SubjectNotFoundException,SubjectNotUniqueException;
 	
 	/**
@@ -51,7 +51,7 @@ public interface Source {
 	 * utilizes its own search algorithm tailored to
 	 * the Subject repository and schema.
 	 */
-	public java.util.Set search(String searchValue, String typeid);
+	public java.util.Set search(String searchValue);
 	
 	/**
 	 * Called by SourceManager when it loads this source.
