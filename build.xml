@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.103 2006-06-27 15:30:04 blair Exp $ -->
+<!-- $Id: build.xml,v 1.104 2006-06-27 17:04:45 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -50,9 +50,9 @@
 -->
     </javac>
     <record name="${log.build}" action="stop"/>
-    <!-- include hibernate mappings -->
+    <!-- include hibernate mappings + default export|import properties -->
     <copy todir="${build.grouper}">
-      <fileset dir="${src.grouper}" includes="**/*.hbm.xml"/>
+      <fileset dir="${src.grouper}" includes="**/*.hbm.xml, **/*.properties"/>
     </copy>
   </target>
   <!-- build -->
@@ -193,6 +193,12 @@
     />
   </target>
   <!-- dist-lib -->
+
+  <!-- ensure-cmd -->
+  <target name="ensure-cmd" unless="cmd">
+    <fail message="You must run this target with -Dcmd='command line arguments'"/>
+  </target>
+  <!-- ensure-cmd -->
 
   <!-- ensure-name -->
   <target name="ensure-name" unless="name">
@@ -431,6 +437,68 @@
   </target>
   <!-- test -->
 
+  <!-- test-xml -->
+  <target name="test-xml" 
+          depends="test-build"
+          description="test xml exporting and importing"
+  >
+    <record name="${log.test.run}" action="start"/>
+    <!-- Reset -->
+    <antcall  target="db-reset"/>
+    <!-- Load -->
+    <antcall  target="runtest">
+      <param  name="test" value="TestXmlSetup"/>
+    </antcall>
+    <!-- Export -->
+    <antcall  target="xml-export">
+      <param  name="cmd"  value="GrouperSystem ${dist.run}/registry.xml"/>
+    </antcall>
+    <!-- Reset -->
+    <antcall  target="db-reset"/>
+    <!-- Import -->
+    <antcall  target="xml-import">
+      <param  name="cmd"  value="GrouperSystem ${dist.run}/registry.xml"/>
+    </antcall>
+    <!-- Verify -->
+    <antcall  target="runtest">
+      <param  name="test" value="TestXmlVerify"/>
+    </antcall>
+    <record name="${log.test.run}" action="stop"/>
+  </target>
+  <!-- test-xml -->
+
+  <!-- xml-export -->    
+  <target name="xml-export"
+          description="Perform XML export of Groups Registry"
+          depends="ensure-cmd"        
+  >
+    <java fork="true"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.XmlExporter"
+          failonerror="true"
+    >
+      <arg line="${cmd}"/>
+    </java>
+  </target>
+  <!-- xml-export -->
+      
+  <!-- xml-import -->    
+  <target name="xml-import"
+          description="Perform XML import of Groups Registry"
+          depends="ensure-cmd"        
+  >
+    <java fork="true"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.XmlImporter"
+          failonerror="true"
+    >
+      <arg line="${cmd}"/>
+    </java>
+  </target>
+  <!-- xml-import -->
+      
+
+  <!-- TODO what are these doing down here? -->
   <target name="jar" depends="dist" />
 
   <target name="with.clover" depends="init">

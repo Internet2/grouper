@@ -4,16 +4,19 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.83 2006-06-27 15:30:04 blair Exp $
+$Id: TODO,v 1.84 2006-06-27 17:04:45 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* CODE      review gary's xml import+export stuff
-* CONTRIB   complete cdg 1.0 feature list
 * LIBRARIES update subject api (once `subject_0_2` is functional)
+* CODE      have xml* default properties + optional override properties
+* CODE      make xml* api callable
+* CODE      synchronie xml* aesthetics
+* TESTING   better xml* testing
+* CONTRIB   complete cdg 1.0 feature list
 * TEST      oracle (hopefully by someone else!)
 * PACKAGING 20060628  feature freeze
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
@@ -119,5 +122,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.83 2006-06-27 15:30:04 blair Exp $
+$Id: TODO,v 1.84 2006-06-27 17:04:45 blair Exp $
 

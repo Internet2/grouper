@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.123 2006-06-19 19:37:54 blair Exp $
+$Id: NEWS,v 1.124 2006-06-27 17:04:45 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS,v 1.123 2006-06-19 19:37:54 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:  Basic integration of Gary Brown's XML export and import code.
 * BUGFIX: Fixed another Hibernate lazy collection initiialization error
   that was brought to light by work on *cdg*.
 * BUGFIX: Improper calculation of *Membership* UUIDs when deleting memberships.
