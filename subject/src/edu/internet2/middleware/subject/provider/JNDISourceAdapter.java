@@ -1,6 +1,6 @@
 /*--
-$Id: JNDISourceAdapter.java,v 1.4 2006-06-07 18:58:10 esluss Exp $
-$Date: 2006-06-07 18:58:10 $
+$Id: JNDISourceAdapter.java,v 1.5 2006-06-27 22:33:51 blair Exp $
+$Date: 2006-06-27 22:33:51 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -60,9 +60,10 @@ public class JNDISourceAdapter
     // Return scope for searching as a int - associate the string with the int
     protected static HashMap scopeStrings = new HashMap();
     static {
-        scopeStrings.put("OBJECT_SCOPE", Integer.valueOf(SearchControls.OBJECT_SCOPE));
-        scopeStrings.put("ONELEVEL_SCOPE", Integer.valueOf(SearchControls.ONELEVEL_SCOPE));
-        scopeStrings.put("SUBTREE_SCOPE", Integer.valueOf(SearchControls.SUBTREE_SCOPE));
+        // Use constructor instead of `Integer.valueOf()` to preserve 1.4.2 compatability. [blair]
+        scopeStrings.put( "OBJECT_SCOPE"  , new Integer(SearchControls.OBJECT_SCOPE)  );
+        scopeStrings.put( "ONELEVEL_SCOPE", new Integer(SearchControls.ONELEVEL_SCOPE));
+        scopeStrings.put( "SUBTREE_SCOPE" , new Integer(SearchControls.SUBTREE_SCOPE) );
         
     }
     protected static int getScope(String scope ) {
