@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.3 2006-06-27 18:35:14 blair Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
@@ -92,6 +92,9 @@ public class TestInternalSourceAdapter extends TestCase {
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
     }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
+    }
   } // public void testAdapterBadSubject()
 
   public void testAdapterBadSubjectByIdentifier() {
@@ -103,6 +106,9 @@ public class TestInternalSourceAdapter extends TestCase {
     } 
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
     }
   } // public void testAdapterBadSubjectByIdentifer() 
 
@@ -138,6 +144,9 @@ public class TestInternalSourceAdapter extends TestCase {
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject: " + id);
     }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
+    }
   } // public void testAdapterGrouperAllSubject()
 
   public void testAdapterGrouperAllSubjectByIdentifier() {
@@ -164,6 +173,9 @@ public class TestInternalSourceAdapter extends TestCase {
     } 
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject: " + id);
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
     }
   } // public void testAdapterGrouperAllSubjectByIdentifier()
 
@@ -199,6 +211,9 @@ public class TestInternalSourceAdapter extends TestCase {
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject: " + id);
     }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
+    }
   } // public void testAdapterGrouperSystemSubject()
 
   public void testAdapterGrouperSystemSubjectByIdentifier() {
@@ -225,6 +240,9 @@ public class TestInternalSourceAdapter extends TestCase {
     } 
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject: " + id);
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
     }
   } // public void testAdapterGrouperSystemSubjectByIdentifier()
 
@@ -254,6 +272,9 @@ public class TestInternalSourceAdapter extends TestCase {
     } 
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject: " + e.getMessage());
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
     }
   } // public void testGrouperAllAttributes()
 

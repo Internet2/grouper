@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.21 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.22 2006-06-27 18:35:14 blair Exp $
  */
 public class SubjectFinder {
 
@@ -75,16 +75,21 @@ public class SubjectFinder {
    * try {
    *   Subject subj = SubjectFinder.findById(subjectID);
    * }
-   * catch (SubjectNotFoundException e) {
+   * catch (SubjectNotFoundException eSNF)  {
    *   // Subject not found
+   * }
+   * catch (SubjectNotUniqueException eSNU) {
+   *   // Subject not unique
    * }
    *  </pre>
    * @param   id      Subject ID
    * @return  A {@link Subject} object
    * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
    */
   public static Subject findById(String id) 
-    throws SubjectNotFoundException
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     List subjects  = SubjectFinder._findById(
       id, MGR.getSources().iterator()
@@ -93,10 +98,10 @@ public class SubjectFinder {
       return (Subject) subjects.get(0);
     }
     else if (subjects.size() > 1) {
-      throw new SubjectNotFoundException(E.SF_SNU + id); 
+      throw new SubjectNotUniqueException(E.SF_SNU + id);
     }
     throw new SubjectNotFoundException(E.SF_SNF + id);
-  } 
+  } // public static Subject findById(id)
 
   /**
    * Get a subject by id and the specified type.
@@ -106,17 +111,22 @@ public class SubjectFinder {
    * try {
    *   Subject subj = SubjectFinder.findById(subjectID, type);
    * }
-   * catch (SubjectNotFoundException e) {
+   * catch (SubjectNotFoundException eSNF)  {
    *   // Subject not found
+   * }
+   * catch (SubjectNotUniqueException eSNU) {
+   *   // Subject not unique
    * }
    *  </pre>
    * @param   id      Subject ID
    * @param   type    Subject type.
    * @return  A {@link Subject} object
    * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
    */
   public static Subject findById(String id, String type) 
-    throws SubjectNotFoundException
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     Subject subj = SubjectCache.getCache(SubjectCache.ID).get(id, type);
     if (subj != null) {
@@ -129,7 +139,7 @@ public class SubjectFinder {
       return (Subject) subjects.get(0);
     }
     else if (subjects.size() > 1) {
-      throw new SubjectNotFoundException(E.SF_SNU + id + "," + type); 
+      throw new SubjectNotUniqueException(E.SF_SNU + id + "," + type); 
     }
     throw new SubjectNotFoundException(E.SF_SNF + id + "," + type);
   } // public static Subject findById(id, type)
@@ -156,10 +166,12 @@ public class SubjectFinder {
    * @return  A {@link Subject} object
    * @throws  SourceUnavailableException
    * @throws  SubjectNotFoundException
+   * @throws  SubjectNotUniqueException
    */
   public static Subject findById(String id, String type, String source) 
     throws  SourceUnavailableException,
-            SubjectNotFoundException
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     // FIXME Caching support
     Source  sa    = getSource(source);
@@ -178,16 +190,21 @@ public class SubjectFinder {
    * try {
    *   Subject subj = SubjectFinder.findByIdentifier(identifier);
    * }
-   * catch (SubjectNotFoundException e) {
+   * catch (SubjectNotFoundException eSNF)  {
    *   // Subject not found
+   * }
+   * catch (SubjectNotUniqueException eSNU) {
+   *   // Subject not unique
    * }
    *  </pre>
    * @param   id      Subject identifier.
    * @return  A {@link Subject} object
    * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
    */
   public static Subject findByIdentifier(String id) 
-    throws SubjectNotFoundException
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     List subjects  = SubjectFinder._findByIdentifier(
       id, MGR.getSources().iterator()
@@ -196,10 +213,10 @@ public class SubjectFinder {
       return (Subject) subjects.get(0);
     }
     else if (subjects.size() > 1) {
-      throw new SubjectNotFoundException(E.SF_SNU + id);
+      throw new SubjectNotUniqueException(E.SF_SNU + id);
     }
     throw new SubjectNotFoundException(E.SF_SNF + id);
-  }
+  } // public static Subject findByIdentifier(id)
 
   /**
    * Get a subject by a well-known identifier and the specified type.
@@ -209,20 +226,22 @@ public class SubjectFinder {
    * try {
    *   Subject subj = SubjectFinder.findByIdentifier(identifier, type);
    * }
-   * catch (SourceUnavailableException eSU) {
-   *   // unable to query source
+   * catch (SubjectNotFoundException eSNF)  {
+   *   // subject not found
    * }
-   * catch (SubjectNotFoundException eSNF) {
+   * catch (SubjectNotUniqueException eSNU) {
    *   // subject not found
    * }
    *  </pre>
    * @param   id      Subject identifier.
    * @param   type    Subject type.
    * @return  A {@link Subject} object
-   * @throws SubjectNotFoundException
+   * @throws  SubjectNotFoundException
+   * @throws  SubjectNotUniqueException
    */
   public static Subject findByIdentifier(String id, String type) 
-    throws SubjectNotFoundException
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     Subject subj = SubjectCache.getCache(SubjectCache.IDFR).get(id, type);
     if (subj != null) {
@@ -235,10 +254,10 @@ public class SubjectFinder {
       return (Subject) subjects.get(0);
     }
     else if (subjects.size() > 1) {
-      throw new SubjectNotFoundException(E.SF_SNU + id + "," + type); 
+      throw new SubjectNotUniqueException(E.SF_SNU + id + "," + type); 
     }
     throw new SubjectNotFoundException(E.SF_SNF + id + "," + type);
-  }
+  } // public static Subject findByIdentifier(id, type)
 
   /**
    * Get a subject by a well-known identifier, type and source.
@@ -259,10 +278,12 @@ public class SubjectFinder {
    * @return  A {@link Subject} object
    * @throws  SourceUnavailableException
    * @throws  SubjectNotFoundException
+   * @throws  SubjectNotUniqueException
    */
   public static Subject findByIdentifier(String id, String type, String source) 
     throws  SourceUnavailableException,
-            SubjectNotFoundException
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     // FIXME Caching support
     Source  sa    = getSource(source);
@@ -402,13 +423,17 @@ public class SubjectFinder {
         SubjectCache.getCache(SubjectCache.ID).put(subj);
         subjects.add(subj);
       }
-      catch (SubjectNotFoundException e) {
+      catch (SubjectNotFoundException eSNF)   {
         DebugLog.info(SubjectFinder.class, _msg + " not found");
+      }
+      catch (SubjectNotUniqueException eSNU)  {
+        DebugLog.info(SubjectFinder.class, _msg + " not unique");
       }
     }
     DebugLog.info(SubjectFinder.class, msg + " found: " + subjects.size());
     return subjects;
   } // private static List _findById(id, iter) 
+
   private static List _findByIdentifier(String id, Iterator iter) {
     Subject subj      = null;
     List    subjects  = new ArrayList();
@@ -422,6 +447,9 @@ public class SubjectFinder {
       }
       catch (SubjectNotFoundException e) {
         DebugLog.info(SubjectFinder.class, "Subject not found in " + sa.getId() + ": " + id);
+      }
+      catch (SubjectNotUniqueException e) {
+        DebugLog.info(SubjectFinder.class, "Subject not unique in " + sa.getId() + ": " + id);
       }
     }
     return subjects;

@@ -26,7 +26,7 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectTestHelper.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: SubjectTestHelper.java,v 1.3 2006-06-27 18:35:14 blair Exp $
  */
 public class SubjectTestHelper {
 
@@ -56,9 +56,9 @@ public class SubjectTestHelper {
       SUBJA = SubjectFinder.findById(SUBJ_ALL);
       SUBJR = SubjectFinder.findById(SUBJ_ROOT);
     }
-    catch (SubjectNotFoundException eSNF) {
+    catch (Exception e) {
       throw new RuntimeException(
-        "unable to run tests without subjects: " + eSNF.getMessage()
+        "unable to run tests without subjects: " + e.getMessage()
       );
     }
   } // static
@@ -75,6 +75,9 @@ public class SubjectTestHelper {
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
     }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
+    }
   } // protected static void getSubjectByBadId(id)
 
   // Don't get a subject by bad identifier
@@ -85,6 +88,9 @@ public class SubjectTestHelper {
     }
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
     }
   } // protected static void getSubjectByBadIdentifier(id)
 
@@ -97,6 +103,9 @@ public class SubjectTestHelper {
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
     }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
+    }
   } // protected static void getSubjectByBadIdType(id, type)
 
   // Don't get a subject by bad identifier and type
@@ -107,6 +116,9 @@ public class SubjectTestHelper {
     }
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
     }
   } // protected static void getSubjectByBadIdentifierType(id, type)
 
@@ -125,6 +137,9 @@ public class SubjectTestHelper {
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject '" + id + "': " + e.getMessage());
     }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
+    }
     throw new RuntimeException(Helper.ERROR);
   } // protected static Subject getSubjectById(id)
 
@@ -142,6 +157,9 @@ public class SubjectTestHelper {
     }
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject '" + id + "': " + e.getMessage());
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
     }
     throw new RuntimeException(Helper.ERROR);
   } // protected static Subject getSubjectByIdentifier(id)
@@ -166,6 +184,9 @@ public class SubjectTestHelper {
         "failed to find subject '" + id + "'/'" + type + "': " + e.getMessage()
       );
     }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
+    }
     throw new RuntimeException(Helper.ERROR);
   } // protected static Subject getSubjectByIdType(id, type)
 
@@ -188,6 +209,9 @@ public class SubjectTestHelper {
       Assert.fail(
         "failed to find subject '" + id + "'/'" + type + "': " + e.getMessage()
       );
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
     }
     throw new RuntimeException(Helper.ERROR);
   } // protected static Subject getSubjectByIdentifierType(id, type)

@@ -26,9 +26,11 @@ import  junit.framework.*;
  * Helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: Helper.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: Helper.java,v 1.3 2006-06-27 18:35:14 blair Exp $
  */
 public class Helper {
+
+  // FIXME DEPRECATE! RELOCATE!
 
   // Protected Class Constants
   protected static final String BAD_SUBJ_ID   = "i do not exist";
@@ -45,11 +47,11 @@ public class Helper {
       );
       Assert.fail("started session with bad subject: " + s);
     }
-    catch (SessionException e0) {
-      Assert.fail("should have been a SubjectNotFoundException");
+    catch (SubjectNotFoundException eSNF) {
+      Assert.assertTrue("OK: did not start session with bad subject", true);
     }
-    catch (SubjectNotFoundException e1) {
-      Assert.assertTrue("could not start session with bad subject", true);
+    catch (Exception e) {
+      T.e(e);
     }
   } // protected static void getBadSession(id)
 
@@ -69,11 +71,8 @@ public class Helper {
       Assert.assertNotNull("m subj type id !null", m.getSubjectTypeId());
       return m;
     }
-    catch (MemberNotFoundException e0) {
-      Assert.fail("failed to find member: " + e0.getMessage());
-    }
-    catch (SubjectNotFoundException e1) {
-      Assert.fail("failed to find subject: " + e1.getMessage());
+    catch (Exception e) {
+      T.e(e);
     }
     throw new RuntimeException(ERROR);
   } // protected static Member getMemberBySubject(s, subj)
@@ -118,15 +117,8 @@ public class Helper {
       );
       return s;
     }
-    catch (SessionException e0) {
-      Assert.fail(
-        "failed to start session: " + e0.getMessage()
-      );
-    }
-    catch (SubjectNotFoundException e1) {
-      Assert.fail(
-        "failed to find subject '" + id + "': " + e1.getMessage()
-      );
+    catch (Exception e) {
+      T.e(e);
     }
     throw new RuntimeException(ERROR);
   } // protected static GrouperSession getSession(id)
@@ -157,15 +149,8 @@ public class Helper {
       );
       return s;
     }
-    catch (SessionException e0) {
-      Assert.fail(
-        "failed to start session: " + e0.getMessage()
-      );
-    }
-    catch (SubjectNotFoundException e1) {
-      Assert.fail(
-        "failed to find subject '" + id + "/" + type + "': " + e1.getMessage()
-      );
+    catch (Exception e) {
+      T.e(e);
     }
     throw new RuntimeException(ERROR);
   } // protected static GrouperSession getSession(id, type)

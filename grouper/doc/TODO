@@ -4,14 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.84 2006-06-27 17:04:45 blair Exp $
+$Id: TODO,v 1.85 2006-06-27 18:35:14 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* LIBRARIES update subject api (once `subject_0_2` is functional)
 * CODE      have xml* default properties + optional override properties
 * CODE      make xml* api callable
 * CODE      synchronie xml* aesthetics
@@ -122,5 +121,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.84 2006-06-27 17:04:45 blair Exp $
+$Id: TODO,v 1.85 2006-06-27 18:35:14 blair Exp $
 

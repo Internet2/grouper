@@ -59,8 +59,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.*;
+import edu.internet2.middleware.subject.provider.*;
 
 import org.apache.commons.logging.*;
 
@@ -77,7 +77,7 @@ import org.apache.commons.logging.*;
  * </p>
  * 
  * @author Gary Brown.
- * @version $Id: XmlImporter.java,v 1.1 2006-06-27 17:04:45 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.2 2006-06-27 18:35:14 blair Exp $
  */
 public class XmlImporter {
   
@@ -1782,19 +1782,25 @@ public class XmlImporter {
     this.options = options;
   }
 
-  private Subject getSubjectById(String id, String type)
-      throws SubjectNotFoundException {
-    if (isEmpty(type))
+  private Subject getSubjectById(String id, String type) 
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
+    if (isEmpty(type)) {
       return SubjectFinder.findById(id);
+    }
     return SubjectFinder.findById(id, type);
-  }
+  } // private Subject getSubjectById(id, type)
 
   private Subject getSubjectByIdentifier(String identifier, String type)
-      throws SubjectNotFoundException {
-    if (isEmpty(type))
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
+    if (isEmpty(type)) {
       return SubjectFinder.findByIdentifier(identifier);
+    }
     return SubjectFinder.findByIdentifier(identifier, type);
-  }
+  } // private Subject getSubjectByIdentifier(identifier, type)
 
   public static void commandLineUsage() {
     System.out.println("Usage:");
