@@ -3,7 +3,7 @@
 <project name="Subject" default="dist" basedir=".">
 
 	<!-- Set global properties for this build -->
-	<property name="version" value="0.1c" />
+	<property name="version" value="0.2" />
 
 	<property name="src.dir" value="src" />
 	<property name="test.dir" value="tests" />
