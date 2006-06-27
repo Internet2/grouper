@@ -85,7 +85,7 @@ import  java.util.*;
  *    evaluate each command will be displayed.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.4 2006-06-27 23:09:45 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.5 2006-06-27 23:13:14 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -324,7 +324,9 @@ public class GrouperShell {
     throws  GrouperShellException
   {
     try {
-      GrouperSession s = (GrouperSession) GrouperShell.getSession(this.i);
+      // `GrouperShell.getSession()` will start the session if it doesn't exist.
+      // That's just slow.  And wrong.
+      GrouperSession s = (GrouperSession) GrouperShell.get(this.i, GSH_SESSION);
       if (s != null) {
         s.stop();
         this.i.unset(GSH_SESSION);
