@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.102 2006-06-19 17:00:57 blair Exp $ -->
+<!-- $Id: build.xml,v 1.103 2006-06-27 15:30:04 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -104,11 +104,11 @@
   <!-- db -->
   <target name="db" depends="init" description="Launch HSQLDB UI">
     <property file="${cf}"/>
-    <java fork="yes"
+    <java fork="true"
+          classpathref="project.classpath"
           classname="org.hsqldb.util.DatabaseManager"
           maxmemory="${max.memory}"
     >
-      <classpath refid="project.classpath"/>
       <arg value="-driver"/>
       <arg value="${hibernate.connection.driver_class}"/>
       <arg value="-url"/>
@@ -127,11 +127,10 @@
           description="initialize database"
   >
     <record name="${log.dbinit}" action="start"/>
-    <java classname="edu.internet2.middleware.grouper.RegistryInstall"
-          fork="yes"
-    >
-      <classpath refid="project.classpath"/>
-    </java>
+    <java fork="true"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.RegistryInstall"
+    />
     <record name="${log.dbinit}" action="stop"/>
   </target>
   <!-- db-init -->
@@ -141,12 +140,11 @@
           description="reset the db"
           depends="build"
   >
-    <java fork="yes"
+    <java fork="true"
           maxmemory="${max.memory}"
+          classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.RegistryReset"
-    >
-      <classpath refid="project.classpath"/>
-    </java>
+    />
   </target>
   <!-- db-reset -->
 
@@ -268,7 +266,8 @@
       <pathelement  location="${build.test}"/>
       <pathelement  location="${user.home}/.ant/lib/clover.jar"/>
     </path>
-    <pathconvert  property="project.classpath.string" 
+    <pathconvert  targetos="unix"
+                  property="project.classpath.string" 
                   refid="project.classpath"
     />
   </target>
@@ -298,7 +297,7 @@
           description="Runs the test you specify on the command line with -Dtest=" 
           depends="test-build, ensure-test-name">
     <record name="${log.test.run}" action="start"/>
-    <junit printsummary="withOutAndErr" fork="yes"> 
+    <junit printsummary="withOutAndErr" fork="true"> 
         <classpath    refid="project.classpath" />
         <formatter    type="plain" usefile="false"/>
       <batchtest>
@@ -316,15 +315,15 @@
           description="Runs and profiles the test case you specify on the command line with -Dtest=" 
           depends="test-build, ensure-test-name">
     <record name="${log.test.run}" action="start"/>
-    <java fork="yes"
+    <java fork="true"
           maxmemory="${max.memory}"
+          classpathref="project.classpath"
           classname="junit.textui.TestRunner"
           taskname="junit"
           failonerror="true"
     >
       <arg    value="edu.internet2.middleware.grouper.${test}"/>
       <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=${hprof.depth}"/>
-      <classpath refid="project.classpath"/>
     </java>
     <record name="${log.test.run}" action="stop"/>
   </target>
@@ -371,13 +370,12 @@
   <target name="stress" 
           description="Runs the stress case specified on the command line with -Dname="
           depends="build, ensure-name">
-    <java fork="yes"
+    <java fork="true"
           maxmemory="${max.memory}"
+          classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.stress.${name}"
           failonerror="true"
-    >
-      <classpath refid="project.classpath"/>
-    </java>
+    />
   </target>
   <!-- stress -->
 
@@ -394,13 +392,13 @@
   <target name="stressprof" 
           description="Runs and profiles the stress case specified on the command line with -Dname="
           depends="build, ensure-name">
-    <java fork="yes"
+    <java fork="true"
           maxmemory="${max.memory}"
+          classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.stress.${name}"
           failonerror="true"
     >
       <jvmarg value="-Xrunhprof:cpu=samples,file=stress-${name}-${DSTAMP}${TSTAMP}.txt,depth=${hprof.depth}"/>
-      <classpath refid="project.classpath"/>
     </java>
   </target>
   <!-- stressprof -->
@@ -420,13 +418,14 @@
   <target name="test" depends="test-build">
     <record name="${log.test.run}" action="start"/>
     <!-- Run the test suite -->
-    <java fork="yes" 
+    <java fork="true" 
           maxmemory="${max.memory}"
+          classpathref="project.classpath"
           classname="junit.textui.TestRunner"
           taskname="junit" 
-          failonerror="true">
+          failonerror="true"
+    >
       <arg value="edu.internet2.middleware.grouper.SuiteDefault"/>
-      <classpath refid="project.classpath"/>
     </java>
     <record name="${log.test.run}" action="stop"/>
   </target>

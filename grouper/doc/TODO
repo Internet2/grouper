@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.82 2006-06-26 15:00:19 blair Exp $
+$Id: TODO,v 1.83 2006-06-27 15:30:04 blair Exp $
 
 ---
 
@@ -115,8 +115,9 @@ These items are not (necessarily) in any particular order.
 ### Other
 * LIBRARIES update *log4j* and *commons-logging*
 * LIBRARIES update [jug](http://jug.safehaus.org/)
+* LIBRARIES add [derby](http://db.apache.org/derby/) support once using hibernate3
 
 ---
 
-$Id: TODO,v 1.82 2006-06-26 15:00:19 blair Exp $
+$Id: TODO,v 1.83 2006-06-27 15:30:04 blair Exp $
 
