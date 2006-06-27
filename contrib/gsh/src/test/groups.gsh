@@ -1,13 +1,12 @@
 #
 # GrouperShell Composite Tests
-# $Id: groups.gsh,v 1.1 2006-06-27 19:28:29 blair Exp $
+# $Id: groups.gsh,v 1.2 2006-06-27 23:28:24 blair Exp $
 #
 
 #
 # SETUP
 #
 GSH_DEVEL = true
-GSH_DEBUG = true
 resetRegistry()
 root      = addRootStem("uchicago", "uchicago")
 ns        = addStem(root.getName(), "nsit", "nsit")
