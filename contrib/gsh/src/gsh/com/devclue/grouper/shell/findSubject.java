@@ -17,7 +17,7 @@ import  net.sf.hibernate.*;
  * Find a {@link Subject}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: findSubject.java,v 1.2 2006-06-26 14:29:24 blair Exp $
+ * @version $Id: findSubject.java,v 1.3 2006-06-27 18:44:18 blair Exp $
  * @since   0.0.1
  */
 public class findSubject {
@@ -46,6 +46,9 @@ public class findSubject {
     catch (SubjectNotFoundException eSNF) {
       GrouperShell.error(i, eSNF);
     }
+    catch (SubjectNotUniqueException eSNU) {
+      GrouperShell.error(i, eSNU);
+    }
     return null;
   } // public static Subject invoke(i, stack, parent, name)
 
@@ -71,6 +74,9 @@ public class findSubject {
     }
     catch (SubjectNotFoundException eSNF) {
       GrouperShell.error(i, eSNF);
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      GrouperShell.error(i, eSNU);
     }
     return null;
   } // public static Subject invoke(i, stack, parent, name, type)
@@ -101,6 +107,9 @@ public class findSubject {
     }
     catch (SubjectNotFoundException eSNF) {
       GrouperShell.error(i, eSNF);
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      GrouperShell.error(i, eSNU);
     }
     return null;
   } // public static Subject invoke(i, stack, parent, name, type, source)
