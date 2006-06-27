@@ -4,13 +4,11 @@
 This file provides more detailed information on future *GrouperShell*
 development as listed in _doc/ROADMAP.txt_.
 
-$Id: TODO.txt,v 1.4 2006-06-27 18:44:18 blair Exp $
+$Id: TODO.txt,v 1.5 2006-06-27 19:28:29 blair Exp $
 
 ---
 
 ## GrouperShell 0.0.1
-* CODE  modify stem attributes commands
-* CODE  modify group attributes commands
 * CODE  grant, revoke and check access privs commands
 * CODE  grant, revoke and check naming privs commands
 * CODE  MAYBE hook into *XmlExporter* and *XmlImporter*
