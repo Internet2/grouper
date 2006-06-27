@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO,v 1.85 2006-06-27 18:35:14 blair Exp $
+$Id: TODO,v 1.86 2006-06-27 19:37:47 blair Exp $
 
 ---
 
@@ -13,7 +13,7 @@ $Id: TODO,v 1.85 2006-06-27 18:35:14 blair Exp $
 ### Next Actions
 * CODE      have xml* default properties + optional override properties
 * CODE      make xml* api callable
-* CODE      synchronie xml* aesthetics
+* CODE      synchronize xml* aesthetics
 * TESTING   better xml* testing
 * CONTRIB   complete cdg 1.0 feature list
 * TEST      oracle (hopefully by someone else!)
@@ -121,5 +121,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO,v 1.85 2006-06-27 18:35:14 blair Exp $
+$Id: TODO,v 1.86 2006-06-27 19:37:47 blair Exp $
 
