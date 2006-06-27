@@ -16,7 +16,7 @@ import  java.util.*;
  * Delete a member.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delMember.java,v 1.1 2006-06-23 17:30:09 blair Exp $
+ * @version $Id: delMember.java,v 1.2 2006-06-27 23:09:45 blair Exp $
  * @since   0.0.1
  */
 public class delMember {
@@ -56,8 +56,11 @@ public class delMember {
     catch (MemberDeleteException eMD)           {
       GrouperShell.error(i, eMD);
     }
-    catch (SubjectNotFoundException eNSNF)      {
-      GrouperShell.error(i, eNSNF);
+    catch (SubjectNotFoundException eSNF)       {
+      GrouperShell.error(i, eSNF); 
+    }
+    catch (SubjectNotUniqueException eSNU)      {
+      GrouperShell.error(i, eSNU); 
     }
     return false;
   } // public static boolean invoke(i, stack, group, subjId)

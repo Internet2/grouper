@@ -16,7 +16,7 @@ import  java.util.*;
  * Is the subject a member of this group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: hasMember.java,v 1.1 2006-06-23 17:30:09 blair Exp $
+ * @version $Id: hasMember.java,v 1.2 2006-06-27 23:09:45 blair Exp $
  * @since   0.0.1
  */
 public class hasMember {
@@ -49,8 +49,11 @@ public class hasMember {
     catch (GroupNotFoundException eGNF)         {
       GrouperShell.error(i, eGNF);
     }
-    catch (SubjectNotFoundException eNSNF)      {
-      GrouperShell.error(i, eNSNF);
+    catch (SubjectNotFoundException eSNF)       {
+      GrouperShell.error(i, eSNF); 
+    }
+    catch (SubjectNotUniqueException eSNU)      {
+      GrouperShell.error(i, eSNU); 
     }
     return false;
   } // public static boolean invoke(i, stack, group, subjId)

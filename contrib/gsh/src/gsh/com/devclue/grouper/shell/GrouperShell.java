@@ -85,7 +85,7 @@ import  java.util.*;
  *    evaluate each command will be displayed.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.3 2006-06-27 19:28:29 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.4 2006-06-27 23:09:45 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -253,7 +253,7 @@ public class GrouperShell {
   // @since   0.0.1
   protected static void setOurCommand(Interpreter i, boolean b) {
     try {
-      GrouperShell.set(i, GSH_OURS, b);
+      GrouperShell.set(i, GSH_OURS, Boolean.valueOf(b));
     }
     catch (bsh.EvalError eBEE) {
       i.error(eBEE.getMessage());
