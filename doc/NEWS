@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.125 2006-06-27 18:35:14 blair Exp $
+$Id: NEWS,v 1.126 2006-06-27 22:42:52 blair Exp $
 
 ---
 
@@ -10,7 +10,7 @@ $Id: NEWS,v 1.125 2006-06-27 18:35:14 blair Exp $
 Released: TBD
 
 ## Changes
-* UPDATE: Updated Subject API to version 0.2.
+* UPDATE: Updated Subject API to version 0.2.1.
 * NEW:  Basic integration of Gary Brown's XML export and import code.
 * BUGFIX: Fixed another Hibernate lazy collection initiialization error
   that was brought to light by work on *cdg*.
