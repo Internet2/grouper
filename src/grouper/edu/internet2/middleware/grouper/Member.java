@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.46 2006-06-19 17:00:57 blair Exp $
+ * @version $Id: Member.java,v 1.47 2006-06-27 18:35:14 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -550,9 +550,12 @@ public class Member implements Serializable {
       catch (SourceUnavailableException eSU) {
         throw new SubjectNotFoundException(eSU.getMessage(), eSU);
       }
+      catch (SubjectNotUniqueException eSNU) {
+        throw new SubjectNotFoundException(eSNU.getMessage(), eSNU);
+      }
     }
     return this.subj;
-  }
+  } // public Subject getSubject()
 
   /**
    * Get the subject id of the subject that maps to this member.

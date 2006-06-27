@@ -26,7 +26,7 @@ import  junit.framework.*;
  * {@link GrouperSession} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SessionHelper.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: SessionHelper.java,v 1.3 2006-06-27 18:35:14 blair Exp $
  */
 public class SessionHelper {
 
@@ -34,7 +34,7 @@ public class SessionHelper {
 
   // @return  A root {@link GrouperSession}
   protected static GrouperSession getRootSession() {
-    return SessionHelper.getSession("GrouperSystem");
+    return SessionHelper.getSession(GrouperConfig.ROOT);
   } // protected static GrouperSession getRootSession()
 
   // Get a session by id
@@ -60,15 +60,8 @@ public class SessionHelper {
       );
       return s;
     }
-    catch (SessionException e0) {
-      Assert.fail(
-        "failed to start session: " + e0.getMessage()
-      );
-    }
-    catch (SubjectNotFoundException e1) {
-      Assert.fail(
-        "failed to find subject '" + id + "': " + e1.getMessage()
-      );
+    catch (Exception e) {
+      T.e(e);
     }
     throw new RuntimeException(Helper.ERROR);
   } // protected static GrouperSession getSession(id)
@@ -107,15 +100,8 @@ public class SessionHelper {
       );
       return s;
     }
-    catch (SessionException e0) {
-      Assert.fail(
-        "failed to start session: " + e0.getMessage()
-      );
-    }
-    catch (SubjectNotFoundException e1) {
-      Assert.fail(
-        "failed to find subject '" + id + "/" + type + "': " + e1.getMessage()
-      );
+    catch (Exception e) {
+      T.e(e);
     }
     throw new RuntimeException(Helper.ERROR);
   } // protected static GrouperSession getSession(id, type)

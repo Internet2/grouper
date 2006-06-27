@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link GrouperSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSourceAdapter.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestGrouperSourceAdapter.java,v 1.3 2006-06-27 18:35:14 blair Exp $
  */
 public class TestGrouperSourceAdapter extends TestCase {
 
@@ -83,6 +83,9 @@ public class TestGrouperSourceAdapter extends TestCase {
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
     }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
+    }
   } // public void testAdapterBadSubject()
 
   public void testAdapterBadSubjectByIdentifier() {
@@ -92,6 +95,9 @@ public class TestGrouperSourceAdapter extends TestCase {
     } 
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      T.e(eSNU);
     }
   } // public void testAdapterBadSubjectByIdentifer() 
 

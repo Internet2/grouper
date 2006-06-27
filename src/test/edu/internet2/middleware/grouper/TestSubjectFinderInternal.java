@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder} class with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinderInternal.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestSubjectFinderInternal.java,v 1.3 2006-06-27 18:35:14 blair Exp $
  */
 public class TestSubjectFinderInternal extends TestCase {
 
@@ -67,6 +67,9 @@ public class TestSubjectFinderInternal extends TestCase {
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
     }
+    catch (Exception e) {
+      T.e(e);
+    }
   } // public void testFinderBadSubjectByIdentifier()
 
   public void testFinderBadSubjectByIdentifierWithBadType() {
@@ -79,6 +82,9 @@ public class TestSubjectFinderInternal extends TestCase {
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
     }
+    catch (Exception e) {
+      T.e(e);
+    }
   } // public void testFinderBadSubjectByIdentifierWithBadType()
 
   public void testFinderBadSubjectByIdentifierWithGoodType() {
@@ -90,6 +96,9 @@ public class TestSubjectFinderInternal extends TestCase {
     } 
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find bad subject", true);
+    }
+    catch (Exception e) {
+      T.e(e);
     }
   } // public void testFinderBadSubjectByIdentifierWithGoodType()
 
@@ -117,6 +126,9 @@ public class TestSubjectFinderInternal extends TestCase {
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject: " + id);
     }
+    catch (Exception e) {
+      T.e(e);
+    }
   } // public void testFinderGrouperSystemSubject()
 
   public void testFinderGrouperSystemSubjectWithBadType() {
@@ -128,6 +140,9 @@ public class TestSubjectFinderInternal extends TestCase {
     } 
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find good subject with bad type", true);
+    }
+    catch (Exception e) {
+      T.e(e);
     }
   } // public void testFinderGrouperSystemSubjectWithBadType()
 
@@ -156,6 +171,9 @@ public class TestSubjectFinderInternal extends TestCase {
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject: " + id);
     }
+    catch (Exception e) {
+      T.e(e);
+    }
   } // public void testFinderGrouperSystemSubjectWithGoodType()
 
   public void testFinderGrouperSystemSubjectByIdentifier() {
@@ -182,6 +200,9 @@ public class TestSubjectFinderInternal extends TestCase {
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject: " + id);
     }
+    catch (Exception e) {
+      T.e(e);
+    }
   } // public void testFinderGrouperSystemSubjectByIdentifier()
 
   public void testFinderGrouperSystemSubjectByIdentifierWithBadType() {
@@ -193,6 +214,9 @@ public class TestSubjectFinderInternal extends TestCase {
     } 
     catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to find good subject with bad type", true);
+    }
+    catch (Exception e) {
+      T.e(e);
     }
   } // public void testFinderGrouperSystemSubjectByIdentifierWithBadType()
 
@@ -220,6 +244,9 @@ public class TestSubjectFinderInternal extends TestCase {
     } 
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject: " + id);
+    }
+    catch (Exception e) {
+      T.e(e);
     }
   } // public void testFinderGrouperSystemSubjectByIdentifierWithGoodType()
 

@@ -4,7 +4,7 @@
 This file provides information on the third party libraries that ship
 with Grouper.
 
-$Id: README,v 1.23 2006-06-26 15:00:19 blair Exp $
+$Id: README,v 1.24 2006-06-27 18:35:14 blair Exp $
 
 ---
 
@@ -17,6 +17,7 @@ at runtime."
 * Version:  2.0.2
 * Source:   <http://cglib.sourceforge.net/>
 * License:  Apache Software License, Version 1.1
+* Updated:  ?
 
 ## commons-beanutils-1.6.jar
 
@@ -26,6 +27,7 @@ provide services for collections of beans."
 * Version:  1.6
 * Source:   <http://jakarta.apache.org/commons/beanutils/>
 * License:  Apache Software License, Version 1.1
+* Updated:  ?
 
 ## commons-collections-3.1.jar
 
@@ -35,6 +37,7 @@ augment the Java Collections Framework."
 * Version:  3.1
 * Source:   <http://jakarta.apache.org/commons/>
 * License:  Apache License, Version 2.0
+* Updated:  ?
 
 ## commons-dbcp-1.2.1.jar
 
@@ -47,6 +50,7 @@ license."
 * Version:  1.2.1
 * Source:   <http://jakarta.apache.org/commons/>
 * License:  Apache License, Version 2.0
+* Updated:  ?
 
 ## commons-digester-1.6.jar
 
@@ -57,6 +61,7 @@ particular pattern of nested XML elements is recognized."
 * Version:  1.6
 * Source:   <http://jakarta.apache.org/commons/digester/>
 * License:  Apache Software License, Version 2.0
+* Updated:  ?
 
 ## commons-lang-2.0.jar
 
@@ -67,6 +72,7 @@ these extra methods."
 * Version:  2.0
 * Source:   <http://jakarta.apache.org/commons/>
 * License:  Apache License, Version 2.0
+* Updated:  ?
 
 ## commons-logging-1.0.4.jar
 
@@ -76,6 +82,7 @@ implementations."
 * Version:  1.0.4
 * Source:   <http://jakarta.apache.org/commons/>
 * License:  Apache License, Version 2.0
+* Updated:  ?
 
 ## commons-pool-1.2.jar
 
@@ -84,6 +91,7 @@ implementations."
 * Version:  1.2
 * Source:   <http://jakarta.apache.org/commons/>
 * License:  Apache License, Version 2.0
+* Updated:  ?
 
 ## dom4j-1.4.jar
 
@@ -94,6 +102,7 @@ Framework and with full support for DOM, SAX and JAXP."
 * Version:  1.4
 * Source:   <http://www.dom4j.org/>
 * License:  BSD
+* Updated:  ?
 
 ## ehcache-0.9.jar
 
@@ -102,6 +111,7 @@ Framework and with full support for DOM, SAX and JAXP."
 * Version:  0.9
 * Source:   <http://ehcache.sourceforge.net/>
 * License:  Apache Software License, Version 1.1
+* Updated:  ?
 
 ## hibernate2-2.1.8.jar
 
@@ -111,6 +121,7 @@ persistence and query service for Java."
 * Version:  2.1.8
 * Source:   <http://www.hibernate.org/>
 * License:  LGPL
+* Updated:  ?
 
 ## hsqldb-1.7.2.11.jar
 
@@ -119,6 +130,7 @@ persistence and query service for Java."
 * Version:  1.7.2.11
 * Source:   <http://hsqldb.sourceforge.net/>
 * License:  Hypersonic License
+* Updated:  ?
 
 ## jta-1.0.1B.jar
 
@@ -130,6 +142,7 @@ applications.
 * Version:  1.0.1B
 * Source:   <http://java.sun.com/products/jta/>
 * License:  Sun Microsystems, Inc. Binary License Code Agreement
+* Updated:  ?
 
 ## jug-1.1.1.jar
 
@@ -140,6 +153,7 @@ tool (a la 'uuidgen')."
 * Version:  1.1.1
 * Source:   <http://www.doomdark.org/doomdark/proj/jug/>
 * License:  LGPL
+* Updated:  ?
 
 ## junit-3.8.1.jar
 
@@ -148,6 +162,7 @@ tool (a la 'uuidgen')."
 * Version:  3.8.1
 * Source:   <http://www.junit.org/>
 * License:  Common Public License
+* Updated:  ?
 
 ## log4j-1.2.8.jar
 
@@ -157,6 +172,7 @@ logging services for purposes of application debugging and auditing."
 * Version:  1.2.8
 * Source:   <http://logging.apache.org/>
 * License:  Apache License, Version 2.0
+* Updated:  ?
 
 ## odmg-3.0.jar
 
@@ -165,12 +181,14 @@ logging services for purposes of application debugging and auditing."
 * Version:  3.0 (?)
 * Source:   <http://www.hibernate.org/>
 * License:  LGPL (?)
+* Updated:  ?
 
-## subject-0.1c.jar
+## subject-0.2.jar
 
 "The I2MI Subject Interface."
 
-* Version:  0.1c
+* Version:  0.2
 * Source:   <http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/subject/?cvsroot=I2MI>
 * License:  Apache License, Version 2.0 (?)
+* Updated:  20060627
 
