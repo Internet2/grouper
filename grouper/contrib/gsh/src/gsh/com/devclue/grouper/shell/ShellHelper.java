@@ -14,7 +14,7 @@ import  org.apache.commons.lang.time.*;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.1 2006-06-23 17:30:09 blair Exp $
+ * @version $Id: ShellHelper.java,v 1.2 2006-06-27 23:28:24 blair Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -38,10 +38,7 @@ class ShellHelper {
       }
     }
     catch (bsh.EvalError eBEE) {
-      // FIXME I need to figure out what to do here
-      if (GrouperShell.isDebug(i)) {
-        i.error(E.BSH_EVAL + eBEE.getMessage());
-      }
+      i.error(E.BSH_EVAL + eBEE.getMessage());
     }
     // Now update the command history
     try {
