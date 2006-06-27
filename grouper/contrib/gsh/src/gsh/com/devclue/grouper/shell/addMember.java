@@ -16,7 +16,7 @@ import  java.util.*;
  * Add a member.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addMember.java,v 1.1 2006-06-23 17:30:09 blair Exp $
+ * @version $Id: addMember.java,v 1.2 2006-06-27 23:09:45 blair Exp $
  * @since   0.0.1
  */
 public class addMember {
@@ -56,8 +56,11 @@ public class addMember {
     catch (MemberAddException eMA)              {
       GrouperShell.error(i, eMA);
     }
-    catch (SubjectNotFoundException eNSNF)      {
-      GrouperShell.error(i, eNSNF);
+    catch (SubjectNotFoundException eSNF)       {
+      GrouperShell.error(i, eSNF); 
+    }
+    catch (SubjectNotUniqueException eSNU)      {
+      GrouperShell.error(i, eSNU); 
     }
     return false;
   } // public static boolean invoke(i, stack, group, subjId)
