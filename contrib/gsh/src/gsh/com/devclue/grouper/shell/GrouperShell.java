@@ -46,10 +46,14 @@ import  java.util.*;
  *   <li><b>findSubject(id)</b> - Find a subject.</li>
  *   <li><b>findSubject(id, type)</b> - Find a subject.</li>
  *   <li><b>findSubject(id, type, source)</b> - Find a subject.</li>
+ *   <li><b>getGroupAttr(stem, attr)</b> - Get value of <i>group</i>'s
+ *     <i>attr</i> attribute.</li>
  *   <li><b>getGroups(name)</b> - Find all groups with <i>name</i> in any
  *     naming attribute value.</li>
  *   <li><b>getMembers(group)</b> - Get members of the group.</li>
  *   <li><b>getSources()</b> - Find all Subject sources.</li>
+ *   <li><b>getStemAttr(stem, attr)</b> - Get value of <i>stem</i>'s
+ *     <i>attr</i> attribute.</li>
  *   <li><b>getStems(name)</b> - Find all stems with <i>name</i> in any
  *     naming attribute value.</li>
  *   <li><b>hasMember(group, subject id)</b> - Is subject a member of
@@ -61,9 +65,13 @@ import  java.util.*;
  *   <li><b>last(n)</b> - Execute command number <i>n</i>.</li>
  *   <li><b>p(command)</b> - Pretty print results.  This command is
  *     more useful when <i>GSH_DEVEL</i> is enabled.</li>
+ *   <li><b>quit</b> - Terminate shell.</li>
  *   <li><b>resetRegistry()</b> - Restore the Groups Registry to a
  *     default state.</li>
- *   <li><b>quit</b> - Terminate shell.</li>
+ *   <li><b>setGroupAttr(stem, attr, value)</b> - Set value of <i>group</i>'s 
+ *     <i>attr</i> attribute.</li>
+ *   <li><b>setStemAttr(stem, attr, value)</b> - Set value of <i>stem</i>'s 
+ *     <i>attr</i> attribute.</li>
  *   <li><b>version()</b> - Return version information.</li>
  * </ul> 
  * <h3>Variables</h3>
@@ -77,7 +85,7 @@ import  java.util.*;
  *    evaluate each command will be displayed.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.2 2006-06-23 19:48:43 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.3 2006-06-27 19:28:29 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
