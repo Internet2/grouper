@@ -1,10 +1,11 @@
 #!/bin/sh
-# $Id: gsh.sh,v 1.1 2006-06-23 17:30:09 blair Exp $
+# $Id: gsh.sh,v 1.2 2006-06-28 21:19:30 blair Exp $
 
 #
 # TODO
 # * I should make it configurable whether one wants to use .jar or
 #   .class files for both gsh and Grouper
+# * Add cli option support
 #
 
 # Populated at build
@@ -30,6 +31,6 @@ CP=${CP}:${GSH_HOME}/build/gsh
 # Append gsh's 3rd party libs
 for f in ${GSH_HOME}/lib/*.jar; do CP=${CP}:${f}; done
 
-java -classpath ${CP} com.devclue.grouper.shell.GrouperShell "$@"
+java -classpath ${CP} ${GSH_JVMARGS} com.devclue.grouper.shell.GrouperShell "$@"
 exit $?
 
