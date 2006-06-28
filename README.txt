@@ -10,7 +10,7 @@ testing and running Grouper.
 For more detailed information see:
   `doc/grouper-impl-guide.html`
 
-$Id: README,v 1.40 2006-06-28 18:34:37 blair Exp $
+$Id: README.txt,v 1.1 2006-06-28 18:43:11 blair Exp $
 
 ---
 

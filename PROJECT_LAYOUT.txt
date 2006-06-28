@@ -4,19 +4,19 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: PROJECT_LAYOUT,v 1.10 2006-06-12 19:40:13 blair Exp $
+$Id: PROJECT_LAYOUT.txt,v 1.1 2006-06-28 18:43:11 blair Exp $
 
 ---
 
-## LICENSE
+## LICENSE.txt
 
 Grouper licensing information.
 
-## PROJECT_LAYOUT
+## PROJECT_LAYOUT.txt
 
 This file.
 
-## README
+## README.txt
 
 Grouper README.
 
@@ -69,7 +69,7 @@ Subject API resolver configuration file.  This file is generated at build.
 ## contrib/
 
 Contributed loaders, provisioners and other programs for use with
-Grouper.  See _contrib/README_ for more information.
+Grouper.  See *contrib/README.txt* for more information.
 
 ---
 
@@ -91,18 +91,9 @@ HSQLDB data directory.
 
 ## doc/
 
-### API
+### API.txt
 
 API class and method summary.
-
-### erd.jpg
-
-Groups Registry ERD.
-
-### GETTING_GROUPER
-
-Information on obtaining Grouper via official releases, anonymous CVS
-and periodic snapshots.
 
 ### grouper-impl-guide.html
 
@@ -112,19 +103,19 @@ Grouper implementation guide.
 
 Generated API javadoc.
 
-### KNOWN_ISSUES
+### KNOWN_ISSUES.txt
 
 Known issues with the Grouper API and Groups Registry.
 
-### NEWS
+### NEWS.txt
 
 Release Notes.
 
-### ROADMAP
+### ROADMAP.txt
 
 Grouper development roadmap for future releases.
 
-### TODO
+### TODO.txt
 
 A more detailed list what needs to be done, not necessarily tied to any
 particular future release.
@@ -133,7 +124,7 @@ particular future release.
 
 ## lib/
 
-Third-party jar files included with Grouper.  See _java/lib/README_ for
+Third-party jar files included with Grouper.  See *java/lib/README.txt* for
 more details on the jar files included.
 
 ---

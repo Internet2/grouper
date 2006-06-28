@@ -4,7 +4,7 @@
 This file provides information on the third party libraries that ship
 with Grouper.
 
-$Id: README,v 1.25 2006-06-27 22:42:52 blair Exp $
+$Id: README.txt,v 1.1 2006-06-28 18:43:12 blair Exp $
 
 ---
 
