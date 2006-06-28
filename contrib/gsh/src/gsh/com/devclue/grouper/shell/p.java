@@ -16,7 +16,7 @@ import  java.util.*;
  * Pretty print results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.2 2006-06-23 19:48:43 blair Exp $
+ * @version $Id: p.java,v 1.3 2006-06-28 21:19:30 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -53,6 +53,9 @@ public class p {
       }
       else if (obj instanceof HibernateSubject) {
         _pp(i, (HibernateSubject) obj);
+      }
+      else if (obj instanceof Integer)          {
+        i.println(obj);
       }
       else if (obj instanceof Member)           {
         _pp(i, (Member) obj);
