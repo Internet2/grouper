@@ -1,7 +1,7 @@
 
 # Grouper Contributed Code
 
-$Id: README,v 1.19 2006-06-23 17:30:07 blair Exp $
+$Id: README.txt,v 1.1 2006-06-28 18:43:12 blair Exp $
 
 ---
 
