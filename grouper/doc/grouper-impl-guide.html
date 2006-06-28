@@ -54,7 +54,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2006-05-30 16:55:52 $
+$Date: 2006-06-28 18:34:37 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -970,19 +970,15 @@ first.
   </li>
   <li><p><tt>ant test</tt> [optional]</p>
     <p>This will compile and run the Grouper test suite to exercise the
-    API and ensure that Grouper is properly configured.</p>
-    <p><b>Note: Running the test suite is destructive and will
+    API and ensure that Grouper is properly configured.  Running this with the
+    default configuration will use an embedded 
+    <a href="http://www.hsqldb.org/">HSQLDB</a> database.  To test against a
+    different database, see <a href="#config">Configuring Grouper</a>.</p>
+    <p><b>NOTE: Running the test suite is destructive and will
     delete all groups and memberships in the Groups Registry.  Do
     not run the test suite against production data.</b></p>
-    <p><b>Note:</b> If all of the tests succeed you will see a
-      <b>single</b> message like this in the test output:
-    </p>
-    <blockquote>
-      <tt>FATAL GrouperSession: unable to get subject associated with session</tt>
-    </blockquote>
-    <p>This is testing an error condition, is expected and indicates
-    success.</p>
-  </li>
+    <p><b>NOTE:</b> A <i>JDBCSourceAdapter</i> for subjects must
+    be configured for the test suite to complete successfully.</p></li>
   <li><p><tt>ant db</tt> [optional]</p>
     <p>This will launch HSQLDB's GUI database manager.  From within the
     manager you can run SQL queries against the Groups Registry.</p></li>
@@ -1138,11 +1134,9 @@ source adapter is probably the best location for configuration
 information.
 </p>
 <p>
-<b>Note:</b> With the 0.9 release sites should not configure the
-Grouper Source Adapter in <tt>$GROUPER/conf/sources.xml</tt> nor should
-they have a <i>GrouperSystem</i> subject in the JDBC Source Adapter's
-tables.  These are both managed internally now.
-</p>
+<b>NOTE:</b> With the 0.9 release sites should not have a
+<i>GrouperSystem</i> subject in the JDBC Source Adapter's tables.  This subject
+is managed by the internal source adapter.</p>
 <!-- config_subjects -->
 <!-- config_privs -->
 <div class="subsection">

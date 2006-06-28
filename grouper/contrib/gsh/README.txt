@@ -5,7 +5,7 @@
 with the [Grouper][0] API.  It can be used in both a batch and interactive
 manner.
 
-$Id: README.txt,v 1.1 2006-06-23 17:30:09 blair Exp $
+$Id: README.txt,v 1.2 2006-06-28 18:34:37 blair Exp $
 
 ---
 
@@ -23,6 +23,9 @@ Build *GrouperShell*:
 Test *GrouperShell*'s scripting capabilities:
 
     % ant test
+
+Grouper must have a *JDBCSourceAdapter* for subjects for the test
+suite to complete successfully.
 
 ## Bundle
 
