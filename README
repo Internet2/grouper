@@ -10,7 +10,7 @@ testing and running Grouper.
 For more detailed information see:
   `doc/grouper-impl-guide.html`
 
-$Id: README,v 1.39 2006-05-23 19:10:22 blair Exp $
+$Id: README,v 1.40 2006-06-28 18:34:37 blair Exp $
 
 ---
 
@@ -56,12 +56,8 @@ This adds some test subjects to the Groups Registry and then runs the
 Grouper test suite.  This is a *destructive* action and will destroy
 any data within the configured database.
 
-If all of the tests succeed you will see a **single** message
-like this in the test output:
-
-    FATAL GrouperSession: unable to get subject associated with session
-
-This is testing an error condition, is expected and indicates success.
+A *JDBCSourceAdapter* for subjects must be configured for the test suite to
+complete successfully.
 
 ---
 
