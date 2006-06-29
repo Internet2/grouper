@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.3 2006-06-29 17:36:19 blair Exp $
+$Id: TODO.txt,v 1.4 2006-06-29 19:35:49 blair Exp $
 
 ---
 
@@ -15,7 +15,6 @@ $Id: TODO.txt,v 1.3 2006-06-29 17:36:19 blair Exp $
 * TESTING   better xml* testing
 * CODE      synchronize xml* aesthetics
 * PACKAGING 20060628  feature freeze
-* TESTING   postgres, mysql
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
 * TEST      basic and preliminary concurrency testing (i expect to find many bugs)
 * REVIEW    FIXMEs
@@ -120,5 +119,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.3 2006-06-29 17:36:19 blair Exp $
+$Id: TODO.txt,v 1.4 2006-06-29 19:35:49 blair Exp $
 
