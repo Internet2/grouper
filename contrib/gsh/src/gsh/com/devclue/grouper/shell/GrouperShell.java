@@ -56,8 +56,12 @@ import  java.util.*;
  *     <i>attr</i> attribute.</li>
  *   <li><b>getStems(name)</b> - Find all stems with <i>name</i> in any
  *     naming attribute value.</li>
+ *   <li><b>grantPriv(name, subject id, privilege)</b> - Grant <i>privilege</i>
+ *     to <i>subject id</i> on <i>name</i>.</li>
  *   <li><b>hasMember(group, subject id)</b> - Is subject a member of
  *   this group.</li>
+ *   <li><b>hasPriv(name, subject id, privilege)</b> - Does <i>subject id</i>
+ *     have <i>privilege</i> on <i>name</i>?</li>
  *   <li><b>history()</b> - Print commands that have been run.</li>
  *   <li><b>history(n)</b> - Print the last <i>n</i> commands that
  *     have been run.</li>
@@ -68,6 +72,8 @@ import  java.util.*;
  *   <li><b>quit</b> - Terminate shell.</li>
  *   <li><b>resetRegistry()</b> - Restore the Groups Registry to a
  *     default state.</li>
+ *   <li><b>revokePriv(name, subject id, privilege)</b> - Revoke <i>privilege</i>
+ *     from <i>subject id</i> on <i>name</i>.</li>
  *   <li><b>setGroupAttr(stem, attr, value)</b> - Set value of <i>group</i>'s 
  *     <i>attr</i> attribute.</li>
  *   <li><b>setStemAttr(stem, attr, value)</b> - Set value of <i>stem</i>'s 
@@ -85,7 +91,7 @@ import  java.util.*;
  *    evaluate each command will be displayed.</li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.5 2006-06-27 23:13:14 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.6 2006-06-29 15:44:12 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
