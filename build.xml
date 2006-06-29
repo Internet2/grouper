@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.104 2006-06-27 17:04:45 blair Exp $ -->
+<!-- $Id: build.xml,v 1.105 2006-06-29 11:55:09 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -182,8 +182,8 @@
       </fileset>
     </unzip>
     <!-- be sure to include _java/lib/README_ -->
-    <copy file="${lib}/README" 
-          tofile="${build.lib}/README"
+    <copy file="${lib}/README.txt" 
+          tofile="${build.lib}/README.txt"
     />
     <jar  jarfile="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" 
           basedir="${build.lib}"
