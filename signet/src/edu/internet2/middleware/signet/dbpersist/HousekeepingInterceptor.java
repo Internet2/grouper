@@ -1,6 +1,6 @@
 /*--
-$Id: HousekeepingInterceptor.java,v 1.17 2006-02-09 10:21:04 lmcrae Exp $
-$Date: 2006-02-09 10:21:04 $
+$Id: HousekeepingInterceptor.java,v 1.1 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -16,13 +16,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package edu.internet2.middleware.signet;
+package edu.internet2.middleware.signet.dbpersist;
 
 import java.io.Serializable;
 import java.sql.Connection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import edu.internet2.middleware.signet.SignetRuntimeException;
 
 
 import net.sf.hibernate.CallbackException;

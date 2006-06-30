@@ -19,29 +19,34 @@ limitations under the License.
 
 package edu.internet2.middleware.signet.util;
 
-import edu.internet2.middleware.signet.*;
-import edu.internet2.middleware.signet.Status;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
+import edu.internet2.middleware.signet.Signet;
 
 public class AssignmentReconcile
 {
 
-   public AssignmentReconcile()
+   public AssignmentReconcile(String reconcileDate)
    {
-      // Nothing to do here
+      try {
+
+         Signet signet = new Signet();
+         signet.getPersistentDB().beginTransaction();
+
+         processReconcile (signet, reconcileDate);
+         signet.getPersistentDB().commit();
+
+      } catch (java.text.ParseException exc) {
+         System.out.println("Error: " + exc.getMessage());
+      } catch (Exception exc) {
+         exc.printStackTrace();
+      }
    }
 
    public static void main(String[] args) 
-      {
-      
+   {
       String reconcileDate = "";
-      
-      try {
-
-         AssignmentReconcile reconcile = new AssignmentReconcile();
 
          boolean parsed = false;
          if (args.length == 0) {
@@ -56,21 +61,12 @@ public class AssignmentReconcile
             return;
          }
 
-         Signet signet = new Signet();
-         signet.beginTransaction();
+         new AssignmentReconcile(reconcileDate);
 
-         processReconcile (signet, reconcileDate);
-         signet.commit();
-
-      } catch (java.text.ParseException exc) {
-         System.out.println("Error: " + exc.getMessage());
-      } catch (Exception exc) {
-         exc.printStackTrace();
-      }
 
    }
 
-   private static void processReconcile(Signet signet, String reconcileDate)
+   private void processReconcile(Signet signet, String reconcileDate)
       throws java.text.ParseException {
       
       if (reconcileDate.equals("")) {

@@ -137,14 +137,14 @@ public class SubsystemXmlLoader {
         Tree tempTree = null;
 
         try {
-            tempTree = signet.getTree(scopeId);
+            tempTree = signet.getPersistentDB().getTree(scopeId);
         } catch (ObjectNotFoundException e) {
             throw new ObjectNotFoundException("Subsystem " + subsystemId + " -- Scope \"" + scopeId
                 + "\" is not a defined Tree");
         }
 
         // Start transaction and process remainder of document
-        signet.beginTransaction();
+        signet.getPersistentDB().beginTransaction();
 
         Subsystem subsystem = signet.newSubsystem(subsystemId, subsystemName, subsystemHelpText,
                 Status.ACTIVE);
@@ -158,7 +158,7 @@ public class SubsystemXmlLoader {
             processCategory(signet, subsystem, rootElem);
             processFunction(signet, subsystem, rootElem);
 
-            signet.commit();
+            signet.getPersistentDB().commit();
         } catch (ObjectNotFoundException e) {
             throw new ObjectNotFoundException(e.getMessage());
         } catch (NumberFormatException e) {

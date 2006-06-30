@@ -1,6 +1,6 @@
 /*--
-$Id: TreeImpl.java,v 1.8 2006-02-09 10:26:09 lmcrae Exp $
-$Date: 2006-02-09 10:26:09 $
+$Id: TreeImpl.java,v 1.9 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -18,18 +18,15 @@ limitations under the License.
  */
 package edu.internet2.middleware.signet;
 
-import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.signet.tree.Tree;
-import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.signet.tree.TreeAdapter;
+import edu.internet2.middleware.signet.tree.TreeNode;
 
 //COLUMNS IN THE TreeNode TABLE:
 //treeID
@@ -66,7 +63,7 @@ import edu.internet2.middleware.signet.tree.TreeAdapter;
 //modifyContext
 //comment
 
-class TreeImpl extends EntityImpl implements Tree
+public class TreeImpl extends EntityImpl implements Tree
 {
   private Set             subsystems;
 
@@ -90,7 +87,7 @@ class TreeImpl extends EntityImpl implements Tree
     this.subsystems = new HashSet();
   }
 
-  void setSignet(Signet signet)
+  public void setSignet(Signet signet)
   {
     super.setSignet(signet);
 
@@ -165,11 +162,8 @@ class TreeImpl extends EntityImpl implements Tree
     return roots;
   }
 
-  /**
-   * @param nodeId
-   * @param nodeName
-   * @param nodeType
-   * @return
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.tree.Tree#addRoot(edu.internet2.middleware.signet.tree.TreeNode)
    */
   public void addRoot(TreeNode rootNode)
   {
@@ -197,21 +191,13 @@ class TreeImpl extends EntityImpl implements Tree
    */
   public Set getTreeNodes()
   {
-    TreeNode[] treeNodesArray;
-
-    if (this.nodes == null)
-    {
-      this.nodes = new HashSet();
-    }
+    if (null == nodes)
+      nodes = new HashSet();
     
-    Iterator nodesIterator = nodes.iterator();
-    while (nodesIterator.hasNext())
-    {
-      TreeNodeImpl node = (TreeNodeImpl)(nodesIterator.next());
-      node.setSignet(this.getSignet());
-    }
+    for (Iterator nodesIterator = nodes.iterator(); nodesIterator.hasNext();)
+      ((TreeNodeImpl)(nodesIterator.next())).setSignet(this.getSignet());
 
-    return this.nodes;
+    return (nodes);
     // return UnmodifiableSet.decorate(nodes);
   }
 
@@ -272,7 +258,7 @@ class TreeImpl extends EntityImpl implements Tree
     return this.adapter;
   }
 
-  void setAdapter(TreeAdapter adapter)
+  public void setAdapter(TreeAdapter adapter)
   {
     this.adapter = adapter;
     this.adapterClassName = adapter.getClass().getName();
@@ -302,7 +288,8 @@ class TreeImpl extends EntityImpl implements Tree
   {
     return super.getStringId();
   }
-  
+
+
   // This method is only for use by Hibernate.
   private void setId(String id)
   {

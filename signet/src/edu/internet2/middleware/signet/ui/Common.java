@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.68 2006-05-17 22:03:56 ddonn Exp $
-$Date: 2006-05-17 22:03:56 $
+$Id: Common.java,v 1.69 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -1077,14 +1077,14 @@ public class Common
     {
       String idStr
         = paramStr.substring(Constants.ASSIGNMENT_HTTPPARAMPREFIX.length());
-      grantableInstance = signet.getAssignment(Integer.parseInt(idStr));
+      grantableInstance = signet.getPersistentDB().getAssignment(Integer.parseInt(idStr));
     }
     else
     {
 
       String idStr
         = paramStr.substring(Constants.PROXY_HTTPPARAMPREFIX.length());
-      grantableInstance = signet.getProxy(Integer.parseInt(idStr));
+      grantableInstance = signet.getPersistentDB().getProxy(Integer.parseInt(idStr));
     }
     
     return grantableInstance;
@@ -1565,7 +1565,7 @@ public class Common
     if (compositeId != null)
     {
       String[] idParts = parseCompoundId(compositeId);
-      pSubject = signet.getPrivilegedSubject(idParts[0], idParts[1]);
+      pSubject = signet.getSubjectSources().getPrivilegedSubject(idParts[0], idParts[1]);
     }
     
     if (sessionAttrName != null)
@@ -1590,19 +1590,12 @@ public class Common
     String granteeSubjectId = request.getParameter("granteeSubjectId");
     if (granteeSubjectId != null)
     {
-      grantee
-        = signet.getPrivilegedSubject(granteeSubjectTypeId, granteeSubjectId);
-      request
-        .getSession()
-          .setAttribute(Constants.CURRENTPSUBJECT_ATTRNAME, grantee);
+      grantee = signet.getSubjectSources().getPrivilegedSubject(granteeSubjectTypeId, granteeSubjectId);
+      request.getSession().setAttribute(Constants.CURRENTPSUBJECT_ATTRNAME, grantee);
     }
     else
     {
-      grantee
-        = (PrivilegedSubject)
-            (request
-              .getSession()
-                .getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
+      grantee= (PrivilegedSubject)(request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
     }
     
     return grantee;
@@ -1621,7 +1614,7 @@ public class Common
     if ((subsystemId != null)
         && (!subsystemId.equals(Constants.SUBSYSTEM_PROMPTVALUE)))
     {
-      subsystem = signet.getSubsystem(subsystemId);
+      subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
       request.getSession().setAttribute(attrName, subsystem);
     }
     else
@@ -1691,7 +1684,7 @@ public class Common
       }
       else
       {
-        subsystem = signet.getSubsystem(subsystemId);
+        subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
       }
     }
     else
@@ -1727,8 +1720,7 @@ public class Common
     if (compoundSubjectId != null)
     {
       String subjectIdParts[] = parseCompoundId(compoundSubjectId);
-      pSubject
-        = signet.getPrivilegedSubject(subjectIdParts[0], subjectIdParts[1]);
+      pSubject = signet.getSubjectSources().getPrivilegedSubject(subjectIdParts[0], subjectIdParts[1]);
     }
     else
     {
@@ -1757,7 +1749,7 @@ public class Common
     
     for (int i = 0; i < 0; i++)
     {
-      Subsystem subsystem = signet.getSubsystem(subsystemIds[i]);
+      Subsystem subsystem = signet.getPersistentDB().getSubsystem(subsystemIds[i]);
       subsystems.add(subsystem);
     }
     

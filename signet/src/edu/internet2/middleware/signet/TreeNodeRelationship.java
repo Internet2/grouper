@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeRelationship.java,v 1.3 2006-02-09 10:26:36 lmcrae Exp $
-$Date: 2006-02-09 10:26:36 $
+$Id: TreeNodeRelationship.java,v 1.4 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,21 +19,14 @@ limitations under the License.
 package edu.internet2.middleware.signet;
 
 import java.io.Serializable;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import edu.internet2.middleware.signet.tree.Tree;
-import edu.internet2.middleware.signet.tree.TreeNode;
 
 /**
  * @author acohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
-class TreeNodeRelationship
-implements Serializable
+public class TreeNodeRelationship implements Serializable
 {
   private String treeId;
   private String childNodeId;
@@ -58,7 +51,7 @@ implements Serializable
   /**
    * @return Returns the child.
    */
-  String getChildNodeId()
+  public String getChildNodeId()
   {
     return this.childNodeId;
   }
@@ -72,7 +65,7 @@ implements Serializable
   /**
    * @return Returns the parent.
    */
-  String getParentNodeId()
+  public String getParentNodeId()
   {
     return this.parentNodeId;
   }

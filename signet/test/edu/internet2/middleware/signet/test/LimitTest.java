@@ -1,6 +1,6 @@
 /*--
-$Id: LimitTest.java,v 1.5 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: LimitTest.java,v 1.6 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -20,8 +20,6 @@ import junit.framework.TestCase;
 /**
  * @author acohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class LimitTest extends TestCase
 {
@@ -41,7 +39,7 @@ public class LimitTest extends TestCase
     super.setUp();
     
     signet = new Signet();
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
     fixtures = new Fixtures(signet);
   }
 
@@ -52,8 +50,8 @@ public class LimitTest extends TestCase
   {
     super.tearDown();
     
-    signet.commit();
-    signet.close();
+    signet.getPersistentDB().commit();
+    signet.getPersistentDB().close();
   }
 
   /**
@@ -73,7 +71,7 @@ public class LimitTest extends TestCase
 		 limitIndex++)
     {
       Limit limit
-      	= signet
+      	= signet.getPersistentDB()
       			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getLimit
       					(fixtures.makeLimitId(limitIndex));
@@ -93,7 +91,7 @@ public class LimitTest extends TestCase
 		 limitIndex++)
     {
       Limit limit
-      	= signet
+      	= signet.getPersistentDB()
       			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getLimit
       					(fixtures.makeLimitId(limitIndex));
@@ -104,7 +102,7 @@ public class LimitTest extends TestCase
       assertNotNull(choiceSet);
       assertEquals
       	(choiceSet,
-      	 signet.getChoiceSet(fixtures.makeChoiceSetId(limitIndex)));
+      	 signet.getPersistentDB().getChoiceSet(fixtures.makeChoiceSetId(limitIndex)));
     }
   }
 
@@ -116,7 +114,7 @@ public class LimitTest extends TestCase
 		 limitIndex++)
     {
       Limit limit
-      	= signet
+      	= signet.getPersistentDB()
       			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getLimit
       					(fixtures.makeLimitId(limitIndex));
@@ -134,7 +132,7 @@ public class LimitTest extends TestCase
     		 limitIndex++)
     {
     	Limit limit
-				= signet
+				= signet.getPersistentDB()
 						.getSubsystem(Constants.SUBSYSTEM_ID)
 							.getLimit
 								(fixtures.makeLimitId(limitIndex));

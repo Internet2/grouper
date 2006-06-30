@@ -19,19 +19,15 @@ limitations under the License.
 
 package edu.internet2.middleware.signet.util;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Date;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.io.*;
-
-import org.apache.commons.collections.set.UnmodifiableSet;
-
-import javax.xml.stream.*;
-
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
@@ -40,16 +36,8 @@ import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
-import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
-import edu.internet2.middleware.signet.tree.Tree;
-import edu.internet2.middleware.signet.tree.TreeAdapter;
 import edu.internet2.middleware.signet.tree.TreeNode;
-
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.cfg.Configuration;
 
 public class AssignmentXmlLoader
 {
@@ -66,8 +54,9 @@ public class AssignmentXmlLoader
   private final String ATTRIBUTENAME_SCOPE      = "Scope";
   private final String ATTRIBUTENAME_ID         = "Id";
 
-  private Signet signet;
-  private int    assignmentsAdded = 0;
+// not used
+//  private Signet signet;
+//  private int    assignmentsAdded = 0;
   
     
   /**
@@ -130,7 +119,7 @@ public class AssignmentXmlLoader
     //  Get current time
     long start = System.currentTimeMillis();
     
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
       
     while (true)
     {
@@ -156,16 +145,15 @@ public class AssignmentXmlLoader
       }
     }
     
-    signet.commit();
-    signet.close();
+    signet.getPersistentDB().commit();
+    signet.getPersistentDB().close();
     
     //  Get elapsed time in milliseconds
     long elapsedTimeMillis = System.currentTimeMillis()-start;
     
     // Get elapsed time in seconds
     float elapsedTimeSec = elapsedTimeMillis/1000F;
-    float assignmentsPerSecond
-      = ((float)newAssignmentCount)/elapsedTimeSec;
+    float assignmentsPerSecond = newAssignmentCount / elapsedTimeSec;
     
     System.out.println
       ("Loaded "
@@ -195,7 +183,7 @@ public class AssignmentXmlLoader
       if (parser.getAttributeLocalName(i).equals(ATTRIBUTENAME_SUBSYSTEM))
       {
         String subsystemId = parser.getAttributeValue(i);
-        subsystem = signet.getSubsystem(subsystemId);
+        subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
       }
     }
     
@@ -345,9 +333,8 @@ public class AssignmentXmlLoader
     
     try
     {
-      pSubject
-        = signet.getPrivilegedSubjectByDisplayId
-            (Signet.DEFAULT_SUBJECT_TYPE_ID, subjectId);
+      pSubject = signet.getSubjectSources().getPrivilegedSubjectByDisplayId(
+    		  Signet.DEFAULT_SUBJECT_TYPE_ID, subjectId);
     }
     catch (ObjectNotFoundException onfe)
     {
@@ -504,53 +491,54 @@ public class AssignmentXmlLoader
     return assignment;
   }
   
- 
- private void reportIncompleteAssignment
-    (Function          function,
-     PrivilegedSubject grantor,
-     PrivilegedSubject grantee,
-     TreeNode          scope)
-  {
-    if (function == null)
-    {
-      System.out.println
-        ("The XML input file contained an incomplete '"
-         + ELEMENTNAME_ASSIGNMENT
-         + "' definition. The required attribute '"
-         + ATTRIBUTENAME_FUNCTION
-         + "' was missing. This is an error.");
-    }
-    
-    if (grantor == null)
-    {
-      System.out.println
-        ("The XML input file contained an incomplete '"
-         + ELEMENTNAME_ASSIGNMENT
-         + "' definition. The required attributet '"
-         + ATTRIBUTENAME_GRANTOR
-         + "' was missing. This is an error.");
-    }
-    
-    if (grantee == null)
-    {
-      System.out.println
-        ("The XML input file contained an incomplete '"
-         + ELEMENTNAME_ASSIGNMENT
-         + "' definition. The required attributet '"
-         + ATTRIBUTENAME_GRANTEE
-         + "' was missing. This is an error.");
-    }
-    
-    if (scope == null)
-    {
-      System.out.println
-        ("The XML input file contained an incomplete '"
-         + ELEMENTNAME_ASSIGNMENT
-         + "' definition. The required attributet '"
-         + ATTRIBUTENAME_SCOPE
-         + "' was missing. This is an error.");
-    }
-  }
+
+// not used
+// private void reportIncompleteAssignment
+//    (Function          function,
+//     PrivilegedSubject grantor,
+//     PrivilegedSubject grantee,
+//     TreeNode          scope)
+//  {
+//    if (function == null)
+//    {
+//      System.out.println
+//        ("The XML input file contained an incomplete '"
+//         + ELEMENTNAME_ASSIGNMENT
+//         + "' definition. The required attribute '"
+//         + ATTRIBUTENAME_FUNCTION
+//         + "' was missing. This is an error.");
+//    }
+//    
+//    if (grantor == null)
+//    {
+//      System.out.println
+//        ("The XML input file contained an incomplete '"
+//         + ELEMENTNAME_ASSIGNMENT
+//         + "' definition. The required attributet '"
+//         + ATTRIBUTENAME_GRANTOR
+//         + "' was missing. This is an error.");
+//    }
+//    
+//    if (grantee == null)
+//    {
+//      System.out.println
+//        ("The XML input file contained an incomplete '"
+//         + ELEMENTNAME_ASSIGNMENT
+//         + "' definition. The required attributet '"
+//         + ATTRIBUTENAME_GRANTEE
+//         + "' was missing. This is an error.");
+//    }
+//    
+//    if (scope == null)
+//    {
+//      System.out.println
+//        ("The XML input file contained an incomplete '"
+//         + ELEMENTNAME_ASSIGNMENT
+//         + "' definition. The required attributet '"
+//         + ATTRIBUTENAME_SCOPE
+//         + "' was missing. This is an error.");
+//    }
+//  }
   
 
   private void reportIncompleteLimit
@@ -570,20 +558,21 @@ public class AssignmentXmlLoader
   }
   
 
-  private void reportRepeatedElement
-    (XMLStreamReader parser)
-  {
-    System.out.println
-      ("XML parser encountered unexpected element '"
-       + parser.getLocalName()
-       + "' at line "
-       + parser.getLocation().getLineNumber()
-       + ", column "
-       + parser.getLocation().getColumnNumber()
-       + ". This element is illegally repeated: It is allowed to appear only "
-       + "once within its enclosing element, and it has already appeared "
-       + "within the current enclosing element.");
-  }
+// not used
+//  private void reportRepeatedElement
+//    (XMLStreamReader parser)
+//  {
+//    System.out.println
+//      ("XML parser encountered unexpected element '"
+//       + parser.getLocalName()
+//       + "' at line "
+//       + parser.getLocation().getLineNumber()
+//       + ", column "
+//       + parser.getLocation().getColumnNumber()
+//       + ". This element is illegally repeated: It is allowed to appear only "
+//       + "once within its enclosing element, and it has already appeared "
+//       + "within the current enclosing element.");
+//  }
   
   private void reportUnexpectedEndElement
     (XMLStreamReader parser,

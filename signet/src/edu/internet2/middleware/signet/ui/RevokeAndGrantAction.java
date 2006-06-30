@@ -1,6 +1,6 @@
 /*--
-$Id: RevokeAndGrantAction.java,v 1.5 2006-02-09 10:33:25 lmcrae Exp $
-$Date: 2006-02-09 10:33:25 $
+$Id: RevokeAndGrantAction.java,v 1.6 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -98,7 +98,7 @@ public final class RevokeAndGrantAction extends BaseAction
       assignmentIDs = new String[0];
     }
     
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
     
     for (int i = 0; i < assignmentIDs.length; i++)
     {
@@ -112,7 +112,7 @@ public final class RevokeAndGrantAction extends BaseAction
     // Now, save the not-yet-persisted Assignment.
     
     assignment.save();
-    signet.commit();
+    signet.getPersistentDB().commit();
 
     // Forward to our success page
     return findSuccess(mapping);

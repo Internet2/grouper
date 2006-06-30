@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.15 2006-02-09 10:22:52 lmcrae Exp $
- $Date: 2006-02-09 10:22:52 $
+ $Id: PermissionImpl.java,v 1.16 2006-06-30 02:04:41 ddonn Exp $
+ $Date: 2006-06-30 02:04:41 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -18,15 +18,11 @@ limitations under the License.
  */
 package edu.internet2.middleware.signet;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -36,11 +32,8 @@ import edu.internet2.middleware.subject.Subject;
  */
 /* Hibernate requires this class to be non-final. */
 
-class PermissionImpl
-extends EntityImpl
-implements
-  Permission,
-  Comparable
+public class PermissionImpl extends EntityImpl
+		implements Permission, Comparable
 {
   // This field is a simple synthetic key for this record in the database.
   private Integer     key;

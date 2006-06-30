@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetTest.java,v 1.10 2005-09-23 18:22:05 acohen Exp $
-$Date: 2005-09-23 18:22:05 $
+$Id: ChoiceSetTest.java,v 1.11 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,13 +9,10 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet.choice.test;
 
 import java.util.Set;
-
 import junit.framework.TestCase;
-
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Subsystem;
-import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
 import edu.internet2.middleware.signet.test.Constants;
@@ -39,7 +36,7 @@ public class ChoiceSetTest extends TestCase
     super.setUp();
     
     signet = new Signet();
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
     fixtures = new Fixtures(signet);
   }
 
@@ -50,8 +47,8 @@ public class ChoiceSetTest extends TestCase
   {
     super.tearDown();
     
-    signet.commit();
-    signet.close();
+    signet.getPersistentDB().commit();
+    signet.getPersistentDB().close();
   }
 
   /**
@@ -70,11 +67,8 @@ public class ChoiceSetTest extends TestCase
     		 choiceSetIndex < Constants.MAX_CHOICE_SETS;
     		 choiceSetIndex++)
     {
-      ChoiceSet choiceSet
-      	= signet
-      			.getSubsystem(Constants.SUBSYSTEM_ID)
-      				.getChoiceSet
-      					(fixtures.makeChoiceSetId(choiceSetIndex));
+      ChoiceSet choiceSet = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID)
+      				.getChoiceSet(fixtures.makeChoiceSetId(choiceSetIndex));
       
       String id = choiceSet.getId();
       assertEquals(id, fixtures.makeChoiceSetId(choiceSetIndex));
@@ -89,13 +83,13 @@ public class ChoiceSetTest extends TestCase
 		 		 choiceSetIndex++)
     {
       ChoiceSet choiceSet
-      	= signet
+      	= signet.getPersistentDB()
       			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getChoiceSet
       					(fixtures.makeChoiceSetId(choiceSetIndex));
  
       Subsystem subsystem = choiceSet.getSubsystem();
-      assertEquals(subsystem, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+      assertEquals(subsystem, signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID));
     }
   }
 
@@ -107,7 +101,7 @@ public class ChoiceSetTest extends TestCase
 		 		 choiceSetIndex++)
     {
       ChoiceSet choiceSet
-      	= signet
+      	= signet.getPersistentDB()
       			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getChoiceSet
       					(fixtures.makeChoiceSetId(choiceSetIndex));
@@ -125,7 +119,7 @@ public class ChoiceSetTest extends TestCase
 		 		 choiceSetIndex++)
     {
       ChoiceSet choiceSet
-      	= signet
+      	= signet.getPersistentDB()
       			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getChoiceSet
       					(fixtures.makeChoiceSetId(choiceSetIndex));

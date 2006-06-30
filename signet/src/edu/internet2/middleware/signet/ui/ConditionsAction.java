@@ -1,6 +1,6 @@
 /*--
-$Id: ConditionsAction.java,v 1.7 2006-02-09 10:30:10 lmcrae Exp $
-$Date: 2006-02-09 10:30:10 $
+$Id: ConditionsAction.java,v 1.8 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -19,25 +19,15 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Assignment;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
 /**
@@ -147,7 +137,7 @@ public final class ConditionsAction extends BaseAction
     else
     {
       Assignment assignment
-        = signet.getAssignment
+        = signet.getPersistentDB().getAssignment
             (Integer.parseInt
               (request.getParameter
                 ("assignmentId")));

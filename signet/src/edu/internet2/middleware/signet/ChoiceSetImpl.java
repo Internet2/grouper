@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetImpl.java,v 1.8 2006-02-09 10:18:57 lmcrae Exp $
-$Date: 2006-02-09 10:18:57 $
+$Id: ChoiceSetImpl.java,v 1.9 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -33,11 +33,10 @@ import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
 /**
  * @author acohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
-class ChoiceSetImpl implements ChoiceSet
+public class ChoiceSetImpl implements ChoiceSet
 {
+
   // This field is a simple synthetic key for this record in the database.
   private Integer         key;
 
@@ -140,7 +139,7 @@ class ChoiceSetImpl implements ChoiceSet
   /**
    * @param signet
    */
-  void setSignet(Signet signet)
+  public void setSignet(Signet signet)
   {
     this.signet = signet;
   }
@@ -193,7 +192,7 @@ class ChoiceSetImpl implements ChoiceSet
         && (this.adapterClassName != null))
     {
       this.choiceSetAdapter
-      	= this.signet.getChoiceSetAdapter(this.adapterClassName);
+      	= signet.getChoiceSetAdapter(this.adapterClassName);
     }
     return this.choiceSetAdapter;
   }
@@ -206,7 +205,7 @@ class ChoiceSetImpl implements ChoiceSet
     if (this.choiceSetAdapter instanceof ChoiceSetAdapterImpl)
     {
       ((ChoiceSetAdapterImpl)
-          (this.choiceSetAdapter)).setSignet(this.signet);
+          (this.choiceSetAdapter)).setSignet(signet);
     }
   }
   
@@ -230,9 +229,9 @@ class ChoiceSetImpl implements ChoiceSet
   {
     this.adapterClassName = name;
 
-    if (this.signet != null)
+    if (null != signet)
     {
-      this.choiceSetAdapter = this.signet.getChoiceSetAdapter(name);
+      this.choiceSetAdapter = signet.getChoiceSetAdapter(name);
     }
   }
 
@@ -262,7 +261,7 @@ class ChoiceSetImpl implements ChoiceSet
    */
   public void save()
   {
-    this.signet.save(this);
+    signet.getPersistentDB().save(this);
   }
   
   /* This method is for use only by Hibernate.

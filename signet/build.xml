@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.40 2006-06-13 21:25:40 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.41 2006-06-30 02:04:41 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -359,7 +359,7 @@
 
 	<!-- - - - - - - - - target: create_signet_api_jar - -->
 	<target name="create_signet_api_jar" >
-		<jar destfile="${signet.jar.api}" >
+		<jar destfile="${signet.jar.api}" > 
 			<fileset dir="${classes.dir}" >
 				<exclude name="${signet.jar.ui.files}" />
 				<exclude name="${signet.jar.util.files}" />

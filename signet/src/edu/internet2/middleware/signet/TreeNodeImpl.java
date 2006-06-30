@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.10 2006-02-09 10:26:26 lmcrae Exp $
-$Date: 2006-02-09 10:26:26 $
+$Id: TreeNodeImpl.java,v 1.11 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -79,7 +79,7 @@ implements
   {
     if (parentsAlreadyFetched == false)
     {
-      this.parents = this.getSignet().getParents(this);
+      this.parents = getSignet().getPersistentDB().getParents(this);
       parentsAlreadyFetched = true;
     }
 
@@ -104,7 +104,7 @@ implements
   {
     if (childrenAlreadyFetched == false)
     {
-      this.children = this.getSignet().getChildren(this);
+      this.children = getSignet().getPersistentDB().getChildren(this);
       childrenAlreadyFetched = true;
     }
 
@@ -117,13 +117,11 @@ implements
    */
   public Tree getTree()
   {
-    if ((this.tree == null) && (this.treeId != null)
-        && (this.getSignet() != null))
+    if ((tree == null) && (treeId != null) && (getSignet() != null))
     {
       try
       {
-        this.tree
-        	= (TreeImpl)(this.getSignet().getTree(this.treeId));
+        tree = (TreeImpl)(getSignet().getPersistentDB().getTree(treeId));
       }
       catch (ObjectNotFoundException onfe)
       {
@@ -152,9 +150,10 @@ implements
   {
     this.treeId = treeId;
 
-    if (this.getSignet() != null)
+    Signet signet;
+    if (null != (signet = getSignet()))
     {
-      this.tree = (TreeImpl) (this.getSignet().getTree(treeId));
+      tree = (TreeImpl)(signet.getPersistentDB().getTree(treeId));
     }
   }
 
@@ -197,7 +196,7 @@ implements
     TreeNodeRelationship tnr = new TreeNodeRelationship(childNode.getTree()
         .getId(), childNode.getId(), parentNode.getId());
 
-    this.getSignet().save(tnr);
+    getSignet().getPersistentDB().save(tnr);
   }
   
   /* (non-Javadoc)
@@ -318,15 +317,15 @@ implements
   /*
    * This method exists only for use by Hibernate.
    */
-  void setFullyQualifiedId(TreeNodeFullyQualifiedId tnfqId)
-      throws ObjectNotFoundException
+  void setFullyQualifiedId(TreeNodeFullyQualifiedId tnfqId) throws ObjectNotFoundException
   {
-    this.treeId = tnfqId.getTreeId();
-    this.setId(tnfqId.getTreeNodeId());
+    treeId = tnfqId.getTreeId();
+    setId(tnfqId.getTreeNodeId());
 
-    if (this.getSignet() != null)
+    Signet signet;
+    if (null != (signet = getSignet()))
     {
-      this.tree = (TreeImpl) (this.getSignet().getTree(tnfqId.getTreeId()));
+      tree = (TreeImpl)(signet.getPersistentDB().getTree(treeId));
     }
   }
   

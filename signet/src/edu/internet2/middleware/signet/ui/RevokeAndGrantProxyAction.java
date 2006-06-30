@@ -1,6 +1,6 @@
 /*--
-$Id: RevokeAndGrantProxyAction.java,v 1.7 2006-02-09 10:33:32 lmcrae Exp $
-$Date: 2006-02-09 10:33:32 $
+$Id: RevokeAndGrantProxyAction.java,v 1.8 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -98,7 +98,7 @@ public final class RevokeAndGrantProxyAction extends BaseAction
       proxyIDs = new String[0];
     }
     
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
     
     for (int i = 0; i < proxyIDs.length; i++)
     {
@@ -111,7 +111,7 @@ public final class RevokeAndGrantProxyAction extends BaseAction
     // Now, save the not-yet-persisted Proxy.
     
     proxy.save();
-    signet.commit();
+    signet.getPersistentDB().commit();
 
     // Forward to our success page
     return findSuccess(mapping);

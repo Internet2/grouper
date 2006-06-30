@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.17 2006-02-09 10:30:18 lmcrae Exp $
-$Date: 2006-02-09 10:30:18 $
+$Id: ConfirmAction.java,v 1.18 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -240,9 +240,9 @@ throws Exception
   // If we've gotten this far, there must be no duplicate Assignments.
   // Let's save this Assignment in the database.
   
-  signet.beginTransaction();
+  signet.getPersistentDB().beginTransaction();
   assignment.save();
-  signet.commit();
+  signet.getPersistentDB().commit();
   
   session.setAttribute("currentAssignment", assignment);
 

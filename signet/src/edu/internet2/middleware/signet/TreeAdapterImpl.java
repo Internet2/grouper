@@ -1,6 +1,6 @@
 /*--
-$Id: TreeAdapterImpl.java,v 1.3 2006-02-09 10:26:01 lmcrae Exp $
-$Date: 2006-02-09 10:26:01 $
+$Id: TreeAdapterImpl.java,v 1.4 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -31,9 +31,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 * This implementation of TreeAdapter provides Signet's own native,
 * database-persisted trees.
 */
-class TreeAdapterImpl
-	extends AbstractTreeAdapter
-	implements TreeAdapter
+public class TreeAdapterImpl extends AbstractTreeAdapter implements TreeAdapter
 {
 	private Signet signet;
 
@@ -67,7 +65,7 @@ throws TreeNotFoundException
   
   try
   {
-    tree = this.signet.getNativeSignetTree(id);
+    tree = signet.getPersistentDB().getNativeSignetTree(id);
   }
   catch (ObjectNotFoundException onfe)
   {
@@ -120,9 +118,9 @@ throws OperationNotSupportedException
   // resides in the SQL database. Signet transactiona always nest, so this
   // operation will either be part of some larger transaction that's
   // already in progress, or will commit as its own small transaction.
-  this.signet.beginTransaction();
-  this.signet.save(treeImpl);
-  this.signet.commit();
+  signet.getPersistentDB().beginTransaction();
+  signet.getPersistentDB().save(treeImpl);
+  signet.getPersistentDB().commit();
 
   return treeImpl;
 }

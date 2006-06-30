@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeTest.java,v 1.6 2005-12-02 18:36:53 acohen Exp $
-$Date: 2005-12-02 18:36:53 $
+$Id: PrivilegeTest.java,v 1.7 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -26,8 +26,6 @@ import junit.framework.TestCase;
 /**
  * @author acohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class PrivilegeTest extends TestCase
 {
@@ -47,16 +45,16 @@ public class PrivilegeTest extends TestCase
     super.setUp();
     
     signet = new Signet();
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
     fixtures = new Fixtures(signet);
-    signet.commit();
-    signet.close();
+    signet.getPersistentDB().commit();
+    signet.getPersistentDB().close();
     
     // Let's use a new Signet session, to make sure we're actually
     // pulling data from the database, and not just referring to in-memory
     // structures.
     signet = new Signet();
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
   }
 
   /*
@@ -65,8 +63,8 @@ public class PrivilegeTest extends TestCase
   protected void tearDown() throws Exception
   {
     super.tearDown();
-    signet.commit();
-    signet.close();
+    signet.getPersistentDB().commit();
+    signet.getPersistentDB().close();
   }
 
   /**
@@ -114,20 +112,20 @@ public class PrivilegeTest extends TestCase
     //          limit-value: 2
     
     Subject subject0
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(0));
     
     Subject subject1
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(1));
     
     Subject subject2
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(2));
 
-    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
-    PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
-    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject1 = signet.getSubjectSources().getPrivilegedSubject(subject1);
+    PrivilegedSubject pSubject2 = signet.getSubjectSources().getPrivilegedSubject(subject2);
     
     Set privileges0 = pSubject0.getPrivileges();
     Set privileges1 = pSubject1.getPrivileges();
@@ -156,10 +154,10 @@ public class PrivilegeTest extends TestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject(
+        = signet.getSubjectSources().getSubject(
             Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       Set privileges = pSubject.getPrivileges();
       
       // Here's a picture of the Assignments which this test expects to find:
@@ -218,7 +216,7 @@ public class PrivilegeTest extends TestCase
         LimitValue limitValue = limitValuesArray[i];
 
         assertEquals
-          (signet
+          (signet.getPersistentDB()
             .getSubsystem(Constants.SUBSYSTEM_ID)
               .getLimit(limitValue.getLimit().getId()),
            limitValue.getLimit());
@@ -237,10 +235,10 @@ public class PrivilegeTest extends TestCase
     // Subject 0 has two Privileges, which are enough to do a little
     // sort-testing.
     Subject subject0
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(0));
     
-    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
     Set privileges = pSubject0.getPrivileges();
     
     assertTrue
@@ -267,11 +265,11 @@ public class PrivilegeTest extends TestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject
+        = signet.getSubjectSources().getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
              Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       Set privileges = pSubject.getPrivileges();
       
       // Here's a picture of the Assignments which this test expects to find:
@@ -318,11 +316,11 @@ public class PrivilegeTest extends TestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject
+        = signet.getSubjectSources().getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
              Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       Set privileges = pSubject.getPrivileges();
       
       // Here's a picture of the Assignments which this test expects to find:
@@ -363,7 +361,7 @@ public class PrivilegeTest extends TestCase
   {
     StringTokenizer tokenizer
     	= new StringTokenizer(limitName, Constants.DELIMITER);
-    String prefix = tokenizer.nextToken();
+    /* String prefix = */ tokenizer.nextToken();
     int number = (new Integer(tokenizer.nextToken())).intValue();
     return number;
   }

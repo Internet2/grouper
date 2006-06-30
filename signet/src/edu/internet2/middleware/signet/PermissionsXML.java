@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXML.java,v 1.6 2006-04-10 06:28:11 ddonn Exp $
-$Date: 2006-04-10 06:28:11 $
+$Id: PermissionsXML.java,v 1.7 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -32,12 +32,16 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 
 public class PermissionsXML
 {
+	protected Signet signet;
+
+
    /**
    * Default constructor.
    *
    */
-   public PermissionsXML() throws Exception {
+   public PermissionsXML(Signet signet) throws Exception {
       // this.logger = Logger.getLogger(this.toString());
+	   this.signet = signet;
    }
 
    public void generateXML(PrivilegedSubject privSubject, OutputStream outStream)
@@ -210,8 +214,10 @@ public class PermissionsXML
       DateFormat df = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss z");
 
       StringBuffer buf = new StringBuffer();
-      buf.append("datastore='" + Signet.getConfiguration().getProperty("hibernate.connection.url") + "' ");
-      buf.append("version='" + Signet.getVersion() + "' ");
+      buf.append("datastore='" +
+    		  signet.getPersistentDB().getConfiguration().getProperty(
+    				  "hibernate.connection.url") + "' ");
+      buf.append("version='" + Signet.getVersion() + "' "); // static method
       buf.append("timestamp='" + df.format(new Date()) + "'");
       buf.append("\n");
       xmlw.writeComment(buf.toString());
@@ -235,10 +241,10 @@ public class PermissionsXML
       
       Signet signet = new Signet();
       
-      PrivilegedSubject privSubject = signet.getPrivilegedSubject(subjectType, subjectID);
+      PrivilegedSubject privSubject = signet.getSubjectSources().getPrivilegedSubject(subjectType, subjectID);
    
       // Create the XML file
-      PermissionsXML processor = new PermissionsXML();
+      PermissionsXML processor = new PermissionsXML(signet);
       processor.generateXML(privSubject, System.out);
 
       System.out.println("\n");

@@ -1,6 +1,6 @@
 /*--
-$Id: DemoLoginCheckAction.java,v 1.2 2006-02-09 10:30:58 lmcrae Exp $
-$Date: 2006-02-09 10:30:58 $
+$Id: DemoLoginCheckAction.java,v 1.3 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -21,19 +21,15 @@ package edu.internet2.middleware.signet.ui;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.Subsystem;
 
 /**
  * Signet demo-login-check action - this action exists only for Signet demo
@@ -114,9 +110,8 @@ public final class DemoLoginCheckAction extends BaseAction
     
     // Let's look up the username. If it exists, we've got our user.
     
-    Set userMatches
-      = signet.getPrivilegedSubjectsByDisplayId
-          (Signet.DEFAULT_SUBJECT_TYPE_ID, username);
+    Set userMatches = signet.getSubjectSources().getPrivilegedSubjectsByDisplayId(
+    		Signet.DEFAULT_SUBJECT_TYPE_ID, username);
     
     if (userMatches.size() != 1)
     {

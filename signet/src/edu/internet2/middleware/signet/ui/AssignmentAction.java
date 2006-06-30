@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentAction.java,v 1.5 2006-02-09 10:29:44 lmcrae Exp $
-$Date: 2006-02-09 10:29:44 $
+$Id: AssignmentAction.java,v 1.6 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -19,18 +19,14 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Assignment;
-import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Signet;
 
 /**
@@ -104,7 +100,7 @@ public final class AssignmentAction extends BaseAction
     
     String assignmentId = request.getParameter("assignmentId");
     Assignment assignment
-    	= signet.getAssignment(Integer.parseInt(assignmentId));
+    	= signet.getPersistentDB().getAssignment(Integer.parseInt(assignmentId));
     session.setAttribute("currentAssignment", assignment);
 
     // Forward to our success page

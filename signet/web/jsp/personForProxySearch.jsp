@@ -30,7 +30,7 @@
         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
 
   String searchString = request.getParameter("searchString");
-  Set result = signet.findPrivilegedSubjects(searchString);
+  Set result = signet.getSubjectSources().findPrivilegedSubjects(searchString);
   
   // There are some Subjects which are not candidates to serve as proxies
   // for a specific Subject:

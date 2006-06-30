@@ -1,6 +1,6 @@
 /*--
-$Id: RevokeAction.java,v 1.6 2006-02-09 10:33:17 lmcrae Exp $
-$Date: 2006-02-09 10:33:17 $
+$Id: RevokeAction.java,v 1.7 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -91,7 +91,7 @@ public final class RevokeAction extends BaseAction
     // and revoke them.
     String[] assignmentIDs = request.getParameterValues("revoke");
     
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
     
     for (int i = 0; i < assignmentIDs.length; i++)
     {
@@ -101,7 +101,7 @@ public final class RevokeAction extends BaseAction
       grantableInstance.save();
     }
     
-    signet.commit();
+    signet.getPersistentDB().commit();
 
     // Forward to our success page
     return findSuccess(mapping);

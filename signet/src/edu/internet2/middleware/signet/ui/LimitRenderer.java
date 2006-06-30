@@ -1,6 +1,6 @@
 /*--
-$Id: LimitRenderer.java,v 1.9 2006-02-09 10:31:50 lmcrae Exp $
-$Date: 2006-02-09 10:31:50 $
+$Id: LimitRenderer.java,v 1.10 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -38,8 +38,6 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
 /**
  * @author Andy Cohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class LimitRenderer
 {
@@ -141,14 +139,14 @@ public class LimitRenderer
   	 String limitParamName)
   {
     StringTokenizer tokenizer = new StringTokenizer(limitParamName, DELIMITER);
-    String prefix = tokenizer.nextToken();
+    /* String prefix = */ tokenizer.nextToken();
     String subsystemId = tokenizer.nextToken();
     String limitId = tokenizer.nextToken();
     Limit limit = null;
     
     try
     {
-      Subsystem subsystem = signet.getSubsystem(subsystemId);
+      Subsystem subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
       limit = subsystem.getLimit(limitId);
     }
     catch (ObjectNotFoundException onfe)

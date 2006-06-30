@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionTest.java,v 1.7 2006-01-26 01:39:29 acohen Exp $
-$Date: 2006-01-26 01:39:29 $
+$Id: PermissionTest.java,v 1.8 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -12,20 +12,15 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import edu.internet2.middleware.signet.Function;
+import junit.framework.TestCase;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Signet;
 
-import junit.framework.TestCase;
-
 /**
  * @author acohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class PermissionTest extends TestCase
 {
@@ -45,10 +40,10 @@ public class PermissionTest extends TestCase
     super.setUp();
     
     signet = new Signet();
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
     fixtures = new Fixtures(signet);
-    signet.commit();
-    signet.close();
+    signet.getPersistentDB().commit();
+    signet.getPersistentDB().close();
     
     // Let's use a new Signet session, to make sure we're actually
     // pulling data from the database, and not just referring to in-memory
@@ -62,7 +57,7 @@ public class PermissionTest extends TestCase
   protected void tearDown() throws Exception
   {
     super.tearDown();
-    signet.close();
+    signet.getPersistentDB().close();
   }
 
   /**
@@ -83,7 +78,7 @@ public class PermissionTest extends TestCase
 		 		 permissionIndex++)
     {
       Permission permission
-      	= signet
+      	= signet.getPersistentDB()
       			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getPermission
       					(fixtures.makePermissionId(permissionIndex));
@@ -102,7 +97,7 @@ public class PermissionTest extends TestCase
         Limit limit = (Limit)(sortedLimitsIterator.next());
         assertEquals
         	(limit,
-        	 signet
+        	 signet.getPersistentDB()
       	 	   .getSubsystem(Constants.SUBSYSTEM_ID)
       	 		   .getLimit(fixtures.makeLimitId(limitNumber)));
         limitNumber++;
@@ -119,7 +114,7 @@ public class PermissionTest extends TestCase
 		 		 permissionIndex++)
     {
       Permission permission
-      	= signet
+      	= signet.getPersistentDB()
       			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getPermission
       					(fixtures.makePermissionId(permissionIndex));
@@ -132,7 +127,7 @@ public class PermissionTest extends TestCase
       assertEquals
       	(Common.getSingleSetMember(functions),
       	 Common.getFunction
-           (signet.getSubsystem(Constants.SUBSYSTEM_ID),
+           (signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID),
             fixtures.makeFunctionId(permissionIndex)));
     }
   }

@@ -1,6 +1,6 @@
 /*--
-$Id: BaseTestCase.java,v 1.1 2006-01-27 06:44:06 acohen Exp $
-$Date: 2006-01-27 06:44:06 $
+$Id: BaseTestCase.java,v 1.2 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -32,7 +32,7 @@ public class BaseTestCase extends TestCase
     
     signet = new Signet();
     fixtures = new Fixtures(signet);
-    signet.close();
+    signet.getPersistentDB().close();
     
     // Let's use a new Signet session, to make sure we're actually
     // pulling data from the database, and not just referring to in-memory
@@ -43,6 +43,6 @@ public class BaseTestCase extends TestCase
   protected void tearDown() throws Exception
   {
     super.tearDown();
-    signet.close();
+    signet.getPersistentDB().close();
   }
 }

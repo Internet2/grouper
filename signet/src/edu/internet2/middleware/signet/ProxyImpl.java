@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyImpl.java,v 1.13 2006-05-15 21:22:11 ddonn Exp $
-$Date: 2006-05-15 21:22:11 $
+$Id: ProxyImpl.java,v 1.14 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -22,9 +22,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-class ProxyImpl
-extends GrantableImpl
-implements Proxy
+public class ProxyImpl extends GrantableImpl implements Proxy
 {  
   private SubsystemImpl subsystem;
   private boolean       canExtend;
@@ -195,7 +193,7 @@ implements Proxy
    */
   public Set findDuplicates()
   {
-    return this.getSignet().findDuplicates(this);
+    return (getSignet().getPersistentDB().findDuplicates(this));
   }
   
   public void save()
@@ -222,7 +220,7 @@ implements Proxy
       historySet.add(historyRecord);
       this.setHistory(historySet);
       
-      this.getSignet().save(this);
+      getSignet().getPersistentDB().save(this);
       // this.getSignet().save(historyRecord);
     }
     else
@@ -231,7 +229,7 @@ implements Proxy
       // because we don't yet know the ID of the assignment. We'll detect that
       // condition, and construct and save that history-record
       // later, in the postFlush() method of the Hibernate Interceptor.
-      this.getSignet().save(this);
+      getSignet().getPersistentDB().save(this);
     }
   }
 

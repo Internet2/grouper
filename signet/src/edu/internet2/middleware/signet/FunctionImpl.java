@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.14 2006-02-09 10:20:09 lmcrae Exp $
-$Date: 2006-02-09 10:20:09 $
+$Id: FunctionImpl.java,v 1.15 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -36,9 +36,7 @@ import edu.internet2.middleware.subject.Subject;
 */
 /* Hibernate requires this class to be non-final. */
 
-class FunctionImpl
-extends EntityImpl
-implements Function
+public class FunctionImpl extends EntityImpl implements Function
 {
   // This field is a simple synthetic key for this record in the database.
   private Integer   key;
@@ -159,11 +157,11 @@ implements Function
    */
   public Subsystem getSubsystem()
   {
-    if (this.subsystem == null)
+    if (subsystem == null)
     {
       try
       {
-        this.subsystem = this.getSignet().getSubsystem(this.subsystemId);
+        subsystem = getSignet().getPersistentDB().getSubsystem(subsystemId);
       }
       catch (ObjectNotFoundException onfe)
       {
@@ -171,7 +169,7 @@ implements Function
       }
     }
     
-    return this.subsystem;
+    return subsystem;
   }
   
   String getSubsystemId()
@@ -188,14 +186,13 @@ implements Function
       this.subsystemId = subsystem.getId();
   }
   
-  void setSubsystemId(String subsystemId)
-  throws ObjectNotFoundException
+  void setSubsystemId(String subsystemId) throws ObjectNotFoundException
   {
     this.subsystemId = subsystemId;
-    
-    if (this.getSignet() != null)
+    Signet signet = getSignet();
+    if (null != signet)
     {
-      this.subsystem = this.getSignet().getSubsystem(subsystemId);
+      subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
     }
   }
 
@@ -329,6 +326,7 @@ implements Function
     return super.getStringId();
   }
   
+
   // This method is only for use by Hibernate.
   private void setId(String id)
   {
@@ -344,10 +342,11 @@ implements Function
       ("This method is not yet implemented");
   }
   
-  Integer getKey()
+  public Integer getKey()
   {
     return this.key;
   }
+
 
   /* This method is for use only by Hibernate.
    * 

@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.15 2006-02-09 10:21:43 lmcrae Exp $
-$Date: 2006-02-09 10:21:43 $
+$Id: LimitImpl.java,v 1.16 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -30,10 +30,8 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
 /**
  * @author acohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
-final class LimitImpl implements Limit
+public final class LimitImpl implements Limit
 {
   // This field is a simple synthetic key for this record in the database.
   private Integer     key;
@@ -94,14 +92,14 @@ final class LimitImpl implements Limit
     this.permissions = new HashSet();
   }
   
-  void setSignet(Signet signet)
+  public void setSignet(Signet signet)
   {
     this.signet = signet;
   }
   
   Signet getSignet()
   {
-    return this.signet;
+    return (signet);
   }
   
   /* (non-Javadoc)
@@ -154,7 +152,7 @@ final class LimitImpl implements Limit
     {
       try
       {
-        this.subsystem = this.getSignet().getSubsystem(this.subsystemId);
+        subsystem = getSignet().getPersistentDB().getSubsystem(subsystemId);
       }
       catch (ObjectNotFoundException onfe)
       {
@@ -186,22 +184,20 @@ final class LimitImpl implements Limit
     
     if (this.getSignet() != null)
     {
-      this.subsystem = this.getSignet().getSubsystem(subsystemId);
+      subsystem = getSignet().getPersistentDB().getSubsystem(subsystemId);
     }
   }
 
   public ChoiceSet getChoiceSet()
   {    
-    if ((this.choiceSet == null)
-        && (this.choiceSetId != null)
-        && (this.getSignet() != null))
+    if ((choiceSet == null)
+        && (choiceSetId != null)
+        && (getSignet() != null))
     {
       try
       {
-        this.choiceSet
-          = this.getSignet()
-      			  .getSubsystem(this.subsystemId)
-      			    .getChoiceSet(this.choiceSetId);
+    	  Subsystem subsys = getSignet().getPersistentDB().getSubsystem(subsystemId);
+        choiceSet = subsys.getChoiceSet(choiceSetId);
       }
       catch (ObjectNotFoundException onfe)
       {
@@ -209,7 +205,7 @@ final class LimitImpl implements Limit
       }
     }
 
-    return this.choiceSet;
+    return choiceSet;
   }
   
   String getChoiceSetId()
@@ -223,17 +219,13 @@ final class LimitImpl implements Limit
       this.choiceSetId = choiceSet.getId();
   }
   
-  void setChoiceSetId(String choiceSetId)
-  throws ObjectNotFoundException
+  void setChoiceSetId(String choiceSetId) throws ObjectNotFoundException
   {
     this.choiceSetId = choiceSetId;
     
-    if (this.getSignet() != null)
+    if (getSignet() != null)
     {
-      this.choiceSet
-      	= this.getSignet()
-      			.getSubsystem(this.subsystemId)
-      				.getChoiceSet(choiceSetId);
+      choiceSet = getSignet().getPersistentDB().getSubsystem(subsystemId).getChoiceSet(choiceSetId);
     }
   }
   
@@ -342,7 +334,7 @@ final class LimitImpl implements Limit
 
 
   /**
-   * @param impl
+   * @param permission
    */
   public void add(Permission permission)
   {
@@ -373,7 +365,6 @@ final class LimitImpl implements Limit
    */
   public String toString()
   {
-    // TODO Auto-generated method stub
     return "[id='" + this.getId() + "]";
   }
 
@@ -427,7 +418,7 @@ final class LimitImpl implements Limit
    */
   public void save()
   {
-    this.signet.save(this);
+    getSignet().getPersistentDB().save(this);
   }
 
 
@@ -451,7 +442,7 @@ final class LimitImpl implements Limit
   /* This method is for use only by Hibernate.
    * 
    */
-  private void setKey(Integer key)
+  public void setKey(Integer key)
   {
     this.key = key;
   }

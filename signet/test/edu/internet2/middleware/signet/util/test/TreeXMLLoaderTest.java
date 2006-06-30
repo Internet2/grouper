@@ -1,6 +1,6 @@
 /*--
-$Id: TreeXMLLoaderTest.java,v 1.2 2006-02-07 20:12:14 acohen Exp $
-$Date: 2006-02-07 20:12:14 $
+$Id: TreeXMLLoaderTest.java,v 1.3 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -22,8 +22,6 @@ import junit.framework.TestCase;
 /**
  * @author Andy Cohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class TreeXMLLoaderTest extends TestCase
 {
@@ -78,7 +76,7 @@ public class TreeXMLLoaderTest extends TestCase
     SQLException,
     ObjectNotFoundException
   {
-    Tree tree = this.signet.getTree("testNewTree_id");
+    Tree tree = signet.getPersistentDB().getTree("testNewTree_id");
     
     TreeNode node0
       = treeLoader.newTreeNode

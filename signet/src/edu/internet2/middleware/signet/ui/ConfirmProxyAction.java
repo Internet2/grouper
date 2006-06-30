@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.14 2006-02-09 10:30:26 lmcrae Exp $
-$Date: 2006-02-09 10:30:26 $
+$Id: ConfirmProxyAction.java,v 1.15 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -209,9 +209,9 @@ public final class ConfirmProxyAction extends BaseAction
     // If we've gotten this far, there must be no duplicate Proxies.
     // Let's save this Proxy in the database.
   
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
     proxy.save();
-    signet.commit();
+    signet.getPersistentDB().commit();
   
     session.setAttribute(Constants.PROXY_ATTRNAME, proxy);
 

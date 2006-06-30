@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.4 2006-05-16 17:37:35 ddonn Exp $
-  $Date: 2006-05-16 17:37:35 $
+  $Id: assignment.jsp,v 1.5 2006-06-30 02:04:41 ddonn Exp $
+  $Date: 2006-06-30 02:04:41 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -55,11 +55,11 @@
          (request.getSession().getAttribute("currentAssignment"));
          
   Subject grantee
-    = signet.getSubject
+    = signet.getSubjectSources().getSubject
         (currentAssignment.getGrantee().getSubjectTypeId(),
          currentAssignment.getGrantee().getSubjectId());
   Subject grantor
-    = signet.getSubject
+    = signet.getSubjectSources().getSubject
       (currentAssignment.getGrantor().getSubjectTypeId(),
        currentAssignment.getGrantor().getSubjectId());
        
@@ -67,7 +67,7 @@
   if (currentAssignment.getProxy() != null)
   {
     proxy
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (currentAssignment.getProxy().getSubjectTypeId(),
            currentAssignment.getProxy().getSubjectId());
   }
@@ -228,6 +228,7 @@
 %>
       <tr>
         <th class="label" scope="row">
+        <td>
           <%=Common.displayDatetime(Constants.DATETIME_FORMAT_12_MINUTE, historyRecord.getDate())%>
         </td>
         <td>

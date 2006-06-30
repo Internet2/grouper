@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyTest.java,v 1.4 2006-01-24 19:23:03 acohen Exp $
-$Date: 2006-01-24 19:23:03 $
+$Id: ProxyTest.java,v 1.5 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -11,23 +11,20 @@ package edu.internet2.middleware.signet.test;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.StringTokenizer;
-
-import edu.internet2.middleware.signet.Assignment;
-import edu.internet2.middleware.signet.Proxy;
+import junit.framework.TestCase;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
+import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.subject.Subject;
 
-import junit.framework.TestCase;
-
 public class ProxyTest extends TestCase
 {
   private Signet		signet;
-  private Fixtures	fixtures;
+// not used
+//  private Fixtures	fixtures;
   
   public static void main(String[] args)
   {
@@ -42,16 +39,16 @@ public class ProxyTest extends TestCase
     super.setUp();
     
     signet = new Signet();
-    signet.beginTransaction();
-    fixtures = new Fixtures(signet);
-    signet.commit();
-    signet.close();
+    signet.getPersistentDB().beginTransaction();
+    /* fixtures = */ new Fixtures(signet);
+    signet.getPersistentDB().commit();
+    signet.getPersistentDB().close();
     
     // Let's use a new Signet session, to make sure we're actually
     // pulling data from the database, and not just referring to in-memory
     // structures.
     signet = new Signet();
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
   }
 
   /*
@@ -60,8 +57,8 @@ public class ProxyTest extends TestCase
   protected void tearDown() throws Exception
   {
     super.tearDown();
-    signet.commit();
-    signet.close();
+    signet.getPersistentDB().commit();
+    signet.getPersistentDB().close();
   }
 
   /**
@@ -83,16 +80,16 @@ public class ProxyTest extends TestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject
+        = signet.getSubjectSources().getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
              Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       
       Set proxiesReceived = pSubject.getProxiesReceived();
       proxiesReceived
         = Common.filterProxies
-            (proxiesReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+            (proxiesReceived, signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID));
       
       Proxy proxy = (Proxy)(proxiesReceived.toArray()[0]);
       
@@ -127,18 +124,18 @@ public class ProxyTest extends TestCase
     subjectIndex++)
     {
       Subject subject
-        = signet.getSubject
+        = signet.getSubjectSources().getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
              Common.makeSubjectId(subjectIndex));
  
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       
       Set proxiesReceived = pSubject.getProxiesReceived();
       assertNotNull(proxiesReceived);
       
       proxiesReceived
         = Common.filterProxies
-            (proxiesReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+            (proxiesReceived, signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID));
       
       
       Iterator proxiesReceivedIterator = proxiesReceived.iterator();
@@ -178,18 +175,18 @@ public class ProxyTest extends TestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject
+        = signet.getSubjectSources().getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
              Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       
       Set proxiesReceived = pSubject.getProxiesReceived();
       proxiesReceived
         = Common.filterProxies(proxiesReceived, Status.ACTIVE);
       proxiesReceived
         = Common.filterProxies
-            (proxiesReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+            (proxiesReceived, signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID));
 
       // Alter every single effectiveDate for every received Proxy.
       Iterator proxiesReceivedIterator = proxiesReceived.iterator();
@@ -244,18 +241,18 @@ public class ProxyTest extends TestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject
+        = signet.getSubjectSources().getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
              Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       
       Set proxiesReceived = pSubject.getProxiesReceived();
       proxiesReceived
         = Common.filterProxies(proxiesReceived, Status.ACTIVE);
       proxiesReceived
         = Common.filterProxies
-            (proxiesReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+            (proxiesReceived, signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID));
 
       // Alter every single expirationDate for every received Proxy.
       Iterator proxiesReceivedIterator = proxiesReceived.iterator();
@@ -308,9 +305,9 @@ public class ProxyTest extends TestCase
     Proxy proxy = null;
     
     Subject subject0
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(0));
-    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
     
     // Get any one of subject0's proxies - we don't care which one.
     Set proxiesReceived = pSubject0.getProxiesReceived();
@@ -354,18 +351,18 @@ public class ProxyTest extends TestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject
+        = signet.getSubjectSources().getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
              Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       
       Set proxiesReceived = pSubject.getProxiesReceived();
       proxiesReceived
         = Common.filterProxies(proxiesReceived, Status.ACTIVE);
       proxiesReceived
         = Common.filterProxies
-            (proxiesReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+            (proxiesReceived, signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID));
 
       // Alter every single "isExtensible" flag for every received Proxy.
       Iterator proxiesReceivedIterator = proxiesReceived.iterator();
@@ -415,18 +412,18 @@ public class ProxyTest extends TestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject
+        = signet.getSubjectSources().getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
              Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       
       Set proxiesReceived = pSubject.getProxiesReceived();
       proxiesReceived
         = Common.filterProxies(proxiesReceived, Status.ACTIVE);
       proxiesReceived
         = Common.filterProxies
-            (proxiesReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+            (proxiesReceived, signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID));
 
       // Alter every single "canUse" flag for every received Proxy.
       Iterator proxiesReceivedIterator = proxiesReceived.iterator();
@@ -475,18 +472,18 @@ public class ProxyTest extends TestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject
+        = signet.getSubjectSources().getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
              Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       
       Set proxiesReceived = pSubject.getProxiesReceived();
       proxiesReceived
         = Common.filterProxies(proxiesReceived, Status.ACTIVE);
       proxiesReceived
         = Common.filterProxies
-            (proxiesReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+            (proxiesReceived, signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID));
 
       // Every single Proxy should have a single History record.
       Iterator proxiesReceivedIterator = proxiesReceived.iterator();
@@ -510,11 +507,11 @@ public class ProxyTest extends TestCase
     subjectIndex++)
     {
       Subject subject
-       = signet.getSubject
+       = signet.getSubjectSources().getSubject
            (Signet.DEFAULT_SUBJECT_TYPE_ID,
             Common.makeSubjectId(subjectIndex));
 
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
 
       Set proxiesReceived = pSubject.getProxiesReceived();
 
@@ -538,11 +535,11 @@ public class ProxyTest extends TestCase
     subjectIndex++)
     {
       Subject subject
-       = signet.getSubject
+       = signet.getSubjectSources().getSubject
            (Signet.DEFAULT_SUBJECT_TYPE_ID,
             Common.makeSubjectId(subjectIndex));
 
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
 
       Set proxiesGranted = pSubject.getProxiesGranted();
 
@@ -588,18 +585,18 @@ public class ProxyTest extends TestCase
   throws ObjectNotFoundException
   {
     Subject grantee
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(granteeIndex));
   
-    PrivilegedSubject pGrantee = signet.getPrivilegedSubject(grantee);
+    PrivilegedSubject pGrantee = signet.getSubjectSources().getPrivilegedSubject(grantee);
 
     Subject proxySubject
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(proxySubjectIndex));
   
-    PrivilegedSubject pProxySubject = signet.getPrivilegedSubject(proxySubject);
+    PrivilegedSubject pProxySubject = signet.getSubjectSources().getPrivilegedSubject(proxySubject);
     
     // Let's see if this grantee has at least one Proxy proxied by this
     // proxySubject.

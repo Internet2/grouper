@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.34 2006-01-27 06:44:06 acohen Exp $
-$Date: 2006-01-27 06:44:06 $
+$Id: Fixtures.java,v 1.35 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -44,8 +44,6 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * @author acohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class Fixtures
 {
@@ -136,13 +134,13 @@ public class Fixtures
     // while testing Assignment.findDuplicates().
     deleteAssignmentsAndProxies();
     
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
     createMetadata(signet);
-    signet.commit();
+    signet.getPersistentDB().commit();
     
-    signet.beginTransaction();
+    signet.getPersistentDB().beginTransaction();
     createGrantables(signet);
-    signet.commit();
+    signet.getPersistentDB().commit();
   }
   
   private void createGrantables(Signet signet)
@@ -187,7 +185,7 @@ public class Fixtures
       else
       {
         granteeNumber = i+1;
-        proxiedSubsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+        proxiedSubsystem = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
       }
       
       Proxy proxy
@@ -245,7 +243,7 @@ public class Fixtures
     
     this.subsystem = getOrCreateSubsystem();
     
-    tree = this.signet.getTree(Constants.TREE_ID);
+    tree = signet.getPersistentDB().getTree(Constants.TREE_ID);
     this.subsystem.setTree(this.tree);
     
     for (int i = 0; i < Constants.MAX_CATEGORIES; i++)
@@ -297,7 +295,7 @@ public class Fixtures
     ObjectNotFoundException
   {
     PrivilegedSubject subsystemOwner
-      = signet.getPrivilegedSubject
+      = signet.getSubjectSources().getPrivilegedSubject
           (Common.getSubject(signet, subjectNumber));
     
     Proxy newProxy
@@ -322,7 +320,7 @@ public class Fixtures
     ObjectNotFoundException
   {
     PrivilegedSubject sysAdmin
-      = signet.getPrivilegedSubject
+      = signet.getSubjectSources().getPrivilegedSubject
           (Common.getSubject(signet, subjectNumber));
     
     Proxy newProxy
@@ -430,11 +428,11 @@ public class Fixtures
     ObjectNotFoundException
   {
     PrivilegedSubject grantor
-      = signet.getPrivilegedSubject
+      = signet.getSubjectSources().getPrivilegedSubject
           (Common.getSubject
             (signet, grantorSubjectNumber));
     PrivilegedSubject grantee
-      = signet.getPrivilegedSubject
+      = signet.getSubjectSources().getPrivilegedSubject
           (Common.getSubject
             (signet, granteeSubjectNumber));
     
@@ -480,7 +478,7 @@ public class Fixtures
   {
     TreeNode rootNode = getRoot(tree);
     Subject subject = Common.getSubject(signet, subjectNumber);
-    PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+    PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
     Function function = Common.getFunction(signet, functionNumber);
     Limit[] limitsInDisplayOrder
       = Common.getLimitsInDisplayOrder(function.getLimits());
@@ -592,7 +590,7 @@ public class Fixtures
   {
     try
     {
-      this.subsystem = this.signet.getSubsystem(Constants.SUBSYSTEM_ID);
+      subsystem = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
     }
     catch (ObjectNotFoundException onfe)
     {

@@ -31,9 +31,33 @@ import java.util.Set;
 public class SignetProxy
 {
 
-   public SignetProxy()
+   public SignetProxy(String action, String adminIdentifier, String subsystemId)
    {
-      // Nothing to do here
+      try {
+
+	      Signet signet = new Signet();
+	      PrivilegedSubject signetSubject = signet.getSignetSubject();
+	
+	      if (action.equals("grant")) {
+	
+	         grant (signet, signetSubject, adminIdentifier, subsystemId);
+	
+	      } else if (action.equals("revoke")) {
+	
+	         revoke (signet, signetSubject, adminIdentifier, subsystemId);
+	
+	      } else if (action.equals("list")) {
+	
+	         list (signet, signetSubject, subsystemId);
+	
+	      }
+
+      } catch (ObjectNotFoundException exc) {
+         System.out.println("Error: " + exc.getMessage());
+      } catch (Exception exc) {
+         exc.printStackTrace();
+      }
+
    }
 
    public static void main(String[] args) 
@@ -43,20 +67,16 @@ public class SignetProxy
       String adminIdentifier = "";
       String subsystemId = "";
       
-      try {
-
-      SignetProxy signetProxy = new SignetProxy();
-
       boolean parsed = false;
       if (args.length > 0) {
          action = args[0];
-         if (action.equals("grant") || action.equals("revoke")) {
+         if (action.equalsIgnoreCase("grant") || action.equalsIgnoreCase("revoke")) {
             adminIdentifier = args[1];
             if (args.length == 3) {
                subsystemId = args[2];
             }
             parsed = true;
-         } else if (action.equals("list")) {
+         } else if (action.equalsIgnoreCase("list")) {
             if (args.length == 2) {
                subsystemId = args[1];
             }
@@ -70,35 +90,15 @@ public class SignetProxy
          return;
       }
 
-      Signet signet = new Signet();
-      PrivilegedSubject signetSubject = signet.getSignetSubject();
-
-      if (action.equals("grant")) {
-
-         grant (signet, signetSubject, adminIdentifier, subsystemId);
-
-      } else if (action.equals("revoke")) {
-
-         revoke (signet, signetSubject, adminIdentifier, subsystemId);
-
-      } else if (action.equals("list")) {
-
-         list (signet, signetSubject, subsystemId);
-
-      }
-
-      } catch (ObjectNotFoundException exc) {
-         System.out.println("Error: " + exc.getMessage());
-      } catch (Exception exc) {
-         exc.printStackTrace();
-      }
+      new SignetProxy(action, adminIdentifier, subsystemId);
 
    }
 
-   private static void grant(Signet signet, PrivilegedSubject signetSubject, String adminIdentifier, String subsystemId)
+   private void grant(Signet signet, PrivilegedSubject signetSubject, String adminIdentifier, String subsystemId)
       throws ObjectNotFoundException, SignetAuthorityException {
 
-      PrivilegedSubject sysAdminSubject = signet.getPrivilegedSubjectByDisplayId("person", adminIdentifier);
+      PrivilegedSubject sysAdminSubject = signet.getSubjectSources().getPrivilegedSubjectByDisplayId(
+    		  "person", adminIdentifier);
       
       Set proxiesSet = sysAdminSubject.getProxiesReceived();
       proxiesSet = filterProxies(proxiesSet, Status.ACTIVE);
@@ -117,17 +117,17 @@ public class SignetProxy
             return;
          }
    
-         signet.beginTransaction();
+         signet.getPersistentDB().beginTransaction();
    
          System.out.println("Granting Signet system administration proxy to " + adminIdentifier);
     
          Proxy sysAdminProxy = signetSubject.grantProxy(sysAdminSubject,null,false,true,today,null);
          sysAdminProxy.save();
    
-         signet.commit();
+         signet.getPersistentDB().commit();
 
       } else {
-         Subsystem subsystem = signet.getSubsystem(subsystemId);
+         Subsystem subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
       
          proxiesSet = filterProxiesBySubsystem(proxiesSet, subsystem);
          if (proxiesSet.size() > 0)
@@ -136,21 +136,22 @@ public class SignetProxy
             return;
          }
    
-         signet.beginTransaction();
+         signet.getPersistentDB().beginTransaction();
    
          System.out.println("Granting Signet subsystem owner proxy to " + adminIdentifier + " for " + subsystemId);
     
          Proxy sysAdminProxy = signetSubject.grantProxy(sysAdminSubject,subsystem,false,true,today,null);
          sysAdminProxy.save();
    
-         signet.commit();
+         signet.getPersistentDB().commit();
       }
    }
       
-   private static void revoke(Signet signet, PrivilegedSubject signetSubject, String adminIdentifier, String subsystemId)
+   private void revoke(Signet signet, PrivilegedSubject signetSubject, String adminIdentifier, String subsystemId)
       throws ObjectNotFoundException, SignetAuthorityException {
 
-      PrivilegedSubject sysAdminSubject = signet.getPrivilegedSubjectByDisplayId("person", adminIdentifier);
+      PrivilegedSubject sysAdminSubject = 
+    	  signet.getSubjectSources().getPrivilegedSubjectByDisplayId("person", adminIdentifier);
       
       Set proxiesSet = sysAdminSubject.getProxiesReceived();
       proxiesSet = filterProxies(proxiesSet, Status.ACTIVE);
@@ -164,7 +165,7 @@ public class SignetProxy
             return;
          }
    
-         signet.beginTransaction();
+         signet.getPersistentDB().beginTransaction();
    
          System.out.println("Revoking Signet system administration proxy from " + adminIdentifier);
    
@@ -177,10 +178,10 @@ public class SignetProxy
             sysAdminProxy.save();
          }
    
-         signet.commit();
+         signet.getPersistentDB().commit();
 
       } else {
-         Subsystem subsystem = signet.getSubsystem(subsystemId);
+         Subsystem subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
 
          proxiesSet = filterProxiesBySubsystem(proxiesSet, subsystem);
    
@@ -190,7 +191,7 @@ public class SignetProxy
             return;
          }
    
-         signet.beginTransaction();
+         signet.getPersistentDB().beginTransaction();
    
          System.out.println("Revoking Signet subsystem owner proxy from " + adminIdentifier + " for " + subsystemId);
    
@@ -203,11 +204,11 @@ public class SignetProxy
             sysAdminProxy.save();
          }
    
-      signet.commit();
+      signet.getPersistentDB().commit();
       }
    }
 
-   private static void list (Signet signet, PrivilegedSubject signetSubject, String subsystemId)
+   private void list (Signet signet, PrivilegedSubject signetSubject, String subsystemId)
       throws ObjectNotFoundException {
 
       Set proxiesSet = signetSubject.getProxiesGranted();
@@ -232,7 +233,7 @@ public class SignetProxy
             System.out.println("   " + grantee.getName());
          }
       } else {
-         Subsystem subsystem = signet.getSubsystem(subsystemId);
+         Subsystem subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
       
          proxiesSet = filterProxiesBySubsystem(proxiesSet, subsystem);
 
@@ -256,14 +257,14 @@ public class SignetProxy
 
    }
 
-   private static Set filterProxies(Set all, Status status)
+   private Set filterProxies(Set all, Status status)
    {
      Set statusSet = new HashSet();
      statusSet.add(status);
      return filterProxies(all, statusSet);
    }
 
-   private static Set filterProxies(Set all, Set statusSet)
+   private Set filterProxies(Set all, Set statusSet)
    {
      if (statusSet == null)
      {
@@ -284,7 +285,7 @@ public class SignetProxy
      return subset;
    }
    
-   private static Set filterProxiesByGrantor (Set all, PrivilegedSubject grantor)
+   private Set filterProxiesByGrantor (Set all, PrivilegedSubject grantor)
    {
      if (grantor == null)
      {
@@ -305,7 +306,7 @@ public class SignetProxy
      return subset;
    }
    
-   private static Set filterProxiesBySubsystem (Set all, Subsystem subsystem)
+   private Set filterProxiesBySubsystem (Set all, Subsystem subsystem)
    {
      
      Set subset = new HashSet();
@@ -322,7 +323,7 @@ public class SignetProxy
      return subset;
    }
    
-   private static Set filterProxiesByNoSubsystem (Set all)
+   private Set filterProxiesByNoSubsystem (Set all)
    {
      
      Set subset = new HashSet();

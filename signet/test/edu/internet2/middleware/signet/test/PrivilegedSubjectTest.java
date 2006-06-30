@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.21 2006-01-27 06:44:06 acohen Exp $
-$Date: 2006-01-27 06:44:06 $
+$Id: PrivilegedSubjectTest.java,v 1.22 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -10,7 +10,6 @@ package edu.internet2.middleware.signet.test;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
@@ -25,7 +24,6 @@ import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
-import junit.framework.TestCase;
 
 public class PrivilegedSubjectTest extends BaseTestCase
 {
@@ -64,13 +62,13 @@ public class PrivilegedSubjectTest extends BaseTestCase
   {
     // Test the editability of an Assignment.
     
-    Subject subject0 = signet.getSubject(
+    Subject subject0 = signet.getSubjectSources().getSubject(
     		Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(0));
-    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
     
-    Subject subject2 = signet.getSubject(
+    Subject subject2 = signet.getSubjectSources().getSubject(
     		Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(2));
-    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+    PrivilegedSubject pSubject2 = signet.getSubjectSources().getPrivilegedSubject(subject2);
     
     Set assignmentsForSubject2 = pSubject2.getAssignmentsReceived();
     assignmentsForSubject2
@@ -85,9 +83,9 @@ public class PrivilegedSubjectTest extends BaseTestCase
     // Test the editability of a Proxy.
     
     Subject subject1
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(1));
-    PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
+    PrivilegedSubject pSubject1 = signet.getSubjectSources().getPrivilegedSubject(subject1);
     
     Set proxiesTo0
       = pSubject0.getProxiesReceived();
@@ -107,10 +105,10 @@ public class PrivilegedSubjectTest extends BaseTestCase
 		 		 subjectIndex++)
     {
       Subject subject
-      	= signet.getSubject(
+      	= signet.getSubjectSources().getSubject(
       			Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       
       // Here's a picture of the Assignments and Limit-values which this test
       // expects to find:
@@ -140,10 +138,10 @@ public class PrivilegedSubjectTest extends BaseTestCase
       //        Limit 2
       //          limit-value: 2
       
-      Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+      Subsystem subsystem = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
       Function function
         = Common.getFunction(subsystem, fixtures.makeFunctionId(subjectIndex));
-      Tree tree = signet.getTree(Constants.TREE_ID);
+      Tree tree = signet.getPersistentDB().getTree(Constants.TREE_ID);
       TreeNode treeNode = fixtures.getRoot(tree);
       Limit limit = subsystem.getLimit(fixtures.makeLimitId(subjectIndex));
       Set grantableChoices
@@ -162,21 +160,21 @@ public class PrivilegedSubjectTest extends BaseTestCase
     // "acting as" subject 0.
     
     Subject subject0
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(0));
     Subject subject1
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(1));
     Subject subject2
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(2));
     
-    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
-    PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
-    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject1 = signet.getSubjectSources().getPrivilegedSubject(subject1);
+    PrivilegedSubject pSubject2 = signet.getSubjectSources().getPrivilegedSubject(subject2);
     
     Assignment oldAssignment
       = (Assignment)
@@ -212,13 +210,13 @@ public class PrivilegedSubjectTest extends BaseTestCase
   {
     // We'll attempt to have subject 2 grant a privilege to subject 0.
     
-    Subject subject0 = signet.getSubject(
+    Subject subject0 = signet.getSubjectSources().getSubject(
     		Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(0));
-    Subject subject2 = signet.getSubject(
+    Subject subject2 = signet.getSubjectSources().getSubject(
     		Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(2));
     
-    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
-    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject2 = signet.getSubjectSources().getPrivilegedSubject(subject2);
     
     Set assignmentsForSubject2 = pSubject2.getAssignmentsReceived();
     assignmentsForSubject2
@@ -251,15 +249,15 @@ public class PrivilegedSubjectTest extends BaseTestCase
   {
     // We'll attempt to have subject 2 grant a proxy to subject 0.
     
-    Subject subject0 = signet.getSubject(
+    Subject subject0 = signet.getSubjectSources().getSubject(
         Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(0));
-    Subject subject2 = signet.getSubject(
+    Subject subject2 = signet.getSubjectSources().getSubject(
         Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(2));
     
-    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
-    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject2 = signet.getSubjectSources().getPrivilegedSubject(subject2);
     
-    Subsystem subsystem0 = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+    Subsystem subsystem0 = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
     
     Proxy newProxy
       = pSubject2.grantProxy
@@ -285,14 +283,14 @@ public class PrivilegedSubjectTest extends BaseTestCase
       int granteeNumber = (i == (Constants.MAX_SUBJECTS-1) ? 0 : i+1);
       
       PrivilegedSubject grantor
-        = signet.getPrivilegedSubject
-            (signet.getSubject
+        = signet.getSubjectSources().getPrivilegedSubject
+            (signet.getSubjectSources().getSubject
               (Signet.DEFAULT_SUBJECT_TYPE_ID,
                Common.makeSubjectId(grantorNumber)));
       
       PrivilegedSubject grantee
-        = signet.getPrivilegedSubject
-            (signet.getSubject
+        = signet.getSubjectSources().getPrivilegedSubject
+            (signet.getSubjectSources().getSubject
               (Signet.DEFAULT_SUBJECT_TYPE_ID,
                Common.makeSubjectId(granteeNumber)));
       
@@ -322,14 +320,14 @@ public class PrivilegedSubjectTest extends BaseTestCase
       int granteeNumber = (i == (Constants.MAX_SUBJECTS-1) ? 0 : i+1);
       
       PrivilegedSubject grantor
-        = signet.getPrivilegedSubject
-            (signet.getSubject
+        = signet.getSubjectSources().getPrivilegedSubject
+            (signet.getSubjectSources().getSubject
               (Signet.DEFAULT_SUBJECT_TYPE_ID,
                Common.makeSubjectId(grantorNumber)));
       
       PrivilegedSubject grantee
-        = signet.getPrivilegedSubject
-            (signet.getSubject
+        = signet.getSubjectSources().getPrivilegedSubject
+            (signet.getSubjectSources().getSubject
               (Signet.DEFAULT_SUBJECT_TYPE_ID,
                Common.makeSubjectId(granteeNumber)));
       
@@ -353,12 +351,12 @@ public class PrivilegedSubjectTest extends BaseTestCase
     SignetAuthorityException
   {
     Subject sysAdminSubject
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(Constants.SYSADMIN_SUBJECT_NUMBER));
     
     PrivilegedSubject sysAdminPSubject
-      = signet.getPrivilegedSubject(sysAdminSubject);
+      = signet.getSubjectSources().getPrivilegedSubject(sysAdminSubject);
     
     sysAdminPSubject.setActingAs(signet.getSignetSubject());
     
@@ -376,10 +374,10 @@ public class PrivilegedSubjectTest extends BaseTestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject(
+        = signet.getSubjectSources().getSubject(
             Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       Set privileges = pSubject.getPrivileges();
       
       // Here's a picture of the Assignments which this test expects to find:
@@ -431,23 +429,23 @@ public class PrivilegedSubjectTest extends BaseTestCase
     // "acting as" subject 0.
     
     Subject subject0
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(0));
     Subject subject1
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(1));
     Subject subject2
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(2));
     
-    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
-    PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
-    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject1 = signet.getSubjectSources().getPrivilegedSubject(subject1);
+    PrivilegedSubject pSubject2 = signet.getSubjectSources().getPrivilegedSubject(subject2);
 
-    Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+    Subsystem subsystem = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
     
     pSubject1.setActingAs(pSubject0);
     
@@ -485,16 +483,16 @@ public class PrivilegedSubjectTest extends BaseTestCase
     //      Permission 2
     
     Subject subject0
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(0));
-    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
   
     Subject subject1
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            Common.makeSubjectId(1));
-    PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
+    PrivilegedSubject pSubject1 = signet.getSubjectSources().getPrivilegedSubject(subject1);
     
     // Initially, three of those Grantables should be expected to change Status
     // the day after tomorrow.
@@ -507,9 +505,9 @@ public class PrivilegedSubjectTest extends BaseTestCase
     
     // Let's grant a new Assignment which should become active at some point
     // in the future:
-    Tree tree = signet.getTree(Constants.TREE_ID);
+    Tree tree = signet.getPersistentDB().getTree(Constants.TREE_ID);
     TreeNode treeNode = fixtures.getRoot(tree);
-    Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+    Subsystem subsystem = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
     Function function1
       = Common.getFunction(subsystem, fixtures.makeFunctionId(1));
     Limit[] limitsInDisplayOrder
@@ -524,8 +522,10 @@ public class PrivilegedSubjectTest extends BaseTestCase
       limitValues.add(limitValue);
     }
 
-    Assignment assignmentFrom1to0
-      = pSubject1.grant
+// not used
+//    Assignment assignmentFrom1to0
+//      = pSubject1.grant
+      pSubject1.grant
           (pSubject0,
            treeNode,
            function1,

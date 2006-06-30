@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentImpl.java,v 1.38 2006-02-09 10:18:05 lmcrae Exp $
-$Date: 2006-02-09 10:18:05 $
+$Id: AssignmentImpl.java,v 1.39 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -26,9 +26,7 @@ import java.util.Set;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
-class AssignmentImpl
-extends GrantableImpl
-implements Assignment
+public class AssignmentImpl extends GrantableImpl implements Assignment
 {
   private TreeNode					scope;
   private FunctionImpl			function;
@@ -70,7 +68,7 @@ implements Assignment
     // The Signet application can only do one thing: Grant a Proxy to a
     // System Administrator. The Signet Application can never directly
     // grant any Assignment to anyone.
-    if (grantor == this.getSignet().getSignetSubject())
+    if (grantor == getSignet().getSignetSubject())
     {
       Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
       throw new SignetAuthorityException(decision);
@@ -227,7 +225,7 @@ implements Assignment
    */
   public TreeNode getScope()
   {
-    ((TreeNodeImpl)this.scope).setSignet(this.getSignet());
+    ((TreeNodeImpl)this.scope).setSignet(getSignet());
     return this.scope;
   }
   
@@ -236,9 +234,9 @@ implements Assignment
    */
   public Function getFunction()
   {
-    if (this.getSignet() != null)
+    if (getSignet() != null)
     {
-      this.function.setSignet(this.getSignet());
+      this.function.setSignet(getSignet());
     }
     
     return this.function;
@@ -400,7 +398,7 @@ implements Assignment
     {
       LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
       LimitImpl limit = (LimitImpl)(limitValue.getLimit());
-      limit.setSignet(this.getSignet());
+      limit.setSignet(getSignet());
     }
     
     return this.limitValues;
@@ -463,7 +461,7 @@ implements Assignment
    */
   public Set findDuplicates()
   {
-    return this.getSignet().findDuplicates(this);
+    return getSignet().getPersistentDB().findDuplicates(this);
   }
 
   
@@ -491,7 +489,7 @@ implements Assignment
       historySet.add(historyRecord);
       this.setHistory(historySet);
       
-      this.getSignet().save(this);
+      getSignet().getPersistentDB().save(this);
     }
     else
     {
@@ -499,7 +497,7 @@ implements Assignment
       // because we don't yet know the ID of the assignment. We'll detect this
       // case, construct and save that history-record later, in the postFlush()
       // method of the Hibernate Interceptor.
-      this.getSignet().save(this);
+      getSignet().getPersistentDB().save(this);
     }
   }
 }

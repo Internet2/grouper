@@ -30,6 +30,8 @@ import java.io.*;
 
 import org.apache.commons.collections.set.UnmodifiableSet;
 
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.xml.stream.*;
 
 import edu.internet2.middleware.signet.Status;
@@ -44,6 +46,8 @@ import net.sf.hibernate.cfg.Configuration;
 
 public class TreeXmlLoader
 {
+	protected JComponent parent = null;
+
   private static SessionFactory sessionFactory;
   private        Session        session;
   private        Connection     conn;
@@ -95,22 +99,6 @@ public class TreeXmlLoader
     = "edu.internet2.middleware.signet.TreeAdapterImpl";
 
   
-  static
-  /* runs at class load time */
-  {
-    Configuration cfg = new Configuration();
-
-    try
-    {
-      // Read the "hibernate.cfg.xml" file.
-      cfg.configure();
-      sessionFactory = cfg.buildSessionFactory();
-    }
-    catch (HibernateException he)
-    {
-      throw new RuntimeException(he);
-    }
-  }
     
   /**
    * Opens a connection to the database for subsequent use in loading
@@ -121,6 +109,12 @@ public class TreeXmlLoader
   {
     try
     {
+      Configuration cfg = new Configuration();
+
+      // Read the "hibernate.cfg.xml" file.
+      cfg.configure();
+      sessionFactory = cfg.buildSessionFactory();
+
       this.session = sessionFactory.openSession();
       this.conn = session.connection();
     }
@@ -482,43 +476,59 @@ public class TreeXmlLoader
     }
   }
 
-  public static void main(String[] args)
-  {
-    TreeXmlLoader loader = new TreeXmlLoader();
 
-    try
-    {
-      if (args.length < 1)
-      {
-        System.err.println("Usage: TreeXmlLoader <inputfile>");
-        return;
-      }
-         
-      String inputFileName = args[0];
-      BufferedReader in = new BufferedReader(new FileReader(inputFileName));
+	public static void main(String[] args)
+	{
+		TreeXmlLoader loader = new TreeXmlLoader();
 
-      loader.processFile(loader, in);
+		if (args.length < 1)
+		{
+			System.err.println("Usage: TreeXmlLoader <inputfile> [inputfile] ...");
+			return;
+		}
 
-      in.close();
-      loader.commit();
-    }
-    catch (Exception e)
-    {
-       e.printStackTrace();
-    }
-  }
+		if ( !loader.removeTrees())
+			return;
+    
+		loader.processFile(args, null);
+	}
+
+	public void processFile(String[] filenames, JComponent parent)
+	{
+		if (null == filenames)
+			return;
+
+		for (int i = 0; i < filenames.length; i++)
+		{
+			processFile(filenames[i], parent);
+			try { commit(); }
+			catch (SQLException e) { e.printStackTrace(); }
+		}
+	}
+
+	public void processFile(String filename, JComponent parent)
+	{
+		if ((null == filename) || (0 >= filename.length()))
+			return;
+		System.out.println("Processing file \"" + filename + "\"");
+
+		this.parent = parent;
+
+		try
+		{
+			BufferedReader in = new BufferedReader(new FileReader(filename));
+			processFile(in);
+			in.close();
+		}
+		catch (FileNotFoundException e) { e.printStackTrace(); }
+		catch (XMLStreamException e) { e.printStackTrace(); }
+		catch (SQLException e) { e.printStackTrace(); }
+		catch (IOException e) { e.printStackTrace(); }
+	}
+
   
-  private void processFile
-    (TreeXmlLoader loader,
-     BufferedReader in)
-  throws
-    XMLStreamException,
-    SQLException
+  private void processFile(BufferedReader in) throws XMLStreamException, SQLException
   {
-    Tree newTree = null;
-    
-    removeTrees();
-    
     System.out.println("Inserting new Tree...");
     
     System.setProperty
@@ -544,7 +554,7 @@ public class TreeXmlLoader
       {
         if (parser.getLocalName().equals(ELEMENTNAME_TREE))
         {
-          newTree = processSignetTree(parser, loader);
+          processSignetTree(parser);
         }
         else
         {
@@ -556,12 +566,11 @@ public class TreeXmlLoader
     }
     
     //  Get elapsed time in milliseconds
-    long elapsedTimeMillis = System.currentTimeMillis()-start;
+    long elapsedTimeMillis = System.currentTimeMillis() - start;
     
     // Get elapsed time in seconds
-    float elapsedTimeSec = elapsedTimeMillis/1000F;
-    float nodesPerSecond
-      = ((float)this.treeNodesAdded)/elapsedTimeSec;
+    float elapsedTimeSec = elapsedTimeMillis / 1000F;
+    float nodesPerSecond = treeNodesAdded / elapsedTimeSec;
     
     System.out.println
       ("Loaded "
@@ -573,12 +582,8 @@ public class TreeXmlLoader
        + " nodes per second).");
   }
   
-  private Tree processSignetTree
-    (XMLStreamReader  parser,
-     TreeXmlLoader   loader)
-  throws
-    XMLStreamException,
-    SQLException
+  private Tree processSignetTree(XMLStreamReader  parser)
+  			throws XMLStreamException, SQLException
   {
     String treeId   = null;
     String treeName = null;
@@ -642,7 +647,7 @@ public class TreeXmlLoader
           }
           else if (localName.equals(ELEMENTNAME_ORGANIZATION))
           {
-            processOrganization(parser, loader, tree, null);
+            processOrganization(parser, tree, null);
           }
           
           break;
@@ -653,19 +658,13 @@ public class TreeXmlLoader
       
       if (tree == null)
       {
-        tree = buildTreeIfComplete(loader, treeId, treeName);
+        tree = buildTreeIfComplete(treeId, treeName);
       }
     }
   }
   
-  private TreeNode processOrganization
-    (XMLStreamReader  parser,
-     TreeXmlLoader   loader,
-     Tree             tree,
-     TreeNode         parent)
-  throws
-    XMLStreamException,
-    SQLException
+  private TreeNode processOrganization(XMLStreamReader parser, Tree tree, TreeNode parent)
+  		throws XMLStreamException, SQLException
   {
     String id   = null;
     String type = null;
@@ -752,7 +751,7 @@ public class TreeXmlLoader
             }
             else if (localName.equals(ELEMENTNAME_ORGANIZATION))
             {
-              processOrganization(parser, loader, tree, treeNode);
+              processOrganization(parser, tree, treeNode);
             }
             
             break;
@@ -763,8 +762,7 @@ public class TreeXmlLoader
         
         if (treeNode == null)
         {
-          treeNode
-            = buildTreeNodeIfComplete(loader, tree, parent, id, type, name);
+          treeNode = buildTreeNodeIfComplete(tree, parent, id, type, name);
         }
       }
       
@@ -795,38 +793,29 @@ public class TreeXmlLoader
   }
   
 
-  private Tree buildTreeIfComplete
-    (TreeXmlLoader loader,
-     String         id,
-     String         name)
-  throws SQLException
+  private Tree buildTreeIfComplete(String id, String name)
+  			throws SQLException
   {
     Tree tree = null;
     
     if ((id != null) && (name != null))
     {
-      tree = loader.newTree(id, name, ADAPTERCLASSNAME);
+      tree = newTree(id, name, ADAPTERCLASSNAME);
     }
     
     return tree;
   }
   
 
-  private TreeNode buildTreeNodeIfComplete
-    (TreeXmlLoader loader,
-     Tree           tree,
-     TreeNode       parent,
-     String         id,
-     String         type,
-     String         name)
-  throws SQLException
+  private TreeNode buildTreeNodeIfComplete(Tree tree, TreeNode parent,
+		  				String id, String type, String name)
+  		throws SQLException
   {
     TreeNode treeNode = null;
     
     if ((id != null) && (type != null) && (name != null))
     {
-      treeNode
-        = loader.newTreeNode(tree, id, type, Status.ACTIVE, name, parent);
+      treeNode = newTreeNode(tree, id, type, Status.ACTIVE, name, parent);
     }
     
     return treeNode;
@@ -991,7 +980,7 @@ public class TreeXmlLoader
   }
   
    
-  private static boolean readYesOrNo(String prompt) {
+  private boolean readYesOrNo(String prompt) {
       while (true) {
           String response = promptedReadLine(prompt);
           if (response.length() > 0) {
@@ -1008,38 +997,50 @@ public class TreeXmlLoader
   }
   
 
-  private static String promptedReadLine(String prompt) {
-      try {
-          System.out.print(prompt);
-          return reader.readLine();
-      } catch (java.io.IOException e) {
-          return null;
-      }
-  }
+	private String promptedReadLine(String prompt)
+	{
+		String retval = "";
 
-    
-  private static BufferedReader reader;
-  
-  static {
-      reader = new BufferedReader(new InputStreamReader(System.in));
-  }
+		if (null == parent)
+		{
+			try
+			{
+				System.out.print(prompt);
+				BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+				retval = reader.readLine();
+			}
+			catch (java.io.IOException e) { /* don't care */ }
+		}
+		else
+		{
+			int response = JOptionPane.showConfirmDialog(parent, prompt);
+			switch (response)
+			{
+				case (JOptionPane.YES_OPTION):
+					retval = "y";
+					break;
+				default:
+					retval = "n";
+					break;
+			}
+		}
+
+		return (retval);
+	}
 
 
-  private void removeTrees() {
-      if (! readYesOrNo(
-          "\nYou are about to delete and replace all trees."
-          + "\nDo you wish"
-          + " to continue (Y/N)? ")) {
-      System.exit(0);
-      }
-
-      try {
-          deleteAll();
-      }
-      catch (SQLException sqle) {
-         System.out.println("-Error: unable to delete trees");
-         System.out.println(sqle.getMessage());
-         System.exit(1);
-      }
+  public boolean removeTrees()
+  {
+	  boolean status = readYesOrNo("\nYou are about to delete and replace all trees.\nDo you wish to continue (Y/N)? ");
+	  if (status)
+	  {
+	      try { deleteAll(); }
+	      catch (SQLException sqle) {
+	         System.out.println("-Error: unable to delete trees");
+	         System.out.println(sqle.getMessage());
+	         status = false;
+	      }
+	  }
+	  return (status);
    }
 }

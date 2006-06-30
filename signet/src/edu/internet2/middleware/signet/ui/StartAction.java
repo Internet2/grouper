@@ -1,6 +1,6 @@
 /*--
-$Id: StartAction.java,v 1.16 2006-02-09 10:33:40 lmcrae Exp $
-$Date: 2006-02-09 10:33:40 $
+$Id: StartAction.java,v 1.17 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -21,19 +21,15 @@ package edu.internet2.middleware.signet.ui;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.Subsystem;
 
 /**
  * <p>
@@ -103,9 +99,9 @@ public final class StartAction extends BaseAction
       
       // Find the PrivilegedSubject associated with the logged-in
       // user, and stash it in the Session.
-      Set userMatches
-      	= signet.getPrivilegedSubjectsByDisplayId(
-      			Signet.DEFAULT_SUBJECT_TYPE_ID, request.getRemoteUser());
+      Set userMatches = signet.getSubjectSources().getPrivilegedSubjectsByDisplayId(
+      			Signet.DEFAULT_SUBJECT_TYPE_ID,
+      			request.getRemoteUser());
       
       if (userMatches.size() != 1)
       {
@@ -137,8 +133,9 @@ public final class StartAction extends BaseAction
       session.setAttribute(Constants.LOGGEDINUSER_ATTRNAME, loggedInUser);
     }
     
-    PrivilegedSubject currentPrivilegedSubject
-      = Common.getAndSetPrivilegedSubject
+//    PrivilegedSubject currentPrivilegedSubject
+//      = Common.getAndSetPrivilegedSubject
+      Common.getAndSetPrivilegedSubject
           (signet,
            request,
            Constants.CURRENTPSUBJECT_HTTPPARAMNAME, // paramName
@@ -148,8 +145,9 @@ public final class StartAction extends BaseAction
     session.setAttribute
       (Constants.PRIVDISPLAYTYPE_ATTRNAME, PrivDisplayType.CURRENT_GRANTED);
     
-    Subsystem currentSubsystem
-      = Common.getAndSetSubsystem
+//    Subsystem currentSubsystem
+//      = Common.getAndSetSubsystem
+      Common.getAndSetSubsystem
           (signet,
            request,
            Constants.SUBSYSTEM_HTTPPARAMNAME, // paramName

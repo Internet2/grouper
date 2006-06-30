@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectImpl.java,v 1.41 2006-02-15 23:44:45 acohen Exp $
-$Date: 2006-02-15 23:44:45 $
+$Id: PrivilegedSubjectImpl.java,v 1.42 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * (e.g. a person).
  */
 
-class PrivilegedSubjectImpl implements PrivilegedSubject
+public class PrivilegedSubjectImpl implements PrivilegedSubject
 {
   private Signet     signet;
   
@@ -72,7 +72,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     this.assignmentsGranted = new HashSet();
   }
 
-  PrivilegedSubjectImpl(Signet signet, Subject subject)
+  public PrivilegedSubjectImpl(Signet signet, Subject subject)
   {
     this.signet = signet;
     this.subject = subject;
@@ -88,10 +88,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     this.proxiesGranted = new HashSet();
   }
   
-  Signet getSignet()
-  {
-    return this.signet;
-  }
+//  Signet getSignet()
+//  {
+//    return this.signet;
+//  }
 
 
   void addAssignmentGranted(Assignment assignment)
@@ -114,6 +114,13 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     this.proxiesReceived.add(proxy);
   }
 
+  /*
+   * @TODO: This method must also check to see if all Limit-values in the
+   * current Assignment are grantable by by this PrivilegedSubject. If ANY
+   * of those Limit-values are beyond the capability of this PrivilegedSubject's
+   * granting abilities, then this Assignment is not editable by this
+   * PrivilegedSubject.
+   */
   /**
    * This method returns true if this SignetSubject has authority to edit
    * the argument Assignment.  Generally, if the Assignment's SignetSubject 
@@ -121,12 +128,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * most situations it does not make sense to attempt to extend or modify
    * your own authority.
    * @throws SubjectNotFoundException
-   * 
-   * @TODO: This method must also check to see if all Limit-values in the
-   * current Assignment are grantable by by this PrivilegedSubject. If ANY
-   * of those Limit-values are beyond the capability of this PrivilegedSubject's
-   * granting abilities, then this Assignment is not editable by this
-   * PrivilegedSubject.
    */
   public Decision canEdit
     (Grantable grantableInstance)
@@ -152,7 +153,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     // The Signet application can only do one thing: Grant (or edit) a Proxy to
     // a System Administrator. The Signet Application can never directly
     // grant (or edit) any Assignment to anyone.
-    if (this.equals(this.getSignet().getSignetSubject())
+    if (this.equals(signet.getSignetSubject())
         && (grantableInstance instanceof Assignment))
     {
       return new DecisionImpl(false, Reason.CANNOT_USE, null);
@@ -474,7 +475,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     
     if (this.getEffectiveEditor().equals(this))
     {
-      grantableSubsystems = this.signet.getSubsystems();
+      grantableSubsystems = signet.getPersistentDB().getSubsystems();
     }
     else
     {
@@ -493,7 +494,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
         {
           if (proxy.getSubsystem() == null)
           {
-            grantableSubsystems = this.signet.getSubsystems();
+            grantableSubsystems = signet.getPersistentDB().getSubsystems();
           }
           else
           {
@@ -560,12 +561,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       
       return grantableSubsystems;
     }
-    else if (this.getEffectiveEditor().equals(this.getSignet().getSignetSubject()))
+    else if (getEffectiveEditor().equals(signet.getSignetSubject()))
     {
       // We are acting for the Signet subject.
       Set proxies = this.getProxiesReceived();
       proxies = filterProxies(proxies, Status.ACTIVE);
-      proxies = filterProxiesByGrantor(proxies, this.getSignet().getSignetSubject());
+      proxies = filterProxiesByGrantor(proxies, signet.getSignetSubject());
       
       Iterator proxiesIterator = proxies.iterator();
       while (proxiesIterator.hasNext())
@@ -576,8 +577,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
         {
           if (proxy.getSubsystem() == null)
           {
-            Iterator candidates
-              = this.signet.getSubsystems().iterator();
+            Iterator candidates = signet.getPersistentDB().getSubsystems().iterator();
            
             while (candidates.hasNext())
             {
@@ -587,7 +587,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
                 grantableSubsystems.add(candidate);
               }
             }
-            grantableSubsystems.addAll(this.signet.getSubsystems());
+            grantableSubsystems.addAll(signet.getPersistentDB().getSubsystems());
           }
           else
           {
@@ -672,9 +672,11 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   
   private boolean hasSuperSubjectPrivileges(Subsystem subsystem)
   {
+	PrivilegedSubject privSubj = signet.getSignetSubject();
+
     // First, check to see if the we are the Signet superSubject.
     // That Subject can grant any privilege in any category to anyone.
-    if (this.getEffectiveEditor().equals(this.getSignet().getSignetSubject()))
+    if (getEffectiveEditor().equals(privSubj))
     {
       // We're either the SignetSuperSubject or we're "acting as" that
       // esteemed personage. If we're just "acting as", then we need to make
@@ -683,9 +685,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       Set proxies = this.getProxiesReceived();
       proxies = filterProxies(proxies, Status.ACTIVE);
       proxies = filterProxies(proxies, subsystem);
-      proxies = filterProxiesByGrantor(proxies, this.getSignet().getSignetSubject());
+      proxies = filterProxiesByGrantor(proxies, privSubj);
       
-      if ((this.equals(this.getSignet().getSignetSubject())) || (proxies.size() > 0))
+      if ((this.equals(privSubj)) || (proxies.size() > 0))
       {
         return true;
       }
@@ -724,7 +726,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     while (iterator.hasNext())
     {
       AssignmentImpl assignment = (AssignmentImpl)(iterator.next());
-      assignment.setSignet(this.getSignet());
+      assignment.setSignet(signet);
     }
     
     return this.assignmentsGranted;
@@ -737,7 +739,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     while (iterator.hasNext())
     {
       ProxyImpl proxy = (ProxyImpl)(iterator.next());
-      proxy.setSignet(this.getSignet());
+      proxy.setSignet(signet);
     }
     
     return this.proxiesGranted;
@@ -774,7 +776,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     while (iterator.hasNext())
     {
       AssignmentImpl assignment = (AssignmentImpl)(iterator.next());
-      assignment.setSignet(this.getSignet());
+      assignment.setSignet(signet);
     }
     
     return this.assignmentsReceived;
@@ -787,7 +789,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     while (iterator.hasNext())
     {
       ProxyImpl proxy = (ProxyImpl)(iterator.next());
-      proxy.setSignet(this.getSignet());
+      proxy.setSignet(signet);
     }
     
     return this.proxiesReceived;
@@ -1024,7 +1026,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       return this.subject;
     }
     
-    return this.getSignet().getSubject(this.subjectTypeId, this.subjectId);
+    return signet.getSubjectSources().getSubject(this.subjectTypeId, this.subjectId);
   }
 
   /* (non-Javadoc)
@@ -1069,7 +1071,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   }
   
   // This method is for use only by Hibernate.
-  private void setName(String name)
+  public void setName(String name)
   {
     this.subjectName = name;
   }
@@ -1180,9 +1182,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   }
 
   /**
-   * @param signet2
+   * @param signet
    */
-  void setSignet(Signet signet)
+  public void setSignet(Signet signet)
   {
     this.signet = signet;
   }
@@ -1571,7 +1573,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   public void save()
   {
     this.setModifyDatetime(new Date());
-    this.getSignet().save(this);
+    signet.getPersistentDB().save(this);
   }
 
   public Set reconcile()
@@ -1583,9 +1585,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   public Set reconcile(Date date)
   {
     Set changedGrantables = new HashSet();
-    this.getSignet().reconcileGrantables
+    signet.reconcileGrantables
       (this.getAssignmentsReceived(), date, changedGrantables);
-    this.getSignet().reconcileGrantables
+    signet.reconcileGrantables
       (this.getProxiesReceived(), date, changedGrantables);
     
     return changedGrantables;

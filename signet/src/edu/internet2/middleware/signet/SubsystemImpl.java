@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemImpl.java,v 1.16 2006-04-04 23:03:00 ddonn Exp $
-$Date: 2006-04-04 23:03:00 $
+$Id: SubsystemImpl.java,v 1.17 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -32,9 +32,7 @@ import edu.internet2.middleware.signet.tree.Tree;
 
 /* Hibernate requires this class to be non-final. */
 
-class SubsystemImpl
-	extends EntityImpl
-	implements Subsystem
+public class SubsystemImpl extends EntityImpl implements Subsystem
 {
   private String  helpText;
   
@@ -47,7 +45,8 @@ class SubsystemImpl
   
   private Tree    tree;
 
-  private boolean choiceSetsNotYetFetched  = true;
+// not used
+//  private boolean choiceSetsNotYetFetched  = true;
   private boolean limitsNotYetFetched      = true;
   private boolean permissionsNotYetFetched = true;
 
@@ -397,14 +396,13 @@ class SubsystemImpl
       // whatever in-memory Limits we DO have, because they
       // represent defined-but-not-necessarily-yet-persisted
       // Limits.
-      Map unsavedLimits = this.limits;
+      Map unsavedLimits = limits;
 
-      this.limits
-      	= this.getSignet().getLimitsBySubsystem(this);
+      limits = getSignet().getPersistentDB().getLimitsBySubsystem(this);
 
-      this.limits.putAll(unsavedLimits);
+      limits.putAll(unsavedLimits);
 
-      this.limitsNotYetFetched = false;
+      limitsNotYetFetched = false;
     }
     
     return UnmodifiableMap.decorate(this.limits);
@@ -449,8 +447,7 @@ class SubsystemImpl
       // Permissions.
       Map unsavedPermissions = this.permissions;
 
-      this.permissions
-      	= this.getSignet().getPermissionsBySubsystem(this);
+      permissions = getSignet().getPersistentDB().getPermissionsBySubsystem(this);
 
       this.permissions.putAll(unsavedPermissions);
 

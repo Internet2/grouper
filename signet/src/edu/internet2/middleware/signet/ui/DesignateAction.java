@@ -1,6 +1,6 @@
 /*--
-$Id: DesignateAction.java,v 1.5 2006-02-09 10:31:11 lmcrae Exp $
-$Date: 2006-02-09 10:31:11 $
+$Id: DesignateAction.java,v 1.6 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -95,7 +95,7 @@ public final class DesignateAction extends BaseAction
     String proxyIdStr = request.getParameter(Constants.PROXYID_HTTPPARAMNAME);
     if ((proxyIdStr != null) && (!proxyIdStr.equals("")))
     {
-      Proxy currentProxy = signet.getProxy(Integer.parseInt(proxyIdStr));
+      Proxy currentProxy = signet.getPersistentDB().getProxy(Integer.parseInt(proxyIdStr));
       session.setAttribute(Constants.PROXY_ATTRNAME, currentProxy);
       session.setAttribute
         (Constants.CURRENTPSUBJECT_ATTRNAME, currentProxy.getGrantee());

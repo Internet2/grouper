@@ -1,6 +1,6 @@
 /*--
-$Id: EntityImpl.java,v 1.9 2006-02-09 10:19:41 lmcrae Exp $
-$Date: 2006-02-09 10:19:41 $
+$Id: EntityImpl.java,v 1.10 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -28,7 +28,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * attributes.
  * 
  */
-abstract class EntityImpl implements Entity, Name
+public abstract class EntityImpl implements Entity, Name
 {
   private Signet				signet;
   private String 				id;
@@ -337,7 +337,7 @@ abstract class EntityImpl implements Entity, Name
    * 
    * @param signet The Signet instance associated with this EntityImpl.
    */
-  void setSignet(Signet signet)
+  public void setSignet(Signet signet)
   {
     if (signet != null)
     {
@@ -347,7 +347,7 @@ abstract class EntityImpl implements Entity, Name
   
   public void save()
   {
-    this.setModifyDatetime(new Date());
-    this.getSignet().save(this);
+    setModifyDatetime(new Date());
+    getSignet().getPersistentDB().save(this);
   }
 }

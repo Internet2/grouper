@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.14 2006-01-26 01:39:29 acohen Exp $
-$Date: 2006-01-26 01:39:29 $
+$Id: Common.java,v 1.15 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -38,8 +38,6 @@ import junit.framework.TestCase;
 /**
  * @author Andy Cohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class Common extends TestCase
 {
@@ -310,7 +308,7 @@ public class Common extends TestCase
   public static TreeNode getRootNode(Signet signet)
   throws ObjectNotFoundException
   {
-    Tree tree = signet.getTree(Constants.TREE_ID);
+    Tree tree = signet.getPersistentDB().getTree(Constants.TREE_ID);
     Set roots = tree.getRoots();
     TreeNode root = (TreeNode)(Common.getSingleSetMember(roots));
     
@@ -323,7 +321,7 @@ public class Common extends TestCase
   throws ObjectNotFoundException
   {
     Subject subject = getSubject(signet, subjectIndex);
-    PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+    PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
     return pSubject;
   }
 
@@ -340,7 +338,7 @@ public class Common extends TestCase
     Subject subject = null;
 
     subject
-      = signet.getSubject
+      = signet.getSubjectSources().getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID,
            makeSubjectId(subjectNumber));
     
@@ -364,7 +362,7 @@ public class Common extends TestCase
   public static Function getFunction(Signet signet, int functionNumber)
   throws ObjectNotFoundException
   {
-    Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+    Subsystem subsystem = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
     String functionId = makeFunctionId(functionNumber);
     Function function = getFunction(subsystem, functionId);
     

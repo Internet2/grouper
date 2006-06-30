@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyAction.java,v 1.2 2006-02-09 10:33:08 lmcrae Exp $
-$Date: 2006-02-09 10:33:08 $
+$Id: ProxyAction.java,v 1.3 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -103,7 +103,7 @@ public final class ProxyAction extends BaseAction
     
     String proxyId = request.getParameter(Constants.PROXYID_HTTPPARAMNAME);
     Proxy proxy
-    	= signet.getProxy(Integer.parseInt(proxyId));
+    	= signet.getPersistentDB().getProxy(Integer.parseInt(proxyId));
     session.setAttribute(Constants.PROXY_ATTRNAME, proxy);
 
     // Forward to our success page

@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXMLServlet.java,v 1.2 2006-02-09 10:32:32 lmcrae Exp $
-$Date: 2006-02-09 10:32:32 $
+$Id: PermissionsXMLServlet.java,v 1.3 2006-06-30 02:04:41 ddonn Exp $
+$Date: 2006-06-30 02:04:41 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -78,7 +78,7 @@ public class PermissionsXMLServlet implements Servlet {
     
     try
     {
-      permissionsXML = new PermissionsXML();
+      permissionsXML = new PermissionsXML(signet);
       response.setContentType("text/xml");
       permissionsXML.generateXML
         (currentGranteePrivilegedSubject, response.getOutputStream());
