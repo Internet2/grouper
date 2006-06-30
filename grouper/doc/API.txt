@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.1 2006-06-28 18:43:12 blair Exp $
+$Id: API.txt,v 1.2 2006-06-30 20:35:00 blair Exp $
 
 ---
 
@@ -380,4 +380,41 @@ $Id: API.txt,v 1.1 2006-06-28 18:43:12 blair Exp $
 
 ## UnionFilter extends BaseQueryFilter
 
+## XmlExporter - SUBJECT TO CHANGE
+* XmlExporter         XmlExporter(options)
+* void                XmlExporter.commandLineUsage()
+* void                export(Session, PrintWriter)
+* void                export(Session, Collection, items, PrintWriter)
+* void                export(Session, Group, relative, PrintWriter)
+* void                export(Session, Stem, relative, includeParent, PrintWriter)
+* GroupOrStem         findByGroup(Session, Group)
+* GroupOrStem         findByID(Session, id)
+* GroupOrStem         findByStem(Session, Stem)
+* List                XmlExporter.getListFieldsForGroup(Session, Group)
+* Properties          getOptions()
+* void                setOptions(Properties)
+
+## XmlExporter.GroupOrStem - SUBJECT TO CHANGE
+* String              getDisplayExtension()
+* String              getDisplayName()
+* Group               getGroup()
+* String              getId()
+* String              getName()
+* Stem                getStem()
+* String              getType()
+* boolean             isGroup()
+* boolean             isStem()
+
+## XmlImporter - SUBJECT TO CHANGE
+* XmlImporter         XmlImporter()
+* XmlImporter         XmlImporter(options)
+* void                XmlImporter.commandLineUsage()
+* Document            XmlImporter.getDocument(filename)
+* Document            XmlImporter.getDocument(InputStream)
+* Document            XmlImporter.getDocument(URL)
+* Properties          getOptions()
+* void                load(Session, Document)
+* void                load(Session, Stem, Document)
+* void                loadFlatGroupsOrStems(Session, Document)
+* void                setOptions(Properties)
 
