@@ -32,7 +32,7 @@ import  org.w3c.dom.*;
  * XmlExporter.
  * <p/>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.3 2006-06-30 20:34:48 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.4 2006-07-02 19:26:18 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1339,7 +1339,7 @@ public class XmlImporter {
   private void _processMembershipLists() 
     throws  Exception 
   {
-    if (this.membershipLists == null || this.membershipLists.size() == 0) {
+    if (membershipLists == null || membershipLists.size() == 0) {
       return;
     }
     Collection  subjects;
@@ -1347,12 +1347,12 @@ public class XmlImporter {
     Element     subjectE;
     Element     list;
     String      listName;
-    Field       field             = null;
+    Field       field               = null;
     Subject     subject;
     String      groupName;
-    String      lastGroupName     = "";
+    String      lastGroupName       = "";
     Member      member;
-    Group       group             = null;
+    Group       group               = null;
     Map         map;
     String      subjectId;
     String      subjectIdentifier;
@@ -1360,11 +1360,10 @@ public class XmlImporter {
     Group       privGroup;
     boolean     isImmediate;
     String      importOption;
-/* FIXME !!! */
     for (int i = 0; i < membershipLists.size(); i++) {
-      map           = (Map) membershipLists.get(i);
-      list          = (Element) map.get("list");
-      importOption  = list.getAttribute("importOption");
+      map = (Map) membershipLists.get(i);
+      list = (Element) map.get("list");
+      importOption = list.getAttribute("importOption");
       if (_isEmpty(importOption)) {
         importOption = options.getProperty("import.data.lists");
       }
@@ -1388,10 +1387,10 @@ public class XmlImporter {
 
       lastGroupName = groupName;
 
-      listName      = list.getAttribute("field");
+      listName = list.getAttribute("field");
       try {
         field = FieldFinder.find(listName);
-        if (!field.getType().equals(FieldType.LIST)) { 
+        if (!field.getType().equals(FieldType.LIST)) {
           log.error(listName + " is not a list");
           continue;
         }
@@ -1403,9 +1402,8 @@ public class XmlImporter {
       //TODO add admin check?
       if (!group.hasType(field.getGroupType())) {
         if (_optionTrue("import.data.apply-new-group-types")) {
-          if (log.isInfoEnabled()) {
+          if (log.isInfoEnabled())
             log.info("Adding group type " + field.getGroupType());
-          }
           group.addType(field.getGroupType());
         } 
         else {
@@ -1468,8 +1466,9 @@ public class XmlImporter {
         subjectType       = subjectE.getAttribute("type");
         if ("group".equals(subjectType)) {
           if (
-              subjectIdentifier.startsWith("*")
-              && !subjectIdentifier.endsWith("*")
+            subjectIdentifier.startsWith("*")
+            && 
+            !subjectIdentifier.endsWith("*")
           ) 
           {
             //relative import
@@ -1479,13 +1478,14 @@ public class XmlImporter {
             else {
               subjectIdentifier = subjectIdentifier.substring(1);
             }
-          } else {
+          } 
+          else {
             if ("*SELF*".equals(subjectIdentifier)) {
               subjectIdentifier = groupName;
             }
             else {
               subjectIdentifier = _getAbsoluteName(
-                subjectIdentifier, group.getParentStem().getName()
+                subjectIdentifier, group.getParentStem() .getName()
               );
             }
           }
@@ -1517,7 +1517,6 @@ public class XmlImporter {
               msg = msg + "id=" + subjectId;
             }
             log.error(msg);
-            }
             continue;
           }
         }
@@ -1543,8 +1542,9 @@ public class XmlImporter {
             );
           }
         }
+      }
     }
-    this.membershipLists = null;
+    membershipLists = null;
   } // private void _processMembershipLists()
 
   // @since   1.0
@@ -1747,7 +1747,7 @@ public class XmlImporter {
         }
       }
 
-      lastStem      = stem;
+      lastStem = stem;
 
       privileges    = (Element) map.get("privileges");
       privilege     = privileges.getAttribute("type");
@@ -1787,8 +1787,9 @@ public class XmlImporter {
         subjectType       = subjectE.getAttribute("type");
         if ("group".equals(subjectType)) {
           if (
-              subjectIdentifier.startsWith("*")
-              && !subjectIdentifier.endsWith("*")
+            subjectIdentifier.startsWith("*")
+            && 
+            !subjectIdentifier.endsWith("*")
           ) 
           {
             //relative import
@@ -1830,16 +1831,12 @@ public class XmlImporter {
               msg = msg + "id=" + subjectId;
             }
             log.error(msg);
-            }
             continue;
           }
 
         }
 
-        if (
-          !XmlExporter.hasImmediatePrivilege( subject, focusStem, privilege)
-        ) 
-        {
+        if (!XmlExporter.hasImmediatePrivilege(subject, focusStem, privilege)) {
           if (log.isDebugEnabled()) {
             log.debug("Assigning " + privilege + " to " + subject.getName() + " for " + stem);
           }
@@ -1853,7 +1850,7 @@ public class XmlImporter {
             log.debug(privilege + " already assigned to " + subject.getName() + " so skipping");
           }
         }
-      // } FIXME!
+      }
     }
     if (log.isInfoEnabled()) {
       log.info("Finished assigning Naming privs");
