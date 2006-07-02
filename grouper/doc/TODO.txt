@@ -4,36 +4,33 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.4 2006-06-29 19:35:49 blair Exp $
+$Id: TODO.txt,v 1.5 2006-07-02 19:26:18 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* CODE      have xml* default properties + optional override properties
-* TESTING   better xml* testing
-* CODE      synchronize xml* aesthetics
-* PACKAGING 20060628  feature freeze
+* TESTING   preliminary xml* api testing
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
 * TEST      basic and preliminary concurrency testing (i expect to find many bugs)
 * REVIEW    FIXMEs
 * REVIEW    TODOs
 
-### Later || Maybe
-* CODE      logging++
+---
+
+## Grouper 1.0.1
+
+### Next Actions
+* CODE      have xml* default properties + optional override properties
+* CODE      improved xml* integration (including logging)
 * CODE      Migrate error messages to *E*
 * CODE      Migrate messages to *M*
-* CODE      Switch to *IllegalArgumentException* and *NullArgumentException*
-* PACKAGING create binary-and-source distributions
-* CODE      improved API support for XML import+export
+
+### Maybe
 * CODE      class to verify that setup is functional
 ** find the root stem, exercise subject api, hibernate dialect + driver class, etc
-* CODE      bulk addition + deletion of members
-* CODE      delete _HibernateSubject_ objects
-* CODE      modify _HibernateSubject_ objects
 * CODE      start populating `Membership` creator
-* CODE      privilege query filters
 * REFACTOR  internal root sessions should not need to go through hibernate
 * REFACTOR  privilege checking and caching
 ** `NamingResolver`
@@ -44,7 +41,10 @@ $Id: TODO.txt,v 1.4 2006-06-29 19:35:49 blair Exp $
 ## Grouper 1.1
 * CODE      add group aging
 * CODE      add membership aging
-* CODE      add XML event log
+* CODE      delete _HibernateSubject_ objects
+* CODE      modify _HibernateSubject_ objects
+* CODE      logging enhancements and normalization
+* PACKAGING create binary-and-source distributions
 
 ---
 
@@ -54,10 +54,13 @@ These items are not (necessarily) in any particular order.
 
 ### API
 * REFACTDOR unhibernate `GrouperSession`
+* CODE      bulk addition + deletion of members
 * CODE      enable batch fetching of `Membership` objects
 * CODE      order `Membership` queries by depth
+* CODE      Switch to *IllegalArgumentException* and *NullArgumentException*
 * CODE      add caching support to `SubjectFinder` methods that query by source
 * CODE      Don't assign `GrouperSystem` privileges
+* CODE      privilege query filters
 * CODE      add `GrouperDaemon`
 ** support for asynchronous methods
 ** support for registry integrity validation
@@ -119,5 +122,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.4 2006-06-29 19:35:49 blair Exp $
+$Id: TODO.txt,v 1.5 2006-07-02 19:26:18 blair Exp $
 
