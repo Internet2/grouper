@@ -32,7 +32,7 @@ import  org.w3c.dom.*;
  * XmlExporter.
  * <p/>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.4 2006-07-02 19:26:18 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.5 2006-07-03 18:29:06 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -716,36 +716,6 @@ public class XmlImporter {
   } // private boolean _isEmpty(obj)
 
   // @since   1.0
-  // TODO This can be replaced
-  private String _joinStem(String stem, String extension) {
-    if (stem.equals(NS_ROOT)) {
-      return extension;
-    }
-    return stem + sep + extension;
-  } // private String _joinStem(stem, extension)
-
-  // @since   1.0
-  // TODO     Is this even called?
-  private boolean _optionDefaultEquals(String key, String value, String value1) {
-    if (_isEmpty(value) || _isEmpty(key)) {
-      return false;
-    }
-    if (!_isEmpty(value1)) {
-      return value.equals(value1);
-    }
-    return value1.equals(options.getProperty(key));
-  } // private boolean _optionDefaultEquals(key, value, value1)
-
-  // @since   1.0
-  // TODO     Is this even called?
-  private boolean _optionEquals(String key, String value) {
-    if (_isEmpty(key) || _isEmpty(value)) {
-      return false;
-    }
-    return value.equals(options.getProperty(key));
-  } // private boolean _optionEquals(key, value)
-
-  // @since   1.0
   private boolean _optionTrue(String key) {
     if (_isEmpty(key)) {
       options.setProperty(key, "false");
@@ -1244,7 +1214,7 @@ public class XmlImporter {
     String  extension        = e.getAttribute("extension");
     String  displayExtension = e.getAttribute("displayExtension");
     String  description      = e.getAttribute("description");
-    String  newGroup         = _joinStem(stem, extension);
+    String  newGroup         = Stem.constructName(stem, extension);
     if (log.isInfoEnabled()) {
       log.info("Creating group [" + newGroup + "]");
     }
@@ -1928,7 +1898,7 @@ public class XmlImporter {
     String  extension        = e.getAttribute("extension");
     String  displayExtension = e.getAttribute("displayExtension");
     String  description      = e.getAttribute("description");
-    String  newStem          = _joinStem(stem, extension);
+    String  newStem          = Stem.constructName(stem, extension);
     if (log.isInfoEnabled()) {
       log.info("Creating stem " + newStem);
     }

@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.13 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: Composite.java,v 1.14 2006-07-03 18:29:06 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -219,7 +219,7 @@ public class Composite extends Owner {
       Validator.valueNotNull(g, E.GROUP_NULL);
       return g.getName();
     }
-    catch (Exception e) {
+    catch (NullPointerException eNP) {
       // TODO ErrorLog?
       return GrouperConfig.EMPTY_STRING;
     }
@@ -232,7 +232,7 @@ public class Composite extends Owner {
       Validator.valueNotNull(g, E.GROUP_NULL);
       return g.getName();
     }
-    catch (Exception e) {
+    catch (NullPointerException eNP) {
       // TODO ErrorLog?
       return GrouperConfig.EMPTY_STRING;
     }
@@ -245,7 +245,7 @@ public class Composite extends Owner {
       Validator.valueNotNull(g, E.GROUP_NULL);
       return g.getName();
     }
-    catch (Exception e) {
+    catch (NullPointerException eNP) {
       // TODO ErrorLog?
       return GrouperConfig.EMPTY_STRING;
     }

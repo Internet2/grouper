@@ -30,7 +30,7 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.11 2006-06-15 03:58:30 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.12 2006-07-03 18:29:06 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -151,7 +151,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    */
   public Set search(String searchValue) {
     // TODO The javadoc says this will never resolve anything
-    //      but the code actually can resolve.  Which correct?
+    //      but the code actually can resolve.  Which is correct?
     Set results = new LinkedHashSet();
     try {
       results.add(this._resolveSubject(searchValue));

@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.28 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.29 2006-07-03 18:29:06 blair Exp $
  */
 public class GrouperSession {
 
@@ -84,12 +84,15 @@ public class GrouperSession {
       EventLog.info(s.toString(), M.S_START, sw);
       return s;
     }
-    catch (Exception e) {
-      // @exception HibernateException
-      // @MemberNotFoundException
-      String msg = E.S_START + e.getMessage();
+    catch (HibernateException eH)         {
+      String msg = E.S_START + eH.getMessage();
       ErrorLog.fatal(GrouperSession.class, msg);
-      throw new SessionException(msg, e);
+      throw new SessionException(msg, eH);
+    } 
+    catch (MemberNotFoundException eMNF)  {
+      String msg = E.S_START + eMNF.getMessage();
+      ErrorLog.fatal(GrouperSession.class, msg);
+      throw new SessionException(msg, eMNF);
     }
   } // public static GrouperSession start(subject)
 
