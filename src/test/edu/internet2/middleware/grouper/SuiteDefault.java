@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.4 2006-06-18 19:39:00 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.5 2006-07-03 19:01:50 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -47,6 +46,7 @@ public class SuiteDefault extends TestCase {
     suite.addTest(  SuiteMemberships.suite()  );
     suite.addTest(  SuiteMemberOf.suite()     );
     suite.addTest(  SuiteQueries.suite()      );
+    suite.addTest(  SuiteXml.suite()          );
 
     // TODO Migrate
 

@@ -4,18 +4,21 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.5 2006-07-02 19:26:18 blair Exp $
+$Id: TODO.txt,v 1.6 2006-07-03 19:01:50 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* TESTING   preliminary xml* api testing
-* CODE      Fix some issues reported by FindBugs, PMD and CPD
 * TEST      basic and preliminary concurrency testing (i expect to find many bugs)
 * REVIEW    FIXMEs
 * REVIEW    TODOs
+* REVIEW    javadoc
+* REVIEW    impl guide
+* REVIEW    gsh docs
+* TESTING   preliminary xml* api testing
+* CODE      Fix some issues reported by FindBugs, PMD and CPD
 
 ---
 
@@ -122,5 +125,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.5 2006-07-02 19:26:18 blair Exp $
+$Id: TODO.txt,v 1.6 2006-07-03 19:01:50 blair Exp $
 
