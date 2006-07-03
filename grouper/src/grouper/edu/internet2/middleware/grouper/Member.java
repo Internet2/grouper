@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.48 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: Member.java,v 1.49 2006-07-03 17:57:42 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -76,7 +76,7 @@ public class Member implements Serializable {
    * <pre class="eg">
    * boolean rv = m.canAdmin(g);
    * </pre>
-   * @param   ns  Check privileges on this {@link Group}.
+   * @param   g   Check privileges on this {@link Group}.
    * @throws  IllegalArgumentException if null {@link Group}
    * @since   1.0
    */
@@ -581,7 +581,7 @@ public class Member implements Serializable {
    * Source sa = m.getSubjectSource();
    * </pre>
    * @return  Subject's {@link Source}
-   * @thrwos  GrouperRuntimeException
+   * @throws  GrouperRuntimeException
    */ 
   public Source getSubjectSource() 
     throws  GrouperRuntimeException

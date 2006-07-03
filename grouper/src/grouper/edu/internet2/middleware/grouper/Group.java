@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.84 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: Group.java,v 1.85 2006-07-03 17:57:42 blair Exp $
  */
 public class Group extends Owner {
 
@@ -817,7 +817,7 @@ public class Group extends Owner {
    * <pre class="eg">
    * Set mships = g.getCompositeMembers();
    * </pre>
-   * @return  A set of {@link Memberships} objects.
+   * @return  A set of {@link Membership} objects.
    * @since   1.0
    */
   public Set getCompositeMemberships() {

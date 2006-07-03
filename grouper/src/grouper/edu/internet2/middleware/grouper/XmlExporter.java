@@ -34,7 +34,7 @@ import  org.apache.commons.logging.*;
  * into the same repository or into another repository. See XmlImporer.
  * </p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.2 2006-06-30 20:34:48 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.3 2006-07-03 17:57:42 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -670,7 +670,6 @@ public class XmlExporter {
    * Only have a name...
    * @param s
    * @param name
-   * @return
    */
   public  GroupOrStem findByName(GrouperSession s,String name) {
     GroupOrStem groupOrStem = new GroupOrStem();
