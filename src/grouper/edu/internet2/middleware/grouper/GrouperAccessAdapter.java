@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.40 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.41 2006-07-03 18:29:06 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -167,7 +167,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
       ErrorLog.error(GrouperAccessAdapter.class, msg);
     }
     catch (SchemaException eS) {
-      // Well, this is strange.  Ignore.
+      ErrorLog.error(GrouperAccessAdapter.class, eS.getMessage());
     }
     return privs;
   } // public Set getPrivs(s, g, subj)
@@ -386,7 +386,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
         }
       }
       catch (SubjectNotFoundException eSNF) {
-        // bloody odd
+        ErrorLog.error(GrouperAccessAdapter.class, eSNF.getMessage());
       }
       try {
         owner   = ms.getViaGroup().toSubject();
@@ -404,7 +404,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
         );
       }
       catch (GroupNotFoundException eGNF) {
-        // this is also bloody odd
+        ErrorLog.error(GrouperAccessAdapter.class, eGNF.getMessage());
       }
     }
     return privs;

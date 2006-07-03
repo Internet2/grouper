@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.19 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: EventLog.java,v 1.20 2006-07-03 18:29:06 blair Exp $
  */
 class EventLog {
 
@@ -307,7 +307,7 @@ class EventLog {
       subject = SubjectHelper.getPretty(ms.getMember().getSubject());
     }
     catch (Exception e) {
-      // TODO Oh well!
+      subject = U.q(e.getMessage());
     }
     EventLog.info(
       s,

@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.40 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.41 2006-07-03 18:29:06 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -171,7 +171,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       ErrorLog.error(GrouperNamingAdapter.class, msg);
     }
     catch (SchemaException eS) {
-      // Well, this is strange.  Ignore.
+      ErrorLog.error(GrouperNamingAdapter.class, eS.getMessage());
     }
     return privs;
   } // public Set getPrivs(s, ns, subj)
@@ -387,7 +387,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
         }
       }
       catch (SubjectNotFoundException eSNF) {
-        // bloody odd
+        ErrorLog.error(GrouperNamingAdapter.class, eSNF.getMessage());
       }
       try {
         owner   = ms.getViaGroup().toSubject();
@@ -404,8 +404,8 @@ public class GrouperNamingAdapter implements NamingAdapter {
           )
         );
       }
-      catch (StemNotFoundException eGNF) {
-        // this is also bloody odd
+      catch (StemNotFoundException eNSNF) {
+        ErrorLog.error(GrouperNamingAdapter.class, eNSNF.getMessage());
       }
     }
     return privs;

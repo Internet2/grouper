@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.io.*;
 import  java.util.*;
 import  net.sf.ehcache.*;
 import  org.apache.commons.lang.builder.*;
@@ -24,8 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * Grouper Cache Manager
  * <p/>
  * @author  blair christensen.
- * @version $Id: CacheMgr.java,v 1.8 2006-07-03 17:18:48 blair Exp $
- *     
+ * @version $Id: CacheMgr.java,v 1.9 2006-07-03 18:29:06 blair Exp $
  */
 class CacheMgr {
 
@@ -99,10 +99,10 @@ class CacheMgr {
         }
       }
     }
-    catch (Exception e) {
-      String msg = E.CACHE + e.getMessage();
+    catch (IOException eIO) {
+      String msg = E.CACHE + eIO.getMessage();
       ErrorLog.fatal(CacheMgr.class, msg);
-      throw new GrouperRuntimeException(msg, e);
+      throw new GrouperRuntimeException(msg, eIO);
     }
   } // protected static void resetAllCaches()
 

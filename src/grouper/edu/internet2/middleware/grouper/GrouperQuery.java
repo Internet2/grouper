@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.13 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.14 2006-07-03 18:29:06 blair Exp $
  */
 public class GrouperQuery {
 
@@ -108,7 +108,7 @@ public class GrouperQuery {
         // TODO What is the right behavior here?  Should I return
         //      nothing?  Should I return all of the child groups?  I
         //      really don't know.
-        // Nothing
+        continue; // Skip
       }
       else {
         ErrorLog.error(GrouperQuery.class, E.NI + E.Q_G + o.getClass());
@@ -138,7 +138,7 @@ public class GrouperQuery {
       if        (o.getClass().equals(Group.class)) {
         mships.addAll( ( (Group) o ).getMemberships() );
       } else if (o.getClass().equals(Stem.class)) {
-        // Nothing
+        continue; // Skip
       }
       else {
         ErrorLog.error(GrouperQuery.class, E.NI + E.Q_M + o.getClass());
@@ -181,7 +181,7 @@ public class GrouperQuery {
       if        (o.getClass().equals(Group.class)) {
         mships.addAll( ( (Group) o ).getMemberships() );
       } else if (o.getClass().equals(Stem.class)) {
-        // Nothing
+        continue; // Nothing
       }
       else {
         ErrorLog.error(GrouperQuery.class, E.NI + E.Q_MS + o.getClass());
@@ -211,7 +211,7 @@ public class GrouperQuery {
         // TODO What is the right behavior here?  Should I return
         //      nothing?  Should I return all parent stems within
         //      scope?  I really don't know.
-        // Nothing
+        continue; // Skip
       } else if (o.getClass().equals(Stem.class)) {
         stems.add( (Stem) o );
       }
