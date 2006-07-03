@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.12 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: Composite.java,v 1.13 2006-07-03 17:18:48 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -201,9 +201,10 @@ public class Composite extends Owner {
   // Protected Class Methods //
   // @since 1.0
   protected static void update(Owner o) {
-    Iterator iter = CompositeFinder.findAsFactorNoPriv(o).iterator();
+    Composite c;
+    Iterator  iter  = CompositeFinder.findAsFactorNoPriv(o).iterator();
     while (iter.hasNext()) {
-      Composite c = (Composite) iter.next();
+      c = (Composite) iter.next();
       c.update();
     }
   } // protected static void update(o)
@@ -297,18 +298,22 @@ public class Composite extends Owner {
   // PRIVATE CLASS METHODS //
   // @since 1.0
   private static void _update(Set mships) {
-    Set       updates = new LinkedHashSet();
-    Iterator  iterMS  = mships.iterator();
+    Set         updates = new LinkedHashSet();
+    Membership  ms;
+    Iterator    iterMS  = mships.iterator();
     while (iterMS.hasNext()) {
-      Membership ms = (Membership) iterMS.next();
+      ms = (Membership) iterMS.next();
       updates.add( ms.getOwner_id() ); 
     }
-    Iterator  iterU   = updates.iterator();
+    Owner     o;
+    Iterator  iter;
+    Composite c;
+    Iterator  iterU = updates.iterator();
     while (iterU.hasNext()) {
-      Owner     o     = (Owner) iterU.next();
-      Iterator  iter  = CompositeFinder.findAsFactorNoPriv(o).iterator();
+      o     = (Owner) iterU.next();
+      iter  = CompositeFinder.findAsFactorNoPriv(o).iterator();
       while (iter.hasNext()) {
-        Composite c = (Composite) iter.next();
+        c = (Composite) iter.next();
         c.update();
       }
     }

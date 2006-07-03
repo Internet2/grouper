@@ -28,7 +28,7 @@ import  net.sf.hibernate.cfg.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.22 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.23 2006-07-03 17:18:48 blair Exp $
  */
 class HibernateHelper {
 
@@ -92,12 +92,13 @@ class HibernateHelper {
     String  msg = "delete";
     DebugLog.info(HibernateHelper.class, msg + ": will delete " + objects.size());
     try {
-      Session     hs = HibernateHelper.getSession();
-      Transaction tx = hs.beginTransaction();
+      Session     hs    = HibernateHelper.getSession();
+      Transaction tx    = hs.beginTransaction();
+      Object      o ;
       Iterator    iter  = objects.iterator();
       try {
         while (iter.hasNext()) {
-          Object o = iter.next();
+          o = iter.next();
           err = o;
           DebugLog.info(HibernateHelper.class, msg + ": deleting " + o);
           hs.delete( _getPersistent(hs, o) );
@@ -148,12 +149,13 @@ class HibernateHelper {
     String  msg = "save";
     DebugLog.info(HibernateHelper.class, msg + ": will save " + objects.size());
     try {
-      Session     hs = HibernateHelper.getSession();
-      Transaction tx = hs.beginTransaction();
+      Session     hs    = HibernateHelper.getSession();
+      Transaction tx    = hs.beginTransaction();
+      Object      o;
       Iterator    iter  = objects.iterator();
       try {
         while (iter.hasNext()) {
-          Object o = iter.next();
+          o = iter.next();
           err = o;
           DebugLog.info(HibernateHelper.class, msg + ": saving " + o);
           hs.saveOrUpdate(o);
@@ -185,28 +187,30 @@ class HibernateHelper {
     try {
       Session     hs    = HibernateHelper.getSession();
       Transaction tx    = hs.beginTransaction();
+      Object      oD;
+      Object      oS;
       Iterator    iterD = deletes.iterator();
       Iterator    iterS = saves.iterator();
       try {
         while (iterD.hasNext()) {
-          Object o = iterD.next();
-          err = o;
+          oD = iterD.next();
+          err = oD;
           try {
-            hs.delete( _getPersistent(hs, o) );
+            hs.delete( _getPersistent(hs, oD) );
           }
           catch (HibernateException eH) {
-            String msg = "unable to delete " + o + ": " + eH.getMessage();
+            String msg = "unable to delete " + oD + ": " + eH.getMessage();
             throw new HibernateException(msg, eH);
           }
         }
         while (iterS.hasNext()) {
-          Object o = iterS.next();
-          err = o;
+          oS = iterS.next();
+          err = oS;
           try {
-            hs.saveOrUpdate(o);
+            hs.saveOrUpdate(oS);
           }
           catch (HibernateException eH) {
-            String msg = "unable to save " + o + ": " + eH.getMessage();
+            String msg = "unable to save " + oS + ": " + eH.getMessage();
             throw new HibernateException(msg, eH);
           }
         }

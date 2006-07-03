@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.Type;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.13 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.14 2006-07-03 17:18:48 blair Exp $
  */
 public class FieldFinder {
 
@@ -34,9 +34,10 @@ public class FieldFinder {
 
   // STATIC
   static {
-    Iterator iter = findAll().iterator();
+    Field     f;
+    Iterator  iter  = findAll().iterator();
     while (iter.hasNext()) {
-      Field f = (Field) iter.next();
+      f = (Field) iter.next();
       fields.put(f.getName(), f);
     }
   } // static 
@@ -133,25 +134,28 @@ public class FieldFinder {
     //      functionally correct
     Set fieldsInRegistry = findAll();
     // Look for types to add
-    Iterator addIter = fieldsInRegistry.iterator();
+    Field     fA;
+    Iterator  addIter = fieldsInRegistry.iterator();
     while (addIter.hasNext()) {
-      Field f = (Field) addIter.next();
-      if (!fields.containsKey(f.getName())) {
-        fields.put(f.getName(), f); // New field.  Add it to the cached list.
+      fA = (Field) addIter.next();
+      if (!fields.containsKey(fA.getName())) {
+        fields.put(fA.getName(), fA); // New field.  Add it to the cached list.
       }
     }
     // Look for fields to remove
     Set       toDel   = new LinkedHashSet();
+    Field     fD;
     Iterator  delIter = fields.values().iterator();
     while (delIter.hasNext()) {
-      Field f = (Field) delIter.next();
-      if (!fieldsInRegistry.contains(f)) {
-        toDel.add(f.getName()); 
+      fD = (Field) delIter.next();
+      if (!fieldsInRegistry.contains(fD)) {
+        toDel.add(fD.getName()); 
       }
     }
+    String    field;
     Iterator  toDelIter = toDel.iterator();
     while (toDelIter.hasNext()) {
-      String field = (String) toDelIter.next();
+      field = (String) toDelIter.next();
       fields.remove(field);  
     }
   } // protected static void updateKnownFields()

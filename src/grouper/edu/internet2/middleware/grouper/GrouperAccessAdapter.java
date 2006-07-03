@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.39 2006-06-15 03:58:30 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.40 2006-07-03 17:18:48 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -102,24 +102,26 @@ public class GrouperAccessAdapter implements AccessAdapter {
     Set groups = new LinkedHashSet();
     try {
       // The subject
-      Member    m     = MemberFinder.findBySubject(s, subj);
-      Iterator  iter  = MembershipFinder.findMemberships(
+      Member      m     = MemberFinder.findBySubject(s, subj);
+      Membership  msS;
+      Iterator    iter  = MembershipFinder.findMemberships(
         s, m, (Field) FieldFinder.find( (String) priv2list.get(priv) )
       ).iterator();
       while (iter.hasNext()) {
-        Membership ms = (Membership) iter.next();
-        ms.setSession(s);
-        groups.add( ms.getGroup() );
+        msS = (Membership) iter.next();
+        msS.setSession(s);
+        groups.add( msS.getGroup() );
       }
       // And the ALL subject
-      Member    all     = MemberFinder.findAllMember();
+      Member      all   = MemberFinder.findAllMember();
+      Membership  msAll;
       Iterator  iterAll = MembershipFinder.findMemberships(
         s, all, this._getField(priv)
       ).iterator();
       while (iterAll.hasNext()) {
-        Membership ms = (Membership) iterAll.next();
-        ms.setSession(s);
-        groups.add( ms.getGroup() );
+        msAll = (Membership) iterAll.next();
+        msAll.setSession(s);
+        groups.add( msAll.getGroup() );
       }
     }
     catch (GroupNotFoundException eGNF) {
@@ -147,12 +149,13 @@ public class GrouperAccessAdapter implements AccessAdapter {
     GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
-      Member    m   = MemberFinder.findBySubject(s, subj);
-      Member    all = MemberFinder.findAllMember();     
+      Member    m     = MemberFinder.findBySubject(s, subj);
+      Member    all   = MemberFinder.findAllMember();     
+      Privilege p;
       Iterator  iterP = Privilege.getAccessPrivs().iterator();
       while (iterP.hasNext()) {
-        Privilege p = (Privilege) iterP.next();
-        Field     f = this._getField(p);   
+        p               = (Privilege) iterP.next();
+        Field     f     = this._getField(p);   
         Iterator  iterM = MembershipFinder.findMembershipsNoPrivsNoSession(g, m, f).iterator();
         privs.addAll( this._getPrivs(s, subj, m, p, iterM) );
         Iterator  iterA = MembershipFinder.findMembershipsNoPrivsNoSession(g, all, f).iterator();
@@ -369,9 +372,10 @@ public class GrouperAccessAdapter implements AccessAdapter {
   )
     throws  SchemaException
   {
-    Set privs = new LinkedHashSet();
+    Set         privs = new LinkedHashSet();
+    Membership  ms;
     while (iter.hasNext()) {
-      Membership  ms      = (Membership) iter.next();
+      ms = (Membership) iter.next();
       ms.setSession(s);
       Subject     owner   = subj;
       boolean     revoke  = true;

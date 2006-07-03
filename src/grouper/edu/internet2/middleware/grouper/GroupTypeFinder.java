@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.Type;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.13 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.14 2006-07-03 17:18:48 blair Exp $
  */
 public class GroupTypeFinder {
 
@@ -38,9 +38,10 @@ public class GroupTypeFinder {
     // We need to initialize the known types at this point to try and
     // avoid running into Hibernate exceptions later on when attempting
     // to save objects.
-    Iterator iter = _findAll().iterator();
+    GroupType t;
+    Iterator  iter  = _findAll().iterator();
     while (iter.hasNext()) {
-      GroupType t = (GroupType) iter.next();
+      t = (GroupType) iter.next();
       types.put(t.getName(), t);
       DebugLog.info(GroupTypeFinder.class, "found group type: " + t);
     }
@@ -92,9 +93,10 @@ public class GroupTypeFinder {
   public static Set findAll() {
     updateKnownTypes();
     Set       values  = new LinkedHashSet();
+    GroupType t;
     Iterator  iter    = types.values().iterator();
     while (iter.hasNext()) {
-      GroupType t = (GroupType) iter.next();
+      t = (GroupType) iter.next();
       if (!t.getInternal()) {
         values.add(t); // We only want !internal group types
       }
@@ -111,9 +113,10 @@ public class GroupTypeFinder {
    */
   public static Set findAllAssignable() {
     Set       types = new LinkedHashSet();
+    GroupType t;
     Iterator  iter  = findAll().iterator();
     while (iter.hasNext()) {
-      GroupType t = (GroupType) iter.next();
+      t = (GroupType) iter.next();
       if (t.getAssignable()) {
         types.add(t);
       }
@@ -129,25 +132,28 @@ public class GroupTypeFinder {
     //      functionally correct
     Set typesInRegistry = _findAll();
     // Look for types to add
-    Iterator addIter = typesInRegistry.iterator();
+    GroupType tA;
+    Iterator  addIter   = typesInRegistry.iterator();
     while (addIter.hasNext()) {
-      GroupType t = (GroupType) addIter.next();
-      if (!types.containsKey(t.getName())) {
-        types.put(t.getName(), t); // New type.  Add it to the cached list.
+      tA = (GroupType) addIter.next();
+      if (!types.containsKey(tA.getName())) {
+        types.put(tA.getName(), tA); // New type.  Add it to the cached list.
       }
     }
     // Look for types to remove
     Set       toDel   = new LinkedHashSet();
+    GroupType tD;
     Iterator  delIter = types.values().iterator();
     while (delIter.hasNext()) {
-      GroupType t = (GroupType) delIter.next();
-      if (!typesInRegistry.contains(t)) {
-        toDel.add(t.getName());  
+      tD = (GroupType) delIter.next();
+      if (!typesInRegistry.contains(tD)) {
+        toDel.add(tD.getName());  
       }
     }
+    String    type;
     Iterator  toDelIter = toDel.iterator();
     while (toDelIter.hasNext()) {
-      String type = (String) toDelIter.next();
+      type = (String) toDelIter.next();
       types.remove(type);  
     }
   } // protected static void updateKnownTypes()

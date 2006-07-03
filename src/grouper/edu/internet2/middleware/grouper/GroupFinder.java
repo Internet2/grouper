@@ -25,7 +25,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.15 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.16 2006-07-03 17:18:48 blair Exp $
  */
 public class GroupFinder {
 
@@ -119,9 +119,10 @@ public class GroupFinder {
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
       hs.close();
-      Iterator  iter = l.iterator();
+      Group     g;
+      Iterator  iter  = l.iterator();
       while (iter.hasNext()) {
-        Group g = (Group) iter.next();
+        g = (Group) iter.next();
         g.setSession(s);
         groups.add(g);
       }
@@ -149,9 +150,10 @@ public class GroupFinder {
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
       hs.close();
-      Iterator  iter = l.iterator();
+      Group     g;   
+      Iterator  iter  = l.iterator();
       while (iter.hasNext()) {
-        Group g = (Group) iter.next();
+        g = (Group) iter.next();
         g.setSession(s);
         groups.add(g);
       }
@@ -177,9 +179,10 @@ public class GroupFinder {
       qry.setCacheable(GrouperConfig.QRY_GF_FBAAA);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBAAA);
       qry.setString("value", "%" + val.toLowerCase() + "%");
+      Group     g;
       Iterator  iter  = qry.iterate();
       while (iter.hasNext()) {
-        Group g = ( (Attribute) iter.next() ).getGroup();
+        g = ( (Attribute) iter.next() ).getGroup();
         g.setSession(s);
         groups.add(g);
       }
@@ -208,9 +211,10 @@ public class GroupFinder {
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBAA);
       qry.setString("field", attr);
       qry.setString("value", "%" + val.toLowerCase() + "%");
+      Group     g;
       Iterator  iter  = qry.iterate();
       while (iter.hasNext()) {
-        Group g = ( (Attribute) iter.next() ).getGroup();
+        g = ( (Attribute) iter.next() ).getGroup();
         g.setSession(s);
         groups.add(g);
       }
@@ -241,9 +245,10 @@ public class GroupFinder {
       qry.setCacheable(GrouperConfig.QRY_GF_FBAN);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBAN);
       qry.setString("value", "%" + name.toLowerCase() + "%");
+      Group     g;
       Iterator  iter  = qry.iterate();
       while (iter.hasNext()) {
-        Group g = ( (Attribute) iter.next() ).getGroup();
+        g = ( (Attribute) iter.next() ).getGroup();
         g.setSession(s);
         groups.add(g);
       }

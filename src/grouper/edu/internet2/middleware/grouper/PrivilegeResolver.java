@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.43 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.44 2006-07-03 17:18:48 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -334,9 +334,10 @@ public class PrivilegeResolver {
   // TODO Deprecate?
   protected Set canVIEW(GrouperSession s, Set candidates) {
     Set             groups  = new LinkedHashSet();
+    Group           g;
     Iterator        iter    = candidates.iterator();
     while (iter.hasNext()) {
-      Group g = (Group) iter.next();
+      g = (Group) iter.next();
       g.setSession(s);
       try {
         // Can we view the group

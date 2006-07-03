@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.18 2006-06-22 18:14:17 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.19 2006-07-03 17:18:48 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -183,9 +183,10 @@ public class GrouperSubject implements Subject {
       // No modifier
     }
     Map       attrs = this.g.getAttributes();
+    Map.Entry e;
     Iterator  iter  = attrs.entrySet().iterator();
     while (iter.hasNext()) {
-      Map.Entry e = (Map.Entry) iter.next();
+      e = (Map.Entry) iter.next();
       this._addAttr(  (String) e.getKey(), (String) e.getValue() );
     }
     DebugLog.info(

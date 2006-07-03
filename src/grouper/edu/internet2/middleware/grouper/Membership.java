@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.41 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: Membership.java,v 1.42 2006-07-03 17:18:48 blair Exp $
  */
 public class Membership {
 
@@ -347,24 +347,28 @@ public class Membership {
       Set deletes = new LinkedHashSet();
 
       if (o instanceof Group) { // then deal with its immediate membership
-        Iterator iterIs = ( (Group) o).toMember().getImmediateMemberships(f).iterator();
+        Membership  msG;
+        MemberOf    mofG;
+        Iterator    iterIs  = ( (Group) o).toMember().getImmediateMemberships(f).iterator();
         while (iterIs.hasNext()) {
-          Membership  ms  = (Membership) iterIs.next();
-          MemberOf    mof = Membership.delImmediateMembership(
-            s, ms.getOwner_id(), ms.getMember().getSubject(), ms.getField()
+          msG   = (Membership) iterIs.next();
+          mofG  = Membership.delImmediateMembership(
+            s, msG.getOwner_id(), msG.getMember().getSubject(), msG.getField()
           );
-          deletes.addAll( mof.getDeletes() );
+          deletes.addAll( mofG.getDeletes() );
         }
       }
 
       // Now deal with immediate members
-      Iterator iterHas = MembershipFinder.findMembershipsByType(
+      Membership  msM;
+      MemberOf    mofM;
+      Iterator    iterHas = MembershipFinder.findMembershipsByType(
         root, o, f, MembershipType.I
       ).iterator();
       while (iterHas.hasNext()) {
-        Membership  ms  = (Membership) iterHas.next();
-        MemberOf    mof = Membership.delImmediateMembership(s, o, ms.getMember().getSubject(), f);
-        deletes.addAll( mof.getDeletes() );
+        msM   = (Membership) iterHas.next();
+        mofM  = Membership.delImmediateMembership(s, o, msM.getMember().getSubject(), f);
+        deletes.addAll( mofM.getDeletes() );
       }
 
       o.setSession(orig);
@@ -393,9 +397,10 @@ public class Membership {
 
       Set deletes = new LinkedHashSet();
 
-      Iterator iter = FieldFinder.findAllByType(type).iterator();
+      Field     f;
+      Iterator  iter  = FieldFinder.findAllByType(type).iterator();
       while (iter.hasNext()) {
-        Field f = (Field) iter.next();
+        f = (Field) iter.next();
         deletes.addAll( deleteAllField(s, o, f) );
       }
 

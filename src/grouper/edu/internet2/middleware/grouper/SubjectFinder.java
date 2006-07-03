@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.22 2006-06-27 18:35:14 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.23 2006-07-03 17:18:48 blair Exp $
  */
 public class SubjectFinder {
 
@@ -315,9 +315,10 @@ public class SubjectFinder {
    */
   public static Set findAll(String query) {
     Set       subjects  = new LinkedHashSet();
+    Source    sa;
     Iterator  iter      = MGR.getSources().iterator();
     while (iter.hasNext()) {
-      Source sa = (Source) iter.next();
+      sa = (Source) iter.next();
       Set found = sa.search(query);
       DebugLog.info(SubjectFinder.class, "Found subjects in " + sa.getId() + ": " + found.size());
       subjects.addAll(found);
@@ -410,35 +411,33 @@ public class SubjectFinder {
 
   // PRIVATE CLASS METHODS //
   private static List _findById(String id, Iterator iter) {
-    String msg = "_findById '" + id + "'";
-    DebugLog.info(SubjectFinder.class, msg);
     Subject subj      = null;
+    Source  sa;
     List    subjects  = new ArrayList();
     while (iter.hasNext()) {
-      Source  sa    = (Source) iter.next();
-      String  _msg  = msg + " searching '" + sa.getId() + "'";
+      sa = (Source) iter.next();
       try {
         subj = sa.getSubject(id);
-        DebugLog.info(SubjectFinder.class, _msg + " found: " + subj);
+        DebugLog.info(SubjectFinder.class, "Found subject in " + sa.getId() + ": " + id);
         SubjectCache.getCache(SubjectCache.ID).put(subj);
         subjects.add(subj);
       }
       catch (SubjectNotFoundException eSNF)   {
-        DebugLog.info(SubjectFinder.class, _msg + " not found");
+        DebugLog.info(SubjectFinder.class, "Subject not found in " + sa.getId() + ": " + id);
       }
       catch (SubjectNotUniqueException eSNU)  {
-        DebugLog.info(SubjectFinder.class, _msg + " not unique");
+        DebugLog.info(SubjectFinder.class, "Subject not found in " + sa.getId() + ": " + id);
       }
     }
-    DebugLog.info(SubjectFinder.class, msg + " found: " + subjects.size());
     return subjects;
   } // private static List _findById(id, iter) 
 
   private static List _findByIdentifier(String id, Iterator iter) {
     Subject subj      = null;
     List    subjects  = new ArrayList();
+    Source  sa;
     while (iter.hasNext()) {
-      Source sa = (Source) iter.next();
+      sa = (Source) iter.next();
       try {
         subj = sa.getSubjectByIdentifier(id);
         DebugLog.info(SubjectFinder.class, "Found subject in " + sa.getId() + ": " + id);

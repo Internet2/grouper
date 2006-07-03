@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.19 2006-06-19 17:00:57 blair Exp $
+ * @version $Id: GroupType.java,v 1.20 2006-07-03 17:18:48 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -460,9 +460,10 @@ public class GroupType implements Serializable {
     this.creator_id = m;
   }
   protected void setFields(Set fields) {
-    Iterator iter = fields.iterator();
+    Field     f;
+    Iterator  iter  = fields.iterator();
     while (iter.hasNext()) {
-      Field f = (Field) iter.next();
+      f = (Field) iter.next();
       f.setGroup_type(this); 
     }
     this.fields = fields;
