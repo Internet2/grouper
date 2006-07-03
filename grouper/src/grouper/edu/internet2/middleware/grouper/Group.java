@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.83 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: Group.java,v 1.84 2006-07-03 17:18:48 blair Exp $
  */
 public class Group extends Owner {
 
@@ -481,9 +481,10 @@ public class Group extends Owner {
       Set       attrs   = new LinkedHashSet();
       boolean   found   = false; // so we know if there was actually anything to delete
       String    val     = GrouperConfig.EMPTY_STRING; // for logging purposes
+      Attribute a;
       Iterator  iter    = this.getGroup_attributes().iterator();
       while (iter.hasNext()) {
-        Attribute a = (Attribute) iter.next();
+        a = (Attribute) iter.next();
         if (a.getField().equals(f)) {
           val = a.getValue();
           deletes.add(a); // deleting
@@ -779,9 +780,10 @@ public class Group extends Owner {
    */
   public Map getAttributes() {
     Map       filtered  = new HashMap();
+    Attribute attr;
     Iterator  iter      = this._getAttributesNoPrivs().values().iterator();
     while (iter.hasNext()) {
-      Attribute attr = (Attribute) iter.next();
+      attr = (Attribute) iter.next();
       try {
         Field f = attr.getField();
         GroupValidator.canReadField(
@@ -1388,9 +1390,10 @@ public class Group extends Owner {
     Set types = new LinkedHashSet();
     // Only root-like subjects can remove types
     if (PrivilegeResolver.getInstance().isRoot(this.getSession().getSubject())) {
-      Iterator iter = this.getTypes().iterator();
+      GroupType t;
+      Iterator  iter  = this.getTypes().iterator();
       while (iter.hasNext()) {
-        GroupType t = (GroupType) iter.next();
+        t = (GroupType) iter.next();
         if (t.getAssignable()) {
           types.add(t);
         }
@@ -1408,9 +1411,10 @@ public class Group extends Owner {
    */
   public Set getTypes() {
     Set       types = new LinkedHashSet();
+    GroupType t;
     Iterator  iter  = this.getGroup_types().iterator();
     while (iter.hasNext()) {
-      GroupType t = (GroupType) iter.next();
+      t = (GroupType) iter.next();
       if (!t.getInternal()) {
         types.add(t);
       }
@@ -1948,9 +1952,10 @@ public class Group extends Owner {
       // TODO I'm not comfortable with this code
       Set       attrs = new LinkedHashSet();
       boolean   found = false; // So we know if we are adding or updating
+      Attribute a;
       Iterator  iter  = this.getGroup_attributes().iterator();
       while (iter.hasNext()) {
-        Attribute a = (Attribute) iter.next();
+        a = (Attribute) iter.next();
         if (a.getField().equals(f)) {
           a.setValue(value); // updating
           found = true;
@@ -2161,9 +2166,10 @@ public class Group extends Owner {
 
   protected void setDisplayName(String value) {
     Set       attrs = new LinkedHashSet();
+    Attribute a;
     Iterator  iter  = this.getGroup_attributes().iterator();
     while (iter.hasNext()) {
-      Attribute a = (Attribute) iter.next();
+      a = (Attribute) iter.next();
       if (a.getField().getName().equals("displayName")) {
         a.setValue(value);
       }
@@ -2185,9 +2191,10 @@ public class Group extends Owner {
   } // private String _getAttributeNoPrivs(attr)
 
   private Map _getAttributesNoPrivs() {
-    Iterator iter = this.getGroup_attributes().iterator();
+    Attribute attr;
+    Iterator  iter  = this.getGroup_attributes().iterator();
     while (iter.hasNext()) {
-      Attribute attr = (Attribute) iter.next();
+      attr = (Attribute) iter.next();
       this.attrs.put(attr.getField().getName(), attr);
     }
     return this.attrs;
@@ -2222,9 +2229,10 @@ public class Group extends Owner {
   {
     Set updated = new LinkedHashSet();
     if      (f.getName().equals("extension")) {
-      Iterator iter = attrs.iterator();
+      Attribute a;
+      Iterator  iter  = attrs.iterator();
       while (iter.hasNext()) {
-        Attribute a = (Attribute) iter.next();
+        a = (Attribute) iter.next();
         if (a.getField().getName().equals("name")) {
           AttributeValidator.namingValue(value);
           String newVal = Stem.constructName(
@@ -2236,9 +2244,10 @@ public class Group extends Owner {
       }
     }
     else if (f.getName().equals("displayExtension")) {
-      Iterator iter = attrs.iterator();
+      Attribute a;
+      Iterator  iter  = attrs.iterator();
       while (iter.hasNext()) {
-        Attribute a = (Attribute) iter.next();
+        a = (Attribute) iter.next();
         if (a.getField().getName().equals("displayName")) {
           AttributeValidator.namingValue(value);
           String newVal = Stem.constructName(
@@ -2264,11 +2273,12 @@ public class Group extends Owner {
     // type.  This saves from potential catastrophe when saving objects
     // as well as (hopefully) being more efficient.
     if (this.types == null) {
-      types         = new LinkedHashSet();
-      Iterator iter = this.group_types.iterator();
+      types           = new LinkedHashSet();
+      GroupType type;
+      Iterator  iter  = this.group_types.iterator();
       while (iter.hasNext()) {
         try {
-          GroupType type = (GroupType) iter.next();
+          type = (GroupType) iter.next();
           types.add( GroupTypeFinder.find( type.toString() ) );
         }
         catch (SchemaException eS) {

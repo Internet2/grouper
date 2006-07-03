@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.11 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.12 2006-07-03 17:18:48 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -199,9 +199,10 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
       GrouperQuery gq = GrouperQuery.createQuery(
         GrouperSessionFinder.getRootSession(), new GroupNameFilter(searchValue, root)
       );
-      Iterator iter = gq.getGroups().iterator();
+      Group     g;
+      Iterator  iter  = gq.getGroups().iterator();
       while (iter.hasNext()){
-        Group g = (Group) iter.next();
+        g = (Group) iter.next();
         subjs.add(g.toSubject()); 
       }
     }

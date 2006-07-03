@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.37 2006-06-18 19:39:00 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.38 2006-07-03 17:18:48 blair Exp $
  */
 public class MembershipFinder {
 
@@ -107,9 +107,10 @@ public class MembershipFinder {
           PrivilegeResolver.getInstance().canPrivDispatch(
             s, g, s.getSubject(), f.getReadPriv()
           );
-          Iterator effsIter = effs.iterator();
+          Membership  eff;
+          Iterator    effsIter  = effs.iterator();
           while (effsIter.hasNext()) {
-            Membership eff = (Membership) effsIter.next();
+            eff = (Membership) effsIter.next();
             eff.setSession(s);
             mships.add(eff);
           }
@@ -175,9 +176,10 @@ public class MembershipFinder {
     Set children  = new LinkedHashSet();
     try {
       GrouperSession  root  = GrouperSession.startTransient();
+      Membership      child;
       Iterator        iter  = findChildMemberships(root, ms).iterator();
       while (iter.hasNext()) {
-        Membership child = (Membership) iter.next();
+        child = (Membership) iter.next();
         children.add(child);
         children.addAll(findAllChildrenNoSessionNoPriv(child));
       }
@@ -204,9 +206,10 @@ public class MembershipFinder {
       qry.setCacheable(GrouperConfig.QRY_MSF_FAM);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FAM);
       qry.setString("mid", m.getId());
-      Iterator  iter  = qry.iterate();
+      Membership  ms;
+      Iterator    iter  = qry.iterate();
       while (iter.hasNext()) {
-        Membership ms = (Membership) iter.next();
+        ms = (Membership) iter.next();
         ms.setSession(s);
         mships.add(ms);
       }
@@ -233,9 +236,10 @@ public class MembershipFinder {
       qry.setCacheable(false);  // Don't cache
       qry.setParameter( "member"  , ms.getMember_id() );
       qry.setParameter( "via"     , ms.getOwner_id()  );
-      Iterator  iter  = qry.iterate();
+      Membership  eff;
+      Iterator    iter  = qry.iterate();
       while (iter.hasNext()) {
-        Membership eff = (Membership) iter.next();
+        eff = (Membership) iter.next();
         via.add(eff);
       }
       hs.close();
@@ -453,10 +457,11 @@ public class MembershipFinder {
      * @session   true  MembershipFinder.findMemberships(s, g, f)
      */
     GrouperSession.validate(s);
-    Set       members = new LinkedHashSet();
-    Iterator  iter    = findMemberships(s, g, f).iterator();
+    Set         members = new LinkedHashSet();
+    Membership  ms;
+    Iterator    iter    = findMemberships(s, g, f).iterator();
     while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
+      ms = (Membership) iter.next();
       try {
         members.add(ms.getMember());
       }
@@ -473,10 +478,11 @@ public class MembershipFinder {
      * @session   true  MembershipFinder.findMemberships(s, oid, f)
      */
     GrouperSession.validate(s);
-    Set       subjs = new LinkedHashSet();
-    Iterator  iter  = findMemberships(s, o, f).iterator();
+    Set         subjs = new LinkedHashSet();
+    Membership  ms;
+    Iterator    iter  = findMemberships(s, o, f).iterator();
     while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
+      ms = (Membership) iter.next();
       try {
         subjs.add(ms.getMember().getSubject());
       }
@@ -524,9 +530,10 @@ public class MembershipFinder {
       // session, otherwise a member that has OPTIN, OPTOUT, etc
       // will have those results filtered out.
       if (s.getMember().equals(m)) {
-        Iterator iter = l.iterator();
+        Membership  ms;
+        Iterator    iter  = l.iterator();
         while (iter.hasNext()) {
-          Membership ms = (Membership) iter.next();
+          ms = (Membership) iter.next();
           ms.setSession(s);
           mships.add(ms);
         }
@@ -618,10 +625,11 @@ public class MembershipFinder {
      // @filtered  true  MembershipFinder.findMembershipsByType(s, o, f) 
      // @session   true  MembershipFinder.findMembershipsByType(s, o, f)
     GrouperSession.validate(s);
-    Set       members = new LinkedHashSet();
-    Iterator  iter    = findMembershipsByType(s, g, f, type).iterator();
+    Set         members = new LinkedHashSet();
+    Membership  ms;
+    Iterator    iter    = findMembershipsByType(s, g, f, type).iterator();
     while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
+      ms = (Membership) iter.next();
       try {
         members.add(ms.getMember());
       }
@@ -701,10 +709,11 @@ public class MembershipFinder {
   // PRIVATE CLASS METHODS //
   private static Set _filterMemberships(GrouperSession s, Field f, List l) {
     GrouperSession.validate(s);
-    Set       mships  = new LinkedHashSet();
-    Iterator  iter    = l.iterator();
+    Set         mships  = new LinkedHashSet();
+    Membership  ms;
+    Iterator    iter    = l.iterator();
     while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
+      ms = (Membership) iter.next();
       ms.setSession(s);
       try {
         if (f.getType().equals(FieldType.NAMING)) {

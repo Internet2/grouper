@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.12 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.13 2006-07-03 17:18:48 blair Exp $
  */
 public class GrouperQuery {
 
@@ -94,11 +94,12 @@ public class GrouperQuery {
   public Set getGroups() 
     throws QueryException
   {
-    Set groups      = new LinkedHashSet();
-    Set candidates  = this.filter.getResults(this.s);
-    Iterator iter   = candidates.iterator();
+    Set       groups      = new LinkedHashSet();
+    Set       candidates  = this.filter.getResults(this.s);
+    Object    o;
+    Iterator  iter        = candidates.iterator();
     while (iter.hasNext()) {
-      Object o = iter.next();
+      o = iter.next();
       if      (o.getClass().equals(Group.class)) {
         Group g = (Group) o;
         groups.add(g);
@@ -127,12 +128,13 @@ public class GrouperQuery {
   public Set getMembers() 
     throws QueryException
   {
-    Set members     = new LinkedHashSet();
-    Set mships      = new LinkedHashSet();
-    Set candidates  = this.filter.getResults(this.s);
-    Iterator iter   = candidates.iterator();
+    Set       members     = new LinkedHashSet();
+    Set       mships      = new LinkedHashSet();
+    Set       candidates  = this.filter.getResults(this.s);
+    Object    o;
+    Iterator  iter        = candidates.iterator();
     while (iter.hasNext()) {
-      Object o = iter.next();
+      o = iter.next();
       if        (o.getClass().equals(Group.class)) {
         mships.addAll( ( (Group) o ).getMemberships() );
       } else if (o.getClass().equals(Stem.class)) {
@@ -144,9 +146,10 @@ public class GrouperQuery {
     }
     // Now extract members from any memberships we found
     try {
-      Iterator iterMS = mships.iterator();
+      Membership  ms;
+      Iterator    iterMS  = mships.iterator();
       while (iterMS.hasNext()) {
-        Membership ms = (Membership) iterMS.next();
+        ms = (Membership) iterMS.next();
         members.add( ms.getMember() );
       }
     }
@@ -169,11 +172,12 @@ public class GrouperQuery {
   public Set getMemberships() 
     throws QueryException
   {
-    Set mships      = new LinkedHashSet();
-    Set candidates  = this.filter.getResults(this.s);
-    Iterator iter   = candidates.iterator();
+    Set       mships      = new LinkedHashSet();
+    Set       candidates  = this.filter.getResults(this.s);
+    Object    o;
+    Iterator  iter        = candidates.iterator();
     while (iter.hasNext()) {
-      Object o = iter.next();
+      o = iter.next();
       if        (o.getClass().equals(Group.class)) {
         mships.addAll( ( (Group) o ).getMemberships() );
       } else if (o.getClass().equals(Stem.class)) {
@@ -197,11 +201,12 @@ public class GrouperQuery {
   public Set getStems() 
     throws QueryException
   {
-    Set stems       = new LinkedHashSet();
-    Set candidates  = this.filter.getResults(this.s);
-    Iterator iter   = candidates.iterator();
+    Set       stems       = new LinkedHashSet();
+    Set       candidates  = this.filter.getResults(this.s);
+    Object    o;
+    Iterator  iter        = candidates.iterator();
     while (iter.hasNext()) {
-      Object o = iter.next();
+      o = iter.next();
       if        (o.getClass().equals(Group.class)) {
         // TODO What is the right behavior here?  Should I return
         //      nothing?  Should I return all parent stems within

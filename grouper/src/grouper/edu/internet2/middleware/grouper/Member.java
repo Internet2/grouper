@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.47 2006-06-27 18:35:14 blair Exp $
+ * @version $Id: Member.java,v 1.48 2006-07-03 17:18:48 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -296,12 +296,14 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set getEffectiveGroups() {
-    Set groups = new LinkedHashSet();
-    Iterator iter = this.getEffectiveMemberships().iterator();
+    Set         groups  = new LinkedHashSet();
+    Membership  ms;
+    Group       g;
+    Iterator    iter    = this.getEffectiveMemberships().iterator();
     while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
+      ms = (Membership) iter.next();
       try {
-        Group g = ms.getGroup();
+        g = ms.getGroup();
         g.setSession(this.getSession());
         groups.add(g);
       }
@@ -360,12 +362,14 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set getGroups() {
-    Set groups = new LinkedHashSet();
-    Iterator iter = this.getMemberships().iterator();
+    Set         groups  = new LinkedHashSet();
+    Membership  ms;
+    Group       g;
+    Iterator    iter    = this.getMemberships().iterator();
     while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
+      ms = (Membership) iter.next();
       try {
-        Group g = ms.getGroup();
+        g = ms.getGroup();
         g.setSession(this.getSession());
         groups.add(g);
       }
@@ -385,12 +389,14 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set getImmediateGroups() {
-    Set groups = new LinkedHashSet();
-    Iterator iter = this.getImmediateMemberships().iterator();
+    Set         groups  = new LinkedHashSet();
+    Membership  ms;
+    Group       g;
+    Iterator    iter    = this.getImmediateMemberships().iterator();
     while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
+      ms = (Membership) iter.next();
       try {
-        Group g = ms.getGroup();
+        g = ms.getGroup();
         g.setSession(this.getSession());
         groups.add(g);
       }

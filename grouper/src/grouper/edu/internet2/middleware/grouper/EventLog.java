@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.18 2006-06-18 01:47:34 blair Exp $
+ * @version $Id: EventLog.java,v 1.19 2006-07-03 17:18:48 blair Exp $
  */
 class EventLog {
 
@@ -94,9 +94,10 @@ class EventLog {
     GrouperSession s, Composite c, Set saves, Set deletes, StopWatch sw
   )
   {
-    Iterator iter = saves.iterator();
+    Object    obj;
+    Iterator  iter  = saves.iterator();
     while (iter.hasNext()) {
-      Object obj = iter.next();
+      obj = iter.next();
       if (obj instanceof Membership) {
         Membership ms = (Membership) obj;
         _member(s, M.COMP_MEMADD, c.getOwnerName(), ms, sw);
@@ -104,7 +105,7 @@ class EventLog {
     }
     iter = deletes.iterator();
     while (iter.hasNext()) {
-      Object obj = iter.next();
+      obj = iter.next();
       if (obj instanceof Membership) {
         Membership ms = (Membership) obj;
         _member(s, M.COMP_MEMDEL, c.getOwnerName(), ms, sw);
@@ -325,10 +326,11 @@ class EventLog {
   )
   {
     try {
-      GrouperSession root = GrouperSessionFinder.getTransientRootSession();
-      Iterator iter = effs.iterator();
+      GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+      Membership      eff;
+      Iterator        iter  = effs.iterator();
       while (iter.hasNext()) {
-        Membership eff = (Membership) iter.next();
+        eff = (Membership) iter.next();
         if      (eff.getList().getType().equals(FieldType.ACCESS)) {
           this._eff(root, s, G_GP_E, name, subj, f, eff, "priv="); 
         }
@@ -351,10 +353,11 @@ class EventLog {
   )
   {
     try {
-      GrouperSession root = GrouperSessionFinder.getTransientRootSession();
-      Iterator iter = effs.iterator();
+      GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+      Membership      eff;
+      Iterator        iter  = effs.iterator();
       while (iter.hasNext()) {
-        Membership eff = (Membership) iter.next();
+        eff = (Membership) iter.next();
         if      (eff.getList().getType().equals(FieldType.ACCESS)) {
           this._eff(root, s, G_RP_E, name, subj, f, eff, "priv="); 
         }

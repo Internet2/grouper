@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.*;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.20 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: StemFinder.java,v 1.21 2006-07-03 17:18:48 blair Exp $
  */
 public class StemFinder {
 
@@ -144,9 +144,10 @@ public class StemFinder {
       qry.setCacheable(GrouperConfig.QRY_SF_FBADE);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBADE);
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
+      Stem      ns;
       Iterator  iter    = qry.iterate();
       while (iter.hasNext()) {
-        Stem ns = (Stem) iter.next();
+        ns = (Stem) iter.next();
         ns.setSession(s);
         stems.add(ns);
       }
@@ -172,9 +173,10 @@ public class StemFinder {
       qry.setCacheable(GrouperConfig.QRY_SF_FBADN);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBADN);
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
+      Stem      ns;
       Iterator  iter    = qry.iterate();
       while (iter.hasNext()) {
-        Stem ns = (Stem) iter.next();
+        ns = (Stem) iter.next();
         ns.setSession(s);
         stems.add(ns);
       }
@@ -200,9 +202,10 @@ public class StemFinder {
       qry.setCacheable(GrouperConfig.QRY_SF_FBAE);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBAE);
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
+      Stem      ns;
       Iterator  iter    = qry.iterate();
       while (iter.hasNext()) {
-        Stem ns = (Stem) iter.next();
+        ns = (Stem) iter.next();
         ns.setSession(s);
         stems.add(ns);
       }
@@ -228,9 +231,10 @@ public class StemFinder {
       qry.setCacheable(GrouperConfig.QRY_SF_FBAN);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBAN);
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
+      Stem      ns;
       Iterator  iter    = qry.iterate();
       while (iter.hasNext()) {
-        Stem ns = (Stem) iter.next();
+        ns = (Stem) iter.next();
         ns.setSession(s);
         stems.add(ns);
       }
@@ -260,9 +264,10 @@ public class StemFinder {
       qry.setCacheable(GrouperConfig.QRY_SF_FBANA);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBANA);
       qry.setString("name", "%" + name.toLowerCase() + "%");
+      Stem      ns;
       Iterator  iter    = qry.iterate();
       while (iter.hasNext()) {
-        Stem ns = (Stem) iter.next();
+        ns = (Stem) iter.next();
         ns.setSession(s);
         stems.add(ns);
       }
@@ -291,9 +296,10 @@ public class StemFinder {
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
       hs.close();
+      Stem      ns;
       Iterator  iter = l.iterator();
       while (iter.hasNext()) {
-        Stem ns = (Stem) iter.next();
+        ns = (Stem) iter.next();
         ns.setSession(s);
         stems.add(ns);
       }
@@ -312,18 +318,19 @@ public class StemFinder {
   {
     List stems = new ArrayList();
     try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
+      Session   hs    = HibernateHelper.getSession();
+      Query     qry   = hs.createQuery(
         "from Stem as ns where ns.create_time < :time"
       );
       qry.setCacheable(GrouperConfig.QRY_SF_FBCB);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBCB);
       qry.setLong("time", d.getTime());
-      List    l   = qry.list();
+      List      l     = qry.list();
       hs.close();
+      Stem      ns;
       Iterator  iter = l.iterator();
       while (iter.hasNext()) {
-        Stem ns = (Stem) iter.next();
+        ns = (Stem) iter.next();
         ns.setSession(s);
         stems.add(ns);
       }

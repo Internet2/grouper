@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * Grouper Cache Manager
  * <p/>
  * @author  blair christensen.
- * @version $Id: CacheMgr.java,v 1.7 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: CacheMgr.java,v 1.8 2006-07-03 17:18:48 blair Exp $
  *     
  */
 class CacheMgr {
@@ -88,9 +88,10 @@ class CacheMgr {
     throws  GrouperRuntimeException
   {
     try {
-      Iterator iter = getCaches().iterator();
+      Cache     cache;
+      Iterator  iter  = getCaches().iterator();
       while (iter.hasNext()) {
-        Cache cache = (Cache) iter.next();
+        cache       = (Cache) iter.next();
         int   size  = cache.getSize();
         if (size > 0) {
           cache.removeAll();

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.62 2006-06-19 19:37:54 blair Exp $
+ * @version $Id: Stem.java,v 1.63 2006-07-03 17:18:48 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -324,11 +324,12 @@ public class Stem extends Owner {
     Set children  = new LinkedHashSet();
     try {
       try {
-        Iterator iter = this.getChildGroupsNpHi().iterator();
         // Perform check as root
-        GrouperSession root = GrouperSessionFinder.getTransientRootSession();
+        GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+        Group           child;
+        Iterator        iter  = this.getChildGroupsNpHi().iterator();
         while (iter.hasNext()) {
-          Group child = (Group) iter.next();
+          child = (Group) iter.next();
           child.setSession(root);
           try {
             PrivilegeResolver.getInstance().canVIEW(
@@ -367,9 +368,10 @@ public class Stem extends Owner {
     GrouperSession.validate(s);
     Set children = new LinkedHashSet();
     try {
-      Iterator iter = this.getChildStemsNpHi().iterator();
+      Stem      child;
+      Iterator  iter  = this.getChildStemsNpHi().iterator();
       while (iter.hasNext()) {
-        Stem child = (Stem) iter.next();
+        child = (Stem) iter.next();
         child.setSession(this.getSession());
         children.add(child);
       }
@@ -1101,9 +1103,10 @@ public class Stem extends Owner {
     throws  HibernateException
   {
     Set       objects = new LinkedHashSet();
-    Iterator iter = this.getChild_groups().iterator();
+    Group     child;
+    Iterator  iter    = this.getChild_groups().iterator();
     while (iter.hasNext()) {
-      Group child = (Group) iter.next();
+      child = (Group) iter.next();
       child.setSession(this.s);
       child.setDisplayName(
         constructName( this.getDisplayName(), child.getDisplayExtension() )
@@ -1134,9 +1137,10 @@ public class Stem extends Owner {
     throws  HibernateException
   {
     Set       objects = new LinkedHashSet();
-    Iterator iter = this.getChild_stems().iterator();
+    Stem      child;
+    Iterator  iter    = this.getChild_stems().iterator();
     while (iter.hasNext()) {
-      Stem child = (Stem) iter.next();    
+      child = (Stem) iter.next();    
       child.setSession(this.s);
       _initializeChildGroupsAndStems(child);
       child.setDisplay_name(

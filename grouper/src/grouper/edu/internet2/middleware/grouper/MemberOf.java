@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.23 2006-06-18 19:39:00 blair Exp $
+ * @version $Id: MemberOf.java,v 1.24 2006-07-03 17:18:48 blair Exp $
  */
 class MemberOf {
 
@@ -116,9 +116,10 @@ class MemberOf {
 
     //  Delete this group's members
     //  TODO  I have performance concerns with this code
-    Iterator  iterH = ( (Group) o ).getMemberships().iterator();
+    Membership  ms;
+    Iterator    iterH = ( (Group) o ).getMemberships().iterator();
     while (iterH.hasNext()) {
-      Membership  ms    = (Membership) iterH.next();
+      ms = (Membership) iterH.next();
       try {
         MemberOf    msMof = MemberOf.delImmediate(
           s, o, ms, ms.getMember()
@@ -149,16 +150,18 @@ class MemberOf {
     MemberOf  mof = new MemberOf(s, o, m, ms);
 
     // Find child memberships that need deletion
-    Iterator iter = MembershipFinder.findAllChildrenNoSessionNoPriv(ms).iterator();
+    Membership  child;
+    Iterator    iter  = MembershipFinder.findAllChildrenNoSessionNoPriv(ms).iterator();
     while (iter.hasNext()) {
-      Membership child = (Membership) iter.next();
+      child = (Membership) iter.next();
       child.setSession(s);
       mof.effDeletes.add(child);
     }
     // Find all effective memberships that need deletion
+    Membership  eff;
     iter = MembershipFinder.findAllViaNoSessionNoPriv(ms).iterator();
     while (iter.hasNext()) {
-      Membership eff = (Membership) iter.next();
+      eff = (Membership) iter.next();
       eff.setSession(s);
       mof.effDeletes.add(eff);
     }
@@ -200,11 +203,13 @@ class MemberOf {
   private Set _addHasMembersToOwner(Set hasMembers) 
     throws  ModelException
   {
-    Set     mships  = new LinkedHashSet();
-    Iterator iter = hasMembers.iterator();
+    Set         mships  = new LinkedHashSet();
+    Membership  hasMS;
+    Membership  eff;
+    Iterator    iter    = hasMembers.iterator();
     while (iter.hasNext()) {
-      Membership  hasMS = (Membership) iter.next();
-      Membership  eff   = new Membership(this.s, this.ms, hasMS, 1);
+      hasMS = (Membership) iter.next();
+      eff   = new Membership(this.s, this.ms, hasMS, 1);
       mships.add(eff);
     }
     return mships;
@@ -218,13 +223,17 @@ class MemberOf {
 
     // Add the members of m to where g is a member but only if f == "members"
     if (this.f.equals(Group.getDefaultList())) {
-      Iterator isIter = isMember.iterator();
+      Membership  isMS;
+      Iterator    hasIter;
+      Membership  hasMS;
+      Membership  eff;
+      Iterator    isIter  = isMember.iterator();
       while (isIter.hasNext()) {
-        Membership isMS = (Membership) isIter.next();
-        Iterator hasIter = hasMembers.iterator();
+        isMS = (Membership) isIter.next();
+        hasIter = hasMembers.iterator();
         while (hasIter.hasNext()) {
-          Membership  hasMS = (Membership) hasIter.next();
-          Membership  eff   = new Membership(this.s, isMS, hasMS, 2);
+          hasMS = (Membership) hasIter.next();
+          eff   = new Membership(this.s, isMS, hasMS, 2);
           mships.add(eff);
         }
       }
@@ -241,10 +250,12 @@ class MemberOf {
 
     // Add m to where g is a member if f == "members"
     if (this.f.equals(Group.getDefaultList())) {
-      Iterator isIter = isMember.iterator();
+      Membership  isMS;
+      Membership  eff;
+      Iterator    isIter  = isMember.iterator();
       while (isIter.hasNext()) {
-        Membership  isMS  = (Membership) isIter.next();
-        Membership  eff   = new Membership(this.s, isMS, this.ms, 1);
+        isMS  = (Membership) isIter.next();
+        eff   = new Membership(this.s, isMS, this.ms, 1);
         mships.add(eff);
       }
     }
@@ -256,11 +267,13 @@ class MemberOf {
   private Set _createNewMembershipObjects(Set members) 
     throws  ModelException
   {
-    Set       mships  = new LinkedHashSet();
-    Iterator iter     = members.iterator();
+    Set         mships  = new LinkedHashSet();
+    Member      m;
+    Membership  imm;
+    Iterator    iter    = members.iterator();
     while (iter.hasNext()) {
-      Member      m   = (Member) iter.next();
-      Membership  imm = new Membership(o, m, this.f, c);
+      m   = (Member) iter.next();
+      imm = new Membership(o, m, this.f, c);
       imm.setSession(root);
       mships.add(imm);
     }
@@ -394,20 +407,22 @@ class MemberOf {
     if (this.o != null) {
       this.o.setSession(this.s);
     }
-    Set       tmp       = new LinkedHashSet();
-    Iterator  saveIter  = this.effSaves.iterator();
+    Set         tmp       = new LinkedHashSet();
+    Membership  msS;
+    Iterator    saveIter  = this.effSaves.iterator();
     while (saveIter.hasNext()) {
-      Membership ms = (Membership) saveIter.next();
-      ms.setSession(this.s);
-      tmp.add(ms);
+      msS = (Membership) saveIter.next();
+      msS.setSession(this.s);
+      tmp.add(msS);
     }
-    this.saves = tmp;
-    tmp = new LinkedHashSet();
-    Iterator  delIter   = this.deletes.iterator();
+    this.saves            = tmp;
+    tmp                   = new LinkedHashSet();
+    Membership  msD;
+    Iterator    delIter   = this.deletes.iterator();
     while (delIter.hasNext()) {
-      Membership ms = (Membership) delIter.next();
-      ms.setSession(this.s);
-      tmp.add(ms);
+      msD = (Membership) delIter.next();
+      msD.setSession(this.s);
+      tmp.add(msD);
     }
     this.deletes = tmp;
   } // private void _resetSessions()

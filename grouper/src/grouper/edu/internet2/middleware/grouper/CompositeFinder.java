@@ -22,7 +22,7 @@ import  net.sf.hibernate.type.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.6 2006-06-19 16:21:52 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.7 2006-07-03 17:18:48 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {
@@ -43,9 +43,10 @@ public class CompositeFinder {
     Set             where = new LinkedHashSet();
     GrouperSession  s     = g.getSession();
     Member          m     = s.getMember();
+    Composite       c;
     Iterator        iter  = findAsFactorNoPriv(g).iterator();
     while (iter.hasNext()) {
-      Composite c = (Composite) iter.next();
+      c = (Composite) iter.next();
       c.setSession(s);
       try {
         if (m.canView(c.getOwnerGroup())) {
@@ -103,9 +104,10 @@ public class CompositeFinder {
       qry.setCacheRegion( GrouperConfig.QCR_CF_IF );
       qry.setParameter( "left"  , o );
       qry.setParameter( "right" , o );
-      Iterator iter = qry.list().iterator();
+      Composite c;
+      Iterator  iter  = qry.list().iterator();
       while (iter.hasNext()) {
-        Composite c = (Composite) iter.next();
+        c = (Composite) iter.next();
         c.setSession(o.getSession());
         composites.add(c);
       }
