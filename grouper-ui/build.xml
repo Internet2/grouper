@@ -58,6 +58,14 @@
 		</antcall>	
 	</target>
 	
+	<!-- only copy resources - and restart webapp-->
+	<target name="niceres">
+		<antcall target="-setup">
+			<param value="true" name="no.webapp"/>
+		</antcall>	
+		<antcall target="restart"/>
+	</target>
+	
 	<!--
 		Clean build directory before building 
 	-->
@@ -542,16 +550,19 @@
 <echo>7) resources</echo>
 <echo>     Does not compile Java classes but 'refreshes' resources in</echo>
 <echo>     webapp.class.folder</echo>
-<echo>8) help</echo>
+<echo>8 niceres</echo>
+<echo>     Does not compile Java classes but 'refreshes' resources in</echo>
+<echo>     webapp.class.folder and restarts webapp</echo>
+<echo>9) help</echo>
 <echo>     Displays this menu</echo>
-<echo>9) endhelp</echo>
+<echo>10) endhelp</echo>
 <echo>     Subsequent invocation of ant with no target will run  </echo>
 <echo>     'default' rather than help</echo>
-<echo>10) starthelp</echo>
+<echo>11) starthelp</echo>
 <echo>     Subsequent invocation of ant with no target will run 'help' </echo>
-<echo>11) html</echo>
+<echo>12) html</echo>
 <echo>     Generate Javadoc - you must have done a 'default' build previously</echo>
-<echo>12) exit</echo>
+<echo>13) exit</echo>
 <echo>     Exit this menu without executing another target</echo>
 <echo></echo>
 
