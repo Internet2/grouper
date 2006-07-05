@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.6 2006-07-03 19:01:50 blair Exp $
+$Id: TODO.txt,v 1.7 2006-07-05 15:18:26 blair Exp $
 
 ---
 
@@ -46,6 +46,7 @@ $Id: TODO.txt,v 1.6 2006-07-03 19:01:50 blair Exp $
 * CODE      add membership aging
 * CODE      delete _HibernateSubject_ objects
 * CODE      modify _HibernateSubject_ objects
+* CODE      naming validation interface
 * CODE      logging enhancements and normalization
 * PACKAGING create binary-and-source distributions
 
@@ -125,5 +126,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.6 2006-07-03 19:01:50 blair Exp $
+$Id: TODO.txt,v 1.7 2006-07-05 15:18:26 blair Exp $
 
