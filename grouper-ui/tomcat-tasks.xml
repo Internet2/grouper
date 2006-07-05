@@ -19,9 +19,22 @@
         password="${deploy.manager.password}"
         path="${deploy.context.path}"
         />
+		</target>
+		
+		<target name="restart" >
+		 <stop url="${deploy.manager.url}"
+        username="${deploy.manager.username}"
+        password="${deploy.manager.password}"
+        path="${deploy.context.path}"/>
+          <start url="${deploy.manager.url}"
+        username="${deploy.manager.username}"
+        password="${deploy.manager.password}"
+        path="${deploy.context.path}"
+        />
+	</target>
   
   
-  </target>
+  
   <target name="stop" >
           <stop url="${deploy.manager.url}"
         username="${deploy.manager.username}"
