@@ -4,14 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.8 2006-07-05 17:54:53 blair Exp $
+$Id: TODO.txt,v 1.9 2006-07-05 19:51:37 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* REVIEW    FIXMEs
 * REVIEW    TODOs
 * REVIEW    javadoc
 * TEST      basic and preliminary concurrency testing (i expect to find many bugs) - but what do i actually want to test?
@@ -19,16 +18,18 @@ $Id: TODO.txt,v 1.8 2006-07-05 17:54:53 blair Exp $
 * REVIEW    gsh docs
 * TESTING   preliminary xml* api testing
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
+* REVIEW    FIXMEs
 
 ---
 
 ## Grouper 1.0.1
 
 ### Next Actions
-* CODE      have xml* default properties + optional override properties
-* CODE      improved xml* integration (including logging)
 * CODE      Migrate error messages to *E*
 * CODE      Migrate messages to *M*
+* CODE      change query parameter setting in *MembershipFinder*
+* CODE      have xml* default properties + optional override properties
+* CODE      improved xml* integration (including logging)
 
 ### Maybe
 * CODE      class to verify that setup is functional
@@ -126,5 +127,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.8 2006-07-05 17:54:53 blair Exp $
+$Id: TODO.txt,v 1.9 2006-07-05 19:51:37 blair Exp $
 
