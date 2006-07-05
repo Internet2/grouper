@@ -4,7 +4,7 @@
 This file provides information on the third party libraries that ship
 with Grouper.
 
-$Id: README.txt,v 1.1 2006-06-28 18:43:12 blair Exp $
+$Id: README.txt,v 1.2 2006-07-05 17:54:53 blair Exp $
 
 ---
 
@@ -112,6 +112,24 @@ Framework and with full support for DOM, SAX and JAXP."
 * Source:   <http://ehcache.sourceforge.net/>
 * License:  Apache Software License, Version 1.1
 * Updated:  ?
+
+# GroboTestingJUnit-1.2.1-core.jar        
+
+"JUnit extentions for easing test making."
+
+* Version:  1.2.1
+* Source:   <http://groboutils.sourceforge.net/>
+* License:  MIT
+* Updated:  20060705
+
+# GroboUtilThread-1.0.0alpha2-core.jar
+
+"A utility class which executes a collection of small test methods in parallel."
+
+* Version:  1.2.1
+* Source:   <http://groboutils.sourceforge.net/>
+* License:  MIT
+* Updated:  20060705
 
 ## hibernate2-2.1.8.jar
 

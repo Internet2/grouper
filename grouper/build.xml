@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.105 2006-06-29 11:55:09 blair Exp $ -->
+<!-- $Id: build.xml,v 1.106 2006-07-05 17:54:53 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -178,6 +178,7 @@
     <unzip dest="${build.lib}">
       <fileset dir="${lib}">
         <include name="*.jar"/>
+        <exclude name="**/Grobo*.jar"/>
         <exclude name="**/junit.jar"/>
       </fileset>
     </unzip>
