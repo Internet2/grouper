@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS.txt,v 1.1 2006-06-28 18:43:12 blair Exp $
+$Id: NEWS.txt,v 1.2 2006-07-05 15:30:58 blair Exp $
 
 ---
 
@@ -10,6 +10,9 @@ $Id: NEWS.txt,v 1.1 2006-06-28 18:43:12 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:  Added *GrouperShell* (located in `contrib/gsh`).  *gsh* is a
+  command-line shell that may be used in a batch or interactive manner to
+  interact with and manipulate the Groups Registry.
 * UPDATE: Updated Subject API to version 0.2.1.
 * NEW:  Basic integration of Gary Brown's XML export and import code.
 * BUGFIX: Fixed another Hibernate lazy collection initiialization error
