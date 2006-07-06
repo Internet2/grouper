@@ -117,7 +117,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupAction.java,v 1.8 2006-04-03 12:42:36 isgwb Exp $
+ * @version $Id: PopulateCreateGroupAction.java,v 1.9 2006-07-06 09:32:27 isgwb Exp $
  */
 public class PopulateCreateGroupAction extends GrouperCapableAction {
 
@@ -154,7 +154,7 @@ public class PopulateCreateGroupAction extends GrouperCapableAction {
 		request.setAttribute("preSelected",selected);
 		request.setAttribute("browseParent", GrouperHelper.stem2Map(
 				grouperSession, stem));
-		request.setAttribute("allGroupTypes",GroupTypeFinder.findAll());
+		request.setAttribute("allGroupTypes",GroupTypeFinder.findAllAssignable());
 		request.setAttribute("selectedGroupTypes",new ArrayList());
 		return mapping.findForward(FORWARD_CreateGroup);
 
