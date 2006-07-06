@@ -3,7 +3,7 @@
 		  membership / privileges for the active group to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.4 2006-02-21 16:26:29 isgwb Exp $
+  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.5 2006-07-06 14:56:05 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -20,7 +20,7 @@
 	<html:hidden property="privilege"/>
 	<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 	
-	<c:if test="${(authUserPriv.UPDATE || authUserPriv.ADMIN) && subject.subjectId !='GrouperAll'}">
+	<c:if test="${(authUserPriv.UPDATE || authUserPriv.ADMIN) && !(browseParent.composite && (empty listField || listField=='members')) && subject.subjectId !='GrouperAll'}">
 	<html:multibox property="privileges" value="MEMBER" /> 
 	<c:choose>
 		<c:when test="${empty listField}">
