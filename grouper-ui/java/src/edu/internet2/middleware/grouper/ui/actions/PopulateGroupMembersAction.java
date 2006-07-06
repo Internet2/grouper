@@ -18,6 +18,8 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +33,8 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -39,6 +43,8 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
+import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
+import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 
 /**
  * Top level Strut's action which retrieves and makes available group members.  
@@ -102,6 +108,11 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">&nbsp;OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">&nbsp;Allows callerPageId to 
       be added to links/forms so this page can be returned to</font></td>
+  </tr>
+  <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;isCompositeGroup</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;Indicates whether group is composite</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
@@ -188,14 +199,14 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.7 2006-02-22 13:01:47 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.8 2006-07-06 09:40:54 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_GroupMembers = "GroupMembers";
-	static final private String FORWARD_AddGroupMembers = "AddGroupMembers";
+	static final private String FORWARD_AddGroupMembers = "AddGroupMembers"; 
 
 	static final private String FORWARD_StemMembers = "StemMembers";
 
@@ -247,11 +258,31 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 		Set members = null;
 		if ("imm".equals(membershipListScope)) {
-			members = group.getImmediateMemberships(mField);
+			if(group.hasComposite()) {
+				members=new HashSet();
+			}else{
+				members = group.getImmediateMemberships(mField);
+			}
 		} else if ("eff".equals(membershipListScope)) {
-			members = group.getEffectiveMemberships(mField);
+			if(group.hasComposite()&& membershipField.equals("members")) {
+				members = group.getCompositeMemberships();
+			}else{
+				members = group.getEffectiveMemberships(mField);
+			}
 		} else {
 			members = group.getMemberships(mField);
+		}
+		Map compMap = null;
+		if(membershipField.equals("members")) {
+			
+			if(group.hasComposite()) {
+				if(!"eff".equals(membershipListScope)) {
+					Composite comp = CompositeFinder.findAsOwner(group);
+					compMap = GrouperHelper.getCompositeMap(grouperSession,comp);
+				}
+				request.setAttribute("isCompositeGroup",Boolean.TRUE);
+			}
+			
 		}
 		Map countMap = new HashMap();
 		List uniqueMemberships = GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap);
@@ -268,9 +299,14 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 		List membershipMaps = GrouperHelper.memberships2Maps(
 				grouperSession, uniqueMemberships.subList(start, end));
+		int uniqueMembershipCount = uniqueMemberships.size();
 		GrouperHelper.setMembershipCountPerSubjectOrGroup(membershipMaps,"group",countMap);
-		CollectionPager pager = new CollectionPager(membershipMaps,uniqueMemberships
-				.size(), null, start, null, pageSize);
+		if(compMap!=null) {
+			membershipMaps.add(0,compMap);
+			uniqueMembershipCount++;
+		}
+		CollectionPager pager = new CollectionPager(membershipMaps,uniqueMembershipCount,
+				null, start, null, pageSize);
 		pager.setParam("groupId", groupId);
 		pager.setTarget(mapping.getPath());
 		if(!isEmpty(listField))pager.setParam("listField", listField);
@@ -280,6 +316,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		Map membership = new HashMap();
 		
 		membership.put("groupId", groupId);
+		membership.put("callerPageId",request.getAttribute("thisPageId"));
 		if(!isEmpty(listField)) membership.put("listField",listField);
 		//TODO: some of this looks familar  - look at refactoring
 		Map privs = GrouperHelper.hasAsMap(grouperSession, GroupOrStem.findByGroup(grouperSession, group));
