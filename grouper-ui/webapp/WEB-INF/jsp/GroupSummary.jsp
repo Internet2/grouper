@@ -3,12 +3,17 @@
 			the maintenance of the group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupSummary.jsp,v 1.6 2005-12-19 14:25:47 isgwb Exp $
+  @version $Id: GroupSummary.jsp,v 1.7 2006-07-06 14:51:08 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
 <tiles:insert definition="showStemsLocationDef" controllerUrl="/prepareBrowsePath.do"/>
 <tiles:insert definition="groupInfoDef"/>
+<c:set var="saveButton" scope="request">
+			<html:link page="/addSavedSubject.do" name="saveParams">
+				<fmt:message bundle="${nav}" key="saved-subjects.add.group"/>
+			</html:link>
+</c:set>
 <c:if test="${(empty GroupFormBean.map.contextGroup) && (empty GroupFormBean.map.contextSubject) && (empty GroupFormBean.map.callerPageId)}">
 	<tiles:insert definition="groupLinksDef"/>
 </c:if>
@@ -23,6 +28,7 @@
 		<c:set target="${contextParams}" property="contextSubject" value="${GroupFormBean.map.contextSubject}"/>
 		<c:set target="${contextParams}" property="groupId" value="${GroupFormBean.map.contextGroup}"/>
 		<div class="linkButton">
+		<c:out value="${saveButton}" escapeXml="false"/>
 		<tiles:insert definition="callerPageButtonDef"/>
 		<html:link page="/populateChains.do" name="contextParams">
 					<fmt:message bundle="${nav}" key="privs.group.member.return-to-chains"/>
@@ -36,6 +42,7 @@
 
 
 		<div class="linkButton">
+		<c:out value="${saveButton}" escapeXml="false"/>
 		<tiles:insert definition="callerPageButtonDef"/>
 		<html:link page="/populateSubjectSummary.do">
 					<fmt:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
@@ -47,9 +54,8 @@
 		</div>
 	</c:when>
 	<c:when test="${!empty GroupFormBean.map.callerPageId}">
-
-
 		<div class="linkButton">
+		<c:out value="${saveButton}" escapeXml="false"/>
 		<tiles:insert definition="callerPageButtonDef"/>
 
 		<html:link page="/populateGroupSummary.do" name="browseParent">
@@ -73,5 +79,6 @@
 		</c:if>
 	</c:otherwise>
 </c:choose>
+
 
 
