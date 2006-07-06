@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -81,6 +81,12 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Indicates user wants to save 
       group but not assign membership or privileges</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">submit.saveAndAddComposite</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates user wants to save 
+      group and then add a composite member</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -129,7 +135,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.8 2006-06-05 15:00:30 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.9 2006-07-06 10:32:26 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -144,6 +150,8 @@ public class SaveGroupAction extends GrouperCapableAction {
 	static final private String FORWARD_CreateAgain = "CreateAgain";
 
 	static final private String FORWARD_GroupMembers = "GroupMembers";
+	
+	static final private String FORWARD_AddComposite = "AddComposite";
 
 	static final private String FORWARD_FindMembers = "FindMembers";
 
@@ -243,7 +251,11 @@ public class SaveGroupAction extends GrouperCapableAction {
 		//TODO: are both these necessary?
 		request.setAttribute("groupId", group.getUuid());
 		groupForm.set("groupId",group.getUuid());
-
+		try {
+			if("true".equals(getMediaResources(request).getString("put.in.session.updated.groups"))) {
+				addSavedSubject(session,group.toSubject());
+			}
+		}catch(Exception e){}
 		String val  =(String) groupForm.get("groupDescription");
 		if("".equals(val)) val=null;
 
@@ -259,13 +271,17 @@ public class SaveGroupAction extends GrouperCapableAction {
 		if (submit != null) {
 			return mapping.findForward(FORWARD_GroupSummary);
 		}
+		submit=request.getParameter("submit.saveAndAddComposite");
+		if (submit != null) {
+			return mapping.findForward(FORWARD_AddComposite);
+		}
 		session.setAttribute("findForNode", group.getUuid());
 		return mapping.findForward(FORWARD_FindMembers);
 
 	}
 	
 	private void doTypes(Group group,HttpServletRequest request) throws Exception {
-		Set curGroupTypes = group.getTypes();
+		Set curGroupTypes = group.getRemovableTypes();
 		String[] selectedGroupTypes = request.getParameterValues("groupTypes");
 		Set selected = new HashSet();
 		GroupType type;
