@@ -17,12 +17,26 @@
 	  <tiles:put name="view" value="chainSubject"/>
   </tiles:insert>
  </div>
- 	<tiles:insert definition="dynamicTileDef" flush="false">
-		<tiles:put name="viewObject" beanName="currentSubject"/>
-		<tiles:put name="view" value="isMemberOf"/>
-		<tiles:put name="params" beanName="membershipMap"/>
-	  	<tiles:put name="linkTitle" value="${navMap['groups.membership.through.title']} ${viewObject[0].desc}"/>
-	</tiles:insert>
+ 	<c:choose>
+		<c:when test="${!empty viewObject[0].owner && viewObject[0].owner.composite}">
+			<tiles:insert definition="dynamicTileDef" flush="false">
+				<tiles:put name="viewObject" beanName="currentSubject"/>
+				<tiles:put name="view" value="isIndirectMemberOf"/>
+				<tiles:put name="params" beanName="membershipMap"/>
+				<tiles:put name="linkTitle" value="${navMap['groups.membership.through.title']} ${viewObject[0].owner.displayExtension}"/>
+			</tiles:insert>
+		</c:when>
+		<c:otherwise>
+			<tiles:insert definition="dynamicTileDef" flush="false">
+				<tiles:put name="viewObject" beanName="currentSubject"/>
+				<tiles:put name="view" value="isMemberOf"/>
+				<tiles:put name="params" beanName="membershipMap"/>
+				<tiles:put name="linkTitle" value="${navMap['groups.membership.through.title']} ${viewObject[0].desc}"/>
+			</tiles:insert>
+		</c:otherwise>
+	</c:choose>
+	
+ 
 <ul>
 <c:forEach items="${viewObject}" var="group" varStatus="status">
 <c:set target="${membershipMap}" property="subjectId" value="${group.id}"/>
