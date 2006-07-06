@@ -133,7 +133,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAction.java,v 1.6 2006-04-03 12:43:13 isgwb Exp $
+ * @version $Id: PopulateEditGroupAction.java,v 1.7 2006-07-06 09:33:39 isgwb Exp $
  */
 public class PopulateEditGroupAction extends GrouperCapableAction {
 
@@ -193,8 +193,8 @@ public class PopulateEditGroupAction extends GrouperCapableAction {
 		
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, group));
-		request.setAttribute("allGroupTypes",GroupTypeFinder.findAll());
-		request.setAttribute("selectedGroupTypes",group.getTypes());
+		request.setAttribute("allGroupTypes",GroupTypeFinder.findAllAssignable());
+		request.setAttribute("selectedGroupTypes",group.getRemovableTypes());
 		return mapping.findForward(FORWARD_EditGroup);
 
 	}
