@@ -17,8 +17,10 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +31,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
@@ -39,8 +42,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
  * Top level Strut's action which retrieves and makes available a GrouperGroup 
  * object. 
  * <p/>
- 
-<table width="75%" border="1">
+ <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
       Parameter</font></strong></td>
@@ -120,6 +122,37 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Used to give context to UI</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">isFactor</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Boolean which indicates if this 
+      group is a factor in a composite - used to provide a link, where relevant, 
+      to those groups</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">allowedFields</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Map keyed on fields which the 
+      authenticated Subject can read</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">saveParams</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Link parameters for saving Group 
+      to list of saved Groups</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">factorParams</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Link parameters to supply to 
+      populateGroupAsFactor</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">IsComposite</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Boolean indicating if Group 
+      has a CompositeMember</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -158,8 +191,9 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td>&nbsp;</td>
   </tr>
 </table>
+
  * @author Gary Brown.
- * @version $Id: PopulateGroupSummaryAction.java,v 1.5 2006-02-22 13:04:36 isgwb Exp $
+ * @version $Id: PopulateGroupSummaryAction.java,v 1.6 2006-07-06 10:20:17 isgwb Exp $
  */
 public class PopulateGroupSummaryAction extends GrouperCapableAction {
 
@@ -179,6 +213,7 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		session.setAttribute("subtitle", "groups.action.show-summary");
 		
 		DynaActionForm groupForm = (DynaActionForm) form;
+		saveAsCallerPage(request,groupForm);
 		//Determine group we are showing summary for
 		String groupId = (String) groupForm.get("groupId");
 		if (groupId == null || "".equals(groupId))
@@ -197,7 +232,10 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		
 		//Only reset if we are not here on a diversion
 		if(isEmpty(groupForm.get("contextGroup"))) setBrowseNode(groupId,session);
-
+		Set compOwners = CompositeFinder.findAsFactor(group);
+		if(!compOwners.isEmpty()) {
+			request.setAttribute("isFactor",Boolean.TRUE);
+		}
 		//Determine privileges for group so user only gets the buttons they
 		// should get
 		Map privs = GrouperHelper.hasAsMap(grouperSession, GroupOrStem.findByGroup(grouperSession,group));
@@ -208,10 +246,19 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		List listFields = GrouperHelper.getListFieldsForGroup(grouperSession,group);
 		request.setAttribute("listFields",listFields);
 		request.setAttribute("listFieldsSize",new Integer(listFields.size()));
-		
+		Map allowedFields = GrouperHelper.getFieldsForGroup(grouperSession,group,"read");
+		request.setAttribute("allowedFields",allowedFields);
 
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, group));
+		Map saveParams = new HashMap();
+		saveParams.put("subjectId",group.getUuid());
+		saveParams.put("subjectType","group");
+		saveParams.put("callerPageId",request.getAttribute("thisPageId"));
+		saveParams.put("groupId",group.getUuid());
+		request.setAttribute("saveParams",saveParams);
+		request.setAttribute("factorParams",saveParams);
+		if(group.hasComposite()) request.setAttribute("isCompositeGroup",Boolean.TRUE);
 		
 		boolean isFlat = processFlatForMode(getBrowseMode(session), request, session);
 		if(isFlat) {
