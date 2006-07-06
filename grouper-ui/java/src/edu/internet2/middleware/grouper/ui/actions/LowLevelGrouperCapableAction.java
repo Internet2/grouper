@@ -20,11 +20,15 @@ package edu.internet2.middleware.grouper.ui.actions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +45,7 @@ import org.apache.struts.tiles.ComponentContext;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -61,7 +66,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.4 2006-02-24 13:35:46 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.5 2006-07-06 09:10:07 isgwb Exp $
  */
 
 /**
@@ -86,9 +91,9 @@ public abstract class LowLevelGrouperCapableAction
 	 */
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
 		      HttpServletRequest request, HttpServletResponse response) throws Exception{
-			
-			GrouperSession grouperSession = (GrouperSession) request.getSession().getAttribute("edu.intenet2.middleware.grouper.ui.GrouperSession");
-			HttpSession session = request.getSession();			
+			HttpSession session = request.getSession();
+			GrouperSession grouperSession = (GrouperSession) session.getAttribute("edu.intenet2.middleware.grouper.ui.GrouperSession");
+						
 			DynaActionForm dummyForm = (DynaActionForm)form;
 			if(form!=null)request.setAttribute("grouperForm",form);
 			
@@ -378,6 +383,59 @@ public abstract class LowLevelGrouperCapableAction
 		return Boolean.TRUE.equals(session.getAttribute("activeWheelGroupMember"));
 	}
 	
+	protected void makeSavedGroupsAvailable(HttpServletRequest request) throws Exception{
+		HttpSession session = request.getSession();
+		List savedAsMaps =  new ArrayList();
+		Set savedSubjects=getSavedSubjects(session);
+		Subject subj;
+		Group group;
+		Iterator it = savedSubjects.iterator();
+		GrouperSession grouperSession = (GrouperSession) session.getAttribute("edu.intenet2.middleware.grouper.ui.GrouperSession");
+		
+		while(it.hasNext()) {
+			subj=(Subject)it.next();
+			if("group".equals(subj.getType().getName())) {
+				try {
+					group=GroupFinder.findByUuid(grouperSession,subj.getId());
+					savedAsMaps.add(GrouperHelper.group2Map(grouperSession,group));
+				}catch(GroupNotFoundException e) {
+					it.remove();
+				}
+			}
+		}
+		request.setAttribute("savedSubjects",new ArrayList(savedAsMaps));
+		request.setAttribute("savedSubjectsSize",new Integer(savedAsMaps.size()));	
+	}
+	
+	protected void makeSavedSubjectsAvailable(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		List savedAsMaps =  GrouperHelper.subjects2Maps(getSavedSubjects(session).toArray());
+		request.setAttribute("savedSubjects",new ArrayList(savedAsMaps));
+		request.setAttribute("savedSubjectsSize",new Integer(savedAsMaps.size()));	
+	}
+	
+	protected void addSavedSubject(HttpSession session,Subject subj) {
+		getSavedSubjects(session).add(subj);
+	}
+	
+	protected void removeSavedSubject(HttpSession session,Subject subj) {
+		Set saved = getSavedSubjects(session);
+		Iterator it = saved.iterator();
+		Subject savedSubj;
+		while(it.hasNext()){
+			savedSubj = (Subject)it.next();
+			if(subj.getId().equals(savedSubj.getId())&& subj.getSource().equals(savedSubj.getSource())) it.remove();
+		}
+	}
+	
+	private Set getSavedSubjects(HttpSession session) {
+		Set savedSubjects = (Set)session.getAttribute("savedSubjectsSet");
+		if(savedSubjects==null) {
+			savedSubjects = new LinkedHashSet();
+			session.setAttribute("savedSubjectsSet",savedSubjects);
+		}
+		return savedSubjects;
+	}
 }
 
 
