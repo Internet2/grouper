@@ -2,7 +2,7 @@
 		  Shows effective privileges for subject over group or stem
 --%><%--
   @author Gary Brown.
-  @version $Id: effectivePriv.jsp,v 1.2 2006-02-21 16:21:57 isgwb Exp $
+  @version $Id: effectivePriv.jsp,v 1.3 2006-07-06 14:31:00 isgwb Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -21,10 +21,19 @@
 						<fmt:param value="${viewObject.desc}"/>
 						<fmt:param value="${group.desc}"/>
 				</fmt:message></c:set>
+			
+			<c:choose>
+				<c:when test="${group.composite}">
+					<c:set var="memberOfView" value="isIndirectMemberOf"/>
+				</c:when>
+				<c:otherwise>
+					<c:set var="memberOfView" value="isMemberOf"/>
+				</c:otherwise>
+			</c:choose>
 				
 			<tiles:insert definition="dynamicTileDef" flush="false">
 			  <tiles:put name="viewObject" beanName="subject"/>
-			  <tiles:put name="view" value="isMemberOf"/>
+			  <tiles:put name="view" value="${memberOfView}"/>
 			  <tiles:put name="params" beanName="params"/>
 	  		  <tiles:put name="linkTitle" beanName="linkTitle"/>
 			</tiles:insert>
