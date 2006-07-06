@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.10 2006-06-19 19:37:54 blair Exp $
+ * @version $Id: E.java,v 1.11 2006-07-06 14:43:47 blair Exp $
  * @since   1.0
  */
 class E {
@@ -130,8 +130,8 @@ class E {
   protected static final String STEM_NULL                 = "null stem";
   protected static final String STEM_ROOTNOTFOUND         = "unable to find root stem";
   protected static final String STEM_ROOTINSTALL          = "unable to install root stem: ";
-  protected static final String STEMF_ISCHILDGROUP        = "error checking if group is child: ";
-  protected static final String STEMF_ISCHILDSTEM         = "error checking if stem is child: ";
+  protected static final String STEMF_ISCHILDGROUP        = "could not find parent stem: stem=";
+  protected static final String STEMF_ISCHILDSTEM         = "could not find parent stem: stem=";
   protected static final String SUBJ_NULL                 = "null subject";
 
 }

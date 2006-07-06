@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.*;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.21 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: StemFinder.java,v 1.22 2006-07-06 14:43:47 blair Exp $
  */
 public class StemFinder {
 
@@ -375,18 +375,22 @@ public class StemFinder {
   // TODO Is this the right location for this method?
   // TODO Would a top-down rather than bottom-up approach work better?
   protected static boolean isChild(Stem ns, Group g) {
+    Stem parent = g.getParentStem();
     try {
-      Stem parent = g.getParentStem();
       while (parent != null) {
         if (parent.equals(ns)) {
           return true;
+        }
+        // parent is root.  don't bother searching further.
+        if (parent.getName().equals(Stem.ROOT_EXT)) {
+          return false;
         }
         parent = parent.getParentStem();
       }
     }
     catch (StemNotFoundException eSNF) {
-      ErrorLog.error(StemFinder.class, E.STEMF_ISCHILDGROUP + eSNF.getMessage());
-      // Nothing
+      String msg = E.STEMF_ISCHILDGROUP + U.q(parent.getName()) + " " + eSNF.getMessage();
+      ErrorLog.error(StemFinder.class, msg);
     }
     return false;
   } // protected static boolean isChild(ns, g)
@@ -394,17 +398,35 @@ public class StemFinder {
   // TODO Is this the right location for this method?
   // TODO Would a top-down rather than bottom-up approach work better?
   protected static boolean isChild(Stem ns, Stem stem) {
+    // our start stem is the root stem.  bail out immediately.
+    if (stem.getName().equals(Stem.ROOT_EXT)) {
+      return false;
+    }
+    Stem parent = null;
     try {
-      Stem parent = stem.getParentStem();
+      parent = stem.getParentStem();
       while (parent != null) {
         if (parent.equals(ns)) {
           return true;
+        }
+        // parent is root.  don't bother searching further.
+        if (parent.getName().equals(Stem.ROOT_EXT)) {
+          return false;
         }
         parent = parent.getParentStem();
       }
     }
     catch (StemNotFoundException eSNF) {
-      ErrorLog.error(StemFinder.class, E.STEMF_ISCHILDSTEM + eSNF.getMessage());
+      String msg = E.STEMF_ISCHILDSTEM;
+      if (parent == null) {
+        msg += "null";
+      }
+      else {
+        msg += U.q(parent.getName());
+      }
+      msg += " start=" + U.q(stem.getName());
+      msg += " " + eSNF.getMessage();
+      ErrorLog.error(StemFinder.class, msg);
     }
     return false;
   } // protected static boolean isChild(ns, stem)
