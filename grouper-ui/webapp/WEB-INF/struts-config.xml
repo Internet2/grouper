@@ -11,6 +11,13 @@
                type="org.apache.struts.action.DynaActionForm">
       <form-property name="testData" type="org.apache.struts.upload.FormFile"/>
     </form-bean>
+     <form-bean dynamic="true" name="CompositeFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="groupId" type="java.lang.String"/>
+      <form-property name="leftGroup" type="java.lang.String"/>
+      <form-property name="rightGroup" type="java.lang.String"/>
+      <form-property name="compositeType" type="java.lang.String"/>
+    </form-bean>
   <form-bean dynamic="true" name="DebugPrefsFormBean"
                type="org.apache.struts.action.DynaActionForm">
       <form-property name="isActive" type="java.lang.Boolean"/>
@@ -304,6 +311,8 @@
                redirect="false"/>
       <forward name="ManageGroups" path="/populateManageGroups.do"
                redirect="false"/>
+    	<forward name="GroupSummary" path="/populateGroupSummary.do"
+               redirect="false"/>
     </action>
    
    
@@ -462,7 +471,37 @@
             unknown="false" validate="false">
       <forward name="StemPriviligees" path="StemPriviligeesDef" redirect="false"/>
     </action>
-   
+    
+    <action name="SubjectFormBean" path="/populateListSavedGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateListSavedSubjectsAction"
+            unknown="false" validate="false" parameter="groupsOnly">
+            <forward name="SavedSubjects" path="SavedGroupsDef" redirect="false"/>
+     		   </action>
+	
+	<action name="SubjectFormBean" path="/populateListSavedSubjects" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateListSavedSubjectsAction"
+            unknown="false" validate="false" >
+            <forward name="SavedSubjects" path="SavedSubjectsDef" redirect="false"/>
+     		   </action>
+			   
+	<action name="SubjectFormBean" path="/removeSavedGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.RemoveSavedSubjectsAction"
+            unknown="false" validate="false" parameter="groupsOnly">
+            <forward name="SavedSubjects" path="/populateListSavedGroups.do" redirect="false"/>
+     		   </action>
+			   
+	<action name="SubjectFormBean" path="/removeSavedSubjects" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.RemoveSavedSubjectsAction"
+            unknown="false" validate="false" >
+            <forward name="SavedSubjects" path="/populateListSavedSubjects.do" redirect="false"/>
+     		   </action>
+			   
+			   <action path="/assignSavedSubjects" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.AssignSavedSubjectsAction"
+            unknown="false" validate="false" >
+            <forward name="AssignSubjects" path="/populateAssignNewMembers.do" redirect="false"/>
+     		   </action>
+    
     <action name="GroupFormBean" path="/populateGroupMembers" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupMembersAction"
             unknown="false" validate="false">
@@ -475,6 +514,17 @@
             type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupSummaryAction"
             unknown="false" validate="false">
                   <forward name="GroupSummary" path="GroupSummaryDef" redirect="false"/>
+    </action>
+    
+    <action name="GroupFormBean" path="/populateGroupAsFactor" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupAsFactorAction"
+            unknown="false" validate="false">
+                  <forward name="GroupAsFactor" path="GroupAsFactorDef" redirect="false"/>
+    </action>
+        <action name="SubjectFormBean" path="/addSavedSubject" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.AddSavedSubjectAction"
+            unknown="false" validate="false">
+                  
     </action>
   
       <action  name="SubjectFormBean" path="/populateSubjectSummary" scope="request"
@@ -574,6 +624,14 @@
        <action path="/prepareSubjectSearch" scope="request" name="SearchFormBean"
             type="edu.internet2.middleware.grouper.ui.actions.PrepareSubjectSearchFormAction"
             unknown="false" validate="false"/>
+            
+       <action path="/prepareSavedSubjects" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareSavedSubjectsAction"
+            unknown="false" validate="false"/>
+            
+       <action path="/prepareSavedGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareSavedSubjectsAction"
+            unknown="false" validate="false" parameter="groupsOnly"/>
 			
 			<action path="/getDynamicTileName" scope="request" name="DummyFormBean"
             type="edu.internet2.middleware.grouper.ui.actions.GetDynamicTileAction"
@@ -594,6 +652,8 @@
       <forward name="GroupSummary" path="/populateGroupSummary.do"
                redirect="false"/>
 	  <forward name="GroupMembers" path="/populateGroupMembers.do"
+               redirect="false"/>
+      <forward name="AddComposite" path="/populateAddComposite.do"
                redirect="false"/>
 	  <forward name="FindMembers" path="/populateFindNewMembers.do"
                redirect="false"/>
@@ -652,7 +712,23 @@
                redirect="false"/>
     </action>
    
-     
+     <action name="GroupFormBean" path="/removeComposite" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.RemoveCompositeAction"
+            unknown="false" validate="false">
+    </action>
+    
+    <action name="GroupFormBean" path="/populateAddComposite" scope="request" 
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateAddCompositeAction"
+            unknown="false" validate="false">
+      <forward name="addComposite" path="AddCompositeDef" redirect="false"/>
+    </action>
+    
+     <action name="CompositeFormBean" path="/saveComposite" scope="request" 
+            type="edu.internet2.middleware.grouper.ui.actions.SaveCompositeAction"
+            unknown="false" validate="false">
+      <forward name="GroupMembers" path="/populateGroupMembers.do" redirect="false"/>
+      <forward name="self" path="/populateAddComposite.do" redirect="false"/>
+    </action>
     
     <action name="SearchFormBean" path="/doSearchSubjects" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.DoSearchSubjectsAction"
