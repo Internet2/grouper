@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupMemberAction.java,v 1.5 2006-02-22 13:34:13 isgwb Exp $
+ * @version $Id: SaveGroupMemberAction.java,v 1.6 2006-07-06 10:40:14 isgwb Exp $
  */
 public class SaveGroupMemberAction extends GrouperCapableAction {
 
@@ -217,7 +217,8 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 			key = ((String) it.next()).toLowerCase();
 			if (!newPrivs.containsKey(key)) {
 				if (key.toLowerCase().equals("member")) {
-					curGroup.deleteMember(member.getSubject(),mField);
+					if(!membershipField.equals("members") || !curGroup.hasComposite())
+						curGroup.deleteMember(member.getSubject(),mField);
 				} else {
 					try {
 						curGroup.revokePriv(member.getSubject(),Privilege.getInstance(key));
