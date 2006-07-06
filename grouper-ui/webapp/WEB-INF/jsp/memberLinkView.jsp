@@ -3,16 +3,17 @@
 		  render individual group members
 --%><%--
   @author Gary Brown.
-  @version $Id: memberLinkView.jsp,v 1.6 2006-02-02 16:38:08 isgwb Exp $
+  @version $Id: memberLinkView.jsp,v 1.7 2006-07-06 14:53:33 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 
 <c:set var="linkTitle"><fmt:message bundle="${nav}" key="browse.assign.title">
 				<fmt:param value="${viewObject.subject.desc}"/>
-				<fmt:param value="${browseParent.desc}"/>
+				<fmt:param value="${viewObject.group.desc}"/>
 </fmt:message></c:set>
   <span class="memberLink">
+
    <c:choose>
 		<c:when test="${viewObject.noWays gt 1}">
 		<html:link page="/populateChains.do" name="linkParams" title="${linkTitle}">
@@ -21,7 +22,7 @@
 		 </fmt:message></html:link> 
 		
 	</c:when>
-  	<c:when test="${!empty viewObject.viaGroup}">
+  	<c:when test="${!empty viewObject.viaGroup || isCompositeGroup}">
 		<html:link page="/populateChains.do" name="linkParams" title="${linkTitle}">
 		 <fmt:message bundle="${nav}" key="groups.membership.chain.indirect-member"/></html:link> 
 	</c:when>
