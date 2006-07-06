@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.19 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.20 2006-07-06 17:16:53 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -60,7 +60,8 @@ public class GrouperSubject implements Subject {
    * @since 1.0
    */
   public boolean equals(Object other) {
-    // TODO Why don't I just call `SubjectHelper.eq(this, other)?
+    // TODO I should modify *SubjectHelper.eq(this, other)* so that I can just
+    //      call that.
     if (this == other) {
       return true;
     }
@@ -131,6 +132,8 @@ public class GrouperSubject implements Subject {
     //      is fairly naive - but I guess right now only *I* can add items so
     //      it is probably sufficient - for now.
     //      Use Commons validating code?
+    // TODO Actually, why do I do any validation?  I'm not really sure what is
+    //      going on here.
     if ( 
       (attr   != null       ) 
       && (attr.length() > 0 )

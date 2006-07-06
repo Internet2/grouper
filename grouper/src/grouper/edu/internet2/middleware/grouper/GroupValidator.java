@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.provider.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.9 2006-06-16 15:01:46 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.10 2006-07-06 17:16:53 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -88,7 +88,6 @@ class GroupValidator {
             SchemaException
   {
     Field f = Group.getDefaultList();
-    isTypeEqual(f, FieldType.LIST); // TODO Why do I bother?
     canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
     if (!g.hasComposite()) {
       throw new ModelException(E.GROUP_DCFC); 

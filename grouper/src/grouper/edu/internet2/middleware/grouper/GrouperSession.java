@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.29 2006-07-03 18:29:06 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.30 2006-07-06 17:16:53 blair Exp $
  */
 public class GrouperSession {
 
@@ -279,7 +279,7 @@ public class GrouperSession {
     }
     catch (ModelException eM) {
       eM.printStackTrace();
-      throw new RuntimeException(eM.getMessage(), eM);
+      throw new GrouperRuntimeException(eM.getMessage(), eM);
     }
   } // protected static void validate(s)
 

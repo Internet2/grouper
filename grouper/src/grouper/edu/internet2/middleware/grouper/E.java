@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.12 2006-07-06 16:32:03 blair Exp $
+ * @version $Id: E.java,v 1.13 2006-07-06 17:16:53 blair Exp $
  * @since   1.0
  */
 class E {
@@ -109,9 +109,13 @@ class E {
   protected static final String GSUBJ_NOCREATOR           = "group creator not found: ";
   protected static final String HH_GETPERSISTENT          = "error getting persistent object: ";
   protected static final String HIBERNATE                 = "hibernate error: ";
+  protected static final String HIBERNATE_GETPERSISTENT   = "error getting persistent object: ";
+  protected static final String HIBERNATE_INIT            = "unable to initialize hibernate: ";
   protected static final String MEMBER_NOGROUP            = "member of group that cannot be found: member=";
   protected static final String MEMBER_NULL               = "null member";
   protected static final String MEMBER_SUBJNOTFOUND       = "unable to find member as subject: ";
+  protected static final String MEMBERF_FINDALLMEMBER     = "unable to find ALL subject as member: ";
+  protected static final String MOF_CTYPE                 = "invalid composite type: ";
   protected static final String MSF_FINDSUBJECTS          = "error finding subjects: ";
   protected static final String MSF_FINDALLCHILDREN       = "error finding all child memberships: ";
   protected static final String MSF_FINDALLVIA            = "error finding all via memberships: ";

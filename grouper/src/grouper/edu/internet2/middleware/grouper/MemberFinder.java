@@ -25,14 +25,9 @@ import  net.sf.hibernate.type.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.16 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.17 2006-07-06 17:16:53 blair Exp $
  */
 public class MemberFinder {
-
-  // PRIVATE CLASS CONSTANTS //
-  // TODO Move to *E*
-  private static final String ERR_FAM = "unable to find ALL subject as member: ";
-
 
   // PUBLIC CLASS METHODS //
 
@@ -118,7 +113,7 @@ public class MemberFinder {
       return MemberFinder.findBySubject(SubjectFinder.findAllSubject()); 
     }
     catch (MemberNotFoundException eMNF) {
-      String msg = ERR_FAM + eMNF.getMessage();
+      String msg = E.MEMBERF_FINDALLMEMBER + eMNF.getMessage();
       ErrorLog.fatal(MemberFinder.class, msg);
       throw new GrouperRuntimeException(msg, eMNF);
     }
