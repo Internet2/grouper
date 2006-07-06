@@ -18,6 +18,8 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.actions;
 
 
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
@@ -53,8 +55,14 @@ import edu.internet2.middleware.grouper.ui.Message;
     <td><font face="Arial, Helvetica, sans-serif">message</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Message instance: text derived 
-      from groups.message.group-deleted / groups.message.group-fail-delete key 
-      in nav ResourceBundle</font></td>
+      from groups.message.group-deleted / groups.message.group-deleted-fail.factor 
+      / groups.message.group-fail-delete key in nav ResourceBundle</font></td>
+  </tr>
+  <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">isFactor</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Boolean indicates that this 
+      group is a factor in a composite - and so cannot be deleted</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -86,7 +94,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DeleteGroupAction.java,v 1.4 2005-12-21 15:45:53 isgwb Exp $
+ * @version $Id: DeleteGroupAction.java,v 1.5 2006-07-06 08:47:17 isgwb Exp $
  */
 public class DeleteGroupAction extends GrouperCapableAction {
 
@@ -112,34 +120,46 @@ public class DeleteGroupAction extends GrouperCapableAction {
 		Group group = GrouperHelper.groupLoadById(grouperSession,
 				groupId);
 		
-
+		Message message=null;
 		String displayExtn = group.getDisplayExtension();
-
+		Set compOwners = CompositeFinder.findAsFactor(group);
+		boolean success = false;
+		if(!compOwners.isEmpty()) {
+			request.setAttribute("isFactor",Boolean.TRUE);
+			 message= new Message("groups.message.group-deleted-fail.factor",
+					displayExtn,true);
+		}else {
 		
-		
-		//Set up message to display to user
-		Message message = new Message("groups.message.group-deleted",
-				displayExtn);
-		
-		//Obtain the stem for the group we are removing
-		
-		Stem parent = group.getParentStem();
-		//Try and remove the group
-		
-		try{
-			group.delete();
-			setBrowseNode(parent.getUuid(),session);
-		}catch(GroupDeleteException e){
-			message = new Message("groups.message.group-fail-delete",
-					displayExtn, true);
+			//Set up message to display to user
+			message = new Message("groups.message.group-deleted",
+					displayExtn);
+			
+			//Obtain the stem for the group we are removing
+			
+			Stem parent = group.getParentStem();
+			//Try and remove the group
+			
+			try{
+				if(group.hasComposite()) group.deleteCompositeMember();
+				group.delete();
+				setBrowseNode(parent.getUuid(),session);
+				success=true;
+			}catch(GroupDeleteException e){
+				message = new Message("groups.message.group-fail-delete",
+						displayExtn, true);
+			}
 		}
-		
 		request.setAttribute("message", message);
 
 		 
-		//Do redirect else advanced search link breaks
-		//return mapping.findForward(getBrowseMode(session) + "Groups");
-		ActionForward forward = new ActionForward("/browseStems" + getBrowseMode(session) + ".do",true);
+		
+		ActionForward forward =null;
+		if(!success) {
+			forward = mapping.findForward("GroupSummary");
+		}else {
+			//Do redirect else advanced search link breaks
+			 forward=new ActionForward("/browseStems" + getBrowseMode(session) + ".do",true);
+		}
 		return forward;
 	}
 }
