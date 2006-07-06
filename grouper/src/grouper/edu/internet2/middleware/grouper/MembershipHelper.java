@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.5 2006-06-16 18:25:21 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.6 2006-07-06 17:38:01 blair Exp $
  */
 class MembershipHelper {
 
@@ -82,7 +82,7 @@ class MembershipHelper {
         .toString();
     }
     else {
-      throw new RuntimeException("INVALID OWNER CLASS: " + o.getClass().getName());
+      throw new GrouperRuntimeException("INVALID OWNER CLASS: " + o.getClass().getName());
     }
   } // protected static String getPretty(ms)
 
