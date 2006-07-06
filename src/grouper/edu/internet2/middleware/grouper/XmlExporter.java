@@ -34,7 +34,7 @@ import  org.apache.commons.logging.*;
  * into the same repository or into another repository. See XmlImporer.
  * </p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.3 2006-07-03 17:57:42 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.4 2006-07-06 17:38:01 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -646,7 +646,7 @@ public class XmlExporter {
         groupOrStem.stem  = stem;
       }
       catch (Exception se) {
-        throw new RuntimeException("Unable to instatiate a group or stem with ID=" + id);
+        throw new GrouperRuntimeException("Unable to instatiate a group or stem with ID=" + id);
       }
     }
     return groupOrStem;
@@ -683,7 +683,7 @@ public class XmlExporter {
         Stem stem = StemFinder.findByName(s,name);
         groupOrStem.stem = stem;
       }catch(Exception se) {
-        throw new RuntimeException("Unable to instatiate a group or stem with name=" + name);
+        throw new GrouperRuntimeException("Unable to instatiate a group or stem with name=" + name);
       }
     }
     return groupOrStem;

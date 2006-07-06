@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.42 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: Membership.java,v 1.43 2006-07-06 17:38:01 blair Exp $
  */
 public class Membership {
 
@@ -422,7 +422,7 @@ public class Membership {
     catch (ModelException eM) {
       ErrorLog.fatal(Membership.class, eM.getMessage());
       eM.printStackTrace();
-      throw new RuntimeException(eM.getMessage(), eM);
+      throw new GrouperRuntimeException(eM.getMessage(), eM);
     }
   } // protected GrouperSession getSession()
 

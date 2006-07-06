@@ -28,7 +28,7 @@ import  net.sf.hibernate.cfg.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.24 2006-07-06 17:16:53 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.25 2006-07-06 17:38:01 blair Exp $
  */
 class HibernateHelper {
 
@@ -248,14 +248,16 @@ class HibernateHelper {
       }
     }
     if (persistent == false) {
+      // I think this was done in an effort to try and get an actual stacktrace
+      // but does it actually work?
       try {
-        throw new RuntimeException();
+        throw new GrouperRuntimeException();
       }
-      catch (RuntimeException eR) {
-        String msg = E.HIBERNATE_GETPERSISTENT + o + ":" + eR.getMessage();
+      catch (GrouperRuntimeException eGR) {
+        String msg = E.HIBERNATE_GETPERSISTENT + o + ":" + eGR.getMessage();
         ErrorLog.fatal(HibernateHelper.class, msg);
-        eR.printStackTrace();
-        throw new RuntimeException(msg, eR);
+        eGR.printStackTrace();
+        throw new GrouperRuntimeException(msg, eGR);
       }
     }
     return o;
