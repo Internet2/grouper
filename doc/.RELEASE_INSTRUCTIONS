@@ -3,7 +3,7 @@
 
 Instructions for preparing a Grouper release.
 
-$Id: .RELEASE_INSTRUCTIONS,v 1.4 2006-06-19 17:00:57 blair Exp $
+$Id: .RELEASE_INSTRUCTIONS,v 1.5 2006-07-06 13:05:18 blair Exp $
 
 ---
 
@@ -15,7 +15,8 @@ $Id: .RELEASE_INSTRUCTIONS,v 1.4 2006-06-19 17:00:57 blair Exp $
   * OSX/Postgres
   * Solaris/HSQLDB
   * Solaris/Oracle
-  * `contrib/cdg`
+  * `contrib/gsh`
+* Tag `contrib/gsh`
 * Document
   * `doc/NEWS`, including version number and release date
 * Update `impl.version` in `build.xml`
