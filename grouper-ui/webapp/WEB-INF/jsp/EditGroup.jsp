@@ -2,7 +2,7 @@
 			Form for creating new groups or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.5 2006-04-03 12:51:28 isgwb Exp $
+  @version $Id: EditGroup.jsp,v 1.6 2006-07-06 13:55:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -77,6 +77,7 @@
  <html:submit property="submit.save" value="${navMap['groups.action.save']}"/>
  <c:if test="${empty GroupFormBean.map.groupId}">
  	<html:submit property="submit.saveAndAssign" value="${navMap['groups.action.save-assign']}"/>
+	<html:submit property="submit.saveAndAddComposite" value="${navMap['groups.action.save-add-composite']}"/>
  </c:if>
  </div>
 </fieldset>
