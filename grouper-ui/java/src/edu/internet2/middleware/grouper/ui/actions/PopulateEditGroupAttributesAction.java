@@ -17,6 +17,8 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -35,7 +37,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 /**
  * Deal with attributes from custom types 
  * <p/>
- * <table width="75%" border="1">
+ *<table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
       Parameter</font></strong></td>
@@ -65,6 +67,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
     <td><font face="Arial, Helvetica, sans-serif">Current group - used to display 
       location </font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">allowedFields</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Map keyed on those fields the 
+      authenticated subject has write privileges for</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -89,7 +97,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAttributesAction.java,v 1.4 2006-02-22 15:32:50 isgwb Exp $
+ * @version $Id: PopulateEditGroupAttributesAction.java,v 1.5 2006-07-06 09:38:06 isgwb Exp $
  */
 public class PopulateEditGroupAttributesAction extends GrouperCapableAction {
 
@@ -114,6 +122,8 @@ public class PopulateEditGroupAttributesAction extends GrouperCapableAction {
   		request.setAttribute("group",GrouperHelper.group2Map(grouperSession,group));
   		request.setAttribute("browseParent",GrouperHelper.group2Map(grouperSession,group));
 		session.setAttribute("subtitle","groups.action.edit-attr");
+		Map allowedFields = GrouperHelper.getFieldsForGroup(grouperSession,group,"write");
+		request.setAttribute("allowedFields",allowedFields);
     return mapping.findForward(FORWARD_EditGroupAttributes);
 
     
