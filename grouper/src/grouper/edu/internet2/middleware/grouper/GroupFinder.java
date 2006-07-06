@@ -25,7 +25,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.16 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.17 2006-07-06 16:53:01 blair Exp $
  */
 public class GroupFinder {
 
@@ -51,13 +51,11 @@ public class GroupFinder {
   {
     GrouperSession.validate(s);
     Group g = findByName(name);
-    // Attach root session for VIEW check
-    // TODO What problems might this cause?
-    g.setSession(GrouperSessionFinder.getRootSession());
+    g.setSession(s);
     try {
-      PrivilegeResolver.getInstance().canVIEW(s, g, s.getSubject());
-      // Now attach proper session
-      g.setSession(s);
+      PrivilegeResolver.getInstance().canVIEW(
+        GrouperSessionFinder.getRootSession(), g, s.getSubject()
+      );
       return g;
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -86,13 +84,11 @@ public class GroupFinder {
   {
     GrouperSession.validate(s);
     Group g = _findByUuid(uuid);
-    // Attach root session for VIEW check
-    // TODO What problems might this cause?
-    g.setSession(GrouperSessionFinder.getRootSession());
+    g.setSession(s);
     try {
-      PrivilegeResolver.getInstance().canVIEW(s, g, s.getSubject());
-      // Now attach proper session
-      g.setSession(s);
+      PrivilegeResolver.getInstance().canVIEW(
+        GrouperSessionFinder.getRootSession(), g, s.getSubject()
+      );
       return g;
     }
     catch (InsufficientPrivilegeException eIP) {
