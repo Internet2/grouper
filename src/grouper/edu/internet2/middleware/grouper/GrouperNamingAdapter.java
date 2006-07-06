@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.41 2006-07-03 18:29:06 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.42 2006-07-06 17:16:53 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -131,13 +131,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
 
   /**
    * Get all privileges held by this subject on this stem.
-   * <p>
-   * TODO What type of objects should be returned?  Review Gary's
-   * proposals for ideas.
-   * </p>
-   * <p>
-   * TODO And should be explicitly included?
-   * </p>
+   * <p/>
    * <pre class="eg">
    * Set privs = np.getPrivs(s, ns, subj);
    * </pre>

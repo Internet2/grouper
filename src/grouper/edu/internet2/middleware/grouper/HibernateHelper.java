@@ -28,15 +28,12 @@ import  net.sf.hibernate.cfg.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.23 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.24 2006-07-06 17:16:53 blair Exp $
  */
 class HibernateHelper {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Configuration  CFG;
-  // TODO Move to *E*
-  private static final String         ERR_GP    = "attempt to delete transient object ";
-  private static final String         ERR_INIT  = "unable to initialize hibernate: ";
   private static final SessionFactory FACTORY;
 
 
@@ -66,7 +63,7 @@ class HibernateHelper {
     } 
     catch (Throwable t) {
       // Catch *all* the errors
-      String msg = ERR_INIT + t.getMessage();
+      String msg = E.HIBERNATE_INIT + t.getMessage();
       ErrorLog.fatal(HibernateHelper.class, msg);
       throw new ExceptionInInitializerError(t);
     }
@@ -255,7 +252,7 @@ class HibernateHelper {
         throw new RuntimeException();
       }
       catch (RuntimeException eR) {
-        String msg = ERR_GP + o + ":" + eR.getMessage();
+        String msg = E.HIBERNATE_GETPERSISTENT + o + ":" + eR.getMessage();
         ErrorLog.fatal(HibernateHelper.class, msg);
         eR.printStackTrace();
         throw new RuntimeException(msg, eR);

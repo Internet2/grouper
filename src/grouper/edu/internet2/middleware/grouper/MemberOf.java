@@ -23,14 +23,9 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.24 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: MemberOf.java,v 1.25 2006-07-06 17:16:53 blair Exp $
  */
 class MemberOf {
-
-  // PROTECTED CLASS CONSTANTS //
-  // TODO Move to *E*
-  protected static final String ERR_CT  = "invalid composite type: ";
-
 
   // PRIVATE INSTANCE VARIABLES //
   private Composite       c;
@@ -296,7 +291,7 @@ class MemberOf {
       results.addAll( this._evalCompositeUnion() );
     }
     else {
-      throw new ModelException(ERR_CT + c.getType().toString());
+      throw new ModelException(E.MOF_CTYPE + c.getType().toString());
     }
     return results;
   } // private Set _evalComposite()
