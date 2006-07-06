@@ -132,6 +132,20 @@
     <put name="content" type="page" value="/WEB-INF/jsp/GroupMembers.jsp"/>
   </definition>
   
+   <definition extends="BaseDef" name="SavedGroupsDef" controllerUrl="/prepareSavedGroups.do">
+   	 <description>
+		Displays list of saved groups	
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/SavedGroups.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="SavedSubjectsDef" controllerUrl="/prepareSavedSubjects.do">
+   	 <description>
+		Displays list of saved Subjects	
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/SavedSubjects.jsp"/>
+  </definition>
+  
   <definition extends="BaseDef" name="GroupPriviligeesDef">
     <description>
 			Displays list of Subjects with selected privilege, with links 
@@ -156,6 +170,14 @@
     <put name="content" type="page" value="/WEB-INF/jsp/GroupSummary.jsp"/>
 	<put name="browseLocation" type="page" value="/WEB-INF/jsp/browseStemsLocation.jsp"/>
   </definition>
+  
+  <definition extends="BaseDef" name="GroupAsFactorDef">
+      <description>
+			Displays Groups where focus group is a factor
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/GroupAsFactor.jsp"/>
+	<put name="browseLocation" type="page" value="/WEB-INF/jsp/browseStemsLocation.jsp"/>
+  </definition>  
   
     <definition extends="BaseDef" name="SubjectSummaryDef">
       <description>
@@ -233,6 +255,13 @@
     <put name="content" type="page" value="/WEB-INF/jsp/UploadTestForm.jsp"/>
   </definition>
   
+   <definition name="AddCompositeDef" extends="BaseDef" controllerUrl="/prepareSavedGroups.do">
+	  <description>
+		  Form for adding a composite to a group	  
+	  </description>
+	  <put name="content" type="page" value="/WEB-INF/jsp/AddComposite.jsp"/>
+  </definition>
+  
   <definition extends="BaseDef" name="StemMemberDef">
    	 <description>
 			Form which allows user to change an individual
@@ -286,6 +315,8 @@
 	</description>
 				   <put name="maintainModule" type="String" value="y"/>
 </definition>
+
+ 
 
   <definition name="groupMemberPrivsDef" path="/WEB-INF/jsp/modifyGroupMemberPrivilegesView.jsp">
 	  <description>
