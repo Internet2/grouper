@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.43 2006-07-06 17:38:01 blair Exp $
+ * @version $Id: Membership.java,v 1.44 2006-07-06 20:18:59 blair Exp $
  */
 public class Membership {
 
@@ -340,8 +340,8 @@ public class Membership {
   {
     try {
       GrouperSessionValidator.validate(s);
-      GrouperSession orig = s;
-      GrouperSession root = GrouperSessionFinder.getRootSession();
+      GrouperSession orig   = s;
+      GrouperSession  root  = GrouperSession.startTransient();
       o.setSession(root);
 
       Set deletes = new LinkedHashSet();
@@ -391,8 +391,8 @@ public class Membership {
   {
     try {
       GrouperSessionValidator.validate(s);
-      GrouperSession orig = s;
-      GrouperSession root = GrouperSessionFinder.getRootSession();
+      GrouperSession  orig  = s;
+      GrouperSession  root  = GrouperSession.startTransient();
       o.setSession(root);
 
       Set deletes = new LinkedHashSet();

@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.20 2006-07-03 18:29:06 blair Exp $
+ * @version $Id: EventLog.java,v 1.21 2006-07-06 20:18:59 blair Exp $
  */
 class EventLog {
 
@@ -326,7 +326,7 @@ class EventLog {
   )
   {
     try {
-      GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+      GrouperSession  root  = GrouperSession.startTransient();
       Membership      eff;
       Iterator        iter  = effs.iterator();
       while (iter.hasNext()) {
@@ -353,7 +353,7 @@ class EventLog {
   )
   {
     try {
-      GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+      GrouperSession  root  = GrouperSession.startTransient();
       Membership      eff;
       Iterator        iter  = effs.iterator();
       while (iter.hasNext()) {

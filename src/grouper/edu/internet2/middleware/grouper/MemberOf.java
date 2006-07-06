@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.25 2006-07-06 17:16:53 blair Exp $
+ * @version $Id: MemberOf.java,v 1.26 2006-07-06 20:18:59 blair Exp $
  */
 class MemberOf {
 
@@ -424,7 +424,7 @@ class MemberOf {
 
   // Switch all sessions to root sessions
   private void _setSessions() {
-    this.root = GrouperSessionFinder.getTransientRootSession();
+    this.root = GrouperSession.startTransient();
     if (this.c != null) {
       this.c.setSession(this.root);
     }

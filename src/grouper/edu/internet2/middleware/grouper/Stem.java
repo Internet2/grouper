@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.64 2006-07-06 16:32:03 blair Exp $
+ * @version $Id: Stem.java,v 1.65 2006-07-06 20:18:59 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -316,7 +316,7 @@ public class Stem extends Owner {
     try {
       try {
         // Perform check as root
-        GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+        GrouperSession  root  = GrouperSession.startTransient();
         Group           child;
         Iterator        iter  = this.getChildGroupsNpHi().iterator();
         while (iter.hasNext()) {
@@ -807,7 +807,7 @@ public class Stem extends Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     PrivilegeResolver.getInstance().canSTEM(
-      GrouperSessionFinder.getRootSession(), this, this.getSession().getSubject()
+      GrouperSession.startTransient(), this, this.getSession().getSubject()
     );
     try {
       this.setStem_description(value);
@@ -858,7 +858,7 @@ public class Stem extends Owner {
       value = ROOT_INT;
     }
     PrivilegeResolver.getInstance().canSTEM(
-      GrouperSessionFinder.getRootSession(), this, this.getSession().getSubject()
+      GrouperSession.startTransient(), this, this.getSession().getSubject() 
     );
     try {
       Set objects = new HashSet();
@@ -878,8 +878,8 @@ public class Stem extends Owner {
       }
       // Now iterate through all child groups and stems (as root),
       // renaming each.
-      GrouperSession orig = this.getSession();
-      GrouperSession root = GrouperSessionFinder.getTransientRootSession();
+      GrouperSession  orig  = this.getSession();
+      GrouperSession  root  = GrouperSession.startTransient();
       this.setSession(root);
       objects.addAll( this._renameChildren() );
       objects.add(this);
@@ -993,7 +993,7 @@ public class Stem extends Owner {
     // TODO Unfortunately this sets the modify* attrs
     try {
       GrouperSession  orig  = this.s;
-      GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+      GrouperSession  root  = GrouperSession.startTransient();
       g.setSession(root);
       PrivilegeResolver.getInstance().grantPriv(
         root, g, orig.getSubject(), AccessPrivilege.ADMIN
@@ -1041,7 +1041,7 @@ public class Stem extends Owner {
     // TODO Unfortunately this sets the modify* attrs
     try {
       GrouperSession  orig  = this.s;
-      GrouperSession  root  = GrouperSessionFinder.getTransientRootSession();
+      GrouperSession  root  = GrouperSession.startTransient();
       ns.setSession(root);
       PrivilegeResolver.getInstance().grantPriv(
         root, ns, orig.getSubject(), NamingPrivilege.STEM
@@ -1151,7 +1151,7 @@ public class Stem extends Owner {
             SchemaException
   {
     GrouperSession orig = this.getSession();
-    this.setSession(GrouperSessionFinder.getRootSession()); // proxy as root
+    this.setSession(GrouperSession.startTransient()); // proxy as root
     this.revokePriv(NamingPrivilege.CREATE);
     this.revokePriv(NamingPrivilege.STEM);
     this.setSession(orig);
