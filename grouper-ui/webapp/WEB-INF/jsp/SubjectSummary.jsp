@@ -3,7 +3,7 @@
 			the maintenance of the subject
 --%><%--
   @author Gary Brown.
-  @version $Id: SubjectSummary.jsp,v 1.4 2006-06-05 15:06:20 isgwb Exp $
+  @version $Id: SubjectSummary.jsp,v 1.5 2006-07-06 15:01:05 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="subjectSummary">
@@ -14,6 +14,11 @@
 
 <c:if test="${!empty grouperForm.map.callerPageId && grouperForm.map.subjectId!=lastSubjectSummaryForm.subjectId}">
 <div class="linkButton">
+			<c:if test="${!empty subject}">
+				<html:link page="/addSavedSubject.do" name="saveParams">
+					<fmt:message bundle="${nav}" key="saved-subjects.add.subject"/>
+				</html:link>
+			</c:if>
 		<tiles:insert definition="callerPageButtonDef"/>
 		<c:set target="${subject}" property="changeMode" value="true"/>
 		<html:link page="/populateSubjectSummary.do" name="subject">

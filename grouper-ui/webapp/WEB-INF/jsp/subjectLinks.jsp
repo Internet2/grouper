@@ -2,13 +2,19 @@
 		  	Tile which displays a standard set of links for a subject summary
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectLinks.jsp,v 1.2 2005-12-08 15:33:28 isgwb Exp $
+  @version $Id: subjectLinks.jsp,v 1.3 2006-07-06 15:00:28 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endSubjectLinks" class="noCSSOnly"><fmt:message bundle="${nav}" key="page.skip.subject-links"/></a>
 <div class="subjectLinks" style="clear:none;">
-<div class="linkButton">		
+<div class="linkButton">
+			<c:if test="${!empty subject}">
+				<html:link page="/addSavedSubject.do" name="saveParams">
+					<fmt:message bundle="${nav}" key="saved-subjects.add.subject"/>
+				</html:link>
+			</c:if>
+		
 			<html:link page="/populateSearchSubjects.do" >
 				<fmt:message bundle="${nav}" key="subject.action.new-search"/>
 			</html:link>
