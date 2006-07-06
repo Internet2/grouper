@@ -40,6 +40,17 @@
 				linkKey="search.subjects"
 	/>
 	
+	<item 	functionalArea="SavedGroups"
+				action="/populateListSavedGroups.do"
+				titleKey="saved-subjects.groups.link.title"
+				linkKey="saved.groups"
+	/>
+	<item 	functionalArea="SavedSubjects"
+				action="/populateListSavedSubjects.do"
+				titleKey="saved-subjects.link.title"
+				linkKey="saved.subjects"
+	/>
+	
 	<item 	functionalArea="Help"
 				action="/help.do"
 				titleKey="groups.help.link.title"
