@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: SaveGroupAttributesAction.java,v 1.4 2006-02-22 13:31:06 isgwb Exp $
+ * @version $Id: SaveGroupAttributesAction.java,v 1.5 2006-07-06 10:34:48 isgwb Exp $
  */
 public class SaveGroupAttributesAction extends GrouperCapableAction {
 
@@ -120,7 +120,7 @@ public class SaveGroupAttributesAction extends GrouperCapableAction {
       	String groupId = (String)groupFormBean.get("groupId");
       	Group group = GroupFinder.findByUuid(grouperSession,groupId);
       	List fields = new ArrayList();
-      	Set types = group.getTypes();
+      	Set types = group.getRemovableTypes();
       	GroupType type;
       	Iterator it = types.iterator();
       	while(it.hasNext()) {
