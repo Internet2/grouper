@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -181,6 +181,12 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Map which is copy of pager parameters 
       - can be used when generating links</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><p><font face="Arial, Helvetica, sans-serif">saveParams</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Map of parameters for link allowing 
+      Subject to be saved to list</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -228,7 +234,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.8 2006-04-03 12:44:04 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.9 2006-07-06 10:25:46 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -256,6 +262,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 				saveAsCallerPage(request,subjectForm);
 			}
 		}
+		saveAsCallerPage(request,subjectForm);
 		
 		String listField = (String) subjectForm.get("listField");
 		String membershipField = "members";
@@ -316,7 +323,13 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		if ("imm".equals(membershipListScope)) {
 			subjectScopes = member.getImmediateMemberships(mField);
 		} else if ("eff".equals(membershipListScope)) {
-			subjectScopes = member.getEffectiveMemberships(mField);
+			if(membershipField.equals("members")) {
+				subjectScopes = member.getMemberships();
+				subjectScopes.removeAll(member.getImmediateMemberships());
+			}else{
+				subjectScopes = member.getEffectiveMemberships(mField);
+			}
+			
 			listViews.put("noResultsKey","subject.list-membership.eff.none");
 		} else if ("all".equals(membershipListScope)){
 			subjectScopes = member.getMemberships(mField);
@@ -365,6 +378,12 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		request.setAttribute("pager", pager);
 		request.setAttribute("linkParams", pager.getParams().clone());
 		request.setAttribute("listFieldParams", pager.getParams().clone());
+		
+		Map saveParams = new HashMap();
+		saveParams.put("subjectId",subject.getId());
+		saveParams.put("subjectType",subject.getType().getName());
+		saveParams.put("callerPageId",request.getAttribute("thisPageId"));
+		request.setAttribute("saveParams",saveParams);
 		
 		if(subjectType.equals("group")) {
 			List lists = GrouperHelper.getListFieldsForGroup(grouperSession,subjectId);
