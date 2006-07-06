@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.14 2006-07-03 18:29:06 blair Exp $
+ * @version $Id: Composite.java,v 1.15 2006-07-06 16:32:03 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -220,7 +220,7 @@ public class Composite extends Owner {
       return g.getName();
     }
     catch (NullPointerException eNP) {
-      // TODO ErrorLog?
+      ErrorLog.error(Composite.class, E.COMP_NULL_LEFT_GROUP + U.q(this.getUuid()));
       return GrouperConfig.EMPTY_STRING;
     }
   } // protected String getLeftName()
@@ -233,7 +233,7 @@ public class Composite extends Owner {
       return g.getName();
     }
     catch (NullPointerException eNP) {
-      // TODO ErrorLog?
+      ErrorLog.error(Composite.class, E.COMP_NULL_OWNER_GROUP + U.q(this.getUuid()));
       return GrouperConfig.EMPTY_STRING;
     }
   } // protected String getOwnerName()
@@ -246,7 +246,7 @@ public class Composite extends Owner {
       return g.getName();
     }
     catch (NullPointerException eNP) {
-      // TODO ErrorLog?
+      ErrorLog.error(Composite.class, E.COMP_NULL_RIGHT_GROUP + U.q(this.getUuid()));
       return GrouperConfig.EMPTY_STRING;
     }
   } // protected String getRightName()

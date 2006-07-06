@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.11 2006-07-06 14:43:47 blair Exp $
+ * @version $Id: E.java,v 1.12 2006-07-06 16:32:03 blair Exp $
  * @since   1.0
  */
 class E {
@@ -37,6 +37,9 @@ class E {
   protected static final String COMP_LC                   = "composite left factor is not a group";
   protected static final String COMP_LR                   = "same left and right composite factors";
   protected static final String COMP_NOTOWNER             = "not a composite owner";
+  protected static final String COMP_NULL_LEFT_GROUP      = "composite with null left group: uuid=";
+  protected static final String COMP_NULL_OWNER_GROUP     = "composite with null owner group: uuid=";
+  protected static final String COMP_NULL_RIGHT_GROUP     = "composite with null right group: uuid=";
   protected static final String COMP_O                    = "no composite owner";
   protected static final String COMP_OC                   = "invalid owner class";
   protected static final String COMP_R                    = "no composite right factor";
@@ -61,6 +64,8 @@ class E {
   protected static final String GF_FBUUID                 = "error finding group by uuid: ";
   protected static final String GNA_SNF                   = "membership stem not found: ";
   protected static final String GPA_MNF                   = "membership member not found: ";
+  protected static final String GROUP_G2M                 = "could not convert group to member: ";
+  protected static final String GROUP_G2S                 = "could not convert group to subject: ";
   protected static final String GROUP_ACTC                = "cannot add composite membership to group with composite membership";
   protected static final String GROUP_ACTM                = "cannot add composite membership to group with members";
   protected static final String GROUP_AMTC                = "cannot add member to composite membership";
@@ -76,7 +81,11 @@ class E {
   protected static final String GROUP_HEM                 = "error checking for effective membership: ";
   protected static final String GROUP_HIM                 = "error checking for immediate membership: ";
   protected static final String GROUP_HM                  = "error checking for membership: ";
+  protected static final String GROUP_NODE                = "group without displayExtension";
   protected static final String GROUP_NODEFAULTLIST       = "'members' list does not exist: ";
+  protected static final String GROUP_NODN                = "group without displayName";
+  protected static final String GROUP_NOE                 = "group without extension";
+  protected static final String GROUP_NON                 = "group without name";
   protected static final String GROUP_NOTFOUND            = "unable to find group";
   protected static final String GROUP_NULL                = "null group";
   protected static final String GROUP_SCHEMA              = "group schema error: ";
@@ -100,6 +109,7 @@ class E {
   protected static final String GSUBJ_NOCREATOR           = "group creator not found: ";
   protected static final String HH_GETPERSISTENT          = "error getting persistent object: ";
   protected static final String HIBERNATE                 = "hibernate error: ";
+  protected static final String MEMBER_NOGROUP            = "member of group that cannot be found: member=";
   protected static final String MEMBER_NULL               = "null member";
   protected static final String MEMBER_SUBJNOTFOUND       = "unable to find member as subject: ";
   protected static final String MSF_FINDSUBJECTS          = "error finding subjects: ";
@@ -133,6 +143,10 @@ class E {
   protected static final String STEMF_ISCHILDGROUP        = "could not find parent stem: stem=";
   protected static final String STEMF_ISCHILDSTEM         = "could not find parent stem: stem=";
   protected static final String SUBJ_NULL                 = "null subject";
+  protected static final String SV_I                      = "null session id";
+  protected static final String SV_O                      = "null session object";
+  protected static final String SV_M                      = "null session member";
+  protected static final String SV_T                      = "null session start time";
 
-}
+} // class E
 

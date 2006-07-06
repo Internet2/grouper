@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.49 2006-07-03 17:57:42 blair Exp $
+ * @version $Id: Member.java,v 1.50 2006-07-06 16:32:03 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -308,7 +308,10 @@ public class Member implements Serializable {
         groups.add(g);
       }
       catch (GroupNotFoundException eGNF) {
-        // TODO Ignore?  Kvetch?
+        ErrorLog.error(
+          Member.class, E.MEMBER_NOGROUP + U.q(this.getUuid()) + " membership="
+          + U.q(ms.getUuid()) + " " + eGNF.getMessage()
+        );
       }
     }
     return groups;
@@ -374,7 +377,10 @@ public class Member implements Serializable {
         groups.add(g);
       }
       catch (GroupNotFoundException eGNF) {
-        // TODO Ignore?  Kvetch?
+        ErrorLog.error(
+          Member.class, E.MEMBER_NOGROUP + U.q(this.getUuid()) + " membership="
+          + U.q(ms.getUuid()) + " " + eGNF.getMessage()
+        );
       }
     }
     return groups;
@@ -401,7 +407,10 @@ public class Member implements Serializable {
         groups.add(g);
       }
       catch (GroupNotFoundException eGNF) {
-        // TODO Ignore?  Kvetch?
+        ErrorLog.error(
+          Member.class, E.MEMBER_NOGROUP + U.q(this.getUuid()) + " membership="
+          + U.q(ms.getUuid()) + " " + eGNF.getMessage()
+        );
       }
     }
     return groups;
@@ -1369,7 +1378,7 @@ public class Member implements Serializable {
 
 
   // GETTERS //
-  // TODO Make private again
+  // TODO Make private
   protected String getId() {
     return this.id;
   } 

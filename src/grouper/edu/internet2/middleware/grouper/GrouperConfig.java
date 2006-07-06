@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.25 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.26 2006-07-06 16:32:03 blair Exp $
  */
 public class GrouperConfig {
 
@@ -44,6 +44,12 @@ public class GrouperConfig {
   protected static final String ALL           = "GrouperAll";
   protected static final String BT            = "true";
   protected static final String EMPTY_STRING  = "";
+  protected static final String GCGAA         = "groups.create.grant.all.admin";
+  protected static final String GCGAOI        = "groups.create.grant.all.optin";
+  protected static final String GCGAOO        = "groups.create.grant.all.optout";
+  protected static final String GCGAR         = "groups.create.grant.all.read";
+  protected static final String GCGAU         = "groups.create.grant.all.update";
+  protected static final String GCGAV         = "groups.create.grant.all.view";
   protected static final String GWG           = "groups.wheel.group";
   protected static final String GWU           = "groups.wheel.use";
   protected static final String IST           = "application";
@@ -55,6 +61,8 @@ public class GrouperConfig {
   protected static final String PAI           = "privileges.access.interface";
   protected static final String PNI           = "privileges.naming.interface";
   protected static final String ROOT          = "GrouperSystem";
+  protected static final String SCGAC         = "stems.create.grant.all.create";
+  protected static final String SCGAS         = "stems.create.grant.all.stem";
 
   // PROTECTED CLASS CONSTANTS -- QUERIES //
   // FIXME I really hate all of these
