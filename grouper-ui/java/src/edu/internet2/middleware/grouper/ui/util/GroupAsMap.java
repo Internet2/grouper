@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.4 2006-02-22 10:17:26 isgwb Exp $
+ * @version $Id: GroupAsMap.java,v 1.5 2006-07-06 08:21:45 isgwb Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
@@ -56,6 +56,7 @@ public class GroupAsMap extends ObjectAsMap {
 		put("groupId",group.getUuid());
 		put("subjectId",group.getUuid());
 		put("desc",get("displayExtension"));
+		put("composite", new Boolean(group.hasComposite()));
 		try {
 			Subject subj = SubjectFinder.findById(group.getUuid(),"group");
 			put("source",subj.getSource().getName());
@@ -78,9 +79,10 @@ public class GroupAsMap extends ObjectAsMap {
 			}catch(Exception e){}
 			
 		}
+		
 		if(obj==null&& "description".equals(key)) obj = get("displayExtension");
 		if(obj==null&& "types".equals(key)) {
-			obj = group.getTypes();
+			obj = group.getRemovableTypes();
 			Set set = (Set)obj;
 			try {
 			GroupType gt = GroupTypeFinder.find("base");
