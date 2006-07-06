@@ -19,33 +19,27 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperSessionValidator.java,v 1.5 2006-06-15 03:53:01 blair Exp $
+ * @version $Id: GrouperSessionValidator.java,v 1.6 2006-07-06 16:32:03 blair Exp $
  * @since   1.0
  */
 class GrouperSessionValidator {
 
-  // PROTECTED CLASS CONSTANTS //
-  // TODO Move to *E*
-  protected static final String ERR_I = "null session id";
-  protected static final String ERR_O = "null session object";
-  protected static final String ERR_M = "null session member";
-  protected static final String ERR_T = "null session start time";
-
-
   // PROTECTED CLASS METHODS //
+
+  // @since   1.0
   protected static void validate(GrouperSession s)
     throws  ModelException
   {
     try {
-      Validator.valueNotNull( s                 , ERR_O );
-      Validator.valueNotNull( s.getMember_id()  , ERR_M );
-      Validator.valueNotNull( s.getSession_id() , ERR_I );
-      Validator.valueNotNull( s.getStart_time() , ERR_T );
+      Validator.valueNotNull( s                 , E.SV_O );
+      Validator.valueNotNull( s.getMember_id()  , E.SV_M );
+      Validator.valueNotNull( s.getSession_id() , E.SV_I );
+      Validator.valueNotNull( s.getStart_time() , E.SV_T );
     }
     catch (NullPointerException eNP) {
       throw new ModelException(eNP.getMessage(), eNP);
     }
   } // protected static void validate(s)
 
-}
+} // class GrouperSessionValidator
 

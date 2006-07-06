@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.63 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: Stem.java,v 1.64 2006-07-06 16:32:03 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -36,16 +36,7 @@ public class Stem extends Owner {
 
 
   // PRIVATE CLASS CONSTANTS //
-  // TODO move to GrouperConfig
-  private static final String   CFG_GCGAA   = "groups.create.grant.all.admin";
-  private static final String   CFG_GCGAOI  = "groups.create.grant.all.optin";
-  private static final String   CFG_GCGAOO  = "groups.create.grant.all.optout";
-  private static final String   CFG_GCGAR   = "groups.create.grant.all.read";
-  private static final String   CFG_GCGAU   = "groups.create.grant.all.update";
-  private static final String   CFG_GCGAV   = "groups.create.grant.all.view";
-  private static final String   CFG_SCGAC   = "stems.create.grant.all.create";
-  private static final String   CFG_SCGAS   = "stems.create.grant.all.stem";
-  private static final EventLog EL          = new EventLog();
+  private static final EventLog EL = new EventLog();
 
 
   // HIBERNATE PROPERITES //
@@ -1010,22 +1001,22 @@ public class Stem extends Owner {
 
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.ADMIN  , CFG_GCGAA
+        root, g, AccessPrivilege.ADMIN  , GrouperConfig.GCGAA
       );
       this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.OPTIN  , CFG_GCGAOI
+        root, g, AccessPrivilege.OPTIN  , GrouperConfig.GCGAOI
       );
       this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.OPTOUT , CFG_GCGAOO
+        root, g, AccessPrivilege.OPTOUT , GrouperConfig.GCGAOO
       );
       this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.READ   , CFG_GCGAR
+        root, g, AccessPrivilege.READ   , GrouperConfig.GCGAR
       );
       this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.UPDATE , CFG_GCGAU
+        root, g, AccessPrivilege.UPDATE , GrouperConfig.GCGAU
       );
       this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.VIEW   , CFG_GCGAV
+        root, g, AccessPrivilege.VIEW   , GrouperConfig.GCGAV
       );
 
       g.setSession(orig);
@@ -1058,10 +1049,10 @@ public class Stem extends Owner {
 
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(
-        root, ns, NamingPrivilege.CREATE, CFG_SCGAC
+        root, ns, NamingPrivilege.CREATE, GrouperConfig.SCGAC
       );
       this._grantOptionalPrivUponCreate(
-        root, ns, NamingPrivilege.STEM  , CFG_SCGAS
+        root, ns, NamingPrivilege.STEM  , GrouperConfig.SCGAS
       );
 
       ns.setSession(orig);

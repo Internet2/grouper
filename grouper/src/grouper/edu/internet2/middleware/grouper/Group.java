@@ -27,19 +27,12 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.85 2006-07-03 17:57:42 blair Exp $
+ * @version $Id: Group.java,v 1.86 2006-07-06 16:32:03 blair Exp $
  */
 public class Group extends Owner {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final EventLog EL        = new EventLog();
-  // TODO Move to *E*
-  private static final String   ERR_G2M   = "could not convert group to member: ";
-  private static final String   ERR_G2S   = "could not convert group to subject: ";
-  private static final String   ERR_NODE  = "group without displayExtension";
-  private static final String   ERR_NODN  = "group without displayName";
-  private static final String   ERR_NOE   = "group without extension";
-  private static final String   ERR_NON   = "group without name";
+  private static final EventLog EL = new EventLog();
 
 
   // HIBERNATE PROPERTIES //
@@ -913,8 +906,8 @@ public class Group extends Owner {
     String val = this._getAttributeNoPrivs("displayExtension");
     if (val == null) {
       //  A group without this attribute is VERY faulty
-      ErrorLog.fatal(Group.class, ERR_NODE);
-      throw new GrouperRuntimeException(ERR_NODE);
+      ErrorLog.fatal(Group.class, E.GROUP_NODE);
+      throw new GrouperRuntimeException(E.GROUP_NODE);
     }
     return val;
   } // public String getDisplayExtension()
@@ -938,8 +931,8 @@ public class Group extends Owner {
     String val = this._getAttributeNoPrivs("displayName");
     if (val == null) {
       //  A group without this attribute is VERY faulty
-      ErrorLog.fatal(Group.class, ERR_NODN);
-      throw new GrouperRuntimeException(ERR_NODN);
+      ErrorLog.fatal(Group.class, E.GROUP_NODN);
+      throw new GrouperRuntimeException(E.GROUP_NODN);
     }
     return val;
   } // public String getDisplayName()
@@ -1040,8 +1033,8 @@ public class Group extends Owner {
     String val = this._getAttributeNoPrivs("extension");
     if (val == null) {
       //  A group without this attribute is VERY faulty
-      ErrorLog.error(Group.class, ERR_NOE);
-      throw new GrouperRuntimeException(ERR_NOE);
+      ErrorLog.error(Group.class, E.GROUP_NOE);
+      throw new GrouperRuntimeException(E.GROUP_NOE);
     }
     return val;
   } // public String getExtension()
@@ -1275,8 +1268,8 @@ public class Group extends Owner {
     String val = this._getAttributeNoPrivs("name");
     if (val == null) {
       //  A group without this attribute is VERY faulty
-      ErrorLog.error(Group.class, ERR_NON);
-      throw new GrouperRuntimeException(ERR_NON);
+      ErrorLog.error(Group.class, E.GROUP_NON);
+      throw new GrouperRuntimeException(E.GROUP_NON);
     }
     return val;
   } // public String getName()
@@ -2097,7 +2090,7 @@ public class Group extends Owner {
       catch (MemberNotFoundException eMNF) {
         // If we can't convert a group to a member we have major issues
         // and should probably just give up
-        String msg = ERR_G2M + eMNF.getMessage();
+        String msg = E.GROUP_G2M + eMNF.getMessage();
         ErrorLog.fatal(Group.class, msg);
         throw new GrouperRuntimeException(msg, eMNF);
       }
@@ -2127,7 +2120,7 @@ public class Group extends Owner {
       catch (Exception e) {
         // If we can't find an existing group as a subject we have
         // major issues and shoudl probably just give up
-        String msg = ERR_G2S + e.getMessage();
+        String msg = E.GROUP_G2S + e.getMessage();
         ErrorLog.fatal(Group.class, msg);
         throw new GrouperRuntimeException(msg, e);
       }

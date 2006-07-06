@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel0.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestCompositeModel0.java,v 1.3 2006-07-06 16:32:03 blair Exp $
  */
 public class TestCompositeModel0 extends TestCase {
 
@@ -53,7 +53,7 @@ public class TestCompositeModel0 extends TestCase {
     }
     catch (ModelException eM) {
       Assert.assertTrue("OK: did not create composite with null session", true);  
-      T.string("error message", GrouperSessionValidator.ERR_O, eM.getMessage());
+      T.string("error message", E.SV_O, eM.getMessage());
     }
   } // public void testFailInvalidSession()
 

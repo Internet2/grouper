@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * An object that can have memberships assigned to it.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.12 2006-07-05 19:51:37 blair Exp $
+ * @version $Id: Owner.java,v 1.13 2006-07-06 16:32:03 blair Exp $
  * @since   1.0
  */
 public abstract class Owner {
@@ -78,7 +78,6 @@ public abstract class Owner {
 
   // @since 1.0
   // TODO Replace `setSession(s)`
-  // TODO Why does this throw a `ModelException`?
   protected void setSessionNew(GrouperSession s) 
     throws  ModelException
   {
