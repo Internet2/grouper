@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
+import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 import edu.internet2.middleware.grouper.ui.util.StemAsMap;
 import edu.internet2.middleware.grouper.ui.util.SubjectAsMap;
 import edu.internet2.middleware.grouper.ui.util.SubjectPrivilegeAsMap;
@@ -146,9 +147,10 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 	 * Depending on the Group type may want to have different template. Look for
 	 * more specific keys first: 
 	 * <ul>
-	 *     <li>groupType.view.&lt;view&gt;</li>
-	 *     <li>groupType.view.default</li>
+	 *     <li>group.view.&lt;view&gt;</li>
+	 *     <li>group.view.default</li>
 	 * </ul>
+	 * TODO groups can have multiple types - how best to cope?
 	 * 
 	 * @param object to find template for 
 	 * @param view name of template to find
@@ -235,6 +237,23 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 		return tName;
 	}
 	
+	/**
+	 * Find template for a group type. Look for
+	 * more specific keys first: 
+	 * <ul>
+	 *     <li>groupType.&lt;name&gt;view.&lt;view&gt;</li>
+	 *     <li>groupType.&lt;name&gt;view.default</li>
+	 *     <li>groupType.view.&lt;view&gt;</li>
+	 *     <li>groupType.view.default</li>
+	 * </ul>
+	 * 
+	 * @param object to find template for 
+	 * @param view name of template to find
+	 * @param mediaResources ResourceBundle containing template names and values
+	 * @param request HttpServletRequest 
+	 * @return name of template
+	 *  
+	 */
 	public String getGroupTypeTemplateName(Object obj, String view,
 			ResourceBundle mediaResources, HttpServletRequest request) {
 
@@ -255,6 +274,56 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 		return tName;
 	}
 	
+	/**
+	 * Composites don't have types so simple lookup. Look for
+	 * more specific keys first, then default: 
+	 * <ul>
+	 *     <li>composite.view.&lt;view&gt;</li>
+	 *     <li>composite.view.default</li>
+	 * </ul>
+	 * 
+	 * @param object to find template for 
+	 * @param view name of template to find
+	 * @param mediaResources ResourceBundle containing template names and values
+	 * @param request HttpServletRequest 
+	 * @return name of template
+	 *  
+	 */
+	public String getCompositeTemplateName(Object obj, String view,
+			ResourceBundle mediaResources, HttpServletRequest request) {
+
+		ObjectAsMap comp = (ObjectAsMap) obj;
+		String tName = null;
+		
+		tName = getResource(mediaResources, "composite.view." + view);
+		
+
+		if (tName == null) {
+			tName = getResource(mediaResources, "composite.view.default");
+		}
+
+		return tName;
+	}
+	
+	/**
+	 * Depending on the Field type (list or atribute) may want to have different template. Look for
+	 * more specific keys first: 
+	 * <ul>
+	 *     <li>field.&lt;fieldName&gt;view.&lt;view&gt;</li>
+	 *     <li>field.&lt;fieldName&gt;view.default</li>
+	 * 	   <li>field.&lt;fieldType&gt;view.&lt;view&gt;</li>
+	 *     <li>field.&lt;fieldType&gt;view.default</li>
+	 *     <li>field.view.&lt;view&gt;</li>
+	 *     <li>field.view.default</li>
+	 * </ul>
+	 * 
+	 * @param object to find template for 
+	 * @param view name of template to find
+	 * @param mediaResources ResourceBundle containing template names and values
+	 * @param request HttpServletRequest 
+	 * @return name of template
+	 *  
+	 */
 	public String getFieldTemplateName(Object obj, String view,
 			ResourceBundle mediaResources, HttpServletRequest request) {
 
