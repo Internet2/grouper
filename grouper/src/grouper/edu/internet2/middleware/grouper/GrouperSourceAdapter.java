@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.12 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.13 2006-07-06 20:18:59 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -100,7 +100,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   {
     try {
       return new GrouperSubject(
-        GroupFinder.findByUuid(GrouperSessionFinder.getRootSession(), id)
+        GroupFinder.findByUuid(GrouperSession.startTransient(), id)
       );
     }
     catch (Exception e) {
@@ -139,7 +139,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   {
     try {
       return new GrouperSubject(
-        GroupFinder.findByName(GrouperSessionFinder.getRootSession(), name)
+        GroupFinder.findByName(GrouperSession.startTransient(), name)
       );
     }
     catch (Exception e) {
@@ -194,10 +194,10 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    */
   public Set search(String searchValue) {
     Set   subjs  = new LinkedHashSet();
-    Stem  root   = StemFinder.findRootStem(GrouperSessionFinder.getRootSession());
+    Stem  root   = StemFinder.findRootStem(GrouperSession.startTransient());
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        GrouperSessionFinder.getRootSession(), new GroupNameFilter(searchValue, root)
+        GrouperSession.startTransient(), new GroupNameFilter(searchValue, root)
       );
       Group     g;
       Iterator  iter  = gq.getGroups().iterator();

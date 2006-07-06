@@ -25,7 +25,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.17 2006-07-06 16:53:01 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.18 2006-07-06 20:18:59 blair Exp $
  */
 public class GroupFinder {
 
@@ -54,7 +54,7 @@ public class GroupFinder {
     g.setSession(s);
     try {
       PrivilegeResolver.getInstance().canVIEW(
-        GrouperSessionFinder.getRootSession(), g, s.getSubject()
+        GrouperSession.startTransient(), g, s.getSubject()
       );
       return g;
     }
@@ -87,7 +87,7 @@ public class GroupFinder {
     g.setSession(s);
     try {
       PrivilegeResolver.getInstance().canVIEW(
-        GrouperSessionFinder.getRootSession(), g, s.getSubject()
+        GrouperSession.startTransient(), g, s.getSubject()
       );
       return g;
     }

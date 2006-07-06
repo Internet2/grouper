@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.44 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.45 2006-07-06 20:18:59 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -643,26 +643,21 @@ public class PrivilegeResolver {
     GrouperConfig cfg = GrouperConfig.getInstance();
     if (cfg.getProperty(GrouperConfig.GWU).equals(GrouperConfig.BT)) {
       // TODO This has to be a performance killer
-      GrouperSession  root = GrouperSessionFinder.getTransientRootSession();
-      String          name = cfg.getProperty(GrouperConfig.GWG);
+      String name = cfg.getProperty(GrouperConfig.GWG);
       try {
-        Group wheel = GroupFinder.findByName(root, name);
-        rv = wheel.hasMember(subj);
+        Group wheel = GroupFinder.findByName(GrouperSession.startTransient(), name);
+        rv          = wheel.hasMember(subj);
       }
       catch (GroupNotFoundException eGNF) {
         // Group not found.  Oh well.
         // TODO The problem is that the test suite deletes it.  
+        //      But, now that the test suite has evolved, I should be able to
+        //      more properly test this.
         ErrorLog.error(
           PrivilegeResolver.class, 
           "disabling wheel group.  enabled but found found: " + name
         );
         this.use_wheel = false;
-      }
-      try {
-        root.stop();
-      }
-      catch (SessionException eS) {
-        ErrorLog.error(PrivilegeResolver.class, eS.getMessage());
       }
     } 
     else {
