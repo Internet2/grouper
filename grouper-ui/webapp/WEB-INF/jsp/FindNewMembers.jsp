@@ -2,7 +2,7 @@
 			Browse tree / search screen for finding members 
 --%><%--
   @author Gary Brown.
-  @version $Id: FindNewMembers.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: FindNewMembers.jsp,v 1.2 2006-07-06 14:45:35 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -13,6 +13,13 @@
 	<h2 class="actionheader">
 	<fmt:message bundle="${nav}" key="find.heading.browse"/>
 </h2>
+<c:if test="${!empty savedSubjectsSize && savedSubjectsSize>0}">
+	<div class="linkButton">
+		<html:link page="/assignSavedSubjects.do" paramId="groupId" paramName="findForNode"  >
+			<fmt:message bundle="${nav}" key="saved-subjects.add-new-members"/>
+		</html:link>
+	</div>
+</c:if>
 <tiles:insert definition="browseStemsFindDef"/>
 <tiles:insert definition="simpleSearchDef"/>
 
