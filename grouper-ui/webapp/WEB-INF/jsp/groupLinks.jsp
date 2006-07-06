@@ -3,16 +3,18 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.5 2006-06-05 15:05:16 isgwb Exp $
+  @version $Id: groupLinks.jsp,v 1.6 2006-07-06 14:48:57 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endGroupLinks" class="noCSSOnly"><fmt:message bundle="${nav}" key="page.skip.group-links"/></a>
 <div class="groupLinks">
 <div class="linkButton">
+
 <c:if test="${groupPrivs.ADMIN}">
 		<tiles:insert definition="selectGroupPrivilegeDef"/>
 	</c:if>
+	<c:out value="${saveButton}" escapeXml="false"/>
 	<c:if test="${groupPrivs.ADMIN}">
 		
 			<html:link page="/populateEditGroup.do" name="group">
@@ -38,12 +40,17 @@
 			</html:link>
 		
 		</c:if>
-		<c:if test="${groupPrivs.ADMIN  || groupPrivs.UPDATE}">
+		<c:if test="${!isCompositeGroup && (groupPrivs.ADMIN  || groupPrivs.UPDATE)}">
 		
 			<html:link page="/populateFindNewMembers.do"  name="group">
 				<fmt:message bundle="${nav}" key="find.groups.add-new-members"/>
 			</html:link>
 		
+		</c:if>
+		<c:if test="${isFactor}">
+			<html:link page="/populateGroupAsFactor.do"  name="factorParams">
+				<fmt:message bundle="${nav}" key="groups.action.as-factor"/>
+			</html:link>
 		</c:if>
 		<c:if test="${groupPrivs.ADMIN}">
 		
