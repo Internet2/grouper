@@ -27,14 +27,21 @@ import org.apache.commons.beanutils.DynaBean;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ObjectAsMap.java,v 1.2 2005-12-08 15:31:42 isgwb Exp $
+ * @version $Id: ObjectAsMap.java,v 1.3 2006-07-06 08:16:53 isgwb Exp $
  */
 public class ObjectAsMap extends HashMap {
 	protected String objType = null;
 
 	protected Object wrappedObject = null;
 	protected DynaBean dynaBean=null;
-
+	public ObjectAsMap() {
+		
+	}
+	public ObjectAsMap(Object obj, String type) {
+		wrappedObject=obj;
+		objType=type;
+	}
+	
 	/**
 	 * @return notional type of object
 	 */
