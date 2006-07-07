@@ -58,7 +58,7 @@ debug.level=lines,vars,source
 #deploy.manager.password=<password>
 
 ####Web application context - as seen by end user
-deploy.context.path=/grouper
+deploy.context.path=/${webapp.name}
 
 ####Root of Tomcat installation
 #deploy.home=c:/tomcat_4-1-18
@@ -68,7 +68,9 @@ deploy.context.path=/grouper
 ####Look at template-tomcat-context.xml for example - you can copy this and adjust 
 deploy.context.xml=tomcat-context.xml
 
-####Where to copy the context xml
+####Where to copy the context xml - note that the location for Tomcat 5-5 depends on server.xml settings
+####Setting this value lets the build script automatically install your webapp on a local Tomcat instance 
 #deploy.context.dir=c:/tomcat_4-1-18/webapps
+#deploy.context.dir=c:/Tomcat_5-5/conf/Catalina/localhost
 
 
