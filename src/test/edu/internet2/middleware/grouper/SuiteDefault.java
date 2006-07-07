@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.5 2006-07-03 19:01:50 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.6 2006-07-07 17:01:10 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -47,11 +47,9 @@ public class SuiteDefault extends TestCase {
     suite.addTest(  SuiteMemberOf.suite()     );
     suite.addTest(  SuiteQueries.suite()      );
     suite.addTest(  SuiteXml.suite()          );
+    suite.addTest(  SuiteBugs.suite()         );
 
     // TODO Migrate
-
-    suite.addTestSuite(TestBugsClosed.class);
-    suite.addTestSuite(TestBugsOpen.class);
 
     suite.addTestSuite(TestAccessPrivilege.class);
     suite.addTestSuite(TestField.class);

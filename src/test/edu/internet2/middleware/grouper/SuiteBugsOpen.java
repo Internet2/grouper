@@ -16,46 +16,27 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
-
 /**
- * Test open bugs.  
- * <p />
+ * Test Open Bugs.
+ * <p/>
  * @author  blair christensen.
- * @version $Id: TestBugsOpen.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: SuiteBugsOpen.java,v 1.1 2006-07-07 17:01:10 blair Exp $
+ * @since   1.0
  */
-public class TestBugsOpen extends TestCase {
+public class SuiteBugsOpen extends TestCase {
 
-  // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestBugsOpen.class);
-
-
-  public TestBugsOpen(String name) {
+  public SuiteBugsOpen(String name) {
     super(name);
   }
 
-  protected void setUp () {
-    RegistryReset.resetRegistryAndAddTestSubjects();
-  }
+  static public Test suite() {
+    TestSuite suite = new TestSuite();        
+    suite.addTestSuite(TestBug0.class);  // TODO Cannot replicate in test context yet
+    return suite;
+  } // static public Test suite()
 
-  protected void tearDown () {
-    // Nothing 
-  }
-
-  // Tests
-
-  public void testNoOpenBugs() {
-    LOG.info("testNoOpenBugs");
-    Assert.assertTrue("to keep junit from kvetching about no tests", true);
-  } // public void testNoOpenBugs()
-
-}
+} // public class SuiteBugsOpen
 
