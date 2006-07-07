@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.106 2006-07-05 17:54:53 blair Exp $ -->
+<!-- $Id: build.xml,v 1.107 2006-07-07 17:00:41 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -373,6 +373,22 @@
   </target>
   <!-- serialver -->
 
+  <!-- sql -->
+  <target name="sql"
+          description="Apply sql file to Groups Registry [Pass `-Dname=filename.sql`]"
+          depends="ensure-name"
+  >
+    <property file="${conf}/grouper.hibernate.properties"/>
+    <sql  classpathref="project.classpath"
+          driver="${hibernate.connection.driver_class}"
+          url="${hibernate.connection.url}"
+          userid="${hibernate.connection.username}"
+          password="${hibernate.connection.password}"
+          src="${name}"
+    />
+  </target>
+  <!-- sql -->
+
   <!-- stress -->
   <target name="stress" 
           description="Runs the stress case specified on the command line with -Dname="
@@ -445,22 +461,38 @@
   >
     <record name="${log.test.run}" action="start"/>
     <!-- Reset -->
+    <echo message="0.RESET!"/>
     <antcall  target="db-reset"/>
     <!-- Load -->
+    <echo message="1.LOAD!"/>
     <antcall  target="runtest">
       <param  name="test" value="TestXmlSetup"/>
     </antcall>
     <!-- Export -->
+    <echo message="2.EXPORT!"/>
     <antcall  target="xml-export">
       <param  name="cmd"  value="GrouperSystem ${dist.run}/registry.xml"/>
     </antcall>
     <!-- Reset -->
+    <echo message="3.RESET!"/>
     <antcall  target="db-reset"/>
     <!-- Import -->
+    <echo message="4.IMPORT!"/>
     <antcall  target="xml-import">
       <param  name="cmd"  value="GrouperSystem ${dist.run}/registry.xml"/>
     </antcall>
     <!-- Verify -->
+    <echo message="5.VERIFY!"/>
+    <antcall  target="runtest">
+      <param  name="test" value="TestXmlVerify"/>
+    </antcall>
+    <!-- Now Re-run Import -->
+    <echo message="6.IMPORT!"/>
+    <antcall  target="xml-import">
+      <param  name="cmd"  value="GrouperSystem ${dist.run}/registry.xml"/>
+    </antcall>
+    <!-- And verify once again -->
+    <echo message="7.VERIFY!"/>
     <antcall  target="runtest">
       <param  name="test" value="TestXmlVerify"/>
     </antcall>
@@ -470,7 +502,7 @@
 
   <!-- xml-export -->    
   <target name="xml-export"
-          description="Perform XML export of Groups Registry"
+          description="Perform XML export of Groups Registry [Pass `-Dcmd='command line arguments'`]"
           depends="ensure-cmd"        
   >
     <java fork="true"
@@ -485,7 +517,7 @@
       
   <!-- xml-import -->    
   <target name="xml-import"
-          description="Perform XML import of Groups Registry"
+          description="Perform XML import of Groups Registry [Pass `-Dcmd='command line arguments'`]"
           depends="ensure-cmd"        
   >
     <java fork="true"
