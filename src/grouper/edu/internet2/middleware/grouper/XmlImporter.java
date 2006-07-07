@@ -32,14 +32,14 @@ import  org.w3c.dom.*;
  * XmlExporter.
  * <p/>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.5 2006-07-03 18:29:06 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.6 2006-07-07 15:21:36 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
 
   // PRIVATE CLASS CONSTANTS //  
   private static final Log    log     = LogFactory.getLog(XmlImporter.class);
-  private static final String NS_ROOT = "Grouper.NS_ROOT";
+  private static final String NS_ROOT = GrouperConfig.EMPTY_STRING;
   private final static String sep     = ":"; // TODO Expose elsewhere
 
 
@@ -1949,9 +1949,9 @@ public class XmlImporter {
         gs.setDescription(description);
       }
     }
-    _processPrivileges(e, newStem.replaceAll(NS_ROOT + sep, ""), "naming");
-    _processNaming(e, newStem.replaceAll(NS_ROOT + sep, ""));
-    _process(e, newStem.replaceAll(NS_ROOT + sep, ""));
+    _processPrivileges(e, newStem, "naming");
+    _processNaming(e, newStem);
+    _process(e, newStem);
   } // private void _processPath(e, stem)
 
   // @since   1.0
