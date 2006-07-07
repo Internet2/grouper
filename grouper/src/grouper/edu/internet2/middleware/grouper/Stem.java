@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.65 2006-07-06 20:18:59 blair Exp $
+ * @version $Id: Stem.java,v 1.66 2006-07-07 15:22:01 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -199,11 +199,11 @@ public class Stem extends Owner {
     PrivilegeResolver.getInstance().canSTEM(
       this.getSession(), this, this.getSession().getSubject()
     );
+    String  name  = constructName(this.getName(), extension);
+    String  dName = constructName(this.getDisplayName(), displayExtension);
     try {
-      StemFinder.findByName(
-        this.getSession(), constructName(this.getName(), extension)
-      );
-      throw new StemAddException("stem already exists");
+      StemFinder.findByName(this.getSession(), name);
+      throw new StemAddException(E.STEM_EXISTS + U.q(name));
     }
     catch (StemNotFoundException eSNF) {
       // Stem does not exist.  This is what we want.  Now create it.
@@ -221,12 +221,8 @@ public class Stem extends Owner {
         // Set naming attributes
         child.setStem_extension(extension);
         child.setDisplay_extension(displayExtension);
-        child.setStem_name( 
-          constructName(this.getName(), extension)
-        );
-        child.setDisplay_name( 
-          constructName(this.getDisplayName(), displayExtension)
-        );
+        child.setStem_name(name);
+        child.setDisplay_name(dName);
         // Set parent
         child.setParent_stem(this);
         // Add to children 
