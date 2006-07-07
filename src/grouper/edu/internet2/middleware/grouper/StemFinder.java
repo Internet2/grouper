@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.*;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.22 2006-07-06 14:43:47 blair Exp $
+ * @version $Id: StemFinder.java,v 1.23 2006-07-07 15:22:01 blair Exp $
  */
 public class StemFinder {
 
@@ -70,12 +70,12 @@ public class StemFinder {
     }
     catch (HibernateException eH) {
       throw new StemNotFoundException(
-        "unable to find stem: " + eH.getMessage(), eH
+        E.STEMF_NOTFOUND + "name=" + U.q(name) + " - " + eH.getMessage(), eH
       );
     }
     if (ns == null) {
       throw new StemNotFoundException(
-        "unable to find stem"
+        E.STEMF_NOTFOUND + "name=" + U.q(name)
       );
     }
     return ns;
@@ -361,14 +361,14 @@ public class StemFinder {
       }
       hs.close();
       if (ns == null) {
-        throw new StemNotFoundException("stem not found");
+        throw new StemNotFoundException(E.STEMF_NOTFOUND + "uuid=" + U.q(uuid));
       }
       return ns; 
     }
     catch (HibernateException eH) {
       throw new StemNotFoundException(
-        "error finding stem: " + eH.getMessage(), eH
-      );  
+        E.STEMF_NOTFOUND + "uuid=" + U.q(uuid) + " - " + eH.getMessage(), eH
+      );
     }
   } // protected static Stem findByUuid(uuid)
 

@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.13 2006-07-06 17:16:53 blair Exp $
+ * @version $Id: E.java,v 1.14 2006-07-07 15:22:01 blair Exp $
  * @since   1.0
  */
 class E {
@@ -139,6 +139,7 @@ class E {
   protected static final String SF_SNF                    = "subject not found: ";
   protected static final String SF_SNU                    = "subject not unique: ";
   protected static final String SETTINGS                  = "unable to retrieve settings: ";
+  protected static final String STEM_EXISTS               = "stem already exists: stem=";
   protected static final String STEM_GETCHILDGROUPS       = "error getting child groups: ";
   protected static final String STEM_GETCHILDSTEMS        = "error getting child stems: ";
   protected static final String STEM_NULL                 = "null stem";
@@ -146,6 +147,7 @@ class E {
   protected static final String STEM_ROOTINSTALL          = "unable to install root stem: ";
   protected static final String STEMF_ISCHILDGROUP        = "could not find parent stem: stem=";
   protected static final String STEMF_ISCHILDSTEM         = "could not find parent stem: stem=";
+  protected static final String STEMF_NOTFOUND            = "stem not found: ";
   protected static final String SUBJ_NULL                 = "null subject";
   protected static final String SV_I                      = "null session id";
   protected static final String SV_O                      = "null session object";
