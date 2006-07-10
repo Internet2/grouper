@@ -5,12 +5,7 @@ This file provides information on future *GrouperShell* development.
 The changes for each release may change dramatically as they are
 primarily motivated by whatever I feel like working on at the time.
 
-$Id: ROADMAP.txt,v 1.1 2006-06-23 17:30:09 blair Exp $
-
----
-
-## GrouperShell 0.0.1
-* Initial *GrouperShell* release
+$Id: ROADMAP.txt,v 1.2 2006-07-10 16:15:04 blair Exp $
 
 ---
 

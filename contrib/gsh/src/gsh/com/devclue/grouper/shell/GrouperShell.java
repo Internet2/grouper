@@ -17,81 +17,8 @@ import  java.util.*;
 /**
  * Grouper Management Shell.
  * <p/>
- * <p>FIXME Move to `package.html`</p>
- * <h3>Supported Commands</h3>
- * <ul>
- *   <li><b>addComposite(group, type, left group, right group)</b> - Add
- *     composite membership.</li>
- *   <li><b>addGroup(parent, extension, displayExtension)</b> - Add
- *     group beneath <i>parent</i> stem with the specified <i>extension</i>
- *     and <i>displayExtension</i>.</li>
- *   <li><b>addMember(group, subject id)</b> - Add subject as a member
- *     to the group.</li>
- *   <li><b>addRootStem(extension, displayExtension)</b> - Add root
- *     stem with the specified <i>extension</i> and <i>displayExtension</i>.</li>
- *   <li><b>addStem(parent, extension, displayExtension)</b> - Add stem
- *     beneath <i>parent</i> stem with the specified <i>extension</i>
- *     and <i>displayExtension</i>.</li>
- *   <li><b>addSubject(id, type, name)</b> - Add a {@link HibernateSubject}
- *     to the Groups Registry.</li>
- *   <li><b>delComposite(group)</b> - Delete composite membership from the
- *     specified group.</li>
- *   <li><b>delGroup(name)</b> - Delete group with the specified
- *     <i>name</i>.</li>
- *   <li><b>delMember(group, subject id)</b> - Remove subject as a
- *     member of the group.</li>
- *   <li><b>delStem(name)</b> - Delete stem with the specified
- *     <i>name</i>.</li>
- *   <li><b>exit</b> - Terminate shell.</li>
- *   <li><b>findSubject(id)</b> - Find a subject.</li>
- *   <li><b>findSubject(id, type)</b> - Find a subject.</li>
- *   <li><b>findSubject(id, type, source)</b> - Find a subject.</li>
- *   <li><b>getGroupAttr(stem, attr)</b> - Get value of <i>group</i>'s
- *     <i>attr</i> attribute.</li>
- *   <li><b>getGroups(name)</b> - Find all groups with <i>name</i> in any
- *     naming attribute value.</li>
- *   <li><b>getMembers(group)</b> - Get members of the group.</li>
- *   <li><b>getSources()</b> - Find all Subject sources.</li>
- *   <li><b>getStemAttr(stem, attr)</b> - Get value of <i>stem</i>'s
- *     <i>attr</i> attribute.</li>
- *   <li><b>getStems(name)</b> - Find all stems with <i>name</i> in any
- *     naming attribute value.</li>
- *   <li><b>grantPriv(name, subject id, privilege)</b> - Grant <i>privilege</i>
- *     to <i>subject id</i> on <i>name</i>.</li>
- *   <li><b>hasMember(group, subject id)</b> - Is subject a member of
- *   this group.</li>
- *   <li><b>hasPriv(name, subject id, privilege)</b> - Does <i>subject id</i>
- *     have <i>privilege</i> on <i>name</i>?</li>
- *   <li><b>history()</b> - Print commands that have been run.</li>
- *   <li><b>history(n)</b> - Print the last <i>n</i> commands that
- *     have been run.</li>
- *   <li><b>last()</b> - Run the last command executed.</li>
- *   <li><b>last(n)</b> - Execute command number <i>n</i>.</li>
- *   <li><b>p(command)</b> - Pretty print results.  This command is
- *     more useful when <i>GSH_DEVEL</i> is enabled.</li>
- *   <li><b>quit</b> - Terminate shell.</li>
- *   <li><b>resetRegistry()</b> - Restore the Groups Registry to a
- *     default state.</li>
- *   <li><b>revokePriv(name, subject id, privilege)</b> - Revoke <i>privilege</i>
- *     from <i>subject id</i> on <i>name</i>.</li>
- *   <li><b>setGroupAttr(stem, attr, value)</b> - Set value of <i>group</i>'s 
- *     <i>attr</i> attribute.</li>
- *   <li><b>setStemAttr(stem, attr, value)</b> - Set value of <i>stem</i>'s 
- *     <i>attr</i> attribute.</li>
- *   <li><b>version()</b> - Return version information.</li>
- * </ul> 
- * <h3>Variables</h3>
- * <ul>
- *  <li><b>GSH_DEBUG</b> - If set to <i>true</i>, stack traces will be printed
- *    upon failure.</li>
- *  <li><b>GSH_DEVEL</b> - If set to <i>true</i>, commands will return
- *    objects that can be manipulated rather than printing out summaries
- *    of the returned objects.</li>
- *  <li><b>GSH_TIMER</b> - If set to <i>true</i> the time taken to
- *    evaluate each command will be displayed.</li>
- * </ul>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.6 2006-06-29 15:44:12 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.7 2006-07-10 16:15:05 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
