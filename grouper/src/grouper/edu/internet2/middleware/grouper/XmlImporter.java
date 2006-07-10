@@ -26,13 +26,16 @@ import  org.apache.commons.logging.*;
 import  org.w3c.dom.*;
 
 /**
- * Utility class which reads an XML file representing all or part of a Grouper
- * repository, and updates/creates the equivalent stems/groups in the current
- * Grouper repository. XmlImporter can be used to load data exported by
- * XmlExporter.
+ * Utility class for importing data in XML import into the Groups Registry.
+ * <p>
+ * This class reads an XML file representing all or part of a Groups Registry
+ * and updates-or-creates the equivalent {@link Stem}s, {@link Group}s and
+ * {@link Membership}s.  This class can be used to load data exported by 
+ * {@link XmlExporter}.
  * <p/>
+ * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.6 2006-07-07 15:21:36 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.7 2006-07-10 18:17:07 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {

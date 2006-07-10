@@ -26,8 +26,11 @@ import  org.apache.commons.lang.builder.*;
 
 /** 
  * Hibernate representation of the JDBC Subject table.
+ * <p/>
+ * <p><b>This class is experimental and will change in future Grouper
+ * releases.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.8 2006-06-26 13:59:46 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.9 2006-07-10 18:17:07 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {
@@ -44,13 +47,6 @@ public class HibernateSubject implements Serializable {
 
 
   // CONSTRUCTORS //
-  /**
-   * For Hibernate.
-   * @since 1.0
-   */
-  public HibernateSubject() {
-    super();
-  } // public HibernateSubject()
 
   // @since 1.0
   protected HibernateSubject(
@@ -62,6 +58,12 @@ public class HibernateSubject implements Serializable {
     this.setSubjectId(      subjectId           );
     this.setSubjectTypeId(  subjectTypeId       );
   } // protected HibernateSubject(subjectId, subjectTypeId, name)
+
+  // Default constructor for Hibernate.
+  // @since 1.0
+  private HibernateSubject() {
+    super();
+  } // private HibernateSubject()
 
 
   // PUBLIC CLASS METHODS //
@@ -86,6 +88,8 @@ public class HibernateSubject implements Serializable {
   public static HibernateSubject add(String id, String type, String name) 
     throws  HibernateException  // TODO Throw something more user-friendly
   {
+    // TODO Require root
+    // TODO Throw GrouperRuntimeException
     try {
       HibernateSubjectFinder.find(id, type);
       throw new HibernateException(

@@ -23,18 +23,19 @@ import  java.util.*;
 import  org.apache.commons.logging.*;
 
 /**
- * Utility class for exporting data from the Grouper repository in XML format.
+ * Utility class for exporting data from the Groups Registry in XML format.
  * <p>
- * All or part of the repository can be exported as a stem/group hierarchy.
- * Alternatively, Collections of Stems, Groups, Subjects or Memberships may be
- * exported.
+ * This class can export all-or-port of a Groups Registry as a stem/group
+ * hierarchy.  Alternatively, collections of {@link Stem}s, {@link Group}s,
+ * {@link Subject}s or {@link Membership}s may be exported.
  * </p>
  * <p>
  * Exported stem and group data may be imported, as is, or with modifications,
- * into the same repository or into another repository. See XmlImporer.
+ * into the same repository or into another repository. See {@link XmlImporter}.
  * </p>
+ * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.4 2006-07-06 17:38:01 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.5 2006-07-10 18:17:07 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {

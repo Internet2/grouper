@@ -22,10 +22,17 @@ import  net.sf.hibernate.type.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.7 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.8 2006-07-10 18:17:07 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {
+
+  // CONSTRUCTORS //
+  // @since   1.0
+  private CompositeFinder() {
+    super();
+  } // private CompositeFinder()
+
 
   // PUBLIC CLASS METHODS //
 
@@ -62,7 +69,6 @@ public class CompositeFinder {
 
   /**
    * Find {@link Composite} owned by this {@link Group}.
-   * factor.
    * <pre class="eg">
    * Composite c = CompositeFinder.findAsOwner(g);
    * </pre>

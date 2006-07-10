@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * An object that can have memberships assigned to it.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.13 2006-07-06 16:32:03 blair Exp $
+ * @version $Id: Owner.java,v 1.14 2006-07-10 18:17:07 blair Exp $
  * @since   1.0
  */
 public abstract class Owner {
@@ -46,13 +46,11 @@ public abstract class Owner {
 
   // CONSTRUCTORS //
 
-  /**
-   * Default constructor for Hibernate.
-   * @since 1.0
-   */
-  public Owner() {
-    // Nothing
-  } // public Owner() 
+  // Default constructor for Hibernate.
+  // @since 1.0
+  protected Owner() {
+    super();
+  } // protected Owner() 
 
 
   // PROTECTED ABSTRACT INSTANCE METHODS //
