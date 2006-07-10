@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.16 2006-07-06 20:18:59 blair Exp $
+ * @version $Id: Composite.java,v 1.17 2006-07-10 18:17:07 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -38,9 +38,12 @@ public class Composite extends Owner {
 
 
   // CONSTRUCTORS //
-  private Composite() {
+
+  // Default constructor for Hibernate.
+  // @since   1.0
+  protected Composite() {
     super();
-  } // private Composite()
+  } // protected Composite()
 
   protected Composite(GrouperSession s, Owner o, Owner l, Owner r, CompositeType type) 
     throws  ModelException
@@ -180,14 +183,6 @@ public class Composite extends Owner {
   /**
    * @since 1.0
    */
-  public void setModified() {
-    // As composites can only be created and deleted at this time,
-    // marking as modified is irrelevant. 
-  } // public void setModified()
-
-  /**
-   * @since 1.0
-   */
   public String toString() {
     return  new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append(  "type"  , this.getType().toString() )
@@ -250,6 +245,12 @@ public class Composite extends Owner {
       return GrouperConfig.EMPTY_STRING;
     }
   } // protected String getRightName()
+
+  // @since   1.0
+  protected void setModified() {
+    // As composites can only be created and deleted at this time,
+    // marking as modified is irrelevant. 
+  } // protected void setModified()
 
   // @since 1.0
   protected void update() {

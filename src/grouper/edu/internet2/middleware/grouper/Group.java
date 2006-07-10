@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.88 2006-07-10 15:18:34 blair Exp $
+ * @version $Id: Group.java,v 1.89 2006-07-10 18:17:07 blair Exp $
  */
 public class Group extends Owner {
 
@@ -52,12 +52,11 @@ public class Group extends Owner {
 
   // CONSTRUCTORS //
 
-  /**
-   * Default constructor for Hibernate.
-   */
-  public Group() {
-    // Nothing
-  }
+  // Default constructor for Hibernate.
+  // @since   1.0
+  protected Group() {
+    super();
+  } // protected Group()
 
   // Return a group with an attached session
   protected Group(
@@ -138,7 +137,7 @@ public class Group extends Owner {
    *   // Unable to add composite membership
    * } 
    * </pre>
-   * @param   type  {@link CompositeType}
+   * @param   type  Add membership of this {@link CompositeType}.
    * @param   left  {@link Group} that is left factor of of composite membership.
    * @param   right {@link Group} that is right factor of composite membership.
    * @throws  InsufficientPrivilegeException
@@ -291,6 +290,12 @@ public class Group extends Owner {
    * Check whether the {@link Subject} that loaded this {@link Group} can
    * read the specified {@link Field}.
    * <pre class="eg">
+   * try {
+   *   boolean rv = g.canReadField(f);
+   * }
+   * catch (SchemaException eS) {
+   *   // invalid field
+   * }
    * </pre>
    * @param   f   Check privileges on this {@link Field}.
    * @return  True if {@link Subject} can read {@link Field}, false otherwise.
@@ -308,6 +313,12 @@ public class Group extends Owner {
   /**
    * Check whether the specified {@link Subject} can read the specified {@link Field}.
    * <pre class="eg">
+   * try {
+   *   boolean rv = g.canReadField(subj, f);
+   * }
+   * catch (SchemaException eS) {
+   *   // invalid field
+   * }
    * </pre>
    * @param   subj  Check privileges for this {@link Subject}.
    * @param   f     Check privileges on this {@link Field}.
@@ -336,6 +347,12 @@ public class Group extends Owner {
    * Check whether the {@link Subject} that loaded this {@link Group} can
    * write the specified {@link Field}.
    * <pre class="eg">
+   * try {
+   *   boolean rv = g.canWriteField(f);
+   * }
+   * catch (SchemaException eS) {
+   *   // invalid field
+   * }
    * </pre>
    * @param   f   Check privileges on this {@link Field}.
    * @return  True if {@link Subject} can write {@link Field}, false otherwise.
@@ -353,6 +370,12 @@ public class Group extends Owner {
   /**
    * Check whether the specified {@link Subject} can write the specified {@link Field}.
    * <pre class="eg">
+   * try {
+   *   boolean rv = g.canWriteField(subj, f);
+   * }
+   * catch (SchemaException eS) {
+   *   // invalid field
+   * }
    * </pre>
    * @param   subj  Check privileges for this {@link Subject}.
    * @param   f     Check privileges on this {@link Field}.
@@ -508,7 +531,7 @@ public class Group extends Owner {
   } // public void deleteAttribute(attr)
 
   /**
-   * Delete a composite membership from this group.
+   * Delete a {@link Composite} membership from this group.
    * <pre class="eg">
    * try {
    *   g.deleteCompositeMember();
@@ -792,7 +815,7 @@ public class Group extends Owner {
   } // public Map getAttributes()
 
   /**
-   * Get composite {@link Member}s of this group.
+   * Get {@link Composite} {@link Member}s of this group.
    * <pre class="eg">
    * Set members = g.getCompositeMembers();
    * </pre>
@@ -806,7 +829,7 @@ public class Group extends Owner {
   } // public Set getCompositeMembers()
 
   /**
-   * Get composite {@link Membership}s of this group.
+   * Get {@link Composite} {@link Membership}s of this group.
    * <pre class="eg">
    * Set mships = g.getCompositeMembers();
    * </pre>
@@ -1195,7 +1218,6 @@ public class Group extends Owner {
   /**
    * Get (optional and questionable) modify source for this group.
    * <pre class="eg">
-   * // Get modify source
 `  * String source = g.getModifySource();
    * </pre>
    * @return  Modify source for this group.
@@ -1211,7 +1233,6 @@ public class Group extends Owner {
   /**
    * Get subject that last modified this group.
    * <pre class="eg">
-   * // Get last modifier of this group.
    * try {
    *   Subject modifier = g.getModifySubject();
    * }
@@ -1240,7 +1261,6 @@ public class Group extends Owner {
   /**
    * Get last modified time for this group.
    * <pre class="eg">
-   * // Get last modified time.
    * Date modified = g.getModifyTime();
    * </pre>
    * @return  {@link Date} that this group was last modified.
@@ -2155,7 +2175,7 @@ public class Group extends Owner {
   protected void setModified() {
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
-  } // private void setModified()
+  } // protected void setModified()
 
   protected void setDisplayName(String value) {
     Set       attrs = new LinkedHashSet();

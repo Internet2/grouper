@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.66 2006-07-07 15:22:01 blair Exp $
+ * @version $Id: Stem.java,v 1.67 2006-07-10 18:17:07 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -57,12 +57,11 @@ public class Stem extends Owner {
 
   // CONSTRUCTORS //
 
-  /**
-   * Default constructor for Hibernate.
-   */
-  public Stem() {
-    // Nothing
-  }
+   // Default constructor for Hibernate.
+   // @since    1.0
+  protected Stem() {
+    super();
+  } // protected Stem()
 
   // Return a stem with an attached session
   protected Stem(GrouperSession s) {

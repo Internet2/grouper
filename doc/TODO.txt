@@ -4,14 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.14 2006-07-10 17:16:16 blair Exp $
+$Id: TODO.txt,v 1.15 2006-07-10 18:17:07 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* REVIEW    javadoc
 * REVIEW    impl guide
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
 * REVIEW    FIXMEs
@@ -44,8 +43,9 @@ $Id: TODO.txt,v 1.14 2006-07-10 17:16:16 blair Exp $
 ## Grouper 1.1
 * CODE      add group aging
 * CODE      add membership aging
-* CODE      delete _HibernateSubject_ objects
-* CODE      modify _HibernateSubject_ objects
+* CODE      require root-privileges to add, delete or modify *HibernateSubject*s
+* CODE      delete *HibernateSubject* objects
+* CODE      modify *HibernateSubject* objects
 * CODE      naming validation interface
 * CODE      logging enhancements and normalization
 * PACKAGING create binary-and-source distributions
@@ -126,5 +126,6 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.14 2006-07-10 17:16:16 blair Exp $
+$Id: TODO.txt,v 1.15 2006-07-10 18:17:07 blair Exp $
+
 

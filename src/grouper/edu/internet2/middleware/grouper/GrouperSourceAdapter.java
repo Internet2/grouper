@@ -33,13 +33,13 @@ import  net.sf.hibernate.*;
  * </p>
  * <pre class="eg">
  * &lt;source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter"&gt;
- *   &lt;id&gt;grouperAdapter&lt;/id&gt;
- *   &lt;name&gt;Grouper Adapter&lt;/name&gt;
+ *   &lt;id&gt;g:gsa&lt;/id&gt;
+ *   &lt;name&gt;Grouper: Grouper Source Adapter&lt;/name&gt;
  *   &lt;type&gt;group&lt;/type&gt;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.14 2006-07-10 15:18:34 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.15 2006-07-10 18:17:07 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 

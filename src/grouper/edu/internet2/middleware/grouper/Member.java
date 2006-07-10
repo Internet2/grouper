@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.50 2006-07-06 16:32:03 blair Exp $
+ * @version $Id: Member.java,v 1.51 2006-07-10 18:17:07 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -50,13 +50,6 @@ public class Member implements Serializable {
 
   // CONSTRUCTORS //
 
-  /**
-   * Default constructor for Hibernate.
-   */
-  public Member() {
-    // Nothing
-  }
-
   protected Member(Subject subj) {
     // Persistent Properties
     this.setSubject_id( subj.getId() );
@@ -67,6 +60,12 @@ public class Member implements Serializable {
     // Transient Properties  
     this.subj = subj;
   } // protected Member()
+
+  // Default constructor for Hibernate.
+  // @since   1.0
+  private Member() {
+    super();
+  } // private Member()
 
 
   // PUBLIC INSTANCE METHODS //
