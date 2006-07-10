@@ -3,11 +3,12 @@
 
 This file provides information on known *GrouperShell* bugs.
 
-$Id: BUGS.txt,v 1.4 2006-07-07 14:34:40 blair Exp $
+$Id: BUGS.txt,v 1.5 2006-07-10 17:14:01 blair Exp $
 
 ---
 
 ## GrouperShell 0.0.1
+* 20060710  `x = last()` does not work. 
 * 20060707  When using an embedded HSQLDB database for the Groups Registry on
 	          Windows, the database will not always shutdown properly
 	          and will require manual intervention.
