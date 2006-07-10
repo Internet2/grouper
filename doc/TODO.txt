@@ -4,17 +4,17 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.15 2006-07-10 18:17:07 blair Exp $
+$Id: TODO.txt,v 1.16 2006-07-10 18:36:54 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* REVIEW    impl guide
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
 * REVIEW    FIXMEs
 * REVIEW    TODOs
+* REVIEW    impl guide - i really want to kill this post-haste
 
 ---
 
@@ -126,6 +126,6 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.15 2006-07-10 18:17:07 blair Exp $
+$Id: TODO.txt,v 1.16 2006-07-10 18:36:54 blair Exp $
 
 
