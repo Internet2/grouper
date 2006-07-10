@@ -28,13 +28,13 @@ import  junit.framework.*;
  * Test {@link GrouperSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSourceAdapter.java,v 1.3 2006-06-27 18:35:14 blair Exp $
+ * @version $Id: TestGrouperSourceAdapter.java,v 1.4 2006-07-10 15:18:34 blair Exp $
  */
 public class TestGrouperSourceAdapter extends TestCase {
 
   // Private Class Constants
-  private static final  String ID   = GrouperSourceAdapter.ID;
-  private static final  String NAME = GrouperSourceAdapter.NAME;
+  private static final  String ID   = "g:gsa:test";
+  private static final  String NAME = "Grouper: Group Source Adapter: Test";
 
 
   // Private Instance Variables

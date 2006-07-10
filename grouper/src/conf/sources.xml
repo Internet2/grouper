@@ -2,12 +2,16 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.5 2006-06-27 18:35:14 blair Exp $
+$Id: sources.xml,v 1.6 2006-07-10 15:18:34 blair Exp $
 -->
 
 <sources>
 
   <!-- Group Subject Resolver -->
+  <!-- 
+    NOTE: It is recommended that you **not** change the default
+          values for this source adapter.
+  -->
   <source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter">
     <id>g:gsa</id>
     <name>Grouper: Group Source Adapter</name>

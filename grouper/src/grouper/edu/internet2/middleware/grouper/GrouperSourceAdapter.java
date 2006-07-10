@@ -39,14 +39,9 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.13 2006-07-06 20:18:59 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.14 2006-07-10 15:18:34 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
-
-  // PUBLIC CLASS CONSTANTS //
-  public static final String ID   = "g:gsa";
-  public static final String NAME = "Grouper: Group Source Adapter";
-
 
   // PRIVATE INSTANCE VARIABLES //
   private Set _types = new LinkedHashSet();
@@ -59,14 +54,14 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    */
   public GrouperSourceAdapter() {
     super();
-  }
+  } // public GrouperSourceAdapter()
 
   /**
    * Allocates new GrouperSourceAdapter.
    */
   public GrouperSourceAdapter(String id, String name) {
     super(id, name);
-  }
+  } // public GrouperSourceAdapter(id, name)
 
 
   // PUBLIC INSTANCE METHODS //
