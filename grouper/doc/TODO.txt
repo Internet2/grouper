@@ -4,20 +4,18 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.13 2006-07-10 15:18:34 blair Exp $
+$Id: TODO.txt,v 1.14 2006-07-10 17:16:16 blair Exp $
 
 ---
 
 ## Grouper 1.0
 
 ### Next Actions
-* REVIEW    gsh docs
-* CODE      tag gsh
+* REVIEW    javadoc
+* REVIEW    impl guide
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
 * REVIEW    FIXMEs
 * REVIEW    TODOs
-* REVIEW    javadoc
-* REVIEW    impl guide
 
 ---
 
@@ -29,6 +27,8 @@ $Id: TODO.txt,v 1.13 2006-07-10 15:18:34 blair Exp $
 * CODE      change query parameter setting in *MembershipFinder*
 * CODE      have xml* default properties + optional override properties
 * CODE      improved xml* integration (including logging)
+* DOC       Migrate impl guide to wiki and export upon release
+* DOC       MAYBE Migrate *package.html* to wiki and export upon release
 
 ### Maybe
 * CODE      class to verify that setup is functional
@@ -126,5 +126,5 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.13 2006-07-10 15:18:34 blair Exp $
+$Id: TODO.txt,v 1.14 2006-07-10 17:16:16 blair Exp $
 
