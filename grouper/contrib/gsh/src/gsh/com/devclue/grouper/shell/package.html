@@ -9,13 +9,140 @@ All Rights Reserved.
 You may use and distribute under the same terms as Grouper itself.
 
 -->
+<style>
+<!--
+pre.eg {
+  background-color: #dedede;
+  margin: 2%;
+  margin-bottom: 1%;
+  padding: 1%;
+  width: 90%;
+}
+-->
+</style>
 </head>
 <body bgcolor="white">
-<p><i>GrouperShell</i> (gsh) is a shell for administering and
+<p><i>GrouperShell</i> (<i>gsh</i>) is a shell for administering and
 interacting with the Grouper API.  It can be used in both a batch
 and interactive manner.</p>
-<p>More documention to follow.</p>
-<p>@version $Id: package.html,v 1.1 2006-06-23 17:30:09 blair Exp $/p>
+<hr/ size="4" width="90%"/>
+<h3>Usage</h3>
+<p><i>GrouperShell</i> may be used in both a batch and interactive manner.
+Below are examples of each:</p>
+<h4>Interactive</h4>
+<pre class="eg">
+% bin/gsh.sh
+gsh-0.0.1 0% resetRegistry()
+true
+gsh-0.0.1 1% addRootStem("edu", "Educational") 
+stem: name='edu' ...
+gsh-0.0.1 2% addStem("edu", "i2", "Internet2")
+stem: name='edu:i2' ...
+gsh-0.0.1 3% addStem("edu", "uc", "The University Of Chicago")
+stem: name='edu:uc' ...
+gsh-0.0.1 4% addGroup("edu:uc", "nsit", "Networking Services And Information Technology")
+group: name='edu:uc:nsit' ...
+gsh-0.0.1 5% quit
+</pre>
+<h4>Batch</h4>
+<pre class="eg">
+% cat test/gsh
+resetRegistry()
+addRootStem("edu", "Educational")
+addStem("edu", "i2", "Internet2")
+addStem("edu", "uc", "The University Of Chicago")
+addGroup("edu:uc", "nsit", "Networking Services And Information Technology")
+quit
+
+% bin/gsh.sh test.gsh
+true
+stem: name='edu' ...
+stem: name='edu:i2' ...
+stem: name='edu:uc' ...
+group: name='edu:uc:nsit' ..
+
+% bin/gsh.sh - < test.gsh
+true
+stem: name='edu' ...
+stem: name='edu:i2' ...
+stem: name='edu:uc' ...
+group: name='edu:uc:nsit' ..
+</pre>
+<hr/ size="4" width="90%"/>
+<h3>Supported Commands</h3>
+<ul>
+  <li><b>addComposite(group, type, left group, right group)</b> - Add
+    composite membership.</li>
+  <li><b>addGroup(parent, extension, displayExtension)</b> - Add
+    group beneath <i>parent</i> stem with the specified <i>extension</i>
+    and <i>displayExtension</i>.</li>
+  <li><b>addMember(group, subject id)</b> - Add subject as a member
+    to the group.</li>
+  <li><b>addRootStem(extension, displayExtension)</b> - Add root
+    stem with the specified <i>extension</i> and <i>displayExtension</i>.</li>
+  <li><b>addStem(parent, extension, displayExtension)</b> - Add stem
+    beneath <i>parent</i> stem with the specified <i>extension</i>
+    and <i>displayExtension</i>.</li>
+  <li><b>addSubject(id, type, name)</b> - Add a {@link HibernateSubject}
+    to the Groups Registry.</li>
+  <li><b>delComposite(group)</b> - Delete composite membership from the
+    specified group.</li>
+  <li><b>delGroup(name)</b> - Delete group with the specified
+    <i>name</i>.</li>
+  <li><b>delMember(group, subject id)</b> - Remove subject as a
+    member of the group.</li>
+  <li><b>delStem(name)</b> - Delete stem with the specified
+    <i>name</i>.</li>
+  <li><b>exit</b> - Terminate shell.</li>
+  <li><b>findSubject(id)</b> - Find a subject.</li>
+  <li><b>findSubject(id, type)</b> - Find a subject.</li>
+  <li><b>findSubject(id, type, source)</b> - Find a subject.</li>
+  <li><b>getGroupAttr(stem, attr)</b> - Get value of <i>group</i>'s
+    <i>attr</i> attribute.</li>
+  <li><b>getGroups(name)</b> - Find all groups with <i>name</i> in any
+    naming attribute value.</li>
+  <li><b>getMembers(group)</b> - Get members of the group.</li>
+  <li><b>getSources()</b> - Find all Subject sources.</li>
+  <li><b>getStemAttr(stem, attr)</b> - Get value of <i>stem</i>'s
+    <i>attr</i> attribute.</li>
+  <li><b>getStems(name)</b> - Find all stems with <i>name</i> in any
+    naming attribute value.</li>
+  <li><b>grantPriv(name, subject id, Privilege)</b> - Grant <i>Privilege</i>
+    to <i>subject id</i> on <i>name</i>.</li>
+  <li><b>hasMember(group, subject id)</b> - Is subject a member of
+  this group.</li>
+  <li><b>hasPriv(name, subject id, Privilege)</b> - Does <i>subject id</i>
+    have <i>Privilege</i> on <i>name</i>?</li>
+  <li><b>help()</b> - Display usage information.</li>
+  <li><b>history()</b> - Print commands that have been run.</li>
+  <li><b>history(n)</b> - Print the last <i>n</i> commands that
+    have been run.</li>
+  <li><b>last()</b> - Run the last command executed.</li>
+  <li><b>last(n)</b> - Execute command number <i>n</i>.</li>
+  <li><b>p(command)</b> - Pretty print results.  This command is
+    more useful when <i>GSH_DEVEL</i> is enabled.</li>
+  <li><b>quit</b> - Terminate shell.</li>
+  <li><b>resetRegistry()</b> - Restore the Groups Registry to a
+    default state.</li>
+  <li><b>revokePriv(name, subject id, Privilege)</b> - Revoke <i>Privilege</i>
+    from <i>subject id</i> on <i>name</i>.</li>
+  <li><b>setGroupAttr(stem, attr, value)</b> - Set value of <i>group</i>'s 
+    <i>attr</i> attribute.</li>
+  <li><b>setStemAttr(stem, attr, value)</b> - Set value of <i>stem</i>'s 
+    <i>attr</i> attribute.</li>
+  <li><b>version()</b> - Return version information.</li>
+</ul> 
+<hr/ size="4" width="90%"/>
+<h3>Variables</h3>
+<ul>
+ <li><b>GSH_DEBUG</b> - If set to <i>true</i>, stack traces will be printed
+   upon failure.</li>
+ <li><b>GSH_DEVEL</b> - If set to <i>true</i>, commands will return
+   objects that can be manipulated rather than printing out summaries
+   of the returned objects.</li>
+ <li><b>GSH_TIMER</b> - If set to <i>true</i> the time taken to
+   evaluate each command will be displayed.</li>
+</ul>
 </body>
 </html>
 
