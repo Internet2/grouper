@@ -25,13 +25,17 @@ import  org.apache.commons.lang.time.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.23 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.24 2006-07-10 15:18:34 blair Exp $
  */
 public class SubjectFinder {
 
   // PRIVATE CLASS CONSTANTS //
   private static final SourceManager  MGR;
   private static final Subject        ALL; 
+
+
+  // PROTECTED CLASS VARIABLES //
+  protected static Source gsa;
 
 
   // STATIC //
@@ -407,6 +411,26 @@ public class SubjectFinder {
       MGR.getSources( SubjectTypeEnum.valueOf(type) ) 
     );
   } // public static Set getSources(type)
+
+
+
+  // PROTECTED CLASS METHODS //
+
+  // @since   1.0
+  protected static Source getGSA() {
+    if (gsa == null) {
+      Iterator iter = MGR.getSources().iterator();
+      while (iter.hasNext()) {
+        Source sa = (Source) iter.next();
+        if (sa instanceof GrouperSourceAdapter) {
+          gsa = sa;
+          break;
+        }
+      }
+      Validator.valueNotNull(gsa, E.SF_GETSA);
+    }
+    return gsa;
+  } // protected static Source getGSA()
 
 
   // PRIVATE CLASS METHODS //

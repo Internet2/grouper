@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.20 2006-07-06 17:16:53 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.21 2006-07-10 15:18:34 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -50,7 +50,7 @@ public class GrouperSubject implements Subject {
     this.g        = g;
     this.id       = g.getUuid();
     this.name     = g.getName();
-    this.adapter  = (GrouperSourceAdapter) SubjectFinder.getSource(GrouperSourceAdapter.ID);
+    this.adapter  = (GrouperSourceAdapter) SubjectFinder.getGSA();
   } // protected GrouperSubject(g, sa)
 
 

@@ -16,8 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
@@ -25,20 +23,19 @@ import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
-
 /**
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.3 2006-07-10 15:18:34 blair Exp $
  */
-public class GroupHelper {
+class GroupHelper {
 
-  // Private Class Constants
+  // PRIVATE CLASS CONSTANTS //
   private static final Log LOG = LogFactory.getLog(GroupHelper.class);
 
 
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
 
   // Add a member to a group
   protected static void addMember(Group g, Subject subj, String list) {
@@ -54,6 +51,7 @@ public class GroupHelper {
 
 
   // 'Tis more ugly below
+  // TODO Deprecate.  Or at least DRY.
 
   // Add a group as a member to a group
   protected static void addMember(Group g, Group gm) {
@@ -600,7 +598,7 @@ public class GroupHelper {
       );
       Assert.assertTrue(
         "m source",
-        m.getSubjectSourceId().equals(GrouperSourceAdapter.ID)
+        m.getSubjectSourceId().equals(SubjectFinder.getGSA().getId())
       );
       return m;
     }
@@ -610,5 +608,5 @@ public class GroupHelper {
     throw new RuntimeException(Helper.ERROR); 
   } // protected static Member toMember(g)
 
-}
+} // class GroupHelper
 

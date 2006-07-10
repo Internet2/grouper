@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.87 2006-07-06 20:18:59 blair Exp $
+ * @version $Id: Group.java,v 1.88 2006-07-10 15:18:34 blair Exp $
  */
 public class Group extends Owner {
 
@@ -2114,7 +2114,7 @@ public class Group extends Owner {
     if (as_subj == null) {
       try {
         as_subj = SubjectFinder.findById(
-          this.getUuid(), "group", GrouperSourceAdapter.ID
+          this.getUuid(), "group", SubjectFinder.getGSA().getId()
         );
       }
       catch (Exception e) {

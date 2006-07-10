@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
@@ -25,7 +24,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject2.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestSubject2.java,v 1.3 2006-07-10 15:18:34 blair Exp $
  */
 public class TestSubject2 extends TestCase {
 
