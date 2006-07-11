@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.24 2006-07-10 15:18:34 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.25 2006-07-11 18:45:46 blair Exp $
  */
 public class SubjectFinder {
 
@@ -34,8 +34,8 @@ public class SubjectFinder {
   private static final Subject        ALL; 
 
 
-  // PROTECTED CLASS VARIABLES //
-  protected static Source gsa;
+  // PACKAGE CLASS VARIABLES //
+  static Source gsa;
 
 
   // STATIC //
