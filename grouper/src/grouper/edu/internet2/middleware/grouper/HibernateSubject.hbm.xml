@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateSubject.hbm.xml,v 1.3 2006-06-15 00:07:02 blair Exp $ -->
+<!-- $Id: HibernateSubject.hbm.xml,v 1.4 2006-07-11 15:21:33 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="HibernateSubject" table="Subject">
@@ -67,12 +67,14 @@
     <!-- name -->
 
     <!-- attributes -->
+<!-- TODO
     <set  name="attributes"
-          cascade="all"
+          cascade="none"
     >
       <key column="subjectId"/>
       <one-to-many class="edu.internet2.middleware.grouper.HibernateSubjectAttribute" />
     </set>
+-->
     <!-- attributes -->
 
   </class>
