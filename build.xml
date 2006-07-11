@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.107 2006-07-07 17:00:41 blair Exp $ -->
+<!-- $Id: build.xml,v 1.108 2006-07-11 19:52:28 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -34,7 +34,7 @@
   <property name="log.test.build"         location="${basedir}/test-build.log"/>
   <property name="log.test.run"           location="${basedir}/test.log"/>
 
-  <property name="hprof.depth"            value="20"/>
+  <property name="hprof.depth"            value="25"/>
   <property name="max.memory"             value="192m"/>
   <!-- Global Properties -->
 
