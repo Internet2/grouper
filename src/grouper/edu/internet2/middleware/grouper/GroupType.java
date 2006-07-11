@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.20 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: GroupType.java,v 1.21 2006-07-11 18:35:45 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -97,11 +97,10 @@ public class GroupType implements Serializable {
       throw new InsufficientPrivilegeException(msg);
     }
     try {
-      type = GroupTypeFinder.find(name);  
-      // type already exists.  
+      type = GroupTypeFinder.find(name);  // type already exists
     }
     catch (SchemaException eS) {
-      // Ignore
+      // Type not found.  This is what we want.
     } 
     if (type != null) {
       String msg = E.GROUPTYPE_EXISTS + name;
