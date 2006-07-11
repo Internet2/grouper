@@ -28,7 +28,7 @@ import  net.sf.hibernate.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.30 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.31 2006-07-11 15:21:33 blair Exp $
  */
 public class RegistryReset {
 
@@ -156,6 +156,8 @@ public class RegistryReset {
       + "and  t.name != 'naming'    "
       + ")"
     );
+    // TODO Once properly mapped I can delete the explicit attr delete
+    hs.delete("from HibernateSubjectAttribute");
     hs.delete("from HibernateSubject");
 
     tx.commit();

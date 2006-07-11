@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateSubjectAttribute.hbm.xml,v 1.3 2006-06-15 00:07:02 blair Exp $ -->
+<!-- $Id: HibernateSubjectAttribute.hbm.xml,v 1.4 2006-07-11 15:21:33 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="HibernateSubjectAttribute" table="SubjectAttribute">
@@ -30,6 +30,7 @@
 
     <cache usage="read-write"/>
 
+    <!-- TODO Is this mapping even remotely right? -->
     <!-- id -->
     <composite-id>
       <key-many-to-one  name="subjectId"  
