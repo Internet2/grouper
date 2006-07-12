@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestBug0.java,v 1.1 2006-07-07 17:01:10 blair Exp $
+ * @version $Id: TestBug0.java,v 1.2 2006-07-12 23:50:24 blair Exp $
  * @since   1.0
  */
 public class TestBug0 extends TestCase {
@@ -51,30 +51,41 @@ public class TestBug0 extends TestCase {
   public void testMysteryError0() {
     LOG.info("testMysteryError0");
     try {
-      R       r     = R.populateRegistry(1, 3, 2);
-      Group   gA    = r.getGroup("a", "a");
+      R       r     = R.populateRegistry(1, 4, 2);
+      Group   gA    = r.getGroup("a", "a");   
       Group   gB    = r.getGroup("a", "b");
       Group   gC    = r.getGroup("a", "c");
+      Group   gD    = r.getGroup("a", "d");
       Subject subjA = r.getSubject("a");
       Subject subjB = r.getSubject("b");
 
-      Group a = GroupFinder.findByName(r.rs, gA.getName());
-      a.addMember(subjA);
+      gA.addMember(subjA);
+      gA.addMember(subjB);
 
-      Group b = GroupFinder.findByName(r.rs, gB.getName());
-      b.addMember(subjB);
+      gB.addMember(     gC.toSubject() );
+      gB.addMember(     gD.toSubject() );
 
-      Group c     = GroupFinder.findByName(r.rs, gC.getName());
-      Group aAdd  = GroupFinder.findByName(r.rs, gA.getName());
-      c.addMember(aAdd.toSubject());
-      Group bAdd  = GroupFinder.findByName(r.rs, gB.getName());
-      c.addMember(bAdd.toSubject());
+      // (ns) [i2]      qsuob
+      // (ns)           qsuob:faculties
+      // (ns) [i2:a]    qsuob:faculties:artf
+      // (g)  [i2:a:a]  qsuob:faculties:artf:staff
+      // (g)  [i2:a:b]  qsuob:all
+      // (m)  [i2:a:a]  + [subjA]   qsuob:faculties:artf:staff + iawi 
+      // (m)  [i2:a:a]  + [subjB]   qsuob:faculties:artf:staff + iata 
+      gA.deleteMember(subjA);
+      gA.deleteMember(subjB);
+      gA.addMember(subjA);
+      gA.addMember(subjB);
 
-      c = GroupFinder.findByName(r.rs, gC.getName());
-      Group aDel  = GroupFinder.findByName(r.rs, gA.getName());
-      c.deleteMember(aDel.toSubject());
-      Group bDel  = GroupFinder.findByName(r.rs, gB.getName());
-      c.deleteMember(bDel.toSubject());
+      // (m)  [i2:a:b]  + [i2:a:c]  qsuob:all + qsuob:all_students
+      // (m)  [i2:a:b]  + [i2:a:d]  qsuob:all + qsuob:all_academic_staff
+      gB.deleteMember(  gC.toSubject() );
+      gB.deleteMember(  gD.toSubject() );
+      gB.addMember(     gC.toSubject() );
+      gB.addMember(     gD.toSubject() );
+
+      // TODO Do these need to be done in different session contexts?
+      //      Or different objects?
 
       r.rs.stop();
     }
