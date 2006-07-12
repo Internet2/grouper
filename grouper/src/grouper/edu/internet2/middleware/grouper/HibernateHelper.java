@@ -28,7 +28,7 @@ import  net.sf.hibernate.cfg.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.25 2006-07-06 17:38:01 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.26 2006-07-12 23:50:24 blair Exp $
  */
 class HibernateHelper {
 
@@ -180,7 +180,6 @@ class HibernateHelper {
   protected static void saveAndDelete(Set saves, Set deletes)
     throws HibernateException
   { 
-    Object err = null;
     try {
       Session     hs    = HibernateHelper.getSession();
       Transaction tx    = hs.beginTransaction();
@@ -191,18 +190,16 @@ class HibernateHelper {
       try {
         while (iterD.hasNext()) {
           oD = iterD.next();
-          err = oD;
           try {
             hs.delete( _getPersistent(hs, oD) );
           }
           catch (HibernateException eH) {
-            String msg = "unable to delete " + oD + ": " + eH.getMessage();
+            String msg = "XXX unable to delete " + oD + ": " + eH.getMessage();
             throw new HibernateException(msg, eH);
           }
         }
         while (iterS.hasNext()) {
           oS = iterS.next();
-          err = oS;
           try {
             hs.saveOrUpdate(oS);
           }
@@ -211,7 +208,13 @@ class HibernateHelper {
             throw new HibernateException(msg, eH);
           }
         }
-        tx.commit();
+        try {
+          tx.commit();
+        }
+        catch (HibernateException eH) {
+          String msg = E.HIBERNATE_COMMIT + eH.getMessage();
+          throw new HibernateException(msg, eH);
+        }
       }
       catch (HibernateException eH) {
         tx.rollback();
