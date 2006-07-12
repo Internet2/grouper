@@ -196,7 +196,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateAssignNewMembersAction.java,v 1.4 2006-02-24 13:39:37 isgwb Exp $
+ * @version $Id: PopulateAssignNewMembersAction.java,v 1.5 2006-07-12 19:37:48 isgwb Exp $
  */
 public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 
@@ -331,6 +331,7 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 		} else {
 			pager.setTarget(mapping.getPath());
 		}
+		String listField=(String) session.getAttribute("findForListField");
 		request.setAttribute("pager", pager);
 		request.setAttribute("searchedPeople", searchedPeople);
 		request.setAttribute("searchedGroups", searchedGroups);
@@ -341,7 +342,7 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 		Map privs = GrouperHelper.hasAsMap(grouperSession, groupOrStem);
 		request.setAttribute("targetPrivs", privs);
 		request.setAttribute("subtitleArgs", new Object[] { findMap
-				.get("displayExtension") });
+				.get("displayExtension") ,listField});
 
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, groupOrStem));

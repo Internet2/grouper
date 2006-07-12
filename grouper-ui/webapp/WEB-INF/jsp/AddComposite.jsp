@@ -12,7 +12,7 @@
 <fmt:message bundle="${nav}" key="groups.composite.add.insufficient-saved"/>
 </c:if>
 <html:form action="/saveComposite">
-<html:hidden property="groupId"/>
+<input type="hidden" name="groupId" value="<c:out value="${browseParent.groupId}"/>">
 <fieldset>
 <div class="formRow">
 	<div class="formLeft"><fmt:message bundle="${nav}" key="groups.composite.leftGroup"/></div>

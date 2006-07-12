@@ -94,7 +94,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DeleteGroupAction.java,v 1.5 2006-07-06 08:47:17 isgwb Exp $
+ * @version $Id: DeleteGroupAction.java,v 1.6 2006-07-12 19:37:48 isgwb Exp $
  */
 public class DeleteGroupAction extends GrouperCapableAction {
 
@@ -153,7 +153,7 @@ public class DeleteGroupAction extends GrouperCapableAction {
 
 		 
 		
-		ActionForward forward =null;
+		ActionForward forward = null;
 		if(!success) {
 			forward = mapping.findForward("GroupSummary");
 		}else {

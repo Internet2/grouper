@@ -199,7 +199,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.8 2006-07-06 09:40:54 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.9 2006-07-12 19:37:48 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -257,7 +257,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		request.setAttribute("listFieldsSize",new Integer(listFields.size()));
 		
 		Set members = null;
-		if ("imm".equals(membershipListScope)) {
+		if ("imm".equals(membershipListScope)&& "members".equals(membershipField)) {
 			if(group.hasComposite()) {
 				members=new HashSet();
 			}else{

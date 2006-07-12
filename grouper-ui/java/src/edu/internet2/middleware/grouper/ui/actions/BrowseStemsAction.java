@@ -104,7 +104,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: BrowseStemsAction.java,v 1.5 2006-06-05 14:56:52 isgwb Exp $
+ * @version $Id: BrowseStemsAction.java,v 1.6 2006-07-12 19:37:48 isgwb Exp $
  */
 public class BrowseStemsAction extends GrouperCapableAction {
 
@@ -137,6 +137,7 @@ public class BrowseStemsAction extends GrouperCapableAction {
 		
 		DynaActionForm browseForm = (DynaActionForm)form;
 		String currentNodeId = (String)browseForm.get("currentNode");
+		if(isEmpty(currentNodeId)) currentNodeId=getBrowseNode(session);
 		if(isEmpty(request.getParameter("advancedSearch")))
 			setBrowseNode(currentNodeId,session);
 		if(!isEmpty(currentNodeId)) {
