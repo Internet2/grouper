@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.4 2006-07-06 14:50:12 isgwb Exp $
+  @version $Id: GroupMembers.jsp,v 1.5 2006-07-12 16:01:43 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -53,6 +53,7 @@
 						<fmt:message bundle="${nav}" key="groups.composite.replace"/>
 					</html:link>
 		</c:if>
+		<c:set target="${groupMembership}" property="callerPageId"></c:set>
 		<html:link page="/populateGroupSummary.do" name="groupMembership">
 			<fmt:message bundle="${nav}" key="find.groups.done"/>
 		</html:link>
