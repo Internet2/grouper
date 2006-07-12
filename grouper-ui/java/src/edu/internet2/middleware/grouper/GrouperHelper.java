@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.ui.util.SubjectPrivilegeAsMap;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -52,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.13 2006-07-06 07:49:53 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.14 2006-07-12 19:36:07 isgwb Exp $
  */
 
 /**
@@ -668,7 +669,9 @@ public class GrouperHelper {
 	 * @return List of Subjects wrapped as Maps
 	 */
 	public static List groupList2SubjectsMaps(GrouperSession s, List members,
-			int start, int pageSize) throws GroupNotFoundException,SubjectNotFoundException,MemberNotFoundException{
+			int start, int pageSize) 
+		throws GroupNotFoundException,SubjectNotFoundException,
+		MemberNotFoundException,SubjectNotUniqueException{
 		return groupList2SubjectsMaps(s, members, null, start, pageSize);
 	}
 
@@ -679,7 +682,8 @@ public class GrouperHelper {
 	 * @return List of Subjects wrapped as Maps
 	 */
 	public static List groupList2SubjectsMaps(GrouperSession s, List members) 
-		throws GroupNotFoundException,SubjectNotFoundException,MemberNotFoundException{
+		throws GroupNotFoundException,SubjectNotFoundException,
+		MemberNotFoundException,SubjectNotUniqueException{
 		return groupList2SubjectsMaps(s, members, null);
 	}
 
@@ -692,7 +696,9 @@ public class GrouperHelper {
 	 * @return List of Subjects wrapped as Maps
 	 */
 	public static List groupList2SubjectsMaps(GrouperSession s, List members,
-			String asMemberOf) throws GroupNotFoundException,SubjectNotFoundException,MemberNotFoundException{
+			String asMemberOf) 
+			throws GroupNotFoundException,SubjectNotFoundException,
+			MemberNotFoundException,SubjectNotUniqueException{
 		return groupList2SubjectsMaps(s, members, asMemberOf, 0, members.size());
 	}
 
@@ -708,7 +714,9 @@ public class GrouperHelper {
 	 * @return List of Subjects wrapped as Maps
 	 */
 	public static List groupList2SubjectsMaps(GrouperSession s, List members,
-			String asMemberOf, int start, int pageSize) throws GroupNotFoundException,SubjectNotFoundException,MemberNotFoundException{
+			String asMemberOf, int start, int pageSize) 
+			throws GroupNotFoundException,SubjectNotFoundException,
+				MemberNotFoundException,SubjectNotUniqueException{
 		int end = start + pageSize;
 		if (end > members.size())
 			end = members.size();
