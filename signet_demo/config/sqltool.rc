@@ -1,6 +1,0 @@
-# This file defines the "localhost-sa" URL-id that's used to connect to
-# the database server that underlies the Signet demo installation.
-urlid localhost-sa
-url jdbc:hsqldb:hsql://localhost/xdb
-username sa
-password
