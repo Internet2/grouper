@@ -213,7 +213,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.6 2006-03-01 16:02:40 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.7 2006-07-13 15:45:40 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -358,7 +358,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 				String listField = request.getParameter("expandListField"); 
 				children = new ArrayList(repositoryBrowser.getChildren(fromId,listField,start,pageSize,totalCount,isFlat,findForNode!=null,omitForAssignment));
 				//children = GrouperHelper.groups2Maps(grouperSession, allChildren);
-				request.setAttribute("stemHasChildren",new Boolean(allChildren.size()>0));
+				request.setAttribute("stemHasChildren",new Boolean(children.size()>0));
 				resultSize=Integer.parseInt(totalCount.toString()); 
 			
 			
