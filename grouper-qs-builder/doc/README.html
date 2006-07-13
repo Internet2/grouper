@@ -20,7 +20,6 @@
 <p><a href="grouper/doc/">Release documentation for the Grouper API</a>.</p>
 <p><a href="grouper-ui/doc/index.html">Grouper UI specific documentation</a>.</p>
 <p><a href="#otherDatabase">Using the QuickStart instance with a different database</a></p>
-<p><a href="#trouble">Troubleshooting SubjectNotFoundExceptions</a></p>
 <h2>Preparing Tomcat</h2>
 <p>This document assumes you are familiar with Tomcat. </p>
 <p>The Grouper UI requires that users authenticate themselves and this QuickStart 
@@ -32,10 +31,11 @@
 <p>Restart Tomcat.</p>
 <h2>Building the UI</h2>
 <p>Review <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/log4j.properties</font> 
-  and modify the values fo the keys:</p>
+  and modify the values for the keys:</p>
 <ul>
-  <li>log4j.appender.rfile.File</li>
-  <li>log4j.appender.event.File </li>
+  <li>log4j.appender.grouper_event.File</li>
+  <li>log4j.appender.grouper_error.File </li>
+  <li>log4j.appender.grouper_debug.File</li>
 </ul>
 <p>to valid paths on your system. Use / as a directory separator whichever operating 
   system you are using.</p>
@@ -92,7 +92,7 @@
   as a different login mechanism - one which doesn't require a password!</p>
 <p>All the files needed for the customisations are in <font face="Courier New, Courier, mono">grouper-qs/custom-grouper-ui, 
   </font>which can be used as a template for how to make your own customisations. 
-  Information on <a href="grouper-ui/doc/customising-grouper-ui.html">how to customise the Grouper 
+  Information on <a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Customizing+the+Grouper+UI+v1.0">how to customise the Grouper 
   UI</a> is available.</p>
 <h2 name="otherDatabase" id="otherDatabase">Using the QuickStart instance with 
   a different database</h2>
@@ -128,12 +128,12 @@
 <h3 id="emptyAlternative" name="emptyAlternative">Settng up the QuickStart with an alternative supported database</h3>
 <ol>
   <li>stop the HSQLDB database if it is running</li>
-  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/hibernate.properties</font> 
+  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/grouper.hibernate.properties</font> 
     by commenting out the default <font face="Courier New, Courier, mono">hibernate.dialect</font>, 
     <font face="Courier New, Courier, mono">hibernate.connection.driver_class</font> 
     and<font face="Courier New, Courier, mono"> hibernate.connection.url</font> 
     keys under <font face="Courier New, Courier, mono">#HSQLDB</font>.</li>
-  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/hibernate.properties</font> 
+  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/grouper.hibernate.properties</font> 
     by uncommenting the same keys under their chosen database, ensuring a valid 
     conection url and correct<font face="Courier New, Courier, mono"> hibernate.connection.username</font> 
     and <font face="Courier New, Courier, mono">hibernate.connection.password 
@@ -145,13 +145,13 @@
     <font face="Courier New, Courier, mono">ant schemaexport</font></li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
     <font face="Courier New, Courier, mono">ant db-init</font></li>
-  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/</font>sources.xml 
+  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/sources.xml</font> 
     to specify an appropriate subject source. You may implement your own source 
     or specify appropriate JDBC connection parameters (see <a href="http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/*checkout*/subject/doc/jdbc-adapter-user-guide.html?rev=HEAD&cvsroot=I2MI&content-type=text/html">JDBCSourceAdapter 
     documentation</a>). Step 5 automatically creates <font face="Courier New, Courier, mono">subject</font> 
     and <font face="Courier New, Courier, mono">subjectattribute</font> tables 
     required by the JDBCSourceAdapter, so you may use the same database connection 
-    url, username and password as you specified in <font face="Courier New, Courier, mono">hibernate.properties</font></li>
+    url, username and password as you specified in <font face="Courier New, Courier, mono">grouper.hibernate.properties</font></li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs</font> type <font face="Courier New, Courier, mono">ant 
     ui</font></li>
   <li>restart the grouper web application</li>
@@ -169,26 +169,7 @@
   will cause errors.</p>
 <p>When loading subjects who you want to be able to login to the Grouper UI, you 
   must specify a loginid attribute.</p>
-<p>You may use the <font face="Courier New, Courier, mono">ant</font> script* 
-  in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start</font> 
-  to load groups, stems, access and naming privileges into the Grouper repository 
-  from an XML file. <font face="Courier New, Courier, mono">grouper-qs/quickstart.xml</font> 
-  was used to define the repository used in the demo database.</p>
-<p><font face="Courier New, Courier, mono">ant html</font> will build the Javadoc 
-  for the XmlLoader class and this explains the XML format.</p>
-<p>*If you type <font face="Courier New, Courier, mono">ant load</font> with no 
-  other parameters, the values in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start/build.properties</font> 
-  will be used.</p>
-<h2 id="trouble">Troubleshooting SubjectNotFoundExceptions</h2>
-<p>SubjectNotFoundExceptions may occur because a subject is not available through 
-  any of the sources configured in sources.xml, however, this, in itself, may 
-  be due to a failure of the Subject API to initialise, or due to the failure 
-  of a source to connect to a database. If you suspect such a problem update <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/log4j.properties</font> 
-  - the section ## Subject API to:</p>
-<pre>## Subject API
-   log4j.logger.edu.internet2.middleware.subject = DEBUG, rfile, stderr
-   log4j.logger.edu.internet2.middleware.subject.provider = DEBUG, rfile, stderr
-</pre>
-<p>Relevant error messages should now appear in the log file defined for <font face="Courier New, Courier, mono">log4j.appender.rfile.File</font></p>
+<p>You may use the new <a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Import-Export+v1.0">XML import / export tool</a> to load stems, groups, memberships, 
+  privileges and custom group types</p>
 </body>
 </html>

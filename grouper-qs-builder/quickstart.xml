@@ -1,395 +1,1877 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
-<path extension="qsuob" displayExtension="QS University of Bristol">
-	<naming priv="CREATE" group="qsuob:admins"/>
-	<naming priv="STEM" group="qsuob:admins"/>
-	<group extension="all_students" displayExtension="All students">
-		<access priv="ADMIN" group="qsuob:admins"/>
-		<access priv="READ" group="qsuob:all_academic_staff"/>
-		<subject group="faculties:artf:students" location="relative"/>
-		<subject group="faculties:engf:students" location="relative"/>
-		<subject group="faculties:scif:students" location="relative"/>
-		<subject group="faculties:mvsf:students" location="relative"/>
-		<subject group="faculties:mdyf:students" location="relative"/>
-		<subject group="faculties:sslf:students" location="relative"/>
-		
-	</group>
-	<group extension="all_academic_staff" displayExtension="All Academic Staff">
-		<access priv="ADMIN" group="qsuob:admins"/>
-		<access priv="READ" group="qsuob:all_academic_staff"/>
-		<access priv="READ" group="qsuob:all_students"/>
-		<subject group="faculties:artf:staff" location="relative"/>
-		<subject group="faculties:engf:staff" location="relative"/>
-		<subject group="faculties:scif:staff" location="relative"/>
-		<subject group="faculties:mvsf:staff" location="relative"/>
-		<subject group="faculties:mdyf:staff" location="relative"/>
-		<subject group="faculties:sslf:staff" location="relative"/>
-	</group>
-	<group extension="all" displayExtension="All Students and Staff">
-		<access priv="ADMIN" group="qsuob:admins"/>
-		<access priv="READ" group="qsuob:all_academic_staff"/>
-		<subject group="all_students" location="relative"/>
-		<subject group="all_academic_staff" location="relative"/>
-	</group>
-	<group extension="admins" displayExtension="UoB Administrators">
-		<access priv="ADMIN" group="qsuob:admins"/>
-		<access priv="READ" group="qsuob:all_academic_staff"/>
-			<subject id="kebe" name="Keith Benson" />
-	</group>
-	<path extension="personal" displayExtension="Personal Groups">
-	
-	</path>
-	<path extension="faculties" displayExtension="Academic faculties">
-		<naming priv="CREATE" group="qsuob:admins"/>
-		<naming priv="STEM" group="qsuob:admins"/>
-		<path extension="artf" displayExtension="Arts">
-			<naming priv="CREATE" group="qsuob:admins"/>
-			<naming priv="STEM" group="qsuob:admins"/>
-			<group extension="students" displayExtension="Students">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="hawi" name="Harry Windsor" />
-				<subject id="hata" name="Harry Tarbuck" />
-				<subject id="hapo" name="Harry Porter" />
-				<subject id="habe" name="Harry Benson" />
-				<subject id="hato" name="Harry Townsend" />
-			<subject id="hado" name="Harry Dolphin" />
-				<subject id="hama" name="Harry Masterson" />
-				<subject id="haed" name="Harry Edwards" />
-				<subject id="habu" name="Harry Bush" />
-				<subject id="habr" name="Harry Brooks" />
-				<subject id="haco" name="Harry Collins" />
-				<subject id="habl" name="Harry Blair" />
-			</group>
-			<group extension="staff" displayExtension="Staff">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="iawi" name="Ian Windsor" />
-				<subject id="iata" name="Ian Tarbuck" />
-			</group>
-			<group extension="admins" displayExtension="Administrators">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<subject id="iawi" name="Ian Windsor" />
-			</group>
-		</path>
-		<path extension="engf" displayExtension="Engineering">
-			<naming priv="CREATE" group="qsuob:admins"/>
-			<naming priv="STEM" group="qsuob:admins"/>
-			<naming priv="CREATE" group=".:admins"/>
-			<naming priv="STEM" group=".:admins"/>
-			<group extension="students" displayExtension="Students">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="elwi" name="Elizabeth Windsor" />
-				<subject id="elta" name="Elizabeth Tarbuck" />
-				<subject id="elpo" name="Elizabeth Porter" />
-			<subject id="elbe" name="Elizabeth Benson" />
-				<subject id="elto" name="Elizabeth Townsend" />
-				<subject id="eldo" name="Elizabeth Dolphin" />
-				<subject id="elma" name="Elizabeth Masterson" />
-				<subject id="eled" name="Elizabeth Edwards" />
-				<subject id="elbu" name="Elizabeth Bush" />
-				<subject id="elbr" name="Elizabeth Brooks" />
-				<subject id="elco" name="Elizabeth Collins" />
-				<subject id="elbl" name="Elizabeth Blair" />
+  <metadata>
+    <groupTypesMetaData>
 
-			</group>
-			<group extension="staff" displayExtension="Staff">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="jowi" name="John Windsor" />
-				<subject id="jota" name="John Tarbuck" />
-			</group>
-			<group extension="admins" displayExtension="Administrators">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<subject id="jowi" name="John Windsor" />
+      <groupTypeDef name='teaching'>
 
-			</group>
-		</path>
-		
-		<path extension="mvsf" displayExtension="Medical and Veterinary Sciences">
-			<naming priv="CREATE" group="qsuob:admins"/>
-			<naming priv="STEM" group="qsuob:admins"/>
-			<naming priv="CREATE" group=".:admins"/>
-			<naming priv="STEM" group=".:admins"/>
-			<group extension="students" displayExtension="Students">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-					<subject id="mowi" name="Monica Windsor" />
-					<subject id="mota" name="Monica Tarbuck" />
-					<subject id="mopo" name="Monica Porter" />
-					<subject id="mobe" name="Monica Benson" />
-					<subject id="moto" name="Monica Townsend" />
-					<subject id="modo" name="Monica Dolphin" />
-					<subject id="moma" name="Monica Masterson" />
-					<subject id="moed" name="Monica Edwards" />
-					<subject id="mobu" name="Monica Bush" />
-					<subject id="mobr" name="Monica Brooks" />
-					<subject id="moco" name="Monica Collins" />
-					<subject id="mobl" name="Monica Blair" />
+       <field name='academic-staff'
+               required='false'
+               type='list'
+               readPriv='read'
+               writePriv='update'/>
 
-			</group>
-			<group extension="staff" displayExtension="Staff">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="kewi" name="Keith Windsor" />
-				<subject id="keta" name="Keith Tarbuck" />
-				<subject id="mawi" name="Margaret Windsor" />
-				<subject id="mata" name="Margaret Tarbuck" />
-			</group>
-			<group extension="admins" displayExtension="Administrators">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<subject id="kewi" name="Keith Windsor" />
-				<subject id="mawi" name="Margaret Windsor" />
-			</group>
-		</path>
-		<path extension="mdyf" displayExtension="Medicine and Dentistry">
-			<naming priv="CREATE" group="qsuob:admins"/>
-			<naming priv="STEM" group="qsuob:admins"/>
-			<naming priv="CREATE" group=".:admins"/>
-			<naming priv="STEM" group=".:admins"/>
+       <field name='clerical-staff'
+               required='false'
+               type='list'
+               readPriv='read'
+               writePriv='update'/>
 
-			<group extension="students" displayExtension="Students">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="pewi" name="Peter Windsor" />
-				<subject id="peta" name="Peter Tarbuck" />
-				<subject id="pepo" name="Peter Porter" />
-				<subject id="pebe" name="Peter Benson" />
-				<subject id="peto" name="Peter Townsend" />
-				<subject id="pedo" name="Peter Dolphin" />
-				<subject id="pema" name="Peter Masterson" />
-				<subject id="peed" name="Peter Edwards" />
-				<subject id="pebu" name="Peter Bush" />
-				<subject id="pebr" name="Peter Brooks" />
-				<subject id="peco" name="Peter Collins" />
-				<subject id="pebl" name="Peter Blair" />
+       <field name='faculty_code'
+               required='false'
+               type='attribute'
+               readPriv='read'
+               writePriv='update'/>
 
-			</group>
-			<group extension="staff" displayExtension="Staff">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="kewi" name="Keith Windsor" />
-				<subject id="keta" name="Keith Tarbuck" />
-			</group>
-			<group extension="admins" displayExtension="Administrators">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<subject id="kewi" name="Keith Windsor" />
-			</group>	
-		</path>
-		<path extension="scif" displayExtension="Science">
-			<naming priv="CREATE" group="qsuob:admins"/>
-			<naming priv="STEM" group="qsuob:admins"/>
-			<naming priv="CREATE" group=".:admins"/>
-			<naming priv="STEM" group=".:admins"/>
-			<group extension="students" displayExtension="Students">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="bawi" name="Barry Windsor" />
-				<subject id="bata" name="Barry Tarbuck" />
-				<subject id="bapo" name="Barry Porter" />
-				<subject id="babe" name="Barry Benson" />
-				<subject id="bato" name="Barry Townsend" />
-				<subject id="bado" name="Barry Dolphin" />
-				<subject id="bama" name="Barry Masterson" />
-				<subject id="baed" name="Barry Edwards" />
-				<subject id="babu" name="Barry Bush" />
-				<subject id="babr" name="Barry Brooks" />
-				<subject id="baco" name="Barry Collins" />
-				<subject id="babl" name="Barry Blair" />
+      </groupTypeDef>
 
-			</group>
-			<group extension="staff" displayExtension="Staff">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="fiwi" name="Fiona Windsor" />
-				<subject id="fita" name="Fiona Tarbuck" />
-			</group>
-			<group extension="admins" displayExtension="Administrators">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<subject id="fiwi" name="Fiona Windsor" />
-			</group>		
-		</path>
-		<path extension="sslf" displayExtension="Social Sciences and Law">
-			<naming priv="CREATE" group="qsuob:admins"/>
-			<naming priv="STEM" group="qsuob:admins"/>
-			<naming priv="CREATE" group=".:admins"/>
-			<naming priv="STEM" group=".:admins"/>
-			<group extension="students" displayExtension="Students">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="jawi" name="Jane Windsor" />
-				<subject id="jata" name="Jane Tarbuck" />
-				<subject id="japo" name="Jane Porter" />
-				<subject id="jabe" name="Jane Benson" />
-				<subject id="jato" name="Jane Townsend" />
-				<subject id="jado" name="Jane Dolphin" />
-				<subject id="jama" name="Jane Masterson" />
-				<subject id="jaed" name="Jane Edwards" />
-				<subject id="jabu" name="Jane Bush" />
-				<subject id="jabr" name="Jane Brooks" />
-				<subject id="jaco" name="Jane Collins" />
-				<subject id="jabl" name="Jane Blair" />
+      <groupTypeDef name='mailingList'>
 
-			</group>
-			<group extension="staff" displayExtension="Staff">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<access priv="READ" group="..:students"/>
-				<subject id="stwi" name="Steven Windsor" />
-				<subject id="stta" name="Steven Tarbuck" />
+       <field name='alias'
+               required='false'
+               type='attribute'
+               readPriv='read'
+               writePriv='update'/>
 
-			</group>
-			<group extension="admins" displayExtension="Administrators">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="ADMIN" group="..:admins"/>
-				<access priv="READ" group="qsuob:all_academic_staff"/>
-				<subject id="stwi" name="Steven Windsor" />
-	
-			</group>		
-		</path>
-	
-	</path>
-	<path extension="su" displayExtension="Student Union">
-		<naming priv="CREATE" group="qsuob:su:admins"/>
-		<naming priv="STEM" group="qsuob:su:admins"/>
-		<group extension="admins" displayExtension="Student Union Admins">
-			<access priv="READ" subject="GrouperAll"/>
-			<access priv="ADMIN" group="*SELF*"/>
-			<subject id="jabl" name="Jane Blair" />
-		</group>
-		<path extension="committees" displayExtension="Committees">
-				<naming priv="CREATE" group="qsuob:su:admins"/>
-				<naming priv="STEM" group="qsuob:su:admins"/>
-			<group extension="finance" displayExtension="Finance Committee">
-				<access priv="READ" group="*SELF*"/>
-				<access priv="VIEW" subject="GrouperAll"/>
-				<access priv="ADMIN" group="..:..:admins"/>
-				<subject id="jabl" name="Jane Blair" />
-				<subject id="jabr" name="Jane Brooks" />
-				<subject id="bama" name="Barry Masterson" />
-			</group>
-			<group extension="rag" displayExtension="Rag Committee">
-				<access priv="READ" group="*SELF*"/>
-				<access priv="VIEW" subject="GrouperAll"/>
-				<access priv="ADMIN" group="..:..:admins"/>
-				<subject id="bama" name="Barry Masterson" />
-				<subject id="keco" name="Keith Collins" />
-				<subject id="joco" name="John Collins" />
-			</group>
-			<group extension="elections" displayExtension="Elections Committee">
-				<access priv="READ" group="*SELF*"/>
-				<access priv="VIEW" subject="GrouperAll"/>
-				<access priv="ADMIN" group="..:..:admins"/>
-				<subject id="joco" name="John Collins" />
-				<subject id="elto" name="Elizabeth Townsend" />
-				<subject id="haed" name="Harry Edwards" />
-			</group>
-		</path>
-		<path extension="clubs" displayExtension="Clubs">
-				<naming priv="CREATE" group="qsuob:su:admins"/>
-				<naming priv="STEM" group="qsuob:su:admins"/>
-			<group extension="gliding" displayExtension="Gliding Club">
-				<access priv="READ" subject="GrouperAll"/>
-				<access priv="ADMIN" group="..:..:admins"/>
-				<access priv="OPTIN" group="qsuob:all_students"/>
-				<access priv="OPTOUT" group="*SELF*"/>
-				
-				<subject id="haed" name="Harry Edwards" />
-				<subject id="jabr" name="Jane Brooks" />
-				<subject id="jaco" name="Jane Collins" />
-				<subject id="jabl" name="Jane Blair" />
-			</group>
-			<group extension="sailing" displayExtension="Sailing Club">
-				<access priv="READ" subject="GrouperAll"/>
-				<access priv="ADMIN" group="..:..:admins"/>
-				<access priv="OPTIN" group="qsuob:all_students"/>
-				<access priv="OPTOUT" group="*SELF*"/>
-					<subject id="jobe" name="John Benson" />
-					<subject id="joto" name="John Townsend" />
-			</group>
-			<group extension="real_ale" displayExtension="Real Ale Society">
-				<access priv="READ" subject="GrouperAll"/>
-				<access priv="ADMIN" group="..:..:admins"/>
-				<access priv="OPTIN" group="qsuob:all_students"/>
-				<access priv="OPTOUT" group="*SELF*"/>
-					<subject id="babe" name="Barry Benson" />
-					<subject id="bato" name="Barry Townsend" />
-					<subject id="bado" name="Barry Dolphin" />
-			</group>
-		</path>
-	</path>
-	
-	<path extension="non_faculty" displayExtension="Non Academic Departments">
-		<naming priv="CREATE" group="qsuob:admins"/>
-		<naming priv="STEM" group="qsuob:admins"/>
-		<path extension="isys" displayExtension="Information Systems and Computing">
-			<naming priv="CREATE" group="qsuob:admins"/>
-			<naming priv="STEM" group="qsuob:admins"/>
-				<subject id="jodo" name="John Dolphin" />
-		</path>
-		<path extension="bursars" displayExtension="Bursar's Office">
-				<subject id="fibu" name="Fiona Bush" />
-		</path>
-	</path>
-	<path extension="community" displayExtension="Community Groups">
-		<naming priv="CREATE" group="qsuob:admins"/>
-		<naming priv="STEM" group="qsuob:admins"/>
-			<group extension="bch" displayExtension="Bristol Children's Hospital Support">
-			<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="VIEW" subject="GrouperAll"/>
-				<access priv="OPTIN" subject="GrouperAll"/>
-				<access priv="OPTOUT" group="*SELF*"/>
-					<subject id="jodo" name="John Dolphin" />
-			</group>
-			<group extension="music" displayExtension="Music Appreciation Society">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="VIEW" subject="GrouperAll"/>
-				<access priv="OPTIN" subject="GrouperAll"/>
-				<access priv="OPTOUT" group="*SELF*"/>
-					<subject id="fibu" name="Fiona Bush" />
-			</group>
-			<group extension="friends" displayExtension="Friends of University of Bristol">
-				<access priv="ADMIN" group="qsuob:admins"/>
-				<access priv="VIEW" subject="GrouperAll"/>
-				<access priv="OPTIN" subject="GrouperAll"/>
-				<access priv="OPTOUT" group="*SELF*"/>
-					<subject id="fibu" name="Fiona Bush" />
-			</group>
-	</path>
-</path>
+       <field name='allowAttachments'
+               required='false'
+               type='attribute'
+               readPriv='read'
+               writePriv='update'/>
 
+       <field name='approvers'
+               required='false'
+               type='list'
+               readPriv='read'
+               writePriv='update'/>
+
+       <field name='mailers'
+               required='false'
+               type='list'
+               readPriv='read'
+               writePriv='update'/>
+
+       <field name='moderated'
+               required='false'
+               type='attribute'
+               readPriv='read'
+               writePriv='update'/>
+
+      </groupTypeDef>
+      </groupTypesMetaData>
+
+
+    <subjectSourceMetaData>
+
+      <source id='g:gsa'
+              name='Grouper: Group Source Adapter'
+              class='edu.internet2.middleware.grouper.GrouperSourceAdapter'>
+        <subjectType name='group'/>
+      </source>
+
+      <source id='g:isa'
+              name='Grouper: Internal Source Adapter'
+              class='edu.internet2.middleware.grouper.InternalSourceAdapter'>
+        <subjectType name='application'/>
+      </source>
+
+      <source id='jdbc'
+              name='JDBC Source Adapter'
+              class='edu.internet2.middleware.subject.provider.JDBCSourceAdapter'>
+        <subjectType name='person'/>
+      </source>
+
+    </subjectSourceMetaData>
+
+  </metadata>
+  <data>
+
+      <!--qsuob-->
+      <stem extension='qsuob'
+            displayExtension='QS University of Bristol'
+            name='qsuob'
+            displayName='QS University of Bristol'
+            id='2f06b00e-480a-461c-bdce-c34df619e040'>
+        <description></description>
+
+        <!--qsuob:community-->
+        <stem extension='community'
+              displayExtension='Community Groups'
+              name='qsuob:community'
+              displayName='QS University of Bristol:Community Groups'
+              id='780b14d4-58de-40f0-8364-09c310a06538'>
+          <description></description>
+
+          <!--qsuob:community:friends-->
+          <group extension='friends'
+                 displayExtension='Friends of University of Bristol'
+                name='qsuob:community:friends'
+                displayName='QS University of Bristol:Community Groups:Friends of University of Bristol'
+                id='882b9087-96ac-4228-8436-690100784d5e'>
+            <description></description>
+
+            <internalAttributes>
+              <internalAttribute name='parentStem'>qsuob:community</internalAttribute>
+              <internalAttribute name='createSource'></internalAttribute>
+              <internalAttribute name='createSubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='createTime'>Tue May 23 09:37:06 BST 2006</internalAttribute>
+              <internalAttribute name='modifySource'></internalAttribute>
+              <internalAttribute name='modifySubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='modifyTime'>Tue May 23 09:38:16 BST 2006</internalAttribute>
+            </internalAttributes>
+
+
+            <list field='members'  groupType='base'>
+              <subject id='fibu' type='person' source='qsuob' immediate='true' />
+            </list> <!--/field=members-->
+
+          <privileges type='admin'>
+            <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+          </privileges> <!--/privilege=admin-->
+
+          <privileges type='view'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=view-->
+
+          <privileges type='optin'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=optin-->
+
+          <privileges type='optout'>
+            <subject identifier='qsuob:community:friends' type='group' source='g:gsa' immediate='true'  id='882b9087-96ac-4228-8436-690100784d5e'/>
+          </privileges> <!--/privilege=optout-->
+
+          </group>
+          <!--/qsuob:community:friends-->
+
+
+          <!--qsuob:community:music-->
+          <group extension='music'
+                 displayExtension='Music Appreciation Society'
+                name='qsuob:community:music'
+                displayName='QS University of Bristol:Community Groups:Music Appreciation Society'
+                id='b276f217-0054-41de-925c-6730d1084619'>
+            <description></description>
+
+            <internalAttributes>
+              <internalAttribute name='parentStem'>qsuob:community</internalAttribute>
+              <internalAttribute name='createSource'></internalAttribute>
+              <internalAttribute name='createSubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='createTime'>Tue May 23 09:37:06 BST 2006</internalAttribute>
+              <internalAttribute name='modifySource'></internalAttribute>
+              <internalAttribute name='modifySubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='modifyTime'>Tue May 23 09:38:16 BST 2006</internalAttribute>
+            </internalAttributes>
+
+
+            <list field='members'  groupType='base'>
+              <subject id='fibu' type='person' source='qsuob' immediate='true' />
+            </list> <!--/field=members-->
+
+          <privileges type='admin'>
+            <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+          </privileges> <!--/privilege=admin-->
+
+          <privileges type='view'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=view-->
+
+          <privileges type='optin'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=optin-->
+
+          <privileges type='optout'>
+            <subject identifier='qsuob:community:music' type='group' source='g:gsa' immediate='true'  id='b276f217-0054-41de-925c-6730d1084619'/>
+          </privileges> <!--/privilege=optout-->
+
+          </group>
+          <!--/qsuob:community:music-->
+
+
+          <!--qsuob:community:bch-->
+          <group extension='bch'
+                 displayExtension='Bristol Children&apos;s Hospital Support'
+                name='qsuob:community:bch'
+                displayName='QS University of Bristol:Community Groups:Bristol Children&apos;s Hospital Support'
+                id='93426947-e1a1-4b7c-b7f2-b7f1772c7b33'>
+            <description></description>
+
+            <internalAttributes>
+              <internalAttribute name='parentStem'>qsuob:community</internalAttribute>
+              <internalAttribute name='createSource'></internalAttribute>
+              <internalAttribute name='createSubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='createTime'>Tue May 23 09:37:06 BST 2006</internalAttribute>
+              <internalAttribute name='modifySource'></internalAttribute>
+              <internalAttribute name='modifySubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='modifyTime'>Tue May 23 09:38:16 BST 2006</internalAttribute>
+            </internalAttributes>
+
+
+            <list field='members'  groupType='base'>
+              <subject id='jodo' type='person' source='qsuob' immediate='true' />
+            </list> <!--/field=members-->
+
+          <privileges type='admin'>
+            <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+          </privileges> <!--/privilege=admin-->
+
+          <privileges type='view'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=view-->
+
+          <privileges type='optin'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=optin-->
+
+          <privileges type='optout'>
+            <subject identifier='qsuob:community:bch' type='group' source='g:gsa' immediate='true'  id='93426947-e1a1-4b7c-b7f2-b7f1772c7b33'/>
+          </privileges> <!--/privilege=optout-->
+
+          </group>
+          <!--/qsuob:community:bch-->
+
+        </stem>
+        <!--/qsuob:community-->
+
+
+        <!--qsuob:non_faculty-->
+        <stem extension='non_faculty'
+              displayExtension='Non Academic Departments'
+              name='qsuob:non_faculty'
+              displayName='QS University of Bristol:Non Academic Departments'
+              id='edad8fdc-b62f-472d-b8e2-b800f6dd479f'>
+          <description></description>
+
+          <!--qsuob:non_faculty:bursars-->
+          <stem extension='bursars'
+                displayExtension='Bursar&apos;s Office'
+                name='qsuob:non_faculty:bursars'
+                displayName='QS University of Bristol:Non Academic Departments:Bursar&apos;s Office'
+                id='80f9c5b4-ae12-4a96-a06b-9af4ace51091'>
+            <description></description>
+          </stem>
+          <!--/qsuob:non_faculty:bursars-->
+
+
+          <!--qsuob:non_faculty:isys-->
+          <stem extension='isys'
+                displayExtension='Information Systems and Computing'
+                name='qsuob:non_faculty:isys'
+                displayName='QS University of Bristol:Non Academic Departments:Information Systems and Computing'
+                id='daa76aec-9c34-46d3-810c-8a323f0d8688'>
+            <description></description>
+          </stem>
+          <!--/qsuob:non_faculty:isys-->
+
+        </stem>
+        <!--/qsuob:non_faculty-->
+
+
+        <!--qsuob:faculties-->
+        <stem extension='faculties'
+              displayExtension='Academic faculties'
+              name='qsuob:faculties'
+              displayName='QS University of Bristol:Academic faculties'
+              id='5e8f53a1-e3a1-43ca-8e7e-6b555513f452'>
+          <description></description>
+
+          <!--qsuob:faculties:artf-->
+          <stem extension='artf'
+                displayExtension='Arts'
+                name='qsuob:faculties:artf'
+                displayName='QS University of Bristol:Academic faculties:Arts'
+                id='87f9eb22-d57b-48c6-88b8-25f857b3db19'>
+            <description></description>
+
+			 <!--qsuob:faculties:artf:staff_mail_minus-->
+            <group extension='staff_mail_minus'
+                   displayExtension='staff - staff_mail_exc'
+                  name='qsuob:faculties:artf:staff_mail_minus'
+                  displayName='QS University of Bristol:Academic faculties:Arts:staff - staff_mail_exc'
+                  id='3d9abcea-2d95-4456-9629-7e52c732db09'>
+              <description>staff less the exclusions</description>
+
+              <list field='members'  groupType='base'>
+                <composite>
+                  <groupRef id='c0586591-e8db-4cdf-b499-10841caf47d4'
+                          name='qsuob:faculties:artf:staff'
+                   displayName='QS University of Bristol:Academic faculties:Arts:Staff'/>
+
+                  <compositeType>complement</compositeType>
+
+                  <groupRef id='b2b3295b-cd05-48d2-94b9-a48d070a188f'
+                          name='qsuob:faculties:artf:staff_mail_exc'
+                   displayName='QS University of Bristol:Academic faculties:Arts:staff mail excludes'/>
+                </composite>
+              </list> <!--/field=members-->
+
+            <privileges type='read'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=read-->
+
+            <privileges type='view'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=view-->
+
+            </group>
+            <!--/qsuob:faculties:artf:staff_mail_minus-->
+
+
+            <!--qsuob:faculties:artf:staff_mail_inc-->
+            <group extension='staff_mail_inc'
+                   displayExtension='staff mail includes'
+                  name='qsuob:faculties:artf:staff_mail_inc'
+                  displayName='QS University of Bristol:Academic faculties:Arts:staff mail includes'
+                  id='8a9aba1f-8a14-4b91-9679-fe46167aeb42'>
+              <description>manual additions to the staff_mail list</description>
+
+              <list field='members'  groupType='base'>
+                <subject id='fico' type='person' source='qsuob' immediate='true' />
+                <subject id='fiwi' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='read'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=read-->
+
+            <privileges type='view'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=view-->
+
+            </group>
+            <!--/qsuob:faculties:artf:staff_mail_inc-->
+
+ <!--qsuob:faculties:artf:staff_mail-->
+            <group extension='staff_mail'
+                   displayExtension='Staff mail list'
+                  name='qsuob:faculties:artf:staff_mail'
+                  displayName='QS University of Bristol:Academic faculties:Arts:Staff mail list'
+                  id='98c8efc0-ccdb-4f72-9e62-ee67ac3c4fcd'>
+              <description></description>
+
+              <list field='members'  groupType='base'>
+                <composite>
+                  <groupRef id='3d9abcea-2d95-4456-9629-7e52c732db09'
+                          name='qsuob:faculties:artf:staff_mail_minus'
+                   displayName='QS University of Bristol:Academic faculties:Arts:staff - staff_mail_exc'/>
+
+                  <compositeType>union</compositeType>
+
+                  <groupRef id='8a9aba1f-8a14-4b91-9679-fe46167aeb42'
+                          name='qsuob:faculties:artf:staff_mail_inc'
+                   displayName='QS University of Bristol:Academic faculties:Arts:staff mail includes'/>
+                </composite>
+              </list> <!--/field=members-->
+
+            <privileges type='read'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=read-->
+
+            <privileges type='view'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=view-->
+
+            </group>
+            <!--/qsuob:faculties:artf:staff_mail-->
+
+
+            <!--qsuob:faculties:artf:staff_mail_exc-->
+            <group extension='staff_mail_exc'
+                   displayExtension='staff mail excludes'
+                  name='qsuob:faculties:artf:staff_mail_exc'
+                  displayName='QS University of Bristol:Academic faculties:Arts:staff mail excludes'
+                  id='b2b3295b-cd05-48d2-94b9-a48d070a188f'>
+              <description>manual exclusions from staff mail group</description>
+
+              <list field='members'  groupType='base'>
+                <subject id='iawi' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='read'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=read-->
+
+            <privileges type='view'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=view-->
+
+            </group>
+            <!--/qsuob:faculties:artf:staff_mail_exc-->
+
+            <!--qsuob:faculties:artf:admins-->
+            <group extension='admins'
+                   displayExtension='Administrators'
+                  name='qsuob:faculties:artf:admins'
+                  displayName='QS University of Bristol:Academic faculties:Arts:Administrators'
+                  id='f5142dd5-85df-4177-859b-2aa225c9d9e3'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:artf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:03 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:32 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='iawi' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:artf:admins' type='group' source='g:gsa' immediate='true'  id='f5142dd5-85df-4177-859b-2aa225c9d9e3'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:artf:admins-->
+
+
+            <!--qsuob:faculties:artf:students-->
+            <group extension='students'
+                   displayExtension='Students'
+                  name='qsuob:faculties:artf:students'
+                  displayName='QS University of Bristol:Academic faculties:Arts:Students'
+                  id='2ddda8ce-6eff-4912-98d9-1c175725220b'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:artf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:02 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:28 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='hawi' type='person' source='qsuob' immediate='true' />
+                <subject id='hata' type='person' source='qsuob' immediate='true' />
+                <subject id='hapo' type='person' source='qsuob' immediate='true' />
+                <subject id='habe' type='person' source='qsuob' immediate='true' />
+                <subject id='hato' type='person' source='qsuob' immediate='true' />
+                <subject id='hado' type='person' source='qsuob' immediate='true' />
+                <subject id='hama' type='person' source='qsuob' immediate='true' />
+                <subject id='haed' type='person' source='qsuob' immediate='true' />
+                <subject id='habu' type='person' source='qsuob' immediate='true' />
+                <subject id='habr' type='person' source='qsuob' immediate='true' />
+                <subject id='haco' type='person' source='qsuob' immediate='true' />
+                <subject id='habl' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:artf:admins' type='group' source='g:gsa' immediate='true'  id='f5142dd5-85df-4177-859b-2aa225c9d9e3'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:artf:students' type='group' source='g:gsa' immediate='true'  id='2ddda8ce-6eff-4912-98d9-1c175725220b'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:artf:students-->
+
+
+            <!--qsuob:faculties:artf:staff-->
+            <group extension='staff'
+                   displayExtension='Staff'
+                  name='qsuob:faculties:artf:staff'
+                  displayName='QS University of Bristol:Academic faculties:Arts:Staff'
+                  id='9de72029-2790-4789-9cf6-6a10d79a5cb0'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:artf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:02 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:31 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='iawi' type='person' source='qsuob' immediate='true' />
+                <subject id='iata' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:artf:admins' type='group' source='g:gsa' immediate='true'  id='f5142dd5-85df-4177-859b-2aa225c9d9e3'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:artf:students' type='group' source='g:gsa' immediate='true'  id='2ddda8ce-6eff-4912-98d9-1c175725220b'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:artf:staff-->
+
+          </stem>
+          <!--/qsuob:faculties:artf-->
+
+
+          <!--qsuob:faculties:mdyf-->
+          <stem extension='mdyf'
+                displayExtension='Medicine'
+                name='qsuob:faculties:mdyf'
+                displayName='QS University of Bristol:Academic faculties:Medicine'
+                id='d9b70d9e-f78c-4c77-9758-f069b0fc31e8'>
+            <description></description>
+
+            <!--qsuob:faculties:mdyf:students-->
+            <group extension='students'
+                   displayExtension='Students'
+                  name='qsuob:faculties:mdyf:students'
+                  displayName='QS University of Bristol:Academic faculties:Medicine:Students'
+                  id='590e5024-012c-4ce1-b2f1-32f72340339e'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:mdyf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:04 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:46 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='pewi' type='person' source='qsuob' immediate='true' />
+                <subject id='peta' type='person' source='qsuob' immediate='true' />
+                <subject id='pepo' type='person' source='qsuob' immediate='true' />
+                <subject id='pebe' type='person' source='qsuob' immediate='true' />
+                <subject id='peto' type='person' source='qsuob' immediate='true' />
+                <subject id='pedo' type='person' source='qsuob' immediate='true' />
+                <subject id='pema' type='person' source='qsuob' immediate='true' />
+                <subject id='peed' type='person' source='qsuob' immediate='true' />
+                <subject id='pebu' type='person' source='qsuob' immediate='true' />
+                <subject id='pebr' type='person' source='qsuob' immediate='true' />
+                <subject id='peco' type='person' source='qsuob' immediate='true' />
+                <subject id='pebl' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:mdyf:admins' type='group' source='g:gsa' immediate='true'  id='c4b2e7e8-1fe3-4169-969d-ace21b4c975a'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:mdyf:students' type='group' source='g:gsa' immediate='true'  id='590e5024-012c-4ce1-b2f1-32f72340339e'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:mdyf:students-->
+
+
+            <!--qsuob:faculties:mdyf:staff-->
+            <group extension='staff'
+                   displayExtension='Staff'
+                  name='qsuob:faculties:mdyf:staff'
+                  displayName='QS University of Bristol:Academic faculties:Medicine:Staff'
+                  id='37bcbbb3-9974-4540-bd8c-83a13933d6a0'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:mdyf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:04 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:48 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='kewi' type='person' source='qsuob' immediate='true' />
+                <subject id='keta' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:mdyf:admins' type='group' source='g:gsa' immediate='true'  id='c4b2e7e8-1fe3-4169-969d-ace21b4c975a'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:mdyf:students' type='group' source='g:gsa' immediate='true'  id='590e5024-012c-4ce1-b2f1-32f72340339e'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:mdyf:staff-->
+
+
+            <!--qsuob:faculties:mdyf:admins-->
+            <group extension='admins'
+                   displayExtension='Administrators'
+                  name='qsuob:faculties:mdyf:admins'
+                  displayName='QS University of Bristol:Academic faculties:Medicine:Administrators'
+                  id='c4b2e7e8-1fe3-4169-969d-ace21b4c975a'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:mdyf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:04 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:49 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='kewi' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:mdyf:admins' type='group' source='g:gsa' immediate='true'  id='c4b2e7e8-1fe3-4169-969d-ace21b4c975a'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:mdyf:admins-->
+
+          </stem>
+          <!--/qsuob:faculties:mdyf-->
+
+
+          <!--qsuob:faculties:mvsf-->
+          <stem extension='mvsf'
+                displayExtension='Medical and Vetinary Sciences'
+                name='qsuob:faculties:mvsf'
+                displayName='QS University of Bristol:Academic faculties:Medical and Vetinary Sciences'
+                id='3825a30c-dd96-4ca8-a5f4-ec46b8f00f8c'>
+            <description></description>
+
+            <!--qsuob:faculties:mvsf:students-->
+            <group extension='students'
+                   displayExtension='Students'
+                  name='qsuob:faculties:mvsf:students'
+                  displayName='QS University of Bristol:Academic faculties:Medical and Vetinary Sciences:Students'
+                  id='7cefd542-e819-4d7e-abfb-416b30ccf756'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:mvsf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:03 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:41 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='mowi' type='person' source='qsuob' immediate='true' />
+                <subject id='mota' type='person' source='qsuob' immediate='true' />
+                <subject id='mopo' type='person' source='qsuob' immediate='true' />
+                <subject id='mobe' type='person' source='qsuob' immediate='true' />
+                <subject id='moto' type='person' source='qsuob' immediate='true' />
+                <subject id='modo' type='person' source='qsuob' immediate='true' />
+                <subject id='moma' type='person' source='qsuob' immediate='true' />
+                <subject id='moed' type='person' source='qsuob' immediate='true' />
+                <subject id='mobu' type='person' source='qsuob' immediate='true' />
+                <subject id='mobr' type='person' source='qsuob' immediate='true' />
+                <subject id='moco' type='person' source='qsuob' immediate='true' />
+                <subject id='mobl' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:mvsf:admins' type='group' source='g:gsa' immediate='true'  id='925ee1a8-5888-4b13-982c-9c3b0067dcdf'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:mvsf:students' type='group' source='g:gsa' immediate='true'  id='7cefd542-e819-4d7e-abfb-416b30ccf756'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:mvsf:students-->
+
+
+            <!--qsuob:faculties:mvsf:staff-->
+            <group extension='staff'
+                   displayExtension='Staff'
+                  name='qsuob:faculties:mvsf:staff'
+                  displayName='QS University of Bristol:Academic faculties:Medical and Vetinary Sciences:Staff'
+                  id='338e1c71-85e5-4ec3-be4c-cea06a8a2687'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:mvsf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:03 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:43 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='kewi' type='person' source='qsuob' immediate='true' />
+                <subject id='keta' type='person' source='qsuob' immediate='true' />
+                <subject id='mawi' type='person' source='qsuob' immediate='true' />
+                <subject id='mata' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:mvsf:admins' type='group' source='g:gsa' immediate='true'  id='925ee1a8-5888-4b13-982c-9c3b0067dcdf'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:mvsf:students' type='group' source='g:gsa' immediate='true'  id='7cefd542-e819-4d7e-abfb-416b30ccf756'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:mvsf:staff-->
+
+
+            <!--qsuob:faculties:mvsf:admins-->
+            <group extension='admins'
+                   displayExtension='Administrators'
+                  name='qsuob:faculties:mvsf:admins'
+                  displayName='QS University of Bristol:Academic faculties:Medical and Vetinary Sciences:Administrators'
+                  id='925ee1a8-5888-4b13-982c-9c3b0067dcdf'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:mvsf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:04 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:44 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='kewi' type='person' source='qsuob' immediate='true' />
+                <subject id='mawi' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:mvsf:admins' type='group' source='g:gsa' immediate='true'  id='925ee1a8-5888-4b13-982c-9c3b0067dcdf'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:mvsf:admins-->
+
+          </stem>
+          <!--/qsuob:faculties:mvsf-->
+
+
+          <!--qsuob:faculties:scif-->
+          <stem extension='scif'
+                displayExtension='Science'
+                name='qsuob:faculties:scif'
+                displayName='QS University of Bristol:Academic faculties:Science'
+                id='85f79906-5336-4b08-bb63-d927e6e6b618'>
+            <description></description>
+
+            <!--qsuob:faculties:scif:staff-->
+            <group extension='staff'
+                   displayExtension='Staff'
+                  name='qsuob:faculties:scif:staff'
+                  displayName='QS University of Bristol:Academic faculties:Science:Staff'
+                  id='6c3a0bd8-f82b-40d1-b79f-e51d2f67f63c'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:scif</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:04 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:54 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='fiwi' type='person' source='qsuob' immediate='true' />
+                <subject id='fita' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:scif:admins' type='group' source='g:gsa' immediate='true'  id='cb2be603-6cd1-45e1-8364-52e875e788e5'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:scif:students' type='group' source='g:gsa' immediate='true'  id='9fb25cff-0c6e-4d71-b661-ff7cf8469849'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:scif:staff-->
+
+
+            <!--qsuob:faculties:scif:students-->
+            <group extension='students'
+                   displayExtension='Students'
+                  name='qsuob:faculties:scif:students'
+                  displayName='QS University of Bristol:Academic faculties:Science:Students'
+                  id='9fb25cff-0c6e-4d71-b661-ff7cf8469849'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:scif</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:04 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:52 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='bawi' type='person' source='qsuob' immediate='true' />
+                <subject id='bata' type='person' source='qsuob' immediate='true' />
+                <subject id='bapo' type='person' source='qsuob' immediate='true' />
+                <subject id='babe' type='person' source='qsuob' immediate='true' />
+                <subject id='bato' type='person' source='qsuob' immediate='true' />
+                <subject id='bado' type='person' source='qsuob' immediate='true' />
+                <subject id='bama' type='person' source='qsuob' immediate='true' />
+                <subject id='baed' type='person' source='qsuob' immediate='true' />
+                <subject id='babu' type='person' source='qsuob' immediate='true' />
+                <subject id='babr' type='person' source='qsuob' immediate='true' />
+                <subject id='baco' type='person' source='qsuob' immediate='true' />
+                <subject id='babl' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:scif:admins' type='group' source='g:gsa' immediate='true'  id='cb2be603-6cd1-45e1-8364-52e875e788e5'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:scif:students' type='group' source='g:gsa' immediate='true'  id='9fb25cff-0c6e-4d71-b661-ff7cf8469849'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:scif:students-->
+
+
+            <!--qsuob:faculties:scif:admins-->
+            <group extension='admins'
+                   displayExtension='Administrators'
+                  name='qsuob:faculties:scif:admins'
+                  displayName='QS University of Bristol:Academic faculties:Science:Administrators'
+                  id='cb2be603-6cd1-45e1-8364-52e875e788e5'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:scif</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:04 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:54 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='fiwi' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:scif:admins' type='group' source='g:gsa' immediate='true'  id='cb2be603-6cd1-45e1-8364-52e875e788e5'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:scif:admins-->
+
+          </stem>
+          <!--/qsuob:faculties:scif-->
+
+
+          <!--qsuob:faculties:sslf-->
+          <stem extension='sslf'
+                displayExtension='Social Sciences and Law'
+                name='qsuob:faculties:sslf'
+                displayName='QS University of Bristol:Academic faculties:Social Sciences and Law'
+                id='9f20cb4f-3f8e-4020-be8c-715ff5909190'>
+            <description></description>
+
+            <!--qsuob:faculties:sslf:staff-->
+            <group extension='staff'
+                   displayExtension='Staff'
+                  name='qsuob:faculties:sslf:staff'
+                  displayName='QS University of Bristol:Academic faculties:Social Sciences and Law:Staff'
+                  id='3879d495-bf31-4bd5-a92d-5a7eb56a6895'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:sslf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:05 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:59 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='stwi' type='person' source='qsuob' immediate='true' />
+                <subject id='stta' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:sslf:admins' type='group' source='g:gsa' immediate='true'  id='7f8d8231-593b-4981-8e5c-1c0be40a8484'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:sslf:students' type='group' source='g:gsa' immediate='true'  id='69af0bb8-2aa1-43ce-9f5e-d0dc88d7f769'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:sslf:staff-->
+
+
+            <!--qsuob:faculties:sslf:students-->
+            <group extension='students'
+                   displayExtension='Students'
+                  name='qsuob:faculties:sslf:students'
+                  displayName='QS University of Bristol:Academic faculties:Social Sciences and Law:Students'
+                  id='69af0bb8-2aa1-43ce-9f5e-d0dc88d7f769'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:sslf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:05 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:57 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='jawi' type='person' source='qsuob' immediate='true' />
+                <subject id='jata' type='person' source='qsuob' immediate='true' />
+                <subject id='japo' type='person' source='qsuob' immediate='true' />
+                <subject id='jabe' type='person' source='qsuob' immediate='true' />
+                <subject id='jato' type='person' source='qsuob' immediate='true' />
+                <subject id='jado' type='person' source='qsuob' immediate='true' />
+                <subject id='jama' type='person' source='qsuob' immediate='true' />
+                <subject id='jaed' type='person' source='qsuob' immediate='true' />
+                <subject id='jabu' type='person' source='qsuob' immediate='true' />
+                <subject id='jabr' type='person' source='qsuob' immediate='true' />
+                <subject id='jaco' type='person' source='qsuob' immediate='true' />
+                <subject id='jabl' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:sslf:admins' type='group' source='g:gsa' immediate='true'  id='7f8d8231-593b-4981-8e5c-1c0be40a8484'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:sslf:students' type='group' source='g:gsa' immediate='true'  id='69af0bb8-2aa1-43ce-9f5e-d0dc88d7f769'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:sslf:students-->
+
+
+            <!--qsuob:faculties:sslf:admins-->
+            <group extension='admins'
+                   displayExtension='Administrators'
+                  name='qsuob:faculties:sslf:admins'
+                  displayName='QS University of Bristol:Academic faculties:Social Sciences and Law:Administrators'
+                  id='7f8d8231-593b-4981-8e5c-1c0be40a8484'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:sslf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:05 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:38:00 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='stwi' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:sslf:admins' type='group' source='g:gsa' immediate='true'  id='7f8d8231-593b-4981-8e5c-1c0be40a8484'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:sslf:admins-->
+
+          </stem>
+          <!--/qsuob:faculties:sslf-->
+
+
+          <!--qsuob:faculties:engf-->
+          <stem extension='engf'
+                displayExtension='Engineering'
+                name='qsuob:faculties:engf'
+                displayName='QS University of Bristol:Academic faculties:Engineering'
+                id='e98fd5a6-f477-4dc9-b270-a904d783f325'>
+            <description></description>
+
+            <!--qsuob:faculties:engf:students-->
+            <group extension='students'
+                   displayExtension='Students'
+                  name='qsuob:faculties:engf:students'
+                  displayName='QS University of Bristol:Academic faculties:Engineering:Students'
+                  id='b1ebe80b-fd93-4542-9b5f-92ff096a03da'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:engf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:03 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:35 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='elwi' type='person' source='qsuob' immediate='true' />
+                <subject id='elta' type='person' source='qsuob' immediate='true' />
+                <subject id='elpo' type='person' source='qsuob' immediate='true' />
+                <subject id='elbe' type='person' source='qsuob' immediate='true' />
+                <subject id='elto' type='person' source='qsuob' immediate='true' />
+                <subject id='eldo' type='person' source='qsuob' immediate='true' />
+                <subject id='elma' type='person' source='qsuob' immediate='true' />
+                <subject id='eled' type='person' source='qsuob' immediate='true' />
+                <subject id='elbu' type='person' source='qsuob' immediate='true' />
+                <subject id='elbr' type='person' source='qsuob' immediate='true' />
+                <subject id='elco' type='person' source='qsuob' immediate='true' />
+                <subject id='elbl' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:engf:admins' type='group' source='g:gsa' immediate='true'  id='1f974956-9071-4cb9-a2b5-048d8a6f8a4c'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:engf:students' type='group' source='g:gsa' immediate='true'  id='b1ebe80b-fd93-4542-9b5f-92ff096a03da'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:engf:students-->
+
+
+            <!--qsuob:faculties:engf:admins-->
+            <group extension='admins'
+                   displayExtension='Administrators'
+                  name='qsuob:faculties:engf:admins'
+                  displayName='QS University of Bristol:Academic faculties:Engineering:Administrators'
+                  id='1f974956-9071-4cb9-a2b5-048d8a6f8a4c'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:engf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:03 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:38 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='jowi' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:engf:admins' type='group' source='g:gsa' immediate='true'  id='1f974956-9071-4cb9-a2b5-048d8a6f8a4c'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:engf:admins-->
+
+
+            <!--qsuob:faculties:engf:staff-->
+            <group extension='staff'
+                   displayExtension='Staff'
+                  name='qsuob:faculties:engf:staff'
+                  displayName='QS University of Bristol:Academic faculties:Engineering:Staff'
+                  id='9cc9361c-3bc3-4029-b375-d5f2da4a5267'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:faculties:engf</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:03 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:37:37 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='jowi' type='person' source='qsuob' immediate='true' />
+                <subject id='jota' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+              <subject identifier='qsuob:faculties:engf:admins' type='group' source='g:gsa' immediate='true'  id='1f974956-9071-4cb9-a2b5-048d8a6f8a4c'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+              <subject identifier='qsuob:faculties:engf:students' type='group' source='g:gsa' immediate='true'  id='b1ebe80b-fd93-4542-9b5f-92ff096a03da'/>
+            </privileges> <!--/privilege=read-->
+
+            </group>
+            <!--/qsuob:faculties:engf:staff-->
+
+          </stem>
+          <!--/qsuob:faculties:engf-->
+
+        </stem>
+        <!--/qsuob:faculties-->
+
+
+        <!--qsuob:su-->
+        <stem extension='su'
+              displayExtension='Student Union'
+              name='qsuob:su'
+              displayName='QS University of Bristol:Student Union'
+              id='7399415e-bc96-4be2-ac41-5470207d2c61'>
+          <description></description>
+
+          <!--qsuob:su:committees-->
+          <stem extension='committees'
+                displayExtension='Committees'
+                name='qsuob:su:committees'
+                displayName='QS University of Bristol:Student Union:Committees'
+                id='0d11101f-ac94-4826-9653-d841991512a4'>
+            <description></description>
+
+            <!--qsuob:su:committees:elections-->
+            <group extension='elections'
+                   displayExtension='Elections Committee'
+                  name='qsuob:su:committees:elections'
+                  displayName='QS University of Bristol:Student Union:Committees:Elections Committee'
+                  id='a6852a6d-8fee-48fd-9256-5db9cad2792f'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:su:committees</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:05 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:38:02 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='joco' type='person' source='qsuob' immediate='true' />
+                <subject id='elto' type='person' source='qsuob' immediate='true' />
+                <subject id='haed' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:su:admins' type='group' source='g:gsa' immediate='true'  id='55dcf551-9b6b-40fa-a3cc-6005592617e9'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:su:committees:elections' type='group' source='g:gsa' immediate='true'  id='a6852a6d-8fee-48fd-9256-5db9cad2792f'/>
+            </privileges> <!--/privilege=read-->
+
+            <privileges type='view'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=view-->
+
+            </group>
+            <!--/qsuob:su:committees:elections-->
+
+
+            <!--qsuob:su:committees:finance-->
+            <group extension='finance'
+                   displayExtension='Finance Committee'
+                  name='qsuob:su:committees:finance'
+                  displayName='QS University of Bristol:Student Union:Committees:Finance Committee'
+                  id='a24e343a-9536-4285-9047-3b7c2be4eaff'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:su:committees</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:05 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:38:01 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='jabl' type='person' source='qsuob' immediate='true' />
+                <subject id='jabr' type='person' source='qsuob' immediate='true' />
+                <subject id='bama' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:su:admins' type='group' source='g:gsa' immediate='true'  id='55dcf551-9b6b-40fa-a3cc-6005592617e9'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:su:committees:finance' type='group' source='g:gsa' immediate='true'  id='a24e343a-9536-4285-9047-3b7c2be4eaff'/>
+            </privileges> <!--/privilege=read-->
+
+            <privileges type='view'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=view-->
+
+            </group>
+            <!--/qsuob:su:committees:finance-->
+
+
+            <!--qsuob:su:committees:rag-->
+            <group extension='rag'
+                   displayExtension='Rag Committee'
+                  name='qsuob:su:committees:rag'
+                  displayName='QS University of Bristol:Student Union:Committees:Rag Committee'
+                  id='09031948-8237-45af-b542-e02f38fd479a'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:su:committees</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:05 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:38:01 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='bama' type='person' source='qsuob' immediate='true' />
+                <subject id='keco' type='person' source='qsuob' immediate='true' />
+                <subject id='joco' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:su:admins' type='group' source='g:gsa' immediate='true'  id='55dcf551-9b6b-40fa-a3cc-6005592617e9'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject identifier='qsuob:su:committees:rag' type='group' source='g:gsa' immediate='true'  id='09031948-8237-45af-b542-e02f38fd479a'/>
+            </privileges> <!--/privilege=read-->
+
+            <privileges type='view'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=view-->
+
+            </group>
+            <!--/qsuob:su:committees:rag-->
+
+          </stem>
+          <!--/qsuob:su:committees-->
+
+
+          <!--qsuob:su:clubs-->
+          <stem extension='clubs'
+                displayExtension='Clubs'
+                name='qsuob:su:clubs'
+                displayName='QS University of Bristol:Student Union:Clubs'
+                id='83bf14b8-1d01-4578-bc7d-e7ec91ccb8ee'>
+            <description></description>
+
+            <!--qsuob:su:clubs:sailing-->
+            <group extension='sailing'
+                   displayExtension='Sailing Club'
+                  name='qsuob:su:clubs:sailing'
+                  displayName='QS University of Bristol:Student Union:Clubs:Sailing Club'
+                  id='024eac1c-f21a-4e35-8530-94b19cebd99a'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:su:clubs</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:06 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:38:11 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='jobe' type='person' source='qsuob' immediate='true' />
+                <subject id='joto' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:su:admins' type='group' source='g:gsa' immediate='true'  id='55dcf551-9b6b-40fa-a3cc-6005592617e9'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=read-->
+
+            <privileges type='optin'>
+              <subject identifier='qsuob:all_students' type='group' source='g:gsa' immediate='true'  id='4dd0c9fc-5ce4-48c6-bd51-92a5285ab5fd'/>
+            </privileges> <!--/privilege=optin-->
+
+            <privileges type='optout'>
+              <subject identifier='qsuob:su:clubs:sailing' type='group' source='g:gsa' immediate='true'  id='024eac1c-f21a-4e35-8530-94b19cebd99a'/>
+            </privileges> <!--/privilege=optout-->
+
+            </group>
+            <!--/qsuob:su:clubs:sailing-->
+
+
+            <!--qsuob:su:clubs:gliding-->
+            <group extension='gliding'
+                   displayExtension='Gliding Club'
+                  name='qsuob:su:clubs:gliding'
+                  displayName='QS University of Bristol:Student Union:Clubs:Gliding Club'
+                  id='fbc583cf-182c-444e-8569-8093533d5c11'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:su:clubs</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:05 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:38:06 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='haed' type='person' source='qsuob' immediate='true' />
+                <subject id='jabr' type='person' source='qsuob' immediate='true' />
+                <subject id='jaco' type='person' source='qsuob' immediate='true' />
+                <subject id='jabl' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:su:admins' type='group' source='g:gsa' immediate='true'  id='55dcf551-9b6b-40fa-a3cc-6005592617e9'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=read-->
+
+            <privileges type='optin'>
+              <subject identifier='qsuob:all_students' type='group' source='g:gsa' immediate='true'  id='4dd0c9fc-5ce4-48c6-bd51-92a5285ab5fd'/>
+            </privileges> <!--/privilege=optin-->
+
+            <privileges type='optout'>
+              <subject identifier='qsuob:su:clubs:gliding' type='group' source='g:gsa' immediate='true'  id='fbc583cf-182c-444e-8569-8093533d5c11'/>
+            </privileges> <!--/privilege=optout-->
+
+            </group>
+            <!--/qsuob:su:clubs:gliding-->
+
+
+            <!--qsuob:su:clubs:real_ale-->
+            <group extension='real_ale'
+                   displayExtension='Real Ale Society'
+                  name='qsuob:su:clubs:real_ale'
+                  displayName='QS University of Bristol:Student Union:Clubs:Real Ale Society'
+                  id='e976fdd3-068b-422d-84cc-c3f2904eb3e9'>
+              <description></description>
+
+              <internalAttributes>
+                <internalAttribute name='parentStem'>qsuob:su:clubs</internalAttribute>
+                <internalAttribute name='createSource'></internalAttribute>
+                <internalAttribute name='createSubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='createTime'>Tue May 23 09:37:06 BST 2006</internalAttribute>
+                <internalAttribute name='modifySource'></internalAttribute>
+                <internalAttribute name='modifySubject'>
+                  <subject id='GrouperSystem' type='application' source='g:isa'/>
+                </internalAttribute>
+                <internalAttribute name='modifyTime'>Tue May 23 09:38:15 BST 2006</internalAttribute>
+              </internalAttributes>
+
+
+              <list field='members'  groupType='base'>
+                <subject id='babe' type='person' source='qsuob' immediate='true' />
+                <subject id='bato' type='person' source='qsuob' immediate='true' />
+                <subject id='bado' type='person' source='qsuob' immediate='true' />
+              </list> <!--/field=members-->
+
+            <privileges type='admin'>
+              <subject identifier='qsuob:su:admins' type='group' source='g:gsa' immediate='true'  id='55dcf551-9b6b-40fa-a3cc-6005592617e9'/>
+            </privileges> <!--/privilege=admin-->
+
+            <privileges type='read'>
+              <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+            </privileges> <!--/privilege=read-->
+
+            <privileges type='optin'>
+              <subject identifier='qsuob:all_students' type='group' source='g:gsa' immediate='true'  id='4dd0c9fc-5ce4-48c6-bd51-92a5285ab5fd'/>
+            </privileges> <!--/privilege=optin-->
+
+            <privileges type='optout'>
+              <subject identifier='qsuob:su:clubs:real_ale' type='group' source='g:gsa' immediate='true'  id='e976fdd3-068b-422d-84cc-c3f2904eb3e9'/>
+            </privileges> <!--/privilege=optout-->
+
+            </group>
+            <!--/qsuob:su:clubs:real_ale-->
+
+          </stem>
+          <!--/qsuob:su:clubs-->
+
+
+          <!--qsuob:su:admins-->
+          <group extension='admins'
+                 displayExtension='Student Union Admins'
+                name='qsuob:su:admins'
+                displayName='QS University of Bristol:Student Union:Student Union Admins'
+                id='55dcf551-9b6b-40fa-a3cc-6005592617e9'>
+            <description></description>
+
+            <internalAttributes>
+              <internalAttribute name='parentStem'>qsuob:su</internalAttribute>
+              <internalAttribute name='createSource'></internalAttribute>
+              <internalAttribute name='createSubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='createTime'>Tue May 23 09:37:06 BST 2006</internalAttribute>
+              <internalAttribute name='modifySource'></internalAttribute>
+              <internalAttribute name='modifySubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='modifyTime'>Tue May 23 09:38:15 BST 2006</internalAttribute>
+            </internalAttributes>
+
+
+            <list field='members'  groupType='base'>
+              <subject id='jabl' type='person' source='qsuob' immediate='true' />
+            </list> <!--/field=members-->
+
+          <privileges type='admin'>
+            <subject identifier='qsuob:su:admins' type='group' source='g:gsa' immediate='true'  id='55dcf551-9b6b-40fa-a3cc-6005592617e9'/>
+          </privileges> <!--/privilege=admin-->
+
+          <privileges type='read'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=read-->
+
+          </group>
+          <!--/qsuob:su:admins-->
+
+        </stem>
+        <!--/qsuob:su-->
+
+
+        <!--qsuob:personal-->
+        <stem extension='personal'
+              displayExtension='Personal Groups'
+              name='qsuob:personal'
+              displayName='QS University of Bristol:Personal Groups'
+              id='55352716-207d-4452-81c9-54d101791c95'>
+          <description></description>
+        </stem>
+        <!--/qsuob:personal-->
+
+
+        <!--qsuob:all-->
+        <group extension='all'
+               displayExtension='All Students and Staff'
+              name='qsuob:all'
+              displayName='QS University of Bristol:All Students and Staff'
+              id='72d7c99d-7087-4003-8948-73495fd02a1d'>
+          <description></description>
+
+          <internalAttributes>
+            <internalAttribute name='parentStem'>qsuob</internalAttribute>
+            <internalAttribute name='createSource'></internalAttribute>
+            <internalAttribute name='createSubject'>
+              <subject id='GrouperSystem' type='application' source='g:isa'/>
+            </internalAttribute>
+            <internalAttribute name='createTime'>Tue May 23 09:37:07 BST 2006</internalAttribute>
+            <internalAttribute name='modifySource'></internalAttribute>
+            <internalAttribute name='modifySubject'>
+              <subject id='GrouperSystem' type='application' source='g:isa'/>
+            </internalAttribute>
+            <internalAttribute name='modifyTime'>Tue May 23 09:38:23 BST 2006</internalAttribute>
+          </internalAttributes>
+
+
+          <list field='members'  groupType='base'>
+            <subject identifier='qsuob:all_students' type='group' source='g:gsa' immediate='true'  id='4dd0c9fc-5ce4-48c6-bd51-92a5285ab5fd'/>
+            <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+          </list> <!--/field=members-->
+
+        <privileges type='admin'>
+          <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+        </privileges> <!--/privilege=admin-->
+
+        <privileges type='read'>
+          <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+        </privileges> <!--/privilege=read-->
+
+        </group>
+        <!--/qsuob:all-->
+
+
+        <!--qsuob:admins-->
+        <group extension='admins'
+               displayExtension='UoB Administrators'
+              name='qsuob:admins'
+              displayName='QS University of Bristol:UoB Administrators'
+              id='af65c66a-bde7-4608-ba3e-cb2a1108d227'>
+          <description></description>
+
+          <internalAttributes>
+            <internalAttribute name='parentStem'>qsuob</internalAttribute>
+            <internalAttribute name='createSource'></internalAttribute>
+            <internalAttribute name='createSubject'>
+              <subject id='GrouperSystem' type='application' source='g:isa'/>
+            </internalAttribute>
+            <internalAttribute name='createTime'>Tue May 23 09:37:07 BST 2006</internalAttribute>
+            <internalAttribute name='modifySource'></internalAttribute>
+            <internalAttribute name='modifySubject'>
+              <subject id='GrouperSystem' type='application' source='g:isa'/>
+            </internalAttribute>
+            <internalAttribute name='modifyTime'>Tue May 23 09:38:24 BST 2006</internalAttribute>
+          </internalAttributes>
+
+
+          <list field='members'  groupType='base'>
+            <subject id='kebe' type='person' source='qsuob' immediate='true' />
+          </list> <!--/field=members-->
+
+        <privileges type='admin'>
+          <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+        </privileges> <!--/privilege=admin-->
+
+        <privileges type='read'>
+          <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+        </privileges> <!--/privilege=read-->
+
+        </group>
+        <!--/qsuob:admins-->
+
+
+        <!--qsuob:all_academic_staff-->
+        <group extension='all_academic_staff'
+               displayExtension='All Academic Staff'
+              name='qsuob:all_academic_staff'
+              displayName='QS University of Bristol:All Academic Staff'
+              id='6a84f171-168d-4b20-9e70-3de691de32ea'>
+          <description></description>
+
+          <internalAttributes>
+            <internalAttribute name='parentStem'>qsuob</internalAttribute>
+            <internalAttribute name='createSource'></internalAttribute>
+            <internalAttribute name='createSubject'>
+              <subject id='GrouperSystem' type='application' source='g:isa'/>
+            </internalAttribute>
+            <internalAttribute name='createTime'>Tue May 23 09:37:07 BST 2006</internalAttribute>
+            <internalAttribute name='modifySource'></internalAttribute>
+            <internalAttribute name='modifySubject'>
+              <subject id='GrouperSystem' type='application' source='g:isa'/>
+            </internalAttribute>
+            <internalAttribute name='modifyTime'>Tue May 23 09:38:19 BST 2006</internalAttribute>
+          </internalAttributes>
+
+
+          <list field='members'  groupType='base'>
+            <subject identifier='qsuob:faculties:artf:staff' type='group' source='g:gsa' immediate='true'  id='9de72029-2790-4789-9cf6-6a10d79a5cb0'/>
+            <subject identifier='qsuob:faculties:engf:staff' type='group' source='g:gsa' immediate='true'  id='9cc9361c-3bc3-4029-b375-d5f2da4a5267'/>
+            <subject identifier='qsuob:faculties:scif:staff' type='group' source='g:gsa' immediate='true'  id='6c3a0bd8-f82b-40d1-b79f-e51d2f67f63c'/>
+            <subject identifier='qsuob:faculties:mvsf:staff' type='group' source='g:gsa' immediate='true'  id='338e1c71-85e5-4ec3-be4c-cea06a8a2687'/>
+            <subject identifier='qsuob:faculties:mdyf:staff' type='group' source='g:gsa' immediate='true'  id='37bcbbb3-9974-4540-bd8c-83a13933d6a0'/>
+            <subject identifier='qsuob:faculties:sslf:staff' type='group' source='g:gsa' immediate='true'  id='3879d495-bf31-4bd5-a92d-5a7eb56a6895'/>
+          </list> <!--/field=members-->
+
+        <privileges type='admin'>
+          <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+        </privileges> <!--/privilege=admin-->
+
+        <privileges type='read'>
+          <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+          <subject identifier='qsuob:all_students' type='group' source='g:gsa' immediate='true'  id='4dd0c9fc-5ce4-48c6-bd51-92a5285ab5fd'/>
+        </privileges> <!--/privilege=read-->
+
+        </group>
+        <!--/qsuob:all_academic_staff-->
+
+
+        <!--qsuob:all_students-->
+        <group extension='all_students'
+               displayExtension='All students'
+              name='qsuob:all_students'
+              displayName='QS University of Bristol:All students'
+              id='4dd0c9fc-5ce4-48c6-bd51-92a5285ab5fd'>
+          <description></description>
+
+          <internalAttributes>
+            <internalAttribute name='parentStem'>qsuob</internalAttribute>
+            <internalAttribute name='createSource'></internalAttribute>
+            <internalAttribute name='createSubject'>
+              <subject id='GrouperSystem' type='application' source='g:isa'/>
+            </internalAttribute>
+            <internalAttribute name='createTime'>Tue May 23 09:37:06 BST 2006</internalAttribute>
+            <internalAttribute name='modifySource'></internalAttribute>
+            <internalAttribute name='modifySubject'>
+              <subject id='GrouperSystem' type='application' source='g:isa'/>
+            </internalAttribute>
+            <internalAttribute name='modifyTime'>Tue May 23 09:38:17 BST 2006</internalAttribute>
+          </internalAttributes>
+
+
+          <list field='members'  groupType='base'>
+            <subject identifier='qsuob:faculties:artf:students' type='group' source='g:gsa' immediate='true'  id='2ddda8ce-6eff-4912-98d9-1c175725220b'/>
+            <subject identifier='qsuob:faculties:engf:students' type='group' source='g:gsa' immediate='true'  id='b1ebe80b-fd93-4542-9b5f-92ff096a03da'/>
+            <subject identifier='qsuob:faculties:scif:students' type='group' source='g:gsa' immediate='true'  id='9fb25cff-0c6e-4d71-b661-ff7cf8469849'/>
+            <subject identifier='qsuob:faculties:mvsf:students' type='group' source='g:gsa' immediate='true'  id='7cefd542-e819-4d7e-abfb-416b30ccf756'/>
+            <subject identifier='qsuob:faculties:mdyf:students' type='group' source='g:gsa' immediate='true'  id='590e5024-012c-4ce1-b2f1-32f72340339e'/>
+            <subject identifier='qsuob:faculties:sslf:students' type='group' source='g:gsa' immediate='true'  id='69af0bb8-2aa1-43ce-9f5e-d0dc88d7f769'/>
+          </list> <!--/field=members-->
+
+        <privileges type='admin'>
+          <subject identifier='qsuob:admins' type='group' source='g:gsa' immediate='true'  id='af65c66a-bde7-4608-ba3e-cb2a1108d227'/>
+        </privileges> <!--/privilege=admin-->
+
+        <privileges type='read'>
+          <subject identifier='qsuob:all_academic_staff' type='group' source='g:gsa' immediate='true'  id='6a84f171-168d-4b20-9e70-3de691de32ea'/>
+        </privileges> <!--/privilege=read-->
+
+        </group>
+        <!--/qsuob:all_students-->
+
+      </stem>
+      <!--/qsuob-->
+	  
+	   <!--etc-->
+      <stem extension='etc'
+            displayExtension='Grouper Administration'
+            name='etc'
+            displayName='Grouper Administration'
+            id='d8d63513-45fc-4174-bd6b-8c38d6c0a829'>
+        <description></description>
+
+        <!--etc:wheel-->
+        <group extension='wheel'
+               displayExtension='Wheel Group'
+              name='etc:wheel'
+              displayName='Grouper Administration:Wheel Group'
+              id='ce129c58-cb3e-4841-9c54-efdefd39f21c'>
+          <description></description>
+
+          <list field='members'  groupType='base'>
+            <subject id='fiwi' type='person' source='qsuob' immediate='true' />
+          </list> <!--/field=members-->
+
+        <privileges type='read'>
+          <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+        </privileges> <!--/privilege=read-->
+
+        <privileges type='view'>
+          <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+        </privileges> <!--/privilege=view-->
+
+        </group>
+        <!--/etc:wheel-->
+
+      </stem>
+      <!--/etc-->
+
+  </data>
+  <exportParams>
+    <node type='stem'></node>
+    <relative>true</relative>
+    <includeParent>false</includeParent>
+  </exportParams>
+
+  <exportInfo>
+    <start>Tue May 23 09:46:16 BST 2006</start>
+    <end>Tue May 23 09:47:36 BST 2006</end>
+    <duration>80</duration>
+    <options>
+      <option key='export.data'>true</option>
+      <option key='export.group.custom-attributes'>true</option>
+      <option key='export.group.internal-attributes'>true</option>
+      <option key='export.group.lists'>true</option>
+      <option key='export.group.lists.immediate-only'>true</option>
+      <option key='export.group.members'>true</option>
+      <option key='export.group.members.immediate-only'>true</option>
+      <option key='export.metadata'>false</option>
+      <option key='export.privs.access'>true</option>
+      <option key='export.privs.for-parents'>false</option>
+      <option key='export.privs.immediate-only'>true</option>
+      <option key='export.privs.naming'>true</option>
+      <option key='export.stem.internal-attributes'>false</option>
+    </options>
+  </exportInfo>
 </registry>

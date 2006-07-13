@@ -2,76 +2,147 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.3 2005-12-20 14:34:16 isgwb Exp $
+$Id: sources.xml,v 1.4 2006-07-13 19:58:04 isgwb Exp $
 -->
 
 <sources>
 
-  <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
-    <id>jdbc</id>
-    <name>JDBC Source Adapter</name>
-    <type>person</type>
-    <init-param>
-      <param-name>maxActive</param-name>
-      <param-value>4</param-value>
-    </init-param>
-    <init-param>
-      <param-name>maxIdle</param-name>
-      <param-value>2</param-value>
-    </init-param>
-    <init-param>
-      <param-name>maxWait</param-name>
-      <param-value>5</param-value>
-    </init-param>
-
-    <!-- HSQLDB -->
-    <init-param>
-      <param-name>dbDriver</param-name>
-      <param-value>org.hsqldb.jdbcDriver</param-value>
-    </init-param>
-    <init-param>
-      <param-name>dbUrl</param-name>
-      <param-value>jdbc:hsqldb:hsql://localhost:9001</param-value>
-    </init-param>
-
-    <!-- PostgreSQL -->
-<!--
-    <init-param>
-      <param-name>dbDriver</param-name>
-      <param-value>org.postgresql.Driver</param-value>
-    </init-param>
-    <init-param>
-      <param-name>dbUrl</param-name>
-      <param-value>jdbc:postgresql:...</param-value>
-    </init-param>
--->
-
-    <!-- Oracle -->
-<!--
-    <init-param>
-      <param-name>dbDriver</param-name>
-      <param-value>oracle.jdbc.driver.OracleDriver</param-value>
-    </init-param>
-    <init-param>
-      <param-name>dbUrl</param-name>
-      <param-value>jdbc:oracle:...</param-value>
-    </init-param>
-	<init-param>
-      <param-name>readOnly</param-name>
-      <param-value>false</param-value>
-    </init-param>
--->
-
-    <init-param>
-      <param-name>dbUser</param-name>
-      <param-value>sa</param-value>
-    </init-param>
-    <init-param>
-      <param-name>dbPwd</param-name>
-      <param-value></param-value>
-    </init-param>
-
+  <!-- Group Subject Resolver -->
+  <!-- 
+    NOTE: It is recommended that you **not** change the default
+          values for this source adapter.
+  -->
+  <source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter">
+    <id>g:gsa</id>
+    <name>Grouper: Group Source Adapter</name>
+    <type>group</type>
   </source>
+  <!-- Group Subject Resolver -->
+
+ <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
+    <id>qsuob</id>
+    <name>QSUOB JDBC Source Adapter</name>
+     <type>person</type>
+     <init-param>
+       <param-name>maxActive</param-name>
+       <param-value>16</param-value>
+     </init-param>
+     <init-param>
+       <param-name>maxIdle</param-name>
+       <param-value>16</param-value>
+     </init-param>
+     <init-param>
+       <param-name>maxWait</param-name>
+       <param-value>-1</param-value>
+     </init-param>
+     <init-param>
+       <param-name>dbDriver</param-name>
+       <param-value>org.hsqldb.jdbcDriver</param-value>
+     </init-param>
+     <init-param>
+       <param-name>dbUrl</param-name>
+ <param-value>jdbc:hsqldb:hsql://localhost:9001</param-value>
+     </init-param>
+     <init-param>
+       <param-name>dbUser</param-name>
+       <param-value>sa</param-value>
+     </init-param>
+     <init-param>
+       <param-name>dbPwd</param-name>
+       <param-value></param-value>
+     </init-param>
+      <init-param>
+       <param-name>SubjectID_AttributeType</param-name>
+       <param-value>id</param-value>
+     </init-param>
+     <init-param>
+       <param-name>Name_AttributeType</param-name>
+       <param-value>name</param-value>
+     </init-param>
+     <init-param>
+       <param-name>Description_AttributeType</param-name>
+       <param-value>description</param-value>
+     </init-param>
+
+     <search>
+         <searchType>searchSubject</searchType>
+         <param>
+             <param-name>sql</param-name>
+             <param-value>
+select
+   subject.subjectid as id, subject.name as name,
+   lfnamet.lfname as lfname, loginidt.loginid as loginid,
+   desct.description as description
+from
+   subject
+   left join (select subjectid, value as lfname from subjectattribute
+     where name='name') as lfnamet
+     on subject.subjectid=lfnamet.subjectid
+   left join (select subjectid, value as loginid from subjectattribute
+     where name='loginid') as loginidt
+     on subject.subjectid=loginidt.subjectid
+   left join (select subjectid, value as description from subjectattribute
+      where name='description') as desct
+     on subject.subjectid=desct.subjectid
+where
+   subject.subjectid = '%TERM%'
+             </param-value>
+         </param>
+     </search>
+     <search>
+         <searchType>searchSubjectByIdentifier</searchType>
+         <param>
+             <param-name>sql</param-name>
+             <param-value>
+select
+   subject.subjectid as id, subject.name as name,
+   lfnamet.lfname as lfname, loginidt.loginid as loginid,
+   desct.description as description
+from
+   subject
+   left join (select subjectid, value as lfname from subjectattribute
+     where name='name') as lfnamet
+     on subject.subjectid=lfnamet.subjectid
+   left join (select subjectid, value as loginid from subjectattribute
+     where name='loginid') as loginidt
+     on subject.subjectid=loginidt.subjectid
+   left join (select subjectid, value as description from subjectattribute
+      where name='description') as desct
+     on subject.subjectid=desct.subjectid
+where
+   loginidt.loginid = '%TERM%'
+             </param-value>
+         </param>
+     </search>
+     <search>
+        <searchType>search</searchType>
+         <param>
+             <param-name>sql</param-name>
+             <param-value>
+select
+   subject.subjectid as id, subject.name as name,
+   lfnamet.lfname as lfname, loginidt.loginid as loginid,
+   desct.description as description
+from
+   subject
+   left join (select subjectid, value as lfname from subjectattribute
+     where name='name') as lfnamet
+     on subject.subjectid=lfnamet.subjectid
+   left join (select subjectid, value as loginid from subjectattribute
+     where name='loginid') as loginidt
+     on subject.subjectid=loginidt.subjectid
+   left join (select subjectid, value as description from subjectattribute
+      where name='description') as desct
+     on subject.subjectid=desct.subjectid
+where
+   (lower(name) like '%%TERM%%')
+   or (lower(lfnamet.lfname) like '%%TERM%%')
+   or (lower(loginidt.loginid) like '%%TERM%%')
+   or (lower(desct.description) like '%%TERM%%')
+             </param-value>
+         </param>
+     </search>
+   </source>
 
 </sources>
 

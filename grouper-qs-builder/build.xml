@@ -43,7 +43,8 @@
 			<copy todir="${grouper.folder}/conf" overwrite="true">
 				<fileset dir=".">
 					<include name="sources.xml"/>
-					<include name="hibernate.properties"/>
+					<include name="grouper.hibernate.properties"/>
+					<include name="log4j.properties"/>
 				</fileset>
 			</copy>
 			<copy tofile="${grouper.folder}/conf/grouper.properties" file="grouper.app.properties"/>
@@ -119,7 +120,7 @@
 			  <copy todir="${quickstart.dir}" file="doc/README.html"/>
 			  <copy tofile="${quickstart.dir}/build.xml" file="build-db.xml"/>
 			 <!-- <copy tofile="${quickstart.dir}/grouper/build.xml" file="grouper-bin-build.xml"/>-->
-			  <copy tofile="${quickstart.dir}/grouper-ui/contrib/quick-start/build.properties" file="quickstart-contrib-build.properties"/>
+			  
 			  <chmod dir="${quickstart.dir}" perm="+x" includes="*.sh"/>
 	 </target>
 	 
