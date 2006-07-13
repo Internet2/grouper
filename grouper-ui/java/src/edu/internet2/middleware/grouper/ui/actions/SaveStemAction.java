@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
 
 
@@ -127,7 +128,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveStemAction.java,v 1.3 2005-12-21 15:38:22 isgwb Exp $
+ * @version $Id: SaveStemAction.java,v 1.4 2006-07-13 15:46:26 isgwb Exp $
  */
 
 public class SaveStemAction extends GrouperCapableAction {
@@ -187,8 +188,14 @@ public class SaveStemAction extends GrouperCapableAction {
 			if(curNode.equals(GrouperHelper.NS_ROOT)) {
 				parentStem=StemFinder.findRootStem(grouperSession);
 			}else{
-				parentStem = StemFinder.findByUuid(grouperSession,
-					curNode);
+				GroupOrStem curGos = GroupOrStem.findByID(grouperSession,curNode);
+				
+				if(curGos.isStem()) {
+					parentStem = curGos.getStem();
+				}else{
+					parentStem = curGos.getGroup().getParentStem();
+				}
+				
 			}
 			stem = parentStem.addChildStem((String) stemForm.get("stemName"),(String) stemForm.get("stemDisplayName"));
 			stem.grantPriv(grouperSession.getSubject(),Privilege.getInstance("create"));
@@ -228,7 +235,8 @@ public class SaveStemAction extends GrouperCapableAction {
 		}
 		
 		if (submit != null) {
-			return mapping.findForward(FORWARD_CreateGroups);
+			//return mapping.findForward(FORWARD_CreateGroups);
+			return new ActionForward("/populate" + getBrowseMode(session)+"Groups.do");
 		}
 		submit = request.getParameter("submit.save_show_members");
 		request.setAttribute("stemId", stem.getUuid());

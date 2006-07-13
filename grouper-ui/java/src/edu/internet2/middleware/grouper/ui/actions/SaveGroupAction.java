@@ -135,7 +135,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.9 2006-07-06 10:32:26 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.10 2006-07-13 15:46:25 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -193,7 +193,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 		if ("".equals(groupForm.get("groupDisplayName")))
 			groupForm.set("groupDisplayName", groupName);
 		Group group = null;
-		String id = curNode;
+		
 		String extension = (String) groupForm.get("groupName");
 		String displayExtension = (String) groupForm.get("groupDisplayName");
 		if(isEmpty(displayExtension))displayExtension=extension;
@@ -216,8 +216,13 @@ public class SaveGroupAction extends GrouperCapableAction {
 				assignedPrivs.put(key.toLowerCase(),entry.getValue());
 			}
 		} else {
-			Stem parent = StemFinder.findByUuid(grouperSession,
-					curNode);
+			GroupOrStem curGos = GroupOrStem.findByID(grouperSession,curNode);
+			Stem parent=null;
+			if(curGos.isStem()) {
+				parent = curGos.getStem();
+			}else{
+				parent = curGos.getGroup().getParentStem();
+			}
 			group = parent.addChildGroup(extension,displayExtension );
 			doTypes(group,request);
 			groupForm.set("groupId", group.getUuid());
