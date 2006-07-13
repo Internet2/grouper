@@ -105,7 +105,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditStemAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateEditStemAction.java,v 1.4 2006-07-13 15:44:33 isgwb Exp $
  */
 public class PopulateEditStemAction extends GrouperCapableAction {
 
@@ -121,7 +121,7 @@ public class PopulateEditStemAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		
-		session.setAttribute("title", "stems.manage");
+		//session.setAttribute("title", "stems.manage");
 		session.setAttribute("subtitle", "stems.action.edit");
 		
 		DynaActionForm stemForm = (DynaActionForm) form;

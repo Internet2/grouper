@@ -87,7 +87,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateCreateStemAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateCreateStemAction.java,v 1.4 2006-07-13 15:43:53 isgwb Exp $
  */
 public class PopulateCreateStemAction extends GrouperCapableAction {
 
@@ -102,7 +102,7 @@ public class PopulateCreateStemAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session,GrouperSession grouperSession)
 			throws Exception {
-		session.setAttribute("title", "stems.create");
+		//session.setAttribute("title", "stems.create");
 		session.setAttribute("subtitle", "stems.action.create");
 		
 		session.setAttribute("isNewStem", Boolean.TRUE);
