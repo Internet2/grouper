@@ -3,7 +3,7 @@
 		 on the privileges of the current user for the current stem
 --%><%--
   @author Gary Brown.
-  @version $Id: stemLinks.jsp,v 1.3 2005-12-21 15:52:18 isgwb Exp $
+  @version $Id: stemLinks.jsp,v 1.4 2006-07-13 15:41:56 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -25,7 +25,7 @@
 
 
 <c:if test="${!stemHasChildren && browsePrivs.STEM}"> 
-<!-- <html:link page="/deleteStem.do"><fmt:message bundle="${nav}" key="stems.action.delete"/></html:link> -->
+<html:link page="/deleteStem.do"><fmt:message bundle="${nav}" key="stems.action.delete"/></html:link>
 </c:if>
 <c:if test="${browsePrivs.STEM}"> 
 <html:link page="/populateCreateStem.do"><fmt:message bundle="${nav}" key="stems.action.create"/></html:link>
