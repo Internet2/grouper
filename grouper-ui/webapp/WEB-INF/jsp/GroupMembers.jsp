@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.5 2006-07-12 16:01:43 isgwb Exp $
+  @version $Id: GroupMembers.jsp,v 1.6 2006-07-13 10:31:38 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -48,9 +48,16 @@
 				</c:otherwise>
 			</c:choose>
 		</c:if>
-		<c:if test="${empty listField || listField=='members'}">
+		<c:if test="${(empty listField || listField=='members') && (groupPrivs.ADMIN || groupPrivs.UPDATE)}">
 		<html:link page="/populateAddComposite.do" name="groupMembership">
+			<c:choose>
+				<c:when test="${isCompositeGroup}">
 						<fmt:message bundle="${nav}" key="groups.composite.replace"/>
+				</c:when>
+				<c:otherwise>
+					<fmt:message bundle="${nav}" key="groups.composite.members-replace"/>
+				</c:otherwise>
+			</c:choose>
 					</html:link>
 		</c:if>
 		<c:set target="${groupMembership}" property="callerPageId"></c:set>
