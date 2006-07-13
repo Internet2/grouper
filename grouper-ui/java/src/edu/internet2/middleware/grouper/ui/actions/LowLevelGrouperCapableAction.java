@@ -66,7 +66,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.5 2006-07-06 09:10:07 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.6 2006-07-13 11:41:51 isgwb Exp $
  */
 
 /**
@@ -277,7 +277,10 @@ public abstract class LowLevelGrouperCapableAction
 	 */
 	public static Map readDebugPrefs(HttpServletRequest request) throws Exception{
 		String x = request.getRealPath(request.getServletPath());
-		String prefsFile=x.substring(0,x.lastIndexOf("\\")) + "\\WEB-INF\\debugPrefs.obj";
+		//Fix submitted by jaakko.linnosaari@tkk.fi to take care of my sloppy OS handling
+		String s = File.separator;
+		String prefsFile=x.substring(0,x.lastIndexOf(s)) + s + "WEB-INF" + s + "debugPrefs.obj";
+		//String prefsFile=x.substring(0,x.lastIndexOf("\\")) + "\\WEB-INF\\debugPrefs.obj";
 		File pFile = new File(prefsFile);
 		Map prefs = null;
 		HttpSession session = request.getSession();
