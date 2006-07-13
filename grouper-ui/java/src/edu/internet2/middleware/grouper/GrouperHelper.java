@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.14 2006-07-12 19:36:07 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.15 2006-07-13 19:09:46 isgwb Exp $
  */
 
 /**
@@ -2169,7 +2169,7 @@ public class GrouperHelper {
 		Map membershipMap=null;
 		if(subj !=null) {
 			membershipMap = getMembershipAndCount(grouperSession,comp.getLeftGroup(),subj);
-			if(comp.getLeftGroup().hasComposite()) {
+			if(comp.getLeftGroup().hasComposite()&& membershipMap !=null) {
 				membershipMap.put("viaGroup",compMap);
 			}
 			((Map)compMap.get("leftGroup")).put("membership",membershipMap);
@@ -2177,7 +2177,7 @@ public class GrouperHelper {
 		compMap.put("rightGroup",new GroupAsMap(comp.getRightGroup(),grouperSession));
 		if(subj !=null) {
 			membershipMap = getMembershipAndCount(grouperSession,comp.getRightGroup(),subj);
-			if(comp.getRightGroup().hasComposite()) {
+			if(comp.getRightGroup().hasComposite()&& membershipMap !=null) {
 				membershipMap.put("viaGroup",compMap);
 			}
 			((Map)compMap.get("rightGroup")).put("membership",membershipMap);
