@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p/>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.7 2006-07-10 18:17:07 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.8 2006-07-13 17:55:52 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1416,11 +1416,11 @@ public class XmlImporter {
       }
       if (compE != null && (!"add".equals(importOption) || hasMembers)) {
         _processComposite(compE, group);
-        return;
+        continue;
       }
       if (compE != null && hasMembers) {
         log.warn("Skipping composite - cannot ad to existing members for " + groupName);
-        return;
+        continue;
       }
       subjects          = _getImmediateElements(list, "subject");
       subjectsIterator  = subjects.iterator();
