@@ -84,7 +84,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DeleteStemAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: DeleteStemAction.java,v 1.3 2006-07-13 15:42:57 isgwb Exp $
  */
 public class DeleteStemAction extends GrouperCapableAction {
 
@@ -112,14 +112,18 @@ public class DeleteStemAction extends GrouperCapableAction {
 		Message message = new Message("stems.message.stem-deleted", stem.getDisplayExtension());
 		
 		//Try and delete the stem
-		boolean deleted = GrouperHelper.stemDelete(grouperSession, stem);
-		if (!deleted)
+		try {
+				stem.delete();
+				setBrowseNode(parent.getUuid(),session);
+		}catch(Exception e){
+		
 			//Failed so change message
 			message = new Message("stems.message.stem-not-deleted", stem.getDisplayExtension(),true);
 		request.setAttribute("message", message);
+		}
 		
 		//Reset browse node to parent
-		if(deleted) setBrowseNode(parent.getUuid(),session);
+		 
 
 		return mapping.findForward(getBrowseMode(session) + "Groups");
 
