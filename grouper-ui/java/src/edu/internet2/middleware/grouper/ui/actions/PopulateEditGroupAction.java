@@ -133,7 +133,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAction.java,v 1.7 2006-07-06 09:33:39 isgwb Exp $
+ * @version $Id: PopulateEditGroupAction.java,v 1.8 2006-07-13 10:26:09 isgwb Exp $
  */
 public class PopulateEditGroupAction extends GrouperCapableAction {
 
@@ -152,7 +152,7 @@ public class PopulateEditGroupAction extends GrouperCapableAction {
 		
 		session.setAttribute("subtitle", "groups.action.edit");
 		
-		setBrowseMode("Manage",session);
+		//setBrowseMode("Manage",session);
 		
 		//Identify and instantiate group to edit
 		String curNode = (String)groupForm.get("groupId");
