@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table> 
  * @author Gary Brown.
- * @version $Id: SearchGroupsAction.java,v 1.4 2006-02-24 13:39:37 isgwb Exp $
+ * @version $Id: SearchGroupsAction.java,v 1.5 2006-07-14 11:04:11 isgwb Exp $
  */
 
 public class SearchGroupsAction extends GrouperCapableAction {

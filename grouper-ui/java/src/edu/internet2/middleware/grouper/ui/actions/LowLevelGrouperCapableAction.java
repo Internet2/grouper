@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.6 2006-07-13 11:41:51 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.7 2006-07-14 11:04:11 isgwb Exp $
  */
 
 /**
@@ -241,7 +241,7 @@ public abstract class LowLevelGrouperCapableAction
 	/**
 	 * Return configured stem - or the root stem if none configured
 	 * @param session
-	 * @return
+	 * @return name of the default root stem
 	 */
 	public  String getDefaultRootStemName(HttpSession session) { 
 		
@@ -255,7 +255,7 @@ public abstract class LowLevelGrouperCapableAction
 	 * Return a named cookie - so caling code doesn`t have to iterate through Cookie array
 	 * @param name
 	 * @param request
-	 * @return
+	 * @return Cookie with specified name
 	 */
 	public static Cookie getCookie(String name,HttpServletRequest request) {
 		Cookie cookie = null;
@@ -272,7 +272,7 @@ public abstract class LowLevelGrouperCapableAction
 	 * Functionality moved here from PopulateDebugPrefsAction so can be called
 	 * from elsewhere
 	 * @param request
-	 * @return
+	 * @return Map representing saved preferences
 	 * @throws Exception
 	 */
 	public static Map readDebugPrefs(HttpServletRequest request) throws Exception{
@@ -308,6 +308,7 @@ public abstract class LowLevelGrouperCapableAction
 	
 	/**
 	 * Put here so not duplicated in Actions
+	 * @return whether flat mode is on or not
 	 */
 	protected boolean processFlatForMode(String mode,HttpServletRequest request,HttpSession session) {
 		

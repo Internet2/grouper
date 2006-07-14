@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: RepositoryBrowser.java,v 1.5 2006-03-01 15:58:53 isgwb Exp $
+ * @version $Id: RepositoryBrowser.java,v 1.6 2006-07-14 11:04:11 isgwb Exp $
  */
 
 public interface RepositoryBrowser {
@@ -54,7 +54,7 @@ public interface RepositoryBrowser {
 	 * @param isFlat
 	 * @param isForAssignment
 	 * @param omitForAssignment
-	 * @return
+	 * @return Set of children for current node
 	 * @throws Exception
 	 */
 	public Set getChildren(String node, String listField,int start, int pageSize,
@@ -63,32 +63,32 @@ public interface RepositoryBrowser {
 
 	/**
 	 * Does this browse mode have a flat mode i.e. can it hide the hierarchy?
-	 * @return
+	 * @return whether user should have option to select an initial stems view
 	 */
 	public boolean isFlatCapable();
 	
 	/**
 	 * stems or groups - used to create correct screen text
-	 * @return
+	 * @return flatten type
 	 */
 	public String getFlattenType();
 
 	/**
 	 * Each browse mode can have its own root node. 
-	 * @return
+	 * @return id of stem
 	 */
 	public String getRootNode();
 	
 	/**
 	 * Should the nodes before the root node be hidden?
-	 * @return
+	 * @return whether the nodes before the root node be hidden?
 	 */
 	public boolean isHidePreRootNode();
 
 	
 	/**
 	 * Returns the name of the implementation - if there is one
-	 * @return
+	 * @return the name of the Java class
 	 */
 	public String getInitialStems();
 
@@ -97,7 +97,7 @@ public interface RepositoryBrowser {
 	 * Returns a list of parent stems as maps taking account of root node
 	 * properties
 	 * @param groupOrStem
-	 * @return
+	 * @return List of anvestor stems for specified group or stem
 	 * @throws Exception
 	 */
 	public List getParentStems(GroupOrStem groupOrStem) throws Exception;
@@ -110,7 +110,7 @@ public interface RepositoryBrowser {
 	 * @param query
 	 * @param from
 	 * @param attr
-	 * @return
+	 * @return List of stems or groups. A human readable list of search terms is also returned if a List is provided 
 	 * @throws Exception
 	 */
 	public List search(GrouperSession s, String query, String from, Map attr,List outTerms)
@@ -122,7 +122,7 @@ public interface RepositoryBrowser {
 	 * @param from
 	 * @param attr
 	 * @param outTerms - empty list used to return info for deriving human readable query
-	 * @return
+	 * @return List of stems or groups. A human readable list of search terms is also returned if a List is provided
 	 * @throws Exception
 	 */
 	public List advancedSearch(GrouperSession s,String from,Map attr,List outTerms)

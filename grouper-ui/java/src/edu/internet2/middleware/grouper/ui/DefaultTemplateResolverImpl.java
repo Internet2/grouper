@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -152,7 +152,7 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 	 * </ul>
 	 * TODO groups can have multiple types - how best to cope?
 	 * 
-	 * @param object to find template for 
+	 * @param obj object to find template for 
 	 * @param view name of template to find
 	 * @param mediaResources ResourceBundle containing template names and values
 	 * @param request HttpServletRequest 
@@ -181,7 +181,7 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 	 *     <li>stem.view.default</li>
 	 * </ul>
 	 * 
-	 * @param object to find template for 
+	 * @param obj object to find template for 
 	 * @param view name of template to find
 	 * @param mediaResources ResourceBundle containing template names and values
 	 * @param request HttpServletRequest 
@@ -214,7 +214,7 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 	 *     <li>membership.view.default</li>
 	 * </ul>
 	 * 
-	 * @param object to find template for 
+	 * @param obj object to find template for 
 	 * @param view name of template to find
 	 * @param mediaResources ResourceBundle containing template names and values
 	 * @param request HttpServletRequest 
@@ -247,7 +247,7 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 	 *     <li>groupType.view.default</li>
 	 * </ul>
 	 * 
-	 * @param object to find template for 
+	 * @param obj object to find template for 
 	 * @param view name of template to find
 	 * @param mediaResources ResourceBundle containing template names and values
 	 * @param request HttpServletRequest 
@@ -282,7 +282,7 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 	 *     <li>composite.view.default</li>
 	 * </ul>
 	 * 
-	 * @param object to find template for 
+	 * @param obj object to find template for 
 	 * @param view name of template to find
 	 * @param mediaResources ResourceBundle containing template names and values
 	 * @param request HttpServletRequest 
@@ -317,7 +317,7 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 	 *     <li>field.view.default</li>
 	 * </ul>
 	 * 
-	 * @param object to find template for 
+	 * @param obj object to find template for 
 	 * @param view name of template to find
 	 * @param mediaResources ResourceBundle containing template names and values
 	 * @param request HttpServletRequest 
@@ -359,7 +359,7 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 	 *     <li>subjectprivilege.view.default</li>
 	 * </ul>
 	 * 
-	 * @param object to find template for 
+	 * @param obj object to find template for 
 	 * @param view name of template to find
 	 * @param mediaResources ResourceBundle containing template names and values
 	 * @param request HttpServletRequest 

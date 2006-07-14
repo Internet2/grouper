@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -167,7 +167,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.7 2006-02-24 13:36:43 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.8 2006-07-14 11:04:11 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -321,7 +321,6 @@ public abstract class GrouperCapableAction
 	 * any session attributes
 	 * @param request
 	 * @param form
-	 * @return
 	 */
 	public static void saveAsCallerPage(HttpServletRequest request,DynaActionForm form){
 		 GrouperCapableAction.saveAsCallerPage(request,form,"");
@@ -400,9 +399,10 @@ public abstract class GrouperCapableAction
 	/**
 	 * Retrieve actual data which was saved - called by Filter. Chose to keep
 	 * all logic here for saving and retrieving data
+	 * TODO find away of purging stuff *when* it is reasonable to do so
 	 * @param request
 	 * @param id
-	 * @return
+	 * @return Map containing details of previous pages visited
 	 * @throws IllegalStateException
 	 */
 	public static Map[] getCallerPageData(HttpServletRequest request ,String id) throws IllegalStateException {
@@ -416,7 +416,7 @@ public abstract class GrouperCapableAction
 	 * Abstract away the logic Actions should use to determine if they should
 	 * be returning a user to a previous page
 	 * @param form
-	 * @return
+	 * @return whether a user should be returned to a previous page
 	 */
 	boolean doRedirectToCaller(DynaActionForm form) {
 		String callerPageId = (String) form.get("callerPageId");
@@ -429,7 +429,7 @@ public abstract class GrouperCapableAction
 	/**
 	 * Provides Struts with means to send the user to a saved page
 	 * @param form
-	 * @return
+	 * @return an ActionForward which will return the user to a saved page
 	 */
 	ActionForward redirectToCaller(DynaActionForm form) {
 		String callerPageId = (String) form.get("callerPageId");

@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.15 2006-07-13 19:09:46 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.16 2006-07-14 11:04:11 isgwb Exp $
  */
 
 /**
@@ -345,7 +345,7 @@ public class GrouperHelper {
 	/**
 	 * Given a GroupOrStem return a Map representing it
 	 * @param s GrouperSession for authenticated user
-	 * @param stem GroupOrStem to wrap
+	 * @param groupOrStem GroupOrStem to wrap
 	 * @return GroupOrStem wrapped as a Map
 	 */
 	public static Map group2Map(GrouperSession s, GroupOrStem groupOrStem) {
@@ -356,7 +356,7 @@ public class GrouperHelper {
 	 * Given a Group  return
 	 * a Map representation of it
 	 * @param s GrouperSession for authenticated user
-	 * @param Group to wrap
+	 * @param group Group to wrap
 	 * @return Group wrapped as a Map
 	 */
 	public static Map group2Map(GrouperSession s, Group group){ 
@@ -396,7 +396,7 @@ public class GrouperHelper {
 	 * are access or naming privileges that s.subject() has.
 	 * 
 	 * @param s GrouperSession for authenticated user
-	 * @param group GrouperGroup or GroupeStem for which privileges are being requested
+	 * @param groupOrStem GrouperGroup or GroupeStem for which privileges are being requested
 	 * @return Map representing privileges
 	 */
 	public static Map hasAsMap(GrouperSession s, GroupOrStem groupOrStem) throws MemberNotFoundException{
@@ -631,7 +631,7 @@ public class GrouperHelper {
 	/**
 	 * Given an array of Subjects return a List of Maps representing those subjects
 	 * 
-	 * @param objects array of Subjects
+	 * @param subjects array of Subjects
 	 * @param addAttr Map of aditional attributes
 	 * @return List of Subjects wrapped as Maps
 	 */
@@ -646,7 +646,7 @@ public class GrouperHelper {
 	/**
 	 * Given an array of Subjects return a List of Maps representing those subjects
 	 * 
-	 * @param objects array of Subjects
+	 * @param subjects array of Subjects
 	 * @return List of Subjects wrapped as Maps
 	 */
 	public static List subjects2Maps(Subject[] subjects) {
@@ -1073,7 +1073,7 @@ public class GrouperHelper {
 	 * @param s GrouperSession for authenticated user
 	 * @param query to search for
 	 * @param from stem which scopes search
-	 * @param name of attribute to search
+	 * @param attr name of attribute to search
 	 * @return List of groups matched
 	 */
 	public static List searchGroupsByAttribute(GrouperSession s, String query, String from,String attr) throws QueryException,StemNotFoundException{
@@ -1208,7 +1208,7 @@ public class GrouperHelper {
 	 * @param s GrouperSession for authenticated user
 	 * @param query to search for
 	 * @param from stem which scopes search
-	 * @param name of attribute to search
+	 * @param attr name of attribute to search
 	 * @return List of stems matched
 	 */
 	public static List searchStemsByAttribute(GrouperSession s, String query, String from,String attr) {
@@ -1454,7 +1454,7 @@ public class GrouperHelper {
 	 * @param start where subset begins
 	 * @param pageSize number of GrouperStems to return
 	 * @param resultCount overall number of GrouperStems
-	 * @return
+	 * @return Set of stems where session subject has one or more of Naming privileges specified by privs
 	 */
 	public static Set getStemsForPrivileges(GrouperSession s, String[] privs,
 			int start, int pageSize, StringBuffer resultCount) throws MemberNotFoundException{
@@ -1487,13 +1487,13 @@ public class GrouperHelper {
 	
 	/**
 	 * Given a GrouperStem delete it and any children
-	 * @TODO fix
+	 * TODO remove - redundant
 	 * @param s GrouperSession for authenticated user
 	 * @param stem GrouperStem to delete
 	 * @return boolean indicating success
 	 * @throws Exception
 	 */
-	public static boolean stemDelete(GrouperSession s, Stem stem)
+	private static boolean stemDelete(GrouperSession s, Stem stem)
 			throws Exception {
 		if (stem == null || !stem.hasStem(s.getSubject())) {
 			return false;
@@ -1711,10 +1711,13 @@ public class GrouperHelper {
 	 * @param s
 	 * @param subject
 	 * @param group
-	 * @return
+	 * @return List with one item for each different way subject is a member of the specified list for the specified group
 	 * @throws MemberNotFoundException
 	 * @throws GroupNotFoundException
+	 * @throws SchemaException
+	 * @throws CompositeNotFoundException
 	 */
+	
 	public static List getAllWaysInWhichSubjectIsMemberOFGroup(GrouperSession s,Subject subject,Group group,Field field) 
 		throws MemberNotFoundException,GroupNotFoundException,SchemaException,CompositeNotFoundException{
 		List ways = new ArrayList();
@@ -1781,7 +1784,7 @@ public class GrouperHelper {
 	 * @param s
 	 * @param groupOrStem
 	 * @param member
-	 * @return
+	 * @return Map keyed on privilege name forindirect privileges for member on the group or stem, and how derived
 	 */
 	public static Map getExtendedHas(GrouperSession s,GroupOrStem groupOrStem,Member member) throws SchemaException{
 		return getExtendedHas(s,groupOrStem,member,FieldFinder.find("members"));
@@ -1792,7 +1795,7 @@ public class GrouperHelper {
 	 * @param s
 	 * @param groupOrStem
 	 * @param member
-	 * @return
+	 * @return Map keyed on privilege name forindirect privileges for member on the group or stem, and how derived
 	 */
 	public static Map getExtendedHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
 		Map map  =getAllHas(s,groupOrStem,member,field);
@@ -1808,7 +1811,7 @@ public class GrouperHelper {
 	 * @param s
 	 * @param groupOrStem
 	 * @param member
-	 * @return
+	 * @return Map keyed on name of privs which are indirectly assigned
 	 */
 	public static Map getEffectiveHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
 		Map map  =getAllHas(s,groupOrStem,member,field);
@@ -1822,7 +1825,7 @@ public class GrouperHelper {
 	 * @param s
 	 * @param groupOrStem
 	 * @param member
-	 * @return
+	 * @return Map keyed on name of privs which are directly assigned
 	 */
 	public static Map getImmediateHas(GrouperSession s,GroupOrStem groupOrStem,Member member) throws SchemaException{
 		Map map = getAllHas(s,groupOrStem,member);
@@ -1837,7 +1840,7 @@ public class GrouperHelper {
 	 * @param groupOrStem
 	 * @param member
 	 * @param field
-	 * @return
+	 * @return Map keyed on name of privs which are directly assigned
 	 * @throws SchemaException
 	 */
 	public static Map getImmediateHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
@@ -1852,8 +1855,10 @@ public class GrouperHelper {
 	 * @param s
 	 * @param groupOrStem
 	 * @param member
-	 * @return
+	 * @return Map keyed on privilege names - whether direct or indirect
+	 * @throws SchemaException
 	 */
+	
 	public static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member) throws SchemaException{
 		return getAllHas(s,groupOrStem,member,FieldFinder.find("members"));
 	}
@@ -1863,7 +1868,8 @@ public class GrouperHelper {
 	 * @param s
 	 * @param groupOrStem
 	 * @param member
-	 * @return
+	 * @return Map keyed on privilege names - whether direct or indirect
+	 * @throws SchemaException
 	 */
 	public static Map getAllHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
 		Set allPrivs = null;
@@ -1981,7 +1987,7 @@ public class GrouperHelper {
 	 * @param group
 	 * @param subject
 	 * @param field
-	 * @return
+	 * @return Map keyed on via groups
 	 * @throws Exception
 	 */
 	public static Map getEffectiveMembershipsForGroupAndSubject(GrouperSession s,Group group,Subject subject,Field field) throws Exception{
@@ -2002,7 +2008,7 @@ public class GrouperHelper {
 	 * Given priv name return subjects with that privilege for group
 	 * @param group
 	 * @param privilege
-	 * @return
+	 * @return Set of subjects with specified privilege for specified group
 	 */
 	public static Set getSubjectsWithPriv(Group group,String privilege) {
 		privilege = privilege.toLowerCase();
@@ -2019,7 +2025,7 @@ public class GrouperHelper {
 	 * Given a privilege return all the groups or stems where member has that privilege
 	 * @param member
 	 * @param privilege
-	 * @return
+	 * @return Set of groups where specified member has the specified privilege
 	 */
 	public static Set getGroupsOrStemsWhereMemberHasPriv(Member member,String privilege) {
 		privilege=privilege.toLowerCase();
@@ -2038,7 +2044,7 @@ public class GrouperHelper {
 	 * Given priv name return subjects with that privilege for stem
 	 * @param stem
 	 * @param privilege
-	 * @return
+	 * @return Set of subjects with a specified Nmaing privilege for a specified stem
 	 */
 	public static Set getSubjectsWithPriv(Stem stem,String privilege) {
 		privilege=privilege.toLowerCase();
@@ -2053,7 +2059,7 @@ public class GrouperHelper {
 	 * @param subject
 	 * @param group
 	 * @param privilege
-	 * @return
+	 * @return whether the specified subject has a specified privilege directly assigned for a specified group
 	 * @throws MemberNotFoundException
 	 */
 	public static boolean hasSubjectImmPrivForGroup(GrouperSession s,Subject subject,Group group,String privilege) throws MemberNotFoundException,SchemaException{
@@ -2067,7 +2073,7 @@ public class GrouperHelper {
 	 * @param subject
 	 * @param stem
 	 * @param privilege
-	 * @return
+	 * @return whether the specified subject has a specified privilege directly assigned for a specified stem
 	 * @throws MemberNotFoundException
 	 */
 	public static boolean hasSubjectImmPrivForStem(GrouperSession s,Subject subject,Stem stem,String privilege) throws MemberNotFoundException,SchemaException{
@@ -2079,11 +2085,13 @@ public class GrouperHelper {
 	 * Return the path by which this Membership is derived
 	 * @param s
 	 * @param m
-	 * @return
+	 * @return List where each element represents a link in the chain of the membership
 	 * @throws GroupNotFoundException
 	 * @throws MembershipNotFoundException
 	 * @throws MemberNotFoundException
+	 * @throws SchemaException
 	 */
+
 	public static List getChain(GrouperSession s,Membership m)throws GroupNotFoundException,MembershipNotFoundException,
 	MemberNotFoundException,SchemaException{
 		List chain = new ArrayList();
@@ -2139,11 +2147,12 @@ public class GrouperHelper {
 	 * 	Given a composite return a Map for use in Tiles
 	 * @param grouperSession
 	 * @param comp
-	 * @return
+	 * @return a Map representing a Composite, for use in Tiles / JSTL
 	 * @throws GroupNotFoundException
 	 * @throws MemberNotFoundException
 	 * @throws SchemaException
 	 */
+
 	public static Map getCompositeMap(GrouperSession grouperSession,Composite comp)
 		throws GroupNotFoundException,MemberNotFoundException,SchemaException{
 		return getCompositeMap(grouperSession,comp,null);
@@ -2157,11 +2166,12 @@ public class GrouperHelper {
 	 * @param grouperSession
 	 * @param comp
 	 * @param subj
-	 * @return
+	 * @return a Map representing the Composite and Membership infor for specified subject
 	 * @throws GroupNotFoundException
 	 * @throws MemberNotFoundException
 	 * @throws SchemaException
 	 */
+
 	public static Map getCompositeMap(GrouperSession grouperSession,Composite comp,Subject subj)
 		throws GroupNotFoundException,MemberNotFoundException,SchemaException{
 		Map compMap = new ObjectAsMap(comp,"Composite");
@@ -2205,7 +2215,7 @@ public class GrouperHelper {
 	 * @param memberships
 	 * @param type
 	 * @param count - keeps track of the numbe rof times a membership occurred
-	 * @return
+	 * @return List with one item per subject, but also update specified Map with count of how many memberships a member has
 	 * @throws MemberNotFoundException
 	 * @throws GroupNotFoundException
 	 */
@@ -2288,8 +2298,9 @@ public class GrouperHelper {
 	 * Checks key groups.create.grant.all to determine pre-selected privs to
 	 * be checked in the UI. If not set, checks default assignments in the Grouper API
 	 * @param mediaBundle
-	 * @return
+	 * @return Map keyed on Access privilege names
 	 */
+
 	public static Map getDefaultAccessPrivsForUI(ResourceBundle mediaBundle){
 		String privStr = null;
 		try {
@@ -2308,7 +2319,7 @@ public class GrouperHelper {
 	/**
 	 * Queries GrouperConfig - grouper.properties - to determine which Access
 	 * privs are granted to GrouperAll on group creation
-	 * @return
+	 * @return Map keyed on default Access privilege names
 	 */
 	public static Map getDefaultAccessPrivsForGrouperAPI() {
 		Map privs = new HashMap();
@@ -2331,7 +2342,7 @@ public class GrouperHelper {
 	 * @param subjects
 	 * @param group
 	 * @param privilege
-	 * @return
+	 * @return List of SubjectPrivilegeAsMap's for given subjects, group and privilege
 	 */
 	public static List subjects2SubjectPrivilegeMaps(GrouperSession s,Collection subjects,Group group, String privilege) {
 		return subjects2SubjectPrivilegeMaps(s,subjects,GroupOrStem.findByGroup(s,group),privilege);
@@ -2344,7 +2355,7 @@ public class GrouperHelper {
 	 * @param subjects
 	 * @param stem
 	 * @param privilege
-	 * @return
+	 * @return List of SubjectPrivilegeAsMap's for given subjects, stem and privilege
 	 */
 	public static List subjects2SubjectPrivilegeMaps(GrouperSession s,Collection subjects,Stem stem, String privilege) {
 		return subjects2SubjectPrivilegeMaps(s,subjects,GroupOrStem.findByStem(s,stem),privilege);	
@@ -2357,7 +2368,7 @@ public class GrouperHelper {
 	 * @param subjects
 	 * @param groupOrStem
 	 * @param privilege
-	 * @return
+	 * @return List of SubjectPrivilegeAsMap's for given subjects, GroupOrStem and privilege
 	 */
 	public static List subjects2SubjectPrivilegeMaps(GrouperSession s,Collection subjects,GroupOrStem groupOrStem, String privilege) {
 		List res = new ArrayList();
@@ -2377,7 +2388,7 @@ public class GrouperHelper {
 	 * @param groupsOrStems
 	 * @param subject
 	 * @param privilege
-	 * @return
+	 * @return List of SubjectPrivilegeAsMap's for given subject, GroupOrStems and privilege
 	 */
 	public static List subjects2SubjectPrivilegeMaps(GrouperSession s,Collection groupsOrStems,Subject subject, String privilege) {
 		List res = new ArrayList();
@@ -2400,7 +2411,7 @@ public class GrouperHelper {
 	 * uses these objects which can be used for more fine-grained template resolution
 	 * @param s
 	 * @param memberships
-	 * @return
+	 * @return List of Memberships as Maps
 	 */
 	public static List memberships2Maps(GrouperSession s,Collection memberships) {
 		return memberships2Maps(s,memberships,false);
@@ -2413,7 +2424,7 @@ public class GrouperHelper {
 	 * @param s
 	 * @param memberships
 	 * @param withParents
-	 * @return
+	 * @return List of Memberships as Maps
 	 */
 	public static List memberships2Maps(GrouperSession s,Collection memberships,boolean withParents) {
 		List res = new ArrayList();
@@ -2431,7 +2442,7 @@ public class GrouperHelper {
 	 * For a given subject determine all the custom list fields they appear in
 	 * @param s
 	 * @param subject
-	 * @return
+	 * @return List of field names the subject is a member of
 	 * @throws Exception
 	 */
 	public static List getListFieldsForSubject(GrouperSession s,Subject subject) throws Exception{
@@ -2457,7 +2468,7 @@ public class GrouperHelper {
 	 * For a group id, for all its types, return fields of type LIST
 	 * @param s
 	 * @param groupId
-	 * @return
+	 * @return List of list fields for group
 	 * @throws Exception
 	 */
 	public static List getListFieldsForGroup(GrouperSession s,String groupId) throws Exception{
@@ -2470,7 +2481,7 @@ public class GrouperHelper {
 	 * For a group, for all its types, return fields of type LIST
 	 * @param s
 	 * @param g
-	 * @return
+	 * @return List of list fields for group
 	 */
 	public static List getListFieldsForGroup(GrouperSession s,Group g) throws SchemaException{
 		List lists = new ArrayList();
@@ -2502,7 +2513,7 @@ public class GrouperHelper {
 	 * @param s
 	 * @param g
 	 * @param priv read / write
-	 * @return
+	 * @return Map keyed on field names
 	 */
 	public static Map getFieldsForGroup(GrouperSession s,Group g,String priv) throws SchemaException{
 		Map fieldsMap = new HashMap();
@@ -2528,14 +2539,17 @@ public class GrouperHelper {
 		return fieldsMap;
 	}
 	
+	
 	/**
 	 * Can the current user read this field?
 	 * Should probably remove, API support is there now
 	 * @param s
 	 * @param field
 	 * @param g
-	 * @return
+	 * @return whether session subject can read specified field for specified group
+	 * @throws SchemaException
 	 */
+	
 	public static boolean canRead(GrouperSession s,Field field,Group g) throws SchemaException{
 		return g.canReadField(field);
 	}
@@ -2546,8 +2560,10 @@ public class GrouperHelper {
 	 * @param s
 	 * @param field
 	 * @param g
-	 * @return
+	 * @return whether session subject can write specified field for specified group
+	 * @throws SchemaException
 	 */
+	
 	public static boolean canWrite(GrouperSession s,Field field,Group g) throws SchemaException{
 		return g.canWriteField(field);
 		
@@ -2558,7 +2574,7 @@ public class GrouperHelper {
 	
 	/**
 	 * Retrieve list of attributes which can be searched
-	 * @return
+	 * @return List of searchable fields
 	 * @throws SchemaException
 	 */
 	public static  List getSearchableFields() throws SchemaException{

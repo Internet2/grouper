@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import java.util.Map;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupOrStem.java,v 1.2 2006-04-03 12:39:34 isgwb Exp $
+ * @version $Id: GroupOrStem.java,v 1.3 2006-07-14 11:04:11 isgwb Exp $
  */
 
 import edu.internet2.middleware.grouper.Group;
@@ -43,7 +43,7 @@ public class GroupOrStem {
 	 * Already have a stem but a method needs GroupOrStem
 	 * @param s
 	 * @param stem
-	 * @return
+	 * @return a GroupOrStem based on the stem provided
 	 */
 	public static GroupOrStem findByStem(GrouperSession s,Stem stem) {
 		GroupOrStem groupOrStem = new GroupOrStem();
@@ -56,7 +56,7 @@ public class GroupOrStem {
 	 * Already have a group but a method needs GroupOrStem
 	 * @param s
 	 * @param group
-	 * @return
+	 * @return a GroupOrStem based on the group provided
 	 */
 	public static GroupOrStem findByGroup(GrouperSession s,Group group) {
 		GroupOrStem groupOrStem = new GroupOrStem();
@@ -69,7 +69,7 @@ public class GroupOrStem {
 	 * Only have and id ...
 	 * @param s
 	 * @param id
-	 * @return
+	 * @return a GroupOrStem based on the id provided
 	 */
 	public static GroupOrStem findByID(GrouperSession s,String id) {
 		GroupOrStem groupOrStem = new GroupOrStem();
@@ -97,7 +97,7 @@ public class GroupOrStem {
 	 * Only have a name...
 	 * @param s
 	 * @param name
-	 * @return
+	 * @return a GroupOrStem based on the name provided
 	 */
 	public static GroupOrStem findByName(GrouperSession s,String name) {
 		GroupOrStem groupOrStem = new GroupOrStem();
@@ -170,24 +170,36 @@ public class GroupOrStem {
 		return stem;
 	}
 	
+	/**
+	 * @return display extension for wrapped group or stem
+	 */
 	public String getDisplayExtension() {
 		if(group!=null) return group.getDisplayExtension();
 		if(stem!=null) return stem.getDisplayExtension();
 		throw new IllegalStateException("GroupOrStem is not initialised");
 	}
 	
+	/**
+	 * @return display name for wrapped group or stem
+	 */
 	public String getDisplayName() {
 		if(group!=null) return group.getDisplayName();
 		if(stem!=null) return stem.getDisplayName();
 		throw new IllegalStateException("GroupOrStem is not initialised");
 	}
 	
+	/**
+	 * @return name for wrapped group or stem
+	 */
 	public String getName() {
 		if(group!=null) return group.getName();
 		if(stem!=null) return stem.getName();
 		throw new IllegalStateException("GroupOrStem is not initialised");
 	}
 	
+	/**
+	 * @return 'group' or 'stem' depending on the wrapped object
+	 */
 	public String getType() {
 		if(group!=null) return "group";
 		if(stem!=null) return "stem";

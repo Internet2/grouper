@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.4 2006-03-01 15:59:56 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.5 2006-07-14 11:04:11 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -177,7 +177,7 @@ public class SessionInitialiser {
 	 * 
 	 * @param session
 	 *            current HttpSession
-	 * @return
+	 * @return the current GrouperSession
 	 */
 	public static GrouperSession getGrouperSession(HttpSession session) {
 
@@ -191,7 +191,7 @@ public class SessionInitialiser {
 	 * currently logged in user.
 	 * 
 	 * @param session
-	 * @return
+	 * @return the id of the currently authenticated user
 	 */
 	public static String getAuthUser(HttpSession session) {
 		String authUser = (String) session.getAttribute("authUser");
