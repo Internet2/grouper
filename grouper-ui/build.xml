@@ -140,6 +140,11 @@
 		</antcall>
 		<antcall target="-doStart"/>
 	</target>
+	
+	<target name="-dist-grouper" unless="grouper.is.available">
+		<echo message="Building Grouper API"/>
+		<ant dir="${grouper.folder}" target="dist"/>
+	</target>
 
 <!--
 		   Resources come from various sources:
@@ -154,7 +159,9 @@
 		<fail unless="grouper.folder">grouper.folder must be set</fail>
 		<fail unless="ui.folder">ui.folder must be set</fail>
 		<available file="${grouper.folder}/dist/lib/grouper.jar" property="grouper.is.available"/>
-		<fail unless="grouper.is.available" message="${grouper.folder}/dist/lib/grouper.jar does not exist. You must
+		<antcall target="-dist-grouper"/>
+		<available file="${grouper.folder}/dist/lib/grouper.jar" property="grouper.is.now.available"/>
+		<fail unless="grouper.is.now.available" message="${grouper.folder}/dist/lib/grouper.jar does not exist. You must
 			   build and configure Grouper before running this script"/>
 
 		<echo message="Creating  ${webapp.folder}"/>
@@ -647,7 +654,7 @@
       <include name="edu/internet2/middleware/**"/>
     </packageset>
 
-    <link href="http://struts.apache.org/api"/>
+    <link href="http://struts.apache.org/1.2.x/api/"/>
     <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
     <link href="http://java.sun.com/j2se/1.4.2/docs/api"/>
 
@@ -670,7 +677,7 @@
       <include name="edu/internet2/middleware/grouper/**"/>
     </packageset>
 
-    <link href="http://struts.apache.org/api"/>
+    <link href="http://struts.apache.org/1.2.x/api/"/>
     <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
     <link href="http://java.sun.com/j2se/1.4.2/docs/api"/>
 
