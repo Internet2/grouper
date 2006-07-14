@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.108 2006-07-11 19:52:28 blair Exp $ -->
+<!-- $Id: build.xml,v 1.109 2006-07-14 15:56:47 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -82,7 +82,8 @@
         <path path="${base}"/>
     </pathconvert>
     <filter token="base"  value="${converted.base}"/>
-    <filter token="slash" value="${file.separator}"/>
+    <!-- Apparently ${file.separator} is not appropriate here -->
+    <filter token="slash" value="/"/>
     <copy todir="${conf}" filtering="true">
       <fileset dir="${src.conf}"/>
     </copy>
