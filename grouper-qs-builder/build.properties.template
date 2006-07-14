@@ -1,3 +1,5 @@
+qs.version=1-0-RC2
+
 #If grouper.folder is not set to an existing installation
 #the build script will export grouper from CVS
 

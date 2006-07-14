@@ -10,7 +10,17 @@
 		<antcall target="-export-grouper-ui-from-cvs"/>
 		<antcall target="complete-quickstart"/>
 		<antcall target="make-javadoc"/>
+		<antcall target="-tar"/>
 		
+		
+	</target>
+	
+	<target name="-tar">
+		<tar basedir="${quickstart.dir}/../" 
+			 includes="${qs.dirname}/**"
+			 compression="gzip" 
+			 destfile="${quickstart.dir}/../grouper-quickstart_${qs.version}.tgz" 
+			 longfile="gnu"/>
 	</target>
 	
 	<target name="copydb" description="Ensures baseline database">
@@ -44,7 +54,7 @@
 				<fileset dir=".">
 					<include name="sources.xml"/>
 					<include name="grouper.hibernate.properties"/>
-					<include name="log4j.properties"/>
+					
 				</fileset>
 			</copy>
 			<copy tofile="${grouper.folder}/conf/grouper.properties" file="grouper.app.properties"/>
@@ -61,7 +71,7 @@
 			 <mkdir dir="${quickstart.dir}/grouper/dist/lib"/>
 			 <mkdir dir="${quickstart.dir}/grouper/dist/run"/>
 			
-			<copy file="${grouper.folder}/dist/lib/grouper.jar" tofile="${quickstart.dir}/grouper/dist/lib/grouper.jar"/>
+			<!--<copy file="${grouper.folder}/dist/lib/grouper.jar" tofile="${quickstart.dir}/grouper/dist/lib/grouper.jar"/>-->
 			 <copy todir="${quickstart.dir}/grouper/dist/lib">
 				 <fileset dir="${grouper.folder}/lib"/>
 			 </copy>
@@ -119,9 +129,12 @@
 			  </copy>
 			  <copy todir="${quickstart.dir}" file="doc/README.html"/>
 			  <copy tofile="${quickstart.dir}/build.xml" file="build-db.xml"/>
+			  <copy file="${quickstart.dir}/grouper-ui/build.properties.template" tofile="${quickstart.dir}/grouper-ui/build.properties"/>
+		 	<copy file="${quickstart.dir}/grouper-ui/template-tomcat-context.xml" tofile="${quickstart.dir}/grouper-ui/tomcat-context.xml"/>
 			 <!-- <copy tofile="${quickstart.dir}/grouper/build.xml" file="grouper-bin-build.xml"/>-->
 			  
 			  <chmod dir="${quickstart.dir}" perm="+x" includes="*.sh"/>
+			  <touch><fileset dir="${quickstart.dir}/grouper/conf"/></touch>
 	 </target>
 	 
 	 <target name="-make-grouper-complete" if="grouper.complete">
@@ -217,9 +230,11 @@
 				</and>
 		 </condition>
 		 <fail unless="grouper.folder.for.javadoc">Cannot determine a grouper folder to generate Javadoc</fail>
+		 
 		 <ant dir="${quickstart.dir}/grouper-ui" target="html">
 			 <property name="grouper.folder" value="${grouper.folder.for.javadoc}"/>
 		 </ant>
+		 
 	 </target>
 	 
 </project>
