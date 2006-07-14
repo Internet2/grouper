@@ -124,6 +124,7 @@
 						 <include name="*.jar"/>
 						 <include name="subjects.xml"/>
 						 <include name="quickstart.xml"/>
+						 <include name="tomcat-users.xml"/>
 						 <include name="subjects.sql"/>
 				  </fileset>
 			  </copy>
