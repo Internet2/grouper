@@ -118,16 +118,16 @@
 			 </target>
 			 
 		<target name="complete-quickstart">			 
-			  <copy todir="${quickstart.dir}">
+			  <copy todir="${quickstart.dir}" overwrite="true">
 				  <fileset dir=".">
 						 <include name="*.bat"/>
 						 <include name="*.jar"/>
 						 <include name="subjects.xml"/>
 						 <include name="quickstart.xml"/>
-						 <include name="tomcat-users.xml"/>
 						 <include name="subjects.sql"/>
 				  </fileset>
 			  </copy>
+			  <copy todir="${quickstart.dir}/grouper-ui" file="tomcat-users.xml" overwrite="true"/>
 			  <copy todir="${quickstart.dir}" file="doc/README.html"/>
 			  <copy tofile="${quickstart.dir}/build.xml" file="build-db.xml"/>
 			  <copy file="${quickstart.dir}/grouper-ui/build.properties.template" tofile="${quickstart.dir}/grouper-ui/build.properties"/>
