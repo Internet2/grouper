@@ -28,7 +28,7 @@ import  net.sf.hibernate.cfg.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.26 2006-07-12 23:50:24 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.27 2006-07-14 17:10:54 blair Exp $
  */
 class HibernateHelper {
 
@@ -194,7 +194,7 @@ class HibernateHelper {
             hs.delete( _getPersistent(hs, oD) );
           }
           catch (HibernateException eH) {
-            String msg = "XXX unable to delete " + oD + ": " + eH.getMessage();
+            String msg = E.HIBERNATE + "unable to delete " + oD + ": " + eH.getMessage();
             throw new HibernateException(msg, eH);
           }
         }
@@ -204,7 +204,7 @@ class HibernateHelper {
             hs.saveOrUpdate(oS);
           }
           catch (HibernateException eH) {
-            String msg = "unable to save " + oS + ": " + eH.getMessage();
+            String msg = E.HIBERNATE + "unable to save " + oS + ": " + eH.getMessage();
             throw new HibernateException(msg, eH);
           }
         }
@@ -225,7 +225,7 @@ class HibernateHelper {
       }
     }
     catch (HibernateException eH) {
-      String msg = E.HIBERNATE + eH.getMessage();
+      String msg = eH.getMessage();
       ErrorLog.error(HibernateHelper.class, msg);
       throw new HibernateException(msg, eH);
     }

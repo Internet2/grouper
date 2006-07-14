@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestBug0.java,v 1.2 2006-07-12 23:50:24 blair Exp $
+ * @version $Id: TestBug0.java,v 1.3 2006-07-14 17:10:54 blair Exp $
  * @since   1.0
  */
 public class TestBug0 extends TestCase {
@@ -45,54 +45,50 @@ public class TestBug0 extends TestCase {
     LOG.debug("tearDown");
   }
 
-  // Gary has an XML load file that throws an error when deleting memberships
-  // from gC when the load file is reapplied.  I can't yet replicate it -
-  // outside of the **full** XML file - at this point.  Bah.
-  public void testMysteryError0() {
-    LOG.info("testMysteryError0");
+  public void testChildrenOfViaInMofDeletion() {
+    LOG.info("testChildrenOfViaInMofDeletion");
     try {
-      R       r     = R.populateRegistry(1, 4, 2);
+      R       r     = R.populateRegistry(1, 3, 1);
       Group   gA    = r.getGroup("a", "a");   
       Group   gB    = r.getGroup("a", "b");
       Group   gC    = r.getGroup("a", "c");
-      Group   gD    = r.getGroup("a", "d");
       Subject subjA = r.getSubject("a");
-      Subject subjB = r.getSubject("b");
+
+      gB.addMember( gA.toSubject() );
+      // gA -> gB
+
+      gC.addMember( gB.toSubject() );
+      // gA -> gB
+      // gB -> gC
+      // gA -> gB -> gC
 
       gA.addMember(subjA);
-      gA.addMember(subjB);
+      // gA -> gB
+      // gB -> gC
+      // gA -> gB -> gC
+      // sA -> gA
+      // sA -> gA -> gB
+      // sA -> gA -> gB -> gC
 
-      gB.addMember(     gC.toSubject() );
-      gB.addMember(     gD.toSubject() );
-
-      // (ns) [i2]      qsuob
-      // (ns)           qsuob:faculties
-      // (ns) [i2:a]    qsuob:faculties:artf
-      // (g)  [i2:a:a]  qsuob:faculties:artf:staff
-      // (g)  [i2:a:b]  qsuob:all
-      // (m)  [i2:a:a]  + [subjA]   qsuob:faculties:artf:staff + iawi 
-      // (m)  [i2:a:a]  + [subjB]   qsuob:faculties:artf:staff + iata 
-      gA.deleteMember(subjA);
-      gA.deleteMember(subjB);
-      gA.addMember(subjA);
-      gA.addMember(subjB);
-
-      // (m)  [i2:a:b]  + [i2:a:c]  qsuob:all + qsuob:all_students
-      // (m)  [i2:a:b]  + [i2:a:d]  qsuob:all + qsuob:all_academic_staff
-      gB.deleteMember(  gC.toSubject() );
-      gB.deleteMember(  gD.toSubject() );
-      gB.addMember(     gC.toSubject() );
-      gB.addMember(     gD.toSubject() );
-
-      // TODO Do these need to be done in different session contexts?
-      //      Or different objects?
+      try {
+        gB.deleteMember( gA.toSubject() );
+        // gB -> gC
+        // sA -> gA
+        Assert.assertTrue("no exception thrown", true);
+        T.getMemberships( gA, 1 );
+        T.getMemberships( gB, 0 );
+        T.getMemberships( gC, 1 );
+      }
+      catch (GrouperRuntimeException eGRT) {
+        Assert.fail("runtime exception thrown: " + eGRT.getMessage());
+      }
 
       r.rs.stop();
     }
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testMysteryError0()
+  } // public void testChildrenOfViaInMofDeletion()
 
 } // public class TestBug0
 
