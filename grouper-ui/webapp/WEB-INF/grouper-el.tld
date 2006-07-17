@@ -33,5 +33,10 @@
             <required>true</required>
             <rtexprvalue>false</rtexprvalue>
         </attribute>
+		<attribute>
+            <name>silent</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
     </tag>
 </taglib>
