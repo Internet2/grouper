@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
- * Top level search for subjects - gives subject centred approach 
+ * Top level search for subjects - gives subject centred approach.  
  * <p/>
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
@@ -110,7 +110,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DoSearchSubjectsAction.java,v 1.5 2006-02-22 15:32:50 isgwb Exp $
+ * @version $Id: DoSearchSubjectsAction.java,v 1.6 2006-07-17 12:52:57 isgwb Exp $
  */
 public class DoSearchSubjectsAction extends GrouperCapableAction {
 

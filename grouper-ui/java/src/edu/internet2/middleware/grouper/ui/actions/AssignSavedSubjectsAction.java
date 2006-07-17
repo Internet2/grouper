@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 
 /**
  * Top level Strut's action which retrieves and makes available the list
- * of saved subjects for assignment of privileges 
+ * of saved subjects for assignment of privileges.
  * <p/>
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
@@ -95,7 +95,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
 
  * @author Gary Brown.
- * @version $Id: AssignSavedSubjectsAction.java,v 1.1 2006-07-06 10:56:33 isgwb Exp $
+ * @version $Id: AssignSavedSubjectsAction.java,v 1.2 2006-07-17 12:52:57 isgwb Exp $
  */
 public class AssignSavedSubjectsAction extends GrouperCapableAction {
 

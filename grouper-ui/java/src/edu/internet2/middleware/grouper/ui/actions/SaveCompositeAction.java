@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 
 
 /**
- * Top level Strut's action which Saves a CompositeMember for a Group 
+ * Top level Strut's action which Saves a CompositeMember for a Group.  
  * <p/>
 
 <table width="75%" border="1">
@@ -106,7 +106,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveCompositeAction.java,v 1.1 2006-07-06 12:56:50 isgwb Exp $
+ * @version $Id: SaveCompositeAction.java,v 1.2 2006-07-17 12:52:57 isgwb Exp $
  */
 public class SaveCompositeAction extends GrouperCapableAction {
 

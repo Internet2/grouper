@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * Top level Strut's action which retrieves and makes available a Subject 
+ * Top level Strut's action which retrieves and makes available a Subject.  
  * <p/>
 
 <table width="75%" border="1">
@@ -234,7 +234,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.9 2006-07-06 10:25:46 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.10 2006-07-17 12:52:57 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 

@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * Top level Strut's action which removes specified Subjects from list of saved subjects 
+ * Top level Strut's action which removes specified Subjects from list of saved subjects.  
  * <p/>
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
@@ -92,7 +92,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: RemoveSavedSubjectsAction.java,v 1.1 2006-07-06 11:52:43 isgwb Exp $
+ * @version $Id: RemoveSavedSubjectsAction.java,v 1.2 2006-07-17 12:52:57 isgwb Exp $
  */
 public class RemoveSavedSubjectsAction extends GrouperCapableAction {
 

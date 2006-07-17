@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 
 /**
  * Top level Strut's action which retrieves and makes available the current 
- * list of saved subjects - which can be removed or linked to
+ * list of saved subjects - which can be removed or linked to. 
  * <p/>
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
@@ -103,7 +103,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateListSavedSubjectsAction.java,v 1.1 2006-07-06 11:34:47 isgwb Exp $
+ * @version $Id: PopulateListSavedSubjectsAction.java,v 1.2 2006-07-17 12:52:57 isgwb Exp $
  */
 public class PopulateListSavedSubjectsAction extends GrouperCapableAction {
 

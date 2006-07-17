@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 
 /**
  * Top level Strut's action which retrieves and makes available Composites
- * where this Group is a Factor 
+ * where this Group is a Factor.  
  * <p/>
  <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
@@ -98,7 +98,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupAsFactorAction.java,v 1.1 2006-07-06 11:18:26 isgwb Exp $
+ * @version $Id: PopulateGroupAsFactorAction.java,v 1.2 2006-07-17 12:52:57 isgwb Exp $
  */
 public class PopulateGroupAsFactorAction extends GrouperCapableAction {
 

@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 
 /**
  * Low level Strut's action which acts as a controller to do any necessary setup 
- * for listing saved subjects
+ * for listing saved subjects. 
  * 
  * 
  * <p/>
@@ -83,7 +83,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareSavedSubjectsAction.java,v 1.1 2006-07-06 11:39:57 isgwb Exp $
+ * @version $Id: PrepareSavedSubjectsAction.java,v 1.2 2006-07-17 12:52:57 isgwb Exp $
  */
 public class PrepareSavedSubjectsAction extends LowLevelGrouperCapableAction {
 

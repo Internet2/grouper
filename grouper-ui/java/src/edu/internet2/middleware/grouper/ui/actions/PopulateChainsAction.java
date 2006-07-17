@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Top level Struts Action which shows all the ways in which a member is 
- * a member of a group - used so users can follow effective memberships  
+ * a member of a group - used so users can follow effective memberships.   
  * <p/>
  * <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
@@ -176,7 +176,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainsAction.java,v 1.9 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: PopulateChainsAction.java,v 1.10 2006-07-17 12:52:57 isgwb Exp $
  */
 public class PopulateChainsAction extends GrouperCapableAction {
 

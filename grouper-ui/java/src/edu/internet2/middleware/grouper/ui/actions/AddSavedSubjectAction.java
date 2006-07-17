@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * Top level Strut's action which adds a Subject to the 'saved' list
+ * Top level Strut's action which adds a Subject to the 'saved' list. 
  * <p/>
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: AddSavedSubjectAction.java,v 1.1 2006-07-06 10:48:35 isgwb Exp $
+ * @version $Id: AddSavedSubjectAction.java,v 1.2 2006-07-17 12:52:57 isgwb Exp $
  */
 public class AddSavedSubjectAction extends GrouperCapableAction {
 

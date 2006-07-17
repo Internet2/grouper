@@ -41,7 +41,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.Message;
 
 /**
- * Saves custom attributes 
+ * Saves custom attributes.  
  * <p/>
  * <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
@@ -100,7 +100,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: SaveGroupAttributesAction.java,v 1.5 2006-07-06 10:34:48 isgwb Exp $
+ * @version $Id: SaveGroupAttributesAction.java,v 1.6 2006-07-17 12:52:57 isgwb Exp $
  */
 public class SaveGroupAttributesAction extends GrouperCapableAction {
 

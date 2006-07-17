@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Low level Strut's action which acts as a controller to do any necessary setup 
- * for the template which allows a browse tree to be flattened and unflattened
+ * for the template which allows a browse tree to be flattened and unflattened. 
  * 
  * 
  * <p/>
@@ -94,7 +94,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareFlattenAction.java,v 1.2 2006-01-04 10:43:54 isgwb Exp $
+ * @version $Id: PrepareFlattenAction.java,v 1.3 2006-07-17 12:52:57 isgwb Exp $
  */
 public class PrepareFlattenAction extends LowLevelGrouperCapableAction {
 

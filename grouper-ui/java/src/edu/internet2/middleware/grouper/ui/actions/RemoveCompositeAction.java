@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 
 
 /**
- * Top level Strut's action which removes a group`s CompositeMember 
+ * Top level Strut's action which removes a group`s Composite Member.  
  * <p/>
 
 <table width="75%" border="1">
@@ -86,7 +86,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
 
  * @author Gary Brown.
- * @version $Id: RemoveCompositeAction.java,v 1.1 2006-07-06 11:44:42 isgwb Exp $
+ * @version $Id: RemoveCompositeAction.java,v 1.2 2006-07-17 12:52:57 isgwb Exp $
  */
 public class RemoveCompositeAction extends GrouperCapableAction {
 

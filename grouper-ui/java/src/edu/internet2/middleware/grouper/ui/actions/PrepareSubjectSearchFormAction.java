@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Low level Strut's action which acts as a controller to do any necessary setup 
- * for the subject search 
+ * for the subject search.  
  * 
  * 
  * <p/>
@@ -93,7 +93,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareSubjectSearchFormAction.java,v 1.4 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: PrepareSubjectSearchFormAction.java,v 1.5 2006-07-17 12:52:57 isgwb Exp $
  */
 public class PrepareSubjectSearchFormAction extends LowLevelGrouperCapableAction {
 
