@@ -2,7 +2,7 @@
 			Displays subject attributes
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectInfo.jsp,v 1.4 2006-04-03 13:22:58 isgwb Exp $
+  @version $Id: subjectInfo.jsp,v 1.5 2006-07-17 10:05:17 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -43,6 +43,9 @@
 	<c:set target="${listFieldParams}" property="contextSubject" value="true"/>
 	<c:set target="${listFieldParams}" property="contextSubjectId" value="${listFieldParams.subjectId}"/>
 	<c:set target="${listFieldParams}" property="contextSubjectType" value="${listFieldParams.subjectType}"/>
+<c:set target="${listFieldParams}" property="callerPageId" value="${thisPageId}"/>
+<c:set target="${listFieldParams}" property="contextSubject" value=""/>
+
 <c:forEach var="groupListField" items="${listFields}">
 	<c:set target="${listFieldParams}" property="listField" value="${groupListField}"/>
 
