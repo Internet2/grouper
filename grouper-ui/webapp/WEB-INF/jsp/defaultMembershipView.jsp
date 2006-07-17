@@ -3,7 +3,7 @@
 		  render individual group members
 --%><%--
   @author Gary Brown.
-  @version $Id: defaultMembershipView.jsp,v 1.2 2006-02-21 16:18:45 isgwb Exp $
+  @version $Id: defaultMembershipView.jsp,v 1.3 2006-07-17 10:02:08 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -16,11 +16,15 @@
 <c:if test="${!empty listField}">
 	<c:set target="${linkParams}" property="listField" value="${listField}"/>
 </c:if>
-
+<c:set var="subject" value="${viewObject.subject}"/>
 <c:set var="linkTitle"><fmt:message bundle="${nav}" key="browse.to.subject.summary">
-		 		<fmt:param value="${viewObject.desc}"/>
+		 		<fmt:param><tiles:insert definition="dynamicTileDef" flush="false">
+		  <tiles:put name="viewObject" beanName="subject"/>
+		  <tiles:put name="view" value="subjectSummaryLinkTitle"/>
+		  <tiles:put name="inLink" value="true"/>
+	</tiles:insert></fmt:param>
 		</fmt:message></c:set>
-		<c:set var="subject" value="${viewObject.subject}"/>
+		
 			
 <tiles:insert definition="dynamicTileDef" flush="false">
 		  <tiles:put name="viewObject" beanName="subject"/>
