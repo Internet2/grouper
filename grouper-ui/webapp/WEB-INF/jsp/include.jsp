@@ -4,8 +4,8 @@
 		  
 --%><%--
   @author Gary Brown.
-  @version $Id: include.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
---%><!--include.jsp--><%@ taglib uri="http://java.sun.com/jstl/core" prefix="c"%><c:set var="_trash">
+  @version $Id: include.jsp,v 1.2 2006-07-17 10:04:36 isgwb Exp $
+--%><%@ taglib uri="http://java.sun.com/jstl/core" prefix="c"%><c:set var="_trash">
 
 <%@page import="java.util.*"%>
 <%@page import="edu.internet2.middleware.grouper.ui.util.*"%>
