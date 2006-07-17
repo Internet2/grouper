@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.6 2006-07-13 10:31:38 isgwb Exp $
+  @version $Id: GroupMembers.jsp,v 1.7 2006-07-17 10:04:09 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -42,13 +42,15 @@
 					
 				</c:when>
 				<c:otherwise>
+				<c:if test="${empty $param.callerPageId}">
 					<html:link page="/populateFindNewMembers.do" name="groupMembership">
 						<fmt:message bundle="${nav}" key="find.groups.add-new-members"/>
 					</html:link>
+				</c:if>
 				</c:otherwise>
 			</c:choose>
 		</c:if>
-		<c:if test="${(empty listField || listField=='members') && (groupPrivs.ADMIN || groupPrivs.UPDATE)}">
+		<c:if test="${empty $param.callerPageId && (empty listField || listField=='members') && (groupPrivs.ADMIN || groupPrivs.UPDATE)}">
 		<html:link page="/populateAddComposite.do" name="groupMembership">
 			<c:choose>
 				<c:when test="${isCompositeGroup}">
@@ -60,10 +62,12 @@
 			</c:choose>
 					</html:link>
 		</c:if>
+		<c:if test="empty $param.callerPageId">
 		<c:set target="${groupMembership}" property="callerPageId"></c:set>
 		<html:link page="/populateGroupSummary.do" name="groupMembership">
 			<fmt:message bundle="${nav}" key="find.groups.done"/>
 		</html:link>
+		</c:if>
 		<tiles:insert definition="callerPageButtonDef"/>
 	</c:when>
 	<c:otherwise>
