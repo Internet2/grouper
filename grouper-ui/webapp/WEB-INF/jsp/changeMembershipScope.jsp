@@ -3,7 +3,7 @@
 		or all members of the active group should be displayed
 --%><%--
   @author Gary Brown.
-  @version $Id: changeMembershipScope.jsp,v 1.2 2006-02-21 16:17:56 isgwb Exp $
+  @version $Id: changeMembershipScope.jsp,v 1.3 2006-07-17 10:01:50 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -13,6 +13,7 @@
 <html:hidden property="contextSubject"/>
 <html:hidden property="contextSubjectId"/>
 <html:hidden property="contextSubjectType"/>
+<html:hidden property="callerPageId"/>
 <fieldset>
 	<span class="membershipListScope">
 		<html:radio property="membershipListScope" value="imm"/> <fmt:message bundle="${nav}" key="groups.list-members.scope.imm"/>
