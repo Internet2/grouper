@@ -33,7 +33,7 @@ import javax.servlet.jsp.tagext.TagSupport;
  * indicates the object type, view, selected key and template name
  * 
  * @author Gary Brown.
- * @version $Id: TileRecorderTag.java,v 1.4 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: TileRecorderTag.java,v 1.5 2006-07-17 10:01:28 isgwb Exp $
  */
 
 public class TileRecorderTag extends TagSupport {
@@ -46,6 +46,8 @@ public class TileRecorderTag extends TagSupport {
 	private String key = null;
 
 	private String tile = null;
+	
+	private String silent = null;
 
 	/**
 	 * @return Returns the key.
@@ -120,6 +122,7 @@ public class TileRecorderTag extends TagSupport {
 		setType(null);
 		setKey(null);
 		setTile(null);
+		setSilent(null);
 	}
 
 	/*
@@ -177,7 +180,7 @@ public class TileRecorderTag extends TagSupport {
 	}
 
 	private void doPrint(boolean isStart) {
-		if (view != null && !"".equals(view))
+		if (view != null && !"".equals(view) || (getSilent()!=null && !getSilent().equals("")))
 			return;
 		String end = "end:";
 		if (isStart)
@@ -192,5 +195,17 @@ public class TileRecorderTag extends TagSupport {
 					padding + "<!--" + end + getTile() + "-->");
 		} catch (Exception e) {
 		}
+	}
+	/**
+	 * @return Returns the silent.
+	 */
+	public String getSilent() {
+		return silent;
+	}
+	/**
+	 * @param silent The silent to set.
+	 */
+	public void setSilent(String silent) {
+		this.silent = silent;
 	}
 }

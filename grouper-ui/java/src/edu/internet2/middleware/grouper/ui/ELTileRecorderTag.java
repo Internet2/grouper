@@ -28,7 +28,7 @@ import org.apache.strutsel.taglib.utils.EvalHelper;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ELTileRecorderTag.java,v 1.3 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: ELTileRecorderTag.java,v 1.4 2006-07-17 10:01:28 isgwb Exp $
  */
 public class ELTileRecorderTag extends TileRecorderTag {
 	private String view = null;
@@ -38,6 +38,20 @@ public class ELTileRecorderTag extends TileRecorderTag {
 	private String key = null;
 
 	private String tile = null;
+	
+	/**
+	 * @return Returns the silent.
+	 */
+	public String getSilent() {
+		return silent;
+	}
+	/**
+	 * @param silent The silent to set.
+	 */
+	public void setSilent(String silent) {
+		this.silent = silent;
+	}
+	private String silent = null;
 
 	/**
 	 * @return Returns the key.
@@ -137,6 +151,9 @@ public class ELTileRecorderTag extends TileRecorderTag {
 		if ((string = EvalHelper.evalString("page", getTile(), this,
 				pageContext)) != null)
 			setTile(string);
+		if ((string = EvalHelper.evalString("silent", getSilent(), this,
+				pageContext)) != null)
+			setSilent(string);
 	}
 
 	/**
