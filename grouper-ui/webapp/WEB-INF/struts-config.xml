@@ -212,11 +212,11 @@
       <forward name="DebugPrefs" path="DebugPrefsDef" redirect="false"/>
     </action>
     
-        <action path="/populateChain"  name="GroupFormBean" scope="request"
+       <!-- <action path="/populateChain"  name="GroupFormBean" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateChainAction"
             unknown="false" validate="false">
       <forward name="Chain" path="ChainDef" redirect="false"/>
-    </action>
+    </action>-->
     
             <action path="/populateChains"  name="GroupFormBean" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateChainsAction"
@@ -230,12 +230,7 @@
       <forward name="DebugPrefs" path="DebugPrefsDef" redirect="false"/>
     </action>
     
-       <action path="/populateUploadTest"  scope="request" name="UploadTestFormBean"
-            type="edu.internet2.middleware.grouper.ui.actions.PopulateUploadTestAction"
-            unknown="false" validate="false">
-      <forward name="UploadForm" path="UploadTestFormDef" redirect="false"/>
-    </action>
-    
+
    <!--  <action path="/processUploadTest"  scope="request" name="UploadTestFormBean"
             type="edu.internet2.middleware.grouper.ui.actions.ProcessUploadTestAction"
             unknown="false" validate="false">
@@ -267,11 +262,11 @@
             unknown="false" validate="false">
       <forward name="AllGroups" path="AllGroupsDef" redirect="false"/>
     </action>
-	<action parameter="AllGroups" name="BrowseFormBean" path="/browseStemsSearchSubjects" scope="request"
+	<!--<action parameter="AllGroups" name="BrowseFormBean" path="/browseStemsSearchSubjects" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.BrowseStemsAction"
             unknown="false" validate="false">
       <forward name="AllGroups" path="AllGroupsDef" redirect="false"/>
-    </action>
+    </action>-->
   
     <action name="BrowseFormBean" parameter="FindNewMembers"
             path="/browseStemsFind" scope="request"
@@ -348,12 +343,12 @@
                redirect="false"/>
     </action>
    
-    <action path="/initSession" scope="request"
+   <!-- <action path="/initSession" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.InitSessionAction"
             unknown="false" validate="false">
       <forward name="InitSession" path="/WEB-INF/jsp/InitSession.jsp"
                redirect="false"/>
-    </action>
+    </action>-->
     
     <action path="/joinGroup" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.JoinGroupAction"
@@ -594,12 +589,12 @@
       <forward name="StemMember" path="StemMemberDef" redirect="false"/>
     </action>
   
-    <action name="StemFormBean" parameter="stems" path="/populateStemMembers"
+    <!--<action name="StemFormBean" parameter="stems" path="/populateStemMembers"
             scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupMembersAction"
             unknown="false" validate="false">
       <forward name="StemMembers" path="StemMembersDef" redirect="false"/>
-    </action>
+    </action>-->
   
     <action path="/prepareStems" scope="request" name="BrowseFormBean"
             type="edu.internet2.middleware.grouper.ui.actions.PrepareRepositoryBrowserStemsAction"
