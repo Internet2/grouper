@@ -3,8 +3,8 @@
 		  []placed around the group name
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectView.jsp,v 1.2 2006-02-09 08:20:56 isgwb Exp $
+  @version $Id: subjectView.jsp,v 1.3 2006-07-17 10:05:42 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
-<c:if test="${viewObject.isGroup}">[</c:if><span class="<c:out value="${viewObject.subjectType}"/>Subject"><c:out value="${viewObject.desc}" /></span><c:if test="${viewObject.isGroup}">]</c:if>
+<c:if test="${viewObject.isGroup}">[</c:if><c:if test="${empty inLink}"><span class="<c:out value="${viewObject.subjectType}"/>Subject"></c:if><c:out value="${viewObject.desc}" /><c:if test="${empty inLink}"></span></c:if><c:if test="${viewObject.isGroup}">]</c:if>
