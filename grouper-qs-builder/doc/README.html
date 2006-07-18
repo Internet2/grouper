@@ -3,7 +3,7 @@
 <head>
 <title>Grouper QuickStart README/title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-</head>
+</title></head>
 
 <body>
 <h1>Grouper QuickStart</h1>
@@ -31,7 +31,7 @@
   and copy the lines inside the <font face="Courier New, Courier, mono">&lt;tomcat-users&gt;</font> 
   tags to the <font face="Courier New, Courier, mono">tomcat-users.xml</font> 
   file for your Tomcat installation. This file contains login details for all 
-  teh QuickStart subjects</p>
+  the QuickStart subjects</p>
 <p>Restart Tomcat.</p>
 <h2>Building the UI</h2>
 <p>Review <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/log4j.properties</font> 
@@ -61,9 +61,13 @@
   from the<font face="Courier New, Courier, mono"> tomcat-users.xml</font> file.</p>
 <p>*If you want to take advantage of the 'nice' targets you must uncomment and 
   set appropriate values for all the deploy properties in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/build.properties</font>. 
-  In addition you must make <font face="Courier New, Courier, mono">grouper-qs/catalina-ant.jar</font> 
-  available to ant - add it to your <font face="Courier New, Courier, mono">&lt;ANT_HOME&gt;/lib</font> 
-  directory (or see the Ant documentation for other options).</p>
+  In addition you must make <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/catalina-ant.jar</font> 
+  available to ant. If you call a 'nice' target and <font face="Courier New, Courier, mono">catalina-ant.jar</font> 
+  is not available, you will be prompted to input whether you want the script 
+  to copy <font face="Courier New, Courier, mono">catalina-ant.jar</font> to a 
+  directory, <font face="Courier New, Courier, mono">.ant/lib</font>, under your 
+  home directory (or see the Ant documentation for other options). You will have 
+  to run Ant again for it to find the newly copied jar file.</p>
 <h2>Starting HSQLDB</h2>
 <p>HSQLDB is configured to run on the default port of 9001. If you already have 
   a database running on that port you must choose a different port and update 
