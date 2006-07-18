@@ -1,5 +1,5 @@
 <project name="local" default="auto" basedir=".">
-	<import file="tomcat-tasks.xml"/>
+	<!--<import file="tomcat-tasks.xml"/>-->
 	<property environment="env"/>
 	<property file="build.properties"/>
 	<property name="contrib.dir" value="${basedir}/contrib"/>
@@ -60,10 +60,11 @@
 	
 	<!-- only copy resources - and restart webapp-->
 	<target name="niceres">
+		<antcall target="check-and-fix-tomcat-tasks"/>
 		<antcall target="-setup">
 			<param value="true" name="no.webapp"/>
 		</antcall>	
-		<antcall target="restart"/>
+		<ant antfile="tomcat-tasks.xml" target="restart"/>
 	</target>
 	
 	<!--
@@ -124,6 +125,7 @@
 		stop webapp, build and start webapp
 	-->
 	<target name="nice">
+		<antcall target="check-and-fix-tomcat-tasks"/>
 		<antcall target="-setup">
 			<param name="build.stop.tomcat" value="true"/>
 		</antcall>
@@ -134,6 +136,7 @@
 		Clean build directory, stop webapp, build and start webapp
 	-->
 	<target name="niceclean">
+		<antcall target="check-and-fix-tomcat-tasks"/>
 		<antcall target="-setup">
 			<param name="build.clean" value="true"/>
 			<param name="build.stop.tomcat" value="true"/>
@@ -512,18 +515,18 @@
 		Stop tomcat
 	-->
 	<target name="-doStop" if="build.stop.tomcat">
-		<antcall target="execWithCheckExist">
-			<param value="execStop" name="tomcat.action"/>
-		</antcall>
+		<ant antfile="tomcat-tasks.xml" target="execWithCheckExist">
+			<property value="execStop" name="tomcat.action"/>
+		</ant>
 	</target>
 	
 		<!--
 		Start tomcat
 	-->
 	<target name="-doStart" >
-		<antcall target="execWithCheckExist">
-			<param value="execStart" name="tomcat.action"/>
-		</antcall>
+		<ant antfile="tomcat-tasks.xml" target="execWithCheckExist">
+			<property value="execStart" name="tomcat.action"/>
+		</ant>
 	</target>
 	
 	<!--
@@ -735,5 +738,28 @@
 	  </target>
 	  <target name="-no-grouper-libs-available" if="no.grouper-libs.available">
 			 <fail message="Unable to find ${grouper.folder}/dist/lib/grouper-lib.jar or ${grouper.folder}/lib or individual jar files in ${grouper.folder}/dist/lib"/>
+	  </target>
+	  
+	  <!-- Make life easy for user-->
+	  <target name="check-and-fix-tomcat-tasks">
+		  <available property="catalina-ant.available" classname="org.apache.catalina.ant.DeployTask"/>
+		  <antcall target="-ask-fix-catalina-ant"/>
+	  </target>
+	  
+	  <target name="-ask-fix-catalina-ant" unless="catalina-ant.available">
+		  <input message="catalina-ant.jar is not available. Copy to ${user.home}/.ant/lib  (y|n)?&gt;" defaultvalue="n" addproperty="copy-catalina-ant"/>
+		  <condition property="do.fix">
+			  <equals arg1="y" arg2="${copy-catalina-ant}"/>
+		  </condition>
+		  <antcall target="-fix-catalina-ant"/>
+		  <fail unless="do.fix" message="Please add catalina-ant.jar to ${user.home}/.ant/lib  before running a 'nice' task"/>
+	  </target>
+	  
+	  <target name="-fix-catalina-ant" if="do.fix">
+	  <mkdir dir="${user.home}/.ant/lib"/>
+		  <copy file="catalina-ant.jar" todir="${user.home}/.ant/lib"/>
+		  <echo>Ant will now fail, however, if you run the same ant task again it should work</echo>
+		  <echo/>
+		  <fail>Please run ant again so it can find catalina-ant.jar</fail>
 	  </target>
 </project>
