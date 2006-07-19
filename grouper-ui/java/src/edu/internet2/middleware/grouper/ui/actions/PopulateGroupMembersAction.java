@@ -50,7 +50,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
  * Top level Strut's action which retrieves and makes available group members.  
  
  * <p/>
- <table width="75%" border="1">
+<table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
       Parameter</font></strong></td>
@@ -112,7 +112,8 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
   <tr> 
     <td><font face="Arial, Helvetica, sans-serif">&nbsp;isCompositeGroup</font></td>
     <td><font face="Arial, Helvetica, sans-serif">&nbsp;OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">&nbsp;Indicates whether group is composite</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;Indicates whether group 
+      is composite</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
@@ -164,6 +165,12 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Number of list fields available</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">canWriteField</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Can the current user add members 
+      to the current list</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -199,7 +206,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.11 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.12 2006-07-19 10:48:05 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -248,9 +255,11 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			membershipListScope = "imm";
 		session.setAttribute("membershipListScope", membershipListScope);
 		groupForm.set("membershipListScope", membershipListScope);
+		
 	
 		//Retrieve the membership according to scope selected by user
 		group = GroupFinder.findByUuid(grouperSession, groupId);
+		if(group.canWriteField(mField)) request.setAttribute("canWriteField",Boolean.TRUE);
 		
 		List listFields = GrouperHelper.getListFieldsForGroup(grouperSession,group);
 		request.setAttribute("listFields",listFields);
