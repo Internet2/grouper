@@ -24,6 +24,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 
@@ -50,13 +51,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td><p><font face="Arial, Helvetica, sans-serif">se</font><font face="Arial, Helvetica, sans-serif">archResults</font></p>
-      </td>
+    <td><p><font face="Arial, Helvetica, sans-serif">subjectResults</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">List of saved Subjects</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">searchResultsSize</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">subjectResultsSize</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Number of saved subjects</font></td>
   </tr>
@@ -71,6 +71,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Mimicking serac. Ought not to 
       be required</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><p><font face="Arial, Helvetica, sans-serif">thisPageId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Allows callerPageId to be added 
+      to links/forms so this page can be returned to</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -95,7 +101,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
 
  * @author Gary Brown.
- * @version $Id: AssignSavedSubjectsAction.java,v 1.2 2006-07-17 12:52:57 isgwb Exp $
+ * @version $Id: AssignSavedSubjectsAction.java,v 1.3 2006-07-19 10:37:20 isgwb Exp $
  */
 public class AssignSavedSubjectsAction extends GrouperCapableAction {
 
@@ -105,8 +111,9 @@ public class AssignSavedSubjectsAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 			makeSavedSubjectsAvailable(request);
-			request.setAttribute("searchResults",request.getAttribute("savedSubjects"));
-			request.setAttribute("searchResultsSize",request.getAttribute("savedSubjectsSize"));
+			saveAsCallerPage(request,(DynaActionForm)form);
+			request.setAttribute("subjectResults",request.getAttribute("savedSubjects"));
+			request.setAttribute("subjectResultsSize",request.getAttribute("savedSubjectsSize"));
 			request.setAttribute("searchedPeople",Boolean.TRUE);
 			request.setAttribute("searchedGroups",Boolean.TRUE);
 			
