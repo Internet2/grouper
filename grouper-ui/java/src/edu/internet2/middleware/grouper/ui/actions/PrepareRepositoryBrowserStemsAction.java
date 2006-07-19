@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -213,7 +213,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.7 2006-07-13 15:45:40 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.8 2006-07-19 11:04:12 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -348,7 +348,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 					fromId = curNodeStem.getUuid();
 				}else if(curNodeGroup!=null){
 					fromId=curNodeGroup.getUuid();
-					List listFields = GrouperHelper.getListFieldsForGroup(grouperSession,curNodeGroup);
+					List listFields = GrouperHelper.getReadableListFieldsForGroup(grouperSession,curNodeGroup);
 					request.setAttribute("listFields",listFields);
 					request.setAttribute("listFieldsSize",new Integer(listFields.size()));
 					

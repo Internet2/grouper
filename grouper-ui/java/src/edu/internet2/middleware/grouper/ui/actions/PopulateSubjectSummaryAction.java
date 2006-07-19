@@ -234,7 +234,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.10 2006-07-17 12:52:57 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.11 2006-07-19 11:03:37 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -386,7 +386,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		request.setAttribute("saveParams",saveParams);
 		
 		if(subjectType.equals("group")) {
-			List lists = GrouperHelper.getListFieldsForGroup(grouperSession,subjectId);
+			List lists = GrouperHelper.getReadableListFieldsForGroup(grouperSession,subjectId);
 			if(!lists.isEmpty()) request.setAttribute("listFields",lists);
 		}
 		
