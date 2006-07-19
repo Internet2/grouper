@@ -250,3 +250,8 @@ fieldset.nested {
 	margin-bottom:20px;
 	
 }
+
+.buttonContainer {
+	display:block;
+	clear:both;
+}
