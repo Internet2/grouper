@@ -151,7 +151,7 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
  
 
  * @author Gary Brown.
- * @version $Id: PopulateFindNewMembersAction.java,v 1.7 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: PopulateFindNewMembersAction.java,v 1.8 2006-07-19 11:06:10 isgwb Exp $
  */
 public class PopulateFindNewMembersAction extends GrouperCapableAction {
 
@@ -251,6 +251,7 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 		//Make path to current stem/group available for navigation
 
 		request.setAttribute("browseParent", nodeMap);
+		makeSavedSubjectsAvailable(request);
 		
 		return mapping.findForward(FORWARD_FindNewMembers);
 
