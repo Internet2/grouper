@@ -57,6 +57,13 @@
 					
 				</fileset>
 			</copy>
+			<copy todir="${grouper.folder}/src/conf" overwrite="true">
+				<fileset dir=".">
+					<include name="sources.xml"/>
+					<include name="grouper.hibernate.properties"/>
+					
+				</fileset>
+			</copy>
 			<copy tofile="${grouper.folder}/conf/grouper.properties" file="grouper.app.properties"/>
 		</target>
 
