@@ -42,7 +42,8 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
  * Top level Strut's action which retrieves and makes available a GrouperGroup 
  * object. 
  * <p/>
- <table width="75%" border="1">
+ 
+<table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
       Parameter</font></strong></td>
@@ -153,6 +154,12 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><font face="Arial, Helvetica, sans-serif">Boolean indicating if Group 
       has a CompositeMember</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">userCanEditACustomAttribute</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates that the UI should 
+      show the Edit Attributes button</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -193,7 +200,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupSummaryAction.java,v 1.7 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: PopulateGroupSummaryAction.java,v 1.8 2006-07-19 11:02:09 isgwb Exp $
  */
 public class PopulateGroupSummaryAction extends GrouperCapableAction {
 
@@ -221,6 +228,7 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 
 		Group group = GroupFinder.findByUuid(grouperSession,
 				groupId);
+		boolean userCanEditACustomAttribute = GrouperHelper.canUserEditAnyCustomAttribute(group);
 
 		Map groupMap = GrouperHelper.group2Map(grouperSession, group);
 		groupMap.put("groupId", groupId);
@@ -243,7 +251,7 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 
 		String[] allGroupPrivs = GrouperHelper.getGroupPrivs(grouperSession);
 		request.setAttribute("allGroupPrivs", allGroupPrivs);
-		List listFields = GrouperHelper.getListFieldsForGroup(grouperSession,group);
+		List listFields = GrouperHelper.getReadableListFieldsForGroup(grouperSession,group);
 		request.setAttribute("listFields",listFields);
 		request.setAttribute("listFieldsSize",new Integer(listFields.size()));
 		Map allowedFields = GrouperHelper.getFieldsForGroup(grouperSession,group,"read");
@@ -258,6 +266,7 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		saveParams.put("groupId",group.getUuid());
 		request.setAttribute("saveParams",saveParams);
 		request.setAttribute("factorParams",saveParams);
+		request.setAttribute("userCanEditACustomAttribute",new Boolean(userCanEditACustomAttribute));
 		if(group.hasComposite()) request.setAttribute("isCompositeGroup",Boolean.TRUE);
 		
 		boolean isFlat = processFlatForMode(getBrowseMode(session), request, session);
