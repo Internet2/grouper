@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.16 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.17 2006-07-19 10:32:10 isgwb Exp $
  */
 
 /**
@@ -2463,6 +2463,80 @@ public class GrouperHelper {
 		return res;
 	}
 	
+	public static Map listOfFieldsToMap(List fields) {
+		Map map = new HashMap();
+		String name;
+		for(int i=0;i<fields.size();i++) {
+			name=(String)fields.get(i);
+			
+			map.put(name,Boolean.TRUE);
+		}
+		return map;	
+	}
+	
+	/**
+	 * For a group id, for all its types, return fields of type LIST which the session user can write
+	 * @param s
+	 * @param groupId
+	 * @return List of list fields for group
+	 * @throws Exception
+	 */
+	public static List getWritableListFieldsForGroup(GrouperSession s,String groupId) throws Exception{
+		Group g = GroupFinder.findByUuid(s,groupId);
+		return getWritableListFieldsForGroup(s,g);
+	}
+	
+	/**
+	 * For a group id, for all its types, return fields of type LIST which the session user can write
+	 * @param s
+	 * @param groupId
+	 * @return List of list fields for group
+	 * @throws Exception
+	 */
+	public static List getWritableListFieldsForGroup(GrouperSession s,Group g) throws Exception{
+		List writable = getListFieldsForGroup(s,g);
+		Field field;
+		String name;
+		Iterator it = writable.iterator();
+		while(it.hasNext()) {
+			name=(String)it.next();
+			field=FieldFinder.find(name);
+			if(!g.canReadField(field)) it.remove();
+		}
+		return writable;
+	}
+	
+	/**
+	 * For a group id, for all its types, return fields of type LIST which the session user can read or write
+	 * @param s
+	 * @param groupId
+	 * @return List of list fields for group
+	 * @throws Exception
+	 */
+	public static List getReadableListFieldsForGroup(GrouperSession s,String groupId) throws Exception{
+		Group g = GroupFinder.findByUuid(s,groupId);
+		return getReadableListFieldsForGroup(s,g);
+	}
+	
+	/**
+	 * For a group id, for all its types, return fields of type LIST which the session user can read or write
+	 * @param s
+	 * @param groupId
+	 * @return List of list fields for group
+	 * @throws Exception
+	 */
+	public static List getReadableListFieldsForGroup(GrouperSession s,Group g) throws Exception{
+		List readable = getListFieldsForGroup(s,g);
+		Field field;
+		String name;
+		Iterator it = readable.iterator();
+		while(it.hasNext()) {
+			name=(String)it.next();
+			field=FieldFinder.find(name);
+			if(!g.canReadField(field)&& !g.canWriteField(field)) it.remove();
+		}
+		return readable;
+	}
 	
 	/**
 	 * For a group id, for all its types, return fields of type LIST
@@ -2589,6 +2663,29 @@ public class GrouperHelper {
 			}
 		}
 		return res;
+	}
+	
+	public static boolean canUserEditAnyCustomAttribute(Group group) throws SchemaException{
+		Set types = group.getTypes();
+		if(types.isEmpty()) return false;
+		Iterator it = types.iterator();
+		GroupType groupType;
+		Set fields;
+		Iterator fieldsIterator;
+		Field field;
+		while(it.hasNext()) {
+			groupType=(GroupType)it.next();
+			if(!groupType.getAssignable()) continue;
+			fields = groupType.getFields();
+			fieldsIterator = fields.iterator();
+			while(fieldsIterator.hasNext()) {
+				field=(Field)fieldsIterator.next();
+				if(field.getType().equals(FieldType.ATTRIBUTE)&& group.canWriteField(field)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }
 
