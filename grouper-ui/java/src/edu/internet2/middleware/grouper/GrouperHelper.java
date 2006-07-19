@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.17 2006-07-19 10:32:10 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.18 2006-07-19 14:42:42 isgwb Exp $
  */
 
 /**
@@ -905,9 +905,9 @@ public class GrouperHelper {
 						group.grantPriv(subject,Privilege.getInstance(privileges[j].toLowerCase()));
 
 					}
-				} catch (RuntimeException e) {
+				} catch (GrantPrivilegeException e) {
 					//@TODO Expect different type of Exception in future
-					if (e.getMessage().indexOf("List value already exists") == -1)
+					if (e.getMessage().indexOf("membership already exists") == -1)
 						throw e;
 				} 
 			}
@@ -2489,7 +2489,7 @@ public class GrouperHelper {
 	/**
 	 * For a group id, for all its types, return fields of type LIST which the session user can write
 	 * @param s
-	 * @param groupId
+	 * @param group
 	 * @return List of list fields for group
 	 * @throws Exception
 	 */
@@ -2521,7 +2521,7 @@ public class GrouperHelper {
 	/**
 	 * For a group id, for all its types, return fields of type LIST which the session user can read or write
 	 * @param s
-	 * @param groupId
+	 * @param group
 	 * @return List of list fields for group
 	 * @throws Exception
 	 */
