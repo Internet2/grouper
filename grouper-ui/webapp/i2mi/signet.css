@@ -11,6 +11,10 @@ a {
 	text-width:100%;
 	}
 
+a.selectedTab:hover {
+	text-decoration: none;
+	color: #FFFFFF; 
+}
 	
 a:hover {
 	text-decoration: underline; 
