@@ -2,7 +2,7 @@
 		Tile which lets user select alternative list field for Manipulation
 --%><%--
   @author Gary Brown.
-  @version $Id: selectListFields.jsp,v 1.1 2006-02-21 16:50:18 isgwb Exp $
+  @version $Id: selectListFields.jsp,v 1.2 2006-07-19 11:10:38 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -16,7 +16,7 @@
 			<option><c:out value="${listField}"/></option>
 		</c:forEach>
 	</select><input type="submit" name="submit.listMembers" value="<fmt:message bundle="${nav}" key="groups.action.edit-members"/>"/>
-	<input type="submit" name="submit.addMembers" value="<fmt:message bundle="${nav}" key="find.groups.add-new-members"/>"/>
+	<!--<input type="submit" name="submit.addMembers" value="<fmt:message bundle="${nav}" key="find.groups.add-new-members"/>"/>-->
 
 </form>
 </div>
