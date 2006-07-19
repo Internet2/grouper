@@ -134,7 +134,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DoAssignNewMembersAction.java,v 1.5 2006-02-22 15:32:50 isgwb Exp $
+ * @version $Id: DoAssignNewMembersAction.java,v 1.6 2006-07-19 17:39:27 isgwb Exp $
  */
 public class DoAssignNewMembersAction extends GrouperCapableAction {
 
@@ -213,10 +213,14 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 		}
 		//TODO: could possibly fail on some - check wit blair as to
 		//how and wheter to make one transaction
+		try {
 		GrouperHelper.assignPrivileges(grouperSession, folderId,
 				membersAsSubjects, privileges, "true".equals(request
 						.getParameter("stems")),mField);
-		message = new Message("priv.message.assigned");
+			message = new Message("priv.message.assigned");
+		}catch(IllegalArgumentException e) {
+			message = new Message("groups.add.member.error.circular",true);
+		}
 		request.setAttribute("message", message);
 		//Make sure we don't switch inadvertantly to group context
 		if(doRedirectToCaller(assignMembersForm))return redirectToCaller(assignMembersForm);
