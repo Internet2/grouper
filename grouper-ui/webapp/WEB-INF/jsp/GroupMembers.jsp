@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.7 2006-07-17 10:04:09 isgwb Exp $
+  @version $Id: GroupMembers.jsp,v 1.8 2006-07-19 11:09:48 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -33,7 +33,7 @@
 <div class="linkButton">
 <c:choose>
 	<c:when test="${empty GroupFormBean.map.contextSubject}">
-		<c:if test="${groupPrivs.ADMIN || groupPrivs.UPDATE}">
+		<c:if test="${canWriteField}">
 			<c:choose>
 				<c:when test="${isCompositeGroup}">
 					<html:link page="/removeComposite.do" name="groupMembership">
@@ -50,7 +50,7 @@
 				</c:otherwise>
 			</c:choose>
 		</c:if>
-		<c:if test="${empty $param.callerPageId && (empty listField || listField=='members') && (groupPrivs.ADMIN || groupPrivs.UPDATE)}">
+		<c:if test="${empty $param.callerPageId && (empty listField || listField=='members') && canWriteField}">
 		<html:link page="/populateAddComposite.do" name="groupMembership">
 			<c:choose>
 				<c:when test="${isCompositeGroup}">
@@ -62,12 +62,12 @@
 			</c:choose>
 					</html:link>
 		</c:if>
-		<c:if test="empty $param.callerPageId">
+		
 		<c:set target="${groupMembership}" property="callerPageId"></c:set>
 		<html:link page="/populateGroupSummary.do" name="groupMembership">
 			<fmt:message bundle="${nav}" key="find.groups.done"/>
 		</html:link>
-		</c:if>
+		
 		<tiles:insert definition="callerPageButtonDef"/>
 	</c:when>
 	<c:otherwise>
