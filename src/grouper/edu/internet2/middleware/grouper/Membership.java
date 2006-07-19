@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.44 2006-07-06 20:18:59 blair Exp $
+ * @version $Id: Membership.java,v 1.45 2006-07-19 22:00:08 blair Exp $
  */
 public class Membership {
 
@@ -81,7 +81,7 @@ public class Membership {
   { 
     this.setOwner_id(           ms.getOwner_id()      );
     try {
-      this.setMember_id(          hasMS.getMember()     );  // hasMember m
+      this.setMember_id(          hasMS.getMember()   );  // hasMember m
     }
     catch (MemberNotFoundException eMNF) {
       throw new ModelException(eMNF);
@@ -94,11 +94,18 @@ public class Membership {
     );
     if (hasMS.getDepth() == 0) {
       this.setVia_id(           hasMS.getOwner_id()   );  // hasMember m was immediate
+      this.setParent_membership( ms );
     }
     else {
       this.setVia_id(           hasMS.getVia_id()     );  // hasMember m was effective
+      // TODO I have no idea what is going on here
+      if ( hasMS.getParent_membership() != null ) {
+        this.setParent_membership( hasMS.getParent_membership() );
+      }
+      else {
+        this.setParent_membership( hasMS );
+      }
     } 
-    this.setParent_membership(  ms                    );  // ms is parent
     this.setSession(            s                     );
     MembershipValidator.validateEffective(this);
   } // protected static Membership newEffectiveMembership(s, ms, hasMS)

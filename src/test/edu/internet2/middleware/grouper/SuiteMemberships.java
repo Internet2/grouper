@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberships.java,v 1.1 2006-06-18 19:39:00 blair Exp $
+ * @version $Id: SuiteMemberships.java,v 1.2 2006-07-19 22:00:09 blair Exp $
  */
 public class SuiteMemberships extends TestCase {
 
@@ -36,6 +36,7 @@ public class SuiteMemberships extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( TestMembership0.class );  // eff mship uuid does not change
+    suite.addTestSuite( TestMembership1.class );  // parent and child memberships
     // TODO Split
     suite.addTestSuite(TestMembership.class);
     return suite;
