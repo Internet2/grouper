@@ -34,15 +34,6 @@
   the QuickStart subjects</p>
 <p>Restart Tomcat.</p>
 <h2>Building the UI</h2>
-<p>Review <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/log4j.properties</font> 
-  and, if necessary, modify the values for the keys:</p>
-<ul>
-  <li>log4j.appender.grouper_event.File</li>
-  <li>log4j.appender.grouper_error.File </li>
-  <li>log4j.appender.grouper_debug.File</li>
-</ul>
-<p>to valid paths on your system. Use / as a directory separator whichever operating 
-  system you are using.</p>
 <p>Review <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/build.properties</font>. 
   If you want the build script to automatically install the UI in your Tomcat 
   instance uncomment and set the appropriate value for deploy.home. If you do 
@@ -59,6 +50,15 @@
 <p>Using a web browser access the UI e.g.<font face="Courier New, Courier, mono"> 
   http://localhost:8080/grouper</font>. Login as GrouperSystem - using the password 
   from the<font face="Courier New, Courier, mono"> tomcat-users.xml</font> file.</p>
+<p>You may want to review <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/log4j.properties</font> 
+  and, if necessary, modify the values for the keys:</p>
+<ul>
+  <li>log4j.appender.grouper_event.File</li>
+  <li>log4j.appender.grouper_error.File </li>
+  <li>log4j.appender.grouper_debug.File</li>
+</ul>
+<p>to valid / appropriate paths on your system. Use / as a directory separator 
+  whichever operating system you are using.</p>
 <p>*If you want to take advantage of the 'nice' targets you must uncomment and 
   set appropriate values for all the deploy properties in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/build.properties</font>. 
   In addition you must make <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/catalina-ant.jar</font> 
