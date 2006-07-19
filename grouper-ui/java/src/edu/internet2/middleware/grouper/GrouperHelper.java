@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.18 2006-07-19 14:42:42 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.19 2006-07-19 17:37:39 isgwb Exp $
  */
 
 /**
@@ -890,14 +890,17 @@ public class GrouperHelper {
 		
 			stem = groupOrStem.getStem();
 			group = groupOrStem.getGroup();
-		
+		boolean circular = false;
 		for (int i = 0; i < members.length; i++) {
 			subject = members[i];
 			for (int j = 0; j < privileges.length; j++) {
 				try {
 					if ("member".equals(privileges[j].toLowerCase()) && !group.hasImmediateMember(subject,field)) {
-						group.addMember(subject,field);						
-				
+						if(group.toSubject().equals(subject) && field.getName().equals("members")) {
+							circular=true;
+						}else{
+							group.addMember(subject,field);						
+						}
 					} else if (groupOrStem.isStem()) {
 						stem.grantPriv(subject,Privilege.getInstance(privileges[j].toLowerCase()));
 
@@ -911,6 +914,9 @@ public class GrouperHelper {
 						throw e;
 				} 
 			}
+		}
+		if(circular) {
+			throw new IllegalArgumentException("Circular membership");
 		}
 
 	}
