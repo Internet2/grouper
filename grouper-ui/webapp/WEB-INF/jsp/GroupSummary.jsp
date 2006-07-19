@@ -3,12 +3,13 @@
 			the maintenance of the group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupSummary.jsp,v 1.7 2006-07-06 14:51:08 isgwb Exp $
+  @version $Id: GroupSummary.jsp,v 1.8 2006-07-19 11:41:28 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
 <tiles:insert definition="showStemsLocationDef" controllerUrl="/prepareBrowsePath.do"/>
 <tiles:insert definition="groupInfoDef"/>
+<div class="buttonContainer">
 <c:set var="saveButton" scope="request">
 			<html:link page="/addSavedSubject.do" name="saveParams">
 				<fmt:message bundle="${nav}" key="saved-subjects.add.group"/>
@@ -37,6 +38,7 @@
 					<fmt:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
 		</html:link>
 		</div>
+		</div>
 	</c:when>
 	<c:when test="${!empty GroupFormBean.map.contextSubject}">
 
@@ -52,6 +54,7 @@
 					<fmt:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
 		</html:link>
 		</div>
+		</div>
 	</c:when>
 	<c:when test="${!empty GroupFormBean.map.callerPageId}">
 		<div class="linkButton">
@@ -62,6 +65,7 @@
 					<fmt:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
 		</html:link>
 		</div>
+		</div>
 	</c:when>
 	<c:otherwise>
 		<c:if test="${isFlat}">
@@ -71,6 +75,7 @@
 			</html:link>
 			</div>
 			</c:if>
+			</div>
 			<c:if test="${!isFlat}">
 			<h2 class="actionheader">
 				<fmt:message bundle="${nav}" key="groups.heading.select-other"/>
