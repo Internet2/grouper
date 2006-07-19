@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.Subject;
  * for selection. Potential new members may come from a search, 
  * or may have been submitted from a form whilst browsing existing group memberships. 
  * <p/>
- <table width="75%" border="1">
+<table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
       Parameter</font></strong></td>
@@ -150,6 +150,13 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Arguments for subtitle</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
+    <td><p><font face="Arial, Helvetica, sans-serif">thisPageId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Allows callerPageId to be added 
+      to links/forms so this page can be returned to. Only sets new one if there 
+      is not an existing one i.e. we got here from another action</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current group 
@@ -196,7 +203,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateAssignNewMembersAction.java,v 1.5 2006-07-12 19:37:48 isgwb Exp $
+ * @version $Id: PopulateAssignNewMembersAction.java,v 1.6 2006-07-19 10:41:52 isgwb Exp $
  */
 public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 
@@ -212,6 +219,7 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		DynaActionForm searchForm = (DynaActionForm) form;
+		saveAsCallerPage(request,(DynaActionForm)form);
 		//Set to true if selected from browse list rather than search
 		String alreadyChecked = request.getParameter("alreadyChecked");
 		boolean checked = false;
