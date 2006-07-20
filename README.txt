@@ -7,16 +7,14 @@ This file is intended to give you a brief overview of how this
 directory tree is structured and how to get started with compiling,
 testing and running Grouper.
 
-For more detailed information see:
-  `doc/grouper-impl-guide.html`
-
-$Id: README.txt,v 1.1 2006-06-28 18:43:11 blair Exp $
+The [Grouper Wiki](https://wiki.internet2.edu/confluence/display/GrouperWG/Home)
+has additional documentation.
 
 ---
 
 ## Reporting Problems
 
-Please send email to <grouper-dev@internet2.edu>.
+Please send email to [grouper-dev](mailto:grouper-dev@internet2.edu).
 
 ---
 
@@ -97,15 +95,17 @@ To build the javadoc(1) documentation:
 
   % ant html
 
+Please see the [Grouper Wiki](https://wiki.internet2.edu/confluence/display/GrouperWG/Home)
+for additional documentation.
+
 ---
 
 ## Getting Grouper
 
 ### Releases
 
-Grouper releases (0.9, etc.) are available from Grouper's Internet2
-Middleware page:
-  <http://middleware.internet2.edu/dir/groups/grouper/>
+Grouper releases are available from Grouper's Internet2 Middleware page:
+  <http://middleware.internet2.edu/dir/groups/grouper/#software>
 
 ### Anonymous CVS
 
@@ -115,4 +115,8 @@ When prompted for a password, hit enter.
 
   % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
   % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co grouper
+
+---
+
+$Id: README.txt,v 1.2 2006-07-20 15:02:06 blair Exp $
 

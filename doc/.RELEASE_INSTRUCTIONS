@@ -3,42 +3,49 @@
 
 Instructions for preparing a Grouper release.
 
-$Id: .RELEASE_INSTRUCTIONS,v 1.5 2006-07-06 13:05:18 blair Exp $
-
 ---
 
-## To Prepare For A Release:
+## To Prepare For A Release
 
 * Update *serialVersionUID* as appropriate
 * Test CVS
-  * OSX/HSQLDB
-  * OSX/Postgres
-  * Solaris/HSQLDB
-  * Solaris/Oracle
-  * `contrib/gsh`
-* Tag `contrib/gsh`
+    * OSX + HSQLDB
+    * Linux + HSQLDB
+    * Linux + PostgreSQL
+    * Solaris + Oracle
 * Document
-  * `doc/NEWS`, including version number and release date
-* Update `impl.version` in `build.xml`
-* Tag, branch and tarball
+    * `doc/NEWS.txt`, including version number and release date
+    * `doc/ROADMAP.txt`
+* Verify `impl.version` in `build.xml`
+* Tag, branch and tarball 
+
+        % cvs tag GROUPER_$MAJOR_$MINOR_[PATCH]
+        % cvs up -A
+        % cd $ELSEWHERE
+        % cvs co -r$TAG grouper
+        % cvs tag -b GROUPER_$MAJOR_$MINOR_BRANCH
+        % cvs export -r $TAG -d ./grouper-api-$VERSION grouper
+        % changelog > grouper-api-$VERSION/doc/CHANGES
+        % ant html
+        % mv dist/api grouper-api-$VERSION/doc/javadoc
+        % tar czvf ./grouper-api-$VERSION.tgz ./grouper-$VERSION
+
+* Test tarball
+    * OSX + HSQLDB
+    * Linux + HSQLDB
+    * Linux + Postgres
+    * Solaris + Oracle
+* Pass along tarball
+* Set `imp.version` in `build.xml` to `$NEXT_RELEASE-cvs`.
+
+
+xyz
 
     % cvs tag GROUPER_$MAJOR_$MINOR_[PATCH]
     % cvs up -A
     % cd $ELSEWHERE
-    % cvs co -r$TAG grouper
-    % cvs tag -b GROUPER_$MAJOR_$MINOR_BRANCH
-    % cvs export -r $TAG -d ./grouper-api-$VERSION grouper
-    % changelog > grouper-api-$VERSION/doc/CHANGES
-    % ant html
-    % mv dist/api grouper-api-$VERSION/doc/javadoc
-    % tar czvf ./grouper-api-$VERSION.tgz ./grouper-$VERSION
 
-* Test tarball
-  * OSX/HSQLDB
-  * OSX/Postgres
-  * Solaris/HSQLDB
-  * Solaris/Oracle
-  * `contrib/cdg`
-* Pass along tarball
-* Notify grouper-dev
+---
+
+$Id: .RELEASE_INSTRUCTIONS,v 1.6 2006-07-20 15:02:06 blair Exp $
 

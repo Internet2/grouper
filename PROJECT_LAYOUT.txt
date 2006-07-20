@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: PROJECT_LAYOUT.txt,v 1.1 2006-06-28 18:43:11 blair Exp $
+$Id: PROJECT_LAYOUT.txt,v 1.2 2006-07-20 15:02:05 blair Exp $
 
 ---
 
@@ -94,10 +94,6 @@ HSQLDB data directory.
 ### API.txt
 
 API class and method summary.
-
-### grouper-impl-guide.html
-
-Grouper implementation guide.
 
 ### javadoc/
 
