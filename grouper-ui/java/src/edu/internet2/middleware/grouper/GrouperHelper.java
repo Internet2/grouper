@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.19 2006-07-19 17:37:39 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.20 2006-07-20 11:20:11 isgwb Exp $
  */
 
 /**
@@ -2495,7 +2495,7 @@ public class GrouperHelper {
 	/**
 	 * For a group id, for all its types, return fields of type LIST which the session user can write
 	 * @param s
-	 * @param group
+	 * @param g
 	 * @return List of list fields for group
 	 * @throws Exception
 	 */
@@ -2527,7 +2527,7 @@ public class GrouperHelper {
 	/**
 	 * For a group id, for all its types, return fields of type LIST which the session user can read or write
 	 * @param s
-	 * @param group
+	 * @param g
 	 * @return List of list fields for group
 	 * @throws Exception
 	 */
