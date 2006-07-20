@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.5 2006-07-10 18:17:07 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.6 2006-07-20 00:40:17 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1675,8 +1675,7 @@ public class XmlExporter {
   {
     if (
         optionTrue("export.privs.naming") 
-        && optionTrue("export.privs.for-parents")
-    ) 
+       ) 
     {
       if (log.isDebugEnabled()) {
         log.debug("Writing STEM privilegees for " + stem.getName());
@@ -1720,7 +1719,9 @@ public class XmlExporter {
     } 
     else {
       _writeBasicStemHeader(s, stem, writer, padding);
-      _writeStemPrivs(s, stem, writer, padding);
+      if(optionTrue("export.privs.for-parents")) {
+      	_writeStemPrivs(s, stem, writer, padding);
+      }
       _writeStems(s, stems, writer, padding + "  ");
       _writeBasicStemFooter(s, stem, writer, padding);
     }
