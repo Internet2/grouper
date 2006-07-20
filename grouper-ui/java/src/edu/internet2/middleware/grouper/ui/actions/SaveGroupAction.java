@@ -33,9 +33,12 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupAddException;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -135,7 +138,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.10 2006-07-13 15:46:25 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.11 2006-07-20 11:10:15 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -223,7 +226,19 @@ public class SaveGroupAction extends GrouperCapableAction {
 			}else{
 				parent = curGos.getGroup().getParentStem();
 			}
-			group = parent.addChildGroup(extension,displayExtension );
+			try{
+				group = parent.addChildGroup(extension,displayExtension );
+			}catch(GroupAddException e) {
+				String name = parent.getName() + GrouperHelper.HIER_DELIM + extension;
+				try {
+					group = GroupFinder.findByName(grouperSession,name);
+				}catch(GroupNotFoundException ge) {
+					request.setAttribute("message", new Message(
+							"groups.message.error.add-problem",new String[] {e.getMessage()}, true));
+					
+						return mapping.findForward(FORWARD_CreateAgain);
+				}
+			}
 			doTypes(group,request);
 			groupForm.set("groupId", group.getUuid());
 			assignedPrivs = GrouperHelper.getDefaultAccessPrivsForGrouperAPI();

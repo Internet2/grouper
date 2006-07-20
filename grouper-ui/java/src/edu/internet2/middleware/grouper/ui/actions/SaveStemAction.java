@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,11 +25,16 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.GroupAddException;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemAddException;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
 
@@ -128,7 +133,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveStemAction.java,v 1.4 2006-07-13 15:46:26 isgwb Exp $
+ * @version $Id: SaveStemAction.java,v 1.5 2006-07-20 11:10:15 isgwb Exp $
  */
 
 public class SaveStemAction extends GrouperCapableAction {
@@ -197,8 +202,23 @@ public class SaveStemAction extends GrouperCapableAction {
 				}
 				
 			}
-			stem = parentStem.addChildStem((String) stemForm.get("stemName"),(String) stemForm.get("stemDisplayName"));
-			stem.grantPriv(grouperSession.getSubject(),Privilege.getInstance("create"));
+			
+			try{
+				stem = parentStem.addChildStem((String) stemForm.get("stemName"),(String) stemForm.get("stemDisplayName"));
+				stem.grantPriv(grouperSession.getSubject(),Privilege.getInstance("create"));
+			}catch(StemAddException e) {
+				String name = parentStem.getName() + GrouperHelper.HIER_DELIM + (String) stemForm.get("stemName");
+				try {
+					stem = StemFinder.findByName(grouperSession,name);
+				}catch(StemNotFoundException se) {
+					request.setAttribute("message", new Message(
+							"stems.message.error.add-problem",new String[] {e.getMessage()}, true));
+					
+						return mapping.findForward(FORWARD_CreateAgain);
+				}
+			}
+			
+			
 			id = stem.getUuid();
 			stemForm.set("stemId", id);
 		}
