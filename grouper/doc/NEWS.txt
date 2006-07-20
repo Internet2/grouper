@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS.txt,v 1.3 2006-07-14 17:10:54 blair Exp $
+$Id: NEWS.txt,v 1.4 2006-07-20 00:16:36 blair Exp $
 
 ---
 
@@ -10,6 +10,8 @@ $Id: NEWS.txt,v 1.3 2006-07-14 17:10:54 blair Exp $
 Released: TBD
 
 ## Changes
+* BUGFIX: Improper calculation of forward effective memberships to delete.
+* BUGFIX: Improper setting of parent membership in select effective memberships.
 * BUGFIX: Improper calculation of select child memberships to delete when
   deleting an immediate memberships.
 * NEW:  Added *GrouperShell* (located in `contrib/gsh`).  *gsh* is a

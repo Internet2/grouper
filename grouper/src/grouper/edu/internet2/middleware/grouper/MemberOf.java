@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.27 2006-07-14 17:10:54 blair Exp $
+ * @version $Id: MemberOf.java,v 1.28 2006-07-20 00:16:36 blair Exp $
  */
 class MemberOf {
 
@@ -146,29 +146,18 @@ class MemberOf {
 
     // Find child memberships that need deletion
     Membership  child;
-    Iterator    iter  = MembershipFinder.findAllChildrenNoSessionNoPriv(ms).iterator();
+    Set         children  = new LinkedHashSet();
+    Iterator    iter      = MembershipFinder.findAllChildrenNoSessionNoPriv(ms).iterator();
     while (iter.hasNext()) {
       child = (Membership) iter.next();
       child.setSession(s);
-      mof.effDeletes.add(child);
+      children.add(child);
     }
+    mof.effDeletes.addAll(children);
     // Find all effective memberships that need deletion
-    Membership  eff;
-    Iterator    viaChildIter;
-    Membership  viaEff;
-    iter = MembershipFinder.findAllViaNoSessionNoPriv(ms).iterator();
-    while (iter.hasNext()) {
-      eff           = (Membership) iter.next();
-      eff.setSession(s);
-      // And the children of those effective memberships
-      viaChildIter  = MembershipFinder.findAllChildrenNoSessionNoPriv(eff).iterator();
-      while (viaChildIter.hasNext()) {
-        viaEff = (Membership) viaChildIter.next();
-        viaEff.setSession(s);
-        mof.effDeletes.add(viaEff);
-      }
-      mof.effDeletes.add(eff);
-    }
+    mof.effDeletes.addAll( 
+      MembershipFinder.findAllForwardMembershipsNoPriv(s, ms, children) 
+    );
 
     // And now set everything else
     mof.deletes.addAll(mof.effDeletes);

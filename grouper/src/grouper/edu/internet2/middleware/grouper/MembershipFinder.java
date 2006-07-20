@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.38 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.39 2006-07-20 00:16:36 blair Exp $
  */
 public class MembershipFinder {
 
@@ -180,8 +180,8 @@ public class MembershipFinder {
       Iterator        iter  = findChildMemberships(root, ms).iterator();
       while (iter.hasNext()) {
         child = (Membership) iter.next();
-        children.add(child);
         children.addAll(findAllChildrenNoSessionNoPriv(child));
+        children.add(child);
       }
       root.stop();
     }
@@ -190,6 +190,49 @@ public class MembershipFinder {
     }
     return children;
   } // protected static Set findAllChildrenNoSessionNoPriv(ms)
+
+  // @since 1.0
+  // TODO Smaller!
+  protected static Set findAllForwardMembershipsNoPriv(
+    GrouperSession s, Membership ms, Set children
+  ) {
+    // @filtered  false
+    // @session   true
+    Set         mships        = new LinkedHashSet();
+    Iterator    iter          = findAllViaNoSessionNoPriv(ms).iterator();
+    Membership  child;
+    Set         childEffs;
+    Iterator    childIter;
+    Membership  eff;  
+    Membership  newChild;
+    Iterator    newChildIter;
+    while (iter.hasNext()) {
+      eff = (Membership) iter.next();
+      eff.setSession(s);
+      childIter = children.iterator();
+      while (childIter.hasNext()) {
+        child = (Membership) childIter.next();
+        child.setSession(s);  
+        try {
+          childEffs = findEffectiveMemberships(
+            eff.getOwner_id(), child.getMember_id().getId(), 
+            eff.getField(), child.getVia_id(), 
+            eff.getDepth() + child.getDepth()
+          );
+          newChildIter = childEffs.iterator();
+          while (newChildIter.hasNext()) {
+            newChild = (Membership) newChildIter.next();
+            newChild.setSession(s);
+            mships.add(newChild);
+          }
+        }
+        catch (MembershipNotFoundException eMSNF) {
+        }
+      }
+      mships.add(eff);
+    }
+    return mships;
+  } // protected static Set findAllForwardMembershipsNoPriv(s, ms, children)
 
   protected static Set findAllMemberships(GrouperSession s, Member m) {
     /*

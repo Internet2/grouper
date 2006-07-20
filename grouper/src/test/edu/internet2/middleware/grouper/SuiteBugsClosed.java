@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test Closed Bugs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteBugsClosed.java,v 1.3 2006-07-19 22:00:09 blair Exp $
+ * @version $Id: SuiteBugsClosed.java,v 1.4 2006-07-20 00:16:36 blair Exp $
  * @since   1.0
  */
 public class SuiteBugsClosed extends TestCase {
@@ -37,6 +37,7 @@ public class SuiteBugsClosed extends TestCase {
     suite.addTestSuite( TestBug0.class        );  // Population of children-of-via 
                                                   // groups in an immediate mof delete
     suite.addTestSuite( TestMembership1.class );  // Invalid setting of parent membership
+    suite.addTestSuite( TestMemberOf1.class   );  // Forward MemberOf deletion.
     // TODO Split
     suite.addTestSuite( TestBugsClosed.class);
     return suite;
