@@ -4,20 +4,11 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.17 2006-07-11 18:45:46 blair Exp $
+$Id: TODO.txt,v 1.18 2006-07-20 16:40:13 blair Exp $
 
 ---
 
-## Grouper 1.0
-
-### Next Actions
-* REVIEW    FIXMEs
-* REVIEW    TODOs
-* REVIEW    impl guide - i really want to kill this post-haste
-
----
-
-## Grouper 1.0.1
+## Grouper 1.0.1-cvs
 
 ### Next Actions
 * CODE      Migrate error messages to *E*
@@ -28,6 +19,8 @@ $Id: TODO.txt,v 1.17 2006-07-11 18:45:46 blair Exp $
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
 * DOC       Migrate impl guide to wiki and export upon release
 * DOC       MAYBE Migrate *package.html* to wiki and export upon release
+* REFACTOR  FIXMEs
+* REFACTOR  TODOs
 
 ### Maybe
 * CODE      class to verify that setup is functional
@@ -126,6 +119,6 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.17 2006-07-11 18:45:46 blair Exp $
+$Id: TODO.txt,v 1.18 2006-07-20 16:40:13 blair Exp $
 
 

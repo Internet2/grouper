@@ -1,11 +1,19 @@
 
 # Grouper News
 
-$Id: NEWS.txt,v 1.6 2006-07-20 15:02:06 blair Exp $
+$Id: NEWS.txt,v 1.7 2006-07-20 16:40:13 blair Exp $
 
 ---
 
-# Version 1.0
+# Grouper 1.0.1-cvs
+
+Released: TBD
+
+## Changes
+
+---
+
+# Grouper 1.0
 
 Released: 20060720
 
@@ -103,7 +111,7 @@ Released: 20060720
 
 ---
 
-# Version 0.9
+# Grouper 0.9
 
 Released: 20051219
 
@@ -137,7 +145,7 @@ Released: 20051219
 
 ---
 
-# Version 0.6
+# Grouper 0.6
 
 Released 20050916
 
@@ -224,7 +232,7 @@ Released 20050916
 
 ---
 
-# Version 0.5.6
+# Grouper 0.5.6
 
 Released 20050429
 
@@ -246,7 +254,7 @@ Released 20050429
 
 ---
 
-# Version 0.5.5
+# Grouper 0.5.5
 
 Released 20050415
 
@@ -310,7 +318,7 @@ Released 20050415
 
 ---
 
-# Version 0.5
+# Grouper 0.5
 
 Release 200412
 
