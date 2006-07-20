@@ -2,7 +2,7 @@
 			Tile which displays general help about the UI
 --%><%--
   @author Gary Brown.
-  @version $Id: generalHelp.jsp,v 1.8 2006-07-20 09:18:33 isgwb Exp $
+  @version $Id: generalHelp.jsp,v 1.9 2006-07-20 10:32:45 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
@@ -113,30 +113,7 @@ Subjects can be found by:<br/>
   fact, have more than one source e.g. if subject A is a member of Group A and 
   Group B and both Group A and Group B are members of Group C, then subject A 
   has two memberships for Group C.</p>
-<h2>Group math</h2>
-<p>Grouper allows the membership of a group to be defined as the <em>union</em>, 
-  <em>intersection</em> or <em>complement</em> of two other groups. This special 
-  type of member is known as a <em>Composite</em> member. A composite member has 
-  two <em>Factor</em> groups. </p>
-<p>Take <em>ordinary</em> two groups:</p>
-<ol>
-  <li>fionas = Fiona Windsor, Fiona Benson, Fiona Tarbuck</li>
-  <li>bensons= Keith Benson, Fiona Benson, Ian Benson</li>
-</ol>
-<p>fionas <em>union</em> bensons= Fiona Windsor, Fiona Benson, Fiona Tarbuck,Keith 
-  Benson, Ian Benson</p>
-<p><em>union</em> indicates the result of <em><strong>adding</strong></em> the 
-  members of <em>fionas</em> and <em>bensons</em>.</p>
-<p>fionas <em>intersection </em>bensons= Fiona Benson</p>
-<p><em>intersection</em> indicates the <em><strong>members-in-common</strong></em> 
-  of <em>fionas</em> and <em>bensons</em>.</p>
-<p>fionas <em>complement </em>bensons= Fiona Windsor, Fiona Tarbuck</p>
-<p><em>complement</em> indicates the members of <em>fionas</em> <em><strong>minus</strong></em> 
-  the members of <em>bensons</em>. In this case the position, left or right, of 
-  the groups is important. </p>
-<p>A group can have a single composite member, or any number of subjects (including 
-  groups) as members, but not a combination, however, groups which have a composite 
-  member can be used anywhere other groups can be used.</p>
+
 <tiles:insert definition="groupMathHelpDef"/>
 <tiles:insert definition="customTypesHelpDef"/>
 </grouper:recordTile> 
