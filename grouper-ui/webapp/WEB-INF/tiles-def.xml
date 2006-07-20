@@ -664,6 +664,18 @@
 	  </description>
 	 </definition>
 	 
+	 <definition name="groupMathHelpDef" path="/WEB-INF/jsp/groupMathHelp.jsp">
+		<description>
+			Help text for Group Math
+	  </description>
+	 </definition>
+	 
+	 <definition name="customTypesHelpDef" path="/WEB-INF/jsp/customTypesHelp.jsp">
+		<description>
+			Help text for custom types
+	  </description>
+	 </definition>
+	 
  <definition name="TestUploadFramesetDef" path="/WEB-INF/jsp/TestUploadFrameset.jsp">
  	  <description>
 		Frameset for turning test results into a slideshow
