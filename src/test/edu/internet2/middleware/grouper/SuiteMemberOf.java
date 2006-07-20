@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberOf.java,v 1.1 2006-06-18 19:39:00 blair Exp $
+ * @version $Id: SuiteMemberOf.java,v 1.2 2006-07-20 00:16:36 blair Exp $
  */
 public class SuiteMemberOf extends TestCase {
 
@@ -35,7 +35,8 @@ public class SuiteMemberOf extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTestSuite( TestMemberOf0.class );  // eff mship uuid does not change
+    suite.addTestSuite( TestMemberOf0.class   );  // eff mship uuid does not change
+    suite.addTestSuite( TestMemberOf1.class   );  // Forward MemberOf deletion.
     // TODO Split
     suite.addTestSuite(TestMemberOf.class   );
     return suite;
