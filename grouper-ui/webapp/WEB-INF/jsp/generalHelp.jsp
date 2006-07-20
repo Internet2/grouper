@@ -2,28 +2,48 @@
 			Tile which displays general help about the UI
 --%><%--
   @author Gary Brown.
-  @version $Id: generalHelp.jsp,v 1.7 2005-12-21 15:50:35 isgwb Exp $
+  @version $Id: generalHelp.jsp,v 1.8 2006-07-20 09:18:33 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
 <h2>Menu</h2>
 <dl>
-  <dt>My Memberships</dt>
+  <dt>My Memberships*</dt>
   <dd>lets you find groups of which you are a member</dd>
-  <dt>Create Groups</dt>
+  <dt>Create Groups*</dt>
   <dd>lets you create groups in stems where you have <strong>Create privilege</strong>,and 
     stems within stems where you have <strong>Stem privilege</strong></dd>
-  <dt>Manage Groups</dt>
+  <dt>Manage Groups*</dt>
   <dd>lets you find existing groups where you have <strong>Admin privilege</strong> 
     or <strong>Update privilege</strong></dd>
-  <dt>Join Groups</dt>
+  <dt>Join Groups*</dt>
   <dd>lets you find groups where you have <strong>Optin privilege</strong></dd>
   <dt>All Groups</dt>
   <dd>lets you explore all stems and lets you see groups where you have <strong>View 
     privilege</strong>. There may be many thousands of stems and groups in Grouper.</dd>
 	<dt>Search Subjects</dt>
-  <dd>Lets you search for any subject known to Grouper. Allows a Subject centric approach i.e. you
-  can list all groups where the Subject is a member or has an Access privilege.</dd>
+  <dd>Lets you search for any subject known to Grouper. Allows a Subject centric 
+    approach i.e. you can list all groups where the Subject is a member or has 
+    an Access privilege, or stems where the subject has a Naming privilege.</dd>
+  <dt>Saved Groups</dt>
+  <dd>As described below, Grouper provides several ways of finding groups. It 
+    is possible, from the <em>Group Summary</em> page, to save, for the duration 
+    of your session, a group in a list. This menu item provides quick access to 
+    the groups throughout the session and provides a way of removing groups. The 
+    list provides the means for selecting groups for <em>Group Math</em>, described 
+    below. Saved groups are stored in the same list as saved subjects (see belolw), 
+    however, this menu item filters the list to return only groups.</dd>
+  <dt>Saved Subjects</dt>
+  <dd>Grouper provides a <em>Subject Summary</em> page which can be accessed from 
+    many points in the UI. It is possible, from this page, to save, for the duration 
+    of your session, a subject in a list. This menu item provides quick access 
+    to the subjects throughout the session and provides a means of removing subjects.</dd>
+  <dt>*</dt>
+  <dd>These menu items filter the group hierarchy so that you see groups and stems 
+    relevant to the task you want to perform. GrouperSystem can manage all groups 
+    and stems and is not intended to be a group member, therefore, GrouperSystem 
+    does not have access to these menu items. This is also true of wheel group 
+    members who have opted to <em>Act as admin</em>.</dd>
 </dl>
 <h2>Finding groups</h2>
 Grouper provides several ways of finding groups<br/>
@@ -39,10 +59,13 @@ Grouper provides several ways of finding groups<br/>
   <dd>case-insensitive substring searching of group names below a selected stem 
     is provided. There is an advanced search screen which gives the user more 
     control over which attributes are searched.</dd>
+	
+  <dt>Saved groups</dt>
+  <dd>as described above, groups can be saved in a list in the session for quick 
+    access by clicking on the appropriate menu item. </dd>
 </dl>
 <h2>Finding subjects</h2>
-Currently subjects are limited to <em>people</em> and <em>groups</em>. They can 
-both be found by:<br/>
+Subjects can be found by:<br/>
 <dl>
   <dt>Browsing</dt>
   <dd>click on stems to find child groups. You can also click on a group to expand 
@@ -72,10 +95,15 @@ both be found by:<br/>
   </ol>
 
 *searches are case-insensitive</dd>
+  <dt>Saved subjects</dt>
+  <dd>as described above, subjects can be saved in a list in the session for quick 
+    access by clicking on the appropriate menu item. When looking for subjects 
+    to assign membership or privileges to, the list of saved subjects can be displayed 
+    for quick assignment to any subject in the list.</dd>
 </dl>
 
 
-</grouper:recordTile> 
+
 <h2>Direct vs indirect</h2>
 <p>Privileges and membership of a subject for a group (Group A) may be granted 
   <em>directly</em> to the subject, or may be <em>indirectly</em> derived because 
@@ -85,4 +113,30 @@ both be found by:<br/>
   fact, have more than one source e.g. if subject A is a member of Group A and 
   Group B and both Group A and Group B are members of Group C, then subject A 
   has two memberships for Group C.</p>
-<p>&nbsp;</p>
+<h2>Group math</h2>
+<p>Grouper allows the membership of a group to be defined as the <em>union</em>, 
+  <em>intersection</em> or <em>complement</em> of two other groups. This special 
+  type of member is known as a <em>Composite</em> member. A composite member has 
+  two <em>Factor</em> groups. </p>
+<p>Take <em>ordinary</em> two groups:</p>
+<ol>
+  <li>fionas = Fiona Windsor, Fiona Benson, Fiona Tarbuck</li>
+  <li>bensons= Keith Benson, Fiona Benson, Ian Benson</li>
+</ol>
+<p>fionas <em>union</em> bensons= Fiona Windsor, Fiona Benson, Fiona Tarbuck,Keith 
+  Benson, Ian Benson</p>
+<p><em>union</em> indicates the result of <em><strong>adding</strong></em> the 
+  members of <em>fionas</em> and <em>bensons</em>.</p>
+<p>fionas <em>intersection </em>bensons= Fiona Benson</p>
+<p><em>intersection</em> indicates the <em><strong>members-in-common</strong></em> 
+  of <em>fionas</em> and <em>bensons</em>.</p>
+<p>fionas <em>complement </em>bensons= Fiona Windsor, Fiona Tarbuck</p>
+<p><em>complement</em> indicates the members of <em>fionas</em> <em><strong>minus</strong></em> 
+  the members of <em>bensons</em>. In this case the position, left or right, of 
+  the groups is important. </p>
+<p>A group can have a single composite member, or any number of subjects (including 
+  groups) as members, but not a combination, however, groups which have a composite 
+  member can be used anywhere other groups can be used.</p>
+<tiles:insert definition="groupMathHelpDef"/>
+<tiles:insert definition="customTypesHelpDef"/>
+</grouper:recordTile> 
