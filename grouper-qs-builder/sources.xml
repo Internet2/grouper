@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.4 2006-07-13 19:58:04 isgwb Exp $
+$Id: sources.xml,v 1.5 2006-07-20 14:46:33 isgwb Exp $
 -->
 
 <sources>
@@ -143,6 +143,119 @@ where
          </param>
      </search>
    </source>
+   
+   <!--
+  <source adapterClass="edu.internet2.middleware.subject.provider.JNDISourceAdapter">
+    <id>example</id>
+    <name>Example Edu</name>
+    <type>person</type>
+    <init-param>
+      <param-name>INITIAL_CONTEXT_FACTORY</param-name>
+      <param-value>com.sun.jndi.ldap.LdapCtxFactory</param-value>
+    </init-param>
+    <init-param>
+      <param-name>PROVIDER_URL</param-name>
+      <param-value>ldap://localhost:389</param-value>
+    </init-param>
+    <init-param>
+      <param-name>SECURITY_AUTHENTICATION</param-name>
+      <param-value>simple</param-value>
+    </init-param>
+    <init-param>
+      <param-name>SECURITY_PRINCIPAL</param-name>
+      <param-value>cn=Manager,dc=example,dc=edu</param-value>
+    </init-param>
+    <init-param>
+      <param-name>SECURITY_CREDENTIALS</param-name>
+      <param-value>secret</param-value>
+    </init-param>
+     <init-param>
+      <param-name>SubjectID_AttributeType</param-name>
+      <param-value>exampleEduRegID</param-value>
+    </init-param>
+    <init-param>
+      <param-name>Name_AttributeType</param-name>
+      <param-value>cn</param-value>
+    </init-param>
+    <init-param>
+      <param-name>Description_AttributeType</param-name>
+      <param-value>description</param-value>
+    </init-param>
+    
+    /// Scope Values can be: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE 
+    /// For filter use 
+    
+    <search>
+        <searchType>searchSubject</searchType>
+        <param>
+            <param-name>filter</param-name>
+            <param-value>
+                (&amp; (exampleEduRegId=%TERM%) (objectclass=exampleEduPerson))
+            </param-value>
+        </param>
+        <param>
+            <param-name>scope</param-name>
+            <param-value>
+                SUBTREE_SCOPE            
+            </param-value>
+        </param>
+        <param>
+            <param-name>base</param-name>
+            <param-value>
+                ou=people,dc=example,dc=edu
+            </param-value>
+        </param>
+         
+    </search>
+    <search>
+        <searchType>searchSubjectByIdentifier</searchType>
+        <param>
+            <param-name>filter</param-name>
+            <param-value>
+                (&amp; (uid=%TERM%) (objectclass=exampleEduPerson))
+            </param-value>
+        </param>
+        <param>
+            <param-name>scope</param-name>
+            <param-value>
+                SUBTREE_SCOPE            
+            </param-value>
+        </param>
+        <param>
+            <param-name>base</param-name>
+            <param-value>
+                ou=people,dc=example,dc=edu
+            </param-value>
+        </param>
+    </search>
+    
+    <search>
+       <searchType>search</searchType>
+         <param>
+            <param-name>filter</param-name>
+            <param-value>
+                (&amp; (|(uid=%TERM%)(cn=*%TERM%*)(exampleEduRegId=%TERM%))(objectclass=exampleEduPerson))
+            </param-value>
+        </param>
+        <param>
+            <param-name>scope</param-name>
+            <param-value>
+                SUBTREE_SCOPE            
+            </param-value>
+        </param>
+         <param>
+            <param-name>base</param-name>
+            <param-value>
+                ou=people,dc=example,dc=edu
+            </param-value>
+        </param>
+    </search>
+    ///Attributes you would like to display when doing a search 
+    <attribute>sn</attribute>
+    <attribute>department</attribute>
+   
+  </source>
+-->
 
 </sources>
 
