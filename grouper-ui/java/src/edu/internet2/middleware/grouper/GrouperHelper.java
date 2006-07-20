@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.20 2006-07-20 11:20:11 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.21 2006-07-20 18:15:40 isgwb Exp $
  */
 
 /**
@@ -638,7 +638,7 @@ public class GrouperHelper {
 	public static List subjects2Maps(Subject[] subjects,Map addAttr) {
 		List maps = new ArrayList();
 		for (int i = 0; i < subjects.length; i++) {
-			maps.add(subject2Map(subjects[i],addAttr));
+			if(subjects[i]!=null) maps.add(subject2Map(subjects[i],addAttr));
 		}
 		return maps;
 	}
