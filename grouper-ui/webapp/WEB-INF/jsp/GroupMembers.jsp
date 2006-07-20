@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.8 2006-07-19 11:09:48 isgwb Exp $
+  @version $Id: GroupMembers.jsp,v 1.9 2006-07-20 09:19:19 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -21,7 +21,7 @@
 	<tiles:put name="itemView" value="membershipInfo"/>
 	<tiles:put name="footerView" value="memberLinksFooter"/>
 	<tiles:put name="pager" beanName="pager"/>
-	<tiles:put name="noResultsMsg" value="${navMap['groups.list-members.none']}"/>
+	<tiles:put name="noResultsMsg" value="${navMap[noResultsKey]}"/>
 	<tiles:put name="listInstruction" value="list.instructions.member-links"/> 
 	<tiles:put name="linkSeparator">  
 		<tiles:insert definition="linkSeparatorDef" flush="false"/>
