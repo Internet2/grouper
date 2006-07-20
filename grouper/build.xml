@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.110 2006-07-20 15:02:06 blair Exp $ -->
+<!-- $Id: build.xml,v 1.111 2006-07-20 15:49:09 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -198,7 +198,7 @@
 
   <!-- ensure-cmd -->
   <target name="ensure-cmd" unless="cmd">
-    <fail message="You must run this target with -Dcmd='command line arguments'"/>
+    <fail message='You must run this target with -Dcmd="command line arguments"'/>
   </target>
   <!-- ensure-cmd -->
 
@@ -302,7 +302,7 @@
 
   <!-- runtest -->
   <target name="runtest" 
-          description="Runs the test you specify on the command line with -Dtest=" 
+          description="Runs the test you specify on the command line with -Dtest=NAME" 
           depends="test-build, ensure-test-name">
     <record name="${log.test.run}" action="start"/>
     <junit printsummary="withOutAndErr" fork="true"> 
@@ -320,7 +320,7 @@
 
   <!-- runtestprof -->
   <target name="runtestprof" 
-          description="Runs and profiles the test case you specify on the command line with -Dtest=" 
+          description="Runs and profiles the test case you specify on the command line with -Dtest=NAME" 
           depends="test-build, ensure-test-name">
     <record name="${log.test.run}" action="start"/>
     <java fork="true"
@@ -363,7 +363,7 @@
 
   <!-- serialver -->
   <target name="serialver" 
-          description="Runs serialver on class specified with -Dname="
+          description="Runs serialver on class specified with -Dname=NAME"
           depends="build, ensure-name"
   >
     <exec executable="serialver">
@@ -376,7 +376,7 @@
 
   <!-- sql -->
   <target name="sql"
-          description="Apply sql file to Groups Registry [Pass `-Dname=filename.sql`]"
+          description="Apply sql file to Groups Registry [Pass -Dname=filename.sql]"
           depends="ensure-name"
   >
     <property file="${conf}/grouper.hibernate.properties"/>
@@ -392,7 +392,7 @@
 
   <!-- stress -->
   <target name="stress" 
-          description="Runs the stress case specified on the command line with -Dname="
+          description="Runs the stress case specified on the command line with -Dname=NAME"
           depends="build, ensure-name">
     <java fork="true"
           maxmemory="${max.memory}"
@@ -414,7 +414,7 @@
 
   <!-- stressprof -->
   <target name="stressprof" 
-          description="Runs and profiles the stress case specified on the command line with -Dname="
+          description="Runs and profiles the stress case specified on the command line with -Dname=NAME"
           depends="build, ensure-name">
     <java fork="true"
           maxmemory="${max.memory}"
@@ -503,7 +503,7 @@
 
   <!-- xml-export -->    
   <target name="xml-export"
-          description="Perform XML export of Groups Registry [Pass `-Dcmd='command line arguments'`]"
+          description='Perform XML export of Groups Registry [Pass -Dcmd="command line arguments"]'
           depends="ensure-cmd"        
   >
     <java fork="true"
@@ -518,7 +518,7 @@
       
   <!-- xml-import -->    
   <target name="xml-import"
-          description="Perform XML import of Groups Registry [Pass `-Dcmd='command line arguments'`]"
+          description='Perform XML import of Groups Registry [Pass -Dcmd="command line arguments"]'
           depends="ensure-cmd"        
   >
     <java fork="true"
