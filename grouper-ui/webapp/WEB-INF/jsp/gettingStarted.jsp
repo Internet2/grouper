@@ -3,17 +3,17 @@
 		 and on the help page
 --%><%--
   @author Gary Brown.
-  @version $Id: gettingStarted.jsp,v 1.5 2006-07-19 11:07:59 isgwb Exp $
+  @version $Id: gettingStarted.jsp,v 1.6 2006-07-20 09:21:06 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
 <h2>Grouper - intro</h2>
 <p>Grouper is a system for creating and maintaining institutional groups in a 
-  central repository. Such groups may be used for many different reasons e.g. 
-  for mailing lists, or for determining which set of people are allowed to access 
-  specific web applications, or for sharing resources. The goal is to create a 
-  group once, but use it as often as necessary in as wide a range of systems as 
-  possible. </p>
+  central repository. Such groups may be used for many different reasonpurposes 
+  e.g. for mailing lists, or for determining which set of people are allowed to 
+  access specific web applications, or for sharing resources. The goal is to create 
+  a group once, but use it as often as necessary in as wide a range of systems 
+  as possible. </p>
 <p> In order to use Grouper effectively you must first understand some key concepts:</p>
 <dl>
   <dt>Group</dt>
@@ -27,6 +27,10 @@
     member of group A is to specify that all members of group B are also members 
     of group A. In the future, other subject types may be available to define 
     computers or applications.</dd>
+</dl>
+<dl>
+  <dt>Membership</dt>
+  <dd>A specific relationship between a subject and a group.</dd>
 </dl>
 <dl>
   <dt>Stem</dt>
@@ -52,7 +56,15 @@
     are granted the privilege (for as long as they are a member of the group).<br>
     <br>
     GrouperAll is a <em>special internal subject</em>. Any privilege granted to 
-    GrouperAll is, in effect, granted to all subjects.<br/>
+    GrouperAll is, in effect, granted to all subjects.<br>
+    <br>
+    GrouperSystem is also a special internal subject which has implicit admin 
+    privileges for stems and groups.<br>
+    <br>
+    A <em>wheel</em> group, if defined, conveys implicit GrouperSystem privileges 
+    to its members. Members of this group, by default, act as themselves with 
+    privileges limited to those assigned to them. This UI allows wheel group members 
+    to opt to <em>Act as admin</em>.<br/>
     <br/>
     <strong>Stem privileges</strong> </dd>
   <dd> 
