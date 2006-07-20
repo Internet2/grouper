@@ -1,13 +1,13 @@
 
 # Grouper News
 
-$Id: NEWS.txt,v 1.5 2006-07-20 00:40:17 blair Exp $
+$Id: NEWS.txt,v 1.6 2006-07-20 15:02:06 blair Exp $
 
 ---
 
 # Version 1.0
 
-Released: TBD
+Released: 20060720
 
 ## Changes
 * BUGFIX: Naming privileges not properly exported to XML. [Gary Brown]
