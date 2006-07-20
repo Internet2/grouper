@@ -206,7 +206,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.12 2006-07-19 10:48:05 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.13 2006-07-20 09:20:20 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -227,7 +227,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 		if(!isEmpty(request.getParameter("submit.addMembers"))) return mapping.findForward(FORWARD_AddGroupMembers);
 		session.setAttribute("subtitle","groups.action.show-members");
-		
+		String noResultsKey="groups.list-members.none";
 		DynaActionForm groupForm = (DynaActionForm) form;
 		saveAsCallerPage(request,groupForm,"findForNode membershipListScope");
 		request.setAttribute("contextSubject",groupForm.get("contextSubject"));
@@ -272,14 +272,29 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			}else{
 				members = group.getImmediateMemberships(mField);
 			}
+			if("members".equals(membershipField)) {
+				noResultsKey="groups.list-members.imm.none";
+			}else{
+				noResultsKey="groups.list-members.custom.imm.none";
+			}
 		} else if ("eff".equals(membershipListScope)) {
 			if(group.hasComposite()&& membershipField.equals("members")) {
 				members = group.getCompositeMemberships();
 			}else{
 				members = group.getEffectiveMemberships(mField);
 			}
+			if("members".equals(membershipField)) {
+				noResultsKey="groups.list-members.eff.none";
+			}else{
+				noResultsKey="groups.list-members.custom.eff.none";
+			}
 		} else {
 			members = group.getMemberships(mField);
+			if("members".equals(membershipField)) {
+				noResultsKey="groups.list-members.all.none";
+			}else{
+				noResultsKey="groups.list-members.custom.all.none";
+			}
 		}
 		Map compMap = null;
 		if(membershipField.equals("members")) {
@@ -334,6 +349,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, group));
 		request.setAttribute("groupMembership", membership);
+		request.setAttribute("noResultsKey", noResultsKey);
 		
 		return mapping.findForward(FORWARD_GroupMembers);
 

@@ -234,7 +234,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.11 2006-07-19 11:03:37 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.12 2006-07-20 09:20:20 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -322,17 +322,25 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		
 		if ("imm".equals(membershipListScope)) {
 			subjectScopes = member.getImmediateMemberships(mField);
+			listViews.put("noResultsKey","subject.list-membership.imm.none");
 		} else if ("eff".equals(membershipListScope)) {
 			if(membershipField.equals("members")) {
 				subjectScopes = member.getMemberships();
 				subjectScopes.removeAll(member.getImmediateMemberships());
+				
 			}else{
 				subjectScopes = member.getEffectiveMemberships(mField);
+				listViews.put("noResultsKey","subject.list-membership.all.none");
+			}
+			if("members".equals(membershipField)) {
+				listViews.put("noResultsKey","subject.list-membership.eff.none");
+			}else{
+				listViews.put("noResultsKey","subject.list-membership.custom.eff.none");
 			}
 			
-			listViews.put("noResultsKey","subject.list-membership.eff.none");
 		} else if ("all".equals(membershipListScope)){
 			subjectScopes = member.getMemberships(mField);
+			listViews.put("noResultsKey","subject.list-membership.all.none");
 		}else if("access".equals(membershipListScope)) {
 			
 			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,accessPriv);
