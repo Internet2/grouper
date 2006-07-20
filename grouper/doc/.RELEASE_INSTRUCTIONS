@@ -14,8 +14,7 @@ Instructions for preparing a Grouper release.
     * Linux + PostgreSQL
     * Solaris + Oracle
 * Document
-    * `doc/NEWS.txt`, including version number and release date
-    * `doc/ROADMAP.txt`
+    * `doc/(NEWS|ROADMAP|TODO).txt`
 * Verify `impl.version` in `build.xml`
 * Tag, branch and tarball 
 
@@ -23,12 +22,12 @@ Instructions for preparing a Grouper release.
         % cvs up -A
         % cd $ELSEWHERE
         % cvs co -r$TAG grouper
-        % cvs tag -b GROUPER_$MAJOR_$MINOR_BRANCH
         % cvs export -r $TAG -d ./grouper-api-$VERSION grouper
-        % changelog > grouper-api-$VERSION/doc/CHANGES
+        % changelog > grouper-api-$VERSION/doc/CHANGES.txt
         % ant html
         % mv dist/api grouper-api-$VERSION/doc/javadoc
         % tar czvf ./grouper-api-$VERSION.tgz ./grouper-$VERSION
+        % cvs tag -b GROUPER_$MAJOR_$MINOR_BRANCH
 
 * Test tarball
     * OSX + HSQLDB
@@ -37,15 +36,9 @@ Instructions for preparing a Grouper release.
     * Solaris + Oracle
 * Pass along tarball
 * Set `imp.version` in `build.xml` to `$NEXT_RELEASE-cvs`.
-
-
-xyz
-
-    % cvs tag GROUPER_$MAJOR_$MINOR_[PATCH]
-    % cvs up -A
-    % cd $ELSEWHERE
+* Update `doc/(NEWS|ROADMAP|TODO).txt` to include `$NEXT_RELEASE-cvs`.
 
 ---
 
-$Id: .RELEASE_INSTRUCTIONS,v 1.7 2006-07-20 15:13:47 blair Exp $
+$Id: .RELEASE_INSTRUCTIONS,v 1.8 2006-07-20 16:40:13 blair Exp $
 
