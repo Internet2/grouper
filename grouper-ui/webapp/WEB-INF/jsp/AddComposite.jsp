@@ -8,6 +8,7 @@
 
 	</fmt:message>
 </h2>
+<p class="helpLink"><a href="<c:out value="${pageUrl}"/>#groupMathHelp"/><fmt:message bundle="${nav}" key="groups.help.link.group-math" /></a></p>
 <c:if test="${savedSubjectsSize<2}">
 <fmt:message bundle="${nav}" key="groups.composite.add.insufficient-saved"/>
 </c:if>
@@ -46,4 +47,5 @@
 </c:if>
 </html:form>
 <div class="linkButton"><tiles:insert definition="callerPageButtonDef"/></div>
+<tiles:insert definition="groupMathHelpDef"/>
 
