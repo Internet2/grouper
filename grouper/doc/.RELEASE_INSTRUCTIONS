@@ -33,7 +33,7 @@ Instructions for preparing a Grouper release.
 * Test tarball
     * OSX + HSQLDB
     * Linux + HSQLDB
-    * Linux + Postgres
+    * Linux + PostgreSQL
     * Solaris + Oracle
 * Pass along tarball
 * Set `imp.version` in `build.xml` to `$NEXT_RELEASE-cvs`.
@@ -47,5 +47,5 @@ xyz
 
 ---
 
-$Id: .RELEASE_INSTRUCTIONS,v 1.6 2006-07-20 15:02:06 blair Exp $
+$Id: .RELEASE_INSTRUCTIONS,v 1.7 2006-07-20 15:13:47 blair Exp $
 
