@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.18 2006-07-20 16:40:13 blair Exp $
+$Id: TODO.txt,v 1.19 2006-07-21 14:03:17 blair Exp $
 
 ---
 
@@ -13,6 +13,8 @@ $Id: TODO.txt,v 1.18 2006-07-20 16:40:13 blair Exp $
 ### Next Actions
 * CODE      Migrate error messages to *E*
 * CODE      Migrate messages to *M*
+* CODE      checksum .hbm.xml files to try and ensure i keep schema version accurate
+* CODE      check for *Settings* (and version if it exists) when calling db-init
 * CODE      change query parameter setting in *MembershipFinder*
 * CODE      have xml* default properties + optional override properties
 * CODE      improved xml* integration (including logging)
@@ -119,6 +121,6 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.18 2006-07-20 16:40:13 blair Exp $
+$Id: TODO.txt,v 1.19 2006-07-21 14:03:17 blair Exp $
 
 
