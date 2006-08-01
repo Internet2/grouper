@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteGroupTypes.java,v 1.3 2006-06-15 17:45:34 blair Exp $
+ * @version $Id: SuiteGroupTypes.java,v 1.4 2006-08-01 18:37:09 blair Exp $
  */
 public class SuiteGroupTypes extends TestCase {
 
@@ -46,6 +46,7 @@ public class SuiteGroupTypes extends TestCase {
     suite.addTestSuite( TestGroupType8.class  );  // fail: delete in use type
     suite.addTestSuite( TestGroupType9.class  );  // delete type
     suite.addTestSuite( TestGroupType10.class );  // delete type with fields
+    suite.addTestSuite( TestGroupType11.class );  // use custom attribute as non-root
     // TODO split - and the damn ordering is important here as these tests leave junk behind.
     //      i should really fix that.
     suite.addTestSuite( TestGroupTypes.class  );  
