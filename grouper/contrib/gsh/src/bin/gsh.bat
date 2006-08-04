@@ -1,5 +1,5 @@
 rem Author: Gary Brown
-rem $Id: gsh.bat,v 1.1 2006-08-04 16:19:43 blair Exp $
+rem $Id: gsh.bat,v 1.2 2006-08-04 16:23:05 blair Exp $
 
 @echo off
 rem if "%OS%" == "Windows_NT" setlocal
@@ -11,8 +11,8 @@ goto end
 
 :execute
 rem Populated at build
-set GROUPER_HOME=C:\projects\GrouperI2MI_1-0\grouper
-set GSH_HOME=C:\projects\GrouperI2MI_1-0\grouper\contrib\gsh
+set GROUPER_HOME=@GROUPER_HOME@
+set GSH_HOME=@GSH_HOME@
 
 rem The user's CLASSPATH
 set GSH_CP=%CLASSPATH%
