@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.112 2006-07-20 16:40:13 blair Exp $ -->
+<!-- $Id: build.xml,v 1.113 2006-08-04 19:02:11 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -29,10 +29,11 @@
   <property name="lib"                    location="${basedir}/lib"/>
 
   <property name="log.schema"             location="${basedir}/schemaexport.log"/>
-  <property name="log.dbinit"             location="${basedir}/db-init.log"/>
-  <property name="log.build"              location="${basedir}/build.log"/>
-  <property name="log.test.build"         location="${basedir}/test-build.log"/>
-  <property name="log.test.run"           location="${basedir}/test.log"/>
+  <property name="log.dbinit"             location="${basedir}/db-init.log"     />
+  <property name="log.build"              location="${basedir}/build.log"       />
+  <property name="log.eg.run"             location="${basedir}/eg.log"          />
+  <property name="log.test.build"         location="${basedir}/test-build.log"  />
+  <property name="log.test.run"           location="${basedir}/test.log"        />
 
   <property name="hprof.depth"            value="25"/>
   <property name="max.memory"             value="192m"/>
@@ -195,6 +196,60 @@
     />
   </target>
   <!-- dist-lib -->
+
+  <!-- eg -->
+  <target name="eg"
+          depends="build"
+          description="run example programs"
+  >
+    <record name="${log.eg.run}" action="start"/>
+    <antcall  target="db-reset"/>
+    <antcall  target="eg-run">
+      <param  name="name" value="FindGrouperSystem"   /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="name" value="StartAndStopSession" /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="name" value="FindRootStem"        /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="name" value="AddRootStem"         /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="name" value="FindStemByName"      /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="name" value="AddGroup"            /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="name" value="AddLocalSubject"     /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="name" value="FindSubjectById"     /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="name" value="FindGroupByName"     /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="name" value="AddMember"           /> 
+    </antcall>
+    <record name="${log.eg.run}" action="stop"/>
+  </target>
+  <!-- eg -->
+
+  <!-- eg-run -->
+  <target name="eg-run" 
+          description="Run example program specified on the command line with -Dname=NAME" 
+  >
+    <java fork="true"
+          maxmemory="${max.memory}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.eg.${name}"
+          failonerror="true"
+    />
+  </target>
+  <!-- eg-run -->
 
   <!-- ensure-cmd -->
   <target name="ensure-cmd" unless="cmd">
