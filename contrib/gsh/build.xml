@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.5 2006-08-01 19:02:44 blair Exp $ -->
+<!-- $Id: build.xml,v 1.6 2006-08-04 16:19:43 blair Exp $ -->
 
 <project name="GrouperShell" default="build" basedir=".">
 
@@ -48,7 +48,7 @@
     </copy>
     <chmod  dir="${build.bin}"  
             perm="ugo+rx" 
-            includes="**/*.sh"
+            includes="**/*.sh,**/*.bat"
     />
 
     <record name="${log.build}" action="stop"/>
