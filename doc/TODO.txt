@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.19 2006-07-21 14:03:17 blair Exp $
+$Id: TODO.txt,v 1.20 2006-08-04 15:46:15 blair Exp $
 
 ---
 
@@ -36,6 +36,7 @@ $Id: TODO.txt,v 1.19 2006-07-21 14:03:17 blair Exp $
 ---
 
 ## Grouper 1.1
+* CODE      *Group.getCustomTypes()*
 * CODE      add group aging
 * CODE      add membership aging
 * CODE      require root-privileges to add, delete or modify *HibernateSubject*s
@@ -121,6 +122,6 @@ These items are not (necessarily) in any particular order.
 
 ---
 
-$Id: TODO.txt,v 1.19 2006-07-21 14:03:17 blair Exp $
+$Id: TODO.txt,v 1.20 2006-08-04 15:46:15 blair Exp $
 
 
