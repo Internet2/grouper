@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.4 2006-08-04 17:35:14 blair Exp $
+$Id: API.txt,v 1.5 2006-08-04 19:00:33 blair Exp $
 
 ---
 
@@ -221,6 +221,10 @@ $Id: API.txt,v 1.4 2006-08-04 17:35:14 blair Exp $
 * Set                 GroupTypeFinder.findAll()
 * Set                 GroupTypeFinder.findAllAssignable()
 
+## HibernateSubject - SUBJECT TO CHANGE
+* HibernateSubject    HibernateSubject.add(id, type, name)
+* String              getId()
+
 ## IntersectionFilter extends BaseQueryFilter
 
 ## Member
@@ -418,4 +422,5 @@ $Id: API.txt,v 1.4 2006-08-04 17:35:14 blair Exp $
 * void                load(Session, Stem, Document)
 * void                loadFlatGroupsOrStems(Session, Document)
 * void                setOptions(Properties)
+
 
