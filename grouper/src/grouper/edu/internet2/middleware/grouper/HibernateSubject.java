@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * <p><b>This class is experimental and will change in future Grouper
  * releases.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.9 2006-07-10 18:17:07 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.10 2006-08-04 19:00:47 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {
@@ -72,7 +72,7 @@ public class HibernateSubject implements Serializable {
    * Add a {@link Subject} to the <i>JDBC Subject</i> table.
    * <pre class="eg">
    * try {
-   *   Subject subj = HibernateSubject.add("id", "person", "name");
+   *   HibernateSubject hsubj = HibernateSubject.add("id", "person", "name");
    * }
    * catch (HibernateException eH) {
    *   // unable to add subject
