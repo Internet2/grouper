@@ -4,37 +4,6 @@ with *Grouper*.
 
 ---
 
-# commons-beanutils-1.6.jar
-
-"Bean collections is a library combining BeanUtils with Commons Collections to
-provide services for collections of beans."
-
-* Version:  1.6
-* Source:   <http://jakarta.apache.org/commons/beanutils/>
-* License:  Apache Software License, Version 1.1
-* Updated:  ?
-
-# commons-collections-3.1.jar
-
-"Commons-Collections provides a suite of classes that extend or
-augment the Java Collections Framework."
-
-* Version:  3.1
-* Source:   <http://jakarta.apache.org/commons/>
-* License:  Apache License, Version 2.0
-* Updated:  ?
-
-# commons-digester-1.6.jar
-
-"Basically, the Digester package lets you configure an XML -> Java object
-mapping module, which triggers certain actions called rules whenever a
-particular pattern of nested XML elements is recognized."
-
-* Version:  1.6
-* Source:   <http://jakarta.apache.org/commons/digester/>
-* License:  Apache Software License, Version 2.0
-* Updated:  ?
-
 # commons-lang-2.0.jar
 
 "The standard Java libraries fail to provide enough methods for
@@ -92,21 +61,24 @@ persistence and query service for Java."
 * License:  Hypersonic License
 * Updated:  ?
 
-# i2mi-common-0.0.1.jar
+# i2mi-common-0.1.0.jar
 
 "i2mi-common is container for shared resources across Internet2 Middleware
 projects."
 
 Contains:
 * cglib-nodep-2.1_03.jar
+* commons-beanutils-1.7.0.jar
+* commons-collections-3.2.jar
 * commons-dbcp-1.2.1.jar
+* commons-digester-1.7.jar
 * commons-logging-1.1.jar
 * commons-pool-1.3.jar
 * dom4j-1.6.1.jar
 * junit-4.1.jar
 * odmg-3.0.jar
 
-* Version:  0.0.1
+* Version:  0.1.0
 * Source:   <http://viewvc.internet2.edu/viewvc.py/i2mi-common/?root=I2MI>
 * License:  Apache License, Version 2.0
 * Updated:  20060807
@@ -155,5 +127,5 @@ logging services for purposes of application debugging and auditing."
 
 ---
 
-$Id: README.txt,v 1.3 2006-08-07 16:20:59 blair Exp $
+$Id: README.txt,v 1.4 2006-08-07 19:26:23 blair Exp $
 
