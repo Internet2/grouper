@@ -1,0 +1,12 @@
+
+# Subject 0.2.1
+
+Released: 20060627
+
+## Changes
+* BUGFIX:   Restored 1.4.2 compatability (again) to *JNDISourceAdapter*.
+
+---
+
+$Id: NEWS.txt,v 1.1 2006-08-07 17:51:52 blair Exp $
+
