@@ -27,3 +27,4 @@
 #^grouper-ui /bin/true
 ^grouper/   /usr/bin/activitymail -df %{sVv} -t grouper-commit@listhost.uchicago.edu,grouper-commit@googlegroups.com
 ^subject    /usr/bin/activitymail -df %{sVv} -t subject-commit@listhost.uchicago.edu
+^i2mi-common/  /usr/bin/activitymail -df %{sVv} -t grouper-commit@listhost.uchicago.edu,grouper-commit@googlegroups.com
