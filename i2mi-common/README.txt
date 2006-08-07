@@ -17,9 +17,9 @@ Apache License, Version 2.0.  See `lib/README.txt` for more information.
 # Using
 
 One may use *i2mi-common* in two ways:
-* Use the .jar files located in `lib`
-* Run `ant dist` and then use `dist/i2mi-common-0.0.1.jar` instead of the
-  individual .jar files.
+* Copy the .jar files located into `lib` into an area appropriate for your project.
+* Run `ant dist` and then copy one of the jar files in `dist` to an area
+  appropriate for your project.
 
 ---
 
@@ -40,5 +40,5 @@ When prompted for a password, hit enter.
 
 ---
 
-$Id: README.txt,v 1.1.1.1 2006-08-07 15:07:00 blair Exp $
+$Id: README.txt,v 1.2 2006-08-07 15:15:38 blair Exp $
 
