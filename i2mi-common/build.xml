@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.1.1.1 2006-08-07 15:06:59 blair Exp $ -->
+<!-- $Id: build.xml,v 1.2 2006-08-07 18:34:59 blair Exp $ -->
 
 <project name="i2mi-common" default="dist" basedir=".">
 
@@ -6,7 +6,7 @@
   <property name="app.name"       value="i2mi-common"/>
   <property name="impl.url"       value="http://middleware.internet2.edu/"/>
   <property name="impl.vendor"    value="Internet2"/>
-  <property name="impl.version"   value="0.0.1"/>
+  <property name="impl.version"   value="0.0.2-cvs"/>
 
   <property name="build"                  location="${basedir}/build"/>
   <property name="dist"                   location="${basedir}/dist"/>
