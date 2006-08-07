@@ -1,6 +1,6 @@
 <!-- Build configuration for Subject API -->
 
-<project name="Subject" default="dist" basedir=".">
+<project name="Subject" default="test" basedir=".">
 
 	<!-- Set global properties for this build -->
 	<property name="version" value="0.2.2-cvs" />
