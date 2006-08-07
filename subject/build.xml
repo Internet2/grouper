@@ -116,19 +116,22 @@
 		<delete dir="${javadoc.dir}" />
 	</target>
 	
-	<!-- Run automated tests on compiled code -->
-	<target name="test-all" depends="compile-tests">
-		<junit printsummary="yes" haltonfailure="yes" haltonerror="yes">
-			<classpath refid="build.path" />
-			<formatter type="plain" />
-			<batchtest todir="${test.dir}">
-				<fileset dir="${build.dir}">
-					<include name="**/*Test.class" />
-					<include name="**/*Tests.class" />
-				</fileset>
-			</batchtest>
-		</junit>
-	</target>
+  <!-- Run automated tests on compiled code -->
+  <target name="test" 
+          depends="compile-tests"
+  >
+    <junit printsummary="yes" haltonfailure="yes" haltonerror="yes">
+      <classpath refid="build.path" />
+      <formatter type="plain" />
+      <batchtest todir="${test.dir}">
+        <fileset dir="${build.dir}">
+          <include name="**/*Test.class"  />
+          <include name="**/*Tests.class" />
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+  <!-- test -->
     
 	<target name="compile-tests" depends="compile">
 		<javac

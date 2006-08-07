@@ -1,4 +1,13 @@
 
+# Subject 0.2.2-cvs
+
+Released: ????????
+
+## Changes
+* BUGFIX:  Removed tests that relied upon code that had been removed from the API.
+
+---
+
 # Subject 0.2.1
 
 Released: 20060627
@@ -8,5 +17,5 @@ Released: 20060627
 
 ---
 
-$Id: NEWS.txt,v 1.1 2006-08-07 17:51:52 blair Exp $
+$Id: NEWS.txt,v 1.2 2006-08-07 18:12:47 blair Exp $
 

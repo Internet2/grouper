@@ -28,6 +28,15 @@ This will create .jar, .tar.gz and .zip files in `dist/`.
 
 ---
 
+# Test
+  
+    % ant test
+
+This will run *Subject*'s unit tests.  Unfortunately they are not very
+comprehensive at this time.
+
+---
+
 # Reporting Problems
 
 TBD
@@ -45,5 +54,6 @@ When prompted for a password, hit enter.
 
 ---
 
-$Id: README.txt,v 1.2 2006-08-07 17:56:26 blair Exp $
+$Id: README.txt,v 1.3 2006-08-07 18:12:47 blair Exp $
+
 
