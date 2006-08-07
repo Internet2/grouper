@@ -20,6 +20,14 @@ The Grouper Wiki has additional information on *Subject*:
 
 ---
 
+# Build
+
+    % ant dist
+
+This will create .jar, .tar.gz and .zip files in `dist/`.
+
+---
+
 # Reporting Problems
 
 TBD
@@ -37,5 +45,5 @@ When prompted for a password, hit enter.
 
 ---
 
-$Id: README.txt,v 1.1 2006-08-07 17:51:52 blair Exp $
+$Id: README.txt,v 1.2 2006-08-07 17:56:26 blair Exp $
 
