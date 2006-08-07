@@ -4,6 +4,7 @@
 Released: ????????
 
 ## Changes
+* UPDATE:   Removed `lib/commons-dbcp-1.2.1.jar`
 * UPDATE:   Removed `lib/jconn2.jar`
 * UPDATE:   Removed `lib/hibernate2.jar`
 * UPDATE:   Added `lib/i2mi-common-0.0.1.jar`.  This replaces:
@@ -23,6 +24,7 @@ Released: 20060627
 
 ---
 
-$Id: NEWS.txt,v 1.5 2006-08-07 18:44:34 blair Exp $
+$Id: NEWS.txt,v 1.6 2006-08-07 18:46:07 blair Exp $
+
 
 
