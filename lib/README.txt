@@ -1,25 +1,10 @@
 
-# Grouper Third Party Library
-
 This file provides information on the third party libraries that ship
-with Grouper.
-
-$Id: README.txt,v 1.2 2006-07-05 17:54:53 blair Exp $
+with *Grouper*.
 
 ---
 
-## cglib-full-2.0.2.jar
-
-"cglib is a powerful, high performance and quality Code Generation
-Library, It is used to extend JAVA classes and implements interfaces
-at runtime."
-
-* Version:  2.0.2
-* Source:   <http://cglib.sourceforge.net/>
-* License:  Apache Software License, Version 1.1
-* Updated:  ?
-
-## commons-beanutils-1.6.jar
+# commons-beanutils-1.6.jar
 
 "Bean collections is a library combining BeanUtils with Commons Collections to
 provide services for collections of beans."
@@ -29,7 +14,7 @@ provide services for collections of beans."
 * License:  Apache Software License, Version 1.1
 * Updated:  ?
 
-## commons-collections-3.1.jar
+# commons-collections-3.1.jar
 
 "Commons-Collections provides a suite of classes that extend or
 augment the Java Collections Framework."
@@ -39,20 +24,7 @@ augment the Java Collections Framework."
 * License:  Apache License, Version 2.0
 * Updated:  ?
 
-## commons-dbcp-1.2.1.jar
-
-"There are several Database Connection Pools already available,
-both within Jakarta products and elsewhere. This Commons package
-provides an opportunity to coordinate the efforts required to create
-and maintain an efficient, feature-rich package under the ASF
-license."
-
-* Version:  1.2.1
-* Source:   <http://jakarta.apache.org/commons/>
-* License:  Apache License, Version 2.0
-* Updated:  ?
-
-## commons-digester-1.6.jar
+# commons-digester-1.6.jar
 
 "Basically, the Digester package lets you configure an XML -> Java object
 mapping module, which triggers certain actions called rules whenever a
@@ -63,7 +35,7 @@ particular pattern of nested XML elements is recognized."
 * License:  Apache Software License, Version 2.0
 * Updated:  ?
 
-## commons-lang-2.0.jar
+# commons-lang-2.0.jar
 
 "The standard Java libraries fail to provide enough methods for
 manipulation of its core classes. The  Lang  Component provides
@@ -74,37 +46,7 @@ these extra methods."
 * License:  Apache License, Version 2.0
 * Updated:  ?
 
-## commons-logging-1.0.4.jar
-
-"Commons-Logging is a wrapper around a variety of logging API
-implementations."
-
-* Version:  1.0.4
-* Source:   <http://jakarta.apache.org/commons/>
-* License:  Apache License, Version 2.0
-* Updated:  ?
-
-## commons-pool-1.2.jar
-
-"Pool provides an Object-pooling API"
-
-* Version:  1.2
-* Source:   <http://jakarta.apache.org/commons/>
-* License:  Apache License, Version 2.0
-* Updated:  ?
-
-## dom4j-1.4.jar
-
-"dom4j is an easy to use, open source library for working with XML,
-XPath and XSLT on the Java platform using the Java Collections
-Framework and with full support for DOM, SAX and JAXP."
-
-* Version:  1.4
-* Source:   <http://www.dom4j.org/>
-* License:  BSD
-* Updated:  ?
-
-## ehcache-0.9.jar
+# ehcache-0.9.jar
 
 "EHCache is a pure Java, in-process cache"
 
@@ -131,7 +73,7 @@ Framework and with full support for DOM, SAX and JAXP."
 * License:  MIT
 * Updated:  20060705
 
-## hibernate2-2.1.8.jar
+# hibernate2-2.1.8.jar
 
 "Hibernate is a powerful, ultra-high performance object/relational
 persistence and query service for Java."
@@ -141,7 +83,7 @@ persistence and query service for Java."
 * License:  LGPL
 * Updated:  ?
 
-## hsqldb-1.7.2.11.jar
+# hsqldb-1.7.2.11.jar
 
 "Lightweight 100% Java SQL Database Engine"
 
@@ -150,7 +92,26 @@ persistence and query service for Java."
 * License:  Hypersonic License
 * Updated:  ?
 
-## jta-1.0.1B.jar
+# i2mi-common-0.0.1.jar
+
+"i2mi-common is container for shared resources across Internet2 Middleware
+projects."
+
+Contains:
+* cglib-nodep-2.1_03.jar
+* commons-dbcp-1.2.1.jar
+* commons-logging-1.1.jar
+* commons-pool-1.3.jar
+* dom4j-1.6.1.jar
+* junit-4.1.jar
+* odmg-3.0.jar
+
+* Version:  0.0.1
+* Source:   <http://viewvc.internet2.edu/viewvc.py/i2mi-common/?root=I2MI>
+* License:  Apache License, Version 2.0
+* Updated:  20060807
+
+# jta-1.0.1B.jar
 
 "JTA specifies standard Java interfaces between a transaction manager
 and the parties involved in a distributed transaction system: the
@@ -162,7 +123,7 @@ applications.
 * License:  Sun Microsystems, Inc. Binary License Code Agreement
 * Updated:  ?
 
-## jug-1.1.1.jar
+# jug-1.1.1.jar
 
 "JUG is a pure java UUID generator, that can be used either as a
 component in a bigger application, or as a standalone command line
@@ -173,16 +134,7 @@ tool (a la 'uuidgen')."
 * License:  LGPL
 * Updated:  ?
 
-## junit-3.8.1.jar
-
-"JUnit is a regression testing framework"
-
-* Version:  3.8.1
-* Source:   <http://www.junit.org/>
-* License:  Common Public License
-* Updated:  ?
-
-## log4j-1.2.8.jar
+# log4j-1.2.8.jar
 
 "The Logging Services project is intended to provide cross-language
 logging services for purposes of application debugging and auditing."
@@ -192,16 +144,7 @@ logging services for purposes of application debugging and auditing."
 * License:  Apache License, Version 2.0
 * Updated:  ?
 
-## odmg-3.0.jar
-
-"Hibernate provided ODMG compliant persistence manager interface."
-
-* Version:  3.0 (?)
-* Source:   <http://www.hibernate.org/>
-* License:  LGPL (?)
-* Updated:  ?
-
-## subject-0.2.1.jar
+# subject-0.2.1.jar
 
 "The I2MI Subject Interface."
 
@@ -209,4 +152,8 @@ logging services for purposes of application debugging and auditing."
 * Source:   <http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/subject/?cvsroot=I2MI>
 * License:  Apache License, Version 2.0 (?)
 * Updated:  20060627
+
+---
+
+$Id: README.txt,v 1.3 2006-08-07 16:20:59 blair Exp $
 
