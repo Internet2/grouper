@@ -4,6 +4,10 @@
 Released: ????????
 
 ## Changes
+* UPDATE:   Updated to `lib/i2mi-common-0.1.0.jar`.  This replaces:
+    * `lib/commons-beanutils-1.6.jar`
+    * `lib/commons-collections-3.1.jar`
+    * `lib/commons-digester-1.6.jar`
 * UPDATE:   Removed `lib/commons-dbcp-1.2.1.jar`
 * UPDATE:   Removed `lib/jconn2.jar`
 * UPDATE:   Removed `lib/hibernate2.jar`
@@ -24,7 +28,7 @@ Released: 20060627
 
 ---
 
-$Id: NEWS.txt,v 1.6 2006-08-07 18:46:07 blair Exp $
+$Id: NEWS.txt,v 1.7 2006-08-07 19:14:26 blair Exp $
 
 
 
