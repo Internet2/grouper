@@ -37,6 +37,22 @@ comprehensive at this time.
 
 ---
 
+# API Documentation
+
+    % api javaodc
+
+Generate API javadoc in `doc/api/`.
+
+---
+
+# Clean
+
+    % ant clean
+
+Removes generated build, test, distribution and javadoc files.
+
+---
+
 # Reporting Problems
 
 TBD
@@ -54,6 +70,6 @@ When prompted for a password, hit enter.
 
 ---
 
-$Id: README.txt,v 1.3 2006-08-07 18:12:47 blair Exp $
+$Id: README.txt,v 1.4 2006-08-07 18:22:12 blair Exp $
 
 

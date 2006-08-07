@@ -31,12 +31,70 @@
 	</path>
 
 
-	<!-- Prepare directory structure for project build-->
-	<target name="init">
-		<mkdir dir="${build.dir}" />
-		<mkdir dir="${dist.dir}" />
-	</target>
+  <!-- clean -->
+  <target name="clean"
+          description="remove build, test and distribution areas"
+          depends="clean-javadocs,clean-build,clean-dist"
+  />
+  <!-- clean -->
 
+  <!-- dist -->
+  <target name="dist" 
+          description="create product distribution"
+          depends="clean-all, jar, javadoc, create-gzip, create-zip" 
+  />
+  <!-- dist -->
+	
+  <!-- init -->
+  <!-- prepare directory structure for project build -->
+  <target name="init">
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${dist.dir}" />
+  </target>
+  <!-- init -->
+
+  <!-- javadoc -->
+  <target name="javadoc"
+          description="generate api documentation"
+  >
+    <mkdir dir="${doc.dir}" />
+    <mkdir dir="${javadoc.dir}" />
+    <javadoc  packagenames="edu.internet2.middleware.subject.*,edu.internet2.middleware.common.subject.*"
+              access="public"
+              use="true"
+              notree="false"
+              nonavbar="false"
+              noindex="false"
+              splitindex="true"
+              author="true"
+              version="true"
+              nodeprecatedlist="false"
+              nodeprecated="false"	
+              sourcepath="${src.dir}"
+              destdir="${javadoc.dir}">
+      <classpath refid="build.path" />
+    </javadoc>
+  </target>
+  <!-- javadoc -->
+
+  <!-- test -->
+  <target name="test" 
+          description="run api unit tests"
+          depends="compile-tests"
+  >
+    <junit printsummary="yes" haltonfailure="yes" haltonerror="yes">
+      <classpath refid="build.path" />
+      <formatter type="plain" />
+      <batchtest todir="${test.dir}">
+        <fileset dir="${build.dir}">
+          <include name="**/*Test.class"  />
+          <include name="**/*Tests.class" />
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+  <!-- test -->
+    
 
 	<!-- Compile classes -->
 	<target name="compile" depends="init">
@@ -48,32 +106,6 @@
 		</javac>
 	</target>
 
-	<!-- Generate API docs -->
-	<target name="javadoc">
-		<mkdir dir="${doc.dir}" />
-		<mkdir dir="${javadoc.dir}" />
-		<javadoc
-			packagenames="edu.internet2.middleware.subject.*,
-			edu.internet2.middleware.common.subject.*"
-			access="public"
-			use="true"
-			notree="false"
-			nonavbar="false"
-			noindex="false"
-			splitindex="true"
-			author="true"
-			version="true"
-			nodeprecatedlist="false"
-			nodeprecated="false"	
-			sourcepath="${src.dir}"
-			destdir="${javadoc.dir}">
-                <classpath refid="build.path" />
-        </javadoc>
-	</target>
-
-	<!-- Create product distribution and move it to ${dist} -->
-	<target name="dist" depends="clean-all, jar, javadoc, create-gzip, create-zip" />
-	
 	<target name="jar" depends="compile">
         	<jar jarfile="${jarfile}" basedir="${build.dir}" />
 	</target>
@@ -102,7 +134,6 @@
 		</zip>
 	</target>
    
-	<!-- Cleanup after the build, test, and distribution processes -->
 	<target name="clean-all" depends="clean-javadocs, clean-build, clean-dist" />
 	<target name="clean-build">
 		<delete dir="${build.dir}" />
@@ -116,23 +147,6 @@
 		<delete dir="${javadoc.dir}" />
 	</target>
 	
-  <!-- Run automated tests on compiled code -->
-  <target name="test" 
-          depends="compile-tests"
-  >
-    <junit printsummary="yes" haltonfailure="yes" haltonerror="yes">
-      <classpath refid="build.path" />
-      <formatter type="plain" />
-      <batchtest todir="${test.dir}">
-        <fileset dir="${build.dir}">
-          <include name="**/*Test.class"  />
-          <include name="**/*Tests.class" />
-        </fileset>
-      </batchtest>
-    </junit>
-  </target>
-  <!-- test -->
-    
 	<target name="compile-tests" depends="compile">
 		<javac
 			srcdir="${test.dir}"
