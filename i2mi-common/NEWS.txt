@@ -1,7 +1,7 @@
 
 # i2mi-common 0.0.1
 
-Released: TBD
+Released: 20060807
 
 ## Changes
 * NEW   Added `lib/cglib-nodep-2.1_3.jar` 
@@ -14,5 +14,5 @@ Released: TBD
 
 ---
 
-$Id: NEWS.txt,v 1.1.1.1 2006-08-07 15:07:00 blair Exp $
+$Id: NEWS.txt,v 1.2 2006-08-07 15:15:39 blair Exp $
 
