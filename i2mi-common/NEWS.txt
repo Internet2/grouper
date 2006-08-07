@@ -1,4 +1,15 @@
 
+# i2mi-common 0.1.0
+
+Released: 20060807
+
+## Changes
+* NEW   Added `lib/commons-beanutils-1.7.0.jar`
+* NEW   Added `lib/commons-collections-3.2.jar
+* NEW   Added `lib/commons-digester-1.7.jar`
+
+---
+
 # i2mi-common 0.0.1
 
 Released: 20060807
@@ -14,5 +25,5 @@ Released: 20060807
 
 ---
 
-$Id: NEWS.txt,v 1.2 2006-08-07 15:15:39 blair Exp $
+$Id: NEWS.txt,v 1.3 2006-08-07 19:12:09 blair Exp $
 

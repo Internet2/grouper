@@ -16,6 +16,26 @@ at runtime."
 * License:  Apache Software License, Version 1.1
 * Updated:  20060807
 
+# commons-beanutils-1.7.0.jar
+
+"Bean collections is a library combining BeanUtils with Commons Collections to
+provide services for collections of beans."
+
+* Version:  1.7.0
+* Source:   <http://jakarta.apache.org/commons/beanutils/>
+* License:  Apache Software License, Version 1.1
+* Updated:  20060807
+
+# commons-collections-3.2.jar
+
+"Commons-Collections provides a suite of classes that extend or
+augment the Java Collections Framework."
+
+* Version:  3.2
+* Source:   <http://jakarta.apache.org/commons/>
+* License:  Apache License, Version 2.0
+* Updated:  20060807
+
 # commons-dbcp-1.2.1.jar
 
 "There are several Database Connection Pools already available,
@@ -27,6 +47,17 @@ license."
 * Version:  1.2.1
 * Source:   <http://jakarta.apache.org/commons/dbcp/>
 * License:  Apache License, Version 2.0
+* Updated:  20060807
+
+# commons-digester-1.7.jar
+
+"Basically, the Digester package lets you configure an XML -> Java object
+mapping module, which triggers certain actions called rules whenever a
+particular pattern of nested XML elements is recognized."
+
+* Version:  1.7
+* Source:   <http://jakarta.apache.org/commons/digester/>
+* License:  Apache Software License, Version 2.0
 * Updated:  20060807
 
 # commons-logging-1.1.jar
@@ -79,5 +110,5 @@ Framework and with full support for DOM, SAX and JAXP."
 
 ---
 
-$Id: README.txt,v 1.1.1.1 2006-08-07 15:07:07 blair Exp $
+$Id: README.txt,v 1.2 2006-08-07 19:12:09 blair Exp $
 
