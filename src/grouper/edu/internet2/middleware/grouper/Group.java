@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.89 2006-07-10 18:17:07 blair Exp $
+ * @version $Id: Group.java,v 1.90 2006-08-08 13:00:36 blair Exp $
  */
 public class Group extends Owner {
 
@@ -1401,8 +1401,9 @@ public class Group extends Owner {
    */
   public Set getRemovableTypes() {
     Set types = new LinkedHashSet();
-    // Only root-like subjects can remove types
-    if (PrivilegeResolver.getInstance().isRoot(this.getSession().getSubject())) {
+    // Must have ADMIN to remove types.
+    try {
+      PrivilegeResolver.getInstance().canADMIN(this.s, this, this.s.getSubject());
       GroupType t;
       Iterator  iter  = this.getTypes().iterator();
       while (iter.hasNext()) {
@@ -1411,6 +1412,9 @@ public class Group extends Owner {
           types.add(t);
         }
       }
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      // Ignore.  
     }
     return types;
   } // public Set getRemovableTypes()

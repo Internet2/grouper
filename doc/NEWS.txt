@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS.txt,v 1.9 2006-08-07 19:26:23 blair Exp $
+$Id: NEWS.txt,v 1.10 2006-08-08 13:00:36 blair Exp $
 
 ---
 
@@ -10,11 +10,12 @@ $Id: NEWS.txt,v 1.9 2006-08-07 19:26:23 blair Exp $
 Released: TBD
 
 ## Changes
-* NEW:  Upgraded to `lib/i2mi-common-0.1.0.jar`.  This replaces:
+* BUGFIX: *Group.getRemovableTypes()* made incorrect privilege check. [GCODE#11]
+* NEW:    Upgraded to `lib/i2mi-common-0.1.0.jar`.  This replaces:
     * `lib/commons-beanutils-1.6.jar` 
     * `lib/commons-collections-3.1.jar`
     * `lib/commons-digester-1.6.jar`
-* NEW:  Added `lib/i2mi-common.jar`.  This contains:
+* NEW:    Added `lib/i2mi-common-0.0.1.jar`.  This contains:
     * cglib-nodep-2.1_03.jar
     * commons-dbcp-1.2.1.jar
     * commons-logging-1.1.jar
