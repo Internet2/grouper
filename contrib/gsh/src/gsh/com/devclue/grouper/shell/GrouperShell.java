@@ -18,14 +18,15 @@ import  java.util.*;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.7 2006-07-10 16:15:05 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.8 2006-08-08 17:56:10 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
 
   // PROTECTED CLASS CONSTANTS //
   protected static final String NAME        = "gsh";
-  protected static final String VERSION     = "0.0.1";
+  // FIXME Do I need to automatically pull this from `build.xml`?
+  protected static final String VERSION     = "0.0.2-cvs"; 
 
 
   // PRIVATE CLASS CONSTANTS //

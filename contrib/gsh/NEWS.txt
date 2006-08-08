@@ -10,7 +10,15 @@ This file provides information on *GrouperShell* releases.
 Released: ????????
 
 ### CHANGES
-* Added `bin/gsh.bat` [Gary Brown]
+* NEW:  Added *GroupType* commands:
+    * typeAdd(name)
+    * typeAddAttr(type, name, read, write, req)
+    * typeAddList(type, name, read, write)
+    * typeDel(name)
+    * typeDelField(type, name)
+    * typeFind(name)
+    * typeGetFields(name)
+* NEW:  Added `bin/gsh.bat` [Gary Brown]
 
 ---
 
@@ -23,5 +31,5 @@ Released: 20060720
 
 ---
 
-$Id: NEWS.txt,v 1.3 2006-08-04 16:19:43 blair Exp $
+$Id: NEWS.txt,v 1.4 2006-08-08 17:56:10 blair Exp $
 

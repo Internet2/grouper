@@ -1,6 +1,6 @@
 #
 # GrouperShell Tests
-# $Id: test.gsh,v 1.3 2006-06-27 23:28:24 blair Exp $
+# $Id: test.gsh,v 1.4 2006-08-08 17:56:10 blair Exp $
 #
 
 #
@@ -11,7 +11,7 @@
 # SETUP
 #
 GSH_DEVEL = true
-version   = "0.0.1"
+version   = "0.0.2-cvs"
 rootExtn  = "uchicago"
 nsExtn    = "nsit"
 gExtn     = "nbs"
