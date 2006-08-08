@@ -16,7 +16,7 @@ import  java.util.*;
  * Pretty print results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.3 2006-06-28 21:19:30 blair Exp $
+ * @version $Id: p.java,v 1.4 2006-08-08 17:56:10 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -48,8 +48,14 @@ public class p {
       if      (obj instanceof Boolean)          {
         i.println(obj);
       }
+      else if (obj instanceof Field)            {
+        _pp(i, (Field) obj);
+      }
       else if (obj instanceof Group)            {
         _pp(i, (Group) obj);
+      }
+      else if (obj instanceof GroupType)        {
+        _pp(i, (GroupType) obj);
       }
       else if (obj instanceof HibernateSubject) {
         _pp(i, (HibernateSubject) obj);
@@ -84,6 +90,25 @@ public class p {
 
   // PRIVATE CLASS METHODS //
  
+  // Handle {@link Field}s
+  // @since   0.0.2
+  private static void _pp(Interpreter i, Field f) {
+    String type = f.getType().toString();  
+    if      (f.getType().equals(FieldType.ACCESS))    {
+      type = "access privilege";
+    }
+    else if (f.getType().equals(FieldType.ATTRIBUTE)) {
+      type = "attribute";
+    }
+    else if (f.getType().equals(FieldType.LIST))      {
+      type = "list";
+    }
+    else if (f.getType().equals(FieldType.NAMING))    {
+      type = "naming privilege";
+    }
+    i.println(type + ": " + U.q(f.getName()));
+  } // private static void _pp(i, f)
+
   // Handle {@link Group}s
   // @since   0.0.1
   private static void _pp(Interpreter i, Group g) {
@@ -93,7 +118,13 @@ public class p {
         + "displayName="  + U.q(g.getDisplayName()  )  
         + "uuid="         + U.q(g.getUuid()         )
       );
-  } // private static void _pp(i, ns)
+  } // private static void _pp(i, g)
+
+  // Handle {@link GroupType}s
+  // @since   0.0.2
+  private static void _pp(Interpreter i, GroupType t) {
+      i.println("type: " + U.q(t.getName()));
+  } // private static void _pp(i, t)
 
   // Handle {@link HibernateSubject}s
   // @since   0.0.1

@@ -12,7 +12,7 @@ import  java.util.*;
  * {@link GrouperShell} error messages.
  * <p />
  * @author  blair christensen.
- * @version $Id: E.java,v 1.2 2006-06-27 19:28:29 blair Exp $
+ * @version $Id: E.java,v 1.3 2006-08-08 17:56:10 blair Exp $
  * @since   0.0.1
  */
 class E {
@@ -25,6 +25,10 @@ class E {
   protected static final String I_NULL              = "null interpreter";
   protected static final String OUTOFBOUNDS         = "index out of bounds";
   protected static final String STEM_ATTR_INVALID   = "invalid stem attribute: ";
+  protected static final String TYPE_ADD            = "unable to add group type: ";
+  protected static final String TYPE_ADDATTR        = "unable to add attribute to group type: ";
+  protected static final String TYPE_ADDLIST        = "unable to add list to group type: ";
+  protected static final String TYPE_NOTFOUND       = "group type not found: ";
 
 } // class E
 

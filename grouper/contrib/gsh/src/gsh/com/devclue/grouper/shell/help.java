@@ -12,7 +12,7 @@ import  bsh.*;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.1 2006-07-10 16:15:05 blair Exp $
+ * @version $Id: help.java,v 1.2 2006-08-08 17:56:10 blair Exp $
  * @since   0.0.1
  */
 public class help {
@@ -63,6 +63,13 @@ public class help {
     i.println("* revokePriv(name, subject id, Privilege)"             );
     i.println("* setGroupAttr(stem, attr, value)"                     );
     i.println("* setStemAttr(stem, attr, value)"                      );
+    i.println("* typeAdd(name)"                                       );
+    i.println("* typeAddAttr(type, name, read, write, req)"           );
+    i.println("* typeAddList(type, name, read, write)"                );
+    i.println("* typeDel(name)"                                       );
+    i.println("* typeDelField(type, name)"                            );
+    i.println("* typeFind(name)"                                      );
+    i.println("* typeGetFields(name)"                                 );
     i.println("* version()"                                           );
     i.println(""                                                      );
     i.println("# VARIABLES"                                           );

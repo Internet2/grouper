@@ -4,13 +4,14 @@
 This file provides more detailed information on future *GrouperShell*
 development as listed in _doc/ROADMAP.txt_.
 
-$Id: TODO.txt,v 1.12 2006-07-14 16:56:04 blair Exp $
+$Id: TODO.txt,v 1.13 2006-08-08 17:56:10 blair Exp $
 
 ---
 
 ## Features To Add
-* Easier method invocation
 * Group type integration
+* Translator
+* Easier method invocation
 * Save command history to file
 ** Add `~/.gshrc` support?
 * XML* integration
