@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.21 2006-07-11 18:35:45 blair Exp $
+ * @version $Id: GroupType.java,v 1.22 2006-08-08 18:02:49 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -161,7 +161,7 @@ public class GroupType implements Serializable {
    * Add a custom list {@link Field} to a custom {@link GroupType}.
    * try {
    *   Field myList = type.addList(
-   *     "my list", AccessPrivilege.VIEW, AccessPrivilege.UPDATE
+   *     s, "my list", AccessPrivilege.VIEW, AccessPrivilege.UPDATE
    *   );
    * }
    * catch (InsufficientPrivilegeException eIP) {
@@ -274,7 +274,7 @@ public class GroupType implements Serializable {
    * will be thrown.
    * <pre class="eg">
    * try {
-   *   type.deleteField("my field");
+   *   type.deleteField(s, "my field");
    *   );
    * }
    * catch (InsufficientPrivilegeException eIP) {
