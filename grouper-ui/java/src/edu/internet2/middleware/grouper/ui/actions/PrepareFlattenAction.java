@@ -94,7 +94,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareFlattenAction.java,v 1.3 2006-07-17 12:52:57 isgwb Exp $
+ * @version $Id: PrepareFlattenAction.java,v 1.4 2006-08-09 07:27:24 isgwb Exp $
  */
 public class PrepareFlattenAction extends LowLevelGrouperCapableAction {
 
@@ -105,7 +105,7 @@ public class PrepareFlattenAction extends LowLevelGrouperCapableAction {
 			throws Exception {
 		RepositoryBrowser browser = getRepositoryBrowser(grouperSession,session);
 		
-		request.setAttribute("pageName","populate" + getBrowseMode(session) + "Groups");
+		request.setAttribute("pageName","populate" + getLinkBrowseMode(session) + "Groups");
 		request.setAttribute("flattenType",browser.getFlattenType());
 		
 		return null;

@@ -66,7 +66,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.7 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.8 2006-08-09 07:27:24 isgwb Exp $
  */
 
 /**
@@ -179,6 +179,17 @@ public abstract class LowLevelGrouperCapableAction
 			}catch(Exception e) {}
 		}
 		return pageSize;
+	}
+	
+	/**
+	 * Place centrally for consistency and to hide session attribute name
+	 */
+	public String getLinkBrowseMode(HttpSession session) {
+		String browseMode = (String) session.getAttribute(
+		"browseMode");
+		if (isEmpty(browseMode ))
+			browseMode = "My";
+		return browseMode;
 	}
 	
 	/**
