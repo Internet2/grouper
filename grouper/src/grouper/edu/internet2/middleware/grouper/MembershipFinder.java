@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.39 2006-07-20 00:16:36 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.40 2006-08-10 17:29:04 blair Exp $
  */
 public class MembershipFinder {
 
@@ -516,10 +516,8 @@ public class MembershipFinder {
   } // protected static Set findMembers(s, g, f)
 
   protected static Set findSubjects(GrouperSession s, Owner o, Field f) {
-    /*
-     * @filtered  true  MembershipFinder.findMemberships(s, oid, f)
-     * @session   true  MembershipFinder.findMemberships(s, oid, f)
-     */
+    // @filtered  true
+    // @session   true
     GrouperSession.validate(s);
     Set         subjs = new LinkedHashSet();
     Membership  ms;
@@ -536,7 +534,29 @@ public class MembershipFinder {
       }
     }
     return subjs;
-  } // protected static Set findMembers(s, o, f)
+  } // protected static Set findSubjects(s, o, f)
+
+  // @since 1.0.1 
+  protected static Set findSubjectsNoPriv(GrouperSession s, Owner o, Field f) {
+     // @filtered  false
+     // @session   true 
+    GrouperSession.validate(s);
+    Set         subjs = new LinkedHashSet();
+    Membership  ms;
+    Iterator    iter  = findMembershipsNoPriv(s, o, f).iterator();
+    while (iter.hasNext()) {
+      ms = (Membership) iter.next();
+      try {
+        subjs.add(ms.getMember().getSubject());
+      }
+      catch (Exception e) {
+        // @exception MemberNotFoundException
+        // @exception SubjectNotFoundException
+        ErrorLog.error(MembershipFinder.class, E.MSF_FINDSUBJECTS + e.getMessage());
+      }
+    }
+    return subjs;
+  } // protected static Set findSubjectsNoPriv(s, o, f)
 
   protected static Set findMemberships(
     GrouperSession s, Member m, Field f
@@ -592,14 +612,20 @@ public class MembershipFinder {
   } // protected static Set findMemberships(s, m, f)
 
   protected static Set findMemberships(GrouperSession s, Owner o, Field f) {
-    /*
-     * @filtered  true
-     * @session   true
-     */
+     // @filtered true
+     // @session  true
+    return new LinkedHashSet( _filterMemberships( s, f, findMembershipsNoPriv(s, o, f) ) );
+  } // protected static Set findMemberships(s, o, f)
+
+  // @since 1.0.1
+  protected static Set findMembershipsNoPriv(GrouperSession s, Owner o, Field f) {
+     // @filtered false
+     // @session  true
     GrouperSession.validate(s);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
+      // TODO Why can't I use *f* as a parameter?
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
@@ -611,15 +637,15 @@ public class MembershipFinder {
       qry.setParameter( "owner" , o                     );
       qry.setString(    "fname" , f.getName()           );
       qry.setString(    "ftype" , f.getType().toString());
-      List    l   = qry.list();
+      List l = qry.list();
       hs.close();
-      mships.addAll( _filterMemberships(s, f, l) );
+      mships.addAll( U.setMembershipSessions(s, l) );
     }
     catch (HibernateException eH) {
       ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
     }
     return mships;
-  } // protected static Set findMemberships(s, o, f)
+  } // protected static Set findMembershipsNoPriv(s, o, f)
 
   // @since 1.0
   protected static Membership findMembershipByTypeNoPrivNoSession(
@@ -750,11 +776,11 @@ public class MembershipFinder {
 
 
   // PRIVATE CLASS METHODS //
-  private static Set _filterMemberships(GrouperSession s, Field f, List l) {
+  private static Set _filterMemberships(GrouperSession s, Field f, Collection c) {
     GrouperSession.validate(s);
     Set         mships  = new LinkedHashSet();
     Membership  ms;
-    Iterator    iter    = l.iterator();
+    Iterator    iter    = c.iterator();
     while (iter.hasNext()) {
       ms = (Membership) iter.next();
       ms.setSession(s);
@@ -780,7 +806,7 @@ public class MembershipFinder {
       }
     }
     return mships;
-  } // private static Set _filterMemberships(s, f, l)
+  } // private static Set _filterMemberships(s, f, c)
 
 }
 

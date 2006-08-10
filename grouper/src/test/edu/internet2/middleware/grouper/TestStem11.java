@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem11.java,v 1.2 2006-08-10 15:59:47 blair Exp $
+ * @version $Id: TestStem11.java,v 1.3 2006-08-10 17:29:04 blair Exp $
  * @since   1.0.1
  */
 public class TestStem11 extends TestCase {
@@ -57,7 +57,7 @@ public class TestStem11 extends TestCase {
       r.ns.setSession(s);
 
       T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
-      T.amount("stemmers before grant", 0, r.ns.getStemmers().size()  ); // FIXME 1
+      T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
       T.amount("creators before grant", 0, r.ns.getCreators().size()  );
 
       r.ns.setSession(r.rs);
