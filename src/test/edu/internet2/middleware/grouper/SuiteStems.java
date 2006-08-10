@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteStems.java,v 1.4 2006-06-19 19:37:54 blair Exp $
+ * @version $Id: SuiteStems.java,v 1.5 2006-08-10 15:58:35 blair Exp $
  */
 public class SuiteStems extends TestCase {
 
@@ -35,16 +35,18 @@ public class SuiteStems extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTestSuite( TestStem0.class );  // delete empty stem
-    suite.addTestSuite( TestStem9.class );  // delete empty stem in new session and do 
-                                            // not throw lazy initialization error
-    suite.addTestSuite( TestStem1.class );  // fail: delete stem with child stems
-    suite.addTestSuite( TestStem2.class );  // fail: delete stem with child groups
-    suite.addTestSuite( TestStem3.class );  // fail: delete stem without stem
-    suite.addTestSuite( TestStem4.class );  // fail: delete root stem
-    suite.addTestSuite( TestStem6.class );  // create attrs
-    suite.addTestSuite( TestStem7.class );  // modify attrs - !mod'd
-    suite.addTestSuite( TestStem8.class );  // modify attrs - mod'd
+    suite.addTestSuite( TestStem0.class   );  // delete empty stem
+    suite.addTestSuite( TestStem9.class   );  // delete empty stem in new session and do 
+                                              // not throw lazy initialization error
+    suite.addTestSuite( TestStem1.class   );  // fail: delete stem with child stems
+    suite.addTestSuite( TestStem2.class   );  // fail: delete stem with child groups
+    suite.addTestSuite( TestStem3.class   );  // fail: delete stem without stem
+    suite.addTestSuite( TestStem4.class   );  // fail: delete root stem
+    suite.addTestSuite( TestStem6.class   );  // create attrs
+    suite.addTestSuite( TestStem7.class   );  // modify attrs - !mod'd
+    suite.addTestSuite( TestStem8.class   );  // modify attrs - mod'd
+    suite.addTestSuite( TestStem10.class  );  // getPrivs(), getStemmers(), getCreators() as root
+    suite.addTestSuite( TestStem11.class  );  // BUGFIX:GCODE:11 getPrivs(), getStemmers(), getCreators() as !root
     // TODO Split!
     suite.addTestSuite( TestStem.class              );
     suite.addTestSuite( TestStemAddChildGroup.class );
