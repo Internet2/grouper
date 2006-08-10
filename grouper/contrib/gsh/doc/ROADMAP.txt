@@ -5,13 +5,12 @@ This file provides information on future *GrouperShell* development.
 The changes for each release may change dramatically as they are
 primarily motivated by whatever I feel like working on at the time.
 
-$Id: ROADMAP.txt,v 1.4 2006-07-14 16:56:04 blair Exp $
+$Id: ROADMAP.txt,v 1.5 2006-08-10 18:47:53 blair Exp $
 
 ---
 
 ## Features To Add
 * Easier method invocation
-* Group type integration
 * Save command history to file
 * XML* integration
 * jline integration
