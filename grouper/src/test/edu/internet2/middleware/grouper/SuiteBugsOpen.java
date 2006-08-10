@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test Open Bugs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteBugsOpen.java,v 1.4 2006-07-20 00:16:36 blair Exp $
+ * @version $Id: SuiteBugsOpen.java,v 1.5 2006-08-10 15:58:35 blair Exp $
  * @since   1.0
  */
 public class SuiteBugsOpen extends TestCase {
@@ -33,7 +33,8 @@ public class SuiteBugsOpen extends TestCase {
   }
 
   static public Test suite() {
-    TestSuite suite = new TestSuite();        
+    TestSuite suite = new TestSuite();
+    suite.addTestSuite( TestStem11.class );  // getPrivs(), getStemmers(), getCreators() as !root
     return suite;
   } // static public Test suite()
 
