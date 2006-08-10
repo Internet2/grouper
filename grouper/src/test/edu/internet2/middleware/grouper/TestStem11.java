@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem11.java,v 1.1 2006-08-10 15:58:35 blair Exp $
+ * @version $Id: TestStem11.java,v 1.2 2006-08-10 15:59:47 blair Exp $
  * @since   1.0.1
  */
 public class TestStem11 extends TestCase {
@@ -46,7 +46,7 @@ public class TestStem11 extends TestCase {
     LOG.debug("tearDown");
   }
 
-  // BUGFIX:GCODE:11
+  // BUGFIX:GCODE:10
   public void testGetPrivsStemmersAndCreatorsAsNonRoot() {
     LOG.info("testGetPrivsStemmersAndCreatorsAsNonRoot");
     try {
