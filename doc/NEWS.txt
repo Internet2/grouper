@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS.txt,v 1.10 2006-08-08 13:00:36 blair Exp $
+$Id: NEWS.txt,v 1.11 2006-08-10 17:29:04 blair Exp $
 
 ---
 
@@ -10,6 +10,8 @@ $Id: NEWS.txt,v 1.10 2006-08-08 13:00:36 blair Exp $
 Released: TBD
 
 ## Changes
+* BUGFIX: Inappropriate privilege checks in *Stem.getCreators()* and
+  *Stem.getStemmers(). [GCODE#10]
 * BUGFIX: *Group.getRemovableTypes()* made incorrect privilege check. [GCODE#11]
 * NEW:    Upgraded to `lib/i2mi-common-0.1.0.jar`.  This replaces:
     * `lib/commons-beanutils-1.6.jar` 

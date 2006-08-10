@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.42 2006-07-06 17:16:53 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.43 2006-08-10 17:29:04 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -66,7 +66,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    return MembershipFinder.findSubjects(s, ns, this._getField(priv));
+    return MembershipFinder.findSubjectsNoPriv(s, ns, this._getField(priv));
   } // public Set getSubjectsWithPriv(s, ns, priv)
 
   /**
