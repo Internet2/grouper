@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteStems.java,v 1.5 2006-08-10 15:58:35 blair Exp $
+ * @version $Id: SuiteStems.java,v 1.6 2006-08-10 15:59:47 blair Exp $
  */
 public class SuiteStems extends TestCase {
 
@@ -46,7 +46,7 @@ public class SuiteStems extends TestCase {
     suite.addTestSuite( TestStem7.class   );  // modify attrs - !mod'd
     suite.addTestSuite( TestStem8.class   );  // modify attrs - mod'd
     suite.addTestSuite( TestStem10.class  );  // getPrivs(), getStemmers(), getCreators() as root
-    suite.addTestSuite( TestStem11.class  );  // BUGFIX:GCODE:11 getPrivs(), getStemmers(), getCreators() as !root
+    suite.addTestSuite( TestStem11.class  );  // BUGFIX:GCODE:10 getPrivs(), getStemmers(), getCreators() as !root
     // TODO Split!
     suite.addTestSuite( TestStem.class              );
     suite.addTestSuite( TestStemAddChildGroup.class );
