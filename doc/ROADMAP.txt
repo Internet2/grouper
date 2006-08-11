@@ -10,16 +10,17 @@ This file provides information on future Grouper development.
 Estimated Release: 200610
 
 ### Features
-* Internal enhancements
-* Improved XML export-and-import integration
+* Additional query filters to support provisioning
+* Improves XML integration
 
 ---
 
 ## Future Releases
+* Improved performance.
 
-TODO Add potential features.
+TODO Add additional potential features.
 
 ---
 
-$Id: ROADMAP.txt,v 1.4 2006-08-11 16:25:54 blair Exp $
+$Id: ROADMAP.txt,v 1.5 2006-08-11 18:58:54 blair Exp $
 
