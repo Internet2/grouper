@@ -4,124 +4,47 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.20 2006-08-04 15:46:15 blair Exp $
+$Id: TODO.txt,v 1.21 2006-08-11 16:25:54 blair Exp $
 
 ---
 
-## Grouper 1.0.1-cvs
+## Grouper 1.1.0-cvs
 
 ### Next Actions
+* CODE      *GroupModifiedAfter* query filter
+* CODE      *GroupModifiedBefore* query filter
+* CODE      *StemModifiedAfter* query filter
+* CODE      *StemModifiedBefore* query filter
+* CODE      Populate *Membership* creation attributes
+* CODE      *MembershipCreatedAfter* query filter
+* CODE      *MembershipCreatedBefore* query filter
+* CODE      have xml* default properties + optional override properties
+* CODE      improved xml* integration (including logging)
+* DOC       Migrate impl guide to wiki and export upon release
+
+### Maybe
 * CODE      Migrate error messages to *E*
 * CODE      Migrate messages to *M*
 * CODE      checksum .hbm.xml files to try and ensure i keep schema version accurate
 * CODE      check for *Settings* (and version if it exists) when calling db-init
+* REFACTOR  privilege checking and caching
+    * *NamingResolver*
+    * *AccessResolver*
 * CODE      change query parameter setting in *MembershipFinder*
-* CODE      have xml* default properties + optional override properties
-* CODE      improved xml* integration (including logging)
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
-* DOC       Migrate impl guide to wiki and export upon release
-* DOC       MAYBE Migrate *package.html* to wiki and export upon release
-* REFACTOR  FIXMEs
-* REFACTOR  TODOs
-
-### Maybe
 * CODE      class to verify that setup is functional
-** find the root stem, exercise subject api, hibernate dialect + driver class, etc
+    * find the root stem, exercise subject api, hibernate dialect + driver class, etc
 * CODE      start populating `Membership` creator
 * REFACTOR  internal root sessions should not need to go through hibernate
-* REFACTOR  privilege checking and caching
-** `NamingResolver`
-** `AccessResolver`
 
 ---
 
-## Grouper 1.1
-* CODE      *Group.getCustomTypes()*
-* CODE      add group aging
-* CODE      add membership aging
-* CODE      require root-privileges to add, delete or modify *HibernateSubject*s
-* CODE      delete *HibernateSubject* objects
-* CODE      modify *HibernateSubject* objects
-* CODE      naming validation interface
-* CODE      logging enhancements and normalization
-* PACKAGING create binary-and-source distributions
+## Future Releases
+
+TODO Add potential changes.
 
 ---
 
-## Future Releases 
-
-These items are not (necessarily) in any particular order.
-
-### API
-* REFACTDOR unhibernate `GrouperSession`
-* CODE      bulk addition + deletion of members
-* CODE      enable batch fetching of `Membership` objects
-* CODE      order `Membership` queries by depth
-* CODE      Switch to *IllegalArgumentException* and *NullArgumentException*
-* CODE      add caching support to `SubjectFinder` methods that query by source
-* CODE      Don't assign `GrouperSystem` privileges
-* CODE      privilege query filters
-* CODE      add `GrouperDaemon`
-** support for asynchronous methods
-** support for registry integrity validation
-* CODE      ws version of `GrouperSourceAdapter`
-* CODE      make cache usage more configurable
-* CODE      improved internal API model validation
-* CODE      `StemCreatedByFilter`
-* CODE      `StemModifiedByFilter`
-* CODE      `GroupCreatedByFilter`
-* CODE      `GroupModifiedByFilter`
-* CODE      `IsMemberFilter`
-* CODE      `IsImmediateMemberFilter`
-* CODE      `IsEffectiveMemberFilter`
-* CODE      ws-ify API
-* CODE      member aging
-* CODE      `Stem.addChildStem()` that takes an optional argument to
-  override configuration defaults
-* CODE      `Stem.addChildGroup()` that takes an optional argument to
-  override configuration defaults
-* CODE      session proxying/"act as" support
-* CODE      search limits
-* CODE      paged search results
-* CODE      group hierarchy depth restrictions
-* CODE      make at least some events (mships, privs, children) observable for notification purposes
-* CODE      allow custom attributes and lists to be associated with more than one group type
-* CODE      rule-engine support and/or support for both enable- and disable-based aging
-
-### Internals
-* DB        Keep schema version accurate
-* REFACTOR  Deprecate `Membership.newEffectiveMembership(s, ms, hasMS, offset)`
-* REFACTOR  Deprecate *GrouperSessionFinder*
-* REFACTOR  Deprecate `GrouperSession.validate()`
-* REFACTOR  Make *ErrorLog* static
-* REFACTOR  *GrouperConfig*
-* REFACTOR  Deprecate the !*ModelException* throwing `Owner.setSession(s)`
-* REFACTOR  `PrivilegeResolver.isRoot(subj)`
-* REFACTOR  `StemValidator.canWriteField()` should not require a session argument
-* REFACTOR  `GroupValidator.canReadField()` and
-  `GroupValidator.canWriteField()` should not require a session argument
-* REFACTOR  Deprecate-or-relocate most methods in *Validator*
-* CODE      Cache results of `SubjectFinder.findById(id, type, source)`
-* CODE      Cache results of `SubjectFinder.findByIdentifier(id, type, source)`
-* CODE      Cache results of `SubjectFinder.findAll(query, source)`
-* REFACTOR  Do not add test subjects in *RegistryReset*
-** In particular the ehcache + hibernate query related constants
-* CODE      Generic privilege and subject cache, presumably backed by ehcache and possibly Hibernate
-** Do not flush all cached privileges upon every privilege grant-and-revoke
-
-### Contributed Code
-* CODE      flatfile source adapter 
-* CODE      `LaxAccessAdapter`
-* CODE      `LaxNamingAdapter`
-* CODE      dns source adapter 
-
-### Other
-* LIBRARIES update *log4j* and *commons-logging*
-* LIBRARIES update [jug](http://jug.safehaus.org/)
-* LIBRARIES add [derby](http://db.apache.org/derby/) support once using hibernate3
-
----
-
-$Id: TODO.txt,v 1.20 2006-08-04 15:46:15 blair Exp $
+$Id: TODO.txt,v 1.21 2006-08-11 16:25:54 blair Exp $
 
 
