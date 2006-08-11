@@ -16,19 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import  edu.internet2.middleware.subject.*; // Import Subject API
+import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Find a {@link Group} by name within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: FindGroupByName.java,v 1.1 2006-08-04 19:02:11 blair Exp $
+ * @version $Id: FindGroupByName.java,v 1.2 2006-08-11 18:50:49 blair Exp $
  * @since   1.0.1
  */
 public class FindGroupByName {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(FindGroupByName.class);
+
+
   // MAIN //
   public static void main(String args[]) {
+    int exit_value = 0;
     try {
       GrouperSession s = GrouperSession.start(
         SubjectFinder.findById(
@@ -39,20 +45,20 @@ public class FindGroupByName {
       try {
         String  name  = "etc:wheel";
         Group   g     = GroupFinder.findByName(s, name);
-        EgLog.info(FindGroupByName.class, "Found Group by name: " + name);
+        LOG.info("Found Group by name: " + name);
       }
       catch (GroupNotFoundException eGNF) {
-        EgLog.error(FindGroupByName.class, "Failed to find Group by name: " + eGNF.getMessage());
-        System.exit(1);
+        LOG.error(eGNF.getMessage());
+        exit_value = 1;
       }
 
       s.stop();
     }
     catch (Exception e) {
-      EgLog.error(FindGroupByName.class, "UNEXPECTED ERROR: " + e.getMessage());
-      System.exit(1);
+      LOG.error("UNEXPECTED ERROR: " + e.getMessage());
+      exit_value = 1;
     }
-    System.exit(0);
+    System.exit(exit_value);
   } // public static void main(args[])
 
 } // public class FindGroupByName

@@ -16,20 +16,26 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import  edu.internet2.middleware.subject.*; // Import Subject API
+import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Find the Groups Registry's <i>root</i> {@link Subject}:
  * <i>GrouperSystem</i>.
  * @author  blair christensen.
- * @version $Id: FindGrouperSystem.java,v 1.1 2006-08-04 19:02:11 blair Exp $
+ * @version $Id: FindGrouperSystem.java,v 1.2 2006-08-11 18:50:49 blair Exp $
  * @since   1.0.1
  */
 public class FindGrouperSystem {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(FindGrouperSystem.class);
+
+
   // MAIN //
   public static void main(String args[]) {
+    int exit_value = 0;
     try {
       // We are looking for a subject with this *subject id*
       String  subjectId   = "GrouperSystem";
@@ -40,21 +46,21 @@ public class FindGrouperSystem {
       Subject subj        = SubjectFinder.findById(
         subjectId, subjectType, source
       );
-      EgLog.info(FindGrouperSystem.class, "Found GrouperSystem");
+      LOG.info("Found GrouperSystem");
     }
     catch (SourceUnavailableException eSU)  {
-      EgLog.error(FindGrouperSystem.class, "Did not find GrouperSystem: " + eSU.getMessage() );
-      System.exit(1);
+      LOG.error(eSU.getMessage());
+      exit_value = 1;
     }
     catch (SubjectNotFoundException   eSNF) {
-      EgLog.error(FindGrouperSystem.class, "Did not find GrouperSystem: " + eSNF.getMessage());
-      System.exit(1);
+      LOG.error(eSNF.getMessage());
+      exit_value = 1;
     }
     catch (SubjectNotUniqueException  eSNU) {
-      EgLog.error(FindGrouperSystem.class, "Did not find GrouperSystem: " + eSNU.getMessage());
-      System.exit(1);
+      LOG.error(eSNU.getMessage());
+      exit_value = 1;
     }
-    System.exit(0);
+    System.exit(exit_value);
   } // public static void main(args[])
 
 } // public class FindGrouperSystem

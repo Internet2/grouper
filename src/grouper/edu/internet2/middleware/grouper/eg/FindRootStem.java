@@ -16,36 +16,42 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import  edu.internet2.middleware.subject.*; // Import Subject API
+import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Find the root {@link Stem} in the Groups Registry.
  * @author  blair christensen.
- * @version $Id: FindRootStem.java,v 1.1 2006-08-04 19:02:11 blair Exp $
+ * @version $Id: FindRootStem.java,v 1.2 2006-08-11 18:50:49 blair Exp $
  * @since   1.0.1
  */
 public class FindRootStem {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(FindRootStem.class);
+
+
   // MAIN //
   public static void main(String args[]) {
+    int exit_value = 0;
     try {
-      GrouperSession  s     = GrouperSession.start(
+      GrouperSession s = GrouperSession.start(
         SubjectFinder.findById(
           "GrouperSystem", "application", InternalSourceAdapter.ID
         )
       );
 
       Stem root = StemFinder.findRootStem(s);
-      EgLog.info(FindRootStem.class, "Found root stem");
+      LOG.info("Found root stem");
 
       s.stop();
     }
     catch (Exception e) {
-      EgLog.error(FindRootStem.class, "UNEXPECTED ERROR: " + e.getMessage());
-      System.exit(1);
+      LOG.error("UNEXPECTED ERROR: " + e.getMessage());
+      exit_value = 1;
     }
-    System.exit(0);
+    System.exit(exit_value);
   } // public static void main(args[])
 
 } // public class FindRootStem

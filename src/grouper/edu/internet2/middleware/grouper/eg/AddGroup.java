@@ -16,19 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import  edu.internet2.middleware.subject.*; // Import Subject API
+import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Add a {@link Group} to the Groups Registry.
  * @author  blair christensen.
- * @version $Id: AddGroup.java,v 1.1 2006-08-04 19:02:11 blair Exp $
+ * @version $Id: AddGroup.java,v 1.2 2006-08-11 18:50:49 blair Exp $
  * @since   1.0.1
  */
 public class AddGroup {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(AddGroup.class);
+
+
   // MAIN //
   public static void main(String args[]) {
+    int exit_value = 0;
     try {
       GrouperSession  s   = GrouperSession.start(
         SubjectFinder.findById(
@@ -41,24 +47,24 @@ public class AddGroup {
         String  extension         =  "wheel";
         String  displayExtension  = "Grouper Administration";
         Group   g                 = ns.addChildGroup(extension, displayExtension);
-        EgLog.info(AddGroup.class, "Added Group: " + extension);
+        LOG.info("Added Group: " + extension);
       }
       catch (GroupAddException eGA) {
-        EgLog.error(AddGroup.class, "Failed to add Group: " + eGA.getMessage());
-        System.exit(1);
+        LOG.error(eGA.getMessage());
+        exit_value = 1;
       }
       catch (InsufficientPrivilegeException eIP) {
-        EgLog.error(AddGroup.class, "Failed to add Group: " + eIP.getMessage());
-        System.exit(1);
+        LOG.error(eIP.getMessage());
+        exit_value = 1;
       }
 
       s.stop();
     }
     catch (Exception e) {
-      EgLog.error(AddGroup.class, "UNEXPECTED ERROR: " + e.getMessage());
-      System.exit(1);
+      LOG.error("UNEXPECTED ERROR: " + e.getMessage());
+      exit_value = 1;
     }
-    System.exit(0);
+    System.exit(exit_value);
   } // public static void main(args[])
 
 } // public class AddGroup

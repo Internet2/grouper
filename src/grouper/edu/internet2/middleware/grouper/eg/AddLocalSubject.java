@@ -16,19 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
-import  edu.internet2.middleware.grouper.*;
-import  net.sf.hibernate.*;
+import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import  net.sf.hibernate.*;                 // Import Hibernate API
+import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Add a {@link JDBCSubject} to the local Groups Registry.
  * @author  blair christensen.
- * @version $Id: AddLocalSubject.java,v 1.1 2006-08-04 19:02:11 blair Exp $
+ * @version $Id: AddLocalSubject.java,v 1.2 2006-08-11 18:50:49 blair Exp $
  * @since   1.0.1
  */
 public class AddLocalSubject {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(AddLocalSubject.class);
+
+
   // MAIN //
   public static void main(String args[]) {
+    int exit_value = 0;
     try {
       GrouperSession  s     = GrouperSession.start(
         SubjectFinder.findById(
@@ -44,20 +50,20 @@ public class AddLocalSubject {
       String  subjectName = "John Doe";
       try {
         HibernateSubject hsubj = HibernateSubject.add(subjectId, subjectType, subjectName);
-        EgLog.info(AddLocalSubject.class, "Added local Subject: " + subjectId);
+        LOG.info("Added local Subject: " + subjectId);
       }
       catch (HibernateException eH) {
-        EgLog.error(AddLocalSubject.class, "Failed to add local Subject: " + eH.getMessage());
-        System.exit(1);
+        LOG.error(eH.getMessage());
+        exit_value = 1;
       } 
     
       s.stop();
     }
     catch (Exception e) {
-      EgLog.error(AddLocalSubject.class, "UNEXPECTED ERROR: " + e.getMessage());
-      System.exit(1);
+      LOG.error("UNEXPECTED ERROR: " + e.getMessage());
+      exit_value = 1;
     }
-    System.exit(0);
+    System.exit(exit_value);
   } // public static void main(args[])
 
 } // public class AddLocalSubject

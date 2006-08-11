@@ -16,41 +16,53 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import  edu.internet2.middleware.subject.*; // Import Subject API
+import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Start and stop a {@link GrouperSession}.
  * @author  blair christensen.
- * @version $Id: StartAndStopSession.java,v 1.1 2006-08-04 19:02:11 blair Exp $
+ * @version $Id: StartAndStopSession.java,v 1.2 2006-08-11 18:50:49 blair Exp $
  * @since   1.0.1
  */
 public class StartAndStopSession {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(StartAndStopSession.class);
+
+
   // MAIN //
   public static void main(String args[]) {
+    int exit_value = 0;
     try {
-      Subject         subj  = SubjectFinder.findById(
+      Subject subj = SubjectFinder.findById(
         "GrouperSystem", "application", InternalSourceAdapter.ID
       );
 
-      GrouperSession  s     = GrouperSession.start(subj);
-      EgLog.info(StartAndStopSession.class, "Started GrouperSession: " + s);
       try {
-        s.stop();
-        EgLog.info(StartAndStopSession.class, "Stopped GrouperSession");
+        GrouperSession s = GrouperSession.start(subj);
+        LOG.info("Started GrouperSession: " + s);
+        try {
+          s.stop();
+          LOG.info("Stopped GrouperSession");
+        }
+        catch (SessionException eS) {
+          LOG.error("Did not stop GrouperSession: " + eS.getMessage());
+          exit_value = 1;
+        }
       }
       catch (SessionException eS) {
-        EgLog.error(StartAndStopSession.class, "Did not stop GrouperSession: " + eS.getMessage());
-        System.exit(1);
+        LOG.error("Failed to start GrouperSession: " + eS.getMessage());
+        exit_value = 1;
       }
 
     }
     catch (Exception e) {
-      EgLog.error(StartAndStopSession.class, "UNEXPECTED ERROR: " + e.getMessage());
-      System.exit(1);
+      LOG.error("UNEXPECTED ERROR: " + e.getMessage());
+      exit_value = 1;
     }
-    System.exit(0);
+    System.exit(exit_value);
   } // public static void main(args[])
 
 } // public class StartAndStopSession

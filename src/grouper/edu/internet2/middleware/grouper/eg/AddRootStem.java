@@ -16,19 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import  edu.internet2.middleware.subject.*; // Import Subject API
+import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Add a root-level {@link Stem} to the Groups Registry.
  * @author  blair christensen.
- * @version $Id: AddRootStem.java,v 1.1 2006-08-04 19:02:11 blair Exp $
+ * @version $Id: AddRootStem.java,v 1.2 2006-08-11 18:50:49 blair Exp $
  * @since   1.0.1
  */
 public class AddRootStem {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(AddRootStem.class);
+
+
   // MAIN //
   public static void main(String args[]) {
+    int exit_value = 0;
     try {
       GrouperSession  s     = GrouperSession.start(
         SubjectFinder.findById(
@@ -41,24 +47,24 @@ public class AddRootStem {
         String  extension         = "etc";
         String  displayExtension  = "Grouper Administration";
         Stem    ns                = root.addChildStem(extension, displayExtension);
-        EgLog.info(AddRootStem.class, "Added root-level Stem: " + extension);
+        LOG.info("Added root-level Stem: " + extension);
       }
       catch (InsufficientPrivilegeException eIP) {
-        EgLog.error(AddRootStem.class, "Failed to add root-level Stem: " + eIP.getMessage());
-        System.exit(1);
+        LOG.error(eIP.getMessage());
+        exit_value = 1;
       }
       catch (StemAddException eSA) {
-        EgLog.error(AddRootStem.class, "Failed to add root-level Stem: " + eSA.getMessage());
-        System.exit(1);
+        LOG.error(eSA.getMessage());
+        exit_value = 1;
       }
 
       s.stop();
     }
     catch (Exception e) {
-      EgLog.error(AddRootStem.class, "UNEXPECTED ERROR: " + e.getMessage());
-      System.exit(1);
+      LOG.error("UNEXPECTED ERROR: " + e.getMessage());
+      exit_value = 1;
     }
-    System.exit(0);
+    System.exit(exit_value);
   } // public static void main(args[])
 
 } // public class AddRootStem
