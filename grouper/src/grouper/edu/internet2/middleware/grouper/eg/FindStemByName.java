@@ -16,19 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import  edu.internet2.middleware.subject.*; // Import Subject API
+import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Find a {@link Stem} by name within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: FindStemByName.java,v 1.1 2006-08-04 19:02:11 blair Exp $
+ * @version $Id: FindStemByName.java,v 1.2 2006-08-11 18:50:49 blair Exp $
  * @since   1.0.1
  */
 public class FindStemByName {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(FindStemByName.class);
+
+
   // MAIN //
   public static void main(String args[]) {
+    int exit_value = 0;
     try {
       GrouperSession s = GrouperSession.start(
         SubjectFinder.findById(
@@ -39,20 +45,20 @@ public class FindStemByName {
       try {
         String  name  = "etc";
         Stem    ns    = StemFinder.findByName(s, name);
-        EgLog.info(FindStemByName.class, "Found Stem by name: " + name);
+        LOG.info("Found Stem by name: " + name);
       }
       catch (StemNotFoundException eNSNF) {
-        EgLog.error(FindStemByName.class, "Failed to find Stem by name: " + eNSNF.getMessage());
-        System.exit(1);
+        LOG.error(eNSNF.getMessage());
+        exit_value = 1;
       }
 
       s.stop();
     }
     catch (Exception e) {
-      EgLog.error(FindStemByName.class, "UNEXPECTED ERROR: " + e.getMessage());
-      System.exit(1);
+      LOG.error("UNEXPECTED ERROR: " + e.getMessage());
+      exit_value = 1;
     }
-    System.exit(0);
+    System.exit(exit_value);
   } // public static void main(args[])
 
 } // public class FindStemByName

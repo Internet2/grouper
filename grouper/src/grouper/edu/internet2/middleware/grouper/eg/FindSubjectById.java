@@ -16,35 +16,41 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import  edu.internet2.middleware.subject.*; // Import Subject API
+import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Find {@link Subject} by <i>subject id</i>.
  * </p>
  * @author  blair christensen.
- * @version $Id: FindSubjectById.java,v 1.1 2006-08-04 19:02:11 blair Exp $
+ * @version $Id: FindSubjectById.java,v 1.2 2006-08-11 18:50:49 blair Exp $
  * @since   1.0.1
  */
 public class FindSubjectById {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(FindSubjectById.class);
+
+
   // MAIN //
   public static void main(String args[]) {
+    int exit_value = 0;
     try {
       // We are looking for a subject with this *subject id*
       String  subjectId   = "SD00125";
       Subject subj        = SubjectFinder.findById(subjectId);
-      EgLog.info(FindSubjectById.class, "Found Subject by id: " + subjectId);
+      LOG.info("Found Subject by id: " + subjectId);
     }
     catch (SubjectNotFoundException   eSNF) {
-      EgLog.error(FindSubjectById.class, "Did not find Subject by id: " + eSNF.getMessage());
-      System.exit(1);
+      LOG.error(eSNF.getMessage());
+      exit_value = 1;
     }
     catch (SubjectNotUniqueException  eSNU) {
-      EgLog.error(FindSubjectById.class, "Did not find Subject by id: " + eSNU.getMessage());
-      System.exit(1);
+      LOG.error(eSNU.getMessage());
+      exit_value = 1;
     }
-    System.exit(0);
+    System.exit(exit_value);
   } // public static void main(args[])
 
 } // public class FindSubjectById

@@ -16,19 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import  edu.internet2.middleware.subject.*; // Import Subject API
+import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Make a {@link Subject} a {@link Member} of a {@link Group}.
  * @author  blair christensen.
- * @version $Id: AddMember.java,v 1.1 2006-08-04 19:02:11 blair Exp $
+ * @version $Id: AddMember.java,v 1.2 2006-08-11 18:50:49 blair Exp $
  * @since   1.0.1
  */
 public class AddMember {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(AddMember.class);
+
+
   // MAIN //
   public static void main(String args[]) {
+    int exit_value = 0;
     try {
       GrouperSession  s     = GrouperSession.start(
         SubjectFinder.findById(
@@ -40,24 +46,24 @@ public class AddMember {
 
       try {
         g.addMember(subj);
-        EgLog.info(AddMember.class, "Added Member: " + subj.getId()); 
+        LOG.info("Added Member: " + subj.getId()); 
       }
       catch (InsufficientPrivilegeException eIP) {
-        EgLog.error(AddMember.class, "Failed to add Member: " + eIP.getMessage());
-        System.exit(1);
+        LOG.error(eIP.getMessage());
+        exit_value = 1;
       }
       catch (MemberAddException eMA) {
-        EgLog.error(AddMember.class, "Failed to add Member: " + eMA.getMessage());
-        System.exit(1);
+        LOG.error(eMA.getMessage());
+        exit_value = 1;
       }
 
       s.stop();
     }
     catch (Exception e) {
-      EgLog.error(AddMember.class, "UNEXPECTED ERROR: " + e.getMessage());
-      System.exit(1);
+      LOG.error("UNEXPECTED ERROR: " + e.getMessage());
+      exit_value = 1;
     }
-    System.exit(0);
+    System.exit(exit_value);
   } // public static void main(args[])
 
 } // public class AddMember
