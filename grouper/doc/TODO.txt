@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.23 2006-08-11 18:50:49 blair Exp $
+$Id: TODO.txt,v 1.24 2006-08-11 18:58:54 blair Exp $
 
 ---
 
@@ -42,11 +42,12 @@ $Id: TODO.txt,v 1.23 2006-08-11 18:50:49 blair Exp $
 ---
 
 ## Future Releases
+* CODE      Improve performance.
 
-TODO Add potential changes.
+TODO Add additional potential changes.
 
 ---
 
-$Id: TODO.txt,v 1.23 2006-08-11 18:50:49 blair Exp $
+$Id: TODO.txt,v 1.24 2006-08-11 18:58:54 blair Exp $
 
 
