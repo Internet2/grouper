@@ -5,26 +5,21 @@ This file provides information on future Grouper development.
 
 ---
 
-# Grouper 1.0.1
+## Grouper 1.1.0-cvs
 
 Estimated Release: 200610
 
-## Features
+### Features
 * Internal enhancements
 * Improved XML export-and-import integration
 
 ---
 
-# Grouper 1.1
+## Future Releases
 
-Estimated release: 200701
-
-## Features
-* Group Aging
-* Membership Aging
-* Logging enhancements and normalization
+TODO Add potential features.
 
 ---
 
-$Id: ROADMAP.txt,v 1.3 2006-07-20 15:02:06 blair Exp $
+$Id: ROADMAP.txt,v 1.4 2006-08-11 16:25:54 blair Exp $
 

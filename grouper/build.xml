@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.113 2006-08-04 19:02:11 blair Exp $ -->
+<!-- $Id: build.xml,v 1.114 2006-08-11 16:25:54 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -7,7 +7,7 @@
   <property name="impl.url" 
     value="http://middleware.internet2.edu/dir/groups/grouper/"/>
   <property name="impl.vendor"            value="Internet2"/>
-  <property name="impl.version"           value="1.0.1-cvs"/>
+  <property name="impl.version"           value="1.1.0-cvs"/>
 
   <property name="conf"                   location="${basedir}/conf"/>
   <property name="cf"                     value="${conf}/grouper.hibernate.properties"/>
