@@ -24,8 +24,8 @@ import  org.apache.commons.logging.*;       // For logging
  * Example: Find {@link Subject} by <i>subject id</i>.
  * </p>
  * @author  blair christensen.
- * @version $Id: FindSubjectById.java,v 1.2 2006-08-11 18:50:49 blair Exp $
- * @since   1.0.1
+ * @version $Id: FindSubjectById.java,v 1.3 2006-08-14 15:31:19 blair Exp $
+ * @since   1.1.0
  */
 public class FindSubjectById {
 

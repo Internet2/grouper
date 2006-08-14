@@ -23,8 +23,8 @@ import  org.apache.commons.logging.*;       // For logging
 /**
  * Example: Find a {@link Stem} by name within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: FindStemByName.java,v 1.2 2006-08-11 18:50:49 blair Exp $
- * @since   1.0.1
+ * @version $Id: FindStemByName.java,v 1.3 2006-08-14 15:31:19 blair Exp $
+ * @since   1.1.0
  */
 public class FindStemByName {
 
