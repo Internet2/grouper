@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.114 2006-08-11 16:25:54 blair Exp $ -->
+<!-- $Id: build.xml,v 1.115 2006-08-15 15:32:21 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -38,6 +38,60 @@
   <property name="hprof.depth"            value="25"/>
   <property name="max.memory"             value="192m"/>
   <!-- Global Properties -->
+
+  <!-- bench -->
+  <target name="bench" 
+          description="Runs benchmarks"
+          depends="build"
+  >
+    <java fork="true"
+          maxmemory="${max.memory}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.bench.GrouperBench"
+          failonerror="true"
+    />
+  </target>
+  <!-- bench -->
+
+  <!-- bench-clean -->
+  <target name="bench-clean" 
+          description="clean up benchmarking output" 
+  >
+    <delete>
+      <fileset dir="." includes="bench-*-*.txt"/>
+    </delete>
+  </target>
+  <!-- bench-clean -->
+
+  <!-- bench-run -->
+  <target name="bench-run" 
+          description="Runs the benchmark specified with -Dname=NAME"
+          depends="build, ensure-name"
+  >
+    <java fork="true"
+          maxmemory="${max.memory}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.bench.${name}"
+          failonerror="true"
+    />
+  </target>
+  <!-- bench-run -->
+
+  <!-- bench-run-prof -->
+  <target name="bench-run-prof" 
+          description="Runs and profiles the benchmark specified with -Dname=NAME"
+          depends="build, ensure-name"
+  >
+    <java fork="true"
+          maxmemory="${max.memory}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.bench.${name}"
+          failonerror="true"
+    >
+      <jvmarg value="-Xrunhprof:cpu=samples,file=bench-${name}-${DSTAMP}${TSTAMP}.txt,depth=${hprof.depth}"/>
+    </java>
+  </target>
+  <!-- bench-run-prof -->
 
   <!-- build -->
   <target name="build" 
@@ -97,7 +151,6 @@
     <cpd minimumTokenCount="100" outputFile="${dist.run}/cpd.txt">
       <fileset dir="${src.grouper}">
         <include name="**/*.java"/>
-        <exclude name="**/stress/**"/>
       </fileset>
     </cpd>
   </target>
@@ -303,7 +356,8 @@
               classpathref="project.classpath" 
     >
       <packageset dir="${src.grouper}" defaultexcludes="yes">
-        <exclude name="edu/internet2/middleware/grouper/stress/**"/>
+        <exclude name="edu/internet2/middleware/grouper/bench/**"/>
+        <exclude name="edu/internet2/middleware/grouper/prof/**"/>
       </packageset>
     </javadoc>
   </target>
@@ -349,11 +403,43 @@
       />
       <fileset dir="${src.grouper}">
         <include name="**/*.java"/>
-        <exclude name="**/stress/**"/>
       </fileset>
     </pmd>
   </target>
   <!-- pmd -->
+
+  <!-- profile -->
+  <target name="profile"
+          description="Runs and profiles the case specified with -Dname=NAME"
+          depends="build, ensure-name"
+  >
+    <!-- Setup profiling run -->
+    <java fork="true"
+          maxmemory="${max.memory}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.prof.${name}Setup"
+          failonerror="true"
+    />
+    <java fork="true"
+          maxmemory="${max.memory}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.prof.${name}"
+          failonerror="true"
+    >
+      <jvmarg value="-Xrunhprof:cpu=samples,file=profile-${name}-${DSTAMP}${TSTAMP}.txt,depth=${hprof.depth}"/>
+    </java>
+  </target>
+  <!-- profile -->
+
+  <!-- profile-clean -->
+  <target name="profile-clean" 
+          description="clean up profiling output" 
+  >
+    <delete>
+      <fileset dir="." includes="profile-*-*.txt"/>
+    </delete>
+  </target>
+  <!-- profile-clean -->
 
   <!-- runtest -->
   <target name="runtest" 
@@ -444,43 +530,6 @@
     />
   </target>
   <!-- sql -->
-
-  <!-- stress -->
-  <target name="stress" 
-          description="Runs the stress case specified on the command line with -Dname=NAME"
-          depends="build, ensure-name">
-    <java fork="true"
-          maxmemory="${max.memory}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.stress.${name}"
-          failonerror="true"
-    />
-  </target>
-  <!-- stress -->
-
-  <!-- stressclean -->
-  <target name="stressclean" 
-          description="clean up stress output" >
-    <delete>
-      <fileset dir="." includes="stress-*-*.txt"/>
-    </delete>
-  </target>
-  <!-- stressclean -->
-
-  <!-- stressprof -->
-  <target name="stressprof" 
-          description="Runs and profiles the stress case specified on the command line with -Dname=NAME"
-          depends="build, ensure-name">
-    <java fork="true"
-          maxmemory="${max.memory}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.stress.${name}"
-          failonerror="true"
-    >
-      <jvmarg value="-Xrunhprof:cpu=samples,file=stress-${name}-${DSTAMP}${TSTAMP}.txt,depth=${hprof.depth}"/>
-    </java>
-  </target>
-  <!-- stressprof -->
 
   <!-- test-build -->
   <target name="test-build" depends="build">
@@ -594,9 +643,9 @@
     <taskdef resource="clovertasks"/>
     <clover-setup initString="clover.db">
       <fileset dir="${src.grouper}">
-        <exclude name="**/stress/*"/>
-        <exclude name="**/*Factor*.java"/>
-        <exclude name="**/*Status*.java"/>
+        <exclude name="**/bench/*"/>
+        <exclude name="**/eg/*"/>
+        <exclude name="**/prof/*"/>
       </fileset>
     </clover-setup>
   </target> 
