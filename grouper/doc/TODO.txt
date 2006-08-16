@@ -4,15 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.25 2006-08-16 17:55:27 blair Exp $
+$Id: TODO.txt,v 1.26 2006-08-16 20:22:10 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
 
 ### Next Actions
-* CODE      `GroupModifiedAfter` query filter
-* CODE      `GroupModifiedBefore` query filter
 * CODE      Refactor privilege caching
     * `PrivResolver` interface
         * abstract `BasePrivResolver` implements `PrivResolver`
@@ -74,6 +72,6 @@ TODO Add additional potential changes.
 
 ---
 
-$Id: TODO.txt,v 1.25 2006-08-16 17:55:27 blair Exp $
+$Id: TODO.txt,v 1.26 2006-08-16 20:22:10 blair Exp $
 
 

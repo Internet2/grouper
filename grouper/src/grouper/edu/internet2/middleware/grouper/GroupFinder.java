@@ -25,7 +25,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.18 2006-07-06 20:18:59 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.19 2006-08-16 20:22:11 blair Exp $
  */
 public class GroupFinder {
 
@@ -257,6 +257,70 @@ public class GroupFinder {
     }
     return PrivilegeResolver.getInstance().canVIEW(s, groups);
   } // protected static Set findByApproximateName(s, name)
+
+  // @return  groups modifed after this date
+  // @since   1.1.0
+  protected static Set findByModifiedAfter(GrouperSession s, Date d) 
+    throws QueryException 
+  {
+    List groups = new ArrayList();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Group as g where g.modify_time > :time"
+      );
+      qry.setCacheable(GrouperConfig.CACHE);
+      qry.setCacheRegion(GrouperConfig.QCR_GF_FBMA);
+      qry.setLong("time", d.getTime());
+      List    l   = qry.list();
+      hs.close();
+      Group     g;
+      Iterator  iter  = l.iterator();
+      while (iter.hasNext()) {
+        g = (Group) iter.next();
+        g.setSession(s);
+        groups.add(g);
+      }
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding groups: " + eH.getMessage(), eH
+      );  
+    }
+    return PrivilegeResolver.getInstance().canVIEW(s, new LinkedHashSet(groups));
+  } // protected static Set findByModifiedAfter(s, d)
+
+  // @return  groups modifed before this date
+  // @since   1.1.0
+  protected static Set findByModifiedBefore(GrouperSession s, Date d) 
+    throws QueryException 
+  {
+    List groups = new ArrayList();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Group as g where g.modify_time < :time"
+      );
+      qry.setCacheable(GrouperConfig.CACHE);
+      qry.setCacheRegion(GrouperConfig.QCR_GF_FBMB);
+      qry.setLong("time", d.getTime());
+      List    l   = qry.list();
+      hs.close();
+      Group     g;   
+      Iterator  iter  = l.iterator();
+      while (iter.hasNext()) {
+        g = (Group) iter.next();
+        g.setSession(s);
+        groups.add(g);
+      }
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding groups: " + eH.getMessage(), eH
+      );  
+    }
+    return PrivilegeResolver.getInstance().canVIEW(s, new LinkedHashSet(groups));
+  } // protected static Set findByModifiedBefore(s, d)
 
   // Needs _protected_ access so that _Stem.addChildGroup()_ can check
   // to see if the group exists before creating it.

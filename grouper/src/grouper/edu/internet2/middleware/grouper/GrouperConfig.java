@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.26 2006-07-06 16:32:03 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.27 2006-08-16 20:22:11 blair Exp $
  */
 public class GrouperConfig {
 
@@ -43,6 +43,7 @@ public class GrouperConfig {
   // PROTECTED CLASS CONSTANTS //
   protected static final String ALL           = "GrouperAll";
   protected static final String BT            = "true";
+  protected static final boolean  CACHE       = true;
   protected static final String EMPTY_STRING  = "";
   protected static final String GCGAA         = "groups.create.grant.all.admin";
   protected static final String GCGAOI        = "groups.create.grant.all.optin";
@@ -84,6 +85,8 @@ public class GrouperConfig {
   protected static final boolean  QRY_GF_FBCA   = true;
   protected static final String   QCR_GF_FBCB   = "edu.internet2.middleware.grouper.GroupFinder.FindByCreatedBefore";
   protected static final boolean  QRY_GF_FBCB   = true;
+  protected static final String   QCR_GF_FBMA   = "edu.internet2.middleware.grouper.GroupFinder.FindByModifiedAfter";
+  protected static final String   QCR_GF_FBMB   = "edu.internet2.middleware.grouper.GroupFinder.FindByModifiedBefore";
   protected static final String   QCR_GF_FBN    = "edu.internet2.middleware.grouper.GroupFinder.FindByName";
   protected static final boolean  QRY_GF_FBN    = true;
   protected static final String   QCR_GF_FBU    = "edu.internet2.middleware.grouper.GroupFinder.FindByUuid";

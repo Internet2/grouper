@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.15 2006-07-11 18:35:45 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.16 2006-08-16 20:22:11 blair Exp $
  */
 public class GrouperQuery {
 
@@ -60,6 +60,8 @@ public class GrouperQuery {
    * <li>{@link GroupAttributeFilter}</li>
    * <li>{@link GroupCreatedAfterFilter}</li>
    * <li>{@link GroupCreatedBeforeFilter}</li>
+   * <li>{@link GroupModifiedAfterFilter}</li>
+   * <li>{@link GroupModifiedBeforeFilter}</li>
    * <li>{@link GroupNameFilter}</li>
    * <li>{@link IntersectionFilter}</li>
    * <li>{@link NullFilter}</li>
@@ -215,5 +217,5 @@ public class GrouperQuery {
     return stems;
   } // public Set getStems()
 
-}
+} // public class GrouperQuery
 

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteQueries.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: SuiteQueries.java,v 1.3 2006-08-16 20:22:11 blair Exp $
  */
 public class SuiteQueries extends TestCase {
 
@@ -47,6 +47,12 @@ public class SuiteQueries extends TestCase {
     suite.addTestSuite( TestQuery9.class                );  // StemNameFilter - nothing
     suite.addTestSuite( TestQuery10.class               );  // StemNameFilter - something
     suite.addTestSuite( TestQuery11.class               );  // StemNameFilter - something scoped
+    suite.addTestSuite( TestQuery12.class               );  // GroupModifedAfter - nothing
+    suite.addTestSuite( TestQuery13.class               );  // GroupModifiedAfter - something
+    suite.addTestSuite( TestQuery14.class               );  // GroupModifiedAfter - something scoped
+    suite.addTestSuite( TestQuery15.class               );  // GroupModifedBefore - nothing
+    suite.addTestSuite( TestQuery16.class               );  // GroupModifiedBefore - something
+    suite.addTestSuite( TestQuery17.class               );  // GroupModifiedBefore - something scoped
     // TODO split
     suite.addTestSuite( TestGQComplementFilter.class    );
     suite.addTestSuite( TestGQGroupAnyAttribute.class   );
