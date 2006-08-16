@@ -26,7 +26,7 @@ import  java.util.*;
  * Validation methods that apply to multiple Grouper classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.14 2006-06-19 19:37:54 blair Exp $
+ * @version $Id: Validator.java,v 1.15 2006-08-16 21:23:18 blair Exp $
  */
 class Validator {
 
@@ -61,84 +61,5 @@ class Validator {
     }   
   } // protected static void valueNotNull(o, msg)
 
-
-  // FIXME Deprecate.  Perhaps just the below methods rather than the
-  //       entire class?
-
-  // Protected Class Methods //
-  protected static void canAddFieldToType(
-    GrouperSession s, GroupType gt, String name, FieldType ft, Privilege read, Privilege write
-  ) 
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    _canModifyField(s, gt);
-    Field f = null;
-    try {
-      f = FieldFinder.find(name);  
-    }
-    catch (SchemaException eS) {
-      // Ignore
-    } 
-    if (f != null) {
-      throw new SchemaException("field already exists");
-    }
-    if 
-    (
-      !(
-        (ft.toString().equals(FieldType.ATTRIBUTE.toString()) ) 
-        || 
-        (ft.toString().equals(FieldType.LIST.toString())      ) 
-      )
-    )
-    {
-      throw new SchemaException("invalid field type");
-    }
-    if (!Privilege.isAccess(read)) {
-      throw new SchemaException("read privilege not access privilege");
-    }
-    if (!Privilege.isAccess(write)) {
-      throw new SchemaException("write privilege not access privilege");
-    }
-  } // protected static void canAddFieldToType(s, gt, name, ft, read, write)
-
-  protected static void canAddGroupType(GrouperSession s, Group g, GroupType type) 
-    throws  GroupModifyException,
-            InsufficientPrivilegeException,
-            SchemaException
-  {
-    if (g.hasType(type)) {
-      throw new GroupModifyException("already has type");
-    }
-    GroupValidator.canModGroupType(s, g, type);
-  } // protected static void canAddGroupType(s, g, type)
-
-  protected static void canDeleteFieldFromType(
-    GrouperSession s, GroupType type, Field f
-  )
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    _canModifyField(s, type);
-    if (!f.getGroupType().equals(type)) {
-      throw new SchemaException("field does not belong to this group type");
-    }
-  } // protected static void canDeleteFieldFromType(s, type, f)
-
-
-  // PRIVATE CLASS METHODS //
-
-  private static void _canModifyField(GrouperSession s, GroupType type) 
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
-      throw new InsufficientPrivilegeException("not privileged to modify fields");
-    }
-    if (GroupType.isSystemType(type)) {
-      throw new SchemaException("cannot modify fields on system-maintained groups");
-    }
-  } // private static void _canModifyField(s, type)
-
-}
+} // class Validator
 

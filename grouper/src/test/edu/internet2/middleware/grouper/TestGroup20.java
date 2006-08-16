@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup20.java,v 1.1 2006-05-31 22:44:40 blair Exp $
+ * @version $Id: TestGroup20.java,v 1.2 2006-08-16 21:23:18 blair Exp $
  */
 public class TestGroup20 extends TestCase {
 
@@ -59,7 +59,7 @@ public class TestGroup20 extends TestCase {
         Assert.fail("SchemaException not thrown");
       }
       catch (SchemaException eS) {
-        T.string("SchemaException", E.FIELD_TYPE + "naming", eS.getMessage());
+        T.string("SchemaException", E.FIELD_INVALID_TYPE + "naming", eS.getMessage());
       }
 
       r.rs.stop();

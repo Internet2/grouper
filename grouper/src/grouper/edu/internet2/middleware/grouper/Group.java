@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.90 2006-08-08 13:00:36 blair Exp $
+ * @version $Id: Group.java,v 1.91 2006-08-16 21:23:18 blair Exp $
  */
 public class Group extends Owner {
 
@@ -263,7 +263,7 @@ public class Group extends Owner {
             InsufficientPrivilegeException,
             SchemaException
   {
-    Validator.canAddGroupType(this.getSession(), this, type);
+    GroupValidator.canAddGroupType(this.getSession(), this, type);
     try {
       StopWatch sw    = new StopWatch();
       Session   hs    = HibernateHelper.getSession();
