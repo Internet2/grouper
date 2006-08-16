@@ -4,13 +4,15 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.27 2006-08-16 21:23:18 blair Exp $
+$Id: TODO.txt,v 1.28 2006-08-16 21:42:27 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
 
 ### Next Actions
+* BUGFIX!
+* CODE      *SubjectFinder.findGrouperSystem()* + update examples
 * CODE      Refactor privilege caching
     * `PrivResolver`
         * `RootPrivResolver` extends `BasePrivResolver`
@@ -41,7 +43,6 @@ $Id: TODO.txt,v 1.27 2006-08-16 21:23:18 blair Exp $
 * CODE      have xml* default properties + optional override properties
 * CODE      improved xml* integration (including logging)
 * CODE      *HibernateSubject* should not throw *HibernateException*s
-* CODE      *SubjectFinder.findGrouperSystem()* + update examples
 * CODE      *GroupFinder.findByAttribute(s, attr, val)* [GCODE#14]
 * CODE      Refactor query cache configuration.  Add interface? Config toggle?
 * DOC       Migrate impl guide to wiki and export upon release
@@ -71,6 +72,7 @@ TODO Add additional potential changes.
 
 ---
 
-$Id: TODO.txt,v 1.27 2006-08-16 21:23:18 blair Exp $
+$Id: TODO.txt,v 1.28 2006-08-16 21:42:27 blair Exp $
+
 
 
