@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.45 2006-07-06 20:18:59 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.46 2006-08-16 21:26:57 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -465,7 +465,7 @@ public class PrivilegeResolver {
     {
       rv = true;
     }  
-    else if (this.use_wheel == true) {
+    else if (this.use_wheel) {
       rv = this._isWheel(subj);
     }
     return rv;
