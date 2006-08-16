@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.5 2006-08-04 19:00:33 blair Exp $
+$Id: API.txt,v 1.6 2006-08-16 20:22:10 blair Exp $
 
 ---
 
@@ -181,10 +181,6 @@ $Id: API.txt,v 1.5 2006-08-04 19:00:33 blair Exp $
 
 ## GroupCreatedBeforeFilter extends BaseQueryFilter
 
-## GroupFinder
-* Group               GroupFinder.findByName(GrouperSession, name)
-* Group               GroupFinder.findByUuid(GrouperSession, uuid)
-
 ## GrouperAccessAdapter implements AccessAdapter
 
 ## GrouperNamingAdapter implements NamingAdapter
@@ -205,6 +201,14 @@ $Id: API.txt,v 1.5 2006-08-04 19:00:33 blair Exp $
 * Date                getStartTime()
 * Subject             getSubject()
 * void                stop()
+
+## GroupFinder
+* Group               GroupFinder.findByName(GrouperSession, name)
+* Group               GroupFinder.findByUuid(GrouperSession, uuid)
+
+## GroupModifiedAfterFilter extends BaseQueryFilter
+
+## GroupModifiedBeforeFilter extends BaseQueryFilter
 
 ## GroupNameFilter extends BaseQueryFilter
 
