@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.22 2006-08-08 18:02:49 blair Exp $
+ * @version $Id: GroupType.java,v 1.23 2006-08-16 21:23:18 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -297,7 +297,7 @@ public class GroupType implements Serializable {
     StopWatch sw  = new StopWatch();
     sw.start();
     Field     f   = FieldFinder.find(name);  
-    Validator.canDeleteFieldFromType(s, this, f);
+    GroupTypeValidator.canDeleteFieldFromType(s, this, f);
     if (f.inUse()) {
       String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
       ErrorLog.error(GroupType.class, msg);
@@ -388,7 +388,7 @@ public class GroupType implements Serializable {
     Field     f   = null;
     StopWatch sw  = new StopWatch();
     sw.start();
-    Validator.canAddFieldToType(s, this, name, type, read, write);
+    GroupTypeValidator.canAddFieldToType(s, this, name, type, read, write);
     try {
       boolean nullable = true;
       if (required == true) {

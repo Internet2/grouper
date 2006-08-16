@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.provider.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.10 2006-07-06 17:16:53 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.11 2006-08-16 21:23:18 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -44,6 +44,18 @@ class GroupValidator {
       throw new ModelException(E.GROUP_ACTM); // TODO ModelException
     }
   } // protected static void canAddCompositeMember(g, c)
+
+  // @since   1.1.0
+  protected static void canAddGroupType(GrouperSession s, Group g, GroupType type) 
+    throws  GroupModifyException,
+            InsufficientPrivilegeException,
+            SchemaException
+  {
+    if (g.hasType(type)) {
+      throw new GroupModifyException(E.GROUP_HAS_TYPE);
+    }
+    GroupValidator.canModGroupType(s, g, type);
+  } // protected static void canAddGroupType(s, g, type)
 
   // @since 1.0
   protected static void canAddMember(Group g, Subject subj, Field f)
@@ -237,7 +249,7 @@ class GroupValidator {
   {
     isTypeValid(f);
     if (!f.getType().equals(type)) {
-      throw new SchemaException(E.FIELD_TYPE + f.getType());
+      throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }
   } // protected static void isTypeEqual(f, type)
 
@@ -257,7 +269,7 @@ class GroupValidator {
       )
     )
     {
-      throw new SchemaException(E.FIELD_TYPE + f.getType());
+      throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }
   } // protected static void isTypeValid(f)
 

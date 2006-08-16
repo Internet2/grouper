@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.26 2006-08-16 20:22:10 blair Exp $
+$Id: TODO.txt,v 1.27 2006-08-16 21:23:18 blair Exp $
 
 ---
 
@@ -12,8 +12,7 @@ $Id: TODO.txt,v 1.26 2006-08-16 20:22:10 blair Exp $
 
 ### Next Actions
 * CODE      Refactor privilege caching
-    * `PrivResolver` interface
-        * abstract `BasePrivResolver` implements `PrivResolver`
+    * `PrivResolver`
         * `RootPrivResolver` extends `BasePrivResolver`
             * Should I attach a transient root session within each session?
             * Include wheel checks here.  If wheel group enabled:
@@ -72,6 +71,6 @@ TODO Add additional potential changes.
 
 ---
 
-$Id: TODO.txt,v 1.26 2006-08-16 20:22:10 blair Exp $
+$Id: TODO.txt,v 1.27 2006-08-16 21:23:18 blair Exp $
 
 

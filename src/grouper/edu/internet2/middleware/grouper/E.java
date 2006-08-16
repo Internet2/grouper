@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.16 2006-07-12 23:50:24 blair Exp $
+ * @version $Id: E.java,v 1.17 2006-08-16 21:23:18 blair Exp $
  * @since   1.0
  */
 class E {
@@ -53,11 +53,15 @@ class E {
   protected static final String EVENT_EFFDEL              = "unable to log effective membership deletion";
   protected static final String EVENT_EFFOWNER            = "effective membership owner not found: ";
   protected static final String EVENT_EFFSUBJ             = "effective membership subject not found: ";
+  protected static final String FIELD_ALREADY_EXISTS      = "field already exists: ";
   protected static final String FIELD_FINDALL             = "unable to find all fields: ";
   protected static final String FIELD_FINDTYPE            = "unable to find all fields by type: ";
   protected static final String FIELD_NULL                = "null field";
   protected static final String FIELD_REQNOTFOUND         = "required field not found: ";
-  protected static final String FIELD_TYPE                = "invalid field type: ";
+  protected static final String FIELD_INVALID_TYPE        = "invalid field type: ";
+  protected static final String FIELD_DOES_NOT_BELONG_TO_TYPE = "field does not belong to this group type: ";
+  protected static final String FIELD_READ_PRIV_NOT_ACCESS    = "read privilege is not an access privilege: ";
+  protected static final String FIELD_WRITE_PRIV_NOT_ACCESS   = "write privilege is not an access privilege: ";
   protected static final String FILTER_SCOPE              = "class cannot be filtered by scope: ";
   protected static final String GAA_GNF                   = "membership group not found: ";
   protected static final String GF_FBNAME                 = "error finding group by name: ";
@@ -78,6 +82,7 @@ class E {
   protected static final String GROUP_DRA                 = "cannot delete required attribute: ";
   protected static final String GROUP_GETATTRS            = "error retrieving group attributes: ";
   protected static final String GROUP_GT                  = "invalid group type: ";
+  protected static final String GROUP_HAS_TYPE            = "group already has type";
   protected static final String GROUP_HEM                 = "error checking for effective membership: ";
   protected static final String GROUP_HIM                 = "error checking for immediate membership: ";
   protected static final String GROUP_HM                  = "error checking for membership: ";
@@ -92,6 +97,8 @@ class E {
   protected static final String GROUP_TYPEADD             = "unable to add type: ";
   protected static final String GROUP_TYPEDEL             = "unable to delete type: ";
   protected static final String GROUPTYPE_ADD             = "unable to add type: ";
+  protected static final String GROUPTYPE_CANNOT_MODIFY_TYPE  = "not privileged to modify fields on this group type";
+  protected static final String GROUPTYPE_CANNOT_MODIFY_SYSTEM_TYPES  = "cannot modify fields on a system-maintained group type";
   protected static final String GROUPTYPE_DEL             = "unable to delete type: ";
   protected static final String GROUPTYPE_DELINUSE        = "cannot delete group type that is being used";
   protected static final String GROUPTYPE_EXISTS          = "type already exists: ";

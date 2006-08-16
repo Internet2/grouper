@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.5 2006-06-19 19:37:54 blair Exp $
+ * @version $Id: StemValidator.java,v 1.6 2006-08-16 21:23:18 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -62,7 +62,7 @@ class StemValidator {
     // FIXME Can I remove s?
     // Validate the field type
     if (!f.getType().equals(type)) {
-      throw new SchemaException(E.FIELD_TYPE + f.getType());
+      throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
     // FIXME Should this be internalized?
     PrivilegeResolver.getInstance().canPrivDispatch(
