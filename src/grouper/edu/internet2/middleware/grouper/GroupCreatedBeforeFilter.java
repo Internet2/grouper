@@ -21,10 +21,10 @@ import  java.util.*;
 
 
 /** 
- * Query by groups created after the specified date.
+ * Query by groups created before the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupCreatedBeforeFilter.java,v 1.6 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: GroupCreatedBeforeFilter.java,v 1.7 2006-08-16 19:45:09 blair Exp $
  */
 public class GroupCreatedBeforeFilter extends BaseQueryFilter {
 
@@ -36,10 +36,10 @@ public class GroupCreatedBeforeFilter extends BaseQueryFilter {
   // Constructors
 
   /**
-   * {@link QueryFilter} that returns groups created after the
+   * {@link QueryFilter} that returns groups created before the
    * specified date. 
    * <p/>
-   * @param   d   Find groups created after this date.
+   * @param   d   Find groups created before this date.
    * @param   ns  Restrict results to within this stem.
    */
   public GroupCreatedBeforeFilter(Date d, Stem ns) {
