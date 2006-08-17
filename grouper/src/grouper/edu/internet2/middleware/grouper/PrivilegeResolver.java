@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.53 2006-08-17 18:19:09 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.54 2006-08-17 18:58:41 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -231,6 +231,22 @@ public class PrivilegeResolver {
   } // protected static boolean canUPDATE(s, g, subj)
 
   // @since   1.1.0
+  protected static Set canVIEW(GrouperSession s, Set candidates) {
+    Set             groups  = new LinkedHashSet();
+    Group           g;
+    Iterator        iter    = candidates.iterator();
+    while (iter.hasNext()) {
+      g = (Group) iter.next();
+      g.setSession(s);
+      // Can we view the group
+      if (canVIEW(s, g, s.getSubject())) {
+        groups.add(g);
+      }
+    }
+    return groups;
+  } // protected static Set canVIEW(s, candidates)
+
+  // @since   1.1.0
   protected static boolean canVIEW(GrouperSession s, Group g, Subject subj) {
     if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.VIEW)  
@@ -307,22 +323,6 @@ public class PrivilegeResolver {
 
 
   // PROTECTED INSTANCE METHODS //
-
-  // TODO Deprecate?
-  protected Set canVIEW(GrouperSession s, Set candidates) {
-    Set             groups  = new LinkedHashSet();
-    Group           g;
-    Iterator        iter    = candidates.iterator();
-    while (iter.hasNext()) {
-      g = (Group) iter.next();
-      g.setSession(s);
-      // Can we view the group
-      if (canVIEW(s, g, s.getSubject())) {
-        groups.add(g);
-      }
-    }
-    return groups;
-  }
 
   protected Set getPrivs(
     GrouperSession s, Group g, Subject subj
