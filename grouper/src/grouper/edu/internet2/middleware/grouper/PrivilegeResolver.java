@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.54 2006-08-17 18:58:41 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.55 2006-08-17 19:17:46 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -39,6 +39,8 @@ public class PrivilegeResolver {
 
 
   // PRIVATE CLASS VARIABLES //
+  private static  AccessAdapter     access    = getAccess();
+  private static  NamingAdapter     naming    = getNaming();
   private static  PrivilegeResolver pr        = null;
   private static  boolean           use_wheel = Boolean.valueOf(
     GrouperConfig.getProperty(GrouperConfig.GWU)
@@ -46,10 +48,8 @@ public class PrivilegeResolver {
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private PrivilegeCache  ac        = null;
-  private AccessAdapter   access    = null; 
-  private PrivilegeCache  nc        = null;
-  private NamingAdapter   naming    = null;
+  private PrivilegeCache  ac  = null;
+  private PrivilegeCache  nc  = null;
 
 
   // CONSTRUCTORS //
@@ -288,17 +288,31 @@ public class PrivilegeResolver {
     }
   } // protected static Member canViewSubject(s, subj)
 
+  // @since   1.1.0
+  protected static AccessAdapter getAccess() {
+    if (access == null) {
+      access = (AccessAdapter) _createInterface(
+        GrouperConfig.getProperty(GrouperConfig.PAI)
+      );
+    }
+    return access;
+  } // protected static AccessAdapter getAccess()
+
+  // @since   1.1.0
+  protected static NamingAdapter getNaming() {
+    if (naming == null) {
+      naming = (NamingAdapter) _createInterface(
+        GrouperConfig.getProperty(GrouperConfig.PNI)
+      );
+    }
+    return naming;
+  } // protected static AccessAdapter getNaming()
+
   // FIXME DEPRECATE!
   protected static PrivilegeResolver getInstance() {
     if (pr == null) {
       pr = new PrivilegeResolver();
     
-      pr.access = (AccessAdapter) _createInterface(
-        GrouperConfig.getProperty(GrouperConfig.PAI)
-      );
-      pr.naming = (NamingAdapter) _createInterface(
-        GrouperConfig.getProperty(GrouperConfig.PNI)
-      );
       // Get access and naming privilege classes
       // TODO Make configurable
       pr.ac = PrivilegeCache.getCache(PrivilegeCache.ACCESS);
@@ -306,6 +320,22 @@ public class PrivilegeResolver {
     }
     return pr;
   } // protected static PrivilegeResolver getInstance()
+
+  // @since   1.1.0
+  protected static Set getPrivs(
+    GrouperSession s, Group g, Subject subj
+  )
+  {
+    return access.getPrivs(s, g, subj);
+  } // protected static Set getPrivs(s, g, subj)
+
+  // @since   1.1.0
+  protected static Set getPrivs(
+    GrouperSession s, Stem ns, Subject subj
+  )
+  {
+    return naming.getPrivs(s, ns, subj);
+  } // protected static Set getPrivs(s, ns, subj)
 
   // @since   1.1.0
   protected static boolean isRoot(Subject subj) {
@@ -324,29 +354,13 @@ public class PrivilegeResolver {
 
   // PROTECTED INSTANCE METHODS //
 
-  protected Set getPrivs(
-    GrouperSession s, Group g, Subject subj
-  )
-  {
-    GrouperSession.validate(s);
-    return access.getPrivs(s, g, subj);
-  } // protected Set getPrivs(s, g, subj)
-
-  protected Set getPrivs(
-    GrouperSession s, Stem ns, Subject subj
-  )
-  {
-    GrouperSession.validate(s);
-    return naming.getPrivs(s, ns, subj);
-  } // protected Set getPrivs(s, ns, subj)
-
   protected Set getGroupsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
   ) 
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    return this.access.getGroupsWhereSubjectHasPriv(s, subj, priv);
+    return access.getGroupsWhereSubjectHasPriv(s, subj, priv);
   } // protected Set getGroupsWhereSubjectHasPriv(s, subj, priv)
 
   protected Set getStemsWhereSubjectHasPriv(
@@ -355,21 +369,21 @@ public class PrivilegeResolver {
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    return this.naming.getStemsWhereSubjectHasPriv(s, subj, priv);
+    return naming.getStemsWhereSubjectHasPriv(s, subj, priv);
   } // protected Set getStemsWhereSubjectHasPriv(s, subj, priv)
 
   protected Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    return this.access.getSubjectsWithPriv(s, g, priv);
+    return access.getSubjectsWithPriv(s, g, priv);
   } // protected Set getSubjectsWithPriv(s, g, priv)
 
   protected Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
     throws SchemaException
   {
     GrouperSession.validate(s);
-    return this.naming.getSubjectsWithPriv(s, ns, priv);
+    return naming.getSubjectsWithPriv(s, ns, priv);
   } // protected Set getSubjectsWithPriv(s, ns, priv)
 
   protected void grantPriv(
@@ -380,7 +394,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    this.access.grantPriv(s, g, subj, priv);
+    access.grantPriv(s, g, subj, priv);
     // FIXME
     try {
       this.ac.removeAll();
@@ -398,7 +412,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    this.naming.grantPriv(s, ns, subj, priv);
+    naming.grantPriv(s, ns, subj, priv);
     // FIXME
     try {
       this.nc.removeAll();
@@ -480,7 +494,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    this.access.revokePriv(s, g, priv);
+    access.revokePriv(s, g, priv);
     // FIXME
     try {
       this.ac.removeAll();
@@ -496,7 +510,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    this.naming.revokePriv(s, ns, priv);
+    naming.revokePriv(s, ns, priv);
     // FIXME
     try {
       this.nc.removeAll();
@@ -514,7 +528,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    this.access.revokePriv(s, g, subj, priv);
+    access.revokePriv(s, g, subj, priv);
     // FIXME
     try {
       this.ac.removeAll();
@@ -532,7 +546,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    this.naming.revokePriv(s, ns, subj, priv);
+    naming.revokePriv(s, ns, subj, priv);
     // FIXME
     try {
       this.nc.removeAll();
