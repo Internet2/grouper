@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.lang.reflect.*;
 import  java.util.*;
 import  net.sf.ehcache.*;
 
@@ -26,13 +25,12 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.55 2006-08-17 19:17:46 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.56 2006-08-17 19:25:16 blair Exp $
  */
 public class PrivilegeResolver {
 
   // PRIVATE CLASS CONSTANTS //
   // TODO Move to *E*
-  private static final String ERR_CI    = "unable to instantiate interface ";  
   private static final String ERR_RPC   = "unable to reset privilege caches: ";
   // TODO Move to *M*
   private static final String MSG_RPC   = "reset privilege cache: ";
@@ -291,7 +289,7 @@ public class PrivilegeResolver {
   // @since   1.1.0
   protected static AccessAdapter getAccess() {
     if (access == null) {
-      access = (AccessAdapter) _createInterface(
+      access = (AccessAdapter) U.realizeInterface(
         GrouperConfig.getProperty(GrouperConfig.PAI)
       );
     }
@@ -301,7 +299,7 @@ public class PrivilegeResolver {
   // @since   1.1.0
   protected static NamingAdapter getNaming() {
     if (naming == null) {
-      naming = (NamingAdapter) _createInterface(
+      naming = (NamingAdapter) U.realizeInterface(
         GrouperConfig.getProperty(GrouperConfig.PNI)
       );
     }
@@ -558,22 +556,6 @@ public class PrivilegeResolver {
 
 
   // PRIVATE CLASS METHODS //
-  private static Object _createInterface(String name) 
-    throws  GrouperRuntimeException
-  {
-    try {
-      Class   classType     = Class.forName(name);
-      Class[] paramsClass   = new Class[] { };
-      Constructor con = classType.getDeclaredConstructor(paramsClass);
-      Object[] params = new Object[] { };
-      return con.newInstance(params);
-    }
-    catch (Exception e) {
-      String msg = ERR_CI + name + ": " + e.getMessage();
-      ErrorLog.fatal(PrivilegeResolver.class, msg);
-      throw new GrouperRuntimeException(msg, e);
-    }
-  } // private static Object _createInterface(name)
 
   // @since   1.1.0
   private static boolean _isWheel(Subject subj) {
