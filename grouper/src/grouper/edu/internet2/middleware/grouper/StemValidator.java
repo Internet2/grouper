@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.7 2006-08-17 17:07:03 blair Exp $
+ * @version $Id: StemValidator.java,v 1.8 2006-08-17 17:28:28 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -67,9 +67,7 @@ class StemValidator {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
     // FIXME Should this be internalized?
-    PrivilegeResolver.getInstance().canPrivDispatch(
-      s, ns, subj, f.getWritePriv()
-    );
+    PrivilegeResolver.canPrivDispatch(s, ns, subj, f.getWritePriv());
   } // protected static void canWriteField(s, ns, subj, f, type)
 
 }

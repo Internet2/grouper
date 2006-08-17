@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.69 2006-08-17 17:07:03 blair Exp $
+ * @version $Id: Stem.java,v 1.70 2006-08-17 17:28:28 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -110,9 +110,14 @@ public class Stem extends Owner {
     catch (ModelException eM) {
       throw new GroupAddException(eM.getMessage(), eM);
     }
-    PrivilegeResolver.getInstance().canCREATE(
-      this.getSession(), this, this.getSession().getSubject()
-    );
+    if (
+      !PrivilegeResolver.canCREATE(
+        this.getSession(), this, this.getSession().getSubject()
+      )
+    )
+    {
+      throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
+    }
     if (this.equals(StemFinder.findRootStem(this.getSession()))) {
       throw new GroupAddException(
         "cannot create groups at root stem level"
