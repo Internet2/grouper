@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.93 2006-08-17 19:54:24 blair Exp $
+ * @version $Id: Group.java,v 1.94 2006-08-17 20:02:36 blair Exp $
  */
 public class Group extends Owner {
 
@@ -1512,9 +1512,7 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.getInstance().grantPriv(
-      this.getSession(), this, subj, priv
-    );
+    PrivilegeResolver.grantPriv(this.getSession(), this, subj, priv);
     sw.stop();
     EL.groupGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
   }  // public void grantPriv(subj, priv)
@@ -1893,9 +1891,7 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.getInstance().revokePriv(
-      this.getSession(), this, priv
-    );
+    PrivilegeResolver.revokePriv(this.getSession(), this, priv);
     sw.stop();
     EL.groupRevokePriv(this.getSession(), this.getName(), priv, sw);
   } // public void revokePriv(priv)
@@ -1926,9 +1922,7 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.getInstance().revokePriv(
-      this.getSession(), this, subj, priv
-    );
+    PrivilegeResolver.revokePriv(this.getSession(), this, subj, priv);
     sw.stop();
     EL.groupRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
   } // public void revokePriv(subj, priv)

@@ -25,7 +25,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.58 2006-08-17 19:54:24 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.59 2006-08-17 20:02:36 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -375,6 +375,42 @@ public class PrivilegeResolver {
   } // protected static Set getSubjectsWithPriv(s, ns, priv)
 
   // @since   1.1.0
+  protected static void grantPriv(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException,
+            SchemaException
+  {
+    getAccess().grantPriv(s, g, subj, priv);
+    // FIXME
+    try {
+      getAccessCache().removeAll();
+    }
+    catch (Exception e) {
+      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
+    }
+  } // protected static void grantPriv(s, g, subj, priv)
+
+  // @since   1.1.0
+  protected static void grantPriv(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException,
+            SchemaException
+  {
+    getNaming().grantPriv(s, ns, subj, priv);
+    // FIXME
+    try {
+      getNamingCache().removeAll();
+    }
+    catch (Exception e) {
+      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
+    }
+  } // protected static void grantPriv(s, ns, subj, priv)
+
+  // @since   1.1.0
   protected static boolean isRoot(Subject subj) {
     boolean rv = false;
     // First check to see if this is GrouperSystem
@@ -388,18 +424,13 @@ public class PrivilegeResolver {
     return rv;
   } // protected static boolean isRoot(subj)
 
-
-  // PROTECTED INSTANCE METHODS //
-
-  protected void grantPriv(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  GrantPrivilegeException,
-            InsufficientPrivilegeException,
+  // @since   1.1.0
+  protected static void revokePriv(GrouperSession s, Group g, Privilege priv)
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException,
             SchemaException
   {
-    GrouperSession.validate(s);
-    getAccess().grantPriv(s, g, subj, priv);
+    getAccess().revokePriv(s, g, priv);
     // FIXME
     try {
       getAccessCache().removeAll();
@@ -407,17 +438,15 @@ public class PrivilegeResolver {
     catch (Exception e) {
       ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
     }
-  } // protected void grantPriv(s, g, subj, priv)
+  } // protected static void revokePriv(s, g, priv)
 
-  protected void grantPriv(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
-  )
-    throws  GrantPrivilegeException,
-            InsufficientPrivilegeException,
+  // @since   1.1.0
+  protected static void revokePriv(GrouperSession s, Stem ns, Privilege priv)
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException,
             SchemaException
   {
-    GrouperSession.validate(s);
-    getNaming().grantPriv(s, ns, subj, priv);
+    getNaming().revokePriv(s, ns, priv);
     // FIXME
     try {
       getNamingCache().removeAll();
@@ -425,7 +454,46 @@ public class PrivilegeResolver {
     catch (Exception e) {
       ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
     }
-  } // protected void grantPriv(s, ns, subj, priv)
+  } // protected static void revokePriv(s, ns, priv)
+
+  // @since   1.1.0
+  protected static void revokePriv(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException,
+            SchemaException
+  {
+    getAccess().revokePriv(s, g, subj, priv);
+    // FIXME
+    try {
+      getAccessCache().removeAll();
+    }
+    catch (Exception e) {
+      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
+    }
+  } // protected static void revokePriv(s, g, subj, priv)
+
+  // @since   1.1.0
+  protected static void revokePriv(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException,
+            SchemaException
+  {
+    getNaming().revokePriv(s, ns, subj, priv);
+    // FIXME
+    try {
+      getNamingCache().removeAll();
+    }
+    catch (Exception e) {
+      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
+    }
+  } // protected static void revokePriv(s, ns, subj, priv)
+
+
+  // PROTECTED INSTANCE METHODS //
 
   protected boolean hasPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
@@ -492,74 +560,6 @@ public class PrivilegeResolver {
     }
     return rv;
   } // protected boolean hasPriv(s, ns, subj, priv)
-
-  protected void revokePriv(GrouperSession s, Group g, Privilege priv)
-    throws  InsufficientPrivilegeException,
-            RevokePrivilegeException,
-            SchemaException
-  {
-    GrouperSession.validate(s);
-    getAccess().revokePriv(s, g, priv);
-    // FIXME
-    try {
-      getAccessCache().removeAll();
-    }
-    catch (Exception e) {
-      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
-    }
-  } // protected void revokePriv(s, g, priv)
-
-  protected void revokePriv(GrouperSession s, Stem ns, Privilege priv)
-    throws  InsufficientPrivilegeException,
-            RevokePrivilegeException,
-            SchemaException
-  {
-    GrouperSession.validate(s);
-    getNaming().revokePriv(s, ns, priv);
-    // FIXME
-    try {
-      getNamingCache().removeAll();
-    }
-    catch (Exception e) {
-      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
-    }
-  } // protected void revokePriv(s, ns, priv)
-
-  protected void revokePriv(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException,
-            RevokePrivilegeException,
-            SchemaException
-  {
-    GrouperSession.validate(s);
-    getAccess().revokePriv(s, g, subj, priv);
-    // FIXME
-    try {
-      getAccessCache().removeAll();
-    }
-    catch (Exception e) {
-      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
-    }
-  } // protected void revokePriv(s, g, subj, priv)
-
-  protected void revokePriv(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException,
-            RevokePrivilegeException,
-            SchemaException
-  {
-    GrouperSession.validate(s);
-    getNaming().revokePriv(s, ns, subj, priv);
-    // FIXME
-    try {
-      getNamingCache().removeAll();
-    }
-    catch (Exception e) {
-      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
-    }
-  } // protected void revokePriv(s, ns, subj, priv)
 
 
   // PRIVATE CLASS METHODS //
