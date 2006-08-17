@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestQuery16.java,v 1.1 2006-08-16 20:22:11 blair Exp $
+ * @version $Id: TestQuery16.java,v 1.2 2006-08-17 12:36:28 blair Exp $
  * @since   1.1.0
  */
 public class TestQuery16 extends TestCase {
@@ -52,7 +52,7 @@ public class TestQuery16 extends TestCase {
       Group b = r.getGroup("b", "a");
       a.setDescription("modified");
       b.setDescription("modified");
-      Date  d = new Date( new Date().getTime() + 1 );
+      Date  d = new Date( new Date().getTime() + T.DATE_OFFSET );
       GrouperQuery gq = GrouperQuery.createQuery(
         r.rs, new GroupModifiedBeforeFilter(d, r.root)
       );

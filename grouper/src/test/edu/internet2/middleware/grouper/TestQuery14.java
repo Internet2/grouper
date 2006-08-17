@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestQuery14.java,v 1.1 2006-08-16 20:22:11 blair Exp $
+ * @version $Id: TestQuery14.java,v 1.2 2006-08-17 12:36:28 blair Exp $
  * @since   1.1.0
  */
 public class TestQuery14 extends TestCase {
@@ -48,7 +48,7 @@ public class TestQuery14 extends TestCase {
     LOG.info("testGroupModifiedAfterFilterFindSomethingScoped");
     try {
       R     r = R.populateRegistry(2, 1, 0);
-      Date  d = new Date( new Date().getTime() - 1 );
+      Date  d = new Date( new Date().getTime() - T.DATE_OFFSET );
       Group a = r.getGroup("a", "a");
       Group b = r.getGroup("b", "a");
       a.setDescription("modified");
