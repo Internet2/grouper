@@ -16,12 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.lang.reflect.*;
 import  java.util.*;
 
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.2 2006-08-10 17:29:04 blair Exp $
+ * @version $Id: U.java,v 1.3 2006-08-17 19:25:16 blair Exp $
  * @since   1.0
  */
 class U {
@@ -37,6 +38,24 @@ class U {
     return Q_OPEN + input + Q_CLOSE;
   } // protected static String q(input)
 
+  // @since   1.1.0
+  protected static Object realizeInterface(String name) 
+    throws  GrouperRuntimeException
+  {
+    try {
+      Class       classType   = Class.forName(name);
+      Class[]     paramsClass = new Class[] { };
+      Constructor con         = classType.getDeclaredConstructor(paramsClass);
+      Object[]    params      = new Object[] { };
+      return con.newInstance(params);
+    }
+    catch (Exception e) {
+      String msg = E.CANNOT_REALIZE_INTERFACE + name + ": " + e.getMessage();
+      ErrorLog.fatal(PrivilegeResolver.class, msg);
+      throw new GrouperRuntimeException(msg, e);
+    }
+  } // protected static Object realizeInterface(name)
+
   // @since 1.0.1
   protected static Set setMembershipSessions(GrouperSession s, List l) {
     // TODO Do I need to validate the session?
@@ -51,5 +70,5 @@ class U {
     return mships;
   } // protected static Set setMembershipSessions(s, l)
 
-}
+} // class U
 
