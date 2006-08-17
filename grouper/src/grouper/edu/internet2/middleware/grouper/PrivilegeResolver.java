@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.52 2006-08-17 17:28:28 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.53 2006-08-17 18:19:09 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -92,44 +92,164 @@ public class PrivilegeResolver {
   // PROTECTED CLASS METHODS //
 
   // @since   1.1.0
+  protected static boolean canADMIN(GrouperSession s, Group g, Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN);
+  } // protected static boolean canADMIN(s, g, subj)
+
+  // @since   1.1.0
   protected static boolean canCREATE(GrouperSession s, Stem ns, Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(s, ns, subj, NamingPrivilege.CREATE);
   } // protected static boolean canCREATE(s, ns, subj)
 
-  // TODO Merge with group checks using owner?
+  // @since   1.1.0
+  protected static boolean canOPTIN(GrouperSession s, Group g, Subject subj) {
+    if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTIN)
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+    )
+    {
+      return true;
+    }
+    return false;
+  } // protected static boolean canOPTIN(s, g, subj)
+
+  // @since   1.1.0
+  protected static boolean canOPTOUT(GrouperSession s, Group g, Subject subj) {
+    if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+    )
+    {
+      return true;
+    }
+    return false; 
+  } // protected static boolean canOPTOUT(s, g, subj)
+
   // @since   1.1.0
   protected static void canPrivDispatch(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
+    GrouperSession s, Owner o, Subject subj, Privilege priv
   )
     throws  InsufficientPrivilegeException,
             SchemaException
   {
     boolean rv  = false;
     String  msg = GrouperConfig.EMPTY_STRING; 
-    if      (priv.equals(NamingPrivilege.CREATE)) { 
-      rv = canCREATE(s, ns, subj);
+    if      (priv.equals(AccessPrivilege.ADMIN))  {
+      rv = canADMIN(s, (Group) o, subj);
+      if (!rv) {
+        msg = E.CANNOT_ADMIN;
+      }
+    }
+    else if (priv.equals(NamingPrivilege.CREATE)) { 
+      rv = canCREATE(s, (Stem) o, subj);
       if (!rv) {
         msg = E.CANNOT_CREATE;
       }
     }
+    else if (priv.equals(AccessPrivilege.OPTIN))  {
+      rv = canOPTIN(s, (Group) o, subj);
+      if (!rv) {
+        msg = E.CANNOT_OPTIN;
+      }
+    }
+    else if (priv.equals(AccessPrivilege.OPTOUT)) {
+      rv = canOPTOUT(s, (Group) o, subj);
+      if (!rv) {
+        msg = E.CANNOT_OPTOUT;
+      }
+    }
+    else if (priv.equals(AccessPrivilege.READ))   {
+      rv = canREAD(s, (Group) o, subj);
+      if (!rv) {
+        msg = E.CANNOT_READ;
+      }
+    }
     else if (priv.equals(NamingPrivilege.STEM))   {
-      rv = canSTEM(s, ns, subj);
+      rv = canSTEM(s, (Stem) o, subj);
       if (!rv) {
         msg = E.CANNOT_STEM;
       }
     }
+    else if (priv.equals(AccessPrivilege.VIEW))   {
+      rv = canVIEW(s, (Group) o, subj);
+      if (!rv) {
+        msg = E.CANNOT_VIEW;
+      }
+    }
+    else if (priv.equals(AccessPrivilege.UPDATE)) {
+      rv = canUPDATE(s, (Group) o, subj);
+      if (!rv) {
+        msg = E.CANNOT_UPDATE;
+      }
+    }
+    else if (priv.equals(AccessPrivilege.SYSTEM))  {
+      msg = E.SYSTEM_MAINTAINED + priv;
+    }
     else {
-      throw new SchemaException("unknown naming privilege: " + priv);
+      throw new SchemaException(E.UNKNOWN_PRIVILEGE + priv);
     }
     if (!rv) {
       throw new InsufficientPrivilegeException(msg);
     }
-  } // protected static void canPrivDispatch(s, ns, subj, priv)
+  } // protected static void canPrivDispatch(s, o, subj, priv)
+
+  // @since   1.1.0
+  protected static boolean canREAD(GrouperSession s, Group g, Subject subj) {
+    if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.READ)  
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+    )
+    {
+      return true;
+    }
+    return false; 
+   }// protected static boolean canREAD(s, g, subj)
 
   // @since   1.1.0
   protected static boolean canSTEM(GrouperSession s, Stem ns, Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(s, ns, subj, NamingPrivilege.STEM);
   } // protected static boolean canSTEM(s, ns, subj)
+
+  // @since   1.1.0
+  protected static boolean canUPDATE(GrouperSession s, Group g, Subject subj) {
+    if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+    )
+    {
+      return true;
+    }
+    return false; 
+  } // protected static boolean canUPDATE(s, g, subj)
+
+  // @since   1.1.0
+  protected static boolean canVIEW(GrouperSession s, Group g, Subject subj) {
+    if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.VIEW)  
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.READ)  
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTIN) 
+      ||
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
+    )
+    {
+      return true;
+    }
+    return false; 
+  } // protected static boolean canVIEW(s, g, subj)
 
   // If the subject being added is a group, verify that we can VIEW it
   // @since   1.1.0
@@ -141,7 +261,9 @@ public class PrivilegeResolver {
       if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
         Subject who   = s.getSubject();
         Group   what  = m.toGroup();
-        PrivilegeResolver.getInstance().canVIEW(s, what, who);
+        if (!canVIEW(s, what, who)) {
+          throw new InsufficientPrivilegeException(E.CANNOT_VIEW);
+        }
       }
       return m;
     }
@@ -186,184 +308,6 @@ public class PrivilegeResolver {
 
   // PROTECTED INSTANCE METHODS //
 
-  protected void canADMIN(GrouperSession s, Group g, Subject subj)
-    throws  InsufficientPrivilegeException
-  {
-    boolean   can   = false;
-    Privilege priv  = AccessPrivilege.ADMIN;
-    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      can = true;
-    }
-    if (can == false) {
-      throw new InsufficientPrivilegeException("cannot ADMIN");
-    }
-  } // protected void canADMIN(s, g, subj)
-
-  protected void canOPTIN(GrouperSession s, Group g, Subject subj)
-    throws  InsufficientPrivilegeException
-  {
-    boolean   can   = false;
-    Privilege priv  = AccessPrivilege.OPTIN;
-    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
-    )
-    {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
-    )
-    {
-      can = true;
-    }
-    if (can == false) {
-      throw new InsufficientPrivilegeException("cannot OPTIN");
-    }
-  } // protected void canOPTIN(s, g, subj)
-
-  protected void canOPTOUT(GrouperSession s, Group g, Subject subj)
-    throws  InsufficientPrivilegeException
-  {
-    boolean   can   = false;
-    Privilege priv  = AccessPrivilege.OPTOUT;
-    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
-    )
-    {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
-    )
-    {
-      can = true;
-    }
-    if (can == false) {
-      throw new InsufficientPrivilegeException("cannot OPTOUT");
-    }
-  } // protected void canOPTOUT(s, g, subj)
-
-  protected void canPrivDispatch(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    if      (priv.equals(AccessPrivilege.ADMIN))  { 
-      this.canADMIN(s, g, subj);
-    }
-    else if (priv.equals(AccessPrivilege.OPTIN))  {
-      this.canOPTIN(s, g, subj);
-    }
-    else if (priv.equals(AccessPrivilege.OPTOUT)) {
-      this.canOPTOUT(s, g, subj);
-    }
-    else if (priv.equals(AccessPrivilege.READ))   {
-      this.canREAD(s, g, subj);
-    }
-    else if (priv.equals(AccessPrivilege.UPDATE)) {
-      this.canUPDATE(s, g, subj);
-    }
-    else if (priv.equals(AccessPrivilege.VIEW))   {
-      this.canVIEW(s, g, subj);
-    }
-    else if (priv.equals(AccessPrivilege.SYSTEM))  {
-      throw new InsufficientPrivilegeException("system maintained");
-    }
-    else {
-      throw new SchemaException("unknown access privilege: " + priv);
-    }
-  } // protected void canPrivDispatch(s, g, subj, priv)
-
-  protected void canREAD(GrouperSession s, Group g, Subject subj)
-    throws  InsufficientPrivilegeException
-  {
-    boolean   can   = false;
-    Privilege priv  = AccessPrivilege.READ;
-    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
-    )
-    {
-      can = true;
-    }
-    if (can == false) {
-      throw new InsufficientPrivilegeException("cannot READ");
-    }
-  } // protected void canREAD(s, g, subj)
-
-  protected void canUPDATE(GrouperSession s, Group g, Subject subj)
-    throws  InsufficientPrivilegeException
-  {
-    boolean   can   = false;
-    Privilege priv  = AccessPrivilege.UPDATE;
-    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
-    )
-    {
-      can = true;
-    }
-    if (can == false) {
-      throw new InsufficientPrivilegeException("cannot UPDATE");
-    }
-  } // protected void canUPDATE(s, g, subj)
-
-  protected void canVIEW(GrouperSession s, Group g, Subject subj)
-    throws  InsufficientPrivilegeException
-  {
-    // TODO This is ugly
-    boolean   can   = false;
-    Privilege priv  = AccessPrivilege.VIEW;
-    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.READ)
-    )
-    {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
-    )
-    {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
-    )
-    {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTIN)
-    )
-    {
-      can = true;
-    }
-    else if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
-    )
-    {
-      can = true;
-    }
-    if (can == false) {
-      throw new InsufficientPrivilegeException("cannot VIEW");
-    }
-  } // protected void canVIEW(s, g, subj)
-  // TODO Can I remove s or subj?
-
   // TODO Deprecate?
   protected Set canVIEW(GrouperSession s, Set candidates) {
     Set             groups  = new LinkedHashSet();
@@ -372,14 +316,10 @@ public class PrivilegeResolver {
     while (iter.hasNext()) {
       g = (Group) iter.next();
       g.setSession(s);
-      try {
-        // Can we view the group
-        this.canVIEW(s, g, s.getSubject());
+      // Can we view the group
+      if (canVIEW(s, g, s.getSubject())) {
         groups.add(g);
       }
-      catch (InsufficientPrivilegeException eIP) {
-        // Ignore
-      }  
     }
     return groups;
   }

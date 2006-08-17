@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.54 2006-08-17 17:28:28 blair Exp $
+ * @version $Id: Member.java,v 1.55 2006-08-17 18:19:09 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -84,13 +84,9 @@ public class Member implements Serializable {
   {
     Validator.argNotNull(g, E.GROUP_NULL);
     try {
-      PrivilegeResolver.getInstance().canADMIN(
+      return PrivilegeResolver.canADMIN(
         this.getSession(), g, this.getSubject()
       );
-      return true;
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      return false;
     }
     catch (SubjectNotFoundException eSNF) {
       return false; 
@@ -134,13 +130,9 @@ public class Member implements Serializable {
   {
     Validator.argNotNull(g, E.GROUP_NULL);
     try {
-      PrivilegeResolver.getInstance().canOPTIN(
+      return PrivilegeResolver.canOPTIN(
         this.getSession(), g, this.getSubject()
       );
-      return true;
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      return false;
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
@@ -161,13 +153,9 @@ public class Member implements Serializable {
   {
     Validator.argNotNull(g, E.GROUP_NULL);
     try {
-      PrivilegeResolver.getInstance().canOPTOUT(
+      return PrivilegeResolver.canOPTOUT(
         this.getSession(), g, this.getSubject()
       );
-      return true;
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      return false;
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
@@ -188,13 +176,9 @@ public class Member implements Serializable {
   {
     Validator.argNotNull(g, E.GROUP_NULL);
     try {
-      PrivilegeResolver.getInstance().canREAD(
+      return PrivilegeResolver.canREAD(
         this.getSession(), g, this.getSubject()
       );
-      return true;
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      return false;
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
@@ -236,13 +220,9 @@ public class Member implements Serializable {
   {
     Validator.argNotNull(g, E.GROUP_NULL);
     try {
-      PrivilegeResolver.getInstance().canUPDATE(
+      return PrivilegeResolver.canUPDATE(
         this.getSession(), g, this.getSubject()
       );
-      return true;
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      return false;
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
@@ -263,13 +243,9 @@ public class Member implements Serializable {
   {
     Validator.argNotNull(g, E.GROUP_NULL);
     try {
-      PrivilegeResolver.getInstance().canVIEW(
+      return PrivilegeResolver.canVIEW(
         this.getSession(), g, this.getSubject()
       );
-      return true;
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      return false;
     }
     catch (SubjectNotFoundException eSNF) {
       return false; 

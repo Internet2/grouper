@@ -20,14 +20,22 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.22 2006-08-17 17:28:28 blair Exp $
+ * @version $Id: E.java,v 1.23 2006-08-17 18:19:09 blair Exp $
  * @since   1.0
  */
 class E {
 
   // PROTECTED CLASS CONSTANTS //
-  protected static final String CANNOT_CREATE             = "subject cannot CREATE";
-  protected static final String CANNOT_STEM               = "subject cannot STEM";
+  protected static final String CANNOT_ADMIN        = "subject cannot ADMIN";
+  protected static final String CANNOT_CREATE       = "subject cannot CREATE";
+  protected static final String CANNOT_OPTIN        = "subject cannot OPTIN";
+  protected static final String CANNOT_OPTOUT       = "subject cannot OPTOUT";
+  protected static final String CANNOT_READ         = "subject cannot READ";
+  protected static final String CANNOT_STEM         = "subject cannot STEM";
+  protected static final String CANNOT_UPDATE       = "subject cannot UPDATE";
+  protected static final String CANNOT_VIEW         = "subject cannot VIEW";
+  protected static final String SYSTEM_MAINTAINED   = "system maintained: ";
+  protected static final String UNKNOWN_PRIVILEGE   = "unknown privilege: ";
 
   protected static final String ATTR_NULL                 = "null attribute value";
   protected static final String ATTR_COLON                = "value contains colon";

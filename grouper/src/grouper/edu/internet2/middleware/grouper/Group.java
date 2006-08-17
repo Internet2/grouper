@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.91 2006-08-16 21:23:18 blair Exp $
+ * @version $Id: Group.java,v 1.92 2006-08-17 18:19:09 blair Exp $
  */
 public class Group extends Owner {
 
@@ -423,7 +423,12 @@ public class Group extends Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     GrouperSession.validate(this.getSession());
-    PrivilegeResolver.getInstance().canADMIN(this.getSession(), this, this.getSession().getSubject());
+    if (
+      !PrivilegeResolver.canADMIN(this.getSession(), this, this.getSession().getSubject())
+    )
+    {
+      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
+    }
     try {
       Set deletes = new LinkedHashSet();
 
@@ -1402,8 +1407,7 @@ public class Group extends Owner {
   public Set getRemovableTypes() {
     Set types = new LinkedHashSet();
     // Must have ADMIN to remove types.
-    try {
-      PrivilegeResolver.getInstance().canADMIN(this.s, this, this.s.getSubject());
+    if (PrivilegeResolver.canADMIN(this.s, this, this.s.getSubject())) {
       GroupType t;
       Iterator  iter  = this.getTypes().iterator();
       while (iter.hasNext()) {
@@ -1412,9 +1416,6 @@ public class Group extends Owner {
           types.add(t);
         }
       }
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      // Ignore.  
     }
     return types;
   } // public Set getRemovableTypes()

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.70 2006-08-17 17:28:28 blair Exp $
+ * @version $Id: Stem.java,v 1.71 2006-08-17 18:19:09 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -327,15 +327,12 @@ public class Stem extends Owner {
         while (iter.hasNext()) {
           child = (Group) iter.next();
           child.setSession(root);
-          try {
-            PrivilegeResolver.getInstance().canVIEW(
-              root, child, s.getSubject()
-            );
+          if (PrivilegeResolver.canVIEW(root, child, s.getSubject())) {
             child.setSession(this.getSession());
             children.add(child);
           }
-          catch (InsufficientPrivilegeException eIP) {
-            ErrorLog.error(Stem.class, E.STEM_GETCHILDGROUPS + eIP.getMessage());
+          else {
+            ErrorLog.error(Stem.class, E.STEM_GETCHILDGROUPS + E.CANNOT_VIEW);
           }
         }
         root.stop();

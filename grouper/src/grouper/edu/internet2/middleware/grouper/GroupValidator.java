@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.provider.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.11 2006-08-16 21:23:18 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.12 2006-08-17 18:19:09 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -159,7 +159,9 @@ class GroupValidator {
     if (GroupType.isSystemType(type)) {
       throw new SchemaException("cannot edit system group types");
     }
-    PrivilegeResolver.getInstance().canADMIN(s, g, s.getSubject());
+    if (!PrivilegeResolver.canADMIN(s, g, s.getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
+    }
   } // protected static void canModGroupType(s, g, type)
 
   // @since 1.0
@@ -173,7 +175,9 @@ class GroupValidator {
     {
       throw new InsufficientPrivilegeException(E.GROUP_COI);
     } 
-    PrivilegeResolver.getInstance().canOPTIN(g.getSession(), g, subj);
+    if (!PrivilegeResolver.canOPTIN(g.getSession(), g, subj)) {
+      throw new InsufficientPrivilegeException(E.CANNOT_OPTIN);
+    }
   } // protected static void canOptin(g, subj, f)
 
   // @since 1.0
@@ -187,7 +191,9 @@ class GroupValidator {
     {
       throw new InsufficientPrivilegeException(E.GROUP_COO);
     } 
-    PrivilegeResolver.getInstance().canOPTOUT(g.getSession(), g, subj);
+    if (!PrivilegeResolver.canOPTOUT(g.getSession(), g, subj)) {
+      throw new InsufficientPrivilegeException(E.CANNOT_OPTOUT);
+    }
   } // protected static void canOptin(g, subj, f)
 
   // @since 1.0

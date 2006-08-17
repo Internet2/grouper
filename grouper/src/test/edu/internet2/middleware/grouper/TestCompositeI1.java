@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
@@ -25,11 +24,11 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeI1.java,v 1.2 2006-06-15 00:07:02 blair Exp $
+ * @version $Id: TestCompositeI1.java,v 1.3 2006-08-17 18:19:09 blair Exp $
+ * @since   1.0
  */
 public class TestCompositeI1 extends TestCase {
 
-  // Private Static Class Constants
   private static final Log LOG = LogFactory.getLog(TestCompositeI1.class);
 
   public TestCompositeI1(String name) {
@@ -62,13 +61,12 @@ public class TestCompositeI1 extends TestCase {
     }
     catch (InsufficientPrivilegeException eIP) {
       Assert.assertTrue("OK: cannot del union without privileges", true);
-      String exp = "cannot UPDATE"; // TODO fragile
-      T.string("error message", exp, eIP.getMessage());
+      T.string("error message", E.CANNOT_UPDATE, eIP.getMessage());
     }
     catch (Exception e) {
       T.e(e);
     }
   } // public void testFailNotPrivilegedToDeleteCompositeMember()
 
-}
+} // public class TestCompositeI1
 

@@ -25,7 +25,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.20 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.21 2006-08-17 18:19:09 blair Exp $
  */
 public class GroupFinder {
 
@@ -52,15 +52,10 @@ public class GroupFinder {
     GrouperSession.validate(s);
     Group g = findByName(name);
     g.setSession(s);
-    try {
-      PrivilegeResolver.getInstance().canVIEW(
-        GrouperSession.startTransient(), g, s.getSubject()
-      );
+    if (PrivilegeResolver.canVIEW(GrouperSession.startTransient(), g, s.getSubject())) {
       return g;
     }
-    catch (InsufficientPrivilegeException eIP) {
-      ErrorLog.error(GroupFinder.class, E.GF_FBNAME + eIP.getMessage());
-    }  
+    ErrorLog.error(GroupFinder.class, E.GF_FBNAME + E.CANNOT_VIEW);
     throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
   } // public static Group findByName(s, name)
 
@@ -85,15 +80,10 @@ public class GroupFinder {
     GrouperSession.validate(s);
     Group g = _findByUuid(uuid);
     g.setSession(s);
-    try {
-      PrivilegeResolver.getInstance().canVIEW(
-        GrouperSession.startTransient(), g, s.getSubject()
-      );
+    if (PrivilegeResolver.canVIEW(GrouperSession.startTransient(), g, s.getSubject())) {
       return g;
     }
-    catch (InsufficientPrivilegeException eIP) {
-      ErrorLog.error(GroupFinder.class, E.GF_FBUUID + eIP.getMessage());
-    }  
+    ErrorLog.error(GroupFinder.class, E.GF_FBUUID + E.CANNOT_VIEW);
     throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
   } // public static Group findByUuid(s, uuid)
 
