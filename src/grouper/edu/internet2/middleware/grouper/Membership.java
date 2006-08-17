@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.45 2006-07-19 22:00:08 blair Exp $
+ * @version $Id: Membership.java,v 1.46 2006-08-17 16:52:43 blair Exp $
  */
 public class Membership {
 
@@ -310,7 +310,7 @@ public class Membership {
   {
     try {
       GrouperSessionValidator.validate(s);
-      Member      m   = PrivilegeResolver.getInstance().canViewSubject(s, subj);
+      Member      m   = PrivilegeResolver.canViewSubject(s, subj);
       Membership  imm = new Membership(o, m, f);
       MemberOf    mof = MemberOf.addImmediate(s, o, imm, m);
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
@@ -329,7 +329,7 @@ public class Membership {
     try {
       GrouperSessionValidator.validate(s); 
       // Who we're deleting
-      Member      m   = PrivilegeResolver.getInstance().canViewSubject(s, subj);
+      Member      m   = PrivilegeResolver.canViewSubject(s, subj);
       Membership  imm = MembershipFinder.findMembershipByTypeNoPrivNoSession(
         o, m, f, MembershipType.I
       );

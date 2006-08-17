@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.49 2006-08-17 16:45:31 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.50 2006-08-17 16:52:43 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -90,6 +90,26 @@ public class PrivilegeResolver {
 
 
   // PROTECTED CLASS METHODS //
+
+  // If the subject being added is a group, verify that we can VIEW it
+  // @since   1.1.0
+  protected static Member canViewSubject(GrouperSession s, Subject subj)
+    throws  ModelException
+  {
+    try {
+      Member  m = MemberFinder.findBySubject(s, subj);
+      if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
+        Subject who   = s.getSubject();
+        Group   what  = m.toGroup();
+        PrivilegeResolver.getInstance().canVIEW(s, what, who);
+      }
+      return m;
+    }
+    catch (Exception e) {
+      throw new ModelException(e.getMessage(), e);
+    }
+  } // protected static Member canViewSubject(s, subj)
+
   // FIXME DEPRECATE!
   protected static PrivilegeResolver getInstance() {
     if (pr == null) {
@@ -366,24 +386,6 @@ public class PrivilegeResolver {
     }
     return groups;
   }
-
-  // If the subject being added is a group, verify that we can VIEW it
-  protected Member canViewSubject(GrouperSession s, Subject subj)
-    throws  ModelException
-  {
-    try {
-      Member  m = MemberFinder.findBySubject(s, subj);
-      if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
-        Subject who   = s.getSubject();
-        Group   what  = m.toGroup();
-        PrivilegeResolver.getInstance().canVIEW(s, what, who);
-      }
-      return m;
-    }
-    catch (Exception e) {
-      throw new ModelException(e.getMessage(), e);
-    }
-  } // protected Member canViewSubject(s, subj)
 
   protected Set getPrivs(
     GrouperSession s, Group g, Subject subj
