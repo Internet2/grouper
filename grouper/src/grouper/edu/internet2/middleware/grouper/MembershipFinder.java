@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.40 2006-08-10 17:29:04 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.41 2006-08-17 16:28:18 blair Exp $
  */
 public class MembershipFinder {
 
@@ -246,7 +246,7 @@ public class MembershipFinder {
       Query     qry   = hs.createQuery(
         "from Membership as ms where ms.member_id = :mid"
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FAM);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FAM);
       qry.setString("mid", m.getId());
       Membership  ms;
@@ -303,7 +303,7 @@ public class MembershipFinder {
       Query       qry = hs.createQuery(
         "from Membership as ms where ms.uuid = :uuid"
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FBU);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FBU);
       qry.setString("uuid", uuid);
       List mships  = qry.list();
@@ -336,7 +336,7 @@ public class MembershipFinder {
       Query   qry = hs.createQuery(
         "from Membership as ms where ms.parent_membership = :msid"
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FCM);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FCM);
       qry.setString("msid", ms.getId());
       List    l   = qry.list();
@@ -371,7 +371,7 @@ public class MembershipFinder {
         + "and  ms.via_id       = :via    "
         + "and  ms.depth        = :depth"
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FEM);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FEM);
       qry.setParameter( "owner"   , o                           );
       qry.setString(    "mid"     , mid                         ); // FIXME
@@ -408,7 +408,7 @@ public class MembershipFinder {
         + "and  ms.field.type = :ftype  "
         + "and  ms.mship_type = :type   "
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FEMM);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMM);
       qry.setString("mid"   , m.getId()                   );
       qry.setString("fname" , f.getName()                 );
@@ -443,7 +443,7 @@ public class MembershipFinder {
         + "and  ms.field.type = :ftype  "
         + "and  ms.mship_type = :type   "
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FEMOM);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMOM);
       qry.setParameter( "owner" , o                           );
       qry.setString(    "mid"   , m.getId()                   ); // FIXME
@@ -478,7 +478,7 @@ public class MembershipFinder {
         + "and  ms.field.type = :ftype  "
         + "and  ms.mship_type = :type   "
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FIMM);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FIMM);      
       qry.setString(  "mid"   , m.getId()                   );
       qry.setString(  "fname" , f.getName()                 );
@@ -576,7 +576,7 @@ public class MembershipFinder {
         + "and  ms.field.name = :fname  "
         + "and  ms.field.type = :ftype"
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FM);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FM);
       qry.setString("mid"   , m.getId()             );
       qry.setString("fname" , f.getName()           );
@@ -632,7 +632,7 @@ public class MembershipFinder {
         + "and  ms.field.name = :fname  "
         + "and  ms.field.type = :ftype"
       );
-      qry.setCacheable(   GrouperConfig.QRY_MSF_FMO );
+      qry.setCacheable(true);
       qry.setCacheRegion( GrouperConfig.QCR_MSF_FMO );
       qry.setParameter( "owner" , o                     );
       qry.setString(    "fname" , f.getName()           );
@@ -666,7 +666,7 @@ public class MembershipFinder {
         + "and  ms.field.type = :ftype  "
         + "and  ms.mship_type = :type   "
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FMSBT);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FMSBT);
       qry.setParameter( "owner"   , o                       );
       qry.setParameter( "member"  , m                       );
@@ -727,7 +727,7 @@ public class MembershipFinder {
         + "and  ms.field.type = :ftype  "
         + "and  ms.mship_type = :type   "
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FMSBT_C);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FMSBT_C);
       qry.setParameter( "owner" , o                       );
       qry.setString(    "fname" , f.getName()             );
@@ -759,7 +759,7 @@ public class MembershipFinder {
         + "and  ms.field.name = :fname  "
         + "and  ms.field.type = :ftype"
       );
-      qry.setCacheable(GrouperConfig.QRY_MSF_FMOM);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FMOM);
       qry.setParameter( "owner" , o                     );
       qry.setString(    "mid"   , m.getId()             ); // FIXME

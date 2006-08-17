@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.47 2006-08-17 15:26:23 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.48 2006-08-17 16:28:18 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -90,14 +90,13 @@ public class PrivilegeResolver {
   // PROTECTED CLASS METHODS //
   protected static PrivilegeResolver getInstance() {
     if (pr == null) {
-      GrouperConfig cfg = GrouperConfig.getInstance();
       pr = new PrivilegeResolver();
     
       pr.access = (AccessAdapter) _createInterface(
-        cfg.getProperty(GrouperConfig.PAI)
+        GrouperConfig.getProperty(GrouperConfig.PAI)
       );
       pr.naming = (NamingAdapter) _createInterface(
-        cfg.getProperty(GrouperConfig.PNI)
+        GrouperConfig.getProperty(GrouperConfig.PNI)
       );
       // Get access and naming privilege classes
       // TODO Make configurable
@@ -635,10 +634,9 @@ public class PrivilegeResolver {
 
   private boolean _isWheel(Subject subj) {
     boolean       rv  = false;
-    GrouperConfig cfg = GrouperConfig.getInstance();
-    if (cfg.getProperty(GrouperConfig.GWU).equals(GrouperConfig.BT)) {
+    if (GrouperConfig.getProperty(GrouperConfig.GWU).equals(GrouperConfig.BT)) {
       // TODO This has to be a performance killer
-      String name = cfg.getProperty(GrouperConfig.GWG);
+      String name = GrouperConfig.getProperty(GrouperConfig.GWG);
       try {
         Group wheel = GroupFinder.findByName(GrouperSession.startTransient(), name);
         rv          = wheel.hasMember(subj);

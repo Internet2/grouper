@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.21 2006-07-06 20:18:59 blair Exp $
+ * @version $Id: EventLog.java,v 1.22 2006-08-17 16:28:18 blair Exp $
  */
 class EventLog {
 
@@ -51,7 +51,6 @@ class EventLog {
 
 
   // PRIVATE INSTANCE VARIALBES //
-  private GrouperConfig cfg;
   private boolean       log_eff_group_add = false;
   private boolean       log_eff_group_del = false;
   private boolean       log_eff_stem_add  = false;
@@ -61,17 +60,16 @@ class EventLog {
   // CONSTRUCTORS //
   protected EventLog() {
     super();
-    this.cfg = GrouperConfig.getInstance();
-    if (this.cfg.getProperty(GrouperConfig.MSLGEA).equals(GrouperConfig.BT)) {
+    if (GrouperConfig.getProperty(GrouperConfig.MSLGEA).equals(GrouperConfig.BT)) {
       log_eff_group_add = true;
     } 
-    if (this.cfg.getProperty(GrouperConfig.MSLGED).equals(GrouperConfig.BT)) {
+    if (GrouperConfig.getProperty(GrouperConfig.MSLGED).equals(GrouperConfig.BT)) {
       log_eff_group_del = true;
     }
-    if (this.cfg.getProperty(GrouperConfig.MSLSEA).equals(GrouperConfig.BT)) {
+    if (GrouperConfig.getProperty(GrouperConfig.MSLSEA).equals(GrouperConfig.BT)) {
       log_eff_stem_add = true;
     }
-    if (this.cfg.getProperty(GrouperConfig.MSLSED).equals(GrouperConfig.BT)) {
+    if (GrouperConfig.getProperty(GrouperConfig.MSLSED).equals(GrouperConfig.BT)) {
       log_eff_stem_del = true;
     }
   } // protected EventLog()

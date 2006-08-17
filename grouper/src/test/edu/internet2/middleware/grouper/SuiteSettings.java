@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteSettings.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: SuiteSettings.java,v 1.3 2006-08-17 16:28:18 blair Exp $
  */
 public class SuiteSettings extends TestCase {
 
@@ -37,8 +37,9 @@ public class SuiteSettings extends TestCase {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( TestSetting0.class      ); // get CURRENT_SCHEMA_VERSION
     suite.addTestSuite( TestSetting1.class      ); // get schema version
-    // TODO split
-    suite.addTestSuite( TestGrouperConfig.class );
+    suite.addTestSuite( TestSetting2.class      ); // get grouper config props
+    suite.addTestSuite( TestSetting3.class      ); // get bad grouper config props
+    suite.addTestSuite( TestSetting4.class      ); // get hibernate config props
     return suite;
   } // static public Test suite()
 

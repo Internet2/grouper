@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.18 2006-08-17 15:07:42 blair Exp $
+ * @version $Id: E.java,v 1.19 2006-08-17 16:28:18 blair Exp $
  * @since   1.0
  */
 class E {
@@ -49,6 +49,7 @@ class E {
   protected static final String COMPF_FINDASFACTOR        = "error retrieving owner group: ";
   protected static final String COMPF_ISFACTOR            = "error determing where object is a factor: ";
   protected static final String CONFIG_READ               = "unable to read grouper configuration file: ";
+  protected static final String CONFIG_READ_HIBERNATE     = "unable to read hibernate configuration file: ";
   protected static final String EVENT_EFFADD              = "unable to log effective membership addition: ";
   protected static final String EVENT_EFFDEL              = "unable to log effective membership deletion";
   protected static final String EVENT_EFFOWNER            = "effective membership owner not found: ";

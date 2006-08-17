@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS.txt,v 1.14 2006-08-17 15:07:42 blair Exp $
+$Id: NEWS.txt,v 1.15 2006-08-17 16:28:18 blair Exp $
 
 ---
 
@@ -10,6 +10,8 @@ $Id: NEWS.txt,v 1.14 2006-08-17 15:07:42 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:    `GrouperConfig.getHibernateProperty(parameter)`
+* NEW:    `GrouperConfig.getProperty(parameter)`
 * NEW:    `SubjectFinder.findRootSubject()` convenience method
 * NEW:    `GroupModifiedAfter` query filter
 * NEW:    `GroupModifiedBefore` query filter
