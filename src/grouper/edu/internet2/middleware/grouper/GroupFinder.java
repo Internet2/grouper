@@ -25,7 +25,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.19 2006-08-16 20:22:11 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.20 2006-08-17 16:28:18 blair Exp $
  */
 public class GroupFinder {
 
@@ -110,7 +110,7 @@ public class GroupFinder {
       Query   qry = hs.createQuery(
         "from Group as g where g.create_time > :time"
       );
-      qry.setCacheable(GrouperConfig.QRY_GF_FBCA);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBCA);
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
@@ -141,7 +141,7 @@ public class GroupFinder {
       Query   qry = hs.createQuery(
         "from Group as g where g.create_time < :time"
       );
-      qry.setCacheable(GrouperConfig.QRY_GF_FBCB);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBCB);
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
@@ -172,7 +172,7 @@ public class GroupFinder {
       Query   qry = hs.createQuery(
         "from Attribute as a where lower(a.value) like :value"
       );
-      qry.setCacheable(GrouperConfig.QRY_GF_FBAAA);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBAAA);
       qry.setString("value", "%" + val.toLowerCase() + "%");
       Group     g;
@@ -203,7 +203,7 @@ public class GroupFinder {
         "from Attribute as a where "
         + "a.field.name = :field and lower(a.value) like :value"
       );
-      qry.setCacheable(GrouperConfig.QRY_GF_FBAA);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBAA);
       qry.setString("field", attr);
       qry.setString("value", "%" + val.toLowerCase() + "%");
@@ -238,7 +238,7 @@ public class GroupFinder {
         + "or (a.field.name = 'extension'         and lower(a.value) like :value) "
         + "or (a.field.name = 'displayExtension'  and lower(a.value) like :value)"
       );
-      qry.setCacheable(GrouperConfig.QRY_GF_FBAN);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBAN);
       qry.setString("value", "%" + name.toLowerCase() + "%");
       Group     g;
@@ -269,7 +269,7 @@ public class GroupFinder {
       Query   qry = hs.createQuery(
         "from Group as g where g.modify_time > :time"
       );
-      qry.setCacheable(GrouperConfig.CACHE);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBMA);
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
@@ -301,7 +301,7 @@ public class GroupFinder {
       Query   qry = hs.createQuery(
         "from Group as g where g.modify_time < :time"
       );
-      qry.setCacheable(GrouperConfig.CACHE);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBMB);
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
@@ -335,7 +335,7 @@ public class GroupFinder {
         "from Attribute as a where "
         + "a.field.name = 'name' and a.value = :value"
       );
-      qry.setCacheable(GrouperConfig.QRY_GF_FBN);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBN);
       qry.setString("value", name);
       List    attrs = qry.list();
@@ -366,7 +366,7 @@ public class GroupFinder {
       Query   qry   = hs.createQuery(
         "from Group as g where g.uuid = :uuid"
       );
-      qry.setCacheable(GrouperConfig.QRY_GF_FBU);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBU);
       qry.setString("uuid", uuid);
       List    groups  = qry.list();

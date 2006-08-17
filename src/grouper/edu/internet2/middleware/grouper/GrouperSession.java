@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.30 2006-07-06 17:16:53 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.31 2006-08-17 16:28:18 blair Exp $
  */
 public class GrouperSession {
 
@@ -101,9 +101,7 @@ public class GrouperSession {
   {
     if (root == null) {
       try {
-        root = SubjectFinder.findById(
-          GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID
-        );
+        root = SubjectFinder.findRootSubject();
       }
       catch (Exception e) {
         String msg = E.S_NOSTARTROOT + e.getMessage();
@@ -142,7 +140,7 @@ public class GrouperSession {
    * @return  Name of class implementing naming privileges.
    */
   public String getAccessClass() {
-    return GrouperConfig.getInstance().getProperty(GrouperConfig.PAI);
+    return GrouperConfig.getProperty(GrouperConfig.PAI);
   } // public String getAccessClass()
 
    /**
@@ -170,7 +168,7 @@ public class GrouperSession {
    * @return  Name of class implementing naming privileges.
    */
   public String getNamingClass() {
-    return GrouperConfig.getInstance().getProperty(GrouperConfig.PNI);
+    return GrouperConfig.getProperty(GrouperConfig.PNI);
   } // public String getNamingClass()
 
   /**

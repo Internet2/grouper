@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.Type;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.14 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.15 2006-08-17 16:28:18 blair Exp $
  */
 public class GroupTypeFinder {
 
@@ -167,7 +167,7 @@ public class GroupTypeFinder {
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery("from GroupType order by name asc");
-      qry.setCacheable(GrouperConfig.QRY_GTF_FA); 
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GTF_FA);
       types.addAll(qry.list());
       hs.close();  

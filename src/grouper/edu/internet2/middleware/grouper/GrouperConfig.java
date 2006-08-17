@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.27 2006-08-16 20:22:11 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.28 2006-08-17 16:28:18 blair Exp $
  */
 public class GrouperConfig {
 
@@ -43,7 +43,6 @@ public class GrouperConfig {
   // PROTECTED CLASS CONSTANTS //
   protected static final String ALL           = "GrouperAll";
   protected static final String BT            = "true";
-  protected static final boolean  CACHE       = true;
   protected static final String EMPTY_STRING  = "";
   protected static final String GCGAA         = "groups.create.grant.all.admin";
   protected static final String GCGAOI        = "groups.create.grant.all.optin";
@@ -68,139 +67,121 @@ public class GrouperConfig {
   // PROTECTED CLASS CONSTANTS -- QUERIES //
   // FIXME I really hate all of these
   protected static final String   QCR_CF_IF     = "edu.internet2.middleware.grouper.CompositeFinder.IsFactor";
-  protected static final boolean  QRY_CF_IF     = true;
   protected static final String   QCR_CF_IO     = "edu.internet2.middleware.grouper.CompositeFinder.IsOwner";
-  protected static final boolean  QRY_CF_IO     = true;
   protected static final String   QCR_FF_FA     = "edu.internet2.middleware.grouper.FieldFinder.FindAll";
-  protected static final boolean  QRY_FF_FA     = true;
   protected static final String   QCR_FF_FABT   = "edu.internet2.middleware.grouper.FieldFinder.FindAllByType";
-  protected static final boolean  QRY_FF_FABT   = true;
   protected static final String   QCR_GF_FBAA   = "edu.internet2.middleware.grouper.GroupFinder.FindByApproximateAttr";
-  protected static final boolean  QRY_GF_FBAA   = true;
   protected static final String   QCR_GF_FBAN   = "edu.internet2.middleware.grouper.GroupFinder.FindByApproximateName";
-  protected static final boolean  QRY_GF_FBAN   = true;
   protected static final String   QCR_GF_FBAAA  = "edu.internet2.middleware.grouper.GroupFinder.FindByAnyApproximateAttr";
-  protected static final boolean  QRY_GF_FBAAA  = true;
   protected static final String   QCR_GF_FBCA   = "edu.internet2.middleware.grouper.GroupFinder.FindByCreatedAfter";
-  protected static final boolean  QRY_GF_FBCA   = true;
   protected static final String   QCR_GF_FBCB   = "edu.internet2.middleware.grouper.GroupFinder.FindByCreatedBefore";
-  protected static final boolean  QRY_GF_FBCB   = true;
   protected static final String   QCR_GF_FBMA   = "edu.internet2.middleware.grouper.GroupFinder.FindByModifiedAfter";
   protected static final String   QCR_GF_FBMB   = "edu.internet2.middleware.grouper.GroupFinder.FindByModifiedBefore";
   protected static final String   QCR_GF_FBN    = "edu.internet2.middleware.grouper.GroupFinder.FindByName";
-  protected static final boolean  QRY_GF_FBN    = true;
   protected static final String   QCR_GF_FBU    = "edu.internet2.middleware.grouper.GroupFinder.FindByUuid";
-  protected static final boolean  QRY_GF_FBU    = true;
   protected static final String   QCR_GTF_FA    = "edu.internet2.middleware.grouper.GroupTypeFinder.FindAll";
   protected static final boolean  QRY_GTF_FA    = false; 
   protected static final String   QCR_MF_FBS    = "edu.internet2.middleware.grouper.MemberFinder.FindBySubject";
-  protected static final boolean  QRY_MF_FBS    = true;
   protected static final String   QCR_MF_FBU    = "edu.internet2.middleware.grouper.MemberFinder.FindByUuid";
-  protected static final boolean  QRY_MF_FBU    = true;
   protected static final String   QCR_MSF_FAM    = "edu.internet2.middleware.grouper.MembershipFinder.FindAllMemberships";
-  protected static final boolean  QRY_MSF_FAM   = true;
   protected static final String   QCR_MSF_FBU   = "edu.internet2.middleware.grouper.MembershipFinder.FindByUuid";
-  protected static final boolean  QRY_MSF_FBU   = true;
   protected static final String   QCR_MSF_FCM   = "edu.internet2.middleware.grouper.MembershipFinder.FindChildMemberships";
-  protected static final boolean  QRY_MSF_FCM   = true;
   protected static final String   QCR_MSF_FEM   = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMemberships";
-  protected static final boolean  QRY_MSF_FEM   = true;
   protected static final String   QCR_MSF_FEMM  = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsMember";
-  protected static final boolean  QRY_MSF_FEMM  = true;
   protected static final String   QCR_MSF_FEMOM = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsOwnerMember";
-  protected static final boolean  QRY_MSF_FEMOM = true;
   protected static final String   QCR_MSF_FIMM  = "edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMembershipsMember";
-  protected static final boolean  QRY_MSF_FIMM  = true;
   protected static final String   QCR_MSF_FM    = "edu.internet2.middleware.grouper.MembershipFinder.FindMemberships";
-  protected static final boolean  QRY_MSF_FM    = true;
   protected static final String   QCR_MSF_FMO   = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwner";
-  protected static final boolean  QRY_MSF_FMO   = true;
   protected static final String   QCR_MSF_FMOM  = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwnerMember";
-  protected static final boolean  QRY_MSF_FMOM  = true;
   protected static final String   QCR_MSF_FMSBT   = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipByType";
-  protected static final boolean  QRY_MSF_FMSBT   = true;
   protected static final String   QCR_MSF_FMSBT_C = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsByType";
-  protected static final boolean  QRY_MSF_FMSBT_C = true;
   protected static final String   QCR_SF_FBADE  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayExtension";
-  protected static final boolean  QRY_SF_FBADE  = true;
   protected static final String   QCR_SF_FBADN  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayName";
-  protected static final boolean  QRY_SF_FBADN  = true;
   protected static final String   QCR_SF_FBAE   = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateExtension";
-  protected static final boolean  QRY_SF_FBAE   = true;
   protected static final String   QCR_SF_FBAN   = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateName";
-  protected static final boolean  QRY_SF_FBAN   = true;
   protected static final String   QCR_SF_FBANA  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateNameAny";
-  protected static final boolean  QRY_SF_FBANA  = true;
   protected static final String   QCR_SF_FBCA   = "edu.internet2.middleware.grouper.StemFinder.FindByCreatedAfter";
-  protected static final boolean  QRY_SF_FBCA   = true;
   protected static final String   QCR_SF_FBCB   = "edu.internet2.middleware.grouper.StemFinder.FindByCreatedBefore";
-  protected static final boolean  QRY_SF_FBCB   = true;
   protected static final String   QCR_SF_FBN    = "edu.internet2.middleware.grouper.StemFinder.FindByName";
-  protected static final boolean  QRY_SF_FBN    = true;
   protected static final String   QCR_SF_FBU    = "edu.internet2.middleware.grouper.StemFinder.FindByUuid";
-  protected static final boolean  QRY_SF_FBU    = true;
 
 
   // PRIVATE CLASS VARIABLES //
-  private static GrouperConfig cfg;
+  private static  Properties  grouper_props = new Properties();
+  private static  Properties  hib_props     = new Properties();
 
 
-  // PRIVATE INSTANCE VARIABLES //
-  private Properties properties = new Properties();
-
-
-  // CONSTRUCTORS //
-  private GrouperConfig() {
-    // nothing
-  } // private GrouperConfig()
-
-
-  // PUBLIC CLASS METHODS //
-
-  /**
-   * Get Grouper configuration instance.
-   * @return  {@link GrouperConfig} singleton.
-   */
-  public static GrouperConfig getInstance() {
-    if (cfg == null) {
-      cfg = _getConfiguration();
-    }
-    return cfg;
-  } // public static GrouperConfig getInstance()
-
-
-  // PUBLIC INSTANCE METHODS //
-
-  /**
-   * Get a Grouper configuration parameter.
-   * @return  Value of configuration parameter or an empty string if
-   *   parameter is invalid.
-   */
-  public String getProperty(String property) {
-    String value = GrouperConfig.EMPTY_STRING;
-    if ( (property != null) && (this.properties.containsKey(property)) ) {
-      value = StringUtils.strip( this.properties.getProperty(property) );
-    }
-    return value;
-  } // public String getProperty(property)
-
-
-  // PRIVATE CLASS METHODS //
-  private static GrouperConfig _getConfiguration() 
-    throws  GrouperRuntimeException
-  {
-    InputStream in = GrouperConfig.class.getResourceAsStream(GROUPER_CF);
+  // STATIC //
+  static {
+    // Load Grouper properties
     try {
-      cfg = new GrouperConfig();
-      cfg.properties.load(in);
+      InputStream in = GrouperConfig.class.getResourceAsStream(GROUPER_CF);
+      grouper_props.load(in);
     }
     catch (IOException eIO) {
       String msg = E.CONFIG_READ + eIO.getMessage();
       ErrorLog.fatal(GrouperConfig.class, msg);
       throw new GrouperRuntimeException(msg, eIO);
     }
-    return cfg;     
-  } // private static GrouperConfig _getConfiguration()
+    // Load Hibernate properties
+    try {
+      InputStream in = GrouperConfig.class.getResourceAsStream(HIBERNATE_CF);
+      hib_props.load(in);
+    }
+    catch (IOException eIO) {
+      String msg = E.CONFIG_READ_HIBERNATE + eIO.getMessage();
+      ErrorLog.fatal(GrouperConfig.class, msg);
+      throw new GrouperRuntimeException(msg, eIO);
+    }
+  } // static
 
-}
+
+
+  // CONSTRUCTORS //
+  private GrouperConfig() {
+    super();
+  } // private GrouperConfig()
+
+
+  // PUBLIC CLASS METHODS //
+
+  /**
+   * Get a Hibernate configuration parameter.
+   * <pre class="eg">
+   * String dialect = GrouperConfig.getHibernateProperty("hibernate.dialect");
+   * </pre>
+   * @return  Value of configuration parameter or an empty string if
+   *   parameter is invalid.
+   * @since   1.1.0
+   */
+  public static String getHibernateProperty(String property) {
+    return _getProperty(hib_props, property);
+  } // public static String getHibernateProperty(property)
+
+  /**
+   * Get a Grouper configuration parameter.
+   * <pre class="eg">
+   * String wheel = GrouperConfig.getProperty("groups.wheel.group");
+   * </pre>
+   * @return  Value of configuration parameter or an empty string if
+   *   parameter is invalid.
+   * @since   1.1.0
+   */
+  public static String getProperty(String property) {
+    return _getProperty(grouper_props, property);
+  } // public static String getProperty(property)
+
+
+  // PRIVATE CLASS METHODS //
+
+  // @since   1.1.0
+  private static String _getProperty(Properties props, String property) {
+    String value = GrouperConfig.EMPTY_STRING;
+    if ( (property != null) && (props.containsKey(property)) ) {
+      value = StringUtils.strip( props.getProperty(property) );
+    }
+    return value;
+  } // private static String _getProperty(props, property)
+
+} // public class GrouperConfig
 

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.7 2006-08-17 15:07:42 blair Exp $
+$Id: API.txt,v 1.8 2006-08-17 16:28:18 blair Exp $
 
 ---
 
@@ -182,6 +182,10 @@ $Id: API.txt,v 1.7 2006-08-17 15:07:42 blair Exp $
 ## GroupCreatedBeforeFilter extends BaseQueryFilter
 
 ## GrouperAccessAdapter implements AccessAdapter
+
+## GrouperConfig
+* String              GrouperConfig.getHibernateProperty(parameter)
+* String              GrouperConfig.getProperty(parameter)
 
 ## GrouperNamingAdapter implements NamingAdapter
 

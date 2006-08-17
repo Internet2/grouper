@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.67 2006-07-10 18:17:07 blair Exp $
+ * @version $Id: Stem.java,v 1.68 2006-08-17 16:28:18 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -1065,9 +1065,8 @@ public class Stem extends Owner {
   ) 
     throws  Exception
   {
-    GrouperConfig cfg = GrouperConfig.getInstance();
     Subject       all = SubjectFinder.findAllSubject();
-    if (cfg.getProperty(opt).equals(GrouperConfig.BT)) {
+    if (GrouperConfig.getProperty(opt).equals(GrouperConfig.BT)) {
       StopWatch sw = new StopWatch();
       sw.start();
       if      (o.getClass().equals(Group.class)) {

@@ -25,7 +25,7 @@ import  net.sf.hibernate.type.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.17 2006-07-06 17:16:53 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.18 2006-08-17 16:28:18 blair Exp $
  */
 public class MemberFinder {
 
@@ -82,7 +82,7 @@ public class MemberFinder {
       Query   qry     = hs.createQuery(
         "from Member as m where m.member_id = :uuid"
       );
-      qry.setCacheable(GrouperConfig.QRY_MF_FBU);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MF_FBU);
       qry.setString("uuid", uuid);
       List    members = qry.list();
@@ -138,7 +138,7 @@ public class MemberFinder {
         + "and  m.subject_type    = :type "
         + "and  m.subject_source  = :source"
       );
-      qry.setCacheable(GrouperConfig.QRY_MF_FBS);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MF_FBS);
       qry.setString("sid",    subj.getId()            );
       qry.setString("type",   subj.getType().getName());

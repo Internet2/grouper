@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.Type;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.14 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.15 2006-08-17 16:28:18 blair Exp $
  */
 public class FieldFinder {
 
@@ -84,7 +84,7 @@ public class FieldFinder {
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery("from Field order by field_name asc");
-      qry.setCacheable(GrouperConfig.QRY_FF_FA);  // TODO I'm wary
+      qry.setCacheable(true); // TODO I'm wary
       qry.setCacheRegion(GrouperConfig.QCR_FF_FA);
       fields.addAll(qry.list());
       hs.close();  
@@ -112,7 +112,7 @@ public class FieldFinder {
       Query   qry = hs.createQuery(
         "from Field where field_type = :type order by field_name asc"
       );
-      qry.setCacheable(GrouperConfig.QRY_FF_FABT);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_FF_FABT);
       qry.setString("type", type.toString());
       fields.addAll(qry.list());

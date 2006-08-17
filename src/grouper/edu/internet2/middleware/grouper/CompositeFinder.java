@@ -22,7 +22,7 @@ import  net.sf.hibernate.type.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.8 2006-07-10 18:17:07 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.9 2006-08-17 16:28:18 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {
@@ -106,7 +106,7 @@ public class CompositeFinder {
         + " c.left = :left or c.right = :right "
         + ")"
       );
-      qry.setCacheable(   GrouperConfig.QRY_CF_IF ); 
+      qry.setCacheable(true);
       qry.setCacheRegion( GrouperConfig.QCR_CF_IF );
       qry.setParameter( "left"  , o );
       qry.setParameter( "right" , o );
@@ -134,7 +134,7 @@ public class CompositeFinder {
       Query     qry = hs.createQuery(
         "from Composite as c where c.owner = :owner"
       );
-      qry.setCacheable(   GrouperConfig.QRY_CF_IO ); 
+      qry.setCacheable(true);
       qry.setCacheRegion( GrouperConfig.QCR_CF_IO );
       qry.setParameter( "owner" , o );
       Composite c   = (Composite) qry.uniqueResult();

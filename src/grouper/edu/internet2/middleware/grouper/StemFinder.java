@@ -24,7 +24,7 @@ import  net.sf.hibernate.type.*;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.23 2006-07-07 15:22:01 blair Exp $
+ * @version $Id: StemFinder.java,v 1.24 2006-08-17 16:28:18 blair Exp $
  */
 public class StemFinder {
 
@@ -58,7 +58,7 @@ public class StemFinder {
       Query   qry = hs.createQuery(
         "from Stem as ns where ns.stem_name = :name"
       );
-      qry.setCacheable(GrouperConfig.QRY_SF_FBN);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBN);
       qry.setString("name", name);
       List    l   = qry.list();
@@ -141,7 +141,7 @@ public class StemFinder {
       Query     qry     = hs.createQuery(
         "from Stem as ns where ns.display_extension like :value"
       );
-      qry.setCacheable(GrouperConfig.QRY_SF_FBADE);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBADE);
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       Stem      ns;
@@ -170,7 +170,7 @@ public class StemFinder {
       Query     qry     = hs.createQuery(
         "from Stem as ns where ns.display_name like :value"
       );
-      qry.setCacheable(GrouperConfig.QRY_SF_FBADN);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBADN);
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       Stem      ns;
@@ -199,7 +199,7 @@ public class StemFinder {
       Query     qry     = hs.createQuery(
         "from Stem as ns where ns.stem_extension like :value"
       );
-      qry.setCacheable(GrouperConfig.QRY_SF_FBAE);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBAE);
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       Stem      ns;
@@ -228,7 +228,7 @@ public class StemFinder {
       Query     qry     = hs.createQuery(
         "from Stem as ns where ns.stem_name like :value"
       );
-      qry.setCacheable(GrouperConfig.QRY_SF_FBAN);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBAN);
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       Stem      ns;
@@ -261,7 +261,7 @@ public class StemFinder {
         + "or lower(ns.stem_extension)    like :name "
         + "or lower(ns.display_extension) like :name" 
       );
-      qry.setCacheable(GrouperConfig.QRY_SF_FBANA);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBANA);
       qry.setString("name", "%" + name.toLowerCase() + "%");
       Stem      ns;
@@ -291,7 +291,7 @@ public class StemFinder {
       Query   qry = hs.createQuery(
         "from Stem as ns where ns.create_time > :time"
       );
-      qry.setCacheable(GrouperConfig.QRY_SF_FBCA);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBCA);
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
@@ -322,7 +322,7 @@ public class StemFinder {
       Query     qry   = hs.createQuery(
         "from Stem as ns where ns.create_time < :time"
       );
-      qry.setCacheable(GrouperConfig.QRY_SF_FBCB);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBCB);
       qry.setLong("time", d.getTime());
       List      l     = qry.list();
@@ -352,7 +352,7 @@ public class StemFinder {
       Query   qry   = hs.createQuery(
         "from Stem as ns where ns.uuid = :uuid"
       );
-      qry.setCacheable(GrouperConfig.QRY_SF_FBU);
+      qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_SF_FBU);
       qry.setString("uuid", uuid);
       List    stems = qry.list();
