@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.55 2006-08-17 18:19:09 blair Exp $
+ * @version $Id: Member.java,v 1.56 2006-08-17 19:17:46 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -473,9 +473,7 @@ public class Member implements Serializable {
   public Set getPrivs(Group g) {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.getInstance().getPrivs(
-        this.getSession(), g, this.getSubject()
-      );
+      privs = PrivilegeResolver.getPrivs(this.getSession(), g, this.getSubject());
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -494,9 +492,7 @@ public class Member implements Serializable {
   public Set getPrivs(Stem ns) {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.getInstance().getPrivs(
-        this.getSession(), ns, this.getSubject()
-      );
+      privs = PrivilegeResolver.getPrivs(this.getSession(), ns, this.getSubject());
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
