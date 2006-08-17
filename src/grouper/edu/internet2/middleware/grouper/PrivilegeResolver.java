@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.48 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.49 2006-08-17 16:45:31 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -39,7 +39,10 @@ public class PrivilegeResolver {
 
 
   // PRIVATE CLASS VARIABLES //
-  private static PrivilegeResolver pr = null;
+  private static  PrivilegeResolver pr        = null;
+  private static  boolean           use_wheel = Boolean.valueOf(
+    GrouperConfig.getProperty(GrouperConfig.GWU)
+  );
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -47,7 +50,6 @@ public class PrivilegeResolver {
   private AccessAdapter   access    = null; 
   private PrivilegeCache  nc        = null;
   private NamingAdapter   naming    = null;
-  private boolean         use_wheel = true;
 
 
   // CONSTRUCTORS //
@@ -88,6 +90,7 @@ public class PrivilegeResolver {
 
 
   // PROTECTED CLASS METHODS //
+  // FIXME DEPRECATE!
   protected static PrivilegeResolver getInstance() {
     if (pr == null) {
       pr = new PrivilegeResolver();
@@ -105,6 +108,20 @@ public class PrivilegeResolver {
     }
     return pr;
   } // protected static PrivilegeResolver getInstance()
+
+  // @since   1.1.0
+  protected static boolean isRoot(Subject subj) {
+    boolean rv = false;
+    // First check to see if this is GrouperSystem
+    // FIXME Refactor
+    if      ( SubjectHelper.eq(subj, SubjectFinder.findRootSubject()) ) {
+      rv = true;
+    }  
+    else if (use_wheel) {
+      rv = _isWheel(subj);
+    }
+    return rv;
+  } // protected static boolean isRoot(subj)
 
 
   // PROTECTED INSTANCE METHODS //
@@ -452,19 +469,6 @@ public class PrivilegeResolver {
     }
   } // protected void grantPriv(s, ns, subj, priv)
 
-  protected boolean isRoot(Subject subj) {
-    boolean rv = false;
-    // First check to see if this is GrouperSystem
-    // FIXME Refactor
-    if      ( SubjectHelper.eq(subj, SubjectFinder.findRootSubject()) ) {
-      rv = true;
-    }  
-    else if (this.use_wheel) {
-      rv = this._isWheel(subj);
-    }
-    return rv;
-  }
-
   protected boolean hasPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
@@ -477,7 +481,7 @@ public class PrivilegeResolver {
         rv = true;
       }
     }
-    else if (this.isRoot(subj)) {
+    else if (isRoot(subj)) {
       rv = true;  
     }
     else {
@@ -510,7 +514,7 @@ public class PrivilegeResolver {
         rv = true;
       }
     }
-    else if (this.isRoot(subj)) {
+    else if (isRoot(subj)) {
       rv = true;  
     }
     else {
@@ -618,6 +622,28 @@ public class PrivilegeResolver {
     }
   } // private static Object _createInterface(name)
 
+  // @since   1.1.0
+  private static boolean _isWheel(Subject subj) {
+    boolean       rv  = false;
+    if (use_wheel) {
+      // TODO This has to be a performance killer
+      String name = GrouperConfig.getProperty(GrouperConfig.GWG);
+      try {
+        Group wheel = GroupFinder.findByName(GrouperSession.startTransient(), name);
+        rv          = wheel.hasMember(subj);
+      }
+      catch (GroupNotFoundException eGNF) {
+        // Group not found.  Oh well.
+        // TODO The problem is that the test suite deletes it.  
+        //      But, now that the test suite has evolved, I should be able to
+        //      more properly test this.
+        ErrorLog.error(PrivilegeResolver.class, E.NO_WHEEL_GROUP + name);
+        use_wheel = false;
+      }
+    } 
+    return rv;
+  } // private static boolean _isWheel(subj)
+
 
   // PRIVATE INSTANCE METHODS //
   private boolean _isAll(GrouperSession s, Group g, Privilege priv) 
@@ -632,32 +658,5 @@ public class PrivilegeResolver {
     return naming.hasPriv(s, ns, SubjectFinder.findAllSubject(), priv);
   } // private boolean _isAll(s, ns, priv);
 
-  private boolean _isWheel(Subject subj) {
-    boolean       rv  = false;
-    if (GrouperConfig.getProperty(GrouperConfig.GWU).equals(GrouperConfig.BT)) {
-      // TODO This has to be a performance killer
-      String name = GrouperConfig.getProperty(GrouperConfig.GWG);
-      try {
-        Group wheel = GroupFinder.findByName(GrouperSession.startTransient(), name);
-        rv          = wheel.hasMember(subj);
-      }
-      catch (GroupNotFoundException eGNF) {
-        // Group not found.  Oh well.
-        // TODO The problem is that the test suite deletes it.  
-        //      But, now that the test suite has evolved, I should be able to
-        //      more properly test this.
-        ErrorLog.error(
-          PrivilegeResolver.class, 
-          "disabling wheel group.  enabled but found found: " + name
-        );
-        this.use_wheel = false;
-      }
-    } 
-    else {
-      this.use_wheel = false;
-    }
-    return rv;
-  } // private boolean _isWheel(subj)
-
-}
+} // public class PrivilegeResolver
 

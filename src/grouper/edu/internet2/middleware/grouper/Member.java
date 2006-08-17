@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.51 2006-07-10 18:17:07 blair Exp $
+ * @version $Id: Member.java,v 1.52 2006-08-17 16:45:31 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -1201,7 +1201,7 @@ public class Member implements Serializable {
     } 
     String oid = this.getSubject_id();
     String msg = "not privileged to change subjectId";
-    if (PrivilegeResolver.getInstance().isRoot(this.getSession().getSubject())) {
+    if (PrivilegeResolver.isRoot(this.getSession().getSubject())) {
       try {
         this.setSubject_id(id);
         HibernateHelper.save(this);

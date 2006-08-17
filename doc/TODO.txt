@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.31 2006-08-17 16:28:18 blair Exp $
+$Id: TODO.txt,v 1.32 2006-08-17 16:45:31 blair Exp $
 
 ---
 
@@ -35,6 +35,7 @@ $Id: TODO.txt,v 1.31 2006-08-17 16:28:18 blair Exp $
                     * Subject type
                     * Subject source
         * `SimpleFifoPrivCache` extends `BasePrivCache` (use `CircularFifoBuffer`?)
+* TEST      use of wheel group
 * CODE      Populate *Membership* creation attributes
 * CODE      *MembershipCreatedAfter* query filter
 * CODE      *MembershipCreatedBefore* query filter
@@ -70,7 +71,7 @@ TODO Add additional potential changes.
 
 ---
 
-$Id: TODO.txt,v 1.31 2006-08-17 16:28:18 blair Exp $
+$Id: TODO.txt,v 1.32 2006-08-17 16:45:31 blair Exp $
 
 
 
