@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.51 2006-08-17 17:07:03 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.52 2006-08-17 17:28:28 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -90,6 +90,41 @@ public class PrivilegeResolver {
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.1.0
+  protected static boolean canCREATE(GrouperSession s, Stem ns, Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(s, ns, subj, NamingPrivilege.CREATE);
+  } // protected static boolean canCREATE(s, ns, subj)
+
+  // TODO Merge with group checks using owner?
+  // @since   1.1.0
+  protected static void canPrivDispatch(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    boolean rv  = false;
+    String  msg = GrouperConfig.EMPTY_STRING; 
+    if      (priv.equals(NamingPrivilege.CREATE)) { 
+      rv = canCREATE(s, ns, subj);
+      if (!rv) {
+        msg = E.CANNOT_CREATE;
+      }
+    }
+    else if (priv.equals(NamingPrivilege.STEM))   {
+      rv = canSTEM(s, ns, subj);
+      if (!rv) {
+        msg = E.CANNOT_STEM;
+      }
+    }
+    else {
+      throw new SchemaException("unknown naming privilege: " + priv);
+    }
+    if (!rv) {
+      throw new InsufficientPrivilegeException(msg);
+    }
+  } // protected static void canPrivDispatch(s, ns, subj, priv)
 
   // @since   1.1.0
   protected static boolean canSTEM(GrouperSession s, Stem ns, Subject subj) {
@@ -163,19 +198,6 @@ public class PrivilegeResolver {
       throw new InsufficientPrivilegeException("cannot ADMIN");
     }
   } // protected void canADMIN(s, g, subj)
-
-  protected void canCREATE(GrouperSession s, Stem ns, Subject subj)
-    throws  InsufficientPrivilegeException
-  {
-    boolean   can   = false;
-    Privilege priv  = NamingPrivilege.CREATE;
-    if (PrivilegeResolver.getInstance().hasPriv(s, ns, subj, priv)) {
-      can = true;
-    }
-    if (can == false) {
-      throw new InsufficientPrivilegeException("cannot CREATE");
-    }
-  } // protected void canCREATE(s, ns, subj)
 
   protected void canOPTIN(GrouperSession s, Group g, Subject subj)
     throws  InsufficientPrivilegeException
@@ -258,25 +280,6 @@ public class PrivilegeResolver {
       throw new SchemaException("unknown access privilege: " + priv);
     }
   } // protected void canPrivDispatch(s, g, subj, priv)
-
-  protected void canPrivDispatch(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    if      (priv.equals(NamingPrivilege.CREATE)) { 
-      this.canCREATE(s, ns, subj);
-    }
-    else if (priv.equals(NamingPrivilege.STEM))   {
-      if (!canSTEM(s, ns, subj)) {
-        throw new InsufficientPrivilegeException(E.CANNOT_STEM);
-      }
-    }
-    else {
-      throw new SchemaException("unknown naming privilege: " + priv);
-    }
-  } // protected void canPrivDispatch(s, ns, subj, priv)
 
   protected void canREAD(GrouperSession s, Group g, Subject subj)
     throws  InsufficientPrivilegeException
