@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.6 2006-07-20 00:40:17 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.7 2006-08-17 15:26:23 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -202,7 +202,7 @@ public class XmlExporter {
   {
     this.baseType = GroupTypeFinder.find("base");
     this.options  = options;
-    this.sysUser  = SubjectFinder.findById("GrouperSystem");
+    this.sysUser  = SubjectFinder.findRootSubject();
   } // public XmlExporter(options)
 
 
