@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.50 2006-08-17 16:52:43 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.51 2006-08-17 17:07:03 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -90,6 +90,11 @@ public class PrivilegeResolver {
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.1.0
+  protected static boolean canSTEM(GrouperSession s, Stem ns, Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(s, ns, subj, NamingPrivilege.STEM);
+  } // protected static boolean canSTEM(s, ns, subj)
 
   // If the subject being added is a group, verify that we can VIEW it
   // @since   1.1.0
@@ -264,7 +269,9 @@ public class PrivilegeResolver {
       this.canCREATE(s, ns, subj);
     }
     else if (priv.equals(NamingPrivilege.STEM))   {
-      this.canSTEM(s, ns, subj);
+      if (!canSTEM(s, ns, subj)) {
+        throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+      }
     }
     else {
       throw new SchemaException("unknown naming privilege: " + priv);
@@ -289,19 +296,6 @@ public class PrivilegeResolver {
       throw new InsufficientPrivilegeException("cannot READ");
     }
   } // protected void canREAD(s, g, subj)
-
-  protected void canSTEM(GrouperSession s, Stem ns, Subject subj)
-    throws  InsufficientPrivilegeException
-  {
-    boolean   can   = false;
-    Privilege priv  = NamingPrivilege.STEM;
-    if (PrivilegeResolver.getInstance().hasPriv(s, ns, subj, priv)) {
-      can = true;
-    }
-    if (can == false) {
-      throw new InsufficientPrivilegeException("cannot STEM");
-    }
-  } // protected void canSTEM(s, ns, subj)
 
   protected void canUPDATE(GrouperSession s, Group g, Subject subj)
     throws  InsufficientPrivilegeException

@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.6 2006-08-16 21:23:18 blair Exp $
+ * @version $Id: StemValidator.java,v 1.7 2006-08-17 17:07:03 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -38,7 +38,9 @@ class StemValidator {
     if (ns.getName().equals(Stem.ROOT_EXT)) {
       throw new StemDeleteException("cannot delete root stem");
     }
-    PrivilegeResolver.getInstance().canSTEM(ns.getSession(), ns, ns.getSession().getSubject());
+    if (!PrivilegeResolver.canSTEM(ns.getSession(), ns, ns.getSession().getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    }
     try {
       if (ns.getChildStemsNpHi().size() > 0) {
         throw new StemDeleteException("cannot delete stem with child stems");

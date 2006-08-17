@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.68 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: Stem.java,v 1.69 2006-08-17 17:07:03 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -195,9 +195,14 @@ public class Stem extends Owner {
     catch (ModelException eM) {
       throw new StemAddException(eM.getMessage(), eM);
     }
-    PrivilegeResolver.getInstance().canSTEM(
-      this.getSession(), this, this.getSession().getSubject()
-    );
+    if (
+      !PrivilegeResolver.canSTEM(
+        this.getSession(), this, this.getSession().getSubject()
+      )
+    )
+    {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    } 
     String  name  = constructName(this.getName(), extension);
     String  dName = constructName(this.getDisplayName(), displayExtension);
     try {
@@ -801,9 +806,14 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.getInstance().canSTEM(
-      GrouperSession.startTransient(), this, this.getSession().getSubject()
-    );
+    if (
+      !PrivilegeResolver.canSTEM(
+        GrouperSession.startTransient(), this, this.getSession().getSubject()
+      )
+    )
+    {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    }
     try {
       this.setStem_description(value);
       this.setModified();
@@ -852,9 +862,14 @@ public class Stem extends Owner {
       // Appease Oracle
       value = ROOT_INT;
     }
-    PrivilegeResolver.getInstance().canSTEM(
-      GrouperSession.startTransient(), this, this.getSession().getSubject() 
-    );
+    if (
+      !PrivilegeResolver.canSTEM(
+        GrouperSession.startTransient(), this, this.getSession().getSubject() 
+      )
+    )
+    {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    }
     try {
       Set objects = new HashSet();
       _initializeChildGroupsAndStems(this);
