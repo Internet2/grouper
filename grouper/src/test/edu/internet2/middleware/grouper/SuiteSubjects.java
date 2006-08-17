@@ -16,17 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteSubjects.java,v 1.3 2006-06-22 14:08:36 blair Exp $
+ * @version $Id: SuiteSubjects.java,v 1.4 2006-08-17 15:07:42 blair Exp $
+ * @since   1.0
  */
 public class SuiteSubjects extends TestCase {
 
-  // Private Class Constants
   private static final Log  LOG = LogFactory.getLog(SuiteSubjects.class); 
 
   public SuiteSubjects(String name) {
@@ -45,6 +44,7 @@ public class SuiteSubjects extends TestCase {
     suite.addTestSuite( TestSubject7.class  );  // fail: SubjectFinder.findByIdentifier(id, type, source)
     suite.addTestSuite( TestSubject8.class  );  // SubjectFinder.findByAll(query, source)
     suite.addTestSuite( TestSubject10.class );  // GrouperSubject.equal()
+    suite.addTestSuite( TestSubject11.class );  // SubjectFinder.findRootSubject()
     // TODO split 
     suite.addTestSuite( TestGrouperSourceAdapter.class  );
     suite.addTestSuite( TestGrouperSubject.class        );
@@ -59,5 +59,5 @@ public class SuiteSubjects extends TestCase {
     return suite;
   } // static public Test suite()
 
-}
+} // public class SuiteSubjects
 

@@ -25,13 +25,14 @@ import  org.apache.commons.lang.time.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.25 2006-07-11 18:45:46 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.26 2006-08-17 15:07:42 blair Exp $
  */
 public class SubjectFinder {
 
   // PRIVATE CLASS CONSTANTS //
   private static final SourceManager  MGR;
   private static final Subject        ALL; 
+  private static final Subject        ROOT;
 
 
   // PACKAGE CLASS VARIABLES //
@@ -52,6 +53,17 @@ public class SubjectFinder {
       DebugLog.info(SubjectFinder.class, "Added source: " + isa.getId());
       // Add in group source adapter
       DebugLog.info(SubjectFinder.class, "Subject finder initialized");
+      // Initialize GrouperSystem
+      try {
+        ROOT = SubjectFinder.findById(GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID);
+        DebugLog.info(SubjectFinder.class, "ROOT subject initialized");
+      }
+      catch (SubjectNotFoundException eSNF) {
+        String msg = E.SF_ROOT_SUBJECT_NOT_FOUND + eSNF.getMessage();
+        ErrorLog.fatal(SubjectFinder.class, msg);
+        throw new GrouperRuntimeException(msg, eSNF);
+      }
+      // Initialize GrouperAll
       try {
         ALL = SubjectFinder.findById(GrouperConfig.ALL, GrouperConfig.IST, InternalSourceAdapter.ID);
         DebugLog.info(SubjectFinder.class, "ALL subject initialized");
@@ -366,6 +378,18 @@ public class SubjectFinder {
   public static Subject findAllSubject() {
     return ALL;
   } // public static Subject findAllSubject()
+
+  /**
+   * Get <i>GrouperSystem</i> subject.
+   * <pre class="eg">
+   * Subject root = SubjectFinder.findRootSubject();
+   *  </pre>
+   * @return  The <i>GrouperSystem</i> {@link Subject} 
+   * @since   1.1.0
+   */
+  public static Subject findRootSubject() {
+    return ROOT;
+  } // public static Subject findRootSubject()
 
   /**
    * Get {@link Source} for specified by id.

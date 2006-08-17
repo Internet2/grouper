@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.6 2006-08-16 20:22:10 blair Exp $
+$Id: API.txt,v 1.7 2006-08-17 15:07:42 blair Exp $
 
 ---
 
@@ -383,6 +383,7 @@ $Id: API.txt,v 1.6 2006-08-16 20:22:10 blair Exp $
 * Set                 SubjectFinder.findAll(query)
 * Set                 SubjectFinder.findAll(query, source)
 * Subject             SubjectFinder.findAllSubject()
+* Subject             SubjectFinder.findRootSubject()
 * Source              SubjectFinder.getSource(id)
 * Set                 SubjectFinder.getSources()
 * Set                 SubjectFinder.getSources(type)

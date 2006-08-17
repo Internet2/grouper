@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS.txt,v 1.13 2006-08-16 20:22:10 blair Exp $
+$Id: NEWS.txt,v 1.14 2006-08-17 15:07:42 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS.txt,v 1.13 2006-08-16 20:22:10 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:    `SubjectFinder.findRootSubject()` convenience method
 * NEW:    `GroupModifiedAfter` query filter
 * NEW:    `GroupModifiedBefore` query filter
 * BUGFIX: Inappropriate privilege checks in *Stem.getCreators()* and

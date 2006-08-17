@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.17 2006-08-16 21:23:18 blair Exp $
+ * @version $Id: E.java,v 1.18 2006-08-17 15:07:42 blair Exp $
  * @since   1.0
  */
 class E {
@@ -145,6 +145,7 @@ class E {
   protected static final String SF_GETSA                  = "unable to find GrouperSourceAdapter!";
   protected static final String SF_IAS                    = "unable to initialize ALL subject: ";
   protected static final String SF_INIT                   = "failed to initialize source manager: ";
+  protected static final String SF_ROOT_SUBJECT_NOT_FOUND = "failed to initialize ROOT subject: ";
   protected static final String SF_SNF                    = "subject not found: ";
   protected static final String SF_SNU                    = "subject not unique: ";
   protected static final String SETTINGS                  = "unable to retrieve settings: ";
