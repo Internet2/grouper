@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.ComplementFilter;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupAnyAttributeFilter;
 import edu.internet2.middleware.grouper.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperQuery;
@@ -120,7 +121,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.9 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.10 2006-08-17 08:53:11 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -457,7 +458,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			if(query==null || "".equals(query)) query = lastQuery;
 			if(i>1) {
 				if(queryFilter==null) {
-					queryFilter=new GroupAttributeFilter(lastField,lastQuery,fromStem);
+					queryFilter=getGroupAttributeFilter(lastField,lastQuery,fromStem);
 					outTerms.add(lastQuery);
 					outTerms.add(lastField);
 				}
@@ -467,13 +468,13 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 				if(field==null && i>2) break;
 				
 				if("and".equals(lastAndOrNot)) {
-					queryFilter = new IntersectionFilter(queryFilter,new GroupAttributeFilter(field,query,fromStem));
+					queryFilter = new IntersectionFilter(queryFilter,getGroupAttributeFilter(field,query,fromStem));
 				}else if("or".equals(lastAndOrNot)){
-					queryFilter = new UnionFilter(queryFilter,new GroupAttributeFilter(field,query,fromStem));
+					queryFilter = new UnionFilter(queryFilter,getGroupAttributeFilter(field,query,fromStem));
 				}else{
-					queryFilter = new ComplementFilter(queryFilter,new GroupAttributeFilter(field,query,fromStem));
+					queryFilter = new ComplementFilter(queryFilter,getGroupAttributeFilter(field,query,fromStem));
 				}
-				outTerms.add(andOrNot);
+				outTerms.add(lastAndOrNot);
 				outTerms.add(query);
 				outTerms.add(field);
 				
@@ -486,6 +487,14 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		GrouperQuery q = GrouperQuery.createQuery(s,queryFilter);
 		res.addAll(q.getGroups());
 		return res;
+	}
+	
+	private QueryFilter getGroupAttributeFilter(String field,String query,Stem from) {
+		if("_any".equals(field)) {
+			return new GroupAnyAttributeFilter(query,from);
+		}else{
+			return new GroupAttributeFilter(field,query,from);
+		}
 	}
 
 	
