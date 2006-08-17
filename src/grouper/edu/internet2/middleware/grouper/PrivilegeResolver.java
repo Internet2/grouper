@@ -25,7 +25,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.56 2006-08-17 19:25:16 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.57 2006-08-17 19:35:30 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -296,15 +296,14 @@ public class PrivilegeResolver {
     return access;
   } // protected static AccessAdapter getAccess()
 
-  // @since   1.1.0
-  protected static NamingAdapter getNaming() {
-    if (naming == null) {
-      naming = (NamingAdapter) U.realizeInterface(
-        GrouperConfig.getProperty(GrouperConfig.PNI)
-      );
-    }
-    return naming;
-  } // protected static AccessAdapter getNaming()
+  // @since   1.1.0 
+  protected static Set getGroupsWhereSubjectHasPriv(
+    GrouperSession s, Subject subj, Privilege priv
+  ) 
+    throws  SchemaException
+  {
+    return getAccess().getGroupsWhereSubjectHasPriv(s, subj, priv);
+  } // protected static Set getGroupsWhereSubjectHasPriv(s, subj, priv)
 
   // FIXME DEPRECATE!
   protected static PrivilegeResolver getInstance() {
@@ -318,6 +317,16 @@ public class PrivilegeResolver {
     }
     return pr;
   } // protected static PrivilegeResolver getInstance()
+
+  // @since   1.1.0
+  protected static NamingAdapter getNaming() {
+    if (naming == null) {
+      naming = (NamingAdapter) U.realizeInterface(
+        GrouperConfig.getProperty(GrouperConfig.PNI)
+      );
+    }
+    return naming;
+  } // protected static AccessAdapter getNaming()
 
   // @since   1.1.0
   protected static Set getPrivs(
@@ -336,6 +345,15 @@ public class PrivilegeResolver {
   } // protected static Set getPrivs(s, ns, subj)
 
   // @since   1.1.0
+  protected static Set getStemsWhereSubjectHasPriv(
+    GrouperSession s, Subject subj, Privilege priv
+  ) 
+    throws  SchemaException
+  {
+    return getNaming().getStemsWhereSubjectHasPriv(s, subj, priv);
+  } // protected static Set getStemsWhereSubjectHasPriv(s, subj, priv)
+
+  // @since   1.1.0
   protected static boolean isRoot(Subject subj) {
     boolean rv = false;
     // First check to see if this is GrouperSystem
@@ -351,24 +369,6 @@ public class PrivilegeResolver {
 
 
   // PROTECTED INSTANCE METHODS //
-
-  protected Set getGroupsWhereSubjectHasPriv(
-    GrouperSession s, Subject subj, Privilege priv
-  ) 
-    throws  SchemaException
-  {
-    GrouperSession.validate(s);
-    return access.getGroupsWhereSubjectHasPriv(s, subj, priv);
-  } // protected Set getGroupsWhereSubjectHasPriv(s, subj, priv)
-
-  protected Set getStemsWhereSubjectHasPriv(
-    GrouperSession s, Subject subj, Privilege priv
-  ) 
-    throws  SchemaException
-  {
-    GrouperSession.validate(s);
-    return naming.getStemsWhereSubjectHasPriv(s, subj, priv);
-  } // protected Set getStemsWhereSubjectHasPriv(s, subj, priv)
 
   protected Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
     throws  SchemaException

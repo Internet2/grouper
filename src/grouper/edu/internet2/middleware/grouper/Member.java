@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.56 2006-08-17 19:17:46 blair Exp $
+ * @version $Id: Member.java,v 1.57 2006-08-17 19:35:30 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -626,7 +626,7 @@ public class Member implements Serializable {
 {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getGroupsWhereSubjectHasPriv(
         this.getSession(), this.getSubject(), AccessPrivilege.ADMIN
       );
     }
@@ -669,7 +669,7 @@ public class Member implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getStemsWhereSubjectHasPriv(
         this.getSession(), this.getSubject(), NamingPrivilege.CREATE
       );
     } 
@@ -712,7 +712,7 @@ public class Member implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getGroupsWhereSubjectHasPriv(
         this.getSession(), this.getSubject(), AccessPrivilege.OPTIN
       );
     }
@@ -755,7 +755,7 @@ public class Member implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getGroupsWhereSubjectHasPriv(
         this.getSession(), this.getSubject(), AccessPrivilege.OPTOUT
       );
     }
@@ -798,7 +798,7 @@ public class Member implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getGroupsWhereSubjectHasPriv(
         this.getSession(), this.getSubject(), AccessPrivilege.READ
       );
     }
@@ -841,7 +841,7 @@ public class Member implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getStemsWhereSubjectHasPriv(
         this.getSession(), this.getSubject(), NamingPrivilege.STEM
       );
     }
@@ -883,7 +883,7 @@ public class Member implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getGroupsWhereSubjectHasPriv(
         this.getSession(), this.getSubject(), AccessPrivilege.UPDATE
       );
     }
@@ -926,7 +926,7 @@ public class Member implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+      privs = PrivilegeResolver.getGroupsWhereSubjectHasPriv(
         this.getSession(), this.getSubject(), AccessPrivilege.VIEW
       );
     }
