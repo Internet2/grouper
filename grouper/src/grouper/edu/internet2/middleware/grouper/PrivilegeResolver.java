@@ -26,7 +26,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.46 2006-08-16 21:26:57 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.47 2006-08-17 15:26:23 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -457,12 +457,7 @@ public class PrivilegeResolver {
     boolean rv = false;
     // First check to see if this is GrouperSystem
     // FIXME Refactor
-    if      (
-      (subj.getId().equals(GrouperConfig.ROOT))
-      && (subj.getSource().getId().equals(InternalSourceAdapter.ID))
-      && (subj.getType().getName().equals(GrouperConfig.IST))
-    )
-    {
+    if      ( SubjectHelper.eq(subj, SubjectFinder.findRootSubject()) ) {
       rv = true;
     }  
     else if (this.use_wheel) {
