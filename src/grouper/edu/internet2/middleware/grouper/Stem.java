@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.71 2006-08-17 18:19:09 blair Exp $
+ * @version $Id: Stem.java,v 1.72 2006-08-17 19:54:24 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -438,7 +438,7 @@ public class Stem extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      return PrivilegeResolver.getSubjectsWithPriv(
         this.getSession(), this, NamingPrivilege.CREATE
       );
     }
@@ -614,9 +614,7 @@ public class Stem extends Owner {
    * @return  Set of {@link NamingPrivilege} objects.
    */
   public Set getPrivs(Subject subj) {
-    return PrivilegeResolver.getInstance().getPrivs(
-      this.getSession(), this, subj
-    );
+    return PrivilegeResolver.getPrivs(this.getSession(), this, subj);
   } // public Set getPrivs(subj)
 
   /**
@@ -631,7 +629,7 @@ public class Stem extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      return PrivilegeResolver.getSubjectsWithPriv(
         this.getSession(), this, NamingPrivilege.STEM
       );
     }

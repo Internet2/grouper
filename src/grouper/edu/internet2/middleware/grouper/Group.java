@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.92 2006-08-17 18:19:09 blair Exp $
+ * @version $Id: Group.java,v 1.93 2006-08-17 19:54:24 blair Exp $
  */
 public class Group extends Owner {
 
@@ -739,7 +739,7 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      return PrivilegeResolver.getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.ADMIN
       );
     }
@@ -1311,7 +1311,7 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      return PrivilegeResolver.getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.OPTIN
       );
     } 
@@ -1334,7 +1334,7 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      return PrivilegeResolver.getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.OPTOUT
       );
     } 
@@ -1367,7 +1367,7 @@ public class Group extends Owner {
    * @return  Set of {@link AccessPrivilege} objects.
    */
   public Set getPrivs(Subject subj) {
-    return PrivilegeResolver.getInstance().getPrivs(
+    return PrivilegeResolver.getPrivs(
       this.getSession(), this, subj
     );
   } // public Set getPrivs(subj)
@@ -1385,7 +1385,7 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      return PrivilegeResolver.getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.READ
       );
     } 
@@ -1452,7 +1452,7 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      return PrivilegeResolver.getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.UPDATE
       );
     } 
@@ -1475,7 +1475,7 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      return PrivilegeResolver.getSubjectsWithPriv(
         this.getSession(), this, AccessPrivilege.VIEW
       );
     } 

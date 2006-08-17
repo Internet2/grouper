@@ -25,7 +25,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.57 2006-08-17 19:35:30 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.58 2006-08-17 19:54:24 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -37,17 +37,14 @@ public class PrivilegeResolver {
 
 
   // PRIVATE CLASS VARIABLES //
+  private static  PrivilegeCache    ac        = getAccessCache();
   private static  AccessAdapter     access    = getAccess();
   private static  NamingAdapter     naming    = getNaming();
+  private static  PrivilegeCache    nc        = getNamingCache();
   private static  PrivilegeResolver pr        = null;
   private static  boolean           use_wheel = Boolean.valueOf(
     GrouperConfig.getProperty(GrouperConfig.GWU)
   );
-
-
-  // PRIVATE INSTANCE VARIABLES //
-  private PrivilegeCache  ac  = null;
-  private PrivilegeCache  nc  = null;
 
 
   // CONSTRUCTORS //
@@ -69,13 +66,12 @@ public class PrivilegeResolver {
     throws  GrouperRuntimeException
   {
     try {
-      PrivilegeResolver pr = PrivilegeResolver.getInstance();
-      if (pr.ac != null) {
-        pr.ac.removeAll();
+      if (ac != null) {
+        ac.removeAll();
         DebugLog.info(PrivilegeResolver.class, MSG_RPC + PrivilegeCache.ACCESS);
       }
-      if (pr.nc != null) {
-        pr.nc.removeAll();
+      if (nc != null) {
+        nc.removeAll();
         DebugLog.info(PrivilegeResolver.class, MSG_RPC + PrivilegeCache.NAMING);
       }
     }
@@ -296,6 +292,14 @@ public class PrivilegeResolver {
     return access;
   } // protected static AccessAdapter getAccess()
 
+  // @since   1.1.0
+  protected static PrivilegeCache getAccessCache() {
+    if (ac == null) {
+      ac = PrivilegeCache.getCache(PrivilegeCache.ACCESS);
+    }
+    return ac;
+  } // protected static PrivilegeCache getAccessCache()
+
   // @since   1.1.0 
   protected static Set getGroupsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
@@ -309,11 +313,6 @@ public class PrivilegeResolver {
   protected static PrivilegeResolver getInstance() {
     if (pr == null) {
       pr = new PrivilegeResolver();
-    
-      // Get access and naming privilege classes
-      // TODO Make configurable
-      pr.ac = PrivilegeCache.getCache(PrivilegeCache.ACCESS);
-      pr.nc = PrivilegeCache.getCache(PrivilegeCache.NAMING);
     }
     return pr;
   } // protected static PrivilegeResolver getInstance()
@@ -329,11 +328,19 @@ public class PrivilegeResolver {
   } // protected static AccessAdapter getNaming()
 
   // @since   1.1.0
+  protected static PrivilegeCache getNamingCache() {
+    if (nc == null) {
+      nc = PrivilegeCache.getCache(PrivilegeCache.NAMING);
+    }
+    return nc;
+  } // protected static PrivilegeCache getNamingCache()
+
+  // @since   1.1.0
   protected static Set getPrivs(
     GrouperSession s, Group g, Subject subj
   )
   {
-    return access.getPrivs(s, g, subj);
+    return getAccess().getPrivs(s, g, subj);
   } // protected static Set getPrivs(s, g, subj)
 
   // @since   1.1.0
@@ -341,7 +348,7 @@ public class PrivilegeResolver {
     GrouperSession s, Stem ns, Subject subj
   )
   {
-    return naming.getPrivs(s, ns, subj);
+    return getNaming().getPrivs(s, ns, subj);
   } // protected static Set getPrivs(s, ns, subj)
 
   // @since   1.1.0
@@ -352,6 +359,20 @@ public class PrivilegeResolver {
   {
     return getNaming().getStemsWhereSubjectHasPriv(s, subj, priv);
   } // protected static Set getStemsWhereSubjectHasPriv(s, subj, priv)
+
+  // @since   1.1.0
+  protected static Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
+    throws  SchemaException
+  {
+    return getAccess().getSubjectsWithPriv(s, g, priv);
+  } // protected static Set getSubjectsWithPriv(s, g, priv)
+
+  // @since   1.1.0
+  protected static Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
+    throws SchemaException
+  {
+    return getNaming().getSubjectsWithPriv(s, ns, priv);
+  } // protected static Set getSubjectsWithPriv(s, ns, priv)
 
   // @since   1.1.0
   protected static boolean isRoot(Subject subj) {
@@ -370,20 +391,6 @@ public class PrivilegeResolver {
 
   // PROTECTED INSTANCE METHODS //
 
-  protected Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
-    throws  SchemaException
-  {
-    GrouperSession.validate(s);
-    return access.getSubjectsWithPriv(s, g, priv);
-  } // protected Set getSubjectsWithPriv(s, g, priv)
-
-  protected Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
-    throws SchemaException
-  {
-    GrouperSession.validate(s);
-    return naming.getSubjectsWithPriv(s, ns, priv);
-  } // protected Set getSubjectsWithPriv(s, ns, priv)
-
   protected void grantPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
@@ -392,10 +399,10 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    access.grantPriv(s, g, subj, priv);
+    getAccess().grantPriv(s, g, subj, priv);
     // FIXME
     try {
-      this.ac.removeAll();
+      getAccessCache().removeAll();
     }
     catch (Exception e) {
       ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
@@ -410,10 +417,10 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    naming.grantPriv(s, ns, subj, priv);
+    getNaming().grantPriv(s, ns, subj, priv);
     // FIXME
     try {
-      this.nc.removeAll();
+      getNamingCache().removeAll();
     }
     catch (Exception e) {
       ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
@@ -426,7 +433,7 @@ public class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     boolean rv = false;
-    Element el = this.ac.get(g, subj, priv);
+    Element el = getAccessCache().get(g, subj, priv);
     if (el != null) {
       if (el.getValue().equals(GrouperConfig.BT)) {
         rv = true;
@@ -437,9 +444,9 @@ public class PrivilegeResolver {
     }
     else {
       try {
-        rv = access.hasPriv(s, g, subj, priv);
+        rv = getAccess().hasPriv(s, g, subj, priv);
         if (rv == false) {
-          rv = this._isAll(s, g, priv);
+          rv = _isAll(s, g, priv);
         } 
       }
       catch (SchemaException eS) {
@@ -459,7 +466,7 @@ public class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     boolean rv = false;
-    Element el = this.nc.get(ns, subj, priv);
+    Element el = getNamingCache().get(ns, subj, priv);
     if (el != null) {
       if (el.getValue().equals(GrouperConfig.BT)) {
         rv = true;
@@ -470,9 +477,9 @@ public class PrivilegeResolver {
     }
     else {
       try {
-        rv = naming.hasPriv(s, ns, subj, priv);
+        rv = getNaming().hasPriv(s, ns, subj, priv);
         if (rv == false) {
-          rv = this._isAll(s, ns, priv);
+          rv = _isAll(s, ns, priv);
         } 
       }
       catch (SchemaException eS) {
@@ -481,7 +488,7 @@ public class PrivilegeResolver {
       }
     }
     if (el == null) {
-      nc.put(ns, subj, priv, rv);
+      getNamingCache().put(ns, subj, priv, rv);
     }
     return rv;
   } // protected boolean hasPriv(s, ns, subj, priv)
@@ -492,10 +499,10 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    access.revokePriv(s, g, priv);
+    getAccess().revokePriv(s, g, priv);
     // FIXME
     try {
-      this.ac.removeAll();
+      getAccessCache().removeAll();
     }
     catch (Exception e) {
       ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
@@ -508,10 +515,10 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    naming.revokePriv(s, ns, priv);
+    getNaming().revokePriv(s, ns, priv);
     // FIXME
     try {
-      this.nc.removeAll();
+      getNamingCache().removeAll();
     }
     catch (Exception e) {
       ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
@@ -526,10 +533,10 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    access.revokePriv(s, g, subj, priv);
+    getAccess().revokePriv(s, g, subj, priv);
     // FIXME
     try {
-      this.ac.removeAll();
+      getAccessCache().removeAll();
     }
     catch (Exception e) {
       ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
@@ -544,10 +551,10 @@ public class PrivilegeResolver {
             SchemaException
   {
     GrouperSession.validate(s);
-    naming.revokePriv(s, ns, subj, priv);
+    getNaming().revokePriv(s, ns, subj, priv);
     // FIXME
     try {
-      this.nc.removeAll();
+      getNamingCache().removeAll();
     }
     catch (Exception e) {
       ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
@@ -556,6 +563,20 @@ public class PrivilegeResolver {
 
 
   // PRIVATE CLASS METHODS //
+
+  // @since   1.1.0
+  private static boolean _isAll(GrouperSession s, Group g, Privilege priv) 
+    throws  SchemaException
+  {
+    return getAccess().hasPriv(s, g, SubjectFinder.findAllSubject(), priv);
+  } // private static boolean _isAll(s, g, priv);
+
+  // @since   1.1.0
+  private static boolean _isAll(GrouperSession s, Stem ns, Privilege priv) 
+    throws  SchemaException
+  {
+    return getNaming().hasPriv(s, ns, SubjectFinder.findAllSubject(), priv);
+  } // private static boolean _isAll(s, ns, priv);
 
   // @since   1.1.0
   private static boolean _isWheel(Subject subj) {
@@ -578,20 +599,6 @@ public class PrivilegeResolver {
     } 
     return rv;
   } // private static boolean _isWheel(subj)
-
-
-  // PRIVATE INSTANCE METHODS //
-  private boolean _isAll(GrouperSession s, Group g, Privilege priv) 
-    throws  SchemaException
-  {
-    return access.hasPriv(s, g, SubjectFinder.findAllSubject(), priv);
-  } // private boolean _isAll(s, g, priv);
-
-  private boolean _isAll(GrouperSession s, Stem ns, Privilege priv) 
-    throws  SchemaException
-  {
-    return naming.hasPriv(s, ns, SubjectFinder.findAllSubject(), priv);
-  } // private boolean _isAll(s, ns, priv);
 
 } // public class PrivilegeResolver
 
