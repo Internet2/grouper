@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.41 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.42 2006-08-17 18:50:41 blair Exp $
  */
 public class MembershipFinder {
 
@@ -59,7 +59,7 @@ public class MembershipFinder {
       Member      m   = MemberFinder.findBySubject(s, subj);
       Membership  ms  = findMembershipByTypeNoPrivNoSession(g, m, f, MembershipType.C);
       ms.setSession(s);
-      PrivilegeResolver.getInstance().canPrivDispatch(
+      PrivilegeResolver.canPrivDispatch(
         s, ms.getGroup(), s.getSubject(), f.getReadPriv()
       );
       return ms;
@@ -104,7 +104,7 @@ public class MembershipFinder {
       Set         effs  = findEffectiveMemberships(g, m.getId(), f, via, depth);
       if (effs.size() > 0) {
         try {
-          PrivilegeResolver.getInstance().canPrivDispatch(
+          PrivilegeResolver.canPrivDispatch(
             s, g, s.getSubject(), f.getReadPriv()
           );
           Membership  eff;
@@ -154,7 +154,7 @@ public class MembershipFinder {
       Member      m   = MemberFinder.findBySubject(s, subj);
       Membership  ms  = findMembershipByTypeNoPrivNoSession(g, m, f, MembershipType.I);
       ms.setSession(s);
-      PrivilegeResolver.getInstance().canPrivDispatch(
+      PrivilegeResolver.canPrivDispatch(
         s, ms.getGroup(), s.getSubject(), f.getReadPriv()
       );
       return ms;
@@ -786,12 +786,12 @@ public class MembershipFinder {
       ms.setSession(s);
       try {
         if (f.getType().equals(FieldType.NAMING)) {
-          PrivilegeResolver.getInstance().canPrivDispatch(
+          PrivilegeResolver.canPrivDispatch(
             s, ms.getStem(), s.getSubject(), f.getReadPriv()
           );
         }
         else {
-          PrivilegeResolver.getInstance().canPrivDispatch(
+          PrivilegeResolver.canPrivDispatch(
             s, ms.getGroup(), s.getSubject(), f.getReadPriv()
           );
         }
@@ -808,5 +808,5 @@ public class MembershipFinder {
     return mships;
   } // private static Set _filterMemberships(s, f, c)
 
-}
+} // public class MembershipFinder
 
