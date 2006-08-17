@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.52 2006-08-17 16:45:31 blair Exp $
+ * @version $Id: Member.java,v 1.53 2006-08-17 17:07:03 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -219,13 +219,7 @@ public class Member implements Serializable {
   {
     Validator.argNotNull(ns, E.STEM_NULL);
     try {
-      PrivilegeResolver.getInstance().canSTEM(
-        this.getSession(), ns, this.getSubject()
-      );
-      return true;
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      return false;
+      return PrivilegeResolver.canSTEM(this.getSession(), ns, this.getSubject());
     }
     catch (SubjectNotFoundException eSNF) {
       return false;

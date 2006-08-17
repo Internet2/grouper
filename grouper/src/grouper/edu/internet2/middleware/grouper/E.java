@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.20 2006-08-17 16:45:31 blair Exp $
+ * @version $Id: E.java,v 1.21 2006-08-17 17:07:03 blair Exp $
  * @since   1.0
  */
 class E {
@@ -31,6 +31,7 @@ class E {
   protected static final String CACHE                     = "cache error: ";
   protected static final String CACHE_INIT                = "unable to get cache manager: ";
   protected static final String CACHE_NOTFOUND            = "cache not found: ";
+  protected static final String CANNOT_STEM               = "subject cannot STEM";
   protected static final String COMP_CL                   = "left factor is owner";
   protected static final String COMP_CR                   = "right factor is owner";
   protected static final String COMP_L                    = "no composite left factor";
