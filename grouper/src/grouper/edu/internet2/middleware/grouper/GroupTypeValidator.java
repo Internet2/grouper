@@ -24,7 +24,7 @@ import  java.util.*;
  * Validation methods that apply to {@link GroupType}s.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeValidator.java,v 1.1 2006-08-16 21:23:18 blair Exp $
+ * @version $Id: GroupTypeValidator.java,v 1.2 2006-08-17 16:45:31 blair Exp $
  * @since   1.1.0
  */
 class GroupTypeValidator {
@@ -87,7 +87,7 @@ class GroupTypeValidator {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
+    if (!PrivilegeResolver.isRoot(s.getSubject())) {
       throw new InsufficientPrivilegeException(E.GROUPTYPE_CANNOT_MODIFY_TYPE);
     }
     if (GroupType.isSystemType(type)) {

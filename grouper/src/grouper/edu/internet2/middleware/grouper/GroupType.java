@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.23 2006-08-16 21:23:18 blair Exp $
+ * @version $Id: GroupType.java,v 1.24 2006-08-17 16:45:31 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -91,7 +91,7 @@ public class GroupType implements Serializable {
     GroupType type  = null;
     StopWatch sw    = new StopWatch();
     sw.start();
-    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
+    if (!PrivilegeResolver.isRoot(s.getSubject())) {
       String msg = E.GROUPTYPE_NOADD;
       ErrorLog.error(GroupType.class, msg);
       throw new InsufficientPrivilegeException(msg);
@@ -217,7 +217,7 @@ public class GroupType implements Serializable {
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     } 
-    if (!PrivilegeResolver.getInstance().isRoot(s.getSubject())) {
+    if (!PrivilegeResolver.isRoot(s.getSubject())) {
       String msg = E.GROUPTYPE_NODEL;
       ErrorLog.error(GroupType.class, msg);
       throw new InsufficientPrivilegeException(msg);

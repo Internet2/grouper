@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.19 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: E.java,v 1.20 2006-08-17 16:45:31 blair Exp $
  * @since   1.0
  */
 class E {
@@ -131,6 +131,7 @@ class E {
   protected static final String MSV_CIRCULAR              = "cannot create a circular membership";
   protected static final String MSV_NO_PARENT             = "no parent membership";
   protected static final String MSV_TYPE                  = "invalid membership type: ";
+  protected static final String NO_WHEEL_GROUP            = "disabling wheel group.  enabled but found found: ";
   protected static final String NI                        = "NOT IMPLEMENTED: ";
   protected static final String Q_G                       = "getting groups from ";
   protected static final String Q_M                       = "getting members from ";
