@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.provider.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.12 2006-08-17 18:19:09 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.13 2006-08-17 18:28:06 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -208,9 +208,7 @@ class GroupValidator {
     if (!g.hasType( f.getGroupType() ) ) {
       throw new SchemaException(E.GROUP_GT + f.getGroupType().toString());
     }
-    PrivilegeResolver.getInstance().canPrivDispatch(
-      s, g, subj, f.getReadPriv()
-    );
+    PrivilegeResolver.canPrivDispatch(s, g, subj, f.getReadPriv());
   } // protected static void canReadField(s, g, subj, f)
 
   // @since 1.0
@@ -243,9 +241,7 @@ class GroupValidator {
     if (!g.hasType( f.getGroupType() ) ) {
       throw new SchemaException(E.GROUP_GT + f.getGroupType().toString());
     }
-    PrivilegeResolver.getInstance().canPrivDispatch(
-      s, g, subj, f.getWritePriv()
-    );
+    PrivilegeResolver.canPrivDispatch(s, g, subj, f.getWritePriv());
   } // protected static void canWriteField(s, g, subj, f)
 
   // is this field of the appropriate type
