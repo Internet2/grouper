@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.72 2006-08-17 19:54:24 blair Exp $
+ * @version $Id: Stem.java,v 1.73 2006-08-17 20:02:36 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -664,9 +664,7 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.getInstance().grantPriv(
-      this.getSession(), this, subj, priv
-    );
+    PrivilegeResolver.grantPriv(this.getSession(), this, subj, priv);
     sw.stop();
     EL.stemGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
   } // public void grantPriv(subj, priv)
@@ -741,9 +739,7 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.getInstance().revokePriv(
-      this.getSession(), this, priv
-    );
+    PrivilegeResolver.revokePriv(this.getSession(), this, priv);
     sw.stop();
     EL.stemRevokePriv(this.getSession(), this.getName(), priv, sw);
   } // public void revokePriv(priv)
@@ -775,9 +771,7 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.getInstance().revokePriv(
-      this.getSession(), this, subj, priv
-    );
+    PrivilegeResolver.revokePriv(this.getSession(), this, subj, priv);
     sw.stop();
     EL.stemRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
   } // public void revokePriv(subj, priv)
@@ -1005,9 +999,7 @@ public class Stem extends Owner {
       GrouperSession  orig  = this.s;
       GrouperSession  root  = GrouperSession.startTransient();
       g.setSession(root);
-      PrivilegeResolver.getInstance().grantPriv(
-        root, g, orig.getSubject(), AccessPrivilege.ADMIN
-      );
+      PrivilegeResolver.grantPriv(root, g, orig.getSubject(), AccessPrivilege.ADMIN);
 
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(
@@ -1053,9 +1045,7 @@ public class Stem extends Owner {
       GrouperSession  orig  = this.s;
       GrouperSession  root  = GrouperSession.startTransient();
       ns.setSession(root);
-      PrivilegeResolver.getInstance().grantPriv(
-        root, ns, orig.getSubject(), NamingPrivilege.STEM
-      );
+      PrivilegeResolver.grantPriv(root, ns, orig.getSubject(), NamingPrivilege.STEM);
 
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(
@@ -1086,13 +1076,13 @@ public class Stem extends Owner {
       sw.start();
       if      (o.getClass().equals(Group.class)) {
         Group g = (Group) o;
-        PrivilegeResolver.getInstance().grantPriv(root, g, all, p);
+        PrivilegeResolver.grantPriv(root, g, all, p);
         sw.stop();
         EL.groupGrantPriv(this.getSession(), g.getName(), all, p, sw);
       }
       else if (o.getClass().equals(Stem.class)) {
         Stem ns = (Stem) o;
-        PrivilegeResolver.getInstance().grantPriv(root, ns, all, p);
+        PrivilegeResolver.grantPriv(root, ns, all, p);
         sw.stop();
         EL.stemGrantPriv(this.getSession(), ns.getName(), all, p, sw);
       }
