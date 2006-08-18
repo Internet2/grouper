@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.46 2006-08-17 16:52:43 blair Exp $
+ * @version $Id: Membership.java,v 1.47 2006-08-18 12:36:04 blair Exp $
  */
 public class Membership {
 
@@ -240,7 +240,7 @@ public class Membership {
 
   /**
    * Get this membership's via.
-   * <pre calss="eg">
+   * <pre class="eg">
    * try {
    *   Owner via = ms.getVia();
    * }
@@ -264,6 +264,8 @@ public class Membership {
  
   /**
    * Get this membership's via group.
+   * <p>{@link Group}s with {@link Composite} memberships will <b>not</b> have a
+   * via group.  Use the {@link #getVia() getVia()} method instead.</p>
    * <pre class="eg">
    * try {
    *   Group via = ms.getViaGroup();
