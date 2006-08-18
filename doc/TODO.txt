@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.34 2006-08-18 15:34:09 blair Exp $
+$Id: TODO.txt,v 1.35 2006-08-18 16:11:46 blair Exp $
 
 ---
 
@@ -12,24 +12,33 @@ $Id: TODO.txt,v 1.34 2006-08-18 15:34:09 blair Exp $
 
 ### Next Actions
 * CODE      Refactor privilege caching
-    * *PrivCache* interface
-        * abstract `BasePrivCache` implements `PrivCache`
+    * `PrivilegeCacheEntry`
+    * `PrivilegeCache` interface
+        * `get(Owner, Subject, Privilege)`
+        * `has(Owner, Subject, Privilege)`
+        * `put(Owner, Subject, Privilege, boolean)`
+        * `removeAll()`
+        * `remove(Owner)`
+        * `remove(Subject)`
+        * `remove(Privilege)`
+        * abstract `BasePrivilegeCache` implements `PrivilegeCache`
             * Attach to session
-        * `NullPrivCache` extends `BasePrivCache`
-        * `SimplePrivCache` extends `BasePrivCache` 
-            * Use `MultiKeyMap`?
-            * Or: 
-                * Key: owner id || uuid
-                * Value: `PrivCacheEntry`
-                    * Priv
-                    * Bool
-                    * Subject id
-                    * Subject type
-                    * Subject source
-        * `SimpleFifoPrivCache` extends `BasePrivCache` (use `CircularFifoBuffer`?)
+        * `NullPrivilegeCache` extends `BasePrivilegeCache`
+            * no caching
+        * `SimplePrivilegeCache` extends `BasePrivilegeCache`  
+            * empty caches whenever a priv or mship change is made?
+                * this is basically just a more thorough version of whate we
+                  have now
+        * `LessSimplePrivilegeCache` extends `SimplePrivilegeCache`
+            * a hopefully smarter version of the above
+            * use the `remove()` methods to try and be selective about what is
+              removed from the cache upon mods             
 * CODE      Continue refactoring privilege resolution
     * `RootPrivilegeResolver` extends `PrivilegeResolver`
+        * Try to isolate all needs-to-be-root and proxy-as-root code *within*
+          this class
         * Should I attach a transient root session within each session?
+            * Should caches be shared?
         * Include wheel checks here.  If wheel group enabled:
             * Get group
             * Check if modified since last check
@@ -43,6 +52,7 @@ $Id: TODO.txt,v 1.34 2006-08-18 15:34:09 blair Exp $
 * CODE      improved xml* integration (including logging)
 * CODE      *HibernateSubject* should not throw *HibernateException*s
 * CODE      *GroupFinder.findByAttribute(s, attr, val)* [GCODE#14]
+* CODE      refactor *SubjectCache*
 * CODE      Refactor query cache configuration.  Add interface? Config toggle?
 * DOC       Migrate impl guide to wiki and export upon release
 
@@ -71,7 +81,8 @@ TODO Add additional potential changes.
 
 ---
 
-$Id: TODO.txt,v 1.34 2006-08-18 15:34:09 blair Exp $
+$Id: TODO.txt,v 1.35 2006-08-18 16:11:46 blair Exp $
+
 
 
 
