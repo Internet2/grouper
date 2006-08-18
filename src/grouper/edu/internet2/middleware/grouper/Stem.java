@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.73 2006-08-17 20:02:36 blair Exp $
+ * @version $Id: Stem.java,v 1.74 2006-08-18 15:34:09 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -682,9 +682,7 @@ public class Stem extends Owner {
    * @return  Boolean true if the subject has CREATE.
    */
   public boolean hasCreate(Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(
-      this.getSession(), this, subj, NamingPrivilege.CREATE
-    );
+    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, NamingPrivilege.CREATE);
   } // public boolean hasCreate(subj)
  
   /**
@@ -700,9 +698,7 @@ public class Stem extends Owner {
    * @return  Boolean true if the subject has STEM.
    */
   public boolean hasStem(Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(
-      this.getSession(), this, subj, NamingPrivilege.STEM
-    );
+    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, NamingPrivilege.STEM);
   } // public boolean hasStem(subj)
  
   public int hashCode() {

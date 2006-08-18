@@ -25,7 +25,7 @@ import  net.sf.ehcache.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.59 2006-08-17 20:02:36 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.60 2006-08-18 15:34:09 blair Exp $
  */
 public class PrivilegeResolver {
 
@@ -41,7 +41,6 @@ public class PrivilegeResolver {
   private static  AccessAdapter     access    = getAccess();
   private static  NamingAdapter     naming    = getNaming();
   private static  PrivilegeCache    nc        = getNamingCache();
-  private static  PrivilegeResolver pr        = null;
   private static  boolean           use_wheel = Boolean.valueOf(
     GrouperConfig.getProperty(GrouperConfig.GWU)
   );
@@ -87,22 +86,22 @@ public class PrivilegeResolver {
 
   // @since   1.1.0
   protected static boolean canADMIN(GrouperSession s, Group g, Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN);
+    return PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN);
   } // protected static boolean canADMIN(s, g, subj)
 
   // @since   1.1.0
   protected static boolean canCREATE(GrouperSession s, Stem ns, Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(s, ns, subj, NamingPrivilege.CREATE);
+    return PrivilegeResolver.hasPriv(s, ns, subj, NamingPrivilege.CREATE);
   } // protected static boolean canCREATE(s, ns, subj)
 
   // @since   1.1.0
   protected static boolean canOPTIN(GrouperSession s, Group g, Subject subj) {
     if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTIN)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.OPTIN)
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN)
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.UPDATE)
     )
     {
       return true;
@@ -113,11 +112,11 @@ public class PrivilegeResolver {
   // @since   1.1.0
   protected static boolean canOPTOUT(GrouperSession s, Group g, Subject subj) {
     if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN)
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.UPDATE)
     )
     {
       return true;
@@ -196,9 +195,9 @@ public class PrivilegeResolver {
   // @since   1.1.0
   protected static boolean canREAD(GrouperSession s, Group g, Subject subj) {
     if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.READ)  
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.READ)  
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN)
     )
     {
       return true;
@@ -208,15 +207,15 @@ public class PrivilegeResolver {
 
   // @since   1.1.0
   protected static boolean canSTEM(GrouperSession s, Stem ns, Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(s, ns, subj, NamingPrivilege.STEM);
+    return PrivilegeResolver.hasPriv(s, ns, subj, NamingPrivilege.STEM);
   } // protected static boolean canSTEM(s, ns, subj)
 
   // @since   1.1.0
   protected static boolean canUPDATE(GrouperSession s, Group g, Subject subj) {
     if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.UPDATE)
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN)
     )
     {
       return true;
@@ -243,17 +242,17 @@ public class PrivilegeResolver {
   // @since   1.1.0
   protected static boolean canVIEW(GrouperSession s, Group g, Subject subj) {
     if (
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.VIEW)  
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.VIEW)  
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.READ)  
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.READ)  
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN)
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.UPDATE)
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTIN) 
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.OPTIN) 
       ||
-      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
+      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
     )
     {
       return true;
@@ -308,14 +307,6 @@ public class PrivilegeResolver {
   {
     return getAccess().getGroupsWhereSubjectHasPriv(s, subj, priv);
   } // protected static Set getGroupsWhereSubjectHasPriv(s, subj, priv)
-
-  // FIXME DEPRECATE!
-  protected static PrivilegeResolver getInstance() {
-    if (pr == null) {
-      pr = new PrivilegeResolver();
-    }
-    return pr;
-  } // protected static PrivilegeResolver getInstance()
 
   // @since   1.1.0
   protected static NamingAdapter getNaming() {
@@ -410,6 +401,81 @@ public class PrivilegeResolver {
     }
   } // protected static void grantPriv(s, ns, subj, priv)
 
+  // FIXME    Refactor once I rework caching
+  // @since   1.1.0
+  protected static boolean hasPriv(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+  {
+    GrouperSession.validate(s);
+    boolean rv = false;
+    Element el = getAccessCache().get(g, subj, priv);
+    if (el != null) {
+      // Result cached.  Is it true?
+      if ( el.getValue().equals(GrouperConfig.BT) ) {
+        rv = true;
+      }
+    }
+    else if (isRoot(subj)) {
+      rv = true;  
+    }
+    else {
+      try {
+        rv = getAccess().hasPriv(s, g, subj, priv);
+        if (rv == false) {
+          rv = _isAll(s, g, priv);
+        } 
+      }
+      catch (SchemaException eS) {
+        rv = false;
+        return rv;
+      }
+    }
+    if (el == null) {
+      ac.put(g, subj, priv, rv);
+    }
+    return rv;
+  } // protected static boolean hasPriv(s, g, subj, priv)
+
+
+  // FIXME    Refactor once I rework caching
+  // @since   1.1.0
+  protected static boolean hasPriv(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+  {
+    boolean rv = false;
+    // Is result cached?
+    Element el = getNamingCache().get(ns, subj, priv);
+    if      (el != null) {
+      // Result cached.  Is it true?
+      if ( el.getValue().equals(GrouperConfig.BT) ) {
+        rv = true;
+      }
+    }
+    else if (isRoot(subj)) {
+      // Is the subject root?
+      rv = true;  
+    }
+    else {
+      // Otherwise, check and see if GrouperAll ihas the privilege
+      try {
+        rv = getNaming().hasPriv(s, ns, subj, priv);
+        if (rv == false) {
+          rv = _isAll(s, ns, priv);
+        } 
+      }
+      catch (SchemaException eS) {
+        rv = false;
+        return rv;
+      }
+    }
+    if (el == null) {
+      getNamingCache().put(ns, subj, priv, rv);
+    }
+    return rv;
+  } // protected static boolean hasPriv(s, ns, subj, priv)
+
   // @since   1.1.0
   protected static boolean isRoot(Subject subj) {
     boolean rv = false;
@@ -491,75 +557,6 @@ public class PrivilegeResolver {
       ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
     }
   } // protected static void revokePriv(s, ns, subj, priv)
-
-
-  // PROTECTED INSTANCE METHODS //
-
-  protected boolean hasPriv(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-  {
-    GrouperSession.validate(s);
-    boolean rv = false;
-    Element el = getAccessCache().get(g, subj, priv);
-    if (el != null) {
-      if (el.getValue().equals(GrouperConfig.BT)) {
-        rv = true;
-      }
-    }
-    else if (isRoot(subj)) {
-      rv = true;  
-    }
-    else {
-      try {
-        rv = getAccess().hasPriv(s, g, subj, priv);
-        if (rv == false) {
-          rv = _isAll(s, g, priv);
-        } 
-      }
-      catch (SchemaException eS) {
-        rv = false;
-        return rv;
-      }
-    }
-    if (el == null) {
-      ac.put(g, subj, priv, rv);
-    }
-    return rv;
-  } // protected boolean hasPriv(s, g, subj, priv)
-
-  protected boolean hasPriv(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
-  )
-  {
-    GrouperSession.validate(s);
-    boolean rv = false;
-    Element el = getNamingCache().get(ns, subj, priv);
-    if (el != null) {
-      if (el.getValue().equals(GrouperConfig.BT)) {
-        rv = true;
-      }
-    }
-    else if (isRoot(subj)) {
-      rv = true;  
-    }
-    else {
-      try {
-        rv = getNaming().hasPriv(s, ns, subj, priv);
-        if (rv == false) {
-          rv = _isAll(s, ns, priv);
-        } 
-      }
-      catch (SchemaException eS) {
-        rv = false;
-        return rv;
-      }
-    }
-    if (el == null) {
-      getNamingCache().put(ns, subj, priv, rv);
-    }
-    return rv;
-  } // protected boolean hasPriv(s, ns, subj, priv)
 
 
   // PRIVATE CLASS METHODS //

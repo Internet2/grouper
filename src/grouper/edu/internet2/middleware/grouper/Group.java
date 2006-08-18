@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.94 2006-08-17 20:02:36 blair Exp $
+ * @version $Id: Group.java,v 1.95 2006-08-18 15:34:09 blair Exp $
  */
 public class Group extends Owner {
 
@@ -1531,9 +1531,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has ADMIN.
    */
   public boolean hasAdmin(Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(
-      this.getSession(), this, subj, AccessPrivilege.ADMIN
-    );
+    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.ADMIN);
   } // public boolean hasAdmin(subj)
 
   /**
@@ -1749,9 +1747,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has OPTIN.
    */
   public boolean hasOptin(Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(
-      this.getSession(), this, subj, AccessPrivilege.OPTIN
-    );
+    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.OPTIN);
   } // public boolean hasOption(subj)
 
   /**
@@ -1768,9 +1764,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has OPTOUT.
    */
   public boolean hasOptout(Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(
-      this.getSession(), this, subj, AccessPrivilege.OPTOUT
-    );
+    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.OPTOUT);
   } // public boolean hasOptout(subj)
 
   /**
@@ -1787,9 +1781,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has READ.
    */
   public boolean hasRead(Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(
-      this.getSession(), this, subj, AccessPrivilege.READ
-    );
+    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.READ);
   } // public boolean hasRead(subj)
 
   /**
@@ -1825,9 +1817,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has UPDATE.
    */
   public boolean hasUpdate(Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(
-      this.getSession(), this, subj, AccessPrivilege.UPDATE
-    );
+    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.UPDATE);
   } // public boolean hasUpdate(subj)
 
   /**
@@ -1844,9 +1834,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has VIEW.
    */
   public boolean hasView(Subject subj) {
-    return PrivilegeResolver.getInstance().hasPriv(
-      this.getSession(), this, subj, AccessPrivilege.VIEW
-    );
+    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.VIEW);
   } // public boolean hasView(subj)
 
   /**
