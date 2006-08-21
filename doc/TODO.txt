@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.35 2006-08-18 16:11:46 blair Exp $
+$Id: TODO.txt,v 1.36 2006-08-21 19:34:05 blair Exp $
 
 ---
 
@@ -12,27 +12,10 @@ $Id: TODO.txt,v 1.35 2006-08-18 16:11:46 blair Exp $
 
 ### Next Actions
 * CODE      Refactor privilege caching
-    * `PrivilegeCacheEntry`
-    * `PrivilegeCache` interface
-        * `get(Owner, Subject, Privilege)`
-        * `has(Owner, Subject, Privilege)`
-        * `put(Owner, Subject, Privilege, boolean)`
-        * `removeAll()`
-        * `remove(Owner)`
-        * `remove(Subject)`
-        * `remove(Privilege)`
-        * abstract `BasePrivilegeCache` implements `PrivilegeCache`
-            * Attach to session
-        * `NullPrivilegeCache` extends `BasePrivilegeCache`
-            * no caching
-        * `SimplePrivilegeCache` extends `BasePrivilegeCache`  
-            * empty caches whenever a priv or mship change is made?
-                * this is basically just a more thorough version of whate we
-                  have now
-        * `LessSimplePrivilegeCache` extends `SimplePrivilegeCache`
-            * a hopefully smarter version of the above
-            * use the `remove()` methods to try and be selective about what is
-              removed from the cache upon mods             
+    * `LessSimplePrivilegeCache` extends `SimplePrivilegeCache`
+        * a hopefully smarter version of the above
+        * use the `remove()` methods to try and be selective about what is
+          removed from the cache upon mods             
 * CODE      Continue refactoring privilege resolution
     * `RootPrivilegeResolver` extends `PrivilegeResolver`
         * Try to isolate all needs-to-be-root and proxy-as-root code *within*
@@ -81,7 +64,7 @@ TODO Add additional potential changes.
 
 ---
 
-$Id: TODO.txt,v 1.35 2006-08-18 16:11:46 blair Exp $
+$Id: TODO.txt,v 1.36 2006-08-21 19:34:05 blair Exp $
 
 
 

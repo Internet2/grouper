@@ -24,15 +24,13 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.62 2006-08-21 19:20:09 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.63 2006-08-21 19:34:05 blair Exp $
  */
  class PrivilegeResolver {
 
   // PRIVATE CLASS VARIABLES //
-  private static  PrivilegeCache    ac        = getAccessCache();
   private static  AccessAdapter     access    = getAccess();
   private static  NamingAdapter     naming    = getNaming();
-  private static  PrivilegeCache    nc        = getNamingCache();
   private static  boolean           use_wheel = Boolean.valueOf(
     GrouperConfig.getProperty(GrouperConfig.GWU)
   );
@@ -254,17 +252,6 @@ import  java.util.*;
     return access;
   } // protected static AccessAdapter getAccess()
 
-  // @since   1.1.0
-  protected static PrivilegeCache getAccessCache() {
-    if (ac == null) {
-      ac = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PACI));
-      DebugLog.info(
-        PrivilegeResolver.class, "using access cache: " + ac.getClass().getName()
-      );
-    }
-    return ac;
-  } // protected static PrivilegeCache getAccessCache()
-
   // @since   1.1.0 
   protected static Set getGroupsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
@@ -283,17 +270,6 @@ import  java.util.*;
     }
     return naming;
   } // protected static AccessAdapter getNaming()
-
-  // @since   1.1.0
-  protected static PrivilegeCache getNamingCache() {
-    if (nc == null) {
-      nc = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PNCI));
-      DebugLog.info(
-        PrivilegeResolver.class, "using naming cache: " + nc.getClass().getName()
-      );
-    }
-    return nc;
-  } // protected static PrivilegeCache getNamingCache()
 
   // @since   1.1.0
   protected static Set getPrivs(
@@ -343,7 +319,7 @@ import  java.util.*;
             SchemaException
   {
     getAccess().grantPriv(s, g, subj, priv);
-    getAccessCache().grantPriv(g, subj, priv);
+    s.getAccessCache().grantPriv(g, subj, priv);
   } // protected static void grantPriv(s, g, subj, priv)
 
   // @since   1.1.0
@@ -355,7 +331,7 @@ import  java.util.*;
             SchemaException
   {
     getNaming().grantPriv(s, ns, subj, priv);
-    getNamingCache().grantPriv(ns, subj, priv);
+    s.getNamingCache().grantPriv(ns, subj, priv);
   } // protected static void grantPriv(s, ns, subj, priv)
 
   // FIXME    Refactor once I rework caching
@@ -366,7 +342,7 @@ import  java.util.*;
   {
     GrouperSession.validate(s);
     boolean rv = false;
-    PrivilegeCacheElement el = getAccessCache().get(g, subj, priv);
+    PrivilegeCacheElement el = s.getAccessCache().get(g, subj, priv);
     if (el.getIsCached()) {
       rv = el.getHasPriv(); // use cached result
     }
@@ -384,7 +360,7 @@ import  java.util.*;
         rv = false;
       }
     }
-    getAccessCache().put(g, subj, priv, rv);
+    s.getAccessCache().put(g, subj, priv, rv);
     return rv;
   } // protected static boolean hasPriv(s, g, subj, priv)
 
@@ -396,7 +372,7 @@ import  java.util.*;
   )
   {
     boolean rv = false;
-    PrivilegeCacheElement el = getNamingCache().get(ns, subj, priv);
+    PrivilegeCacheElement el = s.getNamingCache().get(ns, subj, priv);
     if (el.getIsCached()) {
       rv = el.getHasPriv(); // use cached result
     }
@@ -415,7 +391,7 @@ import  java.util.*;
         rv = false;
       }
     }
-    getNamingCache().put(ns, subj, priv, rv);
+    s.getNamingCache().put(ns, subj, priv, rv);
     return rv;
   } // protected static boolean hasPriv(s, ns, subj, priv)
 
@@ -440,7 +416,7 @@ import  java.util.*;
             SchemaException
   {
     getAccess().revokePriv(s, g, priv);
-    getAccessCache().revokePriv(g, priv);
+    s.getAccessCache().revokePriv(g, priv);
   } // protected static void revokePriv(s, g, priv)
 
   // @since   1.1.0
@@ -450,7 +426,7 @@ import  java.util.*;
             SchemaException
   {
     getNaming().revokePriv(s, ns, priv);
-    getNamingCache().revokePriv(ns, priv);
+    s.getNamingCache().revokePriv(ns, priv);
   } // protected static void revokePriv(s, ns, priv)
 
   // @since   1.1.0
@@ -462,7 +438,7 @@ import  java.util.*;
             SchemaException
   {
     getAccess().revokePriv(s, g, subj, priv);
-    getAccessCache().revokePriv(g, subj, priv);
+    s.getAccessCache().revokePriv(g, subj, priv);
   } // protected static void revokePriv(s, g, subj, priv)
 
   // @since   1.1.0
@@ -474,7 +450,7 @@ import  java.util.*;
             SchemaException
   {
     getNaming().revokePriv(s, ns, subj, priv);
-    getNamingCache().revokePriv(ns, subj, priv);
+    s.getNamingCache().revokePriv(ns, subj, priv);
   } // protected static void revokePriv(s, ns, subj, priv)
 
 
