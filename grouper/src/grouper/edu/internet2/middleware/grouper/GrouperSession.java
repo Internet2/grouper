@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.31 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.32 2006-08-21 19:34:05 blair Exp $
  */
 public class GrouperSession {
 
@@ -44,9 +44,11 @@ public class GrouperSession {
 
 
   // PRIVATE TRANSIENT INSTANCE VARIABLES //
-  private transient Subject subj  = null;
-  private transient String  who;
-  private transient String  type;
+  private transient PrivilegeCache    ac    = getAccessCache();
+  private transient PrivilegeCache    nc    = getNamingCache();
+  private transient Subject           subj  = null;
+  private transient String            type;
+  private transient String            who;
 
 
   // CONSTRUCTORS //
@@ -280,6 +282,31 @@ public class GrouperSession {
       throw new GrouperRuntimeException(eM.getMessage(), eM);
     }
   } // protected static void validate(s)
+
+
+  // PROTECTED INSTANCE METHODS //
+
+  // @since   1.1.0
+  protected PrivilegeCache getAccessCache() {
+    if (this.ac == null) {
+      this.ac = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PACI));
+      DebugLog.info(
+        PrivilegeResolver.class, "using access cache: " + ac.getClass().getName()
+      );
+    }
+    return this.ac;
+  } // protected static PrivilegeCache getAccessCache()
+
+  // @since   1.1.0
+  protected PrivilegeCache getNamingCache() {
+    if (this.nc == null) {
+      this.nc = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PNCI));
+      DebugLog.info(
+        PrivilegeResolver.class, "using naming cache: " + nc.getClass().getName()
+      );
+    }
+    return this.nc;
+  } // protected static PrivilegeCache getNamingCache()
 
 
   // PRIVATE STATIC METHODS //
