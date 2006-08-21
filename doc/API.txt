@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.8 2006-08-17 16:28:18 blair Exp $
+$Id: API.txt,v 1.9 2006-08-21 18:46:10 blair Exp $
 
 ---
 
@@ -28,6 +28,13 @@ $Id: API.txt,v 1.8 2006-08-17 16:28:18 blair Exp $
 * void                revokePriv(GrouperSession, stem, naming priv)
 * void                revokePriv(GrouperSession, stem, subject, naming priv)
 
+## PrivilegeCache - SUBJECT TO CHANGE!
+* void                add(Owner, Subject, Privilege, boolean)
+* PrivilegeCacheEntry get(Owner, Subject, Privilege)
+* void                remove(Owner, Privilege)
+* void                removeAll()
+* void                update(Owner, Subject, Privilege, boolean)
+
 ## QueryFilter
 * Set                 getResults(GrouperSession)
 
@@ -46,6 +53,7 @@ $Id: API.txt,v 1.8 2006-08-17 16:28:18 blair Exp $
 * MemberDeleteException
 * MemberNotFoundException
 * MembershipNotFoundException
+* PrivilegeCacheException
 * QueryException
 * RevokePrivilegeException
 * SchemaException
@@ -65,6 +73,9 @@ $Id: API.txt,v 1.8 2006-08-17 16:28:18 blair Exp $
 * String              getName()
 * Subject             getOwner()
 * Subject             getSubject()
+
+## BasePrivilegeCache - SUBJECT TO CHANGE!
+* PrivilegeCache      BasePrivilegeCache.getCache(klass)
 
 ## BaseQueryFilter implements QueryFilter
 * Set                 filterByScope(stem, candidates)

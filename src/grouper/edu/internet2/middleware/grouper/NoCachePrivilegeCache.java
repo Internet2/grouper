@@ -19,13 +19,13 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 
 /** 
- * Privilege Cache interface.
+ * A no-caching implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.10 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: NoCachePrivilegeCache.java,v 1.1 2006-08-21 18:46:10 blair Exp $
  * @since   1.1.0     
  */
-interface PrivilegeCache {
+public class NoCachePrivilegeCache extends BasePrivilegeCache {
 
   // PUBLIC INSTANCE METHODS //
 
@@ -35,15 +35,21 @@ interface PrivilegeCache {
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  void add(Owner o, Subject subj, Privilege p, boolean hasPriv) throws PrivilegeCacheException;
+  public void add(Owner o, Subject subj, Privilege p, boolean hasPriv)
+    throws  PrivilegeCacheException
+  {
+    // Nothing
+  } // public void add(o, subj, p, hasPriv)
 
   /**
-   * Retrieve a cached {@link Privilege}.
+   * Create an uncached {@link Privilege}.
    * <p/>
-   * @return  A {@link PrivilegeCacheElement} or {@link NullPrivilegeCacheElement}.
+   * @return  A {@link NullPrivilegeCacheElement}.
    * @since   1.1.0
    */
-  PrivilegeCacheElement get(Owner o, Subject subj, Privilege p);
+  public PrivilegeCacheElement get(Owner o, Subject subj, Privilege p) {
+    return new NullPrivilegeCacheElement(o, subj, p);
+  } // public PrivilegeCacheElement get(o, subj, p)
 
   /**
    * Remove all cached entries for {@link Privilege} on {@link Owner}.
@@ -51,7 +57,11 @@ interface PrivilegeCache {
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  void remove(Owner o, Privilege p) throws PrivilegeCacheException;
+  public void remove(Owner o, Privilege p) 
+    throws  PrivilegeCacheException
+  {
+    // Nothing
+  } // public void remove(o, p)
 
   /**
    * Remove all cached {@link Privilege}s.
@@ -59,7 +69,11 @@ interface PrivilegeCache {
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  void removeAll() throws PrivilegeCacheException;
+  public void removeAll() 
+    throws  PrivilegeCacheException
+  {
+    // Nothing
+  } // public void removeAll()
 
   /**
    * Cache a {@link Privilege}.
@@ -67,7 +81,11 @@ interface PrivilegeCache {
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  void update(Owner o, Subject subj, Privilege p, boolean hasPriv) throws PrivilegeCacheException;
+  public void update(Owner o, Subject subj, Privilege p, boolean hasPriv) 
+    throws  PrivilegeCacheException 
+  {
+    // Nothing
+  } // public void update(o, subj, p, hasPriv)
 
-} // interface PrivilegeCache
+} // public class NoCachePrivilegeCache extends BasePrivilegeCache
 
