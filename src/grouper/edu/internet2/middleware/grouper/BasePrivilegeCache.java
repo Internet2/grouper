@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Base implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BasePrivilegeCache.java,v 1.1 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: BasePrivilegeCache.java,v 1.2 2006-08-21 19:20:09 blair Exp $
  * @since   1.1.0     
  */
 public abstract class BasePrivilegeCache implements PrivilegeCache {
@@ -36,15 +36,6 @@ public abstract class BasePrivilegeCache implements PrivilegeCache {
 
  
   // PUBLIC CLASS METHODS //
-
-  /**
-   * Cache a {@link Privilege} without any side-effects.
-   * </p>
-   * @throws  PrivilegeCacheException
-   * @since   1.1.0
-   */
-  public abstract void add(Owner o, Subject subj, Privilege p, boolean hasPriv)
-    throws  PrivilegeCacheException;
 
   /**
    * @param   klass   Name of the implementing class to return.
@@ -70,12 +61,20 @@ public abstract class BasePrivilegeCache implements PrivilegeCache {
   public abstract PrivilegeCacheElement get(Owner o, Subject subj, Privilege p);
 
   /**
-   * Remove all cached entries for {@link Privilege} on {@link Owner}.
+   * Update to cache to reflect {@link Privilege} granting.
    * </p>
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  public abstract void remove(Owner o, Privilege p) throws PrivilegeCacheException;
+  public abstract void grantPriv(Owner o, Subject subj, Privilege p) throws PrivilegeCacheException;
+
+  /**
+   * Cache a {@link Privilege}.
+   * </p>
+   * @throws  PrivilegeCacheException
+   * @since   1.1.0
+   */
+  public abstract void put(Owner o, Subject subj, Privilege p, boolean hasPriv) throws PrivilegeCacheException;
 
   /**
    * Remove all cached {@link Privilege}s.
@@ -86,13 +85,20 @@ public abstract class BasePrivilegeCache implements PrivilegeCache {
   public abstract void removeAll() throws PrivilegeCacheException;
 
   /**
-   * Cache a {@link Privilege}.
+   * Update to cache to reflect {@link Privilege} revoking.
    * </p>
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  public abstract void update(Owner o, Subject subj, Privilege p, boolean hasPriv) 
-    throws  PrivilegeCacheException;
+  public abstract void revokePriv(Owner o, Privilege p) throws PrivilegeCacheException;
+
+  /**
+   * Update to cache to reflect {@link Privilege} revoking.
+   * </p>
+   * @throws  PrivilegeCacheException
+   * @since   1.1.0
+   */
+  public abstract void revokePriv(Owner o, Subject subj, Privilege p) throws PrivilegeCacheException;
 
 } // public class BasePrivilegeCache implements PrivilegeCache
 

@@ -22,24 +22,12 @@ import  edu.internet2.middleware.subject.*;
  * A no-caching implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NoCachePrivilegeCache.java,v 1.1 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: NoCachePrivilegeCache.java,v 1.2 2006-08-21 19:20:09 blair Exp $
  * @since   1.1.0     
  */
 public class NoCachePrivilegeCache extends BasePrivilegeCache {
 
   // PUBLIC INSTANCE METHODS //
-
-  /**
-   * Cache a {@link Privilege} without any side-effects.
-   * </p>
-   * @throws  PrivilegeCacheException
-   * @since   1.1.0
-   */
-  public void add(Owner o, Subject subj, Privilege p, boolean hasPriv)
-    throws  PrivilegeCacheException
-  {
-    // Nothing
-  } // public void add(o, subj, p, hasPriv)
 
   /**
    * Create an uncached {@link Privilege}.
@@ -52,16 +40,28 @@ public class NoCachePrivilegeCache extends BasePrivilegeCache {
   } // public PrivilegeCacheElement get(o, subj, p)
 
   /**
-   * Remove all cached entries for {@link Privilege} on {@link Owner}.
+   * Update to cache to reflect {@link Privilege} granting.
    * </p>
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  public void remove(Owner o, Privilege p) 
+  public void grantPriv(Owner o, Subject subj, Privilege p) 
     throws  PrivilegeCacheException
   {
     // Nothing
-  } // public void remove(o, p)
+  } // public void grantPriv(o, subj, p, hasPriv)
+
+  /**
+   * Cache a {@link Privilege} without any side-effects.
+   * </p>
+   * @throws  PrivilegeCacheException
+   * @since   1.1.0
+   */
+  public void put(Owner o, Subject subj, Privilege p, boolean hasPriv)
+    throws  PrivilegeCacheException
+  {
+    // Nothing
+  } // public void put(o, subj, p, hasPriv)
 
   /**
    * Remove all cached {@link Privilege}s.
@@ -76,16 +76,28 @@ public class NoCachePrivilegeCache extends BasePrivilegeCache {
   } // public void removeAll()
 
   /**
-   * Cache a {@link Privilege}.
+   * Update to cache to reflect {@link Privilege} revoking.
    * </p>
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  public void update(Owner o, Subject subj, Privilege p, boolean hasPriv) 
-    throws  PrivilegeCacheException 
+  public void revokePriv(Owner o, Privilege p) 
+    throws  PrivilegeCacheException
   {
     // Nothing
-  } // public void update(o, subj, p, hasPriv)
+  } // public void revokePriv(o, p)
+
+  /**
+   * Update to cache to reflect {@link Privilege} revoking.
+   * </p>
+   * @throws  PrivilegeCacheException
+   * @since   1.1.0
+   */
+  public void revokePriv(Owner o, Subject subj, Privilege p) 
+    throws  PrivilegeCacheException
+  {
+    // Nothing
+  } // public void revokePriv(o, subj, p)
 
 } // public class NoCachePrivilegeCache extends BasePrivilegeCache
 

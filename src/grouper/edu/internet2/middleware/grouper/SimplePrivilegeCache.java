@@ -23,7 +23,7 @@ import  org.apache.commons.collections.map.*;
  * A simple caching implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimplePrivilegeCache.java,v 1.1 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: SimplePrivilegeCache.java,v 1.2 2006-08-21 19:20:09 blair Exp $
  * @since   1.1.0     
  */
 public class SimplePrivilegeCache extends BasePrivilegeCache {
@@ -33,21 +33,6 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
 
 
   // PUBLIC INSTANCE METHODS //
-
-  /**
-   * Cache a {@link Privilege} without any side-effects.
-   * </p>
-   * @throws  PrivilegeCacheException
-   * @since   1.1.0
-   */
-  public void add(Owner o, Subject subj, Privilege p, boolean hasPriv)
-    throws  PrivilegeCacheException
-  {
-    // Store the value without any cache flushing
-    this.cache.put(
-      o, p, subj, new PrivilegeCacheElement(o, subj, p, hasPriv)
-    );
-  } // public void add(o, subj, p, hasPriv)
 
   /**
    * Retrieve a potentially cached {@link Privilege}.
@@ -63,18 +48,32 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
   } // public PrivilegeCacheElement get(o, subj, p)
 
   /**
-   * Remove all cached entries for {@link Privilege} on {@link Owner}.
+   * Update to cache to reflecting {@link Privilege} granting.
    * </p>
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  public void remove(Owner o, Privilege p) 
+  public void grantPriv(Owner o, Subject subj, Privilege p) 
     throws  PrivilegeCacheException
   {
-    this.cache.removeAll(o, p);
-  } // public void remove(o, p)
+    this.removeAll(); // Flush everything
+  } // public void grantPriv(o, subj, p, hasPriv)
 
   /**
+   * Cache a {@link Privilege}.
+   * </p>
+   * @throws  PrivilegeCacheException
+   * @since   1.1.0
+   */
+  public void put(Owner o, Subject subj, Privilege p, boolean hasPriv)
+    throws  PrivilegeCacheException
+  {
+    // Store the value without any cache flushing
+    this.cache.put(
+      o, p, subj, new PrivilegeCacheElement(o, subj, p, hasPriv)
+    );
+  } // public void put(o, subj, p, hasPriv)
+
   /**
    * Remove all cached {@link Privilege}s.
    * </p>
@@ -88,19 +87,28 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
   } // public void removeAll()
 
   /**
-   * Cache a {@link Privilege}.
-   * <p>This will flush existing cached results</p>
+   * Update to cache to reflect {@link Privilege} revoking.
+   * </p>
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  public void update(Owner o, Subject subj, Privilege p, boolean hasPriv) 
+  public void revokePriv(Owner o, Privilege p) 
     throws  PrivilegeCacheException
   {
-    this.removeAll();               // Flush everything
-    if (hasPriv) {
-      this.add(o, subj, p, hasPriv);  // And then store this
-    }
-  } // public void update(o, subj, p, hasPriv)
+    this.removeAll(); // Flush everything
+  } // public void revokePriv(o, p)
+
+  /**
+   * Update to cache to reflect {@link Privilege} revoking.
+   * </p>
+   * @throws  PrivilegeCacheException
+   * @since   1.1.0
+   */
+  public void revokePriv(Owner o, Subject subj, Privilege p) 
+    throws  PrivilegeCacheException
+  {
+    this.removeAll(); // Flush everything
+  } // public void revokePriv(o, subj, p)
 
 } // public class SimplePrivilegeCache extends BasePrivilegeCache
 

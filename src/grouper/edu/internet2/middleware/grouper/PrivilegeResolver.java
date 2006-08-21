@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.61 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.62 2006-08-21 19:20:09 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -343,7 +343,7 @@ import  java.util.*;
             SchemaException
   {
     getAccess().grantPriv(s, g, subj, priv);
-    getAccessCache().update(g, subj, priv, true);
+    getAccessCache().grantPriv(g, subj, priv);
   } // protected static void grantPriv(s, g, subj, priv)
 
   // @since   1.1.0
@@ -355,7 +355,7 @@ import  java.util.*;
             SchemaException
   {
     getNaming().grantPriv(s, ns, subj, priv);
-    getNamingCache().update(ns, subj, priv, true);
+    getNamingCache().grantPriv(ns, subj, priv);
   } // protected static void grantPriv(s, ns, subj, priv)
 
   // FIXME    Refactor once I rework caching
@@ -384,7 +384,7 @@ import  java.util.*;
         rv = false;
       }
     }
-    getAccessCache().add(g, subj, priv, rv);
+    getAccessCache().put(g, subj, priv, rv);
     return rv;
   } // protected static boolean hasPriv(s, g, subj, priv)
 
@@ -415,7 +415,7 @@ import  java.util.*;
         rv = false;
       }
     }
-    getNamingCache().add(ns, subj, priv, rv);
+    getNamingCache().put(ns, subj, priv, rv);
     return rv;
   } // protected static boolean hasPriv(s, ns, subj, priv)
 
@@ -440,7 +440,7 @@ import  java.util.*;
             SchemaException
   {
     getAccess().revokePriv(s, g, priv);
-    getAccessCache().remove(g, priv);
+    getAccessCache().revokePriv(g, priv);
   } // protected static void revokePriv(s, g, priv)
 
   // @since   1.1.0
@@ -450,7 +450,7 @@ import  java.util.*;
             SchemaException
   {
     getNaming().revokePriv(s, ns, priv);
-    getNamingCache().remove(ns, priv);
+    getNamingCache().revokePriv(ns, priv);
   } // protected static void revokePriv(s, ns, priv)
 
   // @since   1.1.0
@@ -462,7 +462,7 @@ import  java.util.*;
             SchemaException
   {
     getAccess().revokePriv(s, g, subj, priv);
-    getAccessCache().update(g, subj, priv, false);
+    getAccessCache().revokePriv(g, subj, priv);
   } // protected static void revokePriv(s, g, subj, priv)
 
   // @since   1.1.0
@@ -474,7 +474,7 @@ import  java.util.*;
             SchemaException
   {
     getNaming().revokePriv(s, ns, subj, priv);
-    getNamingCache().update(ns, subj, priv, false);
+    getNamingCache().revokePriv(ns, subj, priv);
   } // protected static void revokePriv(s, ns, subj, priv)
 
 

@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * A {@link PrivilegeCache} element.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCacheElement.java,v 1.1 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: PrivilegeCacheElement.java,v 1.2 2006-08-21 19:20:09 blair Exp $
  * @since   1.1.0
  */
 public class PrivilegeCacheElement {
@@ -92,13 +92,6 @@ public class PrivilegeCacheElement {
   /**
    * @since   1.1.0
    */
-  public String getOwnerUuid() {
-    return this.ownerUuid;
-  } // public String getOwnerUuid()
-
-  /**
-   * @since   1.1.0
-   */
   public String getSubjectId() {
     return this.subjectId;
   } // public String getSubjectId()
@@ -130,6 +123,13 @@ public class PrivilegeCacheElement {
       .append("subjectType"   , this.getSubjectType()   )
       .toString();
   } // public String toString()
+
+  /**
+   * @since   1.1.0
+   */
+  public String getOwnerUuid() {
+    return this.ownerUuid;
+  } // public String getOwnerUuid()
 
 
   // PROTECTED INSTANCE METHODS //
