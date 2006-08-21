@@ -22,20 +22,12 @@ import  edu.internet2.middleware.subject.*;
  * Privilege Cache interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.10 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: PrivilegeCache.java,v 1.11 2006-08-21 19:20:09 blair Exp $
  * @since   1.1.0     
  */
 interface PrivilegeCache {
 
   // PUBLIC INSTANCE METHODS //
-
-  /**
-   * Cache a {@link Privilege} without any side-effects.
-   * </p>
-   * @throws  PrivilegeCacheException
-   * @since   1.1.0
-   */
-  void add(Owner o, Subject subj, Privilege p, boolean hasPriv) throws PrivilegeCacheException;
 
   /**
    * Retrieve a cached {@link Privilege}.
@@ -46,12 +38,20 @@ interface PrivilegeCache {
   PrivilegeCacheElement get(Owner o, Subject subj, Privilege p);
 
   /**
-   * Remove all cached entries for {@link Privilege} on {@link Owner}.
+   * Update cache to reflect {@link Privilege} granting.
+   * <p/>
+   * @throws  PrivilegeCacheException
+   * @since   1.1.0
+   */
+  void grantPriv(Owner o, Subject subj, Privilege p) throws PrivilegeCacheException;
+
+  /**
+   * Cache a {@link Privilege}.
    * </p>
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  void remove(Owner o, Privilege p) throws PrivilegeCacheException;
+  void put(Owner o, Subject subj, Privilege p, boolean hasPriv) throws PrivilegeCacheException;
 
   /**
    * Remove all cached {@link Privilege}s.
@@ -62,12 +62,20 @@ interface PrivilegeCache {
   void removeAll() throws PrivilegeCacheException;
 
   /**
-   * Cache a {@link Privilege}.
+   * Update to cache to reflect {@link Privilege} revoking.
    * </p>
    * @throws  PrivilegeCacheException
    * @since   1.1.0
    */
-  void update(Owner o, Subject subj, Privilege p, boolean hasPriv) throws PrivilegeCacheException;
+  void revokePriv(Owner o, Privilege p) throws PrivilegeCacheException;
+
+  /**
+   * Update to cache to reflect {@link Privilege} revoking.
+   * </p>
+   * @throws  PrivilegeCacheException
+   * @since   1.1.0
+   */
+  void revokePriv(Owner o, Subject subj, Privilege p) throws PrivilegeCacheException;
 
 } // interface PrivilegeCache
 
