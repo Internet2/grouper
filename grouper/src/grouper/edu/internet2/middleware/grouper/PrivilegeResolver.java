@@ -19,22 +19,14 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
-import  net.sf.ehcache.*;
 
 /** 
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.60 2006-08-18 15:34:09 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.61 2006-08-21 18:46:10 blair Exp $
  */
-public class PrivilegeResolver {
-
-  // PRIVATE CLASS CONSTANTS //
-  // TODO Move to *E*
-  private static final String ERR_RPC   = "unable to reset privilege caches: ";
-  // TODO Move to *M*
-  private static final String MSG_RPC   = "reset privilege cache: ";
-
+ class PrivilegeResolver {
 
   // PRIVATE CLASS VARIABLES //
   private static  PrivilegeCache    ac        = getAccessCache();
@@ -48,38 +40,9 @@ public class PrivilegeResolver {
 
   // CONSTRUCTORS //
   private PrivilegeResolver() {
-    // nothing
+    super();
   } // private PrivilegeResolver()
 
-
-  // PUBLIC CLASS METHODS //
-
-  /**
-   * Remove all entries from the access and naming privilege caches.
-   * <pre class="eg">
-   * PrivilegeResolver.resetPrivilegeCaches();
-   * </pre>
-   * @throws  GrouperRuntimeException 
-   */
-  public static void resetPrivilegeCaches() 
-    throws  GrouperRuntimeException
-  {
-    try {
-      if (ac != null) {
-        ac.removeAll();
-        DebugLog.info(PrivilegeResolver.class, MSG_RPC + PrivilegeCache.ACCESS);
-      }
-      if (nc != null) {
-        nc.removeAll();
-        DebugLog.info(PrivilegeResolver.class, MSG_RPC + PrivilegeCache.NAMING);
-      }
-    }
-    catch (Exception e) {
-      String msg = ERR_RPC + e.getMessage();
-      ErrorLog.fatal(PrivilegeResolver.class, msg);
-      throw new GrouperRuntimeException(msg, e);
-    }
-  } // public static void resetPrivilegeCaches()
 
 
   // PROTECTED CLASS METHODS //
@@ -294,7 +257,10 @@ public class PrivilegeResolver {
   // @since   1.1.0
   protected static PrivilegeCache getAccessCache() {
     if (ac == null) {
-      ac = PrivilegeCache.getCache(PrivilegeCache.ACCESS);
+      ac = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PACI));
+      DebugLog.info(
+        PrivilegeResolver.class, "using access cache: " + ac.getClass().getName()
+      );
     }
     return ac;
   } // protected static PrivilegeCache getAccessCache()
@@ -321,7 +287,10 @@ public class PrivilegeResolver {
   // @since   1.1.0
   protected static PrivilegeCache getNamingCache() {
     if (nc == null) {
-      nc = PrivilegeCache.getCache(PrivilegeCache.NAMING);
+      nc = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PNCI));
+      DebugLog.info(
+        PrivilegeResolver.class, "using naming cache: " + nc.getClass().getName()
+      );
     }
     return nc;
   } // protected static PrivilegeCache getNamingCache()
@@ -374,13 +343,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     getAccess().grantPriv(s, g, subj, priv);
-    // FIXME
-    try {
-      getAccessCache().removeAll();
-    }
-    catch (Exception e) {
-      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
-    }
+    getAccessCache().update(g, subj, priv, true);
   } // protected static void grantPriv(s, g, subj, priv)
 
   // @since   1.1.0
@@ -392,13 +355,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     getNaming().grantPriv(s, ns, subj, priv);
-    // FIXME
-    try {
-      getNamingCache().removeAll();
-    }
-    catch (Exception e) {
-      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
-    }
+    getNamingCache().update(ns, subj, priv, true);
   } // protected static void grantPriv(s, ns, subj, priv)
 
   // FIXME    Refactor once I rework caching
@@ -409,31 +366,25 @@ public class PrivilegeResolver {
   {
     GrouperSession.validate(s);
     boolean rv = false;
-    Element el = getAccessCache().get(g, subj, priv);
-    if (el != null) {
-      // Result cached.  Is it true?
-      if ( el.getValue().equals(GrouperConfig.BT) ) {
-        rv = true;
-      }
+    PrivilegeCacheElement el = getAccessCache().get(g, subj, priv);
+    if (el.getIsCached()) {
+      rv = el.getHasPriv(); // use cached result
     }
     else if (isRoot(subj)) {
-      rv = true;  
+      rv = true; // The subject is root
     }
     else {
       try {
         rv = getAccess().hasPriv(s, g, subj, priv);
-        if (rv == false) {
+        if (!rv) { // Subject doesn't have priv; see if GrouperAll does
           rv = _isAll(s, g, priv);
         } 
       }
       catch (SchemaException eS) {
         rv = false;
-        return rv;
       }
     }
-    if (el == null) {
-      ac.put(g, subj, priv, rv);
-    }
+    getAccessCache().add(g, subj, priv, rv);
     return rv;
   } // protected static boolean hasPriv(s, g, subj, priv)
 
@@ -445,34 +396,26 @@ public class PrivilegeResolver {
   )
   {
     boolean rv = false;
-    // Is result cached?
-    Element el = getNamingCache().get(ns, subj, priv);
-    if      (el != null) {
-      // Result cached.  Is it true?
-      if ( el.getValue().equals(GrouperConfig.BT) ) {
-        rv = true;
-      }
+    PrivilegeCacheElement el = getNamingCache().get(ns, subj, priv);
+    if (el.getIsCached()) {
+      rv = el.getHasPriv(); // use cached result
     }
     else if (isRoot(subj)) {
-      // Is the subject root?
-      rv = true;  
+      rv = true; // The subject is root
     }
     else {
       // Otherwise, check and see if GrouperAll ihas the privilege
       try {
         rv = getNaming().hasPriv(s, ns, subj, priv);
-        if (rv == false) {
+        if (!rv) { // Subject doesn't have priv; see if GrouperAll does
           rv = _isAll(s, ns, priv);
         } 
       }
       catch (SchemaException eS) {
         rv = false;
-        return rv;
       }
     }
-    if (el == null) {
-      getNamingCache().put(ns, subj, priv, rv);
-    }
+    getNamingCache().add(ns, subj, priv, rv);
     return rv;
   } // protected static boolean hasPriv(s, ns, subj, priv)
 
@@ -497,13 +440,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     getAccess().revokePriv(s, g, priv);
-    // FIXME
-    try {
-      getAccessCache().removeAll();
-    }
-    catch (Exception e) {
-      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
-    }
+    getAccessCache().remove(g, priv);
   } // protected static void revokePriv(s, g, priv)
 
   // @since   1.1.0
@@ -513,13 +450,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     getNaming().revokePriv(s, ns, priv);
-    // FIXME
-    try {
-      getNamingCache().removeAll();
-    }
-    catch (Exception e) {
-      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
-    }
+    getNamingCache().remove(ns, priv);
   } // protected static void revokePriv(s, ns, priv)
 
   // @since   1.1.0
@@ -531,13 +462,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     getAccess().revokePriv(s, g, subj, priv);
-    // FIXME
-    try {
-      getAccessCache().removeAll();
-    }
-    catch (Exception e) {
-      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
-    }
+    getAccessCache().update(g, subj, priv, false);
   } // protected static void revokePriv(s, g, subj, priv)
 
   // @since   1.1.0
@@ -549,13 +474,7 @@ public class PrivilegeResolver {
             SchemaException
   {
     getNaming().revokePriv(s, ns, subj, priv);
-    // FIXME
-    try {
-      getNamingCache().removeAll();
-    }
-    catch (Exception e) {
-      ErrorLog.error(PrivilegeResolver.class, ERR_RPC + e.getMessage());
-    }
+    getNamingCache().update(ns, subj, priv, false);
   } // protected static void revokePriv(s, ns, subj, priv)
 
 
@@ -597,5 +516,5 @@ public class PrivilegeResolver {
     return rv;
   } // private static boolean _isWheel(subj)
 
-} // public class PrivilegeResolver
+} // class PrivilegeResolver
 

@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.3 2006-08-21 18:46:10 blair Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -335,14 +335,6 @@ public class TestPrivADMIN extends TestCase {
     LOG.info("testRevokeViewWithADMIN");
     PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.VIEW);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.VIEW);     
-  } // public void testRevokeViewWithADMIN()
-
-  public void testRevokeViewWithAllADMIN() {
-    LOG.info("testRevokeViewWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.VIEW);
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     a = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.VIEW);     
   } // public void testRevokeViewWithADMIN()

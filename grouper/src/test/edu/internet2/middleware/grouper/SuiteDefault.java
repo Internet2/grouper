@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.6 2006-07-07 17:01:10 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.7 2006-08-21 18:46:10 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -46,12 +46,12 @@ public class SuiteDefault extends TestCase {
     suite.addTest(  SuiteMemberships.suite()  );
     suite.addTest(  SuiteMemberOf.suite()     );
     suite.addTest(  SuiteQueries.suite()      );
+    suite.addTest(  SuiteAccessPrivs.suite()  );
     suite.addTest(  SuiteXml.suite()          );
     suite.addTest(  SuiteBugs.suite()         );
 
     // TODO Migrate
 
-    suite.addTestSuite(TestAccessPrivilege.class);
     suite.addTestSuite(TestField.class);
     suite.addTestSuite(TestGrFiFindByName.class);
     suite.addTestSuite(TestGrFiFindByUuid.class);
@@ -59,14 +59,8 @@ public class SuiteDefault extends TestCase {
     // TODO suite.addTestSuite(TestMemberOfAccessPrivs.class);
     // TODO suite.addTestSuite(TestMemberOfNamingPrivs.class);
     suite.addTestSuite(TestNamingPrivilege.class);
-    suite.addTestSuite(TestPrivADMIN.class);    // TODO group-with-priv checks
     suite.addTestSuite(TestPrivCREATE.class);  
-    suite.addTestSuite(TestPrivOPTIN.class);    // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivOPTOUT.class);   // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivREAD.class);     // TODO group-with-priv checks
     suite.addTestSuite(TestPrivSTEM.class);     // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivVIEW.class);     // TODO group-with-priv checks
-    suite.addTestSuite(TestPrivUPDATE.class);   // TODO group-with-priv checks
     suite.addTestSuite(TestStemFinder.class);
     suite.addTestSuite(TestWrongFieldType.class); 
     // TODO suite.addTestSuite(TestWheelGroup.class); 
