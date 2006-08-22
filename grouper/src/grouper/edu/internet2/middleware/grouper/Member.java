@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.58 2006-08-18 15:34:09 blair Exp $
+ * @version $Id: Member.java,v 1.59 2006-08-22 18:21:43 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -44,6 +44,7 @@ public class Member implements Serializable {
 
 
   // PRIVATE TRANSIENT INSTANCE PROPERTIES //
+  private transient Group           g     = null;
   private transient GrouperSession  s     = null;
   private transient Subject         subj  = null;
 
@@ -1235,7 +1236,11 @@ public class Member implements Serializable {
     throws GroupNotFoundException 
   {
     // TODO TEST Check for group type 
-    return GroupFinder.findByUuid(this.getSession(), this.getSubjectId());
+    if (this.g == null) {
+      this.g =GroupFinder.findByUuid(this.getSession(), this.getSubjectId());
+    }
+    this.g.setSession(this.getSession());
+    return this.g;
   } // public Group toGroup()
 
 
@@ -1370,5 +1375,5 @@ public class Member implements Serializable {
     this.subject_type = subject_type;
   }
 
-}
+} // public class Member
 
