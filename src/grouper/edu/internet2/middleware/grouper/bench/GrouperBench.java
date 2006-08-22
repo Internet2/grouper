@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.2 2006-08-22 17:37:12 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.3 2006-08-22 18:21:43 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -58,7 +58,7 @@ public class GrouperBench {
 
   // PROTECTED CLASS METHODS //
   protected static void run(GrouperBenchmark bm) {
-    int   cnt   = 500;  // TODO Make this runtime configurable
+    int   cnt   = 1000;  // TODO Make this runtime configurable
     long  max   = Long.MIN_VALUE;
     long  min   = Long.MAX_VALUE;
     long  total = 0;
