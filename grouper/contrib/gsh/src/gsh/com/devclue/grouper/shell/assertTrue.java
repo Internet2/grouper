@@ -7,13 +7,12 @@
 
 package com.devclue.grouper.shell;
 import  bsh.*;
-import  java.util.*;
 
 /**
  * Assert condition for GrouperShell testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: assertTrue.java,v 1.1 2006-06-23 19:48:43 blair Exp $
+ * @version $Id: assertTrue.java,v 1.1 2006-08-22 15:56:36 blair Exp $
  * @since   0.0.1
  */
 public class assertTrue {
