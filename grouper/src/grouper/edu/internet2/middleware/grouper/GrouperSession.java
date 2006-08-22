@@ -17,9 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
-import  net.sf.ehcache.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
@@ -28,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.32 2006-08-21 19:34:05 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.33 2006-08-22 19:48:22 blair Exp $
  */
 public class GrouperSession {
 

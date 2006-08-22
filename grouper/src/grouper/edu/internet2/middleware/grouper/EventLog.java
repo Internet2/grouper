@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;
@@ -26,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.22 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: EventLog.java,v 1.23 2006-08-22 19:48:22 blair Exp $
  */
 class EventLog {
 

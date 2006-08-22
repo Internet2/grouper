@@ -14,7 +14,7 @@ import  java.util.*;
  * {@link GrouperShell} Command Reader.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CommandReader.java,v 1.1 2006-06-23 17:30:09 blair Exp $
+ * @version $Id: CommandReader.java,v 1.2 2006-08-22 19:48:22 blair Exp $
  * @since   0.0.1
  */
 class CommandReader {
@@ -34,7 +34,7 @@ class CommandReader {
   {
     if (args.length > 0) {
       String file = args[0];
-      if (file.equals("-")) {
+      if ("-".equals( file )) {
         this.in = new BufferedReader( new InputStreamReader(System.in) );
       }
       else {

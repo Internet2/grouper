@@ -16,7 +16,7 @@ import  java.util.*;
  * Get {@link Group} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getGroupAttr.java,v 1.1 2006-06-27 19:28:29 blair Exp $
+ * @version $Id: getGroupAttr.java,v 1.2 2006-08-22 19:48:22 blair Exp $
  * @since   0.0.1
  */
 public class getGroupAttr {
@@ -41,7 +41,7 @@ public class getGroupAttr {
     try {
       GrouperSession  s = GrouperShell.getSession(i);
       Group           g = GroupFinder.findByName(s, name);
-      if      (attr.equals("createSource"))     {
+      if      ("createSource".equals( attr ))     {
         return g.getCreateSource();
       }
       else if (attr.equals("createSubject"))    {

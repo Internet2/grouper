@@ -17,16 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 import  java.sql.*;
-import  java.util.*;
 import  net.sf.hibernate.*;
-import  net.sf.hibernate.type.*;
-import  org.apache.commons.lang.builder.*;
 
 /** 
  * Custom {@link CompositeType} user type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeTypeUserType.java,v 1.4 2006-06-15 04:45:58 blair Exp $    
+ * @version $Id: CompositeTypeUserType.java,v 1.5 2006-08-22 19:48:22 blair Exp $    
  * @since   1.0
  */
 public class CompositeTypeUserType implements UserType {

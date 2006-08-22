@@ -16,7 +16,7 @@ import  java.util.*;
  * Get {@link Stem} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getStemAttr.java,v 1.1 2006-06-27 19:28:29 blair Exp $
+ * @version $Id: getStemAttr.java,v 1.2 2006-08-22 19:48:22 blair Exp $
  * @since   0.0.1
  */
 public class getStemAttr {
@@ -41,7 +41,7 @@ public class getStemAttr {
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
       Stem            ns  = StemFinder.findByName(s, name);
-      if      (attr.equals("createSource"))     {
+      if      ("createSource".equals( attr ))     {
         return ns.getCreateSource();
       }
       else if (attr.equals("createSubject"))    {

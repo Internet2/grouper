@@ -16,17 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
-import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;
 
 /** 
  * Grouper API error logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ErrorLog.java,v 1.3 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: ErrorLog.java,v 1.4 2006-08-22 19:48:22 blair Exp $
  * @since   1.0
  */
 class ErrorLog {

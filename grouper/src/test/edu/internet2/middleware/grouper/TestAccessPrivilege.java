@@ -16,32 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
-
 
 /**
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestAccessPrivilege.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestAccessPrivilege.java,v 1.3 2006-08-22 19:48:22 blair Exp $
  */
 public class TestAccessPrivilege extends TestCase {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestAccessPrivilege.class);
-
-
-  // Private Class Variables
-  private static Group          a;
+  
   private static Stem           edu;
   private static Group          i2;
-  private static Member         m;
+  private static Member         m     = null;
   private static GrouperSession nrs;
   private static Stem           root;
   private static GrouperSession s;
@@ -72,8 +65,7 @@ public class TestAccessPrivilege extends TestCase {
   }
 
   protected void tearDown () {
-    LOG.debug("tearDown");
-    // Nothing 
+    LOG.debug("tearDown"); 
   }
 
   // Tests

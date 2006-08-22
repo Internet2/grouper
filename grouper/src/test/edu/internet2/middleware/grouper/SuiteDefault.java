@@ -17,16 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 import  junit.framework.*;
-import  org.apache.commons.logging.*;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.7 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.8 2006-08-22 19:48:22 blair Exp $
  */
 public class SuiteDefault extends TestCase {
-
-  private static final Log LOG = LogFactory.getLog(SuiteDefault.class);
 
   public SuiteDefault(String name) {
     super(name);

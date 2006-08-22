@@ -17,16 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 import  junit.framework.*;
-import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteSubjects.java,v 1.4 2006-08-17 15:07:42 blair Exp $
+ * @version $Id: SuiteSubjects.java,v 1.5 2006-08-22 19:48:22 blair Exp $
  * @since   1.0
  */
 public class SuiteSubjects extends TestCase {
-
-  private static final Log  LOG = LogFactory.getLog(SuiteSubjects.class); 
 
   public SuiteSubjects(String name) {
     super(name);

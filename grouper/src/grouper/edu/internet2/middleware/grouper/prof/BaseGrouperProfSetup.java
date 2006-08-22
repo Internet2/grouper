@@ -16,22 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper.prof;
-import  edu.internet2.middleware.grouper.*; 
-import  edu.internet2.middleware.subject.*; 
-import  org.apache.commons.logging.*;      
+import  edu.internet2.middleware.grouper.*;      
 
 /**
  * Base class for setting up a profiling run.
  * @author  blair christensen.
- * @version $Id: BaseGrouperProfSetup.java,v 1.1 2006-08-15 15:32:21 blair Exp $
+ * @version $Id: BaseGrouperProfSetup.java,v 1.2 2006-08-22 19:48:22 blair Exp $
  * @since   1.1.0
  */
 public class BaseGrouperProfSetup {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(BaseGrouperProfSetup.class);
-
-
   // MAIN //
   public static void main(String args[]) {
     run();

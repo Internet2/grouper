@@ -19,7 +19,6 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
-import  net.sf.hibernate.*;
 
 /** 
  * Source adapter for using Grouper groups as I2MI Subjects.
@@ -39,7 +38,7 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.15 2006-07-10 18:17:07 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.16 2006-08-22 19:48:22 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 

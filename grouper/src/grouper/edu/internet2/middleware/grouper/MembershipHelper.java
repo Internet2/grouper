@@ -16,15 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  org.apache.commons.lang.builder.*;
 
 /**
  * {@link Membership} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.6 2006-07-06 17:38:01 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.7 2006-08-22 19:48:22 blair Exp $
  */
 class MembershipHelper {
 

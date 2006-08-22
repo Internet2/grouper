@@ -18,11 +18,10 @@
 package edu.internet2.middleware.grouper;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  net.sf.hibernate.type.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.9 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.10 2006-08-22 19:48:22 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {

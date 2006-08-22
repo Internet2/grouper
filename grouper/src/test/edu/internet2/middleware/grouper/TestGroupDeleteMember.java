@@ -16,17 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  junit.framework.*;
 
 /**
  * Test {@link Group.deleteMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDeleteMember.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestGroupDeleteMember.java,v 1.3 2006-08-22 19:48:22 blair Exp $
  */
 public class TestGroupDeleteMember extends TestCase {
 

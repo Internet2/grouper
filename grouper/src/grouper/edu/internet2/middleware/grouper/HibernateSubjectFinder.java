@@ -17,15 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  org.apache.commons.lang.builder.*;
 
 /*
  * Find {@link HibernateSubject}s.
  * @author  blair christensen.
- * @version $Id: HibernateSubjectFinder.java,v 1.3 2006-06-15 03:53:01 blair Exp $
+ * @version $Id: HibernateSubjectFinder.java,v 1.4 2006-08-22 19:48:22 blair Exp $
  * @since   1.0
  */
 class HibernateSubjectFinder {

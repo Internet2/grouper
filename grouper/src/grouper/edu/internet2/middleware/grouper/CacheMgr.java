@@ -19,13 +19,12 @@ package edu.internet2.middleware.grouper;
 import  java.io.*;
 import  java.util.*;
 import  net.sf.ehcache.*;
-import  org.apache.commons.lang.builder.*;
 
 /** 
  * Grouper Cache Manager
  * <p/>
  * @author  blair christensen.
- * @version $Id: CacheMgr.java,v 1.9 2006-07-03 18:29:06 blair Exp $
+ * @version $Id: CacheMgr.java,v 1.10 2006-08-22 19:48:22 blair Exp $
  */
 class CacheMgr {
 

@@ -17,14 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * A {@link PrivilegeCache} element.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCacheElement.java,v 1.2 2006-08-21 19:20:09 blair Exp $
+ * @version $Id: PrivilegeCacheElement.java,v 1.3 2006-08-22 19:48:22 blair Exp $
  * @since   1.1.0
  */
 public class PrivilegeCacheElement {
@@ -54,6 +53,7 @@ public class PrivilegeCacheElement {
   public PrivilegeCacheElement(Owner o, Subject subj, Privilege p) { 
     this.isCached     = true; // TODO ???
     this.ownerUuid    = o.getUuid();
+    this.priv         = p.getName();
     this.subjectId    = subj.getId();
     this.subjectSrc   = subj.getSource().getId();
     this.subjectType  = subj.getType().getName();
@@ -92,6 +92,20 @@ public class PrivilegeCacheElement {
   /**
    * @since   1.1.0
    */
+  public String getOwnerUuid() {
+    return this.ownerUuid;
+  } // public String getOwnerUuid()
+  
+  /**
+   * @since   1.1.0
+   */
+   public String getPrivilege() {
+     return this.priv;
+   } // public String getPrivilege()
+   
+  /**
+   * @since   1.1.0
+   */
   public String getSubjectId() {
     return this.subjectId;
   } // public String getSubjectId()
@@ -121,15 +135,9 @@ public class PrivilegeCacheElement {
       .append("subjectId"     , this.getSubjectId()     )
       .append("subjectSource" , this.getSubjectSource() )
       .append("subjectType"   , this.getSubjectType()   )
+      .append("privilege"     , this.getPrivilege()     )
       .toString();
   } // public String toString()
-
-  /**
-   * @since   1.1.0
-   */
-  public String getOwnerUuid() {
-    return this.ownerUuid;
-  } // public String getOwnerUuid()
 
 
   // PROTECTED INSTANCE METHODS //

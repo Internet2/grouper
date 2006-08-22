@@ -16,18 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.sql.*;
-import  java.util.*;
 import  net.sf.hibernate.*;
-import  net.sf.hibernate.type.*;
-
 
 /** 
  * Custom {@link MembershipType} user type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipUserType.java,v 1.1 2006-06-16 17:30:01 blair Exp $    
+ * @version $Id: MembershipUserType.java,v 1.2 2006-08-22 19:48:22 blair Exp $    
  */
 public class MembershipUserType implements UserType {
 
