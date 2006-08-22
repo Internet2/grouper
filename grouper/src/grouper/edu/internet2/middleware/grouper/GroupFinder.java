@@ -25,7 +25,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.22 2006-08-17 18:58:41 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.23 2006-08-22 18:58:10 blair Exp $
  */
 public class GroupFinder {
 
@@ -118,7 +118,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage(), eH
       );  
     }
-    return PrivilegeResolver.canVIEW(s, new LinkedHashSet(groups));
+    return PrivilegeResolver.canViewGroups(s, new LinkedHashSet(groups));
   } // protected static Set findByCreatedAfter(s, d)
 
   // @return  groups created before this date
@@ -149,7 +149,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage(), eH
       );  
     }
-    return PrivilegeResolver.canVIEW(s, new LinkedHashSet(groups));
+    return PrivilegeResolver.canViewGroups(s, new LinkedHashSet(groups));
   } // protected static Set findByCreatedBefore(s, d)
 
   protected static Set findByAnyApproximateAttr(GrouperSession s, String val) 
@@ -179,7 +179,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage(), eH
       );
     }
-    return PrivilegeResolver.canVIEW(s, groups);
+    return PrivilegeResolver.canViewGroups(s, groups);
   } // protected static Set findByAnyApproximateAttr(s, val)
 
   protected static Set findByApproximateAttr(GrouperSession s, String attr, String val) 
@@ -211,7 +211,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage(), eH
       );
     }
-    return PrivilegeResolver.canVIEW(s, groups);
+    return PrivilegeResolver.canViewGroups(s, groups);
   } // protected static Set findByApproximateAttr(s, attr, val)
 
   protected static Set findByApproximateName(GrouperSession s, String name) 
@@ -245,7 +245,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage(), eH
       );
     }
-    return PrivilegeResolver.canVIEW(s, groups);
+    return PrivilegeResolver.canViewGroups(s, groups);
   } // protected static Set findByApproximateName(s, name)
 
   // @return  groups modifed after this date
@@ -277,7 +277,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage(), eH
       );  
     }
-    return PrivilegeResolver.canVIEW(s, new LinkedHashSet(groups));
+    return PrivilegeResolver.canViewGroups(s, new LinkedHashSet(groups));
   } // protected static Set findByModifiedAfter(s, d)
 
   // @return  groups modifed before this date
@@ -309,7 +309,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage(), eH
       );  
     }
-    return PrivilegeResolver.canVIEW(s, new LinkedHashSet(groups));
+    return PrivilegeResolver.canViewGroups(s, new LinkedHashSet(groups));
   } // protected static Set findByModifiedBefore(s, d)
 
   // Needs _protected_ access so that _Stem.addChildGroup()_ can check

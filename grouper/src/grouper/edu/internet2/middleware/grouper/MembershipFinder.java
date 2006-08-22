@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.42 2006-08-17 18:50:41 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.43 2006-08-22 18:58:10 blair Exp $
  */
 public class MembershipFinder {
 
@@ -341,7 +341,7 @@ public class MembershipFinder {
       qry.setString("msid", ms.getId());
       List    l   = qry.list();
       hs.close();
-      mships.addAll( _filterMemberships(s, ms.getList(), l) );
+      mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
     }
     catch (HibernateException eH) {
       ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
@@ -416,7 +416,7 @@ public class MembershipFinder {
       qry.setString("type"  , MembershipType.E.toString() );
       List    l   = qry.list();
       hs.close();
-      mships.addAll( _filterMemberships(s, f, l) );
+      mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
     }
     catch (HibernateException eH) {
       ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
@@ -486,7 +486,7 @@ public class MembershipFinder {
       qry.setString(  "type"  , MembershipType.I.toString() );
       List    l   = qry.list();
       hs.close();
-      mships.addAll( _filterMemberships(s, f, l) );
+      mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
     }
     catch (HibernateException eH) {
       ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
@@ -602,7 +602,7 @@ public class MembershipFinder {
         }
       }
       else {
-        mships.addAll( _filterMemberships(s, f, l) );
+        mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
       }
     }
     catch (HibernateException eH) {
@@ -614,7 +614,7 @@ public class MembershipFinder {
   protected static Set findMemberships(GrouperSession s, Owner o, Field f) {
      // @filtered true
      // @session  true
-    return new LinkedHashSet( _filterMemberships( s, f, findMembershipsNoPriv(s, o, f) ) );
+    return new LinkedHashSet( PrivilegeResolver.canViewMemberships( s, findMembershipsNoPriv(s, o, f) ) );
   } // protected static Set findMemberships(s, o, f)
 
   // @since 1.0.1
@@ -735,7 +735,7 @@ public class MembershipFinder {
       qry.setString(    "type"  , type.toString()         );
       List    l   = qry.list();
       hs.close();
-      mships.addAll( _filterMemberships(s, f, l) );
+      mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
     }
     catch (HibernateException eH) {
       ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
@@ -773,40 +773,6 @@ public class MembershipFinder {
     }
     return mships;
   } // protected static Membership findMembershipsNoPrivsNoSession(o, m, f)
-
-
-  // PRIVATE CLASS METHODS //
-  private static Set _filterMemberships(GrouperSession s, Field f, Collection c) {
-    GrouperSession.validate(s);
-    Set         mships  = new LinkedHashSet();
-    Membership  ms;
-    Iterator    iter    = c.iterator();
-    while (iter.hasNext()) {
-      ms = (Membership) iter.next();
-      ms.setSession(s);
-      try {
-        if (f.getType().equals(FieldType.NAMING)) {
-          PrivilegeResolver.canPrivDispatch(
-            s, ms.getStem(), s.getSubject(), f.getReadPriv()
-          );
-        }
-        else {
-          PrivilegeResolver.canPrivDispatch(
-            s, ms.getGroup(), s.getSubject(), f.getReadPriv()
-          );
-        }
-        mships.add(ms);
-      }
-      catch (Exception e) {
-        // @exception GroupNotFoundException
-        // @exception InsufficientPrivilegeException
-        // @exception SchemaException
-        // @exception StemNotFoundException
-        // ignore
-      }
-    }
-    return mships;
-  } // private static Set _filterMemberships(s, f, c)
 
 } // public class MembershipFinder
 

@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.63 2006-08-21 19:34:05 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.64 2006-08-22 18:58:10 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -185,22 +185,6 @@ import  java.util.*;
   } // protected static boolean canUPDATE(s, g, subj)
 
   // @since   1.1.0
-  protected static Set canVIEW(GrouperSession s, Set candidates) {
-    Set             groups  = new LinkedHashSet();
-    Group           g;
-    Iterator        iter    = candidates.iterator();
-    while (iter.hasNext()) {
-      g = (Group) iter.next();
-      g.setSession(s);
-      // Can we view the group
-      if (canVIEW(s, g, s.getSubject())) {
-        groups.add(g);
-      }
-    }
-    return groups;
-  } // protected static Set canVIEW(s, candidates)
-
-  // @since   1.1.0
   protected static boolean canVIEW(GrouperSession s, Group g, Subject subj) {
     if (
       PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.VIEW)  
@@ -221,6 +205,50 @@ import  java.util.*;
     return false; 
   } // protected static boolean canVIEW(s, g, subj)
 
+  // @since   1.1.0
+  protected static Set canViewGroups(GrouperSession s, Set candidates) {
+    Set             groups  = new LinkedHashSet();
+    Group           g;
+    Iterator        iter    = candidates.iterator();
+    while (iter.hasNext()) {
+      g = (Group) iter.next();
+      g.setSession(s);
+      // Can we view the group
+      if (canVIEW(s, g, s.getSubject())) {
+        groups.add(g);
+      }
+    }
+    return groups;
+  } // protected static Set canViewGroups(s, candidates)
+
+  // @since   1.1.0
+  protected static Set canViewMemberships(GrouperSession s, Collection c) {
+    GrouperSession.validate(s);
+    Set         mships  = new LinkedHashSet();
+    Membership  ms;
+    Iterator    iter    = c.iterator();
+    while (iter.hasNext()) {
+      ms = (Membership) iter.next();
+      ms.setSession(s);
+      try {
+        if (FieldType.ACCESS.equals(ms.getList().getType())) {
+          canPrivDispatch(
+            s, ms.getGroup(), s.getSubject(), ms.getList().getReadPriv()
+          );
+        }
+        mships.add(ms);
+      }
+      catch (Exception e) {
+        // @exception GroupNotFoundException
+        // @exception InsufficientPrivilegeException
+        // @exception SchemaException
+        // @exception StemNotFoundException
+        // ignore
+      }
+    }
+    return mships;
+  } // protected static Set canViewMemberships(s, c)
+  
   // If the subject being added is a group, verify that we can VIEW it
   // @since   1.1.0
   protected static Member canViewSubject(GrouperSession s, Subject subj)
