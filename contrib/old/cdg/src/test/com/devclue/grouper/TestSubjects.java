@@ -20,7 +20,7 @@ import  junit.framework.*;
  * Test <i>com.devclue.grouper.subject.*</i> classes.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjects.java,v 1.1 2006-06-23 17:30:12 blair Exp $
+ * @version $Id: TestSubjects.java,v 1.2 2006-08-22 19:48:23 blair Exp $
  */
 public class TestSubjects extends TestCase {
 
@@ -208,7 +208,7 @@ public class TestSubjects extends TestCase {
       Assert.assertTrue("ms desc == id", ms.getDescription().equals("id"));
       Assert.assertTrue("ms name == id", ms.getName().equals("id"));
       Assert.assertTrue(
-        "ms source == this", ms.getSource() == msa
+        "ms source == this", ms.getSource().equals( msa )
       );
       Assert.assertTrue(
         "ms type == person", ms.getType().getName().equals("person")

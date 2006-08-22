@@ -16,13 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.regex.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AttributeValidator.java,v 1.5 2006-06-19 16:21:52 blair Exp $
+ * @version $Id: AttributeValidator.java,v 1.6 2006-08-22 19:48:22 blair Exp $
  */
 class AttributeValidator {
 

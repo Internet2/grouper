@@ -18,7 +18,7 @@ import  java.util.*;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.8 2006-08-08 17:56:10 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.9 2006-08-22 19:48:22 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -205,7 +205,7 @@ public class GrouperShell {
     if (
                 (obj != null)
             &&  (obj instanceof Boolean)
-            &&  (obj.equals(Boolean.TRUE))
+            &&  (Boolean.TRUE.equals( obj ))
          )
       {
         rv = true;

@@ -17,16 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.47 2006-08-18 12:36:04 blair Exp $
+ * @version $Id: Membership.java,v 1.48 2006-08-22 19:48:22 blair Exp $
  */
 public class Membership {
 

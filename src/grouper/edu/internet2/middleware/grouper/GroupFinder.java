@@ -18,14 +18,12 @@
 package edu.internet2.middleware.grouper;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  net.sf.hibernate.type.*;
-
 
 /**
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.23 2006-08-22 18:58:10 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.24 2006-08-22 19:48:22 blair Exp $
  */
 public class GroupFinder {
 

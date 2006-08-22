@@ -17,11 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.13 2006-08-17 18:28:06 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.14 2006-08-22 19:48:22 blair Exp $
  * @since   1.0
  */
 class GroupValidator {

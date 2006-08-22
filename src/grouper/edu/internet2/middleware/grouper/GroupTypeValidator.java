@@ -16,15 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
 
 /** 
  * Validation methods that apply to {@link GroupType}s.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeValidator.java,v 1.2 2006-08-17 16:45:31 blair Exp $
+ * @version $Id: GroupTypeValidator.java,v 1.3 2006-08-22 19:48:22 blair Exp $
  * @since   1.1.0
  */
 class GroupTypeValidator {

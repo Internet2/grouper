@@ -16,19 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.sql.*;
-import  java.util.*;
 import  net.sf.hibernate.*;
-import  net.sf.hibernate.type.*;
-import  org.apache.commons.lang.builder.*;
-
 
 /** 
  * Custom {@link FieldType} user type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldTypeUserType.java,v 1.5 2006-06-15 04:45:58 blair Exp $    
+ * @version $Id: FieldTypeUserType.java,v 1.6 2006-08-22 19:48:22 blair Exp $    
  */
 public class FieldTypeUserType implements UserType {
 

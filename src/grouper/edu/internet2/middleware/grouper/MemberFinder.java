@@ -19,13 +19,12 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  net.sf.hibernate.type.*;
 
 /**
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.18 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.19 2006-08-22 19:48:22 blair Exp $
  */
 public class MemberFinder {
 

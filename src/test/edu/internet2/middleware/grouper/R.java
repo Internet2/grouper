@@ -16,19 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
-import  junit.framework.*;
-import  net.sf.hibernate.*;
 import  org.apache.commons.logging.*;
-
 
 /**
  * @author  blair christensen.
- * @version $Id: R.java,v 1.4 2006-06-13 19:29:37 blair Exp $
+ * @version $Id: R.java,v 1.5 2006-08-22 19:48:22 blair Exp $
  */
 class R {
 
@@ -42,7 +36,6 @@ class R {
 
   // Private Instance Variables //
   private   Map             groups    = new HashMap();
-  private   Map             members   = new HashMap();
   private   Map             stems     = new HashMap();
   private   Map             subjects  = new HashMap();
 

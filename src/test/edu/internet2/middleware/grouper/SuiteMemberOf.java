@@ -16,19 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  junit.framework.*;
-import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberOf.java,v 1.2 2006-07-20 00:16:36 blair Exp $
+ * @version $Id: SuiteMemberOf.java,v 1.3 2006-08-22 19:48:22 blair Exp $
  */
 public class SuiteMemberOf extends TestCase {
-
-  // Private Class Constants
-  private static final Log  LOG = LogFactory.getLog(SuiteMemberOf.class); 
-
+  
   public SuiteMemberOf(String name) {
     super(name);
   } // public SuiteMemberOf(name)

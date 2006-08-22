@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * A group attribute within the Groups registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.10 2006-06-19 16:21:52 blair Exp $
+ * @version $Id: Attribute.java,v 1.11 2006-08-22 19:48:22 blair Exp $
  */
 class Attribute {
 
@@ -60,7 +60,7 @@ class Attribute {
   }
 
   public boolean equals(Object other) {
-    if ( (this == other ) ) return true;
+    if ( (this.equals( other ) ) ) return true;
     if ( !(other instanceof Attribute) ) return false;
     Attribute castOther = (Attribute) other;
     return new EqualsBuilder()

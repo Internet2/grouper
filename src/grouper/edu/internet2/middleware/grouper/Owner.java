@@ -16,16 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  net.sf.hibernate.*;
-import  org.apache.commons.lang.time.*;
-import  org.apache.commons.lang.builder.*;
 
 /** 
  * An object that can have memberships assigned to it.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.14 2006-07-10 18:17:07 blair Exp $
+ * @version $Id: Owner.java,v 1.15 2006-08-22 19:48:22 blair Exp $
  * @since   1.0
  */
 public abstract class Owner {

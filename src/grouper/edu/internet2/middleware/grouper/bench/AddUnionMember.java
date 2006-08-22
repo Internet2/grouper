@@ -17,20 +17,15 @@
 
 package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*; 
-import  edu.internet2.middleware.subject.*; 
-import  org.apache.commons.logging.*;      
+import  edu.internet2.middleware.subject.*;      
 
 /**
  * Benchmark adding a union {@link Composite} {@link Membership}.
  * @author  blair christensen.
- * @version $Id: AddUnionMember.java,v 1.1 2006-08-15 15:32:21 blair Exp $
+ * @version $Id: AddUnionMember.java,v 1.2 2006-08-22 19:48:22 blair Exp $
  * @since   1.1.0
  */
 public class AddUnionMember extends BaseGrouperBenchmark {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(AddUnionMember.class);
-
 
   // PRIVATE INSTANCE VARIABLES
   Group   g0, g1, g2;

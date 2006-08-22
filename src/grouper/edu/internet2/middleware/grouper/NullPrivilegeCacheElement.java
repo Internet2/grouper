@@ -17,14 +17,12 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  org.apache.commons.lang.builder.*;
 
 /** 
  * A null {@link PrivilegeCache} element.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NullPrivilegeCacheElement.java,v 1.1 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: NullPrivilegeCacheElement.java,v 1.2 2006-08-22 19:48:22 blair Exp $
  * @since   1.1.0
  */
 public class NullPrivilegeCacheElement extends PrivilegeCacheElement {
