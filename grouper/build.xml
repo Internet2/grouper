@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.115 2006-08-15 15:32:21 blair Exp $ -->
+<!-- $Id: build.xml,v 1.116 2006-08-22 17:37:04 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -76,6 +76,22 @@
     />
   </target>
   <!-- bench-run -->
+
+  <!-- bench-run-shark -->
+  <target name="bench-run-shark" 
+          description="Runs the benchmark specified with -Dname=NAME and enables Shark profiling"
+          depends="build, ensure-name"
+  >
+    <java fork="true"
+          maxmemory="${max.memory}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.bench.${name}"
+          failonerror="true"
+    >
+      <jvmarg value="-XrunShark"/>
+    </java>
+  </target>
+  <!-- bench-run-shark -->
 
   <!-- bench-run-prof -->
   <target name="bench-run-prof" 
