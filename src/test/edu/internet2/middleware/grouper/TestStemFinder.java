@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemFinder.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestStemFinder.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestStemFinder extends TestCase {
 
@@ -49,7 +49,7 @@ public class TestStemFinder extends TestCase {
 
   public void testFindRootStem() {
     LOG.info("testFindRootStem");
-    Stem  root  = StemHelper.findRootStem(
+    StemHelper.findRootStem(
       SessionHelper.getRootSession()
     );
   } // public void testFindRootStem()

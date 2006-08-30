@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;       // For logging
 /**
  * Example: Find the root {@link Stem} in the Groups Registry.
  * @author  blair christensen.
- * @version $Id: FindRootStem.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: FindRootStem.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  * @since   1.1.0
  */
 public class FindRootStem {
@@ -41,7 +41,7 @@ public class FindRootStem {
         )
       );
 
-      Stem root = StemFinder.findRootStem(s);
+      StemFinder.findRootStem(s);
       LOG.info("Found root stem");
 
       s.stop();

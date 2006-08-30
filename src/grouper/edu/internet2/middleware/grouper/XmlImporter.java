@@ -34,7 +34,7 @@ import  org.w3c.dom.*;
  * <p/>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.9 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.10 2006-08-30 19:31:02 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -654,7 +654,6 @@ public class XmlImporter {
     throws  Exception 
   {
     NodeList    nl        = element.getElementsByTagName(elementName);
-    Collection  elements  = new Vector();
     if (nl.getLength() < 1) {
       return null;
     }

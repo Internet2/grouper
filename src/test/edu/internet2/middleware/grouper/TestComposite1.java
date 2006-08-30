@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestComposite1.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestComposite1.java,v 1.3 2006-08-30 19:31:02 blair Exp $
  */
 public class TestComposite1 extends TestCase {
 
@@ -70,7 +70,7 @@ public class TestComposite1 extends TestCase {
       }
       // gC
       try {
-        Composite c = CompositeFinder.findAsOwner(gC);
+        CompositeFinder.findAsOwner(gC);
         Assert.fail("FAIL: found composite for gC");
       }
       catch (CompositeNotFoundException eCNF) {

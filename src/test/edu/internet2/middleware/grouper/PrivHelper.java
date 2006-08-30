@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class PrivHelper {
 
@@ -131,7 +131,6 @@ public class PrivHelper {
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
   {
-    String msg = subj.getName() + " has " + priv + " on  " + g.getName();
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       g.grantPriv(subj, priv);  
@@ -148,7 +147,7 @@ public class PrivHelper {
   {
     try {
       LOG.debug("grantPrivFail.0 " + priv.getName());
-      Member m = MemberFinder.findBySubject(s, subj);
+      MemberFinder.findBySubject(s, subj);
       LOG.debug("grantPrivFail.1 " + priv.getName());
       try {
         g.grantPriv(subj, priv);  
@@ -182,7 +181,6 @@ public class PrivHelper {
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
   {
-    String msg = subj.getName() + " has " + priv + " on  " + ns.getName();
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       ns.grantPriv(subj, priv);  
@@ -385,9 +383,8 @@ public class PrivHelper {
   )
   {
     LOG.debug("revokePrivFail.0");
-    String msg = subj.getName() + " does not have " + priv + " on  " + g.getName();
     try {
-      Member m = MemberFinder.findBySubject(s, subj);
+      MemberFinder.findBySubject(s, subj);
       LOG.debug("revokePrivFail.1");
       g.revokePriv(subj, priv);  
       LOG.debug("revokePrivFail.2");
@@ -418,9 +415,8 @@ public class PrivHelper {
   )
   {
     LOG.debug("revokePrivFail.0");
-    String msg = subj.getName() + " does not have " + priv + " on  " + ns.getName();
     try {
-      Member m = MemberFinder.findBySubject(s, subj);
+      MemberFinder.findBySubject(s, subj);
       LOG.debug("revokePrivFail.1");
       ns.revokePriv(subj, priv);  
       LOG.debug("revokePrivFail.2");

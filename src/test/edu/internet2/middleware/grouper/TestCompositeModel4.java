@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel4.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestCompositeModel4.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  */
 public class TestCompositeModel4 extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestCompositeModel4 extends TestCase {
     LOG.info("testFailLeftEqualsRight");
     try {
       R r = R.populateRegistry(1, 2, 0);
-      Composite c = new Composite(
+      new Composite(
         r.rs, r.ns, r.getGroup("a", "a"), r.getGroup("a", "a"), null
       );
       r.rs.stop();

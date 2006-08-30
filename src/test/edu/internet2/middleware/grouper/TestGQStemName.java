@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test {@link StemNameAnyFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQStemName.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestGQStemName.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestGQStemName extends TestCase {
 
@@ -47,7 +47,7 @@ public class TestGQStemName extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -64,17 +64,13 @@ public class TestGQStemName extends TestCase {
   } // public void testStemNameAnyFilterNothing()
 
   public void testStemNameAnyFilterSomethingDisplayExtension() {
-  try {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
-    GrouperQuery q = GrouperQuery.createQuery(
-      s, new StemNameAnyFilter("education", root)
-    );
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -88,10 +84,6 @@ public class TestGQStemName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  }
-  catch (QueryException e) {
-    throw new RuntimeException("FUCK! " + e.getMessage());
-  }
   } // public void testStemNameAnyFilterSomethingDisplayExtension()
 
   public void testStemNameAnyFilterSomethingDisplayName() {
@@ -101,7 +93,7 @@ public class TestGQStemName extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -124,7 +116,7 @@ public class TestGQStemName extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -147,7 +139,7 @@ public class TestGQStemName extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -170,7 +162,7 @@ public class TestGQStemName extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -193,7 +185,7 @@ public class TestGQStemName extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -216,7 +208,7 @@ public class TestGQStemName extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -239,7 +231,7 @@ public class TestGQStemName extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(

@@ -24,15 +24,13 @@ import  org.apache.commons.logging.*;
  * Test use of the CREATE {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivCREATE.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestPrivCREATE.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestPrivCREATE extends TestCase {
 
   // Private Class Constants
   private static final Log        LOG   = LogFactory.getLog(TestPrivCREATE.class); 
-  private static final Privilege  PRIV  = NamingPrivilege.CREATE;
-
-
+  
   // Private Class Variables
   private static Stem           a;
   private static Stem           edu;

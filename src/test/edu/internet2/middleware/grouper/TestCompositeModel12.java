@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel12.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestCompositeModel12.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  */
 public class TestCompositeModel12 extends TestCase {
 
@@ -49,7 +49,7 @@ public class TestCompositeModel12 extends TestCase {
         r.rs, r.ns, r.getGroup("a", "a"), r.getGroup("a", "b"), CompositeType.UNION
       );
       try {
-        Composite c1 = new Composite(
+        new Composite(
         r.rs, c0, r.getGroup("a", "a"), r.getGroup("a", "b"), CompositeType.UNION
         );
         Assert.fail("created composite with composite as owner");

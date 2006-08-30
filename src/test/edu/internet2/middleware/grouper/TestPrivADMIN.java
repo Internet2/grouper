@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.4 2006-08-30 18:35:37 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -524,7 +524,6 @@ public class TestPrivADMIN extends TestCase {
     LOG.info("testRenameGroupWithADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
     a = GroupHelper.findByName(nrs, i2.getName());
-    String  orig  = a.getExtension();
     String  val   = "foo";
     try {
       a.setExtension(val);
@@ -534,7 +533,6 @@ public class TestPrivADMIN extends TestCase {
     catch (Exception e) {
       Assert.fail("failed to set extension");
     } 
-    orig = a.getDisplayExtension();
     try {
       a.setDisplayExtension("foo");
       Assert.assertTrue("set displayExtension", true);
@@ -549,7 +547,6 @@ public class TestPrivADMIN extends TestCase {
     LOG.info("testRenameGroupWithAllADMIN");
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     a = GroupHelper.findByName(nrs, i2.getName());
-    String  orig  = a.getExtension();
     String  val   = "foo";
     try {
       a.setExtension("foo");
@@ -559,7 +556,6 @@ public class TestPrivADMIN extends TestCase {
     catch (Exception e) {
       Assert.fail("failed to set extension");
     } 
-    orig = a.getDisplayExtension();
     try {
       a.setDisplayExtension("foo");
       Assert.assertTrue("set displayExtension", true);

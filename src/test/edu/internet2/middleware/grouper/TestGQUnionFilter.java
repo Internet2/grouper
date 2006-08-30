@@ -23,7 +23,7 @@ import  junit.framework.*;
  * Test {@link UnionFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQUnionFilter.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestGQUnionFilter.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestGQUnionFilter extends TestCase {
 
@@ -48,7 +48,7 @@ public class TestGQUnionFilter extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -75,7 +75,7 @@ public class TestGQUnionFilter extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -104,7 +104,7 @@ public class TestGQUnionFilter extends TestCase {
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     GroupHelper.addMember(i2, uofc);
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
         s, 

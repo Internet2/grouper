@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test {@link SubjectFinder.findAll()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdSearch.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestSuFiGrSoAdSearch.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestSuFiGrSoAdSearch extends TestCase {
 
@@ -59,10 +59,10 @@ public class TestSuFiGrSoAdSearch extends TestCase {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    StemHelper.addChildGroup(edu, "i2", "internet2");
+    StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "dc", "devclue");
+    StemHelper.addChildGroup(com, "dc", "devclue");
     Set             subjs = SubjectFinder.findAll("educational");
     Assert.assertTrue("subjs == 2", subjs.size() == 2);
   } // public void testSearchGood()

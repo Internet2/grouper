@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;       // For logging
  * Example: Find the Groups Registry's <i>root</i> {@link Subject}:
  * <i>GrouperSystem</i>.
  * @author  blair christensen.
- * @version $Id: FindGrouperSystem.java,v 1.3 2006-08-14 15:31:19 blair Exp $
+ * @version $Id: FindGrouperSystem.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  * @since   1.1.0
  */
 public class FindGrouperSystem {
@@ -43,7 +43,7 @@ public class FindGrouperSystem {
       String  subjectType = "application";
       // ... and that can be found within this *source*
       String  source      = InternalSourceAdapter.ID;
-      Subject subj        = SubjectFinder.findById(
+      SubjectFinder.findById(
         subjectId, subjectType, source
       );
       LOG.info("Found GrouperSystem");

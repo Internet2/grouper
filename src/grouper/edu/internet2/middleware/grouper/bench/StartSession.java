@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark starting a {@link GrouperSession}.
  * @author  blair christensen.
- * @version $Id: StartSession.java,v 1.3 2006-08-30 14:07:42 blair Exp $
+ * @version $Id: StartSession.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  * @since   1.1.0
  */
 public class StartSession extends BaseGrouperBenchmark {
@@ -70,7 +70,7 @@ public class StartSession extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      GrouperSession s = GrouperSession.start(this.subj);
+      GrouperSession.start(this.subj);
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e);

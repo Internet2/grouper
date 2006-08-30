@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
 /**
  * Test {@link SubjectFinder.findByIdentifier()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdFindByIdfr.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestSuFiInSoAdFindByIdfr.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestSuFiInSoAdFindByIdfr extends TestCase {
 
@@ -52,24 +51,24 @@ public class TestSuFiInSoAdFindByIdfr extends TestCase {
   } // public void testFindByIdentifierGoodIdBadType()
 
   public void testFindByIdentifierGoodIdAll() {
-    Subject subj = SubjectTestHelper.getSubjectByIdentifier(SubjectTestHelper.SUBJ_ROOT);
+    SubjectTestHelper.getSubjectByIdentifier(SubjectTestHelper.SUBJ_ROOT);
     Assert.assertTrue("found all subject", true);
   } // public void testFindByIdentifierGoodIdAll()
 
   public void testFindByIdentifierGoodIdGoodTypeAll() {
-    Subject subj = SubjectTestHelper.getSubjectByIdentifierType(
+    SubjectTestHelper.getSubjectByIdentifierType(
       SubjectTestHelper.SUBJ_ALL, "application"
     );
     Assert.assertTrue("found all subject", true);
   } // public void testFindByIdentifierGoodIdGoodTypeAll()
 
   public void testFindByIdentifierGoodIdRoot() {
-    Subject subj = SubjectTestHelper.getSubjectByIdentifier(SubjectTestHelper.SUBJ_ROOT);
+    SubjectTestHelper.getSubjectByIdentifier(SubjectTestHelper.SUBJ_ROOT);
     Assert.assertTrue("found root subject", true);
   } // public void testFindByIdentifierGoodIdRoot()
 
   public void testFindByIdentifierGoodIdGoodTypeRoot() {
-    Subject subj = SubjectTestHelper.getSubjectByIdentifierType(
+    SubjectTestHelper.getSubjectByIdentifierType(
       SubjectTestHelper.SUBJ_ROOT, "application"
     );
     Assert.assertTrue("found root subject", true);

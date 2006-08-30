@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject3.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestSubject3.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestSubject3 extends TestCase {
 
@@ -46,7 +46,7 @@ public class TestSubject3 extends TestCase {
     LOG.info("testGetSource");
     try {
       String  id  = "no such source";
-      Source  sa  = SubjectFinder.getSource(id);
+      SubjectFinder.getSource(id);
       Assert.fail("found invalid source: " + id);
     }
     catch (SourceUnavailableException eSU) {

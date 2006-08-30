@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestPrivSTEM extends TestCase {
 
@@ -67,8 +67,6 @@ public class TestPrivSTEM extends TestCase {
   // Grant CREATE without STEM 
   public void testGrantCreateFail() {
     LOG.info("testGranteCreateFail");
-    // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     // Now get root as !root subject 
     Stem            nrroot  = StemHelper.findRootStem(nrs);
@@ -96,8 +94,6 @@ public class TestPrivSTEM extends TestCase {
   // Grant STEM without STEM 
   public void testGrantStemFail() {
     LOG.info("testGrantStemFail");
-    // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     // Now get root as !root subject 
     Stem            nrroot  = StemHelper.findRootStem(nrs);
@@ -127,7 +123,6 @@ public class TestPrivSTEM extends TestCase {
     LOG.info("testRevokeAllCreateFail");
     // Get root and !root sessions
     LOG.debug("testRevokeAllCreateFail.0");
-    GrouperSession  s       = SessionHelper.getRootSession();
     LOG.debug("testRevokeAllCreateFail.1");
     GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     LOG.info("testRevokeAllCreateFail.2");
@@ -163,8 +158,6 @@ public class TestPrivSTEM extends TestCase {
   // Revoke all STEM without STEM 
   public void testRevokeAllStemFail() {
     LOG.info("testRevokeAllStemFail");
-    // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     // Now get root as !root subject 
     Stem            nrroot  = StemHelper.findRootStem(nrs);
@@ -196,8 +189,6 @@ public class TestPrivSTEM extends TestCase {
   // Revoke CREATE without STEM 
   public void testRevokeCreateFail() {
     LOG.info("testRevokeCreateFail");
-    // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     // Now get root as !root subject 
     Stem            nrroot  = StemHelper.findRootStem(nrs);
@@ -229,8 +220,7 @@ public class TestPrivSTEM extends TestCase {
   // Revoke STEM without STEM 
   public void testRevokeStemFail() {
     LOG.info("testRevokeStemFail");
-    // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
+    // Get !root session
     GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     // Now get root as !root subject 
     Stem            nrroot  = StemHelper.findRootStem(nrs);
@@ -266,7 +256,7 @@ public class TestPrivSTEM extends TestCase {
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     // Get root stem and grant STEM on it to !root subject
-    Stem            root    = StemHelper.findRootStem(s);
+    StemHelper.findRootStem(s);
     // Now get root as !root subject 
     Stem            nrroot  = StemHelper.findRootStem(nrs);
     // Fail to add child stem
@@ -293,11 +283,7 @@ public class TestPrivSTEM extends TestCase {
   // Modify stem attrs without STEM
   public void testModifyAttrsFail() {
     LOG.info("testModifyAttrsFail");
-    // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-    // Get root stem and grant STEM on it to !root subject
-    Stem            root    = StemHelper.findRootStem(s);
     // Now get root as !root subject 
     Stem            nrroot  = StemHelper.findRootStem(nrs);
     // Now fail to modify stem attrs

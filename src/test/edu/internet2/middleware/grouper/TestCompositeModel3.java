@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel3.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestCompositeModel3.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  */
 public class TestCompositeModel3 extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestCompositeModel3 extends TestCase {
     LOG.info("testFailNullRight");
     try {
       R r = R.populateRegistry(1, 2, 0);
-      Composite c = new Composite(r.rs, r.ns, r.getGroup("a", "a"), null, null);
+      new Composite(r.rs, r.ns, r.getGroup("a", "a"), null, null);
       r.rs.stop();
       Assert.fail("created composite with null right");
     }

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeI14.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestCompositeI14.java,v 1.3 2006-08-30 19:31:02 blair Exp $
  */
 public class TestCompositeI14 extends TestCase {
 
@@ -52,7 +52,6 @@ public class TestCompositeI14 extends TestCase {
       Group   d     = r.getGroup("a", "d");
       Subject subjA = r.getSubject("a");
       Subject subjB = r.getSubject("b");
-      Field   f     = Group.getDefaultList();
       b.addMember(subjA);
       c.addMember(subjB);
       a.addCompositeMember(CompositeType.INTERSECTION, b, c);

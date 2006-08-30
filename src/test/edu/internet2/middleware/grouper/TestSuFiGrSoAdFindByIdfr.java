@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestSuFiGrSoAdFindByIdfr extends TestCase {
 
@@ -72,7 +72,7 @@ public class TestSuFiGrSoAdFindByIdfr extends TestCase {
 
   public void testFindByIdentifierGoodId() {
     LOG.info("testFindByIdentifierGoodId");
-    Subject subj = SubjectTestHelper.getSubjectByIdentifier(i2.getName());
+    SubjectTestHelper.getSubjectByIdentifier(i2.getName());
     Assert.assertTrue("found subject", true);
   } // public void testFindByIdentifierGoodId()
 
