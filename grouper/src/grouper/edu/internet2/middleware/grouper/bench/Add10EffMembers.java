@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding 10 effective {@link Membership}s.
  * @author  blair christensen.
- * @version $Id: Add10EffMembers.java,v 1.1 2006-08-30 14:07:42 blair Exp $
+ * @version $Id: Add10EffMembers.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class Add10EffMembers extends BaseGrouperBenchmark {
@@ -71,7 +71,7 @@ public class Add10EffMembers extends BaseGrouperBenchmark {
       String  type  = "person";
       for (int i=0; i < CNT; i++) {
         String id = "subj" + i;
-        HibernateSubject hs = HibernateSubject.add(id, type, "subject " + i);
+        HibernateSubject.add(id, type, "subject " + i);
         subjects[i] = SubjectFinder.findById(id);
         this.g0.addMember( subjects[i] );
       }

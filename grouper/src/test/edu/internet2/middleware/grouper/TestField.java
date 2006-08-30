@@ -16,8 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
 import  junit.framework.*;
 
@@ -25,7 +23,7 @@ import  junit.framework.*;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestField.java,v 1.3 2006-08-30 18:35:38 blair Exp $
  */
 public class TestField extends TestCase {
 

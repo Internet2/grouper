@@ -8,15 +8,12 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
 
 /**
  * Set {@link Group} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: setGroupAttr.java,v 1.1 2006-06-27 19:28:29 blair Exp $
+ * @version $Id: setGroupAttr.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   0.0.1
  */
 public class setGroupAttr {

@@ -16,16 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem3.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestStem3.java,v 1.3 2006-08-30 18:35:37 blair Exp $
  */
 public class TestStem3 extends TestCase {
 

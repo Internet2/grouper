@@ -17,13 +17,12 @@
 
 package edu.internet2.middleware.grouper.eg;
 import  edu.internet2.middleware.grouper.*; // Import Grouper API
-import  edu.internet2.middleware.subject.*; // Import Subject API
 import  org.apache.commons.logging.*;       // For logging
 
 /**
  * Example: Add a {@link Group} to the Groups Registry.
  * @author  blair christensen.
- * @version $Id: AddGroup.java,v 1.3 2006-08-14 15:31:19 blair Exp $
+ * @version $Id: AddGroup.java,v 1.4 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class AddGroup {
@@ -46,7 +45,7 @@ public class AddGroup {
       try {
         String  extension         =  "wheel";
         String  displayExtension  = "Grouper Administration";
-        Group   g                 = ns.addChildGroup(extension, displayExtension);
+        ns.addChildGroup(extension, displayExtension);
         LOG.info("Added Group: " + extension);
       }
       catch (GroupAddException eGA) {

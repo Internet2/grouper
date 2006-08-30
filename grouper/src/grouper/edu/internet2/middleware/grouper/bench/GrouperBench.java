@@ -17,14 +17,13 @@
 
 package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*; 
-import  edu.internet2.middleware.subject.*; 
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;      
 
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.5 2006-08-30 16:50:00 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.6 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -90,4 +89,3 @@ public class GrouperBench {
   } // protected static void _run(bm)
 
 } // public class GrouperBench
-

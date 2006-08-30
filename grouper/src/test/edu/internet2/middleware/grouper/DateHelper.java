@@ -16,15 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.util.*;
-import  junit.framework.*;
 
 /**
 * Date-related helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: DateHelper.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: DateHelper.java,v 1.3 2006-08-30 18:35:38 blair Exp $
  */
 public class DateHelper {
 

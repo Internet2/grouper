@@ -16,18 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  java.sql.*;
-import  java.util.*;
 import  net.sf.hibernate.*;
-import  net.sf.hibernate.type.*;
-
 
 /** 
  * Custom {@link Privilege} user type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeUserType.java,v 1.4 2006-06-15 04:45:59 blair Exp $    
+ * @version $Id: PrivilegeUserType.java,v 1.5 2006-08-30 18:35:38 blair Exp $    
  */
 public class PrivilegeUserType implements UserType {
 

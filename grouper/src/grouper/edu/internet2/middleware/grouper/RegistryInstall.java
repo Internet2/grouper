@@ -16,8 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 
@@ -25,7 +23,7 @@ import  net.sf.hibernate.*;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.25 2006-06-19 15:24:23 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.26 2006-08-30 18:35:38 blair Exp $    
  */
 public class RegistryInstall {
 

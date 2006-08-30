@@ -8,15 +8,13 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /**
  * Get members of a group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getMembers.java,v 1.2 2006-06-23 19:48:43 blair Exp $
+ * @version $Id: getMembers.java,v 1.3 2006-08-30 18:35:38 blair Exp $
  * @since   0.0.1
  */
 public class getMembers {
@@ -42,7 +40,6 @@ public class getMembers {
     try {
       GrouperSession  s = GrouperShell.getSession(i);
       Group           g = GroupFinder.findByName(s, group);
-      Set members = g.getMembers();
       return g.getMembers();
     }
     catch (GroupNotFoundException eGNF)         {

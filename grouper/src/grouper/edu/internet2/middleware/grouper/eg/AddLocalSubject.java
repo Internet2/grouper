@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;       // For logging
 /**
  * Example: Add a {@link JDBCSubject} to the local Groups Registry.
  * @author  blair christensen.
- * @version $Id: AddLocalSubject.java,v 1.3 2006-08-14 15:31:19 blair Exp $
+ * @version $Id: AddLocalSubject.java,v 1.4 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class AddLocalSubject {
@@ -49,7 +49,7 @@ public class AddLocalSubject {
       // ... and with this *name*
       String  subjectName = "John Doe";
       try {
-        HibernateSubject hsubj = HibernateSubject.add(subjectId, subjectType, subjectName);
+        HibernateSubject.add(subjectId, subjectType, subjectName);
         LOG.info("Added local Subject: " + subjectId);
       }
       catch (HibernateException eH) {

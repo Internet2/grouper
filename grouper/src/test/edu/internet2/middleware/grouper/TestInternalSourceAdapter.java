@@ -16,22 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.io.*;
 import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
-
 
 /**
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.3 2006-06-27 18:35:14 blair Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.4 2006-08-30 18:35:38 blair Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 

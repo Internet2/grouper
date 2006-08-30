@@ -16,20 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
-
 
 /**
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.3 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.4 2006-08-30 18:35:37 blair Exp $
  */
 public class TestPrivADMIN extends TestCase {
 

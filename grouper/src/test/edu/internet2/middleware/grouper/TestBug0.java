@@ -16,16 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestBug0.java,v 1.3 2006-07-14 17:10:54 blair Exp $
+ * @version $Id: TestBug0.java,v 1.4 2006-08-30 18:35:38 blair Exp $
  * @since   1.0
  */
 public class TestBug0 extends TestCase {

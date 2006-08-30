@@ -16,8 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  junit.framework.*;
 import  net.sourceforge.groboutils.junit.v1.*;
 import  org.apache.commons.lang.time.*;
@@ -27,7 +25,7 @@ import  org.apache.commons.logging.*;
  * TODO Right now this is just me playing around until I figure out a) how to
  * properly use GroboUtils and b) figure out what to test.
  * @author  blair christensen.
- * @version $Id: TestThread0.java,v 1.1 2006-07-05 17:54:53 blair Exp $
+ * @version $Id: TestThread0.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   1.0
  */
 public class TestThread0 extends TestCase {

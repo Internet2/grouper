@@ -16,18 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
 import  junit.framework.*;
 
 /**
  * {@link Member} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberHelper.java,v 1.3 2006-07-10 15:18:34 blair Exp $
+ * @version $Id: MemberHelper.java,v 1.4 2006-08-30 18:35:38 blair Exp $
  */
 public class MemberHelper {
 

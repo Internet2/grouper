@@ -21,7 +21,7 @@ import  edu.internet2.middleware.grouper.*;
 /**
  * Benchmark adding a {@link Group}.
  * @author  blair christensen.
- * @version $Id: AddGroup.java,v 1.3 2006-08-30 14:07:42 blair Exp $
+ * @version $Id: AddGroup.java,v 1.4 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class AddGroup extends BaseGrouperBenchmark {
@@ -72,7 +72,7 @@ public class AddGroup extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      Group g = this.parent.addChildGroup("group", "group");
+      this.parent.addChildGroup("group", "group");
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e);

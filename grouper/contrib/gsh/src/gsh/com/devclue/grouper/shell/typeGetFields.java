@@ -8,15 +8,13 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /**
  * Find {@link Field}s belonging to a {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: typeGetFields.java,v 1.1 2006-08-08 17:56:10 blair Exp $
+ * @version $Id: typeGetFields.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   0.0.2
  */
 public class typeGetFields {

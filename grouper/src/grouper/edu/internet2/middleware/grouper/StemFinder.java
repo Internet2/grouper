@@ -18,13 +18,12 @@
 package edu.internet2.middleware.grouper;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  net.sf.hibernate.type.*;
 
 /**
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.24 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: StemFinder.java,v 1.25 2006-08-30 18:35:38 blair Exp $
  */
 public class StemFinder {
 

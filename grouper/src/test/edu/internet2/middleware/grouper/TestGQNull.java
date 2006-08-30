@@ -16,18 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
 import  junit.framework.*;
 
 /**
  * Test {@link NullFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQNull.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestGQNull.java,v 1.3 2006-08-30 18:35:38 blair Exp $
  */
 public class TestGQNull extends TestCase {
 

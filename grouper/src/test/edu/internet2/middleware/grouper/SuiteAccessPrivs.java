@@ -17,11 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import  junit.framework.*;
-import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteAccessPrivs.java,v 1.1 2006-08-21 18:46:10 blair Exp $
+ * @version $Id: SuiteAccessPrivs.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class SuiteAccessPrivs extends TestCase {

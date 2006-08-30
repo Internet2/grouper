@@ -21,7 +21,7 @@ import  edu.internet2.middleware.grouper.*;
 /**
  * Benchmark adding a root-level {@link Stem}.
  * @author  blair christensen.
- * @version $Id: AddRootStem.java,v 1.3 2006-08-30 14:07:42 blair Exp $
+ * @version $Id: AddRootStem.java,v 1.4 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class AddRootStem extends BaseGrouperBenchmark {
@@ -71,7 +71,7 @@ public class AddRootStem extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      Stem ns = this.root.addChildStem("example", "example");
+      this.root.addChildStem("example", "example");
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e);

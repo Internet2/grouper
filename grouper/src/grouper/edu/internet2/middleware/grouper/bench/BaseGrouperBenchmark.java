@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*; 
-import  edu.internet2.middleware.subject.*; 
+import  edu.internet2.middleware.grouper.*;
 import  org.apache.commons.logging.*;      
 
 /**
  * Base {@link GrouperBenchark} implementation.
  * @author  blair christensen.
- * @version $Id: BaseGrouperBenchmark.java,v 1.1 2006-08-15 15:32:21 blair Exp $
+ * @version $Id: BaseGrouperBenchmark.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class BaseGrouperBenchmark implements GrouperBenchmark {
