@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.116 2006-08-22 17:37:04 blair Exp $ -->
+<!-- $Id: build.xml,v 1.117 2006-08-30 16:48:35 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -38,6 +38,11 @@
   <property name="hprof.depth"            value="25"/>
   <property name="max.memory"             value="192m"/>
   <!-- Global Properties -->
+
+  <taskdef  name="schemaexport"
+            classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
+            classpathref="project.classpath"
+  />
 
   <!-- bench -->
   <target name="bench" 
@@ -499,10 +504,6 @@
     <record name="${log.schema}" action="start"/>
     <mkdir dir="${dist}" />
     <mkdir dir="${dist.run}" />
-    <taskdef name="schemaexport"
-      classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
-      classpathref="project.classpath"
-    />
     <schemaexport
       properties="${cf}"
       quiet="yes"
