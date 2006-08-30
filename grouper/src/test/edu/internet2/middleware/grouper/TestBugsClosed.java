@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.3 2006-08-30 18:35:37 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestBugsClosed extends TestCase {
 
@@ -293,12 +293,12 @@ public class TestBugsClosed extends TestCase {
       Subject         subj  = SubjectFinder.findById("GrouperSystem");
       GrouperSession  s     = GrouperSession.start(subj);
       Stem  root  = StemFinder.findRootStem(s);
-      Stem  qsuob = root.addChildStem("qsuob", "qsuob");
+      root.addChildStem("qsuob", "qsuob");
       s.stop();
 
       s = GrouperSession.start(subj);
       Stem  a         = StemFinder.findByName(s,"qsuob");
-      Set   children  = a.getChildStems();
+      a.getChildStems();
       s.stop();
 
       Assert.assertTrue("no exceptions", true);
@@ -321,7 +321,7 @@ public class TestBugsClosed extends TestCase {
       Group           a     = edu.addChildGroup("a", "a");
       Group           b     = edu.addChildGroup("b", "b");
       Group           c     = edu.addChildGroup("c", "c");
-      Group           d     = edu.addChildGroup("d", "d");
+      edu.addChildGroup("d", "d");
       PrivHelper.grantPriv(s, a, all, AccessPrivilege.OPTIN);
       PrivHelper.grantPriv(s, b, all, AccessPrivilege.OPTOUT);
       PrivHelper.grantPriv(s, c, all, AccessPrivilege.UPDATE);
@@ -434,7 +434,7 @@ public class TestBugsClosed extends TestCase {
       Stem            edu   = root.addChildStem("edu", "edu");
       Stem            a     = edu.addChildStem("a", "a");
       Stem            b     = edu.addChildStem("b", "b");
-      Stem            c     = edu.addChildStem("c", "c");
+      edu.addChildStem("c", "c");
       PrivHelper.grantPriv(s, a, all, NamingPrivilege.CREATE);
       PrivHelper.grantPriv(s, b, all, NamingPrivilege.STEM);
       s.stop();
@@ -530,8 +530,8 @@ public class TestBugsClosed extends TestCase {
       Stem            cs    = qsuob.addChildStem("cs", "child stem");
       // These weren't explicitly listed in the test report but I can't
       // replicate unless I have at least two groups.
-      Group           cg    = qsuob.addChildGroup("cg", "child group");
-      Group           gcg   = cs.addChildGroup("gcg", "grandchild group");
+      qsuob.addChildGroup("cg", "child group");
+      cs.addChildGroup("gcg", "grandchild group");
       s.stop();
     }
     catch (Exception e) {

@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel8.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestCompositeModel8.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  */
 public class TestCompositeModel8 extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestCompositeModel8 extends TestCase {
     LOG.info("testFailRightNotGroup");
     try {
       R r = R.populateRegistry(1, 2, 0);
-      Composite c = new Composite(
+      new Composite(
         r.rs, r.ns, r.getGroup("a", "b"), r.getStem("a"),
         CompositeType.getInstance("union")
       );

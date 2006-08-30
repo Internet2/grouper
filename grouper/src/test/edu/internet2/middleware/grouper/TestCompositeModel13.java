@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel13.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestCompositeModel13.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  */
 public class TestCompositeModel13 extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestCompositeModel13 extends TestCase {
     LOG.info("testFailOwnerEqualsLeftFactor");
     try {
       R r = R.populateRegistry(1, 2, 0);
-      Composite c0 = new Composite(
+      new Composite(
         r.rs, r.getGroup("a", "a"), r.getGroup("a", "a"), r.getGroup("a", "b"), CompositeType.UNION
       );
       r.rs.stop();

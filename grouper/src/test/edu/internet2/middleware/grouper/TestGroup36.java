@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup36.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestGroup36.java,v 1.3 2006-08-30 19:31:02 blair Exp $
  */
 public class TestGroup36 extends TestCase {
 
@@ -53,7 +53,7 @@ public class TestGroup36 extends TestCase {
       gA.addCompositeMember(CompositeType.UNION, gB, gC);
       Member      mA    = MemberFinder.findBySubject(r.rs, subjA);
       T.amount("subjA mships before deletion", 2, mA.getMemberships().size());
-      Membership  ms    = MembershipFinder.findCompositeMembership(
+      MembershipFinder.findCompositeMembership(
         r.rs, gA, subjA
       );  
       gA.delete(); 

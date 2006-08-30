@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;       // For logging
 /**
  * Example: Find a {@link Stem} by name within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: FindStemByName.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: FindStemByName.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  * @since   1.1.0
  */
 public class FindStemByName {
@@ -43,7 +43,7 @@ public class FindStemByName {
     
       try {
         String  name  = "etc";
-        Stem    ns    = StemFinder.findByName(s, name);
+        StemFinder.findByName(s, name);
         LOG.info("Found Stem by name: " + name);
       }
       catch (StemNotFoundException eNSNF) {

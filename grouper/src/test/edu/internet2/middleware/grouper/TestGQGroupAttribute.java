@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test {@link GroupAttributeFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupAttribute.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestGQGroupAttribute.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestGQGroupAttribute extends TestCase {
 
@@ -47,7 +47,7 @@ public class TestGQGroupAttribute extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -70,7 +70,7 @@ public class TestGQGroupAttribute extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
@@ -93,7 +93,7 @@ public class TestGQGroupAttribute extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dc    = StemHelper.addChildGroup(com, "devclue", "devclue");
+    StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(

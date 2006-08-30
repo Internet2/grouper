@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;       // For logging
 /**
  * Example: Find a {@link Group} by name within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: FindGroupByName.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: FindGroupByName.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  * @since   1.1.0
  */
 public class FindGroupByName {
@@ -43,7 +43,7 @@ public class FindGroupByName {
     
       try {
         String  name  = "etc:wheel";
-        Group   g     = GroupFinder.findByName(s, name);
+        GroupFinder.findByName(s, name);
         LOG.info("Found Group by name: " + name);
       }
       catch (GroupNotFoundException eGNF) {

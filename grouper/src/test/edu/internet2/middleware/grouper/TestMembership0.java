@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership0.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestMembership0.java,v 1.3 2006-08-30 19:31:02 blair Exp $
  */
 public class TestMembership0 extends TestCase {
 
@@ -48,10 +48,10 @@ public class TestMembership0 extends TestCase {
       R       r     = R.populateRegistry(1, 3, 3);
       Group   gA    = r.getGroup("a", "a");
       Group   gB    = r.getGroup("a", "b");
-      Group   gC    = r.getGroup("a", "c");
+      r.getGroup("a", "c");
       Subject subjA = r.getSubject("a");
-      Subject subjB = r.getSubject("b");
-      Subject subjC = r.getSubject("c");
+      r.getSubject("b");
+      r.getSubject("c");
       gA.addMember(subjA);
       gB.addMember(gA.toSubject());
       T.amount("gB eff mships[0]", 1, gB.getEffectiveMemberships().size());

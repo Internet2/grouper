@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem8.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestStem8.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestStem8 extends TestCase {
 
@@ -51,7 +51,7 @@ public class TestStem8 extends TestCase {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    StemHelper.addChildGroup(edu, "i2", "internet2");
     Assert.assertTrue("modify source", edu.getModifySource().equals(""));
     try {
       Subject modifier = edu.getModifySubject();

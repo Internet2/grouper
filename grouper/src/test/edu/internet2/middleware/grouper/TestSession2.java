@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
@@ -25,16 +24,12 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession2.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestSession2.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestSession2 extends TestCase {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestSession2.class);
-
-
-  // Private Class Variables
-  private Source sa;
 
   public TestSession2(String name) {
     super(name);

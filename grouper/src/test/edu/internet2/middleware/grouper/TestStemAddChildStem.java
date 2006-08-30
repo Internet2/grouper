@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test {@link Stem.addChildStem()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildStem.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestStemAddChildStem.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestStemAddChildStem extends TestCase {
 
@@ -44,7 +44,7 @@ public class TestStemAddChildStem extends TestCase {
     Stem  root  = StemHelper.findRootStem(
       SessionHelper.getRootSession()
     );
-    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
+    StemHelper.addChildStem(root, "edu", "education");
   } // public void testAddChildStemAtRoot()
 
   public void testAddChildStem() {
@@ -52,7 +52,7 @@ public class TestStemAddChildStem extends TestCase {
       SessionHelper.getRootSession()
     );
     Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
-    Stem  uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
+    StemHelper.addChildStem(edu, "uofc", "uchicago");
   } // public void testAddChildStem()
 
   public void testAddDuplicateChildStem() {
@@ -60,7 +60,7 @@ public class TestStemAddChildStem extends TestCase {
       SessionHelper.getRootSession()
     );
     Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
-    Stem  uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
+    StemHelper.addChildStem(edu, "uofc", "uchicago");
     StemHelper.addChildStemFail(edu, "uofc", "uchicago");
   } // public void testAddDuplicateChildStem()
 

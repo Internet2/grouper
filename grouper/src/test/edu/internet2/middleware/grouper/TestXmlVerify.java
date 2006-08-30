@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlVerify.java,v 1.2 2006-08-30 18:35:37 blair Exp $
+ * @version $Id: TestXmlVerify.java,v 1.3 2006-08-30 19:31:02 blair Exp $
  */
 public class TestXmlVerify extends TestCase {
 
@@ -53,10 +53,10 @@ public class TestXmlVerify extends TestCase {
       Stem            ns  = StemFinder.findByName(  s, "i2"                 );  
       Stem            nsA = StemFinder.findByName(  s, ns.getName() + ":a"  );
       Stem            nsB = StemFinder.findByName(  s, ns.getName() + ":b"  );
-      Group           gAA = GroupFinder.findByName( s, nsA.getName() + ":a" );
-      Group           gAB = GroupFinder.findByName( s, nsA.getName() + ":b" );
-      Group           gBA = GroupFinder.findByName( s, nsB.getName() + ":a" );
-      Group           gBB = GroupFinder.findByName( s, nsB.getName() + ":b" );
+      GroupFinder.findByName( s, nsA.getName() + ":a" );
+      GroupFinder.findByName( s, nsA.getName() + ":b" );
+      GroupFinder.findByName( s, nsB.getName() + ":a" );
+      GroupFinder.findByName( s, nsB.getName() + ":b" );
       s.stop();
       Assert.assertTrue("verified registry after export-and-import", true);
     }

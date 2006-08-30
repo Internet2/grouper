@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;       // For logging
  * Example: Find {@link Subject} by <i>subject id</i>.
  * </p>
  * @author  blair christensen.
- * @version $Id: FindSubjectById.java,v 1.3 2006-08-14 15:31:19 blair Exp $
+ * @version $Id: FindSubjectById.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  * @since   1.1.0
  */
 public class FindSubjectById {
@@ -39,7 +39,7 @@ public class FindSubjectById {
     try {
       // We are looking for a subject with this *subject id*
       String  subjectId   = "SD00125";
-      Subject subj        = SubjectFinder.findById(subjectId);
+      SubjectFinder.findById(subjectId);
       LOG.info("Found Subject by id: " + subjectId);
     }
     catch (SubjectNotFoundException   eSNF) {

@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.7 2006-08-17 15:26:23 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.8 2006-08-30 19:31:02 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1329,7 +1329,6 @@ public class XmlExporter {
     Iterator  fieldsIterator;
     GroupType groupType;
     Iterator  groupTypesIterator = groupTypes.iterator();
-    String    origPadding = padding;
     padding               = padding + "  ";
     while (groupTypesIterator.hasNext()) {
       groupType = (GroupType) groupTypesIterator.next();
@@ -1610,19 +1609,12 @@ public class XmlExporter {
     }
     writer.println();
     writer.print(padding);
-    Group group = gos.getGroup();
-    Stem  stem  = gos.getStem();
 
-    String id = null;
     writer.println("<privileges type='" + privilege + "'>");
     Iterator  subjIterator = subjects.iterator();
     Subject   subject;
     Member    member;
     boolean   isImmediate = false;
-    String    privUpper = privilege.toUpperCase();
-
-    Map privs;
-    Map immediatePrivs;
 
     while (subjIterator.hasNext()) {
       subject = (Subject) subjIterator.next();

@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class MembershipTestHelper {
 
@@ -91,7 +91,7 @@ public class MembershipTestHelper {
       Assert.assertTrue(msg + "ms list"     , ms.getList().equals(f)  );
       Assert.assertTrue(msg + "ms depth"    , ms.getDepth() == 0      );
       try {
-        Group via = ms.getViaGroup();
+        ms.getViaGroup();
         Assert.fail(msg + "imm ms has via group");
       }
       catch (GroupNotFoundException eGNF) {
@@ -184,7 +184,7 @@ public class MembershipTestHelper {
       Assert.assertTrue(msg + "g hasImmMember", g.hasImmediateMember(subj, f));
       Assert.assertTrue(msg + "m isMember"    , m.isMember(g, f));
       Assert.assertTrue(msg + "m isImmMember" , m.isImmediateMember(g, f));
-      Membership ms = getImm(s, g, subj, list);
+      getImm(s, g, subj, list);
     }
     catch (Exception e) {
       Assert.fail(msg + e.getMessage());
@@ -206,7 +206,7 @@ public class MembershipTestHelper {
       Assert.assertTrue(msg + "g hasEffMember", g.hasEffectiveMember(subj, f));
       Assert.assertTrue(msg + "m isMember"    , m.isMember(g, f));
       Assert.assertTrue(msg + "m isEffMember" , m.isEffectiveMember(g, f));
-      Set effs = getEff(s, g, subj, list, depth, via);
+      getEff(s, g, subj, list, depth, via);
     }
     catch (Exception e) {
       Assert.fail(msg + e.getMessage());
@@ -317,7 +317,7 @@ public class MembershipTestHelper {
 
   protected static void testImmMship(GrouperSession s, Group g, Subject subj, Field f) {
     try {
-      Membership  ms  = MembershipFinder.findImmediateMembership(s, g, subj, f);
+      MembershipFinder.findImmediateMembership(s, g, subj, f);
       Assert.assertTrue("imm mship found", true);
     }
     catch (MembershipNotFoundException eMNF) {
@@ -368,7 +368,7 @@ public class MembershipTestHelper {
       Assert.assertTrue( "eff ms l", ms.getList().equals(Group.getDefaultList()));
       Assert.assertTrue("eff ms depth", ms.getDepth() > 0);
       try {
-        Group via = ms.getViaGroup();
+        ms.getViaGroup();
         Assert.assertTrue("eff ms has via", true);
       }
       catch (GroupNotFoundException eGNF) {

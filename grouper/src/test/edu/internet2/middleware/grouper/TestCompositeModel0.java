@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel0.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestCompositeModel0.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  */
 public class TestCompositeModel0 extends TestCase {
 
@@ -44,7 +44,7 @@ public class TestCompositeModel0 extends TestCase {
   public void testFailInvalidSession() {
     LOG.info("testFailInvalidSession");
     try {
-      Composite c = new Composite(null, null, null, null, null);
+      new Composite(null, null, null, null, null);
       Assert.fail("created composite with invalid session");
     }
     catch (ModelException eM) {

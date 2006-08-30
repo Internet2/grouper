@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.3 2006-08-30 18:35:37 blair Exp $
+ * @version $Id: TestMember.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestMember extends TestCase {
 
@@ -307,7 +307,7 @@ public class TestMember extends TestCase {
       PrivHelper.grantPriv(s, i2,   all,  AccessPrivilege.OPTIN);
       PrivHelper.grantPriv(s, uofc, subj, AccessPrivilege.UPDATE);
 
-      Field f = FieldFinder.find("members");
+      FieldFinder.find("members");
 
       // Get naming privs
       Assert.assertTrue("getprivs/root  == 1",  m.getPrivs(root).size() == 1);

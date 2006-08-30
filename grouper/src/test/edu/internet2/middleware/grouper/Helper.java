@@ -23,7 +23,7 @@ import  junit.framework.*;
  * Helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: Helper.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: Helper.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  */
 public class Helper {
 
@@ -77,7 +77,7 @@ public class Helper {
   // Get a member by bad subject
   protected static void getMemberBySubjectBad(GrouperSession s, Subject subj) {
     try {
-      Member m = MemberFinder.findBySubject(s, subj);
+      MemberFinder.findBySubject(s, subj);
       Assert.fail("found invalid member");
     }
     catch (MemberNotFoundException e) {

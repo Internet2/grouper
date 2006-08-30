@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  */
 class GroupHelper {
 
@@ -127,7 +127,7 @@ class GroupHelper {
       //      so we get the value even though the attribute has been
       //      deleted from the db.
       try {
-        String val = g.getAttribute(attr);
+        g.getAttribute(attr);
         LOG.debug("delAttr.2");
         Assert.assertTrue("TODO got attribute after deletion", true);
         //Assert.fail("got attribute after deletion: " + attr + "=" + val); 
@@ -303,7 +303,7 @@ class GroupHelper {
     LOG.debug("findByNameFail.0 " + name);
     try {
       LOG.debug("findByNameFail.1 " + name);
-      Group g = GroupFinder.findByName(s, name);
+      GroupFinder.findByName(s, name);
       LOG.debug("findByNameFail.2 " + name);
       Assert.fail("found group: " + name);
     }
@@ -334,7 +334,7 @@ class GroupHelper {
   protected static void findByUuidFail(GrouperSession s, String uuid) {
     LOG.debug("findByUuidFail.0 " + uuid);
     try {
-      Group g = GroupFinder.findByUuid(s, uuid);
+      GroupFinder.findByUuid(s, uuid);
       LOG.debug("findByUuidFail.1 " + uuid);
       Assert.fail("found group: " + uuid);
       LOG.debug("findByUuidFail.2 " + uuid);
@@ -420,7 +420,7 @@ class GroupHelper {
       );
       LOG.debug("testAttrs.4");
       try {
-        String desc = g.getAttribute("description");
+        g.getAttribute("description");
         LOG.debug("testAttrs.5");
         Assert.assertTrue(
           "[i] description", g.getAttribute("description").equals(exp.getDescription())
@@ -463,7 +463,7 @@ class GroupHelper {
       );
       LOG.debug("testAttrs.14");
       try {
-        Subject modder = g.getModifySubject();
+        g.getModifySubject();
         LOG.debug("testAttrs.15");
         Assert.assertTrue("group modified", true);
       }
@@ -564,7 +564,7 @@ class GroupHelper {
     );
     LOG.debug("testAttrsFail.17");
     try {
-      Subject modder = g.getModifySubject();
+      g.getModifySubject();
       LOG.debug("testAttrsFail.18");
       Assert.assertTrue("group modified", true);
     }

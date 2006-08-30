@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel2.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestCompositeModel2.java,v 1.5 2006-08-30 19:31:02 blair Exp $
  */
 public class TestCompositeModel2 extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestCompositeModel2 extends TestCase {
     LOG.info("testFailNullLeft");
     try {
       R r = R.populateRegistry(0, 0, 0);
-      Composite c = new Composite(r.rs, r.ns, null, null, null);
+      new Composite(r.rs, r.ns, null, null, null);
       r.rs.stop();
       Assert.fail("created composite with null left");
     }

@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * TODO Right now this is just me playing around until I figure out a) how to
  * properly use GroboUtils and b) figure out what to test.
  * @author  blair christensen.
- * @version $Id: TestThread0.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestThread0.java,v 1.3 2006-08-30 19:31:02 blair Exp $
  * @since   1.0
  */
 public class TestThread0 extends TestCase {
@@ -71,7 +71,7 @@ public class TestThread0 extends TestCase {
         // Sleep between 0-5 seconds
         long            l   = Math.round(1000 * (Math.random() * 5));
         Stem            ns  = StemFinder.findByName(s, get);
-        String got = ns.getName();
+        ns.getName();
         s.stop();
         sw.stop();
         System.out.println(

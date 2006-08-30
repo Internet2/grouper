@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestStem.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -76,7 +76,7 @@ public class TestStem extends TestCase {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     try {
-      Stem parent = root.getParentStem();
+      root.getParentStem();
       Assert.fail("root stem has parent");
     }
     catch (StemNotFoundException eSNF) {
@@ -106,12 +106,12 @@ public class TestStem extends TestCase {
     LOG.info("testGetChildStems");
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    StemHelper.addChildStem(root, "com", "commercial");
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Stem            i2    = StemHelper.addChildStem(edu, "i2", "internet2");
-    Stem            uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
-    Stem            net   = StemHelper.addChildStem(root, "net", "network");
-    Stem            org   = StemHelper.addChildStem(root, "org", "organization");
+    StemHelper.addChildStem(edu, "i2", "internet2");
+    StemHelper.addChildStem(edu, "uofc", "uchicago");
+    StemHelper.addChildStem(root, "net", "network");
+    StemHelper.addChildStem(root, "org", "organization");
     Set children = root.getChildStems();
     Assert.assertTrue("4 child stems", children.size() == 4);
     Iterator iter = children.iterator();
@@ -137,12 +137,12 @@ public class TestStem extends TestCase {
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Stem            uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
-    Group           bsd   = StemHelper.addChildGroup(uofc, "bsd", "bsd");
-    Group           gsb   = StemHelper.addChildGroup(uofc, "gsb", "gsb");
-    Group           hum   = StemHelper.addChildGroup(uofc, "hum", "hum");
-    Group           law   = StemHelper.addChildGroup(uofc, "law", "law");
-    Group           psd   = StemHelper.addChildGroup(uofc, "psd", "psd");
-    Group           ssd   = StemHelper.addChildGroup(uofc, "ssd", "ssd");
+    StemHelper.addChildGroup(uofc, "bsd", "bsd");
+    StemHelper.addChildGroup(uofc, "gsb", "gsb");
+    StemHelper.addChildGroup(uofc, "hum", "hum");
+    StemHelper.addChildGroup(uofc, "law", "law");
+    StemHelper.addChildGroup(uofc, "psd", "psd");
+    StemHelper.addChildGroup(uofc, "ssd", "ssd");
     Set children = uofc.getChildGroups();
     Assert.assertTrue("6 child groups", children.size() == 6);
     Iterator iter = children.iterator();
@@ -414,7 +414,7 @@ public class TestStem extends TestCase {
       Stem            root  = StemFinder.findRootStem(s);
       Stem            ns0   = root.addChildStem(edu, edu);
       Stem            ns1   = ns0.addChildStem(uofc, uofc);
-      Group           g0    = ns1.addChildGroup(bsd, bsd);
+      ns1.addChildGroup(bsd, bsd);
       s.stop();
 
       s = GrouperSession.start(subj);
@@ -455,7 +455,7 @@ public class TestStem extends TestCase {
       Stem            root  = StemFinder.findRootStem(s);
       Stem            ns0   = root.addChildStem(edu, edu);
       Stem            ns1   = ns0.addChildStem(uofc, uofc);
-      Group           g0    = ns1.addChildGroup(bsd, bsd);
+      ns1.addChildGroup(bsd, bsd);
       s.stop();
 
       s = GrouperSession.start(subj);
@@ -507,42 +507,42 @@ public class TestStem extends TestCase {
       GrouperSession  s     = SessionHelper.getRootSession();
       Stem            root  = StemFinder.findRootStem(s);
       try {
-        Stem badE = root.addChildStem(null, "test");
+        root.addChildStem(null, "test");
         Assert.fail("added stem with null extn");
       }
       catch (StemAddException eSA) {
         Assert.assertTrue("null extn", true);
       }
       try {
-        Stem badE = root.addChildStem("", "test");
+        root.addChildStem("", "test");
         Assert.fail("added stem with empty extn");
       }
       catch (StemAddException eSA) {
         Assert.assertTrue("empty extn", true);
       }
       try {
-        Stem badE = root.addChildStem("a:test", "test");
+        root.addChildStem("a:test", "test");
         Assert.fail("added stem with colon-containing extn");
       }
       catch (StemAddException eSA) {
         Assert.assertTrue("colon-containing extn", true);
       }
       try {
-        Stem badE = root.addChildStem("test", null);
+        root.addChildStem("test", null);
         Assert.fail("added stem with null displayExtn");
       }
       catch (StemAddException eSA) {
         Assert.assertTrue("null displayExtn", true);
       }
       try {
-        Stem badE = root.addChildStem("test", "");
+        root.addChildStem("test", "");
         Assert.fail("added stem with empty displayextn");
       }
       catch (StemAddException eSA) {
         Assert.assertTrue("empty displayExtn", true);
       }
       try {
-        Stem badE = root.addChildStem("test", "a:test");
+        root.addChildStem("test", "a:test");
         Assert.fail("added stem with colon-containing displayExtn");
       }
       catch (StemAddException eSA) {

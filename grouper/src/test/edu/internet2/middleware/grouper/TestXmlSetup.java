@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlSetup.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestXmlSetup.java,v 1.3 2006-08-30 19:31:02 blair Exp $
  */
 public class TestXmlSetup extends TestCase {
 
@@ -46,8 +46,6 @@ public class TestXmlSetup extends TestCase {
     LOG.info("testXmlSetup");
     try {
       R       r     = R.populateRegistry(2, 2, 2);
-      Stem    nsA   = r.getStem("a");
-      Stem    nsB   = r.getStem("b");
       Group   gAA   = r.getGroup("a", "a");
       Group   gAB   = r.getGroup("a", "b");
       Group   gBA   = r.getGroup("b", "a");

@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestGroup.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestGroup extends TestCase {
 
@@ -151,42 +151,42 @@ public class TestGroup extends TestCase {
     LOG.info("testAddChildGroupWithBadExtnOrDisplayExtn");
     try {
       try {
-        Group badE = edu.addChildGroup(null, "test");
+        edu.addChildGroup(null, "test");
         Assert.fail("added group with null extn");
       }
       catch (GroupAddException eSA) {
         Assert.assertTrue("null extn", true);
       }
       try {
-        Group badE = edu.addChildGroup("", "test");
+        edu.addChildGroup("", "test");
         Assert.fail("added group with empty extn");
       }
       catch (GroupAddException eSA) {
         Assert.assertTrue("empty extn", true);
       }
       try {
-        Group badE = edu.addChildGroup("a:test", "test");
+        edu.addChildGroup("a:test", "test");
         Assert.fail("added group with colon-containing extn");
       }
       catch (GroupAddException eSA) {
         Assert.assertTrue("colon-containing extn", true);
       }
       try {
-        Group badE = edu.addChildGroup("test", null);
+        edu.addChildGroup("test", null);
         Assert.fail("added group with null displayExtn");
       }
       catch (GroupAddException eSA) {
         Assert.assertTrue("null displayExtn", true);
       }
       try {
-        Group badE = edu.addChildGroup("test", "");
+        edu.addChildGroup("test", "");
         Assert.fail("added group with empty displayextn");
       }
       catch (GroupAddException eSA) {
         Assert.assertTrue("empty displayExtn", true);
       }
       try {
-        Group badE = edu.addChildGroup("test", "a:test");
+        edu.addChildGroup("test", "a:test");
         Assert.fail("added group with colon-containing displayExtn");
       }
       catch (GroupAddException eSA) {
@@ -268,7 +268,7 @@ public class TestGroup extends TestCase {
       Group           uofc  = edu.addChildGroup("uofc", "uofc");
       GroupHelper.addMember(uofc, subj, "members");
       GroupHelper.addMember(i2, uofc.toSubject(), "members");
-      Member          m     = MemberFinder.findBySubject(s, subj);
+      MemberFinder.findBySubject(s, subj);
       PrivHelper.grantPriv(s, i2,   all,  AccessPrivilege.OPTIN);
       PrivHelper.grantPriv(s, uofc, subj, AccessPrivilege.UPDATE);
 

@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestNamingPrivilege.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestNamingPrivilege.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestNamingPrivilege extends TestCase {
 
@@ -34,7 +34,6 @@ public class TestNamingPrivilege extends TestCase {
 
 
   // Private Class Variables
-  private static Group          a;
   private static Stem           edu;
   private static Group          i2;
   private static GrouperSession nrs;

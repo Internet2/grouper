@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberOf1.java,v 1.2 2006-08-30 18:35:37 blair Exp $
+ * @version $Id: TestMemberOf1.java,v 1.3 2006-08-30 19:31:02 blair Exp $
  * @since   1.0
  */
 public class TestMemberOf1 extends TestCase {
@@ -50,9 +50,9 @@ public class TestMemberOf1 extends TestCase {
       Stem    ns        = r.ns;                                   // qsuob
       Stem    nsA       = ns.addChildStem("a", "a");              // qsuob:faculties
       Stem    nsA_A     = nsA.addChildStem("artf", "artf");       // qsuob:faculties:artf
-      Stem    nsA_B     = nsA.addChildStem("mvsf", "mvsf");       // qsuob:faculties:mvsf
-      Stem    nsA_C     = nsA.addChildStem("scif", "scif");       // qsuob:faculties:scif
-      Stem    nsA_D     = nsA.addChildStem("engf", "engf");       // qsuob:faculties:engf
+      nsA.addChildStem("mvsf", "mvsf");       // qsuob:faculties:mvsf
+      nsA.addChildStem("scif", "scif");       // qsuob:faculties:scif
+      nsA.addChildStem("engf", "engf");       // qsuob:faculties:engf
       Group   gA_A      = nsA_A.addChildGroup("artf", "artf");    // qsuob:faculties:artf:staff
       Group   gA_B      = nsA_A.addChildGroup("mvsf", "mvsf");    // qsuob:faculties:mvsf:staff
       Group   gA_C      = nsA_A.addChildGroup("scif", "scif");    // qsuob:faculties:scif:staff
@@ -425,9 +425,7 @@ public class TestMemberOf1 extends TestCase {
           r.rs, gALL, gAAS.toSubject(), Group.getDefaultList()
         );
         Assert.assertNotNull(ms);
-        MemberOf mof = MemberOf.delImmediate(
-          r.rs, gALL, ms, gAAS.toMember()
-        );
+        MemberOf.delImmediate(r.rs, gALL, ms, gAAS.toMember());
         gALL.deleteMember( gAAS.toSubject() );
         Assert.assertTrue("finally, a hibernate exception wasn't thrown", true);
         T.getMemberships(gA_A, 2);

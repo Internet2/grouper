@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeC7.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestCompositeC7.java,v 1.4 2006-08-30 19:31:02 blair Exp $
  */
 public class TestCompositeC7 extends TestCase {
 
@@ -46,8 +46,6 @@ public class TestCompositeC7 extends TestCase {
     try {
       R     r = R.populateRegistry(1, 3, 1);
       Group a = r.getGroup("a", "a");
-      Group b = r.getGroup("a", "b");
-      Group c = r.getGroup("a", "c");
       a.addMember( r.getSubject("a") );
       try {
         a.deleteCompositeMember();
