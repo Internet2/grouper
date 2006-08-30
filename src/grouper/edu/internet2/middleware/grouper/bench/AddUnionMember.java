@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding a union {@link Composite} {@link Membership}.
  * @author  blair christensen.
- * @version $Id: AddUnionMember.java,v 1.2 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: AddUnionMember.java,v 1.3 2006-08-30 14:07:42 blair Exp $
  * @since   1.1.0
  */
 public class AddUnionMember extends BaseGrouperBenchmark {
@@ -58,9 +58,7 @@ public class AddUnionMember extends BaseGrouperBenchmark {
   {
     try {
       Stem root   = StemFinder.findRootStem(
-        GrouperSession.start(
-          SubjectFinder.findById("GrouperSystem")
-        )
+        GrouperSession.start( SubjectFinder.findRootSubject() )
       );
       Stem ns     = root.addChildStem("example", "example");
       this.g0     = ns.addChildGroup("group 0", "group 0");
