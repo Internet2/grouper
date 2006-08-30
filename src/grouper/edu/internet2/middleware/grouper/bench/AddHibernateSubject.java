@@ -21,7 +21,7 @@ import  edu.internet2.middleware.grouper.*;
 /**
  * Benchmark adding a {@link HibernateSubject}.
  * @author  blair christensen.
- * @version $Id: AddHibernateSubject.java,v 1.2 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: AddHibernateSubject.java,v 1.3 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class AddHibernateSubject extends BaseGrouperBenchmark {
@@ -51,7 +51,7 @@ public class AddHibernateSubject extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      HibernateSubject subj = HibernateSubject.add("subj0", "person", "subject 0");
+      HibernateSubject.add("subj0", "person", "subject 0");
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e);

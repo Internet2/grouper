@@ -17,16 +17,11 @@
 
 package edu.internet2.middleware.grouper;
 
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
-
-
 /** 
  * Validation methods that apply to multiple Grouper classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.15 2006-08-16 21:23:18 blair Exp $
+ * @version $Id: Validator.java,v 1.16 2006-08-30 18:35:38 blair Exp $
  */
 class Validator {
 

@@ -16,21 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
-
 
 /**
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.3 2006-08-30 18:35:37 blair Exp $
  */
 public class TestBugsClosed extends TestCase {
 

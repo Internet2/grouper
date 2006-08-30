@@ -8,15 +8,12 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
 
 /**
  * Add an {@link Attribute} to a {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: typeAddAttr.java,v 1.1 2006-08-08 17:56:10 blair Exp $
+ * @version $Id: typeAddAttr.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   0.0.2
  */
 public class typeAddAttr {

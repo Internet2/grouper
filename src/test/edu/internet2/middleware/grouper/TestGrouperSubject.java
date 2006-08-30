@@ -16,22 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.io.*;
-import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
-
 
 /**
  * Test {@link GrouperSubject} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSubject.java,v 1.2 2006-05-23 19:10:23 blair Exp $
+ * @version $Id: TestGrouperSubject.java,v 1.3 2006-08-30 18:35:38 blair Exp $
  */
 public class TestGrouperSubject extends TestCase {
 

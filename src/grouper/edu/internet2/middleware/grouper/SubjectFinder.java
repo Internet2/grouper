@@ -19,13 +19,12 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
-import  org.apache.commons.lang.time.*;
 
 /**
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.26 2006-08-17 15:07:42 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.27 2006-08-30 18:35:38 blair Exp $
  */
 public class SubjectFinder {
 

@@ -16,13 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSetting3.java,v 1.1 2006-08-17 16:28:18 blair Exp $
+ * @version $Id: TestSetting3.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class TestSetting3 extends TestCase {

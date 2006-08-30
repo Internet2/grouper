@@ -6,13 +6,12 @@
  */
 
 package com.devclue.grouper.shell;
-import  java.util.*;
 
 /**
  * {@link GrouperShell} error messages.
  * <p />
  * @author  blair christensen.
- * @version $Id: E.java,v 1.4 2006-08-10 18:47:53 blair Exp $
+ * @version $Id: E.java,v 1.5 2006-08-30 18:35:38 blair Exp $
  * @since   0.0.1
  */
 class E {

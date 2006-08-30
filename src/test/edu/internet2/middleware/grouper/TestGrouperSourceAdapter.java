@@ -16,19 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.io.*;
-import  java.util.*;
 import  junit.framework.*;
 
 /**
  * Test {@link GrouperSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSourceAdapter.java,v 1.4 2006-07-10 15:18:34 blair Exp $
+ * @version $Id: TestGrouperSourceAdapter.java,v 1.5 2006-08-30 18:35:38 blair Exp $
  */
 public class TestGrouperSourceAdapter extends TestCase {
 

@@ -16,16 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlImport3.java,v 1.1 2006-07-03 19:01:50 blair Exp $
+ * @version $Id: TestXmlImport3.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   1.0
  */
 public class TestXmlImport3 extends TestCase {

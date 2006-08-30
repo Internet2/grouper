@@ -17,13 +17,12 @@
 
 package edu.internet2.middleware.grouper;
 import  junit.framework.*;
-import  org.apache.commons.logging.*;
 
 /**
  * Test Bugs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteBugs.java,v 1.1 2006-07-07 17:01:10 blair Exp $
+ * @version $Id: SuiteBugs.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   1.0
  */
 public class SuiteBugs extends TestCase {

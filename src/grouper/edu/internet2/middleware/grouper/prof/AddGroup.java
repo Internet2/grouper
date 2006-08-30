@@ -16,13 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper.prof;
-import  edu.internet2.middleware.grouper.*; 
-import  edu.internet2.middleware.subject.*; 
+import  edu.internet2.middleware.grouper.*;  
 
 /**
  * Profile adding a {@link Group}.
  * @author  blair christensen.
- * @version $Id: AddGroup.java,v 1.1 2006-08-15 15:32:21 blair Exp $
+ * @version $Id: AddGroup.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   1.1.0
  */
 public class AddGroup {
@@ -45,7 +44,7 @@ public class AddGroup {
         ),
         NS
       );
-      Group g   = ns.addChildGroup("group", "group");
+      ns.addChildGroup("group", "group");
       System.exit(0);
     }
     catch (Exception e) {

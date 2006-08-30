@@ -8,15 +8,13 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /**
  * Query for groups by name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getGroups.java,v 1.1 2006-06-23 17:30:09 blair Exp $
+ * @version $Id: getGroups.java,v 1.2 2006-08-30 18:35:38 blair Exp $
  * @since   0.0.1
  */
 public class getGroups {

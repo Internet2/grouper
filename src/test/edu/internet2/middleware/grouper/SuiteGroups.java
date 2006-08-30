@@ -16,15 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-
 import  junit.framework.*;
-import  org.apache.commons.logging.*;
 
 /**
  * Test Groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteGroups.java,v 1.8 2006-08-08 13:00:36 blair Exp $
+ * @version $Id: SuiteGroups.java,v 1.9 2006-08-30 18:35:38 blair Exp $
  */
 public class SuiteGroups extends TestCase {
 

@@ -16,19 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.io.*;
-import  java.util.*;
 import  junit.framework.*;
 
 /**
  * Test {@link SubjectFinder} class with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinderInternal.java,v 1.3 2006-06-27 18:35:14 blair Exp $
+ * @version $Id: TestSubjectFinderInternal.java,v 1.4 2006-08-30 18:35:38 blair Exp $
  */
 public class TestSubjectFinderInternal extends TestCase {
 

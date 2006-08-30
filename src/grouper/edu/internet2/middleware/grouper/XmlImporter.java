@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.io.*;
 import  java.net.*;
 import  java.util.*;
@@ -35,7 +34,7 @@ import  org.w3c.dom.*;
  * <p/>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.8 2006-07-13 17:55:52 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.9 2006-08-30 18:35:38 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {

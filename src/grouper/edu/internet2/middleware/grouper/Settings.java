@@ -18,14 +18,13 @@
 package edu.internet2.middleware.grouper;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  org.apache.commons.lang.builder.*;
 
 /** 
  * A (rudimentary and preliminary) settings object for the Groups
  * Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.6 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: Settings.java,v 1.7 2006-08-30 18:35:38 blair Exp $
  * @since   1.0
  */
 class Settings {

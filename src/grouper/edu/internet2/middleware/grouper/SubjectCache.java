@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  org.apache.commons.lang.builder.*;
 
@@ -25,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * Subject cache provider.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.7 2006-06-19 15:17:40 blair Exp $
+ * @version $Id: SubjectCache.java,v 1.8 2006-08-30 18:35:38 blair Exp $
  */
 class SubjectCache {
 
