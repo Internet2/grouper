@@ -21,7 +21,7 @@ import  edu.internet2.middleware.grouper.*;
 /**
  * Benchmark finding the root {@link Stem}.
  * @author  blair christensen.
- * @version $Id: FindRootStem.java,v 1.2 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: FindRootStem.java,v 1.3 2006-08-30 14:07:42 blair Exp $
  * @since   1.1.0
  */
 public class FindRootStem extends BaseGrouperBenchmark {
@@ -55,9 +55,7 @@ public class FindRootStem extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      this.s = GrouperSession.start(
-        SubjectFinder.findById("GrouperSystem")
-      ); 
+      this.s = GrouperSession.start( SubjectFinder.findRootSubject() ); 
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e.getMessage());

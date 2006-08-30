@@ -16,23 +16,30 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*;      
+import  edu.internet2.middleware.grouper.*; 
+import  edu.internet2.middleware.subject.*;      
 
 /**
- * Benchmark adding a {@link Group}.
+ * Benchmark adding 10 effective {@link Membership}s.
  * @author  blair christensen.
- * @version $Id: AddGroup.java,v 1.3 2006-08-30 14:07:42 blair Exp $
+ * @version $Id: Add10EffMembers.java,v 1.1 2006-08-30 14:07:42 blair Exp $
  * @since   1.1.0
  */
-public class AddGroup extends BaseGrouperBenchmark {
+public class Add10EffMembers extends BaseGrouperBenchmark {
 
-  // PRIVATE INSTANCE VARIABLES
-  Stem parent;
+  // PRIVATE CLASS CONSTANTS //
+  private static final int CNT = 10;
+
+
+  // PRIVATE INSTANCE VARIABLES //
+  Group     g0, g1;
+  Subject   g_subj;
+  Subject[] subjects  = new Subject[CNT];
 
 
   // MAIN //
   public static void main(String args[]) {
-    BaseGrouperBenchmark gb = new AddGroup();
+    BaseGrouperBenchmark gb = new Add10EffMembers();
     gb.benchmark();
   } // public static void main(args[])
 
@@ -42,9 +49,9 @@ public class AddGroup extends BaseGrouperBenchmark {
   /**
    * @since 1.1.0
    */
-  protected AddGroup() {
+  protected Add10EffMembers() {
     super();
-  } // protected AddGroup()
+  } // protected Add10EffMembers()
 
   // PUBLIC INSTANCE METHODS //
 
@@ -55,10 +62,20 @@ public class AddGroup extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      Stem root = StemFinder.findRootStem(
+      Stem root   = StemFinder.findRootStem(
         GrouperSession.start( SubjectFinder.findRootSubject() )
       );
-      this.parent = root.addChildStem("example", "example");
+      Stem    ns    = root.addChildStem("example", "example");
+      this.g0       = ns.addChildGroup("group 0", "group 0");
+      this.g1       = ns.addChildGroup("group 1", "group 1");
+      String  type  = "person";
+      for (int i=0; i < CNT; i++) {
+        String id = "subj" + i;
+        HibernateSubject hs = HibernateSubject.add(id, type, "subject " + i);
+        subjects[i] = SubjectFinder.findById(id);
+        this.g0.addMember( subjects[i] );
+      }
+      this.g_subj   = this.g0.toSubject();
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e.getMessage());
@@ -72,12 +89,12 @@ public class AddGroup extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      Group g = this.parent.addChildGroup("group", "group");
+      this.g1.addMember(this.g_subj);
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e);
     }
   } // public void run()
 
-} // public class AddGroup
+} // public class Add10EffMembers
 

@@ -21,7 +21,7 @@ import  edu.internet2.middleware.grouper.*;
 /**
  * Benchmark adding a root-level {@link Stem}.
  * @author  blair christensen.
- * @version $Id: AddRootStem.java,v 1.2 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: AddRootStem.java,v 1.3 2006-08-30 14:07:42 blair Exp $
  * @since   1.1.0
  */
 public class AddRootStem extends BaseGrouperBenchmark {
@@ -56,9 +56,7 @@ public class AddRootStem extends BaseGrouperBenchmark {
   {
     try {
       this.root = StemFinder.findRootStem(
-        GrouperSession.start(
-          SubjectFinder.findById("GrouperSystem")
-        )
+        GrouperSession.start( SubjectFinder.findRootSubject() )
       );
     }
     catch (Exception e) {
