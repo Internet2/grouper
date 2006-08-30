@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.19 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.20 2006-08-30 14:39:22 blair Exp $
  */
 public class MemberFinder {
 
@@ -121,17 +121,12 @@ public class MemberFinder {
   protected static Member findBySubject(Subject subj) 
     throws  MemberNotFoundException
   {
-    String msg = "findBySubject";
-    DebugLog.info(MemberFinder.class, msg);
     if (subj == null) {
-      String err = msg + " null subject";
-      DebugLog.info(MemberFinder.class, err);
-      throw new MemberNotFoundException(err);
+      throw new MemberNotFoundException();
     }
     try {
-      Member  m       = null;
-      Session hs      = HibernateHelper.getSession();
-      Query   qry     = hs.createQuery(
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
         "from Member as m where "
         + "     m.subject_id      = :sid "  
         + "and  m.subject_type    = :type "
@@ -142,30 +137,24 @@ public class MemberFinder {
       qry.setString("sid",    subj.getId()            );
       qry.setString("type",   subj.getType().getName());
       qry.setString("source", subj.getSource().getId());
-      List    members = qry.list();
-      DebugLog.info(MemberFinder.class, msg + " found: " + members.size());
-      if (members.size() == 1) {
-        // The member already exists
-        m = (Member) members.get(0);
-      }
+      Member  m   = (Member) qry.uniqueResult();
       hs.close();
       if (m != null) {
         m.setSubject(subj);
-        DebugLog.info(MemberFinder.class, msg + " found existing member: " + m);
-        return m;
+        return m; // Return existing *Member*
       }
       else {
         // Create a new member
-        m = Member.addMember(subj);
-        DebugLog.info(MemberFinder.class, msg + " created new member: " + m);
-        return m;
+        m = Member.addMember(subj); // Create new *Member*
+        return m;  
       }
     }
     catch (HibernateException eH) {
-      msg += " member not found nor created: " + eH.getMessage();
+      String msg = E.MEMBER_NEITHER_FOUND_NOR_CREATED + eH.getMessage();
       ErrorLog.error(MemberFinder.class, msg);
       throw new MemberNotFoundException(msg, eH);
     }
   } // protected static Member findBySubject(subj)
-}
+
+} // public class MemberFinder
 

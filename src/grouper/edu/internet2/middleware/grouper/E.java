@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.24 2006-08-17 19:25:16 blair Exp $
+ * @version $Id: E.java,v 1.25 2006-08-30 14:39:22 blair Exp $
  * @since   1.0
  */
 class E {
@@ -35,6 +35,7 @@ class E {
   protected static final String CANNOT_STEM               = "subject cannot STEM";
   protected static final String CANNOT_UPDATE             = "subject cannot UPDATE";
   protected static final String CANNOT_VIEW               = "subject cannot VIEW";
+  protected static final String MEMBER_NEITHER_FOUND_NOR_CREATED  = "member neither found nor created: ";
   protected static final String SYSTEM_MAINTAINED         = "system maintained: ";
   protected static final String UNKNOWN_PRIVILEGE         = "unknown privilege: ";
 

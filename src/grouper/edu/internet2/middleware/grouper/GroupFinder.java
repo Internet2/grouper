@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.24 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.25 2006-08-30 14:39:22 blair Exp $
  */
 public class GroupFinder {
 
@@ -357,10 +357,7 @@ public class GroupFinder {
       qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_GF_FBU);
       qry.setString("uuid", uuid);
-      List    groups  = qry.list();
-      if (groups.size() == 1) {
-        g = (Group) groups.get(0);
-      }
+      g = (Group) qry.uniqueResult();
       hs.close();
       if (g == null) {
         throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
@@ -374,5 +371,5 @@ public class GroupFinder {
     }
   } // private static Group _findByUuid(uuid)
 
-}
+} // public class GroupFinder
 
