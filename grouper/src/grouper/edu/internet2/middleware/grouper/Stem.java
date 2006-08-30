@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.74 2006-08-18 15:34:09 blair Exp $
+ * @version $Id: Stem.java,v 1.75 2006-08-30 15:36:59 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -316,29 +316,18 @@ public class Stem extends Owner {
    * @return  Set of {@link Group} objects
    */
   public Set getChildGroups() {
-    GrouperSession.validate(this.getSession());
-    Set children  = new LinkedHashSet();
+    Set children = new LinkedHashSet();
     try {
-      try {
-        // Perform check as root
-        GrouperSession  root  = GrouperSession.startTransient();
-        Group           child;
-        Iterator        iter  = this.getChildGroupsNpHi().iterator();
-        while (iter.hasNext()) {
-          child = (Group) iter.next();
-          child.setSession(root);
-          if (PrivilegeResolver.canVIEW(root, child, s.getSubject())) {
-            child.setSession(this.getSession());
-            children.add(child);
-          }
-          else {
-            ErrorLog.error(Stem.class, E.STEM_GETCHILDGROUPS + E.CANNOT_VIEW);
-          }
+      GrouperSession  s       = this.getSession();
+      Subject         subj    = s.getSubject(); 
+      Group           child;
+      Iterator        iter    = this.getChildGroupsNpHi().iterator();
+      while (iter.hasNext()) {
+        child = (Group) iter.next();
+        child.setSession(s);
+        if (RootPrivilegeResolver.canVIEW(child, subj)) {
+          children.add(child);
         }
-        root.stop();
-      }
-      catch (HibernateException eH) {
-        ErrorLog.error(Stem.class, E.STEM_GETCHILDGROUPS + eH.getMessage());
       }
     }
     catch (Exception e) {

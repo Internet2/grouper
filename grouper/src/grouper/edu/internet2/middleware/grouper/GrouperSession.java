@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.33 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.34 2006-08-30 15:36:59 blair Exp $
  */
 public class GrouperSession {
 
@@ -37,13 +37,10 @@ public class GrouperSession {
   private Date    start_time;
 
 
-  // PRIVATE CLASS VARIABLES //
-  private static Subject root = null;
-
-
   // PRIVATE TRANSIENT INSTANCE VARIABLES //
   private transient PrivilegeCache    ac    = getAccessCache();
   private transient PrivilegeCache    nc    = getNamingCache();
+  private transient GrouperSession    rs    = null;
   private transient Subject           subj  = null;
   private transient String            type;
   private transient String            who;
@@ -67,7 +64,6 @@ public class GrouperSession {
    * @return  A Grouper API session.
    * @throws  SessionException
    */
-  // TODO Rename: getSession
   public static GrouperSession start(Subject subject) 
     throws SessionException
   {
@@ -99,18 +95,8 @@ public class GrouperSession {
   protected static GrouperSession startTransient() 
     throws  GrouperRuntimeException
   {
-    if (root == null) {
-      try {
-        root = SubjectFinder.findRootSubject();
-      }
-      catch (Exception e) {
-        String msg = E.S_NOSTARTROOT + e.getMessage();
-        ErrorLog.fatal(GrouperSession.class, msg);
-        throw new GrouperRuntimeException(msg, e);
-      }
-    }
     try {
-      return _getSession(root);
+      return _getSession( SubjectFinder.findRootSubject() );
     }
     catch (Exception e) {
       String msg = E.S_NOSTARTROOT + e.getMessage();
@@ -293,7 +279,7 @@ public class GrouperSession {
       );
     }
     return this.ac;
-  } // protected static PrivilegeCache getAccessCache()
+  } // protected PrivilegeCache getAccessCache()
 
   // @since   1.1.0
   protected PrivilegeCache getNamingCache() {
@@ -304,8 +290,15 @@ public class GrouperSession {
       );
     }
     return this.nc;
-  } // protected static PrivilegeCache getNamingCache()
+  } // protected PrivilegeCache getNamingCache()
 
+  // @since   1.1.0
+  protected GrouperSession getRootSession() {
+    if (this.rs == null) {
+      this.rs = GrouperSession.startTransient();
+    }
+    return this.rs;
+  } // protected GrouperSession getRootSession()
 
   // PRIVATE STATIC METHODS //
   private static GrouperSession _getSession(Subject subj) 

@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.25 2006-08-30 14:39:22 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.26 2006-08-30 15:36:59 blair Exp $
  */
 public class GroupFinder {
 
@@ -50,7 +50,7 @@ public class GroupFinder {
     GrouperSession.validate(s);
     Group g = findByName(name);
     g.setSession(s);
-    if (PrivilegeResolver.canVIEW(GrouperSession.startTransient(), g, s.getSubject())) {
+    if (RootPrivilegeResolver.canVIEW(g, s.getSubject())) {
       return g;
     }
     ErrorLog.error(GroupFinder.class, E.GF_FBNAME + E.CANNOT_VIEW);
@@ -78,7 +78,7 @@ public class GroupFinder {
     GrouperSession.validate(s);
     Group g = _findByUuid(uuid);
     g.setSession(s);
-    if (PrivilegeResolver.canVIEW(GrouperSession.startTransient(), g, s.getSubject())) {
+    if (RootPrivilegeResolver.canVIEW(g, s.getSubject())) {
       return g;
     }
     ErrorLog.error(GroupFinder.class, E.GF_FBUUID + E.CANNOT_VIEW);
