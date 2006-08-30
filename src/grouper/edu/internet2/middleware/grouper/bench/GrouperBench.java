@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.4 2006-08-30 14:07:42 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.5 2006-08-30 16:50:00 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -80,6 +80,9 @@ public class GrouperBench {
       else if (sw.getTime() < min) {
         min = sw.getTime();
       }
+    }
+    if (min < 0) {
+      min = 0;
     }
     LOG.info(
         (total / cnt) + "\t" + bm.getClass().getName() + " (" + min + "/" + max + ")"
