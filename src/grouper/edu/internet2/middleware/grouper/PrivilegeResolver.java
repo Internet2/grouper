@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.64 2006-08-22 18:58:10 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.65 2006-08-30 15:36:59 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -37,9 +37,9 @@ import  java.util.*;
 
 
   // CONSTRUCTORS //
-  private PrivilegeResolver() {
+  protected PrivilegeResolver() {
     super();
-  } // private PrivilegeResolver()
+  } // protected PrivilegeResolver()
 
 
 
@@ -131,7 +131,7 @@ import  java.util.*;
       }
     }
     else if (priv.equals(AccessPrivilege.VIEW))   {
-      rv = canVIEW(s, (Group) o, subj);
+      rv = canVIEW((Group) o, subj);
       if (!rv) {
         msg = E.CANNOT_VIEW;
       }
@@ -185,7 +185,8 @@ import  java.util.*;
   } // protected static boolean canUPDATE(s, g, subj)
 
   // @since   1.1.0
-  protected static boolean canVIEW(GrouperSession s, Group g, Subject subj) {
+  protected static boolean canVIEW(Group g, Subject subj) {
+    GrouperSession s = g.getSession();
     if (
       PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.VIEW)  
       ||
@@ -203,7 +204,7 @@ import  java.util.*;
       return true;
     }
     return false; 
-  } // protected static boolean canVIEW(s, g, subj)
+  } // protected static boolean canVIEW(g, subj)
 
   // @since   1.1.0
   protected static Set canViewGroups(GrouperSession s, Set candidates) {
@@ -214,7 +215,7 @@ import  java.util.*;
       g = (Group) iter.next();
       g.setSession(s);
       // Can we view the group
-      if (canVIEW(s, g, s.getSubject())) {
+      if (canVIEW(g, s.getSubject())) {
         groups.add(g);
       }
     }
@@ -259,7 +260,7 @@ import  java.util.*;
       if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
         Subject who   = s.getSubject();
         Group   what  = m.toGroup();
-        if (!canVIEW(s, what, who)) {
+        if (!canVIEW(what, who)) {
           throw new InsufficientPrivilegeException(E.CANNOT_VIEW);
         }
       }

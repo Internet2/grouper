@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.59 2006-08-22 18:21:43 blair Exp $
+ * @version $Id: Member.java,v 1.60 2006-08-30 15:36:59 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -244,9 +244,7 @@ public class Member implements Serializable {
   {
     Validator.argNotNull(g, E.GROUP_NULL);
     try {
-      return PrivilegeResolver.canVIEW(
-        this.getSession(), g, this.getSubject()
-      );
+      return PrivilegeResolver.canVIEW(g, this.getSubject());
     }
     catch (SubjectNotFoundException eSNF) {
       return false; 
