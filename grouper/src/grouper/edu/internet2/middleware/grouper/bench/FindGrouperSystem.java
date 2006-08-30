@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark find <b>GrouperSystem</b>.
  * @author  blair christensen.
- * @version $Id: FindGrouperSystem.java,v 1.2 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: FindGrouperSystem.java,v 1.3 2006-08-30 13:21:45 blair Exp $
  * @since   1.1.0
  */
 public class FindGrouperSystem extends BaseGrouperBenchmark {
@@ -52,7 +52,7 @@ public class FindGrouperSystem extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      Subject subj = SubjectFinder.findById("GrouperSystem");
+      SubjectFinder.findRootSubject();
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e.getMessage());
