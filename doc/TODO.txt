@@ -4,30 +4,19 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.36 2006-08-21 19:34:05 blair Exp $
+$Id: TODO.txt,v 1.37 2006-08-30 16:06:28 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
 
 ### Next Actions
-* CODE      Refactor privilege caching
-    * `LessSimplePrivilegeCache` extends `SimplePrivilegeCache`
-        * a hopefully smarter version of the above
-        * use the `remove()` methods to try and be selective about what is
-          removed from the cache upon mods             
 * CODE      Continue refactoring privilege resolution
+    * remove `GrouperSession` param from all `can*()` methods
+    * remove `GrouperSession.startTransient()`
     * `RootPrivilegeResolver` extends `PrivilegeResolver`
-        * Try to isolate all needs-to-be-root and proxy-as-root code *within*
-          this class
-        * Should I attach a transient root session within each session?
-            * Should caches be shared?
-        * Include wheel checks here.  If wheel group enabled:
-            * Get group
-            * Check if modified since last check
-                * If yes: flush? 
-            * Return result
 * TEST      use of wheel group
+    * check if modified since last check?
 * CODE      Populate *Membership* creation attributes
 * CODE      *MembershipCreatedAfter* query filter
 * CODE      *MembershipCreatedBefore* query filter
@@ -40,6 +29,10 @@ $Id: TODO.txt,v 1.36 2006-08-21 19:34:05 blair Exp $
 * DOC       Migrate impl guide to wiki and export upon release
 
 ### Maybe
+* CODE      `LessSimplePrivilegeCache` extends `SimplePrivilegeCache`
+  * a hopefully smarter version of `SimplePrivilegeCache`
+  * use the `remove()` methods to try and be selective about what is
+    removed from the cache upon mods             
 * CODE      Migrate error messages to *E*
 * CODE      Migrate messages to *M*
 * CODE      Use `SetUtils` for group math
@@ -64,7 +57,7 @@ TODO Add additional potential changes.
 
 ---
 
-$Id: TODO.txt,v 1.36 2006-08-21 19:34:05 blair Exp $
+$Id: TODO.txt,v 1.37 2006-08-30 16:06:28 blair Exp $
 
 
 

@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution (as root) class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RootPrivilegeResolver.java,v 1.1 2006-08-30 15:36:59 blair Exp $
+ * @version $Id: RootPrivilegeResolver.java,v 1.2 2006-08-30 16:06:28 blair Exp $
  * @since   1.1.0
  */
  class RootPrivilegeResolver extends PrivilegeResolver {
@@ -37,6 +37,15 @@ import  java.util.*;
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.1.0
+  protected static boolean canSTEM(Stem ns, Subject subj) {
+    GrouperSession  s   = ns.getSession();  
+    ns.setSession( s.getRootSession() );
+    boolean         rv  = PrivilegeResolver.canSTEM(ns, subj);
+    ns.setSession(s);
+    return rv; 
+  } // protected static boolean canSTEM(ns, subj)
 
   // @since   1.1.0
   protected static boolean canVIEW(Group g, Subject subj) {

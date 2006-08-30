@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.65 2006-08-30 15:36:59 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.66 2006-08-30 16:06:28 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -125,7 +125,7 @@ import  java.util.*;
       }
     }
     else if (priv.equals(NamingPrivilege.STEM))   {
-      rv = canSTEM(s, (Stem) o, subj);
+      rv = canSTEM((Stem) o, subj);
       if (!rv) {
         msg = E.CANNOT_STEM;
       }
@@ -167,9 +167,9 @@ import  java.util.*;
    }// protected static boolean canREAD(s, g, subj)
 
   // @since   1.1.0
-  protected static boolean canSTEM(GrouperSession s, Stem ns, Subject subj) {
-    return PrivilegeResolver.hasPriv(s, ns, subj, NamingPrivilege.STEM);
-  } // protected static boolean canSTEM(s, ns, subj)
+  protected static boolean canSTEM(Stem ns, Subject subj) {
+    return PrivilegeResolver.hasPriv(ns.getSession(), ns, subj, NamingPrivilege.STEM);
+  } // protected static boolean canSTEM(ns, subj)
 
   // @since   1.1.0
   protected static boolean canUPDATE(GrouperSession s, Group g, Subject subj) {

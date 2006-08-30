@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.75 2006-08-30 15:36:59 blair Exp $
+ * @version $Id: Stem.java,v 1.76 2006-08-30 16:06:28 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -200,12 +200,7 @@ public class Stem extends Owner {
     catch (ModelException eM) {
       throw new StemAddException(eM.getMessage(), eM);
     }
-    if (
-      !PrivilegeResolver.canSTEM(
-        this.getSession(), this, this.getSession().getSubject()
-      )
-    )
-    {
+    if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     } 
     String  name  = constructName(this.getName(), extension);
@@ -785,12 +780,7 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if (
-      !PrivilegeResolver.canSTEM(
-        GrouperSession.startTransient(), this, this.getSession().getSubject()
-      )
-    )
-    {
+    if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
@@ -841,12 +831,7 @@ public class Stem extends Owner {
       // Appease Oracle
       value = ROOT_INT;
     }
-    if (
-      !PrivilegeResolver.canSTEM(
-        GrouperSession.startTransient(), this, this.getSession().getSubject() 
-      )
-    )
-    {
+    if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
@@ -868,13 +853,11 @@ public class Stem extends Owner {
       // Now iterate through all child groups and stems (as root),
       // renaming each.
       GrouperSession  orig  = this.getSession();
-      GrouperSession  root  = GrouperSession.startTransient();
-      this.setSession(root);
+      this.setSession( orig.getRootSession() );
       objects.addAll( this._renameChildren() );
       objects.add(this);
       HibernateHelper.save(objects);
       this.setSession(orig);
-      root.stop();
     }
     catch (Exception e) {
       throw new StemModifyException(
@@ -982,7 +965,7 @@ public class Stem extends Owner {
     // TODO Unfortunately this sets the modify* attrs
     try {
       GrouperSession  orig  = this.s;
-      GrouperSession  root  = GrouperSession.startTransient();
+      GrouperSession  root  = orig.getRootSession();
       g.setSession(root);
       PrivilegeResolver.grantPriv(root, g, orig.getSubject(), AccessPrivilege.ADMIN);
 
@@ -1007,7 +990,6 @@ public class Stem extends Owner {
       );
 
       g.setSession(orig);
-      root.stop();
     }
     catch (Exception e) {
       throw new GroupAddException(
@@ -1028,7 +1010,7 @@ public class Stem extends Owner {
     // TODO Unfortunately this sets the modify* attrs
     try {
       GrouperSession  orig  = this.s;
-      GrouperSession  root  = GrouperSession.startTransient();
+      GrouperSession  root  = orig.getRootSession();
       ns.setSession(root);
       PrivilegeResolver.grantPriv(root, ns, orig.getSubject(), NamingPrivilege.STEM);
 
@@ -1041,7 +1023,6 @@ public class Stem extends Owner {
       );
 
       ns.setSession(orig);
-      root.stop();
     }
     catch (Exception e) {
       throw new StemAddException(
@@ -1135,7 +1116,7 @@ public class Stem extends Owner {
             SchemaException
   {
     GrouperSession orig = this.getSession();
-    this.setSession(GrouperSession.startTransient()); // proxy as root
+    this.setSession( orig.getRootSession() ); // proxy as root
     this.revokePriv(NamingPrivilege.CREATE);
     this.revokePriv(NamingPrivilege.STEM);
     this.setSession(orig);
