@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.96 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: Group.java,v 1.97 2006-08-30 16:06:28 blair Exp $
  */
 public class Group extends Owner {
 
@@ -2204,9 +2204,8 @@ public class Group extends Owner {
             RevokePrivilegeException, 
             SchemaException
   {
-    // Proxy as root
     GrouperSession orig = this.getSession();
-    this.setSession(GrouperSession.startTransient());
+    this.setSession( orig.getRootSession() ); // proxy as root
 
     this.revokePriv(AccessPrivilege.ADMIN);
     this.revokePriv(AccessPrivilege.OPTIN);
