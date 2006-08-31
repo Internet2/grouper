@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.9 2006-08-31 17:57:38 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.10 2006-08-31 18:04:06 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -94,7 +94,8 @@ public class GrouperBench {
       min = 0;
     }
     LOG.info(
-        (total / cnt) + "\t" + bm.getClass().getName() + " (" + min + "/" + max + ")"
+      (total / cnt) + "\t" + bm.getClass().getName() 
+      + " (" + min + "/" + max + ") @ " + runSize + " runs"
     );
   } // protected static void _run(bm)
 
@@ -111,7 +112,6 @@ public class GrouperBench {
       else {
         runSize = Integer.parseInt(size);
       }
-      LOG.info("run size: " + runSize);
     }
     return runSize;
   } // private static int getRunSize()
