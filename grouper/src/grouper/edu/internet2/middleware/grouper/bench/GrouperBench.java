@@ -23,16 +23,24 @@ import  org.apache.commons.logging.*;
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.8 2006-08-31 16:49:52 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.9 2006-08-31 17:57:38 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(GrouperBench.class);
+  private static final int    RUNSIZE_DEFAULT = 100;
+  private static final String RUNSIZE_VAR     = "GROUPER_BENCH_RUNSIZE";
+  private static final Log    LOG             = LogFactory.getLog(GrouperBench.class);
+
+
+  // PRIVATE CLASS VARIABLES //
+  private static int runSize = Integer.MIN_VALUE;
 
 
   // MAIN //
+
+  // @since   1.1.0
   public static void main(String args[]) {
     int exit_value = 0;
     try {
@@ -58,10 +66,10 @@ public class GrouperBench {
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.1.0
   protected static void run(GrouperBenchmark bm) {
-    int   cnt   = 100;  // TODO Make this runtime configurable
-                        //      It can take *far* too long otherwise.
-                        //      And, yes, I acknowledge that is a problem.
+    int   cnt   = getRunSize();
     long  max   = Long.MIN_VALUE;
     long  min   = Long.MAX_VALUE;
     long  total = 0;
@@ -89,5 +97,23 @@ public class GrouperBench {
         (total / cnt) + "\t" + bm.getClass().getName() + " (" + min + "/" + max + ")"
     );
   } // protected static void _run(bm)
+
+  
+  // PRIVATE CLASS METHODS //
+  
+  // @since   1.1.0
+  private static int getRunSize() {
+    if (runSize == Integer.MIN_VALUE) {
+      String size = System.getenv(RUNSIZE_VAR);
+      if (size == null) {
+        runSize = RUNSIZE_DEFAULT;
+      }
+      else {
+        runSize = Integer.parseInt(size);
+      }
+      LOG.info("run size: " + runSize);
+    }
+    return runSize;
+  } // private static int getRunSize()
 
 } // public class GrouperBench
