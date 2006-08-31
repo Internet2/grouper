@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.7 2006-08-31 15:53:05 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.8 2006-08-31 16:49:52 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -59,7 +59,7 @@ public class GrouperBench {
 
   // PROTECTED CLASS METHODS //
   protected static void run(GrouperBenchmark bm) {
-    int   cnt   = 500;  // TODO Make this runtime configurable
+    int   cnt   = 100;  // TODO Make this runtime configurable
                         //      It can take *far* too long otherwise.
                         //      And, yes, I acknowledge that is a problem.
     long  max   = Long.MIN_VALUE;
