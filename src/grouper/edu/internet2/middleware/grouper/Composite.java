@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.18 2006-09-05 19:43:19 blair Exp $
+ * @version $Id: Composite.java,v 1.19 2006-09-05 19:46:34 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -261,11 +261,8 @@ public class Composite extends Owner {
     try {
       StopWatch sw  = new StopWatch();
       sw.start();
-      this.setSession( this.getSession().getRootSession() );
-/*
-      GrouperSession rs  = GrouperSession.startTransient();
+      GrouperSession rs  = this.getSession().getRootSession();
       this.setSession(rs);
-*/
       Group           g   = this.getOwnerGroup();
       MemberOf        mof = MemberOf.addComposite(rs, g, this);
 
