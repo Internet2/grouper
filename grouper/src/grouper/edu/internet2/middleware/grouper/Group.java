@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.98 2006-09-05 18:25:15 blair Exp $
+ * @version $Id: Group.java,v 1.99 2006-09-05 19:56:15 blair Exp $
  */
 public class Group extends Owner {
 
@@ -442,7 +442,7 @@ public class Group extends Owner {
       // And delete all memberships - as root
       deletes.addAll( 
         Membership.deleteAllFieldType(
-          GrouperSession.startTransient(), this, FieldType.LIST
+          this.getSession().getRootSession(), this, FieldType.LIST
         )
       );
 
