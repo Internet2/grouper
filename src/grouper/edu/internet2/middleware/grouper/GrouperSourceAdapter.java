@@ -38,12 +38,16 @@ import  java.util.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.16 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.17 2006-09-05 19:52:52 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   // PRIVATE INSTANCE VARIABLES //
   private Set _types = new LinkedHashSet();
+
+
+  // PRIVATE TRANSIENT INSTANCE VARIABLES //
+  private transient GrouperSession rs = null;
 
 
   // CONSTRUCTORS //
@@ -94,7 +98,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   {
     try {
       return new GrouperSubject(
-        GroupFinder.findByUuid(GrouperSession.startTransient(), id)
+        GroupFinder.findByUuid(this._getSession(), id)
       );
     }
     catch (Exception e) {
@@ -133,7 +137,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   {
     try {
       return new GrouperSubject(
-        GroupFinder.findByName(GrouperSession.startTransient(), name)
+        GroupFinder.findByName(this._getSession(), name)
       );
     }
     catch (Exception e) {
@@ -188,10 +192,10 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    */
   public Set search(String searchValue) {
     Set   subjs  = new LinkedHashSet();
-    Stem  root   = StemFinder.findRootStem(GrouperSession.startTransient());
+    Stem  root   = StemFinder.findRootStem(this._getSession());
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        GrouperSession.startTransient(), new GroupNameFilter(searchValue, root)
+        this._getSession(), new GroupNameFilter(searchValue, root)
       );
       Group     g;
       Iterator  iter  = gq.getGroups().iterator();
@@ -205,6 +209,22 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     } 
     return subjs;
   } // public Set search(searchValue)
+
+
+  // PRIVATE INSTANCE METHODS //
+
+  // @since   1.1.0
+  private GrouperSession _getSession() {
+    if (this.rs == null) {
+      try {
+        this.rs = GrouperSession.start( SubjectFinder.findRootSubject() );
+      }
+      catch (SessionException eS) {
+        throw new GrouperRuntimeException(E.S_NOSTARTROOT + eS.getMessage());
+      }
+    }
+    return this.rs;
+  } // private GrouperSession _getSession()
 
 }
 
