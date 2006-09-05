@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: gsh.sh,v 1.2 2006-06-28 21:19:30 blair Exp $
+# $Id: gsh.sh,v 1.3 2006-09-05 17:38:16 blair Exp $
 
 #
 # TODO
@@ -11,6 +11,9 @@
 # Populated at build
 GROUPER_HOME=@GROUPER_HOME@
 GSH_HOME=@GSH_HOME@
+MEM_START=@GSH_MEM_START@
+MEM_MAX=@GSH_MEM_MAX@
+
 
 # The user's $CLASSPATH
 CP=${CLASSPATH}
@@ -31,6 +34,7 @@ CP=${CP}:${GSH_HOME}/build/gsh
 # Append gsh's 3rd party libs
 for f in ${GSH_HOME}/lib/*.jar; do CP=${CP}:${f}; done
 
-java -classpath ${CP} ${GSH_JVMARGS} com.devclue.grouper.shell.GrouperShell "$@"
+java -classpath ${CP} -Xms${MEM_START} -Xmx${MEM_MAX} ${GSH_JVMARGS} \
+  com.devclue.grouper.shell.GrouperShell "$@"
 exit $?
 
