@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.97 2006-08-30 16:06:28 blair Exp $
+ * @version $Id: Group.java,v 1.98 2006-09-05 18:25:15 blair Exp $
  */
 public class Group extends Owner {
 
@@ -514,7 +514,7 @@ public class Group extends Owner {
           attrs.add(a); // preserving
         }
       }
-      if (found == true) {
+      if (found) {
         this.setModified();
         this.setGroup_attributes(attrs);
         saves.add(this);
@@ -526,11 +526,17 @@ public class Group extends Owner {
       sw.stop();
       EL.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
     }
+    catch (HibernateException eH) {
+      throw new GroupModifyException(eH.getMessage(), eH);
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      throw eIP;
+    }
+    catch (ModelException eM) {
+      throw new GroupModifyException(eM.getMessage(), eM);
+    }
     catch (SchemaException eS) {
       throw new AttributeNotFoundException(eS.getMessage(), eS);
-    }
-    catch (Exception e) {
-      throw new GroupModifyException(e.getMessage(), e);
     }
   } // public void deleteAttribute(attr)
 
@@ -1961,7 +1967,7 @@ public class Group extends Owner {
         }
         attrs.add(a);
       }
-      if (found == false) {
+      if (!found) {
         attrs.add(new Attribute(this, f, value)); // adding 
       }
 
@@ -1972,11 +1978,17 @@ public class Group extends Owner {
       sw.stop();
       EL.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
     }
+    catch (HibernateException eH) {
+      throw new GroupModifyException(eH.getMessage(), eH);
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      throw eIP;
+    }
+    catch (ModelException eM) {
+      throw new GroupModifyException(eM.getMessage(), eM);
+    }
     catch (SchemaException eS) {
       throw new AttributeNotFoundException(eS.getMessage(), eS);
-    }
-    catch (Exception e) {
-      throw new GroupModifyException(e.getMessage(), e);
     }
   } // public void setAttribute(attr, value)
 

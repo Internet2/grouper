@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS.txt,v 1.17 2006-08-21 19:34:05 blair Exp $
+$Id: NEWS.txt,v 1.18 2006-09-05 18:25:15 blair Exp $
 
 ---
 
@@ -10,6 +10,9 @@ $Id: NEWS.txt,v 1.17 2006-08-21 19:34:05 blair Exp $
 Released: TBD
 
 ## Changes
+* BUGFIX: Throw `InsufficientPrivilegeException`, not
+  `GroupModifyException`, when not privileged to modify-or-delete
+  a group attribute. [GCODE:16]
 * UPDATE: Privilege caching is now done per `GrouperSession`, not per JVM.
 * NEW:    *privileges.access.cache.interface* parameter in `conf/grouper.properties`
 * NEW:    *privileges.naming.cache.interface* parameter in `conf/grouper.properties`
@@ -22,8 +25,8 @@ Released: TBD
 * NEW:    `GroupModifiedAfter` query filter
 * NEW:    `GroupModifiedBefore` query filter
 * BUGFIX: Inappropriate privilege checks in *Stem.getCreators()* and
-  *Stem.getStemmers(). [GCODE#10]
-* BUGFIX: *Group.getRemovableTypes()* made incorrect privilege check. [GCODE#11]
+  *Stem.getStemmers(). [GCODE:10]
+* BUGFIX: *Group.getRemovableTypes()* made incorrect privilege check. [GCODE:11]
 * NEW:    Upgraded to `lib/i2mi-common-0.1.0.jar`.  This replaces:
     * `lib/commons-beanutils-1.6.jar` 
     * `lib/commons-collections-3.1.jar`
