@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.34 2006-08-30 15:36:59 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.35 2006-09-05 19:42:14 blair Exp $
  */
 public class GrouperSession {
 
@@ -40,7 +40,8 @@ public class GrouperSession {
   // PRIVATE TRANSIENT INSTANCE VARIABLES //
   private transient PrivilegeCache    ac    = getAccessCache();
   private transient PrivilegeCache    nc    = getNamingCache();
-  private transient GrouperSession    rs    = null;
+  private transient GrouperSession    ps    = null; // parent session of root session
+  private transient GrouperSession    rs    = null; // inner root session
   private transient Subject           subj  = null;
   private transient String            type;
   private transient String            who;
@@ -275,7 +276,7 @@ public class GrouperSession {
     if (this.ac == null) {
       this.ac = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PACI));
       DebugLog.info(
-        PrivilegeResolver.class, "using access cache: " + ac.getClass().getName()
+        GrouperSession.class, "using access cache: " + ac.getClass().getName()
       );
     }
     return this.ac;
@@ -286,19 +287,27 @@ public class GrouperSession {
     if (this.nc == null) {
       this.nc = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PNCI));
       DebugLog.info(
-        PrivilegeResolver.class, "using naming cache: " + nc.getClass().getName()
+        GrouperSession.class, "using naming cache: " + nc.getClass().getName()
       );
     }
     return this.nc;
   } // protected PrivilegeCache getNamingCache()
 
+  // @throws  GrouperRuntimeException
   // @since   1.1.0
-  protected GrouperSession getRootSession() {
+  protected GrouperSession getRootSession() 
+    throws  GrouperRuntimeException
+  {
+    if (this._getParentSession() != null) { 
+      DebugLog.info(GrouperSession.class, M.GOT_INNER_WITHIN_INNER);
+    }
     if (this.rs == null) {
       this.rs = GrouperSession.startTransient();
+      this.rs._setParentSession(this);
     }
     return this.rs;
   } // protected GrouperSession getRootSession()
+
 
   // PRIVATE STATIC METHODS //
   private static GrouperSession _getSession(Subject subj) 
@@ -319,6 +328,19 @@ public class GrouperSession {
     s.setSession_id( GrouperUuid.getUuid() );
     return s;
   } // private GrouperSession(subj) 
+
+
+  // PRIVATE INSTANCE METHODS //
+
+  // @since   1.1.0
+  private GrouperSession _getParentSession() {
+    return this.ps;
+  } // private GrouperSession getParentSession()
+
+  // @since   1.1.0
+  private void _setParentSession(GrouperSession parent) {
+    this.ps = parent;
+  } // private void setParentSession(parent)
 
 
   // GETTERS //

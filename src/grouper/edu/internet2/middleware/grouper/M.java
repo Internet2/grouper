@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Messages.
  * @author  blair christensen.
- * @version $Id: M.java,v 1.4 2006-06-18 01:47:34 blair Exp $
+ * @version $Id: M.java,v 1.5 2006-09-05 19:42:14 blair Exp $
  * @since   1.0
  */
 class M {
@@ -31,6 +31,7 @@ class M {
   protected static final String COMP_DEL            = "composite delete: group=";
   protected static final String COMP_MEMADD         = "add composite member: group=";
   protected static final String COMP_MEMDEL         = "delete composite member: group=";
+  protected static final String GOT_INNER_WITHIN_INNER  = "got inner session within inner session";
   protected static final String GROUP_ADD           = "add group: ";
   protected static final String GROUP_ADDTYPE       = "group add type: group=";
   protected static final String GROUP_DEL           = "delete group: ";
