@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteSessions.java,v 1.3 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: SuiteSessions.java,v 1.4 2006-09-05 19:42:14 blair Exp $
  */
 public class SuiteSessions extends TestCase {
 
@@ -36,6 +36,7 @@ public class SuiteSessions extends TestCase {
     suite.addTestSuite( TestSession3.class  );
     suite.addTestSuite( TestSession4.class  );
     suite.addTestSuite( TestSession5.class  );
+    suite.addTestSuite( TestSession6.class  ); // can get inner session within inner session
     return suite;
   } // static public Test suite()
 

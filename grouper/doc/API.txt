@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.11 2006-08-30 16:09:47 blair Exp $
+$Id: API.txt,v 1.12 2006-09-05 19:42:14 blair Exp $
 
 ---
 
@@ -214,7 +214,7 @@ $Id: API.txt,v 1.11 2006-08-30 16:09:47 blair Exp $
 * String                getAccessClass()
 * Member                getMember()
 * String                getNamingClass()
-* String                getGrouperSessionId()
+* String                getSessionId()
 * Date                  getStartTime()
 * Subject               getSubject()
 * void                  stop()
