@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.7 2006-08-08 17:56:10 blair Exp $ -->
+<!-- $Id: build.xml,v 1.8 2006-09-05 17:38:16 blair Exp $ -->
 
 <project name="GrouperShell" default="build" basedir=".">
 
@@ -26,6 +26,9 @@
   <property name="log.build"        value="${basedir}/build.log"                          />
   <property name="log.test.build"   value="${basedir}/test-build.log"                     />
   <property name="log.test.run"     value="${basedir}/test.log"                           />
+
+  <property name="memory.start"     value="64m"                                           />
+  <property name="memory.max"       value="256m"                                          />
   <!-- Global Properties -->
 
   <!-- build --> 
@@ -43,6 +46,8 @@
 
     <filter token="GROUPER_HOME"  value="${src.grouper}"  />
     <filter token="GSH_HOME"      value="${basedir}"      />
+    <filter token="GSH_MEM_START" value="${memory.start}" />
+    <filter token="GSH_MEM_MAX"   value="${memory.max}"   />
     <copy todir="${build.bin}" filtering="true">
       <fileset dir="${src.bin}"/>
     </copy>
@@ -136,6 +141,7 @@
           description="crudely run GrouperShell"
   >
     <java fork="no"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="com.devclue.grouper.shell.GrouperShell"
           failonerror="true"
@@ -193,6 +199,7 @@
     />
     <echo message="running test: ${name}" />
     <java fork="yes"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="com.devclue.grouper.shell.GrouperShell"
           taskname="junit"

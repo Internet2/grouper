@@ -10,12 +10,13 @@ This file provides information on *GrouperShell* releases.
 Released: ????????
 
 ### CHANGES
-* NEW:  Added *GroupType* commands for *Group*s:
+* UPDATE: Increase gsh memory allocation in `gsh.sh` and `gsh.bat`
+* NEW:    Added *GroupType* commands for *Group*s:
     * groupAddType(group, type)
     * groupDelType(group, type)
     * groupGetTypes(group)
     * groupHasType(group, type)
-* NEW:  Added *GroupType* commands:
+* NEW:    Added *GroupType* commands:
     * typeAdd(name)
     * typeAddAttr(type, name, read, write, req)
     * typeAddList(type, name, read, write)
@@ -23,7 +24,7 @@ Released: ????????
     * typeDelField(type, name)
     * typeFind(name)
     * typeGetFields(name)
-* NEW:  Added `bin/gsh.bat` [Gary Brown]
+* NEW:    Added `bin/gsh.bat` [Gary Brown]
 
 ---
 
@@ -36,5 +37,5 @@ Released: 20060720
 
 ---
 
-$Id: NEWS.txt,v 1.5 2006-08-10 18:47:53 blair Exp $
+$Id: NEWS.txt,v 1.6 2006-09-05 17:38:16 blair Exp $
 
