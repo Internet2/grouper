@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession6.java,v 1.1 2006-09-05 19:42:14 blair Exp $
+ * @version $Id: TestSession6.java,v 1.2 2006-09-06 14:24:07 blair Exp $
  */
 public class TestSession6 extends TestCase {
 
@@ -49,7 +49,7 @@ public class TestSession6 extends TestCase {
       GrouperSession  s   = GrouperSession.start( SubjectFinder.findRootSubject());
       GrouperSession  rs  = s.getRootSession();
       // FIXME I think this should fail but the code is too tangled to fix at the moment
-      GrouperSession  rrs = rs.getRootSession();
+      rs.getRootSession();
       Assert.assertTrue("got inner session within inner session", true);
       s.stop();
     }
