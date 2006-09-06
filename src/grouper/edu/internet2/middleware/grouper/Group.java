@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.100 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: Group.java,v 1.101 2006-09-06 15:55:52 blair Exp $
  */
 public class Group extends Owner {
 
@@ -931,11 +931,8 @@ public class Group extends Owner {
   public String getDisplayExtension() 
     throws  GrouperRuntimeException
   {
-    //  TODO  Do I need to validate privs here or not?  If one has
-    //        retrieved a group then one has at least VIEW and thus this
-    //        attribute should be available, no?  As long as I don't make
-    //        public the methods for adjusting the session associated with a
-    //        Group I think this is fine.
+    // We don't validate privs here because if one has retrieved a group then one
+    // has at least VIEW.
     String val = this._getAttributeNoPrivs("displayExtension");
     if (val == null) {
       //  A group without this attribute is VERY faulty
@@ -956,11 +953,8 @@ public class Group extends Owner {
   public String getDisplayName() 
     throws  GrouperRuntimeException
   {
-    //  TODO  Do I need to validate privs here or not?  If one has
-    //        retrieved a group then one has at least VIEW and thus this
-    //        attribute should be available, no?  As long as I don't make
-    //        public the methods for adjusting the session associated with a
-    //        Group I think this is fine.
+    // We don't validate privs here because if one has retrieved a group then one
+    // has at least VIEW.
     String val = this._getAttributeNoPrivs("displayName");
     if (val == null) {
       //  A group without this attribute is VERY faulty
@@ -1058,11 +1052,8 @@ public class Group extends Owner {
    * @throws  GrouperRuntimeException
    */
   public String getExtension() {
-    //  TODO  Do I need to validate privs here or not?  If one has
-    //        retrieved a group then one has at least VIEW and thus this
-    //        attribute should be available, no?  As long as I don't make
-    //        public the methods for adjusting the session associated with a
-    //        Group I think this is fine.
+    // We don't validate privs here because if one has retrieved a group then one
+    // has at least VIEW.
     String val = this._getAttributeNoPrivs("extension");
     if (val == null) {
       //  A group without this attribute is VERY faulty
@@ -1290,11 +1281,8 @@ public class Group extends Owner {
   public String getName() 
     throws  GrouperRuntimeException
   {
-    //  TODO  Do I need to validate privs here or not?  If one has
-    //        retrieved a group then one has at least VIEW and thus this
-    //        attribute should be available, no?  As long as I don't make
-    //        public the methods for adjusting the session associated with a
-    //        Group I think this is fine.
+    // We don't validate privs here because if one has retrieved a group then one
+    // has at least VIEW.
     String val = this._getAttributeNoPrivs("name");
     if (val == null) {
       //  A group without this attribute is VERY faulty
@@ -2097,7 +2085,6 @@ public class Group extends Owner {
   public Member toMember() 
     throws  GrouperRuntimeException
   {
-    // TODO Does this need to be public?
     GrouperSessionValidator.validate(this.getSession());
     if (as_member == null) {
       try {
