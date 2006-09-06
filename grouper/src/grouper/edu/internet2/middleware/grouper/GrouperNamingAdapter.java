@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.43 2006-08-10 17:29:04 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.44 2006-09-06 15:30:40 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -65,7 +65,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
     throws  SchemaException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     return MembershipFinder.findSubjectsNoPriv(s, ns, this._getField(priv));
   } // public Set getSubjectsWithPriv(s, ns, priv)
 
@@ -92,7 +92,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   ) 
     throws  SchemaException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set stems = new LinkedHashSet();
     try {
       // The subject
@@ -141,7 +141,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @return  Set of {@link NamingPrivilege} objects.
    */
   public Set getPrivs(GrouperSession s, Stem ns, Subject subj) {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set privs = new LinkedHashSet();
     try {
       Member    m     = MemberFinder.findBySubject(s, subj);
@@ -201,14 +201,11 @@ public class GrouperNamingAdapter implements NamingAdapter {
     try {
       GrouperSessionValidator.validate(s);
       Field f = this._getField(priv);
-      StemValidator.canWriteField(s, ns, s.getSubject(), f, FieldType.NAMING);
+      StemValidator.canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
       Membership.addImmediateMembership(s, ns, subj, f);
     }
     catch (MemberAddException eMA) {
       throw new GrantPrivilegeException(eMA.getMessage(), eMA);
-    }
-    catch (ModelException eM) {
-      throw new GrantPrivilegeException(eM.getMessage(), eM);
     }
   } // public void grantPriv(s, ns, subj, priv)
 
@@ -231,7 +228,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws  SchemaException 
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(s, subj);
@@ -269,29 +266,24 @@ public class GrouperNamingAdapter implements NamingAdapter {
             RevokePrivilegeException,
             SchemaException
   {
+    GrouperSessionValidator.validate(s);
+    Field f = this._getField(priv);
+    StemValidator.canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
+
+    // The objects that will need updating and deleting
+    Set     saves   = new LinkedHashSet();
+    Set     deletes = new LinkedHashSet();
+
+    ns.setModified();
+    saves.add(ns);
+
     try {
-      GrouperSessionValidator.validate(s);
-      Field f = this._getField(priv);
-      StemValidator.canWriteField(s, ns, s.getSubject(), f, FieldType.NAMING);
-
-      // The objects that will need updating and deleting
-      Set     saves   = new LinkedHashSet();
-      Set     deletes = new LinkedHashSet();
-
-      ns.setModified();
-      saves.add(ns);
-
-      try {
-        // Find privileges that need to be revoked and then update registry
-        deletes = Membership.deleteAllField(s, ns, f);
-        HibernateHelper.saveAndDelete(saves, deletes);
-      }
-      catch (Exception e) {
-        throw new RevokePrivilegeException(e.getMessage(), e);
-      }
+      // Find privileges that need to be revoked and then update registry
+      deletes = Membership.deleteAllField(s, ns, f);
+      HibernateHelper.saveAndDelete(saves, deletes);
     }
-    catch (ModelException eM) {
-      throw new RevokePrivilegeException(eM.getMessage(), eM);
+    catch (Exception e) {
+      throw new RevokePrivilegeException(e.getMessage(), e);
     }
   } // public void revokePriv(s, ns, priv)
 
@@ -326,13 +318,12 @@ public class GrouperNamingAdapter implements NamingAdapter {
     try {
       GrouperSessionValidator.validate(s);
       Field f = this._getField(priv);
-      StemValidator.canWriteField(s, ns, s.getSubject(), f, FieldType.NAMING);
+      StemValidator.canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
       MemberOf  mof     = Membership.delImmediateMembership(s, ns, subj, f);
       Set       saves   = mof.getSaves();
       Set       deletes = mof.getDeletes();
 
       // TODO Should this be in _Stem_?  
-      // TODO Actually, should it done at all?
       ns.setModified();
       saves.add(ns);
 
@@ -344,9 +335,6 @@ public class GrouperNamingAdapter implements NamingAdapter {
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException(eMD);
-    }
-    catch (ModelException eM) {
-      throw new RevokePrivilegeException(eM);
     }
   } // public void revokePriv(s, ns, subj, priv)
 

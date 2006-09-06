@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.19 2006-09-05 19:46:34 blair Exp $
+ * @version $Id: Composite.java,v 1.20 2006-09-06 15:30:40 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -48,8 +48,7 @@ public class Composite extends Owner {
   protected Composite(GrouperSession s, Owner o, Owner l, Owner r, CompositeType type) 
     throws  ModelException
   {
-    // TODO I had a FIXME here without any context.  I wonder what I had in mind?
-    this.setSessionNew(   s                     ); 
+    this.setSession(      s                     ); 
     this.setCreator_id(   s.getMember()         );
     this.setCreate_time(  new Date().getTime()  );
     this.setUuid(         GrouperUuid.getUuid() );

@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.20 2006-08-30 14:39:22 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.21 2006-09-06 15:30:40 blair Exp $
  */
 public class MemberFinder {
 
@@ -49,7 +49,7 @@ public class MemberFinder {
   public static Member findBySubject(GrouperSession s, Subject subj)
     throws  MemberNotFoundException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Member m = findBySubject(subj);
     m.setSession(s);
     return m;
@@ -74,7 +74,7 @@ public class MemberFinder {
   public static Member findByUuid(GrouperSession s, String uuid)
     throws MemberNotFoundException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     try {
       Member  m       = null;
       Session hs      = HibernateHelper.getSession();

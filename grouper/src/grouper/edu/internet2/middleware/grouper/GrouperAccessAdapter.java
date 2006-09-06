@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.41 2006-07-03 18:29:06 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.42 2006-09-06 15:30:40 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -69,7 +69,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
     throws  SchemaException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     return MembershipFinder.findSubjects(
       s, g, (Field) FieldFinder.find( (String) priv2list.get(priv) )
     );
@@ -98,7 +98,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   ) 
     throws  SchemaException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set groups = new LinkedHashSet();
     try {
       // The subject
@@ -146,7 +146,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @return  Set of privileges.
    */
   public Set getPrivs(GrouperSession s, Group g, Subject subj) {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set privs = new LinkedHashSet();
     try {
       Member    m     = MemberFinder.findBySubject(s, subj);
@@ -204,14 +204,11 @@ public class GrouperAccessAdapter implements AccessAdapter {
       GrouperSessionValidator.validate(s);
       Field f = this._getField(priv);
       GroupValidator.isTypeEqual(f, FieldType.ACCESS);
-      GroupValidator.canWriteField(s, g, s.getSubject(), f);
+      GroupValidator.canWriteField(g, s.getSubject(), f);
       Membership.addImmediateMembership(s, g, subj, f);
     }
     catch (MemberAddException eMA) {
       throw new GrantPrivilegeException(eMA.getMessage(), eMA);
-    }
-    catch (ModelException eM) {
-      throw new GrantPrivilegeException(eM.getMessage(), eM);
     }
   } // public void grantPriv(s, g, subj, priv)
 
@@ -234,7 +231,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws  SchemaException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(s, subj);
@@ -272,30 +269,25 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException,
             SchemaException
   {
+    GrouperSessionValidator.validate(s);
+    Field f = this._getField(priv);
+    GroupValidator.isTypeEqual(f, FieldType.ACCESS);
+    GroupValidator.canWriteField(g, s.getSubject(), f);
+
+    // The objects that will need updating and deleting
+    Set saves   = new LinkedHashSet();
+    Set deletes = new LinkedHashSet();
+
+    g.setModified();
+    saves.add(g);
+
     try {
-      GrouperSessionValidator.validate(s);
-      Field f = this._getField(priv);
-      GroupValidator.isTypeEqual(f, FieldType.ACCESS);
-      GroupValidator.canWriteField(s, g, s.getSubject(), f);
-
-      // The objects that will need updating and deleting
-      Set     saves   = new LinkedHashSet();
-      Set     deletes = new LinkedHashSet();
-
-      g.setModified();
-      saves.add(g);
-
-      try {
-        // Find privileges that need to be revoked and then update registry
-        deletes = Membership.deleteAllField(s, g, f);
-        HibernateHelper.saveAndDelete(saves, deletes);
-      }
-      catch (Exception e) {
-        throw new RevokePrivilegeException(e.getMessage(), e);
-      }
+      // Find privileges that need to be revoked and then update registry
+      deletes = Membership.deleteAllField(s, g, f);
+      HibernateHelper.saveAndDelete(saves, deletes);
     }
-    catch (ModelException eM) {
-      throw new RevokePrivilegeException(eM.getMessage(), eM);
+    catch (Exception e) {
+      throw new RevokePrivilegeException(e.getMessage(), e);
     }
   } // public void revokePriv(s, g, priv)
 
@@ -331,13 +323,12 @@ public class GrouperAccessAdapter implements AccessAdapter {
       GrouperSessionValidator.validate(s);
       Field f = this._getField(priv);
       GroupValidator.isTypeEqual(f, FieldType.ACCESS);
-      GroupValidator.canWriteField(s, g, s.getSubject(), f);
+      GroupValidator.canWriteField(g, s.getSubject(), f);
       MemberOf  mof     = Membership.delImmediateMembership(s, g, subj, f);
       Set       saves   = mof.getSaves();
       Set       deletes = mof.getDeletes();
 
       // TODO Should this be in _Group_?  
-      // TODO Actually, should it done at all?
       g.setModified();
       saves.add(g);
 
@@ -349,9 +340,6 @@ public class GrouperAccessAdapter implements AccessAdapter {
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException(eMD);
-    }
-    catch (ModelException eM) {
-      throw new RevokePrivilegeException(eM);
     }
   } // public void revokePriv(s, g, subj, priv)
 

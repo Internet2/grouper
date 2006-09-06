@@ -21,7 +21,7 @@ import  net.sf.hibernate.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.10 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: StemValidator.java,v 1.11 2006-09-06 15:30:40 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -54,19 +54,17 @@ class StemValidator {
 
   // @since 1.0
   protected static void canWriteField(
-    GrouperSession s, Stem ns, Subject subj, Field f, FieldType type
+    Stem ns, Subject subj, Field f, FieldType type
   )
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    // FIXME Can I remove s?
     // Validate the field type
     if (!f.getType().equals(type)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
-    // FIXME Should this be internalized?
-    PrivilegeResolver.canPrivDispatch(s, ns, subj, f.getWritePriv());
-  } // protected static void canWriteField(s, ns, subj, f, type)
+    PrivilegeResolver.canPrivDispatch(ns.getSession(), ns, subj, f.getWritePriv());
+  } // protected static void canWriteField(ns, subj, f, type)
 
 }
 

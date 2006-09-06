@@ -28,7 +28,7 @@ import  net.sf.hibernate.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.31 2006-07-11 15:21:33 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.32 2006-09-06 15:30:40 blair Exp $
  */
 public class RegistryReset {
 
@@ -79,7 +79,6 @@ public class RegistryReset {
 
   // PROTECTED CLASS METHODS //
   protected static void addTestSubjects() { 
-    // FIXME  Remove
     RegistryReset rr = new RegistryReset();
     try {
       rr._addSubjects();
@@ -91,7 +90,6 @@ public class RegistryReset {
   } // protected static void addTestSubjects()
 
   protected static void resetRegistryAndAddTestSubjects() { 
-    // FIXME  Remove
     RegistryReset rr = new RegistryReset();
     try {
       rr._emptyTables();
@@ -108,13 +106,12 @@ public class RegistryReset {
   private void _addSubjects()   
     throws  HibernateException
   {
-    // FIXME  Remove
     for (int i=0; i<10; i++) {
       String  id    = "test.subject." + i;
       String  name  = "my name is " + id;
       HibernateSubject.add(id, SUBJ_TYPE, name);
     }
-    CacheMgr.resetAllCaches();  // TODO ???
+    CacheMgr.resetAllCaches();
   } // private void _addSubjects()
 
   private void _abort(String msg) 

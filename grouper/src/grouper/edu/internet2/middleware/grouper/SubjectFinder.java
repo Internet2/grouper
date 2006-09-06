@@ -24,7 +24,7 @@ import  java.util.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.27 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.28 2006-09-06 15:30:40 blair Exp $
  */
 public class SubjectFinder {
 
@@ -188,7 +188,6 @@ public class SubjectFinder {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    // FIXME Caching support
     Source  sa    = getSource(source);
     Subject subj  = sa.getSubject(id);
     if (subj.getType().getName().equals(type)) {
@@ -300,7 +299,6 @@ public class SubjectFinder {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    // FIXME Caching support
     Source  sa    = getSource(source);
     Subject subj  = sa.getSubjectByIdentifier(id);
     if (subj.getType().getName().equals(type)) {
@@ -362,7 +360,6 @@ public class SubjectFinder {
   public static Set findAll(String query, String source)
     throws  SourceUnavailableException
   {
-    // FIXME Caching support
     Source sa = getSource(source);
     return sa.search(query);
   } // public static Set findAll(query, source)

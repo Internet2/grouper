@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.49 2006-08-30 16:06:28 blair Exp $
+ * @version $Id: Membership.java,v 1.50 2006-09-06 15:30:40 blair Exp $
  */
 public class Membership {
 
@@ -202,7 +202,7 @@ public class Membership {
   public Member getMember() 
     throws MemberNotFoundException
   {
-    GrouperSession.validate(this.getSession());
+    GrouperSessionValidator.validate(this.getSession());
     Member m = this.getMember_id();
     if (m == null) {
       String msg = "unable to get member";
@@ -384,9 +384,6 @@ public class Membership {
     catch (MemberNotFoundException eMNF) {
       throw new MemberDeleteException(eMNF);
     }
-    catch (ModelException eM) {
-      throw new MemberDeleteException(eM);
-    }
     catch (SubjectNotFoundException eSNF) {
       throw new MemberDeleteException(eSNF);
     }
@@ -396,40 +393,28 @@ public class Membership {
     throws  MemberDeleteException,
             SchemaException
   {
-    try {
-      GrouperSessionValidator.validate(s);
-      GrouperSession orig = s;
-      o.setSession( orig.getRootSession() );
+    GrouperSessionValidator.validate(s);
+    GrouperSession orig = s;
+    o.setSession( orig.getRootSession() );
 
-      Set deletes = new LinkedHashSet();
+    Set deletes = new LinkedHashSet();
 
-      Field     f;
-      Iterator  iter  = FieldFinder.findAllByType(type).iterator();
-      while (iter.hasNext()) {
-        f = (Field) iter.next();
-        deletes.addAll( deleteAllField(s, o, f) );
-      }
-
-      o.setSession(orig);
-      return deletes;
+    Field     f;
+    Iterator  iter  = FieldFinder.findAllByType(type).iterator();
+    while (iter.hasNext()) {
+      f = (Field) iter.next();
+      deletes.addAll( deleteAllField(s, o, f) );
     }
-    catch (ModelException eM) {
-      throw new MemberDeleteException(eM.getMessage(), eM);
-    }
+
+    o.setSession(orig);
+    return deletes;
   } // protected static Set deleteAllFieldType(s, o, f)
 
 
   // PROTECTED INSTANCE METHODS //
   protected GrouperSession getSession() {
-    try {
-      GrouperSessionValidator.validate(this.s);
-      return this.s;
-    }
-    catch (ModelException eM) {
-      ErrorLog.fatal(Membership.class, eM.getMessage());
-      eM.printStackTrace();
-      throw new GrouperRuntimeException(eM.getMessage(), eM);
-    }
+    GrouperSessionValidator.validate(this.s);
+    return this.s;
   } // protected GrouperSession getSession()
 
   protected Stem getStem() 
@@ -444,7 +429,7 @@ public class Membership {
   } // public Stem getStem()
 
   protected void setSession(GrouperSession s) {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     this.s = s;
     Owner   o = this.getOwner_id();
     Member  m = this.getMember_id();

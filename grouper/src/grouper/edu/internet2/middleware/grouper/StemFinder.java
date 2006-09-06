@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.25 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: StemFinder.java,v 1.26 2006-09-06 15:30:40 blair Exp $
  */
 public class StemFinder {
 
@@ -47,7 +47,7 @@ public class StemFinder {
   public static Stem findByName(GrouperSession s, String name) 
     throws StemNotFoundException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Stem ns = null;
     try {
       if (name.equals(Stem.ROOT_EXT)) {
@@ -93,7 +93,7 @@ public class StemFinder {
   public static Stem findRootStem(GrouperSession s) 
     throws  GrouperRuntimeException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     try {
       return StemFinder.findByName(s, Stem.ROOT_INT);
     }
@@ -123,7 +123,7 @@ public class StemFinder {
   public static Stem findByUuid(GrouperSession s, String uuid) 
     throws StemNotFoundException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Stem ns = findByUuid(uuid);
     ns.setSession(s);
     return ns;

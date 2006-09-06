@@ -23,7 +23,7 @@ import  java.util.*;
  * Base {@link QueryFilter} that all other query filters should extend.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseQueryFilter.java,v 1.9 2006-07-03 17:18:48 blair Exp $
+ * @version $Id: BaseQueryFilter.java,v 1.10 2006-09-06 15:30:40 blair Exp $
  */
 public class BaseQueryFilter implements QueryFilter {
 
@@ -75,7 +75,7 @@ public class BaseQueryFilter implements QueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     return RESULTS;
   } // public Set getResults(s)
 

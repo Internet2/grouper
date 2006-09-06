@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.99 2006-09-05 19:56:15 blair Exp $
+ * @version $Id: Group.java,v 1.100 2006-09-06 15:30:40 blair Exp $
  */
 public class Group extends Owner {
 
@@ -334,7 +334,7 @@ public class Group extends Owner {
     Validator.argNotNull(subj, E.SUBJ_NULL);
     GroupValidator.isTypeValid(f);
     try {
-      GroupValidator.canReadField(this.getSession(), this, subj, f);
+      GroupValidator.canReadField(this, subj, f);
     }
     catch (InsufficientPrivilegeException eIP) {
       return false;
@@ -390,7 +390,7 @@ public class Group extends Owner {
     Validator.argNotNull(subj, E.SUBJ_NULL);
     GroupValidator.isTypeValid(f);
     try {
-      GroupValidator.canWriteField(this.getSession(), this, subj, f);
+      GroupValidator.canWriteField(this, subj, f);
     }
     catch (InsufficientPrivilegeException eIP) {
       return false;
@@ -421,7 +421,7 @@ public class Group extends Owner {
     // TODO Refactor into smaller components
     StopWatch sw = new StopWatch();
     sw.start();
-    GrouperSession.validate(this.getSession());
+    GrouperSessionValidator.validate(this.getSession());
     if (
       !PrivilegeResolver.canADMIN(this.getSession(), this, this.getSession().getSubject())
     )
@@ -781,7 +781,7 @@ public class Group extends Owner {
         );
       }
       GroupValidator.canReadField(
-        this.getSession(), this, this.getSession().getSubject(), f
+        this, this.getSession().getSubject(), f
       );
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -813,7 +813,7 @@ public class Group extends Owner {
       try {
         Field f = attr.getField();
         GroupValidator.canReadField(
-          this.getSession(), this, this.getSession().getSubject(), f
+          this, this.getSession().getSubject(), f
         );
         filtered.put(f.getName(), attr.getValue());
       }
@@ -1145,7 +1145,7 @@ public class Group extends Owner {
   public Set getImmediateMemberships(Field f) 
     throws  SchemaException
   {
-    GrouperSession.validate(this.getSession());
+    GrouperSessionValidator.validate(this.getSession());
     return MembershipFinder.findMembershipsByType(
       this.getSession(), this, f, MembershipType.I
     );
@@ -2098,7 +2098,7 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     // TODO Does this need to be public?
-    GrouperSession.validate(this.getSession());
+    GrouperSessionValidator.validate(this.getSession());
     if (as_member == null) {
       try {
         as_member = MemberFinder.findBySubject(
@@ -2128,7 +2128,7 @@ public class Group extends Owner {
   public Subject toSubject() 
     throws  GrouperRuntimeException
   {
-    GrouperSession.validate(this.getSession());
+    GrouperSessionValidator.validate(this.getSession());
     if (as_subj == null) {
       try {
         as_subj = SubjectFinder.findById(

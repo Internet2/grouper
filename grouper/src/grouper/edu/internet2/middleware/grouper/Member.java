@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.61 2006-08-30 16:06:28 blair Exp $
+ * @version $Id: Member.java,v 1.62 2006-09-06 15:30:40 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -1272,7 +1272,7 @@ public class Member implements Serializable {
   } // protected Set getAllMemberships()
 
   protected GrouperSession getSession() {
-    GrouperSession.validate(this.s);
+    GrouperSessionValidator.validate(this.s);
     return this.s;
   } // protected GrouperSession getSession()
   
@@ -1284,7 +1284,7 @@ public class Member implements Serializable {
 
   // Assign Session
   protected void setSession(GrouperSession s) {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     this.s = s;
   } // protected void setSession(s)
 

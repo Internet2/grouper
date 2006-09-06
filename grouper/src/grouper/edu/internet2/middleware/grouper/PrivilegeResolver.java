@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.66 2006-08-30 16:06:28 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.67 2006-09-06 15:30:40 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -224,7 +224,7 @@ import  java.util.*;
 
   // @since   1.1.0
   protected static Set canViewMemberships(GrouperSession s, Collection c) {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set         mships  = new LinkedHashSet();
     Membership  ms;
     Iterator    iter    = c.iterator();
@@ -369,7 +369,7 @@ import  java.util.*;
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     boolean rv = false;
     PrivilegeCacheElement el = s.getAccessCache().get(g, subj, priv);
     if (el.getIsCached()) {
@@ -428,7 +428,6 @@ import  java.util.*;
   protected static boolean isRoot(Subject subj) {
     boolean rv = false;
     // First check to see if this is GrouperSystem
-    // FIXME Refactor
     if      ( SubjectHelper.eq(subj, SubjectFinder.findRootSubject()) ) {
       rv = true;
     }  

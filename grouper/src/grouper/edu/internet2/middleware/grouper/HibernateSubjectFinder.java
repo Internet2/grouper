@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
 /*
  * Find {@link HibernateSubject}s.
  * @author  blair christensen.
- * @version $Id: HibernateSubjectFinder.java,v 1.4 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: HibernateSubjectFinder.java,v 1.5 2006-09-06 15:30:40 blair Exp $
  * @since   1.0
  */
 class HibernateSubjectFinder {
@@ -41,7 +41,7 @@ class HibernateSubjectFinder {
       + "     hs.subjectId      = :id     "
       + " and hs.subjectTypeId  = :type   "
     );
-    qry.setCacheable(false);  // TODO
+    qry.setCacheable(true); // This was set to false but I'm not sure why
     qry.setString(  "id"    , id    );
     qry.setString(  "type"  , type  );
     List    l   = qry.list();
