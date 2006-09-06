@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.35 2006-09-05 19:42:14 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.36 2006-09-06 15:30:40 blair Exp $
  */
 public class GrouperSession {
 
@@ -256,18 +256,6 @@ public class GrouperSession {
   } // public String toString()
 
 
-  // PROTECTED CLASS METHODS //
-  // TODO Deprecate
-  protected static void validate(GrouperSession s) {
-    try {
-      GrouperSessionValidator.validate(s);
-    }
-    catch (ModelException eM) {
-      eM.printStackTrace();
-      throw new GrouperRuntimeException(eM.getMessage(), eM);
-    }
-  } // protected static void validate(s)
-
 
   // PROTECTED INSTANCE METHODS //
 
@@ -318,8 +306,7 @@ public class GrouperSession {
     s.subj  = subj;
     s.who   = subj.getId();
     s.type  = subj.getType().getName();
-    //if (s.type.equals(SubjectTypeEnum.valueOf("group"))) {
-    if (s.type.equals("group")) { // FIXME
+    if (s.type.equals("group")) {
       s.who = subj.getName();
     }
     // Persistent

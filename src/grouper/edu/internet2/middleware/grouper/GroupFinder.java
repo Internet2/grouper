@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.26 2006-08-30 15:36:59 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.27 2006-09-06 15:30:40 blair Exp $
  */
 public class GroupFinder {
 
@@ -47,7 +47,7 @@ public class GroupFinder {
   public static Group findByName(GrouperSession s, String name) 
     throws GroupNotFoundException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Group g = findByName(name);
     g.setSession(s);
     if (RootPrivilegeResolver.canVIEW(g, s.getSubject())) {
@@ -75,7 +75,7 @@ public class GroupFinder {
   public static Group findByUuid(GrouperSession s, String uuid) 
     throws GroupNotFoundException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Group g = _findByUuid(uuid);
     g.setSession(s);
     if (RootPrivilegeResolver.canVIEW(g, s.getSubject())) {
@@ -153,7 +153,7 @@ public class GroupFinder {
   protected static Set findByAnyApproximateAttr(GrouperSession s, String val) 
     throws  QueryException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -183,7 +183,7 @@ public class GroupFinder {
   protected static Set findByApproximateAttr(GrouperSession s, String attr, String val) 
     throws  QueryException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set groups = new LinkedHashSet();
     try {
       Session   hs    = HibernateHelper.getSession();
@@ -215,7 +215,7 @@ public class GroupFinder {
   protected static Set findByApproximateName(GrouperSession s, String name) 
     throws  QueryException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set groups = new LinkedHashSet();
     try {
       Session   hs    = HibernateHelper.getSession();

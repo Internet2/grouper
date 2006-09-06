@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.44 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.45 2006-09-06 15:30:40 blair Exp $
  */
 public class MembershipFinder {
 
@@ -51,7 +51,7 @@ public class MembershipFinder {
   {
      // @filtered  true
      // @session   true
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     try {
       Field       f   = Group.getDefaultList();
       Member      m   = MemberFinder.findBySubject(s, subj);
@@ -95,11 +95,11 @@ public class MembershipFinder {
      * @filtered  true
      * @session   true
      */
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set mships = new LinkedHashSet();
     try {
       Member      m     = MemberFinder.findBySubject(s, subj);
-      Set         effs  = findEffectiveMemberships(g, m.getId(), f, via, depth);
+      Set         effs  = findEffectiveMemberships(g, m, f, via, depth);
       if (effs.size() > 0) {
         try {
           PrivilegeResolver.canPrivDispatch(
@@ -147,7 +147,7 @@ public class MembershipFinder {
      * @filtered  true
      * @session   true
      */
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
       Membership  ms  = findMembershipByTypeNoPrivNoSession(g, m, f, MembershipType.I);
@@ -213,8 +213,7 @@ public class MembershipFinder {
         child.setSession(s);  
         try {
           childEffs = findEffectiveMemberships(
-            eff.getOwner_id(), child.getMember_id().getId(), 
-            eff.getField(), child.getVia_id(), 
+            eff.getOwner_id(), child.getMember_id(), eff.getField(), child.getVia_id(), 
             eff.getDepth() + child.getDepth()
           );
           newChildIter = childEffs.iterator();
@@ -237,7 +236,7 @@ public class MembershipFinder {
      * @filtered  false
      * @session   true
      */
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set mships  = new LinkedHashSet();
     try {
       Session   hs    = HibernateHelper.getSession();
@@ -294,7 +293,7 @@ public class MembershipFinder {
   protected static Membership findByUuid(GrouperSession s, String uuid) 
     throws MembershipNotFoundException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     try {
       Membership  ms  = null;
       Session     hs  = HibernateHelper.getSession();
@@ -327,7 +326,7 @@ public class MembershipFinder {
      * @filtered  true
      * @session   true
      */
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -348,7 +347,7 @@ public class MembershipFinder {
   } // protected static Set findChildMemberships(s, ms)
  
   protected static Set findEffectiveMemberships(
-    Owner o, String mid, Field f, Owner via, int depth
+    Owner o, Member m, Field f, Owner via, int depth
   )
     throws MembershipNotFoundException
   {
@@ -362,7 +361,7 @@ public class MembershipFinder {
       Query   qry = hs.createQuery(
         "from Membership as ms where      "
         + "     ms.owner_id     = :owner  "
-        + "and  ms.member_id    = :mid    "
+        + "and  ms.member_id    = :member "
         + "and  ms.field.name   = :fname  "
         + "and  ms.field.type   = :ftype  "
         + "and  ms.mship_type   = :type   "
@@ -372,7 +371,7 @@ public class MembershipFinder {
       qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FEM);
       qry.setParameter( "owner"   , o                           );
-      qry.setString(    "mid"     , mid                         ); // FIXME
+      qry.setParameter( "member"  , m                           );
       qry.setString(    "fname"   , f.getName()                 );
       qry.setString(    "ftype"   , f.getType().toString()      );
       qry.setString(    "type"    , MembershipType.E.toString() );
@@ -385,7 +384,7 @@ public class MembershipFinder {
       throw new MembershipNotFoundException(eH.getMessage(), eH);
     }
     return mships;
-  } // protected static Set findEffectiveMembership(o, mid, field, via, depth)
+  } // protected static Set findEffectiveMembership(o, m, field, via, depth)
 
   protected static Set findEffectiveMemberships(
     GrouperSession s, Member m, Field f
@@ -395,7 +394,7 @@ public class MembershipFinder {
      * @filtered  true
      * @session   true
      */
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -436,7 +435,7 @@ public class MembershipFinder {
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
-        + "and  ms.member_id  = :mid    "
+        + "and  ms.member_id  = :member "
         + "and  ms.field.name = :fname  "
         + "and  ms.field.type = :ftype  "
         + "and  ms.mship_type = :type   "
@@ -444,7 +443,7 @@ public class MembershipFinder {
       qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMOM);
       qry.setParameter( "owner" , o                           );
-      qry.setString(    "mid"   , m.getId()                   ); // FIXME
+      qry.setParameter( "member", m                           );
       qry.setString(    "fname" , f.getName()                 );
       qry.setString(    "ftype" , f.getType().toString()      );
       qry.setString(    "type"  , MembershipType.E.toString() );
@@ -465,7 +464,7 @@ public class MembershipFinder {
      * @filtered  true
      * @session   true
      */
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -497,7 +496,7 @@ public class MembershipFinder {
      * @filtered  true  MembershipFinder.findMemberships(s, g, f) 
      * @session   true  MembershipFinder.findMemberships(s, g, f)
      */
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set         members = new LinkedHashSet();
     Membership  ms;
     Iterator    iter    = findMemberships(s, g, f).iterator();
@@ -516,7 +515,7 @@ public class MembershipFinder {
   protected static Set findSubjects(GrouperSession s, Owner o, Field f) {
     // @filtered  true
     // @session   true
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set         subjs = new LinkedHashSet();
     Membership  ms;
     Iterator    iter  = findMemberships(s, o, f).iterator();
@@ -538,7 +537,7 @@ public class MembershipFinder {
   protected static Set findSubjectsNoPriv(GrouperSession s, Owner o, Field f) {
      // @filtered  false
      // @session   true 
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set         subjs = new LinkedHashSet();
     Membership  ms;
     Iterator    iter  = findMembershipsNoPriv(s, o, f).iterator();
@@ -564,7 +563,7 @@ public class MembershipFinder {
      * @filtered  true
      * @session   true
      */
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -619,7 +618,7 @@ public class MembershipFinder {
   protected static Set findMembershipsNoPriv(GrouperSession s, Owner o, Field f) {
      // @filtered false
      // @session  true
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -691,7 +690,7 @@ public class MembershipFinder {
   {
      // @filtered  true  MembershipFinder.findMembershipsByType(s, o, f) 
      // @session   true  MembershipFinder.findMembershipsByType(s, o, f)
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set         members = new LinkedHashSet();
     Membership  ms;
     Iterator    iter    = findMembershipsByType(s, g, f, type).iterator();
@@ -714,7 +713,7 @@ public class MembershipFinder {
   {
      // @filtered  true
      // @session   true
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -753,14 +752,14 @@ public class MembershipFinder {
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  " 
-        + "and  ms.member_id  = :mid    "
+        + "and  ms.member_id  = :member "
         + "and  ms.field.name = :fname  "
         + "and  ms.field.type = :ftype"
       );
       qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FMOM);
       qry.setParameter( "owner" , o                     );
-      qry.setString(    "mid"   , m.getId()             ); // FIXME
+      qry.setParameter( "member", m                     );
       qry.setString(    "fname" , f.getName()           );
       qry.setString(    "ftype" , f.getType().toString());
       mships.addAll(qry.list());

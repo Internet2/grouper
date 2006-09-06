@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.14 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.15 2006-09-06 15:30:40 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -35,7 +35,7 @@ class GroupValidator {
   {
     Field f = Group.getDefaultList();
     isTypeEqual(f, FieldType.LIST);
-    canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
+    canWriteField(g, g.getSession().getSubject(), f);
     if (g.hasComposite()) {
       throw new ModelException(E.GROUP_ACTC); // TODO TEST!
     }
@@ -64,7 +64,7 @@ class GroupValidator {
   {
     try {
       isTypeEqual(f, FieldType.LIST);
-      canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
+      canWriteField(g, g.getSession().getSubject(), f);
     }
     catch (InsufficientPrivilegeException eIP0) {
       try {
@@ -99,7 +99,7 @@ class GroupValidator {
             SchemaException
   {
     Field f = Group.getDefaultList();
-    canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
+    canWriteField(g, g.getSession().getSubject(), f);
     if (!g.hasComposite()) {
       throw new ModelException(E.GROUP_DCFC); 
     }
@@ -113,7 +113,7 @@ class GroupValidator {
   {
     try {
       isTypeEqual(f, FieldType.LIST);
-      canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
+      canWriteField(g, g.getSession().getSubject(), f);
     }
     catch (InsufficientPrivilegeException eIP0) {
       try {
@@ -147,7 +147,7 @@ class GroupValidator {
             SchemaException
   {
     isTypeEqual(f, FieldType.ATTRIBUTE);
-    canWriteField(g.getSession(), g, g.getSession().getSubject(), f);
+    canWriteField(g, g.getSession().getSubject(), f);
   } // protected static void canModAttribute(g, f)
 
   // @since 1.0
@@ -195,20 +195,17 @@ class GroupValidator {
     }
   } // protected static void canOptin(g, subj, f)
 
-  // @since 1.0
-  protected static void canReadField(
-    GrouperSession s, Group g, Subject subj, Field f
-  )
+  // @since 1.1
+  protected static void canReadField(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    // FIXME Can I remove s?
     // Validate that this group has the proper group type for this field
     if (!g.hasType( f.getGroupType() ) ) {
       throw new SchemaException(E.GROUP_GT + f.getGroupType().toString());
     }
-    PrivilegeResolver.canPrivDispatch(s, g, subj, f.getReadPriv());
-  } // protected static void canReadField(s, g, subj, f)
+    PrivilegeResolver.canPrivDispatch(g.getSession(), g, subj, f.getReadPriv());
+  } // protected static void canReadField(g, subj, f)
 
   // @since 1.0
   protected static void canSetAttribute(Group g, Field f, String value) 
@@ -228,19 +225,16 @@ class GroupValidator {
     canModAttribute(g, f);
   } // protected static void canSetAttribute(g, f, value)
 
-  // @since 1.0
-  protected static void canWriteField(
-    GrouperSession s, Group g, Subject subj, Field f
-  )
+  // @since 1.1
+  protected static void canWriteField(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
             SchemaException
-  {
-    // FIXME Can I remove s?
+  {  
     // Validate that this group has the proper group type for this field
     if (!g.hasType( f.getGroupType() ) ) {
       throw new SchemaException(E.GROUP_GT + f.getGroupType().toString());
     }
-    PrivilegeResolver.canPrivDispatch(s, g, subj, f.getWritePriv());
+    PrivilegeResolver.canPrivDispatch(g.getSession(), g, subj, f.getWritePriv());
   } // protected static void canWriteField(s, g, subj, f)
 
   // is this field of the appropriate type

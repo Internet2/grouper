@@ -24,7 +24,7 @@ import  java.util.*;
  * Returns the compliment of two other query filters.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ComplementFilter.java,v 1.5 2006-06-15 04:45:58 blair Exp $
+ * @version $Id: ComplementFilter.java,v 1.6 2006-09-06 15:30:40 blair Exp $
  */
 public class ComplementFilter extends BaseQueryFilter {
 
@@ -53,7 +53,7 @@ public class ComplementFilter extends BaseQueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set results = new LinkedHashSet();
     results.addAll( this.a.getResults(s) );
     results.removeAll( this.b.getResults(s) );

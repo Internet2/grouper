@@ -22,7 +22,7 @@ import  java.util.*;
  * Query by groups modified after the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupModifiedAfterFilter.java,v 1.1 2006-08-16 20:22:11 blair Exp $
+ * @version $Id: GroupModifiedAfterFilter.java,v 1.2 2006-09-06 15:30:40 blair Exp $
  * @since   1.1.0
  */
 public class GroupModifiedAfterFilter extends BaseQueryFilter {
@@ -53,7 +53,7 @@ public class GroupModifiedAfterFilter extends BaseQueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set candidates  = GroupFinder.findByModifiedAfter(s, this.d);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;

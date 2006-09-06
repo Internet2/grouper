@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.76 2006-08-30 16:06:28 blair Exp $
+ * @version $Id: Stem.java,v 1.77 2006-09-06 15:30:40 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -274,7 +274,7 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    GrouperSession.validate(this.getSession());
+    GrouperSessionValidator.validate(this.getSession());
     StemValidator.canDeleteStem(this);
     try {
       String name = this.getName();   // Preserve name for logging
@@ -342,7 +342,7 @@ public class Stem extends Owner {
    * @return  Set of {@link Stem} objects
    */
   public Set getChildStems() {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set children = new LinkedHashSet();
     try {
       Stem      child;

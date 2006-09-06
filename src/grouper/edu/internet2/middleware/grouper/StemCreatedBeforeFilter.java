@@ -24,7 +24,7 @@ import  java.util.*;
  * Query by stems created after the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemCreatedBeforeFilter.java,v 1.6 2006-06-15 04:45:59 blair Exp $
+ * @version $Id: StemCreatedBeforeFilter.java,v 1.7 2006-09-06 15:30:40 blair Exp $
  */
 public class StemCreatedBeforeFilter extends BaseQueryFilter {
 
@@ -53,7 +53,7 @@ public class StemCreatedBeforeFilter extends BaseQueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
-    GrouperSession.validate(s);
+    GrouperSessionValidator.validate(s);
     Set candidates  = StemFinder.findByCreatedBefore(s, this.d);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;
