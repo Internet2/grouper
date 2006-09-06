@@ -20,25 +20,10 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.9 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.10 2006-09-06 19:50:21 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
-
-  // PROTECTED CLASS CONSTANTS //
-  // TODO Move to *E*
-  protected static final String ERR_D   = "membership has invalid depth: ";
-  protected static final String ERR_EV  = "effective membership has no via";
-  protected static final String ERR_FT  = "membership has invalid field type: ";
-  protected static final String ERR_IV  = "immediate membership has via";
-  protected static final String ERR_M   = "membership has null member";
-  protected static final String ERR_MAE = "membership already exists";
-  protected static final String ERR_O   = "membership has null owner";
-  protected static final String ERR_OC  = "membership has invalid owner class: ";
-  protected static final String ERR_PMS = "immediate membership has parent membership";
-  protected static final String ERR_V   = "membership has null via";
-  protected static final String ERR_VC  = "membership has invalid via class: ";
-
 
   // PROTECTED CLASS METHODS //
 
@@ -47,22 +32,21 @@ class MembershipValidator {
     throws  ModelException
   {
     _validate(ms, MembershipType.C); 
-    // TODO _validateDoesNotExist(ms);
     // Verify Depth
     if (ms.getDepth() != 0) {
-      throw new ModelException(ERR_D + ms.getDepth());
+      throw new ModelException(E.ERR_D + ms.getDepth());
     }
     // Verify Via
     Owner via = ms.getVia_id();
     if (via == null) {
-      throw new ModelException(ERR_V);
+      throw new ModelException(E.ERR_V);
     }
     if (!(via instanceof Composite)) {
-      throw new ModelException(ERR_VC + via.getClass().getName());
+      throw new ModelException(E.ERR_VC + via.getClass().getName());
     }
     // Verify Parent Membership
     if (ms.getParent_membership() != null) {
-      throw new ModelException(ERR_PMS);
+      throw new ModelException(E.ERR_PMS);
     }
   } // protected static void validateComposite(ms)
 
@@ -71,18 +55,17 @@ class MembershipValidator {
     throws  ModelException
   {
     _validate(ms, MembershipType.E); 
-    // TODO? _validateDoesNotExist(ms);
     // Verify Depth
     if (!(ms.getDepth() > 0)) {
-      throw new ModelException(ERR_D + ms.getDepth());
+      throw new ModelException(E.ERR_D + ms.getDepth());
     }
     // Verify Via
     Owner via = ms.getVia_id();
     if (via == null) {
-      throw new ModelException(ERR_EV);
+      throw new ModelException(E.ERR_EV);
     }
     if (!(via instanceof Group)) {
-      throw new ModelException(ERR_VC + via.getClass().getName());
+      throw new ModelException(E.ERR_VC + via.getClass().getName());
     }
     // Verify Parent Membership
     if (ms.getParent_membership() == null) {
@@ -99,15 +82,15 @@ class MembershipValidator {
     _notCircular(ms);
     // Verify Depth
     if (ms.getDepth() != 0) {
-      throw new ModelException(ERR_D + ms.getDepth());
+      throw new ModelException(E.ERR_D + ms.getDepth());
     }
     // Verify Via
     if (ms.getVia_id() != null) {
-      throw new ModelException(ERR_IV);
+      throw new ModelException(E.ERR_IV);
     }
     // Verify Parent Membership
     if (ms.getParent_membership() != null) {
-      throw new ModelException(ERR_PMS);
+      throw new ModelException(E.ERR_PMS);
     }
   } // protected static void validateImmediate(ms)
 
@@ -150,14 +133,14 @@ class MembershipValidator {
     }
     // Verify Owner
     if (o == null) {
-      throw new ModelException(ERR_O);
+      throw new ModelException(E.ERR_O);
     }
     if (! ( (o instanceof Group) || (o instanceof Stem) ) ) {
-      throw new ModelException(ERR_OC + o.getClass().getName());
+      throw new ModelException(E.ERR_OC + o.getClass().getName());
     }
     // Verify Member
     if (m == null) {
-      throw new ModelException(ERR_M);
+      throw new ModelException(E.ERR_M);
     }
     // Verify Field
     if (! 
@@ -168,7 +151,7 @@ class MembershipValidator {
       )
     )
     {
-      throw new ModelException(ERR_FT + f.getType());
+      throw new ModelException(E.ERR_FT + f.getType());
     }
   } // private static void _validate(ms, type)
 
@@ -181,12 +164,12 @@ class MembershipValidator {
       MembershipFinder.findMembershipByTypeNoPrivNoSession(
         ms.getOwner_id(), ms.getMember_id(), ms.getField(), MembershipType.I
       );
-      throw new ModelException(ERR_MAE);
+      throw new ModelException(E.ERR_MAE);
     }
     catch (MembershipNotFoundException eMNF) {
       // Ignore - this is what we want. 
     }
   } // private static void _validateDoesNotExist(ms)
 
-}
+} // class MembershipValidator
 

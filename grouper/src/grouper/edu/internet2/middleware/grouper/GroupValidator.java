@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.15 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.16 2006-09-06 19:50:21 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -40,7 +40,7 @@ class GroupValidator {
       throw new ModelException(E.GROUP_ACTC); // TODO TEST!
     }
     if (g.getMembers().size() > 0) {
-      throw new ModelException(E.GROUP_ACTM); // TODO ModelException
+      throw new ModelException(E.GROUP_ACTM);
     }
   } // protected static void canAddCompositeMember(g, c)
 
@@ -76,7 +76,7 @@ class GroupValidator {
       }
     }
     if ( (f.equals(Group.getDefaultList())) && (g.hasComposite()) ) {
-      throw new MemberAddException(E.GROUP_AMTC); // TODO ModelException
+      throw new MemberAddException(E.GROUP_AMTC);
     }
   } // protected static void canAddMember(g, subj, f)
 
@@ -125,7 +125,7 @@ class GroupValidator {
       }
     }
     if ( (f.equals(Group.getDefaultList())) && (g.hasComposite()) ) {
-      throw new MemberDeleteException(E.GROUP_DMFC); // TODO ModelException
+      throw new MemberDeleteException(E.GROUP_DMFC);
     }
   } // protected static void canDelMember(g, subj, f)
 

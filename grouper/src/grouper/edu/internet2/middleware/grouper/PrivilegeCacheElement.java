@@ -23,7 +23,7 @@ import  org.apache.commons.lang.builder.*;
  * A {@link PrivilegeCache} element.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCacheElement.java,v 1.3 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: PrivilegeCacheElement.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  * @since   1.1.0
  */
 public class PrivilegeCacheElement {
@@ -51,7 +51,7 @@ public class PrivilegeCacheElement {
    * @since   1.1.0
    */
   public PrivilegeCacheElement(Owner o, Subject subj, Privilege p) { 
-    this.isCached     = true; // TODO ???
+    this.isCached     = true;
     this.ownerUuid    = o.getUuid();
     this.priv         = p.getName();
     this.subjectId    = subj.getId();

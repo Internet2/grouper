@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * <p><b>This class is experimental and will change in future Grouper
  * releases.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.11 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.12 2006-09-06 19:50:21 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {
@@ -84,10 +84,10 @@ public class HibernateSubject implements Serializable {
    * @since   1.0
    */
   public static HibernateSubject add(String id, String type, String name) 
-    throws  HibernateException  // TODO Throw something more user-friendly
-  {
+    throws  HibernateException
+    {
     // TODO Require root
-    // TODO Throw GrouperRuntimeException
+    // TODO Throw GrouperException
     try {
       HibernateSubjectFinder.find(id, type);
       throw new HibernateException(

@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Messages.
  * @author  blair christensen.
- * @version $Id: M.java,v 1.5 2006-09-05 19:42:14 blair Exp $
+ * @version $Id: M.java,v 1.6 2006-09-06 19:50:21 blair Exp $
  * @since   1.0
  */
 class M {
@@ -31,6 +31,16 @@ class M {
   protected static final String COMP_DEL            = "composite delete: group=";
   protected static final String COMP_MEMADD         = "add composite member: group=";
   protected static final String COMP_MEMDEL         = "delete composite member: group=";
+  protected static final String G_AM                = "add member: group=";
+  protected static final String G_AM_E              = "add effective member: group=";
+  protected static final String G_DA                = "delete group attr: group=";
+  protected static final String G_DM                = "delete member: group=";
+  protected static final String G_DM_E              = "delete effective member: group=";
+  protected static final String G_GP                = "grant access priv: group=";
+  protected static final String G_GP_E              = "grant effective access priv: group=";
+  protected static final String G_RP                = "revoke access priv: group=";
+  protected static final String G_RP_E              = "revoke effective access priv: group=";
+  protected static final String G_SA                 = "set group attr: group=";
   protected static final String GOT_INNER_WITHIN_INNER  = "got inner session within inner session";
   protected static final String GROUP_ADD           = "add group: ";
   protected static final String GROUP_ADDTYPE       = "group add type: group=";
@@ -41,11 +51,16 @@ class M {
   protected static final String GROUPTYPE_DEL       = "delete group type: ";
   protected static final String GROUPTYPE_DELFIELD  = "delete group field: field=";
   protected static final String MEMBER_CHANGESID    = "changed member subjectId: uuid=";
+  protected static final String S_GP                = "grant naming priv: stem=";
+  protected static final String S_GP_E              = "grant effective naming priv: stem=";
+  protected static final String S_RP                = "revoke naming priv: stem=";
+  protected static final String S_RP_E              = "revoke effective naming priv: stem=";
+  protected static final String S_SA                = "set stem attr: stem=";
   protected static final String S_START             = "session: start";
   protected static final String S_STOP              = "session: stop duration=";
   protected static final String STEM_ADD            = "add stem: ";
   protected static final String STEM_DEL            = "delete stem: ";
   protected static final String STEM_ROOTINSTALL    = "root stem installed";
-
-}
+  
+} // class M
 

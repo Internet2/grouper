@@ -23,11 +23,11 @@ import  junit.framework.*;
  * {@link GrouperSession} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SessionHelper.java,v 1.4 2006-08-30 18:35:37 blair Exp $
+ * @version $Id: SessionHelper.java,v 1.5 2006-09-06 19:50:21 blair Exp $
  */
-public class SessionHelper {
+class SessionHelper {
 
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
 
   // @return  A root {@link GrouperSession}
   protected static GrouperSession getRootSession() {
@@ -60,7 +60,7 @@ public class SessionHelper {
     catch (Exception e) {
       T.e(e);
     }
-    throw new RuntimeException(Helper.ERROR);
+    throw new GrouperRuntimeException();
   } // protected static GrouperSession getSession(id)
 
   // Get a session by id and type
@@ -100,7 +100,7 @@ public class SessionHelper {
     catch (Exception e) {
       T.e(e);
     }
-    throw new RuntimeException(Helper.ERROR);
+    throw new GrouperRuntimeException();
   } // protected static GrouperSession getSession(id, type)
 
   protected static void stop(GrouperSession s) {
@@ -112,5 +112,21 @@ public class SessionHelper {
     }
   } // protected static void stop(s)
 
-}
+  // Fail to get a session by id
+  protected static void getBadSession(String id) {
+    try {
+      GrouperSession s = GrouperSession.start(
+        SubjectFinder.findById(id)
+      );
+      Assert.fail("started session with bad subject: " + s);
+    }
+    catch (SubjectNotFoundException eSNF) {
+      Assert.assertTrue("OK: did not start session with bad subject", true);
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // protected static void getBadSession(id)
+
+} // class SessionHelper
 

@@ -22,13 +22,12 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.7 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.8 2006-09-06 19:50:21 blair Exp $
  */
 class MembershipHelper {
 
   // PROTECTED CLASS METHODS //
   protected static String getPretty(Membership ms) {
-    ms.setSession(ms.getSession()); // TODO Is this still necessary?
     String  via = GrouperConfig.EMPTY_STRING;
     if (ms.getVia_id() != null) {
       if (ms.getVia_id() instanceof Composite) {
@@ -57,7 +56,7 @@ class MembershipHelper {
     }
     Owner o = ms.getOwner_id();
     if      (o instanceof Composite) {
-      return new ToStringBuilder(ms).toString();  // TODO Improve
+      return new ToStringBuilder(ms).toString();
     }
     else if (o instanceof Group) {
       Group   g   = (Group) o;

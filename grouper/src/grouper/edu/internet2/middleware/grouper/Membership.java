@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.50 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: Membership.java,v 1.51 2006-09-06 19:50:21 blair Exp $
  */
 public class Membership {
 
@@ -153,11 +153,9 @@ public class Membership {
    * @return  Set of {@link Membership} objects.
    */
   public Set getChildMemberships() {
-    // TODO Ideally I would use a Hibernate mapping for this, but...
-    //      * It wasn't working and I didn't have time to debug at the
-    //        moment
-    //      * I still need to attach sessions
-    //      * I still need to filter
+    // Ideally I would use a Hibernate mapping for this, but...
+    //   * It wasn't working and I didn't have time to debug it at the time.
+    //   * I still need to filter
     return MembershipFinder.findChildMemberships(this.getSession(), this);
   } // public Set getChildMemberships()
 

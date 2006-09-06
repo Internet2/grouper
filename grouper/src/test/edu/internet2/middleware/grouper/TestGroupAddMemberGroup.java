@@ -23,7 +23,7 @@ import  junit.framework.*;
  * Test {@link Group.addMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMemberGroup.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestGroupAddMemberGroup.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  */
 public class TestGroupAddMemberGroup extends TestCase {
 
@@ -61,7 +61,7 @@ public class TestGroupAddMemberGroup extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Subject         subj  = SubjectTestHelper.getSubjectById(SubjectTestHelper.SUBJ_ROOT);
-    Member          m     = Helper.getMemberBySubject(s, subj);
+    Member          m     = MemberHelper.getMemberBySubject(s, subj);
     // add subj to uofc   
     GroupHelper.addMember(uofc, subj, m);
     MembershipTestHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
@@ -83,7 +83,7 @@ public class TestGroupAddMemberGroup extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Subject         subj  = SubjectTestHelper.SUBJ0;
-    Member          m     = Helper.getMemberBySubject(s, subj);
+    Member          m     = MemberHelper.getMemberBySubject(s, subj);
     // add uofc to i2
     GroupHelper.addMember(i2, uofc);
     MembershipTestHelper.testNumMship(uofc, Group.getDefaultList(), 0, 0, 0);

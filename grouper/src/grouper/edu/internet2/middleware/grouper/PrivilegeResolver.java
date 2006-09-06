@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.67 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.68 2006-09-06 19:50:21 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -363,7 +363,6 @@ import  java.util.*;
     s.getNamingCache().grantPriv(ns, subj, priv);
   } // protected static void grantPriv(s, ns, subj, priv)
 
-  // FIXME    Refactor once I rework caching
   // @since   1.1.0
   protected static boolean hasPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
@@ -375,26 +374,25 @@ import  java.util.*;
     if (el.getIsCached()) {
       rv = el.getHasPriv(); // use cached result
     }
-    else if (isRoot(subj)) {
-      rv = true; // The subject is root
-    }
     else {
-      try {
-        rv = getAccess().hasPriv(s, g, subj, priv);
-        if (!rv) { // Subject doesn't have priv; see if GrouperAll does
-          rv = _isAll(s, g, priv);
-        } 
+      try { // TODO Eliminate the try/catch
+        if (
+             isRoot(subj)
+          || getAccess().hasPriv(s, g, subj, priv)
+          || _isAll(s, g, priv)
+        )
+        {
+          rv = true;
+        }
       }
       catch (SchemaException eS) {
-        rv = false;
+        rv = false; 
       }
     }
     s.getAccessCache().put(g, subj, priv, rv);
     return rv;
   } // protected static boolean hasPriv(s, g, subj, priv)
 
-
-  // FIXME    Refactor once I rework caching
   // @since   1.1.0
   protected static boolean hasPriv(
     GrouperSession s, Stem ns, Subject subj, Privilege priv
@@ -405,19 +403,19 @@ import  java.util.*;
     if (el.getIsCached()) {
       rv = el.getHasPriv(); // use cached result
     }
-    else if (isRoot(subj)) {
-      rv = true; // The subject is root
-    }
     else {
-      // Otherwise, check and see if GrouperAll ihas the privilege
-      try {
-        rv = getNaming().hasPriv(s, ns, subj, priv);
-        if (!rv) { // Subject doesn't have priv; see if GrouperAll does
-          rv = _isAll(s, ns, priv);
-        } 
+      try { // TODO Eliminate the try/catch
+        if (
+             isRoot(subj)
+          || getNaming().hasPriv(s, ns, subj, priv)
+          || _isAll(s, ns, priv)
+        )
+        {
+          rv = true;
+        }
       }
       catch (SchemaException eS) {
-        rv = false;
+        rv = false; 
       }
     }
     s.getNamingCache().put(ns, subj, priv, rv);
@@ -510,9 +508,6 @@ import  java.util.*;
       }
       catch (GroupNotFoundException eGNF) {
         // Group not found.  Oh well.
-        // TODO The problem is that the test suite deletes it.  
-        //      But, now that the test suite has evolved, I should be able to
-        //      more properly test this.
         ErrorLog.error(PrivilegeResolver.class, E.NO_WHEEL_GROUP + name);
         use_wheel = false;
       }

@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: StemHelper.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  */
 public class StemHelper {
 
@@ -78,10 +78,9 @@ public class StemHelper {
       return child;
     }
     catch (Exception e) {
-      LOG.debug("addChildGroup.12 " + extn);
-      Assert.fail("failed to add group '" + extn + "': " + e.getMessage());
+      T.e(e); 
     }
-    throw new RuntimeException(Helper.ERROR);
+    throw new GrouperRuntimeException();
   } // protected static Group addChildGroup(ns, extn, displayExtn)
 
   protected static void addChildGroupFail(Stem ns, String extn, String displayExtn) {
@@ -116,9 +115,9 @@ public class StemHelper {
       return child;
     }
     catch (Exception e) {
-      Assert.fail("failed to add stem '" + extn + "': " + e.getMessage());
+      T.e(e);
     }
-    throw new RuntimeException(Helper.ERROR);
+    throw new GrouperRuntimeException();
   } // protected static Stem addChildStem(ns, extn, displayExtn)
 
   protected static void addChildStemFail(Stem ns, String extn, String displayExtn) {

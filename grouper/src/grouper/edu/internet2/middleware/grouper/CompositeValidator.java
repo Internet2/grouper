@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.5 2006-06-15 03:53:01 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.6 2006-09-06 19:50:21 blair Exp $
  * @since   1.0
  */
 class CompositeValidator {
@@ -30,7 +30,6 @@ class CompositeValidator {
   protected static void validate(Composite c) 
     throws  ModelException
   {
-    // TODO DRY
     GrouperSessionValidator.validate(c.getSession());
     Owner o = c.getOwner();
     Owner l = c.getLeft();
@@ -85,7 +84,6 @@ class CompositeValidator {
   private static void _rightOwnerClass(Owner o) 
     throws  ModelException
   {
-    // TODO Shouldn't this really restrict to *Group*, at least for now?
     if ( !( (o instanceof Group) || (o instanceof Stem) ) ) {
       throw new ModelException(E.COMP_OC);
     }

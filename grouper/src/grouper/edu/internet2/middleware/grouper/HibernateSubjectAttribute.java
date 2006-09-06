@@ -23,12 +23,10 @@ import  org.apache.commons.lang.builder.*;
  * Hibernate representation of the JDBC SubjectAttribute table.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateSubjectAttribute.java,v 1.4 2006-06-19 17:00:57 blair Exp $
+ * @version $Id: HibernateSubjectAttribute.java,v 1.5 2006-09-06 19:50:21 blair Exp $
  * @since   1.0
  */
 class HibernateSubjectAttribute implements Serializable {
-
-  // TODO Move to different package?
 
   // PUBLIC CLASS CONSTANTS //
   public static final long serialVersionUID = -4979920855853791786L;

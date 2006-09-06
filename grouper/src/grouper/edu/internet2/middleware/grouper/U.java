@@ -22,7 +22,7 @@ import  java.util.*;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.3 2006-08-17 19:25:16 blair Exp $
+ * @version $Id: U.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  * @since   1.0
  */
 class U {
@@ -56,9 +56,8 @@ class U {
     }
   } // protected static Object realizeInterface(name)
 
-  // @since 1.0.1
+  // @since 1.1.0
   protected static Set setMembershipSessions(GrouperSession s, List l) {
-    // TODO Do I need to validate the session?
     Membership  ms;
     Set         mships  = new LinkedHashSet();
     Iterator    iter    = l.iterator();

@@ -23,7 +23,7 @@ import  junit.framework.*;
  * Test {@link GrouperSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSourceAdapter.java,v 1.5 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestGrouperSourceAdapter.java,v 1.6 2006-09-06 19:50:21 blair Exp $
  */
 public class TestGrouperSourceAdapter extends TestCase {
 
@@ -72,7 +72,7 @@ public class TestGrouperSourceAdapter extends TestCase {
 
   public void testAdapterBadSubject() {
     try { 
-      Subject subj = sa.getSubject(Helper.BAD_SUBJ_ID);
+      Subject subj = sa.getSubject(SubjectHelper.BAD_SUBJ_ID);
       Assert.fail("found bad subject: " + subj);
     } 
     catch (SubjectNotFoundException e) {
@@ -85,7 +85,7 @@ public class TestGrouperSourceAdapter extends TestCase {
 
   public void testAdapterBadSubjectByIdentifier() {
     try { 
-      Subject subj = sa.getSubjectByIdentifier(Helper.BAD_SUBJ_ID);
+      Subject subj = sa.getSubjectByIdentifier(SubjectHelper.BAD_SUBJ_ID);
       Assert.fail("found bad subject: " + subj);
     } 
     catch (SubjectNotFoundException e) {

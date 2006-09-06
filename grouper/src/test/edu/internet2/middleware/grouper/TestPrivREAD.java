@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test use of the READ {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivREAD.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestPrivREAD.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  */
 public class TestPrivREAD extends TestCase {
 
@@ -58,7 +58,7 @@ public class TestPrivREAD extends TestCase {
     uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     subj0   = SubjectTestHelper.SUBJ0;
     subj1   = SubjectTestHelper.SUBJ1;
-    m     = Helper.getMemberBySubject(nrs, subj1);
+    m     = MemberHelper.getMemberBySubject(nrs, subj1);
     GroupHelper.addMember(i2, subj1, m);
     GroupHelper.setAttr(i2, "description", "a description");
   }

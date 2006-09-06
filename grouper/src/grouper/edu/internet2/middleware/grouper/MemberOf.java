@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.29 2006-09-05 19:59:02 blair Exp $
+ * @version $Id: MemberOf.java,v 1.30 2006-09-06 19:50:21 blair Exp $
  */
 class MemberOf {
 
@@ -99,14 +99,18 @@ class MemberOf {
 
   // Calculate deletion of a composite membership 
   // @since 1.0
-  //  TODO  Why do I need to include o?  Can't I just get that from c?
   protected static MemberOf delComposite(
     GrouperSession s, Owner o, Composite c
   )
     throws  ModelException
   {
+    //  TODO  In theory I shouldn't need to pass along `o` as I can just get it 
+    //        via `c.getOwner()` *but* `TestGroup36` throws a `HibernateException`
+    //        when I retrieve `o` that way.
+    
     //  TODO  I'm really uncertain about this code.  Expect it to be
     //        both flawed and evolving for quite some time.
+    
     MemberOf  mof   = new MemberOf(s, o, c);
 
     //  Delete this group's members
@@ -133,14 +137,12 @@ class MemberOf {
     return mof;
   } // protected static MemberOf delComposite(s, o, c)
 
-  // @since 1.0
+  // @throws  MemberDeleteException
+  // @since   1.1.0
   protected static MemberOf delImmediate(
     GrouperSession s, Owner o, Membership ms, Member m
   )
-    throws  GroupNotFoundException,   // TODO
-            HibernateException,
-            MemberNotFoundException,  // TODO
-            MembershipNotFoundException
+    throws  MemberDeleteException
   {
     MemberOf  mof = new MemberOf(s, o, m, ms);
 

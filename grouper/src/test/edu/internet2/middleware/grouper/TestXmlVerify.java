@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlVerify.java,v 1.3 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: TestXmlVerify.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  */
 public class TestXmlVerify extends TestCase {
 
@@ -46,7 +46,6 @@ public class TestXmlVerify extends TestCase {
   public void testXmlVerify() {
     LOG.info("testXmlVerify");
     try {
-      // TODO Better testing
       GrouperSession  s = GrouperSession.start(
         SubjectFinder.findById(GrouperConfig.ROOT)
       );

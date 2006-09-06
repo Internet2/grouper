@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.4 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.5 2006-09-06 19:50:21 blair Exp $
  */
 public class TestBugsClosed extends TestCase {
 
@@ -163,15 +163,12 @@ public class TestBugsClosed extends TestCase {
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.7");
       qsuob.grantPriv(admins.toSubject(),Privilege.getInstance("create"));
-      // TODO test
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.8");
       qsuob.grantPriv(admins.toSubject(),Privilege.getInstance("stem"));
-      // TODO test
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.9");
       staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
-      // TODO test
       MembershipTestHelper.testImm(s, admins, kebe, "members");
       MembershipTestHelper.testImm(s, admins, subj, "admins");
       MembershipTestHelper.testImm(s, admins, admins.toSubject(), "admins");
@@ -192,7 +189,6 @@ public class TestBugsClosed extends TestCase {
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.10");
       staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
-      // TODO test
       MembershipTestHelper.testImm(s, admins, kebe, "members");
       MembershipTestHelper.testImm(s, admins, subj, "admins");
       MembershipTestHelper.testImm(s, admins, admins.toSubject(), "admins");
@@ -212,7 +208,6 @@ public class TestBugsClosed extends TestCase {
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.11");
       all_staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
-      // TODO test
       MembershipTestHelper.testImm(s, admins, kebe, "members");
       MembershipTestHelper.testImm(s, admins, subj, "admins");
       MembershipTestHelper.testImm(s, admins, admins.toSubject(), "admins");
@@ -241,7 +236,6 @@ public class TestBugsClosed extends TestCase {
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.12");
       all_staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
-      // TODO test
       MembershipTestHelper.testImm(s, admins, kebe, "members");
       MembershipTestHelper.testImm(s, admins, subj, "admins");
       MembershipTestHelper.testImm(s, admins, admins.toSubject(), "admins");
