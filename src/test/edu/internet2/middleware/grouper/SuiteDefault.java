@@ -21,7 +21,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.8 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.9 2006-09-06 19:50:21 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -53,11 +53,9 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite(TestGrFiFindByName.class);
     suite.addTestSuite(TestGrFiFindByUuid.class);
     suite.addTestSuite(TestMemberFinder.class);
-    // TODO suite.addTestSuite(TestMemberOfAccessPrivs.class);
-    // TODO suite.addTestSuite(TestMemberOfNamingPrivs.class);
     suite.addTestSuite(TestNamingPrivilege.class);
     suite.addTestSuite(TestPrivCREATE.class);  
-    suite.addTestSuite(TestPrivSTEM.class);     // TODO group-with-priv checks
+    suite.addTestSuite(TestPrivSTEM.class);
     suite.addTestSuite(TestStemFinder.class);
     suite.addTestSuite(TestWrongFieldType.class); 
     // TODO suite.addTestSuite(TestWheelGroup.class); 
@@ -65,5 +63,5 @@ public class SuiteDefault extends TestCase {
     return suite;
   } // static public Test suite()
 
-}
+} // public class SuiteDefault
 

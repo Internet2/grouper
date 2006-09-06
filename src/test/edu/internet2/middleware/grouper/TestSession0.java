@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession0.java,v 1.4 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: TestSession0.java,v 1.5 2006-09-06 19:50:21 blair Exp $
  */
 public class TestSession0 extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestSession0 extends TestCase {
 
   public void testStartSessionBadSubject() {
     LOG.info("testStartSessionBadSubject");
-    Helper.getBadSession("bad subject");
+    SessionHelper.getBadSession("bad subject");
   } // public void testStartSessionBadSubject()
 
 }

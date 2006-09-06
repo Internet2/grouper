@@ -21,7 +21,7 @@ import  edu.internet2.middleware.grouper.*;
 /**
  * Profile adding a {@link Group}.
  * @author  blair christensen.
- * @version $Id: AddGroup.java,v 1.3 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: AddGroup.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  * @since   1.1.0
  */
 public class AddGroup {
@@ -37,7 +37,7 @@ public class AddGroup {
    */
   public static void main(String args[]) {
     try {
-      // TODO Argh.  Ideally this wouldn't be here.
+      // Ideally this wouldn't be here but...
       Stem  ns  = StemFinder.findByName(
         GrouperSession.start( SubjectFinder.findRootSubject() ), NS
       );

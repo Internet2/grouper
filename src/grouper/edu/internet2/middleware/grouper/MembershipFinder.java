@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.45 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.46 2006-09-06 19:50:21 blair Exp $
  */
 public class MembershipFinder {
 
@@ -241,11 +241,11 @@ public class MembershipFinder {
     try {
       Session   hs    = HibernateHelper.getSession();
       Query     qry   = hs.createQuery(
-        "from Membership as ms where ms.member_id = :mid"
+        "from Membership as ms where ms.member_id = :member"
       );
       qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FAM);
-      qry.setString("mid", m.getId());
+      qry.setParameter("member", m);
       Membership  ms;
       Iterator    iter  = qry.iterate();
       while (iter.hasNext()) {
@@ -400,17 +400,17 @@ public class MembershipFinder {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
-        + "     ms.member_id  = :mid    "
+        + "     ms.member_id  = :member "
         + "and  ms.field.name = :fname  "
         + "and  ms.field.type = :ftype  "
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMM);
-      qry.setString("mid"   , m.getId()                   );
-      qry.setString("fname" , f.getName()                 );
-      qry.setString("ftype" , f.getType().toString()      );
-      qry.setString("type"  , MembershipType.E.toString() );
+      qry.setParameter( "member", m                           );
+      qry.setString(    "fname" , f.getName()                 );
+      qry.setString(    "ftype" , f.getType().toString()      );
+      qry.setString(    "type"  , MembershipType.E.toString() );
       List    l   = qry.list();
       hs.close();
       mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
@@ -470,17 +470,17 @@ public class MembershipFinder {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
-        + "     ms.member_id  = :mid    "
+        + "     ms.member_id  = :member "
         + "and  ms.field.name = :fname  "
         + "and  ms.field.type = :ftype  "
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FIMM);      
-      qry.setString(  "mid"   , m.getId()                   );
-      qry.setString(  "fname" , f.getName()                 );
-      qry.setString(  "ftype" , f.getType().toString()      );
-      qry.setString(  "type"  , MembershipType.I.toString() );
+      qry.setParameter( "member", m                           );
+      qry.setString(    "fname" , f.getName()                 );
+      qry.setString(    "ftype" , f.getType().toString()      );
+      qry.setString(    "type"  , MembershipType.I.toString() );
       List    l   = qry.list();
       hs.close();
       mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
@@ -569,19 +569,18 @@ public class MembershipFinder {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
-        + "     ms.member_id  = :mid    "
+        + "     ms.member_id  = :member "
         + "and  ms.field.name = :fname  "
         + "and  ms.field.type = :ftype"
       );
       qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MSF_FM);
-      qry.setString("mid"   , m.getId()             );
-      qry.setString("fname" , f.getName()           );
-      qry.setString("ftype" , f.getType().toString());
+      qry.setParameter( "member", m                     );
+      qry.setString(    "fname" , f.getName()           );
+      qry.setString(    "ftype" , f.getType().toString());
       List    l   = qry.list();
 
-      Member all = MemberFinder.findAllMember();
-      qry.setString("mid", all.getId());
+      qry.setParameter( "member", MemberFinder.findAllMember() );
       l.addAll(qry.list());
       hs.close();
 

@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.5 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.6 2006-09-06 19:50:21 blair Exp $
  */
 class GroupHelper {
 
@@ -123,9 +123,10 @@ class GroupHelper {
       g.deleteAttribute(attr);
       LOG.debug("delAttr.1");
       Assert.assertTrue(msg, true);
-      // TODO This is actually wrong but I think the result is cached
-      //      so we get the value even though the attribute has been
-      //      deleted from the db.
+      // FIXME  Verify whether the below is true:
+      //        "This is actually wrong but I think the result is cached
+      //        so we get the value even though the attribute has been
+      //        deleted from the db."
       try {
         g.getAttribute(attr);
         LOG.debug("delAttr.2");
@@ -221,7 +222,6 @@ class GroupHelper {
       Assert.assertTrue("deleted member", true);
       Assert.assertFalse("g !hasMember m", g.hasMember(gm.toSubject()));
       Assert.assertFalse("m !isMember g", m.isMember(g));
-      // TODO Assert immediate and effective in some manner or another
     }
     catch (InsufficientPrivilegeException eIP) {
       Assert.fail("not privileged to delete member: " + eIP.getMessage());
@@ -600,10 +600,10 @@ class GroupHelper {
       );
       return m;
     }
-    catch (RuntimeException e) {
-      Assert.fail("failed to convert group to member");
+    catch (Exception e) {
+      T.e(e);
     }
-    throw new RuntimeException(Helper.ERROR); 
+    throw new GrouperRuntimeException();
   } // protected static Member toMember(g)
 
 } // class GroupHelper

@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestAccessPrivilege.java,v 1.3 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: TestAccessPrivilege.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  */
 public class TestAccessPrivilege extends TestCase {
 
@@ -61,7 +61,7 @@ public class TestAccessPrivilege extends TestCase {
     GroupHelper.addMember(uofc, subj0, "members");
     PrivHelper.grantPriv(s, uofc, subj0, AccessPrivilege.UPDATE);
     PrivHelper.grantPriv(s, i2, uofc.toSubject(), AccessPrivilege.OPTIN);
-    m = Helper.getMemberBySubject(nrs, subj1);
+    m = MemberHelper.getMemberBySubject(nrs, subj1);
   }
 
   protected void tearDown () {

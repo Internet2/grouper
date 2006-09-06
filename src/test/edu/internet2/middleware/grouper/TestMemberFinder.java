@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test {@link MemberFinder}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberFinder.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestMemberFinder.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  */
 public class TestMemberFinder extends TestCase {
 
@@ -49,7 +49,7 @@ public class TestMemberFinder extends TestCase {
 
   public void testFindBySubjectBadSubject() {
     LOG.info("testFindBySubjectBadSubject");
-    Helper.getMemberBySubjectBad(
+    MemberHelper.getMemberBySubjectBad(
       SessionHelper.getRootSession(), null
     );
     Assert.assertTrue("failed to find bad member", true);
@@ -60,7 +60,7 @@ public class TestMemberFinder extends TestCase {
     try {
       GrouperSession  s   = SessionHelper.getRootSession();
       String          id  = "GrouperSystem";
-      Member          m   = Helper.getMemberBySubject(
+      Member          m   = MemberHelper.getMemberBySubject(
         s, SubjectTestHelper.getSubjectById(id)
       );
       Assert.assertTrue("found member", true);

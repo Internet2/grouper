@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestAddMember2.java,v 1.4 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: TestAddMember2.java,v 1.5 2006-09-06 19:50:21 blair Exp $
  */
 public class TestAddMember2 extends TestCase {
 
@@ -49,7 +49,7 @@ public class TestAddMember2 extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Subject         subj  = SubjectTestHelper.getSubjectById(SubjectTestHelper.SUBJ_ROOT);
-    Helper.getMemberBySubject(s, subj);
+    MemberHelper.getMemberBySubject(s, subj);
     // add subj to uofc   
     GroupHelper.addMember(uofc, subj, "members");
     MembershipTestHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);

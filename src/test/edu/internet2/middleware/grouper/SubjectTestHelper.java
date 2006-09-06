@@ -23,9 +23,9 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectTestHelper.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: SubjectTestHelper.java,v 1.5 2006-09-06 19:50:21 blair Exp $
  */
-public class SubjectTestHelper {
+ class SubjectTestHelper {
 
   // Protected Class Constants
   protected static final Subject  SUBJA;
@@ -137,7 +137,7 @@ public class SubjectTestHelper {
     catch (SubjectNotUniqueException eSNU) {
       T.e(eSNU);
     }
-    throw new RuntimeException(Helper.ERROR);
+    throw new GrouperRuntimeException();
   } // protected static Subject getSubjectById(id)
 
   // Get a subject by identifier
@@ -158,7 +158,7 @@ public class SubjectTestHelper {
     catch (SubjectNotUniqueException eSNU) {
       T.e(eSNU);
     }
-    throw new RuntimeException(Helper.ERROR);
+    throw new GrouperRuntimeException();
   } // protected static Subject getSubjectByIdentifier(id)
 
   // Get a subject by id and type
@@ -184,7 +184,7 @@ public class SubjectTestHelper {
     catch (SubjectNotUniqueException eSNU) {
       T.e(eSNU);
     }
-    throw new RuntimeException(Helper.ERROR);
+    throw new GrouperRuntimeException();
   } // protected static Subject getSubjectByIdType(id, type)
 
   // Get a subject by identifier and type
@@ -210,8 +210,8 @@ public class SubjectTestHelper {
     catch (SubjectNotUniqueException eSNU) {
       T.e(eSNU);
     }
-    throw new RuntimeException(Helper.ERROR);
+    throw new GrouperRuntimeException();
   } // protected static Subject getSubjectByIdentifierType(id, type)
 
-}
+} // class SubjectTestHelper
 

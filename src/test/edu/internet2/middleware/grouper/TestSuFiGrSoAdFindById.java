@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link SubjectFinder.findById()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindById.java,v 1.4 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: TestSuFiGrSoAdFindById.java,v 1.5 2006-09-06 19:50:21 blair Exp $
  */
 public class TestSuFiGrSoAdFindById extends TestCase {
 
@@ -61,7 +61,7 @@ public class TestSuFiGrSoAdFindById extends TestCase {
 
   public void testFindByIdBadId() {
     LOG.info("testFindByIdBadId");
-    SubjectTestHelper.getSubjectByBadId(Helper.BAD_SUBJ_ID);
+    SubjectTestHelper.getSubjectByBadId(SubjectHelper.BAD_SUBJ_ID);
     Assert.assertTrue("failed to find bad subject", true);
   } // public void testFindByIdBadId()
 

@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.62 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: Member.java,v 1.63 2006-09-06 19:50:21 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -1009,7 +1009,6 @@ public class Member implements Serializable {
       ).size() > 0
     )
     {
-      // TODO I wonder about this.
       rv = true;
     }
     return rv;
@@ -1160,25 +1159,23 @@ public class Member implements Serializable {
         }
       }
     } 
-    String oid = this.getSubject_id();
-    String msg = "not privileged to change subjectId";
+    String orig = this.getSubject_id(); // preserve original for logging purposes
     if (PrivilegeResolver.isRoot(this.getSession().getSubject())) {
       try {
         this.setSubject_id(id);
         HibernateHelper.save(this);
       }
       catch (Exception e) {
-        msg = e.getMessage();
+        throw new InsufficientPrivilegeException(E.UNABLE_TO_CHANGE_SUBJID + e.getMessage());
       }
     }
-    // TODO WTF?
-    if (this.getSubject_id().equals(oid)) {
-      throw new InsufficientPrivilegeException(msg);
+    else {
+      throw new InsufficientPrivilegeException(E.NO_CHANGE_SUBJID);
     }
     sw.stop();
     EventLog.info(
       this.getSession(),
-      M.MEMBER_CHANGESID + U.q(this.getUuid()) + " old=" + U.q(oid) + " new=" + U.q(id),
+      M.MEMBER_CHANGESID + U.q(this.getUuid()) + " old=" + U.q(orig) + " new=" + U.q(id),
       sw
     );
   } // public void setSubjectId(id)
@@ -1235,7 +1232,7 @@ public class Member implements Serializable {
   {
     // TODO TEST Check for group type 
     if (this.g == null) {
-      this.g =GroupFinder.findByUuid(this.getSession(), this.getSubjectId());
+      this.g = GroupFinder.findByUuid(this.getSession(), this.getSubjectId());
     }
     this.g.setSession(this.getSession());
     return this.g;
@@ -1338,8 +1335,7 @@ public class Member implements Serializable {
 
 
   // GETTERS //
-  // TODO Make private
-  protected String getId() {
+  private String getId() {
     return this.id;
   } 
   private String getMember_id() {

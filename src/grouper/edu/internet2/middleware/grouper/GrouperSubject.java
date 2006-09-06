@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.21 2006-07-10 15:18:34 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.22 2006-09-06 19:50:21 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -126,29 +126,8 @@ public class GrouperSubject implements Subject {
   } // public int hashCode()
 
 
-  // PRIVATE INSTANCE METHODS
-  private void _addAttr(String attr, String value) {
-    // TODO Should I be applying a regex to the attr name?  The current check
-    //      is fairly naive - but I guess right now only *I* can add items so
-    //      it is probably sufficient - for now.
-    //      Use Commons validating code?
-    // TODO Actually, why do I do any validation?  I'm not really sure what is
-    //      going on here.
-    if ( 
-      (attr   != null       ) 
-      && (attr.length() > 0 )
-      && (value  != null    ) 
-      && (value.length() > 0)
-    ) 
-    {
-      this.attrs.put(attr, value);
-      DebugLog.info(
-        GrouperSubject.class,
-        "[" + this.name + "] attached attribute: '" + attr + "' = '" + value + "'"
-      );
-    }
-  } // private void _addAttr(attr, value)
-
+  // PRIVATE INSTANCE METHODS //
+  
   private void _addAttrs() {
     // TODO Ideally I wouldn't just iterate through the appropriate items in
     //      the fields list but I think I need more logic than that
@@ -167,9 +146,9 @@ public class GrouperSubject implements Subject {
       // Don't bother with any of the create* attrs unless we can find
       // the creating subject
       Subject creator = this.g.getCreateSubject();
-      this._addAttr("createSubjectId"   , creator.getId()                   );
-      this._addAttr("createSubjectType" , creator.getType().getName()       );
-      this._addAttr("createTime"        , this.g.getCreateTime().toString() ); 
+      this.attrs.put("createSubjectId"    , creator.getId()                   );
+      this.attrs.put("createSubjectType"  , creator.getType().getName()       );
+      this.attrs.put("createTime"         , this.g.getCreateTime().toString() ); 
     }
     catch (SubjectNotFoundException eSNF0) {
       ErrorLog.error(GrouperSubject.class, E.GSUBJ_NOCREATOR + eSNF0.getMessage());
@@ -178,9 +157,9 @@ public class GrouperSubject implements Subject {
       // Don't bother with any of the modify* attrs unless we can find
       // the modifying subject
       Subject modifier = this.g.getModifySubject();
-      this._addAttr("modifySubjectId"   , modifier.getId()                  );
-      this._addAttr("modifySubjectType" , modifier.getType().getName()      );
-      this._addAttr("modifyTime"        , this.g.getModifyTime().toString() ); 
+      this.attrs.put("modifySubjectId"    , modifier.getId()                  );
+      this.attrs.put("modifySubjectType"  , modifier.getType().getName()      );
+      this.attrs.put("modifyTime"         , this.g.getModifyTime().toString() ); 
     }
     catch (SubjectNotFoundException eSNF1) {
       // No modifier
@@ -190,7 +169,7 @@ public class GrouperSubject implements Subject {
     Iterator  iter  = attrs.entrySet().iterator();
     while (iter.hasNext()) {
       e = (Map.Entry) iter.next();
-      this._addAttr(  (String) e.getKey(), (String) e.getValue() );
+      this.attrs.put(  (String) e.getKey(), (String) e.getValue() );
     }
     DebugLog.info(
       GrouperSubject.class, 

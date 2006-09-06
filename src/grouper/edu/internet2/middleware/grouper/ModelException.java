@@ -19,11 +19,11 @@ package edu.internet2.middleware.grouper;
 
 /**
  * @author  blair christensen.
- * @version $Id: ModelException.java,v 1.3 2006-09-05 18:25:15 blair Exp $
+ * @version $Id: ModelException.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  */
 class ModelException extends Exception {
-  // FIXME  I'm really skeptical of this whole tangent.  I wonder if I can - or
-  //        should - just get rid of it.
+  // TODO I'm really skeptical of this whole tangent.  I wonder if I can - or
+  //      should - just get rid of it.
   public ModelException() { 
     super(); 
   }

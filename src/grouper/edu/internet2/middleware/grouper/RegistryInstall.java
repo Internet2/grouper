@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.26 2006-08-30 18:35:38 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.27 2006-09-06 19:50:21 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -37,7 +37,6 @@ public class RegistryInstall {
 
 
   // PRIVATE CLASS METHODS //
-  // FIXME Refactor
   private static void _installFieldsAndTypes() 
     throws  GrouperRuntimeException
   {

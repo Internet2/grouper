@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.25 2006-08-30 14:39:22 blair Exp $
+ * @version $Id: E.java,v 1.26 2006-09-06 19:50:21 blair Exp $
  * @since   1.0
  */
 class E {
@@ -144,6 +144,7 @@ class E {
   protected static final String MSV_CIRCULAR              = "cannot create a circular membership";
   protected static final String MSV_NO_PARENT             = "no parent membership";
   protected static final String MSV_TYPE                  = "invalid membership type: ";
+  protected static final String NO_CHANGE_SUBJID          = "not privileged to change subjectId";
   protected static final String NO_WHEEL_GROUP            = "disabling wheel group.  enabled but found found: ";
   protected static final String NI                        = "NOT IMPLEMENTED: ";
   protected static final String Q_G                       = "getting groups from ";
@@ -178,6 +179,20 @@ class E {
   protected static final String SV_O                      = "null session object";
   protected static final String SV_M                      = "null session member";
   protected static final String SV_T                      = "null session start time";
+  protected static final String UNABLE_TO_CHANGE_SUBJID   = "unable to change subjectId: ";
 
+  // From `MembershipValidator`
+  protected static final String ERR_D   = "membership has invalid depth: ";
+  protected static final String ERR_EV  = "effective membership has no via";
+  protected static final String ERR_FT  = "membership has invalid field type: ";
+  protected static final String ERR_IV  = "immediate membership has via";
+  protected static final String ERR_M   = "membership has null member";
+  protected static final String ERR_MAE = "membership already exists";
+  protected static final String ERR_O   = "membership has null owner";
+  protected static final String ERR_OC  = "membership has invalid owner class: ";
+  protected static final String ERR_PMS = "immediate membership has parent membership";
+  protected static final String ERR_V   = "membership has null via";
+  protected static final String ERR_VC  = "membership has invalid via class: ";
+  
 } // class E
 

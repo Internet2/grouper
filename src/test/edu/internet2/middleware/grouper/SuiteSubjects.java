@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteSubjects.java,v 1.5 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: SuiteSubjects.java,v 1.6 2006-09-06 19:50:21 blair Exp $
  * @since   1.0
  */
 public class SuiteSubjects extends TestCase {
@@ -52,7 +52,7 @@ public class SuiteSubjects extends TestCase {
     suite.addTestSuite( TestSuFiGrSoAdFindById.class    );
     suite.addTestSuite( TestSuFiGrSoAdFindByIdfr.class  );
     suite.addTestSuite( TestSuFiGrSoAdSearch.class      );
-    suite.addTestSuite( TestSubjectFinderInternal.class );  // TODO Hrm...
+    suite.addTestSuite( TestSubjectFinderInternal.class );
     return suite;
   } // static public Test suite()
 

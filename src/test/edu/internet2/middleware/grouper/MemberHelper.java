@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.subject.Subject;
 import  junit.framework.*;
 
 /**
  * {@link Member} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberHelper.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: MemberHelper.java,v 1.5 2006-09-06 19:50:21 blair Exp $
  */
 public class MemberHelper {
 
@@ -46,11 +47,44 @@ public class MemberHelper {
       );
       return g;
     }
-    catch (GroupNotFoundException eGNF) {
-      Assert.fail("failed to convert member to group");
+    catch (Exception e) {
+      T.e(e);
     }
-    throw new RuntimeException(Helper.ERROR); 
+    throw new GrouperRuntimeException(); 
   } // protected static Group toGroup(m)
+
+  // Get a member by subject
+  // @return  A {link Member}
+  protected static Member getMemberBySubject(GrouperSession s, Subject subj) {
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      Assert.assertNotNull("m !null", m);
+      Assert.assertTrue(
+        "m instanceof Member", m instanceof Member
+      );
+      Assert.assertNotNull("m uuid !null", m.getUuid());
+      Assert.assertTrue("m has uuid", !m.getUuid().equals(""));
+      Assert.assertNotNull("m subj !null", m.getSubject());
+      Assert.assertNotNull("m subj id !null", m.getSubjectId());
+      Assert.assertNotNull("m subj type id !null", m.getSubjectTypeId());
+      return m;
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+    throw new GrouperRuntimeException();
+  } // protected static Member getMemberBySubject(s, subj)
+
+  // Get a member by bad subject
+  protected static void getMemberBySubjectBad(GrouperSession s, Subject subj) {
+    try {
+      MemberFinder.findBySubject(s, subj);
+      Assert.fail("found invalid member");
+    }
+    catch (MemberNotFoundException e) {
+      Assert.assertTrue("invalid member not found", true);
+    }
+  } // protected static void getMemberBySubjectBad(s, subj)
 
 }
 

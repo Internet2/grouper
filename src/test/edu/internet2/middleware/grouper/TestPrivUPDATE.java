@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test use of the UPDATE {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivUPDATE.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestPrivUPDATE.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  */
 public class TestPrivUPDATE extends TestCase {
 
@@ -59,7 +59,7 @@ public class TestPrivUPDATE extends TestCase {
     uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     subj0 = SubjectTestHelper.SUBJ0;
     subj1 = SubjectTestHelper.SUBJ1;
-    m     = Helper.getMemberBySubject(nrs, subj1);
+    m     = MemberHelper.getMemberBySubject(nrs, subj1);
   }
 
   protected void tearDown () {

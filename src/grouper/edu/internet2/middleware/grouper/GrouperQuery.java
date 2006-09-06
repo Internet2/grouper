@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.17 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.18 2006-09-06 19:50:21 blair Exp $
  */
 public class GrouperQuery {
 
@@ -106,14 +106,6 @@ public class GrouperQuery {
         Group g = (Group) o;
         groups.add(g);
       }
-/*
-      else if (o.getClass().equals(Stem.class)) {
-        // TODO What is the right behavior here?  Should I return
-        //      nothing?  Should I return all of the child groups?  I
-        //      really don't know.
-        // Skip
-      }
-*/
       else {
         ErrorLog.error(GrouperQuery.class, E.NI + E.Q_G + o.getClass());
       }

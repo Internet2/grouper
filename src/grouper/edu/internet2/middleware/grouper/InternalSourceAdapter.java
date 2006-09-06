@@ -30,7 +30,7 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.12 2006-07-03 18:29:06 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.13 2006-09-06 19:50:21 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -137,10 +137,6 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
 
   /**
    * Unstructured search for Subjects.
-   * <p>
-   * This method is not implemented in this source adapter and will
-   * return an empty set whenever called.
-   * </p>
    * <pre class="eg">
    * // Search for subjects with the query string <i>test</i>.
    * SourceAdapter  sa        = new InternalSourceAdapter();
@@ -150,8 +146,6 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * @return  Subjects matching search value.
    */
   public Set search(String searchValue) {
-    // TODO The javadoc says this will never resolve anything
-    //      but the code actually can resolve.  Which is correct?
     Set results = new LinkedHashSet();
     try {
       results.add(this._resolveSubject(searchValue));
@@ -169,7 +163,6 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   private Subject _resolveSubject(String qry) 
     throws  SubjectNotFoundException
   {
-    // TODO What attributes do I need to set?  Check with Gary at some point.
     if      (qry.equals(GrouperConfig.ALL)) {
       if (this.all == null) {
         this.all = new InternalSubject(qry, qry, this);
@@ -185,5 +178,5 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
     throw new SubjectNotFoundException("subject not found: " + qry);
   } // private Subject _resolveSubject(qry)
 
-}
+} // public class InternalSourceAdapter
 

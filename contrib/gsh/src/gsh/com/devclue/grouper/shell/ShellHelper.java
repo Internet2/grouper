@@ -14,7 +14,7 @@ import  org.apache.commons.lang.time.*;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.2 2006-06-27 23:28:24 blair Exp $
+ * @version $Id: ShellHelper.java,v 1.3 2006-09-06 19:50:21 blair Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -53,10 +53,9 @@ class ShellHelper {
       i.error(E.GSH_SETHISTORY + eBEE.getMessage());
     }
     sw.stop();
-    // If command are timed and this was not a `last` command output
+    // If commands are timed and this was not a `last` command output
     // how long it took to evaluate.
     // TODO Add methods for this
-    // TODO Should we only time internal methods?  No, probably not.
     if ( (GrouperShell.isTimed(i)) && (!cmd.startsWith("last(")) ) {
       i.println( "time: " + sw.getTime() + "ms command=" + U.q(cmd) );
     }

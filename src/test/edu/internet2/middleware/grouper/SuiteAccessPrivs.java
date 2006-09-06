@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteAccessPrivs.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: SuiteAccessPrivs.java,v 1.3 2006-09-06 19:50:21 blair Exp $
  * @since   1.1.0
  */
 public class SuiteAccessPrivs extends TestCase {
@@ -34,12 +34,12 @@ public class SuiteAccessPrivs extends TestCase {
     suite.addTestSuite( TestPrivAdmin0.class  );  // Still have VIEW after revocation due to GrouperAll
     // TODO CONVERT
     suite.addTestSuite( TestAccessPrivilege.class );
-    suite.addTestSuite( TestPrivADMIN.class       );  // TODO group-with-priv checks
-    suite.addTestSuite( TestPrivOPTIN.class       );  // TODO group-with-priv checks
-    suite.addTestSuite( TestPrivOPTOUT.class      );  // TODO group-with-priv checks
-    suite.addTestSuite( TestPrivREAD.class        );  // TODO group-with-priv checks
-    suite.addTestSuite( TestPrivVIEW.class        );  // TODO group-with-priv checks
-    suite.addTestSuite( TestPrivUPDATE.class      );  // TODO group-with-priv checks
+    suite.addTestSuite( TestPrivADMIN.class       );
+    suite.addTestSuite( TestPrivOPTIN.class       );
+    suite.addTestSuite( TestPrivOPTOUT.class      );
+    suite.addTestSuite( TestPrivREAD.class        );
+    suite.addTestSuite( TestPrivVIEW.class        );
+    suite.addTestSuite( TestPrivUPDATE.class      ); 
     return suite;
   } // static public Test suite()
 

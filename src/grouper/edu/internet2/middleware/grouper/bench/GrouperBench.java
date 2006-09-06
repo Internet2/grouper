@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.11 2006-08-31 18:21:32 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.12 2006-09-06 19:50:21 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -76,8 +76,6 @@ public class GrouperBench {
     for (int i = 0; i < cnt; i++) {
       RegistryReset.reset();
       bm.init();
-      // TODO Why am I not reusing the StopWatch for the entire run and just
-      //      calling `suspend()` and `resume()` at appropriate times?
       StopWatch sw = new StopWatch();
       sw.start();
       bm.run();

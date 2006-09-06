@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.101 2006-09-06 15:55:52 blair Exp $
+ * @version $Id: Group.java,v 1.102 2006-09-06 19:50:21 blair Exp $
  */
 public class Group extends Owner {
 
@@ -454,15 +454,20 @@ public class Group extends Owner {
 
       // And then commit changes to registry
       HibernateHelper.delete(deletes);
-      // TODO info
       sw.stop();
       EventLog.info(this.getSession(), M.GROUP_DEL + U.q(name), sw);
     }
-    catch (InsufficientPrivilegeException eIP) {
-      throw new InsufficientPrivilegeException(eIP.getMessage(), eIP);
+    catch (HibernateException eH) {
+      throw new GroupDeleteException(eH.getMessage(), eH);
     }
-    catch (Exception e) {
-      throw new GroupDeleteException(e.getMessage(), e);
+    catch (MemberDeleteException eMD) {
+      throw new GroupDeleteException(eMD.getMessage(), eMD);
+    }
+    catch (RevokePrivilegeException eRP) {
+      throw new GroupDeleteException(eRP.getMessage(), eRP);
+    }
+    catch (SchemaException eS) {
+      throw new GroupDeleteException(eS.getMessage(), eS);
     }
   } // public void delete()
 
@@ -1714,7 +1719,6 @@ public class Group extends Owner {
   public boolean hasMember(Subject subj, Field f) 
     throws  SchemaException
   {
-    // TODO I should probably have _Member_ call _Group_ and not the inverse
     boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(this.getSession(), subj);
@@ -1935,7 +1939,6 @@ public class Group extends Owner {
             GroupModifyException, 
             InsufficientPrivilegeException
   {
-    // TODO s,AttributeNotFoundException,SchemaException,
     try {
       StopWatch sw = new StopWatch();
       sw.start();

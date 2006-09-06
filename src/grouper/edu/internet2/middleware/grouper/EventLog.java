@@ -25,28 +25,12 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.24 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: EventLog.java,v 1.25 2006-09-06 19:50:21 blair Exp $
  */
 class EventLog {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Log LOG = LogFactory.getLog(EventLog.class);
-  // FIXME Relocate to M
-  private static final String G_AM        = "add member: group=";
-  private static final String G_AM_E      = "add effective member: group=";
-  private static final String G_DA        = "delete group attr: group=";
-  private static final String G_DM        = "delete member: group=";
-  private static final String G_DM_E      = "delete effective member: group=";
-  private static final String G_GP        = "grant access priv: group=";
-  private static final String G_GP_E      = "grant effective access priv: group=";
-  private static final String G_RP        = "revoke access priv: group=";
-  private static final String G_RP_E      = "revoke effective access priv: group=";
-  private static final String G_SA        = "set group attr: group=";
-  private static final String S_GP        = "grant naming priv: stem=";
-  private static final String S_GP_E      = "grant effective naming priv: stem=";
-  private static final String S_RP        = "revoke naming priv: stem=";
-  private static final String S_RP_E      = "revoke effective naming priv: stem=";
-  private static final String S_SA        = "set stem attr: stem=";
 
 
   // PRIVATE INSTANCE VARIALBES //
@@ -217,81 +201,81 @@ class EventLog {
     GrouperSession s, String group, Subject subj, Field f, StopWatch sw
   )
   {
-    this._member(s, G_AM, group, subj, f, sw);
+    this._member(s, M.G_AM, group, subj, f, sw);
   } // protected void groupAddMember(s, group, subj, f, sw)
 
   protected void groupDelAttr(
     GrouperSession s, String group, String attr, String val, StopWatch sw
   )
   {
-    this._setAttr(s, G_DA, group, attr, val, sw);
+    this._setAttr(s, M.G_DA, group, attr, val, sw);
   } // protected void groupDelAttr(s, group, attr, val, sw);
 
   protected void groupDelMember(
     GrouperSession s, String group, Subject subj, Field f, StopWatch sw
   )
   {
-    this._member(s, G_DM, group, subj, f, sw);
+    this._member(s, M.G_DM, group, subj, f, sw);
   } // protected void groupDelMember(s, group, subj, f, sw)
 
   protected void groupGrantPriv(
     GrouperSession s, String group, Subject subj, Privilege p, StopWatch sw
   )
   {
-    this._grantPriv(s, G_GP, group, subj, p, sw);
+    this._grantPriv(s, M.G_GP, group, subj, p, sw);
   } // protected void groupGrantPriv(s, group, subj, p, sw)
 
   protected void groupRevokePriv(
     GrouperSession s, String group, Privilege p, StopWatch sw
   ) 
   {
-    this._revokePriv(s, G_RP, group, p, sw);
+    this._revokePriv(s, M.G_RP, group, p, sw);
   } // protected void groupRevokePriv(s, group, p, sw)
 
   protected void groupRevokePriv(
     GrouperSession s, String group, Subject subj, Privilege p, StopWatch sw
   ) 
   {
-    this._revokePriv(s, G_RP, group, subj, p, sw);
+    this._revokePriv(s, M.G_RP, group, subj, p, sw);
   } // protected void groupRevokePriv(s, group, subj, p, sw)
 
   protected void groupSetAttr(
     GrouperSession s, String group, String attr, String val, StopWatch sw
   )
   {
-    this._setAttr(s, G_SA, group, attr, val, sw);
+    this._setAttr(s, M.G_SA, group, attr, val, sw);
   } // protected void groupSetAttr(s, group, attr, val, sw);
 
   protected void stemGrantPriv(
     GrouperSession s, String stem, Subject subj, Privilege p, StopWatch sw
   )
   {
-    this._grantPriv(s, S_GP, stem, subj, p, sw);
+    this._grantPriv(s, M.S_GP, stem, subj, p, sw);
   } // protected void stemGrantPriv(s, stem, subj, p, sw)
 
   protected void stemRevokePriv(
     GrouperSession s, String stem, Privilege p, StopWatch sw
   ) 
   {
-    this._revokePriv(s, S_RP, stem, p, sw);
+    this._revokePriv(s, M.S_RP, stem, p, sw);
   } // protected void stemRevokePriv(s, stem, p, sw)
 
   protected void stemRevokePriv(
     GrouperSession s, String stem, Subject subj, Privilege p, StopWatch sw
   ) 
   {
-    this._revokePriv(s, S_RP, stem, subj, p, sw);
+    this._revokePriv(s, M.S_RP, stem, subj, p, sw);
   } // protected void stemRevokePriv(s, stem, subj, p, sw)
 
   protected void stemSetAttr(
     GrouperSession s, String stem, String attr, String val, StopWatch sw
   )
   {
-    this._setAttr(s, S_SA, stem, attr, val, sw);
+    this._setAttr(s, M.S_SA, stem, attr, val, sw);
   } // protected void stemSetAttr(s, stem, attr, val, sw);
 
 
-  // PRIVATE STATIC METHODS //
+  // PRIVATE CLASS METHODS //
 
   // @since 1.0
   private static void _member(
@@ -328,13 +312,13 @@ class EventLog {
       while (iter.hasNext()) {
         eff = (Membership) iter.next();
         if      (eff.getList().getType().equals(FieldType.ACCESS)) {
-          this._eff(root, s, G_GP_E, name, subj, f, eff, "priv="); 
+          this._eff(root, s, M.G_GP_E, name, subj, f, eff, "priv="); 
         }
         else if (eff.getList().getType().equals(FieldType.LIST)) {
-          this._eff(root, s, G_AM_E, name, subj, f, eff, "list="); 
+          this._eff(root, s, M.G_AM_E, name, subj, f, eff, "list="); 
         }
         else if (eff.getList().getType().equals(FieldType.NAMING)) {
-          this._eff(root, s, S_GP_E, name, subj, f, eff, "priv="); 
+          this._eff(root, s, M.S_GP_E, name, subj, f, eff, "priv="); 
         }
       }
       root.stop();
@@ -355,13 +339,13 @@ class EventLog {
       while (iter.hasNext()) {
         eff = (Membership) iter.next();
         if      (eff.getList().getType().equals(FieldType.ACCESS)) {
-          this._eff(root, s, G_RP_E, name, subj, f, eff, "priv="); 
+          this._eff(root, s, M.G_RP_E, name, subj, f, eff, "priv="); 
         }
         else if (eff.getList().getType().equals(FieldType.LIST)) {
-          this._eff(root, s, G_DM_E, name, subj, f, eff, "list="); 
+          this._eff(root, s, M.G_DM_E, name, subj, f, eff, "list="); 
         }
         else if (eff.getList().getType().equals(FieldType.NAMING)) {
-          this._eff(root, s, S_RP_E, name, subj, f, eff, "priv="); 
+          this._eff(root, s, M.S_RP_E, name, subj, f, eff, "priv="); 
         }
       }
       root.stop();
@@ -436,7 +420,6 @@ class EventLog {
     );
   } // private void _grantPriv(s, msg, name, subj, p, sw)
 
-  // TODO Deprecate
   private void _member(
     GrouperSession s, String msg, String group, Subject subj, Field f, StopWatch sw
   )

@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test {@link Member.toGroup()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberToGroup.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestMemberToGroup.java,v 1.4 2006-09-06 19:50:21 blair Exp $
  */
 public class TestMemberToGroup extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestMemberToGroup extends TestCase {
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Member          m     = Helper.getMemberBySubject(
+    Member          m     = MemberHelper.getMemberBySubject(
       s, SubjectTestHelper.getSubjectByIdType(i2.getUuid(), "group")
     );
     Group           g     = MemberHelper.toGroup(m);
