@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.24 2006-08-17 16:45:31 blair Exp $
+ * @version $Id: GroupType.java,v 1.25 2006-09-06 15:55:52 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -224,7 +224,7 @@ public class GroupType implements Serializable {
     }
     try {
       // TODO I **really** should not need to drop down to JDBC for this
-      //      And, of course, I can't even iterator through this type's
+      //      And, of course, I can't even iterate through this type's
       //      fields to check if they are in use - because it might not
       //      have any fields!
       Session           hs  = HibernateHelper.getSession();
