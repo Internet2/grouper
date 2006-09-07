@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.21 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.22 2006-09-07 18:34:37 blair Exp $
  */
 public class MemberFinder {
 
@@ -128,9 +128,9 @@ public class MemberFinder {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
         "from Member as m where "
-        + "     m.subject_id      = :sid "  
-        + "and  m.subject_type    = :type "
-        + "and  m.subject_source  = :source"
+        + "     m.subject_id      = :sid    "  
+        + "and  m.subject_source  = :source "
+        + "and  m.subject_type    = :type"
       );
       qry.setCacheable(true);
       qry.setCacheRegion(GrouperConfig.QCR_MF_FBS);
