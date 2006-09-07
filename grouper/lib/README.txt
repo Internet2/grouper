@@ -15,6 +15,19 @@ these extra methods."
 * License:  Apache License, Version 2.0
 * Updated:  ?
 
+# commons-math-1.1.jar
+
+" Commons Math is a library of lightweight, self-contained mathematics and
+statistics components addressing the most common problems not available in the
+Java programming language or Commons Lang."
+
+Grouper uses this for benchmarking.
+
+* Version:  1.1
+* Source:   <http://jakarta.apache.org/commons/math/>
+* License:  Apache License, Version 2.0
+* Updated:  20060907
+
 # ehcache-0.9.jar
 
 "EHCache is a pure Java, in-process cache"
@@ -127,5 +140,5 @@ logging services for purposes of application debugging and auditing."
 
 ---
 
-$Id: README.txt,v 1.4 2006-08-07 19:26:23 blair Exp $
+$Id: README.txt,v 1.5 2006-09-07 19:25:47 blair Exp $
 

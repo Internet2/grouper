@@ -17,13 +17,14 @@
 
 package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*; 
+import  org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;      
 
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.13 2006-09-07 18:34:37 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.14 2006-09-07 19:25:47 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -70,10 +71,8 @@ public class GrouperBench {
 
   // @since   1.1.0
   protected static void run(GrouperBenchmark bm) {
-    int   cnt   = getRunSize();
-    long  max   = Long.MIN_VALUE;
-    long  min   = Long.MAX_VALUE;
-    long  total = 0;
+    int                   cnt   = _getRunSize();
+    DescriptiveStatistics stats = DescriptiveStatistics.newInstance();
     for (int i = 0; i < cnt; i++) {
       RegistryReset.reset();
       bm.init();
@@ -81,33 +80,24 @@ public class GrouperBench {
       sw.start();
       bm.run();
       sw.stop();  
-      total += sw.getTime();
-      if      (sw.getTime() > max) {
-        max = sw.getTime(); 
-      }
-      else if (sw.getTime() < min) {
-        min = sw.getTime();
-      }
-    }
-    if (min < 0) {
-      min = 0;
-    }
-    if (min == Long.MAX_VALUE) {
-      min = max;
-    }
-    if (max == Long.MIN_VALUE) {
-      max = min;
+      stats.addValue(sw.getTime());
     }
     LOG.info(
-      "runs: " + runSize + "  avg: " + (total/cnt) + "  min: " + min + "  max: " + max + "  " + bm.getClass().getName()
+        "runs: "        + runSize 
+      + "  median: "    + _toLong(stats.getPercentile(50))
+      + "  mean: "      + _toLong(stats.getMean()) 
+      + "  deviation: " + _toLong(stats.getStandardDeviation()) 
+      + "  min: "       + _toLong(stats.getMin()) 
+      + "  max: "       + _toLong(stats.getMax())
+      + "  " + bm.getClass().getName()
     );
   } // protected static void _run(bm)
 
-  
+
   // PRIVATE CLASS METHODS //
   
   // @since   1.1.0
-  private static int getRunSize() {
+  private static int _getRunSize() {
     if (runSize == Integer.MIN_VALUE) {
       String size = System.getenv(RUNSIZE_VAR);
       if (size == null) {
@@ -118,6 +108,11 @@ public class GrouperBench {
       }
     }
     return runSize;
-  } // private static int getRunSize()
+  } // private static int _getRunSize()
 
+  // @since   1.1.0
+  private static long _toLong(double d) {
+    return new Double(d).longValue();
+  } // private static long _toLong(d)
+  
 } // public class GrouperBench

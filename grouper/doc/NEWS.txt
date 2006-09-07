@@ -1,7 +1,6 @@
-
 # Grouper News
 
-$Id: NEWS.txt,v 1.18 2006-09-05 18:25:15 blair Exp $
+$Id: NEWS.txt,v 1.19 2006-09-07 19:25:47 blair Exp $
 
 ---
 
@@ -10,6 +9,7 @@ $Id: NEWS.txt,v 1.18 2006-09-05 18:25:15 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:    Added `lib/commons-math-1.1.jar` for better benchmark reporting.
 * BUGFIX: Throw `InsufficientPrivilegeException`, not
   `GroupModifyException`, when not privileged to modify-or-delete
   a group attribute. [GCODE:16]
