@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Member.hbm.xml,v 1.12 2006-05-24 17:31:48 blair Exp $ -->
+<!-- $Id: Member.hbm.xml,v 1.13 2006-09-07 18:34:37 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Member" table="grouper_members">
@@ -44,11 +44,19 @@ A member within the Groups Registry.
     </id>
     <!-- id -->
 
-
-<!--
-  I had an index across `subject_id`, `subject_source` and
-  `subject_type` but Oracle did **not** like it.
--->
+    <!-- member_id -->
+    <property 
+      name="member_id"
+      type="string"
+      unique="true"
+    >
+      <column name="member_uuid"
+              not-null="true"
+              length="128"
+              index="member_uuid_idx"
+      />
+    </property>
+    <!-- member_id -->
 
     <!-- subject_id -->
     <property 
@@ -88,20 +96,6 @@ A member within the Groups Registry.
       />
     </property>
     <!-- subject_type -->
-
-    <!-- member_id -->
-    <property 
-      name="member_id"
-      type="string"
-      unique="true"
-    >
-      <column name="member_uuid"
-              not-null="true"
-              length="128"
-              index="member_uuid_idx"
-      />
-    </property>
-    <!-- member_id -->
 
   </class>
 

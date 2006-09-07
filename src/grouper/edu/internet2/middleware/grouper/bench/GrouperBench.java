@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.12 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.13 2006-09-07 18:34:37 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -44,18 +44,19 @@ public class GrouperBench {
   public static void main(String args[]) {
     int exit_value = 0;
     try {
-      run(  new FindGrouperSystem()   );
-      run(  new StartSession()        );
-      run(  new StopSession()         );
-      run(  new FindRootStem()        );
-      run(  new AddRootStem()         );
-      run(  new AddGroup()            );
-      run(  new AddHibernateSubject() );
-      run(  new AddImmMember()        );
-      run(  new AddEffMember()        );
-      run(  new Add10EffMembers()     );
-      run(  new Add100EffMembers()    );
-      run(  new AddUnionMember()      );
+      run(  new FindGrouperSystem()           );
+      run(  new StartSession()                );
+      run(  new StopSession()                 );
+      run(  new FindRootStem()                );
+      run(  new AddRootStem()                 );
+      run(  new AddGroup()                    );
+      run(  new AddHibernateSubject()         );
+      run(  new AddImmMember()                );
+      run(  new AddEffMember()                );
+      run(  new Add10EffMembers()             );
+      run(  new Add100EffMembers()            );
+      run(  new AddUnionMember()              );
+      run(  new FindExistingMemberBySubject() );
     }
     catch (GrouperRuntimeException eGRE) {
       LOG.fatal(eGRE.getMessage());
