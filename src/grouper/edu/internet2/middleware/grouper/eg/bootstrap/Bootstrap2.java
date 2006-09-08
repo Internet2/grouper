@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
 import  org.apache.commons.logging.*;       // For logging
 
 /**
- * Step 1: Find <i>GrouperSystem</i> subject.
+ * Step 2: Start-and-stop sessions.
  * <p>
  * Using the <code>Subject</code> object retrieved in the 
  * <a href="./Bootstrap1.html">previous example</a> you can now start a 
@@ -57,7 +57,7 @@ import  org.apache.commons.logging.*;       // For logging
  * }
  * </pre> 
  * @author  blair christensen.
- * @version $Id: Bootstrap2.java,v 1.1 2006-09-08 19:18:00 blair Exp $
+ * @version $Id: Bootstrap2.java,v 1.2 2006-09-08 19:33:15 blair Exp $
  * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/bootstrap/Bootstrap2.java?root=I2MI&view=markup">Source</a>
  * @since   1.1.0
  */
