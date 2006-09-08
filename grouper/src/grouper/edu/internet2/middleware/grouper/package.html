@@ -21,15 +21,64 @@
 -->
 </head>
 <body bgcolor="white">
+<p>The I2MI Grouper project is an open source toolkit for managing groups.</p>
 <p>
-The I2MI Grouper API provides an open source toolkit for managing
-groups.  See the 
-<a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Home">Grouper Wiki</a> 
-for additional documention.
+@see      <a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Home">Grouper Wiki</a> 
+@version  1.1.0
 </p>
+<h3>Grouper API Overview</h3>
 <p>
-@version $Id: package.html,v 1.3 2006-07-10 18:17:07 blair Exp $
+While there are many public classes within the Grouper API the majority of its
+functionality can be found in a small subset of its classes.  The most important
+classes to familiarize yourself with are:
 </p>
+<ol>
+  <li>
+    <p><a href="./Group.html">Group</a></p>
+    <p>As evident by its name, Grouper is all about managing groups.
+    Groups are objects that may have attributes, memberships and
+    privileges assigned to them.</p></li>
+  <li>
+    <p><a href="./Stem.html">Stem</a></p>
+    <p>Stems are namespaces within which groups are located.  They
+    make it possible to delegate authority within the Groups
+    Registry.</p></li>
+  <li>
+    <p><a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Subject+API">Subject</a></p>
+    <p>This class is actually external to Grouper and is being
+    developed by both the Grouper and Signet projects.  It provides
+    an IdM abstraction that allows an application to refer to
+    entities of any type (people, groups, applications, etc.) without
+    needing to be aware of how those entities are accessed or stored.
+    See the
+    <a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Subject+API">Subject API</a> 
+    page at the Grouper wiki for more information on the Subject API.</p></li>
+  <li>
+    <p><a href="./SubjectFinder.html">SubjectFinder</a></p>
+    <p>This is a class that abstracts finding subjects.  With it
+    you can query one-or-more subject repositories in order to
+    retrieve subjects for use within other Grouper API operations.</p></li>
+  <li>
+    <p><a href="./Member.html">Member</a></p>
+    <p>Members are strictly mappings of subjects to persistent
+    identifiers for those subjects within Grouper.  While many API
+    operations require that a <code>Subject</code> be passed as a
+    parameter, internally Grouper works on those subjects
+    as <code>Member</code> objects.</p></li>
+  <li>
+    <p><a href="./Membership.html">Membership</a></p>
+    <p>This class maps how all list values (memberships) are stored
+    within the Groups Registry.</p></li>
+  <li>
+    <p><a href="./GrouperSession.html">GrouperSession</a></p>
+    <p>This class provides an operational and security context for
+    performing operations within the Grouper API.  With the exception
+    of <code>SubjectFinder</code> almost <b>all</b> other API
+    operations require a valid session context to operate within.
+    A subject is associated with each session and the privileges
+    of that subject determine what API operations can be performed
+    within the session context.</p></li>
+</ol>
 </body>
 </html>
 
