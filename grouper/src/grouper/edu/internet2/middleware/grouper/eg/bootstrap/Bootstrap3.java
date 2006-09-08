@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
 import  org.apache.commons.logging.*;       // For logging
 
 /**
- * Step 1: Find <i>GrouperSystem</i> subject.
+ * Step 3: Find the root stem.
  * <p>
  * Now that you have a <a href="./Bootstrap2.html">session</a> you can begin to
  * put it to use.  Before you can begin adding stems, groups and memberships to
@@ -48,7 +48,7 @@ import  org.apache.commons.logging.*;       // For logging
  * is presumably either not fully installed or misconfigured.
  * </p>
  * @author  blair christensen.
- * @version $Id: Bootstrap3.java,v 1.1 2006-09-08 19:18:00 blair Exp $
+ * @version $Id: Bootstrap3.java,v 1.2 2006-09-08 19:33:15 blair Exp $
  * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/bootstrap/Bootstrap3.java?root=I2MI&view=markup">Source</a>
  * @since   1.1.0
  */
