@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Base implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BasePrivilegeCache.java,v 1.2 2006-08-21 19:20:09 blair Exp $
+ * @version $Id: BasePrivilegeCache.java,v 1.3 2006-09-08 19:17:59 blair Exp $
  * @since   1.1.0     
  */
 public abstract class BasePrivilegeCache implements PrivilegeCache {
@@ -55,7 +55,7 @@ public abstract class BasePrivilegeCache implements PrivilegeCache {
   /**
    * Retrieve a cached {@link Privilege}.
    * <p/>
-   * @return  A {@link PrivilegeCacheElement} or {@link BasePrivilegeCacheElement}.
+   * @return  A {@link PrivilegeCacheElement} or {@link NullPrivilegeCacheElement}.
    * @since   1.1.0
    */
   public abstract PrivilegeCacheElement get(Owner o, Subject subj, Privilege p);

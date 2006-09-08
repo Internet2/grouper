@@ -23,7 +23,7 @@ import  org.apache.commons.collections.map.*;
  * A simple caching implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimplePrivilegeCache.java,v 1.2 2006-08-21 19:20:09 blair Exp $
+ * @version $Id: SimplePrivilegeCache.java,v 1.3 2006-09-08 19:17:59 blair Exp $
  * @since   1.1.0     
  */
 public class SimplePrivilegeCache extends BasePrivilegeCache {
@@ -37,7 +37,7 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
   /**
    * Retrieve a potentially cached {@link Privilege}.
    * <p/>
-   * @return  A {@link PrivilegeCacheElement} or {@link nullPrivilegeCacheElement}.
+   * @return  A {@link PrivilegeCacheElement} or {@link NullPrivilegeCacheElement}.
    * @since   1.1.0
    */
   public PrivilegeCacheElement get(Owner o, Subject subj, Privilege p) {

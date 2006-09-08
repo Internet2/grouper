@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.117 2006-08-30 16:48:35 blair Exp $ -->
+<!-- $Id: build.xml,v 1.118 2006-09-08 19:17:59 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -271,55 +271,35 @@
   </target>
   <!-- dist-lib -->
 
-  <!-- eg -->
-  <target name="eg"
+  <!-- eg-bootstrap -->
+  <target name="eg-bootstrap"
           depends="build"
-          description="run example programs"
+          description="run example bootstrap programs"
   >
     <record name="${log.eg.run}" action="start"/>
     <antcall  target="db-reset"/>
     <antcall  target="eg-run">
-      <param  name="name" value="FindGrouperSystem"   /> 
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap1"  /> 
     </antcall>
     <antcall  target="eg-run">
-      <param  name="name" value="StartAndStopSession" /> 
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap2"  /> 
     </antcall>
     <antcall  target="eg-run">
-      <param  name="name" value="FindRootStem"        /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="name" value="AddRootStem"         /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="name" value="FindStemByName"      /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="name" value="AddGroup"            /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="name" value="AddLocalSubject"     /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="name" value="FindSubjectById"     /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="name" value="FindGroupByName"     /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="name" value="AddMember"           /> 
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap3"  /> 
     </antcall>
     <record name="${log.eg.run}" action="stop"/>
   </target>
-  <!-- eg -->
+  <!-- eg -bootstrap -->
 
   <!-- eg-run -->
-  <target name="eg-run" 
-          description="Run example program specified on the command line with -Dname=NAME" 
-  >
+  <target name="eg-run">
     <java fork="true"
           maxmemory="${max.memory}"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.eg.${name}"
+          classname="edu.internet2.middleware.grouper.eg.${package}.${name}"
           failonerror="true"
     />
   </target>

@@ -22,10 +22,10 @@ import  edu.internet2.middleware.subject.*;
  * Privilege Cache interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.11 2006-08-21 19:20:09 blair Exp $
+ * @version $Id: PrivilegeCache.java,v 1.12 2006-09-08 19:17:59 blair Exp $
  * @since   1.1.0     
  */
-interface PrivilegeCache {
+public interface PrivilegeCache {
 
   // PUBLIC INSTANCE METHODS //
 
@@ -77,5 +77,5 @@ interface PrivilegeCache {
    */
   void revokePriv(Owner o, Subject subj, Privilege p) throws PrivilegeCacheException;
 
-} // interface PrivilegeCache
+} // public interface PrivilegeCache
 
