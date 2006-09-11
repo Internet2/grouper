@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.30 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: MemberOf.java,v 1.31 2006-09-11 14:00:33 blair Exp $
  */
 class MemberOf {
 
@@ -149,7 +149,7 @@ class MemberOf {
     // Find child memberships that need deletion
     Membership  child;
     Set         children  = new LinkedHashSet();
-    Iterator    iter      = MembershipFinder.findAllChildrenNoSessionNoPriv(ms).iterator();
+    Iterator    iter      = MembershipFinder.findAllChildrenNoPriv(ms).iterator();
     while (iter.hasNext()) {
       child = (Membership) iter.next();
       child.setSession(s);

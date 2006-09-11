@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.63 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: Member.java,v 1.64 2006-09-11 14:00:33 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -1160,7 +1160,7 @@ public class Member implements Serializable {
       }
     } 
     String orig = this.getSubject_id(); // preserve original for logging purposes
-    if (PrivilegeResolver.isRoot(this.getSession().getSubject())) {
+    if (RootPrivilegeResolver.isRoot(this.getSession())) {
       try {
         this.setSubject_id(id);
         HibernateHelper.save(this);

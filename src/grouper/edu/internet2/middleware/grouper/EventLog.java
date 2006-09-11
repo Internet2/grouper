@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.25 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: EventLog.java,v 1.26 2006-09-11 14:00:33 blair Exp $
  */
 class EventLog {
 
@@ -305,26 +305,20 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    try {
-      GrouperSession  root  = GrouperSession.startTransient();
-      Membership      eff;
-      Iterator        iter  = effs.iterator();
-      while (iter.hasNext()) {
-        eff = (Membership) iter.next();
-        if      (eff.getList().getType().equals(FieldType.ACCESS)) {
-          this._eff(root, s, M.G_GP_E, name, subj, f, eff, "priv="); 
-        }
-        else if (eff.getList().getType().equals(FieldType.LIST)) {
-          this._eff(root, s, M.G_AM_E, name, subj, f, eff, "list="); 
-        }
-        else if (eff.getList().getType().equals(FieldType.NAMING)) {
-          this._eff(root, s, M.S_GP_E, name, subj, f, eff, "priv="); 
-        }
+    GrouperSession  root  = s.getRootSession();
+    Membership      eff;
+    Iterator        iter  = effs.iterator();
+    while (iter.hasNext()) {
+      eff = (Membership) iter.next();
+      if      (eff.getList().getType().equals(FieldType.ACCESS)) {
+        this._eff(root, s, M.G_GP_E, name, subj, f, eff, "priv="); 
       }
-      root.stop();
-    }
-    catch (SessionException eS) {
-      ErrorLog.error(EventLog.class, E.EVENT_EFFADD + eS.getMessage());
+      else if (eff.getList().getType().equals(FieldType.LIST)) {
+        this._eff(root, s, M.G_AM_E, name, subj, f, eff, "list="); 
+      }
+      else if (eff.getList().getType().equals(FieldType.NAMING)) {
+        this._eff(root, s, M.S_GP_E, name, subj, f, eff, "priv="); 
+      }
     }
   } // private void _addEffs(s, name, subj, f, effs)
 
@@ -332,26 +326,20 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    try {
-      GrouperSession  root  = GrouperSession.startTransient();
-      Membership      eff;
-      Iterator        iter  = effs.iterator();
-      while (iter.hasNext()) {
-        eff = (Membership) iter.next();
-        if      (eff.getList().getType().equals(FieldType.ACCESS)) {
-          this._eff(root, s, M.G_RP_E, name, subj, f, eff, "priv="); 
-        }
-        else if (eff.getList().getType().equals(FieldType.LIST)) {
-          this._eff(root, s, M.G_DM_E, name, subj, f, eff, "list="); 
-        }
-        else if (eff.getList().getType().equals(FieldType.NAMING)) {
-          this._eff(root, s, M.S_RP_E, name, subj, f, eff, "priv="); 
-        }
+    GrouperSession  root  = s.getRootSession();
+    Membership      eff;
+    Iterator        iter  = effs.iterator();
+    while (iter.hasNext()) {
+      eff = (Membership) iter.next();
+      if      (eff.getList().getType().equals(FieldType.ACCESS)) {
+        this._eff(root, s, M.G_RP_E, name, subj, f, eff, "priv="); 
       }
-      root.stop();
-    }
-    catch (SessionException eS) {
-      ErrorLog.error(EventLog.class, E.EVENT_EFFADD + eS.getMessage());
+      else if (eff.getList().getType().equals(FieldType.LIST)) {
+        this._eff(root, s, M.G_DM_E, name, subj, f, eff, "list="); 
+      }
+      else if (eff.getList().getType().equals(FieldType.NAMING)) {
+        this._eff(root, s, M.S_RP_E, name, subj, f, eff, "priv="); 
+      }
     }
   } // private void _delEffs(s, name, subj, f, effs)
 
