@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.51 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: Membership.java,v 1.52 2006-09-11 16:58:02 blair Exp $
  */
 public class Membership {
 
@@ -56,9 +56,10 @@ public class Membership {
   }
 
   // Immediate
-  protected Membership(Owner o, Member m, Field f)
+  protected Membership(GrouperSession orig, Owner o, Member m, Field f)
     throws  ModelException
   {
+    GrouperSession s = o.getSession();
     this.setOwner_id(           o                     );
     this.setMember_id(          m                     );
     this.setField(              f                     );
@@ -67,7 +68,9 @@ public class Membership {
     this.setDepth(              0                     );
     this.setVia_id(             null                  );
     this.setParent_membership(  null                  );
-    this.setSession(            o.getSession()        );
+    this.setSession(            s                     );
+    this.setCreator_id(         orig.getMember()      );
+    this.setCreate_time(        new Date().getTime()  );
     MembershipValidator.validateImmediate(this);
   } // protected Membership(o, m, f)
 
@@ -105,24 +108,28 @@ public class Membership {
       }
     } 
     this.setSession(            s                     );
+    this.setCreator_id(         s.getMember()         );
+    this.setCreate_time(        new Date().getTime()  );
     MembershipValidator.validateEffective(this);
   } // protected static Membership newEffectiveMembership(s, ms, hasMS)
 
   // Composite
-  protected Membership(Owner o, Member m, Field f, Composite via)
+  protected Membership(Owner o, Member m, Field f, Composite via, GrouperSession orig)
     throws  ModelException
   {
-    this.setOwner_id(           o                     );
-    this.setMember_id(          m                     );
-    this.setField(              f                     );
-    this.setMship_type(         MembershipType.C      );
-    this.setUuid(               GrouperUuid.getUuid() );
-    this.setDepth(              0                     );
-    this.setVia_id(             via                   );
-    this.setParent_membership(  null                  );
-    this.setSession(            o.getSession()        );
+    this.setOwner_id(           o                             );
+    this.setMember_id(          m                             );
+    this.setField(              f                             );
+    this.setMship_type(         MembershipType.C              );
+    this.setUuid(               GrouperUuid.getUuid()         );
+    this.setDepth(              0                             );
+    this.setVia_id(             via                           );
+    this.setParent_membership(  null                          );
+    this.setSession(            o.getSession()                );
+    this.setCreator_id(         orig.getMember()              );
+    this.setCreate_time(        new Date().getTime()          );
     MembershipValidator.validateComposite(this);
-  } // protected Membership(o, m, f, via)
+  } // protected Membership(o, m, f, via, orig)
 
 
   // PUBLIC INSTANCE METHODS //
@@ -309,7 +316,7 @@ public class Membership {
     try {
       GrouperSessionValidator.validate(s);
       Member      m   = PrivilegeResolver.canViewSubject(s, subj);
-      Membership  imm = new Membership(o, m, f);
+      Membership  imm = new Membership(s, o, m, f);
       MemberOf    mof = MemberOf.addImmediate(s, o, imm, m);
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
       EL.addEffMembers(s, o, subj, f, mof.getEffSaves());
@@ -410,6 +417,17 @@ public class Membership {
 
 
   // PROTECTED INSTANCE METHODS //
+
+  // @since   1.1.0
+  protected Date getCreateTime() {
+    return new Date(this.getCreate_time());
+  } // protected Date getCreateTime()
+
+  // @since   1.1.0
+  protected Member getCreator() {
+    return this.getCreator_id();
+  } // protected Member getCreator()
+  
   protected GrouperSession getSession() {
     GrouperSessionValidator.validate(this.s);
     return this.s;

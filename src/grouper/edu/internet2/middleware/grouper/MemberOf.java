@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.31 2006-09-11 14:00:33 blair Exp $
+ * @version $Id: MemberOf.java,v 1.32 2006-09-11 16:58:02 blair Exp $
  */
 class MemberOf {
 
@@ -268,7 +268,7 @@ class MemberOf {
     Iterator    iter    = members.iterator();
     while (iter.hasNext()) {
       m   = (Member) iter.next();
-      imm = new Membership(o, m, this.f, c);
+      imm = new Membership(o, m, this.f, c, this.s);
       imm.setSession(root);
       mships.add(imm);
     }
@@ -307,7 +307,7 @@ class MemberOf {
       Group right = this.c.getRightGroup();
       tmp.addAll(     left.getMembers()   );
       tmp.removeAll(  right.getMembers()  );
-    return this._createNewMembershipObjects(tmp);
+      return this._createNewMembershipObjects(tmp);
     }
     catch (GroupNotFoundException eGNF) {
       throw new ModelException(eGNF);
