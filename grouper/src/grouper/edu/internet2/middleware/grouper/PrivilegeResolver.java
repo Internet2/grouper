@@ -24,16 +24,13 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.68 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.69 2006-09-11 14:00:33 blair Exp $
  */
  class PrivilegeResolver {
 
   // PRIVATE CLASS VARIABLES //
   private static  AccessAdapter     access    = getAccess();
   private static  NamingAdapter     naming    = getNaming();
-  private static  boolean           use_wheel = Boolean.valueOf(
-    GrouperConfig.getProperty(GrouperConfig.GWU)
-  );
 
 
   // CONSTRUCTORS //
@@ -377,7 +374,7 @@ import  java.util.*;
     else {
       try { // TODO Eliminate the try/catch
         if (
-             isRoot(subj)
+             RootPrivilegeResolver.isRoot(s, subj)
           || getAccess().hasPriv(s, g, subj, priv)
           || _isAll(s, g, priv)
         )
@@ -406,7 +403,7 @@ import  java.util.*;
     else {
       try { // TODO Eliminate the try/catch
         if (
-             isRoot(subj)
+             RootPrivilegeResolver.isRoot(s, subj)
           || getNaming().hasPriv(s, ns, subj, priv)
           || _isAll(s, ns, priv)
         )
@@ -421,19 +418,6 @@ import  java.util.*;
     s.getNamingCache().put(ns, subj, priv, rv);
     return rv;
   } // protected static boolean hasPriv(s, ns, subj, priv)
-
-  // @since   1.1.0
-  protected static boolean isRoot(Subject subj) {
-    boolean rv = false;
-    // First check to see if this is GrouperSystem
-    if      ( SubjectHelper.eq(subj, SubjectFinder.findRootSubject()) ) {
-      rv = true;
-    }  
-    else if (use_wheel) {
-      rv = _isWheel(subj);
-    }
-    return rv;
-  } // protected static boolean isRoot(subj)
 
   // @since   1.1.0
   protected static void revokePriv(GrouperSession s, Group g, Privilege priv)
@@ -495,25 +479,6 @@ import  java.util.*;
   {
     return getNaming().hasPriv(s, ns, SubjectFinder.findAllSubject(), priv);
   } // private static boolean _isAll(s, ns, priv);
-
-  // @since   1.1.0
-  private static boolean _isWheel(Subject subj) {
-    boolean       rv  = false;
-    if (use_wheel) {
-      // TODO This has to be a performance killer
-      String name = GrouperConfig.getProperty(GrouperConfig.GWG);
-      try {
-        Group wheel = GroupFinder.findByName(GrouperSession.startTransient(), name);
-        rv          = wheel.hasMember(subj);
-      }
-      catch (GroupNotFoundException eGNF) {
-        // Group not found.  Oh well.
-        ErrorLog.error(PrivilegeResolver.class, E.NO_WHEEL_GROUP + name);
-        use_wheel = false;
-      }
-    } 
-    return rv;
-  } // private static boolean _isWheel(subj)
 
 } // class PrivilegeResolver
 

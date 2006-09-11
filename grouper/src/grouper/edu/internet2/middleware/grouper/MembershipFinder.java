@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.46 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.47 2006-09-11 14:00:33 blair Exp $
  */
 public class MembershipFinder {
 
@@ -169,25 +169,19 @@ public class MembershipFinder {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.0
-  protected static Set findAllChildrenNoSessionNoPriv(Membership ms) {
-    Set children  = new LinkedHashSet();
-    try {
-      GrouperSession  root  = GrouperSession.startTransient();
-      Membership      child;
-      Iterator        iter  = findChildMemberships(root, ms).iterator();
-      while (iter.hasNext()) {
-        child = (Membership) iter.next();
-        children.addAll(findAllChildrenNoSessionNoPriv(child));
-        children.add(child);
-      }
-      root.stop();
-    }
-    catch (SessionException eS) {
-      ErrorLog.error(MembershipFinder.class, E.MSF_FINDALLCHILDREN + eS.getMessage());
+  // @since 1.1.0
+  protected static Set findAllChildrenNoPriv(Membership ms) {
+    Set             children  = new LinkedHashSet();
+    GrouperSession  root      = ms.getSession().getRootSession();
+    Membership      child;
+    Iterator        iter      = findChildMemberships(root, ms).iterator();
+    while (iter.hasNext()) {
+      child = (Membership) iter.next();
+      children.addAll(findAllChildrenNoPriv(child));
+      children.add(child);
     }
     return children;
-  } // protected static Set findAllChildrenNoSessionNoPriv(ms)
+  } // protected static Set findAllChildrenNoPriv(ms)
 
   // @since 1.0
   // TODO Smaller!

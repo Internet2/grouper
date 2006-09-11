@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.36 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.37 2006-09-11 14:00:33 blair Exp $
  */
 public class GrouperSession {
 
@@ -92,19 +92,6 @@ public class GrouperSession {
       throw new SessionException(msg, eMNF);
     }
   } // public static GrouperSession start(subject)
-
-  protected static GrouperSession startTransient() 
-    throws  GrouperRuntimeException
-  {
-    try {
-      return _getSession( SubjectFinder.findRootSubject() );
-    }
-    catch (Exception e) {
-      String msg = E.S_NOSTARTROOT + e.getMessage();
-      ErrorLog.fatal(GrouperSession.class, msg);
-      throw new GrouperRuntimeException(msg, e);
-    }
-  } // protected static GrouperSession startTransient()
 
 
   // PUBLIC INSTANCE METHODS //
@@ -290,8 +277,15 @@ public class GrouperSession {
       DebugLog.info(GrouperSession.class, M.GOT_INNER_WITHIN_INNER);
     }
     if (this.rs == null) {
-      this.rs = GrouperSession.startTransient();
-      this.rs._setParentSession(this);
+      try {
+        this.rs = _getSession( SubjectFinder.findRootSubject() );
+        this.rs._setParentSession(this);
+      }
+      catch (MemberNotFoundException eMNF) {
+        String msg = E.S_NOSTARTROOT + eMNF.getMessage();
+        ErrorLog.fatal(GrouperSession.class, msg);
+        throw new GrouperRuntimeException(msg, eMNF);
+      }
     }
     return this.rs;
   } // protected GrouperSession getRootSession()

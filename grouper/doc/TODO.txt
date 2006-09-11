@@ -4,22 +4,18 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.39 2006-09-06 19:50:21 blair Exp $
+$Id: TODO.txt,v 1.40 2006-09-11 14:00:33 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
 
 ### Next Actions
-* CODE      Continue refactoring privilege resolution
-    * remove `GrouperSession` param from all `can*()` methods
-    * remove `GrouperSession.startTransient()`
-    * `RootPrivilegeResolver` extends `PrivilegeResolver`
-* TEST      use of wheel group
-    * check if modified since last check?
 * CODE      Populate *Membership* creation attributes
 * CODE      *MembershipCreatedAfter* query filter
 * CODE      *MembershipCreatedBefore* query filter
+* TEST      use of wheel group
+    * check if modified since last check?
 * CODE      have xml* default properties + optional override properties
 * CODE      improved xml* integration (including logging)
 * CODE      *HibernateSubject* should not throw *HibernateException*s
@@ -31,6 +27,8 @@ $Id: TODO.txt,v 1.39 2006-09-06 19:50:21 blair Exp $
 * DOC       Migrate impl guide to wiki and export upon release
 
 ### Maybe
+* CODE      Continue refactoring privilege resolution
+    * remove `GrouperSession` param from all `can*()` methods
 * CODE      `LessSimplePrivilegeCache` extends `SimplePrivilegeCache`
   * a hopefully smarter version of `SimplePrivilegeCache`
   * use the `remove()` methods to try and be selective about what is
@@ -64,7 +62,7 @@ TODO Add additional potential changes.
 
 ---
 
-$Id: TODO.txt,v 1.39 2006-09-06 19:50:21 blair Exp $
+$Id: TODO.txt,v 1.40 2006-09-11 14:00:33 blair Exp $
 
 
 
