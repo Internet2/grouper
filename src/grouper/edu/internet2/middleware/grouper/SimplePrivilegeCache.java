@@ -23,13 +23,13 @@ import  org.apache.commons.collections.map.*;
  * A simple caching implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimplePrivilegeCache.java,v 1.3 2006-09-08 19:17:59 blair Exp $
+ * @version $Id: SimplePrivilegeCache.java,v 1.4 2006-09-11 19:59:21 blair Exp $
  * @since   1.1.0     
  */
 public class SimplePrivilegeCache extends BasePrivilegeCache {
 
-  // PRIVATE INSTANCE VARIABLES //
-  private MultiKeyMap cache = MultiKeyMap.decorate(new HashedMap());
+  // PROTECTED INSTANCE VARIABLES //
+  protected MultiKeyMap cache = MultiKeyMap.decorate(new HashedMap());
 
 
   // PUBLIC INSTANCE METHODS //

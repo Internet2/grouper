@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteWheelGroup.java,v 1.1 2006-09-11 18:53:12 blair Exp $
+ * @version $Id: SuiteWheelGroup.java,v 1.2 2006-09-11 19:59:21 blair Exp $
  * @since   1.1
  */
 public class SuiteWheelGroup extends TestCase {
@@ -34,6 +34,7 @@ public class SuiteWheelGroup extends TestCase {
     suite.addTestSuite( TestWheelGroup0.class );  // fail: grant ADMIN w/out wheel
     suite.addTestSuite( TestWheelGroup1.class );  // fail: grant ADMIN w/ wheel
     suite.addTestSuite( TestWheelGroup2.class );  // fail: grant ADMIN w/ ALL wheel
+    suite.addTestSuite( TestWheelGroup3.class );  // !wheel; grant; wheel
     return suite;
   } // static public Test suite()
 

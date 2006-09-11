@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test Closed Bugs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteBugsClosed.java,v 1.8 2006-09-05 18:25:15 blair Exp $
+ * @version $Id: SuiteBugsClosed.java,v 1.9 2006-09-11 19:59:21 blair Exp $
  * @since   1.0
  */
 public class SuiteBugsClosed extends TestCase {
@@ -41,6 +41,7 @@ public class SuiteBugsClosed extends TestCase {
     suite.addTestSuite( TestStem11.class      );  // GCODE:10 getPrivs(), getStemmers(), getCreators() as !root
     suite.addTestSuite( TestGroup38.class     );  // GCODE:16 throw eIP, not eGM, if not priv'd to modify attr
     suite.addTestSuite( TestGroup39.class     );  // GCODE:16 throw eIP, not eGM, if not priv'd to delete attr
+    suite.addTestSuite( TestWheelGroup3.class );  // GCODE:13 !wheel; grant; wheel
     // TODO Split
     suite.addTestSuite( TestBugsClosed.class);
     return suite;
