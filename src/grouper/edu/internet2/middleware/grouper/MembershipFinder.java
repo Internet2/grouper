@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.47 2006-09-11 14:00:33 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.48 2006-09-11 18:14:47 blair Exp $
  */
 public class MembershipFinder {
 
@@ -283,6 +283,78 @@ public class MembershipFinder {
     }
     return via;
   } // protected static Set findAllViaNoSessionNoPriv(ms)
+
+  // @since   1.1.0
+  protected static Set findByCreatedAfter(GrouperSession s, Date d, Field f) 
+    throws QueryException 
+  {
+    List mships = new ArrayList();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where      "
+        + "     ms.create_time  > :time   "
+        + "and  ms.field.name   = :fname  "
+        + "and  ms.field.type   = :ftype  "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion("edu.internet2.middleware.grouper.MembershipFinder.findByCreatedAfter");
+      qry.setLong(    "time"  , d.getTime()             );
+      qry.setString(  "fname" , f.getName()             );
+      qry.setString(  "ftype" , f.getType().toString()  );
+      List        l     = qry.list();
+      hs.close();
+      Membership  ms;
+      Iterator    iter  = l.iterator();
+      while (iter.hasNext()) {
+        ms = (Membership) iter.next();
+        ms.setSession(s);
+        mships.add(ms);
+      }
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding memberships: " + eH.getMessage(), eH
+      );  
+    }
+    return PrivilegeResolver.canViewMemberships(s, new LinkedHashSet(mships));
+  } // protected static Set findByCreatedAfter(s, d, f)
+
+  // @since   1.1.0
+  protected static Set findByCreatedBefore(GrouperSession s, Date d, Field f) 
+    throws QueryException 
+  {
+    List mships = new ArrayList();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where      "
+        + "     ms.create_time  < :time   "
+        + "and  ms.field.name   = :fname  "
+        + "and  ms.field.type   = :ftype  "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion("edu.internet2.middleware.grouper.MembershipFinder.findByCreatedBefore");
+      qry.setLong(    "time"  , d.getTime()             );
+      qry.setString(  "fname" , f.getName()             );
+      qry.setString(  "ftype" , f.getType().toString()  );
+      List        l     = qry.list();
+      hs.close();
+      Membership  ms;
+      Iterator    iter  = l.iterator();
+      while (iter.hasNext()) {
+        ms = (Membership) iter.next();
+        ms.setSession(s);
+        mships.add(ms);
+      }
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding memberships: " + eH.getMessage(), eH
+      );  
+    }
+    return PrivilegeResolver.canViewMemberships(s, new LinkedHashSet(mships));
+  } // protected static Set findByCreatedAfter(s, d, f)
 
   protected static Membership findByUuid(GrouperSession s, String uuid) 
     throws MembershipNotFoundException

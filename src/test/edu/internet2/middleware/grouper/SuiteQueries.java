@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteQueries.java,v 1.4 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: SuiteQueries.java,v 1.5 2006-09-11 18:14:47 blair Exp $
  */
 public class SuiteQueries extends TestCase {
 
@@ -48,6 +48,8 @@ public class SuiteQueries extends TestCase {
     suite.addTestSuite( TestQuery15.class               );  // GroupModifedBefore - nothing
     suite.addTestSuite( TestQuery16.class               );  // GroupModifiedBefore - something
     suite.addTestSuite( TestQuery17.class               );  // GroupModifiedBefore - something scoped
+    suite.addTestSuite( TestQuery18.class               );  // MembershipCreatedAfter
+    suite.addTestSuite( TestQuery19.class               );  // MembershipCreatedBefore
     // TODO split
     suite.addTestSuite( TestGQComplementFilter.class    );
     suite.addTestSuite( TestGQGroupAnyAttribute.class   );

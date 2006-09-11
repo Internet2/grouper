@@ -23,7 +23,7 @@ import  java.util.*;
  * Base {@link QueryFilter} that all other query filters should extend.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseQueryFilter.java,v 1.10 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: BaseQueryFilter.java,v 1.11 2006-09-11 18:14:47 blair Exp $
  */
 public class BaseQueryFilter implements QueryFilter {
 
@@ -46,13 +46,24 @@ public class BaseQueryFilter implements QueryFilter {
     Iterator  iter      = candidates.iterator();
     while (iter.hasNext()) {
       o = iter.next();
-      if      (o.getClass().equals(Group.class)) {
+      if      (o.getClass().equals(Group.class))      {
         Group g = (Group) o;
         if (StemFinder.isChild(ns, g)) {
           filtered.add(g);
         }
       }
-      else if (o.getClass().equals(Stem.class)) {
+      else if (o.getClass().equals(Membership.class)) {
+        Membership ms = (Membership) o;
+        try {
+          if (StemFinder.isChild(ns, ms.getGroup())) {
+            filtered.add(ms);
+          }
+        }
+        catch (GroupNotFoundException eGNF) {
+          // Ignore
+        } 
+      }
+      else if (o.getClass().equals(Stem.class))       {
         Stem stem = (Stem) o;
         if (StemFinder.isChild(ns, stem)) {
           filtered.add(stem);

@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.18 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.19 2006-09-11 18:14:47 blair Exp $
  */
 public class GrouperQuery {
 
@@ -131,8 +131,17 @@ public class GrouperQuery {
     Iterator  iter        = candidates.iterator();
     while (iter.hasNext()) {
       o = iter.next();
-      if (o.getClass().equals(Group.class)) {
+      if      (o.getClass().equals(Group.class))      {
         mships.addAll( ( (Group) o ).getMemberships() );
+      }
+      else if (o.getClass().equals(Membership.class)) {
+        try {
+          // Add directly to return set
+          members.add( ( (Membership) o ).getMember() );
+        }
+        catch (MemberNotFoundException eMNF) {
+          ErrorLog.error(GrouperQuery.class, eMNF.getMessage());
+        }
       }
       else {
         ErrorLog.error(GrouperQuery.class, E.NI + E.Q_M + o.getClass());
@@ -172,8 +181,11 @@ public class GrouperQuery {
     Iterator  iter        = candidates.iterator();
     while (iter.hasNext()) {
       o = iter.next();
-      if (o.getClass().equals(Group.class)) {
+      if      (o.getClass().equals(Group.class))      {
         mships.addAll( ( (Group) o ).getMemberships() );
+      }
+      else if (o.getClass().equals(Membership.class)) {
+        mships.add( (Membership) o );
       }
       else {
         ErrorLog.error(GrouperQuery.class, E.NI + E.Q_MS + o.getClass());

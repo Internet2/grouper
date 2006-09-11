@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.20 2006-09-11 16:58:01 blair Exp $
+$Id: NEWS.txt,v 1.21 2006-09-11 18:14:47 blair Exp $
 
 ---
 
@@ -9,6 +9,8 @@ $Id: NEWS.txt,v 1.20 2006-09-11 16:58:01 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:    `MembershipCreatedAfterFilter` query filter.
+* NEW:    `MembershipCreatedBeforeFilter` query filter.
 * NEW:    `Membership` creation (time and `Member`) are now populated.
 * NEW:    Added `lib/commons-math-1.1.jar` for better benchmark reporting.
 * BUGFIX: Throw `InsufficientPrivilegeException`, not

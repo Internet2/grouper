@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.12 2006-09-05 19:42:14 blair Exp $
+$Id: API.txt,v 1.13 2006-09-11 18:14:47 blair Exp $
 
 ---
 
@@ -313,6 +313,10 @@ $Id: API.txt,v 1.12 2006-09-05 19:42:14 blair Exp $
 * Membership            getParentMembership()
 * Owner                 getVia()
 * Group                 getViaGroup()
+
+## MembershipCreatedAfterFilter extends BaseQueryFilter
+
+## MembershipCreatedBeforeFilter extends BaseQueryFilter
 
 ## MembershipFinder
 * Membership            MembershipFinder.findCompositeMembership(GrouperSession, group, subject)
