@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.22 2006-09-11 18:53:11 blair Exp $
+$Id: NEWS.txt,v 1.23 2006-09-11 19:59:20 blair Exp $
 
 ---
 
@@ -9,6 +9,8 @@ $Id: NEWS.txt,v 1.22 2006-09-11 18:53:11 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:    `SimpleWheelPrivilegeCache` provides better privilege caching
+  support when using a wheel group. [GCODE:13]
 * UPDATE: Use of a wheel group is no longer considered experimental.  
 * NEW:    `MembershipCreatedAfterFilter` query filter.
 * NEW:    `MembershipCreatedBeforeFilter` query filter.

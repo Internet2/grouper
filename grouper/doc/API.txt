@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.13 2006-09-11 18:14:47 blair Exp $
+$Id: API.txt,v 1.14 2006-09-11 19:59:20 blair Exp $
 
 ---
 
@@ -147,7 +147,7 @@ $Id: API.txt,v 1.13 2006-09-11 18:14:47 blair Exp $
 * Set                   getMembers(field)
 * Set                   getMemberships()
 * Set                   getMemberships(field)
-* String                jgetModifySource()
+* String                getModifySource()
 * Subject               getModifySubject()
 * Date                  getModifyTime()
 * String                getName()
