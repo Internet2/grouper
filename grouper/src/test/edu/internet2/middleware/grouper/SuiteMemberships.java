@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberships.java,v 1.3 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: SuiteMemberships.java,v 1.4 2006-09-11 16:58:02 blair Exp $
  */
 public class SuiteMemberships extends TestCase {
 
@@ -32,6 +32,7 @@ public class SuiteMemberships extends TestCase {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( TestMembership0.class );  // eff mship uuid does not change
     suite.addTestSuite( TestMembership1.class );  // parent and child memberships
+    suite.addTestSuite( TestMembership2.class );  // creation time and creator
     // TODO Split
     suite.addTestSuite(TestMembership.class);
     return suite;
