@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.21 2006-09-11 18:14:47 blair Exp $
+$Id: NEWS.txt,v 1.22 2006-09-11 18:53:11 blair Exp $
 
 ---
 
@@ -9,6 +9,7 @@ $Id: NEWS.txt,v 1.21 2006-09-11 18:14:47 blair Exp $
 Released: TBD
 
 ## Changes
+* UPDATE: Use of a wheel group is no longer considered experimental.  
 * NEW:    `MembershipCreatedAfterFilter` query filter.
 * NEW:    `MembershipCreatedBeforeFilter` query filter.
 * NEW:    `Membership` creation (time and `Member`) are now populated.

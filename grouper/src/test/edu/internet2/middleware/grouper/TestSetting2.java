@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSetting2.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestSetting2.java,v 1.3 2006-09-11 18:53:12 blair Exp $
  * @since   1.1.0
  */
 public class TestSetting2 extends TestCase {
@@ -91,7 +91,7 @@ public class TestSetting2 extends TestCase {
     v = "false";
     Assert.assertTrue(k, GrouperConfig.getProperty(k).equals(v));
     k = "groups.wheel.group";
-    v = "your:wheel:group";
+    v = "etc:wheel";
     Assert.assertTrue(k, GrouperConfig.getProperty(k).equals(v));
   } // public void testGrouperProps()
 
