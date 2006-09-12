@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.13 2006-09-12 19:01:40 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.14 2006-09-12 19:09:37 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1889,124 +1889,81 @@ public class XmlExporter {
   } // private void _writeSubjectSourceMetaData(padding)
 
 
-  // CLASS: GroupOrStem //
+  // CLASS: GroupOrStem // 
 
-  /**
-   * @since   1.0
-   */
-  public class GroupOrStem {
+  // @since   1.1.0
+  class GroupOrStem {
+    private static final String G   = "group";
+    private static final String NI  = "GroupOrStem is not initialized";
+    private static final String NS  = "stem";
 
-    // PRIVATE INSTANCE VARIABLES //
     private Group           group = null;
     private Stem            stem  = null;
     private GrouperSession  s     = null;
     
-   
-    // CONSTRUCTORS // 
-    
-    // Don't just let any one make a GroupOrStem
-    // @since   1.0
-    private GroupOrStem() {
-      
-    } // private GroupOrStem()
-   
 
-    // PUBLIC INSTANCE METHODS //
-
-    /**
-     * @since   1.0
-     */ 
-    public String getDisplayExtension() {
+    String getDisplayExtension() {
       if (group != null) {
         return group.getDisplayExtension();
       }
       if(stem != null) {
         return stem.getDisplayExtension();
       }
-      throw new IllegalStateException("GroupOrStem is not initialised");
-    } // public String getDisplayExtension()
+      throw new IllegalStateException(NI);
+    } // String getDisplayExtension()
    
-    /** 
-     * @since   1.0
-     */ 
-    public String getDisplayName() {
+    String getDisplayName() {
       if (group != null) {
         return group.getDisplayName();
       }
       if (stem != null) {
         return stem.getDisplayName();
       }
-      throw new IllegalStateException("GroupOrStem is not initialised");
-    } // public String getDisplayName()
+      throw new IllegalStateException(NI);
+    } // String getDisplayName()
     
-    /**
-     * @return  masked Group (or null if is a Stem)
-     * @since   1.0
-     */
-    public Group getGroup() {
+    Group getGroup() {
       return this.group;
-    } // public Group getGroup()
+    } // Group getGroup()
     
-    /**
-     * @return  id of 'masked' group or stem
-     * @since   1.0
-     */
-    public String getId() {
-      if (group!=null) {
+    String getId() {
+      if (group != null) {
         return group.getUuid();
       }
       return stem.getUuid();
-    } // public String getId()
+    } // String getId()
    
-    /**
-     * @since   1.0
-     */ 
-    public String getName() {
+    String getName() {
       if (group != null) {
         return group.getName();
       }
       if (stem != null) {
         return stem.getName();
       }
-      throw new IllegalStateException("GroupOrStem is not initialised");
-    } // public String getName()
+      throw new IllegalStateException(NI);
+    } // String getName()
     
-    /**
-     * @return  masked Stem (or null if is a Group)
-     * @since   1.0
-     */
-    public Stem getStem() {
+    Stem getStem() {
       return this.stem;
-    } // public Stem getStem()
+    } // Stem getStem()
   
-    /**
-     * @since   1.0
-     */
-    public String getType() {
+    String getType() {
       if (group != null) {
-        return "group";
+        return G;
       }
       if (stem != null) {
-        return "stem";
+        return NS;
       }
-      throw new IllegalStateException("GroupOrStem is not initialised");
-    } // public String getType()
+      throw new IllegalStateException(NI);
+    } // String getType()
 
-    /**
-     * @return  if 'masked' object is a Group
-     * @since   1.0
-     */
-    public boolean isGroup() {
+    boolean isGroup() {
       return (group != null);
-    }  // public boolean isGroup()
+    }  // boolean isGroup()
     
-    /**
-     * @return  if 'masked' object is a Stem
-     * @since   1.0
-     */
-    public boolean isStem() {
+    boolean isStem() {
       return (stem != null);
-    } // public boolean isStem()
+    } // boolean isStem()
    
   } 
   // CLASS: GroupOrStem //
