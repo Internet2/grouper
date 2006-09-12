@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.11 2006-09-12 18:33:13 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.12 2006-09-12 18:36:29 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -62,137 +62,135 @@ public class XmlExporter {
    * The export process is configured using the following properties: <table
    * width="100%" border="1">
    * <tr bgcolor="#CCCCCC">
-   * <td width="28%"><font face="Arial, Helvetica, sans-serif">Key </font>
+   * <td width="28%">Key
    * </td>
-   * <td width="8%"><font face="Arial, Helvetica, sans-serif">values </font>
+   * <td width="8%">values
    * </td>
-   * <td width="64%"><font face="Arial, Helvetica, sans-serif">Description
-   * </font></td>
+   * <td width="64%">Description
+   *</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica, sans-serif">export.metadata </font>
+   * <td>export.metadata
    * </td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines whether
+   * <td>true/false</td>
+   * <td>Determines whether
    * information about the group types and fields available in this Grouper
-   * instance should be exported, as well as the Subject sources. </font>
+   * instance should be exported, as well as the Subject sources.
    * </td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica, sans-serif">export.data </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines if actual data
-   * is exported </font></td>
+   * <td>export.data</td>
+   * <td>true/false</td>
+   * <td>Determines if actual data
+   * is exported</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica, sans-serif">export.privs.naming
-   * </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines if naming
-   * privilege information is exported with stems </font></td>
+   * <td>export.privs.naming
+   *</td>
+   * <td>true/false</td>
+   * <td>Determines if naming
+   * privilege information is exported with stems</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica, sans-serif">export.privs.access
-   * </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines if access
-   * privilege information is exported with groups </font></td>
+   * <td>export.privs.access
+   *</td>
+   * <td>true/false</td>
+   * <td>Determines if access
+   * privilege information is exported with groups</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica,
-   * sans-serif">export.privs.immediate-only </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines whether all
+   * <td>export.privs.immediate-only</td>
+   * <td>true/false</td>
+   * <td>Determines whether all
    * privilegees are exported or only those to which privileges have been
-   * granted directly </font></td>
+   * granted directly</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica, sans-serif">export.group.members
-   * </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines whether or not
-   * group membership information is exported </font></td>
+   * <td>export.group.members
+   *</td>
+   * <td>true/false</td>
+   * <td>Determines whether or not
+   * group membership information is exported</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica,
-   * sans-serif">export.group.members.immediate-only </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines whether all
-   * members are exported, or only direct members </font></td>
+   * <td>export.group.members.immediate-only</td>
+   * <td>true/false</td>
+   * <td>Determines whether all
+   * members are exported, or only direct members</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica, sans-serif">export.group.lists </font>
+   * <td>export.group.lists
    * </td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines whether custom
-   * list attributes are exported </font></td>
+   * <td>true/false</td>
+   * <td>Determines whether custom
+   * list attributes are exported</td>
    * </tr>
    * <tr>
    * <td><font face="Arial, Helvetica,
-   * sans-serif">export.group.lists.immediate-only </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines whether all
-   * list members are exported, or only direct members </font></td>
+   * sans-serif">export.group.lists.immediate-only</td>
+   * <td>true/false</td>
+   * <td>Determines whether all
+   * list members are exported, or only direct members</td>
    * </tr>
    * <tr>
    * <td><font face="Arial, Helvetica,
-   * sans-serif">export.group.internal-attributes </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines whether Grouper
-   * maintained attributes e.g. modifyDate are exported </font></td>
+   * sans-serif">export.group.internal-attributes</td>
+   * <td>true/false</td>
+   * <td>Determines whether Grouper
+   * maintained attributes e.g. modifyDate are exported</td>
    * </tr>
    * <tr>
    * <td><font face="Arial, Helvetica,
-   * sans-serif">export.group.custom-attributes </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines whether custom
-   * attributes are exported </font></td>
+   * sans-serif">export.group.custom-attributes</td>
+   * <td>true/false</td>
+   * <td>Determines whether custom
+   * attributes are exported</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica, sans-serif">
+   * <td>
    * export.stem.internal-attributes <br>
-   * </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Determines whether Grouper
-   * maintained attributes e.g. modifyDate are exported </font></td>
+   *</td>
+   * <td>true/false</td>
+   * <td>Determines whether Grouper
+   * maintained attributes e.g. modifyDate are exported</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica, sans-serif">export.privs.for-parents
-   * </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">true/false </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">If exporting part of the
+   * <td>export.privs.for-parents
+   *</td>
+   * <td>true/false</td>
+   * <td>If exporting part of the
    * hierarchy it is possible to export parent stems. This property determines
-   * if privileges are exported for parent stems </font></td>
+   * if privileges are exported for parent stems</td>
    * </tr>
    * <tr>
    * <td><font face="Arial, Helvetica,
    * sans-serif">export.subject-attributes.source.&lt;source
-   * name&gt;.&lt;subject type&gt; </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Space separated list of
-   * attribute names </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Specifies any attributes
+   * name&gt;.&lt;subject type&gt;</td>
+   * <td>Space separated list of
+   * attribute names</td>
+   * <td>Specifies any attributes
    * that should be exported with a Subject given the source and subject type
-   * </font></td>
+   *</td>
    * </tr>
    * <tr>
    * <td><font face="Arial, Helvetica,
-   * sans-serif">export.subject-attributes.source.&lt;source name&gt; </font>
+   * sans-serif">export.subject-attributes.source.&lt;source name&gt;
    * </td>
-   * <td><font face="Arial, Helvetica, sans-serif">Space separated list of
-   * attribute names </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Specifies any attributes
+   * <td>Space separated list of
+   * attribute names</td>
+   * <td>Specifies any attributes
    * that should be exported with a Subject given the source regardless of th
-   * esubject type </font></td>
+   * esubject type</td>
    * </tr>
    * <tr>
    * <td><font face="Arial, Helvetica,
-   * sans-serif">export.subject-attributes.type.&lt;subject type&gt; </font>
+   * sans-serif">export.subject-attributes.type.&lt;subject type&gt;
    * </td>
-   * <td><font face="Arial, Helvetica, sans-serif">Space separated list of
-   * attribute names </font></td>
-   * <td><font face="Arial, Helvetica, sans-serif">Specifies any attributes
+   * <td>Space separated list of
+   * attribute names</td>
+   * <td>Specifies any attributes
    * that should be exported with a Subject given the subject type regardless
-   * of the source </font></td>
+   * of the source</td>
    * </tr>
    * </table>
    * @param   options
