@@ -35,13 +35,14 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.16 2006-09-12 19:17:39 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.17 2006-09-12 19:52:00 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
 
   // PRIVATE CLASS CONSTANTS //  
-  private static final Log LOG = LogFactory.getLog(XmlExporter.class);
+  private static final String CF  = "export.properties"; 
+  private static final Log    LOG = LogFactory.getLog(XmlExporter.class);
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -203,24 +204,30 @@ public class XmlExporter {
   /**
    * TODO
    * </p>
-   * @param   s         Perform export within this session.
-   * @param   options   Configuration parameters.
-   * @param   writer    Write XML here.
-   * @throws  GrouperRuntimeException
+   * @param   s           Perform export within this session.
+   * @param   userOptions User-specified configuration parameters.
+   * @param   writer      Write XML here.
    * @since   1.1.0
    */
-  public XmlExporter(GrouperSession s, Properties options, Writer writer) {
+  public XmlExporter(GrouperSession s, Properties userOptions, Writer writer) {
     try {
       this.baseType = GroupTypeFinder.find("base");     // TODO ?
     }
     catch (SchemaException eS) {
       throw new GrouperRuntimeException(eS.getMessage(), eS);
     }
-    this.options  = options;
+    try {
+      this.options  = _getSystemProperties();
+    }
+    catch (IOException eIO) {
+      throw new GrouperRuntimeException(eIO.getMessage(), eIO);
+    }
+    this.options.putAll(userOptions); 
     this.s        = s;
     this.sysUser  = SubjectFinder.findRootSubject();  // TODO ?
     this.xml      = new XmlWriter(writer);
-  } // public XmlExporter(options, writer)
+  } // public XmlExporter(s, userOptions, writer)
+
   
   // MAIN //
   /**
@@ -245,7 +252,6 @@ public class XmlExporter {
 
     String  arg;
     String  exportFile            = null;
-    String  exportProperties      = "export.properties"; // TODO constant
     String  id                    = null;
     boolean includeParent         = false;
     int     inputPos              = 0;
@@ -316,34 +322,16 @@ public class XmlExporter {
     } 
     catch (Exception ex) {
       ex.printStackTrace();
-      System.out.println();
+      System.err.println();
       System.err.println( _getUsage() );
       System.exit(1);
     }
-    Properties props = new Properties();
-    if (userExportProperties != null) {
-      LOG.info("Loading user-specified properties [" + userExportProperties + "]");
-      props.load(new FileInputStream(userExportProperties));
-    } 
-    else {
-      LOG.info("Loading default properties [" + exportProperties + "]");
-      try {
-        props.load(new FileInputStream(exportProperties));
-      } catch (Exception e) {
-        LOG.info(
-          "Failed to find [" + exportProperties 
-          + "] in working directory, trying classpath"
-        );
-        InputStream is = XmlExporter.class.getResourceAsStream(exportProperties);
-        props.load(is);
-      }
-    }
-
+    
     XmlExporter exporter = new XmlExporter(
       GrouperSession.start(
         SubjectFinder.findByIdentifier(subjectIdentifier)
       ),
-      props,
+      _getUserProperties(userExportProperties),
       new PrintWriter( new FileWriter(exportFile) )
     );
 
@@ -633,9 +621,9 @@ public class XmlExporter {
       while (iterF.hasNext()) { 
         f = (Field) iterF.next();
         if (
-          f.getType().equals(FieldType.LIST)
-          && !f.equals(defList)
-          && g.canReadField(f)
+              f.getType().equals(FieldType.LIST)
+          &&  !f.equals(defList)
+          &&  g.canReadField(f)
         )
         {
           lists.add(f.getName());
@@ -645,6 +633,34 @@ public class XmlExporter {
     return lists;
   } // private static Set _getListFieldsForGroup(group)
   
+  // TODO move to `XmlUtils`?
+  // @throws  IOException
+  // @since   1.1.0 
+  private static Properties _getSystemProperties() 
+    throws  IOException
+  {
+    Properties props = new Properties();; 
+    LOG.debug("loading system properties: " + CF);
+    props.load(XmlExporter.class.getResourceAsStream(CF));
+    return props;
+  } // private static Properties _getSystemProperties();
+
+  // TODO move to `XmlUtils`?
+  // @throws  FileNotFoundException
+  // @throws  IOException
+  // @since   1.1.0
+  private static Properties _getUserProperties(String file) 
+    throws  FileNotFoundException,
+            IOException
+  {
+    Properties props = new Properties();
+    if (file != null) {
+      LOG.debug("loading user-specified properites: " + file);
+      props.load(new FileInputStream(file));
+    } 
+    return props;
+  } // private static Properties _getUserProperties(file)
+
   // @since   1.1.0
   private static String _getUsage() {
     return  "Usage:"
