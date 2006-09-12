@@ -35,13 +35,13 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.8 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.9 2006-09-12 15:07:08 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
 
   // PRIVATE CLASS CONSTANTS //  
-  private static final Log log = LogFactory.getLog(XmlExporter.class);
+  private static final Log LOG = LogFactory.getLog(XmlExporter.class);
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -225,7 +225,6 @@ public class XmlExporter {
       XmlExporter.commandLineUsage();
       System.exit(0);
     }
-    Log log = LogFactory.getLog(XmlExporter.class); // TODO Why not use constant?
 
     String  arg;
     String  exportFile            = null;
@@ -306,15 +305,15 @@ public class XmlExporter {
     }
     Properties props = new Properties();
     if (userExportProperties != null) {
-      log.info("Loading user-specified properties [" + userExportProperties + "]");
+      LOG.info("Loading user-specified properties [" + userExportProperties + "]");
       props.load(new FileInputStream(userExportProperties));
     } 
     else {
-      log.info("Loading default properties [" + exportProperties + "]");
+      LOG.info("Loading default properties [" + exportProperties + "]");
       try {
         props.load(new FileInputStream(exportProperties));
       } catch (Exception e) {
-        log.info(
+        LOG.info(
           "Failed to find [" + exportProperties 
           + "] in working directory, trying classpath"
         );
@@ -338,7 +337,7 @@ public class XmlExporter {
       if (id != null) {
         try {
           group = GroupFinder.findByUuid(s, id);
-          log.debug("Found group with id [" + id + "]");
+          LOG.debug("Found group with id [" + id + "]");
         } 
         catch (GroupNotFoundException e) {
           // Look for stem instead
@@ -346,7 +345,7 @@ public class XmlExporter {
         if (group == null) {
           try {
             stem = StemFinder.findByUuid(s, id);
-            log.debug("Found stem with id [" + id + "]");
+            LOG.debug("Found stem with id [" + id + "]");
           } 
           catch (StemNotFoundException e) {
             // No group or stem
@@ -362,7 +361,7 @@ public class XmlExporter {
       else {
         try {
           group = GroupFinder.findByName(s, name);
-          log.debug("Found group with name [" + name + "]");
+          LOG.debug("Found group with name [" + name + "]");
         } 
         catch (GroupNotFoundException e) {
           // Look for stem instead
@@ -370,7 +369,7 @@ public class XmlExporter {
         if (group == null) {
           try {
             stem = StemFinder.findByName(s, name);
-            log.debug("Found stem with name [" + name + "]");
+            LOG.debug("Found stem with name [" + name + "]");
           } catch (StemNotFoundException e) {
             // No group or stem
           }
@@ -393,7 +392,7 @@ public class XmlExporter {
         exporter.export(s, stem, relative, includeParent, writer);
       }
     }
-    log.info("Finished export to [" + exportFile + "]");
+    LOG.info("Finished export to [" + exportFile + "]");
     s.stop();
   } // public static void main(args)
 
@@ -486,9 +485,9 @@ public class XmlExporter {
   {
     Stem        stem  = StemFinder.findRootStem(s);
     GroupOrStem gos   = findByStem(s, stem);
-    log.info("Start export of entire repository");
+    LOG.info("Start export of entire repository");
     _export(s, gos, true, false, writer);
-    log.info("Finished export of entire repository");
+    LOG.info("Finished export of entire repository");
   } // public void export(s, writer)
 
   /**
@@ -506,7 +505,7 @@ public class XmlExporter {
   ) 
     throws Exception 
   {
-    log.info("Start export of Collection:" + info);
+    LOG.info("Start export of Collection:" + info);
 
     this.fromStem         = "_Z";
     Date    before        = _writeHeader(writer);
@@ -549,7 +548,7 @@ public class XmlExporter {
           _writeMembership(s, (Membership) obj, writer, padding);
         } 
         else {
-          log.error("Don't know about exporting " + obj);
+          LOG.error("Don't know about exporting " + obj);
         }
         writer.println();
       }
@@ -563,7 +562,7 @@ public class XmlExporter {
     writer.print(origPadding);
     writer.println("]]></exportComments>");
     _writeFooter(writer, before);
-    log.info("Finished export of Collection:" + info);
+    LOG.info("Finished export of Collection:" + info);
   } // public synchronized void export(s, items, info, writer)
 
   /**
@@ -582,9 +581,9 @@ public class XmlExporter {
     throws  Exception 
   {
     GroupOrStem gos = findByGroup(s, group);
-    log.info("Start export of Group " + group.getName());
+    LOG.info("Start export of Group " + group.getName());
     _export(s, gos, relative, false, writer);
-    log.info("Finished export of Group " + group.getName());
+    LOG.info("Finished export of Group " + group.getName());
   } // public void export(s, group, relative, writer)
 
   /**
@@ -604,9 +603,9 @@ public class XmlExporter {
     throws  Exception 
   {
     GroupOrStem gos = findByStem(s, stem);
-    log.info("Start export of Stem " + stem.getName());
+    LOG.info("Start export of Stem " + stem.getName());
     _export(s, gos, relative, includeParent, writer);
-    log.info("Finished export of Stem " + stem.getName());
+    LOG.info("Finished export of Stem " + stem.getName());
   } // public void export(s, stem, relative, includeParent, writer)
 
   /**
@@ -782,8 +781,8 @@ public class XmlExporter {
   )
     throws  Exception 
   {
-    log.info("Relative export="     + relative);
-    log.info("Include parent stem=" + includeParent);
+    LOG.info("Relative export="     + relative);
+    LOG.info("Include parent stem=" + includeParent);
     this.isRelative         = relative;
     this.includeParent      = includeParent;
     this.writeStemsCounter  = 0;
@@ -812,7 +811,7 @@ public class XmlExporter {
       _exportData(s, groupOrStem, padding, writer);
     } 
     else {
-      log.info("export.data=false, so no data exported");
+      LOG.info("export.data=false, so no data exported");
     }
     _writeExportParams(groupOrStem, writer, padding);
     _writeFooter(writer, before);
@@ -824,7 +823,7 @@ public class XmlExporter {
   ) 
     throws  Exception 
   {
-    log.debug("Writing repository data as XML");
+    LOG.debug("Writing repository data as XML");
     writer.println(padding + "<data>");
     Stack stems = null;
     if (!isRelative) {
@@ -844,7 +843,7 @@ public class XmlExporter {
     }
     _writeStems(s, stems, writer, padding + "  ");
     writer.println(padding + "</data>");
-    log.debug("Finished repository data as XML");
+    LOG.debug("Finished repository data as XML");
   } // private void _exportData(s, groupOrStem, padding, writer)
 
   // @since   1.0
@@ -1014,7 +1013,7 @@ public class XmlExporter {
     GroupOrStem groupOrStem, PrintWriter writer, String padding
   ) 
   {
-    log.debug("Writing export params to XML");
+    LOG.debug("Writing export params to XML");
     writer.print(padding);
     writer.println("<exportParams>");
     writer.print(padding + "  ");
@@ -1059,7 +1058,7 @@ public class XmlExporter {
   private synchronized void _writeFooter(PrintWriter writer, Date before)
     throws  Exception 
   {
-    log.debug("Writing XML Footer");
+    LOG.debug("Writing XML Footer");
     Date    now       = new Date();
     long    duration  = (now.getTime() - before.getTime()) / 1000;
     String  padding   = "  ";
@@ -1085,8 +1084,8 @@ public class XmlExporter {
   ) 
     throws  Exception 
   {
-    if (log.isDebugEnabled()) {
-      log.debug("Writing group " + group.getName() + " to XML");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Writing group " + group.getName() + " to XML");
     }
     writer.println();
     writer.print(padding);
@@ -1150,8 +1149,8 @@ public class XmlExporter {
     }
 
     for (int i = 0; i < listFields.size(); i++) {
-      if (log.isDebugEnabled()) { 
-        log.debug(
+      if (LOG.isDebugEnabled()) { 
+        LOG.debug(
           "Writing list members for " + group.getName() + ": field=" + listFields.get(i)
         );
       }
@@ -1175,8 +1174,8 @@ public class XmlExporter {
     } catch (Exception e) {
     }
     writer.println();
-    if (log.isDebugEnabled()) {
-      log.debug("Finished writing group " + group.getName() + " to XML");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Finished writing group " + group.getName() + " to XML");
     }
   } // private void _writeFullGroup(s, group, writer, padding)
 
@@ -1186,16 +1185,16 @@ public class XmlExporter {
   ) 
     throws  Exception 
   {
-    if (log.isDebugEnabled()) {
-      log.debug("Writing Stem " + stem.getName() + " to XML");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Writing Stem " + stem.getName() + " to XML");
     }
     _writeBasicStemHeader(s, stem, writer, padding);
     _writeInternalAttributes(s, stem, writer, padding);
     _writeStemPrivs(s, stem, writer, padding);
     _writeStemBody(s, stem, writer, padding + "  ");
     _writeBasicStemFooter(s, stem, writer, padding);
-    if (log.isDebugEnabled()) {
-      log.debug("Finished writing Stem " + stem.getName() + " to XML");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Finished writing Stem " + stem.getName() + " to XML");
     }
   } // private void _writeFullStem(s, stem, writer, padding)
 
@@ -1357,7 +1356,7 @@ public class XmlExporter {
   private synchronized Date _writeHeader(PrintWriter writer) 
     throws  Exception 
   {
-    log.debug("Writing XML header");
+    LOG.debug("Writing XML header");
     Date    before  = new Date();
     String  padding = "  ";
     writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -1423,7 +1422,7 @@ public class XmlExporter {
     throws  Exception 
   {
     if (!group.canReadField(field)) {
-      log.info(
+      LOG.info(
         "No read privilege. List [" + field.getName() + "] for ["
         + group.getName() + "] ignored"
       );
@@ -1537,7 +1536,7 @@ public class XmlExporter {
   private void _writeMetaData(PrintWriter writer, String padding)
     throws  Exception 
   {
-    log.debug("Writing repository metadata as XML");
+    LOG.debug("Writing repository metadata as XML");
     writer.print(padding);
     writer.println("<metadata>");
     _writeGroupTypesMetaData(writer, padding + "  ");
@@ -1548,7 +1547,7 @@ public class XmlExporter {
 
   // @since   1.0
   private void _writeOptions(PrintWriter writer, String padding) {
-    log.debug("Writing export options as XML");
+    LOG.debug("Writing export options as XML");
     writer.print(padding);
     writer.println("<options>");
     List      orderedList     = new ArrayList(options.keySet());
@@ -1598,14 +1597,14 @@ public class XmlExporter {
       subjects.remove(sysUser);
     }
     if (subjects.isEmpty()) {
-      if (log.isDebugEnabled()) { 
-        log.debug("No privilegees with [" + privilege + "] for " + gos.getName());
+      if (LOG.isDebugEnabled()) { 
+        LOG.debug("No privilegees with [" + privilege + "] for " + gos.getName());
       }
       return;
     }
 
-    if (log.isDebugEnabled()) {
-      log.debug("Writing privilegees with [" + privilege + "] for " + gos.getName());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Writing privilegees with [" + privilege + "] for " + gos.getName());
     }
     writer.println();
     writer.print(padding);
@@ -1669,18 +1668,18 @@ public class XmlExporter {
         optionTrue("export.privs.naming") 
        ) 
     {
-      if (log.isDebugEnabled()) {
-        log.debug("Writing STEM privilegees for " + stem.getName());
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Writing STEM privilegees for " + stem.getName());
       }
       _writePrivileges(s, "stem", stem.getStemmers(), stem, writer, padding);
       _writePrivileges(s, "create", stem.getStemmers(), stem, writer, padding);
-      if (log.isDebugEnabled()) {
-        log.debug("Writing CREATE privilegees for " + stem.getName());
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Writing CREATE privilegees for " + stem.getName());
       }
     } 
     else {
-      if (log.isDebugEnabled()) {
-        log.debug("Skipping naming privs for " + stem.getName());
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Skipping naming privs for " + stem.getName());
       }
     }
   } // private void _writeStemPrivs(s, stem, writer, padding)
