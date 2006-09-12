@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.Source;
-import  java.lang.System;
 import  java.util.Iterator;
 import  java.util.Properties;
 
@@ -25,7 +24,7 @@ import  java.util.Properties;
  * Report on system and configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperInfo.java,v 1.1 2006-09-12 13:49:55 blair Exp $
+ * @version $Id: GrouperInfo.java,v 1.2 2006-09-12 15:33:58 blair Exp $
  * @since   1.1.0
  */
 public class GrouperInfo {
