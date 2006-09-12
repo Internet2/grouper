@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.43 2006-09-11 18:53:11 blair Exp $
+$Id: TODO.txt,v 1.44 2006-09-12 13:49:55 blair Exp $
 
 ---
 
@@ -32,17 +32,15 @@ $Id: TODO.txt,v 1.43 2006-09-11 18:53:11 blair Exp $
 * CODE      Migrate error messages to *E*
 * CODE      Migrate messages to *M*
 * CODE      Use `SetUtils` for group math
-* CODE		Move type + field caching to within sessions?
+* CODE		  Move type + field caching to within sessions?
 * CODE      checksum .hbm.xml files to try and ensure i keep schema version accurate
 * CODE      check for *Settings* (and version if it exists) when calling db-init
 * REFACTOR  privilege checking and caching
     * *NamingResolver*
     * *AccessResolver*
-* CODE      change query parameter setting in *MembershipFinder*
 * CODE      Fix some issues reported by FindBugs, PMD and CPD
 * CODE      class to verify that setup is functional
     * find the root stem, exercise subject api, hibernate dialect + driver class, etc
-* CODE      start populating `Membership` creator
 * REFACTOR  internal root sessions should not need to go through hibernate
 * REFACTOR	`RegistryReset` to no longer add test subjects
 * REFACTOR	`EventLog`
@@ -51,14 +49,7 @@ $Id: TODO.txt,v 1.43 2006-09-11 18:53:11 blair Exp $
 
 ---
 
-## Future Releases
-* CODE      Improve performance.
-
-TODO Add additional potential changes.
-
----
-
-$Id: TODO.txt,v 1.43 2006-09-11 18:53:11 blair Exp $
+$Id: TODO.txt,v 1.44 2006-09-12 13:49:55 blair Exp $
 
 
 

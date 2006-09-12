@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.118 2006-09-08 19:17:59 blair Exp $ -->
+<!-- $Id: build.xml,v 1.119 2006-09-12 13:49:55 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -363,6 +363,18 @@
     </javadoc>
   </target>
   <!-- html -->
+
+  <!-- info -->
+  <target name="info" 
+          depends="build"
+          description="report system and configuration information"
+  >
+    <java fork="true"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.GrouperInfo"
+    />
+  </target>
+  <!-- info -->
 
   <!-- init -->
   <target name="init">
