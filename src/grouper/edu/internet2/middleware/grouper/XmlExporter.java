@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.14 2006-09-12 19:09:37 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.15 2006-09-12 19:14:10 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -61,20 +61,15 @@ public class XmlExporter {
   /**
    * The export process is configured using the following properties: <table
    * width="100%" border="1">
-   * <tr bgcolor="#CCCCCC">
-   * <td width="28%">Key
-   * </td>
-   * <td width="8%">values
-   * </td>
-   * <td width="64%">Description
-   *</td>
+   * <tr>
+   * <td>Key</td>
+   * <td>values</td>
+   * <td>Description</td>
    * </tr>
    * <tr>
-   * <td>export.metadata
-   * </td>
+   * <td>export.metadata</td>
    * <td>true/false</td>
-   * <td>Determines whether
-   * information about the group types and fields available in this Grouper
+   * <td>Determines whether information about the group types and fields available in this Grouper
    * instance should be exported, as well as the Subject sources.
    * </td>
    * </tr>
@@ -458,7 +453,7 @@ public class XmlExporter {
     String  origPadding   = "  ";
     String  padding       = "    ";
 
-    if (optionTrue("export.data")) {
+    if (_optionTrue("export.data")) {
       Iterator itemsIterator = items.iterator();
       this.xml.put(origPadding);
       this.xml.puts("<dataList>");
@@ -711,7 +706,7 @@ public class XmlExporter {
       fromStem = dummyStem.getName() + ":";
     }
 
-    if (optionTrue("export.data")) {
+    if (_optionTrue("export.data")) {
       _exportData(groupOrStem, padding);
     } 
     else {
@@ -864,20 +859,13 @@ public class XmlExporter {
     return false;
   } // private boolean _isEmpty(obj)
 
-  private String fixXmlAttribute(String value) {
+  // @since   1.1.0
+  private String _fixXmlAttribute(String value) {
     value = value.replaceAll("'", "&apos;");
     value = value.replaceAll("<", "&lt;");
     value = value.replaceAll(">", "&gt;");
     return value;
-  }
-
-  private boolean optionTrue(String key) {
-    if (_isEmpty(key)) {
-      options.setProperty(key, "false");
-      return false;
-    }
-    return "true".equals(options.getProperty(key));
-  }
+  } // private String _fixXmlAttribute(value)
 
   // @since   1.0
   private Stack _getParentStems(GroupOrStem gos) 
@@ -913,6 +901,15 @@ public class XmlExporter {
     return stems;
   } // private Stack _getParentStems(gos)
 
+  // @since   1.1.0
+  private boolean _optionTrue(String key) {
+    if (_isEmpty(key)) {
+      options.setProperty(key, "false");
+      return false;
+    }
+    return "true".equals(options.getProperty(key));
+  } // private boolean _optionTrue(key)
+
   // @throws  IOException
   // @since   1.1.0
   private void _writeBasicStemFooter(Stem stem, String padding) 
@@ -933,28 +930,28 @@ public class XmlExporter {
     this.xml.puts("<!--" + stem.getName() + "-->");
     this.xml.put(padding);
     this.xml.puts(
-      "<stem extension='" + fixXmlAttribute(stem.getExtension()) + "'"
+      "<stem extension='" + _fixXmlAttribute(stem.getExtension()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts(
-      "displayExtension='" + fixXmlAttribute(stem.getDisplayExtension()) + "'"
+      "displayExtension='" + _fixXmlAttribute(stem.getDisplayExtension()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("      ");
-    this.xml.puts("name='" + fixXmlAttribute(stem.getName()) + "'");
+    this.xml.puts("name='" + _fixXmlAttribute(stem.getName()) + "'");
     this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts(
-      "displayName='" + fixXmlAttribute(stem.getDisplayName()) + "'"
+      "displayName='" + _fixXmlAttribute(stem.getDisplayName()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("      ");
-    this.xml.puts("id='" + fixXmlAttribute(stem.getUuid()) + "'>");
+    this.xml.puts("id='" + _fixXmlAttribute(stem.getUuid()) + "'>");
 
     this.xml.put(padding + "  ");
     this.xml.puts(
-      "<description>" + fixXmlAttribute(stem.getDescription()) + "</description>"
+      "<description>" + _fixXmlAttribute(stem.getDescription()) + "</description>"
     );
 
   } // private void _writeBasicStemHeader(stem, padding)
@@ -1014,7 +1011,7 @@ public class XmlExporter {
     this.xml.puts();
     this.xml.put(padding);
     this.xml.puts(
-      "<field name='" + fixXmlAttribute(field.getName()) + "'"
+      "<field name='" + _fixXmlAttribute(field.getName()) + "'"
     );
     this.xml.puts(
       padding + "        required='" + field.getRequired() + "'"
@@ -1067,9 +1064,7 @@ public class XmlExporter {
             SchemaException,
             SubjectNotFoundException
   {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Writing group " + group.getName() + " to XML");
-    }
+    LOG.debug("Writing group " + group.getName() + " to XML");
     this.xml.puts();
     this.xml.put(padding);
     try {
@@ -1079,34 +1074,34 @@ public class XmlExporter {
     }
     this.xml.put(padding);
     this.xml.puts(
-      "<group extension='" + fixXmlAttribute(group.getExtension()) + "'"
+      "<group extension='" + _fixXmlAttribute(group.getExtension()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("       ");
     this.xml.puts(
-      "displayExtension='" + fixXmlAttribute(group.getDisplayExtension()) + "'"
+      "displayExtension='" + _fixXmlAttribute(group.getDisplayExtension()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("      ");
-    this.xml.puts("name='" + fixXmlAttribute(group.getName()) + "'");
+    this.xml.puts("name='" + _fixXmlAttribute(group.getName()) + "'");
     this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts(
-      "displayName='" + fixXmlAttribute(group.getDisplayName()) + "'"
+      "displayName='" + _fixXmlAttribute(group.getDisplayName()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("      ");
-    this.xml.puts("id='" + fixXmlAttribute(group.getUuid()) + "'>");
+    this.xml.puts("id='" + _fixXmlAttribute(group.getUuid()) + "'>");
 
     this.xml.put(padding + "  ");
     this.xml.puts(
-      "<description>" + fixXmlAttribute(group.getDescription()) + "</description>"
+      "<description>" + _fixXmlAttribute(group.getDescription()) + "</description>"
     );
 
-    if (optionTrue("export.group.internal-attributes")) {
+    if (_optionTrue("export.group.internal-attributes")) {
       _writeInternalAttributes(group, padding + "  ");
     }
-    if (optionTrue("export.group.custom-attributes")) {
+    if (_optionTrue("export.group.custom-attributes")) {
       Set       types     = group.getTypes();
       GroupType baseType  = GroupTypeFinder.find("base");
       types.remove(baseType);
@@ -1123,24 +1118,20 @@ public class XmlExporter {
     }
 
     List listFields = new ArrayList();
-    if (optionTrue("export.group.lists")) {
+    if (_optionTrue("export.group.lists")) {
       listFields.addAll( _getListFieldsForGroup(group) );
     }
-    if (optionTrue("export.group.members")) {
+    if (_optionTrue("export.group.members")) {
       listFields.add(0, "members");
     }
 
     for (int i = 0; i < listFields.size(); i++) {
-      if (LOG.isDebugEnabled()) { 
-        LOG.debug(
-          "Writing list members for " + group.getName() + ": field=" + listFields.get(i)
-        );
-      }
+      LOG.debug("Writing list members for " + group.getName() + ": field=" + listFields.get(i));
       _writeListField(
         group, FieldFinder.find((String) listFields .get(i)), padding + "  "
       );
     }
-    if (optionTrue("export.privs.access")) {
+    if (_optionTrue("export.privs.access")) {
       _writePrivileges("admin" , group.getAdmins()   , group, padding);
       _writePrivileges("update", group.getUpdaters() , group, padding);
       _writePrivileges("read"  , group.getReaders()  , group, padding);
@@ -1155,9 +1146,7 @@ public class XmlExporter {
     } catch (Exception e) {
     }
     this.xml.puts();
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Finished writing group " + group.getName() + " to XML");
-    }
+    LOG.debug("Finished writing group " + group.getName() + " to XML");
   } // private void _writeFullGroup(group, padding)
 
   // @throws  CompositeNotFoundException
@@ -1177,17 +1166,13 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Writing Stem " + stem.getName() + " to XML");
-    }
+    LOG.debug("Writing Stem " + stem.getName() + " to XML");
     _writeBasicStemHeader(stem, padding);
     _writeInternalAttributes(stem, padding);
     _writeStemPrivs(stem, padding);
     _writeStemBody(stem, padding + "  ");
     _writeBasicStemFooter(stem, padding);
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Finished writing Stem " + stem.getName() + " to XML");
-    }
+    LOG.debug("Finished writing Stem " + stem.getName() + " to XML");
   } // private void _writeFullStem(stem, padding)
 
   // @throws  IOException
@@ -1223,7 +1208,7 @@ public class XmlExporter {
             SchemaException
   {
     this.xml.puts(
-      padding + "<groupType name='" + fixXmlAttribute(groupType.getName()) + "'>"
+      padding + "<groupType name='" + _fixXmlAttribute(groupType.getName()) + "'>"
     );
     Field     field;
     Set       fields          = groupType.getFields();
@@ -1239,7 +1224,7 @@ public class XmlExporter {
         continue;
       }
       try {
-        value = fixXmlAttribute(group.getAttribute(field.getName()));
+        value = _fixXmlAttribute(group.getAttribute(field.getName()));
         if (
             !_isEmpty(value)
             && ":description:extension:displayExtension:"
@@ -1249,7 +1234,7 @@ public class XmlExporter {
           this.xml.put(padding);
           this.xml.puts(
             "<attribute name='"
-            + fixXmlAttribute(field.getName()) + "'>" + value
+            + _fixXmlAttribute(field.getName()) + "'>" + value
             + "</attribute>"
           );
         }
@@ -1272,12 +1257,12 @@ public class XmlExporter {
     this.xml.puts(padding + "<internalAttributes>");
     this.xml.puts(
       padding + "  <internalAttribute name='parentStem'>"
-      + fixXmlAttribute(group.getParentStem().getName())
+      + _fixXmlAttribute(group.getParentStem().getName())
       + "</internalAttribute>"
     );
     this.xml.puts(
       padding + "  <internalAttribute name='createSource'>"
-      + fixXmlAttribute(group.getCreateSource())
+      + _fixXmlAttribute(group.getCreateSource())
       + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='createSubject'>");
@@ -1285,13 +1270,13 @@ public class XmlExporter {
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
       padding + "  <internalAttribute name='createTime'>"
-      + fixXmlAttribute(group.getCreateTime().toString())
+      + _fixXmlAttribute(group.getCreateTime().toString())
       + "</internalAttribute>"
     );
 
     this.xml.puts(
       padding + "  <internalAttribute name='modifySource'>"
-      + fixXmlAttribute(group.getModifySource())
+      + _fixXmlAttribute(group.getModifySource())
       + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='modifySubject'>");
@@ -1299,7 +1284,7 @@ public class XmlExporter {
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
       padding + "  <internalAttribute name='modifyTime'>"
-      + fixXmlAttribute(group.getModifyTime().toString())
+      + _fixXmlAttribute(group.getModifyTime().toString())
       + "</internalAttribute>"
     );
 
@@ -1329,7 +1314,7 @@ public class XmlExporter {
       this.xml.puts();
       this.xml.put(padding);
       this.xml.puts(
-        "<groupTypeDef name='" + fixXmlAttribute(groupType.getName()) + "'>"
+        "<groupTypeDef name='" + _fixXmlAttribute(groupType.getName()) + "'>"
       );
       fields = groupType.getFields();
       fieldsIterator = fields.iterator();
@@ -1359,7 +1344,7 @@ public class XmlExporter {
     String  padding = "  ";
     this.xml.puts("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     this.xml.puts("<registry>");
-    if (optionTrue("export.metadata")) {
+    if (_optionTrue("export.metadata")) {
       _writeMetaData(padding);
     }
     return before;
@@ -1374,19 +1359,19 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    if (!optionTrue("export.stem.internal-attributes")) {
+    if (!_optionTrue("export.stem.internal-attributes")) {
       return;
     }
     this.xml.puts();
     this.xml.puts(padding + "<internalAttributes>");
     this.xml.puts(
       padding + "  <internalAttribute name='parentStem'>"
-      + fixXmlAttribute(stem.getParentStem().getName())
+      + _fixXmlAttribute(stem.getParentStem().getName())
       + "</internalAttribute>"
     );
     this.xml.puts(
       padding + "  <internalAttribute name='createSource'>"
-     + fixXmlAttribute(stem.getCreateSource())
+     + _fixXmlAttribute(stem.getCreateSource())
      + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='createSubject'>");
@@ -1394,13 +1379,13 @@ public class XmlExporter {
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
       padding + "  <internalAttribute name='createTime'>"
-      + fixXmlAttribute(stem.getCreateTime().toString())
+      + _fixXmlAttribute(stem.getCreateTime().toString())
      + "</internalAttribute>"
     );
 
     this.xml.puts(
       padding + "  <internalAttribute name='modifySource'>"
-      + fixXmlAttribute(stem.getModifySource())
+      + _fixXmlAttribute(stem.getModifySource())
       + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='modifySubject'>");
@@ -1408,7 +1393,7 @@ public class XmlExporter {
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
       padding + "  <internalAttribute name='modifyTime'>"
-      + fixXmlAttribute(stem.getModifyTime().toString())
+      + _fixXmlAttribute(stem.getModifyTime().toString())
       + "</internalAttribute>"
     );
 
@@ -1451,11 +1436,11 @@ public class XmlExporter {
     members.addAll(membersSet);
     if (
       (
-        "members".equals(field.getName()) && !optionTrue("export.group.members.immediate-only")
+        "members".equals(field.getName()) && !_optionTrue("export.group.members.immediate-only")
       )
       || 
       (
-        !"members".equals(field.getName()) && !optionTrue("export.group.lists.immediate-only")
+        !"members".equals(field.getName()) && !_optionTrue("export.group.lists.immediate-only")
       )
     ) 
     {
@@ -1471,9 +1456,9 @@ public class XmlExporter {
     this.xml.puts();
     this.xml.put(padding);
     this.xml.puts(
-      "<list field='" + fixXmlAttribute(field.getName())
+      "<list field='" + _fixXmlAttribute(field.getName())
       + "'  groupType='"
-      + fixXmlAttribute(field.getGroupType().getName()) + "'>"
+      + _fixXmlAttribute(field.getGroupType().getName()) + "'>"
     );
     if (isComposite) {
       Composite composite = CompositeFinder.findAsOwner(group);
@@ -1482,7 +1467,7 @@ public class XmlExporter {
     _writeMembers(members, group, field, padding + "  ");
     this.xml.put(padding);
     this.xml.puts(
-      "</list> <!--/field=" + fixXmlAttribute(field.getName()) + "-->"
+      "</list> <!--/field=" + _fixXmlAttribute(field.getName()) + "-->"
     );
   } // private void _writeListField(group, field, padding)
 
@@ -1623,15 +1608,11 @@ public class XmlExporter {
       subjects.remove(sysUser);
     }
     if (subjects.isEmpty()) {
-      if (LOG.isDebugEnabled()) { 
-        LOG.debug("No privilegees with [" + privilege + "] for " + gos.getName());
-      }
+      LOG.debug("No privilegees with [" + privilege + "] for " + gos.getName());
       return;
     }
 
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Writing privilegees with [" + privilege + "] for " + gos.getName());
-    }
+    LOG.debug("Writing privilegees with [" + privilege + "] for " + gos.getName());
     this.xml.puts();
     this.xml.put(padding);
 
@@ -1649,7 +1630,7 @@ public class XmlExporter {
       if (
         (!"GrouperSystem".equals(subject.getId()))
         && 
-        (isImmediate || !optionTrue("export.privs.immediate-only"))) 
+        (isImmediate || !_optionTrue("export.privs.immediate-only"))) 
       {
         _writeSubject(subject, " immediate='" + isImmediate + "' ", padding + "  ");
       }
@@ -1701,22 +1682,16 @@ public class XmlExporter {
             MemberNotFoundException
   {
     if (
-        optionTrue("export.privs.naming") 
+        _optionTrue("export.privs.naming") 
        ) 
     {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Writing STEM privilegees for " + stem.getName());
-      }
+      LOG.debug("Writing STEM privilegees for " + stem.getName());
       _writePrivileges("stem", stem.getStemmers(), stem, padding);
       _writePrivileges("create", stem.getStemmers(), stem, padding);
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Writing CREATE privilegees for " + stem.getName());
-      }
+      LOG.debug("Writing CREATE privilegees for " + stem.getName());
     } 
     else {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Skipping naming privs for " + stem.getName());
-      }
+      LOG.debug("Skipping naming privs for " + stem.getName());
     }
   } // private void _writeStemPrivs(stem, padding)
 
@@ -1757,7 +1732,7 @@ public class XmlExporter {
     } 
     else {
       _writeBasicStemHeader(stem, padding);
-      if(optionTrue("export.privs.for-parents")) {
+      if(_optionTrue("export.privs.for-parents")) {
       	_writeStemPrivs(stem, padding);
       }
       _writeStems(stems, padding + "  ");
@@ -1789,9 +1764,9 @@ public class XmlExporter {
       id = subj.getId();
     }
     this.xml.put(
-      "<subject " + attrName + "='" + fixXmlAttribute(id)
-      + "' type='" + fixXmlAttribute(subj.getType().getName())
-      + "' source='" + fixXmlAttribute(subj.getSource().getId())
+      "<subject " + attrName + "='" + _fixXmlAttribute(id)
+      + "' type='" + _fixXmlAttribute(subj.getType().getName())
+      + "' source='" + _fixXmlAttribute(subj.getSource().getId())
       + "'" + immediate
     );
     if ("group".equals(subj.getType().getName())) {
@@ -1862,7 +1837,7 @@ public class XmlExporter {
       this.xml.puts();
       this.xml.put(padding);
       this.xml.puts(
-        "<source id='" + fixXmlAttribute(source.getId()) + "'"
+        "<source id='" + _fixXmlAttribute(source.getId()) + "'"
       );
       this.xml.puts(padding + "        name='" + source.getName() + "'");
       this.xml.puts(
