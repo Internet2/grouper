@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.9 2006-09-12 15:07:08 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.10 2006-09-12 17:19:58 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -52,6 +52,7 @@ public class XmlExporter {
   private Properties  options;
   private Subject     sysUser;
   private int         writeStemsCounter = 0;
+  private XmlWriter   xml;
 
 
   // CONSTRUCTORS //
@@ -205,12 +206,32 @@ public class XmlExporter {
     this.sysUser  = SubjectFinder.findRootSubject();
   } // public XmlExporter(options)
 
-
+  /**
+   * TODO
+   * </p>
+   * @param   options   Configuration parameters.
+   * @param   writer    Write XML here.
+   * @throws  GrouperRuntimeException
+   * @since   1.1
+   */
+  public XmlExporter(Properties options, Writer writer) {
+    try {
+      this.baseType = GroupTypeFinder.find("base");     // TODO ?
+    }
+    catch (SchemaException eS) {
+      throw new GrouperRuntimeException(eS.getMessage(), eS);
+    }
+    this.options  = options;
+    this.sysUser  = SubjectFinder.findRootSubject();  // TODO ?
+    this.xml      = new XmlWriter(writer);
+  } // public XmlExporter(options, writer)
+  
   // MAIN //
   /**
    * Export Groups Registry to XML output.
    * <p/>
-   * @throws  Exception
+   * @throws 
+  // @throws  Exception
    * @since   1.0
    */
   public static void main(String args[]) 
@@ -322,14 +343,12 @@ public class XmlExporter {
       }
     }
 
-    XmlExporter     exporter  = new XmlExporter(props);
+    XmlExporter     exporter  = new XmlExporter( props, new PrintWriter(new FileWriter(exportFile) ) );
     Subject         user      = SubjectFinder.findByIdentifier(subjectIdentifier);
     GrouperSession  s         = GrouperSession.start(user);
-    FileWriter      fw        = new FileWriter(exportFile);
-    PrintWriter     writer    = new PrintWriter(fw);
 
     if (id == null && name == null) {
-      exporter.export(s, writer);
+      exporter.export(s);
     } 
     else {
       Group group = null;
@@ -386,10 +405,10 @@ public class XmlExporter {
         );
       }
       if (group != null) {
-        exporter.export(s, group, relative, writer);
+        exporter.export(s, group, relative);
       } 
       else {
-        exporter.export(s, stem, relative, includeParent, writer);
+        exporter.export(s, stem, relative, includeParent);
       }
     }
     LOG.info("Finished export to [" + exportFile + "]");
@@ -476,19 +495,18 @@ public class XmlExporter {
    * Exports data for the entire repository
    * <p/>
    * @param   s
-   * @param   writer
    * @throws  Exception
-   * @since   1.0
+   * @since   1.1.0
    */
-  public void export(GrouperSession s, PrintWriter writer) 
+  public void export(GrouperSession s)
     throws  Exception 
   {
     Stem        stem  = StemFinder.findRootStem(s);
     GroupOrStem gos   = findByStem(s, stem);
     LOG.info("Start export of entire repository");
-    _export(s, gos, true, false, writer);
+    this._export(s, gos, true, false);
     LOG.info("Finished export of entire repository");
-  } // public void export(s, writer)
+  } // public void export(s)
 
   /**
    * Export a Collection of stems, groups, members, subjects or memberships
@@ -496,74 +514,73 @@ public class XmlExporter {
    * @param   s
    * @param   items
    * @param   info    allows you to indicate how the Collection was generated
-   * @param   writer
    * @throws  Exception
    * @since   1.0
    */
-  public synchronized void export(
-    GrouperSession s, Collection items, String info, PrintWriter writer
-  ) 
-    throws Exception 
+  public synchronized void export(GrouperSession s, Collection items, String info) 
+    throws  Exception 
   {
     LOG.info("Start export of Collection:" + info);
 
     this.fromStem         = "_Z";
-    Date    before        = _writeHeader(writer);
+    Date    before        = _writeHeader();
     int     counter       = 0;
     String  origPadding   = "  ";
     String  padding       = "    ";
 
     if (optionTrue("export.data")) {
       Iterator itemsIterator = items.iterator();
-      writer.print(origPadding);
-      writer.println("<dataList>");
+      this.xml.put(origPadding);
+      this.xml.puts("<dataList>");
       Object obj;
       while (itemsIterator.hasNext())       {
         obj = itemsIterator.next();
         counter++;
         if      (obj instanceof Group)      {
-          _writeFullGroup(s, (Group) obj, writer, padding);
+          _writeFullGroup(s, (Group) obj, padding);
         } 
         else if (obj instanceof Stem)       {
           Stem stem = (Stem) obj;
-          _writeBasicStemHeader(s, stem, writer, padding);
-          _writeInternalAttributes(s, stem, writer, padding);
-          _writeStemPrivs(s, stem, writer, padding);
-          _writeBasicStemFooter(s, stem, writer, padding);
+          _writeBasicStemHeader(s, stem, padding);
+          _writeInternalAttributes(s, stem, padding);
+          _writeStemPrivs(s, stem, padding);
+          _writeBasicStemFooter(s, stem, padding);
         } 
         else if (obj instanceof Subject)    {
-          if (counter == 1)
-            writer.println("<exportOnly/>");
-          _writeSubject(s, (Subject) obj, writer, padding);
+          if (counter == 1) {
+            this.xml.puts("<exportOnly/>");
+          }
+          _writeSubject(s, (Subject) obj, padding);
         } 
         else if (obj instanceof Member)     {
-          if (counter == 1)
-            writer.println("<exportOnly/>");
-          _writeSubject(s, ((Member) obj).getSubject(), writer,
-              padding);
+          if (counter == 1) {
+            this.xml.puts("<exportOnly/>");
+          }
+          _writeSubject(s, ((Member) obj).getSubject(), padding);
         } 
         else if (obj instanceof Membership) {
-          if (counter == 1)
-            writer.println("<exportOnly/>");
-          _writeMembership(s, (Membership) obj, writer, padding);
+          if (counter == 1) {
+            this.xml.puts("<exportOnly/>");
+          }
+          _writeMembership(s, (Membership) obj, padding);
         } 
         else {
           LOG.error("Don't know about exporting " + obj);
         }
-        writer.println();
+        this.xml.puts();
       }
-      writer.print(origPadding);
-      writer.println("</dataList>");
+      this.xml.put(origPadding);
+      this.xml.puts("</dataList>");
     }
-    writer.print(origPadding);
-    writer.println("<exportComments><![CDATA[");
-    writer.print(origPadding);
-    writer.println(info);
-    writer.print(origPadding);
-    writer.println("]]></exportComments>");
-    _writeFooter(writer, before);
+    this.xml.put(origPadding);
+    this.xml.puts("<exportComments><![CDATA[");
+    this.xml.put(origPadding);
+    this.xml.puts(info);
+    this.xml.put(origPadding);
+    this.xml.puts("]]></exportComments>");
+    _writeFooter(before);
     LOG.info("Finished export of Collection:" + info);
-  } // public synchronized void export(s, items, info, writer)
+  } // public synchronized void export(s, items, info)
 
   /**
    * Export a single group
@@ -571,20 +588,17 @@ public class XmlExporter {
    * @param   s
    * @param   group
    * @param   relative  determines whether to export parent stems
-   * @param   writer
    * @throws  Exception
-   * @since   1.0
+   * @since   1.1.0
    */
-  public void export(
-    GrouperSession s, Group group, boolean relative, PrintWriter writer
-  ) 
+  public void export(GrouperSession s, Group group, boolean relative) 
     throws  Exception 
   {
     GroupOrStem gos = findByGroup(s, group);
     LOG.info("Start export of Group " + group.getName());
-    _export(s, gos, relative, false, writer);
+    _export(s, gos, relative, false);
     LOG.info("Finished export of Group " + group.getName());
-  } // public void export(s, group, relative, writer)
+  } // public void export(s, group, relative)
 
   /**
    * Exports part of the repository
@@ -593,20 +607,17 @@ public class XmlExporter {
    * @param   stem          where to export from
    * @param   relative      determines whether to export parent stems
    * @param   includeParent should 'stem' be included or just the children
-   * @param   writer
    * @throws  Exception
-   * @since   1.0
+   * @since   1.1.0
    */
-  public void export(
-    GrouperSession s, Stem stem, boolean relative, boolean includeParent, PrintWriter writer
-  ) 
+  public void export(GrouperSession s, Stem stem, boolean relative, boolean includeParent) 
     throws  Exception 
   {
     GroupOrStem gos = findByStem(s, stem);
     LOG.info("Start export of Stem " + stem.getName());
-    _export(s, gos, relative, includeParent, writer);
+    _export(s, gos, relative, includeParent);
     LOG.info("Finished export of Stem " + stem.getName());
-  } // public void export(s, stem, relative, includeParent, writer)
+  } // public void export(s, stem, relative, includeParent)
 
   /**
    * Already have a group but a method needs GroupOrStem
@@ -712,7 +723,6 @@ public class XmlExporter {
   protected static boolean hasImmediatePrivilege(
     Subject subject, Group group, String privilege
   ) 
-    throws  Exception 
   {
     Iterator  privIterator  = null;
     Set       privs         = null;
@@ -738,7 +748,6 @@ public class XmlExporter {
   protected static boolean hasImmediatePrivilege(
     Subject subject, GroupOrStem gos, String privilege
   ) 
-    throws  Exception 
   {
     if (gos.isGroup()) {
       return hasImmediatePrivilege(subject, gos.getGroup(), privilege);
@@ -750,7 +759,6 @@ public class XmlExporter {
   protected static boolean hasImmediatePrivilege(
     Subject subject, Stem stem, String privilege
   ) 
-    throws  Exception 
   {
     Iterator  privIterator  = null;
     Set       privs         = null;
@@ -776,8 +784,7 @@ public class XmlExporter {
 
   // @since   1.0
   private synchronized void _export(
-    GrouperSession s, GroupOrStem groupOrStem, boolean relative, 
-    boolean includeParent, PrintWriter writer
+    GrouperSession s, GroupOrStem groupOrStem, boolean relative, boolean includeParent
   )
     throws  Exception 
   {
@@ -786,7 +793,7 @@ public class XmlExporter {
     this.isRelative         = relative;
     this.includeParent      = includeParent;
     this.writeStemsCounter  = 0;
-    Date    before          = _writeHeader(writer);
+    Date    before          = _writeHeader();
     String  padding         = "  ";
     if (!relative) {
       fromStem = null;
@@ -808,23 +815,21 @@ public class XmlExporter {
     }
 
     if (optionTrue("export.data")) {
-      _exportData(s, groupOrStem, padding, writer);
+      _exportData(s, groupOrStem, padding);
     } 
     else {
       LOG.info("export.data=false, so no data exported");
     }
-    _writeExportParams(groupOrStem, writer, padding);
-    _writeFooter(writer, before);
-  } // private synchronized void _export(s, groupOrStem, relative, includeParent, writer)
+    _writeExportParams(groupOrStem, padding);
+    _writeFooter(before);
+  } // private synchronized void _export(s, groupOrStem, relative, includeParent)
 
   // @since   1.0
-  private void _exportData(
-    GrouperSession s, GroupOrStem groupOrStem, String padding, PrintWriter writer
-  ) 
+  private void _exportData(GrouperSession s, GroupOrStem groupOrStem, String padding) 
     throws  Exception 
   {
     LOG.debug("Writing repository data as XML");
-    writer.println(padding + "<data>");
+    this.xml.puts(padding + "<data>");
     Stack stems = null;
     if (!isRelative) {
       stems = _getParentStems(groupOrStem);
@@ -841,10 +846,10 @@ public class XmlExporter {
         stems.push(groupOrStem.getStem());
       }
     }
-    _writeStems(s, stems, writer, padding + "  ");
-    writer.println(padding + "</data>");
+    _writeStems(s, stems, padding + "  ");
+    this.xml.puts(padding + "</data>");
     LOG.debug("Finished repository data as XML");
-  } // private void _exportData(s, groupOrStem, padding, writer)
+  } // private void _exportData(s, groupOrStem, padding)
 
   // @since   1.0
   private String _fixGroupName(String name) {
@@ -939,204 +944,213 @@ public class XmlExporter {
     return stems;
   } // private Stack _getParentStems(gos)
 
-  // @since   1.0
-  private void _writeBasicStemFooter(
-    GrouperSession s, Stem stem, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeBasicStemFooter(GrouperSession s, Stem stem, String padding) 
+    throws  IOException
   {
-    writer.println(padding + "</stem>");
-    writer.println(padding + "<!--/" + stem.getName() + "-->");
-    writer.println();
-  } // private void _writeBasicStemFooter(s, stem, writer, padding)
+    this.xml.puts(padding + "</stem>");
+    this.xml.puts(padding + "<!--/" + stem.getName() + "-->");
+    this.xml.puts();
+  } // private void _writeBasicStemFooter(s, stem, padding)
 
-  // @since   1.0
-  private void _writeBasicStemHeader(
-    GrouperSession s, Stem stem, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeBasicStemHeader(GrouperSession s, Stem stem, String padding) 
+    throws  IOException
   {
-    writer.println();
-    writer.print(padding);
-    writer.println("<!--" + stem.getName() + "-->");
-    writer.print(padding);
-    writer.println(
+    this.xml.puts();
+    this.xml.put(padding);
+    this.xml.puts("<!--" + stem.getName() + "-->");
+    this.xml.put(padding);
+    this.xml.puts(
       "<stem extension='" + fixXmlAttribute(stem.getExtension()) + "'"
     );
-    writer.print(padding);
-    writer.print("      ");
-    writer.println(
+    this.xml.put(padding);
+    this.xml.put("      ");
+    this.xml.puts(
       "displayExtension='" + fixXmlAttribute(stem.getDisplayExtension()) + "'"
     );
-    writer.print(padding);
-    writer.print("      ");
-    writer.println("name='" + fixXmlAttribute(stem.getName()) + "'");
-    writer.print(padding);
-    writer.print("      ");
-    writer.println(
+    this.xml.put(padding);
+    this.xml.put("      ");
+    this.xml.puts("name='" + fixXmlAttribute(stem.getName()) + "'");
+    this.xml.put(padding);
+    this.xml.put("      ");
+    this.xml.puts(
       "displayName='" + fixXmlAttribute(stem.getDisplayName()) + "'"
     );
-    writer.print(padding);
-    writer.print("      ");
-    writer.println("id='" + fixXmlAttribute(stem.getUuid()) + "'>");
+    this.xml.put(padding);
+    this.xml.put("      ");
+    this.xml.puts("id='" + fixXmlAttribute(stem.getUuid()) + "'>");
 
-    writer.print(padding + "  ");
-    writer.println(
+    this.xml.put(padding + "  ");
+    this.xml.puts(
       "<description>" + fixXmlAttribute(stem.getDescription()) + "</description>"
     );
 
-  } // private void _writeBasicStemHeader(s, stem, writer, padding)
+  } // private void _writeBasicStemHeader(s, stem, padding)
 
-  // @since   1.0
-  private void _writeComposite(
-    GrouperSession s, Composite comp, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  GroupNotFoundException
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeComposite(GrouperSession s, Composite comp, String padding) 
+    throws  GroupNotFoundException,
+            IOException
   {
     String nPadding = padding + "  ";
-    writer.print(padding);
-    writer.println("<composite>");
-    _writeGroupRef(s, comp.getLeftGroup(), writer, nPadding);
-    writer.println();
-    writer.print(nPadding);
-    writer.println(
+    this.xml.put(padding);
+    this.xml.puts("<composite>");
+    _writeGroupRef(s, comp.getLeftGroup(), nPadding);
+    this.xml.puts();
+    this.xml.put(nPadding);
+    this.xml.puts(
       "<compositeType>" + comp.getType().toString() + "</compositeType>"
     );
-    writer.println();
-    _writeGroupRef(s, comp.getRightGroup(), writer, nPadding);
-    writer.print(padding);
-    writer.println("</composite>");
-  } // private void _writeComposite(s, comp, writer, padding)
+    this.xml.puts();
+    _writeGroupRef(s, comp.getRightGroup(), nPadding);
+    this.xml.put(padding);
+    this.xml.puts("</composite>");
+  } // private void _writeComposite(s, comp, padding)
 
-  // @since   1.0
+  // @throws  IOException
+  // @since   1.1.0
   private void _writeExportParams(
-    GroupOrStem groupOrStem, PrintWriter writer, String padding
+    GroupOrStem groupOrStem, String padding
   ) 
+    throws  IOException
   {
     LOG.debug("Writing export params to XML");
-    writer.print(padding);
-    writer.println("<exportParams>");
-    writer.print(padding + "  ");
-    writer.print("<node type='" + groupOrStem.getType() + "'>");
-    writer.print(groupOrStem.getName());
-    writer.println("</node>");
-    writer.print(padding + "  ");
-    writer.println("<relative>" + isRelative + "</relative>");
+    this.xml.put(padding);
+    this.xml.puts("<exportParams>");
+    this.xml.put(padding + "  ");
+    this.xml.put("<node type='" + groupOrStem.getType() + "'>");
+    this.xml.put(groupOrStem.getName());
+    this.xml.puts("</node>");
+    this.xml.put(padding + "  ");
+    this.xml.puts("<relative>" + isRelative + "</relative>");
     if (groupOrStem.isStem()) {
-      writer.print(padding + "  ");
-      writer.println("<includeParent>" + includeParent
+      this.xml.put(padding + "  ");
+      this.xml.puts("<includeParent>" + includeParent
           + "</includeParent>");
     }
-    writer.print(padding);
-    writer.println("</exportParams>");
-  } // private void _writeExportParams(groupOrStem, writer, padding)
+    this.xml.put(padding);
+    this.xml.puts("</exportParams>");
+  } // private void _writeExportParams(groupOrStem, padding)
 
-  // @since   1.0
-  private void _writeFieldMetaData(
-    Field field, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeFieldMetaData(Field field, String padding) 
+    throws  IOException
   {
-    writer.println();
-    writer.print(padding);
-    writer.println(
+    this.xml.puts();
+    this.xml.put(padding);
+    this.xml.puts(
       "<field name='" + fixXmlAttribute(field.getName()) + "'"
     );
-    writer.println(
+    this.xml.puts(
       padding + "        required='" + field.getRequired() + "'"
     );
-    writer.println(padding + "        type='" + field.getType() + "'");
-    writer.println(
+    this.xml.puts(padding + "        type='" + field.getType() + "'");
+    this.xml.puts(
       padding + "        readPriv='" + field.getReadPriv() + "'"
     );
-    writer.println(
+    this.xml.puts(
       padding + "        writePriv='" + field.getWritePriv() + "'/>"
     );
-  } // private void _writeFieldMetaData(field, writer, padding)
+  } // private void _writeFieldMetaData(field, padding)
 
-  // @since   1.0
-  private synchronized void _writeFooter(PrintWriter writer, Date before)
+  // @since   1.1.0
+  private synchronized void _writeFooter(Date before)
     throws  Exception 
   {
     LOG.debug("Writing XML Footer");
     Date    now       = new Date();
     long    duration  = (now.getTime() - before.getTime()) / 1000;
     String  padding   = "  ";
-    writer.println();
-    writer.print(padding);
-    writer.println("<exportInfo>");
-    writer.print(padding + "  ");
-    writer.println("<start>" + before + "</start>");
-    writer.print(padding + "  ");
-    writer.println("<end>" + now + "</end>");
-    writer.print(padding + "  ");
-    writer.println("<duration>" + duration + "</duration>");
-    _writeOptions(writer, padding + "  ");
-    writer.print(padding);
-    writer.println("</exportInfo>");
-    writer.println("</registry>");
-    writer.close();
-  } // private synchronized _writeFooter(writer, before)
+    this.xml.puts();
+    this.xml.put(padding);
+    this.xml.puts("<exportInfo>");
+    this.xml.put(padding + "  ");
+    this.xml.puts("<start>" + before + "</start>");
+    this.xml.put(padding + "  ");
+    this.xml.puts("<end>" + now + "</end>");
+    this.xml.put(padding + "  ");
+    this.xml.puts("<duration>" + duration + "</duration>");
+    _writeOptions(padding + "  ");
+    this.xml.put(padding);
+    this.xml.puts("</exportInfo>");
+    this.xml.puts("</registry>");
+    this.xml.close();
+  } // private synchronized _writeFooter(before)
 
-  // @since 1.0
-  private void _writeFullGroup(
-    GrouperSession s, Group group, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  CompositeNotFoundException
+  // @throws  GroupNotFoundException
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @throws  SubjectNotFoundException
+  // @throws  SchemaException
+  // @since 1.1.0
+  private void _writeFullGroup(GrouperSession s, Group group, String padding) 
+    throws  CompositeNotFoundException,
+            GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SchemaException,
+            SubjectNotFoundException
   {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Writing group " + group.getName() + " to XML");
     }
-    writer.println();
-    writer.print(padding);
+    this.xml.puts();
+    this.xml.put(padding);
     try {
-      writer.println("<!--" + group.getName() + "-->");
+      this.xml.puts("<!--" + group.getName() + "-->");
     } 
     catch (Exception e) {
     }
-    writer.print(padding);
-    writer.println(
+    this.xml.put(padding);
+    this.xml.puts(
       "<group extension='" + fixXmlAttribute(group.getExtension()) + "'"
     );
-    writer.print(padding);
-    writer.print("       ");
-    writer.println(
+    this.xml.put(padding);
+    this.xml.put("       ");
+    this.xml.puts(
       "displayExtension='" + fixXmlAttribute(group.getDisplayExtension()) + "'"
     );
-    writer.print(padding);
-    writer.print("      ");
-    writer.println("name='" + fixXmlAttribute(group.getName()) + "'");
-    writer.print(padding);
-    writer.print("      ");
-    writer.println(
+    this.xml.put(padding);
+    this.xml.put("      ");
+    this.xml.puts("name='" + fixXmlAttribute(group.getName()) + "'");
+    this.xml.put(padding);
+    this.xml.put("      ");
+    this.xml.puts(
       "displayName='" + fixXmlAttribute(group.getDisplayName()) + "'"
     );
-    writer.print(padding);
-    writer.print("      ");
-    writer.println("id='" + fixXmlAttribute(group.getUuid()) + "'>");
+    this.xml.put(padding);
+    this.xml.put("      ");
+    this.xml.puts("id='" + fixXmlAttribute(group.getUuid()) + "'>");
 
-    writer.print(padding + "  ");
-    writer.println(
+    this.xml.put(padding + "  ");
+    this.xml.puts(
       "<description>" + fixXmlAttribute(group.getDescription()) + "</description>"
     );
 
     if (optionTrue("export.group.internal-attributes")) {
-      _writeInternalAttributes(s, group, writer, padding + "  ");
+      _writeInternalAttributes(s, group, padding + "  ");
     }
     if (optionTrue("export.group.custom-attributes")) {
       Set       types     = group.getTypes();
       GroupType baseType  = GroupTypeFinder.find("base");
       types.remove(baseType);
       if (!types.isEmpty()) {
-        writer.println(padding + "  <groupTypes>");
+        this.xml.puts(padding + "  <groupTypes>");
         Iterator  typesIterator = types.iterator();
         GroupType groupType;
         while (typesIterator.hasNext()) {
           groupType = (GroupType) typesIterator.next();
-          _writeGroupType(s, group, groupType, writer, padding + "    ");
+          _writeGroupType(s, group, groupType, padding + "    ");
         }
 
-        writer.println(padding + "  </groupTypes>");
+        this.xml.puts(padding + "  </groupTypes>");
       }
     }
 
@@ -1155,81 +1169,92 @@ public class XmlExporter {
         );
       }
       _writeListField(
-        s, group, FieldFinder.find((String) listFields .get(i)), writer, padding + "  "
+        s, group, FieldFinder.find((String) listFields .get(i)), padding + "  "
       );
     }
     if (optionTrue("export.privs.access")) {
-
-      _writePrivileges(s, "admin", group.getAdmins(), group, writer, padding);
-      _writePrivileges(s, "update", group.getUpdaters(), group, writer, padding);
-      _writePrivileges(s, "read", group.getReaders(), group, writer, padding);
-      _writePrivileges(s, "view", group.getViewers(), group, writer, padding);
-      _writePrivileges(s, "optin", group.getOptins(), group, writer, padding);
-      _writePrivileges(s, "optout", group.getOptouts(), group, writer, padding);
+      _writePrivileges(s, "admin" , group.getAdmins()   , group, padding);
+      _writePrivileges(s, "update", group.getUpdaters() , group, padding);
+      _writePrivileges(s, "read"  , group.getReaders()  , group, padding);
+      _writePrivileges(s, "view"  , group.getViewers()  , group, padding);
+      _writePrivileges(s, "optin" , group.getOptins()   , group, padding);
+      _writePrivileges(s, "optout", group.getOptouts()  , group, padding);
     }
-    writer.println();
-    writer.println(padding + "</group>");
+    this.xml.puts();
+    this.xml.puts(padding + "</group>");
     try {
-      writer.println(padding + "<!--/" + group.getName() + "-->");
+      this.xml.puts(padding + "<!--/" + group.getName() + "-->");
     } catch (Exception e) {
     }
-    writer.println();
+    this.xml.puts();
     if (LOG.isDebugEnabled()) {
       LOG.debug("Finished writing group " + group.getName() + " to XML");
     }
-  } // private void _writeFullGroup(s, group, writer, padding)
+  } // private void _writeFullGroup(s, group, padding)
 
-  // @since   1.0
-  private void _writeFullStem(
-    GrouperSession s, Stem stem, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  CompositeNotFoundException
+  // @throws  GroupNotFoundException
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @throws  SchemaException
+  // @throws  StemNotFoundException
+  // @throws  SubjectNotFoundException
+  // @since   1.1.0
+  private void _writeFullStem(GrouperSession s, Stem stem, String padding) 
+    throws  CompositeNotFoundException,
+            GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SchemaException,
+            StemNotFoundException,
+            SubjectNotFoundException
   {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Writing Stem " + stem.getName() + " to XML");
     }
-    _writeBasicStemHeader(s, stem, writer, padding);
-    _writeInternalAttributes(s, stem, writer, padding);
-    _writeStemPrivs(s, stem, writer, padding);
-    _writeStemBody(s, stem, writer, padding + "  ");
-    _writeBasicStemFooter(s, stem, writer, padding);
+    _writeBasicStemHeader(s, stem, padding);
+    _writeInternalAttributes(s, stem, padding);
+    _writeStemPrivs(s, stem, padding);
+    _writeStemBody(s, stem, padding + "  ");
+    _writeBasicStemFooter(s, stem, padding);
     if (LOG.isDebugEnabled()) {
       LOG.debug("Finished writing Stem " + stem.getName() + " to XML");
     }
-  } // private void _writeFullStem(s, stem, writer, padding)
+  } // private void _writeFullStem(s, stem, padding)
 
-  // @since   1.0
-  private void _writeGroupRef(
-    GrouperSession s, Group group, PrintWriter writer, String padding
-  ) 
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeGroupRef(GrouperSession s, Group group, String padding) 
+    throws  IOException
   {
-    _writeGroupRef(s, group, writer, padding, false);
-  } // private void _writeGroupRef(s, group, writer, padding)
+    _writeGroupRef(s, group, padding, false);
+  } // private void _writeGroupRef(s, group, padding)
 
-  // @since   1.0
-  private void _writeGroupRef(
-    GrouperSession s, Group group, PrintWriter writer, String padding, boolean writeAbsoluteName
-  ) 
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeGroupRef(GrouperSession s, Group group, String padding, boolean writeAbsoluteName) 
+    throws  IOException
   {
-    writer.print(padding);
-    writer.println("<groupRef id='" + group.getUuid() + "'");
-    writer.print(padding);
+    this.xml.put(padding);
+    this.xml.puts("<groupRef id='" + group.getUuid() + "'");
+    this.xml.put(padding);
     String name = group.getName();
     if (!writeAbsoluteName) {
       name = _fixGroupName(name);
     }
-    writer.println("        name='" + name + "'");
-    writer.print(padding);
-    writer.println(" displayName='" + group.getDisplayName() + "'/>");
-  } // private void _writeGroupRef(s, group, writer, padding, writeAbsoluteName)
+    this.xml.puts("        name='" + name + "'");
+    this.xml.put(padding);
+    this.xml.puts(" displayName='" + group.getDisplayName() + "'/>");
+  } // private void _writeGroupRef(s, group, padding, writeAbsoluteName)
 
-  // @since   1.0
-  private void _writeGroupType(
-    GrouperSession s, Group group, GroupType groupType, PrintWriter writer, String padding
-  )
-    throws Exception 
+  // @throws  IOException
+  // @throws  SchemaException
+  // @since   1.1.0
+  private void _writeGroupType(GrouperSession s, Group group, GroupType groupType, String padding)
+    throws  IOException,
+            SchemaException
   {
-    writer.println(
+    this.xml.puts(
       padding + "<groupType name='" + fixXmlAttribute(groupType.getName()) + "'>"
     );
     Field     field;
@@ -1253,8 +1278,8 @@ public class XmlExporter {
                 .indexOf(":" + field.getName() + ":") == -1
         ) 
         {
-          writer.print(padding);
-          writer.println(
+          this.xml.put(padding);
+          this.xml.puts(
             "<attribute name='"
             + fixXmlAttribute(field.getName()) + "'>" + value
             + "</attribute>"
@@ -1265,64 +1290,66 @@ public class XmlExporter {
 
     }
 
-    writer.println(padding + "</groupType>");
-  } // private void _writeGroupType(s, group, groupType, writer, padding)
+    this.xml.puts(padding + "</groupType>");
+  } // private void _writeGroupType(s, group, groupType, padding)
 
-  // @since   1.0
-  private void _writeInternalAttributes(
-    GrouperSession s, Group group, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  IOException
+  // @throws  SubjectNotFoundException
+  // @since   1.1.0
+  private void _writeInternalAttributes(GrouperSession s, Group group, String padding) 
+    throws  IOException,
+            SubjectNotFoundException
   {
-    writer.println();
-    writer.println(padding + "<internalAttributes>");
-    writer.println(
+    this.xml.puts();
+    this.xml.puts(padding + "<internalAttributes>");
+    this.xml.puts(
       padding + "  <internalAttribute name='parentStem'>"
       + fixXmlAttribute(group.getParentStem().getName())
       + "</internalAttribute>"
     );
-    writer.println(
+    this.xml.puts(
       padding + "  <internalAttribute name='createSource'>"
       + fixXmlAttribute(group.getCreateSource())
       + "</internalAttribute>"
     );
-    writer.println(padding + "  <internalAttribute name='createSubject'>");
-    _writeSubject(s, group.getCreateSubject(), writer, padding + "    ");
-    writer.println(padding + "  </internalAttribute>");
-    writer.println(
+    this.xml.puts(padding + "  <internalAttribute name='createSubject'>");
+    _writeSubject(s, group.getCreateSubject(), padding + "    ");
+    this.xml.puts(padding + "  </internalAttribute>");
+    this.xml.puts(
       padding + "  <internalAttribute name='createTime'>"
       + fixXmlAttribute(group.getCreateTime().toString())
       + "</internalAttribute>"
     );
 
-    writer.println(
+    this.xml.puts(
       padding + "  <internalAttribute name='modifySource'>"
       + fixXmlAttribute(group.getModifySource())
       + "</internalAttribute>"
     );
-    writer.println(padding + "  <internalAttribute name='modifySubject'>");
-    _writeSubject(s, group.getModifySubject(), writer, padding + "    ");
-    writer.println(padding + "  </internalAttribute>");
-    writer.println(
+    this.xml.puts(padding + "  <internalAttribute name='modifySubject'>");
+    _writeSubject(s, group.getModifySubject(), padding + "    ");
+    this.xml.puts(padding + "  </internalAttribute>");
+    this.xml.puts(
       padding + "  <internalAttribute name='modifyTime'>"
       + fixXmlAttribute(group.getModifyTime().toString())
       + "</internalAttribute>"
     );
 
-    writer.println(padding + "</internalAttributes>");
-    writer.println();
-  } // private void _writeInternalAttributes(s, group, writer, padding)
+    this.xml.puts(padding + "</internalAttributes>");
+    this.xml.puts();
+  } // private void _writeInternalAttributes(s, group, padding)
 
-  // @since   1.0
-  private void _writeGroupTypesMetaData(PrintWriter writer, String padding)
-    throws  Exception 
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeGroupTypesMetaData(String padding)
+    throws  IOException 
   {
     Set groupTypes = GroupTypeFinder.findAll();
     if (groupTypes.isEmpty()) {
       return;
     }
-    writer.print(padding);
-    writer.println("<groupTypesMetaData>");
+    this.xml.put(padding);
+    this.xml.puts("<groupTypesMetaData>");
     Field     field;
     Set       fields;
     Iterator  fieldsIterator;
@@ -1331,95 +1358,110 @@ public class XmlExporter {
     padding               = padding + "  ";
     while (groupTypesIterator.hasNext()) {
       groupType = (GroupType) groupTypesIterator.next();
-      writer.println();
-      writer.print(padding);
-      writer.println(
+      this.xml.puts();
+      this.xml.put(padding);
+      this.xml.puts(
         "<groupTypeDef name='" + fixXmlAttribute(groupType.getName()) + "'>"
       );
       fields = groupType.getFields();
       fieldsIterator = fields.iterator();
       while (fieldsIterator.hasNext()) {
         field = (Field) fieldsIterator.next();
-        _writeFieldMetaData(field, writer, padding + " ");
+        _writeFieldMetaData(field, padding + " ");
       }
-      writer.println();
-      writer.print(padding);
-      writer.println("</groupTypeDef>");
+      this.xml.puts();
+      this.xml.put(padding);
+      this.xml.puts("</groupTypeDef>");
     }
 
-    writer.print(padding);
-    writer.println("</groupTypesMetaData>");
-    writer.println();
-  } // private void _writeGroupTypesMetaData(writer, padding)
+    this.xml.put(padding);
+    this.xml.puts("</groupTypesMetaData>");
+    this.xml.puts();
+  } // private void _writeGroupTypesMetaData(padding)
 
-  // @since   1.0
-  private synchronized Date _writeHeader(PrintWriter writer) 
-    throws  Exception 
+  // @throws  GrouperException
+  // @throws  IOException
+  // @since   1.1.0
+  private synchronized Date _writeHeader()
+    throws  GrouperException,
+            IOException 
   {
     LOG.debug("Writing XML header");
     Date    before  = new Date();
     String  padding = "  ";
-    writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    writer.println("<registry>");
+    this.xml.puts("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    this.xml.puts("<registry>");
     if (optionTrue("export.metadata")) {
-      _writeMetaData(writer, padding);
+      _writeMetaData(padding);
     }
     return before;
-  } // private synchronized Date _writeHeader(write)
+  } // private synchronized Date _writeHeader()
 
-  // @since   1.0
-  private void _writeInternalAttributes(
-    GrouperSession s, Stem stem, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  IOException
+  // @throws  StemNotFoundException
+  // @throws  SubjectNotFoundException
+  // @since   1.1.0
+  private void _writeInternalAttributes(GrouperSession s, Stem stem, String padding) 
+    throws  IOException,
+            StemNotFoundException,
+            SubjectNotFoundException
   {
     if (!optionTrue("export.stem.internal-attributes")) {
       return;
     }
-    writer.println();
-    writer.println(padding + "<internalAttributes>");
-    writer.println(
+    this.xml.puts();
+    this.xml.puts(padding + "<internalAttributes>");
+    this.xml.puts(
       padding + "  <internalAttribute name='parentStem'>"
       + fixXmlAttribute(stem.getParentStem().getName())
       + "</internalAttribute>"
     );
-    writer.println(
+    this.xml.puts(
       padding + "  <internalAttribute name='createSource'>"
      + fixXmlAttribute(stem.getCreateSource())
      + "</internalAttribute>"
     );
-    writer.println(padding + "  <internalAttribute name='createSubject'>");
-    _writeSubject(s, stem.getCreateSubject(), writer, padding + "    ");
-    writer.println(padding + "  </internalAttribute>");
-    writer.println(
+    this.xml.puts(padding + "  <internalAttribute name='createSubject'>");
+    _writeSubject(s, stem.getCreateSubject(), padding + "    ");
+    this.xml.puts(padding + "  </internalAttribute>");
+    this.xml.puts(
       padding + "  <internalAttribute name='createTime'>"
       + fixXmlAttribute(stem.getCreateTime().toString())
      + "</internalAttribute>"
     );
 
-    writer.println(
+    this.xml.puts(
       padding + "  <internalAttribute name='modifySource'>"
       + fixXmlAttribute(stem.getModifySource())
       + "</internalAttribute>"
     );
-    writer.println(padding + "  <internalAttribute name='modifySubject'>");
-    _writeSubject(s, stem.getModifySubject(), writer, padding + "    ");
-    writer.println(padding + "  </internalAttribute>");
-    writer.println(
+    this.xml.puts(padding + "  <internalAttribute name='modifySubject'>");
+    _writeSubject(s, stem.getModifySubject(), padding + "    ");
+    this.xml.puts(padding + "  </internalAttribute>");
+    this.xml.puts(
       padding + "  <internalAttribute name='modifyTime'>"
       + fixXmlAttribute(stem.getModifyTime().toString())
       + "</internalAttribute>"
     );
 
-    writer.println(padding + "</internalAttributes>");
-    writer.println();
-  } // private void _writeInternalAttributes(s, stem, writer, padding)
+    this.xml.puts(padding + "</internalAttributes>");
+    this.xml.puts();
+  } // private void _writeInternalAttributes(s, stem, padding)
 
-  // @since   1.0
-  private void _writeListField(
-    GrouperSession s, Group group, Field field, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  CompositeNotFoundException
+  // @throws  GroupNotFoundException
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @throws  SchemaException
+  // @throws  SubjectNotFoundException
+  // @since   1.1.0
+  private void _writeListField(GrouperSession s, Group group, Field field, String padding) 
+    throws  CompositeNotFoundException,
+            GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SchemaException,
+            SubjectNotFoundException
   {
     if (!group.canReadField(field)) {
       LOG.info(
@@ -1458,30 +1500,32 @@ public class XmlExporter {
     if (members.isEmpty() && !isComposite) {
       return;
     }
-    writer.println();
-    writer.print(padding);
-    writer.println(
+    this.xml.puts();
+    this.xml.put(padding);
+    this.xml.puts(
       "<list field='" + fixXmlAttribute(field.getName())
       + "'  groupType='"
       + fixXmlAttribute(field.getGroupType().getName()) + "'>"
     );
     if (isComposite) {
       Composite composite = CompositeFinder.findAsOwner(group);
-      _writeComposite(s, composite, writer, padding + "  ");
+      _writeComposite(s, composite, padding + "  ");
     }
-    _writeMembers(s, members, group, field, writer, padding + "  ");
-    writer.print(padding);
-    writer.println(
+    _writeMembers(s, members, group, field, padding + "  ");
+    this.xml.put(padding);
+    this.xml.puts(
       "</list> <!--/field=" + fixXmlAttribute(field.getName()) + "-->"
     );
-  } // private void _writeListField(s, group, field, writer, padding)
+  } // private void _writeListField(s, group, field, padding)
 
-  // @since   1.0
-  private void _writeMembers(
-    GrouperSession s, Collection members, Group group, Field field, 
-    PrintWriter writer, String padding
-  )
-    throws  Exception 
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @throws  SubjectNotFoundException
+  // @since   1.1.0
+  private void _writeMembers(GrouperSession s, Collection members, Group group, Field field, String padding)
+    throws  IOException,
+            MemberNotFoundException,
+            SubjectNotFoundException
   {
     boolean     isImmediate;
     Iterator    it = members.iterator();
@@ -1499,15 +1543,20 @@ public class XmlExporter {
         }
       }
       subj = member.getMember().getSubject();
-      _writeSubject(s, subj, " immediate='" + isImmediate + "' ", writer, padding);
+      _writeSubject(s, subj, " immediate='" + isImmediate + "' ", padding);
     }
-  } // private void _writeMembers(s, members, group, field, writer, padding)
+  } // private void _writeMembers(s, members, group, field, padding)
 
-  // @since   1.0
-  private void _writeMembership(
-    GrouperSession s, Membership membership, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  GroupNotFoundException
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @throws  SubjectNotFoundException
+  // @since   1.1.0
+  private void _writeMembership(GrouperSession s, Membership membership, String padding) 
+    throws  GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SubjectNotFoundException
   {
     boolean isImmediate = true;
     try {
@@ -1518,38 +1567,44 @@ public class XmlExporter {
     }
 
     String exPadding = padding + "  ";
-    writer.print(padding);
-    writer.println("<membership>");
-    writer.print(exPadding);
-    writer.println("<depth>" + membership.getDepth() + "</depth>");
-    writer.print(exPadding);
-    writer.println("<listName>" + membership.getList().getName() + "</listName>");
-    writer.print(exPadding);
-    writer.println("<immediate>" + isImmediate + "</immediate>");
-    _writeGroupRef(s, membership.getGroup(), writer, exPadding, true);
-    _writeSubject(s, membership.getMember().getSubject(), writer, exPadding);
-    writer.print(padding);
-    writer.println("</membership>");
-  } // private void _writeMembership(s, membership, writer, padding)
+    this.xml.put(padding);
+    this.xml.puts("<membership>");
+    this.xml.put(exPadding);
+    this.xml.puts("<depth>" + membership.getDepth() + "</depth>");
+    this.xml.put(exPadding);
+    this.xml.puts("<listName>" + membership.getList().getName() + "</listName>");
+    this.xml.put(exPadding);
+    this.xml.puts("<immediate>" + isImmediate + "</immediate>");
+    _writeGroupRef(s, membership.getGroup(), exPadding, true);
+    _writeSubject(s, membership.getMember().getSubject(), exPadding);
+    this.xml.put(padding);
+    this.xml.puts("</membership>");
+  } // private void _writeMembership(s, membership, padding)
 
-  // @since   1.0
-  private void _writeMetaData(PrintWriter writer, String padding)
-    throws  Exception 
+  // @throws  GrouperException
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeMetaData(String padding)
+    throws  GrouperException,
+            IOException 
   {
     LOG.debug("Writing repository metadata as XML");
-    writer.print(padding);
-    writer.println("<metadata>");
-    _writeGroupTypesMetaData(writer, padding + "  ");
-    _writeSubjectSourceMetaData(writer, padding + "  ");
-    writer.print(padding);
-    writer.println("</metadata>");
-  } // private void _writeMetaData(writer, padding)
+    this.xml.put(padding);
+    this.xml.puts("<metadata>");
+    _writeGroupTypesMetaData(padding + "  ");
+    _writeSubjectSourceMetaData(padding + "  ");
+    this.xml.put(padding);
+    this.xml.puts("</metadata>");
+  } // private void _writeMetaData(padding)
 
-  // @since   1.0
-  private void _writeOptions(PrintWriter writer, String padding) {
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeOptions(String padding) 
+    throws  IOException
+  {
     LOG.debug("Writing export options as XML");
-    writer.print(padding);
-    writer.println("<options>");
+    this.xml.put(padding);
+    this.xml.puts("<options>");
     List      orderedList     = new ArrayList(options.keySet());
     Collections.sort(orderedList);
     Iterator  optionsIterator = orderedList.iterator();
@@ -1557,41 +1612,44 @@ public class XmlExporter {
     String key;
     while (optionsIterator.hasNext()) {
       key = (String) optionsIterator.next();
-      writer.print(padding + "  ");
-      writer.println(
+      this.xml.put(padding + "  ");
+      this.xml.puts(
         "<option key='" + key + "'>"
         + options.getProperty(key) + "</option>"
       );
     }
-    writer.print(padding);
-    writer.println("</options>");
-  } // private void _writeOptions(writer, padding)
+    this.xml.put(padding);
+    this.xml.puts("</options>");
+  } // private void _writeOptions(padding)
 
-  // @since   1.0
-  private void _writePrivileges(
-    GrouperSession s, String privilege, Set subjects, Group group, PrintWriter writer, String padding
-  )
-    throws  Exception 
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @since   1.1.0
+  private void _writePrivileges(GrouperSession s, String privilege, Set subjects, Group group, String padding)
+    throws  IOException,
+            MemberNotFoundException
   {
     GroupOrStem gos = findByGroup(s, group);
-    _writePrivileges(s, privilege, subjects, gos, writer, padding);
-  } // private void _writePrivileges(s, privilege, subjects, group, writer, padding)
+    _writePrivileges(s, privilege, subjects, gos, padding);
+  } // private void _writePrivileges(s, privilege, subjects, group, padding)
 
-  // @since   1.0
-  private void _writePrivileges(
-    GrouperSession s, String privilege, Set subjects, Stem stem, PrintWriter writer, String padding
-  )
-    throws  Exception 
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @since   1.1.0
+  private void _writePrivileges(GrouperSession s, String privilege, Set subjects, Stem stem, String padding)
+    throws  IOException,
+            MemberNotFoundException
   {
     GroupOrStem gos = findByStem(s, stem);
-    _writePrivileges(s, privilege, subjects, gos, writer, padding);
-  } // private void _writePrivileges(s, privilege, subjects, stem, writer, padding)
+    _writePrivileges(s, privilege, subjects, gos, padding);
+  } // private void _writePrivileges(s, privilege, subjects, stem, padding)
 
-  // @since   1.0
-  private void _writePrivileges(
-    GrouperSession s, String privilege, Set subjects, GroupOrStem gos, PrintWriter writer, String padding
-  )
-    throws  Exception 
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @since   1.1.0
+  private void _writePrivileges(GrouperSession s, String privilege, Set subjects, GroupOrStem gos, String padding)
+    throws  IOException,
+            MemberNotFoundException
   {
     if (subjects.size() == 1) {
       subjects.remove(sysUser);
@@ -1606,10 +1664,10 @@ public class XmlExporter {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Writing privilegees with [" + privilege + "] for " + gos.getName());
     }
-    writer.println();
-    writer.print(padding);
+    this.xml.puts();
+    this.xml.put(padding);
 
-    writer.println("<privileges type='" + privilege + "'>");
+    this.xml.puts("<privileges type='" + privilege + "'>");
     Iterator  subjIterator = subjects.iterator();
     Subject   subject;
     Member    member;
@@ -1626,27 +1684,38 @@ public class XmlExporter {
         (isImmediate || !optionTrue("export.privs.immediate-only"))) 
       {
         _writeSubject(
-          s, subject, " immediate='" + isImmediate + "' ", writer, padding + "  " 
+          s, subject, " immediate='" + isImmediate + "' ", padding + "  " 
         );
       }
     }
-    writer.print(padding);
-    writer.println("</privileges> <!--/privilege=" + privilege + "-->");
+    this.xml.put(padding);
+    this.xml.puts("</privileges> <!--/privilege=" + privilege + "-->");
 
-  } // private void _writePrivileges(s, privilege, subjects, gos, writer, padding)
+  } // private void _writePrivileges(s, privilege, subjects, gos, padding)
 
-  // @since   1.0
-  private void _writeStemBody(
-    GrouperSession s, Stem stem, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  CompositeNotFoundException
+  // @throws  GroupNotFoundException
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @throws  SchemaException,
+  // @throws  StemNotFoundException
+  // @throws  SubjectNotFoundException
+  // @since   1.1.0
+  private void _writeStemBody(GrouperSession s, Stem stem, String padding) 
+    throws  CompositeNotFoundException,
+            GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SchemaException,
+            StemNotFoundException,
+            SubjectNotFoundException
   {
     Stem      childStem;
     Set       stems         = stem.getChildStems();
     Iterator  stemsIterator = stems.iterator();
     while (stemsIterator.hasNext()) {
       childStem = (Stem) stemsIterator.next();
-      _writeFullStem(s, childStem, writer, padding);
+      _writeFullStem(s, childStem, padding);
     }
 
     Set       groups          = stem.getChildGroups();
@@ -1654,15 +1723,16 @@ public class XmlExporter {
     Group childGroup;
     while (groupsIterator.hasNext()) {
       childGroup = (Group) groupsIterator.next();
-      _writeFullGroup(s, childGroup, writer, padding);
+      _writeFullGroup(s, childGroup, padding);
     }
-  } // private void _writeStemBody(s, stem, writer, padding)
+  } // private void _writeStemBody(s, stem, padding)
 
-  // @since   1.0
-  private void _writeStemPrivs(
-    GrouperSession s, Stem stem, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @since   1.1.0
+  private void _writeStemPrivs(GrouperSession s, Stem stem, String padding) 
+    throws  IOException,
+            MemberNotFoundException
   {
     if (
         optionTrue("export.privs.naming") 
@@ -1671,8 +1741,8 @@ public class XmlExporter {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Writing STEM privilegees for " + stem.getName());
       }
-      _writePrivileges(s, "stem", stem.getStemmers(), stem, writer, padding);
-      _writePrivileges(s, "create", stem.getStemmers(), stem, writer, padding);
+      _writePrivileges(s, "stem", stem.getStemmers(), stem, padding);
+      _writePrivileges(s, "create", stem.getStemmers(), stem, padding);
       if (LOG.isDebugEnabled()) {
         LOG.debug("Writing CREATE privilegees for " + stem.getName());
       }
@@ -1682,18 +1752,29 @@ public class XmlExporter {
         LOG.debug("Skipping naming privs for " + stem.getName());
       }
     }
-  } // private void _writeStemPrivs(s, stem, writer, padding)
+  } // private void _writeStemPrivs(s, stem, padding)
 
-  // @since   1.0
-  private void _writeStems(
-    GrouperSession s, Stack stems, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  CompositeNotFoundException
+  // @throws  GroupNotFoundException
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @throws  SchemaException
+  // @throws  StemNotFoundException
+  // @throws  SubjectNotFoundException
+  // @since   1.1.0
+  private void _writeStems(GrouperSession s, Stack stems, String padding) 
+    throws  CompositeNotFoundException,
+            GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SchemaException,
+            StemNotFoundException,
+            SubjectNotFoundException
   {
     writeStemsCounter++;
     Object obj = stems.pop();
     if (obj instanceof Group) {
-      _writeFullGroup(s, (Group) obj, writer, padding);
+      _writeFullGroup(s, (Group) obj, padding);
       return;
     }
 
@@ -1701,39 +1782,38 @@ public class XmlExporter {
 
     if (stems.isEmpty()) {
       if (includeParent || writeStemsCounter > 1) {
-        _writeFullStem(s, stem, writer, padding + "  ");
+        _writeFullStem(s, stem, padding + "  ");
       } 
       else {
-        _writeStemBody(s, stem, writer, padding + "  ");
+        _writeStemBody(s, stem, padding + "  ");
       }
       return;
     } 
     else {
-      _writeBasicStemHeader(s, stem, writer, padding);
+      _writeBasicStemHeader(s, stem, padding);
       if(optionTrue("export.privs.for-parents")) {
-      	_writeStemPrivs(s, stem, writer, padding);
+      	_writeStemPrivs(s, stem, padding);
       }
-      _writeStems(s, stems, writer, padding + "  ");
-      _writeBasicStemFooter(s, stem, writer, padding);
+      _writeStems(s, stems, padding + "  ");
+      _writeBasicStemFooter(s, stem, padding);
     }
-  } // private void _writeStems(s, stems, writer, padding)
+  } // private void _writeStems(s, stems, padding)
 
-  // @since   1.0
-  private void _writeSubject(
-    GrouperSession s, Subject subj, PrintWriter writer, String padding
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeSubject(GrouperSession s, Subject subj, String padding
   ) 
-    throws  Exception 
+    throws  IOException 
   {
-    _writeSubject(s, subj, "", writer, padding);
-  } // private void _writeSubject(s, subj, writer, padding)
+    _writeSubject(s, subj, "", padding);
+  } // private void _writeSubject(s, subj, padding)
 
-  // @since   1.0
-  private void _writeSubject(
-    GrouperSession s, Subject subj, String immediate, PrintWriter writer, String padding
-  ) 
-    throws  Exception 
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeSubject(GrouperSession s, Subject subj, String immediate, String padding) 
+    throws  IOException 
   {
-    writer.print(padding);
+    this.xml.put(padding);
     String attrName = "id";
     String id       = null;
     if ("group".equals(subj.getType().getName())) {
@@ -1742,21 +1822,21 @@ public class XmlExporter {
     } else {
       id = subj.getId();
     }
-    writer.print(
+    this.xml.put(
       "<subject " + attrName + "='" + fixXmlAttribute(id)
       + "' type='" + fixXmlAttribute(subj.getType().getName())
       + "' source='" + fixXmlAttribute(subj.getSource().getId())
       + "'" + immediate
     );
     if ("group".equals(subj.getType().getName())) {
-      writer.print(" id='" + subj.getId() + "'");
+      this.xml.put(" id='" + subj.getId() + "'");
     }
     Iterator exportAttrs = _getExportAttributes(subj);
     if (_isEmpty(exportAttrs)) {
-      writer.println("/>");
+      this.xml.puts("/>");
       return;
     }
-    writer.println(">");
+    this.xml.puts(">");
     String    attr;
     Iterator  attrIt;
     String    attrPadding = padding + "  ";
@@ -1766,37 +1846,46 @@ public class XmlExporter {
       attr = (String) exportAttrs.next();
       try {
         values = subj.getAttributeValues(attr);
-        writer.print(attrPadding);
-        writer.println("<subjectAttribute name='" + attr + "'>");
+        this.xml.put(attrPadding);
+        this.xml.puts("<subjectAttribute name='" + attr + "'>");
         attrIt = values.iterator();
         while (attrIt.hasNext()) {
           attrValue = (String) attrIt.next();
-          writer.print(attrPadding + "  ");
-          writer.println("<value>" + attrValue + "</value>");
+          this.xml.put(attrPadding + "  ");
+          this.xml.puts("<value>" + attrValue + "</value>");
         }
-        writer.print(attrPadding);
-        writer.println("</subjectAttribute>");
+        this.xml.put(attrPadding);
+        this.xml.puts("</subjectAttribute>");
       } catch (Exception e) {
-        writer.print(attrPadding);
-        writer.println("<!-- Problem retrieving attribute '" + attr + "' -->");
+        this.xml.put(attrPadding);
+        this.xml.puts("<!-- Problem retrieving attribute '" + attr + "' -->");
       }
     }
-    writer.print(padding);
-    writer.println("</subject>");
+    this.xml.put(padding);
+    this.xml.puts("</subject>");
 
-  } // private void _writeSubject(s, subj, immediate, writer, padding)
+  } // private void _writeSubject(s, subj, immediate, padding)
 
-  // @since   1.0
-  private void _writeSubjectSourceMetaData(PrintWriter writer, String padding)
-    throws  Exception 
+  // @throws  GrouperException
+  // @throws  IOException
+  // @since   1.1.0
+  private void _writeSubjectSourceMetaData(String padding)
+    throws  GrouperException,
+            IOException 
   {
-    writer.println();
-    writer.print(padding);
-    writer.println("<subjectSourceMetaData>");
+    this.xml.puts();
+    this.xml.put(padding);
+    this.xml.puts("<subjectSourceMetaData>");
     String      origPadding     = padding;
     padding                     = padding + "  ";
     Source      source;
-    Collection  sources         = SourceManager.getInstance().getSources();
+    Collection  sources;
+    try {
+      sources = SourceManager.getInstance().getSources();
+    }
+    catch (Exception e) {
+      throw new GrouperException(e.getMessage(), e);
+    }
     Iterator    sourcesIterator = sources.iterator();
     SubjectType subjectType;
     Set         subjectTypes;
@@ -1804,34 +1893,34 @@ public class XmlExporter {
     Iterator    subjectTypesIterator;
     while (sourcesIterator.hasNext()) {
       source = (Source) sourcesIterator.next();
-      writer.println();
-      writer.print(padding);
-      writer.println(
+      this.xml.puts();
+      this.xml.put(padding);
+      this.xml.puts(
         "<source id='" + fixXmlAttribute(source.getId()) + "'"
       );
-      writer.println(padding + "        name='" + source.getName() + "'");
-      writer.println(
+      this.xml.puts(padding + "        name='" + source.getName() + "'");
+      this.xml.puts(
         padding + "        class='" + source.getClass().getName() + "'>"
       );
       subjectTypes          = source.getSubjectTypes();
       subjectTypesIterator  = subjectTypes.iterator();
       while (subjectTypesIterator.hasNext()) {
         subjectType = (SubjectType) subjectTypesIterator.next();
-        writer.print(padding + "  ");
-        writer.println(
+        this.xml.put(padding + "  ");
+        this.xml.puts(
           "<subjectType name='" + subjectType.getName() + "'/>"
         );
       }
 
-      writer.print(padding);
-      writer.println("</source>");
+      this.xml.put(padding);
+      this.xml.puts("</source>");
 
     }
-    writer.println();
-    writer.print(origPadding);
-    writer.println("</subjectSourceMetaData>");
-    writer.println();
-  } // private void _writeSubjectSourceMetaData(writer, padding)
+    this.xml.puts();
+    this.xml.put(origPadding);
+    this.xml.puts("</subjectSourceMetaData>");
+    this.xml.puts();
+  } // private void _writeSubjectSourceMetaData(padding)
 
 
   // CLASS: GroupOrStem //

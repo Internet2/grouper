@@ -16,28 +16,27 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
 
 /**
- * Test XML Export.
+ * Generic Grouper exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXmlExport.java,v 1.3 2006-09-12 17:19:58 blair Exp $
- * @since   1.0
+ * @version $Id: GrouperException.java,v 1.1 2006-09-12 17:19:58 blair Exp $
+ * @since   1.1.0
  */
-public class SuiteXmlExport extends TestCase {
-
-  public SuiteXmlExport(String name) {
-    super(name);
+public class GrouperException extends Exception {
+  // TODO Have all other exception extend this?
+  public GrouperException() { 
+    super(); 
   }
-
-  static public Test suite() {
-    TestSuite suite = new TestSuite();        
-    suite.addTestSuite( TestXmlExport0.class  );  // instantiate with empty options
-    suite.addTestSuite( TestXmlExport1.class  );  // get default options
-    suite.addTestSuite( TestXmlExport2.class  );  // set options to default options
-    return suite;
-  } // static public Test suite()
-
-}
+  public GrouperException(String msg) { 
+    super(msg); 
+  }
+  public GrouperException(String msg, Throwable cause) { 
+    super(msg, cause); 
+  }
+  public GrouperException(Throwable cause) { 
+    super(cause); 
+  }
+} // public class GrouperException
 

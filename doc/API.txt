@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.14 2006-09-11 19:59:20 blair Exp $
+$Id: API.txt,v 1.15 2006-09-12 17:19:58 blair Exp $
 
 ---
 
@@ -47,6 +47,7 @@ $Id: API.txt,v 1.14 2006-09-11 19:59:20 blair Exp $
 * GrantPrivilegeException
 * GroupAddException
 * GroupDeleteException
+* GrouperException
 * GrouperRuntimeException extends RuntimeException
 * GroupModifyException
 * GroupNotFoundException
