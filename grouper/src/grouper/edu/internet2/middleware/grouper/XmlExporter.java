@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.12 2006-09-12 18:36:29 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.13 2006-09-12 19:01:40 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -244,7 +244,7 @@ public class XmlExporter {
       "--h --? /h /? --help /help ${cmd}".indexOf(args[0]) > -1
     ) 
     {
-      XmlExporter.commandLineUsage();
+      System.out.println( _getUsage() );
       System.exit(0);
     }
 
@@ -322,7 +322,7 @@ public class XmlExporter {
     catch (Exception ex) {
       ex.printStackTrace();
       System.out.println();
-      XmlExporter.commandLineUsage();
+      System.err.println( _getUsage() );
       System.exit(1);
     }
     Properties props = new Properties();
@@ -421,78 +421,6 @@ public class XmlExporter {
   } // public static void main(args)
 
 
-  // PUBLIC CLASS METHODS //
-
-  /**
-   * @since   1.0
-   */
-  public static void commandLineUsage() {
-    System.out.println("Usage:");
-    System.out.println("args: -h,            Prints this message");
-    System.out.println("args: subjectIdentifier [(-id <id>] | [-name <name>)] [-relative]");
-    System.out.println("      [-includeParent] fileName [properties]");
-    System.out.println();
-    System.out.println("  subjectIdentifier, Identifies a Subject 'who' will create a");
-    System.out.println("                     GrouperSession");
-    System.out.println("  -id,               The Uuid of a Group or Stem to export");
-    System.out.println("  -name,             The name of a Group or Stem to export");
-    System.out.println("  -relative,         If id or name specified do not export parent");
-    System.out.println("                     Stems");
-    System.out.println("  -includeParent,    If id or name identifies a Stem export this");
-    System.out.println("                     stem and child Stems or Groups");
-    System.out.println("  filename,          The file where exported data will be written.");
-    System.out.println("                     Will overwrite existing files");
-    System.out.println("  properties,        The name of a standard Java properties file");
-    System.out.println("                     which configures the export. Check Javadoc for");
-    System.out.println("                     a list of properties. If 'properties' is not ");
-    System.out.println("                     specified, XmlExporter will look for ");
-    System.out.println("                     'export.properties' in the working directory. ");
-    System.out.println("                     If this file does not exist XmlExporter will ");
-    System.out.println("                     look on the classpath. If 'properties' is not ");
-    System.out.println("                     specified and 'export.properties' cannot be ");
-    System.out.println("                     found, the export will fail.");
-    System.out.println();
-  } // public static void commandLineUsage()
-
-  /**
-   * For a group, for all its types, return fields of type LIST
-   * <p/>
-   * @param   g
-   * @since   1.1.0
-   */
-  public static List getListFieldsForGroup(GrouperSession s, Group g)
-    throws  SchemaException 
-  {
-    Field     field;
-    Set       fields;
-    Iterator  fieldsIt;
-    List      lists     = new ArrayList();
-    Set       types     = g.getTypes();
-
-    GroupType type;
-    Iterator  it        = types.iterator();
-    while (it.hasNext()) {
-      type      = (GroupType) it.next();
-      fields    = type.getFields();
-      fieldsIt  = fields.iterator();
-      while (fieldsIt.hasNext()) {
-        field = (Field) fieldsIt.next();
-        if (
-          field.getType().equals(FieldType.LIST)
-          && !"members".equals(field.getName())
-        ) 
-        {
-          if (g.canReadField(s.getSubject(), field)) {
-            lists.add(field.getName());
-          }
-        }
-      }
-    }
-
-    return lists;
-  } // public static getListFieldsForGroup(group)
-
-  
   // PUBLIC INSTANCE METHODS //
 
   /**
@@ -505,7 +433,7 @@ public class XmlExporter {
     throws  Exception 
   {
     Stem        stem  = StemFinder.findRootStem(s);
-    GroupOrStem gos   = findByStem(stem);
+    GroupOrStem gos   = this._findByStem(stem);
     LOG.info("Start export of entire repository");
     this._export(gos, true, false);
     LOG.info("Finished export of entire repository");
@@ -595,7 +523,7 @@ public class XmlExporter {
   public void export(Group group, boolean relative) 
     throws  Exception 
   {
-    GroupOrStem gos = this.findByGroup(group);
+    GroupOrStem gos = this._findByGroup(group);
     LOG.info("Start export of Group " + group.getName());
     this._export(gos, relative, false);
     LOG.info("Finished export of Group " + group.getName());
@@ -613,90 +541,12 @@ public class XmlExporter {
   public void export(Stem stem, boolean relative, boolean includeParent) 
     throws  Exception 
   {
-    GroupOrStem gos = findByStem(stem);
+    GroupOrStem gos = this._findByStem(stem);
     LOG.info("Start export of Stem " + stem.getName());
     _export(gos, relative, includeParent);
     LOG.info("Finished export of Stem " + stem.getName());
   } // public void export(stem, relative, includeParent)
 
-  /**
-   * Already have a group but a method needs GroupOrStem
-   * <p/>
-   * @param   group
-   * @since   1.0
-   */
-  public GroupOrStem findByGroup(Group group) {
-    GroupOrStem groupOrStem = new GroupOrStem();
-    groupOrStem.s           = this.s;
-    groupOrStem.group       = group;
-    return groupOrStem;
-  } // public GroupOrStem findByGroup(group)
-  
-  /**
-   * Only have and id ...
-   * <p/>
-   * @param   id
-   * @since   1.1.0
-   */
-  public GroupOrStem findByID(String id) {
-    GroupOrStem groupOrStem = new GroupOrStem();
-    groupOrStem.s           = this.s;
-    if("Grouper.NS_ROOT".equals(id)) {
-      groupOrStem.stem=StemFinder.findRootStem(this.s);
-      return groupOrStem;
-    }
-    try {
-      Group group       = GroupFinder.findByUuid(this.s, id);
-      groupOrStem.group = group;
-    }
-    catch (Exception e) {
-      try {
-        Stem stem         = StemFinder.findByUuid(this.s, id);
-        groupOrStem.stem  = stem;
-      }
-      catch (Exception se) {
-        throw new GrouperRuntimeException("Unable to instatiate a group or stem with ID=" + id);
-      }
-    }
-    return groupOrStem;
-  } // public GroupOrStem findByID(id)
-  
-  /**
-   * Already have a stem but a method needs GroupOrStem
-   * <p/>
-   * @param   stem
-   * @since   1.1.0
-   */
-  public  GroupOrStem findByStem(Stem stem) {
-    GroupOrStem groupOrStem = new GroupOrStem();
-    groupOrStem.s           = this.s;
-    groupOrStem.stem        = stem;
-    return groupOrStem;
-  } // public GroupOrStem findByStem(stem)
-  
-  /**
-   * Only have a name...
-   * @param name
-   * @since 1.1.0
-   */
-  public  GroupOrStem findByName(String name) {
-    GroupOrStem groupOrStem = new GroupOrStem();
-    groupOrStem.s = this.s;
-    try {
-      Group group = GroupFinder.findByName(this.s, name);
-      groupOrStem.group = group;
-      
-    }catch(Exception e) {
-      try {
-        Stem stem = StemFinder.findByName(this.s, name);
-        groupOrStem.stem = stem;
-      }catch(Exception se) {
-        throw new GrouperRuntimeException("Unable to instatiate a group or stem with name=" + name);
-      }
-    }
-    return groupOrStem;
-  } // public GroupOrStem findByName(name)
-  
   /**
    * @return  Returns the options.
    * @since   1.0
@@ -704,14 +554,6 @@ public class XmlExporter {
   public Properties getOptions() {
     return this.options;
   } // public Properties getOptions()
-
-  /**
-   * @param options   The options to set.
-   * @since 1.0
-   */
-  public void setOptions(Properties options) {
-    this.options = options;
-  } // public void setOptions(options)
 
 
   // PROTECTED CLASS METHODS //
@@ -776,6 +618,66 @@ public class XmlExporter {
     return false;
   } // protected static boolean hasImmediatePrivilege(subject, stem, privilege)
 
+
+  // PRIVATE CLASS METHODS //
+
+  // @throws  SchemaException
+  // @since   1.1.0
+  private static Set _getListFieldsForGroup(Group g)
+    throws  SchemaException 
+  {
+    Set       lists   = new LinkedHashSet();
+    Field     defList = Group.getDefaultList();
+    Field     f;
+    GroupType type;
+    Iterator  iterF;
+    Iterator  iter    = g.getTypes().iterator();
+    while (iter.hasNext()) {
+      type  = (GroupType) iter.next();
+      iterF = type.getFields().iterator();
+      while (iterF.hasNext()) { 
+        f = (Field) iterF.next();
+        if (
+          f.getType().equals(FieldType.LIST)
+          && !f.equals(defList)
+          && g.canReadField(f)
+        )
+        {
+          lists.add(f.getName());
+        }
+      }
+    }
+    return lists;
+  } // private static Set _getListFieldsForGroup(group)
+  
+  // @since   1.1.0
+  private static String _getUsage() {
+    return  "Usage:"
+            + "args: -h,            Prints this message"
+            + "args: subjectIdentifier [(-id <id>] | [-name <name>)] [-relative]"
+            + "      [-includeParent] fileName [properties]"
+            + ""
+            + "  subjectIdentifier, Identifies a Subject 'who' will create a"
+            + "                     GrouperSession"
+            + "  -id,               The Uuid of a Group or Stem to export"
+            + "  -name,             The name of a Group or Stem to export"
+            + "  -relative,         If id or name specified do not export parent"
+            + "                     Stems"
+            + "  -includeParent,    If id or name identifies a Stem export this"
+            + "                     stem and child Stems or Groups"
+            + "  filename,          The file where exported data will be written."
+            + "                     Will overwrite existing files"
+            + "  properties,        The name of a standard Java properties file"
+            + "                     which configures the export. Check Javadoc for"
+            + "                     a list of properties. If 'properties' is not "
+            + "                     specified, XmlExporter will look for "
+            + "                     'export.properties' in the working directory. "
+            + "                     If this file does not exist XmlExporter will "
+            + "                     look on the classpath. If 'properties' is not "
+            + "                     specified and 'export.properties' cannot be "
+            + "                     found, the export will fail."
+            ;
+  } // private static String _getUsage()
 
   // PRIVATE INSTANCE METHODS //
 
@@ -845,6 +747,78 @@ public class XmlExporter {
     this.xml.puts(padding + "</data>");
     LOG.debug("Finished repository data as XML");
   } // private void _exportData(groupOrStem, padding)
+
+   // Already have a group but a method needs GroupOrStem
+   // @since    1.1.0
+  private GroupOrStem _findByGroup(Group group) {
+    GroupOrStem groupOrStem = new GroupOrStem();
+    groupOrStem.s           = this.s;
+    groupOrStem.group       = group;
+    return groupOrStem;
+  } // private GroupOrStem _findByGroup(group)
+  
+   // Only have and id ...
+  // @since   1.1.0
+  private GroupOrStem _findByID(String id) {
+    GroupOrStem groupOrStem = new GroupOrStem();
+    groupOrStem.s           = this.s;
+    if("Grouper.NS_ROOT".equals(id)) {
+      groupOrStem.stem = StemFinder.findRootStem(this.s);
+      return groupOrStem;
+    }
+    try {
+      groupOrStem.group = GroupFinder.findByUuid(this.s, id);
+    }
+    catch (Exception e) {
+      try {
+        groupOrStem.stem  = StemFinder.findByUuid(this.s, id);
+      }
+      catch (Exception se) {
+        throw new GrouperRuntimeException("Unable to instatiate a group or stem with ID=" + id);
+      }
+    }
+    return groupOrStem;
+  } // private GroupOrStem _findByID(id)
+  
+  /**
+   * Already have a stem but a method needs GroupOrStem
+   * <p/>
+   * @param   stem
+   * @since   1.1.0
+   */
+  public  GroupOrStem _findByStem(Stem stem) {
+    GroupOrStem groupOrStem = new GroupOrStem();
+    groupOrStem.s           = this.s;
+    groupOrStem.stem        = stem;
+    return groupOrStem;
+  } // public GroupOrStem _findByStem(stem)
+  
+  /**
+   * Only have a name...
+   * @param name
+   * @since 1.1.0
+   */
+  public  GroupOrStem _findByName(String name) {
+    GroupOrStem groupOrStem = new GroupOrStem();
+    groupOrStem.s = this.s;
+    try {
+      Group group = GroupFinder.findByName(this.s, name);
+      groupOrStem.group = group;
+      
+    }catch(Exception e) {
+      try {
+        Stem stem = StemFinder.findByName(this.s, name);
+        groupOrStem.stem = stem;
+      }catch(Exception se) {
+        throw new GrouperRuntimeException("Unable to instatiate a group or stem with name=" + name);
+      }
+    }
+    return groupOrStem;
+  } // public GroupOrStem _findByName(name)
+  
+
+
+
 
   // @since   1.0
   private String _fixGroupName(String name) {
@@ -1150,7 +1124,7 @@ public class XmlExporter {
 
     List listFields = new ArrayList();
     if (optionTrue("export.group.lists")) {
-      listFields.addAll(getListFieldsForGroup(this.s, group));
+      listFields.addAll( _getListFieldsForGroup(group) );
     }
     if (optionTrue("export.group.members")) {
       listFields.add(0, "members");
@@ -1623,7 +1597,7 @@ public class XmlExporter {
     throws  IOException,
             MemberNotFoundException
   {
-    GroupOrStem gos = this.findByGroup(group);
+    GroupOrStem gos = this._findByGroup(group);
     _writePrivileges(privilege, subjects, gos, padding);
   } // private void _writePrivileges(privilege, subjects, group, padding)
 
@@ -1634,7 +1608,7 @@ public class XmlExporter {
     throws  IOException,
             MemberNotFoundException
   {
-    GroupOrStem gos = findByStem(stem);
+    GroupOrStem gos = this._findByStem(stem);
     _writePrivileges(privilege, subjects, gos, padding);
   } // private void _writePrivileges(privilege, subjects, stem, padding)
 
