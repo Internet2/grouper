@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.20 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.21 2006-09-13 19:40:12 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1017,11 +1017,8 @@ public class XmlExporter {
     LOG.debug("Writing group " + group.getName() + " to XML");
     this.xml.puts();
     this.xml.put(padding);
-    try {
-      this.xml.puts("<!--" + group.getName() + "-->");
-    } 
-    catch (Exception e) {
-    }
+    // This was in a try/catch that ignored `Exception`.
+    this.xml.puts("<!--" + group.getName() + "-->");
     this.xml.put(padding);
     this.xml.puts(
       "<group extension='" + _fixXmlAttribute(group.getExtension()) + "'"
@@ -1090,10 +1087,8 @@ public class XmlExporter {
     }
     this.xml.puts();
     this.xml.puts(padding + "</group>");
-    try {
-      this.xml.puts(padding + "<!--/" + group.getName() + "-->");
-    } catch (Exception e) {
-    }
+    // This was in a try/catch that ignored `Exception`.
+    this.xml.puts(padding + "<!--/" + group.getName() + "-->");
     this.xml.puts();
     LOG.debug("Finished writing group " + group.getName() + " to XML");
   } // private void _writeFullGroup(group, padding)
@@ -1188,6 +1183,7 @@ public class XmlExporter {
           );
         }
       } catch (Exception e) {
+        // TODO Ignoring the exception is probably not for the best
       }
 
     }
@@ -1461,11 +1457,9 @@ public class XmlExporter {
             SubjectNotFoundException
   {
     boolean isImmediate = true;
-    try {
-      membership.getViaGroup();
+    // How do composites fit in here?
+    if (membership.getMship_type().equals(MembershipType.E)) {
       isImmediate = false;
-    } catch (Exception e) {
-
     }
 
     String exPadding = padding + "  ";

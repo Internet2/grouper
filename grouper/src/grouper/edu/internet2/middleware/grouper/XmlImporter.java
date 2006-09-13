@@ -34,7 +34,7 @@ import  org.w3c.dom.*;
  * <p/>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.13 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.14 2006-09-13 19:40:12 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1087,6 +1087,7 @@ public class XmlImporter {
           origValue = group.getAttribute(name);
         }   
         catch (Exception ex) {
+          // TODO Figure out why this is ignored once I refactor this class
         }
         if (
           value != null
