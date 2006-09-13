@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Privilege resolution (as root) class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RootPrivilegeResolver.java,v 1.4 2006-09-11 14:00:33 blair Exp $
+ * @version $Id: RootPrivilegeResolver.java,v 1.5 2006-09-13 17:35:55 blair Exp $
  * @since   1.1.0
  */
  class RootPrivilegeResolver extends PrivilegeResolver {
@@ -61,7 +61,7 @@ import  edu.internet2.middleware.subject.*;
 
   // @since   1.1.0
   // TODO `PrivilegeResolver.hasPriv()` still requires this variant.
-  //      `TestMember`` is an example test that fails otherwise.
+  //      `TestMember???` is an example test that fails otherwise.
   protected static boolean isRoot(GrouperSession s, Subject subj) {
     boolean rv    = false;
     // First check to see if this is GrouperSystem
@@ -80,11 +80,12 @@ import  edu.internet2.middleware.subject.*;
   // @since   1.1.0
   private static boolean _isWheel(GrouperSession s, Subject subj) {
     boolean       rv  = false;
-    // TODO Should this be a one-time check or not?
+    // I keep going back-and-forth on whether this should be a one-time
+    // check or a repetitive check.  
     if (Boolean.valueOf(GrouperConfig.getProperty(GrouperConfig.GWU))) {
-      // TODO This has to be a performance killer
       String name = GrouperConfig.getProperty(GrouperConfig.GWG);
       try {
+        // I suspect this isn't great for the performance
         Group wheel = GroupFinder.findByName(s.getRootSession(), name);
         rv          = wheel.hasMember(subj);
       }
