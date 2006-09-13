@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.77 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: Stem.java,v 1.78 2006-09-13 19:21:10 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -125,7 +125,7 @@ public class Stem extends Owner {
     } 
     try {
       GroupFinder.findByName(
-        constructName(this.getName(), extension)
+        U.constructName(this.getName(), extension)
       );
       throw new GroupAddException("group already exists");
     }
@@ -203,8 +203,8 @@ public class Stem extends Owner {
     if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     } 
-    String  name  = constructName(this.getName(), extension);
-    String  dName = constructName(this.getDisplayName(), displayExtension);
+    String  name  = U.constructName(this.getName(), extension);
+    String  dName = U.constructName(this.getDisplayName(), displayExtension);
     try {
       StemFinder.findByName(this.getSession(), name);
       throw new StemAddException(E.STEM_EXISTS + U.q(name));
@@ -841,7 +841,7 @@ public class Stem extends Owner {
       this.setModified();
       try {
         this.setDisplay_name(
-          constructName(
+          U.constructName(
             this.getParentStem().getDisplayName(), value
           )
         );
@@ -899,18 +899,6 @@ public class Stem extends Owner {
     return root;
   } // protected static Stem addRootStem(GrouperSession s)
 
-  protected static String constructName(String stem, String extn) {
-    // TODO This should probably end up in a "naming" utility class
-    // TODO Why don't I do validation here?
-    if (stem.equals(ROOT_EXT)) {
-      return extn;
-    }
-    return stem + ROOT_INT + extn;
-  } // protected static String constructName(stem, extn)
-
-
-  // PROTECTED INSTANCE METHODS //
-  
   // @since 1.0
   protected Set getChildGroupsNpHi() 
     throws  HibernateException
@@ -1065,7 +1053,7 @@ public class Stem extends Owner {
       child = (Group) iter.next();
       child.setSession(this.s);
       child.setDisplayName(
-        constructName( this.getDisplayName(), child.getDisplayExtension() )
+        U.constructName( this.getDisplayName(), child.getDisplayExtension() )
       );
       child.setModified();
       objects.add(child);
@@ -1100,7 +1088,7 @@ public class Stem extends Owner {
       child.setSession(this.s);
       _initializeChildGroupsAndStems(child);
       child.setDisplay_name(
-        constructName( this.getDisplayName(), child.getDisplayExtension() )
+        U.constructName( this.getDisplayName(), child.getDisplayExtension() )
       );
       objects.addAll( child._renameChildGroups() );
       child.setModified();

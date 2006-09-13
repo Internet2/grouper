@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.23 2006-09-13 16:25:33 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.24 2006-09-13 19:21:10 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -60,8 +60,7 @@ public class GrouperSubject implements Subject {
    * @since 1.0
    */
   public boolean equals(Object other) {
-    // TODO I should modify *SubjectHelper.eq(this, other)* so that I can just
-    //      call that.
+    // TODO I should modify *SubjectHelper.eq(this, other)* so that I can just call that.
     if (this == other) {
       return true;
     }
@@ -129,8 +128,6 @@ public class GrouperSubject implements Subject {
   // PRIVATE INSTANCE METHODS //
   
   private void _addAttrs() {
-    // TODO Ideally I wouldn't just iterate through the appropriate items in
-    //      the fields list but I think I need more logic than that
     try {
       Session hs = HibernateHelper.getSession();
       hs.refresh(this.g);

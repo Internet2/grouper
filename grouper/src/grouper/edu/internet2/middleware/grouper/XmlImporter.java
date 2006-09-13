@@ -34,7 +34,7 @@ import  org.w3c.dom.*;
  * <p/>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.12 2006-09-13 14:41:11 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.13 2006-09-13 19:21:10 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -463,7 +463,7 @@ public class XmlImporter {
     Element root = doc.getDocumentElement();
 
     _processMetaData(_getImmediateElement(root, "metadata"));
-    if (_isEmpty(importToName)) {
+    if (XmlUtils.isEmpty(importToName)) {
       _process(_getImmediateElement(root, "data"), NS_ROOT);
     } 
     else {
@@ -638,7 +638,7 @@ public class XmlImporter {
       }
     }
     if (
-      !_isEmpty(importToName)
+      !XmlUtils.isEmpty(importToName)
       && importedGroups.containsKey(importToName + sep + name)
     ) 
     {
@@ -687,7 +687,7 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (_isEmpty(type)) {
+    if (XmlUtils.isEmpty(type)) {
       return SubjectFinder.findById(id);
     }
     return SubjectFinder.findById(id, type);
@@ -698,24 +698,15 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (_isEmpty(type)) {
+    if (XmlUtils.isEmpty(type)) {
       return SubjectFinder.findByIdentifier(identifier);
     }
     return SubjectFinder.findByIdentifier(identifier, type);
   } // private Subject _getSubjectByIdentifier(identifier, type)
 
   // @since   1.0
-  // TODO Isn't this also in XmlExporter?
-  private boolean _isEmpty(Object obj) {
-    if (obj == null || "".equals(obj)) {
-      return true;
-    }
-    return false;
-  } // private boolean _isEmpty(obj)
-
-  // @since   1.0
   private boolean _optionTrue(String key) {
-    if (_isEmpty(key)) {
+    if (XmlUtils.isEmpty(key)) {
       options.setProperty(key, "false");
       return false;
     }
@@ -827,7 +818,7 @@ public class XmlImporter {
 
       //Save a call if we are dealing with same group
       if (!group.equals(lastGroup)) {
-        if (!_isEmpty(lastGroup)) {
+        if (XmlUtils.isEmpty(lastGroup)) {
           if (log.isInfoEnabled())
             log.info("Finished loading Access privs for " + lastGroup);
         }
@@ -841,10 +832,10 @@ public class XmlImporter {
       privileges    = (Element) map.get("privileges");
       privilege     = privileges.getAttribute("type");
       importOption  = privileges.getAttribute("importOption");
-      if (_isEmpty(importOption))
+      if (XmlUtils.isEmpty(importOption))
         importOption = options.getProperty("import.data.privileges");
 
-      if (_isEmpty(importOption) || "ignore".equals(importOption)) {
+      if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
         if (log.isInfoEnabled()) {
           log.info("Ignoring any '" + privilege + "' privileges");
         }
@@ -862,7 +853,7 @@ public class XmlImporter {
       while (subjectsIterator.hasNext()) {
         subjectE    = (Element) subjectsIterator.next();
         isImmediate = "true".equals(subjectE.getAttribute("immediate"));
-        if (_isEmpty(subjectE.getAttribute("immediate"))) {
+        if (XmlUtils.isEmpty(subjectE.getAttribute("immediate"))) {
           isImmediate = true; //default is to assign
         }
         if (!isImmediate) {
@@ -879,7 +870,7 @@ public class XmlImporter {
           ) 
           {
             //relative import
-            if (!_isEmpty(importToName)) {
+            if (XmlUtils.isEmpty(importToName)) {
               subjectIdentifier = importToName + sep + subjectIdentifier.substring(1);
             }
             else {
@@ -908,7 +899,7 @@ public class XmlImporter {
         } 
         else {
           try {
-            if (_isEmpty(subjectId)) {
+            if (XmlUtils.isEmpty(subjectId)) {
               subject = _getSubjectByIdentifier(subjectIdentifier, subjectType);
             } 
             else {
@@ -917,7 +908,7 @@ public class XmlImporter {
           } 
           catch (Exception e) {
             String msg = "Could not find subject with ";
-            if (_isEmpty(subjectId)) {
+            if (XmlUtils.isEmpty(subjectId)) {
               msg = msg + "identifier=" + subjectIdentifier;
             }
             else {
@@ -989,7 +980,7 @@ public class XmlImporter {
       subject       = access.getAttribute("subject");
       priv          = access.getAttribute("priv").toLowerCase();
       grouperGroup  = GroupFinder.findByName(s, stem);
-      if (!_isEmpty(group)) {
+      if (!XmlUtils.isEmpty(group)) {
         absoluteGroup = _getAbsoluteName(group, stem);
         privGroup = GroupFinder.findByName(s, absoluteGroup);
         member = MemberFinder.findBySubject(
@@ -1000,7 +991,7 @@ public class XmlImporter {
           "Assigning " + priv + " to " + absoluteGroup + " for " + stem
         );
       } 
-      else if (!_isEmpty(subject)) {
+      else if (!XmlUtils.isEmpty(subject)) {
         try {
           subj = SubjectFinder.findByIdentifier(subject);
         } 
@@ -1100,7 +1091,7 @@ public class XmlImporter {
         if (
           value != null
           && !value.equals(origValue)
-          && (_isEmpty(origValue) || _optionTrue("import.data.update-attributes"))
+          && (XmlUtils.isEmpty(origValue) || _optionTrue("import.data.update-attributes"))
         )
         {
           group.setAttribute(name, value);
@@ -1212,14 +1203,14 @@ public class XmlImporter {
 
     Group   existingGroup     = null;
     String  updateAttributes  = e.getAttribute("updateAttributes");
-    if (_isEmpty(updateAttributes)) {
+    if (XmlUtils.isEmpty(updateAttributes)) {
       updateAttributes = options.getProperty("import.data.update-attributes");
     }
     try {
-      if (!_isEmpty(id)) {
+      if (!XmlUtils.isEmpty(id)) {
         existingGroup = GroupFinder.findByUuid(s, id);
       } 
-      else if (!_isEmpty(name)) {
+      else if (!XmlUtils.isEmpty(name)) {
         existingGroup = GroupFinder.findByName(s, name);
       } 
       else {
@@ -1228,14 +1219,14 @@ public class XmlImporter {
       }
       if ("true".equals(updateAttributes)) {
         if (
-          !_isEmpty(displayExtension)
+          !XmlUtils.isEmpty(displayExtension)
           && !displayExtension.equals(existingGroup.getDisplayExtension())
         )
         {
           existingGroup.setDisplayExtension(displayExtension);
         }
         if (
-          !_isEmpty(description)
+          !XmlUtils.isEmpty(description)
           && !description.equals(existingGroup.getDescription())
         )
         {
@@ -1277,27 +1268,27 @@ public class XmlImporter {
     String  extension        = e.getAttribute("extension");
     String  displayExtension = e.getAttribute("displayExtension");
     String  description      = e.getAttribute("description");
-    String  newGroup         = Stem.constructName(stem, extension);
+    String  newGroup         = U.constructName(stem, extension);
     if (log.isInfoEnabled()) {
       log.info("Creating group [" + newGroup + "]");
     }
     Group   existingGroup     = null;
     String  updateAttributes  = e.getAttribute("updateAttributes");
-    if (_isEmpty(updateAttributes)) {
+    if (XmlUtils.isEmpty(updateAttributes)) {
       updateAttributes = options.getProperty("import.data.update-attributes");
     }
     try {
       existingGroup = GroupFinder.findByName(s, newGroup);
       if ("true".equals(updateAttributes)) {
         if (
-          !_isEmpty(displayExtension)
+          !XmlUtils.isEmpty(displayExtension)
           && !displayExtension.equals(existingGroup.getDisplayExtension())
         )
         {
           existingGroup.setDisplayExtension(displayExtension);
         }
         if (
-          !_isEmpty(description) 
+          !XmlUtils.isEmpty(description) 
           && !description.equals(existingGroup.getDescription())
         )
         {
@@ -1342,7 +1333,7 @@ public class XmlImporter {
       );
     }
     String name = groupE.getAttribute("name");
-    if (_isEmpty(name)) {
+    if (XmlUtils.isEmpty(name)) {
       throw new IllegalStateException(
         "Expected 'name' atribute for <groupRef>"
       );
@@ -1411,17 +1402,17 @@ public class XmlImporter {
       map = (Map) membershipLists.get(i);
       list = (Element) map.get("list");
       importOption = list.getAttribute("importOption");
-      if (_isEmpty(importOption)) {
+      if (XmlUtils.isEmpty(importOption)) {
         importOption = options.getProperty("import.data.lists");
       }
-      if (_isEmpty(importOption) || "ignore".equals(importOption)) {
+      if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
         continue; //No instruction so ignore
       }
       groupName = (String) map.get("group");
 
       //Save a call if we are dealing with same group
       if (!groupName.equals(lastGroupName)) {
-        if (!_isEmpty(lastGroupName)) {
+        if (!XmlUtils.isEmpty(lastGroupName)) {
           if (log.isInfoEnabled()) {
             log.info("Finished loading memberships for " + lastGroupName);
           }
@@ -1501,7 +1492,7 @@ public class XmlImporter {
       while (subjectsIterator.hasNext()) {
         subjectE    = (Element) subjectsIterator.next();
         isImmediate = "true".equals(subjectE.getAttribute("immediate"));
-        if (_isEmpty(subjectE.getAttribute("immediate"))) {
+        if (XmlUtils.isEmpty(subjectE.getAttribute("immediate"))) {
           isImmediate = true;
         }
         if (!isImmediate) {
@@ -1519,7 +1510,7 @@ public class XmlImporter {
           ) 
           {
             //relative import
-            if (!_isEmpty(importToName)) {
+            if (!XmlUtils.isEmpty(importToName)) {
               subjectIdentifier = importToName + sep + subjectIdentifier.substring(1);
             }
             else {
@@ -1548,7 +1539,7 @@ public class XmlImporter {
         } 
         else {
           try {
-            if (_isEmpty(subjectId)) {
+            if (XmlUtils.isEmpty(subjectId)) {
               subject = _getSubjectByIdentifier(subjectIdentifier, subjectType);
             } 
             else {
@@ -1557,7 +1548,7 @@ public class XmlImporter {
           } 
           catch (Exception e) {
             String msg = "Could not find subject with ";
-            if (_isEmpty(subjectId)) {
+            if (XmlUtils.isEmpty(subjectId)) {
               msg = msg + "identifier=" + subjectIdentifier;
             }
             else {
@@ -1808,7 +1799,7 @@ public class XmlImporter {
 
       //Save a call if we are dealing with same group
       if (!stem.equals(lastStem)) {
-        if (!_isEmpty(lastStem)) {
+        if (!XmlUtils.isEmpty(lastStem)) {
           if (log.isInfoEnabled()) {
             log.info("Finished loading Naming privs for " + lastStem);
           }
@@ -1824,10 +1815,10 @@ public class XmlImporter {
       privileges    = (Element) map.get("privileges");
       privilege     = privileges.getAttribute("type");
       importOption  = privileges.getAttribute("importOption");
-      if (_isEmpty(importOption)) {
+      if (XmlUtils.isEmpty(importOption)) {
         importOption = options.getProperty("import.data.privileges");
       }
-      if (_isEmpty(importOption) || "ignore".equals(importOption)) {
+      if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
         if (log.isInfoEnabled()) {
           log.info("Ignoring any '" + privilege + "' privileges");
         }
@@ -1847,7 +1838,7 @@ public class XmlImporter {
       while (subjectsIterator.hasNext()) {
         subjectE    = (Element) subjectsIterator.next();
         isImmediate = "true".equals(subjectE.getAttribute("immediate"));
-        if (_isEmpty(subjectE.getAttribute("immediate"))) {
+        if (XmlUtils.isEmpty(subjectE.getAttribute("immediate"))) {
           isImmediate = true; //default is to assign
         }
         if (!isImmediate) {
@@ -1865,7 +1856,7 @@ public class XmlImporter {
           ) 
           {
             //relative import
-            if (!_isEmpty(importToName)) {
+            if (!XmlUtils.isEmpty(importToName)) {
               subjectIdentifier = importToName + sep + subjectIdentifier.substring(1);
             }
             else {
@@ -1887,7 +1878,7 @@ public class XmlImporter {
         } 
         else {
           try {
-            if (_isEmpty(subjectId)) {
+            if (XmlUtils.isEmpty(subjectId)) {
               subject = _getSubjectByIdentifier(subjectIdentifier, subjectType);
             } 
             else {
@@ -1896,7 +1887,7 @@ public class XmlImporter {
           } 
           catch (Exception e) {
             String msg = "Could not find subject with ";
-            if (_isEmpty(subjectId)) {
+            if (XmlUtils.isEmpty(subjectId)) {
               msg = msg + "identifier=" + subjectIdentifier;
             }
             else {
@@ -1969,7 +1960,7 @@ public class XmlImporter {
       group   = naming.getAttribute("group");
       subject = naming.getAttribute("subject");
       priv    = naming.getAttribute("priv").toLowerCase();
-      if (!_isEmpty(group)) {
+      if (!XmlUtils.isEmpty(group)) {
         absoluteGroup = _getAbsoluteName(group, stem);
         privGroup = GroupFinder.findByName(s, absoluteGroup);
         member = MemberFinder.findBySubject(s, SubjectFinder.findById(
@@ -1978,7 +1969,7 @@ public class XmlImporter {
         System.out.println("Assigning " + priv + " to " + absoluteGroup
             + " for " + stem);
       } 
-      else if (!_isEmpty(subject)) {
+      else if (!XmlUtils.isEmpty(subject)) {
         try {
           subj = SubjectFinder.findByIdentifier(subject);
         } 
@@ -2032,13 +2023,13 @@ public class XmlImporter {
     String  extension        = e.getAttribute("extension");
     String  displayExtension = e.getAttribute("displayExtension");
     String  description      = e.getAttribute("description");
-    String  newStem          = Stem.constructName(stem, extension);
+    String  newStem          = U.constructName(stem, extension);
     if (log.isInfoEnabled()) {
       log.info("Creating stem " + newStem);
     }
     Stem    existingStem      = null;
     String  updateAttributes  = e.getAttribute("updateAttributes");
-    if (_isEmpty(updateAttributes)) {
+    if (XmlUtils.isEmpty(updateAttributes)) {
       updateAttributes = options.getProperty("import.data.update-attributes");
     }
     try {
@@ -2048,14 +2039,14 @@ public class XmlImporter {
       }
       if ("true".equals(updateAttributes)) {
         if (
-          !_isEmpty(displayExtension) 
+          !XmlUtils.isEmpty(displayExtension) 
           && !displayExtension.equals(existingStem.getDisplayExtension())
         ) 
         {
           existingStem.setDisplayExtension(displayExtension);
         }
         if (
-          !_isEmpty(description)
+          !XmlUtils.isEmpty(description)
           && !description.equals(existingStem.getDescription())
         )
         {
@@ -2138,14 +2129,14 @@ public class XmlImporter {
 
     Stem    existingStem      = null;
     String  updateAttributes  = e.getAttribute("updateAttributes");
-    if (_isEmpty(updateAttributes)) {
+    if (XmlUtils.isEmpty(updateAttributes)) {
       updateAttributes = options.getProperty("import.data.update-attributes");
     }
     try {
-      if (!_isEmpty(id)) {
+      if (!XmlUtils.isEmpty(id)) {
         existingStem = StemFinder.findByUuid(s, id);
       } 
-      else if (!_isEmpty(name)) {
+      else if (!XmlUtils.isEmpty(name)) {
         existingStem = StemFinder.findByName(s, name);
       } 
       else {
@@ -2155,14 +2146,14 @@ public class XmlImporter {
 
       if ("true".equals(updateAttributes)) {
         if (
-          !_isEmpty(displayExtension)
+          !XmlUtils.isEmpty(displayExtension)
           && !displayExtension.equals(existingStem.getDisplayExtension())
         )
         {
           existingStem.setDisplayExtension(displayExtension);
         }
         if (
-          !_isEmpty(description)
+          !XmlUtils.isEmpty(description)
           && !description.equals(existingStem.getDescription())
         )
         {

@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
+
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
@@ -26,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.102 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: Group.java,v 1.103 2006-09-13 19:21:10 blair Exp $
  */
 public class Group extends Owner {
 
@@ -80,7 +81,7 @@ public class Group extends Owner {
     attributes.add(
       new Attribute(
         this, FieldFinder.find("displayName"), 
-        Stem.constructName(ns.getDisplayName(), displayExtn)
+        U.constructName(ns.getDisplayName(), displayExtn)
       )
     );
     attributes.add(
@@ -89,7 +90,7 @@ public class Group extends Owner {
     attributes.add(
       new Attribute(
         this, FieldFinder.find("name"), 
-        Stem.constructName(ns.getName(), extn)
+        U.constructName(ns.getName(), extn)
       )
     );
     this.setGroup_attributes(attributes);
@@ -544,7 +545,7 @@ public class Group extends Owner {
       throw new AttributeNotFoundException(eS.getMessage(), eS);
     }
   } // public void deleteAttribute(attr)
-
+  
   /**
    * Delete a {@link Composite} membership from this group.
    * <pre class="eg">
@@ -2200,7 +2201,7 @@ public class Group extends Owner {
     }
     return this.attrs;
   } // private Map _getAttributesNoPrivs()
-
+  
   private void _revokeAllAccessPrivs() 
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException, 
@@ -2235,7 +2236,7 @@ public class Group extends Owner {
         a = (Attribute) iter.next();
         if (a.getField().getName().equals("name")) {
           AttributeValidator.namingValue(value);
-          String newVal = Stem.constructName(
+          String newVal = U.constructName(
             this.getParentStem().getName(), value
           );
           a.setValue(newVal);
@@ -2250,7 +2251,7 @@ public class Group extends Owner {
         a = (Attribute) iter.next();
         if (a.getField().getName().equals("displayName")) {
           AttributeValidator.namingValue(value);
-          String newVal = Stem.constructName(
+          String newVal = U.constructName(
             this.getParentStem().getDisplayName(), value
           );
           a.setValue(newVal);

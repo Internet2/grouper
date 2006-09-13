@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.26 2006-09-11 14:00:33 blair Exp $
+ * @version $Id: GroupType.java,v 1.27 2006-09-13 19:21:10 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -293,7 +293,6 @@ public class GroupType implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    // TODO I should still move more of this to _Validator_
     StopWatch sw  = new StopWatch();
     sw.start();
     Field     f   = FieldFinder.find(name);  
