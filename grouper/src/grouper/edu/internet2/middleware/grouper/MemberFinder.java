@@ -24,10 +24,14 @@ import  net.sf.hibernate.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.22 2006-09-07 18:34:37 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.23 2006-09-13 15:04:11 blair Exp $
  */
 public class MemberFinder {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final String KLASS = MemberFinder.class.getName();
+  
+  
   // PUBLIC CLASS METHODS //
 
   /**
@@ -82,7 +86,7 @@ public class MemberFinder {
         "from Member as m where m.member_id = :uuid"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MF_FBU);
+      qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
       List    members = qry.list();
       if (members.size() == 1) {
@@ -133,7 +137,7 @@ public class MemberFinder {
         + "and  m.subject_type    = :type"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MF_FBS);
+      qry.setCacheRegion(KLASS + ".FindBySubject");
       qry.setString("sid",    subj.getId()            );
       qry.setString("type",   subj.getType().getName());
       qry.setString("source", subj.getSource().getId());
