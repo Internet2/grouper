@@ -24,16 +24,9 @@ import  org.apache.commons.lang.builder.*;
  * Subject cache provider.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.8 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: SubjectCache.java,v 1.9 2006-09-13 18:31:01 blair Exp $
  */
 class SubjectCache {
-
-  /*
-   * TODO Ideally we would use ehcache for caching subjects **but**,
-   *      unfortunately, Subjects are not serializable.  Alas.  Hence
-   *      this hack using HashMaps.  Which, come to think of it, is how
-   *      we were caching subjects in 0.6.
-   */
 
   // PROTECTED CLASS CONSTANTS //
   protected static final String ID    = "edu.internet2.middleware.grouper.SubjectCache.Id";
