@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.6 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.7 2006-09-13 15:52:09 blair Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -462,40 +462,6 @@ public class TestPrivADMIN extends TestCase {
     GroupHelper.delAttrFail(a, "extension"        );
     GroupHelper.delAttrFail(a, "name"             );
   } // public void testDelAttrsWithoutADMIN()
-
-  public void testDelAttrsWithADMIN() {
-    LOG.info("testDelAttrsWithADMIN");
-    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    String val = "new value";
-    GroupHelper.delAttrFail(a, ""                 );
-    GroupHelper.delAttrFail(a, null               );
-    GroupHelper.delAttrFail(a, "attr"             );
-    GroupHelper.delAttrFail(a, "description"      );
-    GroupHelper.setAttr(    a, "description", val );
-    GroupHelper.delAttr(    a, "description"      );
-    GroupHelper.delAttrFail(a, "displayName"      );
-    GroupHelper.delAttrFail(a, "displayExtension" );
-    GroupHelper.delAttrFail(a, "extension"        );
-    GroupHelper.delAttrFail(a, "name"             );
-  } // public void testDelAttrsWithADMIN()
-
-  public void testDelAttrsWithAllADMIN() {
-    LOG.info("testDelAttrsWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    String val = "new value";
-    GroupHelper.delAttrFail(a, ""                 );
-    GroupHelper.delAttrFail(a, null               );
-    GroupHelper.delAttrFail(a, "attr"             );
-    GroupHelper.delAttrFail(a, "description"      );
-    GroupHelper.setAttr(    a, "description", val );
-    GroupHelper.delAttr(    a, "description"      );
-    GroupHelper.delAttrFail(a, "displayName"      );
-    GroupHelper.delAttrFail(a, "displayExtension" );
-    GroupHelper.delAttrFail(a, "extension"        );
-    GroupHelper.delAttrFail(a, "name"             );
-  } // public void testDelAttrsWithAllADMIN()
 
   public void testRenameGroupWithoutADMIN() {
     LOG.info("testRenameGroupWithoutADMIN");

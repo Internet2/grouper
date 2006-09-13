@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.6 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.7 2006-09-13 15:52:09 blair Exp $
  */
 class GroupHelper {
 
@@ -113,45 +113,6 @@ class GroupHelper {
       LOG.debug("addMemberUpdateFail.3");
     }
   } // protected static void addMemberUpdateFail(g, subj, m)
-
-  // delete a group attribute
-  protected static void delAttr(Group g, String attr) {
-    LOG.debug("delAttr.0");
-    String  msg = "delete attribute '" + attr + "'";
-    String  err = "did not " + msg + ": ";
-    try {
-      g.deleteAttribute(attr);
-      LOG.debug("delAttr.1");
-      Assert.assertTrue(msg, true);
-      // FIXME  Verify whether the below is true:
-      //        "This is actually wrong but I think the result is cached
-      //        so we get the value even though the attribute has been
-      //        deleted from the db."
-      try {
-        g.getAttribute(attr);
-        LOG.debug("delAttr.2");
-        Assert.assertTrue("TODO got attribute after deletion", true);
-        //Assert.fail("got attribute after deletion: " + attr + "=" + val); 
-      }
-      catch (AttributeNotFoundException eANF) {
-        LOG.debug("delAttr.3");
-        Assert.fail("TODO did not get attribute after deletion");
-        //Assert.assertTrue("did not get attribute", true);
-      }
-    }
-    catch (AttributeNotFoundException eANF) {
-      LOG.debug("delAttr.4");
-      Assert.fail(err + eANF.getMessage());
-    }
-    catch (GroupModifyException eGM) {
-      LOG.debug("delAttr.5");
-      Assert.fail(err + eGM.getMessage());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      LOG.debug("delAttr.6");
-      Assert.fail(err + eIP.getMessage());
-    }
-  } // protected static void delAttr(g, attr)
 
   // fail to delete a group attribute
   protected static void delAttrFail(Group g, String attr) {

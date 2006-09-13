@@ -21,7 +21,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.10 2006-09-11 18:53:12 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.11 2006-09-13 15:52:09 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -31,7 +31,6 @@ public class SuiteDefault extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-
     suite.addTest(  SuiteSettings.suite()     );
     suite.addTest(  SuiteSessions.suite()     );
     suite.addTest(  SuiteStems.suite()        );
