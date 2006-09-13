@@ -8,13 +8,12 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
-import  net.sf.hibernate.*;
 
 /**
  * Add {@link HibernateSubject} to Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addSubject.java,v 1.4 2006-09-13 16:25:33 blair Exp $
+ * @version $Id: addSubject.java,v 1.5 2006-09-13 19:21:10 blair Exp $
  * @since   0.0.1
  */
 public class addSubject {

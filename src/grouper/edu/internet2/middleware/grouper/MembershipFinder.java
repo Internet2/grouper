@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.49 2006-09-13 15:04:11 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.50 2006-09-13 19:21:10 blair Exp $
  */
 public class MembershipFinder {
 
@@ -691,7 +691,6 @@ public class MembershipFinder {
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
-      // TODO Why can't I use *f* as a parameter?
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "

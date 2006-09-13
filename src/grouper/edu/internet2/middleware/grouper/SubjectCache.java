@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * Subject cache provider.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.9 2006-09-13 18:31:01 blair Exp $
+ * @version $Id: SubjectCache.java,v 1.10 2006-09-13 19:21:10 blair Exp $
  */
 class SubjectCache {
 
@@ -106,7 +106,7 @@ class SubjectCache {
 
   // PRIVATE INSTANCE METHODS //
   private String _getKey(String id, String type) {
-    // TODO memoize?
+    // If I wasn't planning on replacing this class I would memoize this....
     return id + DELIM + type;
   } // private String _getKey(id, type)
 

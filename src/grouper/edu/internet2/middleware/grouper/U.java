@@ -22,7 +22,7 @@ import  java.util.*;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.4 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: U.java,v 1.5 2006-09-13 19:21:10 blair Exp $
  * @since   1.0
  */
 class U {
@@ -33,6 +33,17 @@ class U {
 
 
   // PROTECTED CLASS METHODS //
+  
+  // This isn't the best place for this but until I have a better idea...
+  // @since   1.1.0
+  protected static String constructName(String stem, String extn) {
+    // TODO Why don't I do validation here?
+    if (stem.equals(Stem.ROOT_EXT)) {
+      return extn;
+    }
+    return stem + Stem.ROOT_INT + extn;
+  } // protected static String constructName(stem, extn)
+  
   // @since 1.0
   protected static String q(String input) {
     return Q_OPEN + input + Q_CLOSE;

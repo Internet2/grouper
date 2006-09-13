@@ -35,14 +35,14 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.19 2006-09-13 18:31:01 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.20 2006-09-13 19:21:10 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
 
   // PRIVATE CLASS CONSTANTS //  
-  private static final String CF  = "export.properties"; 
-  private static final Log    LOG = LogFactory.getLog(XmlExporter.class);
+  static final String CF  = "export.properties"; 
+  static final Log    LOG = LogFactory.getLog(XmlExporter.class);
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -202,7 +202,7 @@ public class XmlExporter {
   } // public XmlExporter(options)
 
   /**
-   * TODO
+   * Export the Groups Registry to XML.
    * </p>
    * @param   s           Perform export within this session.
    * @param   userOptions User-specified configuration parameters.
@@ -217,7 +217,7 @@ public class XmlExporter {
       throw new GrouperRuntimeException(eS.getMessage(), eS);
     }
     try {
-      this.options  = _getSystemProperties();
+      this.options  = XmlUtils.getSystemProperties(LOG, CF);
     }
     catch (IOException eIO) {
       throw new GrouperRuntimeException(eIO.getMessage(), eIO);
@@ -331,7 +331,7 @@ public class XmlExporter {
       GrouperSession.start(
         SubjectFinder.findByIdentifier(subjectIdentifier)
       ),
-      _getUserProperties(userExportProperties),
+      XmlUtils.getUserProperties(LOG, userExportProperties),
       new PrintWriter( new FileWriter(exportFile) )
     );
 
@@ -633,34 +633,6 @@ public class XmlExporter {
     return lists;
   } // private static Set _getListFieldsForGroup(group)
   
-  // TODO move to `XmlUtils`?
-  // @throws  IOException
-  // @since   1.1.0 
-  private static Properties _getSystemProperties() 
-    throws  IOException
-  {
-    Properties props = new Properties();; 
-    LOG.debug("loading system properties: " + CF);
-    props.load(XmlExporter.class.getResourceAsStream(CF));
-    return props;
-  } // private static Properties _getSystemProperties();
-
-  // TODO move to `XmlUtils`?
-  // @throws  FileNotFoundException
-  // @throws  IOException
-  // @since   1.1.0
-  private static Properties _getUserProperties(String file) 
-    throws  FileNotFoundException,
-            IOException
-  {
-    Properties props = new Properties();
-    if (file != null) {
-      LOG.debug("loading user-specified properites: " + file);
-      props.load(new FileInputStream(file));
-    } 
-    return props;
-  } // private static Properties _getUserProperties(file)
-
   // @since   1.1.0
   private static String _getUsage() {
     return  "Usage:"
@@ -801,10 +773,6 @@ public class XmlExporter {
     return groupOrStem;
   } // public GroupOrStem _findByName(name)
   
-
-
-
-
   // @since   1.0
   private String _fixGroupName(String name) {
     if (fromStem != null && name.startsWith(fromStem)) {
@@ -819,15 +787,15 @@ public class XmlExporter {
     String type   = subj.getType().getName();
     String key    = "export.subject-attributes.source." + source + "." + type;
     String value  = options.getProperty(key);
-    if (_isEmpty(value)) {
+    if (XmlUtils.isEmpty(value)) {
       key   = "export.subject-attributes.source." + source;
       value = options.getProperty(key);
     }
-    if (_isEmpty(value)) {
+    if (XmlUtils.isEmpty(value)) {
       key   = "export.subject-attributes.type." + type;
       value = options.getProperty(key);
     }
-    if (_isEmpty(value)) {
+    if (XmlUtils.isEmpty(value)) {
       return null;
     }
     if ("*".equals(value)) {
@@ -840,14 +808,6 @@ public class XmlExporter {
     }
     return res.iterator();
   } // private Iterator _getExportAttributes(subj)
-
-  // @since   1.0
-  private boolean _isEmpty(Object obj) {
-    if (obj == null || "".equals(obj)) {
-      return true;
-    }
-    return false;
-  } // private boolean _isEmpty(obj)
 
   // @since   1.1.0
   private String _fixXmlAttribute(String value) {
@@ -876,7 +836,7 @@ public class XmlExporter {
     do {
       try {
         parent = parent.getParentStem();
-        if (_isEmpty(parent.getExtension())) {
+        if (XmlUtils.isEmpty(parent.getExtension())) {
           parent = null;
         } 
         else {
@@ -893,7 +853,7 @@ public class XmlExporter {
 
   // @since   1.1.0
   private boolean _optionTrue(String key) {
-    if (_isEmpty(key)) {
+    if (XmlUtils.isEmpty(key)) {
       options.setProperty(key, "false");
       return false;
     }
@@ -1215,7 +1175,7 @@ public class XmlExporter {
       try {
         value = _fixXmlAttribute(group.getAttribute(field.getName()));
         if (
-            !_isEmpty(value)
+            !XmlUtils.isEmpty(value)
             && ":description:extension:displayExtension:"
                 .indexOf(":" + field.getName() + ":") == -1
         ) 
@@ -1759,7 +1719,7 @@ public class XmlExporter {
       this.xml.put(" id='" + subj.getId() + "'");
     }
     Iterator exportAttrs = _getExportAttributes(subj);
-    if (_isEmpty(exportAttrs)) {
+    if (XmlUtils.isEmpty(exportAttrs)) {
       this.xml.puts("/>");
       return;
     }
