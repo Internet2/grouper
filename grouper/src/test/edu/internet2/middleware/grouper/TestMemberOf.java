@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test memberOf calculations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberOf.java,v 1.4 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestMemberOf.java,v 1.5 2006-09-13 14:41:11 blair Exp $
  */
 public class TestMemberOf extends TestCase {
 
@@ -38,7 +38,6 @@ public class TestMemberOf extends TestCase {
   private static Stem           root;
   private static GrouperSession s;
   private static Subject        subj0;
-  private static Subject        subj1;
   private static Group          uofc;
   private static Group          ub;
   private static Group          uw;
@@ -60,7 +59,6 @@ public class TestMemberOf extends TestCase {
     ub    = StemHelper.addChildGroup(edu, "ub", "ub");
     uw    = StemHelper.addChildGroup(edu, "uw", "uw");
     subj0 = SubjectTestHelper.SUBJ0;
-    subj1 = SubjectTestHelper.SUBJ1;
   }
 
   protected void tearDown () {

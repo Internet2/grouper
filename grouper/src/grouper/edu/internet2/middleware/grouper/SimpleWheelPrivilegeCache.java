@@ -18,14 +18,13 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
-import  org.apache.commons.collections.map.*;
 
 /** 
  * A simple caching implementation of {@link PrivilegeCache} with better support
  * for wheel group-related privilege updates.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.1 2006-09-11 19:59:21 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.2 2006-09-13 14:41:11 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
