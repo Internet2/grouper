@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.119 2006-09-12 13:49:55 blair Exp $ -->
+<!-- $Id: build.xml,v 1.120 2006-09-13 17:48:13 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -171,7 +171,8 @@
     <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" />
     <cpd minimumTokenCount="100" outputFile="${dist.run}/cpd.txt">
       <fileset dir="${src.grouper}">
-        <include name="**/*.java"/>
+        <include  name="**/*.java"      />
+        <exclude  name="**/eg/*.java/"  />
       </fileset>
     </cpd>
   </target>
@@ -653,7 +654,7 @@
     <clover-setup initString="clover.db">
       <fileset dir="${src.grouper}">
         <exclude name="**/bench/*"/>
-        <exclude name="**/eg/*"/>
+        <exclude name="**/eg/**"/>
         <exclude name="**/prof/*"/>
       </fileset>
     </clover-setup>
