@@ -14,7 +14,7 @@ import  net.sf.hibernate.*;
  * Add {@link HibernateSubject} to Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addSubject.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: addSubject.java,v 1.4 2006-09-13 16:25:33 blair Exp $
  * @since   0.0.1
  */
 public class addSubject {
@@ -42,8 +42,8 @@ public class addSubject {
     try {
       return HibernateSubject.add(id, type, name);
     }
-    catch (HibernateException eH) { 
-      GrouperShell.error(i, eH);
+    catch (GrouperException eG) { 
+      GrouperShell.error(i, eG);
     }
     return null;
   } // public static HibernateSubject invoke(i, stack, parent, name)

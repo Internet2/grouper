@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.22 2006-09-01 19:05:36 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.23 2006-09-13 16:25:33 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -129,11 +129,13 @@ A list membership in the Groups Registry.
     <!-- depth -->
 
     <!-- parent_membership -->
-    <!-- TODO Don't allow updates? -->
+    <!-- In theory I should be able to disable updates on this mapping but a quick try didn't work. -->
     <many-to-one
       name="parent_membership"
       class="edu.internet2.middleware.grouper.Membership"
       cascade="none"
+      update="true"
+      insert="true"
     >
       <column name="parent_membership"
               index="membership_parent_idx"

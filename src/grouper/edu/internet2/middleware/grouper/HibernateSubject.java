@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * <p><b>This class is experimental and will change in future Grouper
  * releases.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.12 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.13 2006-09-13 16:25:33 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {
@@ -80,28 +80,32 @@ public class HibernateSubject implements Serializable {
    * @param   type  The subject type to assign to the subject.
    * @param   name  The name to assign to the subject.
    * @return  The created {@link Subject}.
-   * @throws  HibernateException
-   * @since   1.0
+   * @throws  GrouperException
+   * @since   1.1.0
    */
   public static HibernateSubject add(String id, String type, String name) 
-    throws  HibernateException
+    throws  GrouperException
     {
     // TODO Require root
-    // TODO Throw GrouperException
     try {
-      HibernateSubjectFinder.find(id, type);
-      throw new HibernateException(
-        "subject already exists: " + id + "/" + type + "/" + name
-      );
+      try {
+        HibernateSubjectFinder.find(id, type);
+        throw new GrouperException(
+          "subject already exists: " + id + "/" + type + "/" + name
+        );
+      }
+      catch (SubjectNotFoundException eSNF) {
+        Session           hs    = HibernateHelper.getSession();
+        Transaction       tx    = hs.beginTransaction();
+        HibernateSubject  subj  = new HibernateSubject(id, type, name);
+        hs.save(subj);
+        tx.commit();
+        hs.close();
+        return subj;
+      }
     }
-    catch (SubjectNotFoundException eSNF) {
-      Session           hs    = HibernateHelper.getSession();
-      Transaction       tx    = hs.beginTransaction();
-      HibernateSubject  subj  = new HibernateSubject(id, type, name);
-      hs.save(subj);
-      tx.commit();
-      hs.close();
-      return subj;
+    catch (HibernateException eH) {
+      throw new GrouperException(eH.getMessage(), eH);
     }
   } // public static HibernateSubject add(id, type, name)
 
