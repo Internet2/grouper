@@ -24,10 +24,14 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.48 2006-09-11 18:14:47 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.49 2006-09-13 15:04:11 blair Exp $
  */
 public class MembershipFinder {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final String KLASS = MembershipFinder.class.getName();
+  
+  
   // PUBLIC CLASS METHODS //
 
   /**
@@ -238,7 +242,7 @@ public class MembershipFinder {
         "from Membership as ms where ms.member_id = :member"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FAM);
+      qry.setCacheRegion(KLASS + ".FindAllMemberships");
       qry.setParameter("member", m);
       Membership  ms;
       Iterator    iter  = qry.iterate();
@@ -367,7 +371,7 @@ public class MembershipFinder {
         "from Membership as ms where ms.uuid = :uuid"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FBU);
+      qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
       List mships  = qry.list();
       if (mships.size() == 1) {
@@ -400,7 +404,7 @@ public class MembershipFinder {
         "from Membership as ms where ms.parent_membership = :msid"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FCM);
+      qry.setCacheRegion(KLASS + ".FindChildMemberships");
       qry.setString("msid", ms.getId());
       List    l   = qry.list();
       hs.close();
@@ -435,7 +439,7 @@ public class MembershipFinder {
         + "and  ms.depth        = :depth"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FEM);
+      qry.setCacheRegion(KLASS + ".FindEffectiveMemberships");
       qry.setParameter( "owner"   , o                           );
       qry.setParameter( "member"  , m                           );
       qry.setString(    "fname"   , f.getName()                 );
@@ -472,7 +476,7 @@ public class MembershipFinder {
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMM);
+      qry.setCacheRegion(KLASS + ".FindEffectiveMembershipsMember");
       qry.setParameter( "member", m                           );
       qry.setString(    "fname" , f.getName()                 );
       qry.setString(    "ftype" , f.getType().toString()      );
@@ -507,7 +511,7 @@ public class MembershipFinder {
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FEMOM);
+      qry.setCacheRegion(KLASS + ".FindEffectiveMembershipsOwnerMember");
       qry.setParameter( "owner" , o                           );
       qry.setParameter( "member", m                           );
       qry.setString(    "fname" , f.getName()                 );
@@ -542,7 +546,7 @@ public class MembershipFinder {
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FIMM);      
+      qry.setCacheRegion(KLASS + ".FindImmediateMembershipsMember");      
       qry.setParameter( "member", m                           );
       qry.setString(    "fname" , f.getName()                 );
       qry.setString(    "ftype" , f.getType().toString()      );
@@ -640,7 +644,7 @@ public class MembershipFinder {
         + "and  ms.field.type = :ftype"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FM);
+      qry.setCacheRegion(KLASS + ".FindMemberships");
       qry.setParameter( "member", m                     );
       qry.setString(    "fname" , f.getName()           );
       qry.setString(    "ftype" , f.getType().toString());
@@ -695,7 +699,7 @@ public class MembershipFinder {
         + "and  ms.field.type = :ftype"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion( GrouperConfig.QCR_MSF_FMO );
+      qry.setCacheRegion(KLASS + ".FindMembershipsOwner");
       qry.setParameter( "owner" , o                     );
       qry.setString(    "fname" , f.getName()           );
       qry.setString(    "ftype" , f.getType().toString());
@@ -729,7 +733,7 @@ public class MembershipFinder {
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FMSBT);
+      qry.setCacheRegion(KLASS + ".FindMembershipByType");
       qry.setParameter( "owner"   , o                       );
       qry.setParameter( "member"  , m                       );
       qry.setString(    "fname"   , f.getName()             );
@@ -790,7 +794,7 @@ public class MembershipFinder {
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FMSBT_C);
+      qry.setCacheRegion(KLASS + ".FindMembershipsByType");
       qry.setParameter( "owner" , o                       );
       qry.setString(    "fname" , f.getName()             );
       qry.setString(    "ftype" , f.getType().toString()  );
@@ -822,7 +826,7 @@ public class MembershipFinder {
         + "and  ms.field.type = :ftype"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_MSF_FMOM);
+      qry.setCacheRegion(KLASS + ".FindMembershipsOwnerMember");
       qry.setParameter( "owner" , o                     );
       qry.setParameter( "member", m                     );
       qry.setString(    "fname" , f.getName()           );

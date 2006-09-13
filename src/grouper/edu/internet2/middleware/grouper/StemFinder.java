@@ -23,10 +23,14 @@ import  net.sf.hibernate.*;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.26 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: StemFinder.java,v 1.27 2006-09-13 15:04:11 blair Exp $
  */
 public class StemFinder {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final String KLASS = StemFinder.class.getName();
+  
+  
   // PUBLIC CLASS METHODS //
 
   /**
@@ -58,7 +62,7 @@ public class StemFinder {
         "from Stem as ns where ns.stem_name = :name"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_SF_FBN);
+      qry.setCacheRegion(KLASS + ".FindByName");
       qry.setString("name", name);
       List    l   = qry.list();
       if (l.size() == 1) {
@@ -141,7 +145,7 @@ public class StemFinder {
         "from Stem as ns where ns.display_extension like :value"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_SF_FBADE);
+      qry.setCacheRegion(KLASS + ".FindByApproximateDisplayExtension");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       Stem      ns;
       Iterator  iter    = qry.iterate();
@@ -170,7 +174,7 @@ public class StemFinder {
         "from Stem as ns where ns.display_name like :value"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_SF_FBADN);
+      qry.setCacheRegion(KLASS + ".FindByApproximateDisplayName");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       Stem      ns;
       Iterator  iter    = qry.iterate();
@@ -199,7 +203,7 @@ public class StemFinder {
         "from Stem as ns where ns.stem_extension like :value"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_SF_FBAE);
+      qry.setCacheRegion(KLASS + ".FindByApproximateExtension");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       Stem      ns;
       Iterator  iter    = qry.iterate();
@@ -228,7 +232,7 @@ public class StemFinder {
         "from Stem as ns where ns.stem_name like :value"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_SF_FBAN);
+      qry.setCacheRegion(KLASS + ".FindByApproximateName");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       Stem      ns;
       Iterator  iter    = qry.iterate();
@@ -261,7 +265,7 @@ public class StemFinder {
         + "or lower(ns.display_extension) like :name" 
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_SF_FBANA);
+      qry.setCacheRegion(KLASS + ".FindByApproximateNameAny");
       qry.setString("name", "%" + name.toLowerCase() + "%");
       Stem      ns;
       Iterator  iter    = qry.iterate();
@@ -291,7 +295,7 @@ public class StemFinder {
         "from Stem as ns where ns.create_time > :time"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_SF_FBCA);
+      qry.setCacheRegion(KLASS + ".FindByCreatedAfter");
       qry.setLong("time", d.getTime());
       List    l   = qry.list();
       hs.close();
@@ -322,7 +326,7 @@ public class StemFinder {
         "from Stem as ns where ns.create_time < :time"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_SF_FBCB);
+      qry.setCacheRegion(KLASS + ".FindByCreatedBefore");
       qry.setLong("time", d.getTime());
       List      l     = qry.list();
       hs.close();
@@ -352,7 +356,7 @@ public class StemFinder {
         "from Stem as ns where ns.uuid = :uuid"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_SF_FBU);
+      qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
       List    stems = qry.list();
       if (stems.size() == 1) {

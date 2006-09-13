@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.31 2006-09-12 13:49:55 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.32 2006-09-13 15:04:11 blair Exp $
  */
 public class GrouperConfig {
 
@@ -65,47 +65,6 @@ public class GrouperConfig {
   protected static final String ROOT          = "GrouperSystem";
   protected static final String SCGAC         = "stems.create.grant.all.create";
   protected static final String SCGAS         = "stems.create.grant.all.stem";
-
-  // PROTECTED CLASS CONSTANTS -- QUERIES //
-  // FIXME I really hate all of these
-  protected static final String   QCR_CF_IF     = "edu.internet2.middleware.grouper.CompositeFinder.IsFactor";
-  protected static final String   QCR_CF_IO     = "edu.internet2.middleware.grouper.CompositeFinder.IsOwner";
-  protected static final String   QCR_FF_FA     = "edu.internet2.middleware.grouper.FieldFinder.FindAll";
-  protected static final String   QCR_FF_FABT   = "edu.internet2.middleware.grouper.FieldFinder.FindAllByType";
-  protected static final String   QCR_GF_FBAA   = "edu.internet2.middleware.grouper.GroupFinder.FindByApproximateAttr";
-  protected static final String   QCR_GF_FBAN   = "edu.internet2.middleware.grouper.GroupFinder.FindByApproximateName";
-  protected static final String   QCR_GF_FBAAA  = "edu.internet2.middleware.grouper.GroupFinder.FindByAnyApproximateAttr";
-  protected static final String   QCR_GF_FBCA   = "edu.internet2.middleware.grouper.GroupFinder.FindByCreatedAfter";
-  protected static final String   QCR_GF_FBCB   = "edu.internet2.middleware.grouper.GroupFinder.FindByCreatedBefore";
-  protected static final String   QCR_GF_FBMA   = "edu.internet2.middleware.grouper.GroupFinder.FindByModifiedAfter";
-  protected static final String   QCR_GF_FBMB   = "edu.internet2.middleware.grouper.GroupFinder.FindByModifiedBefore";
-  protected static final String   QCR_GF_FBN    = "edu.internet2.middleware.grouper.GroupFinder.FindByName";
-  protected static final String   QCR_GF_FBU    = "edu.internet2.middleware.grouper.GroupFinder.FindByUuid";
-  protected static final String   QCR_GTF_FA    = "edu.internet2.middleware.grouper.GroupTypeFinder.FindAll";
-  protected static final boolean  QRY_GTF_FA    = false; 
-  protected static final String   QCR_MF_FBS    = "edu.internet2.middleware.grouper.MemberFinder.FindBySubject";
-  protected static final String   QCR_MF_FBU    = "edu.internet2.middleware.grouper.MemberFinder.FindByUuid";
-  protected static final String   QCR_MSF_FAM    = "edu.internet2.middleware.grouper.MembershipFinder.FindAllMemberships";
-  protected static final String   QCR_MSF_FBU   = "edu.internet2.middleware.grouper.MembershipFinder.FindByUuid";
-  protected static final String   QCR_MSF_FCM   = "edu.internet2.middleware.grouper.MembershipFinder.FindChildMemberships";
-  protected static final String   QCR_MSF_FEM   = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMemberships";
-  protected static final String   QCR_MSF_FEMM  = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsMember";
-  protected static final String   QCR_MSF_FEMOM = "edu.internet2.middleware.grouper.MembershipFinder.FindEffectiveMembershipsOwnerMember";
-  protected static final String   QCR_MSF_FIMM  = "edu.internet2.middleware.grouper.MembershipFinder.FindImmediateMembershipsMember";
-  protected static final String   QCR_MSF_FM    = "edu.internet2.middleware.grouper.MembershipFinder.FindMemberships";
-  protected static final String   QCR_MSF_FMO   = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwner";
-  protected static final String   QCR_MSF_FMOM  = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsOwnerMember";
-  protected static final String   QCR_MSF_FMSBT   = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipByType";
-  protected static final String   QCR_MSF_FMSBT_C = "edu.internet2.middleware.grouper.MembershipFinder.FindMembershipsByType";
-  protected static final String   QCR_SF_FBADE  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayExtension";
-  protected static final String   QCR_SF_FBADN  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateDisplayName";
-  protected static final String   QCR_SF_FBAE   = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateExtension";
-  protected static final String   QCR_SF_FBAN   = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateName";
-  protected static final String   QCR_SF_FBANA  = "edu.internet2.middleware.grouper.StemFinder.FindByApproximateNameAny";
-  protected static final String   QCR_SF_FBCA   = "edu.internet2.middleware.grouper.StemFinder.FindByCreatedAfter";
-  protected static final String   QCR_SF_FBCB   = "edu.internet2.middleware.grouper.StemFinder.FindByCreatedBefore";
-  protected static final String   QCR_SF_FBN    = "edu.internet2.middleware.grouper.StemFinder.FindByName";
-  protected static final String   QCR_SF_FBU    = "edu.internet2.middleware.grouper.StemFinder.FindByUuid";
 
 
   // PRIVATE CLASS VARIABLES //

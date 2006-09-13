@@ -23,10 +23,14 @@ import  net.sf.hibernate.*;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.16 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.17 2006-09-13 15:04:11 blair Exp $
  */
 public class GroupTypeFinder {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final String KLASS = GroupTypeFinder.class.getName();
+  
+  
   // PRIVATE CLASS VARIABLES //
   private static Map types = new HashMap();
 
@@ -167,7 +171,7 @@ public class GroupTypeFinder {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery("from GroupType order by name asc");
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_GTF_FA);
+      qry.setCacheRegion(KLASS + ".FindAll");
       types.addAll(qry.list());
       hs.close();  
     }

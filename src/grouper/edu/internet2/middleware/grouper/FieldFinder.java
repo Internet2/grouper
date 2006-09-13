@@ -23,12 +23,13 @@ import  net.sf.hibernate.*;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.16 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.17 2006-09-13 15:04:11 blair Exp $
  */
 public class FieldFinder {
 
-  // PRIVATE CLASS VARIABLES //
-  private static final Map fields  = new HashMap();
+  // PRIVATE CLASS CONSTANTS //
+  private static final Map    FIELDS  = new HashMap();
+  private static final String KLASS   = FieldFinder.class.getName();
 
 
   // STATIC
@@ -37,7 +38,7 @@ public class FieldFinder {
     Iterator  iter  = findAll().iterator();
     while (iter.hasNext()) {
       f = (Field) iter.next();
-      fields.put(f.getName(), f);
+      FIELDS.put(f.getName(), f);
     }
   } // static 
 
@@ -56,13 +57,13 @@ public class FieldFinder {
     throws  SchemaException
   {
     // First check to see if type is cached.
-    if (fields.containsKey(name)) {
-      return (Field) fields.get(name);
+    if (FIELDS.containsKey(name)) {
+      return (Field) FIELDS.get(name);
     }
     // If not, refresh known types as it may be new and try again. 
     updateKnownFields();
-    if (fields.containsKey(name)) {
-      return (Field) fields.get(name);
+    if (FIELDS.containsKey(name)) {
+      return (Field) FIELDS.get(name);
     }
     throw new SchemaException("field not found: " + name);
   } // public static Field find(name)
@@ -84,7 +85,7 @@ public class FieldFinder {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery("from Field order by field_name asc");
       qry.setCacheable(true); // TODO I'm wary
-      qry.setCacheRegion(GrouperConfig.QCR_FF_FA);
+      qry.setCacheRegion(KLASS + ".FindALl");
       fields.addAll(qry.list());
       hs.close();  
     }
@@ -112,7 +113,7 @@ public class FieldFinder {
         "from Field where field_type = :type order by field_name asc"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion(GrouperConfig.QCR_FF_FABT);
+      qry.setCacheRegion(KLASS + ".FindAllByType");
       qry.setString("type", type.toString());
       fields.addAll(qry.list());
       hs.close();
@@ -137,14 +138,14 @@ public class FieldFinder {
     Iterator  addIter = fieldsInRegistry.iterator();
     while (addIter.hasNext()) {
       fA = (Field) addIter.next();
-      if (!fields.containsKey(fA.getName())) {
-        fields.put(fA.getName(), fA); // New field.  Add it to the cached list.
+      if (!FIELDS.containsKey(fA.getName())) {
+        FIELDS.put(fA.getName(), fA); // New field.  Add it to the cached list.
       }
     }
     // Look for fields to remove
     Set       toDel   = new LinkedHashSet();
     Field     fD;
-    Iterator  delIter = fields.values().iterator();
+    Iterator  delIter = FIELDS.values().iterator();
     while (delIter.hasNext()) {
       fD = (Field) delIter.next();
       if (!fieldsInRegistry.contains(fD)) {
@@ -155,7 +156,7 @@ public class FieldFinder {
     Iterator  toDelIter = toDel.iterator();
     while (toDelIter.hasNext()) {
       field = (String) toDelIter.next();
-      fields.remove(field);  
+      FIELDS.remove(field);  
     }
   } // protected static void updateKnownFields()
 

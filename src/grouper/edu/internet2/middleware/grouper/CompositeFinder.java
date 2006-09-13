@@ -21,11 +21,15 @@ import  net.sf.hibernate.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.10 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.11 2006-09-13 15:04:11 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final String KLASS = CompositeFinder.class.getName();
+  
+  
   // CONSTRUCTORS //
   // @since   1.0
   private CompositeFinder() {
@@ -106,7 +110,7 @@ public class CompositeFinder {
         + ")"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion( GrouperConfig.QCR_CF_IF );
+      qry.setCacheRegion(KLASS + ".IsFactor");
       qry.setParameter( "left"  , o );
       qry.setParameter( "right" , o );
       Composite c;
@@ -134,7 +138,7 @@ public class CompositeFinder {
         "from Composite as c where c.owner = :owner"
       );
       qry.setCacheable(true);
-      qry.setCacheRegion( GrouperConfig.QCR_CF_IO );
+      qry.setCacheRegion(KLASS + ".IsOwner");
       qry.setParameter( "owner" , o );
       Composite c   = (Composite) qry.uniqueResult();
       hs.close();
