@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.64 2006-09-11 14:00:33 blair Exp $
+ * @version $Id: Member.java,v 1.65 2006-09-13 16:25:33 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -1230,12 +1230,16 @@ public class Member implements Serializable {
   public Group toGroup() 
     throws GroupNotFoundException 
   {
-    // TODO TEST Check for group type 
-    if (this.g == null) {
-      this.g = GroupFinder.findByUuid(this.getSession(), this.getSubjectId());
+    if (SubjectFinder.getGSA().getId().equals(this.getSubject_source())) {
+      if (this.g == null) {
+        this.g = GroupFinder.findByUuid(this.getSession(), this.getSubjectId());
+      }
+      this.g.setSession(this.getSession());
+      return this.g;
     }
-    this.g.setSession(this.getSession());
-    return this.g;
+    else {
+      throw new GroupNotFoundException("member is not a group");
+    }
   } // public Group toGroup()
 
 

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.22 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.23 2006-09-13 16:25:33 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -131,8 +131,6 @@ public class GrouperSubject implements Subject {
   private void _addAttrs() {
     // TODO Ideally I wouldn't just iterate through the appropriate items in
     //      the fields list but I think I need more logic than that
-    // TODO Attach lists.  Maybe.  Aren't there security issues with
-    //      that?  We're already ignoring them when it comes to attributes.
     try {
       Session hs = HibernateHelper.getSession();
       hs.refresh(this.g);

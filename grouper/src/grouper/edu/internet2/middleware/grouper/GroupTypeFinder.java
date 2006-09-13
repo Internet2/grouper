@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.17 2006-09-13 15:04:11 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.18 2006-09-13 16:25:33 blair Exp $
  */
 public class GroupTypeFinder {
 
@@ -131,8 +131,7 @@ public class GroupTypeFinder {
   // PROTECTED CLASS METHODS //
   // @since 1.0
   protected static void updateKnownTypes() {
-    // TODO This method irks me still even if it is now more
-    //      functionally correct
+    // This method irks me still even if it is now more functionally correct
     Set typesInRegistry = _findAll();
     // Look for types to add
     GroupType tA;

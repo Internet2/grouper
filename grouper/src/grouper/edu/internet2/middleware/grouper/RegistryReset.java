@@ -28,7 +28,7 @@ import  net.sf.hibernate.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.32 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.33 2006-09-13 16:25:33 blair Exp $
  */
 public class RegistryReset {
 
@@ -104,7 +104,7 @@ public class RegistryReset {
 
   // PRIVATE INSTANCE METHODS //
   private void _addSubjects()   
-    throws  HibernateException
+    throws  GrouperException
   {
     for (int i=0; i<10; i++) {
       String  id    = "test.subject." + i;

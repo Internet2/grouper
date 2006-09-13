@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.17 2006-09-13 15:04:11 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.18 2006-09-13 16:25:33 blair Exp $
  */
 public class FieldFinder {
 
@@ -85,7 +85,7 @@ public class FieldFinder {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery("from Field order by field_name asc");
       qry.setCacheable(true); // TODO I'm wary
-      qry.setCacheRegion(KLASS + ".FindALl");
+      qry.setCacheRegion(KLASS + ".FindAll");
       fields.addAll(qry.list());
       hs.close();  
     }
