@@ -34,7 +34,7 @@ import  org.w3c.dom.*;
  * <p/>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.11 2006-09-12 18:06:43 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.12 2006-09-13 14:41:11 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -49,7 +49,6 @@ public class XmlImporter {
   private List            accessPrivLists = new ArrayList();
   private List            accessPrivs     = new ArrayList();
   private Map             importedGroups;
-  private Stem            importTo;
   private String          importToName;
   private List            membershipLists = new ArrayList();
   private List            memberships     = new ArrayList();
@@ -457,7 +456,6 @@ public class XmlImporter {
     log.info("Starting load at " + rootStem.getName());
     processProperties(doc);
     this.s            = s;
-    this.importTo     = rootStem;
     this.importToName = rootStem.getName();
     if (this.importToName.equals(sep)) {
       importToName = "";
@@ -810,7 +808,6 @@ public class XmlImporter {
     Iterator    subjectsIterator;
     Element     subjectE;
     Element     privileges;
-    Member      member            = null;
     Map         map;
     String      group;
     Subject     subject           = null;
@@ -1402,7 +1399,6 @@ public class XmlImporter {
     Subject     subject;
     String      groupName;
     String      lastGroupName       = "";
-    Member      member;
     Group       group               = null;
     Map         map;
     String      subjectId;
@@ -1793,7 +1789,6 @@ public class XmlImporter {
     Iterator    subjectsIterator;
     Element     subjectE;
     Element     privileges;
-    Member      member            = null;
     Map         map;
     String      stem;
     String      lastStem          = "";

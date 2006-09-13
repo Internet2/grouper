@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test using the wrong field type in various operations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestWrongFieldType.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestWrongFieldType.java,v 1.4 2006-09-13 14:41:11 blair Exp $
  */
 public class TestWrongFieldType extends TestCase {
 
@@ -38,11 +38,6 @@ public class TestWrongFieldType extends TestCase {
   private static Stem           root;
   private static GrouperSession s;
   private static Subject        subj0;
-  private static Subject        subj1;
-  private static Group          uofc;
-  private static Group          ub;
-  private static Group          uw;
-  
 
 
   public TestWrongFieldType(String name) {
@@ -56,11 +51,7 @@ public class TestWrongFieldType extends TestCase {
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    ub    = StemHelper.addChildGroup(edu, "ub", "ub");
-    uw    = StemHelper.addChildGroup(edu, "uw", "uw");
     subj0 = SubjectTestHelper.SUBJ0;
-    subj1 = SubjectTestHelper.SUBJ1;
   }
 
   protected void tearDown () {

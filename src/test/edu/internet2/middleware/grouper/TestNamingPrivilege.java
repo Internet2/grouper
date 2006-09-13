@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestNamingPrivilege.java,v 1.4 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: TestNamingPrivilege.java,v 1.5 2006-09-13 14:41:11 blair Exp $
  */
 public class TestNamingPrivilege extends TestCase {
 
@@ -35,12 +35,9 @@ public class TestNamingPrivilege extends TestCase {
 
   // Private Class Variables
   private static Stem           edu;
-  private static Group          i2;
-  private static GrouperSession nrs;
   private static Stem           root;
   private static GrouperSession s;
   private static Subject        subj0;
-  private static Subject        subj1;
   private static Group          uofc;
 
 
@@ -52,13 +49,10 @@ public class TestNamingPrivilege extends TestCase {
     LOG.debug("setUp");
     RegistryReset.resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
-    nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");
-    i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     subj0 = SubjectTestHelper.SUBJ0;
-    subj1 = SubjectTestHelper.SUBJ1;
     GroupHelper.addMember(uofc, subj0, "members");
     PrivHelper.grantPriv(s, root, subj0, NamingPrivilege.STEM);
     PrivHelper.grantPriv(s, edu, uofc.toSubject(), NamingPrivilege.CREATE);

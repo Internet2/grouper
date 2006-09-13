@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.17 2006-09-12 19:52:00 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.18 2006-09-13 14:41:11 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -763,33 +763,9 @@ public class XmlExporter {
    // @since    1.1.0
   private GroupOrStem _findByGroup(Group group) {
     GroupOrStem groupOrStem = new GroupOrStem();
-    groupOrStem.s           = this.s;
     groupOrStem.group       = group;
     return groupOrStem;
   } // private GroupOrStem _findByGroup(group)
-  
-   // Only have and id ...
-  // @since   1.1.0
-  private GroupOrStem _findByID(String id) {
-    GroupOrStem groupOrStem = new GroupOrStem();
-    groupOrStem.s           = this.s;
-    if("Grouper.NS_ROOT".equals(id)) {
-      groupOrStem.stem = StemFinder.findRootStem(this.s);
-      return groupOrStem;
-    }
-    try {
-      groupOrStem.group = GroupFinder.findByUuid(this.s, id);
-    }
-    catch (Exception e) {
-      try {
-        groupOrStem.stem  = StemFinder.findByUuid(this.s, id);
-      }
-      catch (Exception se) {
-        throw new GrouperRuntimeException("Unable to instatiate a group or stem with ID=" + id);
-      }
-    }
-    return groupOrStem;
-  } // private GroupOrStem _findByID(id)
   
   /**
    * Already have a stem but a method needs GroupOrStem
@@ -799,7 +775,6 @@ public class XmlExporter {
    */
   public  GroupOrStem _findByStem(Stem stem) {
     GroupOrStem groupOrStem = new GroupOrStem();
-    groupOrStem.s           = this.s;
     groupOrStem.stem        = stem;
     return groupOrStem;
   } // public GroupOrStem _findByStem(stem)
@@ -811,7 +786,6 @@ public class XmlExporter {
    */
   public  GroupOrStem _findByName(String name) {
     GroupOrStem groupOrStem = new GroupOrStem();
-    groupOrStem.s = this.s;
     try {
       Group group = GroupFinder.findByName(this.s, name);
       groupOrStem.group = group;
@@ -1119,8 +1093,7 @@ public class XmlExporter {
     }
     if (_optionTrue("export.group.custom-attributes")) {
       Set       types     = group.getTypes();
-      GroupType baseType  = GroupTypeFinder.find("base");
-      types.remove(baseType);
+      types.remove(this.baseType);
       if (!types.isEmpty()) {
         this.xml.puts(padding + "  <groupTypes>");
         Iterator  typesIterator = types.iterator();
@@ -1633,15 +1606,12 @@ public class XmlExporter {
     this.xml.put(padding);
 
     this.xml.puts("<privileges type='" + privilege + "'>");
-    Iterator  subjIterator = subjects.iterator();
+    Iterator  subjIterator  = subjects.iterator();
     Subject   subject;
-    Member    member;
-    boolean   isImmediate = false;
+    boolean   isImmediate   = false;
 
     while (subjIterator.hasNext()) {
-      subject = (Subject) subjIterator.next();
-      member  = MemberFinder.findBySubject(s, subject);
-
+      subject     = (Subject) subjIterator.next();
       isImmediate = hasImmediatePrivilege(subject, gos, privilege);
       if (
         (!"GrouperSystem".equals(subject.getId()))
@@ -1890,7 +1860,7 @@ public class XmlExporter {
 
     private Group           group = null;
     private Stem            stem  = null;
-    private GrouperSession  s     = null;
+    //private GrouperSession  s     = null;
     
 
     String getDisplayExtension() {

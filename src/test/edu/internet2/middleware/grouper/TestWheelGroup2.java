@@ -17,13 +17,12 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestWheelGroup2.java,v 1.1 2006-09-11 18:53:12 blair Exp $
+ * @version $Id: TestWheelGroup2.java,v 1.2 2006-09-13 14:41:11 blair Exp $
  * @since   1.1.0
  */
 public class TestWheelGroup2 extends TestCase {

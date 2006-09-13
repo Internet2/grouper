@@ -17,13 +17,12 @@
 
 package edu.internet2.middleware.grouper;
 import  java.util.*;
-import  net.sf.hibernate.*;
 
 /** 
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.32 2006-09-11 16:58:02 blair Exp $
+ * @version $Id: MemberOf.java,v 1.33 2006-09-13 14:41:11 blair Exp $
  */
 class MemberOf {
 
