@@ -15,14 +15,14 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.eg;
 
 /**
  * This class exists only to enable <tt>package.html</tt> to be included in
  * javadoc.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Placeholder.java,v 1.1 2006-09-08 19:17:59 blair Exp $
+ * @version $Id: Placeholder.java,v 1.2 2006-09-13 14:11:44 blair Exp $
  * @see     <a href="http://java.sun.com/j2se/javadoc/faq/#packagewithoutjavafiles">Javadoc FAQ</a>
  * @since   1.1.0
  */
