@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.18 2006-09-13 16:25:33 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.19 2006-09-13 18:31:01 blair Exp $
  */
 public class FieldFinder {
 
@@ -79,12 +79,12 @@ public class FieldFinder {
   public static Set findAll() 
     throws  GrouperRuntimeException
   {
-    // TODO Why doesn't this refresh the known fields?
+    // TODO Why doesn't this refresh the known fields? Caching may be one of the reasons.
     Set fields = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery("from Field order by field_name asc");
-      qry.setCacheable(true); // TODO I'm wary
+      qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAll");
       fields.addAll(qry.list());
       hs.close();  
@@ -130,8 +130,7 @@ public class FieldFinder {
   // PROTECTED CLASS METHODS //
   // @since 1.0
   protected static void updateKnownFields() {
-    // TODO This method irks me still even if it is now more
-    //      functionally correct
+    // This method irks me still even if it is now more functionally correct
     Set fieldsInRegistry = findAll();
     // Look for types to add
     Field     fA;

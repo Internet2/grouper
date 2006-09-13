@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * Validation methods that apply to {@link GroupType}s.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeValidator.java,v 1.4 2006-09-11 14:00:33 blair Exp $
+ * @version $Id: GroupTypeValidator.java,v 1.5 2006-09-13 18:31:01 blair Exp $
  * @since   1.1.0
  */
 class GroupTypeValidator {
@@ -35,35 +35,21 @@ class GroupTypeValidator {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    // TODO Refactor.  There is too much going on here.
     GroupTypeValidator.canModifyField(s, gt);
-    Field f = null;
     try {
-      f = FieldFinder.find(name);  
-    }
-    catch (SchemaException eS) {
-      // Ignore
-    } 
-    if (f != null) {
+      FieldFinder.find(name);
       throw new SchemaException(E.FIELD_ALREADY_EXISTS + name);
     }
-    if 
-    (
-      !(
-        (ft.toString().equals(FieldType.ATTRIBUTE.toString()) ) 
-        || 
-        (ft.toString().equals(FieldType.LIST.toString())      ) 
-      )
-    )
-    {
-      throw new SchemaException(E.FIELD_INVALID_TYPE + ft);
-    }
-    if (!Privilege.isAccess(read)) {
-      throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
-    }
-    if (!Privilege.isAccess(write)) {
-      throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
-    }
+    catch (SchemaException eS) {
+      // The field doesn't exist.  Now see if it can be created.
+      _isRightFieldType(ft.toString());
+      if (!Privilege.isAccess(read)) {
+        throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
+      }
+      if (!Privilege.isAccess(write)) {
+        throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
+      }
+    } 
   } // protected static void canAddFieldToType(s, gt, name, ft, read, write)
 
   // @since   1.1.0 
@@ -91,6 +77,27 @@ class GroupTypeValidator {
       throw new SchemaException(E.GROUPTYPE_CANNOT_MODIFY_SYSTEM_TYPES);
     }
   } // protected static void canModifyField(s, type)
+
+
+  // PRIVATE CLASS METHODS // 
+  
+  // @throws  SchemaException
+  // @since   1.1.0
+  private static void _isRightFieldType(String type) 
+    throws  SchemaException 
+  {
+    if 
+    (
+      !(
+        (type.equals(FieldType.ATTRIBUTE.toString()) ) 
+        || 
+        (type.equals(FieldType.LIST.toString())      ) 
+      )
+    )
+    {
+      throw new SchemaException(E.FIELD_INVALID_TYPE + type);
+    }
+  } // private static void _isRightFieldType(type)
 
 } // class GroupTypeValidator
 
