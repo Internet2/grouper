@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * A group attribute within the Groups registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.11 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: Attribute.java,v 1.12 2006-09-13 19:27:47 blair Exp $
  */
 class Attribute {
 
@@ -60,23 +60,27 @@ class Attribute {
   }
 
   public boolean equals(Object other) {
-    if ( (this.equals( other ) ) ) return true;
-    if ( !(other instanceof Attribute) ) return false;
-    Attribute castOther = (Attribute) other;
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Attribute)) {
+      return false;
+    }
+    Attribute otherAttr = (Attribute) other;
     return new EqualsBuilder()
-           .append(this.getValue(), castOther.getValue())
-           .append(this.getGroup(), castOther.getGroup())
-           .append(this.getField(), castOther.getField())
-           .isEquals();
-  }
+      .append(  this.getValue(), otherAttr.getValue() )
+      .append(  this.getGroup(), otherAttr.getGroup() )
+      .append(  this.getField(), otherAttr.getField() )
+      .isEquals();
+  } // public boolean equals(other)
 
   public int hashCode() {
     return new HashCodeBuilder()
-           .append(getValue())
-           .append(getGroup())
-           .append(getField())
-           .toHashCode();
-  }
+      .append(getValue())
+      .append(getGroup())
+      .append(getField())
+      .toHashCode();
+  } // public int hashCode()
 
   // GETTERS //
   protected Field getField() {
