@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.15 2006-09-12 17:19:58 blair Exp $
+$Id: API.txt,v 1.16 2006-09-14 20:04:04 blair Exp $
 
 ---
 
@@ -40,6 +40,11 @@ $Id: API.txt,v 1.15 2006-09-12 17:19:58 blair Exp $
 ## QueryFilter
 * Set                   getResults(GrouperSession)
 
+## SubjectCache - SUBJECT TO CHANGE
+* Subject               get(id, type, source)
+* void                  put(id, type, source, Subject)
+* void                  removeAll()
+
 ---
 
 # Exceptions
@@ -64,6 +69,7 @@ $Id: API.txt,v 1.15 2006-09-12 17:19:58 blair Exp $
 * StemAddException
 * StemModifyException
 * StemNotFoundException
+* SubjectCacheException
 
 ---
 
@@ -83,6 +89,9 @@ $Id: API.txt,v 1.15 2006-09-12 17:19:58 blair Exp $
 ## BaseQueryFilter implements QueryFilter
 * Set                   filterByScope(stem, candidates)
 * Set                   getResults(GrouperSession)
+
+## BaseSubjectCache - SUBJECT TO CHANGE!
+* SubjectCache          BaseSubjectCache.getCache(klass)
 
 ## ComplementFilter extends BaseQueryFilter
 

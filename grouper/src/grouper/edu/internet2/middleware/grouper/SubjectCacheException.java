@@ -16,42 +16,40 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
 
-/** 
- * Subject Cache interface.
+/**
+ * {@link SubjectCache} runtime exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.11 2006-09-14 20:04:04 blair Exp $
- * @since   1.1.0     
+ * @version $Id: SubjectCacheException.java,v 1.1 2006-09-14 20:04:04 blair Exp $
+ * @since   1.1.0
  */
-public interface SubjectCache {
-
-  // PUBLIC INSTANCE METHODS //
-
+public class SubjectCacheException extends GrouperRuntimeException {
   /**
-   * Retrieve a cached {@link Subject}.
-   * <p/>
-   * @return  A {@link Subject} or null.
-   * @since   1.1.0
+   * @since 1.1.0
    */
-  Subject get(String id, String type, String source);
-
+  public SubjectCacheException() { 
+    super(); 
+  }
   /**
-   * Cache a {@link Subject}.
-   * </p>
-   * @throws  SubjectCacheException
-   * @since   1.1.0
+   * @since 1.1.0
    */
-  void put(String id, String type, String source, Subject subj) throws SubjectCacheException;
-
+  public SubjectCacheException(String msg) { 
+    super(msg); 
+  }
   /**
-   * Remove all cached {@link Subject}s.
-   * </p>
-   * @throws  SubjectCacheException
-   * @since   1.1.0
+   * @since 1.1.0
    */
-  void removeAll() throws SubjectCacheException;
+  public SubjectCacheException(String msg, Throwable cause) { 
+    super(msg, cause); 
+  }
+  /**
+   * @since 1.1.0
+   */
+  public SubjectCacheException(Throwable cause) { 
+    super(cause); 
+  }
 
-} // public interface SubjectCache
+} // public class SubjectCacheException extends GrouperRuntimeException()
+
 

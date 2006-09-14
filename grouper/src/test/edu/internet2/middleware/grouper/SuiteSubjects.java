@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteSubjects.java,v 1.6 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: SuiteSubjects.java,v 1.7 2006-09-14 20:04:04 blair Exp $
  * @since   1.0
  */
 public class SuiteSubjects extends TestCase {
@@ -42,6 +42,9 @@ public class SuiteSubjects extends TestCase {
     suite.addTestSuite( TestSubject8.class  );  // SubjectFinder.findByAll(query, source)
     suite.addTestSuite( TestSubject10.class );  // GrouperSubject.equal()
     suite.addTestSuite( TestSubject11.class );  // SubjectFinder.findRootSubject()
+    suite.addTestSuite( TestSubject12.class );  // SubjectFinder.findByIdentifier(id) - GrouperAll
+    suite.addTestSuite( TestSubject13.class );  // SubjectFinder.findByIdentifier(id, type) - GrouperAll
+    suite.addTestSuite( TestSubject14.class );  // SubjectFinder.findByIdentifier(id, type, source) - GrouperAll
     // TODO split 
     suite.addTestSuite( TestGrouperSourceAdapter.class  );
     suite.addTestSuite( TestGrouperSubject.class        );

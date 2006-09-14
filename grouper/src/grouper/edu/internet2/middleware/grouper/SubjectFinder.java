@@ -24,14 +24,19 @@ import  java.util.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.28 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.29 2006-09-14 20:04:04 blair Exp $
  */
 public class SubjectFinder {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final SourceManager  MGR;
   private static final Subject        ALL; 
+  private static final SourceManager  MGR;
   private static final Subject        ROOT;
+
+
+  // PRIVATE CLASS VARIABLES //
+  private static  SubjectCache  sci     = null;
+  private static  SubjectCache  scidfr  = null;
 
 
   // PACKAGE CLASS VARIABLES //
@@ -54,7 +59,7 @@ public class SubjectFinder {
       DebugLog.info(SubjectFinder.class, "Subject finder initialized");
       // Initialize GrouperSystem
       try {
-        ROOT = SubjectFinder.findById(GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID);
+        ROOT = isa.getSubject(GrouperConfig.ROOT);
         DebugLog.info(SubjectFinder.class, "ROOT subject initialized");
       }
       catch (SubjectNotFoundException eSNF) {
@@ -64,7 +69,7 @@ public class SubjectFinder {
       }
       // Initialize GrouperAll
       try {
-        ALL = SubjectFinder.findById(GrouperConfig.ALL, GrouperConfig.IST, InternalSourceAdapter.ID);
+        ALL = isa.getSubject(GrouperConfig.ALL);
         DebugLog.info(SubjectFinder.class, "ALL subject initialized");
       }
       catch (SubjectNotFoundException eSNF) {
@@ -106,6 +111,10 @@ public class SubjectFinder {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    Subject subj = _getIdCache().get(id, null, null);
+    if (subj != null) {
+      return subj;
+    }
     List subjects  = SubjectFinder._findById(
       id, MGR.getSources().iterator()
     );
@@ -143,7 +152,7 @@ public class SubjectFinder {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = SubjectCache.getCache(SubjectCache.ID).get(id, type);
+    Subject subj = _getIdCache().get(id, type, null);
     if (subj != null) {
       return subj;
     }
@@ -188,8 +197,12 @@ public class SubjectFinder {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    Subject subj = _getIdCache().get(id, type, source);
+    if (subj != null) {
+      return subj;
+    }
     Source  sa    = getSource(source);
-    Subject subj  = sa.getSubject(id);
+    subj          = sa.getSubject(id);
     if (subj.getType().getName().equals(type)) {
       return subj;
     }
@@ -220,6 +233,10 @@ public class SubjectFinder {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    Subject subj = _getIdfrCache().get(id, null, null);
+    if (subj != null) {
+      return subj;
+    }
     List subjects  = SubjectFinder._findByIdentifier(
       id, MGR.getSources().iterator()
     );
@@ -257,7 +274,7 @@ public class SubjectFinder {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = SubjectCache.getCache(SubjectCache.IDFR).get(id, type);
+    Subject subj = _getIdfrCache().get(id, type, null);
     if (subj != null) {
       return subj;
     }
@@ -299,8 +316,12 @@ public class SubjectFinder {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    Subject subj = _getIdfrCache().get(id, type, source);
+    if (subj != null) {
+      return subj;
+    }
     Source  sa    = getSource(source);
-    Subject subj  = sa.getSubjectByIdentifier(id);
+    subj          = sa.getSubjectByIdentifier(id);
     if (subj.getType().getName().equals(type)) {
       return subj;
     }
@@ -436,6 +457,12 @@ public class SubjectFinder {
 
   // PROTECTED CLASS METHODS //
 
+  // @since   1.1.0
+  protected static void flushCache() {
+    _getIdCache().removeAll();
+    _getIdfrCache().removeAll();
+  } // protected static void flushCache()
+
   // @since   1.0
   protected static Source getGSA() {
     if (gsa == null) {
@@ -463,8 +490,10 @@ public class SubjectFinder {
       try {
         subj = sa.getSubject(id);
         DebugLog.info(SubjectFinder.class, "Found subject in " + sa.getId() + ": " + id);
-        SubjectCache.getCache(SubjectCache.ID).put(subj);
         subjects.add(subj);
+        _getIdCache().put(
+          subj.getId(), subj.getType().getName(), subj.getSource().getId(), subj
+        );
       }
       catch (SubjectNotFoundException eSNF)   {
         DebugLog.info(SubjectFinder.class, "Subject not found in " + sa.getId() + ": " + id);
@@ -485,8 +514,10 @@ public class SubjectFinder {
       try {
         subj = sa.getSubjectByIdentifier(id);
         DebugLog.info(SubjectFinder.class, "Found subject in " + sa.getId() + ": " + id);
-        SubjectCache.getCache(SubjectCache.IDFR).put(subj);
         subjects.add(subj);
+        _getIdCache().put(
+          id, subj.getType().getName(), subj.getSource().getId(), subj
+        );
       }
       catch (SubjectNotFoundException e) {
         DebugLog.info(SubjectFinder.class, "Subject not found in " + sa.getId() + ": " + id);
@@ -498,5 +529,35 @@ public class SubjectFinder {
     return subjects;
   } // private static List _findByIdentifier(id, iter) 
 
-}
+  // @since   1.1.0
+  private static SubjectCache _getIdCache() {
+    if (sci == null) {
+      DebugLog.info(SubjectFinder.class, "Initializing subject identity cache");
+      sci = BaseSubjectCache.getCache(GrouperConfig.getProperty(GrouperConfig.SCII));
+      DebugLog.info(
+        SubjectFinder.class, "using subject identity cache: " + sci.getClass().getName()
+      );
+    }
+    if (sci == null) {
+      throw new GrouperRuntimeException("NULL SUBJECT IDENTITY CACHE!");
+    }
+    return sci;
+  } // private static SubjectCache _getIdCache()
+
+  // @since   1.1.0
+  private static SubjectCache _getIdfrCache() {
+    if (scidfr == null) {
+      DebugLog.info(SubjectFinder.class, "Initializing subject identifier cache");
+      scidfr = BaseSubjectCache.getCache(GrouperConfig.getProperty(GrouperConfig.SCIDFRI));
+      DebugLog.info(
+        SubjectFinder.class, "using subject identifier cache: " + scidfr.getClass().getName()
+      );
+    }
+    if (scidfr == null) {
+      throw new GrouperRuntimeException("NULL SUBJECT IDENTIFIER CACHE!");
+    }
+    return scidfr;
+  } // private static SubjectCache _getIdCache()
+
+} // public class SubjectFinder
 

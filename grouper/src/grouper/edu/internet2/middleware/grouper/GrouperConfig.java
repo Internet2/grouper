@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.32 2006-09-13 15:04:11 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.33 2006-09-14 20:04:04 blair Exp $
  */
 public class GrouperConfig {
 
@@ -65,6 +65,8 @@ public class GrouperConfig {
   protected static final String ROOT          = "GrouperSystem";
   protected static final String SCGAC         = "stems.create.grant.all.create";
   protected static final String SCGAS         = "stems.create.grant.all.stem";
+  protected static final String SCII          = "subjects.cache.id.interface";
+  protected static final String SCIDFRI       = "subjects.cache.identifier.interface";
 
 
   // PRIVATE CLASS VARIABLES //
