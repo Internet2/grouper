@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.23 2006-09-11 19:59:20 blair Exp $
+$Id: NEWS.txt,v 1.24 2006-09-14 19:53:21 blair Exp $
 
 ---
 
@@ -9,6 +9,8 @@ $Id: NEWS.txt,v 1.23 2006-09-11 19:59:20 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:    Added `ant hsqldb`, `ant hsqldb-start` and `ant hsqldb-stop` targets
+          for running and interacting with HSQLDB running in server mode.
 * NEW:    `SimpleWheelPrivilegeCache` provides better privilege caching
   support when using a wheel group. [GCODE:13]
 * UPDATE: Use of a wheel group is no longer considered experimental.  

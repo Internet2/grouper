@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.120 2006-09-13 17:48:13 blair Exp $ -->
+<!-- $Id: build.xml,v 1.121 2006-09-14 19:53:21 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -37,6 +37,8 @@
 
   <property name="hprof.depth"            value="25"/>
   <property name="max.memory"             value="192m"/>
+
+  <property name="hsqldb.jar"             location="${lib}/hsqldb-1.7.2.11.jar" />
   <!-- Global Properties -->
 
   <taskdef  name="schemaexport"
@@ -364,6 +366,56 @@
     </javadoc>
   </target>
   <!-- html -->
+
+  <!-- hsqldb -->
+  <target name="hsqldb" 
+          description="connect to hsqldb running in server mode"
+          depends="init"
+  >
+    <java fork="true"
+          maxmemory="${max.memory}"
+          classpathref="project.classpath"
+          jar="${hsqldb.jar}"
+          dir="${conf}"
+    >
+      <arg  value="grouper" />
+    </java>
+  </target>
+  <!-- hsqldb -->
+
+  <!-- hsqldb-start -->
+  <target name="hsqldb-start" 
+          description="starts hsqldb in server mode"
+          depends="init"
+  >
+    <java fork="true"
+          spawn="true"
+          maxmemory="${max.memory}"
+          classpathref="project.classpath"
+          classname="org.hsqldb.Server"
+          dir="${conf}"
+    />
+  </target>
+  <!-- hsqldb-start -->
+
+  <!-- hsqldb-stop -->
+  <target name="hsqldb-stop" 
+          description="stops hsqldb running in server mode"
+          depends="init"
+  >
+    <java fork="true"
+          spawn="true"
+          maxmemory="${max.memory}"
+          classpathref="project.classpath"
+          jar="${hsqldb.jar}"
+          dir="${conf}"
+    >
+      <arg  value="--sql"     />
+      <arg  value="shutdown;" />
+      <arg  value="grouper"   />
+    </java>
+  </target>
+  <!-- hsqldb-stop -->
 
   <!-- info -->
   <target name="info" 
