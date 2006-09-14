@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdFindByIdfr.java,v 1.5 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: TestSuFiInSoAdFindByIdfr.java,v 1.6 2006-09-14 20:04:04 blair Exp $
  */
 public class TestSuFiInSoAdFindByIdfr extends TestCase {
 
@@ -49,18 +49,6 @@ public class TestSuFiInSoAdFindByIdfr extends TestCase {
     SubjectTestHelper.getSubjectByBadIdType(SubjectTestHelper.SUBJ_ROOT, "person");
     Assert.assertTrue("failed to find bad subject", true);
   } // public void testFindByIdentifierGoodIdBadType()
-
-  public void testFindByIdentifierGoodIdAll() {
-    SubjectTestHelper.getSubjectByIdentifier(SubjectTestHelper.SUBJ_ROOT);
-    Assert.assertTrue("found all subject", true);
-  } // public void testFindByIdentifierGoodIdAll()
-
-  public void testFindByIdentifierGoodIdGoodTypeAll() {
-    SubjectTestHelper.getSubjectByIdentifierType(
-      SubjectTestHelper.SUBJ_ALL, "application"
-    );
-    Assert.assertTrue("found all subject", true);
-  } // public void testFindByIdentifierGoodIdGoodTypeAll()
 
   public void testFindByIdentifierGoodIdRoot() {
     SubjectTestHelper.getSubjectByIdentifier(SubjectTestHelper.SUBJ_ROOT);

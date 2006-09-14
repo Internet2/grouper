@@ -19,15 +19,38 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 
 /** 
- * Subject Cache interface.
+ * Base implementation of {@link SubjectCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.11 2006-09-14 20:04:04 blair Exp $
+ * @version $Id: BaseSubjectCache.java,v 1.1 2006-09-14 20:04:04 blair Exp $
  * @since   1.1.0     
  */
-public interface SubjectCache {
+public abstract class BaseSubjectCache implements SubjectCache {
 
-  // PUBLIC INSTANCE METHODS //
+  // CONSTRUCTORS //
+  
+  // @since   1.1.0
+  protected BaseSubjectCache() {
+    super();
+  } // protected BaseSubjectCache()
+
+ 
+  // PUBLIC CLASS METHODS //
+
+  /**
+   * @param   klass   Name of the implementing class to return.
+   * @return  A {@link SubjectCache} implementation.
+   * @throws  GrouperRuntimeException
+   * @since   1.1.0
+  , Subject subj */
+  public static SubjectCache getCache(String klass) 
+    throws  GrouperRuntimeException
+  {
+    return (SubjectCache) U.realizeInterface(klass);
+  } // public static SubjectCache getCache(klass)
+
+
+  // PUBLIC ABSTRACT INSTANCE METHODS //
 
   /**
    * Retrieve a cached {@link Subject}.
@@ -35,7 +58,7 @@ public interface SubjectCache {
    * @return  A {@link Subject} or null.
    * @since   1.1.0
    */
-  Subject get(String id, String type, String source);
+  public abstract Subject get(String id, String type, String source);
 
   /**
    * Cache a {@link Subject}.
@@ -43,7 +66,7 @@ public interface SubjectCache {
    * @throws  SubjectCacheException
    * @since   1.1.0
    */
-  void put(String id, String type, String source, Subject subj) throws SubjectCacheException;
+  public abstract void put(String id, String type, String source, Subject subj) throws SubjectCacheException;
 
   /**
    * Remove all cached {@link Subject}s.
@@ -51,7 +74,7 @@ public interface SubjectCache {
    * @throws  SubjectCacheException
    * @since   1.1.0
    */
-  void removeAll() throws SubjectCacheException;
+  public abstract void removeAll() throws SubjectCacheException;
 
-} // public interface SubjectCache
+} // public class BaseSubjectCache implements SubjectCache
 

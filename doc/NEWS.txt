@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.24 2006-09-14 19:53:21 blair Exp $
+$Id: NEWS.txt,v 1.25 2006-09-14 20:04:04 blair Exp $
 
 ---
 
@@ -9,6 +9,7 @@ $Id: NEWS.txt,v 1.24 2006-09-14 19:53:21 blair Exp $
 Released: TBD
 
 ## Changes
+* UPDATE: Update subject caching to make it more extensible and configurable.
 * NEW:    Added `ant hsqldb`, `ant hsqldb-start` and `ant hsqldb-stop` targets
           for running and interacting with HSQLDB running in server mode.
 * NEW:    `SimpleWheelPrivilegeCache` provides better privilege caching

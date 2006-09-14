@@ -24,7 +24,7 @@ import  net.sf.ehcache.*;
  * Grouper Cache Manager
  * <p/>
  * @author  blair christensen.
- * @version $Id: CacheMgr.java,v 1.10 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: CacheMgr.java,v 1.11 2006-09-14 20:04:04 blair Exp $
  */
 class CacheMgr {
 
@@ -97,6 +97,8 @@ class CacheMgr {
           DebugLog.info(CacheMgr.class, M.CACHE_EMPTIED + cache.getName() + ": " + size); 
         }
       }
+      // Now empty Subject cache
+      SubjectFinder.flushCache();
     }
     catch (IOException eIO) {
       String msg = E.CACHE + eIO.getMessage();
