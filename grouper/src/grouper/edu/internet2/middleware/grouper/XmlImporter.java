@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.16 2006-09-20 17:55:20 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.17 2006-09-20 17:59:58 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
