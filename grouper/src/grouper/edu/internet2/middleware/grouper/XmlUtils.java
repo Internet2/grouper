@@ -24,10 +24,15 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.2 2006-09-20 16:59:50 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.3 2006-09-20 18:40:39 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
+
+  // PROTECTED CLASS CONSTANTS //
+  protected static final String E_NAME_AND_UUID   = "cannot specify uuid and name";
+  protected static final String E_UNKNOWN_OPTION  = "unknown option: ";
+
 
   // CONSTRUCTORS //
 
