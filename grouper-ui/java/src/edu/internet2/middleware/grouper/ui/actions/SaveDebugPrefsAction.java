@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: SaveDebugPrefsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: SaveDebugPrefsAction.java,v 1.3 2006-09-20 17:15:34 isgwb Exp $
  */
 public class SaveDebugPrefsAction extends GrouperCapableAction {
 
@@ -118,11 +118,10 @@ public class SaveDebugPrefsAction extends GrouperCapableAction {
 		DynaActionForm debugPrefsForm = (DynaActionForm)form;
 		Map values = debugPrefsForm.getMap();
 		session.setAttribute("debugPrefs",values);
-		String x = request.getRealPath(request.getServletPath());
-		String prefsFile=x.substring(0,x.lastIndexOf("\\")) + "\\WEB-INF\\debugPrefs.obj";
-		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(prefsFile));
-		oos.writeObject(values);
-		oos.close();
+		boolean saved = saveDebugPrefs(values,request); 
+		if(!saved) {
+			request.setAttribute("message",new Message("debug.prefs.not-saved",true));	
+		}
 		return mapping.findForward(FORWARD_DebugPrefs);
 	}
 

@@ -19,7 +19,9 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -66,7 +68,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.8 2006-08-09 07:27:24 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.9 2006-09-20 17:15:34 isgwb Exp $
  */
 
 /**
@@ -140,7 +142,7 @@ public abstract class LowLevelGrouperCapableAction
 	/**
 	 * Convenience method to retrieve nav ResourceBundle
 	 */
-	public ResourceBundle getMediaResources(HttpServletRequest request) {
+	public static ResourceBundle getMediaResources(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		return getMediaResources(session);
 	}
@@ -148,7 +150,7 @@ public abstract class LowLevelGrouperCapableAction
 	/**
 	 * Convenience method to retrieve media ResourceBundle given an HttpSession
 	 */
-	public ResourceBundle getMediaResources(HttpSession session) {
+	public static ResourceBundle getMediaResources(HttpSession session) {
 		
 		LocalizationContext localizationContext = (LocalizationContext)session.getAttribute("media");
 		ResourceBundle media = localizationContext.getResourceBundle();
@@ -287,15 +289,14 @@ public abstract class LowLevelGrouperCapableAction
 	 * @throws Exception
 	 */
 	public static Map readDebugPrefs(HttpServletRequest request) throws Exception{
-		String x = request.getRealPath(request.getServletPath());
-		//Fix submitted by jaakko.linnosaari@tkk.fi to take care of my sloppy OS handling
-		String s = File.separator;
-		String prefsFile=x.substring(0,x.lastIndexOf(s)) + s + "WEB-INF" + s + "debugPrefs.obj";
-		//String prefsFile=x.substring(0,x.lastIndexOf("\\")) + "\\WEB-INF\\debugPrefs.obj";
-		File pFile = new File(prefsFile);
+		
+		String prefsFile=getDebugPrefsFileName(request);
+		
+		File pFile = null;
+		if(prefsFile!=null) pFile=new File(prefsFile);
 		Map prefs = null;
 		HttpSession session = request.getSession();
-		if(pFile.exists()) {
+		if(pFile!=null && pFile.exists()) {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(prefsFile));
 			prefs = (Map)ois.readObject();
 			ois.close();
@@ -316,6 +317,28 @@ public abstract class LowLevelGrouperCapableAction
 		
 		return prefs;
 		}
+	
+	    public boolean saveDebugPrefs(Map map,HttpServletRequest request) throws Exception{
+	    	
+			String prefsFile=getDebugPrefsFileName(request);
+			if(prefsFile==null) return false;
+			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(prefsFile));
+			oos.writeObject(map);
+			oos.close();
+			return true;
+	    }
+	    
+	    private static String getDebugPrefsFileName(HttpServletRequest request) {
+	    	String val = getMediaResources(request).getString("debug.prefs.dir");
+	    	File file = new File(val);
+	    	if(file.exists() && file.isDirectory()) {
+	    		return val + File.separator + "debugprefs.obj";
+	    		
+	    	}else{
+	    		return null;
+	    	}
+	    	
+	    }
 	
 	/**
 	 * Put here so not duplicated in Actions
