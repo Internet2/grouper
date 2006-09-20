@@ -16,12 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.util.*;
+
 import  junit.framework.*;
+
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlImport0.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: TestXmlImport0.java,v 1.3 2006-09-20 17:55:20 blair Exp $
  * @since   1.0
  */
 public class TestXmlImport0 extends TestCase {
@@ -41,12 +44,36 @@ public class TestXmlImport0 extends TestCase {
     LOG.debug("tearDown");
   }
 
-  public void testInstantiateWithoutOptions() {
+  public void testGetDefaultOptions() {
     LOG.info("testInstantiateWithoutOptions");
     try {
-      XmlImporter xml = new XmlImporter();
+      XmlImporter xml = new XmlImporter(
+        GrouperSession.start( SubjectFinder.findRootSubject() ),
+        new Properties()
+      );
       Assert.assertNotNull("xml !null", xml);
       Assert.assertTrue("xml instanceof XmlImporter", xml instanceof XmlImporter);
+      Properties options = xml.getOptions();
+      Assert.assertNotNull("options !null", options);
+      T.amount("set options", 6, options.size());
+      String k = "import.metadata.group-types";
+      String v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "import.metadata.group-type-attributes";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "import.data.apply-new-group-types";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "import.data.update-attributes";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "import.data.lists";
+      v = "replace";
+      T.string(k, v, options.getProperty(k));
+      k = "import.data.privileges";
+      v = "add";
+      T.string(k, v, options.getProperty(k));
     }
     catch (Exception e) {
       T.e(e);

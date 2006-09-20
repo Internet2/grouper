@@ -35,7 +35,8 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.25 2006-09-20 17:13:18 blair Exp $
+ * @author  blair christensen.
+ * @version $Id: XmlExporter.java,v 1.26 2006-09-20 17:55:20 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {

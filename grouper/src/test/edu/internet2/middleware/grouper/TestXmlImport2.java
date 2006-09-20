@@ -17,12 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 import  java.util.*;
+
 import  junit.framework.*;
+
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlImport2.java,v 1.2 2006-08-30 18:35:37 blair Exp $
+ * @version $Id: TestXmlImport2.java,v 1.3 2006-09-20 17:55:20 blair Exp $
  * @since   1.0
  */
 public class TestXmlImport2 extends TestCase {
@@ -45,7 +47,10 @@ public class TestXmlImport2 extends TestCase {
   public void testGetDefaultOptions() {
     LOG.info("testGetDefaultOptions");
     try {
-      XmlImporter xml     = new XmlImporter( new Properties() );  
+      XmlImporter xml     = new XmlImporter(
+        GrouperSession.start( SubjectFinder.findRootSubject() ),
+        new Properties()
+      );  
       Properties  options = xml.getOptions();
       Assert.assertNotNull("options !null", options);
       Assert.assertTrue("0 set options", options.size() == 0);
@@ -55,5 +60,5 @@ public class TestXmlImport2 extends TestCase {
     }
   } // public void testGetDefaultOptions()
 
-}
+} // public class TestXmlImport2
 
