@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.17 2006-09-20 17:59:58 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.18 2006-09-20 18:05:23 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -57,7 +57,6 @@ public class XmlImporter {
   private List            namingPrivLists = new ArrayList();
   private List            namingPrivs     = new ArrayList();
   private Properties      options         = new Properties();
-  private Properties      safeOptions     = new Properties();
   private GrouperSession  s;
 
  
@@ -346,8 +345,8 @@ public class XmlImporter {
     throws  Exception 
   {
     LOG.info("Starting load at ROOT stem");
-    processProperties(doc);
-    Stem stem = StemFinder.findRootStem(s);
+    this._processProperties(doc);
+    Stem stem = StemFinder.findRootStem(this.s);
     load(stem, doc);
     LOG.info("Ending load at ROOT stem");
   } // public void load(doc)
@@ -367,7 +366,7 @@ public class XmlImporter {
     throws  Exception 
   {
     LOG.info("Starting load at " + rootStem.getName());
-    processProperties(doc);
+    this._processProperties(doc);
     this.importToName = rootStem.getName();
     if (this.importToName.equals(sep)) {
       importToName = "";
@@ -406,7 +405,7 @@ public class XmlImporter {
     throws  Exception 
   {
     LOG.info("Starting flat load");
-    processProperties(doc);
+    this._processProperties(doc);
 
     Element root = doc.getDocumentElement();
 
@@ -483,23 +482,6 @@ public class XmlImporter {
 
     return props;
   } // protected Properties getImportedOptionsFromXml(doc)
-
-  // @throws  GrouperException
-  // @since   1.1.0
-  protected void processProperties(Document doc) 
-    throws  GrouperException
-  {
-    options               = safeOptions;
-    Properties xmlOptions = getImportOptionsFromXml(doc);
-    if (xmlOptions == null && options.isEmpty()) {
-      throw new IllegalStateException("No options have been set");
-    }
-    if (xmlOptions == null)
-      return;
-    LOG.info("Merging user supplied options with XML options. Former take precedence");
-    options = new Properties(xmlOptions);
-    options.putAll(safeOptions);
-  } // protected void processProperties(doc)
 
 
   // PRIVATE CLASS METHODS //
@@ -2048,6 +2030,23 @@ public class XmlImporter {
       }
     }
   } // private void _processPrivileges(e, stem, type)
+
+  // @throws  GrouperException
+  // @since   1.1.0
+  private void _processProperties(Document doc) 
+    throws  GrouperException
+  {
+    Properties xmlOptions = getImportOptionsFromXml(doc);
+    if (xmlOptions == null && this.options.isEmpty()) {
+      throw new IllegalStateException("No options have been set");
+    }
+    if (xmlOptions == null) {
+      return;
+    }
+    LOG.info("Merging user supplied options with XML options. Former take precedence");
+    xmlOptions.putAll(this.options);  // add current to xml
+    this.options = xmlOptions;        // replace current with merged options
+  } // private void _processProperties(doc)
 
   // @throws  GrouperException
   // @throws  InsufficientPrivilegeException
