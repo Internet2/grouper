@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.27 2006-09-20 18:40:39 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.28 2006-09-20 19:20:46 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -254,10 +254,8 @@ public class XmlExporter {
   public void export()
     throws  Exception 
   {
-    Stem        stem  = StemFinder.findRootStem(s);
-    GroupOrStem gos   = this._findByStem(stem);
     LOG.info("Start export of entire repository");
-    this._export(gos, true, false);
+    this._export(StemFinder.findRootStem(s), true, false);
     LOG.info("Finished export of entire repository");
   } // public void export()
 
@@ -345,9 +343,8 @@ public class XmlExporter {
   public void export(Group group, boolean relative) 
     throws  Exception 
   {
-    GroupOrStem gos = this._findByGroup(group);
     LOG.info("Start export of Group " + group.getName());
-    this._export(gos, relative, false);
+    this._export(group, relative, false);
     LOG.info("Finished export of Group " + group.getName());
   } // public void export( group, relative)
 
@@ -363,9 +360,8 @@ public class XmlExporter {
   public void export(Stem stem, boolean relative, boolean includeParent) 
     throws  Exception 
   {
-    GroupOrStem gos = this._findByStem(stem);
     LOG.info("Start export of Stem " + stem.getName());
-    _export(gos, relative, includeParent);
+    _export(stem, relative, includeParent);
     LOG.info("Finished export of Stem " + stem.getName());
   } // public void export(stem, relative, includeParent)
 
@@ -399,13 +395,13 @@ public class XmlExporter {
 
   // @since   1.0
   protected static boolean hasImmediatePrivilege(
-    Subject subject, GroupOrStem gos, String privilege
+    Subject subject, Owner gos, String privilege
   ) 
   {
-    if (gos.isGroup()) {
-      return hasImmediatePrivilege(subject, gos.getGroup(), privilege);
+    if (gos instanceof Group) {
+      return hasImmediatePrivilege(subject, (Group) gos, privilege);
     }
-    return hasImmediatePrivilege(subject, gos.getStem(), privilege);
+    return hasImmediatePrivilege(subject, (Stem) gos, privilege);
   } // protected static boolean hasImmediatePrivilege(subject, gos, privilege)
 
   // @since   1.0
@@ -437,7 +433,7 @@ public class XmlExporter {
 
   // @since   1.1.0
   protected Properties getOptions() {
-    return this.options;
+    return (Properties) this.options.clone();
   } // protected Properties getOptions()
 
 
@@ -640,7 +636,7 @@ public class XmlExporter {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.0
-  private synchronized void _export(GroupOrStem groupOrStem, boolean relative, boolean includeParent)
+  private synchronized void _export(Owner gos, boolean relative, boolean includeParent)
     throws  Exception 
   {
     LOG.info("Relative export="     + relative);
@@ -655,77 +651,57 @@ public class XmlExporter {
     }
     if (relative) {
       Stem dummyStem = null;
-      if      (includeParent || groupOrStem.isGroup()) {
-        if (groupOrStem.isGroup()) {
-          dummyStem = groupOrStem.getGroup().getParentStem();
+      if      (includeParent || gos instanceof Group) {
+        if (gos instanceof Group) {
+          dummyStem = ( (Group) gos ).getParentStem();
         } 
         else {
-          dummyStem = groupOrStem.getStem().getParentStem();
+          dummyStem = ( (Stem) gos ).getParentStem();
         }
       } 
       else if (!includeParent) {
-        dummyStem = groupOrStem.getStem();
+        dummyStem = (Stem) gos;
       }
       fromStem = dummyStem.getName() + ":";
     }
 
     if (_optionTrue("export.data")) {
-      _exportData(groupOrStem, padding);
+      _exportData(gos, padding);
     } 
     else {
       LOG.info("export.data=false, so no data exported");
     }
-    _writeExportParams(groupOrStem, padding);
+    _writeExportParams(gos, padding);
     _writeFooter(before);
-  } // private synchronized void _export(groupOrStem, relative, includeParent)
+  } // private synchronized void _export(gos, relative, includeParent)
 
   // @since   1.1.0
-  private void _exportData(GroupOrStem groupOrStem, String padding) 
+  private void _exportData(Owner gos, String padding) 
     throws  Exception 
   {
     LOG.debug("Writing repository data as XML");
     this.xml.puts(padding + "<data>");
     Stack stems = null;
     if (!isRelative) {
-      stems = _getParentStems(groupOrStem);
+      stems = _getParentStems(gos);
     } 
     else {
       stems = new Stack();
-      if (groupOrStem.isGroup()) {
-        stems.push(groupOrStem.getGroup());
+      if (gos instanceof Group) {
+        stems.push( (Group) gos);
         if (includeParent) {
-          stems.push(groupOrStem.getGroup().getParentStem());
+          stems.push( ( (Group) gos ).getParentStem());
         }
       } 
       else {
-        stems.push(groupOrStem.getStem());
+        stems.push( (Stem) gos);
       }
     }
     _writeStems(stems, padding + "  ");
     this.xml.puts(padding + "</data>");
     LOG.debug("Finished repository data as XML");
-  } // private void _exportData(groupOrStem, padding)
+  } // private void _exportData(gos, padding)
 
-   // Already have a group but a method needs GroupOrStem
-   // @since    1.1.0
-  private GroupOrStem _findByGroup(Group group) {
-    GroupOrStem groupOrStem = new GroupOrStem();
-    groupOrStem.group       = group;
-    return groupOrStem;
-  } // private GroupOrStem _findByGroup(group)
-  
-  /**
-   * Already have a stem but a method needs GroupOrStem
-   * <p/>
-   * @param   stem
-   * @since   1.1.0
-   */
-  private GroupOrStem _findByStem(Stem stem) {
-    GroupOrStem groupOrStem = new GroupOrStem();
-    groupOrStem.stem        = stem;
-    return groupOrStem;
-  } // private GroupOrStem _findByStem(stem)
-  
   // @since   1.0
   private String _fixGroupName(String name) {
     if (fromStem != null && name.startsWith(fromStem)) {
@@ -771,18 +747,18 @@ public class XmlExporter {
   } // private String _fixXmlAttribute(value)
 
   // @since   1.0
-  private Stack _getParentStems(GroupOrStem gos) 
+  private Stack _getParentStems(Owner gos) 
     throws  Exception 
   {
     Stem  startStem = null;
     Stack stems     = new Stack();
-    if (gos.isGroup()) {
-      Group group = gos.getGroup();
+    if (gos instanceof Group) {
+      Group group = (Group) gos;
       stems.push(group);
       startStem = group.getParentStem();
     } 
     else {
-      startStem = gos.getStem();
+      startStem = (Stem) gos;
     }
     stems.push(startStem);
     Stem parent = startStem;
@@ -884,7 +860,7 @@ public class XmlExporter {
   // @throws  IOException
   // @since   1.1.0
   private void _writeExportParams(
-    GroupOrStem groupOrStem, String padding
+    Owner groupOrStem, String padding
   ) 
     throws  IOException
   {
@@ -892,15 +868,19 @@ public class XmlExporter {
     this.xml.put(padding);
     this.xml.puts("<exportParams>");
     this.xml.put(padding + "  ");
-    this.xml.put("<node type='" + groupOrStem.getType() + "'>");
+    if (groupOrStem instanceof Group) {
+      this.xml.put("<node type='group'>");
+    }
+    else {
+      this.xml.put("<node type='stem'>");
+    }
     this.xml.put(groupOrStem.getName());
     this.xml.puts("</node>");
     this.xml.put(padding + "  ");
     this.xml.puts("<relative>" + isRelative + "</relative>");
-    if (groupOrStem.isStem()) {
+    if (groupOrStem instanceof Stem) {
       this.xml.put(padding + "  ");
-      this.xml.puts("<includeParent>" + includeParent
-          + "</includeParent>");
+      this.xml.puts("<includeParent>" + includeParent + "</includeParent>");
     }
     this.xml.put(padding);
     this.xml.puts("</exportParams>");
@@ -1474,29 +1454,7 @@ public class XmlExporter {
   // @throws  IOException
   // @throws  MemberNotFoundException
   // @since   1.1.0
-  private void _writePrivileges(String privilege, Set subjects, Group group, String padding)
-    throws  IOException,
-            MemberNotFoundException
-  {
-    GroupOrStem gos = this._findByGroup(group);
-    _writePrivileges(privilege, subjects, gos, padding);
-  } // private void _writePrivileges(privilege, subjects, group, padding)
-
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @since   1.1.0
-  private void _writePrivileges(String privilege, Set subjects, Stem stem, String padding)
-    throws  IOException,
-            MemberNotFoundException
-  {
-    GroupOrStem gos = this._findByStem(stem);
-    _writePrivileges(privilege, subjects, gos, padding);
-  } // private void _writePrivileges(privilege, subjects, stem, padding)
-
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @since   1.1.0
-  private void _writePrivileges(String privilege, Set subjects, GroupOrStem gos, String padding)
+  private void _writePrivileges(String privilege, Set subjects, Owner gos, String padding)
     throws  IOException,
             MemberNotFoundException
   {
@@ -1755,86 +1713,6 @@ public class XmlExporter {
     this.xml.puts("</subjectSourceMetaData>");
     this.xml.puts();
   } // private void _writeSubjectSourceMetaData(padding)
-
-
-  // CLASS: GroupOrStem // 
-
-  // @since   1.1.0
-  class GroupOrStem {
-    private static final String G   = "group";
-    private static final String NI  = "GroupOrStem is not initialized";
-    private static final String NS  = "stem";
-
-    private Group           group = null;
-    private Stem            stem  = null;
-    //private GrouperSession  s     = null;
-    
-
-    String getDisplayExtension() {
-      if (group != null) {
-        return group.getDisplayExtension();
-      }
-      if(stem != null) {
-        return stem.getDisplayExtension();
-      }
-      throw new IllegalStateException(NI);
-    } // String getDisplayExtension()
-   
-    String getDisplayName() {
-      if (group != null) {
-        return group.getDisplayName();
-      }
-      if (stem != null) {
-        return stem.getDisplayName();
-      }
-      throw new IllegalStateException(NI);
-    } // String getDisplayName()
-    
-    Group getGroup() {
-      return this.group;
-    } // Group getGroup()
-    
-    String getId() {
-      if (group != null) {
-        return group.getUuid();
-      }
-      return stem.getUuid();
-    } // String getId()
-   
-    String getName() {
-      if (group != null) {
-        return group.getName();
-      }
-      if (stem != null) {
-        return stem.getName();
-      }
-      throw new IllegalStateException(NI);
-    } // String getName()
-    
-    Stem getStem() {
-      return this.stem;
-    } // Stem getStem()
-  
-    String getType() {
-      if (group != null) {
-        return G;
-      }
-      if (stem != null) {
-        return NS;
-      }
-      throw new IllegalStateException(NI);
-    } // String getType()
-
-    boolean isGroup() {
-      return (group != null);
-    }  // boolean isGroup()
-    
-    boolean isStem() {
-      return (stem != null);
-    } // boolean isStem()
-   
-  } 
-  // CLASS: GroupOrStem //
 
 } // public class XmlExporter
 

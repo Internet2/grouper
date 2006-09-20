@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.20 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: Composite.java,v 1.21 2006-09-20 19:20:46 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -244,6 +244,11 @@ public class Composite extends Owner {
       return GrouperConfig.EMPTY_STRING;
     }
   } // protected String getRightName()
+
+  // @since   1.1.0
+  protected String getName() {
+    return this.getClass().getName();
+  } // protected String getName()
 
   // @since   1.0
   protected void setModified() {
