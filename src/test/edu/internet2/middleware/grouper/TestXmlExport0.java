@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.io.*;
 import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport0.java,v 1.2 2006-08-30 18:35:37 blair Exp $
+ * @version $Id: TestXmlExport0.java,v 1.3 2006-09-20 15:36:38 blair Exp $
  * @since   1.0
  */
 public class TestXmlExport0 extends TestCase {
@@ -42,17 +43,63 @@ public class TestXmlExport0 extends TestCase {
     LOG.debug("tearDown");
   }
 
-  public void testInstantiateWithEmptyOptions() {
-    LOG.info("testInstantiateWithEmptyOptions");
+  public void testGetDefaultOptions() {
+    LOG.info("testGetDefaultOptions");
     try {
-      XmlExporter xml = new XmlExporter( new Properties() );  
+      XmlExporter xml = new XmlExporter(
+        GrouperSession.start( SubjectFinder.findRootSubject() ),
+        new Properties(),
+        new StringWriter()
+      );  
       Assert.assertNotNull("xml !null", xml);
       Assert.assertTrue("xml instanceof XmlExporter", xml instanceof XmlExporter);
+      Properties options = xml.getOptions();
+      Assert.assertNotNull("options !null", options);
+      Assert.assertTrue("13 set options", options.size() == 13);
+      String k = "export.metadata";
+      String v = "false";
+      T.string(k, v, options.getProperty(k));
+      k = "export.data";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "export.privs.naming";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "export.privs.access";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "export.privs.immediate-only";
+      v = "false";
+      T.string(k, v, options.getProperty(k));
+      k = "export.group.members";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "export.group.members.immediate-only";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "export.group.lists";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "export.group.lists.immediate-only";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "export.group.internal-attributes";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "export.group.custom-attributes";
+      v = "true";
+      T.string(k, v, options.getProperty(k));
+      k = "export.stem.internal-attributes";
+      v = "false";
+      T.string(k, v, options.getProperty(k));
+      k = "export.privs.for-parents";
+      v = "false";
+      T.string(k, v, options.getProperty(k));
     }
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testInstantiateWithEmptyOptions()
+  } // public void testGetDefaultOptions()
 
 }
 

@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.21 2006-09-13 19:40:12 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.22 2006-09-20 15:36:39 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -60,150 +60,114 @@ public class XmlExporter {
   // CONSTRUCTORS //
 
   /**
-   * The export process is configured using the following properties: <table
-   * width="100%" border="1">
+   * Export the Groups Registry to XML.
+   * <p>
+   * The export process is configured using the follow properties.
+   * </p>
+   * <table width="90%" border="1">
    * <tr>
    * <td>Key</td>
-   * <td>values</td>
+   * <td>Values</td>
+   * <td>Default Value</td>
    * <td>Description</td>
    * </tr>
    * <tr>
    * <td>export.metadata</td>
    * <td>true/false</td>
-   * <td>Determines whether information about the group types and fields available in this Grouper
-   * instance should be exported, as well as the Subject sources.
-   * </td>
+   * <td>false</td>
+   * <td>If true Group type and field information as well as Subject sources will be exported.</td>
    * </tr>
    * <tr>
    * <td>export.data</td>
    * <td>true/false</td>
-   * <td>Determines if actual data
-   * is exported</td>
+   * <td>true</td>
+   * <td>If true data will be exported.</td>
    * </tr>
    * <tr>
-   * <td>export.privs.naming
-   *</td>
+   * <td>export.privs.naming</td>
    * <td>true/false</td>
-   * <td>Determines if naming
-   * privilege information is exported with stems</td>
+   * <td>true</td>
+   * <td>If true naming privileges will be exported along with Stems.</td>
    * </tr>
    * <tr>
-   * <td>export.privs.access
-   *</td>
+   * <td>export.privs.access</td>
    * <td>true/false</td>
-   * <td>Determines if access
-   * privilege information is exported with groups</td>
+   * <td>true</td>
+   * <td>If true access privileges will be exported along with Groups.</td>
    * </tr>
    * <tr>
    * <td>export.privs.immediate-only</td>
    * <td>true/false</td>
-   * <td>Determines whether all
-   * privilegees are exported or only those to which privileges have been
-   * granted directly</td>
+   * <td>false</td>
+   * <td>If true only directly granted privileges will be exported.</td>
    * </tr>
    * <tr>
-   * <td>export.group.members
-   *</td>
+   * <td>export.group.members</td>
    * <td>true/false</td>
-   * <td>Determines whether or not
-   * group membership information is exported</td>
+   * <td>true</td>
+   * <td>If true group memberships are exported.</td>
    * </tr>
    * <tr>
    * <td>export.group.members.immediate-only</td>
    * <td>true/false</td>
-   * <td>Determines whether all
-   * members are exported, or only direct members</td>
+   * <td>true</td>
+   * <td>If true only immediate group memberships will be exported.</td>
    * </tr>
    * <tr>
-   * <td>export.group.lists
-   * </td>
+   * <td>export.group.lists</td>
    * <td>true/false</td>
-   * <td>Determines whether custom
-   * list attributes are exported</td>
+   * <td>true</td>
+   * <td>If true custom list attributes will be exported.</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica,
-   * sans-serif">export.group.lists.immediate-only</td>
+   * <td>export.group.lists.immediate-only</td>
    * <td>true/false</td>
-   * <td>Determines whether all
-   * list members are exported, or only direct members</td>
+   * <td>true</td>
+   * <td>If true only immediate list members will be exported.</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica,
-   * sans-serif">export.group.internal-attributes</td>
+   * <td>export.group.internal-attributes</td>
    * <td>true/false</td>
-   * <td>Determines whether Grouper
-   * maintained attributes e.g. modifyDate are exported</td>
+   * <td>true</td>
+   * <td>If true system-maintained Group attributes (eg. <tt>modifyDate</tt>) will be exported.</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica,
-   * sans-serif">export.group.custom-attributes</td>
+   * <td>>export.group.custom-attributes</td>
    * <td>true/false</td>
-   * <td>Determines whether custom
-   * attributes are exported</td>
+   * <td>true</td>
+   * <td>If true custom attributes will be exported.</td>
    * </tr>
    * <tr>
-   * <td>
-   * export.stem.internal-attributes <br>
-   *</td>
+   * <td>export.stem.internal-attributes</td>
    * <td>true/false</td>
-   * <td>Determines whether Grouper
-   * maintained attributes e.g. modifyDate are exported</td>
+   * <td>false</td>
+   * <td>If true system-maintained Stem attributes (eg. <tt>modifyDate</tt>) will be exported.</td>
    * </tr>
    * <tr>
-   * <td>export.privs.for-parents
-   *</td>
+   * <td>export.privs.for-parents</td>
    * <td>true/false</td>
-   * <td>If exporting part of the
-   * hierarchy it is possible to export parent stems. This property determines
-   * if privileges are exported for parent stems</td>
+   * <td>false</td>
+   * <td>If true and only exporting a partial hierarchy then privileges for parent stems will be exported.</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica,
-   * sans-serif">export.subject-attributes.source.&lt;source
-   * name&gt;.&lt;subject type&gt;</td>
-   * <td>Space separated list of
-   * attribute names</td>
-   * <td>Specifies any attributes
-   * that should be exported with a Subject given the source and subject type
-   *</td>
+   * <td>export.subject-attributes.source.&lt;source name&gt;.&lt;subject type&gt;</td>
+   * <td>Space separated list of attribute names</td>
+   * <td>?</td>
+   * <td>Specifices any attributes that should be exported with a Subject given the specified Source and Subject Type.</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica,
-   * sans-serif">export.subject-attributes.source.&lt;source name&gt;
-   * </td>
-   * <td>Space separated list of
-   * attribute names</td>
-   * <td>Specifies any attributes
-   * that should be exported with a Subject given the source regardless of th
-   * esubject type</td>
+   * <td>export.subject-attributes.source.&lt;source name&gt;</td>
+   * <td>Space separated list of attribute names</td>
+   * <td>?</td>
+   * <td>Specifies any attributes that should be exported with a Subject given the specified Source.</td>
    * </tr>
    * <tr>
-   * <td><font face="Arial, Helvetica,
-   * sans-serif">export.subject-attributes.type.&lt;subject type&gt;
-   * </td>
-   * <td>Space separated list of
-   * attribute names</td>
-   * <td>Specifies any attributes
-   * that should be exported with a Subject given the subject type regardless
-   * of the source</td>
+   * <td>export.subject-attributes.type.&lt;subject type&gt;</td>
+   * <td>Space separated list of attribute names</td>
+   * <td>?</td>
+   * <td>Specifies any attributes that should be exported with a Subject given the Subject Type.</td>
    * </tr>
    * </table>
-   * @param   options
-   * @throws  Exception
-   * @since   1.0
-   */
-  public XmlExporter(Properties options) 
-    throws  Exception 
-  {
-    this.baseType = GroupTypeFinder.find("base");
-    this.options  = options;
-    this.sysUser  = SubjectFinder.findRootSubject();
-  } // public XmlExporter(options)
-
-  /**
-   * Export the Groups Registry to XML.
-   * </p>
    * @param   s           Perform export within this session.
    * @param   userOptions User-specified configuration parameters.
    * @param   writer      Write XML here.
@@ -359,10 +323,9 @@ public class XmlExporter {
           }
         }
         if (group == null && stem == null) {
-          
-        throw new IllegalArgumentException(
-          "Could not find group or stem with id [" + id + "]"
-        );
+          throw new IllegalArgumentException(
+            "Could not find group or stem with id [" + id + "]"
+          );
         }
       } 
       else {
