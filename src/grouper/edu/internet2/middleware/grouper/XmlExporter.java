@@ -36,23 +36,21 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.26 2006-09-20 17:55:20 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.27 2006-09-20 18:40:39 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
 
   // PRIVATE CLASS CONSTANTS //  
-  private static final String CF                = "export.properties"; 
-  private static final String E_NAME_OR_UUID    = "cannot specify uuid and name";
-  private static final String E_UNKNOWN_OPTION  = "unknown option: ";
-  private static final Log    LOG               = LogFactory.getLog(XmlExporter.class);
-  private static final String RC_EFILE          = "export.file";
-  private static final String RC_NAME           = "owner.name";
-  private static final String RC_PARENT         = "mystery.parent";
-  private static final String RC_RELATIVE       = "mystery.relative";
-  private static final String RC_SUBJ           = "subject.identifier";
-  private static final String RC_UPROPS         = "properties.user";
-  private static final String RC_UUID           = "owner.uuid";
+  private static final String CF          = "export.properties"; 
+  private static final Log    LOG         = LogFactory.getLog(XmlExporter.class);
+  private static final String RC_EFILE    = "export.file";
+  private static final String RC_NAME     = "owner.name";
+  private static final String RC_PARENT   = "mystery.parent";
+  private static final String RC_RELATIVE = "mystery.relative";
+  private static final String RC_SUBJ     = "subject.identifier";
+  private static final String RC_UPROPS   = "properties.user";
+  private static final String RC_UUID     = "owner.uuid";
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -459,7 +457,7 @@ public class XmlExporter {
         if (arg.startsWith("-")) {
           if (arg.equals("-id")) {
             if (rc.getProperty(RC_NAME) != null) {
-              throw new IllegalArgumentException(E_NAME_OR_UUID);
+              throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
             }
             rc.setProperty(RC_UUID, args[pos + 1]);
             pos += 2;
@@ -467,7 +465,7 @@ public class XmlExporter {
           } 
           else if (arg.equals("-name")) {
             if (rc.getProperty(RC_UUID) != null) {
-              throw new IllegalArgumentException(E_NAME_OR_UUID);
+              throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
             }
             rc.setProperty(RC_NAME, args[pos + 1]);
             pos += 2;
@@ -483,7 +481,7 @@ public class XmlExporter {
             pos++;
             continue;
           } else {
-            throw new IllegalArgumentException(E_UNKNOWN_OPTION + arg);
+            throw new IllegalArgumentException(XmlUtils.E_UNKNOWN_OPTION + arg);
           }
         }
         switch (inputPos) {

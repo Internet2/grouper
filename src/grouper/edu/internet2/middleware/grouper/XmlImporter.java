@@ -35,16 +35,21 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.18 2006-09-20 18:05:23 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.19 2006-09-20 18:40:39 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
 
   // PRIVATE CLASS CONSTANTS //  
-  private static final String CF      = "import.properties";
-  private static final Log    LOG     = LogFactory.getLog(XmlImporter.class);
-  private static final String NS_ROOT = GrouperConfig.EMPTY_STRING;
-  private final static String sep     = ":"; // TODO Expose elsewhere
+  private static final String CF            = "import.properties";
+  private static final Log    LOG           = LogFactory.getLog(XmlImporter.class);
+  private static final String NS_ROOT       = GrouperConfig.EMPTY_STRING;
+  private static final String RC_IFILE      = "import.file";
+  private static final String RC_NAME       = "owner.name";
+  private static final String RC_SUBJ       = "subject.identifier";
+  private static final String RC_UPROPS     = "properties.user";
+  private static final String RC_UPDATELIST = "update.list";
+  private static final String RC_UUID       = "owner.uuid";
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -136,188 +141,41 @@ public class XmlImporter {
    * Process an Xml file as the 'root' user.
    * <p/>
    * @param   args    args[0] = name of Xml file to process
-   * @throws  Exception
-   * @since   1.0
+   * @since   1.1.0
    */
-  public static void main(String[] args) 
-    throws  Exception 
-  {
+  public static void main(String[] args) {
     if (XmlUtils.wantsHelp(args)) {
       System.out.println( _getUsage() );
       System.exit(0);
     }
-
-    String  arg;
-    String  id                    = null;
-    String  importFile            = null;
-    int     inputPos              = 0;
-    boolean list                  = false;
-    String  name                  = null;
-    int     pos                   = 0;
-    String  subjectIdentifier     = null;
-    String  userImportProperties  = null;
+    Properties  rc        = _getArgs(args);
+    XmlImporter importer  = null;
     try {
-      while (pos < args.length) {
-        arg = args[pos];
-        if (arg.startsWith("-")) {
-          if (arg.equals("-id")) {
-            if (name != null) {
-              throw new IllegalArgumentException("Cannot specify id and name");
-            }
-            id = args[pos + 1];
-            if (id.startsWith("-")) {
-              throw new IllegalArgumentException("id cannot start with -");
-            }
-            pos += 2;
-            continue;
-          } 
-          else if (arg.equals("-name")) {
-            if (id != null) {
-              throw new IllegalArgumentException("Cannot specify id and name");
-            }
-            name = args[pos + 1];
-            if (name.startsWith("-")) {
-              throw new IllegalArgumentException("name cannot start with -");
-            }
-            pos += 2;
-            continue;
-          } 
-          else if (arg.equals("-list")) {
-            list = true;
-            pos++;
-            continue;
-          } 
-          else {
-            throw new IllegalArgumentException("Unrecognised option " + arg);
-          }
-        }
-        switch (inputPos) {
-        case 0:
-          subjectIdentifier = arg;
-          break;
-        case 1:
-          importFile = arg;
-          break;
-        case 2:
-          userImportProperties = arg;
-          break;
-        case 3:
-          throw new IllegalArgumentException("Too many arguments - " + arg);
-        }
-        pos++;
-        inputPos++;
-      }
-      if (inputPos < 1) {
-        throw new IllegalStateException("Too few arguments");
-      }
-    } 
-    catch (Exception ex) {
-      ex.printStackTrace();
-      System.err.println();
-      System.err.println( _getUsage() );
+      importer  = new XmlImporter(
+        GrouperSession.start(
+          SubjectFinder.findByIdentifier( rc.getProperty(RC_SUBJ) )
+        ),
+        XmlUtils.getUserProperties(LOG, rc.getProperty(RC_UPROPS))
+      );
+      _handleArgs(importer, rc);
+      LOG.info("Finished import of [" + rc.getProperty(RC_IFILE) + "]");
+    }
+    catch (Exception e) {
+      LOG.fatal("unable to import from xml: " + e.getMessage());
       System.exit(1);
     }
-
-    Document        doc       = XmlImporter.getDocument(importFile);
-
-    XmlImporter     importer  = new XmlImporter(
-      GrouperSession.start(
-        SubjectFinder.findByIdentifier(subjectIdentifier)
-      ),
-      XmlUtils.getUserProperties(LOG, userImportProperties)
-    );
-
-    if (list) {
-      importer.loadFlatGroupsOrStems(doc);
-    } 
-    else {
-      if (id == null && name == null) {
-        importer.load(doc);
-      } 
-      else {
-        Stem stem = null;
-        if (id != null) {
-          try {
-            stem = StemFinder.findByUuid(importer.s, id);
-            LOG.debug("Found stem with id [" + id + "]");
-          } catch (StemNotFoundException e) {
-          }
-
-        } 
-        else {
-          try {
-            stem = StemFinder.findByName(importer.s, name);
-            LOG.debug("Found stem with name [" + name + "]");
-          } catch (StemNotFoundException e) {
-          }
+    finally {
+      if (importer != null) {
+        try {
+          importer.s.stop();
         }
-        if (stem == null) {
-          if (name != null) {
-            throw new IllegalArgumentException(
-              "Could not find stem with name [" + name + "]"
-            );
-          }
-          throw new IllegalArgumentException(
-            "Could not find stem with id [" + id + "]"
-          );
+        catch (SessionException eS) {
+          LOG.error(eS.getMessage());
         }
-        importer.load(stem, doc);
       }
     }
-    LOG.info("Finished import of [" + importFile + "]");
-    importer.s.stop();
+    System.exit(0);
   } // public static void main(args)
-
-
-  // PUBLIC CLASS METHODS //
-
-  /**
-   * Convenience method for getting a Document given a filename
-   * <p/>
-   * @param   filename
-   * @throws  Exception
-   * @since   1.0
-   */
-  public static Document getDocument(String filename) 
-    throws  Exception 
-  {
-    DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
-    DocumentBuilder         db  = dbf.newDocumentBuilder();
-    Document                doc = db.parse(new File(filename));
-    return doc;
-  } // public static Document getDocument(filename)
-
-  /**
-   * Convenience method for getting a Document given an InputStream
-   * <p/> 
-   * @param   is
-   * @throws  Exception
-   * @since   1.0
-   */
-  public static Document getDocument(InputStream is) 
-    throws  Exception 
-  {
-    DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
-    DocumentBuilder         db  = dbf.newDocumentBuilder();
-    Document                doc = db.parse(is);
-    return doc;
-  } // public static Document getDocument(is)
-
-  /**
-   * Convenience method for getting a Document given a URL
-   * <p/>
-   * @param   url
-   * @throws  Exception
-   * @since   1.0
-   */
-  public static Document getDocument(URL url) 
-    throws  Exception 
-  {
-    DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
-    DocumentBuilder         db  = dbf.newDocumentBuilder();
-    Document                doc = db.parse(url.openStream());
-    return doc;
-  } // public static Document getDocument(url)
 
 
   // PUBLIC INSTANCE METHODS //
@@ -368,7 +226,7 @@ public class XmlImporter {
     LOG.info("Starting load at " + rootStem.getName());
     this._processProperties(doc);
     this.importToName = rootStem.getName();
-    if (this.importToName.equals(sep)) {
+    if (this.importToName.equals(Stem.ROOT_INT)) {
       importToName = "";
     }
     Element root = doc.getDocumentElement();
@@ -443,15 +301,6 @@ public class XmlImporter {
     LOG.info("Ending flat load");
   } // public void loadFlatGropusOrStems(doc)
 
-  /**
-   * @param   options   The options to set. These options supplement
-   *                    and override those defined in the XML.
-   * @since   1.0
-   */
-  public void setOptions(Properties options) {
-    this.options = options;
-  } // public void setOptions(options)
-
 
   // PROTECTED INSTANCE METHODS //
 
@@ -485,6 +334,105 @@ public class XmlImporter {
 
 
   // PRIVATE CLASS METHODS //
+
+  // @since   1.1.0
+  private static Properties _getArgs(String[] args) {
+    Properties rc = new Properties();
+
+    String  arg;
+    int     inputPos  = 0;
+    int     pos       = 0;
+
+    try {
+      while (pos < args.length) {
+        arg = args[pos];
+        if (arg.startsWith("-")) {
+          if (arg.equals("-id")) {
+            if (rc.getProperty(RC_NAME) != null) {
+              throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
+            }
+            rc.setProperty(RC_UUID, args[pos + 1]);
+            pos += 2;
+            continue;
+          } 
+          else if (arg.equals("-name")) {
+            if (rc.getProperty(RC_UUID) != null) {
+              throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
+            }
+            rc.setProperty(RC_NAME, args[pos + 1]);
+            pos += 2;
+            continue;
+          } 
+          else if (arg.equals("-list")) {
+            rc.setProperty(RC_UPDATELIST, "true");
+            pos++;
+            continue;
+          } 
+          else {
+            throw new IllegalArgumentException(XmlUtils.E_UNKNOWN_OPTION + arg);
+          }
+        }
+        switch (inputPos) {
+        case 0:
+          rc.setProperty(RC_SUBJ, arg);
+          break;
+        case 1:
+          rc.setProperty(RC_IFILE, arg);
+          break;
+        case 2:
+          rc.setProperty(RC_UPROPS, arg);
+          break;
+        case 3:
+          throw new IllegalArgumentException("Too many arguments - " + arg);
+        }
+        pos++;
+        inputPos++;
+      }
+      if (inputPos < 1) {
+        throw new IllegalStateException("Too few arguments");
+      }
+    } 
+    catch (Exception ex) {
+      ex.printStackTrace();
+      System.err.println();
+      System.err.println( _getUsage() );
+      System.exit(1);
+    }
+    return rc;
+  } // private static Properties _getArgs(args)
+
+  // @throws  Exceptoin
+  // @since   1.1.0
+  private static Document _getDocument(String filename) 
+    throws  Exception 
+  {
+    DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
+    DocumentBuilder         db  = dbf.newDocumentBuilder();
+    Document                doc = db.parse(new File(filename));
+    return doc;
+  } // private static Document _getDocument(filename)
+
+  // @throws  Exception
+  // @since   1.1.0
+  private static Document _getDocument(InputStream is) 
+    throws  Exception 
+  {
+    DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
+    DocumentBuilder         db  = dbf.newDocumentBuilder();
+    Document                doc = db.parse(is);
+    return doc;
+  } // private static Document _getDocument(is)
+
+  // @throws  Exception
+  // @since   1.1.0
+  private static Document _getDocument(URL url) 
+    throws  Exception 
+  {
+    DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
+    DocumentBuilder         db  = dbf.newDocumentBuilder();
+    Document                doc = db.parse(url.openStream());
+    return doc;
+  } // private static Document _getDocument(url)
 
   // Assumes tag only occurs once and contains only text / CDATA.
   // If tag does not exist 'nullable' determines if an Exception is thrown.
@@ -540,6 +488,54 @@ public class XmlImporter {
             ;
   } // private static String _getUsage()
 
+  // @throws  Exception
+  // @since   1.1.0
+  private static void _handleArgs(XmlImporter importer, Properties rc) 
+    throws  Exception
+  {
+    Document doc = _getDocument( rc.getProperty(RC_IFILE) );
+    if (Boolean.getBoolean( rc.getProperty(RC_UPDATELIST) )) {
+      importer.loadFlatGroupsOrStems(doc);
+    } 
+    else {
+      if (rc.getProperty(RC_UUID) == null && rc.getProperty(RC_NAME) == null) {
+        importer.load(doc);
+      } 
+      else {
+        Stem    stem  = null;
+        String  uuid  = rc.getProperty(RC_UUID);
+        String  name  = rc.getProperty(RC_NAME);
+        if (uuid != null) {
+          try {
+            stem = StemFinder.findByUuid(importer.s, uuid);
+            LOG.debug("Found stem with uuid [" + uuid + "]");
+          } catch (StemNotFoundException e) {
+            // TODO 20060920 empty catch
+          }
+        } 
+        else {
+          try {
+            stem = StemFinder.findByName(importer.s, name);
+            LOG.debug("Found stem with name [" + name + "]");
+          } catch (StemNotFoundException e) {
+            // TODO 20060920 empty catch
+          }
+        }
+        if (stem == null) {
+          if (name != null) {
+            throw new IllegalArgumentException(
+              "Could not find stem with name [" + name + "]"
+            );
+          }
+          throw new IllegalArgumentException(
+            "Could not find stem with id [" + uuid + "]"
+          );
+        }
+        importer.load(stem, doc);
+      }
+    } 
+  } // private static void _handleArgs(importer, rc);
+
 
   // PRIVATE INSTANCE METHODS //
 
@@ -549,23 +545,23 @@ public class XmlImporter {
       return stem;
     }
     if (name != null && name.startsWith(".")) {
-      if (name.startsWith("." + sep)) {
+      if (name.startsWith("." + Stem.ROOT_INT)) {
         name = stem + name.substring(1);
       } 
       else {
-        while (name.startsWith(".." + sep)) {
+        while (name.startsWith(".." + Stem.ROOT_INT)) {
           name = name.substring(3);
-          stem = stem.substring(0, stem.lastIndexOf(sep));
+          stem = stem.substring(0, stem.lastIndexOf(Stem.ROOT_INT));
         }
-        name = stem + sep + name;
+        name = stem + Stem.ROOT_INT + name;
       }
     }
     if (
       !XmlUtils.isEmpty(importToName)
-      && importedGroups.containsKey(importToName + sep + name)
+      && importedGroups.containsKey(importToName + Stem.ROOT_INT + name)
     ) 
     {
-      return importToName + sep + name;
+      return importToName + Stem.ROOT_INT + name;
     }
     return name;
   } // private String _getAbsoluteName(name, stem)
@@ -794,7 +790,7 @@ public class XmlImporter {
           {
             //relative import
             if (XmlUtils.isEmpty(importToName)) {
-              subjectIdentifier = importToName + sep + subjectIdentifier.substring(1);
+              subjectIdentifier = importToName + Stem.ROOT_INT + subjectIdentifier.substring(1);
             }
             else {
               subjectIdentifier = subjectIdentifier.substring(1);
@@ -1435,7 +1431,7 @@ public class XmlImporter {
           {
             //relative import
             if (!XmlUtils.isEmpty(importToName)) {
-              subjectIdentifier = importToName + sep + subjectIdentifier.substring(1);
+              subjectIdentifier = importToName + Stem.ROOT_INT + subjectIdentifier.substring(1);
             }
             else {
               subjectIdentifier = subjectIdentifier.substring(1);
@@ -1551,7 +1547,7 @@ public class XmlImporter {
         String groupName = subject.getAttribute("group");
         if (groupName != null && groupName.length() != 0) {
           if ("relative".equals(subject.getAttribute("location"))) {
-            groupName = group.getParentStem().getName() + sep + groupName;
+            groupName = group.getParentStem().getName() + Stem.ROOT_INT + groupName;
           }
           System.out.println("Making [" + groupName + "] a member of " + group.getName());
           Group   groupSubj = GroupFinder.findByName(s, groupName);
@@ -1781,7 +1777,7 @@ public class XmlImporter {
           {
             //relative import
             if (!XmlUtils.isEmpty(importToName)) {
-              subjectIdentifier = importToName + sep + subjectIdentifier.substring(1);
+              subjectIdentifier = importToName + Stem.ROOT_INT + subjectIdentifier.substring(1);
             }
             else {
               subjectIdentifier = subjectIdentifier.substring(1);
