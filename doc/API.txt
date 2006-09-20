@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.18 2006-09-20 17:55:20 blair Exp $
+$Id: API.txt,v 1.19 2006-09-20 18:05:23 blair Exp $
 
 ---
 
@@ -461,5 +461,4 @@ $Id: API.txt,v 1.18 2006-09-20 17:55:20 blair Exp $
 * void                  load(Session, Stem, Document)
 * void                  loadFlatGroupsOrStems(Session, Document)
 * void                  setOptions(Properties)
-
 
