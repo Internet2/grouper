@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.19 2006-09-20 18:40:39 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.20 2006-09-20 19:20:46 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -181,14 +181,6 @@ public class XmlImporter {
   // PUBLIC INSTANCE METHODS //
 
   /**
-   * @return  Returns the options - includes those set through XML
-   * @since   1.0
-   */
-  public Properties getOptions() {
-    return options;
-  } // public Properties getOptions()
-
-  /**
    * Recurse through the XML document and create any stems / groups starting
    * at the ROOT stem, accumulating memberships and privilege assignments for
    * later - this ensures that any groups which will become members or have
@@ -331,6 +323,11 @@ public class XmlImporter {
 
     return props;
   } // protected Properties getImportedOptionsFromXml(doc)
+
+  // @since   1.1.0
+  protected Properties getOptions() {
+    return (Properties) options.clone();
+  } // protected Properties getOptions()
 
 
   // PRIVATE CLASS METHODS //

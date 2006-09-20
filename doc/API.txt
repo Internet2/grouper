@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.20 2006-09-20 18:40:39 blair Exp $
+$Id: API.txt,v 1.21 2006-09-20 19:20:46 blair Exp $
 
 ---
 
@@ -439,17 +439,6 @@ $Id: API.txt,v 1.20 2006-09-20 18:40:39 blair Exp $
 * void                  export(Collection, info)
 * void                  export(Group, relative)
 * void                  export(Stem, relative)
-
-## XmlExporter.GroupOrStem - SUBJECT TO CHANGE!
-* String                getDisplayExtension()
-* String                getDisplayName()
-* Group                 getGroup()
-* String                getId()
-* String                getName()
-* Stem                  getStem()
-* String                getType()
-* boolean               isGroup()
-* boolean               isStem()
 
 ## XmlImporter - SUBJECT TO CHANGE!
 * XmlImporter           XmlImporter(Session, options)
