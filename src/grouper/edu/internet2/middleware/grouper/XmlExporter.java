@@ -35,14 +35,23 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.23 2006-09-20 15:42:03 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.24 2006-09-20 16:59:50 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
 
   // PRIVATE CLASS CONSTANTS //  
-  static final String CF  = "export.properties"; 
-  static final Log    LOG = LogFactory.getLog(XmlExporter.class);
+  private static final String CF                = "export.properties"; 
+  private static final String E_NAME_OR_UUID    = "cannot specify uuid and name";
+  private static final String E_UNKNOWN_OPTION  = "unknown option: ";
+  private static final Log    LOG               = LogFactory.getLog(XmlExporter.class);
+  private static final String RC_EFILE          = "export.file";
+  private static final String RC_NAME           = "owner.name";
+  private static final String RC_PARENT         = "mystery.parent";
+  private static final String RC_RELATIVE       = "mystery.relative";
+  private static final String RC_SUBJ           = "subject.identifier";
+  private static final String RC_UPROPS         = "properties.user";
+  private static final String RC_UUID           = "owner.uuid";
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -132,7 +141,7 @@ public class XmlExporter {
    * <td>If true system-maintained Group attributes (eg. <tt>modifyDate</tt>) will be exported.</td>
    * </tr>
    * <tr>
-   * <td>>export.group.custom-attributes</td>
+   * <td>export.group.custom-attributes</td>
    * <td>true/false</td>
    * <td>true</td>
    * <td>If true custom attributes will be exported.</td>
@@ -197,173 +206,41 @@ public class XmlExporter {
   /**
    * Export Groups Registry to XML output.
    * <p/>
-   * @throws 
-  // @throws  Exception
-   * @since   1.0
+   * @since   1.1.0
    */
-  public static void main(String args[]) 
-    throws  Exception 
-  {
-    if (
-      args.length == 0
-      || 
-      "--h --? /h /? --help /help ${cmd}".indexOf(args[0]) > -1
-    ) 
-    {
+  public static void main(String args[]) {
+    if (XmlUtils.wantsHelp(args)) {
       System.out.println( _getUsage() );
       System.exit(0);
     }
-
-    String  arg;
-    String  exportFile            = null;
-    String  id                    = null;
-    boolean includeParent         = false;
-    int     inputPos              = 0;
-    String  name                  = null;
-    int     pos                   = 0;
-    boolean relative              = false;
-    String  subjectIdentifier     = null;
-    String  userExportProperties  = null;
-
+    Properties  rc        = _getArgs(args);
+    XmlExporter exporter  = null;
     try {
-      while (pos < args.length) {
-        arg = args[pos];
-        if (arg.startsWith("-")) {
-          if (arg.equals("-id")) {
-            if (name != null) {
-              throw new IllegalArgumentException("Cannot specify id and name");
-            }
-            id = args[pos + 1];
-            if (id.startsWith("-")) {
-              throw new IllegalArgumentException("id cannot start with -");
-            }
-            pos += 2;
-            continue;
-          } 
-          else if (arg.equals("-name")) {
-            if (id != null) {
-              throw new IllegalArgumentException("Cannot specify id and name");
-            }
-            name = args[pos + 1];
-            if (name.startsWith("-")) {
-              throw new IllegalArgumentException("name cannot start with -");
-            }
-            pos += 2;
-            continue;
-          } 
-          else if (arg.equals("-relative")) {
-            relative = true;
-            pos++;
-            continue;
-          } 
-          else if (arg.equalsIgnoreCase("-includeparent")) {
-            includeParent = true;
-            pos++;
-            continue;
-          } else {
-            throw new IllegalArgumentException("Unrecognised option " + arg);
-          }
-        }
-        switch (inputPos) {
-        case 0:
-          subjectIdentifier = arg;
-          break;
-        case 1:
-          exportFile = arg;
-          break;
-        case 2:
-          userExportProperties = arg;
-          break;
-        case 3:
-          throw new IllegalArgumentException("Too many arguments - " + arg);
-        }
-        pos++;
-        inputPos++;
-      }
-      if (inputPos < 1) {
-        throw new IllegalStateException("Too few arguments");
-      }
-    } 
-    catch (Exception ex) {
-      ex.printStackTrace();
-      System.err.println();
-      System.err.println( _getUsage() );
+      exporter  = new XmlExporter(
+        GrouperSession.start(
+          SubjectFinder.findByIdentifier( rc.getProperty(RC_SUBJ) )
+        ),
+        XmlUtils.getUserProperties(LOG, rc.getProperty(RC_UPROPS) ),
+        new PrintWriter( new FileWriter( rc.getProperty(RC_EFILE) ) ) 
+      );
+      _handleArgs(exporter, rc);
+      LOG.info("Finished export to [" + rc.getProperty(RC_EFILE) + "]");
+    }
+    catch (Exception e) {
+      LOG.fatal("unable to export to xml: " + e.getMessage());
       System.exit(1);
     }
-    
-    XmlExporter exporter = new XmlExporter(
-      GrouperSession.start(
-        SubjectFinder.findByIdentifier(subjectIdentifier)
-      ),
-      XmlUtils.getUserProperties(LOG, userExportProperties),
-      new PrintWriter( new FileWriter(exportFile) )
-    );
-
-    if (id == null && name == null) {
-      exporter.export();
-    } 
-    else {
-      Group group = null;
-      Stem  stem  = null;
-      if (id != null) {
+    finally {
+      if (exporter != null) {
         try {
-          group = GroupFinder.findByUuid(exporter.s, id);
-          LOG.debug("Found group with id [" + id + "]");
-        } 
-        catch (GroupNotFoundException e) {
-          // Look for stem instead
+          exporter.s.stop();
         }
-        if (group == null) {
-          try {
-            stem = StemFinder.findByUuid(exporter.s, id);
-            LOG.debug("Found stem with id [" + id + "]");
-          } 
-          catch (StemNotFoundException e) {
-            // No group or stem
-          }
+        catch (SessionException eS) {
+          LOG.error(eS.getMessage());
         }
-        if (group == null && stem == null) {
-          throw new IllegalArgumentException(
-            "Could not find group or stem with id [" + id + "]"
-          );
-        }
-      } 
-      else {
-        try {
-          group = GroupFinder.findByName(exporter.s, name);
-          LOG.debug("Found group with name [" + name + "]");
-        } 
-        catch (GroupNotFoundException e) {
-          // Look for stem instead
-        }
-        if (group == null) {
-          try {
-            stem = StemFinder.findByName(exporter.s, name);
-            LOG.debug("Found stem with name [" + name + "]");
-          } catch (StemNotFoundException e) {
-            // No group or stem
-          }
-        }
-      }
-      if (group == null && stem == null) {
-        if (name != null) {
-          throw new IllegalArgumentException(
-            "Could not find group or stem with name [" + name + "]"
-          );
-        }
-        throw new IllegalArgumentException(
-          "Could not find group or stem with id [" + id + "]"
-        );
-      }
-      if (group != null) {
-        exporter.export(group, relative);
-      } 
-      else {
-        exporter.export(stem, relative, includeParent);
       }
     }
-    LOG.info("Finished export to [" + exportFile + "]");
-    exporter.s.stop();
+    System.exit(0);
   } // public static void main(args)
 
 
@@ -567,6 +444,76 @@ public class XmlExporter {
 
   // PRIVATE CLASS METHODS //
 
+  // @since   1.1.0
+  private static Properties _getArgs(String args[]) {
+    Properties rc = new Properties();
+
+    String  arg;
+    int     inputPos  = 0;
+    int     pos       = 0;
+
+    try {
+      while (pos < args.length) {
+        arg = args[pos];
+        if (arg.startsWith("-")) {
+          if (arg.equals("-id")) {
+            if (rc.getProperty(RC_NAME) != null) {
+              throw new IllegalArgumentException(E_NAME_OR_UUID);
+            }
+            rc.setProperty(RC_UUID, args[pos + 1]);
+            pos += 2;
+            continue;
+          } 
+          else if (arg.equals("-name")) {
+            if (rc.getProperty(RC_UUID) != null) {
+              throw new IllegalArgumentException(E_NAME_OR_UUID);
+            }
+            rc.setProperty(RC_NAME, args[pos + 1]);
+            pos += 2;
+            continue;
+          } 
+          else if (arg.equals("-relative")) {
+            rc.setProperty(RC_RELATIVE, "true");
+            pos++;
+            continue;
+          } 
+          else if (arg.equalsIgnoreCase("-includeparent")) {
+            rc.setProperty(RC_PARENT, "true");
+            pos++;
+            continue;
+          } else {
+            throw new IllegalArgumentException(E_UNKNOWN_OPTION + arg);
+          }
+        }
+        switch (inputPos) {
+        case 0:
+          rc.setProperty(RC_SUBJ, arg);
+          break;
+        case 1:
+          rc.setProperty(RC_EFILE, arg);
+          break;
+        case 2:
+          rc.setProperty(RC_UPROPS, arg);
+          break;
+        case 3:
+          throw new IllegalArgumentException("Too many arguments - " + arg);
+        }
+        pos++;
+        inputPos++;
+      }
+      if (inputPos < 1) {
+        throw new IllegalStateException("Too few arguments");
+      }
+    } 
+    catch (Exception ex) {
+      ex.printStackTrace();
+      System.err.println();
+      System.err.println( _getUsage() );
+      System.exit(1);
+    }
+    return rc;
+  } // private static Properties _getArgs(args)
+    
   // @throws  SchemaException
   // @since   1.1.0
   private static Set _getListFieldsForGroup(Group g)
@@ -605,7 +552,7 @@ public class XmlExporter {
             + ""
             + "  subjectIdentifier, Identifies a Subject 'who' will create a"
             + "                     GrouperSession"
-            + "  -id,               The Uuid of a Group or Stem to export"
+            + "  -id,               The UUID of a Group or Stem to export"
             + "  -name,             The name of a Group or Stem to export"
             + "  -relative,         If id or name specified do not export parent"
             + "                     Stems"
@@ -624,6 +571,72 @@ public class XmlExporter {
             + "                     found, the export will fail."
             ;
   } // private static String _getUsage()
+
+  // @throws  Exception
+  // @since   1.1.0
+  private static void _handleArgs(XmlExporter exporter, Properties rc) 
+    throws  Exception
+  {
+    if (rc.getProperty(RC_UUID) == null && rc.getProperty(RC_NAME) == null) {
+      exporter.export();
+    } 
+    else {
+      Group group = null;
+      Stem  stem  = null;
+      if (rc.getProperty(RC_UUID) != null) {
+        String uuid = rc.getProperty(RC_UUID);
+        try {
+          group = GroupFinder.findByUuid(exporter.s, uuid);
+          LOG.debug("Found group with uuid [" + uuid + "]");
+        } 
+        catch (GroupNotFoundException eGNF) {
+          // Look for stem instead
+          try {
+            stem = StemFinder.findByUuid(exporter.s, uuid);
+            LOG.debug("Found stem with uuid [" + uuid + "]");
+          } 
+          catch (StemNotFoundException eNSNF) {
+            throw new IllegalArgumentException(
+              "Could not find group or stem with uuid [" + uuid + "]"
+            );
+          }
+        }
+      } 
+      else {
+        String name = rc.getProperty(RC_NAME);
+        try {
+          group = GroupFinder.findByName(exporter.s, name);
+          LOG.debug("Found group with name [" + name + "]");
+        } 
+        catch (GroupNotFoundException eGNF) {
+          // Look for stem instead
+          try {
+            stem = StemFinder.findByName(exporter.s, name);
+            LOG.debug("Found stem with name [" + name + "]");
+          } catch (StemNotFoundException eNSNF) {
+            // No group or stem
+            throw new IllegalArgumentException(
+              "Could not find group or stem with name [" + name + "]"
+            );
+          }
+        }
+      }
+      if (group != null) {
+        exporter.export(
+          group,
+          Boolean.getBoolean(rc.getProperty(RC_RELATIVE))
+        );
+      } 
+      else {
+        exporter.export(
+          stem,   
+          Boolean.getBoolean(rc.getProperty(RC_RELATIVE)),
+          Boolean.getBoolean(rc.getProperty(RC_PARENT))
+        );
+      }
+    }
+  } // private static void _handleArgs(exporter, rc)
+
 
   // PRIVATE INSTANCE METHODS //
 

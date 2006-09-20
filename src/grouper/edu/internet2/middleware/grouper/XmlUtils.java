@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.1 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.2 2006-09-20 16:59:50 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -73,5 +73,18 @@ class XmlUtils {
     return false;
   } // protected static boolean isEmpty(obj)
   
+  // @since   1.1.0
+  protected static boolean wantsHelp(String[] args) {
+    if (
+      args.length == 0
+      || 
+      "--h --? /h /? --help /help ${cmd}".indexOf(args[0]) > -1
+    ) 
+    {
+      return true;
+    }
+    return false;
+  } // protected static void wantsHelp(args)
+
 } // class XmlUtils
 

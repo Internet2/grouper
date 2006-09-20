@@ -34,7 +34,7 @@ import  org.w3c.dom.*;
  * <p/>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlImporter.java,v 1.14 2006-09-13 19:40:12 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.15 2006-09-20 16:59:50 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -159,12 +159,8 @@ public class XmlImporter {
   public static void main(String[] args) 
     throws  Exception 
   {
-    if (
-      args.length == 0
-      || "--h --? /h /? --help /help ${cmd}".indexOf(args[0]) > -1
-    ) 
-    {
-      XmlImporter.commandLineUsage();
+    if (XmlUtils.wantsHelp(args)) {
+      System.out.println( _getUsage() );
       System.exit(0);
     }
 
@@ -236,8 +232,8 @@ public class XmlImporter {
     } 
     catch (Exception ex) {
       ex.printStackTrace();
-      System.out.println();
-      XmlImporter.commandLineUsage();
+      System.err.println();
+      System.err.println( _getUsage() );
       System.exit(1);
     }
     Properties props = new Properties();
@@ -323,39 +319,6 @@ public class XmlImporter {
 
 
   // PUBLIC CLASS METHODS //
-
-  /**
-   * @since   1.0
-   */
-  public static void commandLineUsage() {
-    System.out.println("Usage:");
-    System.out.println("args: -h,            Prints this message");
-    System.out.println("args: subjectIdentifier [(-id <id> | -name <name> | -list)]");
-    System.out.println("      filename [properties]");
-    System.out.println();
-    System.out.println("  subjectIdentifier, Identifies a Subject 'who' will create a");
-    System.out.println("                     GrouperSession");
-    System.out.println("  -id,               The Uuid of a Stem, into which, data will be");
-    System.out.println("                     imported*");
-    System.out.println("  -name,             The name of a Stem, into which, data will be");
-    System.out.println("                     imported*");
-    System.out.println("                     *If no -id / -name is specified, use=ROOT stem");
-    System.out.println("  -list,             File contains a flat list of Stems or Groups");
-    System.out.println("                     which may be updated. Missing Stems and Groups");
-    System.out.println("                     are not created");
-    System.out.println("  filename,          The file to import");
-    System.out.println("  properties,        The name of a standard Java properties file ");
-    System.out.println("                     which configures the import. Check Javadoc for");
-    System.out.println("                     a list of properties. If 'properties' is not ");
-    System.out.println("                      specified, XmlImporter will look for ");
-    System.out.println("                     'import.properties' in the working directory. ");
-    System.out.println("                     If this file does not exist XmlImporter will ");
-    System.out.println("                     look on the classpath. If 'properties' is not ");
-    System.out.println("                     specified and 'import.properties' cannot be ");
-    System.out.println("                     found and import options are not included in ");
-    System.out.println("                     the XML, the import will fail.");
-    System.out.println();
-  } // public static void commandLineUsage()
 
   /**
    * Convenience method for getting a Document given a filename
@@ -616,6 +579,37 @@ public class XmlImporter {
     }
     return ((CharacterData) n).getData().trim();
   } // private static String _getText(element)
+
+  // @since   1.1.0
+  private static String _getUsage() {
+    return  "Usage:"
+            + "args: -h,            Prints this message"
+            + "args: subjectIdentifier [(-id <id> | -name <name> | -list)]"
+            + "      filename [properties]"
+            + ""
+            + "  subjectIdentifier, Identifies a Subject 'who' will create a"
+            + "                     GrouperSession"
+            + "  -id,               The Uuid of a Stem, into which, data will be"
+            + "                     imported*"
+            + "  -name,             The name of a Stem, into which, data will be"
+            + "                     imported*"
+            + "                     *If no -id / -name is specified, use=ROOT stem"
+            + "  -list,             File contains a flat list of Stems or Groups"
+            + "                     which may be updated. Missing Stems and Groups"
+            + "                     are not created"
+            + "  filename,          The file to import"
+            + "  properties,        The name of a standard Java properties file "
+            + "                     which configures the import. Check Javadoc for"
+            + "                     a list of properties. If 'properties' is not "
+            + "                      specified, XmlImporter will look for "
+            + "                     'import.properties' in the working directory. "
+            + "                     If this file does not exist XmlImporter will "
+            + "                     look on the classpath. If 'properties' is not "
+            + "                     specified and 'import.properties' cannot be "
+            + "                     found and import options are not included in "
+            + "                     the XML, the import will fail."
+            ;
+  } // private static String _getUsage()
 
 
   // PRIVATE INSTANCE METHODS //
