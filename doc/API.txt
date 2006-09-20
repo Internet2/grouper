@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.16 2006-09-14 20:04:04 blair Exp $
+$Id: API.txt,v 1.17 2006-09-20 15:42:20 blair Exp $
 
 ---
 
@@ -433,18 +433,12 @@ $Id: API.txt,v 1.16 2006-09-14 20:04:04 blair Exp $
 ## UnionFilter extends BaseQueryFilter
 
 ## XmlExporter - SUBJECT TO CHANGE!
-* XmlExporter           XmlExporter(options)
-* void                  XmlExporter.commandLineUsage()
-* void                  export(Session, PrintWriter)
-* void                  export(Session, Collection, items, PrintWriter)
-* void                  export(Session, Group, relative, PrintWriter)
-* void                  export(Session, Stem, relative, includeParent, PrintWriter)
-* GroupOrStem           findByGroup(Session, Group)
-* GroupOrStem           findByID(Session, id)
-* GroupOrStem           findByStem(Session, Stem)
-* List                  XmlExporter.getListFieldsForGroup(Session, Group)
-* Properties            getOptions()
-* void                  setOptions(Properties)
+* XmlExporter           XmlExporter(Session, options, Writer)
+* void                  XmlExporter.main(args[])
+* void                  export()
+* void                  export(Collection, info)
+* void                  export(Group, relative)
+* void                  export(Stem, relative)
 
 ## XmlExporter.GroupOrStem - SUBJECT TO CHANGE!
 * String                getDisplayExtension()
