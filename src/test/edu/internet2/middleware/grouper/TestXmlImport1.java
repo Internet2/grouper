@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlImport1.java,v 1.3 2006-09-20 17:55:20 blair Exp $
+ * @version $Id: TestXmlImport1.java,v 1.4 2006-09-20 17:56:57 blair Exp $
  * @since   1.0
  */
 public class TestXmlImport1 extends TestCase {
@@ -44,8 +44,8 @@ public class TestXmlImport1 extends TestCase {
     LOG.debug("tearDown");
   }
 
-  public void testInstantiateWithEmptyOptions() {
-    LOG.info("testInstantiateWithEmptyOptions");
+  public void testSetCustomOptions() {
+    LOG.info("testSetCustomOptions");
     try {
       Properties custom = new Properties();
       custom.setProperty("import.metadata.group-types", "false");
@@ -80,7 +80,7 @@ public class TestXmlImport1 extends TestCase {
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testInstantiateWithEmptyOptions()
+  } // public void testSetCustomOptions()
 
 }
 
