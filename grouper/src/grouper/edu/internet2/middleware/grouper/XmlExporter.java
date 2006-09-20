@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * </p>
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
- * @version $Id: XmlExporter.java,v 1.24 2006-09-20 16:59:50 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.25 2006-09-20 17:13:18 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -726,28 +726,6 @@ public class XmlExporter {
     groupOrStem.stem        = stem;
     return groupOrStem;
   } // private GroupOrStem _findByStem(stem)
-  
-  /**
-   * Only have a name...
-   * @param name
-   * @since 1.1.0
-   */
-  private GroupOrStem _findByName(String name) {
-    GroupOrStem groupOrStem = new GroupOrStem();
-    try {
-      Group group = GroupFinder.findByName(this.s, name);
-      groupOrStem.group = group;
-      
-    }catch(Exception e) {
-      try {
-        Stem stem = StemFinder.findByName(this.s, name);
-        groupOrStem.stem = stem;
-      }catch(Exception se) {
-        throw new GrouperRuntimeException("Unable to instatiate a group or stem with name=" + name);
-      }
-    }
-    return groupOrStem;
-  } // private GroupOrStem _findByName(name)
   
   // @since   1.0
   private String _fixGroupName(String name) {
