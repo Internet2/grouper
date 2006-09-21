@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.22 2006-09-21 16:43:16 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.23 2006-09-21 18:40:13 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -156,7 +156,7 @@ public class XmlImporter {
         XmlUtils.getUserProperties(LOG, rc.getProperty(RC_UPROPS))
       );
       _handleArgs(importer, rc);
-      LOG.info("Finished import of [" + rc.getProperty(RC_IFILE) + "]");
+      LOG.debug("Finished import of [" + rc.getProperty(RC_IFILE) + "]");
     }
     catch (Exception e) {
       LOG.fatal("unable to import from xml: " + e.getMessage());
@@ -179,30 +179,22 @@ public class XmlImporter {
   // PUBLIC INSTANCE METHODS //
 
   /**
-   * Recurse through the XML document and create any stems / groups starting
-   * at the ROOT stem, accumulating memberships and privilege assignments for
-   * later - this ensures that any groups which will become members or have
-   * privileges granted to them actually exist! Create any memberships Grant
-   * naming privileges Grant access privileges
-   * <p/>
-   * @param   doc
+   * Populate Groups Registry.
+   * <pre class="eg">
+   * TODO 20060921 provide example
+   * </pre>
+   * @param   doc   Import this <tt>Document</tt>
    * @throws  GrouperException
    * @since   1.1.0
    */
-  public void load(Document doc) 
+  public void load(Document doc)
     throws  GrouperException
   {
-    LOG.info("Starting load at ROOT stem");
-    try {
-      this._processProperties(doc);
-      Stem stem = StemFinder.findRootStem(this.s);
-      load(stem, doc);
-    }
-    catch (Exception e) {
-      throw new GrouperException(e.getMessage(), e);
-    }
-    LOG.info("Ending load at ROOT stem");
-  } // public void load(doc)
+    LOG.info("starting import from root stem");
+    this._processProperties(doc);
+    this.load( StemFinder.findRootStem(this.s), doc );
+    LOG.info("import complete");
+  } // public void load(xml)
 
   /**
    * Recurse through the XML document and create any stems / groups starting
@@ -218,7 +210,7 @@ public class XmlImporter {
   public void load(Stem rootStem, Document doc)
     throws  GrouperException
   {
-    LOG.info("Starting load at " + rootStem.getName());
+    LOG.debug("Starting load at " + rootStem.getName());
     try {
       this._processProperties(doc);
       this.importToName = rootStem.getName();
@@ -247,7 +239,7 @@ public class XmlImporter {
     catch (Exception e) {
       throw new GrouperException(e.getMessage(), e);
     }
-    LOG.info("Ending load at " + rootStem.getName());
+    LOG.debug("Ending load at " + rootStem.getName());
   } // public void load(rootStem, doc)
 
   /**
@@ -262,7 +254,7 @@ public class XmlImporter {
   public void loadFlatGroupsOrStems(Document doc)
     throws  GrouperException
   {
-    LOG.info("Starting flat load");
+    LOG.debug("Starting flat load");
     try {
       this._processProperties(doc);
 
@@ -303,7 +295,7 @@ public class XmlImporter {
     catch (Exception e) {
       throw new GrouperException(e.getMessage(), e);
     }
-    LOG.info("Ending flat load");
+    LOG.debug("Ending flat load");
   } // public void loadFlatGropusOrStems(doc)
 
 
@@ -425,21 +417,6 @@ public class XmlImporter {
     Document                doc = db.parse(new File(filename));
     return doc;
   } // private static Document _getDocument(filename)
-
-  // @throws  IOException
-  // @throws  org.xml.sax.SAXException
-  // @throws  ParserConfigurationException
-  // @since   1.1.0
-  private static Document _getDocument(InputStream is) 
-    throws  IOException,
-            org.xml.sax.SAXException,
-            ParserConfigurationException
-  {
-    DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
-    DocumentBuilder         db  = dbf.newDocumentBuilder();
-    Document                doc = db.parse(is);
-    return doc;
-  } // private static Document _getDocument(is)
 
   // @throws  IOException
   // @throws  org.xml.sax.SAXException,
@@ -767,11 +744,11 @@ public class XmlImporter {
       if (!group.equals(lastGroup)) {
         if (XmlUtils.isEmpty(lastGroup)) {
           if (LOG.isInfoEnabled())
-            LOG.info("Finished loading Access privs for " + lastGroup);
+            LOG.debug("Finished loading Access privs for " + lastGroup);
         }
         focusGroup = GroupFinder.findByName(s, group);
         if (LOG.isInfoEnabled()) {
-          LOG.info("Loading Access privs for " + group);
+          LOG.debug("Loading Access privs for " + group);
         }
       }
 
@@ -784,14 +761,14 @@ public class XmlImporter {
 
       if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
         if (LOG.isInfoEnabled()) {
-          LOG.info("Ignoring any '" + privilege + "' privileges");
+          LOG.debug("Ignoring any '" + privilege + "' privileges");
         }
         continue; //No instruction so ignore
       }
       grouperPrivilege = Privilege.getInstance(privilege);
       if ("replace".equals(importOption)) {
         if (LOG.isInfoEnabled()) {
-          LOG.info("Revoking current '" + privilege + "' privileges");
+          LOG.debug("Revoking current '" + privilege + "' privileges");
         }
         focusGroup.revokePriv(grouperPrivilege);
       }
@@ -886,7 +863,7 @@ public class XmlImporter {
       }
     }
     if (LOG.isInfoEnabled()) {
-      LOG.info("Finished assigning Access privs");
+      LOG.debug("Finished assigning Access privs");
     }
     accessPrivLists = null;
   } // private void _processAccessPrivLists()
@@ -1024,7 +1001,7 @@ public class XmlImporter {
         name      = attribute.getAttribute("name");
         field     = FieldFinder.find(name);
         if (!group.canWriteField(field)) {
-          LOG.info(
+          LOG.debug(
             "No write privilege. Attribute [" + name + "] for [" + group.getName() + "] ignored"
           );
           continue;
@@ -1218,7 +1195,7 @@ public class XmlImporter {
     String  description      = e.getAttribute(GrouperConfig.ATTR_D);
     String  newGroup         = U.constructName(stem, extension);
     if (LOG.isInfoEnabled()) {
-      LOG.info("Creating group [" + newGroup + "]");
+      LOG.debug("Creating group [" + newGroup + "]");
     }
     Group   existingGroup     = null;
     String  updateAttributes  = e.getAttribute("updateAttributes");
@@ -1246,7 +1223,7 @@ public class XmlImporter {
       }
       importedGroups.put(existingGroup.getName(), "e");
       if (LOG.isInfoEnabled()) {
-        LOG.info(newGroup + " already exists - skipping");
+        LOG.debug(newGroup + " already exists - skipping");
       }
     } 
     catch (GroupNotFoundException ex) {
@@ -1256,7 +1233,7 @@ public class XmlImporter {
       Group gg      = parent.addChildGroup(extension, displayExtension);
       importedGroups.put(gg.getName(), "c");
       if (LOG.isInfoEnabled()) {
-        LOG.info(newGroup + " added");
+        LOG.debug(newGroup + " added");
       }
       if (description != null && description.length() != 0) {
         gg.setDescription(description);
@@ -1362,12 +1339,12 @@ public class XmlImporter {
       if (!groupName.equals(lastGroupName)) {
         if (!XmlUtils.isEmpty(lastGroupName)) {
           if (LOG.isInfoEnabled()) {
-            LOG.info("Finished loading memberships for " + lastGroupName);
+            LOG.debug("Finished loading memberships for " + lastGroupName);
           }
         }
         group = GroupFinder.findByName(s, groupName);
         if (LOG.isInfoEnabled()) {
-          LOG.info("Loading memberships for " + groupName);
+          LOG.debug("Loading memberships for " + groupName);
         }
       }
 
@@ -1389,18 +1366,18 @@ public class XmlImporter {
       if (!group.hasType(field.getGroupType())) {
         if (_optionTrue("import.data.apply-new-group-types")) {
           if (LOG.isInfoEnabled())
-            LOG.info("Adding group type " + field.getGroupType());
+            LOG.debug("Adding group type " + field.getGroupType());
           group.addType(field.getGroupType());
         } 
         else {
           if (LOG.isInfoEnabled()) {
-            LOG.info("Ignoring field " + field.getName());
+            LOG.debug("Ignoring field " + field.getName());
           }
           continue;
         }
       }
       if (!group.canReadField(field)) {
-        LOG.info("No write privilege - ignoring field " + field.getName());
+        LOG.debug("No write privilege - ignoring field " + field.getName());
         continue;
       }
       boolean hasComposite  = group.hasComposite();
@@ -1419,7 +1396,7 @@ public class XmlImporter {
           Iterator  membersIterator = members.iterator();
           Member    memb;
           if (LOG.isInfoEnabled()) {
-            LOG.info("Removing all memberships for " + groupName);
+            LOG.debug("Removing all memberships for " + groupName);
           }
           while (membersIterator.hasNext()) {
             memb = (Member) membersIterator.next();
@@ -1749,12 +1726,12 @@ public class XmlImporter {
       if (!stem.equals(lastStem)) {
         if (!XmlUtils.isEmpty(lastStem)) {
           if (LOG.isInfoEnabled()) {
-            LOG.info("Finished loading Naming privs for " + lastStem);
+            LOG.debug("Finished loading Naming privs for " + lastStem);
           }
         }
         focusStem = StemFinder.findByName(s, stem);
         if (LOG.isInfoEnabled()) {
-          LOG.info("Loading Naming privs for " + stem);
+          LOG.debug("Loading Naming privs for " + stem);
         }
       }
 
@@ -1768,7 +1745,7 @@ public class XmlImporter {
       }
       if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
         if (LOG.isInfoEnabled()) {
-          LOG.info("Ignoring any '" + privilege + "' privileges");
+          LOG.debug("Ignoring any '" + privilege + "' privileges");
         }
         continue; //No instruction so ignore
       }
@@ -1776,7 +1753,7 @@ public class XmlImporter {
       grouperPrivilege = Privilege.getInstance(privilege);
       if ("replace".equals(importOption)) {
         if (LOG.isDebugEnabled()) {
-          LOG.info("Revoking current '" + privilege + "' privileges");
+          LOG.debug("Revoking current '" + privilege + "' privileges");
         }
         focusStem.revokePriv(grouperPrivilege);
       }
@@ -1864,7 +1841,7 @@ public class XmlImporter {
       }
     }
     if (LOG.isInfoEnabled()) {
-      LOG.info("Finished assigning Naming privs");
+      LOG.debug("Finished assigning Naming privs");
     }
     namingPrivLists = null;
   } // private void _processNamingPrivLists()
@@ -1973,7 +1950,7 @@ public class XmlImporter {
     String  description      = e.getAttribute(GrouperConfig.ATTR_D);
     String  newStem          = U.constructName(stem, extension);
     if (LOG.isInfoEnabled()) {
-      LOG.info("Creating stem " + newStem);
+      LOG.debug("Creating stem " + newStem);
     }
     Stem    existingStem      = null;
     String  updateAttributes  = e.getAttribute("updateAttributes");
@@ -1983,7 +1960,7 @@ public class XmlImporter {
     try {
       existingStem = StemFinder.findByName(s, newStem);
       if (LOG.isInfoEnabled()) {
-        LOG.info(newStem + " already exists - skipping");
+        LOG.debug(newStem + " already exists - skipping");
       }
       if ("true".equals(updateAttributes)) {
         if (
@@ -2016,7 +1993,7 @@ public class XmlImporter {
       }
       Stem gs = parent.addChildStem(extension, displayExtension);
       if (LOG.isInfoEnabled()) {
-        LOG.info(newStem + " added");
+        LOG.debug(newStem + " added");
       }
       if (description != null && description.length() != 0) {
         gs.setDescription(description);
@@ -2067,7 +2044,7 @@ public class XmlImporter {
     if (xmlOptions == null) {
       return;
     }
-    LOG.info("Merging user supplied options with XML options. Former take precedence");
+    LOG.debug("Merging user supplied options with XML options. Former take precedence");
     xmlOptions.putAll(this.options);  // add current to xml
     this.options = xmlOptions;        // replace current with merged options
   } // private void _processProperties(doc)

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.124 2006-09-21 13:57:07 blair Exp $ -->
+<!-- $Id: build.xml,v 1.125 2006-09-21 18:40:13 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -621,52 +621,6 @@
     <record name="${log.test.run}" action="stop"/>
   </target>
   <!-- test -->
-
-  <!-- test-xml -->
-  <target name="test-xml" 
-          depends="test-build"
-          description="test xml exporting and importing"
-  >
-    <record name="${log.test.run}" action="start"/>
-    <!-- Reset -->
-    <echo message="0.RESET!"/>
-    <antcall  target="db-reset"/>
-    <!-- Load -->
-    <echo message="1.LOAD!"/>
-    <antcall  target="runtest">
-      <param  name="test" value="TestXmlSetup"/>
-    </antcall>
-    <!-- Export -->
-    <echo message="2.EXPORT!"/>
-    <antcall  target="xml-export">
-      <param  name="cmd"  value="GrouperSystem ${dist.run}/registry.xml"/>
-    </antcall>
-    <!-- Reset -->
-    <echo message="3.RESET!"/>
-    <antcall  target="db-reset"/>
-    <!-- Import -->
-    <echo message="4.IMPORT!"/>
-    <antcall  target="xml-import">
-      <param  name="cmd"  value="GrouperSystem ${dist.run}/registry.xml"/>
-    </antcall>
-    <!-- Verify -->
-    <echo message="5.VERIFY!"/>
-    <antcall  target="runtest">
-      <param  name="test" value="TestXmlVerify"/>
-    </antcall>
-    <!-- Now Re-run Import -->
-    <echo message="6.IMPORT!"/>
-    <antcall  target="xml-import">
-      <param  name="cmd"  value="GrouperSystem ${dist.run}/registry.xml"/>
-    </antcall>
-    <!-- And verify once again -->
-    <echo message="7.VERIFY!"/>
-    <antcall  target="runtest">
-      <param  name="test" value="TestXmlVerify"/>
-    </antcall>
-    <record name="${log.test.run}" action="stop"/>
-  </target>
-  <!-- test-xml -->
 
   <!-- xml-export -->    
   <target name="xml-export"
