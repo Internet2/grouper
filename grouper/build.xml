@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.123 2006-09-21 13:25:38 blair Exp $ -->
+<!-- $Id: build.xml,v 1.124 2006-09-21 13:57:07 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -36,10 +36,9 @@
   <property name="log.test.run"           location="${basedir}/test.log"        />
 
   <property name="hprof.depth"            value="25"/>
-  <property name="max.memory"             value="192m"/>
+  <property name="memory.max"             value="192m"/>
 
   <property name="hsqldb.jar"             location="${lib}/hsqldb-1.7.2.11.jar" />
-  <property name="findbugs.home"          location="${user.home}/Applications/findbugs-1.1.0"/>
   <!-- Global Properties -->
 
   <taskdef  name="schemaexport"
@@ -53,7 +52,7 @@
           depends="build"
   >
     <java fork="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.bench.GrouperBench"
           failonerror="true"
@@ -77,7 +76,7 @@
           depends="build, ensure-name"
   >
     <java fork="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.bench.${name}"
           failonerror="true"
@@ -91,7 +90,7 @@
           depends="build, ensure-name"
   >
     <java fork="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.bench.${name}"
           failonerror="true"
@@ -107,7 +106,7 @@
           depends="build, ensure-name"
   >
     <java fork="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.bench.${name}"
           failonerror="true"
@@ -188,7 +187,7 @@
     <java fork="true"
           classpathref="project.classpath"
           classname="org.hsqldb.util.DatabaseManager"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
     >
       <arg value="-driver"/>
       <arg value="${hibernate.connection.driver_class}"/>
@@ -222,7 +221,7 @@
           depends="build"
   >
     <java fork="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.RegistryReset"
     />
@@ -302,7 +301,7 @@
   <!-- eg-run -->
   <target name="eg-run">
     <java fork="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.eg.${package}.${name}"
           failonerror="true"
@@ -331,15 +330,13 @@
   <!-- findbugs -->
   <target name="findbugs" depends="dist,dist-lib">
     <taskdef  name="findbugs"       classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
-<!--
-    <property name="findbugs.home"  value="/Users/blair/Applications/findbugs-1.0.0"/>
--->
+    <property name="findbugs.home"  location="${user.home}/Applications/findbugs-1.1.0"/>
     <findbugs home="${findbugs.home}"
-              projectFile="${conf}/grouper.findbugs"
               effort="max"
               reportLevel="low"
               output="html"
               outputFile="${dist.run}/findbugs_grouper.html"
+              jvmargs="-Xmx${memory.max}"
     >
       <auxClassPath>
         <fileset dir="${lib}">
@@ -377,7 +374,7 @@
           depends="init"
   >
     <java fork="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           jar="${hsqldb.jar}"
           dir="${conf}"
@@ -394,7 +391,7 @@
   >
     <java fork="true"
           spawn="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="org.hsqldb.Server"
           dir="${conf}"
@@ -409,7 +406,7 @@
   >
     <java fork="true"
           spawn="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           jar="${hsqldb.jar}"
           dir="${conf}"
@@ -485,13 +482,13 @@
   >
     <!-- Setup profiling run -->
     <java fork="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.prof.${name}Setup"
           failonerror="true"
     />
     <java fork="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.prof.${name}"
           failonerror="true"
@@ -535,7 +532,7 @@
           depends="test-build, ensure-test-name">
     <record name="${log.test.run}" action="start"/>
     <java fork="true"
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="junit.textui.TestRunner"
           taskname="junit"
@@ -613,7 +610,7 @@
     <record name="${log.test.run}" action="start"/>
     <!-- Run the test suite -->
     <java fork="true" 
-          maxmemory="${max.memory}"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="junit.textui.TestRunner"
           taskname="junit" 

@@ -1,6 +1,0 @@
-[Jar files]
-./dist/lib/grouper.jar
-[Source dirs]
-./src/grouper
-[Aux classpath entries]
-./dist/lib/grouper-lib.jar
