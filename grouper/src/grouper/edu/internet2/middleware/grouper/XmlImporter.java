@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.21 2006-09-21 16:10:23 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.22 2006-09-21 16:43:16 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -118,11 +118,9 @@ public class XmlImporter {
    * </table>
    * @param   s           Perform import within this session.
    * @param   userOptions User-specified configuration parameters.
-   * @throws  Exception
    * @since   1.1.0
    */
   public XmlImporter(GrouperSession s, Properties userOptions) 
-    throws  Exception 
   {
     try {
       this.options  = XmlUtils.getSystemProperties(LOG, CF);
@@ -188,16 +186,21 @@ public class XmlImporter {
    * naming privileges Grant access privileges
    * <p/>
    * @param   doc
-   * @throws  Exception
+   * @throws  GrouperException
    * @since   1.1.0
    */
   public void load(Document doc) 
-    throws  Exception 
+    throws  GrouperException
   {
     LOG.info("Starting load at ROOT stem");
-    this._processProperties(doc);
-    Stem stem = StemFinder.findRootStem(this.s);
-    load(stem, doc);
+    try {
+      this._processProperties(doc);
+      Stem stem = StemFinder.findRootStem(this.s);
+      load(stem, doc);
+    }
+    catch (Exception e) {
+      throw new GrouperException(e.getMessage(), e);
+    }
     LOG.info("Ending load at ROOT stem");
   } // public void load(doc)
 
@@ -209,36 +212,41 @@ public class XmlImporter {
    * Grant naming privileges Grant access privileges
    * <p/>
    * @param   doc
-   * @throws  Exception
+   * @throws  GrouperException
    * @since   1.1.0
    */
   public void load(Stem rootStem, Document doc)
-    throws  Exception 
+    throws  GrouperException
   {
     LOG.info("Starting load at " + rootStem.getName());
-    this._processProperties(doc);
-    this.importToName = rootStem.getName();
-    if (this.importToName.equals(Stem.ROOT_INT)) {
-      importToName = "";
-    }
-    Element root = doc.getDocumentElement();
+    try {
+      this._processProperties(doc);
+      this.importToName = rootStem.getName();
+      if (this.importToName.equals(Stem.ROOT_INT)) {
+        importToName = "";
+      }
+      Element root = doc.getDocumentElement();
 
-    _processMetaData(_getImmediateElement(root, "metadata"));
-    if (XmlUtils.isEmpty(importToName)) {
-      _process(_getImmediateElement(root, "data"), NS_ROOT);
-    } 
-    else {
-      _process(_getImmediateElement(root, "data"), importToName);
+      _processMetaData(_getImmediateElement(root, "metadata"));
+      if (XmlUtils.isEmpty(importToName)) {
+        _process(_getImmediateElement(root, "data"), NS_ROOT);
+      } 
+      else {
+        _process(_getImmediateElement(root, "data"), importToName);
+      }
+      Runtime.getRuntime().gc();
+      _processMemberships();
+      _processMembershipLists();
+      Runtime.getRuntime().gc();
+      _processNamingPrivs();
+      _processNamingPrivLists();
+      Runtime.getRuntime().gc();
+      _processAccessPrivs();
+      _processAccessPrivLists();
     }
-    Runtime.getRuntime().gc();
-    _processMemberships();
-    _processMembershipLists();
-    Runtime.getRuntime().gc();
-    _processNamingPrivs();
-    _processNamingPrivLists();
-    Runtime.getRuntime().gc();
-    _processAccessPrivs();
-    _processAccessPrivLists();
+    catch (Exception e) {
+      throw new GrouperException(e.getMessage(), e);
+    }
     LOG.info("Ending load at " + rootStem.getName());
   } // public void load(rootStem, doc)
 
@@ -248,48 +256,53 @@ public class XmlImporter {
    * missing stems or groups
    * <p/> 
    * @param   doc
-   * @throws  Exception
+   * @throws  GrouperException
    * @since   1.1.0
    */
   public void loadFlatGroupsOrStems(Document doc)
-    throws  Exception 
+    throws  GrouperException
   {
     LOG.info("Starting flat load");
-    this._processProperties(doc);
+    try {
+      this._processProperties(doc);
 
-    Element root = doc.getDocumentElement();
+      Element root = doc.getDocumentElement();
 
-    _processMetaData(_getImmediateElement(root, "metadata"));
-    Element dataE = _getImmediateElement(root, "dataList");
-    Collection groupElements = _getImmediateElements(dataE, "group");
-    if (groupElements != null) {
-      Iterator groupsIterator = groupElements.iterator();
-      Element groupElement;
-      while (groupsIterator.hasNext()) {
-        groupElement = (Element) groupsIterator.next();
-        _processGroup(groupElement);
+      _processMetaData(_getImmediateElement(root, "metadata"));
+      Element dataE = _getImmediateElement(root, "dataList");
+      Collection groupElements = _getImmediateElements(dataE, "group");
+      if (groupElements != null) {
+        Iterator groupsIterator = groupElements.iterator();
+        Element groupElement;
+        while (groupsIterator.hasNext()) {
+          groupElement = (Element) groupsIterator.next();
+          _processGroup(groupElement);
+        }
       }
-    }
 
-    Collection stemElements = _getImmediateElements(root, "stem");
-    if (stemElements != null) {
-      Iterator stemsIterator = stemElements.iterator();
-      Element stemElement;
-      while (stemsIterator.hasNext()) {
-        stemElement = (Element) stemsIterator.next();
+      Collection stemElements = _getImmediateElements(root, "stem");
+      if (stemElements != null) {
+        Iterator stemsIterator = stemElements.iterator();
+        Element stemElement;
+        while (stemsIterator.hasNext()) {
+          stemElement = (Element) stemsIterator.next();
     
-      _processStem(stemElement);
+        _processStem(stemElement);
+        }
       }
+      Runtime.getRuntime().gc();
+
+      _processMembershipLists();
+      Runtime.getRuntime().gc();
+
+      _processNamingPrivLists();
+      Runtime.getRuntime().gc();
+
+      _processAccessPrivLists();
     }
-    Runtime.getRuntime().gc();
-
-    _processMembershipLists();
-    Runtime.getRuntime().gc();
-
-    _processNamingPrivLists();
-    Runtime.getRuntime().gc();
-
-    _processAccessPrivLists();
+    catch (Exception e) {
+      throw new GrouperException(e.getMessage(), e);
+    }
     LOG.info("Ending flat load");
   } // public void loadFlatGropusOrStems(doc)
 
@@ -398,10 +411,14 @@ public class XmlImporter {
     return rc;
   } // private static Properties _getArgs(args)
 
-  // @throws  Exceptoin
+  // @throws  IOException
+  // @throws  org.xml.sax.SAXException
+  // @throws  ParserConfigurationException
   // @since   1.1.0
   private static Document _getDocument(String filename) 
-    throws  Exception 
+    throws  IOException,
+            org.xml.sax.SAXException,
+            ParserConfigurationException
   {
     DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
     DocumentBuilder         db  = dbf.newDocumentBuilder();
@@ -409,10 +426,14 @@ public class XmlImporter {
     return doc;
   } // private static Document _getDocument(filename)
 
-  // @throws  Exception
+  // @throws  IOException
+  // @throws  org.xml.sax.SAXException
+  // @throws  ParserConfigurationException
   // @since   1.1.0
   private static Document _getDocument(InputStream is) 
-    throws  Exception 
+    throws  IOException,
+            org.xml.sax.SAXException,
+            ParserConfigurationException
   {
     DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
     DocumentBuilder         db  = dbf.newDocumentBuilder();
@@ -420,10 +441,14 @@ public class XmlImporter {
     return doc;
   } // private static Document _getDocument(is)
 
-  // @throws  Exception
+  // @throws  IOException
+  // @throws  org.xml.sax.SAXException,
+  // @throws  ParserConfigurationException
   // @since   1.1.0
   private static Document _getDocument(URL url) 
-    throws  Exception 
+    throws  IOException,
+            org.xml.sax.SAXException,
+            ParserConfigurationException
   {
     DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
     DocumentBuilder         db  = dbf.newDocumentBuilder();
@@ -485,10 +510,16 @@ public class XmlImporter {
             ;
   } // private static String _getUsage()
 
-  // @throws  Exception
+  // @throws  GrouperException
+  // @throws  IOException
+  // @throws  org.xml.sax.SAXException
+  // @throws  ParserConfigurationException
   // @since   1.1.0
   private static void _handleArgs(XmlImporter importer, Properties rc) 
-    throws  Exception
+    throws  GrouperException,
+            IOException,
+            org.xml.sax.SAXException,
+            ParserConfigurationException
   {
     Document doc = _getDocument( rc.getProperty(RC_IFILE) );
     if (Boolean.getBoolean( rc.getProperty(RC_UPDATELIST) )) {
