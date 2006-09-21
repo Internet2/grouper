@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.23 2006-09-21 18:40:13 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.24 2006-09-21 18:50:43 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -226,13 +226,10 @@ public class XmlImporter {
       else {
         _process(_getImmediateElement(root, "data"), importToName);
       }
-      Runtime.getRuntime().gc();
       _processMemberships();
       _processMembershipLists();
-      Runtime.getRuntime().gc();
       _processNamingPrivs();
       _processNamingPrivLists();
-      Runtime.getRuntime().gc();
       _processAccessPrivs();
       _processAccessPrivLists();
     }
@@ -2034,6 +2031,7 @@ public class XmlImporter {
 
   // @throws  GrouperException
   // @since   1.1.0
+  // TODO 20060921 test
   private void _processProperties(Document doc) 
     throws  GrouperException
   {
