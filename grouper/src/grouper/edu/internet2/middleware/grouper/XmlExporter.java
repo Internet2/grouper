@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.29 2006-09-21 17:29:42 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.30 2006-09-21 18:40:13 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -220,7 +220,7 @@ public class XmlExporter {
         XmlUtils.getUserProperties(LOG, rc.getProperty(RC_UPROPS) )
       );
       _handleArgs(exporter, rc);
-      LOG.info("Finished export to [" + rc.getProperty(RC_EFILE) + "]");
+      LOG.debug("Finished export to [" + rc.getProperty(RC_EFILE) + "]");
     }
     catch (Exception e) {
       LOG.fatal("unable to export to xml: " + e.getMessage());
@@ -252,7 +252,7 @@ public class XmlExporter {
   public void export(Writer writer)
     throws  GrouperException
   {
-    LOG.info("Start export of entire repository");
+    LOG.info("starting export from root stem");
     this.xml = new XmlWriter(writer);
     try {
       this._export(StemFinder.findRootStem(s), true, false);
@@ -278,7 +278,7 @@ public class XmlExporter {
     catch (SubjectNotFoundException eSNF)   {
       throw new GrouperException(eSNF.getMessage(), eSNF);
     }
-    LOG.info("Finished export of entire repository");
+    LOG.debug("export complete");
   } // public void export()
 
   /**
@@ -292,7 +292,7 @@ public class XmlExporter {
   public synchronized void export(Collection items, String info) 
     throws  Exception 
   {
-    LOG.info("Start export of Collection:" + info);
+    LOG.debug("Start export of Collection:" + info);
 
     this.fromStem         = "_Z";
     Date    before        = _writeHeader();
@@ -351,7 +351,7 @@ public class XmlExporter {
     this.xml.put(origPadding);
     this.xml.puts("]]></exportComments>");
     this._writeFooter(before);
-    LOG.info("Finished export of Collection:" + info);
+    LOG.debug("Finished export of Collection:" + info);
   } // public synchronized void export(items, info)
 
   /**
@@ -365,9 +365,9 @@ public class XmlExporter {
   public void export(Group group, boolean relative) 
     throws  Exception 
   {
-    LOG.info("Start export of Group " + group.getName());
+    LOG.debug("Start export of Group " + group.getName());
     this._export(group, relative, false);
-    LOG.info("Finished export of Group " + group.getName());
+    LOG.debug("Finished export of Group " + group.getName());
   } // public void export( group, relative)
 
   /**
@@ -382,9 +382,9 @@ public class XmlExporter {
   public void export(Stem stem, boolean relative, boolean includeParent) 
     throws  Exception 
   {
-    LOG.info("Start export of Stem " + stem.getName());
+    LOG.debug("Start export of Stem " + stem.getName());
     _export(stem, relative, includeParent);
-    LOG.info("Finished export of Stem " + stem.getName());
+    LOG.debug("Finished export of Stem " + stem.getName());
   } // public void export(stem, relative, includeParent)
 
 
@@ -676,8 +676,8 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    LOG.info("Relative export="     + relative);
-    LOG.info("Include parent stem=" + includeParent);
+    LOG.debug("Relative export="     + relative);
+    LOG.debug("Include parent stem=" + includeParent);
     this.isRelative         = relative;
     this.includeParent      = includeParent;
     this.writeStemsCounter  = 0;
@@ -706,7 +706,7 @@ public class XmlExporter {
       _exportData(gos, padding);
     } 
     else {
-      LOG.info("export.data=false, so no data exported");
+      LOG.debug("export.data=false, so no data exported");
     }
     _writeExportParams(gos, padding);
     _writeFooter(before);
@@ -1345,7 +1345,7 @@ public class XmlExporter {
             SubjectNotFoundException
   {
     if (!group.canReadField(field)) {
-      LOG.info(
+      LOG.debug(
         "No read privilege. List [" + field.getName() + "] for ["
         + group.getName() + "] ignored"
       );
