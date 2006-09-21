@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test XML.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXml.java,v 1.3 2006-09-21 18:40:13 blair Exp $
+ * @version $Id: SuiteXml.java,v 1.4 2006-09-21 19:21:10 blair Exp $
  * @since   1.0
  */
 public class SuiteXml extends TestCase {
@@ -35,7 +35,8 @@ public class SuiteXml extends TestCase {
     TestSuite suite = new TestSuite();        
     suite.addTest( SuiteXmlExport.suite() );
     suite.addTest( SuiteXmlImport.suite() );
-    suite.addTestSuite( TestXml0.class  );  // Export: Full/String; Import: Full/String
+    suite.addTestSuite( TestXml0.class  );  // Export: Full/String; Import: Full/Root/String
+    suite.addTestSuite( TestXml1.class  );  // Export: Full/String; Import: Full/Anchored/String
     return suite;
   } // static public Test suite()
 
