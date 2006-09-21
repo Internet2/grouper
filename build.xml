@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.122 2006-09-15 14:53:23 blair Exp $ -->
+<!-- $Id: build.xml,v 1.123 2006-09-21 13:25:38 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -39,6 +39,7 @@
   <property name="max.memory"             value="192m"/>
 
   <property name="hsqldb.jar"             location="${lib}/hsqldb-1.7.2.11.jar" />
+  <property name="findbugs.home"          location="${user.home}/Applications/findbugs-1.1.0"/>
   <!-- Global Properties -->
 
   <taskdef  name="schemaexport"
@@ -330,7 +331,9 @@
   <!-- findbugs -->
   <target name="findbugs" depends="dist,dist-lib">
     <taskdef  name="findbugs"       classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+<!--
     <property name="findbugs.home"  value="/Users/blair/Applications/findbugs-1.0.0"/>
+-->
     <findbugs home="${findbugs.home}"
               projectFile="${conf}/grouper.findbugs"
               effort="max"
