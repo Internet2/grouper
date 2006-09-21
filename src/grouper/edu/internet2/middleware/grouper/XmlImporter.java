@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.24 2006-09-21 18:50:43 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.25 2006-09-21 19:21:10 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -56,7 +56,7 @@ public class XmlImporter {
   private List            accessPrivLists = new ArrayList();
   private List            accessPrivs     = new ArrayList();
   private Map             importedGroups;
-  private String          importToName;
+  private String          importRoot; // Anchor import here
   private List            membershipLists = new ArrayList();
   private List            memberships     = new ArrayList();
   private List            namingPrivLists = new ArrayList();
@@ -181,50 +181,60 @@ public class XmlImporter {
   /**
    * Populate Groups Registry.
    * <pre class="eg">
-   * TODO 20060921 provide example
+   * try {
+   *   importer.load( XmlReader.getDocumentFromString(s) );
+   * }
+   * catch (GrouperException eG) {
+   *   // error importing
+   * }
    * </pre>
-   * @param   doc   Import this <tt>Document</tt>
+   * @param   doc   Import this <tt>Document</tt>.
    * @throws  GrouperException
    * @since   1.1.0
    */
   public void load(Document doc)
     throws  GrouperException
   {
-    LOG.info("starting import from root stem");
-    this._processProperties(doc);
     this.load( StemFinder.findRootStem(this.s), doc );
-    LOG.info("import complete");
   } // public void load(xml)
 
   /**
-   * Recurse through the XML document and create any stems / groups starting
-   * at the stem provided, accumulating memberships and privilege assignments
-   * for later - this ensures that any groups which will become members or
-   * have privileges granted to them actually exist! Create any memberships
-   * Grant naming privileges Grant access privileges
-   * <p/>
-   * @param   doc
+   * Populate Groups Registry using the specified <tt>Stem</tt> as the root of
+   * the registry.
+   * <pre class="eg">
+   * try {
+   *   importer.load( ns, XmlReader.getDocumentFromString(s) );
+   * }
+   * catch (GrouperException eG) {
+   *   // error importing
+   * }
+   * </pre>
+   * @param   ns    Import using this <tt>Stem</tt> as the <i>root stem</i>.
+   * @param   doc   Import this <tt>Document</tt>.
    * @throws  GrouperException
    * @since   1.1.0
    */
-  public void load(Stem rootStem, Document doc)
+  public void load(Stem ns, Document doc)
     throws  GrouperException
   {
-    LOG.debug("Starting load at " + rootStem.getName());
     try {
-      this._processProperties(doc);
-      this.importToName = rootStem.getName();
-      if (this.importToName.equals(Stem.ROOT_INT)) {
-        importToName = "";
+      if (ns.isRootStem()) {
+        this.importRoot = GrouperConfig.EMPTY_STRING;
+        LOG.info("starting import at root stem");
       }
+      else {
+        this.importRoot = ns.getName();
+        LOG.info("starting import at: " + U.q(this.importRoot));
+      }
+      this._processProperties(doc);
       Element root = doc.getDocumentElement();
 
       _processMetaData(_getImmediateElement(root, "metadata"));
-      if (XmlUtils.isEmpty(importToName)) {
+      if (XmlUtils.isEmpty(importRoot)) {
         _process(_getImmediateElement(root, "data"), NS_ROOT);
       } 
       else {
-        _process(_getImmediateElement(root, "data"), importToName);
+        _process(_getImmediateElement(root, "data"), importRoot);
       }
       _processMemberships();
       _processMembershipLists();
@@ -233,11 +243,56 @@ public class XmlImporter {
       _processAccessPrivs();
       _processAccessPrivLists();
     }
-    catch (Exception e) {
-      throw new GrouperException(e.getMessage(), e);
+    catch (AttributeNotFoundException eANF)     {
+      throw new GrouperException(eANF.getMessage(), eANF);
     }
-    LOG.debug("Ending load at " + rootStem.getName());
-  } // public void load(rootStem, doc)
+    catch (GrantPrivilegeException eGP)         {
+      throw new GrouperException(eGP.getMessage(), eGP);
+    }
+    catch (GroupAddException eGA)               {
+      throw new GrouperException(eGA.getMessage(), eGA);
+    }
+    catch (GroupModifyException eGM)            {
+      throw new GrouperException(eGM.getMessage(), eGM);
+    }
+    catch (GroupNotFoundException eGNF)         {
+      throw new GrouperException(eGNF.getMessage(), eGNF);
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new GrouperException(eIP.getMessage(), eIP);
+    }
+    catch (MemberAddException eMA)              {
+      throw new GrouperException(eMA.getMessage(), eMA);
+    }
+    catch (MemberDeleteException eMD)           {
+      throw new GrouperException(eMD.getMessage(), eMD);
+    }
+    catch (MemberNotFoundException eMNF)        {
+      throw new GrouperException(eMNF.getMessage(), eMNF);
+    }
+    catch (RevokePrivilegeException eRP)        {
+      throw new GrouperException(eRP.getMessage(), eRP);
+    }
+    catch (SchemaException eS)                  {
+      throw new GrouperException(eS.getMessage(), eS);
+    }
+    catch (StemAddException eNSA)               {
+      throw new GrouperException(eNSA.getMessage(), eNSA);
+    }
+    catch (StemModifyException eNSM)            {
+      throw new GrouperException(eNSM.getMessage(), eNSM);
+    }
+    catch (StemNotFoundException eNSNF)         {
+      throw new GrouperException(eNSNF.getMessage(), eNSNF);
+    }
+    catch (SubjectNotFoundException eSNF)       {
+      throw new GrouperException(eSNF.getMessage(), eSNF);
+    }
+    catch (SubjectNotUniqueException eSNU)      {
+      throw new GrouperException(eSNU.getMessage(), eSNU);
+    }
+    LOG.info("import complete");
+  } // public void load(ns, doc)
 
   /**
    * Iterate over list of stems or groups and update any memberships, naming
@@ -559,11 +614,11 @@ public class XmlImporter {
       }
     }
     if (
-      !XmlUtils.isEmpty(importToName)
-      && importedGroups.containsKey(importToName + Stem.ROOT_INT + name)
+      !XmlUtils.isEmpty(importRoot)
+      && importedGroups.containsKey(importRoot + Stem.ROOT_INT + name)
     ) 
     {
-      return importToName + Stem.ROOT_INT + name;
+      return importRoot + Stem.ROOT_INT + name;
     }
     return name;
   } // private String _getAbsoluteName(name, stem)
@@ -791,8 +846,8 @@ public class XmlImporter {
           ) 
           {
             //relative import
-            if (XmlUtils.isEmpty(importToName)) {
-              subjectIdentifier = importToName + Stem.ROOT_INT + subjectIdentifier.substring(1);
+            if (XmlUtils.isEmpty(importRoot)) {
+              subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
             }
             else {
               subjectIdentifier = subjectIdentifier.substring(1);
@@ -1432,8 +1487,8 @@ public class XmlImporter {
           ) 
           {
             //relative import
-            if (!XmlUtils.isEmpty(importToName)) {
-              subjectIdentifier = importToName + Stem.ROOT_INT + subjectIdentifier.substring(1);
+            if (!XmlUtils.isEmpty(importRoot)) {
+              subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
             }
             else {
               subjectIdentifier = subjectIdentifier.substring(1);
@@ -1778,8 +1833,8 @@ public class XmlImporter {
           ) 
           {
             //relative import
-            if (!XmlUtils.isEmpty(importToName)) {
-              subjectIdentifier = importToName + Stem.ROOT_INT + subjectIdentifier.substring(1);
+            if (!XmlUtils.isEmpty(importRoot)) {
+              subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
             }
             else {
               subjectIdentifier = subjectIdentifier.substring(1);
