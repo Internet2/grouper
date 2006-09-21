@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.103 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: Group.java,v 1.104 2006-09-21 16:10:23 blair Exp $
  */
 public class Group extends Owner {
 
@@ -76,21 +76,20 @@ public class Group extends Owner {
     // Set naming information
     Set attributes = new LinkedHashSet();
     attributes.add(
-      new Attribute(this, FieldFinder.find("displayExtension"), displayExtn)
+      new Attribute(this, FieldFinder.find(GrouperConfig.ATTR_DE), displayExtn)
     );
     attributes.add(
       new Attribute(
-        this, FieldFinder.find("displayName"), 
+        this, FieldFinder.find(GrouperConfig.ATTR_DN),
         U.constructName(ns.getDisplayName(), displayExtn)
       )
     );
     attributes.add(
-      new Attribute(this, FieldFinder.find("extension"), extn)
+      new Attribute(this, FieldFinder.find(GrouperConfig.ATTR_E), extn)
     );
     attributes.add(
       new Attribute(
-        this, FieldFinder.find("name"), 
-        U.constructName(ns.getName(), extn)
+        this, FieldFinder.find(GrouperConfig.ATTR_N), U.constructName(ns.getName(), extn)
       )
     );
     this.setGroup_attributes(attributes);
@@ -498,6 +497,9 @@ public class Group extends Owner {
     try {
       StopWatch sw = new StopWatch();
       sw.start();
+      if (!AttributeValidator.isPermittedName(attr)) {
+        throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
+      }
       Field f = FieldFinder.find(attr);
       GroupValidator.canDelAttribute(this, f);
 
@@ -525,6 +527,7 @@ public class Group extends Owner {
         this.setGroup_attributes(attrs);
         saves.add(this);
         HibernateHelper.saveAndDelete(saves, deletes);
+        this.attrs.remove(attr); // Remove cached attribute
       }
       else {
         throw new AttributeNotFoundException();
@@ -778,29 +781,8 @@ public class Group extends Owner {
   public String getAttribute(String attr) 
     throws  AttributeNotFoundException
   {
-    try {
-      Field f = FieldFinder.find(attr);
-      GroupValidator.isTypeEqual(f, FieldType.ATTRIBUTE);
-      if (!this.hasType( f.getGroupType() ) ) {
-        throw new SchemaException(
-          "group does not have group type: " + f.getGroupType().toString()
-        );
-      }
-      GroupValidator.canReadField(
-        this, this.getSession().getSubject(), f
-      );
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      throw new AttributeNotFoundException(eIP);
-    }
-    catch (SchemaException eS) {
-      throw new AttributeNotFoundException(eS);
-    }
-    String val = this._getAttributeNoPrivs(attr);
-    if (val == null) {
-      return GrouperConfig.EMPTY_STRING;
-    }
-    return val;
+    GroupValidator.canGetAttribute(this, attr);
+    return this._getAttributeNoPrivs(attr);
   } // public String getAttribute(attr)
 
   /**
@@ -918,7 +900,7 @@ public class Group extends Owner {
    */
   public String getDescription() {
     try {
-      return (String) this.getAttribute("description");
+      return (String) this.getAttribute(GrouperConfig.ATTR_D);
     }
     catch (AttributeNotFoundException eANF) {
       // Lack of a description is acceptable
@@ -939,8 +921,8 @@ public class Group extends Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = this._getAttributeNoPrivs("displayExtension");
-    if (val == null) {
+    String val = this._getAttributeNoPrivs(GrouperConfig.ATTR_DE);
+    if (val.equals(GrouperConfig.EMPTY_STRING)) {
       //  A group without this attribute is VERY faulty
       ErrorLog.fatal(Group.class, E.GROUP_NODE);
       throw new GrouperRuntimeException(E.GROUP_NODE);
@@ -961,8 +943,8 @@ public class Group extends Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = this._getAttributeNoPrivs("displayName");
-    if (val == null) {
+    String val = this._getAttributeNoPrivs(GrouperConfig.ATTR_DN);
+    if (val.equals(GrouperConfig.EMPTY_STRING)) {
       //  A group without this attribute is VERY faulty
       ErrorLog.fatal(Group.class, E.GROUP_NODN);
       throw new GrouperRuntimeException(E.GROUP_NODN);
@@ -1060,8 +1042,8 @@ public class Group extends Owner {
   public String getExtension() {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = this._getAttributeNoPrivs("extension");
-    if (val == null) {
+    String val = this._getAttributeNoPrivs(GrouperConfig.ATTR_E);
+    if (val.equals(GrouperConfig.EMPTY_STRING)) {
       //  A group without this attribute is VERY faulty
       ErrorLog.error(Group.class, E.GROUP_NOE);
       throw new GrouperRuntimeException(E.GROUP_NOE);
@@ -1289,8 +1271,8 @@ public class Group extends Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = this._getAttributeNoPrivs("name");
-    if (val == null) {
+    String val = this._getAttributeNoPrivs(GrouperConfig.ATTR_N);
+    if (val.equals(GrouperConfig.EMPTY_STRING)) {
       //  A group without this attribute is VERY faulty
       ErrorLog.error(Group.class, E.GROUP_NON);
       throw new GrouperRuntimeException(E.GROUP_NON);
@@ -1943,8 +1925,7 @@ public class Group extends Owner {
     try {
       StopWatch sw = new StopWatch();
       sw.start();
-      Field f = FieldFinder.find(attr);
-      GroupValidator.canSetAttribute(this, f, value);
+      Field f = GroupValidator.canSetAttribute(this, attr, value);
 
       // TODO I'm not comfortable with this code
       Set       attrs = new LinkedHashSet();
@@ -2006,7 +1987,7 @@ public class Group extends Owner {
             InsufficientPrivilegeException
   {
     try {
-      this.setAttribute("description", value);
+      this.setAttribute(GrouperConfig.ATTR_D, value);
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
@@ -2037,7 +2018,7 @@ public class Group extends Owner {
             InsufficientPrivilegeException
   {
     try {
-      this.setAttribute("extension", value);
+      this.setAttribute(GrouperConfig.ATTR_E, value);
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
@@ -2068,7 +2049,7 @@ public class Group extends Owner {
             InsufficientPrivilegeException
   {
     try {
-      this.setAttribute("displayExtension", value);
+      this.setAttribute(GrouperConfig.ATTR_DE, value);
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
@@ -2140,8 +2121,8 @@ public class Group extends Owner {
   public String toString() {
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
-      .append("name"        , this._getAttributeNoPrivs("name") )
-      .append("uuid"        , this.getUuid()                    )
+      .append(  GrouperConfig.ATTR_N  , this._getAttributeNoPrivs(GrouperConfig.ATTR_N) )
+      .append(  "uuid"                , this.getUuid()                                  )
       .toString();
   } // public String toString()
 
@@ -2172,7 +2153,7 @@ public class Group extends Owner {
     Iterator  iter  = this.getGroup_attributes().iterator();
     while (iter.hasNext()) {
       a = (Attribute) iter.next();
-      if (a.getField().getName().equals("displayName")) {
+      if (a.getField().getName().equals(GrouperConfig.ATTR_DN)) {
         a.setValue(value);
       }
       attrs.add(a);
@@ -2183,7 +2164,7 @@ public class Group extends Owner {
 
   // PRIVATE INSTANCE METHODS //
   private String _getAttributeNoPrivs(String attr) {
-    String    val   = null;
+    String    val   = GrouperConfig.EMPTY_STRING;
     Map       attrs = this._getAttributesNoPrivs();
     if (attrs.containsKey(attr)) {
       Attribute a = (Attribute) attrs.get(attr);
@@ -2229,12 +2210,12 @@ public class Group extends Owner {
     throws  ModelException
   {
     Set updated = new LinkedHashSet();
-    if      (f.getName().equals("extension")) {
+    if      (f.getName().equals(GrouperConfig.ATTR_E)) {
       Attribute a;
       Iterator  iter  = attrs.iterator();
       while (iter.hasNext()) {
         a = (Attribute) iter.next();
-        if (a.getField().getName().equals("name")) {
+        if (a.getField().getName().equals(GrouperConfig.ATTR_N)) {
           AttributeValidator.namingValue(value);
           String newVal = U.constructName(
             this.getParentStem().getName(), value
@@ -2244,12 +2225,12 @@ public class Group extends Owner {
         updated.add(a);
       }
     }
-    else if (f.getName().equals("displayExtension")) {
+    else if (f.getName().equals(GrouperConfig.ATTR_DE)) {
       Attribute a;
       Iterator  iter  = attrs.iterator();
       while (iter.hasNext()) {
         a = (Attribute) iter.next();
-        if (a.getField().getName().equals("displayName")) {
+        if (a.getField().getName().equals(GrouperConfig.ATTR_DN)) {
           AttributeValidator.namingValue(value);
           String newVal = U.constructName(
             this.getParentStem().getDisplayName(), value

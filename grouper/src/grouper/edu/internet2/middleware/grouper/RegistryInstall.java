@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.27 2006-09-06 19:50:21 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.28 2006-09-21 16:10:23 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -48,37 +48,27 @@ public class RegistryInstall {
     // Base Attributes
     base_f.add(
       new Field(
-        "description"       , FieldType.ATTRIBUTE,
-        AccessPrivilege.READ, AccessPrivilege.ADMIN,
-        true
+        GrouperConfig.ATTR_D, FieldType.ATTRIBUTE, AccessPrivilege.READ, AccessPrivilege.ADMIN, true
       )
     );
     base_f.add(
       new Field(
-        "displayName"       , FieldType.ATTRIBUTE,
-        AccessPrivilege.VIEW, AccessPrivilege.SYSTEM,
-        false
+        GrouperConfig.ATTR_DN, FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, false
       )
     );
     base_f.add(
       new Field(
-        "displayExtension"  , FieldType.ATTRIBUTE,
-        AccessPrivilege.VIEW, AccessPrivilege.ADMIN,
-        false
+        GrouperConfig.ATTR_DE, FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN, false
       )
     );
     base_f.add(
       new Field(
-        "extension"         , FieldType.ATTRIBUTE,
-        AccessPrivilege.VIEW, AccessPrivilege.ADMIN,
-        false
+        GrouperConfig.ATTR_E, FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN, false
       )
     );
     base_f.add(
       new Field(
-        "name"              , FieldType.ATTRIBUTE,
-        AccessPrivilege.VIEW, AccessPrivilege.SYSTEM,
-        false
+        GrouperConfig.ATTR_N, FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, false
       )
     );
     // Base Access Privileges

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.78 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: Stem.java,v 1.79 2006-09-21 16:10:23 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -794,7 +794,7 @@ public class Stem extends Owner {
       );
     }
     sw.stop();
-    EL.stemSetAttr(this.getSession(), this.getName(), "description", value, sw);
+    EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_D, value, sw);
   } // public void setDescription(value)
 
   /**
@@ -869,16 +869,16 @@ public class Stem extends Owner {
     if (value.equals(ROOT_INT)) {
       value = ROOT_EXT;
     }
-    EL.stemSetAttr(this.getSession(), this.getName(), "displayExtension", value, sw);
+    EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_DE, value, sw);
   } // public void setDisplayExtension(value)
 
   public String toString() {
     return new ToStringBuilder(this)
-      .append("displayName" , getDisplay_name() )
-      .append("name"        , getName()         )
-      .append("uuid"        , getUuid()         )
-      .append("creator"     , getCreator_id()   )
-      .append("modifier"    , getModifier_id()  )
+      .append(  GrouperConfig.ATTR_DN , getDisplay_name() )
+      .append(  GrouperConfig.ATTR_N  , getName()         )
+      .append(  "uuid"                , getUuid()         )
+      .append(  "creator"             , getCreator_id()   )
+      .append(  "modifier"            , getModifier_id()  )
       .toString();
   } // public String toString()
 

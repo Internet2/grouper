@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.20 2006-09-20 19:20:46 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.21 2006-09-21 16:10:23 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1107,16 +1107,16 @@ public class XmlImporter {
             InsufficientPrivilegeException,
             SchemaException
   {
-    String  extension         = e.getAttribute("extension");
-    String  displayExtension  = e.getAttribute("displayExtension");
-    Element descE             = _getImmediateElement(e, "description");
+    String  extension         = e.getAttribute(GrouperConfig.ATTR_E);
+    String  displayExtension  = e.getAttribute(GrouperConfig.ATTR_DE);
+    Element descE             = _getImmediateElement(e, GrouperConfig.ATTR_D);
     String  description       = "";
 
     if (descE != null) {
       description = _getText(descE);
     }
     String  id                = e.getAttribute("id");
-    String  name              = e.getAttribute("name");
+    String  name              = e.getAttribute(GrouperConfig.ATTR_N);
 
     Group   existingGroup     = null;
     String  updateAttributes  = e.getAttribute("updateAttributes");
@@ -1182,9 +1182,9 @@ public class XmlImporter {
     if (importedGroups == null) {
       importedGroups = new HashMap();
     }
-    String  extension        = e.getAttribute("extension");
-    String  displayExtension = e.getAttribute("displayExtension");
-    String  description      = e.getAttribute("description");
+    String  extension        = e.getAttribute(GrouperConfig.ATTR_E);
+    String  displayExtension = e.getAttribute(GrouperConfig.ATTR_DE);
+    String  description      = e.getAttribute(GrouperConfig.ATTR_D);
     String  newGroup         = U.constructName(stem, extension);
     if (LOG.isInfoEnabled()) {
       LOG.info("Creating group [" + newGroup + "]");
@@ -1249,7 +1249,7 @@ public class XmlImporter {
         "Expected tag: <groupRef> but found <" + tagName + ">"
       );
     }
-    String name = groupE.getAttribute("name");
+    String name = groupE.getAttribute(GrouperConfig.ATTR_N);
     if (XmlUtils.isEmpty(name)) {
       throw new IllegalStateException(
         "Expected 'name' atribute for <groupRef>"
@@ -1937,9 +1937,9 @@ public class XmlImporter {
             StemModifyException,
             StemNotFoundException
   {
-    String  extension        = e.getAttribute("extension");
-    String  displayExtension = e.getAttribute("displayExtension");
-    String  description      = e.getAttribute("description");
+    String  extension        = e.getAttribute(GrouperConfig.ATTR_E);
+    String  displayExtension = e.getAttribute(GrouperConfig.ATTR_DE);
+    String  description      = e.getAttribute(GrouperConfig.ATTR_D);
     String  newStem          = U.constructName(stem, extension);
     if (LOG.isInfoEnabled()) {
       LOG.info("Creating stem " + newStem);
@@ -2050,16 +2050,16 @@ public class XmlImporter {
             InsufficientPrivilegeException,
             StemModifyException
   {
-    String  extension         = e.getAttribute("extension");
-    String  displayExtension  = e.getAttribute("displayExtension");
-    Element descE             = _getImmediateElement(e, "description");
+    String  extension         = e.getAttribute(GrouperConfig.ATTR_E);
+    String  displayExtension  = e.getAttribute(GrouperConfig.ATTR_DE);
+    Element descE             = _getImmediateElement(e, GrouperConfig.ATTR_D);
     String  description       = "";
 
     if (descE != null) {
       description = _getText(descE);
     }
     String  id                = e.getAttribute("id");
-    String  name              = e.getAttribute("name");
+    String  name              = e.getAttribute(GrouperConfig.ATTR_N);
 
     Stem    existingStem      = null;
     String  updateAttributes  = e.getAttribute("updateAttributes");
