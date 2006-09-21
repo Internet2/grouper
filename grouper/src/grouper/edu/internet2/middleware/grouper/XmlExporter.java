@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.28 2006-09-20 19:20:46 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.29 2006-09-21 17:29:42 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -178,10 +178,9 @@ public class XmlExporter {
    * </table>
    * @param   s           Perform export within this session.
    * @param   userOptions User-specified configuration parameters.
-   * @param   writer      Write XML here.
    * @since   1.1.0
    */
-  public XmlExporter(GrouperSession s, Properties userOptions, Writer writer) {
+  public XmlExporter(GrouperSession s, Properties userOptions) {
     try {
       this.baseType = GroupTypeFinder.find("base"); // TODO ?
     }
@@ -197,8 +196,7 @@ public class XmlExporter {
     this.options.putAll(userOptions); 
     this.s        = s;
     this.sysUser  = SubjectFinder.findRootSubject(); // TODO ?
-    this.xml      = new XmlWriter(writer);
-  } // public XmlExporter(s, userOptions, writer)
+  } // public XmlExporter(s, userOptions)
 
   
   // MAIN //
@@ -219,8 +217,7 @@ public class XmlExporter {
         GrouperSession.start(
           SubjectFinder.findByIdentifier( rc.getProperty(RC_SUBJ) )
         ),
-        XmlUtils.getUserProperties(LOG, rc.getProperty(RC_UPROPS) ),
-        new PrintWriter( new FileWriter( rc.getProperty(RC_EFILE) ) ) 
+        XmlUtils.getUserProperties(LOG, rc.getProperty(RC_UPROPS) )
       );
       _handleArgs(exporter, rc);
       LOG.info("Finished export to [" + rc.getProperty(RC_EFILE) + "]");
@@ -248,14 +245,39 @@ public class XmlExporter {
   /**
    * Exports data for the entire repository
    * <p/>
-   * @throws  Exception
+   * @param   writer    Write XML here.
+   * @throws  GrouperException
    * @since   1.1.0
    */
-  public void export()
-    throws  Exception 
+  public void export(Writer writer)
+    throws  GrouperException
   {
     LOG.info("Start export of entire repository");
-    this._export(StemFinder.findRootStem(s), true, false);
+    this.xml = new XmlWriter(writer);
+    try {
+      this._export(StemFinder.findRootStem(s), true, false);
+    }
+    catch (CompositeNotFoundException eCNF) {
+      throw new GrouperException(eCNF.getMessage(), eCNF);
+    }
+    catch (GroupNotFoundException eGNF)     {
+      throw new GrouperException(eGNF.getMessage(), eGNF);
+    }
+    catch (IOException eIO)                 {
+      throw new GrouperException(eIO.getMessage(), eIO);
+    }
+    catch (MemberNotFoundException eMNF)    {
+      throw new GrouperException(eMNF.getMessage(), eMNF);
+    }
+    catch (SchemaException eS)              {
+      throw new GrouperException(eS.getMessage(), eS);
+    }
+    catch (StemNotFoundException eNSNF)     {
+      throw new GrouperException(eNSNF.getMessage(), eNSNF);
+    }
+    catch (SubjectNotFoundException eSNF)   {
+      throw new GrouperException(eSNF.getMessage(), eSNF);
+    }
     LOG.info("Finished export of entire repository");
   } // public void export()
 
@@ -573,7 +595,7 @@ public class XmlExporter {
     throws  Exception
   {
     if (rc.getProperty(RC_UUID) == null && rc.getProperty(RC_NAME) == null) {
-      exporter.export();
+      exporter.export( new PrintWriter( new FileWriter( rc.getProperty(RC_EFILE) ) ) );
     } 
     else {
       Group group = null;
@@ -635,9 +657,24 @@ public class XmlExporter {
 
   // PRIVATE INSTANCE METHODS //
 
-  // @since   1.0
+  // @throws  CompositeNotFoundException
+  // @throws  GrouperException
+  // @throws  GroupNotFoundException
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @throws  SchemaException
+  // @throws  StemNotFoundException
+  // @throws  SubjectNotFoundException
+  // @since   1.1.0
   private synchronized void _export(Owner gos, boolean relative, boolean includeParent)
-    throws  Exception 
+    throws  CompositeNotFoundException,
+            GrouperException,
+            GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SchemaException,
+            StemNotFoundException,
+            SubjectNotFoundException
   {
     LOG.info("Relative export="     + relative);
     LOG.info("Include parent stem=" + includeParent);
@@ -675,9 +712,22 @@ public class XmlExporter {
     _writeFooter(before);
   } // private synchronized void _export(gos, relative, includeParent)
 
+  // @throws  CompositeNotFoundException
+  // @throws  GroupNotFoundException
+  // @throws  IOException
+  // @throws  MemberNotFoundException
+  // @throws  SchemaException
+  // @throws  StemNotFoundException
+  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _exportData(Owner gos, String padding) 
-    throws  Exception 
+    throws  CompositeNotFoundException,
+            GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SchemaException,
+            StemNotFoundException,
+            SubjectNotFoundException
   {
     LOG.debug("Writing repository data as XML");
     this.xml.puts(padding + "<data>");
@@ -746,9 +796,8 @@ public class XmlExporter {
     return value;
   } // private String _fixXmlAttribute(value)
 
-  // @since   1.0
+  // @since   1.1.0
   private Stack _getParentStems(Owner gos) 
-    throws  Exception 
   {
     Stem  startStem = null;
     Stack stems     = new Stack();
@@ -908,9 +957,10 @@ public class XmlExporter {
     );
   } // private void _writeFieldMetaData(field, padding)
 
+  // @throws  IOException
   // @since   1.1.0
   private synchronized void _writeFooter(Date before)
-    throws  Exception 
+    throws  IOException
   {
     LOG.debug("Writing XML Footer");
     Date    now       = new Date();
