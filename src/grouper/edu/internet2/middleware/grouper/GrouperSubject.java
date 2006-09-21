@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.24 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.25 2006-09-21 16:10:23 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -93,7 +93,7 @@ public class GrouperSubject implements Subject {
   } // public Set getAttributeValues(name)
 
   public String getDescription() {
-    return this.getAttributeValue("description");
+    return this.getAttributeValue(GrouperConfig.ATTR_D);
   } // public String getDescription()
 
   public String getId() {

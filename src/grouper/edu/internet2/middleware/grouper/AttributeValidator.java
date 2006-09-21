@@ -20,7 +20,7 @@ import  java.util.regex.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AttributeValidator.java,v 1.6 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: AttributeValidator.java,v 1.7 2006-09-21 16:10:23 blair Exp $
  */
 class AttributeValidator {
 
@@ -30,36 +30,47 @@ class AttributeValidator {
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.1.0
+  protected static boolean isPermittedName(String name) {
+    return Validator.isNotNullOrBlank(name);
+  } // protected static boolean isPermittedName(name)
+  
+  // @since   1.1.0
+  protected static boolean isPermittedValue(String value) {
+    return Validator.isNotNullOrBlank(value);
+  } // protected static boolean isPermittedValue(value)
+  
   protected static void namingValue(String value)
     throws  ModelException
   {
     Validator.notNullPerModel(value, E.ATTR_NULL);
-    noColon(value);
-    notJustWhiteSpace(value);
+    _noColon(value);
+    _notJustWhiteSpace(value);
   } // protected static void namingValue(value)
    
 
   // PRIVATE CLASS METHODS // 
 
   // @since 1.0
-  private static void noColon(String value) 
+  private static void _noColon(String value) 
     throws  ModelException
   {
     Matcher m = RE_COLON.matcher(value);
     if (m.find()) {
       throw new ModelException(E.ATTR_COLON);
     }
-  } // private static void noColon(value)
+  } // private static void _noColon(value)
  
   // @since 1.0
-  private static void notJustWhiteSpace(String value) 
+  private static void _notJustWhiteSpace(String value) 
     throws  ModelException
   {
     Matcher m = RE_WS.matcher(value);
     if (m.find()) {
       throw new ModelException(E.ATTR_NULL);
     }
-  } // private static void notJustWhiteSpace(value)
+  } // private static void _notJustWhiteSpace(value)
 
-}
+} // class AttributeValidator
 

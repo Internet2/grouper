@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.25 2006-09-14 20:04:04 blair Exp $
+$Id: NEWS.txt,v 1.26 2006-09-21 16:10:23 blair Exp $
 
 ---
 
@@ -9,6 +9,8 @@ $Id: NEWS.txt,v 1.25 2006-09-14 20:04:04 blair Exp $
 Released: TBD
 
 ## Changes
+* BUGFIX: Deleted group attribute values were still available after deletion
+          within the session that performed the deletion.
 * UPDATE: Update subject caching to make it more extensible and configurable.
 * NEW:    Added `ant hsqldb`, `ant hsqldb-start` and `ant hsqldb-stop` targets
           for running and interacting with HSQLDB running in server mode.

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.5 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: T.java,v 1.6 2006-09-21 16:10:23 blair Exp $
  * @since   1.0
  */
 public class T {
@@ -50,6 +50,16 @@ public class T {
     e.printStackTrace();
     Assert.fail("UNEXPECTED EXCEPTION: " + e.getMessage());
   } // protected static void e(e)
+
+  // @since   1.1.0
+  protected static void fail(String msg) {
+    Assert.fail("FAIL: " + msg);
+  } // protected static void fail(msg)
+
+  // @since   1.1.0
+  protected static void ok(String msg) {
+    Assert.assertTrue("OK: " + msg, true);
+  } // prortected static void ok(msg)
 
   // @since   1.0
   protected static void string(String msg, String exp, String got) { 

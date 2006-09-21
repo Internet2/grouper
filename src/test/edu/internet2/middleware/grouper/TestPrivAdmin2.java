@@ -22,10 +22,12 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestPrivAdmin2.java,v 1.1 2006-09-13 15:52:09 blair Exp $
+ * @version $Id: TestPrivAdmin2.java,v 1.2 2006-09-21 16:10:23 blair Exp $
  * @since   1.1.0
  */
 public class TestPrivAdmin2 extends TestCase {
+
+  // TODO 20060921 relocate to `SuiteGAttrs`
 
   private static final Log LOG = LogFactory.getLog(TestPrivAdmin2.class);
 
@@ -72,8 +74,7 @@ public class TestPrivAdmin2 extends TestCase {
       gA.setAttribute("description", val);
       T.string("set description", val, gA.getAttribute("description"));
       gA.deleteAttribute("description");
-      //T.string("deleted description", GrouperConfig.EMPTY_STRING, gA.getAttribute("description"));
-      T.string("BUG deleted description", val, gA.getAttribute("description"));
+      T.string("deleted description", GrouperConfig.EMPTY_STRING, gA.getAttribute("description"));
       // fail: cannot delete `displayName`
       try {
         gA.deleteAttribute("displayName");

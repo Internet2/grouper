@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.16 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.17 2006-09-21 16:10:23 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -141,6 +141,30 @@ class GroupValidator {
     canModGroupType(s, g, type);
   } // protected static void canDelGroupType(s, g, type)
 
+  // @throws  AttributeNotFoundException
+  // @since   1.1.0
+  protected static void canGetAttribute(Group g, String attr) 
+    throws  AttributeNotFoundException
+  {
+    if (!AttributeValidator.isPermittedName(attr)) {
+      throw new AttributeNotFoundException(E.INVALID_ATTR_NAME);
+    }
+    try {
+      Field f = FieldFinder.find(attr);
+      isTypeEqual(f, FieldType.ATTRIBUTE);
+      if (!g.hasType( f.getGroupType() ) ) {
+        throw new SchemaException(E.GROUP_DOES_NOT_HAVE_TYPE + f.getGroupType().toString());
+      }
+      canReadField(g, g.getSession().getSubject(), f);
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      throw new AttributeNotFoundException(eIP);
+    }
+    catch (SchemaException eS) {
+      throw new AttributeNotFoundException(eS);
+    }
+  } // protected static void canGetAttribute(g, attr)
+
   // @since 1.0
   protected static void canModAttribute(Group g, Field f) 
     throws  InsufficientPrivilegeException,
@@ -207,23 +231,36 @@ class GroupValidator {
     PrivilegeResolver.canPrivDispatch(g.getSession(), g, subj, f.getReadPriv());
   } // protected static void canReadField(g, subj, f)
 
-  // @since 1.0
-  protected static void canSetAttribute(Group g, Field f, String value) 
-    throws  InsufficientPrivilegeException,
+  // @return  Attribute as {@link Field}
+  // @throws  AttributeNotFoundException
+  // @throws  GroupModifyException
+  // @throws  InsufficientPrivilegeException
+  // @throws  ModelException
+  // @throws  SchemaException
+  // @since   1.1.0
+  protected static Field canSetAttribute(Group g, String attr, String value) 
+    throws  AttributeNotFoundException,
+            GroupModifyException,
+            InsufficientPrivilegeException,
             ModelException,
             SchemaException
   {
-    if ( (value == null) || (value.equals(GrouperConfig.EMPTY_STRING)) ) {
-      throw new ModelException(E.GROUP_AV);
+    if (!AttributeValidator.isPermittedName(attr)) {
+      throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
     }
-    if (f.getName().equals("displayExtension")) {
+    if (!AttributeValidator.isPermittedValue(value)) {
+      throw new GroupModifyException(E.INVALID_ATTR_VALUE + value);
+    }
+    Field f = FieldFinder.find(attr);
+    if (f.getName().equals(GrouperConfig.ATTR_DE)) {
       AttributeValidator.namingValue(value);
     }
-    if (f.getName().equals("displayName")) {
+    if (f.getName().equals(GrouperConfig.ATTR_DN)) {
       AttributeValidator.namingValue(value);
     }
     canModAttribute(g, f);
-  } // protected static void canSetAttribute(g, f, value)
+    return f;
+  } // protected static Field canSetAttribute(g, attr, value)
 
   // @since 1.1
   protected static void canWriteField(Group g, Subject subj, Field f)

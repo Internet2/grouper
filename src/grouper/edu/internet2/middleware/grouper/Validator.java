@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * Validation methods that apply to multiple Grouper classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.16 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: Validator.java,v 1.17 2006-09-21 16:10:23 blair Exp $
  */
 class Validator {
 
@@ -36,6 +36,19 @@ class Validator {
       throw new IllegalArgumentException(msg);
     }
   } // protected static void argNotNull(o, msg)
+
+  // @since   1.1.0
+  protected static boolean isNotNullOrBlank(String s) {
+    if (
+      (s == null)
+      ||
+      (s.equals(GrouperConfig.EMPTY_STRING))
+    )
+    {
+      return false;
+    }
+    return true;
+  } // protected static boolean isNotNullOrBlank(s)
 
   // @since 1.0
   protected static void notNullPerModel(Object o, String msg) 
