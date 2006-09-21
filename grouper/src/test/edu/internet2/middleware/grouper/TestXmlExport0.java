@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.*;
 import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport0.java,v 1.3 2006-09-20 15:36:38 blair Exp $
+ * @version $Id: TestXmlExport0.java,v 1.4 2006-09-21 18:48:19 blair Exp $
  * @since   1.0
  */
 public class TestXmlExport0 extends TestCase {
@@ -48,8 +47,7 @@ public class TestXmlExport0 extends TestCase {
     try {
       XmlExporter xml = new XmlExporter(
         GrouperSession.start( SubjectFinder.findRootSubject() ),
-        new Properties(),
-        new StringWriter()
+        new Properties()
       );  
       Assert.assertNotNull("xml !null", xml);
       Assert.assertTrue("xml instanceof XmlExporter", xml instanceof XmlExporter);
