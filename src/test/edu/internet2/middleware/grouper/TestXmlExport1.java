@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.*;
 import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport1.java,v 1.3 2006-09-20 15:36:38 blair Exp $
+ * @version $Id: TestXmlExport1.java,v 1.4 2006-09-21 18:48:19 blair Exp $
  * @since   1.1.0
  */
 public class TestXmlExport1 extends TestCase {
@@ -50,8 +49,7 @@ public class TestXmlExport1 extends TestCase {
       custom.setProperty("export.metadata", "true");
       XmlExporter xml     = new XmlExporter(
         GrouperSession.start( SubjectFinder.findRootSubject() ),
-        custom, 
-        new StringWriter()
+        custom
       );  
       Properties  options = xml.getOptions();
       Assert.assertTrue("13 set options", options.size() == 13);
