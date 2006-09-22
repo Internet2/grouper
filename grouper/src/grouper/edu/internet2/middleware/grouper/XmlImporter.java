@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.35 2006-09-22 17:50:43 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.36 2006-09-22 18:10:17 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -55,7 +55,7 @@ public class XmlImporter {
   private List            accessPrivLists = new ArrayList();
   private List            accessPrivs     = new ArrayList();
   private Document        doc;
-  private Map             importedGroups;
+  private Map             importedGroups  = new HashMap();
   private String          importRoot; // Anchor import here
   private List            membershipLists = new ArrayList();
   private List            memberships     = new ArrayList();
@@ -495,7 +495,7 @@ public class XmlImporter {
     }
     if (
       !XmlUtils.isEmpty(importRoot)
-      && importedGroups.containsKey(importRoot + Stem.ROOT_INT + name)
+      && this.importedGroups.containsKey(importRoot + Stem.ROOT_INT + name)
     ) 
     {
       return importRoot + Stem.ROOT_INT + name;
@@ -1110,70 +1110,6 @@ public class XmlImporter {
   }  // private CompositeType _processCompositeType(typeE)
 
   // @throws  AttributeNotFoundException
-  // @throws  GrouperException
-  // @throws  GroupModifyException
-  // @throws  InsufficientPrivilegeException
-  // @throws  SchemaException
-  // @since   1.1.0
-  private void _processGroup(Element e) 
-    throws  AttributeNotFoundException,
-            GrouperException,
-            GroupModifyException,
-            InsufficientPrivilegeException,
-            SchemaException
-  {
-    String  extension         = e.getAttribute(GrouperConfig.ATTR_E);
-    String  displayExtension  = e.getAttribute(GrouperConfig.ATTR_DE);
-    Element descE             = this._getImmediateElement(e, GrouperConfig.ATTR_D);
-    String  description       = "";
-
-    if (descE != null) {
-      description = _getText(descE);
-    }
-    String  id                = e.getAttribute("id");
-    String  name              = e.getAttribute(GrouperConfig.ATTR_N);
-
-    Group   existingGroup     = null;
-    try {
-      if (!XmlUtils.isEmpty(id)) {
-        existingGroup = GroupFinder.findByUuid(s, id);
-      } 
-      else if (!XmlUtils.isEmpty(name)) {
-        existingGroup = GroupFinder.findByName(s, name);
-      } 
-      else {
-        LOG.error("Group does not have id or name=" + extension);
-        return;
-      }
-      if (this._isUpdatingAttributes(e)) {
-        if (
-          !XmlUtils.isEmpty(displayExtension)
-          && !displayExtension.equals(existingGroup.getDisplayExtension())
-        )
-        {
-          existingGroup.setDisplayExtension(displayExtension);
-        }
-        if (
-          !XmlUtils.isEmpty(description)
-          && !description.equals(existingGroup.getDescription())
-        )
-        {
-          existingGroup.setDescription(description);
-        }
-        this._processAttributes(e, existingGroup.getName());
-      }
-
-    } 
-    catch (GroupNotFoundException ex) {
-      LOG.error("Cannot find Group identified by id=" + id + " or name:" + name);
-      return;
-    }
-
-    this._processLists(e, existingGroup.getName());
-    this._processPrivileges(e, existingGroup.getName(), "access");
-  } // private void _processGroup(e)
-
-  // @throws  AttributeNotFoundException
   // @throws  GroupAddException
   // @throws  GrouperException
   // @throws  GroupModifyException
@@ -1190,54 +1126,43 @@ public class XmlImporter {
             SchemaException,
             StemNotFoundException
   {
-    if (importedGroups == null) {
-      importedGroups = new HashMap();
-    }
-    String  extension        = e.getAttribute(GrouperConfig.ATTR_E);
-    String  displayExtension = e.getAttribute(GrouperConfig.ATTR_DE);
-    String  description      = e.getAttribute(GrouperConfig.ATTR_D);
-    String  newGroup         = U.constructName(stem, extension);
-    LOG.debug("Creating group [" + newGroup + "]");
-    Group   existingGroup     = null;
+    String newGroup = U.constructName( stem, e.getAttribute(GrouperConfig.ATTR_E) );
     try {
-      existingGroup = GroupFinder.findByName(s, newGroup);
-      if (this._isUpdatingAttributes(e)) {
-        if (
-          !XmlUtils.isEmpty(displayExtension)
-          && !displayExtension.equals(existingGroup.getDisplayExtension())
-        )
-        {
-          existingGroup.setDisplayExtension(displayExtension);
-        }
-        if (
-          !XmlUtils.isEmpty(description) 
-          && !description.equals(existingGroup.getDescription())
-        )
-        {
-          existingGroup.setDescription(description);
-        }
-        this._processAttributes(e, stem);
-      }
-      importedGroups.put(existingGroup.getName(), "e");
-      LOG.debug(newGroup + " already exists - skipping");
+      this._processGroupUpdate(e, newGroup);  // Try and update
     } 
-    catch (GroupNotFoundException ex) {
-    }
-    // TODO 20060922 honor `updateOnly`
-    if (existingGroup == null) {
-      Stem  parent  = StemFinder.findByName(s, stem);
-      Group gg      = parent.addChildGroup(extension, displayExtension);
-      importedGroups.put(gg.getName(), "c");
-      LOG.debug(newGroup + " added");
-      if (description != null && description.length() != 0) {
-        gg.setDescription(description);
-      }
+    catch (GroupNotFoundException eGNF) {
+      // TODO 20060922 honor `updateOnly`
+      this._processGroupCreate(e, stem);      // Otherwise create
     }
     this._processSubjects(e, newGroup);
     this._processLists(e, newGroup);
     this._processPrivileges(e, newGroup, "access");
     this._processAccess(e, newGroup);
   } // private void _processGroup(e, stem)
+
+  // @throws  GroupAddException,
+  // @throws  GroupModifyException,
+  // @throws  InsufficientPrivilegeException,
+  // @throws  StemNotFoundException
+  // @since   1.1.0
+  private void _processGroupCreate(Element e, String stem) 
+    throws  GroupAddException,
+            GroupModifyException,
+            InsufficientPrivilegeException,
+            StemNotFoundException
+  {
+    Stem  parent  = StemFinder.findByName(this.s, stem);
+    Group child   = parent.addChildGroup(
+      e.getAttribute(GrouperConfig.ATTR_E),
+      e.getAttribute(GrouperConfig.ATTR_DE)
+    );
+    String description = e.getAttribute(GrouperConfig.ATTR_D);
+    if (Validator.isNotNullOrBlank(description)) {
+      child.setDescription(description);
+    }
+    // TODO 20060922 "c"?
+    this.importedGroups.put(child.getName(), "c");
+  } // private void _processGroupCreate(e, stem)
 
   // @throws  GroupNotFoundException
   // @since   1.1.0
@@ -1289,6 +1214,54 @@ public class XmlImporter {
       this._processGroup( (Element) it.next(), stem );
     }
   } // private void _processGroups(e, stem)
+
+  // @throws  GroupModifyException
+  // @throws  GroupNotFoundException
+  // @throws  InsufficientPrivilegeException
+  // @since   1.1.0
+  private void _processGroupUpdate(Element e, String newGroup) 
+    throws  GroupModifyException,
+            GroupNotFoundException,
+            InsufficientPrivilegeException
+  {
+    // We need to keep this outside the conditional so that a
+    // GroupNotFoundException can be thrown if the stem does not exist.  That
+    // will trigger the creation of the group.
+    Group g = GroupFinder.findByName(this.s, newGroup);
+    if (this._isUpdatingAttributes(e)) {
+      String dExtn  = e.getAttribute(GrouperConfig.ATTR_DE);
+      if (!XmlUtils.isEmpty(dExtn) && !dExtn.equals(g.getDisplayExtension())) {
+        g.setDisplayExtension(dExtn);
+      }
+      String desc   = e.getAttribute(GrouperConfig.ATTR_D);
+      if (!XmlUtils.isEmpty(desc) && !desc.equals(g.getDisplayExtension())) {
+        g.setDisplayExtension(desc);
+      }
+    }
+    // TODO 20060922 "e"?
+    this.importedGroups.put( g.getName(), "e" );
+/*
+      existingGroup = GroupFinder.findByName(s, newGroup);
+      if (this._isUpdatingAttributes(e)) {
+        if (
+          !XmlUtils.isEmpty(displayExtension)
+          && !displayExtension.equals(existingGroup.getDisplayExtension())
+        )
+        {
+          existingGroup.setDisplayExtension(displayExtension);
+        }
+        if (
+          !XmlUtils.isEmpty(description) 
+          && !description.equals(existingGroup.getDescription())
+        )
+        {
+          existingGroup.setDescription(description);
+        }
+        this._processAttributes(e, stem);
+      }
+      this.importedGroups.put(existingGroup.getName(), "e");
+*/
+  } // private void _processGroupUpdate(e, newGroup)
 
   // @since   1.0
   private void _processLists(Element e, String group) 
@@ -1941,6 +1914,7 @@ public class XmlImporter {
       this._processPathUpdate(e, newStem);  // Try and update
     } 
     catch (StemNotFoundException eNSNF) {
+      // TODO 20060922 honor `updateOnly`
       this._processPathCreate(e, stem);     // Otherwise create
     }
     this._processPrivileges(e, newStem, "naming");
