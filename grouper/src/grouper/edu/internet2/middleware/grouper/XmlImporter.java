@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.27 2006-09-22 15:14:44 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.28 2006-09-22 15:19:24 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -772,8 +772,7 @@ public class XmlImporter {
       //Save a call if we are dealing with same group
       if (!group.equals(lastGroup)) {
         if (XmlUtils.isEmpty(lastGroup)) {
-          if (LOG.isInfoEnabled())
-            LOG.debug("Finished loading Access privs for " + lastGroup);
+          LOG.debug("Finished loading Access privs for " + lastGroup);
         }
         focusGroup = GroupFinder.findByName(s, group);
         LOG.debug("Loading Access privs for " + group);
@@ -870,24 +869,16 @@ public class XmlImporter {
           !XmlExporter.hasImmediatePrivilege( subject, focusGroup, privilege)
         ) 
         {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Assigning " + privilege + " to " + subject.getName() + " for " + group);
-          }
+          LOG.debug("Assigning " + privilege + " to " + subject.getName() + " for " + group);
           focusGroup.grantPriv(subject, Privilege.getInstance(privilege));
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("... finished assignment");
-          }
+          LOG.debug("... finished assignment");
         } 
         else {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(privilege + " already assigned to " + subject.getName() + " so skipping");
-          }
+          LOG.debug(privilege + " already assigned to " + subject.getName() + " so skipping");
         }
       }
     }
-    if (LOG.isInfoEnabled()) {
-      LOG.debug("Finished assigning Access privs");
-    }
+    LOG.debug("Finished assigning Access privs");
     accessPrivLists = null;
   } // private void _processAccessPrivLists()
 
@@ -1406,9 +1397,7 @@ public class XmlImporter {
           Set       members         = group.getImmediateMembers(field);
           Iterator  membersIterator = members.iterator();
           Member    memb;
-          if (LOG.isInfoEnabled()) {
-            LOG.debug("Removing all memberships for " + groupName);
-          }
+          LOG.debug("Removing all memberships for " + groupName);
           while (membersIterator.hasNext()) {
             memb = (Member) membersIterator.next();
             group.deleteMember(memb.getSubject());
@@ -1495,26 +1484,20 @@ public class XmlImporter {
           }
         }
         if (!group.hasImmediateMember(subject, field)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(
-              "Making " + subject.getName()
-              + " a member of " + group.getName() + "(list="
-              + listName + ")"
-            );
-          }
+          LOG.debug(
+            "Making " + subject.getName()
+            + " a member of " + group.getName() + "(list="
+            + listName + ")"
+          );
           group.addMember(subject, field);
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("...assigned");
-          }
+          LOG.debug("...assigned");
         } 
         else {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(
-              subject.getName()
-              + " is already a member of " + group.getName()
-              + "- skipping"
-            );
-          }
+          LOG.debug(
+            subject.getName()
+            + " is already a member of " + group.getName()
+            + "- skipping"
+          );
         }
       }
     }
@@ -1736,14 +1719,10 @@ public class XmlImporter {
       //Save a call if we are dealing with same group
       if (!stem.equals(lastStem)) {
         if (!XmlUtils.isEmpty(lastStem)) {
-          if (LOG.isInfoEnabled()) {
-            LOG.debug("Finished loading Naming privs for " + lastStem);
-          }
+          LOG.debug("Finished loading Naming privs for " + lastStem);
         }
         focusStem = StemFinder.findByName(s, stem);
-        if (LOG.isInfoEnabled()) {
-          LOG.debug("Loading Naming privs for " + stem);
-        }
+        LOG.debug("Loading Naming privs for " + stem);
       }
 
       lastStem = stem;
@@ -1755,17 +1734,13 @@ public class XmlImporter {
         importOption = options.getProperty("import.data.privileges");
       }
       if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
-        if (LOG.isInfoEnabled()) {
-          LOG.debug("Ignoring any '" + privilege + "' privileges");
-        }
+        LOG.debug("Ignoring any '" + privilege + "' privileges");
         continue; //No instruction so ignore
       }
 
       grouperPrivilege = Privilege.getInstance(privilege);
       if ("replace".equals(importOption)) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Revoking current '" + privilege + "' privileges");
-        }
+        LOG.debug("Revoking current '" + privilege + "' privileges");
         focusStem.revokePriv(grouperPrivilege);
       }
 
@@ -1836,24 +1811,16 @@ public class XmlImporter {
         }
 
         if (!XmlExporter.hasImmediatePrivilege(subject, focusStem, privilege)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Assigning " + privilege + " to " + subject.getName() + " for " + stem);
-          }
+          LOG.debug("Assigning " + privilege + " to " + subject.getName() + " for " + stem);
           focusStem.grantPriv(subject, Privilege.getInstance(privilege));
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("...assigned");
-          }
+          LOG.debug("...assigned");
         } 
         else {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(privilege + " already assigned to " + subject.getName() + " so skipping");
-          }
+          LOG.debug(privilege + " already assigned to " + subject.getName() + " so skipping");
         }
       }
     }
-    if (LOG.isInfoEnabled()) {
-      LOG.debug("Finished assigning Naming privs");
-    }
+    LOG.debug("Finished assigning Naming privs");
     namingPrivLists = null;
   } // private void _processNamingPrivLists()
 
@@ -1960,9 +1927,7 @@ public class XmlImporter {
     String  displayExtension = e.getAttribute(GrouperConfig.ATTR_DE);
     String  description      = e.getAttribute(GrouperConfig.ATTR_D);
     String  newStem          = U.constructName(stem, extension);
-    if (LOG.isInfoEnabled()) {
-      LOG.debug("Creating stem " + newStem);
-    }
+    LOG.debug("Creating stem " + newStem);
     Stem    existingStem      = null;
     String  updateAttributes  = e.getAttribute("updateAttributes");
     if (XmlUtils.isEmpty(updateAttributes)) {
@@ -1970,9 +1935,7 @@ public class XmlImporter {
     }
     try {
       existingStem = StemFinder.findByName(s, newStem);
-      if (LOG.isInfoEnabled()) {
-        LOG.debug(newStem + " already exists - skipping");
-      }
+      LOG.debug(newStem + " already exists - skipping");
       if ("true".equals(updateAttributes)) {
         if (
           !XmlUtils.isEmpty(displayExtension) 
@@ -2003,9 +1966,7 @@ public class XmlImporter {
         }
       }
       Stem gs = parent.addChildStem(extension, displayExtension);
-      if (LOG.isInfoEnabled()) {
-        LOG.debug(newStem + " added");
-      }
+      LOG.debug(newStem + " added");
       if (description != null && description.length() != 0) {
         gs.setDescription(description);
       }
