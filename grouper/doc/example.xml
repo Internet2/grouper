@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry>
+  <data>
+
+      <!--i2-->
+      <stem extension='i2'
+            displayExtension='internet2'
+            name='i2'
+            displayName='internet2'
+            id='de60bca7-1690-442b-af25-1960da55cc57'>
+        <description></description>
+
+        <!--i2:a-->
+        <stem extension='a'
+              displayExtension='stem a'
+              name='i2:a'
+              displayName='internet2:stem a'
+              id='ead9796c-0d6b-4512-94b5-d3bbd9b08f59'>
+          <description></description>
+
+          <!--i2:a:b-->
+          <group extension='b'
+                 displayExtension='group b'
+                name='i2:a:b'
+                displayName='internet2:stem a:group b'
+                id='548d1b86-8c0f-47d0-a863-bb1e9e04d5dc'>
+            <description></description>
+
+            <internalAttributes>
+              <internalAttribute name='parentStem'>i2:a</internalAttribute>
+              <internalAttribute name='createSource'></internalAttribute>
+              <internalAttribute name='createSubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='createTime'>Fri Sep 22 10:49:51 CDT 2006</internalAttribute>
+              <internalAttribute name='modifySource'></internalAttribute>
+              <internalAttribute name='modifySubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='modifyTime'>Fri Sep 22 10:49:51 CDT 2006</internalAttribute>
+            </internalAttributes>
+
+
+            <list field='members'  groupType='base'>
+              <subject id='b' type='person' source='jdbc' immediate='true' />
+            </list> <!--/field=members-->
+
+          <privileges type='read'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=read-->
+
+          <privileges type='view'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=view-->
+
+          </group>
+          <!--/i2:a:b-->
+
+
+          <!--i2:a:a-->
+          <group extension='a'
+                 displayExtension='group a'
+                name='i2:a:a'
+                displayName='internet2:stem a:group a'
+                id='9201cc44-b729-4174-8aed-5da40680a89d'>
+            <description></description>
+
+            <internalAttributes>
+              <internalAttribute name='parentStem'>i2:a</internalAttribute>
+              <internalAttribute name='createSource'></internalAttribute>
+              <internalAttribute name='createSubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='createTime'>Fri Sep 22 10:49:50 CDT 2006</internalAttribute>
+              <internalAttribute name='modifySource'></internalAttribute>
+              <internalAttribute name='modifySubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='modifyTime'>Fri Sep 22 10:49:51 CDT 2006</internalAttribute>
+            </internalAttributes>
+
+
+            <list field='members'  groupType='base'>
+              <subject id='a' type='person' source='jdbc' immediate='true' />
+            </list> <!--/field=members-->
+
+          <privileges type='read'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=read-->
+
+          <privileges type='view'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=view-->
+
+          </group>
+          <!--/i2:a:a-->
+
+        </stem>
+        <!--/i2:a-->
+
+
+        <!--i2:b-->
+        <stem extension='b'
+              displayExtension='stem b'
+              name='i2:b'
+              displayName='internet2:stem b'
+              id='b07bb20a-3801-44f1-a1e2-562421a1eb48'>
+          <description></description>
+
+          <!--i2:b:a-->
+          <group extension='a'
+                 displayExtension='group a'
+                name='i2:b:a'
+                displayName='internet2:stem b:group a'
+                id='8da3cbd4-140e-40b9-8c35-fcc18d7c62f1'>
+            <description></description>
+
+            <internalAttributes>
+              <internalAttribute name='parentStem'>i2:b</internalAttribute>
+              <internalAttribute name='createSource'></internalAttribute>
+              <internalAttribute name='createSubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='createTime'>Fri Sep 22 10:49:51 CDT 2006</internalAttribute>
+              <internalAttribute name='modifySource'></internalAttribute>
+              <internalAttribute name='modifySubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='modifyTime'>Fri Sep 22 10:49:52 CDT 2006</internalAttribute>
+            </internalAttributes>
+
+
+            <list field='members'  groupType='base'>
+              <subject identifier='i2:a:a' type='group' source='g:gsa' immediate='true'  id='9201cc44-b729-4174-8aed-5da40680a89d'/>
+            </list> <!--/field=members-->
+
+          <privileges type='read'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=read-->
+
+          <privileges type='view'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=view-->
+
+          </group>
+          <!--/i2:b:a-->
+
+
+          <!--i2:b:b-->
+          <group extension='b'
+                 displayExtension='group b'
+                name='i2:b:b'
+                displayName='internet2:stem b:group b'
+                id='a7b882f3-daf9-4d9d-82e8-66b07abde389'>
+            <description></description>
+
+            <internalAttributes>
+              <internalAttribute name='parentStem'>i2:b</internalAttribute>
+              <internalAttribute name='createSource'></internalAttribute>
+              <internalAttribute name='createSubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='createTime'>Fri Sep 22 10:49:51 CDT 2006</internalAttribute>
+              <internalAttribute name='modifySource'></internalAttribute>
+              <internalAttribute name='modifySubject'>
+                <subject id='GrouperSystem' type='application' source='g:isa'/>
+              </internalAttribute>
+              <internalAttribute name='modifyTime'>Fri Sep 22 10:49:52 CDT 2006</internalAttribute>
+            </internalAttributes>
+
+
+            <list field='members'  groupType='base'>
+              <composite>
+                <groupRef id='9201cc44-b729-4174-8aed-5da40680a89d'
+                        name='i2:a:a'
+                 displayName='internet2:stem a:group a'/>
+
+                <compositeType>union</compositeType>
+
+                <groupRef id='548d1b86-8c0f-47d0-a863-bb1e9e04d5dc'
+                        name='i2:a:b'
+                 displayName='internet2:stem a:group b'/>
+              </composite>
+            </list> <!--/field=members-->
+
+          <privileges type='read'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=read-->
+
+          <privileges type='view'>
+            <subject id='GrouperAll' type='application' source='g:isa' immediate='true' />
+          </privileges> <!--/privilege=view-->
+
+          </group>
+          <!--/i2:b:b-->
+
+        </stem>
+        <!--/i2:b-->
+
+      </stem>
+      <!--/i2-->
+
+  </data>
+  <exportParams>
+    <node type='stem'></node>
+    <relative>true</relative>
+    <includeParent>false</includeParent>
+  </exportParams>
+
+  <exportInfo>
+    <start>Fri Sep 22 10:50:01 CDT 2006</start>
+    <end>Fri Sep 22 10:50:03 CDT 2006</end>
+    <duration>1</duration>
+    <options>
+      <option key='export.data'>true</option>
+      <option key='export.group.custom-attributes'>true</option>
+      <option key='export.group.internal-attributes'>true</option>
+      <option key='export.group.lists'>true</option>
+      <option key='export.group.lists.immediate-only'>true</option>
+      <option key='export.group.members'>true</option>
+      <option key='export.group.members.immediate-only'>true</option>
+      <option key='export.metadata'>false</option>
+      <option key='export.privs.access'>true</option>
+      <option key='export.privs.for-parents'>false</option>
+      <option key='export.privs.immediate-only'>false</option>
+      <option key='export.privs.naming'>true</option>
+      <option key='export.stem.internal-attributes'>false</option>
+    </options>
+  </exportInfo>
+</registry>
