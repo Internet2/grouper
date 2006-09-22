@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.30 2006-09-22 15:30:28 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.31 2006-09-22 16:39:52 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -506,40 +506,35 @@ public class XmlImporter {
 
   // Returns immediate child element with given name
   // @since   1.0
-  private Element _getImmediateElement(Element element, String elementName)
-  {
-    NodeList    nl        = element.getElementsByTagName(elementName);
+  private Element _getImmediateElement(Element element, String name)
+  { 
+    NodeList nl = element.getElementsByTagName(name);
     if (nl.getLength() < 1) {
       return null;
-    }
+    } 
     if (nl.getLength() > 1) {
-      throw new IllegalArgumentException(
-        elementName + " occurs more than once - should only occur once"
-      );
+      throw new IllegalArgumentException(E.ELEMENT_NOT_UNIQUE + name);
     }
     return (Element) nl.item(0);
-  } // private Element _getImmediateElement(element, elementName)
-
+  } // private Element _getImmediateElement(element, name)
+  
   // Returns immediate child elements with given name
   // @since   1.0
-  private Collection _getImmediateElements(Element element, String elementName)
-  {
-    Collection  elements  = new Vector();
+  private Collection _getImmediateElements(Element element, String name)
+  { 
+    Collection elements = new Vector();
     if (element != null) {
-      NodeList    nl        = element.getElementsByTagName(elementName);
-      if (nl.getLength() < 1) {
-        return elements;
-      }
-      Element child;
+      Element   child;
+      NodeList  nl    = element.getElementsByTagName(name);
       for (int i = 0; i < nl.getLength(); i++) {
         child = (Element) nl.item(i);
         if (child.getParentNode().equals(element)) {
           elements.add(child);
-        } 
+        }
       }
     }
     return elements;
-  } // private Collection _getImmediateElements(element, elementName)
+  } // private Collection _getImmediateElements(element, name)
 
   // @throws  GrouperException
   // @since   1.1.0
