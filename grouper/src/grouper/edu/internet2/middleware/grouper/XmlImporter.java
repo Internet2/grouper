@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.28 2006-09-22 15:19:24 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.29 2006-09-22 15:29:31 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -55,6 +55,7 @@ public class XmlImporter {
   // PRIVATE INSTANCE VARIABLES //
   private List            accessPrivLists = new ArrayList();
   private List            accessPrivs     = new ArrayList();
+  private Document        doc;
   private Map             importedGroups;
   private String          importRoot; // Anchor import here
   private List            membershipLists = new ArrayList();
@@ -191,10 +192,12 @@ public class XmlImporter {
    * </pre>
    * @param   doc   Import this <tt>Document</tt>.
    * @throws  GrouperException
+   * @throws  IllegalArgumentException if <tt>doc</tt> is null
    * @since   1.1.0
    */
   public void load(Document doc)
-    throws  GrouperException
+    throws  GrouperException,
+            IllegalArgumentException
   {
     LOG.info("starting load at root stem");
     this._load( StemFinder.findRootStem(this.s), doc );
@@ -215,10 +218,12 @@ public class XmlImporter {
    * @param   ns    Import using this <tt>Stem</tt> as the <i>root stem</i>.
    * @param   doc   Import this <tt>Document</tt>.
    * @throws  GrouperException
+   * @throws  IllegalArgumentException if <tt>doc</tt> is null
    * @since   1.1.0
    */
   public void load(Stem ns, Document doc)
-    throws  GrouperException
+    throws  GrouperException,
+            IllegalArgumentException
   {
     LOG.info("starting load at " + U.q(ns.getName()));
     this._load(ns, doc);
@@ -241,10 +246,12 @@ public class XmlImporter {
    * </pre>
    * @param   doc   Import this <tt>Document</tt>.
    * @throws  GrouperException
+   * @throws  IllegalArgumentException if <tt>doc</tt> is null
    * @since   1.1.0
    */
   public void update(Document doc)
-    throws  GrouperException
+    throws  GrouperException,
+            IllegalArgumentException
   {
     LOG.info("starting update");
     this.updateOnly = true;
@@ -254,34 +261,6 @@ public class XmlImporter {
 
 
   // PROTECTED INSTANCE METHODS //
-
-  // @throws  GrouperException
-  // @since   1.1.0
-  protected Properties getImportOptionsFromXml(Document doc) 
-    throws  GrouperException
-  {
-    LOG.debug("Attempting to find importOptions in XML");
-    Element rootE = doc.getDocumentElement();
-    Element importOptionsE = this._getImmediateElement(rootE, "importOptions");
-    if (importOptionsE == null) {
-      LOG.debug("No importOptions tag in XML");
-      return null;
-    }
-    LOG.debug("Found importOptions tag in XML - loading options");
-    Collection options = this._getImmediateElements(importOptionsE, "options");
-    Element optionE;
-    Properties props = new Properties();
-    Iterator it = options.iterator();
-    while (it.hasNext()) {
-      optionE = (Element) it.next();
-      props.put(optionE.getAttribute("key"), _getText(optionE));
-      LOG.debug("Loading " + optionE.getAttribute("key") + "="
-          + _getText(optionE));
-    }
-    LOG.debug("Finished loading options from XML");
-
-    return props;
-  } // protected Properties getImportedOptionsFromXml(doc)
 
   // @since   1.1.0
   protected Properties getOptions() {
@@ -562,6 +541,34 @@ public class XmlImporter {
     return elements;
   } // private Collection _getImmediateElements(element, elementName)
 
+  // @throws  GrouperException
+  // @since   1.1.0
+  private Properties _getImportOptionsFromXml() 
+    throws  GrouperException
+  {
+    LOG.debug("Attempting to find importOptions in XML");
+    Element rootE = doc.getDocumentElement();
+    Element importOptionsE = this._getImmediateElement(rootE, "importOptions");
+    if (importOptionsE == null) {
+      LOG.debug("No importOptions tag in XML");
+      return null;
+    }
+    LOG.debug("Found importOptions tag in XML - loading options");
+    Collection options = this._getImmediateElements(importOptionsE, "options");
+    Element optionE;
+    Properties props = new Properties();
+    Iterator it = options.iterator();
+    while (it.hasNext()) {
+      optionE = (Element) it.next();
+      props.put(optionE.getAttribute("key"), _getText(optionE));
+      LOG.debug("Loading " + optionE.getAttribute("key") + "="
+          + _getText(optionE));
+    }
+    LOG.debug("Finished loading options from XML");
+
+    return props;
+  } // private Properties _getImportedOptionsFromXml()
+
   // @since   1.0
   private Subject _getSubjectById(String id, String type) 
     throws  SubjectNotFoundException,
@@ -585,17 +592,20 @@ public class XmlImporter {
   } // private Subject _getSubjectByIdentifier(identifier, type)
 
   // @throws  GrouperException
+  // @throws  IllegalArgumentException if <tt>doc</tt> is null
   // @since   1.1.0
   private void _load(Stem ns, Document doc) 
-    throws  GrouperException
+    throws  GrouperException,
+            IllegalArgumentException
   {
+    this._setDocument(doc);
     try {
       this.importRoot = ns.getName();
       if (ns.isRootStem()) {
         this.importRoot = GrouperConfig.EMPTY_STRING;
       }
-      this._processProperties(doc);
-      Element root = doc.getDocumentElement();
+      this._processProperties();
+      Element root = this._getDocument().getDocumentElement();
 
       this._processMetaData(_getImmediateElement(root, "metadata"));
       if (XmlUtils.isEmpty(importRoot)) {
@@ -2007,10 +2017,10 @@ public class XmlImporter {
   // @throws  GrouperException
   // @since   1.1.0
   // TODO 20060921 test
-  private void _processProperties(Document doc) 
+  private void _processProperties() 
     throws  GrouperException
   {
-    Properties xmlOptions = getImportOptionsFromXml(doc);
+    Properties xmlOptions = this._getImportOptionsFromXml();
     if (xmlOptions == null && this.options.isEmpty()) {
       throw new IllegalStateException("No options have been set");
     }
@@ -2020,7 +2030,7 @@ public class XmlImporter {
     LOG.debug("Merging user supplied options with XML options. Former take precedence");
     xmlOptions.putAll(this.options);  // add current to xml
     this.options = xmlOptions;        // replace current with merged options
-  } // private void _processProperties(doc)
+  } // private void _processProperties()
 
   // @throws  GrouperException
   // @throws  InsufficientPrivilegeException
@@ -2099,6 +2109,28 @@ public class XmlImporter {
       memberships.add(map);
     }
   } // private void _processSubjects(e, stem)
+
+
+  // GETTERS //
+
+  // @since   1.1.0
+  private Document _getDocument() {
+    return this.doc;
+  } // private Document _getDocument()
+
+
+  // SETTERS //
+
+  // @throws  IllegalArgumentException
+  // @since   1.1.0
+  private void _setDocument(Document doc) 
+    throws  IllegalArgumentException
+  {
+    if (doc == null) {
+      throw new IllegalArgumentException(E.INVALID_DOC);
+    }
+    this.doc = doc;
+  } // private void _setDocument(doc)
 
 } // public class XmlImporter
 
