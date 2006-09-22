@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.33 2006-09-22 16:55:39 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.34 2006-09-22 16:57:22 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -43,7 +43,6 @@ public class XmlImporter {
   // PRIVATE CLASS CONSTANTS //  
   private static final String CF            = "import.properties";
   private static final Log    LOG           = LogFactory.getLog(XmlImporter.class);
-  private static final String NS_ROOT       = GrouperConfig.EMPTY_STRING;
   private static final String RC_IFILE      = "import.file";
   private static final String RC_NAME       = "owner.name";
   private static final String RC_SUBJ       = "subject.identifier";
@@ -1973,7 +1972,7 @@ public class XmlImporter {
         parent = StemFinder.findByName(s, stem);
       } 
       catch (StemNotFoundException ex) {
-        if (NS_ROOT.equals(stem)) {
+        if (stem.equals(GrouperConfig.EMPTY_STRING)) {
           parent = StemFinder.findRootStem(s);
         }
       }
