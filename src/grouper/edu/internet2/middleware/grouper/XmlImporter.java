@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.37 2006-09-22 18:48:31 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.38 2006-09-22 18:53:34 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1240,27 +1240,6 @@ public class XmlImporter {
     }
     // TODO 20060922 "e"?
     this.importedGroups.put( g.getName(), "e" );
-/*
-      existingGroup = GroupFinder.findByName(s, newGroup);
-      if (this._isUpdatingAttributes(e)) {
-        if (
-          !XmlUtils.isEmpty(displayExtension)
-          && !displayExtension.equals(existingGroup.getDisplayExtension())
-        )
-        {
-          existingGroup.setDisplayExtension(displayExtension);
-        }
-        if (
-          !XmlUtils.isEmpty(description) 
-          && !description.equals(existingGroup.getDescription())
-        )
-        {
-          existingGroup.setDescription(description);
-        }
-        this._processAttributes(e, stem);
-      }
-      this.importedGroups.put(existingGroup.getName(), "e");
-*/
   } // private void _processGroupUpdate(e, newGroup)
 
   // @since   1.0
