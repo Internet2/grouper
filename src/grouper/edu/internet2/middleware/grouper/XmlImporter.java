@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.26 2006-09-21 19:57:55 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.27 2006-09-22 15:14:44 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -63,6 +63,7 @@ public class XmlImporter {
   private List            namingPrivs     = new ArrayList();
   private Properties      options         = new Properties();
   private GrouperSession  s;
+  private boolean         updateOnly      = false;  // add (or not) groups + stems when importing
 
  
   // CONSTRUCTORS //
@@ -195,7 +196,9 @@ public class XmlImporter {
   public void load(Document doc)
     throws  GrouperException
   {
-    this.load( StemFinder.findRootStem(this.s), doc );
+    LOG.info("starting load at root stem");
+    this._load( StemFinder.findRootStem(this.s), doc );
+    LOG.info("finished load");
   } // public void load(xml)
 
   /**
@@ -217,85 +220,17 @@ public class XmlImporter {
   public void load(Stem ns, Document doc)
     throws  GrouperException
   {
-    try {
-      if (ns.isRootStem()) {
-        this.importRoot = GrouperConfig.EMPTY_STRING;
-        LOG.info("starting import at root stem");
-      }
-      else {
-        this.importRoot = ns.getName();
-        LOG.info("starting import at: " + U.q(this.importRoot));
-      }
-      this._processProperties(doc);
-      Element root = doc.getDocumentElement();
-
-      _processMetaData(_getImmediateElement(root, "metadata"));
-      if (XmlUtils.isEmpty(importRoot)) {
-        _process(_getImmediateElement(root, "data"), NS_ROOT);
-      } 
-      else {
-        _process(_getImmediateElement(root, "data"), importRoot);
-      }
-      _processMemberships();
-      _processMembershipLists();
-      _processNamingPrivs();
-      _processNamingPrivLists();
-      _processAccessPrivs();
-      _processAccessPrivLists();
-    }
-    catch (AttributeNotFoundException eANF)     {
-      throw new GrouperException(eANF.getMessage(), eANF);
-    }
-    catch (GrantPrivilegeException eGP)         {
-      throw new GrouperException(eGP.getMessage(), eGP);
-    }
-    catch (GroupAddException eGA)               {
-      throw new GrouperException(eGA.getMessage(), eGA);
-    }
-    catch (GroupModifyException eGM)            {
-      throw new GrouperException(eGM.getMessage(), eGM);
-    }
-    catch (GroupNotFoundException eGNF)         {
-      throw new GrouperException(eGNF.getMessage(), eGNF);
-    }
-    catch (InsufficientPrivilegeException eIP)  {
-      throw new GrouperException(eIP.getMessage(), eIP);
-    }
-    catch (MemberAddException eMA)              {
-      throw new GrouperException(eMA.getMessage(), eMA);
-    }
-    catch (MemberDeleteException eMD)           {
-      throw new GrouperException(eMD.getMessage(), eMD);
-    }
-    catch (MemberNotFoundException eMNF)        {
-      throw new GrouperException(eMNF.getMessage(), eMNF);
-    }
-    catch (RevokePrivilegeException eRP)        {
-      throw new GrouperException(eRP.getMessage(), eRP);
-    }
-    catch (SchemaException eS)                  {
-      throw new GrouperException(eS.getMessage(), eS);
-    }
-    catch (StemAddException eNSA)               {
-      throw new GrouperException(eNSA.getMessage(), eNSA);
-    }
-    catch (StemModifyException eNSM)            {
-      throw new GrouperException(eNSM.getMessage(), eNSM);
-    }
-    catch (StemNotFoundException eNSNF)         {
-      throw new GrouperException(eNSNF.getMessage(), eNSNF);
-    }
-    catch (SubjectNotFoundException eSNF)       {
-      throw new GrouperException(eSNF.getMessage(), eSNF);
-    }
-    catch (SubjectNotUniqueException eSNU)      {
-      throw new GrouperException(eSNU.getMessage(), eSNU);
-    }
-    LOG.info("import complete");
+    LOG.info("starting load at " + U.q(ns.getName()));
+    this._load(ns, doc);
+    LOG.info("finished load");
   } // public void load(ns, doc)
 
   /**
    * Update memberships and privileges but do not create stems or groups.
+   * <p>
+   * <b>NOTE:</b> This method does not currently work properly as groups and
+   * stems <b>ARE</b> created by it.
+   * </p>
    * <pre class="eg">
    * try {
    *   importer.update( XmlReader.getDocumentFromString(s) );
@@ -311,74 +246,10 @@ public class XmlImporter {
   public void update(Document doc)
     throws  GrouperException
   {
-    // TODO 20060921 integrate with `load(ns, doc)`
     LOG.info("starting update");
-    try {
-      this._processProperties(doc);
-
-      Element root = doc.getDocumentElement();
-
-      _processMetaData(_getImmediateElement(root, "metadata"));
-      Element     dataE         = _getImmediateElement(root, "dataList");
-      Collection  groupElements = _getImmediateElements(dataE, "group");
-      if (groupElements != null) {
-        Iterator groupsIterator = groupElements.iterator();
-        Element groupElement;
-        while (groupsIterator.hasNext()) {
-          _processGroup( (Element) groupsIterator.next() );
-        }
-      }
-
-      Collection stemElements = _getImmediateElements(root, "stem");
-      if (stemElements != null) {
-        Iterator  stemsIterator = stemElements.iterator();
-        Element   stemElement;
-        while (stemsIterator.hasNext()) {
-          _processStem( (Element) stemsIterator.next() );
-        }
-      }
-
-      _processMembershipLists();
-      _processNamingPrivLists();
-      _processAccessPrivLists();
-    }
-    catch (AttributeNotFoundException eANF)     {
-      throw new GrouperException(eANF.getMessage(), eANF);
-    }
-    catch (GrantPrivilegeException eGP)         {
-      throw new GrouperException(eGP.getMessage(), eGP);
-    }
-    catch (GroupModifyException eGM)            {
-      throw new GrouperException(eGM.getMessage(), eGM);
-    }
-    catch (GroupNotFoundException eGNF)         {
-      throw new GrouperException(eGNF.getMessage(), eGNF);
-    }
-    catch (InsufficientPrivilegeException eIP)  {
-      throw new GrouperException(eIP.getMessage(), eIP);
-    }
-    catch (MemberAddException eMA)              {
-      throw new GrouperException(eMA.getMessage(), eMA);
-    }
-    catch (MemberDeleteException eMD)           {
-      throw new GrouperException(eMD.getMessage(), eMD);
-    }
-    catch (RevokePrivilegeException eRP)        {
-      throw new GrouperException(eRP.getMessage(), eRP);
-    }
-    catch (SchemaException eS)                  {
-      throw new GrouperException(eS.getMessage(), eS);
-    }
-    catch (StemModifyException eNSM)            {
-      throw new GrouperException(eNSM.getMessage(), eNSM);
-    }
-    catch (StemNotFoundException eNSNF)         {
-      throw new GrouperException(eNSNF.getMessage(), eNSNF);
-    }
-    catch (SubjectNotFoundException eSNF)       {
-      throw new GrouperException(eSNF.getMessage(), eSNF);
-    }
-    LOG.info("update complete");
+    this.updateOnly = true;
+    this._load( StemFinder.findRootStem(this.s), doc );
+    LOG.info("finished update");
   } // public void update(doc)
 
 
@@ -391,13 +262,13 @@ public class XmlImporter {
   {
     LOG.debug("Attempting to find importOptions in XML");
     Element rootE = doc.getDocumentElement();
-    Element importOptionsE = _getImmediateElement(rootE, "importOptions");
+    Element importOptionsE = this._getImmediateElement(rootE, "importOptions");
     if (importOptionsE == null) {
       LOG.debug("No importOptions tag in XML");
       return null;
     }
     LOG.debug("Found importOptions tag in XML - loading options");
-    Collection options = _getImmediateElements(importOptionsE, "options");
+    Collection options = this._getImmediateElements(importOptionsE, "options");
     Element optionE;
     Properties props = new Properties();
     Iterator it = options.iterator();
@@ -713,6 +584,83 @@ public class XmlImporter {
     return SubjectFinder.findByIdentifier(identifier, type);
   } // private Subject _getSubjectByIdentifier(identifier, type)
 
+  // @throws  GrouperException
+  // @since   1.1.0
+  private void _load(Stem ns, Document doc) 
+    throws  GrouperException
+  {
+    try {
+      this.importRoot = ns.getName();
+      if (ns.isRootStem()) {
+        this.importRoot = GrouperConfig.EMPTY_STRING;
+      }
+      this._processProperties(doc);
+      Element root = doc.getDocumentElement();
+
+      this._processMetaData(_getImmediateElement(root, "metadata"));
+      if (XmlUtils.isEmpty(importRoot)) {
+        this._process(_getImmediateElement(root, "data"), NS_ROOT);
+      } 
+      else {
+        this._process(_getImmediateElement(root, "data"), importRoot);
+      }
+      this._processMemberships();
+      this._processMembershipLists();
+      this._processNamingPrivs();
+      this._processNamingPrivLists();
+      this._processAccessPrivs();
+      this._processAccessPrivLists();
+    }
+    catch (AttributeNotFoundException eANF)     {
+      throw new GrouperException(eANF.getMessage(), eANF);
+    }
+    catch (GrantPrivilegeException eGP)         {
+      throw new GrouperException(eGP.getMessage(), eGP);
+    }
+    catch (GroupAddException eGA)               {
+      throw new GrouperException(eGA.getMessage(), eGA);
+    }
+    catch (GroupModifyException eGM)            {
+      throw new GrouperException(eGM.getMessage(), eGM);
+    }
+    catch (GroupNotFoundException eGNF)         {
+      throw new GrouperException(eGNF.getMessage(), eGNF);
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new GrouperException(eIP.getMessage(), eIP);
+    }
+    catch (MemberAddException eMA)              {
+      throw new GrouperException(eMA.getMessage(), eMA);
+    }
+    catch (MemberDeleteException eMD)           {
+      throw new GrouperException(eMD.getMessage(), eMD);
+    }
+    catch (MemberNotFoundException eMNF)        {
+      throw new GrouperException(eMNF.getMessage(), eMNF);
+    }
+    catch (RevokePrivilegeException eRP)        {
+      throw new GrouperException(eRP.getMessage(), eRP);
+    }
+    catch (SchemaException eS)                  {
+      throw new GrouperException(eS.getMessage(), eS);
+    }
+    catch (StemAddException eNSA)               {
+      throw new GrouperException(eNSA.getMessage(), eNSA);
+    }
+    catch (StemModifyException eNSM)            {
+      throw new GrouperException(eNSM.getMessage(), eNSM);
+    }
+    catch (StemNotFoundException eNSNF)         {
+      throw new GrouperException(eNSNF.getMessage(), eNSNF);
+    }
+    catch (SubjectNotFoundException eSNF)       {
+      throw new GrouperException(eSNF.getMessage(), eSNF);
+    }
+    catch (SubjectNotUniqueException eSNU)      {
+      throw new GrouperException(eSNU.getMessage(), eSNU);
+    }
+  } // private void _load(ns, doc)
+
   // @since   1.0
   private boolean _optionTrue(String key) {
     if (XmlUtils.isEmpty(key)) {
@@ -747,33 +695,29 @@ public class XmlImporter {
     if (e == null) {
       return;
     }
-    Collection paths = _getImmediateElements(e, "path");
+    Collection paths = this._getImmediateElements(e, "path");
     paths.addAll(_getImmediateElements(e, "stem"));
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Found " + paths.size() + " stems");
-    }
+    LOG.debug("Found " + paths.size() + " stems");
 
     Iterator it = paths.iterator();
     while (it.hasNext()) {
       Element path = (Element) it.next();
-      _processPath(path, stem);
+      this._processPath(path, stem);
     }
 
-    Collection groups = _getImmediateElements(e, "group");
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Found " + groups.size() + " groups");
-    }
+    Collection groups = this._getImmediateElements(e, "group");
+    LOG.debug("Found " + groups.size() + " groups");
     it = groups.iterator();
     while (it.hasNext()) {
       Element group = (Element) it.next();
-      _processGroup(group, stem);
+      this._processGroup(group, stem);
     }
   } // private void _process(e, stem)
 
   // @since   1.0
   private void _processAccess(Element e, String stem) 
   {
-    Collection  accesses  = _getImmediateElements(e, "access");
+    Collection  accesses  = this._getImmediateElements(e, "access");
     Iterator    it        = accesses.iterator();
     Element     access;
     Map         map;
@@ -832,9 +776,7 @@ public class XmlImporter {
             LOG.debug("Finished loading Access privs for " + lastGroup);
         }
         focusGroup = GroupFinder.findByName(s, group);
-        if (LOG.isInfoEnabled()) {
-          LOG.debug("Loading Access privs for " + group);
-        }
+        LOG.debug("Loading Access privs for " + group);
       }
 
       lastGroup     = group;
@@ -845,19 +787,15 @@ public class XmlImporter {
         importOption = options.getProperty("import.data.privileges");
 
       if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
-        if (LOG.isInfoEnabled()) {
-          LOG.debug("Ignoring any '" + privilege + "' privileges");
-        }
+        LOG.debug("Ignoring any '" + privilege + "' privileges");
         continue; //No instruction so ignore
       }
       grouperPrivilege = Privilege.getInstance(privilege);
       if ("replace".equals(importOption)) {
-        if (LOG.isInfoEnabled()) {
-          LOG.debug("Revoking current '" + privilege + "' privileges");
-        }
+        LOG.debug("Revoking current '" + privilege + "' privileges");
         focusGroup.revokePriv(grouperPrivilege);
       }
-      subjects          = _getImmediateElements(privileges, "subject");
+      subjects          = this._getImmediateElements(privileges, "subject");
       subjectsIterator  = subjects.iterator();
       while (subjectsIterator.hasNext()) {
         subjectE    = (Element) subjectsIterator.next();
@@ -1043,11 +981,11 @@ public class XmlImporter {
             InsufficientPrivilegeException,
             SchemaException
   {
-    Element groupTypes = _getImmediateElement(e, "groupTypes");
+    Element groupTypes = this._getImmediateElement(e, "groupTypes");
     if (groupTypes == null) {
       return;
     }
-    Collection  types               = _getImmediateElements(groupTypes, "groupType");
+    Collection  types               = this._getImmediateElements(groupTypes, "groupType");
     Element     groupType;
     Iterator    typesIterator       = types.iterator();
     Collection  attributes;
@@ -1078,7 +1016,7 @@ public class XmlImporter {
           continue;
         }
       }
-      attributes = _getImmediateElements(groupType, "attribute");
+      attributes = this._getImmediateElements(groupType, "attribute");
       attributesIterator = attributes.iterator();
       Field field = null;
       while (attributesIterator.hasNext()) {
@@ -1202,7 +1140,7 @@ public class XmlImporter {
   {
     String  extension         = e.getAttribute(GrouperConfig.ATTR_E);
     String  displayExtension  = e.getAttribute(GrouperConfig.ATTR_DE);
-    Element descE             = _getImmediateElement(e, GrouperConfig.ATTR_D);
+    Element descE             = this._getImmediateElement(e, GrouperConfig.ATTR_D);
     String  description       = "";
 
     if (descE != null) {
@@ -1242,7 +1180,7 @@ public class XmlImporter {
         {
           existingGroup.setDescription(description);
         }
-        _processAttributes(e, existingGroup.getName());
+        this._processAttributes(e, existingGroup.getName());
       }
 
     } 
@@ -1251,8 +1189,8 @@ public class XmlImporter {
       return;
     }
 
-    _processLists(e, existingGroup.getName());
-    _processPrivileges(e, existingGroup.getName(), "access");
+    this._processLists(e, existingGroup.getName());
+    this._processPrivileges(e, existingGroup.getName(), "access");
   } // private void _processGroup(e)
 
   // @throws  AttributeNotFoundException
@@ -1279,9 +1217,7 @@ public class XmlImporter {
     String  displayExtension = e.getAttribute(GrouperConfig.ATTR_DE);
     String  description      = e.getAttribute(GrouperConfig.ATTR_D);
     String  newGroup         = U.constructName(stem, extension);
-    if (LOG.isInfoEnabled()) {
-      LOG.debug("Creating group [" + newGroup + "]");
-    }
+    LOG.debug("Creating group [" + newGroup + "]");
     Group   existingGroup     = null;
     String  updateAttributes  = e.getAttribute("updateAttributes");
     if (XmlUtils.isEmpty(updateAttributes)) {
@@ -1304,30 +1240,27 @@ public class XmlImporter {
         {
           existingGroup.setDescription(description);
         }
-        _processAttributes(e, stem);
+        this._processAttributes(e, stem);
       }
       importedGroups.put(existingGroup.getName(), "e");
-      if (LOG.isInfoEnabled()) {
-        LOG.debug(newGroup + " already exists - skipping");
-      }
+      LOG.debug(newGroup + " already exists - skipping");
     } 
     catch (GroupNotFoundException ex) {
     }
+    // TODO 20060922 honor `updateOnly`
     if (existingGroup == null) {
       Stem  parent  = StemFinder.findByName(s, stem);
       Group gg      = parent.addChildGroup(extension, displayExtension);
       importedGroups.put(gg.getName(), "c");
-      if (LOG.isInfoEnabled()) {
-        LOG.debug(newGroup + " added");
-      }
+      LOG.debug(newGroup + " added");
       if (description != null && description.length() != 0) {
         gg.setDescription(description);
       }
     }
-    _processSubjects(e, newGroup);
-    _processLists(e, newGroup);
-    _processPrivileges(e, newGroup, "access");
-    _processAccess(e, newGroup);
+    this._processSubjects(e, newGroup);
+    this._processLists(e, newGroup);
+    this._processPrivileges(e, newGroup, "access");
+    this._processAccess(e, newGroup);
   } // private void _processGroup(e, stem)
 
   // @throws  GroupNotFoundException
@@ -1356,7 +1289,7 @@ public class XmlImporter {
   // @since   1.0
   private void _processLists(Element e, String group) 
   {
-    Collection  lists = _getImmediateElements(e, "list");
+    Collection  lists = this._getImmediateElements(e, "list");
     Iterator    it    = lists.iterator();
     Element     list;
     Map map;
@@ -1423,14 +1356,10 @@ public class XmlImporter {
       //Save a call if we are dealing with same group
       if (!groupName.equals(lastGroupName)) {
         if (!XmlUtils.isEmpty(lastGroupName)) {
-          if (LOG.isInfoEnabled()) {
-            LOG.debug("Finished loading memberships for " + lastGroupName);
-          }
+          LOG.debug("Finished loading memberships for " + lastGroupName);
         }
         group = GroupFinder.findByName(s, groupName);
-        if (LOG.isInfoEnabled()) {
-          LOG.debug("Loading memberships for " + groupName);
-        }
+        LOG.debug("Loading memberships for " + groupName);
       }
 
       lastGroupName = groupName;
@@ -1450,14 +1379,11 @@ public class XmlImporter {
       //TODO add admin check?
       if (!group.hasType(field.getGroupType())) {
         if (_optionTrue("import.data.apply-new-group-types")) {
-          if (LOG.isInfoEnabled())
-            LOG.debug("Adding group type " + field.getGroupType());
+          LOG.debug("Adding group type " + field.getGroupType());
           group.addType(field.getGroupType());
         } 
         else {
-          if (LOG.isInfoEnabled()) {
-            LOG.debug("Ignoring field " + field.getName());
-          }
+          LOG.debug("Ignoring field " + field.getName());
           continue;
         }
       }
@@ -1470,7 +1396,7 @@ public class XmlImporter {
       if (!hasComposite && group.getImmediateMembers().size() > 0) {
         hasMembers = true;
       }
-      Element compE = _getImmediateElement(list, "composite");
+      Element compE = this._getImmediateElement(list, "composite");
 
       if ("replace".equals(importOption)) {
         if (hasComposite) {
@@ -1490,14 +1416,14 @@ public class XmlImporter {
         }
       }
       if (compE != null && (!"add".equals(importOption) || hasMembers)) {
-        _processComposite(compE, group);
+        this._processComposite(compE, group);
         continue;
       }
       if (compE != null && hasMembers) {
         LOG.warn("Skipping composite - cannot ad to existing members for " + groupName);
         continue;
       }
-      subjects          = _getImmediateElements(list, "subject");
+      subjects          = this._getImmediateElements(list, "subject");
       subjectsIterator  = subjects.iterator();
       while (subjectsIterator.hasNext()) {
         subjectE    = (Element) subjectsIterator.next();
@@ -1668,8 +1594,8 @@ public class XmlImporter {
       return;
     }
     LOG.debug("import.metadata.group-types=true - loading group-types");
-    Element     groupTypesMetaData  = _getImmediateElement(e, "groupTypesMetaData");
-    Collection  groupTypes          = _getImmediateElements(groupTypesMetaData, "groupTypeDef");
+    Element     groupTypesMetaData  = this._getImmediateElement(e, "groupTypesMetaData");
+    Collection  groupTypes          = this._getImmediateElements(groupTypesMetaData, "groupTypeDef");
     Iterator    groupTypesIterator  = groupTypes.iterator();
     Element     groupType;
     GroupType   grouperGroupType;
@@ -1697,7 +1623,7 @@ public class XmlImporter {
         isNew             = true;
         LOG.debug("Found and created new GroupType - " + groupTypeName);
       }
-      fields = _getImmediateElements(groupType, "field");
+      fields = this._getImmediateElements(groupType, "field");
       if (fields.size() > 0) {
         LOG.debug("import.metadata.group-type-attributes=true");
       }
@@ -1753,7 +1679,7 @@ public class XmlImporter {
   // @since   1.0
   private void _processNaming(Element e, String stem) 
   {
-    Collection  namings = _getImmediateElements(e, "naming");
+    Collection  namings = this._getImmediateElements(e, "naming");
     Iterator    it      = namings.iterator();
     Element     naming;
     Map map;
@@ -1843,7 +1769,7 @@ public class XmlImporter {
         focusStem.revokePriv(grouperPrivilege);
       }
 
-      subjects          = _getImmediateElements(privileges, "subject");
+      subjects          = this._getImmediateElements(privileges, "subject");
       subjectsIterator  = subjects.iterator();
       while (subjectsIterator.hasNext()) {
         subjectE    = (Element) subjectsIterator.next();
@@ -2084,9 +2010,9 @@ public class XmlImporter {
         gs.setDescription(description);
       }
     }
-    _processPrivileges(e, newStem, "naming");
-    _processNaming(e, newStem);
-    _process(e, newStem);
+    this._processPrivileges(e, newStem, "naming");
+    this._processNaming(e, newStem);
+    this._process(e, newStem);
   } // private void _processPath(e, stem)
 
   // @throws  GrouperException
@@ -2094,7 +2020,7 @@ public class XmlImporter {
   private void _processPrivileges(Element e, String stem, String type)
     throws  GrouperException
   {
-    Collection  privileges  = _getImmediateElements(e, "privileges");
+    Collection  privileges  = this._getImmediateElements(e, "privileges");
     Iterator    it          = privileges.iterator();
     Element     privilege;
     String      priv;
@@ -2146,7 +2072,7 @@ public class XmlImporter {
   {
     String  extension         = e.getAttribute(GrouperConfig.ATTR_E);
     String  displayExtension  = e.getAttribute(GrouperConfig.ATTR_DE);
-    Element descE             = _getImmediateElement(e, GrouperConfig.ATTR_D);
+    Element descE             = this._getImmediateElement(e, GrouperConfig.ATTR_D);
     String  description       = "";
 
     if (descE != null) {
@@ -2194,13 +2120,13 @@ public class XmlImporter {
       return;
     }
 
-    _processPrivileges(e, existingStem.getName(), "naming");
+    this._processPrivileges(e, existingStem.getName(), "naming");
   } // private void _processStem(e)
 
   // @since   1.0
   private void _processSubjects(Element e, String stem) 
   {
-    Collection  subjects  = _getImmediateElements(e, "subject");
+    Collection  subjects  = this._getImmediateElements(e, "subject");
     Iterator    it        = subjects.iterator();
     Element     subject;
     Map         map;
