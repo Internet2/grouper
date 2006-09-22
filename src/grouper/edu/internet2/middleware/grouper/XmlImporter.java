@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.36 2006-09-22 18:10:17 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.37 2006-09-22 18:48:31 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1919,7 +1919,7 @@ public class XmlImporter {
     }
     this._processPrivileges(e, newStem, "naming");
     this._processNaming(e, newStem);
-    this._process(e, newStem);
+    this._process(e, newStem); // And now handle the child
   } // private void _processPath(e, stem)
 
   // @throws  InsufficientPrivilegeException
