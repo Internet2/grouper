@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.29 2006-09-22 15:29:31 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.30 2006-09-22 15:30:28 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -607,12 +607,12 @@ public class XmlImporter {
       this._processProperties();
       Element root = this._getDocument().getDocumentElement();
 
-      this._processMetaData(_getImmediateElement(root, "metadata"));
+      this._processMetaData(this._getImmediateElement(root, "metadata"));
       if (XmlUtils.isEmpty(importRoot)) {
-        this._process(_getImmediateElement(root, "data"), NS_ROOT);
+        this._process(this._getImmediateElement(root, "data"), NS_ROOT);
       } 
       else {
-        this._process(_getImmediateElement(root, "data"), importRoot);
+        this._process(this._getImmediateElement(root, "data"), importRoot);
       }
       this._processMemberships();
       this._processMembershipLists();
@@ -706,7 +706,7 @@ public class XmlImporter {
       return;
     }
     Collection paths = this._getImmediateElements(e, "path");
-    paths.addAll(_getImmediateElements(e, "stem"));
+    paths.addAll(this._getImmediateElements(e, "stem"));
     LOG.debug("Found " + paths.size() + " stems");
 
     Iterator it = paths.iterator();
