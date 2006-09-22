@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.34 2006-09-22 16:57:22 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.35 2006-09-22 17:50:43 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -573,6 +573,16 @@ public class XmlImporter {
     }
     return SubjectFinder.findById(id, type);
   } // private Subject _getSubjectById(id, type)
+
+  // @since   1.1.0
+  private boolean _isUpdatingAttributes(Element e) {
+    // TODO 20060922 switch over to this method
+    String update = e.getAttribute("updateAttributes");
+    if (XmlUtils.isEmpty(update)) {
+      update = this.options.getProperty("import.data.update-attributes");
+    }
+    return Boolean.getBoolean(update); 
+  } // private boolean _isUpdatingAttributes()
 
   // @since   1.0
   private Subject _getSubjectByIdentifier(String identifier, String type)
@@ -1124,10 +1134,6 @@ public class XmlImporter {
     String  name              = e.getAttribute(GrouperConfig.ATTR_N);
 
     Group   existingGroup     = null;
-    String  updateAttributes  = e.getAttribute("updateAttributes");
-    if (XmlUtils.isEmpty(updateAttributes)) {
-      updateAttributes = options.getProperty("import.data.update-attributes");
-    }
     try {
       if (!XmlUtils.isEmpty(id)) {
         existingGroup = GroupFinder.findByUuid(s, id);
@@ -1139,7 +1145,7 @@ public class XmlImporter {
         LOG.error("Group does not have id or name=" + extension);
         return;
       }
-      if ("true".equals(updateAttributes)) {
+      if (this._isUpdatingAttributes(e)) {
         if (
           !XmlUtils.isEmpty(displayExtension)
           && !displayExtension.equals(existingGroup.getDisplayExtension())
@@ -1193,13 +1199,9 @@ public class XmlImporter {
     String  newGroup         = U.constructName(stem, extension);
     LOG.debug("Creating group [" + newGroup + "]");
     Group   existingGroup     = null;
-    String  updateAttributes  = e.getAttribute("updateAttributes");
-    if (XmlUtils.isEmpty(updateAttributes)) {
-      updateAttributes = options.getProperty("import.data.update-attributes");
-    }
     try {
       existingGroup = GroupFinder.findByName(s, newGroup);
-      if ("true".equals(updateAttributes)) {
+      if (this._isUpdatingAttributes(e)) {
         if (
           !XmlUtils.isEmpty(displayExtension)
           && !displayExtension.equals(existingGroup.getDisplayExtension())
@@ -1934,58 +1936,70 @@ public class XmlImporter {
             StemModifyException,
             StemNotFoundException
   {
-    String  extension        = e.getAttribute(GrouperConfig.ATTR_E);
-    String  displayExtension = e.getAttribute(GrouperConfig.ATTR_DE);
-    String  description      = e.getAttribute(GrouperConfig.ATTR_D);
-    String  newStem          = U.constructName(stem, extension);
-    LOG.debug("Creating stem " + newStem);
-    Stem    existingStem      = null;
-    String  updateAttributes  = e.getAttribute("updateAttributes");
-    if (XmlUtils.isEmpty(updateAttributes)) {
-      updateAttributes = options.getProperty("import.data.update-attributes");
-    }
+    String newStem = U.constructName( stem, e.getAttribute(GrouperConfig.ATTR_E) );
     try {
-      existingStem = StemFinder.findByName(s, newStem);
-      LOG.debug(newStem + " already exists - skipping");
-      if ("true".equals(updateAttributes)) {
-        if (
-          !XmlUtils.isEmpty(displayExtension) 
-          && !displayExtension.equals(existingStem.getDisplayExtension())
-        ) 
-        {
-          existingStem.setDisplayExtension(displayExtension);
-        }
-        if (
-          !XmlUtils.isEmpty(description)
-          && !description.equals(existingStem.getDescription())
-        )
-        {
-          existingStem.setDescription(description);
-        }
-      }
+      this._processPathUpdate(e, newStem);  // Try and update
     } 
-    catch (StemNotFoundException ex) {
-    }
-    if (existingStem == null) {
-      Stem parent = null;
-      try {
-        parent = StemFinder.findByName(s, stem);
-      } 
-      catch (StemNotFoundException ex) {
-        if (stem.equals(GrouperConfig.EMPTY_STRING)) {
-          parent = StemFinder.findRootStem(s);
-        }
-      }
-      Stem gs = parent.addChildStem(extension, displayExtension);
-      LOG.debug(newStem + " added");
-      if (description != null && description.length() != 0) {
-        gs.setDescription(description);
-      }
+    catch (StemNotFoundException eNSNF) {
+      this._processPathCreate(e, stem);     // Otherwise create
     }
     this._processPrivileges(e, newStem, "naming");
     this._processNaming(e, newStem);
     this._process(e, newStem);
   } // private void _processPath(e, stem)
+
+  // @throws  InsufficientPrivilegeException
+  // @throws  StemAddException
+  // @throws  StemModifyException
+  // @throws  StemNotFoundException
+  // @since   1.1.0
+  private void _processPathCreate(Element e, String stem) 
+    throws  InsufficientPrivilegeException,
+            StemAddException,
+            StemModifyException,
+            StemNotFoundException
+  {
+    Stem parent = null;
+    if (stem.equals(GrouperConfig.EMPTY_STRING)) {
+      parent = StemFinder.findRootStem(this.s);
+    }
+    else {
+      parent = StemFinder.findByName(this.s, stem);
+    } 
+    Stem child = parent.addChildStem(
+      e.getAttribute(GrouperConfig.ATTR_E),
+      e.getAttribute(GrouperConfig.ATTR_DE)
+    );
+    String description = e.getAttribute(GrouperConfig.ATTR_D);
+    if (Validator.isNotNullOrBlank(description)) {
+      child.setDescription(description);
+    }
+  } // private void _processPathCreate(e, stem)
+
+  // @throws  InsufficientPrivilegeException
+  // @throws  StemModifyException
+  // @throws  StemNotFoundException
+  // @since   1.1.0
+  private void _processPathUpdate(Element e, String newStem) 
+    throws  InsufficientPrivilegeException,
+            StemModifyException,
+            StemNotFoundException
+  {
+    // We need to keep this outside the conditional so that a
+    // StemNotFoundException can be thrown if the stem does not exist.  That
+    // will trigger the creation of the stem.
+    Stem ns = StemFinder.findByName(this.s, newStem);
+    if (this._isUpdatingAttributes(e)) {
+      String dExtn  = e.getAttribute(GrouperConfig.ATTR_DE);
+      if (!XmlUtils.isEmpty(dExtn) && !dExtn.equals(ns.getDisplayExtension())) {
+        ns.setDisplayExtension(dExtn);
+      }
+      String desc   = e.getAttribute(GrouperConfig.ATTR_D);
+      if (!XmlUtils.isEmpty(desc) && !desc.equals(ns.getDisplayExtension())) {
+        ns.setDisplayExtension(desc);
+      }
+    }
+  } // private void _processPathUpdate(e, newStem)
 
   // @throws  AttributeNotFoundException
   // @throws  GroupAddException
@@ -2062,68 +2076,6 @@ public class XmlImporter {
     xmlOptions.putAll(this.options);  // add current to xml
     this.options = xmlOptions;        // replace current with merged options
   } // private void _processProperties()
-
-  // @throws  GrouperException
-  // @throws  InsufficientPrivilegeException
-  // @throws  StemModifyException
-  // @since   1.1.0
-  private void _processStem(Element e) 
-    throws  GrouperException,
-            InsufficientPrivilegeException,
-            StemModifyException
-  {
-    String  extension         = e.getAttribute(GrouperConfig.ATTR_E);
-    String  displayExtension  = e.getAttribute(GrouperConfig.ATTR_DE);
-    Element descE             = this._getImmediateElement(e, GrouperConfig.ATTR_D);
-    String  description       = "";
-
-    if (descE != null) {
-      description = _getText(descE);
-    }
-    String  id                = e.getAttribute("id");
-    String  name              = e.getAttribute(GrouperConfig.ATTR_N);
-
-    Stem    existingStem      = null;
-    String  updateAttributes  = e.getAttribute("updateAttributes");
-    if (XmlUtils.isEmpty(updateAttributes)) {
-      updateAttributes = options.getProperty("import.data.update-attributes");
-    }
-    try {
-      if (!XmlUtils.isEmpty(id)) {
-        existingStem = StemFinder.findByUuid(s, id);
-      } 
-      else if (!XmlUtils.isEmpty(name)) {
-        existingStem = StemFinder.findByName(s, name);
-      } 
-      else {
-        LOG.error("Stem does not have id or name:" + extension);
-        return;
-      }
-
-      if ("true".equals(updateAttributes)) {
-        if (
-          !XmlUtils.isEmpty(displayExtension)
-          && !displayExtension.equals(existingStem.getDisplayExtension())
-        )
-        {
-          existingStem.setDisplayExtension(displayExtension);
-        }
-        if (
-          !XmlUtils.isEmpty(description)
-          && !description.equals(existingStem.getDescription())
-        )
-        {
-          existingStem.setDescription(description);
-        }
-      }
-    } 
-    catch (StemNotFoundException ex) {
-      LOG.error("Cannot find stem identified by id=" + id + " or name=" + name);
-      return;
-    }
-
-    this._processPrivileges(e, existingStem.getName(), "naming");
-  } // private void _processStem(e)
 
   // @since   1.0
   private void _processSubjects(Element e, String stem) 

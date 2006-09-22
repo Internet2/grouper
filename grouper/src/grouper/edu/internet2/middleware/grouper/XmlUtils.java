@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.3 2006-09-20 18:40:39 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.4 2006-09-22 17:50:43 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -72,6 +72,7 @@ class XmlUtils {
 
   // @since   1.1.0
   protected static boolean isEmpty(Object obj) {
+    // TODO 20060922 Switch to `Validator.IsNullOrBlank`?
     if (obj == null || obj.equals(GrouperConfig.EMPTY_STRING)) {
       return true;
     }
