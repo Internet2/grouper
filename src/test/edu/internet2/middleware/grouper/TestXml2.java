@@ -24,10 +24,10 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml2.java,v 1.2 2006-09-22 15:14:44 blair Exp $
+ * @version $Id: TestXml2.java,v 1.3 2006-09-22 19:37:31 blair Exp $
  * @since   1.1.0
  */
-public class TestXml2 extends TestCase {
+public class TestXml2 extends GrouperTest {
 
   private static final Log LOG = LogFactory.getLog(TestXml2.class);
 
@@ -86,23 +86,18 @@ public class TestXml2 extends TestCase {
 
       // Import - Verify
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Stem            ns  = StemFinder.findByName(  s, "i2"                 );  
-      Assert.assertTrue(  "found ns"  , ns != null  );
-      Stem            nsA = StemFinder.findByName(  s, ns.getName() + ":a"  );
-      Assert.assertTrue(  "found nsA" , nsA != null );
-      try {
-        StemFinder.findByName(s, ns.getName() + ":b");
-        T.ok("FIXME 20060922 BUG stem (nsB) not created during update");
-      }
-      catch (StemNotFoundException eGNF) {
-        T.fail("FIXME 20060922 BUG found stem (nsB) that wasn't manually created");
-      }
-      gAA = GroupFinder.findByName(s, nsA.getName() + ":a");
-      Assert.assertTrue(  "found gAA" , gAA != null );
-      gAB = GroupFinder.findByName(s, nsA.getName() + ":b");
-      Assert.assertTrue(  "found gAB" , gAB != null );
-      Assert.assertTrue(  "gAA hasMember subjA", gAA.hasMember(subjA) );
-      Assert.assertTrue(  "gAB hasMember subjB", gAB.hasMember(subjB) );
+
+      Stem  ns  = assertFindStemByName( s, "i2" );
+      Stem  nsA = assertFindStemByName( s, ns.getName() + ":a" );
+      // FIXME 20060922 BUG stem should not be created during update
+      Stem  nsB = assertFindStemByName( s, ns.getName() + ":b" );
+
+      gAA       = assertFindGroupByName( s, nsA.getName() + ":a" );
+      gAB       = assertFindGroupByName( s, nsA.getName() + ":b" );
+
+      assertHasMember( gAA, subjA );
+      assertHasMember( gAB, subjB );
+
       s.stop();
     }
     catch (Exception e) {
