@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.38 2006-09-22 18:53:34 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.39 2006-09-22 19:02:50 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -476,6 +476,98 @@ public class XmlImporter {
 
   // PRIVATE INSTANCE METHODS //
 
+  // @since   1.1.0
+  private void _accumulateAccessPrivs(Element e, String stem) 
+  {
+    Collection  accesses  = this._getImmediateElements(e, "access");
+    Iterator    it        = accesses.iterator();
+    Element     access;
+    Map         map;
+    while (it.hasNext()) {
+      access = (Element) it.next();
+      map = new HashMap();
+      map.put("stem", stem); // TODO 20060922 "stem"?
+      map.put("access", access);
+      accessPrivs.add(map);
+    }
+  } // private void _accumulateAccessPrivs(e, stem)
+
+  // @since   1.1.0
+  private void _accumulateLists(Element e, String group) 
+  {
+    Collection  lists = this._getImmediateElements(e, "list");
+    Iterator    it    = lists.iterator();
+    Element     list;
+    Map map;
+    while (it.hasNext()) {
+      list  = (Element) it.next();
+      map   = new HashMap();
+      map.put("group", group);
+      map.put("list", list);
+      membershipLists.add(map);
+    }
+  } // private void _accumulateLists(e, group)
+
+  // @since   1.1.0
+  private void _accumulateNamingPrivs(Element e, String stem) 
+  {
+    Collection  namings = this._getImmediateElements(e, "naming");
+    Iterator    it      = namings.iterator();
+    Element     naming;
+    Map map;
+    while (it.hasNext()) {
+      naming  = (Element) it.next();
+      map     = new HashMap();
+      map.put("stem", stem);
+      map.put("naming", naming);
+      namingPrivs.add(map);
+    }
+  } // private void _accumulateNamingPrivs(e, stem)
+
+  // @throws  GrouperException
+  // @since   1.1.0
+  private void _accumulatePrivs(Element e, String stem, String type)
+    throws  GrouperException
+  {
+    Collection  privileges  = this._getImmediateElements(e, "privileges");
+    Iterator    it          = privileges.iterator();
+    Element     privilege;
+    String      priv;
+    Map         map;
+    boolean     isGroup     = "access".equals(type);
+    while (it.hasNext()) {
+      privilege = (Element) it.next();
+      priv      = privilege.getAttribute("type");
+      map       = new HashMap();
+
+      map.put(type, priv);
+      map.put("privileges", privilege);
+      if (isGroup) {
+        map.put("group", stem);
+        accessPrivLists.add(map);
+      } else {
+        map.put("stem", stem);
+        namingPrivLists.add(map);
+      }
+    }
+  } // private void _accumulatePrivs(e, stem, type)
+
+  // @since   1.1.0
+  private void _accumulateSubjects(Element e, String stem) 
+  {
+    Collection  subjects  = this._getImmediateElements(e, "subject");
+    Iterator    it        = subjects.iterator();
+    Element     subject;
+    Map         map;
+    while (it.hasNext()) {
+      subject = (Element) it.next();
+      map     = new HashMap();
+      map.put("stem", stem);
+      map.put("subject", subject);
+      memberships.add(map);
+    }
+  } // private void _accumulateSubjects(e, stem)
+
   // @since   1.0
   private String _getAbsoluteName(String name, String stem) {
     if ("*SELF*".equals(name)) {
@@ -706,22 +798,6 @@ public class XmlImporter {
       this._processGroups(e, stem);
     }
   } // private void _process(e, stem)
-
-  // @since   1.0
-  private void _processAccess(Element e, String stem) 
-  {
-    Collection  accesses  = this._getImmediateElements(e, "access");
-    Iterator    it        = accesses.iterator();
-    Element     access;
-    Map         map;
-    while (it.hasNext()) {
-      access = (Element) it.next();
-      map = new HashMap();
-      map.put("stem", stem);
-      map.put("access", access);
-      accessPrivs.add(map);
-    }
-  } // private void _processAccess(e, stem)
 
   // @throws  GrantPrivilegeException
   // @throws  GroupNotFoundException
@@ -1134,10 +1210,10 @@ public class XmlImporter {
       // TODO 20060922 honor `updateOnly`
       this._processGroupCreate(e, stem);      // Otherwise create
     }
-    this._processSubjects(e, newGroup);
-    this._processLists(e, newGroup);
-    this._processPrivileges(e, newGroup, "access");
-    this._processAccess(e, newGroup);
+    this._accumulateSubjects(e, newGroup);
+    this._accumulateLists(e, newGroup);
+    this._accumulatePrivs(e, newGroup, "access");
+    this._accumulateAccessPrivs(e, newGroup);
   } // private void _processGroup(e, stem)
 
   // @throws  GroupAddException,
@@ -1241,22 +1317,6 @@ public class XmlImporter {
     // TODO 20060922 "e"?
     this.importedGroups.put( g.getName(), "e" );
   } // private void _processGroupUpdate(e, newGroup)
-
-  // @since   1.0
-  private void _processLists(Element e, String group) 
-  {
-    Collection  lists = this._getImmediateElements(e, "list");
-    Iterator    it    = lists.iterator();
-    Element     list;
-    Map map;
-    while (it.hasNext()) {
-      list  = (Element) it.next();
-      map   = new HashMap();
-      map.put("group", group);
-      map.put("list", list);
-      membershipLists.add(map);
-    }
-  } // private void _processLists(e, group)
 
   // @throws  GrouperException
   // @throws  GroupModifyException
@@ -1624,22 +1684,6 @@ public class XmlImporter {
     LOG.debug("Finished processing group types and fields");
   } // private void _processMetaData(e)
 
-  // @since   1.0
-  private void _processNaming(Element e, String stem) 
-  {
-    Collection  namings = this._getImmediateElements(e, "naming");
-    Iterator    it      = namings.iterator();
-    Element     naming;
-    Map map;
-    while (it.hasNext()) {
-      naming  = (Element) it.next();
-      map     = new HashMap();
-      map.put("stem", stem);
-      map.put("naming", naming);
-      namingPrivs.add(map);
-    }
-  } // private void _processNaming(e, stem)
-
   // @throws  GrantPrivilegeException
   // @throws  GroupModifyException
   // @throws  InsufficientPrivilegeException
@@ -1896,8 +1940,8 @@ public class XmlImporter {
       // TODO 20060922 honor `updateOnly`
       this._processPathCreate(e, stem);     // Otherwise create
     }
-    this._processPrivileges(e, newStem, "naming");
-    this._processNaming(e, newStem);
+    this._accumulatePrivs(e, newStem, "naming");
+    this._accumulateNamingPrivs(e, newStem);
     this._process(e, newStem); // And now handle the child
   } // private void _processPath(e, stem)
 
@@ -1986,34 +2030,6 @@ public class XmlImporter {
 
   // @throws  GrouperException
   // @since   1.1.0
-  private void _processPrivileges(Element e, String stem, String type)
-    throws  GrouperException
-  {
-    Collection  privileges  = this._getImmediateElements(e, "privileges");
-    Iterator    it          = privileges.iterator();
-    Element     privilege;
-    String      priv;
-    Map         map;
-    boolean     isGroup     = "access".equals(type);
-    while (it.hasNext()) {
-      privilege = (Element) it.next();
-      priv      = privilege.getAttribute("type");
-      map       = new HashMap();
-
-      map.put(type, priv);
-      map.put("privileges", privilege);
-      if (isGroup) {
-        map.put("group", stem);
-        accessPrivLists.add(map);
-      } else {
-        map.put("stem", stem);
-        namingPrivLists.add(map);
-      }
-    }
-  } // private void _processPrivileges(e, stem, type)
-
-  // @throws  GrouperException
-  // @since   1.1.0
   // TODO 20060921 test
   private void _processProperties() 
     throws  GrouperException
@@ -2029,22 +2045,6 @@ public class XmlImporter {
     xmlOptions.putAll(this.options);  // add current to xml
     this.options = xmlOptions;        // replace current with merged options
   } // private void _processProperties()
-
-  // @since   1.0
-  private void _processSubjects(Element e, String stem) 
-  {
-    Collection  subjects  = this._getImmediateElements(e, "subject");
-    Iterator    it        = subjects.iterator();
-    Element     subject;
-    Map         map;
-    while (it.hasNext()) {
-      subject = (Element) it.next();
-      map     = new HashMap();
-      map.put("stem", stem);
-      map.put("subject", subject);
-      memberships.add(map);
-    }
-  } // private void _processSubjects(e, stem)
 
 
   // GETTERS //
