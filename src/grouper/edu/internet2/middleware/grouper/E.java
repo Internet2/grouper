@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.27 2006-09-21 16:10:23 blair Exp $
+ * @version $Id: E.java,v 1.28 2006-09-22 15:29:31 blair Exp $
  * @since   1.0
  */
 class E {
@@ -38,6 +38,7 @@ class E {
   protected static final String GROUP_DOES_NOT_HAVE_TYPE  = "group does not have group type: ";
   protected static final String INVALID_ATTR_NAME         = "invalid attribute name: ";
   protected static final String INVALID_ATTR_VALUE        = "invalid attribute value: ";
+  protected static final String INVALID_DOC               = "null document";
   protected static final String MEMBER_NEITHER_FOUND_NOR_CREATED  = "member neither found nor created: ";
   protected static final String SYSTEM_MAINTAINED         = "system maintained: ";
   protected static final String UNKNOWN_PRIVILEGE         = "unknown privilege: ";
