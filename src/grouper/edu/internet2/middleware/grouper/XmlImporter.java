@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.31 2006-09-22 16:39:52 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.32 2006-09-22 16:52:26 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -697,25 +697,9 @@ public class XmlImporter {
             StemModifyException,
             StemNotFoundException
   {
-    if (e == null) {
-      return;
-    }
-    Collection paths = this._getImmediateElements(e, "path");
-    paths.addAll(this._getImmediateElements(e, "stem"));
-    LOG.debug("Found " + paths.size() + " stems");
-
-    Iterator it = paths.iterator();
-    while (it.hasNext()) {
-      Element path = (Element) it.next();
-      this._processPath(path, stem);
-    }
-
-    Collection groups = this._getImmediateElements(e, "group");
-    LOG.debug("Found " + groups.size() + " groups");
-    it = groups.iterator();
-    while (it.hasNext()) {
-      Element group = (Element) it.next();
-      this._processGroup(group, stem);
+    if (e != null) {
+      this._processPaths(e, stem);
+      this._processGroups(e, stem);
     }
   } // private void _process(e, stem)
 
@@ -1281,6 +1265,34 @@ public class XmlImporter {
     group             = GroupFinder.findByName(s, actualName);
     return group;
   } // private Group _processGroupRef(groupE, stem)
+
+  // @throws  AttributeNotFoundException
+  // @throws  GroupAddException
+  // @throws  GrouperException
+  // @throws  GroupModifyException
+  // @throws  InsufficientPrivilegeException
+  // @throws  SchemaException
+  // @throws  StemAddException
+  // @throws  StemModifyException
+  // @throws  StemNotFoundException
+  // @since   1.1.0
+  private void _processGroups(Element e, String stem) 
+    throws  AttributeNotFoundException,
+            GroupAddException,
+            GrouperException,
+            GroupModifyException,
+            InsufficientPrivilegeException,
+            SchemaException,
+            StemAddException,
+            StemModifyException,
+            StemNotFoundException
+  {
+    Collection  groups  = this._getImmediateElements(e, "group");
+    Iterator    it      = groups.iterator();
+    while (it.hasNext()) {
+      this._processGroup( (Element) it.next(), stem );
+    }
+  } // private void _processGroups(e, stem)
 
   // @since   1.0
   private void _processLists(Element e, String group) 
@@ -1980,6 +1992,36 @@ public class XmlImporter {
     this._processNaming(e, newStem);
     this._process(e, newStem);
   } // private void _processPath(e, stem)
+
+  // @throws  AttributeNotFoundException
+  // @throws  GroupAddException
+  // @throws  GrouperException
+  // @throws  GroupModifyException
+  // @throws  InsufficientPrivilegeException
+  // @throws  SchemaException
+  // @throws  StemAddException
+  // @throws  StemModifyException
+  // @throws  StemNotFoundException
+  // @since   1.1.0
+  private void _processPaths(Element e, String stem) 
+    throws  AttributeNotFoundException,
+            GroupAddException,
+            GrouperException,
+            GroupModifyException,
+            InsufficientPrivilegeException,
+            SchemaException,
+            StemAddException,
+            StemModifyException,
+            StemNotFoundException
+  {
+    // TODO 20060922 *path* does not appear to be used 
+    Collection paths  = this._getImmediateElements(e, "path");
+    paths.addAll(this._getImmediateElements(e, "stem"));
+    Iterator  it      = paths.iterator();
+    while (it.hasNext()) {
+      this._processPath( (Element) it.next(), stem );
+    }
+  } // private void _processPaths(e, stem)
 
   // @throws  GrouperException
   // @since   1.1.0
