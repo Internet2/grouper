@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.49 2006-09-21 19:57:55 blair Exp $
+$Id: TODO.txt,v 1.50 2006-09-22 19:37:31 blair Exp $
 
 ---
 
@@ -17,6 +17,7 @@ $Id: TODO.txt,v 1.49 2006-09-21 19:57:55 blair Exp $
     * import+export local subjects
 * CODE      *HibernateSubject* should not throw *HibernateException*s
 * CODE      *GroupFinder.findByAttribute(s, attr, val)* [GCODE#14]
+* CODE      Expand functionality-and-use of `GrouperTest`
 * CODE      Refactor query cache configuration.  Add interface? Config toggle?
     * research using !default ehcache configuration file
     	* Configuration.setProperty("hibernate.cache.provider_class", "net.sf.hibernate.cache.EhCacheProvider").
@@ -49,7 +50,7 @@ $Id: TODO.txt,v 1.49 2006-09-21 19:57:55 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.49 2006-09-21 19:57:55 blair Exp $
+$Id: TODO.txt,v 1.50 2006-09-22 19:37:31 blair Exp $
 
 
 
