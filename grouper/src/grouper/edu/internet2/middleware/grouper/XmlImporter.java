@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.43 2006-09-25 18:55:54 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.44 2006-09-25 18:59:08 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -335,9 +335,6 @@ public class XmlImporter {
     return rc;
   } // private static Properties _getArgs(args)
 
-  // @throws  IOException
-  // @throws  org.xml.sax.SAXException
-  // @throws  ParserConfigurationException
   // @since   1.1.0
   private static Document _getDocument(String filename) 
     throws  IOException,
@@ -350,9 +347,6 @@ public class XmlImporter {
     return doc;
   } // private static Document _getDocument(filename)
 
-  // @throws  IOException
-  // @throws  org.xml.sax.SAXException,
-  // @throws  ParserConfigurationException
   // @since   1.1.0
   private static Document _getDocument(URL url) 
     throws  IOException,
@@ -367,7 +361,6 @@ public class XmlImporter {
 
   // Assumes tag only occurs once and contains only text / CDATA.
   // If tag does not exist 'nullable' determines if an Exception is thrown.
-  // @throws  GrouperException
   // @since   1.1.0
   private static String _getText(Element element) 
     throws  GrouperException
@@ -419,10 +412,6 @@ public class XmlImporter {
             ;
   } // private static String _getUsage()
 
-  // @throws  GrouperException
-  // @throws  IOException
-  // @throws  org.xml.sax.SAXException
-  // @throws  ParserConfigurationException
   // @since   1.1.0
   private static void _handleArgs(XmlImporter importer, Properties rc) 
     throws  GrouperException,
@@ -524,7 +513,6 @@ public class XmlImporter {
     }
   } // private void _accumulateNamingPrivs(e, stem)
 
-  // @throws  GrouperException
   // @since   1.1.0
   private void _accumulatePrivs(Element e, String stem, String type)
     throws  GrouperException
@@ -624,7 +612,6 @@ public class XmlImporter {
     return elements;
   } // private Collection _getImmediateElements(element, name)
 
-  // @throws  GrouperException
   // @since   1.1.0
   private Properties _getImportOptionsFromXml() 
     throws  GrouperException
@@ -684,8 +671,6 @@ public class XmlImporter {
     return Boolean.getBoolean(update); 
   } // private boolean _isUpdatingAttributes()
 
-  // @throws  GrouperException
-  // @throws  IllegalArgumentException if <tt>doc</tt> is null
   // @since   1.1.0
   private void _load(Stem ns, Document doc) 
     throws  GrouperException,
@@ -769,15 +754,6 @@ public class XmlImporter {
   } // private boolean _optionTrue(key)
 
   // For each stem list and process any child stems. List and process any child groups.
-  // @throws  AttributeNotFoundException
-  // @throws  GroupAddException
-  // @throws  GrouperException
-  // @throws  GroupModifyException
-  // @throws  InsufficientPrivilegeException
-  // @throws  SchemaException,
-  // @throws  StemAddException,
-  // @throws  StemModifyException
-  // @throws  StemNotFoundException
   // @since   1.1.0
   private void _process(Element e, String stem) 
     throws  AttributeNotFoundException,
@@ -796,12 +772,6 @@ public class XmlImporter {
     }
   } // private void _process(e, stem)
 
-  // @throws  GrantPrivilegeException
-  // @throws  GroupNotFoundException
-  // @throws  InsufficientPrivilegeException
-  // @throws  RevokePrivilegeException
-  // @throws  SchemaException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _processAccessPrivLists() 
     throws  GrantPrivilegeException,
@@ -935,13 +905,6 @@ public class XmlImporter {
     accessPrivLists = null;
   } // private void _processAccessPrivLists()
 
-  // @throws  GrantPrivilegeException
-  // @throws  GroupNotFoundException
-  // @throws  InsufficientPrivilegeException
-  // @throws  MemberNotFoundException
-  // @throws  SchemaException
-  // @throws  SubjectNotFoundException
-  // @throws  SubjectNotUniqueException
   // @since   1.1.0
   private void _processAccessPrivs() 
     throws  GrantPrivilegeException,
@@ -1012,11 +975,6 @@ public class XmlImporter {
     accessPrivs = null;
   } // private void _processAccessPrivs()
 
-  // @throws  AttributeNotFoundException
-  // @throws  GroupModifyException
-  // @throws  GroupNotFoundException
-  // @throws  InsufficientPrivilegeException
-  // @throws  SchemaException
   // @since   1.1.0
   private void _processAttributes(Element e, String stem) 
     throws  AttributeNotFoundException,
@@ -1092,7 +1050,6 @@ public class XmlImporter {
     }
   } // private void _processAttributes(e, stem) 
 
-  // @throws  GrouperException
   // @since   1.1.0
   private void _processComposite(Element composite, Group group)
     throws  GrouperException
@@ -1142,7 +1099,6 @@ public class XmlImporter {
     }
   } // private void _processComposite(composite, group)
 
-  // @throws  GrouperException
   // @since   1.1.0
   private CompositeType _processCompositeType(Element typeE) 
     throws  GrouperException
@@ -1169,13 +1125,6 @@ public class XmlImporter {
     return type;
   }  // private CompositeType _processCompositeType(typeE)
 
-  // @throws  AttributeNotFoundException
-  // @throws  GroupAddException
-  // @throws  GrouperException
-  // @throws  GroupModifyException
-  // @throws  InsufficientPrivilegeException
-  // @throws  SchemaException
-  // @throws  StemNotFoundException
   // @since   1.1.0
   private void _processGroup(Element e, String stem) 
     throws  AttributeNotFoundException,
@@ -1200,10 +1149,6 @@ public class XmlImporter {
     this._accumulateAccessPrivs(e, newGroup);
   } // private void _processGroup(e, stem)
 
-  // @throws  GroupAddException,
-  // @throws  GroupModifyException,
-  // @throws  InsufficientPrivilegeException,
-  // @throws  StemNotFoundException
   // @since   1.1.0
   private void _processGroupCreate(Element e, String stem) 
     throws  GroupAddException,
@@ -1224,7 +1169,6 @@ public class XmlImporter {
     this.importedGroups.put(child.getName(), "c");
   } // private void _processGroupCreate(e, stem)
 
-  // @throws  GroupNotFoundException
   // @since   1.1.0
   private Group _processGroupRef(Element groupE, String stem) 
     throws  GroupNotFoundException
@@ -1247,15 +1191,6 @@ public class XmlImporter {
     return group;
   } // private Group _processGroupRef(groupE, stem)
 
-  // @throws  AttributeNotFoundException
-  // @throws  GroupAddException
-  // @throws  GrouperException
-  // @throws  GroupModifyException
-  // @throws  InsufficientPrivilegeException
-  // @throws  SchemaException
-  // @throws  StemAddException
-  // @throws  StemModifyException
-  // @throws  StemNotFoundException
   // @since   1.1.0
   private void _processGroups(Element e, String stem) 
     throws  AttributeNotFoundException,
@@ -1275,9 +1210,6 @@ public class XmlImporter {
     }
   } // private void _processGroups(e, stem)
 
-  // @throws  GroupModifyException
-  // @throws  GroupNotFoundException
-  // @throws  InsufficientPrivilegeException
   // @since   1.1.0
   private void _processGroupUpdate(Element e, String newGroup) 
     throws  GroupModifyException,
@@ -1302,14 +1234,6 @@ public class XmlImporter {
     this.importedGroups.put( g.getName(), "e" );
   } // private void _processGroupUpdate(e, newGroup)
 
-  // @throws  GrouperException
-  // @throws  GroupModifyException
-  // @throws  GroupNotFoundException
-  // @throws  InsufficientPrivilegeException
-  // @throws  MemberAddException
-  // @throws  MemberDeleteException
-  // @throws  SchemaException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _processMembershipLists() 
     throws  GrouperException,
@@ -1513,12 +1437,6 @@ public class XmlImporter {
     return this._getSubjectById(id, type);
   } // private Subject _processMembershipListsFindSubject(id, idfr, type)
 
-  // @throws  GroupNotFoundException
-  // @throws  InsufficientPrivilegeException
-  // @throws  MemberAddException
-  // @throws  MemberNotFoundException
-  // @throws  SubjectNotFoundException
-  // @throws  SubjectNotUniqueException
   // @since   1.1.0
   private void _processMemberships() 
     throws  GroupNotFoundException,
@@ -1575,8 +1493,6 @@ public class XmlImporter {
     this.memberships = null;
   } // private void _processMemberships()
 
-  // @throws  InsufficientPrivilegeException
-  // @throws  SchemaException
   // @since   1.1.0
   private void _processMetaData(Element e) 
     throws  InsufficientPrivilegeException,
@@ -1668,13 +1584,6 @@ public class XmlImporter {
     LOG.debug("Finished processing group types and fields");
   } // private void _processMetaData(e)
 
-  // @throws  GrantPrivilegeException
-  // @throws  GroupModifyException
-  // @throws  InsufficientPrivilegeException
-  // @throws  RevokePrivilegeException,
-  // @throws  SchemaException
-  // @throws  StemNotFoundException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _processNamingPrivLists() 
     throws  GrantPrivilegeException,
@@ -1808,14 +1717,6 @@ public class XmlImporter {
     namingPrivLists = null;
   } // private void _processNamingPrivLists()
 
-  // @throws  GrantPrivilegeException
-  // @throws  GroupNotFoundException
-  // @throws  InsufficientPrivilegeException
-  // @throws  MemberNotFoundException
-  // @throws  SchemaException
-  // @throws  StemNotFoundException
-  // @throws  SubjectNotFoundException
-  // @throws  SubjectNotUniqueException
   // @since   1.1.0
   private void _processNamingPrivs() 
     throws  GrantPrivilegeException,
@@ -1886,15 +1787,6 @@ public class XmlImporter {
     namingPrivs = null;
   } // private void _processNamingPrivs()
 
-  // @throws  AttributeNotFoundException
-  // @throws  GroupAddException
-  // @throws  GrouperException
-  // @throws  GroupModifyException
-  // @throws  InsufficientPrivilegeException
-  // @throws  SchemaException
-  // @throws  StemAddException
-  // @throws  StemModifyException
-  // @throws  StemNotFoundException
   // @since   1.1.0
   private void _processPath(Element e, String stem) 
     throws  AttributeNotFoundException,
@@ -1920,10 +1812,6 @@ public class XmlImporter {
     this._process(e, newStem); // And now handle the child
   } // private void _processPath(e, stem)
 
-  // @throws  InsufficientPrivilegeException
-  // @throws  StemAddException
-  // @throws  StemModifyException
-  // @throws  StemNotFoundException
   // @since   1.1.0
   private void _processPathCreate(Element e, String stem) 
     throws  InsufficientPrivilegeException,
@@ -1948,9 +1836,6 @@ public class XmlImporter {
     }
   } // private void _processPathCreate(e, stem)
 
-  // @throws  InsufficientPrivilegeException
-  // @throws  StemModifyException
-  // @throws  StemNotFoundException
   // @since   1.1.0
   private void _processPathUpdate(Element e, String newStem) 
     throws  InsufficientPrivilegeException,
@@ -1973,15 +1858,6 @@ public class XmlImporter {
     }
   } // private void _processPathUpdate(e, newStem)
 
-  // @throws  AttributeNotFoundException
-  // @throws  GroupAddException
-  // @throws  GrouperException
-  // @throws  GroupModifyException
-  // @throws  InsufficientPrivilegeException
-  // @throws  SchemaException
-  // @throws  StemAddException
-  // @throws  StemModifyException
-  // @throws  StemNotFoundException
   // @since   1.1.0
   private void _processPaths(Element e, String stem) 
     throws  AttributeNotFoundException,
@@ -2003,7 +1879,6 @@ public class XmlImporter {
     }
   } // private void _processPaths(e, stem)
 
-  // @throws  GrouperException
   // @since   1.1.0
   // TODO 20060921 test
   private void _processProperties() 
@@ -2032,7 +1907,6 @@ public class XmlImporter {
 
   // SETTERS //
 
-  // @throws  IllegalArgumentException
   // @since   1.1.0
   private void _setDocument(Document doc) 
     throws  IllegalArgumentException

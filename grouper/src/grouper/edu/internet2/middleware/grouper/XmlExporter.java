@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.31 2006-09-25 18:32:29 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.32 2006-09-25 18:59:08 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -531,7 +531,6 @@ public class XmlExporter {
     return rc;
   } // private static Properties _getArgs(args)
     
-  // @throws  SchemaException
   // @since   1.1.0
   private static Set _getListFieldsForGroup(Group g)
     throws  SchemaException 
@@ -589,7 +588,6 @@ public class XmlExporter {
             ;
   } // private static String _getUsage()
 
-  // @throws  Exception
   // @since   1.1.0
   private static void _handleArgs(XmlExporter exporter, Properties rc) 
     throws  Exception
@@ -657,14 +655,6 @@ public class XmlExporter {
 
   // PRIVATE INSTANCE METHODS //
 
-  // @throws  CompositeNotFoundException
-  // @throws  GrouperException
-  // @throws  GroupNotFoundException
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @throws  SchemaException
-  // @throws  StemNotFoundException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private synchronized void _export(Owner gos, boolean relative, boolean includeParent)
     throws  CompositeNotFoundException,
@@ -712,13 +702,6 @@ public class XmlExporter {
     _writeFooter(before);
   } // private synchronized void _export(gos, relative, includeParent)
 
-  // @throws  CompositeNotFoundException
-  // @throws  GroupNotFoundException
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @throws  SchemaException
-  // @throws  StemNotFoundException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _exportData(Owner gos, String padding) 
     throws  CompositeNotFoundException,
@@ -838,7 +821,6 @@ public class XmlExporter {
     return "true".equals(options.getProperty(key));
   } // private boolean _optionTrue(key)
 
-  // @throws  IOException
   // @since   1.1.0
   private void _writeBasicStemFooter(Stem stem, String padding) 
     throws  IOException
@@ -848,7 +830,6 @@ public class XmlExporter {
     this.xml.puts();
   } // private void _writeBasicStemFooter(stem, padding)
 
-  // @throws  IOException
   // @since   1.1.0
   private void _writeBasicStemHeader(Stem stem, String padding) 
     throws  IOException
@@ -884,8 +865,6 @@ public class XmlExporter {
 
   } // private void _writeBasicStemHeader(stem, padding)
 
-  // @throws  GroupNotFoundException
-  // @throws  IOException
   // @since   1.1.0
   private void _writeComposite(Composite comp, String padding) 
     throws  GroupNotFoundException,
@@ -906,7 +885,6 @@ public class XmlExporter {
     this.xml.puts("</composite>");
   } // private void _writeComposite(comp, padding)
 
-  // @throws  IOException
   // @since   1.1.0
   private void _writeExportParams(
     Owner groupOrStem, String padding
@@ -935,7 +913,6 @@ public class XmlExporter {
     this.xml.puts("</exportParams>");
   } // private void _writeExportParams(groupOrStem, padding)
 
-  // @throws  IOException
   // @since   1.1.0
   private void _writeFieldMetaData(Field field, String padding) 
     throws  IOException
@@ -957,7 +934,6 @@ public class XmlExporter {
     );
   } // private void _writeFieldMetaData(field, padding)
 
-  // @throws  IOException
   // @since   1.1.0
   private synchronized void _writeFooter(Date before)
     throws  IOException
@@ -982,12 +958,6 @@ public class XmlExporter {
     this.xml.close();
   } // private synchronized _writeFooter(before)
 
-  // @throws  CompositeNotFoundException
-  // @throws  GroupNotFoundException
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @throws  SubjectNotFoundException
-  // @throws  SchemaException
   // @since 1.1.0
   private void _writeFullGroup(Group group, String padding) 
     throws  CompositeNotFoundException,
@@ -1076,13 +1046,6 @@ public class XmlExporter {
     LOG.debug("Finished writing group " + group.getName() + " to XML");
   } // private void _writeFullGroup(group, padding)
 
-  // @throws  CompositeNotFoundException
-  // @throws  GroupNotFoundException
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @throws  SchemaException
-  // @throws  StemNotFoundException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _writeFullStem(Stem stem, String padding) 
     throws  CompositeNotFoundException,
@@ -1102,7 +1065,6 @@ public class XmlExporter {
     LOG.debug("Finished writing Stem " + stem.getName() + " to XML");
   } // private void _writeFullStem(stem, padding)
 
-  // @throws  IOException
   // @since   1.1.0
   private void _writeGroupRef(Group group, String padding) 
     throws  IOException
@@ -1110,7 +1072,6 @@ public class XmlExporter {
     _writeGroupRef(group, padding, false);
   } // private void _writeGroupRef(group, padding)
 
-  // @throws  IOException
   // @since   1.1.0
   private void _writeGroupRef(Group group, String padding, boolean writeAbsoluteName) 
     throws  IOException
@@ -1127,8 +1088,6 @@ public class XmlExporter {
     this.xml.puts(" displayName='" + group.getDisplayName() + "'/>");
   } // private void _writeGroupRef(group, padding, writeAbsoluteName)
 
-  // @throws  IOException
-  // @throws  SchemaException
   // @since   1.1.0
   private void _writeGroupType(Group group, GroupType groupType, String padding)
     throws  IOException,
@@ -1174,8 +1133,6 @@ public class XmlExporter {
     this.xml.puts(padding + "</groupType>");
   } // private void _writeGroupType(group, groupType, padding)
 
-  // @throws  IOException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _writeInternalAttributes(Group group, String padding) 
     throws  IOException,
@@ -1220,7 +1177,6 @@ public class XmlExporter {
     this.xml.puts();
   } // private void _writeInternalAttributes(group, padding)
 
-  // @throws  IOException
   // @since   1.1.0
   private void _writeGroupTypesMetaData(String padding)
     throws  IOException 
@@ -1260,8 +1216,6 @@ public class XmlExporter {
     this.xml.puts();
   } // private void _writeGroupTypesMetaData(padding)
 
-  // @throws  GrouperException
-  // @throws  IOException
   // @since   1.1.0
   private synchronized Date _writeHeader()
     throws  GrouperException,
@@ -1278,9 +1232,6 @@ public class XmlExporter {
     return before;
   } // private synchronized Date _writeHeader()
 
-  // @throws  IOException
-  // @throws  StemNotFoundException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _writeInternalAttributes(Stem stem, String padding) 
     throws  IOException,
@@ -1329,12 +1280,6 @@ public class XmlExporter {
     this.xml.puts();
   } // private void _writeInternalAttributes(stem, padding)
 
-  // @throws  CompositeNotFoundException
-  // @throws  GroupNotFoundException
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @throws  SchemaException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _writeListField(Group group, Field field, String padding) 
     throws  CompositeNotFoundException,
@@ -1399,9 +1344,6 @@ public class XmlExporter {
     );
   } // private void _writeListField(group, field, padding)
 
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _writeMembers(Collection members, Group group, Field field, String padding)
     throws  IOException,
@@ -1428,10 +1370,6 @@ public class XmlExporter {
     }
   } // private void _writeMembers(members, group, field, padding)
 
-  // @throws  GroupNotFoundException
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _writeMembership(Membership membership, String padding) 
     throws  GroupNotFoundException,
@@ -1460,8 +1398,6 @@ public class XmlExporter {
     this.xml.puts("</membership>");
   } // private void _writeMembership(membership, padding)
 
-  // @throws  GrouperException
-  // @throws  IOException
   // @since   1.1.0
   private void _writeMetaData(String padding)
     throws  GrouperException,
@@ -1476,7 +1412,6 @@ public class XmlExporter {
     this.xml.puts("</metadata>");
   } // private void _writeMetaData(padding)
 
-  // @throws  IOException
   // @since   1.1.0
   private void _writeOptions(String padding) 
     throws  IOException
@@ -1501,8 +1436,6 @@ public class XmlExporter {
     this.xml.puts("</options>");
   } // private void _writeOptions(padding)
 
-  // @throws  IOException
-  // @throws  MemberNotFoundException
   // @since   1.1.0
   private void _writePrivileges(String privilege, Set subjects, Owner gos, String padding)
     throws  IOException,
@@ -1541,13 +1474,6 @@ public class XmlExporter {
 
   } // private void _writePrivileges(privilege, subjects, gos, padding)
 
-  // @throws  CompositeNotFoundException
-  // @throws  GroupNotFoundException
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @throws  SchemaException,
-  // @throws  StemNotFoundException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _writeStemBody(Stem stem, String padding) 
     throws  CompositeNotFoundException,
@@ -1575,8 +1501,6 @@ public class XmlExporter {
     }
   } // private void _writeStemBody(stem, padding)
 
-  // @throws  IOException
-  // @throws  MemberNotFoundException
   // @since   1.1.0
   private void _writeStemPrivs(Stem stem, String padding) 
     throws  IOException,
@@ -1596,13 +1520,6 @@ public class XmlExporter {
     }
   } // private void _writeStemPrivs(stem, padding)
 
-  // @throws  CompositeNotFoundException
-  // @throws  GroupNotFoundException
-  // @throws  IOException
-  // @throws  MemberNotFoundException
-  // @throws  SchemaException
-  // @throws  StemNotFoundException
-  // @throws  SubjectNotFoundException
   // @since   1.1.0
   private void _writeStems(Stack stems, String padding) 
     throws  CompositeNotFoundException,
@@ -1641,7 +1558,6 @@ public class XmlExporter {
     }
   } // private void _writeStems(stems, padding)
 
-  // @throws  IOException
   // @since   1.1.0
   private void _writeSubject(Subject subj, String padding
   ) 
@@ -1650,7 +1566,6 @@ public class XmlExporter {
     _writeSubject(subj, "", padding);
   } // private void _writeSubject(subj, padding)
 
-  // @throws  IOException
   // @since   1.1.0
   private void _writeSubject(Subject subj, String immediate, String padding) 
     throws  IOException 
@@ -1708,8 +1623,6 @@ public class XmlExporter {
 
   } // private void _writeSubject(subj, immediate, padding)
 
-  // @throws  GrouperException
-  // @throws  IOException
   // @since   1.1.0
   private void _writeSubjectSourceMetaData(String padding)
     throws  GrouperException,
