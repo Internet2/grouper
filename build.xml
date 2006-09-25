@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.125 2006-09-21 18:40:13 blair Exp $ -->
+<!-- $Id: build.xml,v 1.126 2006-09-25 14:38:07 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -293,6 +293,14 @@
     <antcall  target="eg-run">
       <param  name="package"  value="bootstrap"   />
       <param  name="name"     value="Bootstrap3"  /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap4"  /> 
+    </antcall>
+    <antcall  target="eg-run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap5"  /> 
     </antcall>
     <record name="${log.eg.run}" action="stop"/>
   </target>
