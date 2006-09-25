@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.32 2006-09-25 18:59:08 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.33 2006-09-25 19:22:02 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -738,7 +738,7 @@ public class XmlExporter {
   // @since   1.0
   private String _fixGroupName(String name) {
     if (fromStem != null && name.startsWith(fromStem)) {
-      name = name.replaceAll("^" + fromStem, "*");
+      name = name.replaceAll("^" + fromStem, XmlUtils.SPECIAL_STAR);
     }
     return name;
   } // private String _fixGroupName(name)
@@ -760,7 +760,7 @@ public class XmlExporter {
     if (XmlUtils.isEmpty(value)) {
       return null;
     }
-    if ("*".equals(value)) {
+    if (XmlUtils.SPECIAL_STAR.equals(value)) {
       return subj.getAttributes().keySet().iterator();
     }
     StringTokenizer st  = new StringTokenizer(value);

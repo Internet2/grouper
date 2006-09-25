@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.4 2006-09-22 17:50:43 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.5 2006-09-25 19:22:02 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -32,6 +32,8 @@ class XmlUtils {
   // PROTECTED CLASS CONSTANTS //
   protected static final String E_NAME_AND_UUID   = "cannot specify uuid and name";
   protected static final String E_UNKNOWN_OPTION  = "unknown option: ";
+  protected static final String SPECIAL_STAR      = "*";  // this seems to indicate relative import
+                                                          // if at beginning of idfr but not at end
 
 
   // CONSTRUCTORS //
