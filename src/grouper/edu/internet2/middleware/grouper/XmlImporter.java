@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.40 2006-09-25 18:32:29 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.41 2006-09-25 18:51:26 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -564,7 +564,7 @@ public class XmlImporter {
       map     = new HashMap();
       map.put("stem", stem);
       map.put("subject", subject);
-      memberships.add(map);
+      this.memberships.add(map);
     }
   } // private void _accumulateSubjects(e, stem)
 
@@ -666,16 +666,6 @@ public class XmlImporter {
     return SubjectFinder.findById(id, type);
   } // private Subject _getSubjectById(id, type)
 
-  // @since   1.1.0
-  private boolean _isUpdatingAttributes(Element e) {
-    // TODO 20060922 switch over to this method
-    String update = e.getAttribute("updateAttributes");
-    if (XmlUtils.isEmpty(update)) {
-      update = this.options.getProperty("import.data.update-attributes");
-    }
-    return Boolean.getBoolean(update); 
-  } // private boolean _isUpdatingAttributes()
-
   // @since   1.0
   private Subject _getSubjectByIdentifier(String identifier, String type)
     throws  SubjectNotFoundException,
@@ -686,6 +676,16 @@ public class XmlImporter {
     }
     return SubjectFinder.findByIdentifier(identifier, type);
   } // private Subject _getSubjectByIdentifier(identifier, type)
+
+  // @since   1.1.0
+  private boolean _isUpdatingAttributes(Element e) {
+    // TODO 20060922 switch over to this method
+    String update = e.getAttribute("updateAttributes");
+    if (XmlUtils.isEmpty(update)) {
+      update = this.options.getProperty("import.data.update-attributes");
+    }
+    return Boolean.getBoolean(update); 
+  } // private boolean _isUpdatingAttributes()
 
   // @throws  GrouperException
   // @throws  IllegalArgumentException if <tt>doc</tt> is null
@@ -914,22 +914,14 @@ public class XmlImporter {
         } 
         else {
           try {
-            if (XmlUtils.isEmpty(subjectId)) {
-              subject = _getSubjectByIdentifier(subjectIdentifier, subjectType);
-            } 
-            else {
-              subject = _getSubjectById(subjectId, subjectType);
-            }
-          } 
-          catch (Exception e) {
-            String msg = "Could not find subject with ";
-            if (XmlUtils.isEmpty(subjectId)) {
-              msg = msg + "identifier=" + subjectIdentifier;
-            }
-            else {
-              msg = msg + "id=" + subjectId;
-            }
-            LOG.error(msg);
+            subject = this._processMembershipListsFindSubject(subjectId, subjectIdentifier, subjectType);
+          }
+          catch (SubjectNotFoundException eSNF) {
+            LOG.error(eSNF.getMessage());
+            continue;
+          }
+          catch (SubjectNotUniqueException eSNU) {
+            LOG.error(eSNU.getMessage());
             continue;
           }
         }
@@ -1489,29 +1481,21 @@ public class XmlImporter {
         } 
         else {
           try {
-            if (XmlUtils.isEmpty(subjectId)) {
-              subject = _getSubjectByIdentifier(subjectIdentifier, subjectType);
-            } 
-            else {
-              subject = _getSubjectById(subjectId, subjectType);
-            }
-          } 
-          catch (Exception e) {
-            String msg = "Could not find subject with ";
-            if (XmlUtils.isEmpty(subjectId)) {
-              msg = msg + "identifier=" + subjectIdentifier;
-            }
-            else {
-              msg = msg + "id=" + subjectId;
-            }
-            LOG.error(msg);
+            subject = this._processMembershipListsFindSubject(subjectId, subjectIdentifier, subjectType);
+          }
+          catch (SubjectNotFoundException eSNF) {
+            LOG.error(eSNF.getMessage());
+            continue;
+          }
+          catch (SubjectNotUniqueException eSNU) {
+            LOG.error(eSNU.getMessage());
             continue;
           }
         }
         this._processMembershipListsAddMember(group, subject, field);
       }
     }
-    membershipLists = null;
+    this.membershipLists = null;
   } // private void _processMembershipLists()
 
   // @since   1.1.0
@@ -1530,6 +1514,17 @@ public class XmlImporter {
       LOG.debug(U.q(subj.getName()) + " is " + msg + " - skipping");
     }
   } // private void _processMembershipListsAddMember(g, subj, f)
+
+  // @since   1.1.0
+  private Subject _processMembershipListsFindSubject(String id, String idfr, String type) 
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
+    if (XmlUtils.isEmpty(id)) {
+      return this._getSubjectByIdentifier(idfr, type);
+    } 
+    return this._getSubjectById(id, type);
+  } // private Subject _processMembershipListsFindSubject(id, idfr, type)
 
   // @throws  GroupNotFoundException
   // @throws  InsufficientPrivilegeException
@@ -1551,11 +1546,11 @@ public class XmlImporter {
     Member  member;
     Group   group;
     Map     map;
-    for (int i = 0; i < memberships.size(); i++) {
-      map         = (Map) memberships.get(i);
+    for (int i = 0; i < this.memberships.size(); i++) {
+      map         = (Map) this.memberships.get(i);
       subject     = (Element) map.get("subject");
       stem        = (String) map.get("stem");
-      String  id = subject.getAttribute("id");
+      String  id  = subject.getAttribute("id");
       group       = GroupFinder.findByName(s, stem);
       if (id != null && id.length() != 0) {
         System.out.println("Making " + id + " a member of " + group.getName());
@@ -1590,7 +1585,7 @@ public class XmlImporter {
         }
       }
     }
-    memberships = null;
+    this.memberships = null;
   } // private void _processMemberships()
 
   // @throws  InsufficientPrivilegeException
@@ -1800,25 +1795,16 @@ public class XmlImporter {
         } 
         else {
           try {
-            if (XmlUtils.isEmpty(subjectId)) {
-              subject = _getSubjectByIdentifier(subjectIdentifier, subjectType);
-            } 
-            else {
-              subject = SubjectFinder.findById(subjectId, subjectType);
-            }
-          } 
-          catch (Exception e) {
-            String msg = "Could not find subject with ";
-            if (XmlUtils.isEmpty(subjectId)) {
-              msg = msg + "identifier=" + subjectIdentifier;
-            }
-            else {
-              msg = msg + "id=" + subjectId;
-            }
-            LOG.error(msg);
+            subject = this._processMembershipListsFindSubject(subjectId, subjectIdentifier, subjectType);
+          }
+          catch (SubjectNotFoundException eSNF) {
+            LOG.error(eSNF.getMessage());
             continue;
           }
-
+          catch (SubjectNotUniqueException eSNU) {
+            LOG.error(eSNU.getMessage());
+            continue;
+          }
         }
 
         if (!XmlExporter.hasImmediatePrivilege(subject, focusStem, privilege)) {
