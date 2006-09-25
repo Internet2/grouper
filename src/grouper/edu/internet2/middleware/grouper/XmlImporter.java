@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.48 2006-09-25 19:34:17 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.49 2006-09-25 19:35:55 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -857,8 +857,7 @@ public class XmlImporter {
             LOG.warn("Could not find Group identified by " + subjectIdentifier);
             continue;
           }
-
-          subject = privGroup.toMember().getSubject();
+          subject = privGroup.toSubject();
         } 
         else {
           try {
@@ -1350,8 +1349,7 @@ public class XmlImporter {
             LOG.warn("Could not find Group identified by " + subjectIdentifier);
             continue;
           }
-
-          subject = privGroup.toMember().getSubject();
+          subject = privGroup.toSubject();
         } 
         else {
           try {
@@ -1587,8 +1585,7 @@ public class XmlImporter {
             LOG.warn("Could not find Stem identified by " + subjectIdentifier);
             continue;
           }
-
-          subject = privGroup.toMember().getSubject();
+          subject = privGroup.toSubject();
         } 
         else {
           try {
