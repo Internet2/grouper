@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.42 2006-09-25 18:54:21 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.43 2006-09-25 18:55:54 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -570,11 +570,6 @@ public class XmlImporter {
 
   // @since   1.0
   private String _getAbsoluteName(String name, String stem) {
-/*
-    if ("*SELF*".equals(name)) {
-      return stem;
-    }
-*/
     if (name != null && name.startsWith(".")) {
       if (name.startsWith("." + Stem.ROOT_INT)) {
         name = stem + name.substring(1);
@@ -895,18 +890,9 @@ public class XmlImporter {
             }
           } 
           else {
-/*
-            if ("*SELF*".equals(subjectIdentifier)) {
-              subjectIdentifier = group;
-            }
-            else {
-*/
               subjectIdentifier = this._getAbsoluteName(
-                  subjectIdentifier, focusGroup.getParentStem().getName()
+                subjectIdentifier, focusGroup.getParentStem().getName()
               );
-/*
-            }
-*/
           }
           try {
             privGroup = GroupFinder.findByName(s, subjectIdentifier);
@@ -1466,18 +1452,9 @@ public class XmlImporter {
             }
           } 
           else {
-/*
-            if ("*SELF*".equals(subjectIdentifier)) {
-              subjectIdentifier = groupName;
-            }
-            else {
-*/
-              subjectIdentifier = this._getAbsoluteName(
-                subjectIdentifier, group.getParentStem() .getName()
-              );
-/*
-            }
-*/
+            subjectIdentifier = this._getAbsoluteName(
+              subjectIdentifier, group.getParentStem() .getName()
+            );
           }
           try {
             privGroup = GroupFinder.findByName(s, subjectIdentifier);
