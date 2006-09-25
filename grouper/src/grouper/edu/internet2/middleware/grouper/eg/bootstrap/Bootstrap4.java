@@ -46,7 +46,7 @@ import  org.apache.commons.logging.*;       // For logging
  * </pre>
  * <p>
  * @author  blair christensen.
- * @version $Id: Bootstrap4.java,v 1.1 2006-09-25 14:37:07 blair Exp $
+ * @version $Id: Bootstrap4.java,v 1.2 2006-09-25 14:54:22 blair Exp $
  * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/bootstrap/Bootstrap4.java?root=I2MI&view=markup">Source</a>
  * @since   1.1.0
  */
@@ -74,7 +74,7 @@ public class Bootstrap4 {
             "Found root stem: name=" + rootStem.getName() + " uuid=" + rootStem.getUuid()
           );
 
-          Stem etc;
+          Stem etc = null;
           try {
             etc = StemFinder.findByName(s, "etc");
             LOG.info("Found stem: name=" + etc.getName() + " uuid=" + etc.getUuid());
