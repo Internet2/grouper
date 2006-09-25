@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.30 2006-09-21 18:40:13 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.31 2006-09-25 18:32:29 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1120,7 +1120,7 @@ public class XmlExporter {
     this.xml.put(padding);
     String name = group.getName();
     if (!writeAbsoluteName) {
-      name = _fixGroupName(name);
+      name = this._fixGroupName(name);
     }
     this.xml.puts("        name='" + name + "'");
     this.xml.put(padding);
@@ -1660,7 +1660,7 @@ public class XmlExporter {
     String id       = null;
     if ("group".equals(subj.getType().getName())) {
       attrName  = "identifier";
-      id        = _fixGroupName(subj.getName());
+      id        = this._fixGroupName(subj.getName());
     } else {
       id = subj.getId();
     }

@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.39 2006-09-22 19:02:50 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.40 2006-09-25 18:32:29 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1508,26 +1508,28 @@ public class XmlImporter {
             continue;
           }
         }
-        if (!group.hasImmediateMember(subject, field)) {
-          LOG.debug(
-            "Making " + subject.getName()
-            + " a member of " + group.getName() + "(list="
-            + listName + ")"
-          );
-          group.addMember(subject, field);
-          LOG.debug("...assigned");
-        } 
-        else {
-          LOG.debug(
-            subject.getName()
-            + " is already a member of " + group.getName()
-            + "- skipping"
-          );
-        }
+        this._processMembershipListsAddMember(group, subject, field);
       }
     }
     membershipLists = null;
   } // private void _processMembershipLists()
+
+  // @since   1.1.0
+  private void _processMembershipListsAddMember(Group g, Subject subj, Field f) 
+    throws  InsufficientPrivilegeException,
+            MemberAddException,
+            SchemaException
+  {
+    String msg = " a member of " + U.q(g.getName()) + " (list=" + U.q(f.getName()) + ")";
+    if (!g.hasImmediateMember(subj, f)) {
+      LOG.debug("making " + U.q(subj.getName()) + msg);
+      g.addMember(subj, f);
+      LOG.debug("...assigned");
+    } 
+    else {
+      LOG.debug(U.q(subj.getName()) + " is " + msg + " - skipping");
+    }
+  } // private void _processMembershipListsAddMember(g, subj, f)
 
   // @throws  GroupNotFoundException
   // @throws  InsufficientPrivilegeException
