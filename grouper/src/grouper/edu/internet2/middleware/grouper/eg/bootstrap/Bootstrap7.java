@@ -21,50 +21,44 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
 import  org.apache.commons.logging.*;       // For logging
 
 /**
- * Step 5: Create stem.
+ * Step 7: Create group.
  * <p>
- * If the <i>etc</i> stem <a href="./Bootstrap4.html">does not exist</a> your
- * next step in bootstrapping your Groups Registry will be to create it.
+ * If the <i>etc:wheel</i> group <a href="./Bootstrap6.html">does not exist</a> 
+ * you can now create it.
  * </p>
  * <p>
- * To create a new stem you need three things:
- * </p>
- * <ol>
- * <li>The <a href="./Bootstrap3.html">parent stem</a></li>
- * <li>The <tt>extension</tt> to assign to the new stem</li>
- * <li>The <tt>displayExtension</tt> to assign to the new group.</li>
- * </ol>
- * <p>
- * To actually create the new child stem you will call the
- * <tt>addChildStem()</tt> method on the parent stem.  That will create the new
- * stem beneath the parent and it takes the <tt>extension</tt> and
- * <tt>displayExtension</tt> as parameters.
+ * Creating a new child group is just like creating a new child stem.  You will
+ * need the parent stem along with the <tt>extension</tt> and
+ * <tt>displayExtension</tt> to assign to the new group.
  * </p>
  * <pre class="eg">
- * Stem etc = rootStem.addChildStem("etc", "Grouper Administration");
+ * Group wheel = etc.addChildGroup("wheel", "Wheel Group");
  * </pre>
  * <p>
- * Creating a child stem may throw two possible exceptions:
+ * This will create a group beneath the <i>etc</i> stem with the <tt>name</tt>
+ * <i>etc:wheel</i> and the <tt>displayName</tt> <i>Grouper Administration:Wheel
+ * Group</i>.
+ * </p>
+ * <p>
+ * If the group cannot be created several exceptions may be thrown.
  * </p>
  * <pre class="eg">
+ * catch (GroupAddException eGA) {
+ *   // Error adding group
+ * }
  * catch (InsufficientPrivilegeException eIP) {
- *   // Not privileged to create stem
+ *   // Not privileged to add group
  * }
- * catch (StemAddException eNSA) {
- *   // Error adding stem
- * }
- * catch (StemAddException eNSA) {
-* }
  * </pre>
  * @author  blair christensen.
- * @version $Id: Bootstrap5.java,v 1.3 2006-09-25 16:17:47 blair Exp $
- * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/bootstrap/Bootstrap5.java?root=I2MI&view=markup">Source</a>
+ * @version $Id: Bootstrap7.java,v 1.1 2006-09-25 16:17:47 blair Exp $
+ * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/bootstrap/Bootstrap7.java?root=I2MI&view=markup">Source</a>
  * @since   1.1.0
  */
-public class Bootstrap5 {
+public class Bootstrap7 {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Bootstrap5.class);
+  private static final Log LOG = LogFactory.getLog(Bootstrap7.class);
 
 
   // MAIN //
@@ -85,6 +79,7 @@ public class Bootstrap5 {
             "Found root stem: name=" + rootStem.getName() + " uuid=" + rootStem.getUuid()
           );
 
+          // add-or-retrieve stem
           Stem etc = null;
           try {
             etc = StemFinder.findByName(s, "etc");
@@ -103,6 +98,29 @@ public class Bootstrap5 {
             catch (StemAddException eNSA) {
               // Error adding stem
               LOG.error(eNSA.getMessage());
+            }
+          }
+          // add-or-retrieve group
+          if (etc != null) {
+            Group wheel = null;
+            try {
+              wheel = GroupFinder.findByName(s, "etc:wheel");
+              LOG.info("Found group: name= " + wheel.getName() + " uuid=" + wheel.getUuid());
+            }
+            catch (GroupNotFoundException eGNF) {
+              LOG.info(eGNF.getMessage());
+              try {
+                wheel = etc.addChildGroup("wheel", "Wheel Group");
+                LOG.info("Created group: name=" + wheel.getName() + " uuid=" + wheel.getUuid());
+              }
+              catch (GroupAddException eGA) {
+                // Error adding group
+                LOG.error(eGA.getMessage());
+              }
+              catch (InsufficientPrivilegeException eIP) {
+                // Not privileged to add group
+                LOG.error(eIP.getMessage());
+              }
             }
           }
 
@@ -132,5 +150,5 @@ public class Bootstrap5 {
     System.exit(exit_value);
   } // public static void main(args[])
 
-} // public class Bootstrap5
+} // public class Bootstrap7
 
