@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.46 2006-09-25 19:22:02 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.47 2006-09-25 19:32:49 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -903,7 +903,6 @@ public class XmlImporter {
   {
     Element access;
     String  stem;
-    Member  member = null;
     Group   grouperGroup;
     Map     map;
     String  group;
@@ -911,7 +910,7 @@ public class XmlImporter {
     String  priv;
     String  absoluteGroup;
     Group   privGroup;
-    Subject subj;
+    Subject subj          = null;
     for (int i = 0; i < accessPrivs.size(); i++) {
       map           = (Map) accessPrivs.get(i);
       access        = (Element) map.get("access");
@@ -922,14 +921,9 @@ public class XmlImporter {
       grouperGroup  = GroupFinder.findByName(s, stem);
       if (!XmlUtils.isEmpty(group)) {
         absoluteGroup = this._getAbsoluteName(group, stem);
-        privGroup = GroupFinder.findByName(s, absoluteGroup);
-        member = MemberFinder.findBySubject(
-          s, SubjectFinder.findById( privGroup.getUuid(), "group")
-        );
-
-        System.out.println(
-          "Assigning " + priv + " to " + absoluteGroup + " for " + stem
-        );
+        privGroup     = GroupFinder.findByName(s, absoluteGroup);
+        subj          = privGroup.toSubject();
+        System.out.println("Assigning " + priv + " to " + absoluteGroup + " for " + stem);
       } 
       else if (!XmlUtils.isEmpty(subject)) {
         try {
@@ -938,20 +932,10 @@ public class XmlImporter {
         catch (SubjectNotFoundException e) {
           subj = SubjectFinder.findById(subject);
         }
-        member = MemberFinder.findBySubject(s, subj);
-        System.out.println(
-          "Assigning " + priv + " to " + subj.getName() + " for " + stem
-        );
+        System.out.println("Assigning " + priv + " to " + subj.getName() + " for " + stem);
       }
-      if (
-        !XmlExporter.hasImmediatePrivilege(
-          member.getSubject(), grouperGroup, priv
-        )
-      ) 
-      {
-        grouperGroup.grantPriv(
-          member.getSubject(), Privilege.getInstance(priv)
-        );
+      if ( !XmlExporter.hasImmediatePrivilege(subj, grouperGroup, priv) ) {
+        grouperGroup.grantPriv(subj, Privilege.getInstance(priv));
         System.out.println("...assigned");
       } 
       else {
@@ -1649,13 +1633,12 @@ public class XmlImporter {
     String  group;
     Stem    grouperStem;
     Map     map;
-    Member  member = null;
     Element naming;
     String  priv;
     Group   privGroup;
     String  stem;
     String  subject;
-    Subject subj;
+    Subject subj            = null;
 
     for (int i = 0; i < namingPrivs.size(); i++) {
 
@@ -1667,10 +1650,8 @@ public class XmlImporter {
       priv    = naming.getAttribute("priv").toLowerCase();
       if (!XmlUtils.isEmpty(group)) {
         absoluteGroup = this._getAbsoluteName(group, stem);
-        privGroup = GroupFinder.findByName(s, absoluteGroup);
-        member = MemberFinder.findBySubject(s, SubjectFinder.findById(
-            privGroup.getUuid(), "group"));
-
+        privGroup     = GroupFinder.findByName(s, absoluteGroup);
+        subj          = privGroup.toSubject();
         System.out.println("Assigning " + priv + " to " + absoluteGroup
             + " for " + stem);
       } 
@@ -1681,7 +1662,6 @@ public class XmlImporter {
         catch (SubjectNotFoundException e) {
           subj = SubjectFinder.findById(subject);
         }
-        member = MemberFinder.findBySubject(s, subj);
         System.out.println(
           "Assigning " + priv + " to " + subj.getName() + " for " + stem
         );
@@ -1689,12 +1669,10 @@ public class XmlImporter {
 
       grouperStem = StemFinder.findByName(s, stem);
       if (
-        !XmlExporter.hasImmediatePrivilege(
-          member.getSubject(), grouperStem, priv
-        )
+        !XmlExporter.hasImmediatePrivilege(subj, grouperStem, priv)
       ) 
       {
-        grouperStem.grantPriv(member.getSubject(), Privilege .getInstance(priv));
+        grouperStem.grantPriv(subj, Privilege.getInstance(priv));
         System.out.println("...assigned");
       } 
       else {
