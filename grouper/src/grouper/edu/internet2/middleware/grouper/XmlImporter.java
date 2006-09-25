@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.45 2006-09-25 19:10:36 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.46 2006-09-25 19:22:02 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -646,6 +646,14 @@ public class XmlImporter {
   } // private Subject _getSubjectByIdentifier(identifier, type)
 
   // @since   1.1.0
+  private boolean _isRelativeImport(String idfr) {
+    return (
+          idfr.startsWith(  XmlUtils.SPECIAL_STAR )
+      &&  !idfr.endsWith(   XmlUtils.SPECIAL_STAR )
+    );
+  } // private boolean _isRelativeImport(idfr)
+ 
+  // @since   1.1.0
   private boolean _isUpdatingAttributes(Element e) {
     // TODO 20060922 switch over to this method
     String update = e.getAttribute("updateAttributes");
@@ -829,12 +837,7 @@ public class XmlImporter {
         subjectIdentifier = subjectE.getAttribute("identifier");
         subjectType       = subjectE.getAttribute("type");
         if ("group".equals(subjectType)) {
-          if (
-            subjectIdentifier.startsWith("*")
-            && !subjectIdentifier.endsWith("*")
-          ) 
-          {
-            //relative import
+          if (this._isRelativeImport(subjectIdentifier)) {
             if (XmlUtils.isEmpty(importRoot)) {
               subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
             }
@@ -1343,13 +1346,7 @@ public class XmlImporter {
         subjectIdentifier = subjectE.getAttribute("identifier");
         subjectType       = subjectE.getAttribute("type");
         if ("group".equals(subjectType)) {
-          if (
-            subjectIdentifier.startsWith("*")
-            && 
-            !subjectIdentifier.endsWith("*")
-          ) 
-          {
-            //relative import
+          if (this._isRelativeImport(subjectIdentifier)) {
             if (!XmlUtils.isEmpty(importRoot)) {
               subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
             }
@@ -1588,13 +1585,7 @@ public class XmlImporter {
         subjectIdentifier = subjectE.getAttribute("identifier");
         subjectType       = subjectE.getAttribute("type");
         if ("group".equals(subjectType)) {
-          if (
-            subjectIdentifier.startsWith("*")
-            && 
-            !subjectIdentifier.endsWith("*")
-          ) 
-          {
-            //relative import
+          if (this._isRelativeImport(subjectIdentifier)) {
             if (!XmlUtils.isEmpty(importRoot)) {
               subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
             }
