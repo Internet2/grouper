@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.41 2006-09-25 18:51:26 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.42 2006-09-25 18:54:21 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -570,9 +570,11 @@ public class XmlImporter {
 
   // @since   1.0
   private String _getAbsoluteName(String name, String stem) {
+/*
     if ("*SELF*".equals(name)) {
       return stem;
     }
+*/
     if (name != null && name.startsWith(".")) {
       if (name.startsWith("." + Stem.ROOT_INT)) {
         name = stem + name.substring(1);
@@ -893,14 +895,18 @@ public class XmlImporter {
             }
           } 
           else {
+/*
             if ("*SELF*".equals(subjectIdentifier)) {
               subjectIdentifier = group;
             }
             else {
-              subjectIdentifier = _getAbsoluteName(
+*/
+              subjectIdentifier = this._getAbsoluteName(
                   subjectIdentifier, focusGroup.getParentStem().getName()
               );
+/*
             }
+*/
           }
           try {
             privGroup = GroupFinder.findByName(s, subjectIdentifier);
@@ -980,7 +986,7 @@ public class XmlImporter {
       priv          = access.getAttribute("priv").toLowerCase();
       grouperGroup  = GroupFinder.findByName(s, stem);
       if (!XmlUtils.isEmpty(group)) {
-        absoluteGroup = _getAbsoluteName(group, stem);
+        absoluteGroup = this._getAbsoluteName(group, stem);
         privGroup = GroupFinder.findByName(s, absoluteGroup);
         member = MemberFinder.findBySubject(
           s, SubjectFinder.findById( privGroup.getUuid(), "group")
@@ -1250,7 +1256,7 @@ public class XmlImporter {
         "Expected 'name' atribute for <groupRef>"
       );
     }
-    String actualName = _getAbsoluteName(name, stem);
+    String actualName = this._getAbsoluteName(name, stem);
     group             = GroupFinder.findByName(s, actualName);
     return group;
   } // private Group _processGroupRef(groupE, stem)
@@ -1460,14 +1466,18 @@ public class XmlImporter {
             }
           } 
           else {
+/*
             if ("*SELF*".equals(subjectIdentifier)) {
               subjectIdentifier = groupName;
             }
             else {
-              subjectIdentifier = _getAbsoluteName(
+*/
+              subjectIdentifier = this._getAbsoluteName(
                 subjectIdentifier, group.getParentStem() .getName()
               );
+/*
             }
+*/
           }
           try {
             privGroup = GroupFinder.findByName(s, subjectIdentifier);
@@ -1781,7 +1791,7 @@ public class XmlImporter {
             }
           } 
           else {
-            subjectIdentifier = _getAbsoluteName(subjectIdentifier, stem);
+            subjectIdentifier = this._getAbsoluteName(subjectIdentifier, stem);
           }
           try {
             privGroup = GroupFinder.findByName(s, subjectIdentifier);
@@ -1861,7 +1871,7 @@ public class XmlImporter {
       subject = naming.getAttribute("subject");
       priv    = naming.getAttribute("priv").toLowerCase();
       if (!XmlUtils.isEmpty(group)) {
-        absoluteGroup = _getAbsoluteName(group, stem);
+        absoluteGroup = this._getAbsoluteName(group, stem);
         privGroup = GroupFinder.findByName(s, absoluteGroup);
         member = MemberFinder.findBySubject(s, SubjectFinder.findById(
             privGroup.getUuid(), "group"));
