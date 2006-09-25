@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.49 2006-09-25 19:35:55 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.50 2006-09-25 19:49:09 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -53,14 +53,12 @@ public class XmlImporter {
 
   // PRIVATE INSTANCE VARIABLES //
   private List            accessPrivLists = new ArrayList();
-  private List            accessPrivs     = new ArrayList();
   private Document        doc;
   private Map             importedGroups  = new HashMap();
   private String          importRoot; // Anchor import here
   private List            membershipLists = new ArrayList();
   private List            memberships     = new ArrayList();
   private List            namingPrivLists = new ArrayList();
-  private List            namingPrivs     = new ArrayList();
   private Properties      options         = new Properties();
   private GrouperSession  s;
   private boolean         updateOnly      = false;  // add (or not) groups + stems when importing
@@ -466,22 +464,6 @@ public class XmlImporter {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.1.0
-  private void _accumulateAccessPrivs(Element e, String stem) 
-  {
-    Collection  accesses  = this._getImmediateElements(e, "access");
-    Iterator    it        = accesses.iterator();
-    Element     access;
-    Map         map;
-    while (it.hasNext()) {
-      access = (Element) it.next();
-      map = new HashMap();
-      map.put("stem", stem); // TODO 20060922 "stem"?
-      map.put("access", access);
-      accessPrivs.add(map);
-    }
-  } // private void _accumulateAccessPrivs(e, stem)
-
-  // @since   1.1.0
   private void _accumulateLists(Element e, String group) 
   {
     Collection  lists = this._getImmediateElements(e, "list");
@@ -496,22 +478,6 @@ public class XmlImporter {
       membershipLists.add(map);
     }
   } // private void _accumulateLists(e, group)
-
-  // @since   1.1.0
-  private void _accumulateNamingPrivs(Element e, String stem) 
-  {
-    Collection  namings = this._getImmediateElements(e, "naming");
-    Iterator    it      = namings.iterator();
-    Element     naming;
-    Map map;
-    while (it.hasNext()) {
-      naming  = (Element) it.next();
-      map     = new HashMap();
-      map.put("stem", stem);
-      map.put("naming", naming);
-      namingPrivs.add(map);
-    }
-  } // private void _accumulateNamingPrivs(e, stem)
 
   // @since   1.1.0
   private void _accumulatePrivs(Element e, String stem, String type)
@@ -535,7 +501,7 @@ public class XmlImporter {
         accessPrivLists.add(map);
       } else {
         map.put("stem", stem);
-        namingPrivLists.add(map);
+        this.namingPrivLists.add(map);
       }
     }
   } // private void _accumulatePrivs(e, stem, type)
@@ -680,9 +646,7 @@ public class XmlImporter {
       this._processMetaData(this._getImmediateElement(root, "metadata"));
       this._process( this._getImmediateElement(root, "data"), this.importRoot );
       this._processMembershipLists();
-      this._processNamingPrivs();
       this._processNamingPrivLists();
-      this._processAccessPrivs();
       this._processAccessPrivLists();
     }
     catch (AttributeNotFoundException eANF)     {
@@ -709,9 +673,6 @@ public class XmlImporter {
     catch (MemberDeleteException eMD)           {
       throw new GrouperException(eMD.getMessage(), eMD);
     }
-    catch (MemberNotFoundException eMNF)        {
-      throw new GrouperException(eMNF.getMessage(), eMNF);
-    }
     catch (RevokePrivilegeException eRP)        {
       throw new GrouperException(eRP.getMessage(), eRP);
     }
@@ -729,9 +690,6 @@ public class XmlImporter {
     }
     catch (SubjectNotFoundException eSNF)       {
       throw new GrouperException(eSNF.getMessage(), eSNF);
-    }
-    catch (SubjectNotUniqueException eSNU)      {
-      throw new GrouperException(eSNU.getMessage(), eSNU);
     }
   } // private void _load(ns, doc)
 
@@ -889,60 +847,6 @@ public class XmlImporter {
     LOG.debug("Finished assigning Access privs");
     accessPrivLists = null;
   } // private void _processAccessPrivLists()
-
-  // @since   1.1.0
-  private void _processAccessPrivs() 
-    throws  GrantPrivilegeException,
-            GroupNotFoundException,
-            InsufficientPrivilegeException,
-            MemberNotFoundException,
-            SchemaException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    Element access;
-    String  stem;
-    Group   grouperGroup;
-    Map     map;
-    String  group;
-    String  subject;
-    String  priv;
-    String  absoluteGroup;
-    Group   privGroup;
-    Subject subj          = null;
-    for (int i = 0; i < accessPrivs.size(); i++) {
-      map           = (Map) accessPrivs.get(i);
-      access        = (Element) map.get("access");
-      stem          = (String) map.get("stem");
-      group         = access.getAttribute("group");
-      subject       = access.getAttribute("subject");
-      priv          = access.getAttribute("priv").toLowerCase();
-      grouperGroup  = GroupFinder.findByName(s, stem);
-      if (!XmlUtils.isEmpty(group)) {
-        absoluteGroup = this._getAbsoluteName(group, stem);
-        privGroup     = GroupFinder.findByName(s, absoluteGroup);
-        subj          = privGroup.toSubject();
-        LOG.info("Assigning " + priv + " to " + absoluteGroup + " for " + stem);
-      } 
-      else if (!XmlUtils.isEmpty(subject)) {
-        try {
-          subj = SubjectFinder.findByIdentifier(subject);
-        } 
-        catch (SubjectNotFoundException e) {
-          subj = SubjectFinder.findById(subject);
-        }
-        LOG.info("Assigning " + priv + " to " + subj.getName() + " for " + stem);
-      }
-      if ( !XmlExporter.hasImmediatePrivilege(subj, grouperGroup, priv) ) {
-        grouperGroup.grantPriv(subj, Privilege.getInstance(priv));
-        LOG.info("...assigned");
-      } 
-      else {
-        LOG.info("...already assigned - skiping");
-      }
-    }
-    accessPrivs = null;
-  } // private void _processAccessPrivs()
 
   // @since   1.1.0
   private void _processAttributes(Element e, String stem) 
@@ -1114,7 +1018,6 @@ public class XmlImporter {
     }
     this._accumulateLists(e, newGroup);
     this._accumulatePrivs(e, newGroup, "access");
-    this._accumulateAccessPrivs(e, newGroup);
   } // private void _processGroup(e, stem)
 
   // @since   1.1.0
@@ -1499,7 +1402,7 @@ public class XmlImporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    if (namingPrivLists == null || namingPrivLists.size() == 0) {
+    if (this.namingPrivLists == null || this.namingPrivLists.size() == 0) {
       return;
     }
     Collection  subjects;
@@ -1519,8 +1422,8 @@ public class XmlImporter {
     String      privilege;
     Privilege   grouperPrivilege;
     String      importOption;
-    for (int i = 0; i < namingPrivLists.size(); i++) {
-      map   = (Map) namingPrivLists.get(i);
+    for (int i = 0; i < this.namingPrivLists.size(); i++) {
+      map   = (Map) this.namingPrivLists.get(i);
       stem  = (String) map.get("stem");
 
       //Save a call if we are dealing with same group
@@ -1612,69 +1515,8 @@ public class XmlImporter {
       }
     }
     LOG.debug("Finished assigning Naming privs");
-    namingPrivLists = null;
+    this.namingPrivLists = null;
   } // private void _processNamingPrivLists()
-
-  // @since   1.1.0
-  private void _processNamingPrivs() 
-    throws  GrantPrivilegeException,
-            GroupNotFoundException,
-            InsufficientPrivilegeException,
-            MemberNotFoundException,
-            SchemaException,
-            StemNotFoundException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    String  absoluteGroup;
-    String  group;
-    Stem    grouperStem;
-    Map     map;
-    Element naming;
-    String  priv;
-    Group   privGroup;
-    String  stem;
-    String  subject;
-    Subject subj            = null;
-
-    for (int i = 0; i < namingPrivs.size(); i++) {
-
-      map     = (Map) namingPrivs.get(i);
-      naming  = (Element) map.get("naming");
-      stem    = (String) map.get("stem");
-      group   = naming.getAttribute("group");
-      subject = naming.getAttribute("subject");
-      priv    = naming.getAttribute("priv").toLowerCase();
-      if (!XmlUtils.isEmpty(group)) {
-        absoluteGroup = this._getAbsoluteName(group, stem);
-        privGroup     = GroupFinder.findByName(s, absoluteGroup);
-        subj          = privGroup.toSubject();
-        LOG.info("Assigning " + priv + " to " + absoluteGroup + " for " + stem);
-      } 
-      else if (!XmlUtils.isEmpty(subject)) {
-        try {
-          subj = SubjectFinder.findByIdentifier(subject);
-        } 
-        catch (SubjectNotFoundException e) {
-          subj = SubjectFinder.findById(subject);
-        }
-        LOG.info("Assigning " + priv + " to " + subj.getName() + " for " + stem);
-      }
-
-      grouperStem = StemFinder.findByName(s, stem);
-      if (
-        !XmlExporter.hasImmediatePrivilege(subj, grouperStem, priv)
-      ) 
-      {
-        grouperStem.grantPriv(subj, Privilege.getInstance(priv));
-        LOG.info("...assigned");
-      } 
-      else {
-        LOG.info("...already assigned - skiping");
-      }
-    }
-    namingPrivs = null;
-  } // private void _processNamingPrivs()
 
   // @since   1.1.0
   private void _processPath(Element e, String stem) 
@@ -1697,7 +1539,6 @@ public class XmlImporter {
       this._processPathCreate(e, stem);     // Otherwise create
     }
     this._accumulatePrivs(e, newStem, "naming");
-    this._accumulateNamingPrivs(e, newStem);
     this._process(e, newStem); // And now handle the child
   } // private void _processPath(e, stem)
 
