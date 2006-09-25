@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.47 2006-09-25 19:32:49 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.48 2006-09-25 19:34:17 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -923,7 +923,7 @@ public class XmlImporter {
         absoluteGroup = this._getAbsoluteName(group, stem);
         privGroup     = GroupFinder.findByName(s, absoluteGroup);
         subj          = privGroup.toSubject();
-        System.out.println("Assigning " + priv + " to " + absoluteGroup + " for " + stem);
+        LOG.info("Assigning " + priv + " to " + absoluteGroup + " for " + stem);
       } 
       else if (!XmlUtils.isEmpty(subject)) {
         try {
@@ -932,14 +932,14 @@ public class XmlImporter {
         catch (SubjectNotFoundException e) {
           subj = SubjectFinder.findById(subject);
         }
-        System.out.println("Assigning " + priv + " to " + subj.getName() + " for " + stem);
+        LOG.info("Assigning " + priv + " to " + subj.getName() + " for " + stem);
       }
       if ( !XmlExporter.hasImmediatePrivilege(subj, grouperGroup, priv) ) {
         grouperGroup.grantPriv(subj, Privilege.getInstance(priv));
-        System.out.println("...assigned");
+        LOG.info("...assigned");
       } 
       else {
-        System.out.println("...already assigned - skiping");
+        LOG.info("...already assigned - skiping");
       }
     }
     accessPrivs = null;
@@ -1652,8 +1652,7 @@ public class XmlImporter {
         absoluteGroup = this._getAbsoluteName(group, stem);
         privGroup     = GroupFinder.findByName(s, absoluteGroup);
         subj          = privGroup.toSubject();
-        System.out.println("Assigning " + priv + " to " + absoluteGroup
-            + " for " + stem);
+        LOG.info("Assigning " + priv + " to " + absoluteGroup + " for " + stem);
       } 
       else if (!XmlUtils.isEmpty(subject)) {
         try {
@@ -1662,9 +1661,7 @@ public class XmlImporter {
         catch (SubjectNotFoundException e) {
           subj = SubjectFinder.findById(subject);
         }
-        System.out.println(
-          "Assigning " + priv + " to " + subj.getName() + " for " + stem
-        );
+        LOG.info("Assigning " + priv + " to " + subj.getName() + " for " + stem);
       }
 
       grouperStem = StemFinder.findByName(s, stem);
@@ -1673,10 +1670,10 @@ public class XmlImporter {
       ) 
       {
         grouperStem.grantPriv(subj, Privilege.getInstance(priv));
-        System.out.println("...assigned");
+        LOG.info("...assigned");
       } 
       else {
-        System.out.println("...already assigned - skiping");
+        LOG.info("...already assigned - skiping");
       }
     }
     namingPrivs = null;
