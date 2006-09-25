@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.44 2006-09-25 18:59:08 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.45 2006-09-25 19:10:36 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -540,22 +540,6 @@ public class XmlImporter {
     }
   } // private void _accumulatePrivs(e, stem, type)
 
-  // @since   1.1.0
-  private void _accumulateSubjects(Element e, String stem) 
-  {
-    Collection  subjects  = this._getImmediateElements(e, "subject");
-    Iterator    it        = subjects.iterator();
-    Element     subject;
-    Map         map;
-    while (it.hasNext()) {
-      subject = (Element) it.next();
-      map     = new HashMap();
-      map.put("stem", stem);
-      map.put("subject", subject);
-      this.memberships.add(map);
-    }
-  } // private void _accumulateSubjects(e, stem)
-
   // @since   1.0
   private String _getAbsoluteName(String name, String stem) {
     if (name != null && name.startsWith(".")) {
@@ -687,7 +671,6 @@ public class XmlImporter {
 
       this._processMetaData(this._getImmediateElement(root, "metadata"));
       this._process( this._getImmediateElement(root, "data"), this.importRoot );
-      this._processMemberships();
       this._processMembershipLists();
       this._processNamingPrivs();
       this._processNamingPrivLists();
@@ -1143,7 +1126,6 @@ public class XmlImporter {
       // TODO 20060922 honor `updateOnly`
       this._processGroupCreate(e, stem);      // Otherwise create
     }
-    this._accumulateSubjects(e, newGroup);
     this._accumulateLists(e, newGroup);
     this._accumulatePrivs(e, newGroup, "access");
     this._accumulateAccessPrivs(e, newGroup);
@@ -1436,62 +1418,6 @@ public class XmlImporter {
     } 
     return this._getSubjectById(id, type);
   } // private Subject _processMembershipListsFindSubject(id, idfr, type)
-
-  // @since   1.1.0
-  private void _processMemberships() 
-    throws  GroupNotFoundException,
-            InsufficientPrivilegeException,
-            MemberAddException,
-            MemberNotFoundException,
-            SubjectNotFoundException,
-            SubjectNotUniqueException
-  {
-    Element subject;
-    String  stem;
-    Member  member;
-    Group   group;
-    Map     map;
-    for (int i = 0; i < this.memberships.size(); i++) {
-      map         = (Map) this.memberships.get(i);
-      subject     = (Element) map.get("subject");
-      stem        = (String) map.get("stem");
-      String  id  = subject.getAttribute("id");
-      group       = GroupFinder.findByName(s, stem);
-      if (id != null && id.length() != 0) {
-        System.out.println("Making " + id + " a member of " + group.getName());
-        member = MemberFinder.findBySubject(s, SubjectFinder.findById( id, "person"));
-
-        if (group != null && !group.hasMember(member.getSubject())) {
-          group.addMember(member.getSubject());
-          System.out.println("...added");
-        } 
-        else {
-          System.out.println("...already a member - skipping");
-        }
-      } 
-      else {
-        String groupName = subject.getAttribute("group");
-        if (groupName != null && groupName.length() != 0) {
-          if ("relative".equals(subject.getAttribute("location"))) {
-            groupName = group.getParentStem().getName() + Stem.ROOT_INT + groupName;
-          }
-          System.out.println("Making [" + groupName + "] a member of " + group.getName());
-          Group   groupSubj = GroupFinder.findByName(s, groupName);
-          member            = MemberFinder.findBySubject(
-            s, SubjectFinder.findById(groupSubj.getUuid(), "group")
-          );
-          if (group != null && !group.hasMember(member.getSubject())) {
-            group.addMember(member.getSubject());
-            System.out.println("...added");
-          } 
-          else {
-            System.out.println("...already a member - skipping");
-          }
-        }
-      }
-    }
-    this.memberships = null;
-  } // private void _processMemberships()
 
   // @since   1.1.0
   private void _processMetaData(Element e) 
