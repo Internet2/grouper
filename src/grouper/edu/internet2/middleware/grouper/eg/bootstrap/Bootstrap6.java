@@ -21,50 +21,38 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
 import  org.apache.commons.logging.*;       // For logging
 
 /**
- * Step 5: Create stem.
+ * Step 6: Find group by name.
  * <p>
- * If the <i>etc</i> stem <a href="./Bootstrap4.html">does not exist</a> your
- * next step in bootstrapping your Groups Registry will be to create it.
+ * Now that you have either <a href="./Bootstrap4.html">retrieved</a> or 
+ * <a href="./Bootstrap5.html">created</a> the <i>etc</i> stem you may now do
+ * the same for the wheel group.
  * </p>
  * <p>
- * To create a new stem you need three things:
+ * As you did with the <i>etc</i> stem, first check to see if the group exists
+ * before trying to create it.  Finding a group is extremely similar to finding
+ * a stem as you will need your session and a name to query on.  The only
+ * difference is that you will use the <tt>GroupFinder.findByName()</tt> method
+ * instead of the <tt>StemFinder.findByName()</tt> method.  As you are looking
+ * for a group with the extension <i>wheel</i> beneath the stem named <i>etc</i>
+ * the name of the group you are looking for will be <i>etc:wheel</i>.
  * </p>
- * <ol>
- * <li>The <a href="./Bootstrap3.html">parent stem</a></li>
- * <li>The <tt>extension</tt> to assign to the new stem</li>
- * <li>The <tt>displayExtension</tt> to assign to the new group.</li>
- * </ol>
  * <p>
- * To actually create the new child stem you will call the
- * <tt>addChildStem()</tt> method on the parent stem.  That will create the new
- * stem beneath the parent and it takes the <tt>extension</tt> and
- * <tt>displayExtension</tt> as parameters.
- * </p>
  * <pre class="eg">
- * Stem etc = rootStem.addChildStem("etc", "Grouper Administration");
+ * Group wheel = GroupFinder.findByName(s, "etc:wheel");
  * </pre>
  * <p>
- * Creating a child stem may throw two possible exceptions:
+ * If the group is not found a <tt>GroupNotFoundException</tt> will be thrown.
  * </p>
- * <pre class="eg">
- * catch (InsufficientPrivilegeException eIP) {
- *   // Not privileged to create stem
- * }
- * catch (StemAddException eNSA) {
- *   // Error adding stem
- * }
- * catch (StemAddException eNSA) {
-* }
  * </pre>
  * @author  blair christensen.
- * @version $Id: Bootstrap5.java,v 1.2 2006-09-25 14:54:22 blair Exp $
- * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/bootstrap/Bootstrap5.java?root=I2MI&view=markup">Source</a>
+ * @version $Id: Bootstrap6.java,v 1.1 2006-09-25 14:54:22 blair Exp $
+ * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/bootstrap/Bootstrap6.java?root=I2MI&view=markup">Source</a>
  * @since   1.1.0
  */
-public class Bootstrap5 {
+public class Bootstrap6 {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Bootstrap5.class);
+  private static final Log LOG = LogFactory.getLog(Bootstrap6.class);
 
 
   // MAIN //
@@ -105,6 +93,16 @@ public class Bootstrap5 {
               LOG.error(eNSA.getMessage());
             }
           }
+          if (etc != null) {
+            Group wheel = null;
+            try {
+              wheel = GroupFinder.findByName(s, "etc:wheel");
+              LOG.info("Found group: name= " + wheel.getName() + " uuid=" + wheel.getUuid());
+            }
+            catch (GroupNotFoundException eGNF) {
+              LOG.info(eGNF.getMessage());
+            }
+          }
 
           s.stop();
           LOG.info("Stopped GrouperSession");
@@ -132,5 +130,5 @@ public class Bootstrap5 {
     System.exit(exit_value);
   } // public static void main(args[])
 
-} // public class Bootstrap5
+} // public class Bootstrap6
 
