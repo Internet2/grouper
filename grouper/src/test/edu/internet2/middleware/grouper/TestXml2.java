@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml2.java,v 1.3 2006-09-22 19:37:31 blair Exp $
+ * @version $Id: TestXml2.java,v 1.4 2006-09-25 18:17:14 blair Exp $
  * @since   1.1.0
  */
 public class TestXml2 extends GrouperTest {
@@ -48,7 +48,9 @@ public class TestXml2 extends GrouperTest {
     LOG.info("testFullExportToStringAndUpdateOnly");
     try {
       // Export - Setup
-      R       r     = R.populateRegistry(2, 2, 2);
+      R       r     = R.populateRegistry(2, 3, 2);
+      Stem    nsA   = r.getStem("a");
+      Stem    nsB   = r.getStem("b");
       Group   gAA   = r.getGroup("a", "a");
       Group   gAB   = r.getGroup("a", "b");
       Group   gBA   = r.getGroup("b", "a");
@@ -59,6 +61,8 @@ public class TestXml2 extends GrouperTest {
       gAB.addMember(  subjB                                 );
       gBA.addMember(  gAA.toSubject()                       );
       gBB.addCompositeMember( CompositeType.UNION, gAA, gAB );
+      assertFindGroupByName( r.rs, nsA.getName() + ":c" ); // make sure !recreated group exists
+      assertFindGroupByName( r.rs, nsB.getName() + ":c" ); // make sure !recreated group exists
       r.rs.stop();
 
       // Export
@@ -73,7 +77,7 @@ public class TestXml2 extends GrouperTest {
       RegistryReset.reset();
 
       // Install Subjects and partial registry
-      r     = r.populateRegistry(1, 2, 2);
+      r     = r.populateRegistry(2, 2, 2);
       subjA = r.getSubject("a");
       subjB = r.getSubject("b");
       r.rs.stop();
@@ -88,15 +92,22 @@ public class TestXml2 extends GrouperTest {
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
 
       Stem  ns  = assertFindStemByName( s, "i2" );
-      Stem  nsA = assertFindStemByName( s, ns.getName() + ":a" );
-      // FIXME 20060922 BUG stem should not be created during update
-      Stem  nsB = assertFindStemByName( s, ns.getName() + ":b" );
+      nsA       = assertFindStemByName( s, ns.getName() + ":a" );
+      nsB       = assertFindStemByName( s, ns.getName() + ":b" );
 
       gAA       = assertFindGroupByName( s, nsA.getName() + ":a" );
       gAB       = assertFindGroupByName( s, nsA.getName() + ":b" );
+      // FIXME 20060925 update does not work properly
+      assertFindGroupByName( s, nsA.getName() + ":c" );
+      gBA       = assertFindGroupByName( s, nsB.getName() + ":a" );
+      gBB       = assertFindGroupByName( s, nsB.getName() + ":b" );
+      // FIXME 20060925 update does not work properly
+      assertFindGroupByName( s, nsB.getName() + ":c" );
 
       assertHasMember( gAA, subjA );
       assertHasMember( gAB, subjB );
+      assertHasMember( gBB, subjA );
+      assertHasMember( gBB, subjB );
 
       s.stop();
     }
