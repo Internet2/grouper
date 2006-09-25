@@ -23,7 +23,7 @@ import  junit.framework.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.1 2006-09-22 19:37:31 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.2 2006-09-25 18:17:14 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -39,6 +39,19 @@ public class GrouperTest extends TestCase {
 
 
   // PUBLIC INSTANCE METHODS //
+
+  /**  
+   * @since   1.1.0
+   */
+  public void assertDoNotFindGroupByName(GrouperSession s, String name) {
+    try {
+      GroupFinder.findByName(s, name);
+      fail("unexpectedly found group by name: " + name);
+    }
+    catch (GroupNotFoundException eGNF) {
+      assertTrue(true);
+    }
+  } // public void assertDoNotFindGroupByName(s, name)
 
   /**  
    * @return  Retrieved {@link Group}.
