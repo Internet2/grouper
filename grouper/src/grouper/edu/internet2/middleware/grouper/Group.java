@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.105 2006-09-26 14:17:41 blair Exp $
+ * @version $Id: Group.java,v 1.106 2006-09-26 14:32:42 blair Exp $
  */
 public class Group extends Owner {
 
@@ -262,9 +262,10 @@ public class Group extends Owner {
             InsufficientPrivilegeException,
             SchemaException
   {
-    GroupValidator.canAddGroupType(this.getSession(), this, type);
+    StopWatch sw = new StopWatch();
+    sw.start();
+    GroupValidator.canAddType(this.getSession(), this, type);
     try {
-      StopWatch sw    = new StopWatch();
       Session   hs    = HibernateHelper.getSession();
       Set       types = this.getGroup_types();
       types.add(type);
@@ -278,10 +279,10 @@ public class Group extends Owner {
         sw
       );
     }
-    catch (Exception e) {
-      String msg = E.GROUP_TYPEADD + type + ": " + e.getMessage();
+    catch (HibernateException eH) {
+      String msg = E.GROUP_TYPEADD + type + ": " + eH.getMessage();
       ErrorLog.error(Group.class, msg);
-      throw new GroupModifyException(msg, e); 
+      throw new GroupModifyException(msg, eH); 
     }
   } // public void addType(type)
 
@@ -703,9 +704,11 @@ public class Group extends Owner {
             InsufficientPrivilegeException,
             SchemaException
   {
+    StopWatch sw = new StopWatch();
+    sw.start();
+    String msg = E.GROUP_TYPEDEL + type + ": "; 
     try {
-      GroupValidator.canDelGroupType(this.getSession(), this, type);
-      StopWatch sw    = new StopWatch();
+      GroupValidator.canDeleteType(this.getSession(), this, type);
       Session   hs    = HibernateHelper.getSession();
       Set       types = this.getGroup_types();
       types.remove(type);
@@ -719,10 +722,15 @@ public class Group extends Owner {
         sw
       );
     }
-    catch (Exception e) {
-      String msg = E.GROUP_TYPEDEL + type + ": " + e.getMessage();
+    catch (HibernateException eH) {
+      msg += eH.getMessage();
       ErrorLog.error(Group.class, msg);
-      throw new GroupModifyException(msg, e); 
+      throw new GroupModifyException(msg, eH);
+    }
+    catch (ModelException eM) {
+      msg += eM.getMessage();
+      ErrorLog.error(Group.class, msg);
+      throw new GroupModifyException(msg, eM);
     }
   } // public void deleteType(type)
 
@@ -805,8 +813,11 @@ public class Group extends Owner {
         );
         filtered.put(f.getName(), attr.getValue());
       }
-      catch (Exception e) {
-        ErrorLog.error(Group.class, E.GROUP_GETATTRS + e.getMessage());
+      catch (InsufficientPrivilegeException eIP) {
+        // ignore
+      }
+      catch (SchemaException eS) {
+        ErrorLog.error(Group.class, E.GROUP_GETATTRS + eS.getMessage());
       }
     }
     return filtered;
