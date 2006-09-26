@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.18 2006-09-13 16:25:33 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.19 2006-09-26 13:38:23 blair Exp $
  */
 public class GroupTypeFinder {
 
@@ -81,7 +81,7 @@ public class GroupTypeFinder {
     if (types.containsKey(name)) {
       return (GroupType) types.get(name);
     }
-    String msg = E.GROUPTYPE_INVALID + name;
+    String msg = E.INVALID_GROUP_TYPE + name;
     ErrorLog.error(GroupTypeFinder.class, msg);
     throw new SchemaException(msg);
   } // public static GroupType find(name)

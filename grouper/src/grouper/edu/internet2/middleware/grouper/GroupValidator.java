@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.17 2006-09-21 16:10:23 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.18 2006-09-26 13:38:23 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -226,7 +226,7 @@ class GroupValidator {
   {
     // Validate that this group has the proper group type for this field
     if (!g.hasType( f.getGroupType() ) ) {
-      throw new SchemaException(E.GROUP_GT + f.getGroupType().toString());
+      throw new SchemaException(E.INVALID_GROUP_TYPE + f.getGroupType().toString());
     }
     PrivilegeResolver.canPrivDispatch(g.getSession(), g, subj, f.getReadPriv());
   } // protected static void canReadField(g, subj, f)
@@ -269,7 +269,7 @@ class GroupValidator {
   {  
     // Validate that this group has the proper group type for this field
     if (!g.hasType( f.getGroupType() ) ) {
-      throw new SchemaException(E.GROUP_GT + f.getGroupType().toString());
+      throw new SchemaException(E.INVALID_GROUP_TYPE + f.getGroupType().toString());
     }
     PrivilegeResolver.canPrivDispatch(g.getSession(), g, subj, f.getWritePriv());
   } // protected static void canWriteField(s, g, subj, f)
