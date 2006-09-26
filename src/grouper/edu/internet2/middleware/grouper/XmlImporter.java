@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.51 2006-09-26 14:17:41 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.52 2006-09-26 15:29:49 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -956,6 +956,7 @@ public class XmlImporter {
         elements[elCount] = (Element) node;
       }
     }
+    String msg = "error process composite for " + U.q(group.getName()) + ": ";
     try {
       Element leftE   = elements[0];
       leftGroup       = _processGroupRef(leftE, group.getParentStem().getName());
@@ -964,15 +965,18 @@ public class XmlImporter {
       Element rightE  = elements[2];
       rightGroup      = _processGroupRef(rightE, group.getParentStem() .getName());
     } 
-    catch (Exception e) {
-      LOG.error("Error processing composite for " + group.getName(), e);
+    catch (GroupNotFoundException eGNF) {
+      LOG.error(msg + eGNF.getMessage());
       return;
     }
     try {
       group.addCompositeMember(compType, leftGroup, rightGroup);
     } 
-    catch (Exception e) {
-      LOG.error("Error adding composite for " + group.getName(), e);
+    catch (InsufficientPrivilegeException eIP)  {
+      LOG.error(msg + eIP.getMessage());
+    }
+    catch (MemberAddException eMA)              {
+      LOG.error(msg + eMA.getMessage());
     }
   } // private void _processComposite(composite, group)
 
@@ -1171,8 +1175,8 @@ public class XmlImporter {
           continue;
         }
       } 
-      catch (Exception e) {
-        LOG.error("Cannot find list " + listName);
+      catch (SchemaException eS) {
+        LOG.error("cannot find list " + U.q(listName) + ": " + eS.getMessage());
         continue;
       }
       //TODO add admin check?

@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.34 2006-09-26 14:17:41 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.35 2006-09-26 15:29:49 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1128,12 +1128,11 @@ public class XmlExporter {
             + "</attribute>"
           );
         }
-      } catch (Exception e) {
-        // TODO Ignoring the exception is probably not for the best
       }
-
+      catch (AttributeNotFoundException eANF) {
+        LOG.error(eANF.getMessage());
+      }
     }
-
     this.xml.puts(padding + "</groupType>");
   } // private void _writeGroupType(group, groupType, padding)
 
@@ -1155,7 +1154,7 @@ public class XmlExporter {
       + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='createSubject'>");
-    _writeSubject(group.getCreateSubject(), padding + "    ");
+    this._writeSubject(group.getCreateSubject(), padding + "    ");
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
       padding + "  <internalAttribute name='createTime'>"
@@ -1169,7 +1168,7 @@ public class XmlExporter {
       + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='modifySubject'>");
-    _writeSubject(group.getModifySubject(), padding + "    ");
+    this._writeSubject(group.getModifySubject(), padding + "    ");
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
       padding + "  <internalAttribute name='modifyTime'>"
@@ -1258,7 +1257,7 @@ public class XmlExporter {
      + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='createSubject'>");
-    _writeSubject(stem.getCreateSubject(), padding + "    ");
+    this._writeSubject(stem.getCreateSubject(), padding + "    ");
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
       padding + "  <internalAttribute name='createTime'>"
@@ -1272,7 +1271,7 @@ public class XmlExporter {
       + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='modifySubject'>");
-    _writeSubject(stem.getModifySubject(), padding + "    ");
+    this._writeSubject(stem.getModifySubject(), padding + "    ");
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
       padding + "  <internalAttribute name='modifyTime'>"
@@ -1370,7 +1369,7 @@ public class XmlExporter {
         }
       }
       subj = member.getMember().getSubject();
-      _writeSubject(subj, " immediate='" + isImmediate + "' ", padding);
+      this._writeSubject(subj, " immediate='" + isImmediate + "' ", padding);
     }
   } // private void _writeMembers(members, group, field, padding)
 
@@ -1397,7 +1396,7 @@ public class XmlExporter {
     this.xml.put(exPadding);
     this.xml.puts("<immediate>" + isImmediate + "</immediate>");
     _writeGroupRef(membership.getGroup(), exPadding, true);
-    _writeSubject(membership.getMember().getSubject(), exPadding);
+    this._writeSubject(membership.getMember().getSubject(), exPadding);
     this.xml.put(padding);
     this.xml.puts("</membership>");
   } // private void _writeMembership(membership, padding)
@@ -1411,7 +1410,7 @@ public class XmlExporter {
     this.xml.put(padding);
     this.xml.puts("<metadata>");
     _writeGroupTypesMetaData(padding + "  ");
-    _writeSubjectSourceMetaData(padding + "  ");
+    this._writeSubjectSourceMetaData(padding + "  ");
     this.xml.put(padding);
     this.xml.puts("</metadata>");
   } // private void _writeMetaData(padding)
@@ -1470,7 +1469,7 @@ public class XmlExporter {
         && 
         (isImmediate || !_optionTrue("export.privs.immediate-only"))) 
       {
-        _writeSubject(subject, " immediate='" + isImmediate + "' ", padding + "  ");
+        this._writeSubject(subject, " immediate='" + isImmediate + "' ", padding + "  ");
       }
     }
     this.xml.put(padding);
@@ -1563,11 +1562,10 @@ public class XmlExporter {
   } // private void _writeStems(stems, padding)
 
   // @since   1.1.0
-  private void _writeSubject(Subject subj, String padding
-  ) 
+  private void _writeSubject(Subject subj, String padding) 
     throws  IOException 
   {
-    _writeSubject(subj, "", padding);
+    this._writeSubject(subj, "", padding);
   } // private void _writeSubject(subj, padding)
 
   // @since   1.1.0
@@ -1605,22 +1603,17 @@ public class XmlExporter {
     Set       values;
     while (exportAttrs.hasNext()) {
       attr = (String) exportAttrs.next();
-      try {
-        values = subj.getAttributeValues(attr);
-        this.xml.put(attrPadding);
-        this.xml.puts("<subjectAttribute name='" + attr + "'>");
-        attrIt = values.iterator();
-        while (attrIt.hasNext()) {
-          attrValue = (String) attrIt.next();
-          this.xml.put(attrPadding + "  ");
-          this.xml.puts("<value>" + attrValue + "</value>");
-        }
-        this.xml.put(attrPadding);
-        this.xml.puts("</subjectAttribute>");
-      } catch (Exception e) {
-        this.xml.put(attrPadding);
-        this.xml.puts("<!-- Problem retrieving attribute '" + attr + "' -->");
+      values = subj.getAttributeValues(attr);
+      this.xml.put(attrPadding);
+      this.xml.puts("<subjectAttribute name='" + attr + "'>");
+      attrIt = values.iterator();
+      while (attrIt.hasNext()) {
+        attrValue = (String) attrIt.next();
+        this.xml.put(attrPadding + "  ");
+        this.xml.puts("<value>" + attrValue + "</value>");
       }
+      this.xml.put(attrPadding);
+      this.xml.puts("</subjectAttribute>");
     }
     this.xml.put(padding);
     this.xml.puts("</subject>");
