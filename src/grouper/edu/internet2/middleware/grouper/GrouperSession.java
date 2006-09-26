@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.37 2006-09-11 14:00:33 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.38 2006-09-26 14:17:41 blair Exp $
  */
 public class GrouperSession {
 
@@ -37,14 +37,14 @@ public class GrouperSession {
   private Date    start_time;
 
 
-  // PRIVATE TRANSIENT INSTANCE VARIABLES //
-  private transient PrivilegeCache    ac    = getAccessCache();
-  private transient PrivilegeCache    nc    = getNamingCache();
-  private transient GrouperSession    ps    = null; // parent session of root session
-  private transient GrouperSession    rs    = null; // inner root session
-  private transient Subject           subj  = null;
-  private transient String            type;
-  private transient String            who;
+  // PRIVATE INSTANCE VARIABLES //
+  private PrivilegeCache  ac    = getAccessCache();
+  private PrivilegeCache  nc    = getNamingCache();
+  private GrouperSession  ps    = null; // parent session of root session
+  private GrouperSession  rs    = null; // inner root session
+  private Subject         subj  = null;
+  private String          type;
+  private String          who;
 
 
   // CONSTRUCTORS //

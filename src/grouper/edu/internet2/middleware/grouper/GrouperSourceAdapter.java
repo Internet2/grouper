@@ -38,16 +38,13 @@ import  java.util.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.17 2006-09-05 19:52:52 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.18 2006-09-26 14:17:41 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   // PRIVATE INSTANCE VARIABLES //
-  private Set _types = new LinkedHashSet();
-
-
-  // PRIVATE TRANSIENT INSTANCE VARIABLES //
-  private transient GrouperSession rs = null;
+  private Set             _types  = new LinkedHashSet();
+  private GrouperSession  rs      = null;
 
 
   // CONSTRUCTORS //

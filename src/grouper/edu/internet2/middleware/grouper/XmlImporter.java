@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.50 2006-09-25 19:49:09 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.51 2006-09-26 14:17:41 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -145,8 +145,17 @@ public class XmlImporter {
       System.out.println( _getUsage() );
       System.exit(0);
     }
-    Properties  rc        = _getArgs(args);
-    XmlImporter importer  = null;
+    Properties rc = new Properties();
+    try {
+      rc = _getArgs(args);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      System.err.println();
+      System.err.println( _getUsage() );
+      System.exit(1);
+    }
+    XmlImporter importer = null;
     try {
       importer  = new XmlImporter(
         GrouperSession.start(
@@ -268,67 +277,62 @@ public class XmlImporter {
   // PRIVATE CLASS METHODS //
 
   // @since   1.1.0
-  private static Properties _getArgs(String[] args) {
+  private static Properties _getArgs(String[] args) 
+    throws  IllegalArgumentException,
+            IllegalStateException
+  {
     Properties rc = new Properties();
 
     String  arg;
     int     inputPos  = 0;
     int     pos       = 0;
 
-    try {
-      while (pos < args.length) {
-        arg = args[pos];
-        if (arg.startsWith("-")) {
-          if (arg.equals("-id")) {
-            if (rc.getProperty(RC_NAME) != null) {
-              throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
-            }
-            rc.setProperty(RC_UUID, args[pos + 1]);
-            pos += 2;
-            continue;
-          } 
-          else if (arg.equals("-name")) {
-            if (rc.getProperty(RC_UUID) != null) {
-              throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
-            }
-            rc.setProperty(RC_NAME, args[pos + 1]);
-            pos += 2;
-            continue;
-          } 
-          else if (arg.equals("-list")) {
-            rc.setProperty(RC_UPDATELIST, "true");
-            pos++;
-            continue;
-          } 
-          else {
-            throw new IllegalArgumentException(XmlUtils.E_UNKNOWN_OPTION + arg);
+    while (pos < args.length) {
+      arg = args[pos];
+      if (arg.startsWith("-")) {
+        if (arg.equals("-id")) {
+          if (rc.getProperty(RC_NAME) != null) {
+            throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
           }
+          rc.setProperty(RC_UUID, args[pos + 1]);
+          pos += 2;
+          continue;
+        } 
+        else if (arg.equals("-name")) {
+          if (rc.getProperty(RC_UUID) != null) {
+            throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
+          }
+          rc.setProperty(RC_NAME, args[pos + 1]);
+          pos += 2;
+          continue;
+        } 
+        else if (arg.equals("-list")) {
+          rc.setProperty(RC_UPDATELIST, "true");
+          pos++;
+          continue;
+        } 
+        else {
+          throw new IllegalArgumentException(XmlUtils.E_UNKNOWN_OPTION + arg);
         }
-        switch (inputPos) {
-        case 0:
-          rc.setProperty(RC_SUBJ, arg);
-          break;
-        case 1:
-          rc.setProperty(RC_IFILE, arg);
-          break;
-        case 2:
-          rc.setProperty(RC_UPROPS, arg);
-          break;
-        case 3:
-          throw new IllegalArgumentException("Too many arguments - " + arg);
-        }
-        pos++;
-        inputPos++;
       }
-      if (inputPos < 1) {
-        throw new IllegalStateException("Too few arguments");
+      switch (inputPos) {
+      case 0:
+        rc.setProperty(RC_SUBJ, arg);
+        break;
+      case 1:
+        rc.setProperty(RC_IFILE, arg);
+        break;
+      case 2:
+        rc.setProperty(RC_UPROPS, arg);
+        break;
+      case 3:
+        throw new IllegalArgumentException("Too many arguments - " + arg);
       }
-    } 
-    catch (Exception ex) {
-      ex.printStackTrace();
-      System.err.println();
-      System.err.println( _getUsage() );
-      System.exit(1);
+      pos++;
+      inputPos++;
+    }
+    if (inputPos < 1) {
+      throw new IllegalStateException("Too few arguments");
     }
     return rc;
   } // private static Properties _getArgs(args)

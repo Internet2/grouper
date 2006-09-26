@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * An object that can have memberships assigned to it.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.17 2006-09-20 19:20:46 blair Exp $
+ * @version $Id: Owner.java,v 1.18 2006-09-26 14:17:41 blair Exp $
  * @since   1.0
  */
 public abstract class Owner {
@@ -36,8 +36,8 @@ public abstract class Owner {
   private long    modify_time;
   private String  uuid;
 
-  // PROTECTED TRANSIENT INSTANCE VARIABLES //
-  protected transient GrouperSession  s;
+  // PROTECTED INSTANCE VARIABLES //
+  protected GrouperSession s;
   
 
   // CONSTRUCTORS //

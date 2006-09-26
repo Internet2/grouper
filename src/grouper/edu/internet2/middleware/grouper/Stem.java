@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.81 2006-09-25 14:37:34 blair Exp $
+ * @version $Id: Stem.java,v 1.82 2006-09-26 14:17:41 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -50,9 +50,9 @@ public class Stem extends Owner {
   private String  stem_name;
 
 
-  // PRIVATE TRANSIENT ISNTANCE VARIABLES //
-  private transient Subject creator;
-  private transient Subject modifier;
+  // PRIVATE INSTANCE VARIABLES //
+  private Subject creator;
+  private Subject modifier;
 
 
   // CONSTRUCTORS //

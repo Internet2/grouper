@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.104 2006-09-21 16:10:23 blair Exp $
+ * @version $Id: Group.java,v 1.105 2006-09-26 14:17:41 blair Exp $
  */
 public class Group extends Owner {
 
@@ -41,13 +41,13 @@ public class Group extends Owner {
   private Stem    parent_stem;
 
 
-  // PRIVATE TRANSIENT INSTANCE VARIABLES //
-  private transient Member          as_member = null;
-  private transient Subject         as_subj   = null;
-  private transient Map             attrs     = new HashMap();
-  private transient Subject         creator;
-  private transient Subject         modifier;
-  private transient Set             types     = null;
+  // PRIVATE INSTANCE VARIABLES //
+  private Member  as_member = null;
+  private Subject as_subj   = null;
+  private Map     attrs     = new HashMap();
+  private Subject creator;
+  private Subject modifier;
+  private Set     types     = null;
 
 
   // CONSTRUCTORS //

@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.5 2006-09-25 19:22:02 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.6 2006-09-26 14:17:41 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -67,7 +67,9 @@ class XmlUtils {
     Properties props = new Properties();
     if (file != null) {
       log.debug("loading user-specified properties: " + file);
-      props.load(new FileInputStream(file));
+      InputStream is = new FileInputStream(file);
+      props.load(is);
+      is.close();
     } 
     return props;
   } // protected static Properties getUserProperties(log, file)
