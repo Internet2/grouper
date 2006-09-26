@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.52 2006-09-11 16:58:02 blair Exp $
+ * @version $Id: Membership.java,v 1.53 2006-09-26 14:17:41 blair Exp $
  */
 public class Membership {
 
@@ -46,8 +46,8 @@ public class Membership {
   private Owner           via_id;
 
   
-  // PRIVATE TRANSIENT INSTANCE VARIABLES //
-  private transient GrouperSession  s;
+  // PRIVATE INSTANCE VARIABLES //
+  private GrouperSession s;
 
 
   // CONSTRUCTORS //

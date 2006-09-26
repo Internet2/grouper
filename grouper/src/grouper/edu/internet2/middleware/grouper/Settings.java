@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.7 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: Settings.java,v 1.8 2006-09-26 14:17:41 blair Exp $
  * @since   1.0
  */
 class Settings {
@@ -34,8 +34,8 @@ class Settings {
                                                   //  0      == 0.9
 
 
-  // PRIVATE TRANSIENT CLASS PROPERTIES //
-  private static transient Settings _s = null;
+  // PRIVATE CLASS PROPERTIES //
+  private static Settings _s = null;
 
 
   // HIBERNATE PROPERTIES //
