@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport1.java,v 1.4 2006-09-21 18:48:19 blair Exp $
+ * @version $Id: TestXmlExport1.java,v 1.5 2006-09-26 19:51:17 blair Exp $
  * @since   1.1.0
  */
 public class TestXmlExport1 extends TestCase {
@@ -46,7 +46,7 @@ public class TestXmlExport1 extends TestCase {
     LOG.info("testSetCustomOption");
     try {
       Properties  custom  = new Properties();
-      custom.setProperty("export.metadata", "true");
+      custom.setProperty("export.metadata", "false");
       XmlExporter xml     = new XmlExporter(
         GrouperSession.start( SubjectFinder.findRootSubject() ),
         custom
@@ -54,7 +54,7 @@ public class TestXmlExport1 extends TestCase {
       Properties  options = xml.getOptions();
       Assert.assertTrue("13 set options", options.size() == 13);
       String k = "export.metadata";
-      String v = "true";
+      String v = "false";
       T.string(k, v, options.getProperty(k));
       k = "export.data";
       v = "true";

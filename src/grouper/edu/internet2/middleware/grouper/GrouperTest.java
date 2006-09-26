@@ -24,7 +24,7 @@ import  junit.framework.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.3 2006-09-26 19:00:40 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.4 2006-09-26 19:51:17 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -72,6 +72,21 @@ public class GrouperTest extends TestCase {
     }
   } // public void assertDoNotFindStemByName(s, name)
 
+  /** 
+   * @since   1.1.0
+   */
+  public Field assertFindField(String name) {
+    Field f = null;
+    try {
+      f = FieldFinder.find(name);
+      assertTrue(true);
+    }
+    catch (SchemaException eS) {
+      fail("field=(" + name + "): " + eS.getMessage());
+    } 
+    return f;
+  } // public Field assertFindField(name)
+
   /**  
    * @return  Retrieved {@link Group}.
    * @since   1.1.0
@@ -88,6 +103,21 @@ public class GrouperTest extends TestCase {
     return g;
   } // public Group assertFindGroupByName(s, name)
 
+  /** 
+   * @since   1.1.0
+   */
+  public GroupType assertFindGroupType(String name) {
+    GroupType type = null;
+    try {
+      type = GroupTypeFinder.find(name);
+      assertTrue(true);
+    }
+    catch (SchemaException eS) {
+      fail("type=(" + name + "): " + eS.getMessage());
+    } 
+    return type;
+  } // public GroupType assertFindGroupType(name)
+
   /**  
    * @return  Retrieved {@link Stem}.
    * @since   1.1.0
@@ -103,6 +133,19 @@ public class GrouperTest extends TestCase {
     }
     return ns;
   } // public Stem assertFindStemByName(s, name)
+
+  /**
+   * @since   1.1.0
+   */
+  public void assertGroupAttribute(Group g, String attr, String exp) {
+    String name = g.getName();
+    try {
+      _assertString(G, name, attr, exp, g.getAttribute(attr));
+    }
+    catch (AttributeNotFoundException eANF) {
+      fail("group=(" + name + ") attr=(" + attr + "): " + eANF.getMessage());
+    }
+  } // public void assertGroupDescription(g, val)
 
   /** 
    * @since   1.1.0
@@ -162,17 +205,30 @@ public class GrouperTest extends TestCase {
    * @since   1.1.0
    */
   public void assertGroupHasMember(Group g, Subject subj, boolean exp) {
-    boolean got = g.hasMember(subj);
-    if (got == exp) {
-      assertTrue(true);
-    }
-    else {
-      _fail(
-        G, g.getName(), SubjectHelper.getPretty(subj)  + " is member",
-        Boolean.toString(exp), Boolean.toString(got)
-      );
-    }
+    assertGroupHasMember(g, subj, Group.getDefaultList(), exp);
   } // public void assertGroupHasMember(g, subj, exp)
+
+  /**
+   * @since   1.1.0
+   */
+  public void assertGroupHasMember(Group g, Subject subj, Field f, boolean exp) {
+    String name = g.getName();
+    try {
+      boolean got = g.hasMember(subj, f);
+      if (got == exp) {
+        assertTrue(true);
+      }
+      else {
+        _fail(
+          G, name, SubjectHelper.getPretty(subj)  + " is member/" + f.getName(),
+          Boolean.toString(exp), Boolean.toString(got)
+        );
+      }
+    }
+    catch (SchemaException eS) {
+      fail("group=(" + name + "): " + eS.getMessage());
+    }
+  } // public void assertGroupHasMember(g, subj, f, exp)
 
   /**
    * @since   1.1.0
@@ -194,6 +250,21 @@ public class GrouperTest extends TestCase {
   public void assertGroupHasRead(Group g, Subject subj, boolean exp) {
     _assertPriv(G, g.getName(), subj, "READ", exp, g.hasRead(subj));
   } // public void assertGroupHasRead(g, subj, exp)
+
+  /**
+   * @since   1.1.0
+   */
+  public void assertGroupHasType(Group g, GroupType type, boolean exp) {
+    boolean got = g.hasType(type);
+    if (got == exp) {
+      assertTrue(true);
+    }
+    else {
+      _fail(
+        G, g.getName(), type.getName(), Boolean.toString(exp), Boolean.toString(got)
+      );
+    }
+  } // public void assertGroupHasType(g, type, exp)
 
   /**
    * @since   1.1.0

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.26 2006-09-26 19:00:39 blair Exp $
+$Id: API.txt,v 1.27 2006-09-26 19:51:17 blair Exp $
 
 ---
 
@@ -232,8 +232,11 @@ $Id: API.txt,v 1.26 2006-09-26 19:00:39 blair Exp $
 ## GrouperTest - SUBJECT TO CHANGE
 * void                  assertDoNotFindGroupByName(Session, name)
 * void                  assertDoNotFindStemByName(Session, name)
+* Field                 assertFindField(name)
 * Group                 assertFindGroupByName(Session, name)
+* GroupType             assertFindGroupType(name)
 * Stem                  assertFindStemByName(Session, name)
+* void                  assertGroupAttribute(Group, attr, exp)
 * void                  assertGroupCreateSubject(Group, Subject)
 * void                  assertGroupCreateTime(Group, Date)
 * void                  assertGroupDescription(Group, description)
@@ -242,9 +245,11 @@ $Id: API.txt,v 1.26 2006-09-26 19:00:39 blair Exp $
 * void                  assertGroupExtension(Group, extension)
 * void                  assertGroupHasAdmin(Group, Subject, expected)
 * void                  assertGroupHasMember(Group, Subject, expected)
+* void                  assertGroupHasMember(Group, Subject, Field, expected)
 * void                  assertGroupHasOptin(Group, Subject, expected)
 * void                  assertGroupHasOptout(Group, Subject, expected)
 * void                  assertGroupHasRead(Group, Subject, expected)
+* void                  assertGroupHasType(Group, GroupType, expected)
 * void                  assertGroupHasUpdate(Group, Subject, expected)
 * void                  assertGroupHasView(Group, Subject, expected)
 * void                  assertGroupName(Group, name)

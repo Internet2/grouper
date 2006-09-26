@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport0.java,v 1.4 2006-09-21 18:48:19 blair Exp $
+ * @version $Id: TestXmlExport0.java,v 1.5 2006-09-26 19:51:17 blair Exp $
  * @since   1.0
  */
 public class TestXmlExport0 extends TestCase {
@@ -55,7 +55,7 @@ public class TestXmlExport0 extends TestCase {
       Assert.assertNotNull("options !null", options);
       Assert.assertTrue("13 set options", options.size() == 13);
       String k = "export.metadata";
-      String v = "false";
+      String v = "true";
       T.string(k, v, options.getProperty(k));
       k = "export.data";
       v = "true";
