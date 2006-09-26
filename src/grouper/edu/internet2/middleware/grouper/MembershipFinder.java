@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.50 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.51 2006-09-26 14:43:08 blair Exp $
  */
 public class MembershipFinder {
 
@@ -66,11 +66,14 @@ public class MembershipFinder {
       );
       return ms;
     }
-    catch (Exception e) {
-      // @exception GroupNotFoundException
-      // @exception InsufficientPrivilegeException
-      // @exception MemberNotFoundException
-      throw new MembershipNotFoundException(e.getMessage(), e);
+    catch (GroupNotFoundException eGNF)         {
+      throw new MembershipNotFoundException(eGNF.getMessage(), eGNF);
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new MembershipNotFoundException(eIP.getMessage(), eIP);
+    }
+    catch (MemberNotFoundException eMNF)        {
+      throw new MembershipNotFoundException(eMNF.getMessage(), eMNF);
     }
   } // public static Membership findCompositeMembership(s, g, m)
 
@@ -147,10 +150,8 @@ public class MembershipFinder {
     throws  MembershipNotFoundException,
             SchemaException
   {
-    /* 
-     * @filtered  true
-     * @session   true
-     */
+    // @filtered  true
+    // @session   true
     GrouperSessionValidator.validate(s);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
@@ -161,11 +162,14 @@ public class MembershipFinder {
       );
       return ms;
     }
-    catch (Exception e) {
-      // @exception GroupNotFoundException
-      // @exception InsufficientPrivilegeException
-      // @exception MemberNotFoundException
-      throw new MembershipNotFoundException(e.getMessage(), e);
+    catch (GroupNotFoundException eGNF)         {
+      throw new MembershipNotFoundException(eGNF.getMessage(), eGNF);
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new MembershipNotFoundException(eIP.getMessage(), eIP);
+    }
+    catch (MemberNotFoundException eMNF)        {
+      throw new MembershipNotFoundException(eMNF.getMessage(), eMNF);
     }
   } // public static Membership findImmediateMembership(s, g, m, f)
 

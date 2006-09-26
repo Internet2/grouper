@@ -18,13 +18,14 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.53 2006-09-26 14:17:41 blair Exp $
+ * @version $Id: Membership.java,v 1.54 2006-09-26 14:43:08 blair Exp $
  */
 public class Membership {
 
@@ -321,8 +322,11 @@ public class Membership {
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
       EL.addEffMembers(s, o, subj, f, mof.getEffSaves());
     }
-    catch (Exception e) {
-      throw new MemberAddException(e.getMessage(), e);
+    catch (HibernateException eH) {
+      throw new MemberAddException(eH.getMessage(), eH);
+    }
+    catch (ModelException eM)     {
+      throw new MemberAddException(eM.getMessage(), eM);
     }    
   } // protected static void addImmediateMembership(s, o, subj, f)
 
@@ -341,8 +345,11 @@ public class Membership {
       imm.setSession(s);
       return MemberOf.delImmediate(s, o, imm, m);
     }
-    catch (Exception e) {
-      throw new MemberDeleteException(e.getMessage(), e);
+    catch (MembershipNotFoundException eMSNF) {
+      throw new MemberDeleteException(eMSNF.getMessage(), eMSNF);
+    }
+    catch (ModelException eM)                 {
+      throw new MemberDeleteException(eM.getMessage(), eM);
     } 
   } // protected static void delImmediateMembership(s, o, subj, f)
 
