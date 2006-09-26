@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.82 2006-09-26 14:17:41 blair Exp $
+ * @version $Id: Stem.java,v 1.83 2006-09-26 15:15:09 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -139,6 +139,7 @@ public class Stem extends Owner {
     catch (HibernateException eH) {
       throw new GroupAddException(eH.getMessage(), eH);
     }
+    String msg = "unable to add group " + this.getName() + ": " + extension + ": ";
     try {
       Group child = new Group(this.getSession(), this, extension, displayExtension);
       // Set parent
@@ -163,11 +164,14 @@ public class Stem extends Owner {
 
       return child; // And return the newly created group
     }
-    catch (Exception e) {
-      throw new GroupAddException(
-        "Unable to add group " + this.getName() + ":" + extension + ": " 
-        + e.getMessage(), e
-      );
+    catch (HibernateException eH)           {
+      throw new GroupAddException(msg + eH.getMessage(), eH);
+    }
+    catch (SchemaException eS)              {
+      throw new GroupAddException(msg + eS.getMessage(), eS);
+    }
+    catch (SourceUnavailableException eSU)  {
+      throw new GroupAddException(msg + eSU.getMessage(), eSU);
     }
   } // public Group addChildGroup(extension, displayExtension)
 
@@ -284,8 +288,14 @@ public class Stem extends Owner {
       sw.stop();
       EventLog.info(this.getSession(), M.STEM_DEL + U.q(name), sw);
     }
-    catch (Exception e) {
-      throw new StemDeleteException(e.getMessage(), e);
+    catch (HibernateException eH)         {
+      throw new StemDeleteException(eH.getMessage(), eH);
+    }
+    catch (RevokePrivilegeException eRP)  {
+      throw new StemDeleteException(eRP.getMessage(), eRP);
+    }
+    catch (SchemaException eS)            {
+      throw new StemDeleteException(eS.getMessage(), eS);
     }
   } // public void delete()
 
@@ -784,18 +794,17 @@ public class Stem extends Owner {
     if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
+    String msg = "unable to set description: ";
     try {
       this.setStem_description(value);
       this.setModified();
       HibernateHelper.save(this);
+      sw.stop();
+      EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_D, value, sw);
     }
-    catch (Exception e) {
-      throw new StemModifyException(
-        "unable to set description: " + e.getMessage(), e
-      );
+    catch (HibernateException eH) {
+      throw new StemModifyException(msg + eH.getMessage(), eH);
     }
-    sw.stop();
-    EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_D, value, sw);
   } // public void setDescription(value)
 
   /**
@@ -835,6 +844,7 @@ public class Stem extends Owner {
     if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
+    String msg = "unable to set displayExtension: ";
     try {
       Set objects = new HashSet();
       _initializeChildGroupsAndStems(this);
@@ -860,10 +870,8 @@ public class Stem extends Owner {
       HibernateHelper.save(objects);
       this.setSession(orig);
     }
-    catch (Exception e) {
-      throw new StemModifyException(
-        "unable to set displayExtension: " + e.getMessage(), e
-      );
+    catch (HibernateException eH) {
+      throw new StemModifyException(msg + eH.getMessage(), eH);
     }
     sw.stop();
     // Reset for logging purposes
@@ -991,10 +999,14 @@ public class Stem extends Owner {
 
       g.setSession(orig);
     }
-    catch (Exception e) {
-      throw new GroupAddException(
-        "group created but unable to grant ADMIN to creator: " + e.getMessage(), e
-      );
+    catch (GrantPrivilegeException eGP)         {
+      throw new GroupAddException(eGP.getMessage(), eGP);
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new GroupAddException(eIP.getMessage(), eIP);
+    }
+    catch (SchemaException eS)                  {
+      throw new GroupAddException(eS.getMessage(), eS);
     }
   } // private void _grantDefaultPrivsUponCreate(g)
 
@@ -1024,17 +1036,23 @@ public class Stem extends Owner {
 
       ns.setSession(orig);
     }
-    catch (Exception e) {
-      throw new StemAddException(
-        "stem created but unable to grant STEM to creator: " + e.getMessage(), e
-      );
+    catch (GrantPrivilegeException eGP)         {
+      throw new StemAddException(eGP.getMessage(), eGP);
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new StemAddException(eIP.getMessage(), eIP);
+    }
+    catch (SchemaException eS)                  {
+      throw new StemAddException(eS.getMessage(), eS);
     }
   } // private void _grantDefaultPrivsUponCreate(ns)
 
   private void _grantOptionalPrivUponCreate(
     GrouperSession root, Object o, Privilege p, String opt
   ) 
-    throws  Exception
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException,
+            SchemaException
   {
     Subject       all = SubjectFinder.findAllSubject();
     if (GrouperConfig.getProperty(opt).equals(GrouperConfig.BT)) {

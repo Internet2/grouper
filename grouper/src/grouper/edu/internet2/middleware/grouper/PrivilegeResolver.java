@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.69 2006-09-11 14:00:33 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.70 2006-09-26 15:15:09 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -236,12 +236,14 @@ import  java.util.*;
         }
         mships.add(ms);
       }
-      catch (Exception e) {
-        // @exception GroupNotFoundException
-        // @exception InsufficientPrivilegeException
-        // @exception SchemaException
-        // @exception StemNotFoundException
-        // ignore
+      catch (GroupNotFoundException eGNF)         {
+        // TODO 20060926 ignore?
+      }
+      catch (InsufficientPrivilegeException eIP)  {
+        // TODO 20060926 ignore?
+      }
+      catch (SchemaException eS)                  {
+        // TODO 20060926 ignore?
       }
     }
     return mships;
@@ -263,8 +265,15 @@ import  java.util.*;
       }
       return m;
     }
-    catch (Exception e) {
-      throw new ModelException(e.getMessage(), e);
+    catch (GroupNotFoundException eGNF)         {
+      throw new ModelException(eGNF.getMessage(), eGNF);
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      // TODO 20060926 why do i rethrow the eIP as an eM?
+      throw new ModelException(eIP.getMessage(), eIP);
+    }
+    catch (MemberNotFoundException eMNF)        {
+      throw new ModelException(eMNF.getMessage(), eMNF);
     }
   } // protected static Member canViewSubject(s, subj)
 
