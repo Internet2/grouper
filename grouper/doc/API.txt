@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.25 2006-09-22 19:37:31 blair Exp $
+$Id: API.txt,v 1.26 2006-09-26 19:00:39 blair Exp $
 
 ---
 
@@ -230,9 +230,35 @@ $Id: API.txt,v 1.25 2006-09-22 19:37:31 blair Exp $
 * void                  stop()
 
 ## GrouperTest - SUBJECT TO CHANGE
+* void                  assertDoNotFindGroupByName(Session, name)
+* void                  assertDoNotFindStemByName(Session, name)
 * Group                 assertFindGroupByName(Session, name)
 * Stem                  assertFindStemByName(Session, name)
-* void                  assertHasMember(Group, Subject)
+* void                  assertGroupCreateSubject(Group, Subject)
+* void                  assertGroupCreateTime(Group, Date)
+* void                  assertGroupDescription(Group, description)
+* void                  assertGroupDisplayExtension(Group, displayExtension)
+* void                  assertGroupDisplayName(Group, displayName)
+* void                  assertGroupExtension(Group, extension)
+* void                  assertGroupHasAdmin(Group, Subject, expected)
+* void                  assertGroupHasMember(Group, Subject, expected)
+* void                  assertGroupHasOptin(Group, Subject, expected)
+* void                  assertGroupHasOptout(Group, Subject, expected)
+* void                  assertGroupHasRead(Group, Subject, expected)
+* void                  assertGroupHasUpdate(Group, Subject, expected)
+* void                  assertGroupHasView(Group, Subject, expected)
+* void                  assertGroupName(Group, name)
+* void                  assertGroupUuid(Group, uuid)
+* void                  assertStemCreateSubject(Stem, Subject)
+* void                  assertStemCreateTime(Stem, Date)
+* void                  assertStemDescription(Stem, description)
+* void                  assertStemDisplayExtension(Stem, displayExtension)
+* void                  assertStemDisplayName(Stem, displayName)
+* void                  assertStemExtension(Stem, extension)
+* void                  assertStemHasCreate(Stem, Subject, expected)
+* void                  assertStemHasStem(Stem, Subject, expected)
+* void                  assertStemName(Stem, name)
+* void                  assertStemUuid(Stem, uuid)
 
 ## GroupFinder
 * Group                 GroupFinder.findByName(GrouperSession, name)
