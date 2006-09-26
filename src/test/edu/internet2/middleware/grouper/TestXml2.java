@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml2.java,v 1.4 2006-09-25 18:17:14 blair Exp $
+ * @version $Id: TestXml2.java,v 1.5 2006-09-26 19:00:40 blair Exp $
  * @since   1.1.0
  */
 public class TestXml2 extends GrouperTest {
@@ -104,10 +104,10 @@ public class TestXml2 extends GrouperTest {
       // FIXME 20060925 update does not work properly
       assertFindGroupByName( s, nsB.getName() + ":c" );
 
-      assertHasMember( gAA, subjA );
-      assertHasMember( gAB, subjB );
-      assertHasMember( gBB, subjA );
-      assertHasMember( gBB, subjB );
+      assertGroupHasMember( gAA, subjA, true );
+      assertGroupHasMember( gAB, subjB, true );
+      assertGroupHasMember( gBB, subjA, true );
+      assertGroupHasMember( gBB, subjB, true );
 
       s.stop();
     }

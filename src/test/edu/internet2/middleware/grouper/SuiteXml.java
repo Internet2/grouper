@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test XML.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXml.java,v 1.5 2006-09-21 19:57:55 blair Exp $
+ * @version $Id: SuiteXml.java,v 1.6 2006-09-26 19:00:40 blair Exp $
  * @since   1.0
  */
 public class SuiteXml extends TestCase {
@@ -35,9 +35,17 @@ public class SuiteXml extends TestCase {
     TestSuite suite = new TestSuite();        
     suite.addTest( SuiteXmlExport.suite() );
     suite.addTest( SuiteXmlImport.suite() );
-    suite.addTestSuite( TestXml0.class  );  // Export: Full/String; Import: Full/Root/String
-    suite.addTestSuite( TestXml1.class  );  // Export: Full/String; Import: Full/Anchored/String
-    suite.addTestSuite( TestXml2.class  );  // Export: Full/String; Import: Update/Anchored/String
+    suite.addTestSuite( TestXml0.class  );  // TODO 20060926 deprecate? -- Export: Full/String; Import: Full/Root/String
+    suite.addTestSuite( TestXml1.class  );  // TODO 20060926 deprecate? -- Export: Full/String; Import: Full/Anchored/String
+    suite.addTestSuite( TestXml2.class  );  // TODO 20060926 deprecate? -- Export: Full/String; Import: Update/Anchored/String
+    suite.addTestSuite( TestXml3.class  );  // Export: export()/Full -- Import: load()/Full -- stem + attrs + privs
+    suite.addTestSuite( TestXml4.class  );  // Export: export()/Full -- Import: load()/Full -- stem: granted priv
+    suite.addTestSuite( TestXml5.class  );  // Export: export()/Full -- Import: load()/Full -- group + attrs + privs
+    suite.addTestSuite( TestXml6.class  );  // Export: export()/Full -- Import: load()/Full -- group: granted priv
+    suite.addTestSuite( TestXml7.class  );  // Export: export()/Full -- Import: load()/Full -- group: imm, eff and composite
+    // TODO 20060926  suite.addTestSuite( TestXml8.class  );  // Export: export()/Full -- Import: load()/Full -- group: custom type, custom attr, custom list
+
+    // XmlExporter
     return suite;
   } // static public Test suite()
 
