@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.18 2006-09-26 13:38:23 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.19 2006-09-26 14:32:42 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -43,18 +43,6 @@ class GroupValidator {
       throw new ModelException(E.GROUP_ACTM);
     }
   } // protected static void canAddCompositeMember(g, c)
-
-  // @since   1.1.0
-  protected static void canAddGroupType(GrouperSession s, Group g, GroupType type) 
-    throws  GroupModifyException,
-            InsufficientPrivilegeException,
-            SchemaException
-  {
-    if (g.hasType(type)) {
-      throw new GroupModifyException(E.GROUP_HAS_TYPE);
-    }
-    GroupValidator.canModGroupType(s, g, type);
-  } // protected static void canAddGroupType(s, g, type)
 
   // @since 1.0
   protected static void canAddMember(Group g, Subject subj, Field f)
@@ -79,6 +67,18 @@ class GroupValidator {
       throw new MemberAddException(E.GROUP_AMTC);
     }
   } // protected static void canAddMember(g, subj, f)
+
+  // @since   1.1.0
+  protected static void canAddType(GrouperSession s, Group g, GroupType type) 
+    throws  GroupModifyException,
+            InsufficientPrivilegeException,
+            SchemaException
+  {
+    if (g.hasType(type)) {
+      throw new GroupModifyException(E.GROUP_HAS_TYPE);
+    }
+    GroupValidator.canModGroupType(s, g, type);
+  } // protected static void canAddType(s, g, type)
 
   // @since 1.0
   protected static void canDelAttribute(Group g, Field f) 
@@ -129,8 +129,8 @@ class GroupValidator {
     }
   } // protected static void canDelMember(g, subj, f)
 
-  // @since 1.0
-  protected static void canDelGroupType(GrouperSession s, Group g, GroupType type) 
+  // @since 1.1.0
+  protected static void canDeleteType(GrouperSession s, Group g, GroupType type) 
     throws  InsufficientPrivilegeException,
             ModelException,
             SchemaException
@@ -139,7 +139,7 @@ class GroupValidator {
       throw new ModelException("does not have type");
     }
     canModGroupType(s, g, type);
-  } // protected static void canDelGroupType(s, g, type)
+  } // protected static void canDeleteGroupType(s, g, type)
 
   // @throws  AttributeNotFoundException
   // @since   1.1.0
