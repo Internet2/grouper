@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.29 2006-09-22 16:39:52 blair Exp $
+ * @version $Id: E.java,v 1.30 2006-09-26 13:38:23 blair Exp $
  * @since   1.0
  */
 class E {
@@ -40,6 +40,7 @@ class E {
   protected static final String INVALID_ATTR_NAME         = "invalid attribute name: ";
   protected static final String INVALID_ATTR_VALUE        = "invalid attribute value: ";
   protected static final String INVALID_DOC               = "null document";
+  protected static final String INVALID_GROUP_TYPE        = "invalid group type: ";
   protected static final String MEMBER_NEITHER_FOUND_NOR_CREATED  = "member neither found nor created: ";
   protected static final String SYSTEM_MAINTAINED         = "system maintained: ";
   protected static final String UNKNOWN_PRIVILEGE         = "unknown privilege: ";
@@ -100,7 +101,6 @@ class E {
   protected static final String GROUP_DMFC                = "cannot delete member from composite membership";
   protected static final String GROUP_DRA                 = "cannot delete required attribute: ";
   protected static final String GROUP_GETATTRS            = "error retrieving group attributes: ";
-  protected static final String GROUP_GT                  = "invalid group type: ";
   protected static final String GROUP_HAS_TYPE            = "group already has type";
   protected static final String GROUP_HEM                 = "error checking for effective membership: ";
   protected static final String GROUP_HIM                 = "error checking for immediate membership: ";
@@ -127,7 +127,6 @@ class E {
   protected static final String GROUPTYPE_FIELDNODELMISS  = "type unexpectedly does not have field";
   protected static final String GROUPTYPE_FIELDNODELTYPE  = "cannot delete field of type: ";
   protected static final String GROUPTYPE_FINDALL         = "unable to find group types: ";
-  protected static final String GROUPTYPE_INVALID         = "invalid group type: ";
   protected static final String GROUPTYPE_NOADD           = "subject not privileged to add group types";
   protected static final String GROUPTYPE_NODEL           = "subject not privileged to delete group types";
   protected static final String GROUPTYPE_NODELSYS        = "cannot delete system group type: ";
