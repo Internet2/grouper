@@ -1,5 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
+  <metadata>
+    <groupTypesMetaData>
+
+      <groupTypeDef name='base'>
+
+       <field name='admins'
+               required='false'
+               type='access'
+               readPriv='admin'
+               writePriv='admin'/>
+
+       <field name='description'
+               required='false'
+               type='attribute'
+               readPriv='read'
+               writePriv='admin'/>
+
+       <field name='displayExtension'
+               required='true'
+               type='attribute'
+               readPriv='view'
+               writePriv='admin'/>
+
+       <field name='displayName'
+               required='true'
+               type='attribute'
+               readPriv='view'
+               writePriv='system'/>
+
+       <field name='extension'
+               required='true'
+               type='attribute'
+               readPriv='view'
+               writePriv='admin'/>
+
+       <field name='members'
+               required='false'
+               type='list'
+               readPriv='read'
+               writePriv='update'/>
+
+       <field name='name'
+               required='true'
+               type='attribute'
+               readPriv='view'
+               writePriv='system'/>
+
+       <field name='optins'
+               required='false'
+               type='access'
+               readPriv='update'
+               writePriv='update'/>
+
+       <field name='optouts'
+               required='false'
+               type='access'
+               readPriv='update'
+               writePriv='update'/>
+
+       <field name='readers'
+               required='false'
+               type='access'
+               readPriv='admin'
+               writePriv='admin'/>
+
+       <field name='updaters'
+               required='false'
+               type='access'
+               readPriv='admin'
+               writePriv='admin'/>
+
+       <field name='viewers'
+               required='false'
+               type='access'
+               readPriv='admin'
+               writePriv='admin'/>
+
+      </groupTypeDef>
+      </groupTypesMetaData>
+
+
+    <subjectSourceMetaData>
+
+      <source id='g:gsa'
+              name='Grouper: Group Source Adapter'
+              class='edu.internet2.middleware.grouper.GrouperSourceAdapter'>
+        <subjectType name='group'/>
+      </source>
+
+      <source id='g:isa'
+              name='Grouper: Internal Source Adapter'
+              class='edu.internet2.middleware.grouper.InternalSourceAdapter'>
+        <subjectType name='application'/>
+      </source>
+
+      <source id='jdbc'
+              name='JDBC Source Adapter'
+              class='edu.internet2.middleware.subject.provider.JDBCSourceAdapter'>
+        <subjectType name='person'/>
+      </source>
+
+    </subjectSourceMetaData>
+
+  </metadata>
   <data>
 
       <!--i2-->
@@ -7,23 +111,53 @@
             displayExtension='internet2'
             name='i2'
             displayName='internet2'
-            id='de60bca7-1690-442b-af25-1960da55cc57'>
+            id='0f530e0d-5b9e-4dd5-9604-700c579ca921'>
         <description></description>
+
+      <internalAttributes>
+        <internalAttribute name='parentStem'></internalAttribute>
+        <internalAttribute name='createSource'></internalAttribute>
+        <internalAttribute name='createSubject'>
+          <subject id='GrouperSystem' type='application' source='g:isa'/>
+        </internalAttribute>
+        <internalAttribute name='createTime'>1159380679185</internalAttribute> <!-- Wed Sep 27 13:11:19 CDT 2006 -->
+        <internalAttribute name='modifySource'></internalAttribute>
+        <internalAttribute name='modifySubject'>
+          <subject id='GrouperSystem' type='application' source='g:isa'/>
+        </internalAttribute>
+        <internalAttribute name='modifyTime'>1159380679188</internalAttribute> <!-- Wed Sep 27 13:11:19 CDT 2006 -->
+      </internalAttributes>
+
 
         <!--i2:a-->
         <stem extension='a'
               displayExtension='stem a'
               name='i2:a'
               displayName='internet2:stem a'
-              id='ead9796c-0d6b-4512-94b5-d3bbd9b08f59'>
+              id='2db8a949-3a64-4054-bbec-170de51c71ef'>
           <description></description>
+
+        <internalAttributes>
+          <internalAttribute name='parentStem'>i2</internalAttribute>
+          <internalAttribute name='createSource'></internalAttribute>
+          <internalAttribute name='createSubject'>
+            <subject id='GrouperSystem' type='application' source='g:isa'/>
+          </internalAttribute>
+          <internalAttribute name='createTime'>1159380678284</internalAttribute> <!-- Wed Sep 27 13:11:18 CDT 2006 -->
+          <internalAttribute name='modifySource'></internalAttribute>
+          <internalAttribute name='modifySubject'>
+            <subject id='GrouperSystem' type='application' source='g:isa'/>
+          </internalAttribute>
+          <internalAttribute name='modifyTime'>1159380679277</internalAttribute> <!-- Wed Sep 27 13:11:19 CDT 2006 -->
+        </internalAttributes>
+
 
           <!--i2:a:b-->
           <group extension='b'
                  displayExtension='group b'
                 name='i2:a:b'
                 displayName='internet2:stem a:group b'
-                id='548d1b86-8c0f-47d0-a863-bb1e9e04d5dc'>
+                id='38366773-5085-47c5-b755-d38547ee990e'>
             <description></description>
 
             <internalAttributes>
@@ -32,12 +166,12 @@
               <internalAttribute name='createSubject'>
                 <subject id='GrouperSystem' type='application' source='g:isa'/>
               </internalAttribute>
-              <internalAttribute name='createTime'>Fri Sep 22 10:49:51 CDT 2006</internalAttribute>
+              <internalAttribute name='createTime'>1159380678400</internalAttribute> <!-- Wed Sep 27 13:11:18 CDT 2006 -->
               <internalAttribute name='modifySource'></internalAttribute>
               <internalAttribute name='modifySubject'>
                 <subject id='GrouperSystem' type='application' source='g:isa'/>
               </internalAttribute>
-              <internalAttribute name='modifyTime'>Fri Sep 22 10:49:51 CDT 2006</internalAttribute>
+              <internalAttribute name='modifyTime'>1159380679495</internalAttribute> <!-- Wed Sep 27 13:11:19 CDT 2006 -->
             </internalAttributes>
 
 
@@ -62,7 +196,7 @@
                  displayExtension='group a'
                 name='i2:a:a'
                 displayName='internet2:stem a:group a'
-                id='9201cc44-b729-4174-8aed-5da40680a89d'>
+                id='5567b826-d3e4-4d85-a921-5e43209d2109'>
             <description></description>
 
             <internalAttributes>
@@ -71,12 +205,12 @@
               <internalAttribute name='createSubject'>
                 <subject id='GrouperSystem' type='application' source='g:isa'/>
               </internalAttribute>
-              <internalAttribute name='createTime'>Fri Sep 22 10:49:50 CDT 2006</internalAttribute>
+              <internalAttribute name='createTime'>1159380678309</internalAttribute> <!-- Wed Sep 27 13:11:18 CDT 2006 -->
               <internalAttribute name='modifySource'></internalAttribute>
               <internalAttribute name='modifySubject'>
                 <subject id='GrouperSystem' type='application' source='g:isa'/>
               </internalAttribute>
-              <internalAttribute name='modifyTime'>Fri Sep 22 10:49:51 CDT 2006</internalAttribute>
+              <internalAttribute name='modifyTime'>1159380679514</internalAttribute> <!-- Wed Sep 27 13:11:19 CDT 2006 -->
             </internalAttributes>
 
 
@@ -104,15 +238,30 @@
               displayExtension='stem b'
               name='i2:b'
               displayName='internet2:stem b'
-              id='b07bb20a-3801-44f1-a1e2-562421a1eb48'>
+              id='2dd0452d-4c46-410a-b86b-338acf16cf2f'>
           <description></description>
+
+        <internalAttributes>
+          <internalAttribute name='parentStem'>i2</internalAttribute>
+          <internalAttribute name='createSource'></internalAttribute>
+          <internalAttribute name='createSubject'>
+            <subject id='GrouperSystem' type='application' source='g:isa'/>
+          </internalAttribute>
+          <internalAttribute name='createTime'>1159380678461</internalAttribute> <!-- Wed Sep 27 13:11:18 CDT 2006 -->
+          <internalAttribute name='modifySource'></internalAttribute>
+          <internalAttribute name='modifySubject'>
+            <subject id='GrouperSystem' type='application' source='g:isa'/>
+          </internalAttribute>
+          <internalAttribute name='modifyTime'>1159380679387</internalAttribute> <!-- Wed Sep 27 13:11:19 CDT 2006 -->
+        </internalAttributes>
+
 
           <!--i2:b:a-->
           <group extension='a'
                  displayExtension='group a'
                 name='i2:b:a'
                 displayName='internet2:stem b:group a'
-                id='8da3cbd4-140e-40b9-8c35-fcc18d7c62f1'>
+                id='a01766fa-2a2e-43f9-9981-fdd3215fe675'>
             <description></description>
 
             <internalAttributes>
@@ -121,17 +270,17 @@
               <internalAttribute name='createSubject'>
                 <subject id='GrouperSystem' type='application' source='g:isa'/>
               </internalAttribute>
-              <internalAttribute name='createTime'>Fri Sep 22 10:49:51 CDT 2006</internalAttribute>
+              <internalAttribute name='createTime'>1159380678485</internalAttribute> <!-- Wed Sep 27 13:11:18 CDT 2006 -->
               <internalAttribute name='modifySource'></internalAttribute>
               <internalAttribute name='modifySubject'>
                 <subject id='GrouperSystem' type='application' source='g:isa'/>
               </internalAttribute>
-              <internalAttribute name='modifyTime'>Fri Sep 22 10:49:52 CDT 2006</internalAttribute>
+              <internalAttribute name='modifyTime'>1159380679545</internalAttribute> <!-- Wed Sep 27 13:11:19 CDT 2006 -->
             </internalAttributes>
 
 
             <list field='members'  groupType='base'>
-              <subject identifier='i2:a:a' type='group' source='g:gsa' immediate='true'  id='9201cc44-b729-4174-8aed-5da40680a89d'/>
+              <subject identifier='i2:a:a' type='group' source='g:gsa' immediate='true'  id='5567b826-d3e4-4d85-a921-5e43209d2109'/>
             </list> <!--/field=members-->
 
           <privileges type='read'>
@@ -151,7 +300,7 @@
                  displayExtension='group b'
                 name='i2:b:b'
                 displayName='internet2:stem b:group b'
-                id='a7b882f3-daf9-4d9d-82e8-66b07abde389'>
+                id='b02dd112-4553-43c4-9a09-91f86b563038'>
             <description></description>
 
             <internalAttributes>
@@ -160,24 +309,24 @@
               <internalAttribute name='createSubject'>
                 <subject id='GrouperSystem' type='application' source='g:isa'/>
               </internalAttribute>
-              <internalAttribute name='createTime'>Fri Sep 22 10:49:51 CDT 2006</internalAttribute>
+              <internalAttribute name='createTime'>1159380678532</internalAttribute> <!-- Wed Sep 27 13:11:18 CDT 2006 -->
               <internalAttribute name='modifySource'></internalAttribute>
               <internalAttribute name='modifySubject'>
                 <subject id='GrouperSystem' type='application' source='g:isa'/>
               </internalAttribute>
-              <internalAttribute name='modifyTime'>Fri Sep 22 10:49:52 CDT 2006</internalAttribute>
+              <internalAttribute name='modifyTime'>1159380679571</internalAttribute> <!-- Wed Sep 27 13:11:19 CDT 2006 -->
             </internalAttributes>
 
 
             <list field='members'  groupType='base'>
               <composite>
-                <groupRef id='9201cc44-b729-4174-8aed-5da40680a89d'
+                <groupRef id='5567b826-d3e4-4d85-a921-5e43209d2109'
                         name='i2:a:a'
                  displayName='internet2:stem a:group a'/>
 
                 <compositeType>union</compositeType>
 
-                <groupRef id='548d1b86-8c0f-47d0-a863-bb1e9e04d5dc'
+                <groupRef id='38366773-5085-47c5-b755-d38547ee990e'
                         name='i2:a:b'
                  displayName='internet2:stem a:group b'/>
               </composite>
@@ -208,9 +357,9 @@
   </exportParams>
 
   <exportInfo>
-    <start>Fri Sep 22 10:50:01 CDT 2006</start>
-    <end>Fri Sep 22 10:50:03 CDT 2006</end>
-    <duration>1</duration>
+    <start>Wed Sep 27 13:13:08 CDT 2006</start>
+    <end>Wed Sep 27 13:13:09 CDT 2006</end>
+    <duration>0</duration>
     <options>
       <option key='export.data'>true</option>
       <option key='export.group.custom-attributes'>true</option>
@@ -219,12 +368,12 @@
       <option key='export.group.lists.immediate-only'>true</option>
       <option key='export.group.members'>true</option>
       <option key='export.group.members.immediate-only'>true</option>
-      <option key='export.metadata'>false</option>
+      <option key='export.metadata'>true</option>
       <option key='export.privs.access'>true</option>
       <option key='export.privs.for-parents'>false</option>
       <option key='export.privs.immediate-only'>false</option>
       <option key='export.privs.naming'>true</option>
-      <option key='export.stem.internal-attributes'>false</option>
+      <option key='export.stem.internal-attributes'>true</option>
     </options>
   </exportInfo>
 </registry>
