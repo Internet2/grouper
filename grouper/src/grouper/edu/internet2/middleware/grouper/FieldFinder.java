@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.19 2006-09-13 18:31:01 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.20 2006-09-27 14:15:30 blair Exp $
  */
 public class FieldFinder {
 
@@ -79,7 +79,7 @@ public class FieldFinder {
   public static Set findAll() 
     throws  GrouperRuntimeException
   {
-    // TODO Why doesn't this refresh the known fields? Caching may be one of the reasons.
+    // TODO 20060927 Refactor caching and move to session-context.
     Set fields = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();

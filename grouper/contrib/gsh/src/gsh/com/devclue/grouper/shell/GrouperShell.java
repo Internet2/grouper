@@ -14,7 +14,7 @@ import  java.util.*;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.11 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.12 2006-09-27 14:15:30 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -235,7 +235,7 @@ public class GrouperShell {
       throw new GrouperShellException(E.I_IMPORT + eBBB.getMessage(), eBBB);
     }
     while ( (cmd = r.next()) != null) {
-      // TODO Replace these with something cleaner
+      // TODO 20060927 Replace these with something cleaner
       if ( cmd.startsWith("#") || cmd.startsWith("//") ) {
         continue;
       }

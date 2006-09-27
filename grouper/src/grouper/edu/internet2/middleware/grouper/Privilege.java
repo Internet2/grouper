@@ -23,7 +23,7 @@ import  java.util.*;
  * Privilege schema specification.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.15 2006-06-19 17:00:57 blair Exp $
+ * @version $Id: Privilege.java,v 1.16 2006-09-27 14:15:30 blair Exp $
  */
 public class Privilege implements Serializable {
 
@@ -83,7 +83,6 @@ public class Privilege implements Serializable {
     return ACCESS;
   } // public static Set getAccessPrivs()
 
-  // TODO Should this be public?
   public static Privilege getInstance(String name) {
     return (Privilege) PRIVS.get(name);
   } // public static Privilege getInstance(name)

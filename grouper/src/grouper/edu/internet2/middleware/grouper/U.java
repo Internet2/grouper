@@ -22,7 +22,7 @@ import  java.util.*;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.5 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: U.java,v 1.6 2006-09-27 14:15:30 blair Exp $
  * @since   1.0
  */
 class U {
@@ -37,7 +37,7 @@ class U {
   // This isn't the best place for this but until I have a better idea...
   // @since   1.1.0
   protected static String constructName(String stem, String extn) {
-    // TODO Why don't I do validation here?
+    // TODO 20060927 I should perform validation here, no?
     if (stem.equals(Stem.ROOT_EXT)) {
       return extn;
     }

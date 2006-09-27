@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberOf.java,v 1.3 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: SuiteMemberOf.java,v 1.4 2006-09-27 14:15:30 blair Exp $
  */
 public class SuiteMemberOf extends TestCase {
   
@@ -32,7 +32,7 @@ public class SuiteMemberOf extends TestCase {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( TestMemberOf0.class   );  // eff mship uuid does not change
     suite.addTestSuite( TestMemberOf1.class   );  // Forward MemberOf deletion.
-    // TODO Split
+    // TODO 20060927 Split pre-existing tests
     suite.addTestSuite(TestMemberOf.class   );
     return suite;
   } // static public Test suite()

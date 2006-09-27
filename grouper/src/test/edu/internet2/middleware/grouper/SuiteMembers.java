@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMembers.java,v 1.2 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: SuiteMembers.java,v 1.3 2006-09-27 14:15:30 blair Exp $
  */
 public class SuiteMembers extends TestCase {
 
@@ -54,7 +54,7 @@ public class SuiteMembers extends TestCase {
     suite.addTestSuite( TestMember21.class );   // fail: Member.canView(Group) == null
     suite.addTestSuite( TestMember22.class );   // fail: Member.canView(Group) == !priv'd
     suite.addTestSuite( TestMember23.class );   // Member.canView(Group) 
-    // TODO Split
+    // TODO 20060927 Split pre-existing tests
     suite.addTestSuite( TestMember.class        );
     suite.addTestSuite( TestMemberToGroup.class );
     return suite;

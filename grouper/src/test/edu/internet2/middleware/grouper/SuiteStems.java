@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteStems.java,v 1.7 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: SuiteStems.java,v 1.8 2006-09-27 14:15:30 blair Exp $
  */
 public class SuiteStems extends TestCase {
 
@@ -42,7 +42,7 @@ public class SuiteStems extends TestCase {
     suite.addTestSuite( TestStem8.class   );  // modify attrs - mod'd
     suite.addTestSuite( TestStem10.class  );  // getPrivs(), getStemmers(), getCreators() as root
     suite.addTestSuite( TestStem11.class  );  // BUGFIX:GCODE:10 getPrivs(), getStemmers(), getCreators() as !root
-    // TODO Split!
+    // TODO 20060927 Split pre-existing tests
     suite.addTestSuite( TestStem.class              );
     suite.addTestSuite( TestStemAddChildGroup.class );
     suite.addTestSuite( TestStemAddChildStem.class  );

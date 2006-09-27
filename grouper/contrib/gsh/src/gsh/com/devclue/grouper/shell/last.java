@@ -12,7 +12,7 @@ import  bsh.*;
  * Run previous {@link GrouperShell} commands.
  * <p/>
  * @author  blair christensen.
- * @version $Id: last.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: last.java,v 1.3 2006-09-27 14:15:30 blair Exp $
  * @since   0.0.1
  */
 public class last {
@@ -37,7 +37,7 @@ public class last {
     GrouperShell.setOurCommand(i, true);
     ShellHelper.last(i, LAST); // As -1 will be the currently eval'd
                                // command, -2 will get us the prior command.
-                               // TODO Yes, I know, this sucks.
+                               // Yes, I know, this sucks.
   } // public static void invoke(i, stack, parent, name)
 
   /**
