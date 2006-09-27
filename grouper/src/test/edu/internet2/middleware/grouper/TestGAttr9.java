@@ -16,13 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr9.java,v 1.1 2006-09-21 16:10:23 blair Exp $
+ * @version $Id: TestGAttr9.java,v 1.2 2006-09-27 13:56:54 blair Exp $
  * @since   1.1.0
  */
 public class TestGAttr9 extends TestCase {

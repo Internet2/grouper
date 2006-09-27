@@ -19,12 +19,11 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.util.*;
-import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml8.java,v 1.1 2006-09-26 19:51:17 blair Exp $
+ * @version $Id: TestXml8.java,v 1.2 2006-09-27 13:56:54 blair Exp $
  * @since   1.1.0
  */
 public class TestXml8 extends GrouperTest {
