@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml8.java,v 1.2 2006-09-27 13:56:54 blair Exp $
+ * @version $Id: TestXml8.java,v 1.3 2006-09-27 19:18:37 blair Exp $
  * @since   1.1.0
  */
 public class TestXml8 extends GrouperTest {
@@ -90,8 +90,7 @@ public class TestXml8 extends GrouperTest {
       attr  = assertFindField("custom attribute");
       list  = assertFindField("custom list");
       assertGroupHasType( gA, type, true );
-      // FIXME 20060926 not being set - assertGroupAttribute( gA, attr.getName(), attr.getName() );
-      assertGroupAttribute( gA, attr.getName(), GrouperConfig.EMPTY_STRING );
+      assertGroupAttribute( gA, attr.getName(), attr.getName() );
       assertGroupHasMember( gA, subjA, list, true );
       s.stop();
     }
