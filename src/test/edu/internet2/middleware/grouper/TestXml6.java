@@ -16,15 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.util.*;
-import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml6.java,v 1.1 2006-09-26 19:00:40 blair Exp $
+ * @version $Id: TestXml6.java,v 1.2 2006-09-27 13:56:54 blair Exp $
  * @since   1.1.0
  */
 public class TestXml6 extends GrouperTest {
@@ -59,9 +57,7 @@ public class TestXml6 extends GrouperTest {
       boolean has_a   = gA.hasAdmin( SubjectFinder.findAllSubject() );
       boolean has_oi  = gA.hasOptin( SubjectFinder.findAllSubject() );
       boolean has_oo  = gA.hasOptout( SubjectFinder.findAllSubject() );
-      boolean has_r   = gA.hasRead( SubjectFinder.findAllSubject() );
       boolean has_u   = gA.hasUpdate( SubjectFinder.findAllSubject() );
-      boolean has_v   = gA.hasView( SubjectFinder.findAllSubject() );
       r.rs.stop();
 
       // Export

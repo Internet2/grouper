@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml0.java,v 1.1 2006-09-21 18:40:13 blair Exp $
+ * @version $Id: TestXml0.java,v 1.2 2006-09-27 13:56:54 blair Exp $
  * @since   1.1.0
  */
 public class TestXml0 extends TestCase {
@@ -73,7 +73,7 @@ public class TestXml0 extends TestCase {
       RegistryReset.reset();
 
       // Install Subjects
-      r     = r.populateRegistry(0, 0, 2);
+      r     = R.populateRegistry(0, 0, 2);
       subjA = r.getSubject("a");
       subjB = r.getSubject("b");
       r.rs.stop();

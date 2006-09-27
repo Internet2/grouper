@@ -35,7 +35,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.53 2006-09-26 19:51:17 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.54 2006-09-27 13:56:54 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -57,7 +57,6 @@ public class XmlImporter {
   private Map             importedGroups  = new HashMap();
   private String          importRoot; // Anchor import here
   private List            membershipLists = new ArrayList();
-  private List            memberships     = new ArrayList();
   private List            namingPrivLists = new ArrayList();
   private Properties      options         = new Properties();
   private GrouperSession  s;
