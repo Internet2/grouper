@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.55 2006-09-27 17:54:32 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.56 2006-09-27 18:16:32 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -388,32 +388,32 @@ public class XmlImporter {
 
   // @since   1.1.0
   private static String _getUsage() {
-    return  "Usage:"
-            + "args: -h,            Prints this message"
-            + "args: subjectIdentifier [(-id <id> | -name <name> | -list)]"
-            + "      filename [properties]"
-            + ""
-            + "  subjectIdentifier, Identifies a Subject 'who' will create a"
-            + "                     GrouperSession"
-            + "  -id,               The Uuid of a Stem, into which, data will be"
-            + "                     imported*"
-            + "  -name,             The name of a Stem, into which, data will be"
-            + "                     imported*"
-            + "                     *If no -id / -name is specified, use=ROOT stem"
-            + "  -list,             File contains a flat list of Stems or Groups"
-            + "                     which may be updated. Missing Stems and Groups"
-            + "                     are not created"
-            + "  filename,          The file to import"
-            + "  properties,        The name of a standard Java properties file "
-            + "                     which configures the import. Check Javadoc for"
-            + "                     a list of properties. If 'properties' is not "
-            + "                      specified, XmlImporter will look for "
-            + "                     'import.properties' in the working directory. "
-            + "                     If this file does not exist XmlImporter will "
-            + "                     look on the classpath. If 'properties' is not "
-            + "                     specified and 'import.properties' cannot be "
-            + "                     found and import options are not included in "
-            + "                     the XML, the import will fail."
+    return  "Usage:"                                                                + GrouperConfig.NL
+            + "args: -h,            Prints this message"                            + GrouperConfig.NL
+            + "args: subjectIdentifier [(-id <id> | -name <name> | -list)]"         + GrouperConfig.NL
+            + "      filename [properties]"                                         + GrouperConfig.NL
+            +                                                                         GrouperConfig.NL
+            + "  subjectIdentifier, Identifies a Subject 'who' will create a"       + GrouperConfig.NL
+            + "                     GrouperSession"                                 + GrouperConfig.NL
+            + "  -id,               The Uuid of a Stem, into which, data will be"   + GrouperConfig.NL
+            + "                     imported*"                                      + GrouperConfig.NL
+            + "  -name,             The name of a Stem, into which, data will be"   + GrouperConfig.NL
+            + "                     imported*"                                      + GrouperConfig.NL
+            + "                     *If no -id / -name is specified, use=ROOT stem" + GrouperConfig.NL
+            + "  -list,             File contains a flat list of Stems or Groups"   + GrouperConfig.NL
+            + "                     which may be updated. Missing Stems and Groups" + GrouperConfig.NL
+            + "                     are not created"                                + GrouperConfig.NL
+            + "  filename,          The file to import"                             + GrouperConfig.NL
+            + "  properties,        The name of a standard Java properties file "   + GrouperConfig.NL
+            + "                     which configures the import. Check Javadoc for" + GrouperConfig.NL
+            + "                     a list of properties. If 'properties' is not "  + GrouperConfig.NL
+            + "                      specified, XmlImporter will look for "         + GrouperConfig.NL
+            + "                     'import.properties' in the working directory. " + GrouperConfig.NL
+            + "                     If this file does not exist XmlImporter will "  + GrouperConfig.NL
+            + "                     look on the classpath. If 'properties' is not " + GrouperConfig.NL
+            + "                     specified and 'import.properties' cannot be "   + GrouperConfig.NL
+            + "                     found and import options are not included in "  + GrouperConfig.NL
+            + "                     the XML, the import will fail."                 + GrouperConfig.NL
             ;
   } // private static String _getUsage()
 
