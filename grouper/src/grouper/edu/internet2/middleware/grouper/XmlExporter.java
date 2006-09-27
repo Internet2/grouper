@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.39 2006-09-27 18:16:32 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.40 2006-09-27 19:46:57 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -676,7 +676,6 @@ public class XmlExporter {
     this.includeParent      = includeParent;
     this.writeStemsCounter  = 0;
     Date    before          = _writeHeader();
-    String  padding         = "  ";
     if (!relative) {
       fromStem = null;
     }
@@ -697,12 +696,12 @@ public class XmlExporter {
     }
 
     if (_optionTrue("export.data")) {
-      _exportData(gos, padding);
+      _exportData(gos, this.xml.getPadding() );
     } 
     else {
       LOG.debug("export.data=false, so no data exported");
     }
-    _writeExportParams(gos, padding);
+    this._writeExportParams(gos);
     _writeFooter(before);
   } // private synchronized void _export(gos, relative, includeParent)
 
@@ -890,32 +889,27 @@ public class XmlExporter {
   } // private void _writeComposite(comp, padding)
 
   // @since   1.1.0
-  private void _writeExportParams(
-    Owner groupOrStem, String padding
-  ) 
+  private void _writeExportParams(Owner o)
     throws  IOException
   {
     LOG.debug("Writing export params to XML");
-    this.xml.put(padding);
-    this.xml.puts("<exportParams>");
-    this.xml.put(padding + "  ");
-    if (groupOrStem instanceof Group) {
-      this.xml.put("<node type='group'>");
+    this.xml.puts0("<exportParams>");
+    this.xml.indent();
+    String s = "<node type='";
+    if (o instanceof Group) {
+      s += "group'>";
     }
     else {
-      this.xml.put("<node type='stem'>");
+      s += "stem'>";
     }
-    this.xml.put(groupOrStem.getName());
-    this.xml.puts("</node>");
-    this.xml.put(padding + "  ");
-    this.xml.puts("<relative>" + isRelative + "</relative>");
-    if (groupOrStem instanceof Stem) {
-      this.xml.put(padding + "  ");
-      this.xml.puts("<includeParent>" + includeParent + "</includeParent>");
+    this.xml.puts0( s + o.getName() + "</node>" );
+    this.xml.puts0("<relative>" + isRelative + "</relative>");
+    if (o instanceof Stem) {
+      this.xml.puts0("<includeParent>" + includeParent + "</includeParent>");
     }
-    this.xml.put(padding);
-    this.xml.puts("</exportParams>");
-  } // private void _writeExportParams(groupOrStem, padding)
+    this.xml.undent();
+    this.xml.puts0("</exportParams>");
+  } // private void _writeExportParams(o)
 
   // @since   1.1.0
   private void _writeFieldMetaData(Field field, String padding) 
