@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml3.java,v 1.2 2006-09-27 13:56:54 blair Exp $
+ * @version $Id: TestXml3.java,v 1.3 2006-09-27 17:54:32 blair Exp $
  * @since   1.1.0
  */
 public class TestXml3 extends GrouperTest {
@@ -88,13 +88,13 @@ public class TestXml3 extends GrouperTest {
       assertStemHasCreate( nsA, SubjectFinder.findAllSubject(), has_c );
       assertStemHasStem( nsA, SubjectFinder.findAllSubject(), has_s );
       assertStemCreateSubject( nsA, val_c );
-      // FIXME 20060926 assertStemCreateTime( nsA, val_ct );
+      assertStemCreateTime( nsA, val_ct );
       assertStemDescription( nsA, val_d );
       assertStemDisplayExtension( nsA, val_de );
       assertStemDisplayName( nsA, val_dn );
       assertStemExtension( nsA, val_e );
       assertStemName( nsA, val_n );
-      // FIXME 20060926 assertStemUuid( nsA, val_u );
+      assertStemUuid( nsA, val_u );
       s.stop();
     }
     catch (Exception e) {

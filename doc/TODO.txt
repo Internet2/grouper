@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.50 2006-09-22 19:37:31 blair Exp $
+$Id: TODO.txt,v 1.51 2006-09-27 17:54:32 blair Exp $
 
 ---
 
@@ -14,7 +14,6 @@ $Id: TODO.txt,v 1.50 2006-09-22 19:37:31 blair Exp $
 * BUGFIX    `XmlImporter.update()`
 * CODE      improved xml* integration (including logging)
     * set "create" attributes
-    * import+export local subjects
 * CODE      *HibernateSubject* should not throw *HibernateException*s
 * CODE      *GroupFinder.findByAttribute(s, attr, val)* [GCODE#14]
 * CODE      Expand functionality-and-use of `GrouperTest`
@@ -50,7 +49,7 @@ $Id: TODO.txt,v 1.50 2006-09-22 19:37:31 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.50 2006-09-22 19:37:31 blair Exp $
+$Id: TODO.txt,v 1.51 2006-09-27 17:54:32 blair Exp $
 
 
 

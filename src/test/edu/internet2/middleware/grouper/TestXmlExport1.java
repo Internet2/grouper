@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport1.java,v 1.5 2006-09-26 19:51:17 blair Exp $
+ * @version $Id: TestXmlExport1.java,v 1.6 2006-09-27 17:54:32 blair Exp $
  * @since   1.1.0
  */
 public class TestXmlExport1 extends TestCase {
@@ -87,7 +87,7 @@ public class TestXmlExport1 extends TestCase {
       v = "true";
       T.string(k, v, options.getProperty(k));
       k = "export.stem.internal-attributes";
-      v = "false";
+      v = "true";
       T.string(k, v, options.getProperty(k));
       k = "export.privs.for-parents";
       v = "false";

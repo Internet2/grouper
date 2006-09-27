@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.27 2006-09-26 19:51:54 blair Exp $
+$Id: NEWS.txt,v 1.28 2006-09-27 17:54:32 blair Exp $
 
 ---
 
@@ -9,6 +9,10 @@ $Id: NEWS.txt,v 1.27 2006-09-26 19:51:54 blair Exp $
 Released: TBD
 
 ## Changes
+* UPDATE: `XmlImporter` now sets group-and-stem creation times, creation
+          subjects and UUIDs to the values contained in the XML export.
+* UPDATE: `XmlExporter` now exports creation and modify times in milliseconds
+          since the epoch.  Human-friendly dates are placed within a comment.
 * UPDATE: `XmlExporter` now exports registry metadata by default.
 * BUGFIX: Deleted group attribute values were still available after deletion
           within the session that performed the deletion.

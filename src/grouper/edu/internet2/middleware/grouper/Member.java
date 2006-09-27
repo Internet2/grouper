@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.65 2006-09-13 16:25:33 blair Exp $
+ * @version $Id: Member.java,v 1.66 2006-09-27 17:54:32 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -52,15 +52,17 @@ public class Member implements Serializable {
   // CONSTRUCTORS //
 
   protected Member(Subject subj) {
-    // Persistent Properties
-    this.setSubject_id( subj.getId() );
-    this.setSubject_source( subj.getSource().getId() );
-    this.setSubject_type( subj.getType().getName() );
-    this.setMember_id( GrouperUuid.getUuid() );
+    this( subj.getId(), subj.getSource().getId(), subj.getType().getName() );
+  } // protected Member(subj)
 
-    // Transient Properties  
-    this.subj = subj;
-  } // protected Member()
+  // @since   1.1.0
+  protected Member(String id, String src, String type) {
+    // Persistent Properties
+    this.setSubject_id( id );
+    this.setSubject_source( src );
+    this.setSubject_type( type );
+    this.setMember_id( GrouperUuid.getUuid() );
+  } // protected Member(id, src, type)
 
   // Default constructor for Hibernate.
   // @since   1.0
@@ -1246,13 +1248,13 @@ public class Member implements Serializable {
   // PROTECTED CLASS METHODS //
 
   // Add a new Member to the Registry
-  protected static Member addMember(Subject subj) 
+  // @since   1.1.0
+  protected static Member addMember(String id, String src, String type)
     throws MemberNotFoundException 
   {
     try {
-      Member m = new Member(subj);
+      Member m = new Member(id, src, type);
       HibernateHelper.save(m);
-      m.setSubject(subj);
       return m;
     }
     catch (HibernateException eH) {
@@ -1260,7 +1262,7 @@ public class Member implements Serializable {
         "unable to save member: " + eH.getMessage(), eH
       );
     }
-  } // protected static Member addMember(subj)
+  } // protected static Member addMember(id, src, type)
 
 
   // PROTECTED INSTANCE METHODS //

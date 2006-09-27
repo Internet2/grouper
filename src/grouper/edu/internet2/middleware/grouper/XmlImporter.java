@@ -19,8 +19,12 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.net.*;
+import  java.text.DateFormat;
+import  java.text.SimpleDateFormat;
+import  java.text.ParseException;
 import  java.util.*;
 import  javax.xml.parsers.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.logging.*;
 import  org.w3c.dom.*;
 
@@ -35,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.54 2006-09-27 13:56:54 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.55 2006-09-27 17:54:32 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -592,6 +596,16 @@ public class XmlImporter {
     return props;
   } // private Properties _getImportedOptionsFromXml()
 
+  // @since   1.1.0
+  private Collection _getInternalAttributes(Element e) {
+    Set   attrs = new LinkedHashSet();
+    List  l     = new ArrayList( this._getImmediateElements(e, "internalAttributes" ) );
+    if (l.size() == 1) {
+      attrs.addAll( this._getImmediateElements( (Element) l.get(0), "internalAttribute" ) );
+    }
+    return attrs;
+  } // private Collection _getInternalAttributes(e)
+
   // @since   1.0
   private Subject _getSubjectById(String id, String type) 
     throws  SubjectNotFoundException,
@@ -667,6 +681,9 @@ public class XmlImporter {
     catch (GroupNotFoundException eGNF)         {
       throw new GrouperException(eGNF.getMessage(), eGNF);
     }
+    catch (HibernateException eH)               {
+      throw new GrouperException(eH.getMessage(), eH);
+    }
     catch (InsufficientPrivilegeException eIP)  {
       throw new GrouperException(eIP.getMessage(), eIP);
     }
@@ -705,6 +722,23 @@ public class XmlImporter {
     return "true".equals(options.getProperty(key));
   } // private boolean _optionTrue(key)
 
+  // @since   1.1.0
+  private Date _parseTime(String s) 
+    throws  ParseException
+  {
+    Date d = null;
+    try {
+      // First check to see if we are using the new export date format (ms since epoch)
+      d = new Date( Long.parseLong(s) );
+    }
+    catch (NumberFormatException eNF) {
+      // Guess not.  Try to parse the old format and hope for the best.
+      DateFormat df = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+      d = df.parse(s);
+    }
+    return d;
+  } // private Date _parseTime(s)
+
   // For each stem list and process any child stems. List and process any child groups.
   // @since   1.1.0
   private void _process(Element e, String stem) 
@@ -712,6 +746,7 @@ public class XmlImporter {
             GroupAddException,
             GrouperException,
             GroupModifyException,
+            HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
             StemAddException,
@@ -1010,6 +1045,7 @@ public class XmlImporter {
             GroupAddException,
             GrouperException,
             GroupModifyException,
+            HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
             StemNotFoundException
@@ -1030,6 +1066,7 @@ public class XmlImporter {
   private void _processGroupCreate(Element e, String stem) 
     throws  GroupAddException,
             GroupModifyException,
+            HibernateException,
             InsufficientPrivilegeException,
             StemNotFoundException
   {
@@ -1042,8 +1079,9 @@ public class XmlImporter {
     if (Validator.isNotNullOrBlank(description)) {
       child.setDescription(description);
     }
-    // TODO 20060922 "c"?
-    this.importedGroups.put(child.getName(), "c");
+    this._setUuid(child, e);
+    this._setInternalAttributes(child, e);
+    this.importedGroups.put(child.getName(), "c"); // TODO 20060922 "c"?
   } // private void _processGroupCreate(e, stem)
 
   // @since   1.1.0
@@ -1053,19 +1091,13 @@ public class XmlImporter {
     Group   group   = null;
     String  tagName = groupE.getTagName();
     if (!"groupRef".equals(tagName)) {
-      throw new IllegalStateException(
-        "Expected tag: <groupRef> but found <" + tagName + ">"
-      );
+      throw new IllegalStateException("Expected tag: <groupRef> but found <" + tagName + ">");
     }
     String name = groupE.getAttribute(GrouperConfig.ATTR_N);
     if (XmlUtils.isEmpty(name)) {
-      throw new IllegalStateException(
-        "Expected 'name' atribute for <groupRef>"
-      );
+      throw new IllegalStateException("Expected 'name' atribute for <groupRef>");
     }
-    String actualName = this._getAbsoluteName(name, stem);
-    group             = GroupFinder.findByName(s, actualName);
-    return group;
+    return GroupFinder.findByName( s, this._getAbsoluteName(name, stem) );
   } // private Group _processGroupRef(groupE, stem)
 
   // @since   1.1.0
@@ -1074,6 +1106,7 @@ public class XmlImporter {
             GroupAddException,
             GrouperException,
             GroupModifyException,
+            HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
             StemAddException,
@@ -1530,6 +1563,7 @@ public class XmlImporter {
             GroupAddException,
             GrouperException,
             GroupModifyException,
+            HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
             StemAddException,
@@ -1550,7 +1584,8 @@ public class XmlImporter {
 
   // @since   1.1.0
   private void _processPathCreate(Element e, String stem) 
-    throws  InsufficientPrivilegeException,
+    throws  HibernateException,
+            InsufficientPrivilegeException,
             StemAddException,
             StemModifyException,
             StemNotFoundException
@@ -1566,10 +1601,12 @@ public class XmlImporter {
       e.getAttribute(GrouperConfig.ATTR_E),
       e.getAttribute(GrouperConfig.ATTR_DE)
     );
-    String description = e.getAttribute(GrouperConfig.ATTR_D);
+    String  description   = e.getAttribute(GrouperConfig.ATTR_D);
     if (Validator.isNotNullOrBlank(description)) {
       child.setDescription(description);
     }
+    this._setUuid(child, e);
+    this._setInternalAttributes(child, e);
   } // private void _processPathCreate(e, stem)
 
   // @since   1.1.0
@@ -1600,6 +1637,7 @@ public class XmlImporter {
             GroupAddException,
             GrouperException,
             GroupModifyException,
+            HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
             StemAddException,
@@ -1631,6 +1669,80 @@ public class XmlImporter {
     xmlOptions.putAll(this.options);  // add current to xml
     this.options = xmlOptions;        // replace current with merged options
   } // private void _processProperties()
+
+  // @since   1.1.0
+  private boolean _setCreateSubject(Owner o, Element e) {
+    Element e0  = this._getImmediateElement(e, "subject");
+    String  msg = "error setting createSubject: ";
+    try {
+      o.setCreator_id( 
+        MemberFinder.findBySubject(
+          e0.getAttribute("id"), e0.getAttribute("source"), e0.getAttribute("type")
+        )
+      );
+      return true;
+    }
+    catch (MemberNotFoundException eMNF) {
+      msg += eMNF.getMessage();
+    }
+    LOG.error(msg);
+    return false;
+  } // private boolean _setCreateSubject(o, e)
+
+  // @since   1.1.0
+  private boolean _setCreateTime(Owner o, Element e) {
+    String msg = "error setting createTime: ";
+    try { 
+      o.setCreate_time( this._parseTime( _getText(e) ).getTime() );
+      return true;
+    }
+    catch (GrouperException eG) {
+      msg += eG.getMessage();
+    }
+    catch (ParseException eP)   {
+      msg += eP.getMessage();
+    }
+    LOG.error(msg);
+    return false;
+  } // private boolean _setCreateTime(o, e)
+
+  // @since   1.1.0
+  private void _setInternalAttributes(Owner o, Element e) 
+    throws  HibernateException
+  {
+    String    attr, val;
+    boolean   modified    = false;
+    Element   e0;
+    Iterator  it          = this._getInternalAttributes(e).iterator();
+    while (it.hasNext()) {
+      e0    = (Element) it.next();
+      attr  = e0.getAttribute("name");
+      if      (attr.equals("createSubject"))  {
+        if (this._setCreateSubject(o, e0)) {
+          modified = true;
+        }
+      }
+      else if (attr.equals("createTime"))     {
+        if (this._setCreateTime(o, e0)) {
+          modified = true;
+        }
+      }
+    }
+    if (modified) {
+      HibernateHelper.save(o);
+    }
+  } // private void _setInternalAttributesAttributes(ns, e)
+
+  // @since   1.1.0
+  private void _setUuid(Owner o, Element e) 
+    throws  HibernateException
+  {
+    String uuid = e.getAttribute("id");
+    if (Validator.isNotNullOrBlank(uuid)) {
+      o.setUuid(uuid);
+      HibernateHelper.save(o);
+    }
+  } // private void _setUuid(o, e)
 
 
   // GETTERS //
