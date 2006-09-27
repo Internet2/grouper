@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.57 2006-09-27 18:20:46 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.58 2006-09-27 19:18:37 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -746,6 +746,7 @@ public class XmlImporter {
             GroupAddException,
             GrouperException,
             GroupModifyException,
+            GroupNotFoundException,
             HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
@@ -887,78 +888,78 @@ public class XmlImporter {
   } // private void _processAccessPrivLists()
 
   // @since   1.1.0
-  private void _processAttributes(Element e, String stem) 
+  private void _processAttributes(Element e, String group) 
     throws  AttributeNotFoundException,
             GroupModifyException,
             GroupNotFoundException,
             InsufficientPrivilegeException,
             SchemaException
   {
-    Element groupTypes = this._getImmediateElement(e, "groupTypes");
-    if (groupTypes == null) {
+    Element   elTypes = this._getImmediateElement(e, "groupTypes");
+    if (elTypes == null) {
       return;
     }
-    Collection  types               = this._getImmediateElements(groupTypes, "groupType");
-    Element     groupType;
-    Iterator    typesIterator       = types.iterator();
-    Collection  attributes;
-    Element     attribute;
-    String      name;
-    String      value;
-    String      origValue           = null;
-    Iterator    attributesIterator;
-    Group       group               = GroupFinder.findByName(s, stem);
-    GroupType   grouperGroupType    = null;
-    while (typesIterator.hasNext()) {
-      groupType = (Element) typesIterator.next();
-      if ("base".equals(groupType.getAttribute("name"))) {
-        continue;
-      }
-      try {
-        grouperGroupType = GroupTypeFinder.find(groupType.getAttribute("name"));
-      } 
-      catch (Exception ex) {
-        continue;
-      }
-      if (!group.hasType(grouperGroupType)) {
-        if (_optionTrue("import.metadata.apply-new-group-types")) {
-          group.addType(grouperGroupType);
-        } 
-        else {
-          continue;
-        }
-      }
-      attributes = this._getImmediateElements(groupType, "attribute");
-      attributesIterator = attributes.iterator();
-      Field field = null;
-      while (attributesIterator.hasNext()) {
-        attribute = (Element) attributesIterator.next();
-        name      = attribute.getAttribute("name");
-        field     = FieldFinder.find(name);
-        if (!group.canWriteField(field)) {
-          LOG.debug(
-            "No write privilege. Attribute [" + name + "] for [" + group.getName() + "] ignored"
-          );
-          continue;
-        }
-        value = ((Text) attribute.getFirstChild()).getData();
-        try {
-          origValue = group.getAttribute(name);
-        }   
-        catch (Exception ex) {
-          // TODO Figure out why this is ignored once I refactor this class
-        }
-        if (
-          value != null
-          && !value.equals(origValue)
-          && (XmlUtils.isEmpty(origValue) || _optionTrue("import.data.update-attributes"))
-        )
-        {
-          group.setAttribute(name, value);
-        }
-      }
+    Group     g       = GroupFinder.findByName(s, group);
+    Iterator  it      = this._getImmediateElements(elTypes, "groupType").iterator();
+    while (it.hasNext()) {
+      this._processAttributesHandleType( g, (Element) it.next() );
     }
   } // private void _processAttributes(e, stem) 
+
+  // @since   1.1.10
+  private void _processAttributesHandleType(Group g, Element e)
+    throws  AttributeNotFoundException,
+            GroupModifyException,
+            InsufficientPrivilegeException
+  {
+    String name = e.getAttribute("name");
+    if (!name.equals("base")) {
+      try {
+        GroupType gt = GroupTypeFinder.find(name);
+        if (!g.hasType(gt)) {
+          if (this._optionTrue("import.data.apply-new-group-types")) {
+            g.addType(gt);
+          }
+        }
+        this._processAttributesHandleAttributes(g, e);
+      }
+      catch (SchemaException eS) {
+        LOG.error(eS.getMessage());
+      }
+    }
+  } // privae void _processAttributesHandleType(g, e)
+
+  // @since   1.1.0
+  private void _processAttributesHandleAttributes(Group g, Element e) 
+    throws  AttributeNotFoundException,
+            GroupModifyException,
+            InsufficientPrivilegeException,
+            SchemaException
+  {
+    Element   elAttr;
+    Field     f;
+    String    name, orig, val;
+    Iterator  it      = this._getImmediateElements(e, "attribute").iterator();
+    while (it.hasNext()) {
+      elAttr  = (Element) it.next();
+      name    = elAttr.getAttribute("name");
+      f       = FieldFinder.find(name);
+      if (!g.canWriteField(f)) {
+        LOG.debug("cannot write (" + name + ") on (" + g.getName() + ")");
+        continue;
+      }
+      orig    = g.getAttribute(name); 
+      val     = ( (Text) elAttr.getFirstChild() ).getData();
+      if (
+            Validator.isNotNullOrBlank(val)
+        &&  !val.equals(orig)
+        &&  ( XmlUtils.isEmpty(orig) || this._optionTrue("import.data.update-attributes") ) 
+      )
+      {
+        g.setAttribute(name, val);
+      } 
+    }
+  } // private void _processAttributesHandleAttributes()
 
   // @since   1.1.0
   private void _processComposite(Element composite, Group group)
@@ -1045,6 +1046,7 @@ public class XmlImporter {
             GroupAddException,
             GrouperException,
             GroupModifyException,
+            GroupNotFoundException,
             HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
@@ -1058,6 +1060,7 @@ public class XmlImporter {
       // TODO 20060922 honor `updateOnly`
       this._processGroupCreate(e, stem);      // Otherwise create
     }
+    this._processAttributes(e, newGroup);
     this._accumulateLists(e, newGroup);
     this._accumulatePrivs(e, newGroup, "access");
   } // private void _processGroup(e, stem)
@@ -1105,6 +1108,7 @@ public class XmlImporter {
             GroupAddException,
             GrouperException,
             GroupModifyException,
+            GroupNotFoundException,
             HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
@@ -1211,7 +1215,7 @@ public class XmlImporter {
       }
       //TODO add admin check?
       if (!group.hasType(field.getGroupType())) {
-        if (_optionTrue("import.data.apply-new-group-types")) {
+        if (this._optionTrue("import.data.apply-new-group-types")) {
           LOG.debug("Adding group type " + field.getGroupType());
           group.addType(field.getGroupType());
         } 
@@ -1344,7 +1348,7 @@ public class XmlImporter {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    if (!_optionTrue("import.metadata.group-types") || e == null) {
+    if (!this._optionTrue("import.metadata.group-types") || e == null) {
       return;
     }
     LOG.debug("import.metadata.group-types=true - loading group-types");
@@ -1397,7 +1401,7 @@ public class XmlImporter {
           grouperField = null;
         }
         if (
-          (isNew || _optionTrue("import.metadata.group-type-attributes"))
+          (isNew || this._optionTrue("import.metadata.group-type-attributes"))
           && grouperField == null
         ) 
         {
@@ -1562,6 +1566,7 @@ public class XmlImporter {
             GroupAddException,
             GrouperException,
             GroupModifyException,
+            GroupNotFoundException,
             HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
@@ -1636,6 +1641,7 @@ public class XmlImporter {
             GroupAddException,
             GrouperException,
             GroupModifyException,
+            GroupNotFoundException,
             HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
