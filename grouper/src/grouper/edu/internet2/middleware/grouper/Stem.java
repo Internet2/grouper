@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.84 2006-09-27 14:15:29 blair Exp $
+ * @version $Id: Stem.java,v 1.85 2006-09-27 17:54:32 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -149,7 +149,7 @@ public class Stem extends Owner {
       children.add(child);
       this.setChild_groups(children);
       // Now create as member
-      Member  m   = new Member( new GrouperSubject(child) );
+      Member  m     = new Member( new GrouperSubject(child) );
 
       // And save
       Set objects = new LinkedHashSet();

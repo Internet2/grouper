@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.34 2006-09-21 16:10:23 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.35 2006-09-27 17:54:32 blair Exp $
  */
 public class GrouperConfig {
 
@@ -42,6 +42,8 @@ public class GrouperConfig {
 
   // PROTECTED CLASS CONSTANTS //
   protected static final String ALL           = "GrouperAll";
+  protected static final String ATTR_C        = "createSubject";
+  protected static final String ATTR_CT       = "createTime";
   protected static final String ATTR_D        = "description";
   protected static final String ATTR_DE       = "displayExtension";
   protected static final String ATTR_DN       = "displayName";
