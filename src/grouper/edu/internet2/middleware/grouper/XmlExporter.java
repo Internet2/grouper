@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.37 2006-09-27 14:24:36 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.38 2006-09-27 17:51:09 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -843,28 +843,28 @@ public class XmlExporter {
     this.xml.puts("<!--" + stem.getName() + "-->");
     this.xml.put(padding);
     this.xml.puts(
-      "<stem extension='" + _fixXmlAttribute(stem.getExtension()) + "'"
+      "<stem extension='" + this._fixXmlAttribute(stem.getExtension()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts(
-      "displayExtension='" + _fixXmlAttribute(stem.getDisplayExtension()) + "'"
+      "displayExtension='" + this._fixXmlAttribute(stem.getDisplayExtension()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("      ");
-    this.xml.puts("name='" + _fixXmlAttribute(stem.getName()) + "'");
+    this.xml.puts("name='" + this._fixXmlAttribute(stem.getName()) + "'");
     this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts(
-      "displayName='" + _fixXmlAttribute(stem.getDisplayName()) + "'"
+      "displayName='" + this._fixXmlAttribute(stem.getDisplayName()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("      ");
-    this.xml.puts("id='" + _fixXmlAttribute(stem.getUuid()) + "'>");
+    this.xml.puts("id='" + this._fixXmlAttribute(stem.getUuid()) + "'>");
 
     this.xml.put(padding + "  ");
     this.xml.puts(
-      "<description>" + _fixXmlAttribute(stem.getDescription()) + "</description>"
+      "<description>" + this._fixXmlAttribute(stem.getDescription()) + "</description>"
     );
 
   } // private void _writeBasicStemHeader(stem, padding)
@@ -924,7 +924,7 @@ public class XmlExporter {
     this.xml.puts();
     this.xml.put(padding);
     this.xml.puts(
-      "<field name='" + _fixXmlAttribute(field.getName()) + "'"
+      "<field name='" + this._fixXmlAttribute(field.getName()) + "'"
     );
     this.xml.puts(
       padding + "        required='" + field.getRequired() + "'"
@@ -978,28 +978,28 @@ public class XmlExporter {
     this.xml.puts("<!--" + group.getName() + "-->");
     this.xml.put(padding);
     this.xml.puts(
-      "<group extension='" + _fixXmlAttribute(group.getExtension()) + "'"
+      "<group extension='" + this._fixXmlAttribute(group.getExtension()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("       ");
     this.xml.puts(
-      "displayExtension='" + _fixXmlAttribute(group.getDisplayExtension()) + "'"
+      "displayExtension='" + this._fixXmlAttribute(group.getDisplayExtension()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("      ");
-    this.xml.puts("name='" + _fixXmlAttribute(group.getName()) + "'");
+    this.xml.puts("name='" + this._fixXmlAttribute(group.getName()) + "'");
     this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts(
-      "displayName='" + _fixXmlAttribute(group.getDisplayName()) + "'"
+      "displayName='" + this._fixXmlAttribute(group.getDisplayName()) + "'"
     );
     this.xml.put(padding);
     this.xml.put("      ");
-    this.xml.puts("id='" + _fixXmlAttribute(group.getUuid()) + "'>");
+    this.xml.puts("id='" + this._fixXmlAttribute(group.getUuid()) + "'>");
 
     this.xml.put(padding + "  ");
     this.xml.puts(
-      "<description>" + _fixXmlAttribute(group.getDescription()) + "</description>"
+      "<description>" + this._fixXmlAttribute(group.getDescription()) + "</description>"
     );
 
     if (_optionTrue("export.group.internal-attributes")) {
@@ -1098,7 +1098,7 @@ public class XmlExporter {
             SchemaException
   {
     this.xml.puts(
-      padding + "<groupType name='" + _fixXmlAttribute(groupType.getName()) + "'>"
+      padding + "<groupType name='" + this._fixXmlAttribute(groupType.getName()) + "'>"
     );
     Field     field;
     Set       fields          = groupType.getFields();
@@ -1114,7 +1114,7 @@ public class XmlExporter {
         continue;
       }
       try {
-        value = _fixXmlAttribute(group.getAttribute(field.getName()));
+        value = this._fixXmlAttribute(group.getAttribute(field.getName()));
         if (
             !XmlUtils.isEmpty(value)
             && ":description:extension:displayExtension:"
@@ -1124,7 +1124,7 @@ public class XmlExporter {
           this.xml.put(padding);
           this.xml.puts(
             "<attribute name='"
-            + _fixXmlAttribute(field.getName()) + "'>" + value
+            + this._fixXmlAttribute(field.getName()) + "'>" + value
             + "</attribute>"
           );
         }
@@ -1145,35 +1145,39 @@ public class XmlExporter {
     this.xml.puts(padding + "<internalAttributes>");
     this.xml.puts(
       padding + "  <internalAttribute name='parentStem'>"
-      + _fixXmlAttribute(group.getParentStem().getName())
+      + this._fixXmlAttribute(group.getParentStem().getName())
       + "</internalAttribute>"
     );
     this.xml.puts(
       padding + "  <internalAttribute name='createSource'>"
-      + _fixXmlAttribute(group.getCreateSource())
+      + this._fixXmlAttribute(group.getCreateSource())
       + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='createSubject'>");
     this._writeSubject(group.getCreateSubject(), padding + "    ");
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
-      padding + "  <internalAttribute name='createTime'>"
-      + _fixXmlAttribute(group.getCreateTime().toString())
-      + "</internalAttribute>"
+        padding 
+      + "  <internalAttribute name='createTime'>"
+      + this._fixXmlAttribute( Long.toString( group.getCreateTime().getTime() ) )
+      + "</internalAttribute> "
+      + "<!-- " + group.getCreateTime().toString() + " -->"
     );
 
     this.xml.puts(
       padding + "  <internalAttribute name='modifySource'>"
-      + _fixXmlAttribute(group.getModifySource())
+      + this._fixXmlAttribute(group.getModifySource())
       + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='modifySubject'>");
     this._writeSubject(group.getModifySubject(), padding + "    ");
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
-      padding + "  <internalAttribute name='modifyTime'>"
-      + _fixXmlAttribute(group.getModifyTime().toString())
-      + "</internalAttribute>"
+        padding 
+      + "  <internalAttribute name='modifyTime'>"
+      + this._fixXmlAttribute( Long.toString( group.getModifyTime().getTime() ) )
+      + "</internalAttribute> "
+      + "<!-- " + group.getModifyTime().toString() + " -->"
     );
 
     this.xml.puts(padding + "</internalAttributes>");
@@ -1201,7 +1205,7 @@ public class XmlExporter {
       this.xml.puts();
       this.xml.put(padding);
       this.xml.puts(
-        "<groupTypeDef name='" + _fixXmlAttribute(groupType.getName()) + "'>"
+        "<groupTypeDef name='" + this._fixXmlAttribute(groupType.getName()) + "'>"
       );
       fields = groupType.getFields();
       fieldsIterator = fields.iterator();
@@ -1248,35 +1252,39 @@ public class XmlExporter {
     this.xml.puts(padding + "<internalAttributes>");
     this.xml.puts(
       padding + "  <internalAttribute name='parentStem'>"
-      + _fixXmlAttribute(stem.getParentStem().getName())
+      + this._fixXmlAttribute(stem.getParentStem().getName())
       + "</internalAttribute>"
     );
     this.xml.puts(
       padding + "  <internalAttribute name='createSource'>"
-     + _fixXmlAttribute(stem.getCreateSource())
+     + this._fixXmlAttribute(stem.getCreateSource())
      + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='createSubject'>");
     this._writeSubject(stem.getCreateSubject(), padding + "    ");
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
-      padding + "  <internalAttribute name='createTime'>"
-      + _fixXmlAttribute(stem.getCreateTime().toString())
-     + "</internalAttribute>"
+        padding 
+      + "  <internalAttribute name='createTime'>"
+      + this._fixXmlAttribute( Long.toString( stem.getCreateTime().getTime() ) )
+      + "</internalAttribute> "
+      + "<!-- " + stem.getCreateTime().toString() + " -->"
     );
 
     this.xml.puts(
       padding + "  <internalAttribute name='modifySource'>"
-      + _fixXmlAttribute(stem.getModifySource())
+      + this._fixXmlAttribute(stem.getModifySource())
       + "</internalAttribute>"
     );
     this.xml.puts(padding + "  <internalAttribute name='modifySubject'>");
     this._writeSubject(stem.getModifySubject(), padding + "    ");
     this.xml.puts(padding + "  </internalAttribute>");
     this.xml.puts(
-      padding + "  <internalAttribute name='modifyTime'>"
-      + _fixXmlAttribute(stem.getModifyTime().toString())
-      + "</internalAttribute>"
+        padding 
+      + "  <internalAttribute name='modifyTime'>"
+      + this._fixXmlAttribute( Long.toString( stem.getModifyTime().getTime() ) )
+      + "</internalAttribute> "
+      + "<!-- " + stem.getModifyTime().toString() + " -->"
     );
 
     this.xml.puts(padding + "</internalAttributes>");
@@ -1332,9 +1340,9 @@ public class XmlExporter {
     this.xml.puts();
     this.xml.put(padding);
     this.xml.puts(
-      "<list field='" + _fixXmlAttribute(field.getName())
+      "<list field='" + this._fixXmlAttribute(field.getName())
       + "'  groupType='"
-      + _fixXmlAttribute(field.getGroupType().getName()) + "'>"
+      + this._fixXmlAttribute(field.getGroupType().getName()) + "'>"
     );
     if (isComposite) {
       Composite composite = CompositeFinder.findAsOwner(group);
@@ -1343,7 +1351,7 @@ public class XmlExporter {
     _writeMembers(members, group, field, padding + "  ");
     this.xml.put(padding);
     this.xml.puts(
-      "</list> <!--/field=" + _fixXmlAttribute(field.getName()) + "-->"
+      "</list> <!--/field=" + this._fixXmlAttribute(field.getName()) + "-->"
     );
   } // private void _writeListField(group, field, padding)
 
@@ -1582,9 +1590,9 @@ public class XmlExporter {
       id = subj.getId();
     }
     this.xml.put(
-      "<subject " + attrName + "='" + _fixXmlAttribute(id)
-      + "' type='" + _fixXmlAttribute(subj.getType().getName())
-      + "' source='" + _fixXmlAttribute(subj.getSource().getId())
+      "<subject " + attrName + "='" + this._fixXmlAttribute(id)
+      + "' type='" + this._fixXmlAttribute(subj.getType().getName())
+      + "' source='" + this._fixXmlAttribute(subj.getSource().getId())
       + "'" + immediate
     );
     if ("group".equals(subj.getType().getName())) {
@@ -1648,7 +1656,7 @@ public class XmlExporter {
       this.xml.puts();
       this.xml.put(padding);
       this.xml.puts(
-        "<source id='" + _fixXmlAttribute(source.getId()) + "'"
+        "<source id='" + this._fixXmlAttribute(source.getId()) + "'"
       );
       this.xml.puts(padding + "        name='" + source.getName() + "'");
       this.xml.puts(
