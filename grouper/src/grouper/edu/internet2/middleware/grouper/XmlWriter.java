@@ -22,7 +22,7 @@ import  java.io.*;
  * Create XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlWriter.java,v 1.1 2006-09-12 17:19:58 blair Exp $
+ * @version $Id: XmlWriter.java,v 1.2 2006-09-27 19:23:32 blair Exp $
  * @since   1.1.0
  */
 class XmlWriter {
@@ -36,7 +36,7 @@ class XmlWriter {
 
   // @since   1.1.0
   protected XmlWriter(Writer w) {
-    this.newLine  = System.getProperty("line.separator");
+    this.newLine  = GrouperConfig.NL;
     this.w        = w;
   } // protected XmlWriter(w)
 
