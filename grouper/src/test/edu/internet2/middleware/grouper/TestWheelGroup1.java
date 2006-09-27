@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestWheelGroup1.java,v 1.2 2006-09-13 14:41:11 blair Exp $
+ * @version $Id: TestWheelGroup1.java,v 1.3 2006-09-27 13:10:39 blair Exp $
  * @since   1.1.0
  */
 public class TestWheelGroup1 extends TestCase {
@@ -67,6 +67,9 @@ public class TestWheelGroup1 extends TestCase {
     }
     catch (Exception e) {
       T.e(e);
+    }
+    finally {
+      GrouperConfig.setProperty(GrouperConfig.GWU, "false" ); // turn wheel back off
     }
   } // public void testGrantAdminWithWheel()
 
