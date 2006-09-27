@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.36 2006-09-26 19:47:16 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.37 2006-09-27 14:24:36 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -148,7 +148,7 @@ public class XmlExporter {
    * <tr>
    * <td>export.stem.internal-attributes</td>
    * <td>true/false</td>
-   * <td>false</td>
+   * <td>true</td>
    * <td>If true system-maintained Stem attributes (eg. <tt>modifyDate</tt>) will be exported.</td>
    * </tr>
    * <tr>
