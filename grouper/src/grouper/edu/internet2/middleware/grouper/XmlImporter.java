@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.56 2006-09-27 18:16:32 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.57 2006-09-27 18:20:46 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1088,8 +1088,7 @@ public class XmlImporter {
   private Group _processGroupRef(Element groupE, String stem) 
     throws  GroupNotFoundException
   {
-    Group   group   = null;
-    String  tagName = groupE.getTagName();
+    String tagName = groupE.getTagName();
     if (!"groupRef".equals(tagName)) {
       throw new IllegalStateException("Expected tag: <groupRef> but found <" + tagName + ">");
     }
@@ -1710,7 +1709,7 @@ public class XmlImporter {
   private void _setInternalAttributes(Owner o, Element e) 
     throws  HibernateException
   {
-    String    attr, val;
+    String    attr;
     boolean   modified    = false;
     Element   e0;
     Iterator  it          = this._getInternalAttributes(e).iterator();
