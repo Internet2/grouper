@@ -21,7 +21,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.11 2006-09-13 15:52:09 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.12 2006-09-27 14:15:30 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -47,7 +47,7 @@ public class SuiteDefault extends TestCase {
     suite.addTest(  SuiteWheelGroup.suite()   );
     suite.addTest(  SuiteBugs.suite()         );
 
-    // TODO Migrate
+    // TODO 20060927 Migrate
 
     suite.addTestSuite(TestField.class);
     suite.addTestSuite(TestGrFiFindByName.class);

@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.27 2006-09-13 15:04:11 blair Exp $
+ * @version $Id: StemFinder.java,v 1.28 2006-09-27 14:15:29 blair Exp $
  */
 public class StemFinder {
 
@@ -375,8 +375,7 @@ public class StemFinder {
     }
   } // protected static Stem findByUuid(uuid)
 
-  // TODO Is this the right location for this method?
-  // TODO Would a top-down rather than bottom-up approach work better?
+  // TODO 20060927 Is this the right location?  And should it be top-down?
   protected static boolean isChild(Stem ns, Group g) {
     Stem parent = g.getParentStem();
     try {
@@ -398,8 +397,7 @@ public class StemFinder {
     return false;
   } // protected static boolean isChild(ns, g)
 
-  // TODO Is this the right location for this method?
-  // TODO Would a top-down rather than bottom-up approach work better?
+  // TODO 20060927 Is this the right location?  And should it be top-down?
   protected static boolean isChild(Stem ns, Stem stem) {
     // our start stem is the root stem.  bail out immediately.
     if (stem.getName().equals(Stem.ROOT_EXT)) {

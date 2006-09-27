@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.44 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.45 2006-09-27 14:15:29 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -323,7 +323,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Set       saves   = mof.getSaves();
       Set       deletes = mof.getDeletes();
 
-      // TODO Should this be in _Stem_?  
+      // TODO 20060927 Should this be in _Stem_?  
       ns.setModified();
       saves.add(ns);
 

@@ -28,7 +28,7 @@ import  net.sf.hibernate.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.33 2006-09-13 16:25:33 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.34 2006-09-27 14:15:29 blair Exp $
  */
 public class RegistryReset {
 
@@ -153,13 +153,13 @@ public class RegistryReset {
       + "and  t.name != 'naming'    "
       + ")"
     );
-    // TODO Once properly mapped I can delete the explicit attr delete
+    // TODO 20060927 Once properly mapped I can delete the explicit attr delete
     hs.delete("from HibernateSubjectAttribute");
     hs.delete("from HibernateSubject");
 
     tx.commit();
     hs.close();
-    // TODO Now update the cached types + fields
+    // TODO 20060927 Now update the cached types + fields
     GroupTypeFinder.updateKnownTypes();
     FieldFinder.updateKnownFields();
     CacheMgr.resetAllCaches();

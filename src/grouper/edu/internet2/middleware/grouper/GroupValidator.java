@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.19 2006-09-26 14:32:42 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.20 2006-09-27 14:15:30 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -37,7 +37,7 @@ class GroupValidator {
     isTypeEqual(f, FieldType.LIST);
     canWriteField(g, g.getSession().getSubject(), f);
     if (g.hasComposite()) {
-      throw new ModelException(E.GROUP_ACTC); // TODO TEST!
+      throw new ModelException(E.GROUP_ACTC);
     }
     if (g.getMembers().size() > 0) {
       throw new ModelException(E.GROUP_ACTM);

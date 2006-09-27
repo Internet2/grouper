@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.106 2006-09-26 14:32:42 blair Exp $
+ * @version $Id: Group.java,v 1.107 2006-09-27 14:15:30 blair Exp $
  */
 public class Group extends Owner {
 
@@ -419,7 +419,7 @@ public class Group extends Owner {
     throws  GroupDeleteException,
             InsufficientPrivilegeException
   {
-    // TODO Refactor into smaller components
+    // TODO 20060927 Refactor into smaller components
     StopWatch sw = new StopWatch();
     sw.start();
     GrouperSessionValidator.validate(this.getSession());
