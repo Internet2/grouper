@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Owner.hbm.xml,v 1.12 2006-09-27 14:15:29 blair Exp $ -->
+<!-- $Id: Owner.hbm.xml,v 1.13 2006-09-27 17:50:03 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Owner" table="grouper_owners">
@@ -64,7 +64,7 @@ An owner within the Groups Registry.
     <!-- create_time -->
     <property name="create_time"
               type="long"
-              update="false"
+              update="true" 
     >
       <column name="create_time"
               not-null="true"
