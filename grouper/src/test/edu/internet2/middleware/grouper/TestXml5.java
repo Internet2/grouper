@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml5.java,v 1.3 2006-09-27 17:54:32 blair Exp $
+ * @version $Id: TestXml5.java,v 1.4 2006-09-27 18:24:30 blair Exp $
  * @since   1.1.0
  */
 public class TestXml5 extends GrouperTest {
@@ -96,14 +96,12 @@ public class TestXml5 extends GrouperTest {
       assertGroupHasUpdate( gA, SubjectFinder.findAllSubject(), has_u );
       assertGroupHasView( gA, SubjectFinder.findAllSubject(), has_v );
       assertGroupCreateSubject( gA, val_c );
-      // FIXME 20060926 assertGroupCreateTime( gA, val_ct );
       assertGroupCreateTime( gA, val_ct );
       assertGroupDescription( gA, val_d );
       assertGroupDisplayExtension( gA, val_de );
       assertGroupDisplayName( gA, val_dn );
       assertGroupExtension( gA, val_e );
       assertGroupName( gA, val_n );
-      // FIXME 20060926 assertGroupUuid( gA, val_u );
       assertGroupUuid( gA, val_u );
       s.stop();
     }
