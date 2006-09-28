@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.23 2006-09-13 16:25:33 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.24 2006-09-28 17:23:19 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="Membership" table="grouper_memberships">
+  <class name="Membership" table="grouper_memberships" batch-size="5">
 
     <meta attribute="class-description">
 A list membership in the Groups Registry.

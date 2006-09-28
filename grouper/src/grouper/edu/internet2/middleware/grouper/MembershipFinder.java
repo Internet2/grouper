@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.52 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.53 2006-09-28 17:23:19 blair Exp $
  */
 public class MembershipFinder {
 
@@ -566,10 +566,8 @@ public class MembershipFinder {
   } // protected static Set findImmediateMemberships(s, m, f)
 
   protected static Set findMembers(GrouperSession s, Group g, Field f) {
-    /*
-     * @filtered  true  MembershipFinder.findMemberships(s, g, f) 
-     * @session   true  MembershipFinder.findMemberships(s, g, f)
-     */
+     // @filtered  true  MembershipFinder.findMemberships(s, g, f) 
+     // @session   true  MembershipFinder.findMemberships(s, g, f)
     GrouperSessionValidator.validate(s);
     Set         members = new LinkedHashSet();
     Membership  ms;
@@ -629,14 +627,9 @@ public class MembershipFinder {
     return subjs;
   } // protected static Set findSubjectsNoPriv(s, o, f)
 
-  protected static Set findMemberships(
-    GrouperSession s, Member m, Field f
-  )
-  {
-    /*
-     * @filtered  true
-     * @session   true
-     */
+  protected static Set findMemberships(GrouperSession s, Member m, Field f) {
+     // @filtered  true
+     // @session   true
     GrouperSessionValidator.validate(s);
     Set mships  = new LinkedHashSet();
     try {
