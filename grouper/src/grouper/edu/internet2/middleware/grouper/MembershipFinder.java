@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.53 2006-09-28 17:23:19 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.54 2006-09-28 18:13:12 blair Exp $
  */
 public class MembershipFinder {
 
@@ -691,14 +691,12 @@ public class MembershipFinder {
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype"
+        + "and  ms.field      = :field  "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindMembershipsOwner");
-      qry.setParameter( "owner" , o                     );
-      qry.setString(    "fname" , f.getName()           );
-      qry.setString(    "ftype" , f.getType().toString());
+      qry.setEntity( "owner" , o ); 
+      qry.setEntity( "field" , f );
       List l = qry.list();
       hs.close();
       mships.addAll( U.setMembershipSessions(s, l) );
