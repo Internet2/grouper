@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSetting4.java,v 1.2 2006-08-30 18:35:37 blair Exp $
+ * @version $Id: TestSetting4.java,v 1.3 2006-09-28 20:02:07 blair Exp $
  * @since   1.1.0
  */
 public class TestSetting4 extends TestCase {
@@ -52,7 +52,7 @@ public class TestSetting4 extends TestCase {
     v = "net.sf.hibernate.cache.EhCacheProvider";
     Assert.assertTrue(k, GrouperConfig.getHibernateProperty(k).equals(v));
     k = "hibernate.cache.use_query_cache";
-    v = "true";
+    v = "false";
     Assert.assertTrue(k, GrouperConfig.getHibernateProperty(k).equals(v));
   } // public void testHibernateProps()
 
