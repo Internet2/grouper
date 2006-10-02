@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.48 2006-10-02 17:07:04 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.49 2006-10-02 17:13:02 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -830,28 +830,20 @@ public class XmlExporter {
   private void _writeBasicStemHeader(Stem stem) 
     throws  IOException
   {
-    this.xml.puts();
-    this.xml.puts("<!--" + stem.getName() + "-->");
-    this.xml.puts(
-      "<stem extension='" + this._fixXmlAttribute(stem.getExtension()) + "'"
-    );
-    this.xml.put("      ");
-    this.xml.puts(
-      "displayExtension='" + this._fixXmlAttribute(stem.getDisplayExtension()) + "'"
-    );
-    this.xml.put("      ");
-    this.xml.puts("name='" + this._fixXmlAttribute(stem.getName()) + "'");
-    this.xml.put("      ");
-    this.xml.puts(
-      "displayName='" + this._fixXmlAttribute(stem.getDisplayName()) + "'"
-    );
-    this.xml.put("      ");
-    this.xml.puts("id='" + this._fixXmlAttribute(stem.getUuid()) + "'>");
-
-    this.xml.puts(
-      "<description>" + this._fixXmlAttribute(stem.getDescription()) + "</description>"
-    );
-
+    this.xml.indent();
+    this.xml.comment( U.q( stem.getName() ) );
+    this.xml.puts("<stem extension="  + U.q( this._fixXmlAttribute(stem.getExtension()) )         );
+    this.xml.indent();
+    this.xml.puts("displayExtension=" + U.q( this._fixXmlAttribute(stem.getDisplayExtension()) )  );
+    this.xml.puts("name="             + U.q( this._fixXmlAttribute(stem.getName()) )              );
+    this.xml.puts("displayName="      + U.q( this._fixXmlAttribute(stem.getDisplayName()) )       );
+    this.xml.puts("id="               + U.q( this._fixXmlAttribute(stem.getUuid()) )              );
+    this.xml.undent();
+    this.xml.puts(">");
+    this.xml.indent();
+    this.xml.puts("<description>" + this._fixXmlAttribute(stem.getDescription()) + "</description>");
+    this.xml.undent();
+    this.xml.undent();
   } // private void _writeBasicStemHeader(stem)
 
   // @since   1.1.0
