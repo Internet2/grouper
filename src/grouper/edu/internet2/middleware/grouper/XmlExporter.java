@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.45 2006-10-02 16:45:48 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.46 2006-10-02 16:58:18 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1171,7 +1171,7 @@ public class XmlExporter {
     this.xml.puts("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     this.xml.puts("<registry>");
     if (_optionTrue("export.metadata")) {
-      _writeMetaData();
+      this._writeMetaData();
     }
     return before;
   } // private synchronized Date _writeHeader()
@@ -1345,7 +1345,7 @@ public class XmlExporter {
     this.xml.puts("<metadata>");
     this._writeGroupTypesMetaData();
     this.xml.puts();
-    this._writeSubjectSourceMetaData();
+    this._writeSubjectSourcesMetaData();
     this.xml.puts("</metadata>");
     this.xml.undent();
   } // private void _writeMetaData()
@@ -1545,51 +1545,54 @@ public class XmlExporter {
   } // private void _writeSubject(subj, immediate)
 
   // @since   1.1.0
-  private void _writeSubjectSourceMetaData()
+  private void _writeSubjectSourceMetaData(Source sa) 
+    throws  IOException
+  {
+    this.xml.indent();
+    this.xml.puts("<source id=" + U.q( this._fixXmlAttribute(sa.getId()) )  );
+    this.xml.indent();
+    this.xml.puts("name="       + U.q( sa.getName() )                       );
+    this.xml.puts("class="      + U.q( sa.getClass().getName() )            );
+    this.xml.undent();
+    this.xml.puts(">");
+    Iterator it = sa.getSubjectTypes().iterator();
+    while (it.hasNext()) {
+      this._writeSubjectSourceTypesMetaData( (SubjectType) it.next() );
+    }
+    this.xml.puts("</source>");
+    this.xml.undent();
+  } // private void _writeSubjectSourceMetaData(sa)
+
+  // @since   1.1.0
+  private void _writeSubjectSourcesMetaData()
     throws  GrouperException,
             IOException 
   {
-    this.xml.puts();
+    this.xml.indent();
     this.xml.puts("<subjectSourceMetaData>");
-    Source      source;
-    Collection  sources;
     try {
-      sources = SourceManager.getInstance().getSources();
+      Iterator it = SourceManager.getInstance().getSources().iterator();
+      while (it.hasNext()) {
+        this._writeSubjectSourceMetaData( (Source) it.next() );
+      }
     }
     catch (Exception e) {
       throw new GrouperException(e.getMessage(), e);
     }
-    Iterator    sourcesIterator = sources.iterator();
-    SubjectType subjectType;
-    Set         subjectTypes;
-
-    Iterator    subjectTypesIterator;
-    while (sourcesIterator.hasNext()) {
-      source = (Source) sourcesIterator.next();
-      this.xml.puts();
-      this.xml.puts(
-        "<source id='" + this._fixXmlAttribute(source.getId()) + "'"
-      );
-      this.xml.puts("        name='" + source.getName() + "'");
-      this.xml.puts(
-        "        class='" + source.getClass().getName() + "'>"
-      );
-      subjectTypes          = source.getSubjectTypes();
-      subjectTypesIterator  = subjectTypes.iterator();
-      while (subjectTypesIterator.hasNext()) {
-        subjectType = (SubjectType) subjectTypesIterator.next();
-        this.xml.puts(
-          "<subjectType name='" + subjectType.getName() + "'/>"
-        );
-      }
-
-      this.xml.puts("</source>");
-
+    finally {
+      this.xml.puts("</subjectSourceMetaData>");
+      this.xml.undent();
     }
-    this.xml.puts();
-    this.xml.puts("</subjectSourceMetaData>");
-    this.xml.puts();
-  } // private void _writeSubjectSourceMetaData()
+  } // private void _writeSubjectSourcesMetaData()
 
+  // @since   1.1.0
+  private void _writeSubjectSourceTypesMetaData(SubjectType st) 
+    throws  IOException
+  {
+    this.xml.indent();
+    this.xml.puts("<subjectType name=" + U.q( st.getName() ) + "/>");
+    this.xml.undent();
+  } // private void _writeSubjectSourceTypesMetaData(st)
+  
 } // public class XmlExporter
 
