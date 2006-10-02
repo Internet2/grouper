@@ -22,7 +22,7 @@ import  java.io.*;
  * Create XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlWriter.java,v 1.4 2006-10-02 16:29:12 blair Exp $
+ * @version $Id: XmlWriter.java,v 1.5 2006-10-02 17:13:02 blair Exp $
  * @since   1.1.0
  */
 class XmlWriter {
@@ -52,6 +52,15 @@ class XmlWriter {
   {
     this.w.close();
   } // protected void close()
+
+  // Output XML comment.
+  // @throws  IOException
+  // @since   1.1.0
+  protected void comment(String s) 
+    throws  IOException
+  {
+    this.puts("<!-- " + s + " -->");
+  } // protected void comment(s)
 
   // @since   1.1.0
   protected void indent() {
