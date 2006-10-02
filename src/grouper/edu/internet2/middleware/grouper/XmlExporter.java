@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.43 2006-10-02 16:36:16 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.44 2006-10-02 16:41:41 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1141,34 +1141,28 @@ public class XmlExporter {
   private void _writeGroupTypesMetaData()
     throws  IOException 
   {
-    Set groupTypes = GroupTypeFinder.findAll();
-    if (groupTypes.isEmpty()) {
+    Set types = GroupTypeFinder.findAll();
+    if (types.isEmpty()) {
       return;
     }
+    this.xml.indent();
     this.xml.puts("<groupTypesMetaData>");
-    Field     field;
-    Set       fields;
-    Iterator  fieldsIterator;
-    GroupType groupType;
-    Iterator  groupTypesIterator = groupTypes.iterator();
-    while (groupTypesIterator.hasNext()) {
-      groupType = (GroupType) groupTypesIterator.next();
-      this.xml.puts();
-      this.xml.puts(
-        "<groupTypeDef name='" + this._fixXmlAttribute(groupType.getName()) + "'>"
-      );
-      fields = groupType.getFields();
-      fieldsIterator = fields.iterator();
-      while (fieldsIterator.hasNext()) {
-        field = (Field) fieldsIterator.next();
-        _writeFieldMetaData(field);
+    Iterator  itF;
+    GroupType gt;
+    Iterator  itGT = types.iterator();
+    while (itGT.hasNext()) {
+      gt = (GroupType) itGT.next();
+      this.xml.indent();
+      this.xml.puts("<groupTypeDef name=" + U.q( this._fixXmlAttribute(gt.getName()) ) + ">");
+      itF = gt.getFields().iterator();
+      while (itF.hasNext()) {
+        this._writeFieldMetaData( (Field) itF.next() );
       }
-      this.xml.puts();
       this.xml.puts("</groupTypeDef>");
+      this.xml.undent();
     }
-
     this.xml.puts("</groupTypesMetaData>");
-    this.xml.puts();
+    this.xml.undent();
   } // private void _writeGroupTypesMetaData()
 
   // @since   1.1.0
