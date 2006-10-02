@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.46 2006-10-02 16:58:18 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.47 2006-10-02 17:03:50 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -686,8 +686,8 @@ public class XmlExporter {
       fromStem = dummyStem.getName() + ":";
     }
 
-    if (_optionTrue("export.data")) {
-      _exportData(o);
+    if (this._optionTrue("export.data")) {
+      this._exportData(o);
     } 
     else {
       LOG.debug("export.data=false, so no data exported");
@@ -706,11 +706,11 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    LOG.debug("Writing repository data as XML");
+    this.xml.indent();
     this.xml.puts("<data>");
     Stack stems = null;
     if (!isRelative) {
-      stems = _getParentStems(o);
+      stems = this._getParentStems(o);
     } 
     else {
       stems = new Stack();
@@ -724,8 +724,9 @@ public class XmlExporter {
         stems.push( (Stem) o);
       }
     }
-    _writeStems(stems);
+    this._writeStems(stems);
     this.xml.puts("</data>");
+    this.xml.undent();
     LOG.debug("Finished repository data as XML");
   } // private void _exportData(o)
 
