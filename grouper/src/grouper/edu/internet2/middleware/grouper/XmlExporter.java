@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.49 2006-10-02 17:13:02 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.50 2006-10-02 18:35:16 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -831,7 +831,8 @@ public class XmlExporter {
     throws  IOException
   {
     this.xml.indent();
-    this.xml.comment( U.q( stem.getName() ) );
+    this.xml.puts();
+    this.xml.puts( this.xml.comment( U.q( stem.getName() ) ) );
     this.xml.puts("<stem extension="  + U.q( this._fixXmlAttribute(stem.getExtension()) )         );
     this.xml.indent();
     this.xml.puts("displayExtension=" + U.q( this._fixXmlAttribute(stem.getDisplayExtension()) )  );
@@ -843,7 +844,7 @@ public class XmlExporter {
     this.xml.indent();
     this.xml.puts("<description>" + this._fixXmlAttribute(stem.getDescription()) + "</description>");
     this.xml.undent();
-    this.xml.undent();
+    // Don't fully undent
   } // private void _writeBasicStemHeader(stem)
 
   // @since   1.1.0
@@ -953,7 +954,7 @@ public class XmlExporter {
     );
 
     if (_optionTrue("export.group.internal-attributes")) {
-      _writeInternalAttributes(group);
+      this._writeInternalAttributes(group);
     }
     if (_optionTrue("export.group.custom-attributes")) {
       Set       types     = group.getTypes();
@@ -1012,7 +1013,7 @@ public class XmlExporter {
   {
     LOG.debug("Writing Stem " + stem.getName() + " to XML");
     _writeBasicStemHeader(stem);
-    _writeInternalAttributes(stem);
+    this._writeInternalAttributes(stem);
     _writeStemPrivs(stem);
     _writeStemBody(stem);
     _writeBasicStemFooter(stem);
@@ -1082,50 +1083,22 @@ public class XmlExporter {
   } // private void _writeGroupType(group, groupType)
 
   // @since   1.1.0
-  private void _writeInternalAttributes(Group group) 
+  private void _writeInternalAttributes(Group g) 
     throws  IOException,
             SubjectNotFoundException
   {
-    this.xml.puts();
+    this.xml.indent();
     this.xml.puts("<internalAttributes>");
-    this.xml.puts(
-        "  <internalAttribute name='parentStem'>"
-      + this._fixXmlAttribute(group.getParentStem().getName())
-      + "</internalAttribute>"
-    );
-    this.xml.puts(
-        "  <internalAttribute name='createSource'>"
-      + this._fixXmlAttribute(group.getCreateSource())
-      + "</internalAttribute>"
-    );
-    this.xml.puts("  <internalAttribute name='createSubject'>");
-    this._writeSubject(group.getCreateSubject());
-    this.xml.puts("  </internalAttribute>");
-    this.xml.puts(
-        "  <internalAttribute name='createTime'>"
-      + this._fixXmlAttribute( Long.toString( group.getCreateTime().getTime() ) )
-      + "</internalAttribute> "
-      + "<!-- " + group.getCreateTime().toString() + " -->"
-    );
-
-    this.xml.puts(
-        "  <internalAttribute name='modifySource'>"
-      + this._fixXmlAttribute(group.getModifySource())
-      + "</internalAttribute>"
-    );
-    this.xml.puts("  <internalAttribute name='modifySubject'>");
-    this._writeSubject(group.getModifySubject());
-    this.xml.puts("  </internalAttribute>");
-    this.xml.puts(
-        "  <internalAttribute name='modifyTime'>"
-      + this._fixXmlAttribute( Long.toString( group.getModifyTime().getTime() ) )
-      + "</internalAttribute> "
-      + "<!-- " + group.getModifyTime().toString() + " -->"
-    );
-
+    this._writeInternalAttribute( "parentStem"    , g.getParentStem().getName() );
+    this._writeInternalAttribute( "createSource"  , g.getCreateSource()         );
+    this._writeInternalAttribute( "createSubject" , g.getCreateSubject()        );
+    this._writeInternalAttribute( "createTime"    , g.getCreateTime()           );
+    this._writeInternalAttribute( "modifySource"  , g.getModifySource()         );
+    this._writeInternalAttribute( "modifySubject" , g.getModifySubject()        );
+    this._writeInternalAttribute( "modifyTime"    , g.getModifyTime()           );
     this.xml.puts("</internalAttributes>");
-    this.xml.puts();
-  } // private void _writeInternalAttributes(group)
+    this.xml.undent();
+  } // private void _writeInternalAttributes(g)
 
   // @since   1.1.0
   private void _writeGroupTypesMetaData()
@@ -1171,53 +1144,78 @@ public class XmlExporter {
   } // private synchronized Date _writeHeader()
 
   // @since   1.1.0
-  private void _writeInternalAttributes(Stem stem)
+  private void _writeInternalAttribute(String attr, Date d)
+    throws  IOException
+  {
+    this.xml.indent();
+    this.xml.puts(
+        "<internalAttribute name=" + U.q(attr) + ">" 
+      + Long.toString( d.getTime() ) 
+      + "</internalAttribute> " 
+      + this.xml.comment( d.toString() )
+    ); 
+    this.xml.undent();
+  } // private void _writeInternalAttribute(attr, d)
+
+  // @since   1.1.0
+  private void _writeInternalAttribute(String attr, String val)
+    throws  IOException
+  {
+    this.xml.indent();
+    this.xml.puts(
+        "<internalAttribute name=" + U.q(attr) + ">" 
+      + this._fixXmlAttribute(val) + "</internalAttribute>"
+    ); 
+    this.xml.undent();
+  } // private void _writeInternalAttribute(attr, val)
+
+  // @since   1.1.0
+  private void _writeInternalAttribute(String attr, Subject subj) 
+    throws  IOException
+  {
+    String  idAttr  = "id";
+    String  id      = subj.getId();
+    if (subj.getType().getName().equals("group")) {
+      idAttr  = "identifier";
+      id      = this._fixGroupName(subj.getName());
+    }
+    String  txt   = 
+        "<subject " + idAttr + "=" + U.q( this._fixXmlAttribute(id) )
+      + " type="    + U.q( this._fixXmlAttribute(subj.getType().getName()) )
+      + " source="  + U.q( this._fixXmlAttribute(subj.getSource().getId()) );
+    if (idAttr.equals("identifier")) {
+      txt += " id=" + U.q( subj.getId() );
+    }
+    txt += "/>";
+    this.xml.indent();
+    this.xml.puts("<internalAttribute name=" + U.q(attr) + ">");
+    this.xml.indent();
+    this.xml.puts(txt);
+    this.xml.undent();
+    this.xml.puts("</internalAttribute>");
+    this.xml.undent();
+  } // private void _writeInternalAttribute(attr, subj, comment)
+
+  // @since   1.1.0
+  private void _writeInternalAttributes(Stem ns)
     throws  IOException,
             StemNotFoundException,
             SubjectNotFoundException
   {
-    if (!_optionTrue("export.stem.internal-attributes")) {
+    if (!this._optionTrue("export.stem.internal-attributes")) {
       return;
     }
-    this.xml.puts();
+    this.xml.indent();
     this.xml.puts("<internalAttributes>");
-    this.xml.puts(
-        "  <internalAttribute name='parentStem'>"
-      + this._fixXmlAttribute(stem.getParentStem().getName())
-      + "</internalAttribute>"
-    );
-    this.xml.puts(
-        "  <internalAttribute name='createSource'>"
-     + this._fixXmlAttribute(stem.getCreateSource())
-     + "</internalAttribute>"
-    );
-    this.xml.puts("  <internalAttribute name='createSubject'>");
-    this._writeSubject(stem.getCreateSubject());
-    this.xml.puts("  </internalAttribute>");
-    this.xml.puts(
-        "  <internalAttribute name='createTime'>"
-      + this._fixXmlAttribute( Long.toString( stem.getCreateTime().getTime() ) )
-      + "</internalAttribute> "
-      + "<!-- " + stem.getCreateTime().toString() + " -->"
-    );
-
-    this.xml.puts(
-        "  <internalAttribute name='modifySource'>"
-      + this._fixXmlAttribute(stem.getModifySource())
-      + "</internalAttribute>"
-    );
-    this.xml.puts("  <internalAttribute name='modifySubject'>");
-    this._writeSubject(stem.getModifySubject());
-    this.xml.puts("  </internalAttribute>");
-    this.xml.puts(
-        "  <internalAttribute name='modifyTime'>"
-      + this._fixXmlAttribute( Long.toString( stem.getModifyTime().getTime() ) )
-      + "</internalAttribute> "
-      + "<!-- " + stem.getModifyTime().toString() + " -->"
-    );
-
+    this._writeInternalAttribute( "parentStem"    , ns.getParentStem().getName()  );
+    this._writeInternalAttribute( "createSource"  , ns.getCreateSource()          );
+    this._writeInternalAttribute( "createSubject" , ns.getCreateSubject()         );
+    this._writeInternalAttribute( "createTime"    , ns.getCreateTime()            );
+    this._writeInternalAttribute( "modifySource"  , ns.getModifySource()          );
+    this._writeInternalAttribute( "modifySubject" , ns.getModifySubject()         );
+    this._writeInternalAttribute( "modifyTime"    , ns.getModifyTime()            );
     this.xml.puts("</internalAttributes>");
-    this.xml.puts();
+    this.xml.undent();
   } // private void _writeInternalAttributes(stem)
 
   // @since   1.1.0
@@ -1489,7 +1487,7 @@ public class XmlExporter {
   private void _writeSubject(Subject subj) 
     throws  IOException 
   {
-    this._writeSubject(subj, "");
+    this._writeSubject(subj, GrouperConfig.EMPTY_STRING);
   } // private void _writeSubject(subj)
 
   // @since   1.1.0
