@@ -22,7 +22,7 @@ import  java.util.*;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.6 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: U.java,v 1.7 2006-10-02 16:29:12 blair Exp $
  * @since   1.0
  */
 class U {
@@ -43,7 +43,12 @@ class U {
     }
     return stem + Stem.ROOT_INT + extn;
   } // protected static String constructName(stem, extn)
-  
+ 
+  // @since   1.1.0
+  protected static String q(boolean input) {
+    return U.q( Boolean.toString(input) );
+  } // protected static String q(input)
+ 
   // @since 1.0
   protected static String q(String input) {
     return Q_OPEN + input + Q_CLOSE;

@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.40 2006-09-27 19:46:57 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.41 2006-10-02 16:29:12 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -306,58 +306,51 @@ public class XmlExporter {
     this.fromStem         = "_Z";
     Date    before        = _writeHeader();
     int     counter       = 0;
-    String  origPadding   = "  ";
-    String  padding       = "    ";
 
     if (_optionTrue("export.data")) {
       Iterator itemsIterator = items.iterator();
-      this.xml.put(origPadding);
       this.xml.puts("<dataList>");
       Object obj;
       while (itemsIterator.hasNext())       {
         obj = itemsIterator.next();
         counter++;
         if      (obj instanceof Group)      {
-          this._writeFullGroup( (Group) obj, padding );
+          this._writeFullGroup( (Group) obj);
         } 
         else if (obj instanceof Stem)       {
           Stem stem = (Stem) obj;
-          this._writeBasicStemHeader(stem, padding);
-          this._writeInternalAttributes(stem, padding);
-          this._writeStemPrivs(stem, padding);
-          this._writeBasicStemFooter(stem, padding);
+          this._writeBasicStemHeader(stem);
+          this._writeInternalAttributes(stem);
+          this._writeStemPrivs(stem);
+          this._writeBasicStemFooter(stem);
         } 
         else if (obj instanceof Subject)    {
           if (counter == 1) {
             this.xml.puts("<exportOnly/>");
           }
-          this._writeSubject( (Subject) obj, padding );
+          this._writeSubject( (Subject) obj);
         } 
         else if (obj instanceof Member)     {
           if (counter == 1) {
             this.xml.puts("<exportOnly/>");
           }
-          this._writeSubject( ((Member) obj).getSubject(), padding );
+          this._writeSubject( ((Member) obj).getSubject());
         } 
         else if (obj instanceof Membership) {
           if (counter == 1) {
             this.xml.puts("<exportOnly/>");
           }
-          this._writeMembership( (Membership) obj, padding );
+          this._writeMembership( (Membership) obj);
         } 
         else {
           LOG.error("Don't know about exporting " + obj);
         }
         this.xml.puts();
       }
-      this.xml.put(origPadding);
       this.xml.puts("</dataList>");
     }
-    this.xml.put(origPadding);
     this.xml.puts("<exportComments><![CDATA[");
-    this.xml.put(origPadding);
     this.xml.puts(info);
-    this.xml.put(origPadding);
     this.xml.puts("]]></exportComments>");
     this._writeFooter(before);
     LOG.debug("Finished export of Collection:" + info);
@@ -696,7 +689,7 @@ public class XmlExporter {
     }
 
     if (_optionTrue("export.data")) {
-      _exportData(gos, this.xml.getPadding() );
+      _exportData(gos);
     } 
     else {
       LOG.debug("export.data=false, so no data exported");
@@ -706,7 +699,7 @@ public class XmlExporter {
   } // private synchronized void _export(gos, relative, includeParent)
 
   // @since   1.1.0
-  private void _exportData(Owner gos, String padding) 
+  private void _exportData(Owner gos) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -716,7 +709,7 @@ public class XmlExporter {
             SubjectNotFoundException
   {
     LOG.debug("Writing repository data as XML");
-    this.xml.puts(padding + "<data>");
+    this.xml.puts("<data>");
     Stack stems = null;
     if (!isRelative) {
       stems = _getParentStems(gos);
@@ -733,10 +726,10 @@ public class XmlExporter {
         stems.push( (Stem) gos);
       }
     }
-    _writeStems(stems, padding + "  ");
-    this.xml.puts(padding + "</data>");
+    _writeStems(stems);
+    this.xml.puts("</data>");
     LOG.debug("Finished repository data as XML");
-  } // private void _exportData(gos, padding)
+  } // private void _exportData(gos)
 
   // @since   1.0
   private String _fixGroupName(String name) {
@@ -825,75 +818,64 @@ public class XmlExporter {
   } // private boolean _optionTrue(key)
 
   // @since   1.1.0
-  private void _writeBasicStemFooter(Stem stem, String padding) 
+  private void _writeBasicStemFooter(Stem stem) 
     throws  IOException
   {
-    this.xml.puts(padding + "</stem>");
-    this.xml.puts(padding + "<!--/" + stem.getName() + "-->");
+    this.xml.puts("</stem>");
+    this.xml.puts("<!--/" + stem.getName() + "-->");
     this.xml.puts();
-  } // private void _writeBasicStemFooter(stem, padding)
+  } // private void _writeBasicStemFooter(stem)
 
   // @since   1.1.0
-  private void _writeBasicStemHeader(Stem stem, String padding) 
+  private void _writeBasicStemHeader(Stem stem) 
     throws  IOException
   {
     this.xml.puts();
-    this.xml.put(padding);
     this.xml.puts("<!--" + stem.getName() + "-->");
-    this.xml.put(padding);
     this.xml.puts(
       "<stem extension='" + this._fixXmlAttribute(stem.getExtension()) + "'"
     );
-    this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts(
       "displayExtension='" + this._fixXmlAttribute(stem.getDisplayExtension()) + "'"
     );
-    this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts("name='" + this._fixXmlAttribute(stem.getName()) + "'");
-    this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts(
       "displayName='" + this._fixXmlAttribute(stem.getDisplayName()) + "'"
     );
-    this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts("id='" + this._fixXmlAttribute(stem.getUuid()) + "'>");
 
-    this.xml.put(padding + "  ");
     this.xml.puts(
       "<description>" + this._fixXmlAttribute(stem.getDescription()) + "</description>"
     );
 
-  } // private void _writeBasicStemHeader(stem, padding)
+  } // private void _writeBasicStemHeader(stem)
 
   // @since   1.1.0
-  private void _writeComposite(Composite comp, String padding) 
+  private void _writeComposite(Composite comp) 
     throws  GroupNotFoundException,
             IOException
   {
-    String nPadding = padding + "  ";
-    this.xml.put(padding);
     this.xml.puts("<composite>");
-    _writeGroupRef(comp.getLeftGroup(), nPadding);
+    _writeGroupRef(comp.getLeftGroup());
     this.xml.puts();
-    this.xml.put(nPadding);
     this.xml.puts(
       "<compositeType>" + comp.getType().toString() + "</compositeType>"
     );
     this.xml.puts();
-    _writeGroupRef(comp.getRightGroup(), nPadding);
-    this.xml.put(padding);
+    _writeGroupRef(comp.getRightGroup());
     this.xml.puts("</composite>");
-  } // private void _writeComposite(comp, padding)
+  } // private void _writeComposite(comp)
 
   // @since   1.1.0
   private void _writeExportParams(Owner o)
     throws  IOException
   {
     LOG.debug("Writing export params to XML");
-    this.xml.puts0("<exportParams>");
+    this.xml.puts("<exportParams>");
     this.xml.indent();
     String s = "<node type='";
     if (o instanceof Group) {
@@ -902,35 +884,34 @@ public class XmlExporter {
     else {
       s += "stem'>";
     }
-    this.xml.puts0( s + o.getName() + "</node>" );
-    this.xml.puts0("<relative>" + isRelative + "</relative>");
+    this.xml.puts( s + o.getName() + "</node>" );
+    this.xml.puts("<relative>" + isRelative + "</relative>");
     if (o instanceof Stem) {
-      this.xml.puts0("<includeParent>" + includeParent + "</includeParent>");
+      this.xml.puts("<includeParent>" + includeParent + "</includeParent>");
     }
     this.xml.undent();
-    this.xml.puts0("</exportParams>");
+    this.xml.puts("</exportParams>");
   } // private void _writeExportParams(o)
 
   // @since   1.1.0
-  private void _writeFieldMetaData(Field field, String padding) 
+  private void _writeFieldMetaData(Field field) 
     throws  IOException
   {
     this.xml.puts();
-    this.xml.put(padding);
     this.xml.puts(
       "<field name='" + this._fixXmlAttribute(field.getName()) + "'"
     );
     this.xml.puts(
-      padding + "        required='" + field.getRequired() + "'"
+      "        required='" + field.getRequired() + "'"
     );
-    this.xml.puts(padding + "        type='" + field.getType() + "'");
+    this.xml.puts("        type='" + field.getType() + "'");
     this.xml.puts(
-      padding + "        readPriv='" + field.getReadPriv() + "'"
+      "        readPriv='" + field.getReadPriv() + "'"
     );
     this.xml.puts(
-      padding + "        writePriv='" + field.getWritePriv() + "'/>"
+      "        writePriv='" + field.getWritePriv() + "'/>"
     );
-  } // private void _writeFieldMetaData(field, padding)
+  } // private void _writeFieldMetaData(field)
 
   // @since   1.1.0
   private synchronized void _writeFooter(Date before)
@@ -939,25 +920,19 @@ public class XmlExporter {
     LOG.debug("Writing XML Footer");
     Date    now       = new Date();
     long    duration  = (now.getTime() - before.getTime()) / 1000;
-    String  padding   = "  ";
     this.xml.puts();
-    this.xml.put(padding);
     this.xml.puts("<exportInfo>");
-    this.xml.put(padding + "  ");
     this.xml.puts("<start>" + before + "</start>");
-    this.xml.put(padding + "  ");
     this.xml.puts("<end>" + now + "</end>");
-    this.xml.put(padding + "  ");
     this.xml.puts("<duration>" + duration + "</duration>");
-    _writeOptions(padding + "  ");
-    this.xml.put(padding);
+    _writeOptions();
     this.xml.puts("</exportInfo>");
     this.xml.puts("</registry>");
     this.xml.close();
   } // private synchronized _writeFooter(before)
 
   // @since 1.1.0
-  private void _writeFullGroup(Group group, String padding) 
+  private void _writeFullGroup(Group group) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -967,50 +942,43 @@ public class XmlExporter {
   {
     LOG.debug("Writing group " + group.getName() + " to XML");
     this.xml.puts();
-    this.xml.put(padding);
     // This was in a try/catch that ignored `Exception`.
     this.xml.puts("<!--" + group.getName() + "-->");
-    this.xml.put(padding);
     this.xml.puts(
       "<group extension='" + this._fixXmlAttribute(group.getExtension()) + "'"
     );
-    this.xml.put(padding);
     this.xml.put("       ");
     this.xml.puts(
       "displayExtension='" + this._fixXmlAttribute(group.getDisplayExtension()) + "'"
     );
-    this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts("name='" + this._fixXmlAttribute(group.getName()) + "'");
-    this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts(
       "displayName='" + this._fixXmlAttribute(group.getDisplayName()) + "'"
     );
-    this.xml.put(padding);
     this.xml.put("      ");
     this.xml.puts("id='" + this._fixXmlAttribute(group.getUuid()) + "'>");
 
-    this.xml.put(padding + "  ");
     this.xml.puts(
       "<description>" + this._fixXmlAttribute(group.getDescription()) + "</description>"
     );
 
     if (_optionTrue("export.group.internal-attributes")) {
-      _writeInternalAttributes(group, padding + "  ");
+      _writeInternalAttributes(group);
     }
     if (_optionTrue("export.group.custom-attributes")) {
       Set       types     = group.getTypes();
       types.remove(this.baseType);
       if (!types.isEmpty()) {
-        this.xml.puts(padding + "  <groupTypes>");
+        this.xml.puts("  <groupTypes>");
         Iterator  typesIterator = types.iterator();
         GroupType groupType;
         while (typesIterator.hasNext()) {
           groupType = (GroupType) typesIterator.next();
-          this._writeGroupType(group, groupType, padding + "    ");
+          this._writeGroupType(group, groupType);
         }
-        this.xml.puts(padding + "  </groupTypes>");
+        this.xml.puts("  </groupTypes>");
       }
     }
 
@@ -1025,27 +993,27 @@ public class XmlExporter {
     for (int i = 0; i < listFields.size(); i++) {
       LOG.debug("Writing list members for " + group.getName() + ": field=" + listFields.get(i));
       _writeListField(
-        group, FieldFinder.find((String) listFields .get(i)), padding + "  "
+        group, FieldFinder.find((String) listFields .get(i))
       );
     }
     if (_optionTrue("export.privs.access")) {
-      _writePrivileges("admin" , group.getAdmins()   , group, padding);
-      _writePrivileges("update", group.getUpdaters() , group, padding);
-      _writePrivileges("read"  , group.getReaders()  , group, padding);
-      _writePrivileges("view"  , group.getViewers()  , group, padding);
-      _writePrivileges("optin" , group.getOptins()   , group, padding);
-      _writePrivileges("optout", group.getOptouts()  , group, padding);
+      _writePrivileges("admin" , group.getAdmins()   , group);
+      _writePrivileges("update", group.getUpdaters() , group);
+      _writePrivileges("read"  , group.getReaders()  , group);
+      _writePrivileges("view"  , group.getViewers()  , group);
+      _writePrivileges("optin" , group.getOptins()   , group);
+      _writePrivileges("optout", group.getOptouts()  , group);
     }
     this.xml.puts();
-    this.xml.puts(padding + "</group>");
+    this.xml.puts("</group>");
     // This was in a try/catch that ignored `Exception`.
-    this.xml.puts(padding + "<!--/" + group.getName() + "-->");
+    this.xml.puts("<!--/" + group.getName() + "-->");
     this.xml.puts();
     LOG.debug("Finished writing group " + group.getName() + " to XML");
-  } // private void _writeFullGroup(group, padding)
+  } // private void _writeFullGroup(group)
 
   // @since   1.1.0
-  private void _writeFullStem(Stem stem, String padding) 
+  private void _writeFullStem(Stem stem) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -1055,50 +1023,46 @@ public class XmlExporter {
             SubjectNotFoundException
   {
     LOG.debug("Writing Stem " + stem.getName() + " to XML");
-    _writeBasicStemHeader(stem, padding);
-    _writeInternalAttributes(stem, padding);
-    _writeStemPrivs(stem, padding);
-    _writeStemBody(stem, padding + "  ");
-    _writeBasicStemFooter(stem, padding);
+    _writeBasicStemHeader(stem);
+    _writeInternalAttributes(stem);
+    _writeStemPrivs(stem);
+    _writeStemBody(stem);
+    _writeBasicStemFooter(stem);
     LOG.debug("Finished writing Stem " + stem.getName() + " to XML");
-  } // private void _writeFullStem(stem, padding)
+  } // private void _writeFullStem(stem)
 
   // @since   1.1.0
-  private void _writeGroupRef(Group group, String padding) 
+  private void _writeGroupRef(Group group) 
     throws  IOException
   {
-    _writeGroupRef(group, padding, false);
-  } // private void _writeGroupRef(group, padding)
+    _writeGroupRef(group, false);
+  } // private void _writeGroupRef(group)
 
   // @since   1.1.0
-  private void _writeGroupRef(Group group, String padding, boolean writeAbsoluteName) 
+  private void _writeGroupRef(Group group, boolean writeAbsoluteName) 
     throws  IOException
   {
-    this.xml.put(padding);
     this.xml.puts("<groupRef id='" + group.getUuid() + "'");
-    this.xml.put(padding);
     String name = group.getName();
     if (!writeAbsoluteName) {
       name = this._fixGroupName(name);
     }
     this.xml.puts("        name='" + name + "'");
-    this.xml.put(padding);
     this.xml.puts(" displayName='" + group.getDisplayName() + "'/>");
-  } // private void _writeGroupRef(group, padding, writeAbsoluteName)
+  } // private void _writeGroupRef(group, writeAbsoluteName)
 
   // @since   1.1.0
-  private void _writeGroupType(Group group, GroupType groupType, String padding)
+  private void _writeGroupType(Group group, GroupType groupType)
     throws  IOException,
             SchemaException
   {
     this.xml.puts(
-      padding + "<groupType name='" + this._fixXmlAttribute(groupType.getName()) + "'>"
+      "<groupType name='" + this._fixXmlAttribute(groupType.getName()) + "'>"
     );
     Field     field;
     Set       fields          = groupType.getFields();
     Iterator  fieldsIterator  = fields.iterator();
     String    value;
-    padding                   = padding + "  ";
     while (fieldsIterator.hasNext()) {
       field = (Field) fieldsIterator.next();
       if (field.getType().equals(FieldType.LIST)) {
@@ -1115,7 +1079,6 @@ public class XmlExporter {
                 .indexOf(":" + field.getName() + ":") == -1
         ) 
         {
-          this.xml.put(padding);
           this.xml.puts(
             "<attribute name='"
             + this._fixXmlAttribute(field.getName()) + "'>" + value
@@ -1127,77 +1090,72 @@ public class XmlExporter {
         LOG.error(eANF.getMessage());
       }
     }
-    this.xml.puts(padding + "</groupType>");
-  } // private void _writeGroupType(group, groupType, padding)
+    this.xml.puts("</groupType>");
+  } // private void _writeGroupType(group, groupType)
 
   // @since   1.1.0
-  private void _writeInternalAttributes(Group group, String padding) 
+  private void _writeInternalAttributes(Group group) 
     throws  IOException,
             SubjectNotFoundException
   {
     this.xml.puts();
-    this.xml.puts(padding + "<internalAttributes>");
+    this.xml.puts("<internalAttributes>");
     this.xml.puts(
-      padding + "  <internalAttribute name='parentStem'>"
+        "  <internalAttribute name='parentStem'>"
       + this._fixXmlAttribute(group.getParentStem().getName())
       + "</internalAttribute>"
     );
     this.xml.puts(
-      padding + "  <internalAttribute name='createSource'>"
+        "  <internalAttribute name='createSource'>"
       + this._fixXmlAttribute(group.getCreateSource())
       + "</internalAttribute>"
     );
-    this.xml.puts(padding + "  <internalAttribute name='createSubject'>");
-    this._writeSubject(group.getCreateSubject(), padding + "    ");
-    this.xml.puts(padding + "  </internalAttribute>");
+    this.xml.puts("  <internalAttribute name='createSubject'>");
+    this._writeSubject(group.getCreateSubject());
+    this.xml.puts("  </internalAttribute>");
     this.xml.puts(
-        padding 
-      + "  <internalAttribute name='createTime'>"
+        "  <internalAttribute name='createTime'>"
       + this._fixXmlAttribute( Long.toString( group.getCreateTime().getTime() ) )
       + "</internalAttribute> "
       + "<!-- " + group.getCreateTime().toString() + " -->"
     );
 
     this.xml.puts(
-      padding + "  <internalAttribute name='modifySource'>"
+        "  <internalAttribute name='modifySource'>"
       + this._fixXmlAttribute(group.getModifySource())
       + "</internalAttribute>"
     );
-    this.xml.puts(padding + "  <internalAttribute name='modifySubject'>");
-    this._writeSubject(group.getModifySubject(), padding + "    ");
-    this.xml.puts(padding + "  </internalAttribute>");
+    this.xml.puts("  <internalAttribute name='modifySubject'>");
+    this._writeSubject(group.getModifySubject());
+    this.xml.puts("  </internalAttribute>");
     this.xml.puts(
-        padding 
-      + "  <internalAttribute name='modifyTime'>"
+        "  <internalAttribute name='modifyTime'>"
       + this._fixXmlAttribute( Long.toString( group.getModifyTime().getTime() ) )
       + "</internalAttribute> "
       + "<!-- " + group.getModifyTime().toString() + " -->"
     );
 
-    this.xml.puts(padding + "</internalAttributes>");
+    this.xml.puts("</internalAttributes>");
     this.xml.puts();
-  } // private void _writeInternalAttributes(group, padding)
+  } // private void _writeInternalAttributes(group)
 
   // @since   1.1.0
-  private void _writeGroupTypesMetaData(String padding)
+  private void _writeGroupTypesMetaData()
     throws  IOException 
   {
     Set groupTypes = GroupTypeFinder.findAll();
     if (groupTypes.isEmpty()) {
       return;
     }
-    this.xml.put(padding);
     this.xml.puts("<groupTypesMetaData>");
     Field     field;
     Set       fields;
     Iterator  fieldsIterator;
     GroupType groupType;
     Iterator  groupTypesIterator = groupTypes.iterator();
-    padding               = padding + "  ";
     while (groupTypesIterator.hasNext()) {
       groupType = (GroupType) groupTypesIterator.next();
       this.xml.puts();
-      this.xml.put(padding);
       this.xml.puts(
         "<groupTypeDef name='" + this._fixXmlAttribute(groupType.getName()) + "'>"
       );
@@ -1205,17 +1163,15 @@ public class XmlExporter {
       fieldsIterator = fields.iterator();
       while (fieldsIterator.hasNext()) {
         field = (Field) fieldsIterator.next();
-        _writeFieldMetaData(field, padding + " ");
+        _writeFieldMetaData(field);
       }
       this.xml.puts();
-      this.xml.put(padding);
       this.xml.puts("</groupTypeDef>");
     }
 
-    this.xml.put(padding);
     this.xml.puts("</groupTypesMetaData>");
     this.xml.puts();
-  } // private void _writeGroupTypesMetaData(padding)
+  } // private void _writeGroupTypesMetaData()
 
   // @since   1.1.0
   private synchronized Date _writeHeader()
@@ -1224,17 +1180,16 @@ public class XmlExporter {
   {
     LOG.debug("Writing XML header");
     Date    before  = new Date();
-    String  padding = "  ";
     this.xml.puts("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     this.xml.puts("<registry>");
     if (_optionTrue("export.metadata")) {
-      _writeMetaData(padding);
+      _writeMetaData();
     }
     return before;
   } // private synchronized Date _writeHeader()
 
   // @since   1.1.0
-  private void _writeInternalAttributes(Stem stem, String padding) 
+  private void _writeInternalAttributes(Stem stem)
     throws  IOException,
             StemNotFoundException,
             SubjectNotFoundException
@@ -1243,50 +1198,48 @@ public class XmlExporter {
       return;
     }
     this.xml.puts();
-    this.xml.puts(padding + "<internalAttributes>");
+    this.xml.puts("<internalAttributes>");
     this.xml.puts(
-      padding + "  <internalAttribute name='parentStem'>"
+        "  <internalAttribute name='parentStem'>"
       + this._fixXmlAttribute(stem.getParentStem().getName())
       + "</internalAttribute>"
     );
     this.xml.puts(
-      padding + "  <internalAttribute name='createSource'>"
+        "  <internalAttribute name='createSource'>"
      + this._fixXmlAttribute(stem.getCreateSource())
      + "</internalAttribute>"
     );
-    this.xml.puts(padding + "  <internalAttribute name='createSubject'>");
-    this._writeSubject(stem.getCreateSubject(), padding + "    ");
-    this.xml.puts(padding + "  </internalAttribute>");
+    this.xml.puts("  <internalAttribute name='createSubject'>");
+    this._writeSubject(stem.getCreateSubject());
+    this.xml.puts("  </internalAttribute>");
     this.xml.puts(
-        padding 
-      + "  <internalAttribute name='createTime'>"
+        "  <internalAttribute name='createTime'>"
       + this._fixXmlAttribute( Long.toString( stem.getCreateTime().getTime() ) )
       + "</internalAttribute> "
       + "<!-- " + stem.getCreateTime().toString() + " -->"
     );
 
     this.xml.puts(
-      padding + "  <internalAttribute name='modifySource'>"
+        "  <internalAttribute name='modifySource'>"
       + this._fixXmlAttribute(stem.getModifySource())
       + "</internalAttribute>"
     );
-    this.xml.puts(padding + "  <internalAttribute name='modifySubject'>");
-    this._writeSubject(stem.getModifySubject(), padding + "    ");
-    this.xml.puts(padding + "  </internalAttribute>");
+    this.xml.puts("  <internalAttribute name='modifySubject'>");
+    this._writeSubject(stem.getModifySubject());
+    this.xml.puts("  </internalAttribute>");
     this.xml.puts(
-        padding 
-      + "  <internalAttribute name='modifyTime'>"
+        "  <internalAttribute name='modifyTime'>"
       + this._fixXmlAttribute( Long.toString( stem.getModifyTime().getTime() ) )
       + "</internalAttribute> "
       + "<!-- " + stem.getModifyTime().toString() + " -->"
     );
 
-    this.xml.puts(padding + "</internalAttributes>");
+    this.xml.puts("</internalAttributes>");
     this.xml.puts();
-  } // private void _writeInternalAttributes(stem, padding)
+  } // private void _writeInternalAttributes(stem)
 
   // @since   1.1.0
-  private void _writeListField(Group group, Field field, String padding) 
+  private void _writeListField(Group group, Field field) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -1332,7 +1285,6 @@ public class XmlExporter {
       return;
     }
     this.xml.puts();
-    this.xml.put(padding);
     this.xml.puts(
       "<list field='" + this._fixXmlAttribute(field.getName())
       + "'  groupType='"
@@ -1340,17 +1292,16 @@ public class XmlExporter {
     );
     if (isComposite) {
       Composite composite = CompositeFinder.findAsOwner(group);
-      _writeComposite(composite, padding + "  ");
+      _writeComposite(composite);
     }
-    _writeMembers(members, group, field, padding + "  ");
-    this.xml.put(padding);
+    _writeMembers(members, group, field);
     this.xml.puts(
       "</list> <!--/field=" + this._fixXmlAttribute(field.getName()) + "-->"
     );
-  } // private void _writeListField(group, field, padding)
+  } // private void _writeListField(group, field)
 
   // @since   1.1.0
-  private void _writeMembers(Collection members, Group group, Field field, String padding)
+  private void _writeMembers(Collection members, Group group, Field field)
     throws  IOException,
             MemberNotFoundException,
             SubjectNotFoundException
@@ -1371,12 +1322,12 @@ public class XmlExporter {
         }
       }
       subj = member.getMember().getSubject();
-      this._writeSubject(subj, " immediate='" + isImmediate + "' ", padding);
+      this._writeSubject(subj, " immediate='" + isImmediate + "' ");
     }
-  } // private void _writeMembers(members, group, field, padding)
+  } // private void _writeMembers(members, group, field)
 
   // @since   1.1.0
-  private void _writeMembership(Membership membership, String padding) 
+  private void _writeMembership(Membership membership) 
     throws  GroupNotFoundException,
             IOException,
             MemberNotFoundException,
@@ -1388,41 +1339,32 @@ public class XmlExporter {
       isImmediate = false;
     }
 
-    String exPadding = padding + "  ";
-    this.xml.put(padding);
     this.xml.puts("<membership>");
-    this.xml.put(exPadding);
     this.xml.puts("<depth>" + membership.getDepth() + "</depth>");
-    this.xml.put(exPadding);
     this.xml.puts("<listName>" + membership.getList().getName() + "</listName>");
-    this.xml.put(exPadding);
     this.xml.puts("<immediate>" + isImmediate + "</immediate>");
-    _writeGroupRef(membership.getGroup(), exPadding, true);
-    this._writeSubject(membership.getMember().getSubject(), exPadding);
-    this.xml.put(padding);
+    _writeGroupRef(membership.getGroup(), true);
+    this._writeSubject(membership.getMember().getSubject());
     this.xml.puts("</membership>");
-  } // private void _writeMembership(membership, padding)
+  } // private void _writeMembership(membership)
 
   // @since   1.1.0
-  private void _writeMetaData(String padding)
+  private void _writeMetaData()
     throws  GrouperException,
             IOException 
   {
     LOG.debug("Writing repository metadata as XML");
-    this.xml.put(padding);
     this.xml.puts("<metadata>");
-    _writeGroupTypesMetaData(padding + "  ");
-    this._writeSubjectSourceMetaData(padding + "  ");
-    this.xml.put(padding);
+    _writeGroupTypesMetaData();
+    this._writeSubjectSourceMetaData();
     this.xml.puts("</metadata>");
-  } // private void _writeMetaData(padding)
+  } // private void _writeMetaData()
 
   // @since   1.1.0
-  private void _writeOptions(String padding) 
+  private void _writeOptions() 
     throws  IOException
   {
     LOG.debug("Writing export options as XML");
-    this.xml.put(padding);
     this.xml.puts("<options>");
     List      orderedList     = new ArrayList(options.keySet());
     Collections.sort(orderedList);
@@ -1431,18 +1373,16 @@ public class XmlExporter {
     String key;
     while (optionsIterator.hasNext()) {
       key = (String) optionsIterator.next();
-      this.xml.put(padding + "  ");
       this.xml.puts(
         "<option key='" + key + "'>"
         + options.getProperty(key) + "</option>"
       );
     }
-    this.xml.put(padding);
     this.xml.puts("</options>");
-  } // private void _writeOptions(padding)
+  } // private void _writeOptions()
 
   // @since   1.1.0
-  private void _writePrivileges(String privilege, Set subjects, Owner gos, String padding)
+  private void _writePrivileges(String privilege, Set subjects, Owner gos)
     throws  IOException,
             MemberNotFoundException
   {
@@ -1456,7 +1396,6 @@ public class XmlExporter {
 
     LOG.debug("Writing privilegees with [" + privilege + "] for " + gos.getName());
     this.xml.puts();
-    this.xml.put(padding);
 
     this.xml.puts("<privileges type='" + privilege + "'>");
     Iterator  subjIterator  = subjects.iterator();
@@ -1471,16 +1410,15 @@ public class XmlExporter {
         && 
         (isImmediate || !_optionTrue("export.privs.immediate-only"))) 
       {
-        this._writeSubject(subject, " immediate='" + isImmediate + "' ", padding + "  ");
+        this._writeSubject(subject, " immediate='" + isImmediate + "' ");
       }
     }
-    this.xml.put(padding);
     this.xml.puts("</privileges> <!--/privilege=" + privilege + "-->");
 
-  } // private void _writePrivileges(privilege, subjects, gos, padding)
+  } // private void _writePrivileges(privilege, subjects, gos)
 
   // @since   1.1.0
-  private void _writeStemBody(Stem stem, String padding) 
+  private void _writeStemBody(Stem stem) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -1494,7 +1432,7 @@ public class XmlExporter {
     Iterator  stemsIterator = stems.iterator();
     while (stemsIterator.hasNext()) {
       childStem = (Stem) stemsIterator.next();
-      _writeFullStem(childStem, padding);
+      _writeFullStem(childStem);
     }
 
     Set       groups          = stem.getChildGroups();
@@ -1502,12 +1440,12 @@ public class XmlExporter {
     Group childGroup;
     while (groupsIterator.hasNext()) {
       childGroup = (Group) groupsIterator.next();
-      _writeFullGroup(childGroup, padding);
+      _writeFullGroup(childGroup);
     }
-  } // private void _writeStemBody(stem, padding)
+  } // private void _writeStemBody(stem)
 
   // @since   1.1.0
-  private void _writeStemPrivs(Stem stem, String padding) 
+  private void _writeStemPrivs(Stem stem) 
     throws  IOException,
             MemberNotFoundException
   {
@@ -1516,17 +1454,17 @@ public class XmlExporter {
        ) 
     {
       LOG.debug("Writing STEM privilegees for " + stem.getName());
-      _writePrivileges("stem", stem.getStemmers(), stem, padding);
-      _writePrivileges("create", stem.getStemmers(), stem, padding);
+      _writePrivileges("stem", stem.getStemmers(), stem);
+      _writePrivileges("create", stem.getStemmers(), stem);
       LOG.debug("Writing CREATE privilegees for " + stem.getName());
     } 
     else {
       LOG.debug("Skipping naming privs for " + stem.getName());
     }
-  } // private void _writeStemPrivs(stem, padding)
+  } // private void _writeStemPrivs(stem)
 
   // @since   1.1.0
-  private void _writeStems(Stack stems, String padding) 
+  private void _writeStems(Stack stems) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -1538,7 +1476,7 @@ public class XmlExporter {
     writeStemsCounter++;
     Object obj = stems.pop();
     if (obj instanceof Group) {
-      _writeFullGroup( (Group) obj, padding );
+      _writeFullGroup( (Group) obj );
       return;
     }
 
@@ -1546,35 +1484,34 @@ public class XmlExporter {
 
     if (stems.isEmpty()) {
       if (includeParent || writeStemsCounter > 1) {
-        _writeFullStem(stem, padding + "  ");
+        _writeFullStem(stem);
       } 
       else {
-        _writeStemBody(stem, padding + "  ");
+        _writeStemBody(stem);
       }
       return;
     } 
     else {
-      _writeBasicStemHeader(stem, padding);
+      _writeBasicStemHeader(stem);
       if(_optionTrue("export.privs.for-parents")) {
-      	_writeStemPrivs(stem, padding);
+      	_writeStemPrivs(stem);
       }
-      _writeStems(stems, padding + "  ");
-      _writeBasicStemFooter(stem, padding);
+      _writeStems(stems);
+      _writeBasicStemFooter(stem);
     }
-  } // private void _writeStems(stems, padding)
+  } // private void _writeStems(stems)
 
   // @since   1.1.0
-  private void _writeSubject(Subject subj, String padding) 
+  private void _writeSubject(Subject subj) 
     throws  IOException 
   {
-    this._writeSubject(subj, "", padding);
-  } // private void _writeSubject(subj, padding)
+    this._writeSubject(subj, "");
+  } // private void _writeSubject(subj)
 
   // @since   1.1.0
-  private void _writeSubject(Subject subj, String immediate, String padding) 
+  private void _writeSubject(Subject subj, String immediate) 
     throws  IOException 
   {
-    this.xml.put(padding);
     String attrName = "id";
     String id       = null;
     if ("group".equals(subj.getType().getName())) {
@@ -1600,38 +1537,30 @@ public class XmlExporter {
     this.xml.puts(">");
     String    attr;
     Iterator  attrIt;
-    String    attrPadding = padding + "  ";
     String    attrValue;
     Set       values;
     while (exportAttrs.hasNext()) {
       attr = (String) exportAttrs.next();
       values = subj.getAttributeValues(attr);
-      this.xml.put(attrPadding);
       this.xml.puts("<subjectAttribute name='" + attr + "'>");
       attrIt = values.iterator();
       while (attrIt.hasNext()) {
         attrValue = (String) attrIt.next();
-        this.xml.put(attrPadding + "  ");
         this.xml.puts("<value>" + attrValue + "</value>");
       }
-      this.xml.put(attrPadding);
       this.xml.puts("</subjectAttribute>");
     }
-    this.xml.put(padding);
     this.xml.puts("</subject>");
 
-  } // private void _writeSubject(subj, immediate, padding)
+  } // private void _writeSubject(subj, immediate)
 
   // @since   1.1.0
-  private void _writeSubjectSourceMetaData(String padding)
+  private void _writeSubjectSourceMetaData()
     throws  GrouperException,
             IOException 
   {
     this.xml.puts();
-    this.xml.put(padding);
     this.xml.puts("<subjectSourceMetaData>");
-    String      origPadding     = padding;
-    padding                     = padding + "  ";
     Source      source;
     Collection  sources;
     try {
@@ -1648,33 +1577,29 @@ public class XmlExporter {
     while (sourcesIterator.hasNext()) {
       source = (Source) sourcesIterator.next();
       this.xml.puts();
-      this.xml.put(padding);
       this.xml.puts(
         "<source id='" + this._fixXmlAttribute(source.getId()) + "'"
       );
-      this.xml.puts(padding + "        name='" + source.getName() + "'");
+      this.xml.puts("        name='" + source.getName() + "'");
       this.xml.puts(
-        padding + "        class='" + source.getClass().getName() + "'>"
+        "        class='" + source.getClass().getName() + "'>"
       );
       subjectTypes          = source.getSubjectTypes();
       subjectTypesIterator  = subjectTypes.iterator();
       while (subjectTypesIterator.hasNext()) {
         subjectType = (SubjectType) subjectTypesIterator.next();
-        this.xml.put(padding + "  ");
         this.xml.puts(
           "<subjectType name='" + subjectType.getName() + "'/>"
         );
       }
 
-      this.xml.put(padding);
       this.xml.puts("</source>");
 
     }
     this.xml.puts();
-    this.xml.put(origPadding);
     this.xml.puts("</subjectSourceMetaData>");
     this.xml.puts();
-  } // private void _writeSubjectSourceMetaData(padding)
+  } // private void _writeSubjectSourceMetaData()
 
 } // public class XmlExporter
 
