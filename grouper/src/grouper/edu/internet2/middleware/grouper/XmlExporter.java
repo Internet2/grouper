@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.50 2006-10-02 18:35:16 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.51 2006-10-02 19:36:31 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -818,11 +818,12 @@ public class XmlExporter {
   } // private boolean _optionTrue(key)
 
   // @since   1.1.0
-  private void _writeBasicStemFooter(Stem stem) 
+  private void _writeBasicStemFooter(Stem ns) 
     throws  IOException
   {
     this.xml.puts("</stem>");
-    this.xml.puts("<!--/" + stem.getName() + "-->");
+    this.xml.puts( this.xml.comment( U.q(ns.getName() ) ) );
+    this.xml.undent();
     this.xml.puts();
   } // private void _writeBasicStemFooter(stem)
 
@@ -921,7 +922,7 @@ public class XmlExporter {
   } // private synchronized _writeFooter(before)
 
   // @since 1.1.0
-  private void _writeFullGroup(Group group) 
+  private void _writeFullGroup(Group g) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -929,76 +930,39 @@ public class XmlExporter {
             SchemaException,
             SubjectNotFoundException
   {
-    LOG.debug("Writing group " + group.getName() + " to XML");
     this.xml.puts();
-    // This was in a try/catch that ignored `Exception`.
-    this.xml.puts("<!--" + group.getName() + "-->");
-    this.xml.puts(
-      "<group extension='" + this._fixXmlAttribute(group.getExtension()) + "'"
-    );
-    this.xml.put("       ");
-    this.xml.puts(
-      "displayExtension='" + this._fixXmlAttribute(group.getDisplayExtension()) + "'"
-    );
-    this.xml.put("      ");
-    this.xml.puts("name='" + this._fixXmlAttribute(group.getName()) + "'");
-    this.xml.put("      ");
-    this.xml.puts(
-      "displayName='" + this._fixXmlAttribute(group.getDisplayName()) + "'"
-    );
-    this.xml.put("      ");
-    this.xml.puts("id='" + this._fixXmlAttribute(group.getUuid()) + "'>");
+    this.xml.indent();
+    this.xml.puts( this.xml.comment( U.q( g.getName() ) ) );
+    this.xml.puts("<group extension=" + U.q( this._fixXmlAttribute(g.getExtension()) )        );
+    this.xml.indent();
+    this.xml.puts("displayExtension=" + U.q( this._fixXmlAttribute(g.getDisplayExtension()) ) );
+    this.xml.puts("name="             + U.q( this._fixXmlAttribute(g.getName()) )             );
+    this.xml.puts("displayName="      + U.q( this._fixXmlAttribute(g.getDisplayName()) )      );
+    this.xml.puts("id="               + U.q( this._fixXmlAttribute(g.getUuid()) )             );
+    this.xml.undent();
+    this.xml.puts(">");
+    this.xml.indent();
+    this.xml.puts("<description>" + this._fixXmlAttribute(g.getDescription()) + "</description>");
+    this.xml.undent();
 
-    this.xml.puts(
-      "<description>" + this._fixXmlAttribute(group.getDescription()) + "</description>"
-    );
+    if (this._optionTrue("export.group.internal-attributes")) {
+      this._writeInternalAttributes(g);
+    }
+    this._writeAttributes(g);
+    this._writeLists(g);
 
-    if (_optionTrue("export.group.internal-attributes")) {
-      this._writeInternalAttributes(group);
+    if (this._optionTrue("export.privs.access")) {
+      this._writePrivileges("admin" , g.getAdmins()   , g);
+      this._writePrivileges("update", g.getUpdaters() , g);
+      this._writePrivileges("read"  , g.getReaders()  , g);
+      this._writePrivileges("view"  , g.getViewers()  , g);
+      this._writePrivileges("optin" , g.getOptins()   , g);
+      this._writePrivileges("optout", g.getOptouts()  , g);
     }
-    if (_optionTrue("export.group.custom-attributes")) {
-      Set       types     = group.getTypes();
-      types.remove(this.baseType);
-      if (!types.isEmpty()) {
-        this.xml.puts("  <groupTypes>");
-        Iterator  typesIterator = types.iterator();
-        GroupType groupType;
-        while (typesIterator.hasNext()) {
-          groupType = (GroupType) typesIterator.next();
-          this._writeGroupType(group, groupType);
-        }
-        this.xml.puts("  </groupTypes>");
-      }
-    }
-
-    List listFields = new ArrayList();
-    if (_optionTrue("export.group.lists")) {
-      listFields.addAll( _getListFieldsForGroup(group) );
-    }
-    if (_optionTrue("export.group.members")) {
-      listFields.add(0, "members");
-    }
-
-    for (int i = 0; i < listFields.size(); i++) {
-      LOG.debug("Writing list members for " + group.getName() + ": field=" + listFields.get(i));
-      _writeListField(
-        group, FieldFinder.find((String) listFields .get(i))
-      );
-    }
-    if (_optionTrue("export.privs.access")) {
-      _writePrivileges("admin" , group.getAdmins()   , group);
-      _writePrivileges("update", group.getUpdaters() , group);
-      _writePrivileges("read"  , group.getReaders()  , group);
-      _writePrivileges("view"  , group.getViewers()  , group);
-      _writePrivileges("optin" , group.getOptins()   , group);
-      _writePrivileges("optout", group.getOptouts()  , group);
-    }
-    this.xml.puts();
     this.xml.puts("</group>");
-    // This was in a try/catch that ignored `Exception`.
-    this.xml.puts("<!--/" + group.getName() + "-->");
+    this.xml.puts( this.xml.comment( U.q(g.getName() ) ) );
+    this.xml.undent();
     this.xml.puts();
-    LOG.debug("Finished writing group " + group.getName() + " to XML");
   } // private void _writeFullGroup(group)
 
   // @since   1.1.0
@@ -1041,48 +1005,95 @@ public class XmlExporter {
   } // private void _writeGroupRef(group, writeAbsoluteName)
 
   // @since   1.1.0
-  private void _writeGroupType(Group group, GroupType groupType)
+  private void _writeGroupType(Group g, GroupType gt)
     throws  IOException,
             SchemaException
   {
-    this.xml.puts(
-      "<groupType name='" + this._fixXmlAttribute(groupType.getName()) + "'>"
-    );
-    Field     field;
-    Set       fields          = groupType.getFields();
-    Iterator  fieldsIterator  = fields.iterator();
-    String    value;
-    while (fieldsIterator.hasNext()) {
-      field = (Field) fieldsIterator.next();
-      if (field.getType().equals(FieldType.LIST)) {
-        continue;
-      }
-      if (!group.canReadField(field)) {
-        continue;
-      }
+    this.xml.indent();
+    this.xml.puts("<groupType name=" + U.q( this._fixXmlAttribute(gt.getName()) ) + ">");
+    String    val;
+    Iterator  it  = gt.getFields().iterator();
+    while (it.hasNext()) {
+      this._writeGroupTypeField(g, (Field) it.next());
+    }
+    this.xml.puts("</groupType>");
+    this.xml.undent();
+    this.xml.puts();
+  } // private void _writeGroupType(group, groupType)
+
+  // @since   1.1.0
+  private void _writeGroupTypeField(Group g, Field f) 
+    throws  IOException,
+            SchemaException
+  {
+    if ( !f.getType().equals(FieldType.LIST) && g.canReadField(f) ) {
       try {
-        value = this._fixXmlAttribute(group.getAttribute(field.getName()));
+        String val = this._fixXmlAttribute(g.getAttribute(f.getName()));
         if (
-            !XmlUtils.isEmpty(value)
-            && ":description:extension:displayExtension:"
-                .indexOf(":" + field.getName() + ":") == -1
+                !XmlUtils.isEmpty(val)
+            &&  ":description:extension:displayExtension:".indexOf(":" + f.getName() + ":") == -1
         ) 
         {
+          this.xml.indent();
           this.xml.puts(
             "<attribute name='"
-            + this._fixXmlAttribute(field.getName()) + "'>" + value
+            + this._fixXmlAttribute(f.getName()) + "'>" + val
             + "</attribute>"
           );
+          this.xml.undent();
         }
       }
       catch (AttributeNotFoundException eANF) {
         LOG.error(eANF.getMessage());
       }
     }
-    this.xml.puts("</groupType>");
-  } // private void _writeGroupType(group, groupType)
+  } // private void _writeGroupTypeField(g, f)
 
   // @since   1.1.0
+  private void _writeAttributes(Group g) 
+    throws  IOException,
+            SchemaException
+  {
+    if (this._optionTrue("export.group.custom-attributes")) {
+      Set types = g.getTypes(); 
+      types.remove(this.baseType); // TODO 20061002 didn't i add a method so this wouldn't be necessary?
+      if (!types.isEmpty()) {
+        this.xml.indent();
+        this.xml.puts("<groupTypes>");
+        Iterator it = types.iterator();
+        while (it.hasNext()) {
+          this._writeGroupType(g, (GroupType) it.next());
+        }
+        this.xml.puts("</groupTypes>");
+        this.xml.undent();
+      }
+    }
+  } // private void _writeAttributes(g)
+
+  // @since   1.1.0 
+  private void _writeLists(Group g) 
+    throws  CompositeNotFoundException,
+            GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SchemaException,  
+            SubjectNotFoundException
+  {
+    List lists = new ArrayList();
+    if (this._optionTrue("export.group.members")) {
+      lists.add("members");
+    }
+    if (this._optionTrue("export.group.lists")) {
+      lists.addAll( _getListFieldsForGroup(g) );
+    }
+    Iterator it = lists.iterator();
+    while (it.hasNext()) {
+      this._writeList(g, FieldFinder.find( (String) it.next() ) );
+    }
+  } // private void _writeLists(g)
+
+  // @since   1.1.0
+  // TODO 20061002 can i use `Owner`?
   private void _writeInternalAttributes(Group g) 
     throws  IOException,
             SubjectNotFoundException
@@ -1098,6 +1109,7 @@ public class XmlExporter {
     this._writeInternalAttribute( "modifyTime"    , g.getModifyTime()           );
     this.xml.puts("</internalAttributes>");
     this.xml.undent();
+    this.xml.puts();
   } // private void _writeInternalAttributes(g)
 
   // @since   1.1.0
@@ -1219,7 +1231,7 @@ public class XmlExporter {
   } // private void _writeInternalAttributes(stem)
 
   // @since   1.1.0
-  private void _writeListField(Group group, Field field) 
+  private void _writeList(Group g, Field f) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -1227,58 +1239,54 @@ public class XmlExporter {
             SchemaException,
             SubjectNotFoundException
   {
-    if (!group.canReadField(field)) {
-      LOG.debug(
-        "No read privilege. List [" + field.getName() + "] for ["
-        + group.getName() + "] ignored"
-      );
-      return;
-    }
-    boolean isComposite = false;
-    Set     membersSet = null;
-    if ("members".equals(field.getName()) && group.hasComposite()) {
-      isComposite = true;
-      membersSet  = new HashSet();
-    } 
-    else {
-      membersSet = group.getImmediateMemberships(field);
-    }
-    Collection members = new ArrayList();
-    members.addAll(membersSet);
-    if (
-      (
-        "members".equals(field.getName()) && !_optionTrue("export.group.members.immediate-only")
-      )
-      || 
-      (
-        !"members".equals(field.getName()) && !_optionTrue("export.group.lists.immediate-only")
-      )
-    ) 
-    {
-      members.addAll(group.getEffectiveMemberships(field));
-      if ("members".equals(field.getName()) && group.hasComposite()) {
-        members.addAll(group.getCompositeMemberships());
+    if (g.canReadField(f)) {
+      boolean isComposite = false;
+      Set     membersSet  = null;
+      if (f.getName().equals("members") && g.hasComposite()) {
+        isComposite = true;
+        membersSet  = new HashSet();
+      } 
+      else {
+        membersSet = g.getImmediateMemberships(f);
       }
-    }
+      Collection members = new ArrayList();
+      members.addAll(membersSet);
+      if (
+        (
+          f.getName().equals("members") && !this._optionTrue("export.group.members.immediate-only")
+        )
+        || 
+        (
+          !f.getName().equals("members") && !this._optionTrue("export.group.lists.immediate-only")
+        )
+      ) 
+      {
+        members.addAll (g.getEffectiveMemberships(f) );
+        if (f.getName().equals("members") && g.hasComposite()) {
+          members.addAll( g.getCompositeMemberships() );
+        }
+      }
+      if (members.isEmpty() && !isComposite) {
+        return;
+      }
+      this.xml.indent();
 
-    if (members.isEmpty() && !isComposite) {
-      return;
+      this.xml.puts(
+          "<list field="  + U.q( this._fixXmlAttribute(f.getName()) )
+        + " groupType="   + U.q( this._fixXmlAttribute(f.getGroupType().getName()) )
+        + ">"
+      );
+      if (isComposite) {
+        this._writeComposite( CompositeFinder.findAsOwner(g) );
+      }
+      this._writeMembers(members, g, f);
+      this.xml.puts(
+        "</list> " + this.xml.comment( U.q( this._fixXmlAttribute(f.getName() ) ) ) 
+      );
+      this.xml.undent();
+      this.xml.puts();
     }
-    this.xml.puts();
-    this.xml.puts(
-      "<list field='" + this._fixXmlAttribute(field.getName())
-      + "'  groupType='"
-      + this._fixXmlAttribute(field.getGroupType().getName()) + "'>"
-    );
-    if (isComposite) {
-      Composite composite = CompositeFinder.findAsOwner(group);
-      _writeComposite(composite);
-    }
-    _writeMembers(members, group, field);
-    this.xml.puts(
-      "</list> <!--/field=" + this._fixXmlAttribute(field.getName()) + "-->"
-    );
-  } // private void _writeListField(group, field)
+  } // private void _writeListField(g, f)
 
   // @since   1.1.0
   private void _writeMembers(Collection members, Group group, Field field)
@@ -1409,20 +1417,13 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    Stem      childStem;
-    Set       stems         = stem.getChildStems();
-    Iterator  stemsIterator = stems.iterator();
-    while (stemsIterator.hasNext()) {
-      childStem = (Stem) stemsIterator.next();
-      _writeFullStem(childStem);
+    Iterator  itS = stem.getChildStems().iterator();
+    while (itS.hasNext()) {
+      this._writeFullStem( (Stem) itS.next() );
     }
-
-    Set       groups          = stem.getChildGroups();
-    Iterator  groupsIterator  = groups.iterator();
-    Group childGroup;
-    while (groupsIterator.hasNext()) {
-      childGroup = (Group) groupsIterator.next();
-      _writeFullGroup(childGroup);
+    Iterator  itG = stem.getChildGroups().iterator();
+    while (itG.hasNext()) {
+      this._writeFullGroup( (Group) itG.next() );
     }
   } // private void _writeStemBody(stem)
 
