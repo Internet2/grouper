@@ -22,7 +22,7 @@ import  java.io.*;
  * Create XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlWriter.java,v 1.3 2006-09-27 19:46:57 blair Exp $
+ * @version $Id: XmlWriter.java,v 1.4 2006-10-02 16:29:12 blair Exp $
  * @since   1.1.0
  */
 class XmlWriter {
@@ -38,7 +38,7 @@ class XmlWriter {
   // @since   1.1.0
   protected XmlWriter(Writer w) {
     this.newLine  = GrouperConfig.NL;
-    this.padding  = "  ";
+    this.padding  = GrouperConfig.EMPTY_STRING;
     this.w        = w;
   } // protected XmlWriter(w)
 
@@ -54,29 +54,16 @@ class XmlWriter {
   } // protected void close()
 
   // @since   1.1.0
-  protected String getPadding() {
-    return this.padding;
-  } // protected String getPadding()
-
-  // @since   1.1.0
   protected void indent() {
-    this.padding = this.getPadding() + "  ";
+    this.padding = this._getPadding() + "  ";
   } // protected void indent();
 
-  // Output string to {@link Writer}.
+  // Output string to {@link Writer} with leading padding.
   // @since   1.1.0
   protected void put(String s) 
     throws  IOException
   {
-    this.w.write(s);
-  } // protected void put(s)
-
-  // @since   1.1.0
-  // TODO 20060927 merge back into `puts()` once i'm happy with it
-  protected void put0(String s) 
-    throws  IOException
-  {
-    this.w.write( this.getPadding() + s );
+    this.w.write( this._getPadding() + s );
   } // protected void put0(s)
 
   // Output platform-appropriate newline to {@link Writer}.
@@ -87,26 +74,35 @@ class XmlWriter {
     this.w.write(this.newLine);
   } // protected void puts(s)
 
-  // Output string plus platform-appropriate newline to {@link Writer}.
-  // @since   1.1.10
+  // Output string to {@link Writer} with platform-appropriate newline and leading padding.
+  // @since   1.1.0
   protected void puts(String s) 
     throws  IOException
   {
-    this.w.write(s + this.newLine);
+    this.put( s + this.newLine );
   } // protected void puts(s)
 
   // @since   1.1.0
-  // TODO 20060927 merge back into `puts()` once i'm happy with it
-  protected void puts0(String s) 
-    throws  IOException
+  protected void undent() 
+    throws  GrouperRuntimeException
   {
-    this.put0( s + this.newLine );
-  } // protected void puts0(s)
+    if (this._getPadding().length() < 2) {
+      throw new GrouperRuntimeException(
+        "CANNOT UNDENT WHEN PADDING SIZE IS " + this._getPadding().length()
+      );
+    }
+    else {
+      this.padding = this._getPadding().substring(2);
+    }
+  } // protected void undent();
+
+
+  // PRIVATE INSTANCE METHODS //
 
   // @since   1.1.0
-  protected void undent() {
-    this.padding = this.getPadding().substring(2);
-  } // protected void undent();
+  private String _getPadding() {
+    return this.padding;
+  } // private String _getPadding()
 
 } // class XmlWriter
 
