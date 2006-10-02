@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.41 2006-10-02 16:29:12 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.42 2006-10-02 16:32:58 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -418,15 +418,13 @@ public class XmlExporter {
   } // protected static boolean hasImmediatePrivilege(subject, group, privilege)
 
   // @since   1.0
-  protected static boolean hasImmediatePrivilege(
-    Subject subject, Owner gos, String privilege
-  ) 
+  protected static boolean hasImmediatePrivilege(Subject subject, Owner o, String privilege) 
   {
-    if (gos instanceof Group) {
-      return hasImmediatePrivilege(subject, (Group) gos, privilege);
+    if (o instanceof Group) {
+      return hasImmediatePrivilege(subject, (Group) o, privilege);
     }
-    return hasImmediatePrivilege(subject, (Stem) gos, privilege);
-  } // protected static boolean hasImmediatePrivilege(subject, gos, privilege)
+    return hasImmediatePrivilege(subject, (Stem) o, privilege);
+  } // protected static boolean hasImmediatePrivilege(subject, o, privilege)
 
   // @since   1.0
   protected static boolean hasImmediatePrivilege(
@@ -653,7 +651,7 @@ public class XmlExporter {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.1.0
-  private synchronized void _export(Owner gos, boolean relative, boolean includeParent)
+  private synchronized void _export(Owner o, boolean relative, boolean includeParent)
     throws  CompositeNotFoundException,
             GrouperException,
             GroupNotFoundException,
@@ -674,32 +672,32 @@ public class XmlExporter {
     }
     if (relative) {
       Stem dummyStem = null;
-      if      (includeParent || gos instanceof Group) {
-        if (gos instanceof Group) {
-          dummyStem = ( (Group) gos ).getParentStem();
+      if      (includeParent || o instanceof Group) {
+        if (o instanceof Group) {
+          dummyStem = ( (Group) o ).getParentStem();
         } 
         else {
-          dummyStem = ( (Stem) gos ).getParentStem();
+          dummyStem = ( (Stem) o ).getParentStem();
         }
       } 
       else if (!includeParent) {
-        dummyStem = (Stem) gos;
+        dummyStem = (Stem) o;
       }
       fromStem = dummyStem.getName() + ":";
     }
 
     if (_optionTrue("export.data")) {
-      _exportData(gos);
+      _exportData(o);
     } 
     else {
       LOG.debug("export.data=false, so no data exported");
     }
-    this._writeExportParams(gos);
+    this._writeExportParams(o);
     _writeFooter(before);
-  } // private synchronized void _export(gos, relative, includeParent)
+  } // private synchronized void _export(o, relative, includeParent)
 
   // @since   1.1.0
-  private void _exportData(Owner gos) 
+  private void _exportData(Owner o) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -712,24 +710,24 @@ public class XmlExporter {
     this.xml.puts("<data>");
     Stack stems = null;
     if (!isRelative) {
-      stems = _getParentStems(gos);
+      stems = _getParentStems(o);
     } 
     else {
       stems = new Stack();
-      if (gos instanceof Group) {
-        stems.push( (Group) gos);
+      if (o instanceof Group) {
+        stems.push( (Group) o);
         if (includeParent) {
-          stems.push( ( (Group) gos ).getParentStem());
+          stems.push( ( (Group) o ).getParentStem());
         }
       } 
       else {
-        stems.push( (Stem) gos);
+        stems.push( (Stem) o);
       }
     }
     _writeStems(stems);
     this.xml.puts("</data>");
     LOG.debug("Finished repository data as XML");
-  } // private void _exportData(gos)
+  } // private void _exportData(o)
 
   // @since   1.0
   private String _fixGroupName(String name) {
@@ -776,17 +774,17 @@ public class XmlExporter {
   } // private String _fixXmlAttribute(value)
 
   // @since   1.1.0
-  private Stack _getParentStems(Owner gos) 
+  private Stack _getParentStems(Owner o) 
   {
     Stem  startStem = null;
     Stack stems     = new Stack();
-    if (gos instanceof Group) {
-      Group group = (Group) gos;
+    if (o instanceof Group) {
+      Group group = (Group) o;
       stems.push(group);
       startStem = group.getParentStem();
     } 
     else {
-      startStem = (Stem) gos;
+      startStem = (Stem) o;
     }
     stems.push(startStem);
     Stem parent = startStem;
@@ -806,7 +804,7 @@ public class XmlExporter {
     } 
     while (parent != null);
     return stems;
-  } // private Stack _getParentStems(gos)
+  } // private Stack _getParentStems(o)
 
   // @since   1.1.0
   private boolean _optionTrue(String key) {
@@ -1382,7 +1380,7 @@ public class XmlExporter {
   } // private void _writeOptions()
 
   // @since   1.1.0
-  private void _writePrivileges(String privilege, Set subjects, Owner gos)
+  private void _writePrivileges(String privilege, Set subjects, Owner o)
     throws  IOException,
             MemberNotFoundException
   {
@@ -1390,11 +1388,11 @@ public class XmlExporter {
       subjects.remove(sysUser);
     }
     if (subjects.isEmpty()) {
-      LOG.debug("No privilegees with [" + privilege + "] for " + gos.getName());
+      LOG.debug("No privilegees with [" + privilege + "] for " + o.getName());
       return;
     }
 
-    LOG.debug("Writing privilegees with [" + privilege + "] for " + gos.getName());
+    LOG.debug("Writing privilegees with [" + privilege + "] for " + o.getName());
     this.xml.puts();
 
     this.xml.puts("<privileges type='" + privilege + "'>");
@@ -1404,7 +1402,7 @@ public class XmlExporter {
 
     while (subjIterator.hasNext()) {
       subject     = (Subject) subjIterator.next();
-      isImmediate = hasImmediatePrivilege(subject, gos, privilege);
+      isImmediate = hasImmediatePrivilege(subject, o, privilege);
       if (
         (!"GrouperSystem".equals(subject.getId()))
         && 
@@ -1415,7 +1413,7 @@ public class XmlExporter {
     }
     this.xml.puts("</privileges> <!--/privilege=" + privilege + "-->");
 
-  } // private void _writePrivileges(privilege, subjects, gos)
+  } // private void _writePrivileges(privilege, subjects, o)
 
   // @since   1.1.0
   private void _writeStemBody(Stem stem) 
