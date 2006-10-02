@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.44 2006-10-02 16:41:41 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.45 2006-10-02 16:45:48 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -892,24 +892,20 @@ public class XmlExporter {
   } // private void _writeExportParams(o)
 
   // @since   1.1.0
-  private void _writeFieldMetaData(Field field) 
+  private void _writeFieldMetaData(Field f) 
     throws  IOException
   {
-    this.xml.puts();
-    this.xml.puts(
-      "<field name='" + this._fixXmlAttribute(field.getName()) + "'"
-    );
-    this.xml.puts(
-      "        required='" + field.getRequired() + "'"
-    );
-    this.xml.puts("        type='" + field.getType() + "'");
-    this.xml.puts(
-      "        readPriv='" + field.getReadPriv() + "'"
-    );
-    this.xml.puts(
-      "        writePriv='" + field.getWritePriv() + "'/>"
-    );
-  } // private void _writeFieldMetaData(field)
+    this.xml.indent();
+    this.xml.puts("<field name="  + U.q( this._fixXmlAttribute(f.getName()))  );
+    this.xml.indent();
+    this.xml.puts("required="     + U.q( f.getRequired() )                    );
+    this.xml.puts("type="         + U.q( f.getType().toString() )             );
+    this.xml.puts("readPriv="     + U.q( f.getReadPriv().toString() )         );
+    this.xml.puts("writePriv="    + U.q( f.getWritePriv().toString() )        );
+    this.xml.undent();
+    this.xml.puts("/>");
+    this.xml.undent();
+  } // private void _writeFieldMetaData(f)
 
   // @since   1.1.0
   private synchronized void _writeFooter(Date before)
