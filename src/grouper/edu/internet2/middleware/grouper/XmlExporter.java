@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.42 2006-10-02 16:32:58 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.43 2006-10-02 16:36:16 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1351,11 +1351,13 @@ public class XmlExporter {
     throws  GrouperException,
             IOException 
   {
-    LOG.debug("Writing repository metadata as XML");
+    this.xml.indent();
     this.xml.puts("<metadata>");
-    _writeGroupTypesMetaData();
+    this._writeGroupTypesMetaData();
+    this.xml.puts();
     this._writeSubjectSourceMetaData();
     this.xml.puts("</metadata>");
+    this.xml.undent();
   } // private void _writeMetaData()
 
   // @since   1.1.0
