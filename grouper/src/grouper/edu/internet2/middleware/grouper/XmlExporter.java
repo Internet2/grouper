@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.47 2006-10-02 17:03:50 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.48 2006-10-02 17:07:04 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -61,7 +61,7 @@ public class XmlExporter {
   private boolean         isRelative;
   private Properties      options;
   private Subject         sysUser;
-  private int             writeStemsCounter = 0;
+  private int             writeStemsCounter = 0; // TODO 20061002 ???
   private XmlWriter       xml               = null;
 
 
@@ -708,6 +708,7 @@ public class XmlExporter {
   {
     this.xml.indent();
     this.xml.puts("<data>");
+    // TODO 20061002 refactor out to own method
     Stack stems = null;
     if (!isRelative) {
       stems = this._getParentStems(o);
@@ -1464,31 +1465,31 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    writeStemsCounter++;
+    this.writeStemsCounter++;
     Object obj = stems.pop();
     if (obj instanceof Group) {
-      _writeFullGroup( (Group) obj );
+      this._writeFullGroup( (Group) obj );
       return;
     }
 
     Stem stem = (Stem) obj;
 
     if (stems.isEmpty()) {
-      if (includeParent || writeStemsCounter > 1) {
-        _writeFullStem(stem);
+      if (includeParent || this.writeStemsCounter > 1) {
+        this._writeFullStem(stem);
       } 
       else {
-        _writeStemBody(stem);
+        this._writeStemBody(stem);
       }
       return;
     } 
     else {
-      _writeBasicStemHeader(stem);
-      if(_optionTrue("export.privs.for-parents")) {
-      	_writeStemPrivs(stem);
+      this._writeBasicStemHeader(stem);
+      if(this._optionTrue("export.privs.for-parents")) {
+      	this._writeStemPrivs(stem);
       }
-      _writeStems(stems);
-      _writeBasicStemFooter(stem);
+      this._writeStems(stems);
+      this._writeBasicStemFooter(stem);
     }
   } // private void _writeStems(stems)
 
