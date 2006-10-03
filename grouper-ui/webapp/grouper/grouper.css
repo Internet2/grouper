@@ -255,3 +255,7 @@ fieldset.nested {
 	display:block;
 	clear:both;
 }
+
+div.memberLink {
+	display:inline;
+}
