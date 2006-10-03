@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.21 2006-07-20 18:15:40 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.22 2006-10-03 12:41:28 isgwb Exp $
  */
 
 /**
@@ -904,7 +904,7 @@ public class GrouperHelper {
 					} else if (groupOrStem.isStem()) {
 						stem.grantPriv(subject,Privilege.getInstance(privileges[j].toLowerCase()));
 
-					} else {
+					} else if(!"member".equals(privileges[j].toLowerCase())){
 						group.grantPriv(subject,Privilege.getInstance(privileges[j].toLowerCase()));
 
 					}
