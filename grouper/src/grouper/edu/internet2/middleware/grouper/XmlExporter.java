@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.60 2006-10-03 16:51:04 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.61 2006-10-03 17:25:12 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -55,14 +55,13 @@ public class XmlExporter {
 
   // PRIVATE INSTANCE VARIABLES //
   private GrouperSession  s;
-  private GroupType       baseType          = null;
-  private String          fromStem          = null;
-  private boolean         includeParent     = false;
-  private boolean         isRelative        = true;
+  private String          fromStem      = null;
+  private boolean         includeParent = false;
+  private boolean         isRelative    = true;
   private Properties      options;
   private Date            startTime;
   private Subject         sysUser;
-  private XmlWriter       xml               = null;
+  private XmlWriter       xml           = null;
 
 
   // CONSTRUCTORS //
@@ -180,13 +179,9 @@ public class XmlExporter {
    * @param   userOptions User-specified configuration parameters.
    * @since   1.1.0
    */
-  public XmlExporter(GrouperSession s, Properties userOptions) {
-    try {
-      this.baseType = GroupTypeFinder.find("base"); // TODO ?
-    }
-    catch (SchemaException eS) {
-      throw new GrouperRuntimeException(eS.getMessage(), eS);
-    }
+  public XmlExporter(GrouperSession s, Properties userOptions) 
+    throws  GrouperRuntimeException
+  {
     try {
       this.options  = XmlUtils.getSystemProperties(LOG, CF);
     }
@@ -1061,8 +1056,7 @@ public class XmlExporter {
             SchemaException
   {
     if (this._optionTrue("export.group.custom-attributes")) {
-      Set types = g.getTypes(); 
-      types.remove(this.baseType); // TODO 20061002 didn't i add a method so this wouldn't be necessary?
+      Set types = g.getRemovableTypes(); 
       if (!types.isEmpty()) {
         this.xml.indent();
         this.xml.puts("<groupTypes>");
