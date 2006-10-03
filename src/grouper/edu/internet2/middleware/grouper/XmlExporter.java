@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.54 2006-10-03 14:24:22 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.55 2006-10-03 14:49:58 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -57,8 +57,8 @@ public class XmlExporter {
   private GrouperSession  s;
   private GroupType       baseType          = null;
   private String          fromStem          = null;
-  private boolean         includeParent;
-  private boolean         isRelative;
+  private boolean         includeParent     = false;
+  private boolean         isRelative        = true;
   private Properties      options;
   private Date            startTime;
   private Subject         sysUser;
@@ -266,7 +266,7 @@ public class XmlExporter {
     LOG.info("starting export from root stem");
     this.xml = new XmlWriter(writer);
     try {
-      this._export(StemFinder.findRootStem(s), true, false);
+      this._export(StemFinder.findRootStem(s));
     }
     catch (CompositeNotFoundException eCNF) {
       throw new GrouperException(eCNF.getMessage(), eCNF);
@@ -370,7 +370,8 @@ public class XmlExporter {
     throws  Exception 
   {
     LOG.debug("Start export of Group " + group.getName());
-    this._export(group, relative, false);
+    this.isRelative = relative;
+    this._export(group);
     LOG.debug("Finished export of Group " + group.getName());
   } // public void export( group, relative)
 
@@ -387,7 +388,9 @@ public class XmlExporter {
     throws  Exception 
   {
     LOG.debug("Start export of Stem " + stem.getName());
-    this._export(stem, relative, includeParent);
+    this.isRelative     = relative;
+    this.includeParent  = includeParent;
+    this._export(stem);
     LOG.debug("Finished export of Stem " + stem.getName());
   } // public void export(stem, relative, includeParent)
 
@@ -653,7 +656,7 @@ public class XmlExporter {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.1.0
-  private synchronized void _export(Owner o, boolean relative, boolean includeParent)
+  private synchronized void _export(Owner o)
     throws  CompositeNotFoundException,
             GrouperException,
             GroupNotFoundException,
@@ -663,35 +666,14 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    // TODO 20061003 refactor out added params or else add a new method for them
-    this.isRelative         = relative;
-    this.includeParent      = includeParent;
-    this.writeStemsCounter  = 0;
+    this._setFromStem(o);
+    this.writeStemsCounter = 0;
     this._writeHeader();
     this._writeMetaData();
-    // TODO 20061003 refactor out this logic
-    if (!relative) {
-      fromStem = null;
-    }
-    if (relative) {
-      Stem dummyStem = null;
-      if      (includeParent || o instanceof Group) {
-        if (o instanceof Group) {
-          dummyStem = ( (Group) o ).getParentStem();
-        } 
-        else {
-          dummyStem = ( (Stem) o ).getParentStem();
-        }
-      } 
-      else if (!includeParent) {
-        dummyStem = (Stem) o;
-      }
-      fromStem = dummyStem.getName() + ":";
-    }
     this._exportData(o);
     this._writeExportParams(o);
     this._writeFooter();
-  } // private synchronized void _export(o, relative, includeParent)
+  } // private synchronized void _export(o)
 
   // @since   1.1.0
   private void _exportData(Owner o) 
@@ -831,6 +813,28 @@ public class XmlExporter {
     }
     return "true".equals(options.getProperty(key));
   } // private boolean _optionTrue(key)
+
+  // @since   1.1.0
+  private void _setFromStem(Owner o)
+    throws  StemNotFoundException
+  {
+    if (!this.isRelative) {
+      this.fromStem = null;
+    }
+    else {
+      Stem anchor = null;
+      if (o instanceof Group)       {
+        anchor = ( (Group) o ).getParentStem();
+      }
+      else  if (this.includeParent) {
+        anchor = ( (Stem) o ).getParentStem();
+      }
+      else                          {
+        anchor = (Stem) o;
+      }
+      this.fromStem = anchor.getName() + ":";
+    }
+  } // private void _setFromStem(o)
 
   // @since   1.1.0
   private void _writeBasicStemFooter(Stem ns) 
