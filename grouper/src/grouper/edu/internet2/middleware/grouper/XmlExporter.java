@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.52 2006-10-03 13:51:57 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.53 2006-10-03 14:16:59 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -387,7 +387,7 @@ public class XmlExporter {
     throws  Exception 
   {
     LOG.debug("Start export of Stem " + stem.getName());
-    _export(stem, relative, includeParent);
+    this._export(stem, relative, includeParent);
     LOG.debug("Finished export of Stem " + stem.getName());
   } // public void export(stem, relative, includeParent)
 
@@ -636,14 +636,14 @@ public class XmlExporter {
       if (group != null) {
         exporter.export(
           group,
-          Boolean.getBoolean(rc.getProperty(RC_RELATIVE))
+          Boolean.valueOf(rc.getProperty(RC_RELATIVE))
         );
       } 
       else {
         exporter.export(
           stem,   
-          Boolean.getBoolean(rc.getProperty(RC_RELATIVE)),
-          Boolean.getBoolean(rc.getProperty(RC_PARENT))
+          Boolean.valueOf(rc.getProperty(RC_RELATIVE)),
+          Boolean.valueOf(rc.getProperty(RC_PARENT))
         );
       }
     }
@@ -663,12 +663,11 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    LOG.debug("Relative export="     + relative);
-    LOG.debug("Include parent stem=" + includeParent);
     this.isRelative         = relative;
     this.includeParent      = includeParent;
     this.writeStemsCounter  = 0;
     this._writeHeader();
+    // TODO 20061003 refactor out
     if (!relative) {
       fromStem = null;
     }
@@ -687,13 +686,7 @@ public class XmlExporter {
       }
       fromStem = dummyStem.getName() + ":";
     }
-
-    if (this._optionTrue("export.data")) {
-      this._exportData(o);
-    } 
-    else {
-      LOG.debug("export.data=false, so no data exported");
-    }
+    this._exportData(o);
     this._writeExportParams(o);
     this._writeFooter();
   } // private synchronized void _export(o, relative, includeParent)
@@ -708,29 +701,31 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    this.xml.indent();
-    this.xml.puts("<data>");
-    // TODO 20061002 refactor out to own method
-    Stack stems = null;
-    if (!isRelative) {
-      stems = this._getParentStems(o);
-    } 
-    else {
-      stems = new Stack();
-      if (o instanceof Group) {
-        stems.push( (Group) o);
-        if (includeParent) {
-          stems.push( ( (Group) o ).getParentStem());
-        }
+    if (this._isDataExportEnabled()) {
+      this.xml.indent();
+      this.xml.puts("<data>");
+      // TODO 20061002 refactor out to own method
+      Stack stems = null;
+      if (!isRelative) {
+        stems = this._getParentStems(o);
       } 
       else {
-        stems.push( (Stem) o);
+        stems = new Stack();
+        if (o instanceof Group) {
+          stems.push( (Group) o);
+          if (includeParent) {
+            stems.push( ( (Group) o ).getParentStem());
+          }
+        } 
+        else {
+          stems.push( (Stem) o);
+        }
       }
+      this._writeStems(stems);
+      this.xml.puts("</data>");
+      this.xml.undent();
+      LOG.debug("Finished repository data as XML");
     }
-    this._writeStems(stems);
-    this.xml.puts("</data>");
-    this.xml.undent();
-    LOG.debug("Finished repository data as XML");
   } // private void _exportData(o)
 
   // @since   1.0
@@ -740,6 +735,19 @@ public class XmlExporter {
     }
     return name;
   } // private String _fixGroupName(name)
+
+  // @since   1.1.0
+  private String _fixXmlAttribute(String value) {
+    value = value.replaceAll("'", "&apos;");
+    value = value.replaceAll("<", "&lt;");
+    value = value.replaceAll(">", "&gt;");
+    return value;
+  } // private String _fixXmlAttribute(value)
+
+  // @since   1.1.0
+  private boolean _getBooleanOption(String key) {
+    return Boolean.valueOf( this.options.getProperty(key, "false") );
+  } // private boolean _getBooleanOption(key)
 
   // @since   1.0
   private Iterator _getExportAttributes(Subject subj) {
@@ -770,13 +778,9 @@ public class XmlExporter {
   } // private Iterator _getExportAttributes(subj)
 
   // @since   1.1.0
-  private String _fixXmlAttribute(String value) {
-    value = value.replaceAll("'", "&apos;");
-    value = value.replaceAll("<", "&lt;");
-    value = value.replaceAll(">", "&gt;");
-    return value;
-  } // private String _fixXmlAttribute(value)
-
+  private boolean _isDataExportEnabled() {
+    return this._getBooleanOption("export.data");
+  } // private boolean _isDataExportEnabled()
   // @since   1.1.0
   private Stack _getParentStems(Owner o) 
   {
@@ -811,6 +815,7 @@ public class XmlExporter {
   } // private Stack _getParentStems(o)
 
   // @since   1.1.0
+  // TODO 20061003 deprecate
   private boolean _optionTrue(String key) {
     if (XmlUtils.isEmpty(key)) {
       options.setProperty(key, "false");
