@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.53 2006-10-03 14:16:59 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.54 2006-10-03 14:24:22 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -309,7 +309,7 @@ public class XmlExporter {
     this._writeHeader();
     int     counter       = 0;
 
-    if (_optionTrue("export.data")) {
+    if (this._isDataExportEnabled()) {
       Iterator itemsIterator = items.iterator();
       this.xml.puts("<dataList>");
       Object obj;
@@ -663,11 +663,13 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
+    // TODO 20061003 refactor out added params or else add a new method for them
     this.isRelative         = relative;
     this.includeParent      = includeParent;
     this.writeStemsCounter  = 0;
     this._writeHeader();
-    // TODO 20061003 refactor out
+    this._writeMetaData();
+    // TODO 20061003 refactor out this logic
     if (!relative) {
       fromStem = null;
     }
@@ -781,6 +783,12 @@ public class XmlExporter {
   private boolean _isDataExportEnabled() {
     return this._getBooleanOption("export.data");
   } // private boolean _isDataExportEnabled()
+
+  // @since   1.1.0
+  private boolean _isMetadataExportEnabled() {
+    return this._getBooleanOption("export.metadata");
+  } // private boolean _isMetadataExportEnabled()
+
   // @since   1.1.0
   private Stack _getParentStems(Owner o) 
   {
@@ -1153,9 +1161,6 @@ public class XmlExporter {
   {
     this.xml.puts("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     this.xml.puts("<registry>");
-    if (_optionTrue("export.metadata")) {
-      this._writeMetaData();
-    }
   } // private synchronized void _writeHeader()
 
   // @since   1.1.0
@@ -1344,13 +1349,15 @@ public class XmlExporter {
     throws  GrouperException,
             IOException 
   {
-    this.xml.indent();
-    this.xml.puts("<metadata>");
-    this._writeGroupTypesMetaData();
-    this.xml.puts();
-    this._writeSubjectSourcesMetaData();
-    this.xml.puts("</metadata>");
-    this.xml.undent();
+    if (this._isMetadataExportEnabled()) {
+      this.xml.indent();
+      this.xml.puts("<metadata>");
+      this._writeGroupTypesMetaData();
+      this.xml.puts();
+      this._writeSubjectSourcesMetaData();
+      this.xml.puts("</metadata>");
+      this.xml.undent();
+    }
   } // private void _writeMetaData()
 
   // @since   1.1.0
