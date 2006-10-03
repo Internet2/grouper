@@ -171,6 +171,13 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
     <td><font face="Arial, Helvetica, sans-serif">Can the current user add members 
       to the current list</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">removableMembers</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Can the current user remove 
+      members from the current list. Only true if there are members to be removed 
+      and immediate members are being viewed</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -206,7 +213,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.13 2006-07-20 09:20:20 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.14 2006-10-03 11:22:06 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -233,6 +240,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		request.setAttribute("contextSubject",groupForm.get("contextSubject"));
 		//Identify the group whose membership we are showing
 		String groupId = (String)groupForm.get("groupId");
+		
 		//TODO: check following - shouldn't I always pass parameter
 		if (groupId == null || groupId.length() == 0)
 			groupId = (String) session.getAttribute("findForNode");
@@ -350,6 +358,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 				grouperSession, group));
 		request.setAttribute("groupMembership", membership);
 		request.setAttribute("noResultsKey", noResultsKey);
+		request.setAttribute("removableMembers",new Boolean("imm".equals(membershipListScope) && group.canWriteField(mField) && !group.isComposite() && members.size()>0));
 		
 		return mapping.findForward(FORWARD_GroupMembers);
 
