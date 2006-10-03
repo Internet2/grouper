@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.59 2006-10-03 16:23:45 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.60 2006-10-03 16:51:04 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -747,9 +747,19 @@ public class XmlExporter {
   } // private Stack _getStackToWrite(o)
 
   // @since   1.1.0
+  private boolean _isAccessPrivExportEnabled() {
+    return this._getBooleanOption("export.privs.access");
+  } // private boolean _isAccessPrivExportEnabled()
+  
+  // @since   1.1.0
   private boolean _isDataExportEnabled() {
     return this._getBooleanOption("export.data");
   } // private boolean _isDataExportEnabled()
+
+  // @since   1.1.0
+  private boolean _isGroupInternalAttrsExportEnabled() {
+    return this._getBooleanOption("export.group.internal-attributes");
+  } // private boolean _isGroupInternalAttrsExportEnabled()
 
   // @since   1.1.0
   private boolean _isMetadataExportEnabled() {
@@ -765,6 +775,11 @@ public class XmlExporter {
   private boolean _isParentPrivsExportEnabled() {
     return this._getBooleanOption("export.privs.for-parents");
   } // private boolean _isParentPrivsExportEnabled()
+
+  // @since   1.1.0
+  private boolean _isStemInternalAttrsExportEnabled() {
+    return this._getBooleanOption("export.stem.internal-attributes");
+  } // private boolean _isStemInternalAttrsExportEnabled()
 
   // @since   1.1.0
   private Stack _getParentStems(Owner o) 
@@ -919,46 +934,67 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
+    this._writeGroupHeader(g);
+    this._writeInternalAttributes(g);
+    this._writeAttributes(g);
+    this._writeLists(g);
+    this._writeGroupPrivs(g);
+    this._writeGroupFooter(g);
+  } // private void _writeGroup(g)
+
+  // @since   1.1.0
+  // TODO 20061003 DRY _writeStemFooter()
+  private void _writeGroupFooter(Group g) 
+    throws  IOException
+  {
+    this.xml.puts("</group>");
+    this.xml.puts( this.xml.comment( U.q(g.getName() ) ) );
+    this.xml.undent(); // Undent the surplus indent from the header
+    this.xml.puts();
+  } // private void _writeGroupFooter(g)
+
+  // @since   1.1.0
+  // TODO 20061003 DRY _writeStemHeader()
+  private void _writeGroupHeader(Group g)  
+    throws  IOException
+  {
     this.xml.puts();
     this.xml.indent();
     this.xml.puts( this.xml.comment( U.q( g.getName() ) ) );
-    this.xml.puts("<group extension=" + U.q( this._fixXmlAttribute(g.getExtension()) )        );
+    this.xml.puts("<group extension=" + U.q( this._fixXmlAttribute(g.getExtension()) )         );
     this.xml.indent();
-    this.xml.puts("displayExtension=" + U.q( this._fixXmlAttribute(g.getDisplayExtension()) ) );
-    this.xml.puts("name="             + U.q( this._fixXmlAttribute(g.getName()) )             );
-    this.xml.puts("displayName="      + U.q( this._fixXmlAttribute(g.getDisplayName()) )      );
-    this.xml.puts("id="               + U.q( this._fixXmlAttribute(g.getUuid()) )             );
+    this.xml.puts("displayExtension=" + U.q( this._fixXmlAttribute(g.getDisplayExtension()) )  );
+    this.xml.puts("name="             + U.q( this._fixXmlAttribute(g.getName()) )              );
+    this.xml.puts("displayName="      + U.q( this._fixXmlAttribute(g.getDisplayName()) )       );
+    this.xml.puts("id="               + U.q( this._fixXmlAttribute(g.getUuid()) )              );
     this.xml.undent();
     this.xml.puts(">");
     this.xml.indent();
     this.xml.puts("<description>" + this._fixXmlAttribute(g.getDescription()) + "</description>");
     this.xml.undent();
+    // Don't fully undent
+  } // private void _writeGroupHeader(g)
 
-    if (this._optionTrue("export.group.internal-attributes")) {
-      this._writeInternalAttributes(g);
-    }
-    this._writeAttributes(g);
-    this._writeLists(g);
-
-    if (this._optionTrue("export.privs.access")) {
+  // @since   1.1.0
+  private void _writeGroupPrivs(Group g) 
+    throws  IOException,
+            MemberNotFoundException
+  {
+    if (this._isAccessPrivExportEnabled()) {
       this._writePrivileges("admin" , g.getAdmins()   , g);
       this._writePrivileges("update", g.getUpdaters() , g);
       this._writePrivileges("read"  , g.getReaders()  , g);
       this._writePrivileges("view"  , g.getViewers()  , g);
       this._writePrivileges("optin" , g.getOptins()   , g);
       this._writePrivileges("optout", g.getOptouts()  , g);
-    }
-    this.xml.puts("</group>");
-    this.xml.puts( this.xml.comment( U.q(g.getName() ) ) );
-    this.xml.undent();
-    this.xml.puts();
-  } // private void _writeGroup(group)
+    } 
+  } // private void _writeGroupPrivs(g)
 
   // @since   1.1.0
   private void _writeGroupRef(Group group) 
     throws  IOException
   {
-    _writeGroupRef(group, false);
+    this._writeGroupRef(group, false);
   } // private void _writeGroupRef(group)
 
   // @since   1.1.0
@@ -1187,23 +1223,30 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    this.xml.indent();
-    this.xml.puts("<internalAttributes>");
-    if      (o instanceof Group)  {
-      this._writeInternalAttribute( "parentStem", ( (Group) o).getParentStem().getName() );
+    if (
+      ( o instanceof Group && this._isGroupInternalAttrsExportEnabled() )
+      ||
+      ( o instanceof Stem  && this._isStemInternalAttrsExportEnabled()  )
+    )
+    {
+      this.xml.indent();
+      this.xml.puts("<internalAttributes>");
+      if      (o instanceof Group)  {
+        this._writeInternalAttribute( "parentStem", ( (Group) o).getParentStem().getName() );
+      }
+      else if (o instanceof Stem)   {
+        this._writeInternalAttribute( "parentStem", ( (Stem) o).getParentStem().getName() );
+      }
+      this._writeInternalAttribute( "createSource"  , o.getCreate_source()        );
+      this._writeInternalAttribute( "createSubject" , o.getCreator_id()           );
+      this._writeInternalAttribute( "createTime"    , o.getCreate_time()          );
+      this._writeInternalAttribute( "modifySource"  , o.getModify_source()        );
+      this._writeInternalAttribute( "modifySubject" , o.getModifier_id()          );
+      this._writeInternalAttribute( "modifyTime"    , o.getModify_time()          );
+      this.xml.puts("</internalAttributes>");
+      this.xml.undent();
+      this.xml.puts();
     }
-    else if (o instanceof Stem)   {
-      this._writeInternalAttribute( "parentStem", ( (Stem) o).getParentStem().getName() );
-    }
-    this._writeInternalAttribute( "createSource"  , o.getCreate_source()        );
-    this._writeInternalAttribute( "createSubject" , o.getCreator_id()           );
-    this._writeInternalAttribute( "createTime"    , o.getCreate_time()          );
-    this._writeInternalAttribute( "modifySource"  , o.getModify_source()        );
-    this._writeInternalAttribute( "modifySubject" , o.getModifier_id()          );
-    this._writeInternalAttribute( "modifyTime"    , o.getModify_time()          );
-    this.xml.puts("</internalAttributes>");
-    this.xml.undent();
-    this.xml.puts();
   } // private void _writeInternalAttributes(o)
 
   // @since   1.1.0
@@ -1435,8 +1478,8 @@ public class XmlExporter {
   private void _writeStemHeader(Stem stem) 
     throws  IOException
   {
-    this.xml.indent();
     this.xml.puts();
+    this.xml.indent();
     this.xml.puts( this.xml.comment( U.q( stem.getName() ) ) );
     this.xml.puts("<stem extension="  + U.q( this._fixXmlAttribute(stem.getExtension()) )         );
     this.xml.indent();
