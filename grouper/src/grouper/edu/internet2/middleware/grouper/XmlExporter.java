@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.64 2006-10-03 18:30:12 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.65 2006-10-03 19:29:36 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -56,7 +56,8 @@ public class XmlExporter {
   // PRIVATE INSTANCE VARIABLES //
   private GrouperSession  s;
   private String          fromStem      = null;
-  private boolean         includeParent = false;
+  // TODO 20061003 i still do not understand the entirety of how `includeParent` and `isRelative` interact
+  private boolean         includeParent = true;
   private boolean         isRelative    = false;
   private Properties      options;
   private Date            startTime;
@@ -268,8 +269,8 @@ public class XmlExporter {
    * <p/>
    * @param   writer        Write XML here.
    * @param   g             Export this group.
-   * @param   relative      TODO 20061003
-   * @param   includeParent Include parents in export.
+   * @param   relative      If true export in a format suitable for relocating within the Groups Registry.
+   * @param   includeParent Include parent stem in export.
    * @throws  GrouperException
    * @since   1.1.0
    */
@@ -287,19 +288,17 @@ public class XmlExporter {
    * <p/>
    * @param   writer        Write XML here.
    * @param   ns            Export this stem.
-   * @param   relative      TODO 20061003
-   * @param   includeParent Include parents in export.
+   * @param   relative      If true export in a format suitable for relocating within the Groups Registry.
    * @throws  GrouperException
    * @since   1.1.0
    */
-  public void export(Writer writer, Stem ns, boolean relative, boolean includeParent) 
+  public void export(Writer writer, Stem ns, boolean relative)
     throws  GrouperException 
   {
     this.xml            = new XmlWriter(writer);
-    this.includeParent  = includeParent;
     this.isRelative     = relative;
     this._export(ns);
-  } // public void export(writer, ns, relative, includeParent)
+  } // public void export(writer, ns, relative)
 
   /**
    * Export a Collection of stems, groups, members, subjects or memberships
@@ -551,19 +550,13 @@ public class XmlExporter {
       }
       if (group != null) {
         exporter.export(
-          writer,
-          group,
+          writer, group,
           Boolean.valueOf(rc.getProperty(RC_RELATIVE)),
           Boolean.valueOf(rc.getProperty(RC_PARENT))
         );
       } 
       else {
-        exporter.export(
-          writer,
-          stem,   
-          Boolean.valueOf(rc.getProperty(RC_RELATIVE)),
-          Boolean.valueOf(rc.getProperty(RC_PARENT))
-        );
+        exporter.export(writer, stem,   Boolean.valueOf(rc.getProperty(RC_RELATIVE)));
       }
     }
   } // private static void _handleArgs(exporter, rc)
@@ -768,6 +761,7 @@ public class XmlExporter {
       Stem anchor = null;
       if (o instanceof Group)       {
         anchor = ( (Group) o ).getParentStem();
+
       }
       else  if (this.includeParent) {
         anchor = ( (Stem) o ).getParentStem();
@@ -1455,22 +1449,23 @@ public class XmlExporter {
       this._writeGroup( (Group) obj );
       return;
     }
-    Stem stem = (Stem) obj;
+    Stem ns = (Stem) obj;
     if (stack.isEmpty()) {
       if (this.includeParent) {
-        this._writeStem(stem);
+        // TODO 20061003 won't this cause the parent to be exported but no the target?
+        this._writeStem(ns);
       } 
       else {
-        this._writeStemBody(stem);
+        this._writeStemBody(ns);
       }
     } 
     else {
-      this._writeStemHeader(stem);
+      this._writeStemHeader(ns);
       if (this._isParentPrivsExportEnabled()) {
-      	this._writeStemPrivs(stem);
+      	this._writeStemPrivs(ns);
       }
       this._writeOwnerStack(stack);
-      this._writeStemFooter(stem);
+      this._writeStemFooter(ns);
     }
   } // private void _writeOwnerStack(stack)
 
