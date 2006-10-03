@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.55 2006-10-03 14:49:58 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.56 2006-10-03 15:02:01 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -887,7 +887,7 @@ public class XmlExporter {
   private void _writeExportParams(Owner o)
     throws  IOException
   {
-    LOG.debug("Writing export params to XML");
+    this.xml.indent();
     this.xml.puts("<exportParams>");
     this.xml.indent();
     String s = "<node type='";
@@ -904,6 +904,8 @@ public class XmlExporter {
     }
     this.xml.undent();
     this.xml.puts("</exportParams>");
+    this.xml.undent();
+    this.xml.puts();
   } // private void _writeExportParams(o)
 
   // @since   1.1.0
@@ -928,14 +930,18 @@ public class XmlExporter {
   {
     Date    now       = new Date();
     long    duration  = (now.getTime() - this.startTime.getTime()) / 1000;
-    this.xml.puts();
+    this.xml.indent();
     this.xml.puts("<exportInfo>");
+    this.xml.indent();
     this.xml.puts("<start>" + startTime + "</start>");
     this.xml.puts("<end>" + now + "</end>");
     this.xml.puts("<duration>" + duration + "</duration>");
-    _writeOptions();
+    this._writeOptions();
+    this.xml.undent();
     this.xml.puts("</exportInfo>");
+    this.xml.undent();
     this.xml.puts("</registry>");
+    this.xml.puts();
     this.xml.close();
   } // private synchronized _writeFooter()
 
@@ -1368,20 +1374,19 @@ public class XmlExporter {
   private void _writeOptions() 
     throws  IOException
   {
-    LOG.debug("Writing export options as XML");
     this.xml.puts("<options>");
-    List      orderedList     = new ArrayList(options.keySet());
-    Collections.sort(orderedList);
-    Iterator  optionsIterator = orderedList.iterator();
-
-    String key;
-    while (optionsIterator.hasNext()) {
-      key = (String) optionsIterator.next();
+    this.xml.indent();
+    String    key;
+    List      opts  = new ArrayList( options.keySet() );
+    Collections.sort(opts);
+    Iterator  it    = opts.iterator();
+    while (it.hasNext()) {
+      key = (String) it.next();
       this.xml.puts(
-        "<option key='" + key + "'>"
-        + options.getProperty(key) + "</option>"
+        "<option key=" + U.q(key) + ">" + options.getProperty(key) + "</option>"
       );
     }
+    this.xml.undent();
     this.xml.puts("</options>");
   } // private void _writeOptions()
 
