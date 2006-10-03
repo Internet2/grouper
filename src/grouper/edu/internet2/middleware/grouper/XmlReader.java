@@ -25,18 +25,10 @@ import  org.xml.sax.*;
  * Read XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlReader.java,v 1.1 2006-09-21 18:40:13 blair Exp $
+ * @version $Id: XmlReader.java,v 1.2 2006-10-03 17:22:10 blair Exp $
  * @since   1.1.0
  */
 public class XmlReader {
-
-  // CONSTRUCTORS //
-
-  // @since   1.1.0
-  private XmlReader() {
-    super();
-  } // private XmlReader()
-
 
   // PUBLIC CLASS METHODS //
 
