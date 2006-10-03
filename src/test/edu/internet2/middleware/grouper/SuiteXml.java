@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test XML.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXml.java,v 1.7 2006-09-26 19:51:17 blair Exp $
+ * @version $Id: SuiteXml.java,v 1.8 2006-10-03 19:29:36 blair Exp $
  * @since   1.0
  */
 public class SuiteXml extends TestCase {
@@ -35,16 +35,22 @@ public class SuiteXml extends TestCase {
     TestSuite suite = new TestSuite();        
     suite.addTest( SuiteXmlExport.suite() );
     suite.addTest( SuiteXmlImport.suite() );
-    suite.addTestSuite( TestXml0.class  );  // TODO 20060926 deprecate? -- Export: Full/String; Import: Full/Root/String
-    suite.addTestSuite( TestXml1.class  );  // TODO 20060926 deprecate? -- Export: Full/String; Import: Full/Anchored/String
-    suite.addTestSuite( TestXml2.class  );  // TODO 20060926 deprecate? -- Export: Full/String; Import: Update/Anchored/String
-    suite.addTestSuite( TestXml3.class  );  // Export: export()/Full -- Import: load()/Full -- stem + attrs + privs
-    suite.addTestSuite( TestXml4.class  );  // Export: export()/Full -- Import: load()/Full -- stem: granted priv
-    suite.addTestSuite( TestXml5.class  );  // Export: export()/Full -- Import: load()/Full -- group + attrs + privs
-    suite.addTestSuite( TestXml6.class  );  // Export: export()/Full -- Import: load()/Full -- group: granted priv
-    suite.addTestSuite( TestXml7.class  );  // Export: export()/Full -- Import: load()/Full -- group: imm, eff and composite
-    suite.addTestSuite( TestXml8.class  );  // Export: export()/Full -- Import: load()/Full -- group: custom type, custom attr, custom list
-
+    suite.addTestSuite( TestXml0.class  );  // TODO 20060926 deprecate? -- e: full; i: Full/Root/String
+    suite.addTestSuite( TestXml1.class  );  // TODO 20060926 deprecate? -- e: full; i: Full/Anchored/String
+    suite.addTestSuite( TestXml2.class  );  // TODO 20060926 deprecate? -- e: full; i: Update/Anchored/String
+    suite.addTestSuite( TestXml3.class  );  // e: full              -- i: full -- stem + attrs + privs
+    suite.addTestSuite( TestXml4.class  );  // e: full              -- i: full -- stem: granted priv
+    suite.addTestSuite( TestXml5.class  );  // e: full              -- i: full -- group + attrs + privs
+    suite.addTestSuite( TestXml6.class  );  // e: full              -- i: full -- group: granted priv
+    suite.addTestSuite( TestXml7.class  );  // e: full              -- i: full -- group: imm, eff and composite
+    suite.addTestSuite( TestXml8.class  );  // e: full              -- i: full -- group: custom type, custom attr, custom list
+    suite.addTestSuite( TestXml9.class  );  // e: stem/false        -- i: full -- stem + attrs + privs
+    // TODO 20061003 e: stem/true
+    suite.addTestSuite( TestXml10.class );  // e: group/false/false -- i: full -- group + attrs + privs
+    // TODO 20061003 e: group/true/false
+    // TODO 20061003 e: group/false/true
+    // TODO 20061003 e: group/true/true
+    // TODO 20061003 e: collection/....
     // XmlExporter
     return suite;
   } // static public Test suite()
