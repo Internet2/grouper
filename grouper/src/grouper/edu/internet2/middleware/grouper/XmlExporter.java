@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.57 2006-10-03 15:17:50 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.58 2006-10-03 15:59:26 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -316,14 +316,14 @@ public class XmlExporter {
         obj = itemsIterator.next();
         counter++;
         if      (obj instanceof Group)      {
-          this._writeFullGroup( (Group) obj);
+          this._writeGroup( (Group) obj);
         } 
         else if (obj instanceof Stem)       {
           Stem stem = (Stem) obj;
-          this._writeBasicStemHeader(stem);
+          this._writeStemHeader(stem);
           this._writeInternalAttributes(stem);
           this._writeStemPrivs(stem);
-          this._writeBasicStemFooter(stem);
+          this._writeStemFooter(stem);
         } 
         else if (obj instanceof Subject)    {
           if (counter == 1) {
@@ -723,7 +723,7 @@ public class XmlExporter {
   } // private Iterator _getExportAttributes(subj)
 
   // @since   1.1.0
-  private Stack _getStemsToWrite(Owner o) {
+  private Stack _getStackToWrite(Owner o) {
     // If I understand correctly the code behaves in this manner because we may
     // need to export parents in order to export a child but we do NOT want to
     // export ALL children of that parent in that case.  Alas.
@@ -744,7 +744,7 @@ public class XmlExporter {
       }
     }
     return stems;
-  } // private Stack _getStemsToWrite(o)
+  } // private Stack _getStackToWrite(o)
 
   // @since   1.1.0
   private boolean _isDataExportEnabled() {
@@ -755,6 +755,16 @@ public class XmlExporter {
   private boolean _isMetadataExportEnabled() {
     return this._getBooleanOption("export.metadata");
   } // private boolean _isMetadataExportEnabled()
+
+  // @since   1.1.0
+  private boolean _isNamingPrivExportEnabled() {
+    return this._getBooleanOption("export.privs.naming");
+  } // private boolean _isNamingPrivExportEnabled()
+
+  // @since   1.1.0
+  private boolean _isParentPrivsExportEnabled() {
+    return this._getBooleanOption("export.privs.for-parents");
+  } // private boolean _isParentPrivsExportEnabled()
 
   // @since   1.1.0
   private Stack _getParentStems(Owner o) 
@@ -822,49 +832,18 @@ public class XmlExporter {
   } // private void _setFromStem(o)
 
   // @since   1.1.0
-  private void _writeBasicStemFooter(Stem ns) 
-    throws  IOException
-  {
-    this.xml.puts("</stem>");
-    this.xml.puts( this.xml.comment( U.q(ns.getName() ) ) );
-    this.xml.undent();
-    this.xml.puts();
-  } // private void _writeBasicStemFooter(stem)
-
-  // @since   1.1.0
-  private void _writeBasicStemHeader(Stem stem) 
-    throws  IOException
-  {
-    this.xml.indent();
-    this.xml.puts();
-    this.xml.puts( this.xml.comment( U.q( stem.getName() ) ) );
-    this.xml.puts("<stem extension="  + U.q( this._fixXmlAttribute(stem.getExtension()) )         );
-    this.xml.indent();
-    this.xml.puts("displayExtension=" + U.q( this._fixXmlAttribute(stem.getDisplayExtension()) )  );
-    this.xml.puts("name="             + U.q( this._fixXmlAttribute(stem.getName()) )              );
-    this.xml.puts("displayName="      + U.q( this._fixXmlAttribute(stem.getDisplayName()) )       );
-    this.xml.puts("id="               + U.q( this._fixXmlAttribute(stem.getUuid()) )              );
-    this.xml.undent();
-    this.xml.puts(">");
-    this.xml.indent();
-    this.xml.puts("<description>" + this._fixXmlAttribute(stem.getDescription()) + "</description>");
-    this.xml.undent();
-    // Don't fully undent
-  } // private void _writeBasicStemHeader(stem)
-
-  // @since   1.1.0
   private void _writeComposite(Composite comp) 
     throws  GroupNotFoundException,
             IOException
   {
     this.xml.puts("<composite>");
-    _writeGroupRef(comp.getLeftGroup());
+    this._writeGroupRef(comp.getLeftGroup());
     this.xml.puts();
     this.xml.puts(
       "<compositeType>" + comp.getType().toString() + "</compositeType>"
     );
     this.xml.puts();
-    _writeGroupRef(comp.getRightGroup());
+    this._writeGroupRef(comp.getRightGroup());
     this.xml.puts("</composite>");
   } // private void _writeComposite(comp)
 
@@ -931,7 +910,7 @@ public class XmlExporter {
   } // private synchronized _writeFooter()
 
   // @since 1.1.0
-  private void _writeFullGroup(Group g) 
+  private void _writeGroup(Group g) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -972,26 +951,7 @@ public class XmlExporter {
     this.xml.puts( this.xml.comment( U.q(g.getName() ) ) );
     this.xml.undent();
     this.xml.puts();
-  } // private void _writeFullGroup(group)
-
-  // @since   1.1.0
-  private void _writeFullStem(Stem stem) 
-    throws  CompositeNotFoundException,
-            GroupNotFoundException,
-            IOException,
-            MemberNotFoundException,
-            SchemaException,
-            StemNotFoundException,
-            SubjectNotFoundException
-  {
-    LOG.debug("Writing Stem " + stem.getName() + " to XML");
-    _writeBasicStemHeader(stem);
-    this._writeInternalAttributes(stem);
-    _writeStemPrivs(stem);
-    _writeStemBody(stem);
-    _writeBasicStemFooter(stem);
-    LOG.debug("Finished writing Stem " + stem.getName() + " to XML");
-  } // private void _writeFullStem(stem)
+  } // private void _writeGroup(group)
 
   // @since   1.1.0
   private void _writeGroupRef(Group group) 
@@ -1092,7 +1052,7 @@ public class XmlExporter {
     if (this._isDataExportEnabled()) {
       this.xml.indent();
       this.xml.puts("<data>");
-      this._writeStems( this._getStemsToWrite(o) );
+      this._writeOwnerStack( this._getStackToWrite(o) );
       this.xml.puts("</data>");
       this.xml.undent();
       LOG.debug("Finished repository data as XML");
@@ -1432,7 +1392,7 @@ public class XmlExporter {
   } // private void _writePrivileges(privilege, subjects, o)
 
   // @since   1.1.0
-  private void _writeStemBody(Stem stem) 
+  private void _writeStem(Stem ns) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -1441,37 +1401,79 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    Iterator  itS = stem.getChildStems().iterator();
-    while (itS.hasNext()) {
-      this._writeFullStem( (Stem) itS.next() );
-    }
-    Iterator  itG = stem.getChildGroups().iterator();
-    while (itG.hasNext()) {
-      this._writeFullGroup( (Group) itG.next() );
-    }
-  } // private void _writeStemBody(stem)
+    this._writeStemHeader(ns);
+    this._writeInternalAttributes(ns);
+    this._writeStemPrivs(ns);
+    this._writeStemBody(ns);
+    this._writeStemFooter(ns);
+  } // private void _writeStem(ns)
 
   // @since   1.1.0
-  private void _writeStemPrivs(Stem stem) 
+  private void _writeStemBody(Stem ns) 
+    throws  CompositeNotFoundException,
+            GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SchemaException,
+            StemNotFoundException,
+            SubjectNotFoundException
+  {
+    Iterator  itS = ns.getChildStems().iterator();
+    while (itS.hasNext()) {
+      this._writeStem( (Stem) itS.next() );
+    }
+    Iterator  itG = ns.getChildGroups().iterator();
+    while (itG.hasNext()) {
+      this._writeGroup( (Group) itG.next() );
+    }
+  } // private void _writeStemBody(ns)
+
+  // @since   1.1.0
+  private void _writeStemFooter(Stem ns) 
+    throws  IOException
+  {
+    this.xml.puts("</stem>");
+    this.xml.puts( this.xml.comment( U.q(ns.getName() ) ) );
+    this.xml.undent(); // Undent the surplus indent from the header
+    this.xml.puts();
+  } // private void _writeStemFooter(stem)
+
+  // @since   1.1.0
+  private void _writeStemHeader(Stem stem) 
+    throws  IOException
+  {
+    this.xml.indent();
+    this.xml.puts();
+    this.xml.puts( this.xml.comment( U.q( stem.getName() ) ) );
+    this.xml.puts("<stem extension="  + U.q( this._fixXmlAttribute(stem.getExtension()) )         );
+    this.xml.indent();
+    this.xml.puts("displayExtension=" + U.q( this._fixXmlAttribute(stem.getDisplayExtension()) )  );
+    this.xml.puts("name="             + U.q( this._fixXmlAttribute(stem.getName()) )              );
+    this.xml.puts("displayName="      + U.q( this._fixXmlAttribute(stem.getDisplayName()) )       );
+    this.xml.puts("id="               + U.q( this._fixXmlAttribute(stem.getUuid()) )              );
+    this.xml.undent();
+    this.xml.puts(">");
+    this.xml.indent();
+    this.xml.puts("<description>" + this._fixXmlAttribute(stem.getDescription()) + "</description>");
+    this.xml.undent();
+    // Don't fully undent
+  } // private void _writeStemHeader(stem)
+
+  // @since   1.1.0
+  private void _writeStemPrivs(Stem ns) 
     throws  IOException,
             MemberNotFoundException
   {
-    if (
-        _optionTrue("export.privs.naming") 
-       ) 
-    {
-      LOG.debug("Writing STEM privilegees for " + stem.getName());
-      _writePrivileges("stem", stem.getStemmers(), stem);
-      _writePrivileges("create", stem.getStemmers(), stem);
-      LOG.debug("Writing CREATE privilegees for " + stem.getName());
+    if (this._isNamingPrivExportEnabled()) {
+      // TODO 20061003 this originally called `getStemmers()` for both.  i
+      //      should verify this.
+      this._writePrivileges("stem"  , ns.getStemmers(), ns);
+      this._writePrivileges("create", ns.getCreators(), ns);
     } 
-    else {
-      LOG.debug("Skipping naming privs for " + stem.getName());
-    }
-  } // private void _writeStemPrivs(stem)
+  } // private void _writeStemPrivs(ns)
 
   // @since   1.1.0
-  private void _writeStems(Stack stems) 
+  private void _writeOwnerStack(Stack stack) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -1480,29 +1482,29 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    Object obj = stems.pop();
+    Object obj = stack.pop();
     if (obj instanceof Group) {
-      this._writeFullGroup( (Group) obj );
+      this._writeGroup( (Group) obj );
       return;
     }
     Stem stem = (Stem) obj;
-    if (stems.isEmpty()) {
+    if (stack.isEmpty()) {
       if (this.includeParent) {
-        this._writeFullStem(stem);
+        this._writeStem(stem);
       } 
       else {
         this._writeStemBody(stem);
       }
     } 
     else {
-      this._writeBasicStemHeader(stem);
-      if(this._optionTrue("export.privs.for-parents")) {
+      this._writeStemHeader(stem);
+      if (this._isParentPrivsExportEnabled()) {
       	this._writeStemPrivs(stem);
       }
-      this._writeStems(stems);
-      this._writeBasicStemFooter(stem);
+      this._writeOwnerStack(stack);
+      this._writeStemFooter(stem);
     }
-  } // private void _writeStems(stems)
+  } // private void _writeOwnerStack(stack)
 
   // @since   1.1.0
   private void _writeSubject(Subject subj) 
