@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.51 2006-10-02 19:36:31 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.52 2006-10-03 13:51:57 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -60,6 +60,7 @@ public class XmlExporter {
   private boolean         includeParent;
   private boolean         isRelative;
   private Properties      options;
+  private Date            startTime;
   private Subject         sysUser;
   private int             writeStemsCounter = 0; // TODO 20061002 ???
   private XmlWriter       xml               = null;
@@ -194,8 +195,9 @@ public class XmlExporter {
       throw new GrouperRuntimeException(eIO.getMessage(), eIO);
     }
     this.options.putAll(userOptions); 
-    this.s        = s;
-    this.sysUser  = SubjectFinder.findRootSubject(); // TODO ?
+    this.s          = s;
+    this.startTime  = new Date();
+    this.sysUser    = SubjectFinder.findRootSubject(); // TODO ?
   } // public XmlExporter(s, userOptions)
 
   
@@ -304,7 +306,7 @@ public class XmlExporter {
     LOG.debug("Start export of Collection:" + info);
 
     this.fromStem         = "_Z";
-    Date    before        = _writeHeader();
+    this._writeHeader();
     int     counter       = 0;
 
     if (_optionTrue("export.data")) {
@@ -352,7 +354,7 @@ public class XmlExporter {
     this.xml.puts("<exportComments><![CDATA[");
     this.xml.puts(info);
     this.xml.puts("]]></exportComments>");
-    this._writeFooter(before);
+    this._writeFooter();
     LOG.debug("Finished export of Collection:" + info);
   } // public synchronized void export(items, info)
 
@@ -666,7 +668,7 @@ public class XmlExporter {
     this.isRelative         = relative;
     this.includeParent      = includeParent;
     this.writeStemsCounter  = 0;
-    Date    before          = _writeHeader();
+    this._writeHeader();
     if (!relative) {
       fromStem = null;
     }
@@ -693,7 +695,7 @@ public class XmlExporter {
       LOG.debug("export.data=false, so no data exported");
     }
     this._writeExportParams(o);
-    _writeFooter(before);
+    this._writeFooter();
   } // private synchronized void _export(o, relative, includeParent)
 
   // @since   1.1.0
@@ -904,22 +906,21 @@ public class XmlExporter {
   } // private void _writeFieldMetaData(f)
 
   // @since   1.1.0
-  private synchronized void _writeFooter(Date before)
+  private synchronized void _writeFooter()
     throws  IOException
   {
-    LOG.debug("Writing XML Footer");
     Date    now       = new Date();
-    long    duration  = (now.getTime() - before.getTime()) / 1000;
+    long    duration  = (now.getTime() - this.startTime.getTime()) / 1000;
     this.xml.puts();
     this.xml.puts("<exportInfo>");
-    this.xml.puts("<start>" + before + "</start>");
+    this.xml.puts("<start>" + startTime + "</start>");
     this.xml.puts("<end>" + now + "</end>");
     this.xml.puts("<duration>" + duration + "</duration>");
     _writeOptions();
     this.xml.puts("</exportInfo>");
     this.xml.puts("</registry>");
     this.xml.close();
-  } // private synchronized _writeFooter(before)
+  } // private synchronized _writeFooter()
 
   // @since 1.1.0
   private void _writeFullGroup(Group g) 
@@ -1141,19 +1142,16 @@ public class XmlExporter {
   } // private void _writeGroupTypesMetaData()
 
   // @since   1.1.0
-  private synchronized Date _writeHeader()
+  private synchronized void _writeHeader()
     throws  GrouperException,
             IOException 
   {
-    LOG.debug("Writing XML header");
-    Date    before  = new Date();
     this.xml.puts("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     this.xml.puts("<registry>");
     if (_optionTrue("export.metadata")) {
       this._writeMetaData();
     }
-    return before;
-  } // private synchronized Date _writeHeader()
+  } // private synchronized void _writeHeader()
 
   // @since   1.1.0
   private void _writeInternalAttribute(String attr, Date d)
