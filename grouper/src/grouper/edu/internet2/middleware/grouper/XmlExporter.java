@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.63 2006-10-03 18:10:06 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.64 2006-10-03 18:30:12 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -257,34 +257,49 @@ public class XmlExporter {
   public void export(Writer writer)
     throws  GrouperException
   {
-    LOG.info("starting export from root stem");
-    this.xml = new XmlWriter(writer);
-    try {
-      this._export(StemFinder.findRootStem(s));
-    }
-    catch (CompositeNotFoundException eCNF) {
-      throw new GrouperException(eCNF.getMessage(), eCNF);
-    }
-    catch (GroupNotFoundException eGNF)     {
-      throw new GrouperException(eGNF.getMessage(), eGNF);
-    }
-    catch (IOException eIO)                 {
-      throw new GrouperException(eIO.getMessage(), eIO);
-    }
-    catch (MemberNotFoundException eMNF)    {
-      throw new GrouperException(eMNF.getMessage(), eMNF);
-    }
-    catch (SchemaException eS)              {
-      throw new GrouperException(eS.getMessage(), eS);
-    }
-    catch (StemNotFoundException eNSNF)     {
-      throw new GrouperException(eNSNF.getMessage(), eNSNF);
-    }
-    catch (SubjectNotFoundException eSNF)   {
-      throw new GrouperException(eSNF.getMessage(), eSNF);
-    }
-    LOG.debug("export complete");
+    this.xml            = new XmlWriter(writer);
+    this.includeParent  = false;
+    this.isRelative     = false;
+    this._export(StemFinder.findRootStem(s));
   } // public void export()
+
+  /**
+   * Export a single group.
+   * <p/>
+   * @param   writer        Write XML here.
+   * @param   g             Export this group.
+   * @param   relative      TODO 20061003
+   * @param   includeParent Include parents in export.
+   * @throws  GrouperException
+   * @since   1.1.0
+   */
+  public void export(Writer writer, Group g, boolean relative, boolean includeParent) 
+    throws  GrouperException 
+  {
+    this.xml            = new XmlWriter(writer);
+    this.includeParent  = includeParent;
+    this.isRelative     = relative;
+    this._export(g);
+  } // public void export(writer, g, relative, includeParent)
+
+  /**
+   * Export a single stem.
+   * <p/>
+   * @param   writer        Write XML here.
+   * @param   ns            Export this stem.
+   * @param   relative      TODO 20061003
+   * @param   includeParent Include parents in export.
+   * @throws  GrouperException
+   * @since   1.1.0
+   */
+  public void export(Writer writer, Stem ns, boolean relative, boolean includeParent) 
+    throws  GrouperException 
+  {
+    this.xml            = new XmlWriter(writer);
+    this.includeParent  = includeParent;
+    this.isRelative     = relative;
+    this._export(ns);
+  } // public void export(writer, ns, relative, includeParent)
 
   /**
    * Export a Collection of stems, groups, members, subjects or memberships
@@ -351,37 +366,6 @@ public class XmlExporter {
     this._writeFooter();
     LOG.debug("Finished export of Collection:" + info);
   } // public synchronized void export(items, info)
-
-  /**
-   * Export a single group
-   * <p/>
-   * @since   1.1.0
-   */
-  public void export(Group group, boolean relative, boolean includeParent) 
-    throws  Exception 
-  {
-    LOG.debug("Start export of Group " + group.getName());
-    this.includeParent  = includeParent;
-    this.isRelative     = relative;
-    this._export(group);
-    LOG.debug("Finished export of Group " + group.getName());
-  } // public void export( group, relative, includeParent)
-
-  /**
-   * Exports part of the repository
-   * <p/> 
-   * @throws  Exception
-   * @since   1.1.0
-   */
-  public void export(Stem stem, boolean relative, boolean includeParent) 
-    throws  Exception 
-  {
-    LOG.debug("Start export of Stem " + stem.getName());
-    this.includeParent  = includeParent;
-    this.isRelative     = relative;
-    this._export(stem);
-    LOG.debug("Finished export of Stem " + stem.getName());
-  } // public void export(stem, relative, includeParent)
 
 
   // PROTECTED INSTANCE METHODS //
@@ -520,8 +504,9 @@ public class XmlExporter {
   private static void _handleArgs(XmlExporter exporter, Properties rc) 
     throws  Exception
   {
+    Writer writer = new PrintWriter( new FileWriter( rc.getProperty(RC_EFILE) ));
     if (rc.getProperty(RC_UUID) == null && rc.getProperty(RC_NAME) == null) {
-      exporter.export( new PrintWriter( new FileWriter( rc.getProperty(RC_EFILE) ) ) );
+      exporter.export(writer);
     } 
     else {
       Group group = null;
@@ -566,6 +551,7 @@ public class XmlExporter {
       }
       if (group != null) {
         exporter.export(
+          writer,
           group,
           Boolean.valueOf(rc.getProperty(RC_RELATIVE)),
           Boolean.valueOf(rc.getProperty(RC_PARENT))
@@ -573,6 +559,7 @@ public class XmlExporter {
       } 
       else {
         exporter.export(
+          writer,
           stem,   
           Boolean.valueOf(rc.getProperty(RC_RELATIVE)),
           Boolean.valueOf(rc.getProperty(RC_PARENT))
@@ -586,21 +573,37 @@ public class XmlExporter {
 
   // @since   1.1.0
   private synchronized void _export(Owner o)
-    throws  CompositeNotFoundException,
-            GrouperException,
-            GroupNotFoundException,
-            IOException,
-            MemberNotFoundException,
-            SchemaException,
-            StemNotFoundException,
-            SubjectNotFoundException
+    throws  GrouperException
   {
-    this._setFromStem(o);
-    this._writeHeader();
-    this._writeMetaData();
-    this._writeData(o);
-    this._writeExportParams(o);
-    this._writeFooter();
+    try {
+      this._setFromStem(o);
+      this._writeHeader();
+      this._writeMetaData();
+      this._writeData(o);
+      this._writeExportParams(o);
+      this._writeFooter();
+    }
+    catch (CompositeNotFoundException eCNF) {
+      throw new GrouperException(eCNF.getMessage(), eCNF);
+    }
+    catch (GroupNotFoundException eGNF)     {
+      throw new GrouperException(eGNF.getMessage(), eGNF);
+    }
+    catch (IOException eIO) {
+      throw new GrouperException(eIO.getMessage(), eIO);
+    }
+    catch (MemberNotFoundException eMNF)    {
+      throw new GrouperException(eMNF.getMessage(), eMNF);
+    }
+    catch (SchemaException eS)              {
+      throw new GrouperException(eS.getMessage(), eS);
+    }
+    catch (StemNotFoundException eNSNF)     {
+      throw new GrouperException(eNSNF.getMessage(), eNSNF);
+    }
+    catch (SubjectNotFoundException eSNF)   {
+      throw new GrouperException(eSNF.getMessage(), eSNF);
+    }
   } // private synchronized void _export(o)
 
   // @since   1.0
