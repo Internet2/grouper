@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.61 2006-10-03 17:25:12 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.62 2006-10-03 18:00:18 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -387,67 +387,6 @@ public class XmlExporter {
     this._export(stem);
     LOG.debug("Finished export of Stem " + stem.getName());
   } // public void export(stem, relative, includeParent)
-
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.0
-  protected static boolean hasImmediatePrivilege(
-    Subject subject, Group group, String privilege
-  ) 
-  {
-    Iterator  privIterator  = null;
-    Set       privs         = null;
-
-    privs = group.getPrivs(subject);
-    AccessPrivilege aPriv;
-    privIterator = privs.iterator();
-    while (privIterator.hasNext()) {
-      aPriv = (AccessPrivilege) privIterator.next();
-      if (
-          aPriv.getName().equals(privilege)
-          && aPriv.getOwner().equals(subject)
-      ) 
-      {
-        return true;
-      }
-    }
-    return false;
-
-  } // protected static boolean hasImmediatePrivilege(subject, group, privilege)
-
-  // @since   1.0
-  protected static boolean hasImmediatePrivilege(Subject subject, Owner o, String privilege) 
-  {
-    if (o instanceof Group) {
-      return hasImmediatePrivilege(subject, (Group) o, privilege);
-    }
-    return hasImmediatePrivilege(subject, (Stem) o, privilege);
-  } // protected static boolean hasImmediatePrivilege(subject, o, privilege)
-
-  // @since   1.0
-  protected static boolean hasImmediatePrivilege(
-    Subject subject, Stem stem, String privilege
-  ) 
-  {
-    Iterator  privIterator  = null;
-    Set       privs         = null;
-
-    privs = stem.getPrivs(subject);
-    NamingPrivilege nPriv;
-    privIterator = privs.iterator();
-    while (privIterator.hasNext()) {
-      nPriv = (NamingPrivilege) privIterator.next();
-      if (
-          nPriv.getName().equals(privilege)
-          && nPriv.getOwner().equals(subject)
-      ) 
-      {
-        return true;
-      }
-    }
-    return false;
-  } // protected static boolean hasImmediatePrivilege(subject, stem, privilege)
 
 
   // PROTECTED INSTANCE METHODS //
@@ -1408,7 +1347,7 @@ public class XmlExporter {
 
     while (subjIterator.hasNext()) {
       subject     = (Subject) subjIterator.next();
-      isImmediate = hasImmediatePrivilege(subject, o, privilege);
+      isImmediate = XmlUtils.hasImmediatePrivilege(subject, o, privilege);
       if (
         (!"GrouperSystem".equals(subject.getId()))
         && 

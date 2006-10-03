@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.58 2006-09-27 19:18:37 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.59 2006-10-03 18:00:18 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -871,7 +871,7 @@ public class XmlImporter {
         }
 
         if (
-          !XmlExporter.hasImmediatePrivilege( subject, focusGroup, privilege)
+          !XmlUtils.hasImmediatePrivilege( subject, focusGroup, privilege)
         ) 
         {
           LOG.debug("Assigning " + privilege + " to " + subject.getName() + " for " + group);
@@ -1546,7 +1546,7 @@ public class XmlImporter {
           }
         }
 
-        if (!XmlExporter.hasImmediatePrivilege(subject, focusStem, privilege)) {
+        if (!XmlUtils.hasImmediatePrivilege(subject, focusStem, privilege)) {
           LOG.debug("Assigning " + privilege + " to " + subject.getName() + " for " + stem);
           focusStem.grantPriv(subject, Privilege.getInstance(privilege));
           LOG.debug("...assigned");

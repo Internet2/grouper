@@ -16,7 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.subject.*;
 import  java.io.*;
+import  java.util.*;
 import  java.util.Properties;
 import  org.apache.commons.logging.*;
 
@@ -24,7 +26,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.7 2006-10-03 17:22:10 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.8 2006-10-03 18:00:18 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -38,7 +40,6 @@ class XmlUtils {
 
   // PROTECTED CLASS METHODS //
   
-  // @throws  IOException
   // @since   1.1.0 
   protected static Properties getSystemProperties(Log log, String file) 
     throws  IOException
@@ -49,8 +50,6 @@ class XmlUtils {
     return props;
   } // protected static Properties getSystemProperties(log, file);
 
-  // @throws  FileNotFoundException
-  // @throws  IOException
   // @since   1.1.0
   protected static Properties getUserProperties(Log log, String file) 
     throws  FileNotFoundException,
@@ -65,6 +64,14 @@ class XmlUtils {
     } 
     return props;
   } // protected static Properties getUserProperties(log, file)
+
+  // @since   1.1.0
+  protected static boolean hasImmediatePrivilege(Subject subj, Owner o, String p) {
+    if (o instanceof Group) {
+      return XmlUtils._hasImmediateAccessPrivilege(subj, (Group) o, p);
+    }
+    return XmlUtils._hasImmediateNamingPrivilege(subj, (Stem) o, p);
+  } // protected static boolean hasImmediatePrivilege(subj, o, p)
 
   // @since   1.1.0
   protected static boolean isEmpty(Object obj) {
@@ -87,6 +94,35 @@ class XmlUtils {
     }
     return false;
   } // protected static void wantsHelp(args)
+
+
+  // PRIVATE CLASS METHODS //
+
+  // @since   1.1.0
+  private static boolean _hasImmediateAccessPrivilege(Subject subj, Group g, String p) {
+    AccessPrivilege ap;
+    Iterator        it  = g.getPrivs(subj).iterator();
+    while (it.hasNext()) {
+      ap = (AccessPrivilege) it.next();
+      if ( ap.getName().equals(p) && SubjectHelper.eq( ap.getOwner(), subj ) ) {
+        return true;
+      }
+    }
+    return false;
+  } // private static boolean _hasImmediatePrivilege(subj, g, p)
+
+  // @since   1.1.0
+  protected static boolean _hasImmediateNamingPrivilege(Subject subj, Stem ns, String p) {
+    NamingPrivilege np;
+    Iterator        it  = ns.getPrivs(subj).iterator();
+    while (it.hasNext()) {
+      np = (NamingPrivilege) it.next();
+      if ( np.getName().equals(p) && SubjectHelper.eq( np.getOwner(), subj ) ) {
+        return true;
+      }
+    }
+    return false;
+  } // protected static boolean hasImmediatePrivilege(subject, stem, privilege)
 
 } // class XmlUtils
 
