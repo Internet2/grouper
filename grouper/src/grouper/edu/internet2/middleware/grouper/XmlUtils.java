@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.6 2006-09-26 14:17:41 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.7 2006-10-03 17:22:10 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -36,14 +36,6 @@ class XmlUtils {
                                                           // if at beginning of idfr but not at end
 
 
-  // CONSTRUCTORS //
-
-  // @since   1.1.0
-  protected XmlUtils() {
-    super();
-  } // protected XmlUtils()
-
-  
   // PROTECTED CLASS METHODS //
   
   // @throws  IOException
