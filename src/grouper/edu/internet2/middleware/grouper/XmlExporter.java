@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.62 2006-10-03 18:00:18 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.63 2006-10-03 18:10:06 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -57,7 +57,7 @@ public class XmlExporter {
   private GrouperSession  s;
   private String          fromStem      = null;
   private boolean         includeParent = false;
-  private boolean         isRelative    = true;
+  private boolean         isRelative    = false;
   private Properties      options;
   private Date            startTime;
   private Subject         sysUser;
@@ -355,26 +355,21 @@ public class XmlExporter {
   /**
    * Export a single group
    * <p/>
-   * @param   group
-   * @param   relative  determines whether to export parent stems
-   * @throws  Exception
    * @since   1.1.0
    */
-  public void export(Group group, boolean relative) 
+  public void export(Group group, boolean relative, boolean includeParent) 
     throws  Exception 
   {
     LOG.debug("Start export of Group " + group.getName());
-    this.isRelative = relative;
+    this.includeParent  = includeParent;
+    this.isRelative     = relative;
     this._export(group);
     LOG.debug("Finished export of Group " + group.getName());
-  } // public void export( group, relative)
+  } // public void export( group, relative, includeParent)
 
   /**
    * Exports part of the repository
    * <p/> 
-   * @param   stem          where to export from
-   * @param   relative      determines whether to export parent stems
-   * @param   includeParent should 'stem' be included or just the children
    * @throws  Exception
    * @since   1.1.0
    */
@@ -382,8 +377,8 @@ public class XmlExporter {
     throws  Exception 
   {
     LOG.debug("Start export of Stem " + stem.getName());
-    this.isRelative     = relative;
     this.includeParent  = includeParent;
+    this.isRelative     = relative;
     this._export(stem);
     LOG.debug("Finished export of Stem " + stem.getName());
   } // public void export(stem, relative, includeParent)
@@ -572,7 +567,8 @@ public class XmlExporter {
       if (group != null) {
         exporter.export(
           group,
-          Boolean.valueOf(rc.getProperty(RC_RELATIVE))
+          Boolean.valueOf(rc.getProperty(RC_RELATIVE)),
+          Boolean.valueOf(rc.getProperty(RC_PARENT))
         );
       } 
       else {
