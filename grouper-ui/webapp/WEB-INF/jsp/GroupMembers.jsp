@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.9 2006-07-20 09:19:19 isgwb Exp $
+  @version $Id: GroupMembers.jsp,v 1.10 2006-10-03 11:32:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -14,19 +14,39 @@
 	<fmt:message bundle="${nav}" key="groups.heading.list-members"/>
 </h2>
 <tiles:insert definition="changeMembershipScopeDef"/>
-<tiles:insert definition="dynamicTileDef">
-	<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
-	<tiles:put name="view" value="memberLinks"/>
-	<tiles:put name="headerView" value="memberLinksHeader"/>
-	<tiles:put name="itemView" value="membershipInfo"/>
-	<tiles:put name="footerView" value="memberLinksFooter"/>
-	<tiles:put name="pager" beanName="pager"/>
-	<tiles:put name="noResultsMsg" value="${navMap[noResultsKey]}"/>
-	<tiles:put name="listInstruction" value="list.instructions.member-links"/> 
-	<tiles:put name="linkSeparator">  
-		<tiles:insert definition="linkSeparatorDef" flush="false"/>
-	</tiles:put>
-</tiles:insert>
+<c:choose>
+	<c:when test="${!removableMembers}">
+		<tiles:insert definition="dynamicTileDef">
+			<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
+			<tiles:put name="view" value="memberLinks"/>
+			<tiles:put name="headerView" value="memberLinksHeader"/>
+			<tiles:put name="itemView" value="membershipInfo"/>
+			<tiles:put name="footerView" value="memberLinksFooter"/>
+			<tiles:put name="pager" beanName="pager"/>
+			<tiles:put name="noResultsMsg" value="${navMap[noResultsKey]}"/>
+			<tiles:put name="listInstruction" value="list.instructions.member-links"/> 
+			<tiles:put name="linkSeparator">  
+				<tiles:insert definition="linkSeparatorDef" flush="false"/>
+			</tiles:put>
+		</tiles:insert>
+	</c:when>
+	<c:otherwise>
+		<tiles:insert definition="dynamicTileDef">
+			<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
+			<tiles:put name="view" value="memberLinks"/>
+			<tiles:put name="headerView" value="removableMemberLinksHeader"/>
+			<tiles:put name="itemView" value="removableMembershipInfo"/>
+			<tiles:put name="footerView" value="removableMemberLinksFooter"/>
+			<tiles:put name="pager" beanName="pager"/>
+			<tiles:put name="noResultsMsg" value="${navMap[noResultsKey]}"/>
+			<tiles:put name="listInstruction" value="list.instructions.member-links"/> 
+			<tiles:put name="linkSeparator">  
+				<tiles:insert definition="linkSeparatorDef" flush="false"/>
+			</tiles:put>
+		</tiles:insert>
+
+	</c:otherwise>
+</c:choose>
 
 
 <br/>
