@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.56 2006-10-03 15:02:01 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.57 2006-10-03 15:17:50 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -62,7 +62,6 @@ public class XmlExporter {
   private Properties      options;
   private Date            startTime;
   private Subject         sysUser;
-  private int             writeStemsCounter = 0; // TODO 20061002 ???
   private XmlWriter       xml               = null;
 
 
@@ -667,50 +666,12 @@ public class XmlExporter {
             SubjectNotFoundException
   {
     this._setFromStem(o);
-    this.writeStemsCounter = 0;
     this._writeHeader();
     this._writeMetaData();
-    this._exportData(o);
+    this._writeData(o);
     this._writeExportParams(o);
     this._writeFooter();
   } // private synchronized void _export(o)
-
-  // @since   1.1.0
-  private void _exportData(Owner o) 
-    throws  CompositeNotFoundException,
-            GroupNotFoundException,
-            IOException,
-            MemberNotFoundException,
-            SchemaException,
-            StemNotFoundException,
-            SubjectNotFoundException
-  {
-    if (this._isDataExportEnabled()) {
-      this.xml.indent();
-      this.xml.puts("<data>");
-      // TODO 20061002 refactor out to own method
-      Stack stems = null;
-      if (!isRelative) {
-        stems = this._getParentStems(o);
-      } 
-      else {
-        stems = new Stack();
-        if (o instanceof Group) {
-          stems.push( (Group) o);
-          if (includeParent) {
-            stems.push( ( (Group) o ).getParentStem());
-          }
-        } 
-        else {
-          stems.push( (Stem) o);
-        }
-      }
-      this._writeStems(stems);
-      this.xml.puts("</data>");
-      this.xml.undent();
-      LOG.debug("Finished repository data as XML");
-    }
-  } // private void _exportData(o)
 
   // @since   1.0
   private String _fixGroupName(String name) {
@@ -760,6 +721,30 @@ public class XmlExporter {
     }
     return res.iterator();
   } // private Iterator _getExportAttributes(subj)
+
+  // @since   1.1.0
+  private Stack _getStemsToWrite(Owner o) {
+    // If I understand correctly the code behaves in this manner because we may
+    // need to export parents in order to export a child but we do NOT want to
+    // export ALL children of that parent in that case.  Alas.
+    Stack stems = null;
+    if (!this.isRelative) {
+      stems = this._getParentStems(o);
+    } 
+    else {
+      stems = new Stack();
+      if (o instanceof Group) {
+        stems.push( (Group) o);
+        if (this.includeParent) {
+          stems.push( ( (Group) o ).getParentStem());
+        }
+      } 
+      else {
+        stems.push( (Stem) o);
+      }
+    }
+    return stems;
+  } // private Stack _getStemsToWrite(o)
 
   // @since   1.1.0
   private boolean _isDataExportEnabled() {
@@ -1093,6 +1078,26 @@ public class XmlExporter {
       }
     }
   } // private void _writeAttributes(g)
+
+  // @since   1.1.0
+  private void _writeData(Owner o) 
+    throws  CompositeNotFoundException,
+            GroupNotFoundException,
+            IOException,
+            MemberNotFoundException,
+            SchemaException,
+            StemNotFoundException,
+            SubjectNotFoundException
+  {
+    if (this._isDataExportEnabled()) {
+      this.xml.indent();
+      this.xml.puts("<data>");
+      this._writeStems( this._getStemsToWrite(o) );
+      this.xml.puts("</data>");
+      this.xml.undent();
+      LOG.debug("Finished repository data as XML");
+    }
+  } // private void _writeData(o)
 
   // @since   1.1.0 
   private void _writeLists(Group g) 
@@ -1475,23 +1480,19 @@ public class XmlExporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    this.writeStemsCounter++;
     Object obj = stems.pop();
     if (obj instanceof Group) {
       this._writeFullGroup( (Group) obj );
       return;
     }
-
     Stem stem = (Stem) obj;
-
     if (stems.isEmpty()) {
-      if (includeParent || this.writeStemsCounter > 1) {
+      if (this.includeParent) {
         this._writeFullStem(stem);
       } 
       else {
         this._writeStemBody(stem);
       }
-      return;
     } 
     else {
       this._writeBasicStemHeader(stem);
