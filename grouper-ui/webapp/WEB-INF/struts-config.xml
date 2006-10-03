@@ -455,6 +455,8 @@
       <forward name="GroupMember" path="GroupMemberDef" redirect="false"/>
       <forward name="StemMember" path="StemMemberDef" redirect="false"/>
     </action>
+	
+
     
     <action name="GroupFormBean" path="/populateGroupPriviligees" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupPriviligeesAction"
@@ -503,6 +505,15 @@
      
       <forward name="GroupMembers" path="GroupMembersDef" redirect="false"/>
 	  <forward name="AddGroupMembers" path="/populateFindNewMembers.do" redirect="false"/>
+    </action>
+	
+	    <action name="GroupFormBean" path="/removeGroupMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.RemoveGroupMembersAction"
+            unknown="false" validate="false">
+     
+
+	  <forward name="GroupSummary" path="/populateGroupSummary.do" redirect="false"/>
+	  <forward name="GroupMembers" path="/populateGroupMembers.do" redirect="false"/>
     </action>
   
     <action name="GroupFormBean" path="/populateGroupSummary" scope="request"
