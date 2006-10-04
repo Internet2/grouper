@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.8 2006-10-03 18:00:18 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.9 2006-10-04 15:03:52 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -40,6 +40,11 @@ class XmlUtils {
 
   // PROTECTED CLASS METHODS //
   
+  // @since   1.1.0
+  protected static boolean getBooleanOption(Properties opts, String key) {
+    return Boolean.valueOf( opts.getProperty(key, "false") );
+  } // protected static boolean getBooleanOption(opts, key)
+
   // @since   1.1.0 
   protected static Properties getSystemProperties(Log log, String file) 
     throws  IOException

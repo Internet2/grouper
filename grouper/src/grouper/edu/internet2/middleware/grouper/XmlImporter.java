@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.65 2006-10-04 14:53:51 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.66 2006-10-04 15:03:52 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -635,6 +635,11 @@ public class XmlImporter {
   } // private Subject _getSubjectByIdentifier(identifier, type)
 
   // @since   1.1.0
+  private boolean _isApplyNewGroupTypesEnabled() {
+    return XmlUtils.getBooleanOption(this.options, "import.data.apply-new-group-types");
+  } // private boolean _isApplyNewGroupTypesEnabled()
+  
+  // @since   1.1.0
   private boolean _isRelativeImport(String idfr) {
     return (
           idfr.startsWith(  XmlUtils.SPECIAL_STAR )
@@ -1194,18 +1199,8 @@ public class XmlImporter {
     if (!f.getType().equals(FieldType.LIST)) {
       throw new SchemaException("field is not a list: " + f.getName());
     }
+    this._processMembershipListAddGroupType(g, f.getGroupType());
 
-    //TODO add admin check?
-    if (!g.hasType(f.getGroupType())) {
-      if (this._optionTrue("import.data.apply-new-group-types")) {
-        LOG.debug("Adding group type " + f.getGroupType());
-        g.addType(f.getGroupType());
-      } 
-      else {
-        LOG.debug("Ignoring field " + f.getName());
-        return;
-      }
-    }
     if (!g.canReadField(f)) {
       LOG.debug("No write privilege - ignoring field " + f.getName());
       return;
@@ -1298,6 +1293,17 @@ public class XmlImporter {
       this._processMembershipListsAddMember(g, subject, f);
     }
   } // private void _processMembershipList()
+
+  // @since   1.1.0
+  private void _processMembershipListAddGroupType(Group g, GroupType gt) 
+    throws  GroupModifyException,
+            InsufficientPrivilegeException,
+            SchemaException
+  {
+    if ( !g.hasType(gt) && this._isApplyNewGroupTypesEnabled() ) {
+      g.addType(gt); 
+    }
+  } // private void _processMembershipListAddGroupType(g, gt)
 
   // @since   1.1.0
   private void _processMembershipListsAddMember(Group g, Subject subj, Field f) 
