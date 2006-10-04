@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.64 2006-10-04 14:50:27 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.65 2006-10-04 14:53:51 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1184,26 +1184,17 @@ public class XmlImporter {
             SchemaException,
             SubjectNotFoundException
   {
-    Element list          = (Element) map.get("list");
-    String  groupName     = (String) map.get("group");
+    Element list      = (Element) map.get("list");
+    String  groupName = (String) map.get("group");
     if (this._getDataListImportMode().equals(MODE_IGNORE)) {
       return; // Ignore lists
     }
-    Field   f = null;
     Group   g = GroupFinder.findByName(s, groupName);
-
-    String listName = list.getAttribute("field");
-    try {
-      f = FieldFinder.find(listName);
-      if (!f.getType().equals(FieldType.LIST)) {
-        LOG.error(listName + " is not a list");
-        return;
-      }
-    } 
-    catch (SchemaException eS) {
-      LOG.error("cannot find list " + U.q(listName) + ": " + eS.getMessage());
-      return;
+    Field   f = FieldFinder.find( list.getAttribute("field") );
+    if (!f.getType().equals(FieldType.LIST)) {
+      throw new SchemaException("field is not a list: " + f.getName());
     }
+
     //TODO add admin check?
     if (!g.hasType(f.getGroupType())) {
       if (this._optionTrue("import.data.apply-new-group-types")) {
