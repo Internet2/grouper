@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.62 2006-10-04 14:26:47 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.63 2006-10-04 14:47:04 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -47,6 +47,9 @@ public class XmlImporter {
   // PRIVATE CLASS CONSTANTS //  
   private static final String CF            = "import.properties";
   private static final Log    LOG           = LogFactory.getLog(XmlImporter.class);
+  private static final String MODE_ADD      = "add";
+  private static final String MODE_IGNORE   = "ignore";
+  private static final String MODE_REPLACE  = "replace";
   private static final String RC_IFILE      = "import.file";
   private static final String RC_NAME       = "owner.name";
   private static final String RC_SUBJ       = "subject.identifier";
@@ -535,6 +538,11 @@ public class XmlImporter {
     return name;
   } // private String _getAbsoluteName(name, stem)
 
+  // @since   1.1.0
+  private String _getDataListImportMode() {
+    return this.options.getProperty("import.data.lists", MODE_IGNORE);
+  } // private String _getDataListImportMode()
+
   // Returns immediate child element with given name
   // @since   1.0
   private Element _getImmediateElement(Element element, String name)
@@ -807,12 +815,12 @@ public class XmlImporter {
       if (XmlUtils.isEmpty(importOption))
         importOption = options.getProperty("import.data.privileges");
 
-      if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
+      if (XmlUtils.isEmpty(importOption) || MODE_IGNORE.equals(importOption)) {
         LOG.debug("Ignoring any '" + privilege + "' privileges");
         continue; //No instruction so ignore
       }
       grouperPrivilege = Privilege.getInstance(privilege);
-      if ("replace".equals(importOption)) {
+      if (MODE_REPLACE.equals(importOption)) {
         LOG.debug("Revoking current '" + privilege + "' privileges");
         focusGroup.revokePriv(grouperPrivilege);
       }
@@ -1178,12 +1186,8 @@ public class XmlImporter {
   {
     Element list          = (Element) map.get("list");
     String  groupName     = (String) map.get("group");
-    String  importOption  = list.getAttribute("importOption");
-    if (XmlUtils.isEmpty(importOption)) {
-      importOption = options.getProperty("import.data.lists");
-    }
-    if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
-      return; // No instruction: ignore
+    if (this._getDataListImportMode().equals(MODE_IGNORE)) {
+      return; // Ignore lists
     }
     Field   f             = null;
     Group   g             = null;
@@ -1234,7 +1238,7 @@ public class XmlImporter {
     }
     Element compE = this._getImmediateElement(list, "composite");
 
-    if ("replace".equals(importOption)) {
+    if (this._getDataListImportMode().equals(MODE_REPLACE)) {
       if (hasComposite) {
         g.deleteCompositeMember();
       } 
@@ -1249,7 +1253,7 @@ public class XmlImporter {
         }
       }
     }
-    if (compE != null && (!"add".equals(importOption) || hasMembers)) {
+    if (compE != null && ( !this._getDataListImportMode().equals(MODE_ADD) || hasMembers) ) {
       this._processComposite(compE, g);
       return;
     }
@@ -1486,13 +1490,13 @@ public class XmlImporter {
       if (XmlUtils.isEmpty(importOption)) {
         importOption = options.getProperty("import.data.privileges");
       }
-      if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
+      if (XmlUtils.isEmpty(importOption) || MODE_IGNORE.equals(importOption)) {
         LOG.debug("Ignoring any '" + privilege + "' privileges");
         continue; //No instruction so ignore
       }
 
       grouperPrivilege = Privilege.getInstance(privilege);
-      if ("replace".equals(importOption)) {
+      if (MODE_REPLACE.equals(importOption)) {
         LOG.debug("Revoking current '" + privilege + "' privileges");
         focusStem.revokePriv(grouperPrivilege);
       }
