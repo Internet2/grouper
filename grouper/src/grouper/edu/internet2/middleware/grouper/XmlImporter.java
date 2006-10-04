@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.60 2006-10-04 13:59:21 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.61 2006-10-04 14:21:40 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1159,159 +1159,162 @@ public class XmlImporter {
     if (membershipLists == null || membershipLists.size() == 0) {
       return;
     }
-    Collection  subjects;
-    Iterator    subjectsIterator;
-    Element     subjectE;
-    Element     list;
-    String      listName;
-    Field       field               = null;
-    Subject     subject;
-    String      groupName;
-    String      lastGroupName       = "";
-    Group       group               = null;
-    Map         map;
-    String      subjectId;
-    String      subjectIdentifier;
-    String      subjectType;
-    Group       privGroup;
-    boolean     isImmediate;
-    String      importOption;
     for (int i = 0; i < membershipLists.size(); i++) {
-      map = (Map) membershipLists.get(i);
-      list = (Element) map.get("list");
-      importOption = list.getAttribute("importOption");
-      if (XmlUtils.isEmpty(importOption)) {
-        importOption = options.getProperty("import.data.lists");
-      }
-      if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
-        continue; //No instruction so ignore
-      }
-      groupName = (String) map.get("group");
-
-      //Save a call if we are dealing with same group
-      if (!groupName.equals(lastGroupName)) {
-        if (!XmlUtils.isEmpty(lastGroupName)) {
-          LOG.debug("Finished loading memberships for " + lastGroupName);
-        }
-        group = GroupFinder.findByName(s, groupName);
-        LOG.debug("Loading memberships for " + groupName);
-      }
-
-      lastGroupName = groupName;
-
-      listName = list.getAttribute("field");
-      try {
-        field = FieldFinder.find(listName);
-        if (!field.getType().equals(FieldType.LIST)) {
-          LOG.error(listName + " is not a list");
-          continue;
-        }
-      } 
-      catch (SchemaException eS) {
-        LOG.error("cannot find list " + U.q(listName) + ": " + eS.getMessage());
-        continue;
-      }
-      //TODO add admin check?
-      if (!group.hasType(field.getGroupType())) {
-        if (this._optionTrue("import.data.apply-new-group-types")) {
-          LOG.debug("Adding group type " + field.getGroupType());
-          group.addType(field.getGroupType());
-        } 
-        else {
-          LOG.debug("Ignoring field " + field.getName());
-          continue;
-        }
-      }
-      if (!group.canReadField(field)) {
-        LOG.debug("No write privilege - ignoring field " + field.getName());
-        continue;
-      }
-      boolean hasComposite  = group.hasComposite();
-      boolean hasMembers    = false;
-      if (!hasComposite && group.getImmediateMembers().size() > 0) {
-        hasMembers = true;
-      }
-      Element compE = this._getImmediateElement(list, "composite");
-
-      if ("replace".equals(importOption)) {
-        if (hasComposite) {
-          group.deleteCompositeMember();
-        } 
-        else {
-          Set       members         = group.getImmediateMembers(field);
-          Iterator  membersIterator = members.iterator();
-          Member    memb;
-          LOG.debug("Removing all memberships for " + groupName);
-          while (membersIterator.hasNext()) {
-            memb = (Member) membersIterator.next();
-            group.deleteMember(memb.getSubject());
-          }
-        }
-      }
-      if (compE != null && (!"add".equals(importOption) || hasMembers)) {
-        this._processComposite(compE, group);
-        continue;
-      }
-      if (compE != null && hasMembers) {
-        LOG.warn("Skipping composite - cannot ad to existing members for " + groupName);
-        continue;
-      }
-      subjects          = this._getImmediateElements(list, "subject");
-      subjectsIterator  = subjects.iterator();
-      while (subjectsIterator.hasNext()) {
-        subjectE    = (Element) subjectsIterator.next();
-        isImmediate = "true".equals(subjectE.getAttribute("immediate"));
-        if (XmlUtils.isEmpty(subjectE.getAttribute("immediate"))) {
-          isImmediate = true;
-        }
-        if (!isImmediate) {
-          continue;
-        }
-
-        subjectId         = subjectE.getAttribute("id");
-        subjectIdentifier = subjectE.getAttribute("identifier");
-        subjectType       = subjectE.getAttribute("type");
-        if ("group".equals(subjectType)) {
-          if (this._isRelativeImport(subjectIdentifier)) {
-            if (!XmlUtils.isEmpty(importRoot)) {
-              subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
-            }
-            else {
-              subjectIdentifier = subjectIdentifier.substring(1);
-            }
-          } 
-          else {
-            subjectIdentifier = this._getAbsoluteName(
-              subjectIdentifier, group.getParentStem() .getName()
-            );
-          }
-          try {
-            privGroup = GroupFinder.findByName(s, subjectIdentifier);
-          } 
-          catch (Exception e) {
-            LOG.warn("Could not find Group identified by " + subjectIdentifier);
-            continue;
-          }
-          subject = privGroup.toSubject();
-        } 
-        else {
-          try {
-            subject = this._processMembershipListsFindSubject(subjectId, subjectIdentifier, subjectType);
-          }
-          catch (SubjectNotFoundException eSNF) {
-            LOG.error(eSNF.getMessage());
-            continue;
-          }
-          catch (SubjectNotUniqueException eSNU) {
-            LOG.error(eSNU.getMessage());
-            continue;
-          }
-        }
-        this._processMembershipListsAddMember(group, subject, field);
-      }
+      this._processMembershipList( (Map) membershipLists.get(i) );
     }
     this.membershipLists = null;
   } // private void _processMembershipLists()
+
+  // @since   1.1.0
+  private void _processMembershipList(Map map) 
+    throws  GrouperException,
+            GroupModifyException,
+            GroupNotFoundException,
+            InsufficientPrivilegeException,
+            MemberAddException,
+            MemberDeleteException,
+            SchemaException,
+            SubjectNotFoundException
+  {
+    Element list          = (Element) map.get("list");
+    String  groupName     = (String) map.get("group");
+    String  importOption  = list.getAttribute("importOption");
+    if (XmlUtils.isEmpty(importOption)) {
+      importOption = options.getProperty("import.data.lists");
+    }
+    if (XmlUtils.isEmpty(importOption) || "ignore".equals(importOption)) {
+      return; // No instruction: ignore
+    }
+    Field   f             = null;
+    Group   g             = null;
+    String  lastGroupName = GrouperConfig.EMPTY_STRING;
+
+    //Save a call if we are dealing with same group
+    if (!groupName.equals(lastGroupName)) {
+      if (!XmlUtils.isEmpty(lastGroupName)) {
+        LOG.debug("Finished loading memberships for " + lastGroupName);
+      }
+      g = GroupFinder.findByName(s, groupName);
+      LOG.debug("Loading memberships for " + groupName);
+    }
+
+    lastGroupName = groupName;
+
+    String listName = list.getAttribute("field");
+    try {
+      f = FieldFinder.find(listName);
+      if (!f.getType().equals(FieldType.LIST)) {
+        LOG.error(listName + " is not a list");
+        return;
+      }
+    } 
+    catch (SchemaException eS) {
+      LOG.error("cannot find list " + U.q(listName) + ": " + eS.getMessage());
+      return;
+    }
+    //TODO add admin check?
+    if (!g.hasType(f.getGroupType())) {
+      if (this._optionTrue("import.data.apply-new-group-types")) {
+        LOG.debug("Adding group type " + f.getGroupType());
+        g.addType(f.getGroupType());
+      } 
+      else {
+        LOG.debug("Ignoring field " + f.getName());
+        return;
+      }
+    }
+    if (!g.canReadField(f)) {
+      LOG.debug("No write privilege - ignoring field " + f.getName());
+      return;
+    }
+    boolean hasComposite  = g.hasComposite();
+    boolean hasMembers    = false;
+    if (!hasComposite && g.getImmediateMembers().size() > 0) {
+      hasMembers = true;
+    }
+    Element compE = this._getImmediateElement(list, "composite");
+
+    if ("replace".equals(importOption)) {
+      if (hasComposite) {
+        g.deleteCompositeMember();
+      } 
+      else {
+        Set       members         = g.getImmediateMembers(f);
+        Iterator  membersIterator = members.iterator();
+        Member    memb;
+        LOG.debug("Removing all memberships for " + groupName);
+        while (membersIterator.hasNext()) {
+          memb = (Member) membersIterator.next();
+          g.deleteMember(memb.getSubject());
+        }
+      }
+    }
+    if (compE != null && (!"add".equals(importOption) || hasMembers)) {
+      this._processComposite(compE, g);
+      return;
+    }
+    if (compE != null && hasMembers) {
+      LOG.warn("Skipping composite - cannot ad to existing members for " + groupName);
+      return;
+    }
+
+    boolean   isImmediate;
+    Element   subjectE;
+    Subject   subject;
+    Iterator  it          = this._getImmediateElements(list, "subject").iterator();
+    while (it.hasNext()) {
+      subjectE    = (Element) it.next();
+      isImmediate = "true".equals(subjectE.getAttribute("immediate"));
+      if (XmlUtils.isEmpty(subjectE.getAttribute("immediate"))) {
+        isImmediate = true;
+      }
+      if (!isImmediate) {
+        continue;
+      }
+
+      Group   privGroup;
+      String  subjectId         = subjectE.getAttribute("id");
+      String  subjectIdentifier = subjectE.getAttribute("identifier");
+      String  subjectType       = subjectE.getAttribute("type");
+      if ("group".equals(subjectType)) {
+        if (this._isRelativeImport(subjectIdentifier)) {
+          if (!XmlUtils.isEmpty(importRoot)) {
+            subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
+          }
+          else {
+            subjectIdentifier = subjectIdentifier.substring(1);
+          }
+        } 
+        else {
+          subjectIdentifier = this._getAbsoluteName(
+            subjectIdentifier, g.getParentStem().getName()
+          );
+        }
+        try {
+          privGroup = GroupFinder.findByName(s, subjectIdentifier);
+        } 
+        catch (Exception e) {
+          LOG.warn("Could not find Group identified by " + subjectIdentifier);
+          return;
+        }
+        subject = privGroup.toSubject();
+      } 
+      else {
+        try {
+          subject = this._processMembershipListsFindSubject(subjectId, subjectIdentifier, subjectType);
+        }
+        catch (SubjectNotFoundException eSNF) {
+          LOG.error(eSNF.getMessage());
+          return;
+        }
+        catch (SubjectNotUniqueException eSNU) {
+          LOG.error(eSNU.getMessage());
+          return;
+        }
+      }
+      this._processMembershipListsAddMember(g, subject, f);
+    }
+  } // private void _processMembershipList()
 
   // @since   1.1.0
   private void _processMembershipListsAddMember(Group g, Subject subj, Field f) 
