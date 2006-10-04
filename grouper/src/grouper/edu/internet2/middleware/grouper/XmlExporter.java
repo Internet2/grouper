@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.65 2006-10-03 19:29:36 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.66 2006-10-04 13:59:21 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -944,7 +944,6 @@ public class XmlExporter {
   {
     this.xml.indent();
     this.xml.puts("<groupType name=" + U.q( this._fixXmlAttribute(gt.getName()) ) + ">");
-    String    val;
     Iterator  it  = gt.getFields().iterator();
     while (it.hasNext()) {
       this._writeGroupTypeField(g, (Field) it.next());

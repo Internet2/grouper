@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.59 2006-10-03 18:00:18 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.60 2006-10-04 13:59:21 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -64,11 +64,10 @@ public class XmlImporter {
   private List            namingPrivLists = new ArrayList();
   private Properties      options         = new Properties();
   private GrouperSession  s;
-  private boolean         updateOnly      = false;  // add (or not) groups + stems when importing
-
- 
+  
+  
   // CONSTRUCTORS //
- 
+  
   /**
    * Import the Groups Registry from XML.
    * <p>
@@ -263,7 +262,6 @@ public class XmlImporter {
             IllegalArgumentException
   {
     LOG.info("starting update");
-    this.updateOnly = true;
     this._load( StemFinder.findRootStem(this.s), doc );
     LOG.info("finished update");
   } // public void update(doc)
