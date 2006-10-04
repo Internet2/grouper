@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.61 2006-10-04 14:21:40 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.62 2006-10-04 14:26:47 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1156,11 +1156,11 @@ public class XmlImporter {
             SchemaException,
             SubjectNotFoundException
   {
-    if (membershipLists == null || membershipLists.size() == 0) {
-      return;
-    }
-    for (int i = 0; i < membershipLists.size(); i++) {
-      this._processMembershipList( (Map) membershipLists.get(i) );
+    if (this.membershipLists != null) {
+      Iterator it = this.membershipLists.iterator();
+      while (it.hasNext()) {
+        this._processMembershipList( (Map) it.next() );
+      }
     }
     this.membershipLists = null;
   } // private void _processMembershipLists()
