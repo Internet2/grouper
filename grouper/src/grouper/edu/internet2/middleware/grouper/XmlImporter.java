@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.68 2006-10-04 15:44:46 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.69 2006-10-04 17:32:19 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -279,6 +279,17 @@ public class XmlImporter {
 
 
   // PRIVATE CLASS METHODS //
+
+  // @since   1.1.0
+  private Subject _findSubject(String id, String idfr, String type) 
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
+    if (XmlUtils.isEmpty(id)) {
+      return this._getSubjectByIdentifier(idfr, type);
+    } 
+    return this._getSubjectById(id, type);
+  } // private Subject _findSubject(id, idfr, type)
 
   // @since   1.1.0
   private static Properties _getArgs(String[] args) 
@@ -647,6 +658,11 @@ public class XmlImporter {
     );
   } // private boolean _isRelativeImport(idfr)
  
+  // @since   1.1.0
+  private boolean _isSubjectElementImmediate(Element el) {
+    return Boolean.valueOf( el.getAttribute("immediate") );
+  } // private boolean _isSubjectElementImmediate(el)
+
   // @since   1.1.0
   private boolean _isUpdatingAttributes(Element e) {
     // TODO 20060922 switch over to this method
@@ -1206,62 +1222,9 @@ public class XmlImporter {
     if (!this._processMembershipListHandleImportMode(g, f, list)) {
       return; // Stop processing as we've done everything already
     }
-
-    boolean   isImmediate;
-    Element   subjectE;
-    Subject   subject;
-    Iterator  it          = this._getImmediateElements(list, "subject").iterator();
+    Iterator it = this._getImmediateElements(list, "subject").iterator();
     while (it.hasNext()) {
-      subjectE    = (Element) it.next();
-      isImmediate = "true".equals(subjectE.getAttribute("immediate"));
-      if (XmlUtils.isEmpty(subjectE.getAttribute("immediate"))) {
-        isImmediate = true;
-      }
-      if (!isImmediate) {
-        continue;
-      }
-
-      Group   privGroup;
-      String  subjectId         = subjectE.getAttribute("id");
-      String  subjectIdentifier = subjectE.getAttribute("identifier");
-      String  subjectType       = subjectE.getAttribute("type");
-      if ("group".equals(subjectType)) {
-        if (this._isRelativeImport(subjectIdentifier)) {
-          if (!XmlUtils.isEmpty(importRoot)) {
-            subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
-          }
-          else {
-            subjectIdentifier = subjectIdentifier.substring(1);
-          }
-        } 
-        else {
-          subjectIdentifier = this._getAbsoluteName(
-            subjectIdentifier, g.getParentStem().getName()
-          );
-        }
-        try {
-          privGroup = GroupFinder.findByName(s, subjectIdentifier);
-        } 
-        catch (Exception e) {
-          LOG.warn("Could not find Group identified by " + subjectIdentifier);
-          return;
-        }
-        subject = privGroup.toSubject();
-      } 
-      else {
-        try {
-          subject = this._processMembershipListsFindSubject(subjectId, subjectIdentifier, subjectType);
-        }
-        catch (SubjectNotFoundException eSNF) {
-          LOG.error(eSNF.getMessage());
-          return;
-        }
-        catch (SubjectNotUniqueException eSNU) {
-          LOG.error(eSNU.getMessage());
-          return;
-        }
-      }
-      this._processMembershipListsAddMember(g, subject, f);
+      this._processMembershipListAddMember( g, f, (Element) it.next() );
     }
   } // private void _processMembershipList()
 
@@ -1277,6 +1240,29 @@ public class XmlImporter {
   } // private void _processMembershipListAddGroupType(g, gt)
 
   // @since   1.1.0
+  private void _processMembershipListAddMember(Group g, Field f, Element el) 
+    throws  InsufficientPrivilegeException,
+            MemberAddException,
+            SchemaException
+  {
+    if (!this._isSubjectElementImmediate(el)) {
+      return;
+    }
+    try {
+      // TODO 20061004 how should i handle resolution failure?
+      this._processMembershipListsAddMember(
+        g, this._findSubject( el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") ), f
+      );     
+    }
+    catch (SubjectNotFoundException eSNF)   {
+      return;
+    }
+    catch (SubjectNotUniqueException eSNU)  {
+      return;
+    }
+  } // private void _processMembershipListAddMember(g, f, el)
+
+  // @since   1.1.0
   private boolean _processMembershipListHandleImportMode(Group g, Field f, Element list) 
     throws  GrouperException,
             InsufficientPrivilegeException,
@@ -1285,6 +1271,9 @@ public class XmlImporter {
             SubjectNotFoundException
   {
     // TODO 20061004 this needs more refactoring
+    //      So this handles elminating current members if in replace mode and
+    //      then adding a composite mship if that's our thing?  Why are they
+    //      combined?
     boolean rv            = true; // If true continue processing 
     boolean hasComposite  = g.hasComposite();
     boolean hasMembers    = false;
@@ -1316,6 +1305,7 @@ public class XmlImporter {
   } // private boolean _processMembershipListHandleImportMode(g, f, list)
 
   // @since   1.1.0
+  // TODO 20061004 i need to rename/refactor now that i've started reworking the rest
   private void _processMembershipListsAddMember(Group g, Subject subj, Field f) 
     throws  InsufficientPrivilegeException,
             MemberAddException,
@@ -1333,6 +1323,7 @@ public class XmlImporter {
   } // private void _processMembershipListsAddMember(g, subj, f)
 
   // @since   1.1.0
+  // TODO 20061004 deprecate
   private Subject _processMembershipListsFindSubject(String id, String idfr, String type) 
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
