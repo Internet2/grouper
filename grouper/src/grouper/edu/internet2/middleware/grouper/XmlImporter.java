@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.69 2006-10-04 17:32:19 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.70 2006-10-04 18:58:13 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -553,6 +553,11 @@ public class XmlImporter {
   private String _getDataListImportMode() {
     return this.options.getProperty("import.data.lists", MODE_IGNORE);
   } // private String _getDataListImportMode()
+
+  // @since   1.1.0
+  private String _getDataPrivilegesImportMode() {
+    return this.options.getProperty("import.data.privileges", MODE_IGNORE);
+  } // private String _getDataPrivilegesImportMode()
 
   // Returns immediate child element with given name
   // @since   1.0
@@ -1435,121 +1440,93 @@ public class XmlImporter {
             StemNotFoundException,
             SubjectNotFoundException
   {
-    if (this.namingPrivLists == null || this.namingPrivLists.size() == 0) {
-      return;
+    if (this.namingPrivLists != null) {
+      Iterator it = this.namingPrivLists.iterator();
+      while (it.hasNext()) {
+        this._processNamingPrivList( (Map) it.next() );
+      }
     }
-    Collection  subjects;
-    Iterator    subjectsIterator;
-    Element     subjectE;
-    Element     privileges;
-    Map         map;
-    String      stem;
-    String      lastStem          = "";
-    Subject     subject           = null;
-    String      subjectType;
-    boolean     isImmediate       = false;
-    Group       privGroup;
-    Stem        focusStem         = null;
-    String      subjectId;
-    String      subjectIdentifier;
-    String      privilege;
-    Privilege   grouperPrivilege;
-    String      importOption;
-    for (int i = 0; i < this.namingPrivLists.size(); i++) {
-      map   = (Map) this.namingPrivLists.get(i);
-      stem  = (String) map.get("stem");
+    this.membershipLists = null;
+  } // private void _processNamingPrivLists()
 
-      //Save a call if we are dealing with same group
-      if (!stem.equals(lastStem)) {
-        if (!XmlUtils.isEmpty(lastStem)) {
-          LOG.debug("Finished loading Naming privs for " + lastStem);
+  // @since   1.1.0
+  private void _processNamingPrivList(Map map) 
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException,
+            RevokePrivilegeException,
+            SchemaException,
+            StemNotFoundException
+  {
+    String    stemName  = (String) map.get("stem");
+    Element   privs     = (Element) map.get("privileges");
+    if (this._getDataPrivilegesImportMode().equals(MODE_IGNORE)) {
+      return; // Ignore privileges
+    }
+    Stem      ns        = StemFinder.findByName(s, stemName);
+    Privilege p         = Privilege.getInstance( privs.getAttribute("type") );
+    if (this._getDataPrivilegesImportMode().equals(MODE_REPLACE)) {
+      ns.revokePriv(p);
+    }
+    Iterator it = this._getImmediateElements(privs, "subject").iterator();
+    while (it.hasNext()) {
+      Element subjectE    = (Element) it.next();
+      boolean isImmediate = "true".equals(subjectE.getAttribute("immediate"));
+      if (XmlUtils.isEmpty(subjectE.getAttribute("immediate"))) {
+        isImmediate = true; //default is to assign
+      }
+      if (!isImmediate) {
+        continue;
+      }
+
+      Subject subject = null;
+      String subjectId         = subjectE.getAttribute("id");
+      String subjectIdentifier = subjectE.getAttribute("identifier");
+      String subjectType       = subjectE.getAttribute("type");
+      if ("group".equals(subjectType)) {
+        Group privGroup = null;
+        if (this._isRelativeImport(subjectIdentifier)) {
+          if (!XmlUtils.isEmpty(importRoot)) {
+            subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
+          }
+          else {
+            subjectIdentifier = subjectIdentifier.substring(1);
+          }
+        } 
+        else {
+          subjectIdentifier = this._getAbsoluteName(subjectIdentifier, stemName);
         }
-        focusStem = StemFinder.findByName(s, stem);
-        LOG.debug("Loading Naming privs for " + stem);
-      }
-
-      lastStem = stem;
-
-      privileges    = (Element) map.get("privileges");
-      privilege     = privileges.getAttribute("type");
-      importOption  = privileges.getAttribute("importOption");
-      if (XmlUtils.isEmpty(importOption)) {
-        importOption = options.getProperty("import.data.privileges");
-      }
-      if (XmlUtils.isEmpty(importOption) || MODE_IGNORE.equals(importOption)) {
-        LOG.debug("Ignoring any '" + privilege + "' privileges");
-        continue; //No instruction so ignore
-      }
-
-      grouperPrivilege = Privilege.getInstance(privilege);
-      if (MODE_REPLACE.equals(importOption)) {
-        LOG.debug("Revoking current '" + privilege + "' privileges");
-        focusStem.revokePriv(grouperPrivilege);
-      }
-
-      subjects          = this._getImmediateElements(privileges, "subject");
-      subjectsIterator  = subjects.iterator();
-      while (subjectsIterator.hasNext()) {
-        subjectE    = (Element) subjectsIterator.next();
-        isImmediate = "true".equals(subjectE.getAttribute("immediate"));
-        if (XmlUtils.isEmpty(subjectE.getAttribute("immediate"))) {
-          isImmediate = true; //default is to assign
-        }
-        if (!isImmediate) {
+        try {
+          privGroup = GroupFinder.findByName(s, subjectIdentifier);
+        } 
+        catch (Exception e) {
+          LOG.warn("Could not find Stem identified by " + subjectIdentifier);
           continue;
         }
-
-        subjectId         = subjectE.getAttribute("id");
-        subjectIdentifier = subjectE.getAttribute("identifier");
-        subjectType       = subjectE.getAttribute("type");
-        if ("group".equals(subjectType)) {
-          if (this._isRelativeImport(subjectIdentifier)) {
-            if (!XmlUtils.isEmpty(importRoot)) {
-              subjectIdentifier = importRoot + Stem.ROOT_INT + subjectIdentifier.substring(1);
-            }
-            else {
-              subjectIdentifier = subjectIdentifier.substring(1);
-            }
-          } 
-          else {
-            subjectIdentifier = this._getAbsoluteName(subjectIdentifier, stem);
-          }
-          try {
-            privGroup = GroupFinder.findByName(s, subjectIdentifier);
-          } 
-          catch (Exception e) {
-            LOG.warn("Could not find Stem identified by " + subjectIdentifier);
-            continue;
-          }
-          subject = privGroup.toSubject();
-        } 
-        else {
-          try {
-            subject = this._processMembershipListsFindSubject(subjectId, subjectIdentifier, subjectType);
-          }
-          catch (SubjectNotFoundException eSNF) {
-            LOG.error(eSNF.getMessage());
-            continue;
-          }
-          catch (SubjectNotUniqueException eSNU) {
-            LOG.error(eSNU.getMessage());
-            continue;
-          }
+        subject = privGroup.toSubject();
+      } 
+      else {
+        try {
+          subject = this._processMembershipListsFindSubject(subjectId, subjectIdentifier, subjectType);
         }
-
-        if (!XmlUtils.hasImmediatePrivilege(subject, focusStem, privilege)) {
-          LOG.debug("Assigning " + privilege + " to " + subject.getName() + " for " + stem);
-          focusStem.grantPriv(subject, Privilege.getInstance(privilege));
-          LOG.debug("...assigned");
-        } 
-        else {
-          LOG.debug(privilege + " already assigned to " + subject.getName() + " so skipping");
+        catch (SubjectNotFoundException eSNF) {
+          LOG.error(eSNF.getMessage());
+          continue;
+        }
+        catch (SubjectNotUniqueException eSNU) {
+          LOG.error(eSNU.getMessage());
+          continue;
         }
       }
+
+      if (!XmlUtils.hasImmediatePrivilege(subject, ns, p.getName())) {
+        ns.grantPriv(subject, p);
+        LOG.debug("...assigned");
+      } 
+      else {
+        LOG.debug(p.getName() + " already assigned to " + subject.getName() + " so skipping");
+      }
     }
-    LOG.debug("Finished assigning Naming privs");
-    this.namingPrivLists = null;
-  } // private void _processNamingPrivLists()
+  } // private void _processNamingPrivList(Map map)
 
   // @since   1.1.0
   private void _processPath(Element e, String stem) 
