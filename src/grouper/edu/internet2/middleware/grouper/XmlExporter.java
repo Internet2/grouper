@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.66 2006-10-04 13:59:21 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.67 2006-10-04 15:03:52 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -615,11 +615,6 @@ public class XmlExporter {
     return value;
   } // private String _fixXmlAttribute(value)
 
-  // @since   1.1.0
-  private boolean _getBooleanOption(String key) {
-    return Boolean.valueOf( this.options.getProperty(key, "false") );
-  } // private boolean _getBooleanOption(key)
-
   // @since   1.0
   private Iterator _getExportAttributes(Subject subj) {
     String source = subj.getSource().getId();
@@ -674,37 +669,37 @@ public class XmlExporter {
 
   // @since   1.1.0
   private boolean _isAccessPrivExportEnabled() {
-    return this._getBooleanOption("export.privs.access");
+    return XmlUtils.getBooleanOption(this.options, "export.privs.access");
   } // private boolean _isAccessPrivExportEnabled()
   
   // @since   1.1.0
   private boolean _isDataExportEnabled() {
-    return this._getBooleanOption("export.data");
+    return XmlUtils.getBooleanOption(this.options, "export.data");
   } // private boolean _isDataExportEnabled()
 
   // @since   1.1.0
   private boolean _isGroupInternalAttrsExportEnabled() {
-    return this._getBooleanOption("export.group.internal-attributes");
+    return XmlUtils.getBooleanOption(this.options, "export.group.internal-attributes");
   } // private boolean _isGroupInternalAttrsExportEnabled()
 
   // @since   1.1.0
   private boolean _isMetadataExportEnabled() {
-    return this._getBooleanOption("export.metadata");
+    return XmlUtils.getBooleanOption(this.options, "export.metadata");
   } // private boolean _isMetadataExportEnabled()
 
   // @since   1.1.0
   private boolean _isNamingPrivExportEnabled() {
-    return this._getBooleanOption("export.privs.naming");
+    return XmlUtils.getBooleanOption(this.options, "export.privs.naming");
   } // private boolean _isNamingPrivExportEnabled()
 
   // @since   1.1.0
   private boolean _isParentPrivsExportEnabled() {
-    return this._getBooleanOption("export.privs.for-parents");
+    return XmlUtils.getBooleanOption(this.options, "export.privs.for-parents");
   } // private boolean _isParentPrivsExportEnabled()
 
   // @since   1.1.0
   private boolean _isStemInternalAttrsExportEnabled() {
-    return this._getBooleanOption("export.stem.internal-attributes");
+    return XmlUtils.getBooleanOption(this.options, "export.stem.internal-attributes");
   } // private boolean _isStemInternalAttrsExportEnabled()
 
   // @since   1.1.0
