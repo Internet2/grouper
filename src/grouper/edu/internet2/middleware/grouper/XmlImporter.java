@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.63 2006-10-04 14:47:04 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.64 2006-10-04 14:50:27 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1189,20 +1189,8 @@ public class XmlImporter {
     if (this._getDataListImportMode().equals(MODE_IGNORE)) {
       return; // Ignore lists
     }
-    Field   f             = null;
-    Group   g             = null;
-    String  lastGroupName = GrouperConfig.EMPTY_STRING;
-
-    //Save a call if we are dealing with same group
-    if (!groupName.equals(lastGroupName)) {
-      if (!XmlUtils.isEmpty(lastGroupName)) {
-        LOG.debug("Finished loading memberships for " + lastGroupName);
-      }
-      g = GroupFinder.findByName(s, groupName);
-      LOG.debug("Loading memberships for " + groupName);
-    }
-
-    lastGroupName = groupName;
+    Field   f = null;
+    Group   g = GroupFinder.findByName(s, groupName);
 
     String listName = list.getAttribute("field");
     try {
