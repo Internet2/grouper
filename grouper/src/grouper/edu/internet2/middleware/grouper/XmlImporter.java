@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.66 2006-10-04 15:03:52 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.67 2006-10-04 15:15:57 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1200,11 +1200,10 @@ public class XmlImporter {
       throw new SchemaException("field is not a list: " + f.getName());
     }
     this._processMembershipListAddGroupType(g, f.getGroupType());
-
-    if (!g.canReadField(f)) {
-      LOG.debug("No write privilege - ignoring field " + f.getName());
-      return;
+    if (!g.canWriteField(f)) {
+      return;  // We can't write so don't even bother trying
     }
+
     boolean hasComposite  = g.hasComposite();
     boolean hasMembers    = false;
     if (!hasComposite && g.getImmediateMembers().size() > 0) {
