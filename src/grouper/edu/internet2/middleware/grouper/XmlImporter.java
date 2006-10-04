@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.67 2006-10-04 15:15:57 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.68 2006-10-04 15:44:46 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1201,38 +1201,10 @@ public class XmlImporter {
     }
     this._processMembershipListAddGroupType(g, f.getGroupType());
     if (!g.canWriteField(f)) {
-      return;  // We can't write so don't even bother trying
+      return;  // We can't write to the field so don't even bother trying
     }
-
-    boolean hasComposite  = g.hasComposite();
-    boolean hasMembers    = false;
-    if (!hasComposite && g.getImmediateMembers().size() > 0) {
-      hasMembers = true;
-    }
-    Element compE = this._getImmediateElement(list, "composite");
-
-    if (this._getDataListImportMode().equals(MODE_REPLACE)) {
-      if (hasComposite) {
-        g.deleteCompositeMember();
-      } 
-      else {
-        Set       members         = g.getImmediateMembers(f);
-        Iterator  membersIterator = members.iterator();
-        Member    memb;
-        LOG.debug("Removing all memberships for " + groupName);
-        while (membersIterator.hasNext()) {
-          memb = (Member) membersIterator.next();
-          g.deleteMember(memb.getSubject());
-        }
-      }
-    }
-    if (compE != null && ( !this._getDataListImportMode().equals(MODE_ADD) || hasMembers) ) {
-      this._processComposite(compE, g);
-      return;
-    }
-    if (compE != null && hasMembers) {
-      LOG.warn("Skipping composite - cannot ad to existing members for " + groupName);
-      return;
+    if (!this._processMembershipListHandleImportMode(g, f, list)) {
+      return; // Stop processing as we've done everything already
     }
 
     boolean   isImmediate;
@@ -1303,6 +1275,45 @@ public class XmlImporter {
       g.addType(gt); 
     }
   } // private void _processMembershipListAddGroupType(g, gt)
+
+  // @since   1.1.0
+  private boolean _processMembershipListHandleImportMode(Group g, Field f, Element list) 
+    throws  GrouperException,
+            InsufficientPrivilegeException,
+            MemberDeleteException,
+            SchemaException,
+            SubjectNotFoundException
+  {
+    // TODO 20061004 this needs more refactoring
+    boolean rv            = true; // If true continue processing 
+    boolean hasComposite  = g.hasComposite();
+    boolean hasMembers    = false;
+    if (!hasComposite && g.getImmediateMembers().size() > 0) {
+      hasMembers = true;
+    }
+    Element compE = this._getImmediateElement(list, "composite");
+
+    if (this._getDataListImportMode().equals(MODE_REPLACE)) {
+      if (hasComposite) {
+        g.deleteCompositeMember();
+      } 
+      else {
+        Iterator it = g.getImmediateMembers(f).iterator();
+        while (it.hasNext()) {
+          g.deleteMember( ( (Member) it.next() ).getSubject() );
+        }
+      }
+    }
+    if (compE != null && ( !this._getDataListImportMode().equals(MODE_ADD) || hasMembers) ) {
+      this._processComposite(compE, g);
+      rv = false; // Omit remaining processing
+    }
+    if (compE != null && hasMembers) {
+      LOG.warn("Cannot add composite membership to group that already has members: " + U.q(g.getName()));
+      rv = false; // Omit remaining processing
+    }
+    return rv;
+  } // private boolean _processMembershipListHandleImportMode(g, f, list)
 
   // @since   1.1.0
   private void _processMembershipListsAddMember(Group g, Subject subj, Field f) 
