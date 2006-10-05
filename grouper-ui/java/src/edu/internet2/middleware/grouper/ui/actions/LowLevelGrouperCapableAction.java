@@ -68,7 +68,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.10 2006-10-05 09:00:36 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.11 2006-10-05 15:14:00 isgwb Exp $
  */
 
 /**
@@ -402,11 +402,11 @@ public abstract class LowLevelGrouperCapableAction
 			return false;
 		}
 		if(obj==null) {
-			if("true".equals(GrouperConfig.getInstance().getProperty("groups.wheel.use"))) {
+			if("true".equals(GrouperConfig.getProperty("groups.wheel.use"))) {
 				try {
 					Subject subj = SubjectFinder.findById("GrouperSystem");
 					GrouperSession s = GrouperSession.start(subj);
-					obj=GroupFinder.findByName(s,GrouperConfig.getInstance().getProperty("groups.wheel.group"));
+					obj=GroupFinder.findByName(s,GrouperConfig.getProperty("groups.wheel.group"));
 					session.getServletContext().setAttribute("wheelGroup",obj);
 				}catch(Exception e) {
 					session.setAttribute("isWheelGroupMember",Boolean.TRUE);

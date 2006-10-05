@@ -54,7 +54,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.23 2006-10-05 09:05:32 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.24 2006-10-05 15:13:21 isgwb Exp $
  */
 
 /**
@@ -2331,10 +2331,10 @@ public class GrouperHelper {
 	public static Map getDefaultAccessPrivsForGrouperAPI() {
 		Map privs = new HashMap();
 		String priv;
-		GrouperConfig config = GrouperConfig.getInstance();
+		
 		for(int i=0;i<groupPrivs.length;i++){
 			priv = groupPrivs[i].toLowerCase();
-			if("true".equals(config.getProperty("groups.create.grant.all." + priv))){
+			if("true".equals(GrouperConfig.getProperty("groups.create.grant.all." + priv))){
 				privs.put(priv,Boolean.TRUE);
 			}
 		}
