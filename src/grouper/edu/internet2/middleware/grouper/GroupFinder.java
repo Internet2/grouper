@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.28 2006-09-13 15:04:11 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.29 2006-10-05 18:15:28 blair Exp $
  */
 public class GroupFinder {
 
@@ -166,22 +166,11 @@ public class GroupFinder {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByAnyApproximateAttr");
-      qry.setString("value", "%" + val.toLowerCase() + "%");
-      Group     g;
-      Iterator  iter  = qry.iterate();
-      while (iter.hasNext()) {
-        g = ( (Attribute) iter.next() ).getGroup();
-        g.setSession(s);
-        groups.add(g);
-      }
-      hs.close();
+      return _findByAttribute(s, hs, qry, val);
     }
     catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding groups: " + eH.getMessage(), eH
-      );
+      throw new QueryException("error finding groups: " + eH.getMessage(), eH);
     }
-    return PrivilegeResolver.canViewGroups(s, groups);
   } // protected static Set findByAnyApproximateAttr(s, val)
 
   protected static Set findByApproximateAttr(GrouperSession s, String attr, String val) 
@@ -198,22 +187,11 @@ public class GroupFinder {
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByApproximateAttr");
       qry.setString("field", attr);
-      qry.setString("value", "%" + val.toLowerCase() + "%");
-      Group     g;
-      Iterator  iter  = qry.iterate();
-      while (iter.hasNext()) {
-        g = ( (Attribute) iter.next() ).getGroup();
-        g.setSession(s);
-        groups.add(g);
-      }
-      hs.close();
+      return _findByAttribute(s, hs, qry, val);
     }
     catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding groups: " + eH.getMessage(), eH
-      );
+      throw new QueryException("error finding groups: " + eH.getMessage(), eH);
     }
-    return PrivilegeResolver.canViewGroups(s, groups);
   } // protected static Set findByApproximateAttr(s, attr, val)
 
   protected static Set findByApproximateName(GrouperSession s, String name) 
@@ -349,6 +327,24 @@ public class GroupFinder {
 
 
   // PRIVATE CLASS METHODS //
+
+  // @since   1.1.0
+  private static Set _findByAttribute(GrouperSession s, Session hs, Query qry, String val) 
+    throws  HibernateException
+  {
+    qry.setString( "value", "%" + val.toLowerCase() + "%" );
+    Group     g;
+    Set       groups  = new LinkedHashSet();
+    Iterator  it      = qry.iterate();
+    while (it.hasNext()) {
+      g = ( (Attribute) it.next() ).getGroup();
+      g.setSession(s);
+      groups.add(g);
+    }
+    hs.close();
+    return PrivilegeResolver.canViewGroups(s, groups);
+  } // private static Set _findByAttribute(s, hs, qry, val)
+
   private static Group _findByUuid(String uuid)
     throws  GroupNotFoundException
   {
