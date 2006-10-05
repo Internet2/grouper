@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.71 2006-10-05 15:23:25 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.72 2006-10-05 15:48:30 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -622,9 +622,9 @@ public class XmlImporter {
     Iterator it = options.iterator();
     while (it.hasNext()) {
       optionE = (Element) it.next();
-      props.put(optionE.getAttribute("key"), _getText(optionE));
+      props.put(optionE.getAttribute("key"), XmlImporter._getText(optionE));
       LOG.debug("Loading " + optionE.getAttribute("key") + "="
-          + _getText(optionE));
+          + XmlImporter._getText(optionE));
     }
     LOG.debug("Finished loading options from XML");
 
@@ -948,20 +948,18 @@ public class XmlImporter {
   } // private void _processAttributesHandleAttributes()
 
   // @since   1.1.0
-  private void _processComposite(Element composite, Group group)
-    throws  GrouperException
+  private void _processComposite(Element el, Group g)
+    throws  GrouperException,
+            InsufficientPrivilegeException,
+            MemberAddException
   {
-    LOG.debug("Processing composite for " + group.getName());
-    if (group.hasComposite()) { 
-      LOG.warn(group.getName() + " already has composite - skipping");
+    if (g.hasComposite()) { 
+      LOG.warn(g.getName() + " already has composite - skipping");
       return;
     }
-    Group         leftGroup   =  null;
-    CompositeType compType    = null;
-    Group         rightGroup  = null;
-    composite.normalize();
+    el.normalize(); // TODO 20061005 what does this do?
     Element[]     elements    = new Element[3];
-    NodeList      nl          = composite.getChildNodes();
+    NodeList      nl          = el.getChildNodes();
     int           elCount     = -1;
     Node          node;
     for (int i = 0; i < nl.getLength(); i++) {
@@ -970,33 +968,22 @@ public class XmlImporter {
         elCount++;
         if (elCount > 2) {
           throw new IllegalStateException(
-              "Too many tags in <composite>. Expect <groupRef><compositeType><groupRef>"
+            "Too many tags in <composite>. Expect <groupRef><compositeType><groupRef>"
           );
         }
         elements[elCount] = (Element) node;
       }
     }
-    String msg = "error process composite for " + U.q(group.getName()) + ": ";
     try {
-      Element leftE   = elements[0];
-      leftGroup       = _processGroupRef(leftE, group.getParentStem().getName());
-      Element typeE   = elements[1];
-      compType        = _processCompositeType(typeE);
-      Element rightE  = elements[2];
-      rightGroup      = _processGroupRef(rightE, group.getParentStem() .getName());
+      g.addCompositeMember(
+        this._processCompositeType( elements[1] ),
+        this._processGroupRef( elements[0], g.getParentStem().getName() ),
+        this._processGroupRef( elements[2], g.getParentStem().getName() )
+      );
     } 
     catch (GroupNotFoundException eGNF) {
-      LOG.error(msg + eGNF.getMessage());
+      LOG.error("error processing composite for " + U.q(g.getName()) + ": " + eGNF.getMessage());
       return;
-    }
-    try {
-      group.addCompositeMember(compType, leftGroup, rightGroup);
-    } 
-    catch (InsufficientPrivilegeException eIP)  {
-      LOG.error(msg + eIP.getMessage());
-    }
-    catch (MemberAddException eMA)              {
-      LOG.error(msg + eMA.getMessage());
     }
   } // private void _processComposite(composite, group)
 
@@ -1004,26 +991,16 @@ public class XmlImporter {
   private CompositeType _processCompositeType(Element typeE) 
     throws  GrouperException
   {
-    CompositeType type    = null;
-    String        tagName = typeE.getTagName();
-    if (!"compositeType".equals(tagName)) {
-      throw new IllegalStateException(
-          "Expected tag: <compositeType> but found <" + tagName + ">"
-      );
+    String tag = typeE.getTagName();
+    if (!tag.equals("compositeType")) {
+      throw new IllegalStateException("Expected tag: <compositeType> but found <" + tag + ">");
     }
-    String name = _getText(typeE);
-    if ("intersection".equals(name)) {
-      type = CompositeType.INTERSECTION;
-    } else if ("union".equals(name)) {
-      type = CompositeType.UNION;
-    } else if ("complement".equals(name)) {
-      type = CompositeType.COMPLEMENT;
-    } else {
-      throw new IllegalStateException(
-        "Invalid CompositeType [" + name + "]. union, intersection or complement allowed"
-      );
+    String name = XmlImporter._getText(typeE);
+    CompositeType ctype = CompositeType.getInstance(name);
+    if (ctype == null) {
+      throw new IllegalStateException("could not resolve composite type: " + U.q(name));
     }
-    return type;
+    return ctype;
   }  // private CompositeType _processCompositeType(typeE)
 
   // @since   1.1.0
@@ -1228,6 +1205,7 @@ public class XmlImporter {
   private boolean _processMembershipListHandleImportMode(Group g, Field f, Element list) 
     throws  GrouperException,
             InsufficientPrivilegeException,
+            MemberAddException,
             MemberDeleteException,
             SchemaException,
             SubjectNotFoundException
@@ -1564,7 +1542,7 @@ public class XmlImporter {
   private boolean _setCreateTime(Owner o, Element e) {
     String msg = "error setting createTime: ";
     try { 
-      o.setCreate_time( this._parseTime( _getText(e) ).getTime() );
+      o.setCreate_time( this._parseTime( XmlImporter._getText(e) ).getTime() );
       return true;
     }
     catch (GrouperException eG) {
