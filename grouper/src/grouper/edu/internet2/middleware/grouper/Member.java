@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.66 2006-09-27 17:54:32 blair Exp $
+ * @version $Id: Member.java,v 1.67 2006-10-05 18:26:05 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -262,25 +262,7 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set getEffectiveGroups() {
-    Set         groups  = new LinkedHashSet();
-    Membership  ms;
-    Group       g;
-    Iterator    iter    = this.getEffectiveMemberships().iterator();
-    while (iter.hasNext()) {
-      ms = (Membership) iter.next();
-      try {
-        g = ms.getGroup();
-        g.setSession(this.getSession());
-        groups.add(g);
-      }
-      catch (GroupNotFoundException eGNF) {
-        ErrorLog.error(
-          Member.class, E.MEMBER_NOGROUP + U.q(this.getUuid()) + " membership="
-          + U.q(ms.getUuid()) + " " + eGNF.getMessage()
-        );
-      }
-    }
-    return groups;
+    return this._getGroups( this.getEffectiveMemberships().iterator() );
   } // public Set getEffectiveGroups()
 
   /**
@@ -331,25 +313,7 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set getGroups() {
-    Set         groups  = new LinkedHashSet();
-    Membership  ms;
-    Group       g;
-    Iterator    iter    = this.getMemberships().iterator();
-    while (iter.hasNext()) {
-      ms = (Membership) iter.next();
-      try {
-        g = ms.getGroup();
-        g.setSession(this.getSession());
-        groups.add(g);
-      }
-      catch (GroupNotFoundException eGNF) {
-        ErrorLog.error(
-          Member.class, E.MEMBER_NOGROUP + U.q(this.getUuid()) + " membership="
-          + U.q(ms.getUuid()) + " " + eGNF.getMessage()
-        );
-      }
-    }
-    return groups;
+    return this._getGroups( this.getMemberships().iterator() );
   } // public Set getGroups()
 
   /**
@@ -361,25 +325,7 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set getImmediateGroups() {
-    Set         groups  = new LinkedHashSet();
-    Membership  ms;
-    Group       g;
-    Iterator    iter    = this.getImmediateMemberships().iterator();
-    while (iter.hasNext()) {
-      ms = (Membership) iter.next();
-      try {
-        g = ms.getGroup();
-        g.setSession(this.getSession());
-        groups.add(g);
-      }
-      catch (GroupNotFoundException eGNF) {
-        ErrorLog.error(
-          Member.class, E.MEMBER_NOGROUP + U.q(this.getUuid()) + " membership="
-          + U.q(ms.getUuid()) + " " + eGNF.getMessage()
-        );
-      }
-    }
-    return groups;
+    return this._getGroups( this.getImmediateMemberships().iterator() );
   } // public Set getImmediateGroups()
 
   /**
@@ -1298,6 +1244,29 @@ public class Member implements Serializable {
 
 
   // PRIVATE INSTANCE METHODS //
+
+  // @since   1.1.0
+  private Set _getGroups(Iterator it) {
+    Group       g;
+    Set         groups  = new LinkedHashSet();
+    Membership  ms;
+    while (it.hasNext()) {
+      ms = (Membership) it.next();
+      try {
+        g = ms.getGroup();
+        g.setSession( this.getSession() );
+        groups.add(g);  
+      }
+      catch (GroupNotFoundException eGNF) {
+        ErrorLog.error(
+          Member.class, E.MEMBER_NOGROUP + U.q(this.getUuid()) + " membership="
+          + U.q(ms.getUuid()) + " " + eGNF.getMessage()
+        );
+      }
+    }
+    return groups;
+  } // private Set _getGroups(it)
+
   private boolean _hasPriv(Group g, Privilege priv) {
     boolean rv = false;
     try {
