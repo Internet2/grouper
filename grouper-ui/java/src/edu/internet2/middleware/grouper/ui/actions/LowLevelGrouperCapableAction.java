@@ -68,7 +68,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.9 2006-09-20 17:15:34 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.10 2006-10-05 09:00:36 isgwb Exp $
  */
 
 /**
@@ -134,6 +134,13 @@ public abstract class LowLevelGrouperCapableAction
 	 */
 	public ResourceBundle getNavResources(HttpServletRequest request) {
 		HttpSession session = request.getSession();
+		return getNavResources(session);
+	}
+	
+	/**
+	 * Convenience method to retrieve nav ResourceBundle
+	 */
+	public ResourceBundle getNavResources(HttpSession session) {
 		LocalizationContext localizationContext = (LocalizationContext)session.getAttribute("nav");
 		ResourceBundle nav = localizationContext.getResourceBundle();
 		return nav;
@@ -358,9 +365,11 @@ public abstract class LowLevelGrouperCapableAction
 	
 	protected RepositoryBrowser getRepositoryBrowser(GrouperSession s,HttpSession session) {
 		String browseMode = getBrowseMode(session);
-		RepositoryBrowser rb = RepositoryBrowserFactory.getInstance(browseMode,s,getMediaResources(session));
+		RepositoryBrowser rb = RepositoryBrowserFactory.getInstance(browseMode,s,getNavResources(session),getMediaResources(session));
 		return rb;
 	}
+	
+
 	
 	protected String getModulePrefix(HttpServletRequest request) {
 		String prefix = (String)request.getAttribute("modulePrefix");

@@ -213,7 +213,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.8 2006-07-19 11:04:12 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.9 2006-10-05 09:00:36 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -227,7 +227,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 		
 		DynaActionForm browseForm = (DynaActionForm) form;
 		String browseMode = getBrowseMode(session);
-		RepositoryBrowser repositoryBrowser = RepositoryBrowserFactory.getInstance(browseMode,grouperSession,getMediaResources(request));
+		RepositoryBrowser repositoryBrowser = RepositoryBrowserFactory.getInstance(browseMode,grouperSession,getNavResources(request),getMediaResources(request));
 		Group curNodeGroup = null;
 		Stem curNodeStem = null;
 		GroupOrStem curGroupOrStem =null;

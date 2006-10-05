@@ -151,7 +151,7 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
  
 
  * @author Gary Brown.
- * @version $Id: PopulateFindNewMembersAction.java,v 1.8 2006-07-19 11:06:10 isgwb Exp $
+ * @version $Id: PopulateFindNewMembersAction.java,v 1.9 2006-10-05 09:00:36 isgwb Exp $
  */
 public class PopulateFindNewMembersAction extends GrouperCapableAction {
 
@@ -210,7 +210,7 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 		StringBuffer sb = new StringBuffer();
 		GroupOrStem groupOrStem = GroupOrStem.findByID(grouperSession,(String)session.getAttribute("findForNode"));
 
-		RepositoryBrowser repositoryBrowser = RepositoryBrowserFactory.getInstance(getBrowseMode(session),grouperSession,getMediaResources(request));
+		RepositoryBrowser repositoryBrowser = getRepositoryBrowser(grouperSession,session);
 		List parentStems = repositoryBrowser.getParentStems(groupOrStem);
 		Map[] searchFromArray = new HashMap[parentStems.size()];
 		Map stemMap = null;

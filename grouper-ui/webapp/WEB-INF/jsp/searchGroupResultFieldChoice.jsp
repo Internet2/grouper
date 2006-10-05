@@ -2,7 +2,7 @@
 		  Tile which lets user select which field to display in search results
 --%><%--
   @author Gary Brown.
-  @version $Id: searchGroupResultFieldChoice.jsp,v 1.2 2006-07-06 14:58:08 isgwb Exp $
+  @version $Id: searchGroupResultFieldChoice.jsp,v 1.3 2006-10-05 09:00:36 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -18,7 +18,7 @@
 	<c:if test="${counter.count==1}"><fmt:message bundle="${nav}" key="find.groups.select-result-field"/></c:if>
 	<c:set var="checked" value=""/>
 	<c:if test="${field==groupSearchResultField}"><c:set var="checked" value="checked='checked'"/></c:if>
-<input type="radio" name="groupSearchResultField" value="<c:out value="${field}"/>" <c:out value="${checked}" escapeXml="false"/>/> <c:out value="${field}"/>
+<input type="radio" name="groupSearchResultField" value="<c:out value="${field}"/>" <c:out value="${checked}" escapeXml="false"/>/> <c:out value="${fieldList[field].displayName}"/>
 </c:forTokens>
 </div></div>
 

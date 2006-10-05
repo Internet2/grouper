@@ -175,7 +175,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SearchNewMembersAction.java,v 1.6 2006-07-20 18:18:13 isgwb Exp $
+ * @version $Id: SearchNewMembersAction.java,v 1.7 2006-10-05 09:00:36 isgwb Exp $
  */
 public class SearchNewMembersAction extends GrouperCapableAction {
 
@@ -279,7 +279,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			searchedGroups = Boolean.TRUE;
 			
 			//Do search + get page worth of results
-			RepositoryBrowser repositoryBrowser = RepositoryBrowserFactory.getInstance("all",grouperSession,getMediaResources(request));
+			RepositoryBrowser repositoryBrowser = RepositoryBrowserFactory.getInstance("all",grouperSession,getNavResources(request),getMediaResources(request));
 			Map attr = new HashMap();
 			attr.put("searchInDisplayNameOrExtension",searchInDisplayNameOrExtension);
 			attr.put("searchInNameOrExtension",searchInNameOrExtension);

@@ -27,11 +27,11 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * repository.browser.<browseMode>.class=<class name>
  *
  * @author Gary Brown.
- * @version $Id: RepositoryBrowserFactory.java,v 1.3 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: RepositoryBrowserFactory.java,v 1.4 2006-10-05 09:00:36 isgwb Exp $
  */
 public class RepositoryBrowserFactory {
 
-	public static RepositoryBrowser getInstance(String browseMode,GrouperSession s,ResourceBundle mediaBundle) {
+	public static RepositoryBrowser getInstance(String browseMode,GrouperSession s,ResourceBundle navBundle,ResourceBundle mediaBundle) {
 		String className = null;
 		if("".equals(browseMode)) browseMode="My";
 		try {
@@ -49,9 +49,9 @@ public class RepositoryBrowserFactory {
 		try {
 			browser=(RepositoryBrowser)rbClass.newInstance();
 		}catch(Exception e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e); 
 		}
-		browser.init(s,mediaBundle);
+		browser.init(s,navBundle,mediaBundle);
 		return browser;
 	}
 

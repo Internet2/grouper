@@ -100,7 +100,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  *
  * @author Gary Brown.
- * @version $Id: PrepareBrowsePathAction.java,v 1.3 2006-07-17 12:52:57 isgwb Exp $
+ * @version $Id: PrepareBrowsePathAction.java,v 1.4 2006-10-05 09:00:36 isgwb Exp $
  */
 
 public class PrepareBrowsePathAction extends LowLevelGrouperCapableAction {
@@ -120,7 +120,7 @@ public class PrepareBrowsePathAction extends LowLevelGrouperCapableAction {
 		}catch(MissingResourceException e){}
 		if(rootName==null) rootName="Root";
 		String browseMode = getBrowseMode(session);
-		RepositoryBrowser rb = RepositoryBrowserFactory.getInstance(browseMode,grouperSession,getMediaResources(request));
+		RepositoryBrowser rb = getRepositoryBrowser(grouperSession,session);
 		request.setAttribute("repositoryBrowser",rb);
 		ObjectAsMap browseParent=null;
 		try {

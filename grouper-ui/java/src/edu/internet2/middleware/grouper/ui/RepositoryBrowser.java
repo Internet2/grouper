@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: RepositoryBrowser.java,v 1.6 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: RepositoryBrowser.java,v 1.7 2006-10-05 09:00:36 isgwb Exp $
  */
 
 public interface RepositoryBrowser {
@@ -41,9 +41,10 @@ public interface RepositoryBrowser {
 	 * Factory method uses no argument constructor. init passes in the
 	 * essentials
 	 * @param s
+	 * @param navBundle
 	 * @param mediaBundle
 	 */
-	public void init(GrouperSession s, ResourceBundle mediaBundle);
+	public void init(GrouperSession s, ResourceBundle navBundle,ResourceBundle mediaBundle);
 
 	/**
 	 * Given a node return children as appropriate for browse mode

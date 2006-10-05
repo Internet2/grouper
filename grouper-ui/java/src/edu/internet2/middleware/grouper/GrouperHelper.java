@@ -32,6 +32,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
+import edu.internet2.middleware.grouper.ui.util.FieldAsMap;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
@@ -53,7 +54,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.22 2006-10-03 12:41:28 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.23 2006-10-05 09:05:32 isgwb Exp $
  */
 
 /**
@@ -2657,7 +2658,7 @@ public class GrouperHelper {
 	 * @return List of searchable fields
 	 * @throws SchemaException
 	 */
-	public static  List getSearchableFields() throws SchemaException{
+	public static  List getSearchableFields(ResourceBundle bundle) throws SchemaException{
 		List res = new ArrayList();
 		Set fields = FieldFinder.findAllByType(FieldType.ATTRIBUTE);
 		Iterator it = fields.iterator();
@@ -2665,10 +2666,55 @@ public class GrouperHelper {
 		while(it.hasNext()) {
 			field = (Field) it.next();
 			if(noSearchFields.indexOf(":" + field.getName() + ":") == -1) {
-				res.add(field);
+				res.add(new FieldAsMap(field,bundle));
 			}
 		}
 		return res;
+	}
+	
+	/**
+	 * Retrieve Map of attributes which can be searched
+	 * @return Map of searchable fields
+	 * @throws SchemaException
+	 */
+	public static  Map getFieldsAsMap(ResourceBundle bundle) throws SchemaException{
+		List res = new ArrayList();
+		Set fields = FieldFinder.findAll();
+		Iterator it = fields.iterator();
+		Field field;
+		Map fieldMap;
+		Map map = new LinkedHashMap();
+		while(it.hasNext()) {
+			field = (Field) it.next();
+			fieldMap=new FieldAsMap(field,bundle);
+			map.put(field.getName(),fieldMap);
+		}
+		Map any = new HashMap();
+		any.put("displayName",bundle.getString("field.displayName._any"));
+		map.put("_any",any);
+		Map stemMap=new HashMap();
+		stemMap.put("extension","extension");
+		stemMap.put("displayExtension","displayExtension");
+		stemMap.put("name","name");
+		stemMap.put("displayName","displayName");
+		stemMap.put("description","description");
+		try {
+			stemMap.put("extension",bundle.getString("stems.edit.name"));
+		}catch(Exception e){}
+		try {
+			stemMap.put("displayExtension",bundle.getString("stems.edit.display-name"));
+		}catch(Exception e){}
+		try {
+			stemMap.put("name",bundle.getString("stems.edit.full-name"));
+		}catch(Exception e){}
+		try {
+			stemMap.put("displayName",bundle.getString("stems.edit.full-display-name"));
+		}catch(Exception e){}
+		try {
+			stemMap.put("description",bundle.getString("stems.edit.description"));
+		}catch(Exception e){}
+		map.put("stems",stemMap);
+		return map;
 	}
 	
 	public static boolean canUserEditAnyCustomAttribute(Group group) throws SchemaException{

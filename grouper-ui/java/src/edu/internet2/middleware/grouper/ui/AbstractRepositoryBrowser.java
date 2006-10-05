@@ -121,7 +121,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.10 2006-08-17 08:53:11 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.11 2006-10-05 09:00:36 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -130,6 +130,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	protected String browseMode=null;
 	private GrouperSession s;
 	private  ResourceBundle mediaBundle = null;
+	private  ResourceBundle navBundle = null;
 	boolean isFlatCapable  = false;
 	private String rootNode = null;
 	private boolean hidePreRootNode = false;
@@ -150,8 +151,9 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#init(edu.internet2.middleware.grouper.GrouperSession, java.util.ResourceBundle)
 	 */
-	public void init(GrouperSession s,ResourceBundle bundle) {
-		mediaBundle = bundle;
+	public void init(GrouperSession s,ResourceBundle bundle,ResourceBundle mediaBundle) {
+		this.mediaBundle = mediaBundle;
+		navBundle=bundle;
 		this.s = s;
 		this.subject=s.getSubject();
 		
@@ -446,6 +448,8 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		String field;
 		String query;
 		String andOrNot;
+		Map fieldMaps = GrouperHelper.getFieldsAsMap(navBundle);
+		String lastFieldDisplayName=null;
 		QueryFilter queryFilter = null;
 		if(outTerms==null) outTerms=new ArrayList();
 		
@@ -460,7 +464,8 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 				if(queryFilter==null) {
 					queryFilter=getGroupAttributeFilter(lastField,lastQuery,fromStem);
 					outTerms.add(lastQuery);
-					outTerms.add(lastField);
+					lastFieldDisplayName=(String)((Map)fieldMaps.get(lastField)).get("displayName");
+					outTerms.add(lastFieldDisplayName);
 				}
 				if(field==null && i==2) {
 					break;

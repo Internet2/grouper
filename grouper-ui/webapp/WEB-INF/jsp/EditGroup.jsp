@@ -2,7 +2,7 @@
 			Form for creating new groups or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.6 2006-07-06 13:55:49 isgwb Exp $
+  @version $Id: EditGroup.jsp,v 1.7 2006-10-05 09:00:36 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -12,7 +12,7 @@
 <html:hidden property="groupId"/>
 <div class="formRow">
 	<div class="formLeft">
-		<label for="groupName"><fmt:message bundle="${nav}" key="groups.edit.name"/></label>
+		<label for="groupName"><c:out value="${fieldList.extension.displayName}"/></label>
 	</div>
 	<div class="formRight">
 		<html:text property="groupName" size="50" maxlength="50" styleId="groupName"/>
@@ -20,15 +20,15 @@
 </div>
 <div class="formRow">
 	<div class="formLeft">
-		<label for="groupDisplayName"><fmt:message bundle="${nav}" key="groups.edit.display-name"/></label>
+		<label for="groupDisplayName"><c:out value="${fieldList.displayExtension.displayName}"/></label>
 	</div>
 	<div class="formRight">
 		<html:text property="groupDisplayName" size="50" maxlength="50" styleId="groupDisplayName"/>
 	</div>
 </div>
 <div class="formRow">
-	<div class="formLeft">
-		<label for="groupDescription"><fmt:message bundle="${nav}" key="groups.edit.description"/></label>
+	<div class="formLeft">               
+		<label for="groupDescription"><c:out value="${fieldList.description.displayName}"/></label>
 	</div>
 	<div class="formRight">
 		<html:text property="groupDescription" size="50" maxlength="100" styleId="groupDescription"/>

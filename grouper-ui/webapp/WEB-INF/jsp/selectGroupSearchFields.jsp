@@ -2,7 +2,7 @@
 		  Allow user to select which fields they want to search
 --%><%--
   @author Gary Brown.
-  @version $Id: selectGroupSearchFields.jsp,v 1.3 2006-08-17 08:53:37 isgwb Exp $
+  @version $Id: selectGroupSearchFields.jsp,v 1.4 2006-10-05 09:00:36 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -28,19 +28,19 @@
 			<select name="<c:out value="${searchFieldName}"/>">
 				<c:choose>
 					<c:when test="${fieldCount.count==1}">
-						<option value="displayName">displayName</option>
+						<option value="displayName"><c:out value="${fieldList.displayName.displayName}"/></option>
 					</c:when>
 					<c:otherwise>
 						<option value=""></option>
 					</c:otherwise>	
 				</c:choose>
 				<option value="_any" <c:if test="${advancedSearchFieldParams[searchFieldName]=='_any'}">selected="selected"</c:if>
-					>Any attribute</option>
+					><c:out value="${fieldList['_any'].displayName}"/></option>
 				<c:forEach var="field" items="${fields}">
 				<c:if test="${!(fieldCount.count==1 && field.name=='displayName')}">
 					<option value="<c:out value="${field.name}"/>" 
 					<c:if test="${advancedSearchFieldParams[searchFieldName]==field.name}">selected="selected"</c:if>
-					><c:out value="${field.name}"/>
+					><c:out value="${field.displayName}"/>
 						</option>
 						</c:if>
 				</c:forEach>

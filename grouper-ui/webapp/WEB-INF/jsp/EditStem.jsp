@@ -2,7 +2,7 @@
 			Form for creating newstems or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditStem.jsp,v 1.3 2006-07-19 11:41:28 isgwb Exp $
+  @version $Id: EditStem.jsp,v 1.4 2006-10-05 09:00:36 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -14,7 +14,7 @@
 
 	<div class="formRow">
 		<div class="formLeft">
-			<label for="stemName"><fmt:message bundle="${nav}" key="stems.edit.name"/></label>
+			<label for="stemName"><c:out value="${fieldList.stems.extension}"/></label>
 		</div>
    		<div class="formRight">
 			<html:text property="stemName" size="50" maxlength="50" disabled="${!isNewStem}" styleId="stemName"/>
@@ -22,7 +22,7 @@
 	</div>
 	<div class="formRow">
 		<div class="formLeft">
-			<label for="stemDisplayName"><fmt:message bundle="${nav}" key="stems.edit.display-name"/></label>
+			<label for="stemDisplayName"><c:out value="${fieldList.stems.displayExtension}"/></label>
 		</div>
     	<div class="formRight">
 			<html:text property="stemDisplayName" size="50" maxlength="50" styleId="stemDisplayName"/>
@@ -30,7 +30,7 @@
 	</div>
 	<div class="formRow">
 		<div class="formLeft">
-			<label for="stemDescriptionName"><fmt:message bundle="${nav}" key="stems.edit.description"/></label>
+			<label for="stemDescriptionName"><c:out value="${fieldList.stems.description}"/></label>
 		</div>
     	<div class="formRight">
 			<html:text property="stemDescription" size="50" maxlength="100" styleId="stemDescription"/> 

@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.5 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.6 2006-10-05 09:00:36 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -92,6 +92,7 @@ public class SessionInitialiser {
 	 */
 	public static void init(String module, String locale, HttpSession session)
 			throws Exception {
+		if(Boolean.TRUE.equals(session.getAttribute("sessionInited"))) return;
 		if (module != null)
 			module = module.replaceAll("^/", "");
 		ResourceBundle defaultInit = ResourceBundle
@@ -169,7 +170,8 @@ public class SessionInitialiser {
 		} catch (Exception e) {
 			//e.printStackTrace();
 		}
-		session.setAttribute("sessionInited", Boolean.TRUE);
+		if(getAuthUser(session)!=null) session.setAttribute("sessionInited", Boolean.TRUE);
+		session.setAttribute("fieldList",GrouperHelper.getFieldsAsMap(chainedBundle));
 	}
 
 	/**

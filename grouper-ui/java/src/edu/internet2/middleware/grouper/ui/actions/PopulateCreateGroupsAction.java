@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2006 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupsAction.java,v 1.3 2006-02-24 13:40:58 isgwb Exp $
+ * @version $Id: PopulateCreateGroupsAction.java,v 1.4 2006-10-05 09:00:36 isgwb Exp $
  */
 public class PopulateCreateGroupsAction extends GrouperCapableAction {
 	
@@ -126,7 +126,7 @@ public class PopulateCreateGroupsAction extends GrouperCapableAction {
 		session.removeAttribute("subtitle");
 		Stem stem = null;
 		setBrowseMode("Create",session);
-		RepositoryBrowser repositoryBrowser = RepositoryBrowserFactory.getInstance("Create",grouperSession,getMediaResources(request));
+		RepositoryBrowser repositoryBrowser = getRepositoryBrowser(grouperSession,session);
 		String curId = getBrowseNode(session);
 		if (isEmpty(curId)) {
 			stem = StemFinder.findByName(grouperSession,repositoryBrowser.getRootNode());
