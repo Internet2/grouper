@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.68 2006-10-05 16:33:39 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.69 2006-10-05 16:48:38 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -683,6 +683,16 @@ public class XmlExporter {
   } // private boolean _isGroupInternalAttrsExportEnabled()
 
   // @since   1.1.0
+  private boolean _isGroupListImmediateOnlyExportEnabled() {
+    return XmlUtils.getBooleanOption(this.options, "export.group.lists.immediate-only");
+  } // private boolean _isGroupListImmediateOnlyExportEnabled()
+
+  // @since   1.1.0
+  private boolean _isGroupMemberImmediateOnlyExportEnabled() {
+    return XmlUtils.getBooleanOption(this.options, "export.group.members.immediate-only");
+  } // private boolean _isGroupMemberImmediateOnlyExportEnabled()
+
+  // @since   1.1.0
   private boolean _isMetadataExportEnabled() {
     return XmlUtils.getBooleanOption(this.options, "export.metadata");
   } // private boolean _isMetadataExportEnabled()
@@ -1182,6 +1192,7 @@ public class XmlExporter {
             SchemaException,
             SubjectNotFoundException
   {
+    // TODO 20061005 refactor: this is ugly
     if (g.canReadField(f)) {
       boolean isComposite = false;
       Set     membersSet  = null;
@@ -1195,16 +1206,12 @@ public class XmlExporter {
       Collection members = new ArrayList();
       members.addAll(membersSet);
       if (
-        (
-          f.getName().equals("members") && !this._optionTrue("export.group.members.immediate-only")
-        )
+        ( f.getName().equals("members")   && !this._isGroupMemberImmediateOnlyExportEnabled() )
         || 
-        (
-          !f.getName().equals("members") && !this._optionTrue("export.group.lists.immediate-only")
-        )
-      ) 
+        ( !f.getName().equals("members")  && !this._isGroupListImmediateOnlyExportEnabled() )
+      )
       {
-        members.addAll (g.getEffectiveMemberships(f) );
+        members.addAll( g.getEffectiveMemberships(f) );
         if (f.getName().equals("members") && g.hasComposite()) {
           members.addAll( g.getCompositeMemberships() );
         }
@@ -1213,7 +1220,6 @@ public class XmlExporter {
         return;
       }
       this.xml.indent();
-
       this.xml.puts(
           "<list field="  + U.q( this._fixXmlAttribute(f.getName()) )
         + " groupType="   + U.q( this._fixXmlAttribute(f.getGroupType().getName()) )
@@ -1320,17 +1326,15 @@ public class XmlExporter {
     throws  IOException,
             MemberNotFoundException
   {
+    // TODO 20061005 refactor: aesthetically this is wrong
     if (subjects.size() == 1) {
       subjects.remove(sysUser);
     }
     if (subjects.isEmpty()) {
-      LOG.debug("No privilegees with [" + privilege + "] for " + o.getName());
       return;
     }
 
-    LOG.debug("Writing privilegees with [" + privilege + "] for " + o.getName());
     this.xml.puts();
-
     this.xml.puts("<privileges type='" + privilege + "'>");
     Iterator  subjIterator  = subjects.iterator();
     Subject   subject;
@@ -1340,15 +1344,14 @@ public class XmlExporter {
       subject     = (Subject) subjIterator.next();
       isImmediate = XmlUtils.hasImmediatePrivilege(subject, o, privilege);
       if (
-        (!"GrouperSystem".equals(subject.getId()))
+        (!subject.getId().equals("GrouperSystem"))
         && 
         (isImmediate || !_optionTrue("export.privs.immediate-only"))) 
       {
         this._writeSubject(subject, " immediate='" + isImmediate + "' ");
       }
     }
-    this.xml.puts("</privileges> <!--/privilege=" + privilege + "-->");
-
+    this.xml.puts("</privileges> " + this.xml.comment(privilege));
   } // private void _writePrivileges(privilege, subjects, o)
 
   // @since   1.1.0
@@ -1478,6 +1481,7 @@ public class XmlExporter {
   private void _writeSubject(Subject subj, String immediate) 
     throws  IOException 
   {
+    // TODO 20061005 this. is. ugly.
     String attrName = "id";
     String id       = null;
     if ("group".equals(subj.getType().getName())) {
