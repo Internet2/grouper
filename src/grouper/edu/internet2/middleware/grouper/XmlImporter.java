@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.72 2006-10-05 15:48:30 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.73 2006-10-05 16:25:26 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -669,6 +669,16 @@ public class XmlImporter {
   } // private boolean _isApplyNewGroupTypesEnabled()
   
   // @since   1.1.0
+  private boolean _isMetadataGroupTypeImportEnabled() {
+    return XmlUtils.getBooleanOption(this.options, "import.metadata.group-types");
+  } // private boolean _isMetadataGroupTypeImportEnabled()
+
+  // @since   1.1.0
+  private boolean _isMetadataGroupTypeAttributeImportEnabled() {
+    return XmlUtils.getBooleanOption(this.options, "import.metadata.group-typea-attributes");
+  } // private boolean _isMetadataGroupTypeAttributeImportEnabled()
+
+  // @since   1.1.0
   private boolean _isRelativeImport(String idfr) {
     return (
           idfr.startsWith(  XmlUtils.SPECIAL_STAR )
@@ -705,7 +715,7 @@ public class XmlImporter {
       this._processProperties();
       Element root = this._getDocument().getDocumentElement();
 
-      this._processMetaData(this._getImmediateElement(root, "metadata"));
+      this._processMetadata(this._getImmediateElement(root, "metadata"));
       this._process( this._getImmediateElement(root, "data"), this.importRoot );
       this._processMembershipLists();
       this._processNamingPrivLists();
@@ -1245,95 +1255,66 @@ public class XmlImporter {
   } // private boolean _processMembershipListHandleImportMode(g, f, list)
 
   // @since   1.1.0
-  private void _processMetaData(Element e) 
+  private void _processMetadata(Element el) 
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    if (!this._optionTrue("import.metadata.group-types") || e == null) {
+    if ( el == null || !this._isMetadataGroupTypeImportEnabled() ) {
       return;
     }
-    LOG.debug("import.metadata.group-types=true - loading group-types");
-    Element     groupTypesMetaData  = this._getImmediateElement(e, "groupTypesMetaData");
-    Collection  groupTypes          = this._getImmediateElements(groupTypesMetaData, "groupTypeDef");
-    Iterator    groupTypesIterator  = groupTypes.iterator();
-    Element     groupType;
-    GroupType   grouperGroupType;
-    Collection  fields;
-    Iterator    fieldsIterator;
-    Field       grouperField;
-    Element     field;
-    String      groupTypeName;
-    String      fieldName;
-    String      readPriv;
-    String      writePriv;
-    String      fieldType;
-    boolean     required;
-    boolean     isNew               = false;
-    while (groupTypesIterator.hasNext()) {
-      isNew         = false;
-      groupType     = (Element) groupTypesIterator.next();
-      groupTypeName = groupType.getAttribute("name");
+    Iterator it = this._getImmediateElements(
+      this._getImmediateElement(el, "groupTypesMetaData"), "groupTypeDef"
+    ).iterator();
+    while (it.hasNext()) {
+      this._processMetadataGroupType( (Element) it.next() );  
+    }
+  } // private void _processMetadata(e)
+
+  // @since   1.1.0
+  private void _processMetadataField(GroupType gt, boolean isNew, Element el) 
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    if (isNew || this._isMetadataGroupTypeAttributeImportEnabled()) {
+      // if a new group type or we have enabled group type attr importing // continue
+      String    fName = el.getAttribute("name");
+      String    fType = el.getAttribute("type");
+      Privilege read  = Privilege.getInstance( el.getAttribute("readPriv")  );
+      Privilege write = Privilege.getInstance( el.getAttribute("writePriv") );
       try {
-        grouperGroupType = GroupTypeFinder.find(groupTypeName);
-        LOG.debug("Found existing GroupType - " + groupTypeName);
+        FieldFinder.find(fName); // already exists
       } 
-      catch (SchemaException ex) {
-        grouperGroupType  = GroupType.createType(s, groupTypeName);
-        isNew             = true;
-        LOG.debug("Found and created new GroupType - " + groupTypeName);
-      }
-      fields = this._getImmediateElements(groupType, "field");
-      if (fields.size() > 0) {
-        LOG.debug("import.metadata.group-type-attributes=true");
-      }
-      fieldsIterator = fields.iterator();
-      while (fieldsIterator.hasNext()) {
-        field     = (Element) fieldsIterator.next();
-        fieldName = field.getAttribute("name");
-        fieldType = field.getAttribute("type");
-        required  = "true".equals(field.getAttribute("required"));
-        readPriv  = field.getAttribute("readPriv");
-        writePriv = field.getAttribute("writePriv");
-        try {
-          grouperField = FieldFinder.find(fieldName);
-          LOG.debug("Found existing Field - " + fieldName);
+      catch (SchemaException eS) {
+        if (fType.equals( FieldType.LIST.toString() ) )           {
+          gt.addList(s, fName, read, write);
         } 
-        catch (SchemaException ex) {
-          grouperField = null;
-        }
-        if (
-          (isNew || this._optionTrue("import.metadata.group-type-attributes"))
-          && grouperField == null
-        ) 
-        {
-          LOG.debug("Found new Field - "  + fieldName + " - now adding");
-          LOG.debug("Field Type="         + fieldType);
-          LOG.debug("Field readPriv="     + readPriv);
-          LOG.debug("Field writePriv="    + writePriv);
-          LOG.debug("Field required="     + required);
-
-          if (fieldType.equals("list")) {
-            grouperGroupType.addList(
-              s, fieldName, 
-              Privilege.getInstance(readPriv), 
-              Privilege.getInstance(writePriv)
-            );
-          } 
-          else if (fieldType.equals("attribute")) {
-            grouperGroupType.addAttribute(
-              s, fieldName, 
-              Privilege.getInstance(readPriv), 
-              Privilege.getInstance(writePriv), required
-            );
-          } 
-          else {
-
-          }
-        }
+        else if (fType.equals( FieldType.ATTRIBUTE.toString() ) ) {
+          gt.addAttribute( s, fName, read, write, Boolean.valueOf( el.getAttribute("required") ) );
+        } 
       }
     }
-    LOG.debug("Finished processing group types and fields");
-  } // private void _processMetaData(e)
+  } // private void _processMetadataField(gt, isNew, el)
+
+  // @since   1.1.0
+  private void _processMetadataGroupType(Element el) 
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    boolean   isNew   = false;
+    String    gtName  = el.getAttribute("name");
+    GroupType gt      = null;
+    try {
+      gt = GroupTypeFinder.find(gtName);
+    } 
+    catch (SchemaException ex) {
+      gt    = GroupType.createType(s, gtName);
+      isNew = true;
+    }
+    Iterator it = this._getImmediateElements(el, "field").iterator();
+    while (it.hasNext()) {
+      this._processMetadataField( gt, isNew, (Element) it.next() );
+    }
+  } // private void _processMetadataGroupType(el)
 
   // @since   1.1.0
   private void _processNamingPrivLists() 
