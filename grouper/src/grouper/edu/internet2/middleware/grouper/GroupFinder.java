@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.29 2006-10-05 18:15:28 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.30 2006-10-05 18:50:03 blair Exp $
  */
 public class GroupFinder {
 
@@ -96,7 +96,6 @@ public class GroupFinder {
   protected static Set findByCreatedAfter(GrouperSession s, Date d) 
     throws QueryException 
   {
-    List groups = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
@@ -104,30 +103,19 @@ public class GroupFinder {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByCreatedAfter");
-      qry.setLong("time", d.getTime());
-      List    l   = qry.list();
-      hs.close();
-      Group     g;
-      Iterator  iter  = l.iterator();
-      while (iter.hasNext()) {
-        g = (Group) iter.next();
-        g.setSession(s);
-        groups.add(g);
-      }
+      return _findByDate(s, hs, qry, d);
     }
     catch (HibernateException eH) {
       throw new QueryException(
         "error finding groups: " + eH.getMessage(), eH
       );  
     }
-    return PrivilegeResolver.canViewGroups(s, new LinkedHashSet(groups));
   } // protected static Set findByCreatedAfter(s, d)
 
   // @return  groups created before this date
   protected static Set findByCreatedBefore(GrouperSession s, Date d) 
     throws QueryException 
   {
-    List groups = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
@@ -135,23 +123,11 @@ public class GroupFinder {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByCreatedBefore");
-      qry.setLong("time", d.getTime());
-      List    l   = qry.list();
-      hs.close();
-      Group     g;   
-      Iterator  iter  = l.iterator();
-      while (iter.hasNext()) {
-        g = (Group) iter.next();
-        g.setSession(s);
-        groups.add(g);
-      }
+      return _findByDate(s, hs, qry, d);
     }
     catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding groups: " + eH.getMessage(), eH
-      );  
+      throw new QueryException("error finding groups: " + eH.getMessage(), eH);  
     }
-    return PrivilegeResolver.canViewGroups(s, new LinkedHashSet(groups));
   } // protected static Set findByCreatedBefore(s, d)
 
   protected static Set findByAnyApproximateAttr(GrouperSession s, String val) 
@@ -233,7 +209,6 @@ public class GroupFinder {
   protected static Set findByModifiedAfter(GrouperSession s, Date d) 
     throws QueryException 
   {
-    List groups = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
@@ -241,23 +216,13 @@ public class GroupFinder {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByModifiedAfter");
-      qry.setLong("time", d.getTime());
-      List    l   = qry.list();
-      hs.close();
-      Group     g;
-      Iterator  iter  = l.iterator();
-      while (iter.hasNext()) {
-        g = (Group) iter.next();
-        g.setSession(s);
-        groups.add(g);
-      }
+      return _findByDate(s, hs, qry, d);
     }
     catch (HibernateException eH) {
       throw new QueryException(
         "error finding groups: " + eH.getMessage(), eH
       );  
     }
-    return PrivilegeResolver.canViewGroups(s, new LinkedHashSet(groups));
   } // protected static Set findByModifiedAfter(s, d)
 
   // @return  groups modifed before this date
@@ -265,7 +230,6 @@ public class GroupFinder {
   protected static Set findByModifiedBefore(GrouperSession s, Date d) 
     throws QueryException 
   {
-    List groups = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
@@ -273,23 +237,11 @@ public class GroupFinder {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByModifiedBefore");
-      qry.setLong("time", d.getTime());
-      List    l   = qry.list();
-      hs.close();
-      Group     g;   
-      Iterator  iter  = l.iterator();
-      while (iter.hasNext()) {
-        g = (Group) iter.next();
-        g.setSession(s);
-        groups.add(g);
-      }
+      return _findByDate(s, hs, qry, d);
     }
     catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding groups: " + eH.getMessage(), eH
-      );  
+      throw new QueryException("error finding groups: " + eH.getMessage(), eH);  
     }
-    return PrivilegeResolver.canViewGroups(s, new LinkedHashSet(groups));
   } // protected static Set findByModifiedBefore(s, d)
 
   // Needs _protected_ access so that _Stem.addChildGroup()_ can check
@@ -344,6 +296,24 @@ public class GroupFinder {
     hs.close();
     return PrivilegeResolver.canViewGroups(s, groups);
   } // private static Set _findByAttribute(s, hs, qry, val)
+
+  // @since   1.1.0
+  private static Set _findByDate(GrouperSession s, Session hs, Query qry, Date d)
+    throws  HibernateException
+  {
+    qry.setLong( "time", d.getTime() );
+    List        l       = qry.list();
+    hs.close();
+    Group       g;
+    Set         groups  = new LinkedHashSet();
+    Iterator    it      = l.iterator();
+    while (it.hasNext()) {
+      g = (Group) it.next();
+      g.setSession(s);
+      groups.add(g);
+    }
+    return PrivilegeResolver.canViewGroups(s, groups);
+  } // private static Set _findByDate(s, hs, qry, d)
 
   private static Group _findByUuid(String uuid)
     throws  GroupNotFoundException
