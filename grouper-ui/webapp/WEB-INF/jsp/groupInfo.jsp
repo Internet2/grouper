@@ -3,14 +3,14 @@
 		in GroupSummaryDef
 --%><%--
   @author Gary Brown.
-  @version $Id: groupInfo.jsp,v 1.3 2006-02-21 16:23:40 isgwb Exp $
+  @version $Id: groupInfo.jsp,v 1.4 2006-10-05 15:28:15 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div class="groupInfo"> 
 <div class="formRow">
 	<div class="formLeft">
-		<fmt:message bundle="${nav}" key="groups.summary.extension"/>
+		<c:out value="${fieldList.extension.displayName}"/>
 	</div>
 	<div class="formRight">
 		<c:out value="${group.extension}"/>
@@ -18,7 +18,7 @@
 </div>
 <div class="formRow">
 	<div class="formLeft">
-		<fmt:message bundle="${nav}" key="groups.summary.name"/>
+		<c:out value="${fieldList.name.displayName}"/>
 	</div>
 	<div class="formRight">
 		<c:out value="${group.name}"/>
@@ -26,7 +26,7 @@
 </div>
 <div class="formRow">
 	<div class="formLeft">
-		<fmt:message bundle="${nav}" key="groups.summary.display-extension"/>
+		<c:out value="${fieldList.displayExtension.displayName}"/>
 	</div>
 	<div class="formRight">
 		<c:out value="${group.displayExtension}"/>
@@ -34,7 +34,7 @@
 </div>
 <div class="formRow">
 	<div class="formLeft">
-		<fmt:message bundle="${nav}" key="groups.summary.display-name"/>
+		<c:out value="${fieldList.displayName.displayName}"/>
 	</div>
 	<div class="formRight">
 		<c:out value="${group.displayName}"/>
