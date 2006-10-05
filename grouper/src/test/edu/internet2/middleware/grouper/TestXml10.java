@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml10.java,v 1.1 2006-10-03 19:29:36 blair Exp $
+ * @version $Id: TestXml10.java,v 1.2 2006-10-05 13:18:27 blair Exp $
  * @since   1.1.0
  */
 public class TestXml10 extends GrouperTest {
@@ -47,7 +47,7 @@ public class TestXml10 extends GrouperTest {
     LOG.info("testGroupExportFalseFalseFullImportFullGroup");
     try {
       // Populate Registry And Verify
-      R     r   = R.populateRegistry(1, 1, 0);
+      R     r   = R.populateRegistry(1, 2, 0);
       Group gA  = assertFindGroupByName( r.rs, "i2:a:a" );
       // For Later Validation
       boolean has_a   = gA.hasAdmin( SubjectFinder.findAllSubject() );
@@ -64,6 +64,7 @@ public class TestXml10 extends GrouperTest {
       String  val_e   = gA.getExtension();
       String  val_n   = gA.getName();
       String  val_u   = gA.getUuid();
+      assertFindGroupByName( r.rs, "i2:a:b" ); // group should exist now
       r.rs.stop();
 
       // Export
@@ -103,6 +104,7 @@ public class TestXml10 extends GrouperTest {
       assertGroupExtension( gA, val_e );
       assertGroupName( gA, val_n );
       assertGroupUuid( gA, val_u );
+      assertDoNotFindGroupByName( s, "i2:a:b" ); // group should not exist now
       s.stop();
     }
     catch (Exception e) {

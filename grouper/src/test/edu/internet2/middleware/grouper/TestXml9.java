@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml9.java,v 1.1 2006-10-03 19:29:36 blair Exp $
+ * @version $Id: TestXml9.java,v 1.2 2006-10-05 13:18:27 blair Exp $
  * @since   1.1.0
  */
 public class TestXml9 extends GrouperTest {
@@ -47,7 +47,7 @@ public class TestXml9 extends GrouperTest {
     LOG.info("testStemExportFalseFullImportFullStem");
     try {
       // Populate Registry And Verify
-      R     r   = R.populateRegistry(1, 0, 0);
+      R     r   = R.populateRegistry(2, 0, 0);
       Stem  nsA = assertFindStemByName( r.rs, "i2:a" );
       // For Later Validation
       boolean has_c   = nsA.hasCreate( SubjectFinder.findAllSubject() );
@@ -60,6 +60,7 @@ public class TestXml9 extends GrouperTest {
       String  val_e   = nsA.getExtension();
       String  val_n   = nsA.getName();
       String  val_u   = nsA.getUuid();
+      assertFindStemByName( r.rs, "i2:b" ); // stem should exist now
       r.rs.stop();
 
       // Export
@@ -95,6 +96,7 @@ public class TestXml9 extends GrouperTest {
       assertStemExtension( nsA, val_e );
       assertStemName( nsA, val_n );
       assertStemUuid( nsA, val_u );
+      assertDoNotFindStemByName( s, "i2:b" ); // stem should not exist now
       s.stop();
     }
     catch (Exception e) {
