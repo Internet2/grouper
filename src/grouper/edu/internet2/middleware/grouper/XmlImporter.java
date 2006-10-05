@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.73 2006-10-05 16:25:26 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.74 2006-10-05 19:40:45 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -421,10 +421,10 @@ public class XmlImporter {
             + "  subjectIdentifier, Identifies a Subject 'who' will create a"       + GrouperConfig.NL
             + "                     GrouperSession"                                 + GrouperConfig.NL
             + "  -id,               The Uuid of a Stem, into which, data will be"   + GrouperConfig.NL
-            + "                     imported*"                                      + GrouperConfig.NL
+            + "                     imported"                                       + GrouperConfig.NL
             + "  -name,             The name of a Stem, into which, data will be"   + GrouperConfig.NL
-            + "                     imported*"                                      + GrouperConfig.NL
-            + "                     *If no -id / -name is specified, use=ROOT stem" + GrouperConfig.NL
+            + "                     imported.  If no -id / -name is specified, "    + GrouperConfig.NL
+            + "                     use=ROOT stem."                                 + GrouperConfig.NL
             + "  -list,             File contains a flat list of Stems or Groups"   + GrouperConfig.NL
             + "                     which may be updated. Missing Stems and Groups" + GrouperConfig.NL
             + "                     are not created"                                + GrouperConfig.NL
