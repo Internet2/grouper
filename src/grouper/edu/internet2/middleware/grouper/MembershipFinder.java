@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.55 2006-09-28 18:30:55 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.56 2006-10-05 18:38:08 blair Exp $
  */
 public class MembershipFinder {
 
@@ -296,7 +296,6 @@ public class MembershipFinder {
   protected static Set findByCreatedAfter(GrouperSession s, Date d, Field f) 
     throws QueryException 
   {
-    List mships = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
@@ -306,33 +305,18 @@ public class MembershipFinder {
         + "and  ms.field.type   = :ftype  "
       );
       qry.setCacheable(true);
-      qry.setCacheRegion("edu.internet2.middleware.grouper.MembershipFinder.findByCreatedAfter");
-      qry.setLong(    "time"  , d.getTime()             );
-      qry.setString(  "fname" , f.getName()             );
-      qry.setString(  "ftype" , f.getType().toString()  );
-      List        l     = qry.list();
-      hs.close();
-      Membership  ms;
-      Iterator    iter  = l.iterator();
-      while (iter.hasNext()) {
-        ms = (Membership) iter.next();
-        ms.setSession(s);
-        mships.add(ms);
-      }
+      qry.setCacheRegion(KLASS + ".FindByCreatedAfter");
+      return _findByDate(s, hs, qry, d, f);
     }
     catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding memberships: " + eH.getMessage(), eH
-      );  
+      throw new QueryException("error finding memberships: " + eH.getMessage(), eH);  
     }
-    return PrivilegeResolver.canViewMemberships(s, new LinkedHashSet(mships));
   } // protected static Set findByCreatedAfter(s, d, f)
 
   // @since   1.1.0
   protected static Set findByCreatedBefore(GrouperSession s, Date d, Field f) 
     throws QueryException 
   {
-    List mships = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
@@ -342,26 +326,12 @@ public class MembershipFinder {
         + "and  ms.field.type   = :ftype  "
       );
       qry.setCacheable(true);
-      qry.setCacheRegion("edu.internet2.middleware.grouper.MembershipFinder.findByCreatedBefore");
-      qry.setLong(    "time"  , d.getTime()             );
-      qry.setString(  "fname" , f.getName()             );
-      qry.setString(  "ftype" , f.getType().toString()  );
-      List        l     = qry.list();
-      hs.close();
-      Membership  ms;
-      Iterator    iter  = l.iterator();
-      while (iter.hasNext()) {
-        ms = (Membership) iter.next();
-        ms.setSession(s);
-        mships.add(ms);
-      }
+      qry.setCacheRegion(KLASS + ".FindByCreatedBefore");
+      return _findByDate(s, hs, qry, d, f);
     }
     catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding memberships: " + eH.getMessage(), eH
-      );  
+      throw new QueryException("error finding memberships: " + eH.getMessage(), eH);  
     }
-    return PrivilegeResolver.canViewMemberships(s, new LinkedHashSet(mships));
   } // protected static Set findByCreatedAfter(s, d, f)
 
   protected static Membership findByUuid(GrouperSession s, String uuid) 
@@ -835,6 +805,31 @@ public class MembershipFinder {
     }
     return mships;
   } // protected static Membership findMembershipsNoPrivsNoSession(o, m, f)
+
+
+  // PRIVATE CLASS METHODS //
+
+  // @since   1.1.0
+  private static Set _findByDate(
+    GrouperSession s, Session hs, Query qry, Date d, Field f
+  )
+    throws  HibernateException
+  {
+    qry.setLong(    "time"  , d.getTime()             );
+    qry.setString(  "fname" , f.getName()             );
+    qry.setString(  "ftype" , f.getType().toString()  );
+    List        l       = qry.list();
+    hs.close();
+    Membership  ms;
+    Set         mships  = new LinkedHashSet();
+    Iterator    it      = l.iterator();
+    while (it.hasNext()) {
+      ms = (Membership) it.next();
+      ms.setSession(s);
+      mships.add(ms);
+    }
+    return mships;
+  } // private static Set _findByDate(s, hs, qry, d, f)
 
 } // public class MembershipFinder
 
