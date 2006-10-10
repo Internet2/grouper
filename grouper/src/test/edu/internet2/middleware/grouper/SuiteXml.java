@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test XML.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXml.java,v 1.9 2006-10-10 16:43:07 blair Exp $
+ * @version $Id: SuiteXml.java,v 1.10 2006-10-10 18:47:18 blair Exp $
  * @since   1.0
  */
 public class SuiteXml extends TestCase {
@@ -44,13 +44,14 @@ public class SuiteXml extends TestCase {
     suite.addTestSuite( TestXml6.class  );  // e: full              -- i: full -- group: granted priv
     suite.addTestSuite( TestXml7.class  );  // e: full              -- i: full -- group: imm, eff and composite
     suite.addTestSuite( TestXml8.class  );  // e: full              -- i: full -- group: custom type, custom attr, custom list
-    suite.addTestSuite( TestXml9.class  );  // e: stem/false        -- i: full -- stem + attrs + privs
-    // TODO 20061003 e: stem/true
+    suite.addTestSuite( TestXml9.class  );  // e: stem/root/false   -- i: full -- stem + attrs + privs
+    suite.addTestSuite( TestXml12.class );  // e: stem/root/true    -- i: full -- stem + attrs + privs
+    suite.addTestSuite( TestXml13.class );  // e: stem/child/false  -- i: full -- stem + attrs + privs
+    suite.addTestSuite( TestXml14.class );  // e: stem/child/true   -- i: full -- stem + attrs + privs
     suite.addTestSuite( TestXml10.class );  // e: group/false/false -- i: full -- group + attrs + privs
     // TODO 20061003 e: group/true/false
     // TODO 20061003 e: group/false/true
     // TODO 20061003 e: group/true/true
-    // TODO 20061003 e: collection/....
     suite.addTestSuite( TestXml11.class );  // e: collection/stems  -- i: full -- nothing
 
     // XmlExporter

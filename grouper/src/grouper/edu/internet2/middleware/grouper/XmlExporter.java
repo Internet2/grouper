@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.72 2006-10-10 16:43:07 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.73 2006-10-10 18:47:18 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -290,6 +290,9 @@ public class XmlExporter {
   {
     this.xml            = new XmlWriter(writer);
     this.isRelative     = relative;
+    if (ns.isRootStem()) {
+      this.includeParent = false; // TODO 20061010 includeParent is still sort of magic to /me
+    }
     this._export(ns);
   } // public void export(writer, ns, relative)
 
@@ -679,6 +682,20 @@ public class XmlExporter {
   private boolean _isStemInternalAttrsExportEnabled() {
     return XmlUtils.getBooleanOption(this.options, "export.stem.internal-attributes");
   } // private boolean _isStemInternalAttrsExportEnabled()
+
+  // @since   1.1.0
+  private String _getParentStemName(Owner o) 
+    throws  StemNotFoundException
+  {
+    String parent = GrouperConfig.EMPTY_STRING;
+    if (o instanceof Group) {
+      parent = ( (Group) o).getParentStem().getName();
+    }
+    else {
+      parent = ( (Stem) o).getParentStem().getName();
+    }
+    return parent;
+  } // private String _getParentStemName(o)
 
   // @since   1.1.0
   private Stack _getParentStems(Owner o) 
@@ -1133,12 +1150,7 @@ public class XmlExporter {
     {
       this.xml.indent();
       this.xml.puts("<internalAttributes>");
-      if      (o instanceof Group)  {
-        this._writeInternalAttribute( "parentStem", ( (Group) o).getParentStem().getName() );
-      }
-      else if (o instanceof Stem)   {
-        this._writeInternalAttribute( "parentStem", ( (Stem) o).getParentStem().getName() );
-      }
+      this._writeInternalAttribute( "parentStem"    , this._getParentStemName(o)  );
       this._writeInternalAttribute( "createSource"  , o.getCreate_source()        );
       this._writeInternalAttribute( "createSubject" , o.getCreator_id()           );
       this._writeInternalAttribute( "createTime"    , o.getCreate_time()          );
@@ -1335,12 +1347,12 @@ public class XmlExporter {
     this._writeStemHeader(ns);
     this._writeInternalAttributes(ns);
     this._writeStemPrivs(ns);
-    this._writeStemBody(ns);
+    this._writeStemChildren(ns);
     this._writeStemFooter(ns);
   } // private void _writeStem(ns)
 
   // @since   1.1.0
-  private void _writeStemBody(Stem ns) 
+  private void _writeStemChildren(Stem ns) 
     throws  CompositeNotFoundException,
             GroupNotFoundException,
             IOException,
@@ -1357,7 +1369,7 @@ public class XmlExporter {
     while (itG.hasNext()) {
       this._writeGroup( (Group) itG.next() );
     }
-  } // private void _writeStemBody(ns)
+  } // private void _writeStemChildren(ns)
 
   // @since   1.1.0
   private void _writeStemFooter(Stem ns) 
@@ -1425,7 +1437,7 @@ public class XmlExporter {
         this._writeStem(ns);
       } 
       else {
-        this._writeStemBody(ns);
+        this._writeStemChildren(ns);
       }
     } 
     else {

@@ -23,14 +23,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml9.java,v 1.3 2006-10-10 18:47:18 blair Exp $
+ * @version $Id: TestXml14.java,v 1.1 2006-10-10 18:47:18 blair Exp $
  * @since   1.1.0
  */
-public class TestXml9 extends GrouperTest {
+public class TestXml14 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXml9.class);
+  private static final Log LOG = LogFactory.getLog(TestXml14.class);
 
-  public TestXml9(String name) {
+  public TestXml14(String name) {
     super(name);
   }
 
@@ -43,8 +43,8 @@ public class TestXml9 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testStemExportRootFalseFullImportFullStem() {
-    LOG.info("testStemExportRootFalseFullImportFullStem");
+  public void testStemExportChildTrueFullImportFullStem() {
+    LOG.info("testStemExportChildTrueFullImportFullStem");
     try {
       // Populate Registry And Verify
       R     r   = R.populateRegistry(2, 0, 0);
@@ -67,7 +67,7 @@ public class TestXml9 extends GrouperTest {
       GrouperSession  s         = GrouperSession.start( SubjectFinder.findRootSubject() );
       Writer          w         = new StringWriter();
       XmlExporter     exporter  = new XmlExporter(s, new Properties());
-      exporter.export(w, StemFinder.findRootStem(s), false);
+      exporter.export(w, StemFinder.findByName(s, val_n), false);
       String          xml       = w.toString();
       s.stop();
 
@@ -96,13 +96,13 @@ public class TestXml9 extends GrouperTest {
       assertStemExtension( nsA, val_e );
       assertStemName( nsA, val_n );
       assertStemUuid( nsA, val_u );
-      assertFindStemByName( s, "i2:b" ); // stem should exist 
+      assertDoNotFindStemByName( s, "i2:b" ); // stem should not exist now
       s.stop();
     }
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testStemExportRootFalseFullImportFullStem()
+  } // public void testStemExportChildTrueFullImportFullStem()
 
-} // public class TestXml9
+} // public class TestXml14
 
