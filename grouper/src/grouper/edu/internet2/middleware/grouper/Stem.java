@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.85 2006-09-27 17:54:32 blair Exp $
+ * @version $Id: Stem.java,v 1.86 2006-10-10 17:42:24 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -934,7 +934,7 @@ public class Stem extends Owner {
 
   // @since 1.1.0
   protected boolean isRootStem() {
-    if (this.getName().equals(ROOT_INT)) {
+    if (this.getName().equals(ROOT_EXT)) {
       return true;
     }
     return false;
