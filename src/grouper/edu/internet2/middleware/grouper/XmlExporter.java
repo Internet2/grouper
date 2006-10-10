@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.70 2006-10-10 15:33:24 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.71 2006-10-10 15:53:45 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -301,7 +301,7 @@ public class XmlExporter {
    * @throws  Exception
    * @since   1.1.0
    */
-  public synchronized void export(Collection items, String info) 
+  public void export(Collection items, String info) 
     throws  Exception 
   {
     LOG.debug("Start export of Collection:" + info);
@@ -357,7 +357,7 @@ public class XmlExporter {
     this.xml.puts("]]></exportComments>");
     this._writeFooter();
     LOG.debug("Finished export of Collection:" + info);
-  } // public synchronized void export(items, info)
+  } // public void export(items, info)
 
 
   // PROTECTED INSTANCE METHODS //
@@ -493,7 +493,7 @@ public class XmlExporter {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.1.0
-  private synchronized void _export(Owner o)
+  private void _export(Owner o)
     throws  GrouperException
   {
     try {
@@ -525,7 +525,7 @@ public class XmlExporter {
     catch (SubjectNotFoundException eSNF)   {
       throw new GrouperException(eSNF.getMessage(), eSNF);
     }
-  } // private synchronized void _export(o)
+  } // private void _export(o)
 
   // @since   1.0
   private String _fixGroupName(String name) {
@@ -764,7 +764,7 @@ public class XmlExporter {
   } // private void _writeFieldMetaData(f)
 
   // @since   1.1.0
-  private synchronized void _writeFooter()
+  private void _writeFooter()
     throws  IOException
   {
     Date    now       = new Date();
@@ -782,7 +782,7 @@ public class XmlExporter {
     this.xml.puts("</registry>");
     this.xml.puts();
     this.xml.close();
-  } // private synchronized _writeFooter()
+  } // private _writeFooter()
 
   // @since 1.1.0
   private void _writeGroup(Group g) 
@@ -1009,13 +1009,13 @@ public class XmlExporter {
   } // private void _writeGroupTypesMetaData()
 
   // @since   1.1.0
-  private synchronized void _writeHeader()
+  private void _writeHeader()
     throws  GrouperException,
             IOException 
   {
     this.xml.puts("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     this.xml.puts("<registry>");
-  } // private synchronized void _writeHeader()
+  } // private void _writeHeader()
 
   // @since   1.1.0
   private void _writeInternalAttribute(String attr, Long l)
