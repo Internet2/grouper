@@ -4,22 +4,20 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.51 2006-09-27 17:54:32 blair Exp $
+$Id: TODO.txt,v 1.52 2006-10-10 19:39:43 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
 
 ### Next Actions
-* BUGFIX    `XmlImporter.update()`
-* CODE      improved xml* integration (including logging)
-    * set "create" attributes
 * CODE      *HibernateSubject* should not throw *HibernateException*s
 * CODE      *GroupFinder.findByAttribute(s, attr, val)* [GCODE#14]
-* CODE      Expand functionality-and-use of `GrouperTest`
 * CODE      Refactor query cache configuration.  Add interface? Config toggle?
     * research using !default ehcache configuration file
     	* Configuration.setProperty("hibernate.cache.provider_class", "net.sf.hibernate.cache.EhCacheProvider").
+* BUGFIX    `XmlImporter.update()`
+* CODE      Expand functionality-and-use of `GrouperTest`
 * DOC       Migrate impl guide to wiki and export upon release
 
 ### Maybe
@@ -49,7 +47,7 @@ $Id: TODO.txt,v 1.51 2006-09-27 17:54:32 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.51 2006-09-27 17:54:32 blair Exp $
+$Id: TODO.txt,v 1.52 2006-10-10 19:39:43 blair Exp $
 
 
 

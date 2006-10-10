@@ -23,14 +23,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml10.java,v 1.3 2006-10-10 19:39:43 blair Exp $
+ * @version $Id: TestXml17.java,v 1.1 2006-10-10 19:39:43 blair Exp $
  * @since   1.1.0
  */
-public class TestXml10 extends GrouperTest {
+public class TestXml17 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXml10.class);
+  private static final Log LOG = LogFactory.getLog(TestXml17.class);
 
-  public TestXml10(String name) {
+  public TestXml17(String name) {
     super(name);
   }
 
@@ -43,8 +43,8 @@ public class TestXml10 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testGroupExportFalseFalseFullImportFullGroup() {
-    LOG.info("testGroupExportFalseFalseFullImportFullGroup");
+  public void testGroupExportTrueTrueFullImportFullGroup() {
+    LOG.info("testGroupExportTrueTrueFullImportFullGroup");
     try {
       // Populate Registry And Verify
       R     r   = R.populateRegistry(1, 2, 0);
@@ -71,25 +71,26 @@ public class TestXml10 extends GrouperTest {
       GrouperSession  s         = GrouperSession.start( SubjectFinder.findRootSubject() );
       Writer          w         = new StringWriter();
       XmlExporter     exporter  = new XmlExporter(s, new Properties());
-      exporter.export(w, GroupFinder.findByName(s, val_n), false, false);
+      exporter.export(w, GroupFinder.findByName(s, val_n), true, true);
       String          xml       = w.toString();
       s.stop();
 
       // Reset And Verify
       RegistryReset.reset();
-      s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      assertDoNotFindGroupByName(s, val_n);
-      s.stop();
+      r = R.populateRegistry(0, 0, 0);
+      assertFindStemByName(r.rs, "i2");
+      r.rs.stop();
 
       // Import 
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       XmlImporter importer = new XmlImporter(s, new Properties());
-      importer.load( XmlReader.getDocumentFromString(xml) );
+      importer.load( StemFinder.findByName(s, "i2"), XmlReader.getDocumentFromString(xml) );
       s.stop();
 
       // Verify
       s   = GrouperSession.start( SubjectFinder.findRootSubject() );
-      gA  = assertFindGroupByName(s, val_n);
+      assertFindStemByName(s, "i2:a");
+      gA = assertFindGroupByName(s, val_n);
       assertGroupHasAdmin( gA, SubjectFinder.findAllSubject(), has_a );
       assertGroupHasOptin( gA, SubjectFinder.findAllSubject(), has_oi );
       assertGroupHasOptout( gA, SubjectFinder.findAllSubject(), has_oo );
@@ -110,7 +111,7 @@ public class TestXml10 extends GrouperTest {
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testGroupExportFalseFalseFullImportFullGroup()
+  } // public void testGroupExportTrueTrueFullImportFullGroup()
 
-} // public class TestXml10
+} // public class TestXml17
 
