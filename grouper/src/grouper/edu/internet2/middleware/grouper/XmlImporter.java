@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.74 2006-10-05 19:40:45 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.75 2006-10-10 15:33:24 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -50,12 +50,6 @@ public class XmlImporter {
   private static final String MODE_ADD      = "add";
   private static final String MODE_IGNORE   = "ignore";
   private static final String MODE_REPLACE  = "replace";
-  private static final String RC_IFILE      = "import.file";
-  private static final String RC_NAME       = "owner.name";
-  private static final String RC_SUBJ       = "subject.identifier";
-  private static final String RC_UPROPS     = "properties.user";
-  private static final String RC_UPDATELIST = "update.list";
-  private static final String RC_UUID       = "owner.uuid";
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -146,13 +140,13 @@ public class XmlImporter {
    * @since   1.1.0
    */
   public static void main(String[] args) {
-    if (XmlUtils.wantsHelp(args)) {
+    if (XmlArgs.wantsHelp(args)) {
       System.out.println( _getUsage() );
       System.exit(0);
     }
     Properties rc = new Properties();
     try {
-      rc = _getArgs(args);
+      rc = XmlArgs.getXmlImportArgs(args);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -164,12 +158,12 @@ public class XmlImporter {
     try {
       importer  = new XmlImporter(
         GrouperSession.start(
-          SubjectFinder.findByIdentifier( rc.getProperty(RC_SUBJ) )
+          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ) )
         ),
-        XmlUtils.getUserProperties(LOG, rc.getProperty(RC_UPROPS))
+        XmlUtils.getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS))
       );
       _handleArgs(importer, rc);
-      LOG.debug("Finished import of [" + rc.getProperty(RC_IFILE) + "]");
+      LOG.debug("Finished import of [" + rc.getProperty(XmlArgs.RC_IFILE) + "]");
     }
     catch (Exception e) {
       LOG.fatal("unable to import from xml: " + e.getMessage());
@@ -305,67 +299,6 @@ public class XmlImporter {
   } // private Subject _findSubject(id, idfr, type)
 
   // @since   1.1.0
-  private static Properties _getArgs(String[] args) 
-    throws  IllegalArgumentException,
-            IllegalStateException
-  {
-    Properties rc = new Properties();
-
-    String  arg;
-    int     inputPos  = 0;
-    int     pos       = 0;
-
-    while (pos < args.length) {
-      arg = args[pos];
-      if (arg.startsWith("-")) {
-        if (arg.equals("-id")) {
-          if (rc.getProperty(RC_NAME) != null) {
-            throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
-          }
-          rc.setProperty(RC_UUID, args[pos + 1]);
-          pos += 2;
-          continue;
-        } 
-        else if (arg.equals("-name")) {
-          if (rc.getProperty(RC_UUID) != null) {
-            throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
-          }
-          rc.setProperty(RC_NAME, args[pos + 1]);
-          pos += 2;
-          continue;
-        } 
-        else if (arg.equals("-list")) {
-          rc.setProperty(RC_UPDATELIST, "true");
-          pos++;
-          continue;
-        } 
-        else {
-          throw new IllegalArgumentException(XmlUtils.E_UNKNOWN_OPTION + arg);
-        }
-      }
-      switch (inputPos) {
-      case 0:
-        rc.setProperty(RC_SUBJ, arg);
-        break;
-      case 1:
-        rc.setProperty(RC_IFILE, arg);
-        break;
-      case 2:
-        rc.setProperty(RC_UPROPS, arg);
-        break;
-      case 3:
-        throw new IllegalArgumentException("Too many arguments - " + arg);
-      }
-      pos++;
-      inputPos++;
-    }
-    if (inputPos < 1) {
-      throw new IllegalStateException("Too few arguments");
-    }
-    return rc;
-  } // private static Properties _getArgs(args)
-
-  // @since   1.1.0
   private static Document _getDocument(String filename) 
     throws  IOException,
             org.xml.sax.SAXException,
@@ -449,18 +382,18 @@ public class XmlImporter {
             org.xml.sax.SAXException,
             ParserConfigurationException
   {
-    Document doc = _getDocument( rc.getProperty(RC_IFILE) );
-    if (Boolean.getBoolean( rc.getProperty(RC_UPDATELIST) )) {
+    Document doc = _getDocument( rc.getProperty(XmlArgs.RC_IFILE) );
+    if (Boolean.getBoolean( rc.getProperty(XmlArgs.RC_UPDATELIST) )) {
       importer.update(doc);
     } 
     else {
-      if (rc.getProperty(RC_UUID) == null && rc.getProperty(RC_NAME) == null) {
+      if (rc.getProperty(XmlArgs.RC_UUID) == null && rc.getProperty(XmlArgs.RC_NAME) == null) {
         importer.load(doc);
       } 
       else {
         Stem    stem  = null;
-        String  uuid  = rc.getProperty(RC_UUID);
-        String  name  = rc.getProperty(RC_NAME);
+        String  uuid  = rc.getProperty(XmlArgs.RC_UUID);
+        String  name  = rc.getProperty(XmlArgs.RC_NAME);
         if (uuid != null) {
           try {
             stem = StemFinder.findByUuid(importer.s, uuid);

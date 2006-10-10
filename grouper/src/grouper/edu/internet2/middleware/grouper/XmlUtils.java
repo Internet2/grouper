@@ -26,14 +26,12 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.9 2006-10-04 15:03:52 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.10 2006-10-10 15:33:24 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
 
   // PROTECTED CLASS CONSTANTS //
-  protected static final String E_NAME_AND_UUID   = "cannot specify uuid and name";
-  protected static final String E_UNKNOWN_OPTION  = "unknown option: ";
   protected static final String SPECIAL_STAR      = "*";  // this seems to indicate relative import
                                                           // if at beginning of idfr but not at end
 
@@ -87,19 +85,6 @@ class XmlUtils {
     return false;
   } // protected static boolean isEmpty(obj)
   
-  // @since   1.1.0
-  protected static boolean wantsHelp(String[] args) {
-    if (
-      args.length == 0
-      || 
-      "--h --? /h /? --help /help ${cmd}".indexOf(args[0]) > -1
-    ) 
-    {
-      return true;
-    }
-    return false;
-  } // protected static void wantsHelp(args)
-
 
   // PRIVATE CLASS METHODS //
 

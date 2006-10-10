@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.69 2006-10-05 16:48:38 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.70 2006-10-10 15:33:24 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -44,13 +44,6 @@ public class XmlExporter {
   // PRIVATE CLASS CONSTANTS //  
   private static final String CF          = "export.properties"; 
   private static final Log    LOG         = LogFactory.getLog(XmlExporter.class);
-  private static final String RC_EFILE    = "export.file";
-  private static final String RC_NAME     = "owner.name";
-  private static final String RC_PARENT   = "mystery.parent";
-  private static final String RC_RELATIVE = "mystery.relative";
-  private static final String RC_SUBJ     = "subject.identifier";
-  private static final String RC_UPROPS   = "properties.user";
-  private static final String RC_UUID     = "owner.uuid";
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -203,13 +196,13 @@ public class XmlExporter {
    * @since   1.1.0
    */
   public static void main(String args[]) {
-    if (XmlUtils.wantsHelp(args)) {
+    if (XmlArgs.wantsHelp(args)) {
       System.out.println( _getUsage() );
       System.exit(0);
     }
     Properties rc = new Properties();
     try {
-      rc = _getArgs(args);
+      rc = XmlArgs.getXmlExportArgs(args);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -221,12 +214,12 @@ public class XmlExporter {
     try {
       exporter = new XmlExporter(
         GrouperSession.start(
-          SubjectFinder.findByIdentifier( rc.getProperty(RC_SUBJ) )
+          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ) )
         ),
-        XmlUtils.getUserProperties(LOG, rc.getProperty(RC_UPROPS) )
+        XmlUtils.getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS) )
       );
       _handleArgs(exporter, rc);
-      LOG.debug("Finished export to [" + rc.getProperty(RC_EFILE) + "]");
+      LOG.debug("Finished export to [" + rc.getProperty(XmlArgs.RC_EFILE) + "]");
     }
     catch (Exception e) {
       LOG.fatal("unable to export to xml: " + e.getMessage());
@@ -378,71 +371,6 @@ public class XmlExporter {
   // PRIVATE CLASS METHODS //
 
   // @since   1.1.0
-  private static Properties _getArgs(String args[])
-    throws  IllegalArgumentException,
-            IllegalStateException
-  {
-    Properties rc = new Properties();
-
-    String  arg;
-    int     inputPos  = 0;
-    int     pos       = 0;
-
-    while (pos < args.length) {
-      arg = args[pos];
-      if (arg.startsWith("-")) {
-        if (arg.equals("-id")) {
-          if (rc.getProperty(RC_NAME) != null) {
-            throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
-          }
-          rc.setProperty(RC_UUID, args[pos + 1]);
-          pos += 2;
-          continue;
-        } 
-        else if (arg.equals("-name")) {
-          if (rc.getProperty(RC_UUID) != null) {
-            throw new IllegalArgumentException(XmlUtils.E_NAME_AND_UUID);
-          }
-          rc.setProperty(RC_NAME, args[pos + 1]);
-          pos += 2;
-          continue;
-        } 
-        else if (arg.equals("-relative")) {
-          rc.setProperty(RC_RELATIVE, "true");
-          pos++;
-          continue;
-        } 
-        else if (arg.equalsIgnoreCase("-includeparent")) {
-          rc.setProperty(RC_PARENT, "true");
-          pos++;
-          continue;
-        } else {
-          throw new IllegalArgumentException(XmlUtils.E_UNKNOWN_OPTION + arg);
-        }
-      }
-      switch (inputPos) {
-      case 0:
-        rc.setProperty(RC_SUBJ, arg);
-        break;
-      case 1:
-        rc.setProperty(RC_EFILE, arg);
-        break;
-      case 2:
-        rc.setProperty(RC_UPROPS, arg);
-        break;
-      case 3:
-        throw new IllegalArgumentException("Too many arguments - " + arg);
-      }
-      pos++;
-      inputPos++;
-    }
-    if (inputPos < 1) {
-      throw new IllegalStateException("Too few arguments");
-    }
-    return rc;
-  } // private static Properties _getArgs(args)
-    
-  // @since   1.1.0
   private static Set _getListFieldsForGroup(Group g)
     throws  SchemaException 
   {
@@ -503,15 +431,15 @@ public class XmlExporter {
   private static void _handleArgs(XmlExporter exporter, Properties rc) 
     throws  Exception
   {
-    Writer writer = new PrintWriter( new FileWriter( rc.getProperty(RC_EFILE) ));
-    if (rc.getProperty(RC_UUID) == null && rc.getProperty(RC_NAME) == null) {
+    Writer writer = new PrintWriter( new FileWriter( rc.getProperty(XmlArgs.RC_EFILE) ));
+    if (rc.getProperty(XmlArgs.RC_UUID) == null && rc.getProperty(XmlArgs.RC_NAME) == null) {
       exporter.export(writer);
     } 
     else {
       Group group = null;
       Stem  stem  = null;
-      if (rc.getProperty(RC_UUID) != null) {
-        String uuid = rc.getProperty(RC_UUID);
+      if (rc.getProperty(XmlArgs.RC_UUID) != null) {
+        String uuid = rc.getProperty(XmlArgs.RC_UUID);
         try {
           group = GroupFinder.findByUuid(exporter.s, uuid);
           LOG.debug("Found group with uuid [" + uuid + "]");
@@ -530,7 +458,7 @@ public class XmlExporter {
         }
       } 
       else {
-        String name = rc.getProperty(RC_NAME);
+        String name = rc.getProperty(XmlArgs.RC_NAME);
         try {
           group = GroupFinder.findByName(exporter.s, name);
           LOG.debug("Found group with name [" + name + "]");
@@ -551,12 +479,12 @@ public class XmlExporter {
       if (group != null) {
         exporter.export(
           writer, group,
-          Boolean.valueOf(rc.getProperty(RC_RELATIVE)),
-          Boolean.valueOf(rc.getProperty(RC_PARENT))
+          Boolean.valueOf(rc.getProperty(XmlArgs.RC_RELATIVE)),
+          Boolean.valueOf(rc.getProperty(XmlArgs.RC_PARENT))
         );
       } 
       else {
-        exporter.export(writer, stem,   Boolean.valueOf(rc.getProperty(RC_RELATIVE)));
+        exporter.export(writer, stem,   Boolean.valueOf(rc.getProperty(XmlArgs.RC_RELATIVE)));
       }
     }
   } // private static void _handleArgs(exporter, rc)
