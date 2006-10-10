@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.71 2006-10-10 15:53:45 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.72 2006-10-10 16:43:07 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -294,70 +294,23 @@ public class XmlExporter {
   } // public void export(writer, ns, relative)
 
   /**
-   * Export a Collection of stems, groups, members, subjects or memberships
-   * <p/> 
-   * @param   items
-   * @param   info    allows you to indicate how the Collection was generated
-   * @throws  Exception
+   * Export a Collection of Stems, Groups, Members, Subjects or Memberships.
+   * <p>
+   * <b>NOTE:</b> <tt>XmlImporter</tt> cannot currently import the XML generated
+   * by this method.
+   * </p>
+   * @param   writer  Write XML here.
+   * @param   items   Collection to export.
+   * @param   msg     Comment to indicate how collection was generated.
+   * @throws  GrouperException
    * @since   1.1.0
    */
-  public void export(Collection items, String info) 
-    throws  Exception 
+  public void export(Writer writer, Collection items, String msg) 
+    throws  GrouperException 
   {
-    LOG.debug("Start export of Collection:" + info);
-
-    this.fromStem         = "_Z";
-    this._writeHeader();
-    int     counter       = 0;
-
-    if (this._isDataExportEnabled()) {
-      Iterator itemsIterator = items.iterator();
-      this.xml.puts("<dataList>");
-      Object obj;
-      while (itemsIterator.hasNext())       {
-        obj = itemsIterator.next();
-        counter++;
-        if      (obj instanceof Group)      {
-          this._writeGroup( (Group) obj);
-        } 
-        else if (obj instanceof Stem)       {
-          Stem stem = (Stem) obj;
-          this._writeStemHeader(stem);
-          this._writeInternalAttributes(stem);
-          this._writeStemPrivs(stem);
-          this._writeStemFooter(stem);
-        } 
-        else if (obj instanceof Subject)    {
-          if (counter == 1) {
-            this.xml.puts("<exportOnly/>");
-          }
-          this._writeSubject( (Subject) obj);
-        } 
-        else if (obj instanceof Member)     {
-          if (counter == 1) {
-            this.xml.puts("<exportOnly/>");
-          }
-          this._writeSubject( ((Member) obj).getSubject());
-        } 
-        else if (obj instanceof Membership) {
-          if (counter == 1) {
-            this.xml.puts("<exportOnly/>");
-          }
-          this._writeMembership( (Membership) obj);
-        } 
-        else {
-          LOG.error("Don't know about exporting " + obj);
-        }
-        this.xml.puts();
-      }
-      this.xml.puts("</dataList>");
-    }
-    this.xml.puts("<exportComments><![CDATA[");
-    this.xml.puts(info);
-    this.xml.puts("]]></exportComments>");
-    this._writeFooter();
-    LOG.debug("Finished export of Collection:" + info);
-  } // public void export(items, info)
+    this.xml = new XmlWriter(writer);
+    this._exportCollection(items, msg);
+  } // public void _export(items, msg)
 
 
   // PROTECTED INSTANCE METHODS //
@@ -526,6 +479,93 @@ public class XmlExporter {
       throw new GrouperException(eSNF.getMessage(), eSNF);
     }
   } // private void _export(o)
+
+  // @since   1.1.0
+  private void _exportCollection(Collection c, String msg) 
+    throws  GrouperException
+  {
+    try {
+      // TODO 20061010 refactor! refactor! refactor!
+      this.fromStem         = "_Z";
+      this._writeHeader();
+      int     counter       = 0;
+      if (this._isDataExportEnabled()) {
+        this.xml.indent();
+        this.xml.puts("<dataList>");
+        Iterator it = c.iterator();
+        Object obj;
+        while (it.hasNext())       {
+          obj = it.next();
+          counter++;
+          if      (obj instanceof Group)      {
+            this._writeGroup( (Group) obj);
+          } 
+          else if (obj instanceof Stem)       {
+            Stem stem = (Stem) obj;
+            this._writeStemHeader(stem);
+            this._writeInternalAttributes(stem);
+            this._writeStemPrivs(stem);
+            this._writeStemFooter(stem);
+          } 
+          else if (obj instanceof Subject)    {
+            if (counter == 1) {
+              this.xml.puts("<exportOnly/>");
+            }
+            this._writeSubject( (Subject) obj);
+          } 
+          else if (obj instanceof Member)     {
+            if (counter == 1) {
+              this.xml.puts("<exportOnly/>");
+            }
+            this._writeSubject( ((Member) obj).getSubject());
+          } 
+          else if (obj instanceof Membership) {
+            if (counter == 1) {
+              this.xml.puts("<exportOnly/>");
+            }
+            this._writeMembership( (Membership) obj);
+          } 
+          else {
+            LOG.error("Don't know about exporting " + obj);
+          }
+          this.xml.puts();
+        }
+        this.xml.puts("</dataList>");
+        this.xml.undent();
+        this.xml.puts();
+      }
+      this.xml.indent();
+      this.xml.puts("<exportComments><![CDATA[");
+      this.xml.indent();
+      this.xml.puts(msg);
+      this.xml.undent();
+      this.xml.puts("]]></exportComments>");
+      this.xml.undent();
+      this.xml.puts();
+      this._writeFooter();
+    }
+    catch (CompositeNotFoundException eCNF) {
+      throw new GrouperException(eCNF.getMessage(), eCNF);
+    }
+    catch (GroupNotFoundException eGNF)     {
+      throw new GrouperException(eGNF.getMessage(), eGNF);
+    }
+    catch (IOException eIO)                 {
+      throw new GrouperException(eIO.getMessage(), eIO);
+    }
+    catch (MemberNotFoundException eMNF)    {
+      throw new GrouperException(eMNF.getMessage(), eMNF);
+    }
+    catch (SchemaException eS)              {
+      throw new GrouperException(eS.getMessage(), eS);
+    }
+    catch (StemNotFoundException eNSNF)     {
+      throw new GrouperException(eNSNF.getMessage(), eNSNF);
+    }
+    catch (SubjectNotFoundException eSNF)   {
+      throw new GrouperException(eSNF.getMessage(), eSNF);
+    }
+  } // private void _exportCollection(c, msg)
 
   // @since   1.0
   private String _fixGroupName(String name) {
