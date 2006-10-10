@@ -23,14 +23,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml9.java,v 1.3 2006-10-10 18:47:18 blair Exp $
+ * @version $Id: TestXml12.java,v 1.1 2006-10-10 18:47:18 blair Exp $
  * @since   1.1.0
  */
-public class TestXml9 extends GrouperTest {
+public class TestXml12 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXml9.class);
+  private static final Log LOG = LogFactory.getLog(TestXml12.class);
 
-  public TestXml9(String name) {
+  public TestXml12(String name) {
     super(name);
   }
 
@@ -43,8 +43,8 @@ public class TestXml9 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testStemExportRootFalseFullImportFullStem() {
-    LOG.info("testStemExportRootFalseFullImportFullStem");
+  public void testStemExportRootTrueFullImportFullStem() {
+    LOG.info("testStemExportRootTrueFullImportFullStem");
     try {
       // Populate Registry And Verify
       R     r   = R.populateRegistry(2, 0, 0);
@@ -102,7 +102,7 @@ public class TestXml9 extends GrouperTest {
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testStemExportRootFalseFullImportFullStem()
+  } // public void testStemExportRootTrueFullImportFullStem()
 
-} // public class TestXml9
+} // public class TestXml12
 
