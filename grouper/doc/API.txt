@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.29 2006-10-03 19:29:36 blair Exp $
+$Id: API.txt,v 1.30 2006-10-10 16:43:07 blair Exp $
 
 ---
 
@@ -472,10 +472,9 @@ $Id: API.txt,v 1.29 2006-10-03 19:29:36 blair Exp $
 * XmlExporter           XmlExporter(Session, options)
 * void                  XmlExporter.main(args[])
 * void                  export(Writer)
+* void                  export(Writer, Collection, msg)
 * void                  export(Writer, Group, relative, includeParent)
 * void                  export(Writer, Stem, relative)
----
-* void                  export(Collection, info)
 
 ## XmlImporter - SUBJECT TO CHANGE!
 * XmlImporter           XmlImporter(Session, options)
