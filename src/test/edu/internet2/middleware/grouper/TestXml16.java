@@ -23,14 +23,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml10.java,v 1.3 2006-10-10 19:39:43 blair Exp $
+ * @version $Id: TestXml16.java,v 1.1 2006-10-10 19:39:43 blair Exp $
  * @since   1.1.0
  */
-public class TestXml10 extends GrouperTest {
+public class TestXml16 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXml10.class);
+  private static final Log LOG = LogFactory.getLog(TestXml16.class);
 
-  public TestXml10(String name) {
+  public TestXml16(String name) {
     super(name);
   }
 
@@ -43,8 +43,8 @@ public class TestXml10 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testGroupExportFalseFalseFullImportFullGroup() {
-    LOG.info("testGroupExportFalseFalseFullImportFullGroup");
+  public void testGroupExportFalseTrueFullImportFullGroup() {
+    LOG.info("testGroupExportFalseTrueFullImportFullGroup");
     try {
       // Populate Registry And Verify
       R     r   = R.populateRegistry(1, 2, 0);
@@ -71,7 +71,7 @@ public class TestXml10 extends GrouperTest {
       GrouperSession  s         = GrouperSession.start( SubjectFinder.findRootSubject() );
       Writer          w         = new StringWriter();
       XmlExporter     exporter  = new XmlExporter(s, new Properties());
-      exporter.export(w, GroupFinder.findByName(s, val_n), false, false);
+      exporter.export(w, GroupFinder.findByName(s, val_n), false, true);
       String          xml       = w.toString();
       s.stop();
 
@@ -110,7 +110,7 @@ public class TestXml10 extends GrouperTest {
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testGroupExportFalseFalseFullImportFullGroup()
+  } // public void testGroupExportFalseTrueFullImportFullGroup()
 
-} // public class TestXml10
+} // public class TestXml16
 
