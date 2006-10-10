@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.19 2006-09-11 18:14:47 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.20 2006-10-10 15:50:40 blair Exp $
  */
 public class GrouperQuery {
 
@@ -124,42 +124,18 @@ public class GrouperQuery {
   public Set getMembers() 
     throws QueryException
   {
-    Set       members     = new LinkedHashSet();
-    Set       mships      = new LinkedHashSet();
-    Set       candidates  = this.filter.getResults(this.s);
-    Object    o;
-    Iterator  iter        = candidates.iterator();
-    while (iter.hasNext()) {
-      o = iter.next();
-      if      (o.getClass().equals(Group.class))      {
-        mships.addAll( ( (Group) o ).getMemberships() );
-      }
-      else if (o.getClass().equals(Membership.class)) {
-        try {
-          // Add directly to return set
-          members.add( ( (Membership) o ).getMember() );
-        }
-        catch (MemberNotFoundException eMNF) {
-          ErrorLog.error(GrouperQuery.class, eMNF.getMessage());
-        }
-      }
-      else {
-        ErrorLog.error(GrouperQuery.class, E.NI + E.Q_M + o.getClass());
-      }
-    }
-    // Now extract members from any memberships we found
+    Set         members = new LinkedHashSet();
+    Membership  ms;
+    // Retrieve Memberships found by this query and then retrieve Member from // each
     try {
-      Membership  ms;
-      Iterator    iterMS  = mships.iterator();
-      while (iterMS.hasNext()) {
-        ms = (Membership) iterMS.next();
+      Iterator it = this.getMemberships().iterator();
+      while (it.hasNext()) {
+        ms = (Membership) it.next();
         members.add( ms.getMember() );
       }
     }
     catch (MemberNotFoundException eMNF) {
-      throw new QueryException(
-        "unable to retrieve members: " + eMNF.getMessage(), eMNF
-      );
+      throw new QueryException("unable to retrieve members: " + eMNF.getMessage(), eMNF);
     }
     return members;
   } // public Set getMembers()

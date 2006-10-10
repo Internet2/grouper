@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.28 2006-09-27 14:15:29 blair Exp $
+ * @version $Id: StemFinder.java,v 1.29 2006-10-10 15:50:40 blair Exp $
  */
 public class StemFinder {
 
@@ -288,62 +288,32 @@ public class StemFinder {
   protected static Set findByCreatedAfter(GrouperSession s, Date d) 
     throws QueryException 
   {
-    List stems = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Stem as ns where ns.create_time > :time"
-      );
+      Query   qry = hs.createQuery("from Stem as ns where ns.create_time > :time");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByCreatedAfter");
-      qry.setLong("time", d.getTime());
-      List    l   = qry.list();
-      hs.close();
-      Stem      ns;
-      Iterator  iter = l.iterator();
-      while (iter.hasNext()) {
-        ns = (Stem) iter.next();
-        ns.setSession(s);
-        stems.add(ns);
-      }
+      return _findByDate(s, hs, qry, d);
     }
     catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding stems: " + eH.getMessage(), eH
-      );  
+      throw new QueryException("error finding stems: " + eH.getMessage(), eH);  
     }
-    return new LinkedHashSet(stems);
   } // protected static Set findByCreatedAfter(s, d)
 
   // @return  stems created before this date
   protected static Set findByCreatedBefore(GrouperSession s, Date d) 
     throws QueryException 
   {
-    List stems = new ArrayList();
     try {
       Session   hs    = HibernateHelper.getSession();
-      Query     qry   = hs.createQuery(
-        "from Stem as ns where ns.create_time < :time"
-      );
+      Query     qry   = hs.createQuery("from Stem as ns where ns.create_time < :time");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByCreatedBefore");
-      qry.setLong("time", d.getTime());
-      List      l     = qry.list();
-      hs.close();
-      Stem      ns;
-      Iterator  iter = l.iterator();
-      while (iter.hasNext()) {
-        ns = (Stem) iter.next();
-        ns.setSession(s);
-        stems.add(ns);
-      }
+      return _findByDate(s, hs, qry, d);
     }
     catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding stems: " + eH.getMessage(), eH
-      );  
+      throw new QueryException("error finding stems: " + eH.getMessage(), eH);  
     }
-    return new LinkedHashSet(stems);
   } // protected static Set findByCreatedBefore(s, d)
 
   protected static Stem findByUuid(String uuid)
@@ -432,5 +402,26 @@ public class StemFinder {
     return false;
   } // protected static boolean isChild(ns, stem)
 
-}
+
+  // PRIVATE CLASS METHODS //
+
+  // @since   1.1.0
+  private static Set _findByDate(GrouperSession s, Session hs, Query qry, Date d)
+    throws  HibernateException
+  {
+    qry.setLong( "time", d.getTime() );
+    List        l     = qry.list();
+    hs.close();
+    Stem        ns;
+    Set         stems = new LinkedHashSet();
+    Iterator    it    = l.iterator();
+    while (it.hasNext()) {
+      ns = (Stem) it.next();
+      ns.setSession(s);
+      stems.add(ns);
+    }
+    return stems;
+  } // private static Set _findByDate(s, hs, qry, d)
+
+} // public class StemFinder
 
