@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGFinder2.java,v 1.1 2006-10-11 18:16:09 blair Exp $
+ * @version $Id: TestGFinder2.java,v 1.2 2006-10-11 18:20:24 blair Exp $
  * @since   1.1.0
  */
 public class TestGFinder2 extends GrouperTest {
@@ -43,7 +43,7 @@ public class TestGFinder2 extends GrouperTest {
   public void testFailToFindGroupByAttributeNullSession() {
     LOG.info("testFailToFindGroupByAttributeNullSession");
     try {
-      R r = R.populateRegistry(0, 0, 0);
+      R.populateRegistry(0, 0, 0);
       GroupFinder.findByAttribute(null, "description", "i2:a:a");
       fail("failed to throw IllegalArgumentException");
     }
