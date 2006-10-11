@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.6 2006-09-21 16:10:23 blair Exp $
+ * @version $Id: T.java,v 1.7 2006-10-11 14:15:03 blair Exp $
  * @since   1.0
  */
 public class T {
@@ -46,9 +46,9 @@ public class T {
   } // protected static void amount(msg, exp, got)
 
   // @since   1.0
+  // TODO 20061011 deprecate in favor of `GrouperTest.e(e)`
   protected static void e(Exception e) {
-    e.printStackTrace();
-    Assert.fail("UNEXPECTED EXCEPTION: " + e.getMessage());
+    GrouperTest.e(e);
   } // protected static void e(e)
 
   // @since   1.1.0
