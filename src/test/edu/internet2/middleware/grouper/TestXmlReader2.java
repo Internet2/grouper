@@ -18,14 +18,11 @@
 package edu.internet2.middleware.grouper;
 import  java.io.*;
 import  java.util.Properties;
-import  javax.xml.parsers.*;
 import  org.apache.commons.logging.*;
-import  org.w3c.dom.*;
-import  org.xml.sax.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlReader2.java,v 1.1 2006-10-11 15:35:43 blair Exp $
+ * @version $Id: TestXmlReader2.java,v 1.2 2006-10-11 15:40:40 blair Exp $
  * @since   1.1.0
  */
 public class TestXmlReader2 extends GrouperTest {
