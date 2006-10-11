@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.31 2006-10-11 13:10:10 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.32 2006-10-11 18:16:09 blair Exp $
  */
 public class GroupFinder {
 
@@ -32,6 +32,56 @@ public class GroupFinder {
   
   
   // PUBLIC INSTANCE METHODS //
+
+  /**
+   * Find <tt>Group</tt> by attribute value.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByAttribute(s, "description", "some value");
+   * }
+   * catch (GroupNotFoundException eGNF) {
+   * }
+   * </pre>
+   * @param   s     Search within this session context.
+   * @param   attr  Search on this attribute.
+   * @param   val   Search for this value.
+   * @return  Matching {@link Group}.
+   * @throws  GroupNotFoundException
+   * @throws  IllegalArgumentException
+   * @since   1.1.0
+   */
+  public static Group findByAttribute(GrouperSession s, String attr, String val)
+    throws  GroupNotFoundException,
+            IllegalArgumentException
+  {
+    Validator.argNotNull( s,    "null session"   );
+    Validator.argNotNull( attr, "null attribute" );
+    Validator.argNotNull( val,  "null value"     );
+    try {
+      Group   g   = null;
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Attribute as a where a.field.name = :field and a.value like :value"
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindByAttribute");
+      qry.setString("field", attr);
+      qry.setString("value", val);
+      Attribute a = (Attribute) qry.uniqueResult();
+      hs.close();
+      if (a != null) {
+        g = a.getGroup();
+        g.setSession(s);
+        if (s.getMember().canView(g)) {
+          return g;
+        }
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GroupNotFoundException(E.NO_GROUP_BY_ATTR + eH.getMessage(), eH);
+    }
+    throw new GroupNotFoundException(E.NO_GROUP_BY_ATTR + U.q(attr));
+  } // public static Group findByAttribute(s, attr, val)
 
   /**
    * Find a group within the registry by name.

@@ -24,7 +24,7 @@ import  junit.framework.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.5 2006-10-11 14:15:03 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.6 2006-10-11 18:16:09 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -45,6 +45,19 @@ public class GrouperTest extends TestCase {
 
 
   // PUBLIC INSTANCE METHODS //
+
+  /**
+   * @since   1.1.0
+   */
+  public void assertDoNotFindGroupByAttribute(GrouperSession s, String attr, String val) {
+    try {
+      GroupFinder.findByAttribute(s, attr, val);
+      fail("unexpected found group by attribute(" + attr + ")=value(" + val + ")");
+    }
+    catch (GroupNotFoundException eGNF) {
+      assertTrue(true);
+    }
+  } // public void assertDoNotFindGroupByAttribute(s, attr, val)
 
   /**  
    * @since   1.1.0
@@ -86,6 +99,22 @@ public class GrouperTest extends TestCase {
     } 
     return f;
   } // public Field assertFindField(name)
+
+  /**
+   * @return  Retrieved {@link Group}.
+   * @since   1.1.0
+   */
+  public Group assertFindGroupByAttribute(GrouperSession s, String attr, String val) {
+    Group g = null;
+    try {
+      g = GroupFinder.findByAttribute(s, attr, val);
+      assertTrue(true);
+    }
+    catch (GroupNotFoundException eGNF) {
+      fail("did not find group by attribute(" + attr + ")=value(" + val + ")");
+    }
+    return g;
+  } // public Group assertFindGroupByAttribute(s, attr, val)
 
   /**  
    * @return  Retrieved {@link Group}.

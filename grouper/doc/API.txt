@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.33 2006-10-11 15:35:42 blair Exp $
+$Id: API.txt,v 1.34 2006-10-11 18:16:09 blair Exp $
 
 ---
 
@@ -230,12 +230,14 @@ $Id: API.txt,v 1.33 2006-10-11 15:35:42 blair Exp $
 * void                  stop()
 
 ## GrouperTest - SUBJECT TO CHANGE
-* void                  assertDoNotFindGroupByName(Session, name)
-* void                  assertDoNotFindStemByName(Session, name)
+* void                  assertDoNotFindGroupByAttribute(GrouperSession, attr, val)
+* void                  assertDoNotFindGroupByName(GrouperSession, name)
+* void                  assertDoNotFindStemByName(GrouperSession, name)
 * Field                 assertFindField(name)
-* Group                 assertFindGroupByName(Session, name)
+* Group                 assertFindGroupByAttribute(GrouperSession, attr, val)
+* Group                 assertFindGroupByName(GrouperSession, name)
 * GroupType             assertFindGroupType(name)
-* Stem                  assertFindStemByName(Session, name)
+* Stem                  assertFindStemByName(GrouperSession, name)
 * void                  assertGroupAttribute(Group, attr, exp)
 * void                  assertGroupCreateSubject(Group, Subject)
 * void                  assertGroupCreateTime(Group, Date)
@@ -266,6 +268,7 @@ $Id: API.txt,v 1.33 2006-10-11 15:35:42 blair Exp $
 * void                  assertStemUuid(Stem, uuid)
 
 ## GroupFinder
+* Group                 GroupFinder.findByAttribute(GrouperSession, attr, val)
 * Group                 GroupFinder.findByName(GrouperSession, name)
 * Group                 GroupFinder.findByUuid(GrouperSession, uuid)
 
@@ -469,7 +472,7 @@ $Id: API.txt,v 1.33 2006-10-11 15:35:42 blair Exp $
 ## UnionFilter extends BaseQueryFilter
 
 ## XmlExporter - SUBJECT TO CHANGE!
-* XmlExporter           XmlExporter(Session, options)
+* XmlExporter           XmlExporter(GrouperSession, options)
 * void                  XmlExporter.main(args[])
 * void                  export(Writer)
 * void                  export(Writer, Collection, msg)
@@ -477,7 +480,7 @@ $Id: API.txt,v 1.33 2006-10-11 15:35:42 blair Exp $
 * void                  export(Writer, Stem, relative)
 
 ## XmlImporter - SUBJECT TO CHANGE!
-* XmlImporter           XmlImporter(Session, options)
+* XmlImporter           XmlImporter(GrouperSession, options)
 * void                  XmlImporter.main(args[])
 * void                  load(Document)
 * void                  load(Stem, Document)

@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test Groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteGroups.java,v 1.13 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: SuiteGroups.java,v 1.14 2006-10-11 18:16:09 blair Exp $
  */
 public class SuiteGroups extends TestCase {
 
@@ -34,6 +34,7 @@ public class SuiteGroups extends TestCase {
     TestSuite suite = new TestSuite();        
     suite.addTest(      SuiteAddMember.suite()  );
     suite.addTest(      SuiteGAttrs.suite()     );
+    suite.addTest(      SubSuiteGFinder.suite() );  // `GroupFinder`
     suite.addTestSuite( TestGroup0.class        );  // delete member group
     suite.addTestSuite( TestGroup1.class        );  // delete member group with non-group member
     suite.addTestSuite( TestGroup2.class        );  // delete member from group that is member
@@ -84,5 +85,5 @@ public class SuiteGroups extends TestCase {
     return suite;
   } // static public Test suite()
 
-}
+} // public class SuiteGroups
 
