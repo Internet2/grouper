@@ -37,7 +37,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.78 2006-10-11 15:40:40 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.79 2006-10-11 16:12:38 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -48,6 +48,8 @@ public class XmlImporter {
   private static final String MODE_ADD      = "add";
   private static final String MODE_IGNORE   = "ignore";
   private static final String MODE_REPLACE  = "replace";
+  private static final String SPECIAL_C     = "c"; // i'm assuming this refers to a composite mship
+  private static final String SPECIAL_E     = "e"; // i'm assuming this refers to an effective mship
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -952,7 +954,7 @@ public class XmlImporter {
     }
     this._setUuid(child, e);
     this._setInternalAttributes(child, e);
-    this.importedGroups.put(child.getName(), "c"); // TODO 20060922 "c"?
+    this.importedGroups.put( child.getName(), SPECIAL_C );
   } // private void _processGroupCreate(e, stem)
 
   // @since   1.1.0
@@ -1011,8 +1013,7 @@ public class XmlImporter {
         g.setDisplayExtension(desc);
       }
     }
-    // TODO 20060922 "e"?
-    this.importedGroups.put( g.getName(), "e" );
+    this.importedGroups.put( g.getName(), SPECIAL_E );
   } // private void _processGroupUpdate(e, newGroup)
 
   // @since   1.1.0
@@ -1379,7 +1380,6 @@ public class XmlImporter {
   } // private void _processPaths(e, stem)
 
   // @since   1.1.0
-  // TODO 20060921 test
   private void _processProperties() 
     throws  GrouperException
   {
@@ -1390,7 +1390,6 @@ public class XmlImporter {
     if (xmlOptions == null) {
       return;
     }
-    LOG.debug("Merging user supplied options with XML options. Former take precedence");
     xmlOptions.putAll(this.options);  // add current to xml
     this.options = xmlOptions;        // replace current with merged options
   } // private void _processProperties()
