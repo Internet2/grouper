@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.131 2006-10-05 19:34:51 blair Exp $ -->
+<!-- $Id: build.xml,v 1.132 2006-10-11 17:24:40 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -656,6 +656,7 @@
           depends="ensure-cmd"        
   >
     <java fork="true"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.XmlExporter"
           failonerror="true"
@@ -671,6 +672,7 @@
           depends="ensure-cmd"        
   >
     <java fork="true"
+          maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.XmlImporter"
           failonerror="true"
