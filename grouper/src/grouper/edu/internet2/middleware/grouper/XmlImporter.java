@@ -18,12 +18,10 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
-import  java.net.*;
 import  java.text.DateFormat;
 import  java.text.SimpleDateFormat;
 import  java.text.ParseException;
 import  java.util.*;
-import  javax.xml.parsers.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.logging.*;
 import  org.w3c.dom.*;
@@ -39,7 +37,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.77 2006-10-11 15:35:42 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.78 2006-10-11 15:40:40 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
