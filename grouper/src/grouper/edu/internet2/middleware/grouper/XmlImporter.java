@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.75 2006-10-10 15:33:24 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.76 2006-10-11 14:53:26 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -391,36 +391,27 @@ public class XmlImporter {
         importer.load(doc);
       } 
       else {
-        Stem    stem  = null;
+        Stem    ns    = null;
         String  uuid  = rc.getProperty(XmlArgs.RC_UUID);
         String  name  = rc.getProperty(XmlArgs.RC_NAME);
-        if (uuid != null) {
+        if      (uuid != null) {
           try {
-            stem = StemFinder.findByUuid(importer.s, uuid);
-            LOG.debug("Found stem with uuid [" + uuid + "]");
+            ns = StemFinder.findByUuid(importer.s, uuid);
           } catch (StemNotFoundException e) {
-            // TODO 20060920 empty catch
+            throw new IllegalArgumentException(E.NO_STEM_UUID + U.q(uuid));
           }
         } 
-        else {
+        else if (name != null) {
           try {
-            stem = StemFinder.findByName(importer.s, name);
-            LOG.debug("Found stem with name [" + name + "]");
+            ns = StemFinder.findByName(importer.s, name);
           } catch (StemNotFoundException e) {
-            // TODO 20060920 empty catch
+            throw new IllegalArgumentException(E.NO_STEM_NAME + U.q(name));
           }
         }
-        if (stem == null) {
-          if (name != null) {
-            throw new IllegalArgumentException(
-              "Could not find stem with name [" + name + "]"
-            );
-          }
-          throw new IllegalArgumentException(
-            "Could not find stem with id [" + uuid + "]"
-          );
+        if (ns == null) {
+          throw new IllegalArgumentException(E.NO_STEM);
         }
-        importer.load(stem, doc);
+        importer.load(ns, doc);
       }
     } 
   } // private static void _handleArgs(importer, rc);
