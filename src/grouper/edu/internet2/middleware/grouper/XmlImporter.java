@@ -37,7 +37,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.79 2006-10-11 16:12:38 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.80 2006-10-11 16:16:40 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -589,13 +589,8 @@ public class XmlImporter {
   } // private boolean _isSubjectElementImmediate(el)
 
   // @since   1.1.0
-  private boolean _isUpdatingAttributes(Element e) {
-    // TODO 20060922 switch over to this method
-    String update = e.getAttribute("updateAttributes");
-    if (XmlUtils.isEmpty(update)) {
-      update = this.options.getProperty("import.data.update-attributes");
-    }
-    return Boolean.getBoolean(update); 
+  private boolean _isUpdatingAttributes() {
+    return XmlUtils.getBooleanOption(this.options, "import.data.update-attributes");
   } // private boolean _isUpdatingAttributes()
 
   // @since   1.1.0
@@ -846,7 +841,7 @@ public class XmlImporter {
       if (
             Validator.isNotNullOrBlank(val)
         &&  !val.equals(orig)
-        &&  ( XmlUtils.isEmpty(orig) || this._optionTrue("import.data.update-attributes") ) 
+        &&  ( XmlUtils.isEmpty(orig) || this._isUpdatingAttributes() )
       )
       {
         g.setAttribute(name, val);
@@ -1003,7 +998,7 @@ public class XmlImporter {
     // GroupNotFoundException can be thrown if the stem does not exist.  That
     // will trigger the creation of the group.
     Group g = GroupFinder.findByName(this.s, newGroup);
-    if (this._isUpdatingAttributes(e)) {
+    if (this._isUpdatingAttributes()) {
       String dExtn  = e.getAttribute(GrouperConfig.ATTR_DE);
       if (!XmlUtils.isEmpty(dExtn) && !dExtn.equals(g.getDisplayExtension())) {
         g.setDisplayExtension(dExtn);
@@ -1344,7 +1339,7 @@ public class XmlImporter {
     // StemNotFoundException can be thrown if the stem does not exist.  That
     // will trigger the creation of the stem.
     Stem ns = StemFinder.findByName(this.s, newStem);
-    if (this._isUpdatingAttributes(e)) {
+    if (this._isUpdatingAttributes()) {
       String dExtn  = e.getAttribute(GrouperConfig.ATTR_DE);
       if (!XmlUtils.isEmpty(dExtn) && !dExtn.equals(ns.getDisplayExtension())) {
         ns.setDisplayExtension(dExtn);
