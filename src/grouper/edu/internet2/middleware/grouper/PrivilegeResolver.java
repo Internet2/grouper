@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.70 2006-09-26 15:15:09 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.71 2006-10-11 14:35:10 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -381,7 +381,7 @@ import  java.util.*;
       rv = el.getHasPriv(); // use cached result
     }
     else {
-      try { // TODO Eliminate the try/catch
+      try { // TODO 20061011 Eliminate the try/catch
         if (
              RootPrivilegeResolver.isRoot(s, subj)
           || getAccess().hasPriv(s, g, subj, priv)
@@ -410,7 +410,7 @@ import  java.util.*;
       rv = el.getHasPriv(); // use cached result
     }
     else {
-      try { // TODO Eliminate the try/catch
+      try { // TODO 20061011 Eliminate the try/catch
         if (
              RootPrivilegeResolver.isRoot(s, subj)
           || getNaming().hasPriv(s, ns, subj, priv)

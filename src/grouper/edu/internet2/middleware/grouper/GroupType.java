@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.27 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: GroupType.java,v 1.28 2006-10-11 14:35:10 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -223,7 +223,7 @@ public class GroupType implements Serializable {
       throw new InsufficientPrivilegeException(msg);
     }
     try {
-      // TODO I **really** should not need to drop down to JDBC for this
+      // TODO 20061011 I *really* should not need to drop down to JDBC for this
       //      And, of course, I can't even iterate through this type's
       //      fields to check if they are in use - because it might not
       //      have any fields!
@@ -249,7 +249,7 @@ public class GroupType implements Serializable {
       HibernateHelper.delete(this);
       sw.stop();
       EventLog.info(s, M.GROUPTYPE_DEL + U.q(typeName), sw);
-      // TODO Now update the cached types + fields
+      // TODO 20061011 Now update the cached types + fields
       GroupTypeFinder.updateKnownTypes();
       FieldFinder.updateKnownFields();
     }

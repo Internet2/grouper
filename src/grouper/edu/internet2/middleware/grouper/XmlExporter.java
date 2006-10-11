@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.73 2006-10-10 18:47:18 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.74 2006-10-11 14:35:10 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -185,7 +185,7 @@ public class XmlExporter {
     this.options.putAll(userOptions); 
     this.s          = s;
     this.startTime  = new Date();
-    this.sysUser    = SubjectFinder.findRootSubject(); // TODO ?
+    this.sysUser    = SubjectFinder.findRootSubject(); // TODO 20061011 ?
   } // public XmlExporter(s, userOptions)
 
   

@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.33 2006-09-13 14:41:11 blair Exp $
+ * @version $Id: MemberOf.java,v 1.34 2006-10-11 14:35:10 blair Exp $
  */
 class MemberOf {
 
@@ -103,17 +103,16 @@ class MemberOf {
   )
     throws  ModelException
   {
-    //  TODO  In theory I shouldn't need to pass along `o` as I can just get it 
+    //  TODO  20061011 In theory I shouldn't need to pass along `o` as I can just get it 
     //        via `c.getOwner()` *but* `TestGroup36` throws a `HibernateException`
     //        when I retrieve `o` that way.
     
-    //  TODO  I'm really uncertain about this code.  Expect it to be
+    //  TODO  20061011 I'm really uncertain about this code.  Expect it to be
     //        both flawed and evolving for quite some time.
     
     MemberOf  mof   = new MemberOf(s, o, c);
 
-    //  Delete this group's members
-    //  TODO  I have performance concerns with this code
+    // Delete this group's members
     Membership  ms;
     Iterator    iterH = ( (Group) o ).getMemberships().iterator();
     while (iterH.hasNext()) {

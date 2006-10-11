@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteAccessPrivs.java,v 1.4 2006-09-13 15:52:09 blair Exp $
+ * @version $Id: SuiteAccessPrivs.java,v 1.5 2006-10-11 14:35:10 blair Exp $
  * @since   1.1.0
  */
 public class SuiteAccessPrivs extends TestCase {
@@ -34,7 +34,7 @@ public class SuiteAccessPrivs extends TestCase {
     suite.addTestSuite( TestPrivAdmin0.class  );  // Still have VIEW after revocation due to GrouperAll
     suite.addTestSuite( TestPrivAdmin1.class  );  // delete attrs w/ ADMIN
     suite.addTestSuite( TestPrivAdmin2.class  );  // delete attrs w/ all ADMIN
-    // TODO CONVERT
+    // TODO 20061011 CONVERT
     suite.addTestSuite( TestAccessPrivilege.class );
     suite.addTestSuite( TestPrivADMIN.class       );
     suite.addTestSuite( TestPrivOPTIN.class       );

@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.21 2006-09-20 19:20:46 blair Exp $
+ * @version $Id: Composite.java,v 1.22 2006-10-11 14:35:10 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -258,7 +258,7 @@ public class Composite extends Owner {
 
   // @since 1.0
   protected void update() {
-    //  TODO  Assuming this is actually correct I am sure it can be
+    //  TODO  20061011 Assuming this is actually correct I am sure it can be
     //        improved upon.  At least it isn't as bad as the first
     //        (functional) approach taken.  Or even the second, third
     //        or fourth approaches!

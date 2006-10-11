@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateSubject.hbm.xml,v 1.4 2006-07-11 15:21:33 blair Exp $ -->
+<!-- $Id: HibernateSubject.hbm.xml,v 1.5 2006-10-11 14:35:10 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="HibernateSubject" table="Subject">
@@ -67,7 +67,7 @@
     <!-- name -->
 
     <!-- attributes -->
-<!-- TODO
+<!-- TODO 20061011 enable
     <set  name="attributes"
           cascade="none"
     >

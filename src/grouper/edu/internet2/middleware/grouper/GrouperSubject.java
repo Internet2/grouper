@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.25 2006-09-21 16:10:23 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.26 2006-10-11 14:35:10 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -60,7 +60,7 @@ public class GrouperSubject implements Subject {
    * @since 1.0
    */
   public boolean equals(Object other) {
-    // TODO I should modify *SubjectHelper.eq(this, other)* so that I can just call that.
+    // TODO 20061011 I should modify *SubjectHelper.eq(this, other)* so that I can just call that.
     if (this == other) {
       return true;
     }

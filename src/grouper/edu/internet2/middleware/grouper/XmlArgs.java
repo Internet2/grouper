@@ -22,7 +22,7 @@ import  java.util.Properties;
  * XML Command Line Argument Processing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlArgs.java,v 1.2 2006-10-11 13:10:10 blair Exp $
+ * @version $Id: XmlArgs.java,v 1.3 2006-10-11 14:35:10 blair Exp $
  * @since   1.1.0
  */
 class XmlArgs {
@@ -55,7 +55,7 @@ class XmlArgs {
     throws  IllegalArgumentException,
             IllegalStateException
   {
-    // TODO 2061010 DRY `getXmlImportArgs()`
+    // TODO 20061010 DRY `getXmlImportArgs()`
     Properties  rc        = new Properties();
     String      arg;
     int         inputPos  = 0;

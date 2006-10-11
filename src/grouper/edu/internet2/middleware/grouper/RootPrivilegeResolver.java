@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Privilege resolution (as root) class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RootPrivilegeResolver.java,v 1.5 2006-09-13 17:35:55 blair Exp $
+ * @version $Id: RootPrivilegeResolver.java,v 1.6 2006-10-11 14:35:10 blair Exp $
  * @since   1.1.0
  */
  class RootPrivilegeResolver extends PrivilegeResolver {
@@ -60,7 +60,7 @@ import  edu.internet2.middleware.subject.*;
   } // protected static boolean isRoot(s)
 
   // @since   1.1.0
-  // TODO `PrivilegeResolver.hasPriv()` still requires this variant.
+  // TODO 20061011 `PrivilegeResolver.hasPriv()` still requires this variant.
   //      `TestMember???` is an example test that fails otherwise.
   protected static boolean isRoot(GrouperSession s, Subject subj) {
     boolean rv    = false;

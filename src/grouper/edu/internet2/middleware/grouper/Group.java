@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.107 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: Group.java,v 1.108 2006-10-11 14:35:10 blair Exp $
  */
 public class Group extends Owner {
 
@@ -504,7 +504,7 @@ public class Group extends Owner {
       Field f = FieldFinder.find(attr);
       GroupValidator.canDelAttribute(this, f);
 
-      // TODO I'm not comfortable with this code
+      // TODO 20061011 REFACTOR: I'm not comfortable with this code
       Set       saves   = new LinkedHashSet();
       Set       deletes = new LinkedHashSet();
       Set       attrs   = new LinkedHashSet();
@@ -1938,7 +1938,7 @@ public class Group extends Owner {
       sw.start();
       Field f = GroupValidator.canSetAttribute(this, attr, value);
 
-      // TODO I'm not comfortable with this code
+      // TODO 20061011 REFACTOR: I'm not comfortable with this code
       Set       attrs = new LinkedHashSet();
       boolean   found = false; // So we know if we are adding or updating
       Attribute a;

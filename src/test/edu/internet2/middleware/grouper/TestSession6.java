@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession6.java,v 1.3 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: TestSession6.java,v 1.4 2006-10-11 14:35:10 blair Exp $
  */
 public class TestSession6 extends TestCase {
 
@@ -48,7 +48,7 @@ public class TestSession6 extends TestCase {
     try {
       GrouperSession  s   = GrouperSession.start( SubjectFinder.findRootSubject());
       GrouperSession  rs  = s.getRootSession();
-      // TODO I don't think I should allow this but the code is too tangled to fix at the moment
+      // TODO 20061011 I don't think I should allow this but the code is too tangled to fix at the moment
       rs.getRootSession();
       Assert.assertTrue("got inner session within inner session", true);
       s.stop();
