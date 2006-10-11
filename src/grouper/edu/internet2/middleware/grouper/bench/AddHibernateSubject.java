@@ -21,10 +21,14 @@ import  edu.internet2.middleware.grouper.*;
 /**
  * Benchmark adding a {@link HibernateSubject}.
  * @author  blair christensen.
- * @version $Id: AddHibernateSubject.java,v 1.3 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: AddHibernateSubject.java,v 1.4 2006-10-11 14:17:58 blair Exp $
  * @since   1.1.0
  */
 public class AddHibernateSubject extends BaseGrouperBenchmark {
+
+  // PRIVATE INSTANCE VARIABLES //
+  GrouperSession s;
+
 
   // MAIN //
   public static void main(String args[]) {
@@ -47,11 +51,25 @@ public class AddHibernateSubject extends BaseGrouperBenchmark {
   /**
    * @since 1.1.0
    */
+  public void init() 
+    throws GrouperRuntimeException 
+  {
+    try {
+      this.s = GrouperSession.start( SubjectFinder.findRootSubject() );
+    }
+    catch (Exception e) {
+      throw new GrouperRuntimeException(e.getMessage());
+    }
+  } // public void init()
+
+  /**
+   * @since 1.1.0
+   */
   public void run() 
     throws GrouperRuntimeException 
   {
     try {
-      HibernateSubject.add("subj0", "person", "subject 0");
+      HibernateSubject.add(s, "subj0", "person", "subject 0");
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e);

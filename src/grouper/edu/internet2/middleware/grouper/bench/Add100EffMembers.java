@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding 100 effective {@link Membership}s.
  * @author  blair christensen.
- * @version $Id: Add100EffMembers.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: Add100EffMembers.java,v 1.3 2006-10-11 14:17:58 blair Exp $
  * @since   1.1.0
  */
 public class Add100EffMembers extends BaseGrouperBenchmark {
@@ -62,20 +62,19 @@ public class Add100EffMembers extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      Stem root   = StemFinder.findRootStem(
-        GrouperSession.start( SubjectFinder.findRootSubject() )
-      );
-      Stem    ns    = root.addChildStem("example", "example");
-      this.g0       = ns.addChildGroup("group 0", "group 0");
-      this.g1       = ns.addChildGroup("group 1", "group 1");
-      String  type  = "person";
+      GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
+      Stem            root  = StemFinder.findRootStem(s);
+      Stem            ns    = root.addChildStem("example", "example");
+      this.g0               = ns.addChildGroup("group 0", "group 0");
+      this.g1               = ns.addChildGroup("group 1", "group 1");
+      String          type  = "person";
       for (int i=0; i < CNT; i++) {
         String id = "subj" + i;
-        HibernateSubject.add(id, type, "subject " + i);
+        HibernateSubject.add(s, id, type, "subject " + i);
         subjects[i] = SubjectFinder.findById(id);
         this.g0.addMember( subjects[i] );
       }
-      this.g_subj   = this.g0.toSubject();
+      this.g_subj = this.g0.toSubject();
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e.getMessage());

@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding an immediate {@link Membership}.
  * @author  blair christensen.
- * @version $Id: AddImmMember.java,v 1.3 2006-08-30 14:07:42 blair Exp $
+ * @version $Id: AddImmMember.java,v 1.4 2006-10-11 14:17:58 blair Exp $
  * @since   1.1.0
  */
 public class AddImmMember extends BaseGrouperBenchmark {
@@ -57,13 +57,12 @@ public class AddImmMember extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      Stem root = StemFinder.findRootStem(
-        GrouperSession.start( SubjectFinder.findRootSubject() )
-      );
-      Stem ns   = root.addChildStem("example", "example");
-      this.g    = ns.addChildGroup("group", "group");
-      HibernateSubject.add("subj0", "person", "subject0");
-      this.subj = SubjectFinder.findById("subj0");
+      GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
+      Stem            root  = StemFinder.findRootStem(s);
+      Stem            ns    = root.addChildStem("example", "example");
+      this.g                = ns.addChildGroup("group", "group");
+      HibernateSubject.add(s, "subj0", "person", "subject0");
+      this.subj             = SubjectFinder.findById("subj0");
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e.getMessage());

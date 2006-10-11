@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.31 2006-10-10 19:39:43 blair Exp $
+$Id: API.txt,v 1.32 2006-10-11 14:17:58 blair Exp $
 
 ---
 
@@ -289,7 +289,7 @@ $Id: API.txt,v 1.31 2006-10-10 19:39:43 blair Exp $
 * Set                   GroupTypeFinder.findAllAssignable()
 
 ## HibernateSubject - SUBJECT TO CHANGE!
-* HibernateSubject      HibernateSubject.add(id, type, name)
+* HibernateSubject      HibernateSubject.add(GrouperSession, id, type, name)
 * String                getId()
 
 ## IntersectionFilter extends BaseQueryFilter

@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteSubjects.java,v 1.8 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: SuiteSubjects.java,v 1.9 2006-10-11 14:17:58 blair Exp $
  * @since   1.0
  */
 public class SuiteSubjects extends TestCase {
@@ -31,20 +31,21 @@ public class SuiteSubjects extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTestSuite( TestSubject0.class  );  // SubjectFinder.getSources()
-    suite.addTestSuite( TestSubject1.class  );  // SubjectFinder.getSources(type)
-    suite.addTestSuite( TestSubject2.class  );  // SubjectFinder.getSource(id)
-    suite.addTestSuite( TestSubject3.class  );  // fail: SubjectFinder.getSource(id)
-    suite.addTestSuite( TestSubject4.class  );  // SubjectFinder.findById(id, type, source)
-    suite.addTestSuite( TestSubject5.class  );  // fail: SubjectFinder.findById(id, type, source)
-    suite.addTestSuite( TestSubject6.class  );  // SubjectFinder.findByIdentifier(id, type, source)
-    suite.addTestSuite( TestSubject7.class  );  // fail: SubjectFinder.findByIdentifier(id, type, source)
-    suite.addTestSuite( TestSubject8.class  );  // SubjectFinder.findByAll(query, source)
-    suite.addTestSuite( TestSubject10.class );  // GrouperSubject.equal()
-    suite.addTestSuite( TestSubject11.class );  // SubjectFinder.findRootSubject()
-    suite.addTestSuite( TestSubject12.class );  // SubjectFinder.findByIdentifier(id) - GrouperAll
-    suite.addTestSuite( TestSubject13.class );  // SubjectFinder.findByIdentifier(id, type) - GrouperAll
-    suite.addTestSuite( TestSubject14.class );  // SubjectFinder.findByIdentifier(id, type, source) - GrouperAll
+    suite.addTest(      SuiteHSubjects.suite()  );
+    suite.addTestSuite( TestSubject0.class      );  // SubjectFinder.getSources()
+    suite.addTestSuite( TestSubject1.class      );  // SubjectFinder.getSources(type)
+    suite.addTestSuite( TestSubject2.class      );  // SubjectFinder.getSource(id)
+    suite.addTestSuite( TestSubject3.class      );  // fail: SubjectFinder.getSource(id)
+    suite.addTestSuite( TestSubject4.class      );  // SubjectFinder.findById(id, type, source)
+    suite.addTestSuite( TestSubject5.class      );  // fail: SubjectFinder.findById(id, type, source)
+    suite.addTestSuite( TestSubject6.class      );  // SubjectFinder.findByIdentifier(id, type, source)
+    suite.addTestSuite( TestSubject7.class      );  // fail: SubjectFinder.findByIdentifier(id, type, source)
+    suite.addTestSuite( TestSubject8.class      );  // SubjectFinder.findByAll(query, source)
+    suite.addTestSuite( TestSubject10.class     );  // GrouperSubject.equal()
+    suite.addTestSuite( TestSubject11.class     );  // SubjectFinder.findRootSubject()
+    suite.addTestSuite( TestSubject12.class     );  // SubjectFinder.findByIdentifier(id) - GrouperAll
+    suite.addTestSuite( TestSubject13.class     );  // SubjectFinder.findByIdentifier(id, type) - GrouperAll
+    suite.addTestSuite( TestSubject14.class     );  // SubjectFinder.findByIdentifier(id, type, source) - GrouperAll
     // TODO 20060927 Split pre-existing tests 
     suite.addTestSuite( TestGrouperSourceAdapter.class  );
     suite.addTestSuite( TestGrouperSubject.class        );

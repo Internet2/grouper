@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.30 2006-09-26 13:38:23 blair Exp $
+ * @version $Id: E.java,v 1.31 2006-10-11 14:17:58 blair Exp $
  * @since   1.0
  */
 class E {
@@ -42,6 +42,8 @@ class E {
   protected static final String INVALID_DOC               = "null document";
   protected static final String INVALID_GROUP_TYPE        = "invalid group type: ";
   protected static final String MEMBER_NEITHER_FOUND_NOR_CREATED  = "member neither found nor created: ";
+  protected static final String ROOTLIKE_TO_ADD_HSUBJ     = "must be root-like subject to add HibernateSubject";
+  protected static final String SUBJ_ALREADY_EXISTS       = "subject already exists: ";
   protected static final String SYSTEM_MAINTAINED         = "system maintained: ";
   protected static final String UNKNOWN_PRIVILEGE         = "unknown privilege: ";
 

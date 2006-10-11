@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding a union {@link Composite} {@link Membership}.
  * @author  blair christensen.
- * @version $Id: AddUnionMember.java,v 1.3 2006-08-30 14:07:42 blair Exp $
+ * @version $Id: AddUnionMember.java,v 1.4 2006-10-11 14:17:58 blair Exp $
  * @since   1.1.0
  */
 public class AddUnionMember extends BaseGrouperBenchmark {
@@ -57,17 +57,16 @@ public class AddUnionMember extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      Stem root   = StemFinder.findRootStem(
-        GrouperSession.start( SubjectFinder.findRootSubject() )
-      );
-      Stem ns     = root.addChildStem("example", "example");
-      this.g0     = ns.addChildGroup("group 0", "group 0");
-      this.g1     = ns.addChildGroup("group 1", "group 1");
-      this.g2     = ns.addChildGroup("group 2", "group 2");
-      HibernateSubject.add("subj0", "person", "subject 0");
-      HibernateSubject.add("subj1", "person", "subject 1");
-      this.subj0  = SubjectFinder.findById("subj0");
-      this.subj1  = SubjectFinder.findById("subj1");
+      GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
+      Stem            root  = StemFinder.findRootStem(s);
+      Stem            ns    = root.addChildStem("example", "example");
+      this.g0               = ns.addChildGroup("group 0", "group 0");
+      this.g1               = ns.addChildGroup("group 1", "group 1");
+      this.g2               = ns.addChildGroup("group 2", "group 2");
+      HibernateSubject.add(s, "subj0", "person", "subject 0");
+      HibernateSubject.add(s, "subj1", "person", "subject 1");
+      this.subj0            = SubjectFinder.findById("subj0");
+      this.subj1            = SubjectFinder.findById("subj1");
       this.g0.addMember(this.subj0);
       this.g1.addMember(this.subj1);
     }
