@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding an effective {@link Membership}.
  * @author  blair christensen.
- * @version $Id: AddEffMember.java,v 1.3 2006-08-30 14:07:42 blair Exp $
+ * @version $Id: AddEffMember.java,v 1.4 2006-10-11 14:17:58 blair Exp $
  * @since   1.1.0
  */
 public class AddEffMember extends BaseGrouperBenchmark {
@@ -57,15 +57,14 @@ public class AddEffMember extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      Stem root   = StemFinder.findRootStem(
-        GrouperSession.start( SubjectFinder.findRootSubject() )
-      );
-      Stem ns     = root.addChildStem("example", "example");
-      this.g0     = ns.addChildGroup("group 0", "group 0");
-      this.g1     = ns.addChildGroup("group 1", "group 1");
-      HibernateSubject.add("subj0", "person", "subject 0");
-      this.subj0  = SubjectFinder.findById("subj0");
-      this.subj1  = this.g0.toSubject();
+      GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
+      Stem            root  = StemFinder.findRootStem(s);
+      Stem            ns    = root.addChildStem("example", "example");
+      this.g0               = ns.addChildGroup("group 0", "group 0");
+      this.g1               = ns.addChildGroup("group 1", "group 1");
+      HibernateSubject.add(s, "subj0", "person", "subject 0");
+      this.subj0            = SubjectFinder.findById("subj0");
+      this.subj1            = this.g0.toSubject();
       this.g0.addMember(this.subj0);
     }
     catch (Exception e) {

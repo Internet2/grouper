@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding 10 union {@link Composite} {@link Membership}s.
  * @author  blair christensen.
- * @version $Id: Add10UnionMembers.java,v 1.1 2006-09-28 17:23:19 blair Exp $
+ * @version $Id: Add10UnionMembers.java,v 1.2 2006-10-11 14:17:58 blair Exp $
  * @since   1.1.0
  */
 public class Add10UnionMembers extends BaseGrouperBenchmark {
@@ -61,17 +61,16 @@ public class Add10UnionMembers extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      Stem root   = StemFinder.findRootStem(
-        GrouperSession.start( SubjectFinder.findRootSubject() )
-      );
-      Stem ns     = root.addChildStem("example", "example");
-      this.g0     = ns.addChildGroup("group 0", "group 0");
-      this.g1     = ns.addChildGroup("group 1", "group 1");
-      this.g2     = ns.addChildGroup("group 2", "group 2");
-      String type = "person";
+      GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
+      Stem            root  = StemFinder.findRootStem(s);
+      Stem            ns    = root.addChildStem("example", "example");
+      this.g0               = ns.addChildGroup("group 0", "group 0");
+      this.g1               = ns.addChildGroup("group 1", "group 1");
+      this.g2               = ns.addChildGroup("group 2", "group 2");
+      String          type  = "person";
       for (int i=0; i < CNT; i++) {
         String id = "subj" + i;
-        HibernateSubject.add(id, type, "subject " + i);
+        HibernateSubject.add(s, id, type, "subject " + i);
         subjects[i] = SubjectFinder.findById(id);
         // add half to each group
         if (i % 2 == 0) {
