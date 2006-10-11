@@ -39,7 +39,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.76 2006-10-11 14:53:26 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.77 2006-10-11 15:35:42 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -298,30 +298,6 @@ public class XmlImporter {
     return this._getSubjectById(id, type);
   } // private Subject _findSubject(id, idfr, type)
 
-  // @since   1.1.0
-  private static Document _getDocument(String filename) 
-    throws  IOException,
-            org.xml.sax.SAXException,
-            ParserConfigurationException
-  {
-    DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
-    DocumentBuilder         db  = dbf.newDocumentBuilder();
-    Document                doc = db.parse(new File(filename));
-    return doc;
-  } // private static Document _getDocument(filename)
-
-  // @since   1.1.0
-  private static Document _getDocument(URL url) 
-    throws  IOException,
-            org.xml.sax.SAXException,
-            ParserConfigurationException
-  {
-    DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
-    DocumentBuilder         db  = dbf.newDocumentBuilder();
-    Document                doc = db.parse(url.openStream());
-    return doc;
-  } // private static Document _getDocument(url)
-
   // Assumes tag only occurs once and contains only text / CDATA.
   // If tag does not exist 'nullable' determines if an Exception is thrown.
   // @since   1.1.0
@@ -377,12 +353,9 @@ public class XmlImporter {
 
   // @since   1.1.0
   private static void _handleArgs(XmlImporter importer, Properties rc) 
-    throws  GrouperException,
-            IOException,
-            org.xml.sax.SAXException,
-            ParserConfigurationException
+    throws  GrouperException
   {
-    Document doc = _getDocument( rc.getProperty(XmlArgs.RC_IFILE) );
+    Document doc = XmlReader.getDocumentFromFile( rc.getProperty(XmlArgs.RC_IFILE) );
     if (Boolean.getBoolean( rc.getProperty(XmlArgs.RC_UPDATELIST) )) {
       importer.update(doc);
     } 

@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import  java.io.*;
+import  java.net.URL;
 import  javax.xml.parsers.*;
 import  org.w3c.dom.*;
 import  org.xml.sax.*;
@@ -25,7 +26,7 @@ import  org.xml.sax.*;
  * Read XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlReader.java,v 1.2 2006-10-03 17:22:10 blair Exp $
+ * @version $Id: XmlReader.java,v 1.3 2006-10-11 15:35:42 blair Exp $
  * @since   1.1.0
  */
 public class XmlReader {
@@ -33,16 +34,44 @@ public class XmlReader {
   // PUBLIC CLASS METHODS //
 
   /**
-   * Convert a <tt>String</tt> to a <tt>Document</tt>.
+   * Read <tt>Document</tt> from file.
+   * <pre class="eg">
+   * try {
+   *   Document doc = XmlReader.getDocumentFromFile(filename);
+   * }
+   * catch (GrouperException eG) {
+   *   // unable to retrieve document
+   * }
+   * </pre>
+   * @param   filename  Read <tt>Document</tt> from this file.
+   * @throws  GrouperException
+   * @since   1.1.0
+   */
+  public static Document getDocumentFromFile(String filename) 
+    throws  GrouperException
+  {
+    try {
+      return _getDocumentBuilder().parse( new File(filename) );
+    }
+    catch (IOException eIO)   {
+      throw new GrouperException(eIO.getMessage(), eIO);
+    }
+    catch (SAXException eSAX) {
+      throw new GrouperException(eSAX.getMessage(), eSAX);
+    }
+  } // public static Document getDocumentFromFile(filename)
+
+  /**
+   * Read <tt>Document</tt> from <tt>String</tt>.
    * <pre class="eg">
    * try {
    *   Document doc = XmlReader.getDocumentFromString(s);
    * }
    * catch (GrouperException eG) {
-   *   // conversion error
+   *   // unable to retrieve document
    * }
    * </pre>
-   * @param   s   Convert this String.
+   * @param   s   Read document from this <tt>String</tt>.
    * @throws  GrouperException
    * @since   1.1.0
    */
@@ -50,22 +79,56 @@ public class XmlReader {
     throws  GrouperException  
   {
     try {
-      return  DocumentBuilderFactory.newInstance()
-                                    .newDocumentBuilder()
-                                    .parse(
-                                      new ByteArrayInputStream( s.getBytes() )
-                                    );
+      return _getDocumentBuilder().parse( new ByteArrayInputStream( s.getBytes() ));
     }
-    catch (IOException eIO)                   {
+    catch (IOException eIO)   {
       throw new GrouperException(eIO.getMessage(), eIO);
     }
-    catch (ParserConfigurationException ePCF) {
-      throw new GrouperException(ePCF.getMessage(), ePCF);
-    }
-    catch (SAXException eSAX)                 {
+    catch (SAXException eSAX) {
       throw new GrouperException(eSAX.getMessage(), eSAX);
     }
   } // public static Document getDocumentFromString(s)
+
+  /**
+   * Read <tt>Document</tt> from <tt>URL</tt>.
+   * <pre class="eg">
+   * try {
+   * }
+   * catch (GrouperException eG) {
+   * }
+   * </pre>
+   * @param   url   Read <tt>Document</tt> from this <tt>URL</tt>.
+   * @throws  GrouperException
+   * @since   1.1.0
+   */
+  public static Document getDocumentFromURL(URL url) 
+    throws  GrouperException
+  {
+    try {
+      return _getDocumentBuilder().parse( url.openStream() );
+    }
+    catch (IOException eIO)   {
+      throw new GrouperException(eIO.getMessage(), eIO);
+    }
+    catch (SAXException eSAX) {
+      throw new GrouperException(eSAX.getMessage(), eSAX);
+    }
+  } // private static Document _getDocument(url)
+
+
+  // PRIVATE CLASS METHODS //
+
+  // @since   1.1.0
+  private static DocumentBuilder _getDocumentBuilder() 
+    throws  GrouperException
+  {
+    try {
+      return DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    }
+    catch (ParserConfigurationException ePC)  {
+      throw new GrouperException(ePC.getMessage(), ePC);
+    }
+  } // private static DocumentBuilder _getDocumentBuilder()
 
 } // public class XmlReader
 
