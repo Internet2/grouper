@@ -37,7 +37,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.82 2006-10-11 16:23:33 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.83 2006-10-11 16:28:51 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1363,10 +1363,7 @@ public class XmlImporter {
             StemModifyException,
             StemNotFoundException
   {
-    // TODO 20060922 *path* does not appear to be used 
-    Collection paths  = this._getImmediateElements(e, "path");
-    paths.addAll(this._getImmediateElements(e, "stem"));
-    Iterator  it      = paths.iterator();
+    Iterator it = this._getImmediateElements(e, "stem").iterator();
     while (it.hasNext()) {
       this._processPath( (Element) it.next(), stem );
     }
