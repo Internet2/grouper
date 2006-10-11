@@ -13,7 +13,7 @@ import  edu.internet2.middleware.grouper.*;
  * Add {@link HibernateSubject} to Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addSubject.java,v 1.5 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: addSubject.java,v 1.6 2006-10-11 14:26:39 blair Exp $
  * @since   0.0.1
  */
 public class addSubject {
@@ -39,10 +39,13 @@ public class addSubject {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      return HibernateSubject.add(id, type, name);
+      return HibernateSubject.add( GrouperShell.getSession(i), id, type, name );
     }
-    catch (GrouperException eG) { 
+    catch (GrouperException eG)                 { 
       GrouperShell.error(i, eG);
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      GrouperShell.error(i, eIP);
     }
     return null;
   } // public static HibernateSubject invoke(i, stack, parent, name)
