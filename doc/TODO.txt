@@ -4,23 +4,19 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.56 2006-10-11 18:16:09 blair Exp $
+$Id: TODO.txt,v 1.57 2006-10-11 18:46:54 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
 
 ### Next Actions
-* CODE      Refactor query cache configuration.  Add interface? Config toggle?
-    * research using !default ehcache configuration file
-    	* Configuration.setProperty("hibernate.cache.provider_class", "net.sf.hibernate.cache.EhCacheProvider").
 * BUGFIX    `XmlImporter.update()`
-* CODE      Expand functionality-and-use of `GrouperTest`
+* CODE		  Move type + field caching to within sessions?
+* CODE      Use `SetUtils` for group math
 * DOC       Migrate impl guide to wiki and export upon release
 
 ### Maybe
-* CODE		  Move type + field caching to within sessions?
-* CODE      Use `SetUtils` for group math
 * REFACTOR	`RegistryReset` to no longer add test subjects
 * REFACTOR	`EventLog`
 * REFACTOR	`MemberOf` needs to be tackled again
@@ -39,10 +35,13 @@ $Id: TODO.txt,v 1.56 2006-10-11 18:16:09 blair Exp $
 * CODE      class to verify that setup is functional
     * find the root stem, exercise subject api, hibernate dialect + driver class, etc
 * REFACTOR  internal root sessions should not need to go through hibernate
+* REFACTOR  Refactor query cache configuration.  Add interface? Config toggle?
+* CONFIG    Determine how to use !`conf/ehcache.xml` for ehcache configuration
 
 ---
 
-$Id: TODO.txt,v 1.56 2006-10-11 18:16:09 blair Exp $
+$Id: TODO.txt,v 1.57 2006-10-11 18:46:54 blair Exp $
+
 
 
 
