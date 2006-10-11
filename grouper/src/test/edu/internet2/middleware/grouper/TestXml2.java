@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml2.java,v 1.6 2006-09-27 13:56:54 blair Exp $
+ * @version $Id: TestXml2.java,v 1.7 2006-10-11 13:12:00 blair Exp $
  * @since   1.1.0
  */
 public class TestXml2 extends GrouperTest {
@@ -96,11 +96,11 @@ public class TestXml2 extends GrouperTest {
 
       gAA       = assertFindGroupByName( s, nsA.getName() + ":a" );
       gAB       = assertFindGroupByName( s, nsA.getName() + ":b" );
-      // FIXME 20060925 update does not work properly
+      // TODO 20061011 update does not work properly
       assertFindGroupByName( s, nsA.getName() + ":c" );
       gBA       = assertFindGroupByName( s, nsB.getName() + ":a" );
       gBB       = assertFindGroupByName( s, nsB.getName() + ":b" );
-      // FIXME 20060925 update does not work properly
+      // TODO 20061011 update does not work properly
       assertFindGroupByName( s, nsB.getName() + ":c" );
 
       assertGroupHasMember( gAA, subjA, true );
