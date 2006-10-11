@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.54 2006-09-26 14:43:08 blair Exp $
+ * @version $Id: Membership.java,v 1.55 2006-10-11 14:35:10 blair Exp $
  */
 public class Membership {
 
@@ -100,7 +100,7 @@ public class Membership {
     }
     else {
       this.setVia_id(           hasMS.getVia_id()     );  // hasMember m was effective
-      // TODO I have no idea what is going on here
+      // TODO 20061011 I have no idea what is going on here
       if ( hasMS.getParent_membership() != null ) {
         this.setParent_membership( hasMS.getParent_membership() );
       }

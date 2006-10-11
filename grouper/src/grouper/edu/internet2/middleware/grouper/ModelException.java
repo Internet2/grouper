@@ -19,11 +19,10 @@ package edu.internet2.middleware.grouper;
 
 /**
  * @author  blair christensen.
- * @version $Id: ModelException.java,v 1.4 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: ModelException.java,v 1.5 2006-10-11 14:35:10 blair Exp $
  */
 class ModelException extends Exception {
-  // TODO I'm really skeptical of this whole tangent.  I wonder if I can - or
-  //      should - just get rid of it.
+  // TODO 20061011 Deprecate.  This was a bad idea.
   public ModelException() { 
     super(); 
   }

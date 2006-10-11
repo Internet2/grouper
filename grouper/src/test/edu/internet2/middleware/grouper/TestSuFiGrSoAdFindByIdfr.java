@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.5 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.6 2006-10-11 14:35:10 blair Exp $
  */
 public class TestSuFiGrSoAdFindByIdfr extends TestCase {
 
@@ -81,7 +81,6 @@ public class TestSuFiGrSoAdFindByIdfr extends TestCase {
     Subject subj = SubjectTestHelper.getSubjectByIdentifierType(i2.getName(), "group");
     Assert.assertTrue("found subject", true);
     Map attrs = subj.getAttributes();
-    // TODO Because modify* attrs are erroneously set
     Assert.assertTrue("10 attributes", attrs.size() == 10);
     // createSubjectId
     String attr = "createSubjectId";

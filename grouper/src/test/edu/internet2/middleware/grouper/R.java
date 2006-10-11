@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: R.java,v 1.6 2006-09-13 19:21:10 blair Exp $
+ * @version $Id: R.java,v 1.7 2006-10-11 14:35:10 blair Exp $
  */
 class R {
 
@@ -104,7 +104,7 @@ class R {
   protected Subject getSubject(String id) 
     throws  Exception
   {
-    // TODO Bah.  We stash HibernateSubjects but we need Subjects.  
+    // TODO 20061011 Bah.  We stash HibernateSubjects but we need Subjects.  
     //      Perhaps I should have a convenience method to return the
     //      real thing?
     if (this.subjects.containsKey(id)) {

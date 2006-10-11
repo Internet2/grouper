@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.7 2006-09-13 15:52:09 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.8 2006-10-11 14:35:10 blair Exp $
  */
 class GroupHelper {
 
@@ -49,7 +49,7 @@ class GroupHelper {
 
 
   // 'Tis more ugly below
-  // TODO Deprecate.  Or at least DRY.
+  // TODO 20061011 Deprecate.  Or at least DRY.
 
   // Add a group as a member to a group
   protected static void addMember(Group g, Group gm) {

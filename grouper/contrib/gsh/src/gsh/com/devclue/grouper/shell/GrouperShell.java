@@ -14,14 +14,14 @@ import  java.util.*;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.12 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.13 2006-10-11 14:35:10 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
 
   // PROTECTED CLASS CONSTANTS //
   protected static final String NAME        = "gsh";
-  // TODO Do I need to automatically pull this from `build.xml`?
+  // TODO 20061011 Do I need to automatically pull this from `build.xml`?
   protected static final String VERSION     = "0.0.2-cvs"; 
 
 

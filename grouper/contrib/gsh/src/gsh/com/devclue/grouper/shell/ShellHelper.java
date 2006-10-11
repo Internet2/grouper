@@ -14,7 +14,7 @@ import  org.apache.commons.lang.time.*;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.3 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: ShellHelper.java,v 1.4 2006-10-11 14:35:10 blair Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -43,7 +43,7 @@ class ShellHelper {
     // Now update the command history
     try {
       // Unless it involves references to `last`
-      // TODO Add methods for this
+      // TODO 20061011 Add methods for this
       if (!cmd.startsWith("last(")) {
         List history = GrouperShell.getHistory(i);
         GrouperShell.setHistory(i, history.size(), cmd);
@@ -55,7 +55,7 @@ class ShellHelper {
     sw.stop();
     // If commands are timed and this was not a `last` command output
     // how long it took to evaluate.
-    // TODO Add methods for this
+    // TODO 20061011 Add methods for this
     if ( (GrouperShell.isTimed(i)) && (!cmd.startsWith("last(")) ) {
       i.println( "time: " + sw.getTime() + "ms command=" + U.q(cmd) );
     }

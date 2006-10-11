@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.86 2006-10-10 17:42:24 blair Exp $
+ * @version $Id: Stem.java,v 1.87 2006-10-11 14:35:10 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -945,7 +945,8 @@ public class Stem extends Owner {
 
   // The child_groups and child_stems collections have lazy
   // associations so we need to manually initialize as needed.
-  // TODO Deprecate in favor of `getChildGroupsNpHi()` and `getChildStemsNpHi()`?
+  // TODO 20061011 Deprecate in favor of `getChildGroupsNpHi()` and `getChildStemsNpHi()`?
+  //      Actually, there is far too much magic going on here.
   private static void _initializeChildGroupsAndStems(Stem ns) 
     throws  HibernateException
   {
