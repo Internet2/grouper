@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.53 2006-10-11 14:17:58 blair Exp $
+$Id: TODO.txt,v 1.54 2006-10-11 16:04:41 blair Exp $
 
 ---
 
@@ -24,7 +24,7 @@ $Id: TODO.txt,v 1.53 2006-10-11 14:17:58 blair Exp $
     * remove `GrouperSession` param from all `can*()` methods
 * CODE      `LessSimplePrivilegeCache` extends `SimplePrivilegeCache`
   * a hopefully smarter version of `SimplePrivilegeCache`
-  * use the `remove()` methods to try and be selective about what is
+ * use the `remove()` methods to try and be selective about what is
     removed from the cache upon mods             
 * CODE      Migrate error messages to *E*
 * CODE      Migrate messages to *M*
@@ -46,7 +46,7 @@ $Id: TODO.txt,v 1.53 2006-10-11 14:17:58 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.53 2006-10-11 14:17:58 blair Exp $
+$Id: TODO.txt,v 1.54 2006-10-11 16:04:41 blair Exp $
 
 
 
