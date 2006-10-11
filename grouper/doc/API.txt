@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.32 2006-10-11 14:17:58 blair Exp $
+$Id: API.txt,v 1.33 2006-10-11 15:35:42 blair Exp $
 
 ---
 
@@ -484,5 +484,7 @@ $Id: API.txt,v 1.32 2006-10-11 14:17:58 blair Exp $
 * void                  update(Document)
 
 ## XmlReader - SUBJECT TO CHANGE
-* Document              XmlReader.getDocumentFromString(string)
+* Document              XmlReader.getDocumentFromFile(filename)
+* Document              XmlReader.getDocumentFromString(String)
+* Document              XmlReader.getDocumentFromURL(URL)
 
