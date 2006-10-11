@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.74 2006-10-11 14:35:10 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.75 2006-10-11 14:42:31 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -54,7 +54,6 @@ public class XmlExporter {
   private boolean         isRelative    = false;
   private Properties      options;
   private Date            startTime;
-  private Subject         sysUser;
   private XmlWriter       xml           = null;
 
 
@@ -185,7 +184,6 @@ public class XmlExporter {
     this.options.putAll(userOptions); 
     this.s          = s;
     this.startTime  = new Date();
-    this.sysUser    = SubjectFinder.findRootSubject(); // TODO 20061011 ?
   } // public XmlExporter(s, userOptions)
 
   
@@ -1308,7 +1306,7 @@ public class XmlExporter {
   {
     // TODO 20061005 refactor: aesthetically this is wrong
     if (subjects.size() == 1) {
-      subjects.remove(sysUser);
+      subjects.remove( SubjectFinder.findRootSubject() );
     }
     if (subjects.isEmpty()) {
       return;
