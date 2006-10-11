@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.132 2006-10-11 17:24:40 blair Exp $ -->
+<!-- $Id: build.xml,v 1.133 2006-10-11 18:19:53 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -123,7 +123,7 @@
     <record name="${log.build}" action="start"/>
     <javac srcdir="${src.grouper}" destdir="${build.grouper}">
       <classpath    refid="project.classpath" />
-<!--  FIXME Deal with this later
+<!--  20061011 I'll eventually have to deal with this migration
       <compilerarg  value="-Xlint:unchecked"  />
 -->
     </javac>
