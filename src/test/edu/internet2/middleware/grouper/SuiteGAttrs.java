@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteGAttrs.java,v 1.1 2006-09-21 16:10:23 blair Exp $
+ * @version $Id: SuiteGAttrs.java,v 1.2 2006-10-11 16:04:41 blair Exp $
  * @since   1.1.0
  */
 public class SuiteGAttrs extends TestCase {
@@ -31,21 +31,28 @@ public class SuiteGAttrs extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();        
-    // TODO 20060921 migrate other attribute tests to this suite
     suite.addTestSuite( TestGAttr0.class  );  // getAttributes()          - root
-    suite.addTestSuite( TestGAttr1.class  );  // FAIL getAttribute()      - root - null
-    suite.addTestSuite( TestGAttr2.class  );  // FAIL getAttribute()      - root - blank
-    suite.addTestSuite( TestGAttr3.class  );  // getAttribute()           - root - description - not set
-    suite.addTestSuite( TestGAttr4.class  );  // getAttribute()           - root - extn
-    suite.addTestSuite( TestGAttr5.class  );  // FAIL setAttribute()      - root - null
-    suite.addTestSuite( TestGAttr6.class  );  // FAIL setAttribute()      - root - blank
-    suite.addTestSuite( TestGAttr7.class  );  // FAIL setAttribute()      - root - description  - null
-    suite.addTestSuite( TestGAttr8.class  );  // FAIL setAttribute()      - root - description  - blank
-    suite.addTestSuite( TestGAttr9.class  );  // setAttribute()           - root - description 
-    suite.addTestSuite( TestGAttr10.class );  // FAIL deleteAttribute()   - root - null
-    suite.addTestSuite( TestGAttr11.class );  // FAIL deleteAttribute()   - root - blank
-    suite.addTestSuite( TestGAttr12.class );  // FAIL deleteAttribute()   - root - description  - not set
-    suite.addTestSuite( TestGAttr13.class );  // deleteAttribute()        - root - description
+    suite.addTestSuite( TestGAttr1.class  );  // FAIL getAttribute()      - root              - null
+    suite.addTestSuite( TestGAttr2.class  );  // FAIL getAttribute()      - root              - blank
+    suite.addTestSuite( TestGAttr3.class  );  // getAttribute()           - root              - description - not set
+    suite.addTestSuite( TestGAttr4.class  );  // getAttribute()           - root              - extn
+    suite.addTestSuite( TestGAttr5.class  );  // FAIL setAttribute()      - root              - null
+    suite.addTestSuite( TestGAttr6.class  );  // FAIL setAttribute()      - root              - blank
+    suite.addTestSuite( TestGAttr7.class  );  // FAIL setAttribute()      - root              - description  - null
+    suite.addTestSuite( TestGAttr8.class  );  // FAIL setAttribute()      - root              - description  - blank
+    suite.addTestSuite( TestGAttr9.class  );  // setAttribute()           - root              - description 
+    suite.addTestSuite( TestGAttr10.class );  // FAIL deleteAttribute()   - root              - null
+    suite.addTestSuite( TestGAttr11.class );  // FAIL deleteAttribute()   - root              - blank
+    suite.addTestSuite( TestGAttr12.class );  // FAIL deleteAttribute()   - root              - description  - not set
+    suite.addTestSuite( TestGAttr13.class );  // deleteAttribute()        - root              - description
+    suite.addTestSuite( TestGAttr14.class );  // FAIL deleteAttribute()   - !root + ADMIN     - null
+    suite.addTestSuite( TestGAttr15.class );  // FAIL deleteAttribute()   - !root + ADMIN     - blank
+    suite.addTestSuite( TestGAttr16.class );  // FAIL deleteAttribute()   - !root + ADMIN     - description  - not set
+    suite.addTestSuite( TestGAttr17.class );  // deleteAttribute()        - !root + ADMIN     - description
+    suite.addTestSuite( TestGAttr18.class );  // FAIL deleteAttribute()   - !root + ALL ADMIN - null
+    suite.addTestSuite( TestGAttr19.class );  // FAIL deleteAttribute()   - !root + ALL ADMIN - blank
+    suite.addTestSuite( TestGAttr20.class );  // FAIL deleteAttribute()   - !root + ALL ADMIN - description  - not set
+    suite.addTestSuite( TestGAttr21.class );  // deleteAttribute()        - !root + ALL ADMIN - description
     return suite;
   } // static public Test suite()
 
