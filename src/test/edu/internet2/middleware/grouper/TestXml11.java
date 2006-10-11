@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.util.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml11.java,v 1.1 2006-10-10 16:43:07 blair Exp $
+ * @version $Id: TestXml11.java,v 1.2 2006-10-11 13:10:10 blair Exp $
  * @since   1.1.0
  */
 public class TestXml11 extends GrouperTest {

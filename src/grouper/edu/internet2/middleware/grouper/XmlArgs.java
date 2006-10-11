@@ -16,17 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  java.io.*;
-import  java.util.*;
 import  java.util.Properties;
-import  org.apache.commons.logging.*;
 
 /**
  * XML Command Line Argument Processing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlArgs.java,v 1.1 2006-10-10 15:33:24 blair Exp $
+ * @version $Id: XmlArgs.java,v 1.2 2006-10-11 13:10:10 blair Exp $
  * @since   1.1.0
  */
 class XmlArgs {
