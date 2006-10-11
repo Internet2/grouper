@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.30 2006-10-05 18:50:03 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.31 2006-10-11 13:10:10 blair Exp $
  */
 public class GroupFinder {
 
@@ -134,7 +134,6 @@ public class GroupFinder {
     throws  QueryException
   {
     GrouperSessionValidator.validate(s);
-    Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
@@ -153,7 +152,6 @@ public class GroupFinder {
     throws  QueryException
   {
     GrouperSessionValidator.validate(s);
-    Set groups = new LinkedHashSet();
     try {
       Session   hs    = HibernateHelper.getSession();
       Query     qry   = hs.createQuery(
