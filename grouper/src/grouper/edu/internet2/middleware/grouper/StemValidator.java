@@ -21,12 +21,67 @@ import  net.sf.hibernate.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.11 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: StemValidator.java,v 1.12 2006-10-12 18:53:49 blair Exp $
  * @since   1.0
  */
 class StemValidator {
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.1.0
+  protected static boolean canAddChildGroup(Stem ns, String extension, String displayExtension)
+    throws  GroupAddException,
+            InsufficientPrivilegeException
+  {
+    boolean rv = false;
+    try {
+      AttributeValidator.namingValue(extension);
+      AttributeValidator.namingValue(displayExtension);
+    }
+    catch (ModelException eM) {
+      throw new GroupAddException(eM.getMessage(), eM);
+    }
+    if (!PrivilegeResolver.canCREATE( ns.getSession(), ns, ns.getSession().getSubject() )) {
+      throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
+    }
+    if (ns.isRootStem()) {
+      throw new GroupAddException("cannot create groups at root stem level");
+    }
+    try {
+      GroupFinder.findByName( U.constructName(ns.getName(), extension) );
+      throw new GroupAddException("group already exists");
+    }
+    catch (GroupNotFoundException eGNF) {
+      rv = true; // Group does not exist.  This is what we want.
+    }
+    return rv;
+  } // protected static boolean canAddChildGroup(ns, extension, displayExtension)
+
+  // @since   1.1.0
+  protected static boolean canAddChildStem(Stem ns, String extension, String displayExtension)
+    throws  InsufficientPrivilegeException,
+            StemAddException
+  {
+    boolean rv = false;
+    try {
+      AttributeValidator.namingValue(extension);
+      AttributeValidator.namingValue(displayExtension);
+    }
+    catch (ModelException eM) {
+      throw new StemAddException(eM.getMessage(), eM);
+    }
+    if (!RootPrivilegeResolver.canSTEM( ns, ns.getSession().getSubject()) ) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    } 
+    try {
+      StemFinder.findByName( U.constructName(ns.getName(), extension) );
+      throw new StemAddException("stem already exists");
+    }
+    catch (StemNotFoundException eSNF) {
+      rv = true; // Stem does not exist.  This is what we want.
+    }
+    return rv;
+  } // protected static boolean canAddChildStem(ns, extension, displayExtension)
 
   // @since 1.0
   protected static void canDeleteStem(Stem ns) 

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.87 2006-10-11 14:35:10 blair Exp $
+ * @version $Id: Stem.java,v 1.88 2006-10-12 18:53:49 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -63,17 +63,6 @@ public class Stem extends Owner {
     super();
   } // protected Stem()
 
-  // Return a stem with an attached session
-  protected Stem(GrouperSession s) {
-    this.setSession(s);
-    this._setCreated();
-    this.setUuid(             GrouperUuid.getUuid() );
-    this.setStem_name(        ROOT_INT              );
-    this.setDisplay_name(     ROOT_INT              );
-    this.setStem_extension(   ROOT_INT              );
-    this.setDisplay_extension(ROOT_INT              );
-  } // protected Stem(s)
-  
 
   // PUBLIC INSTANCE METHODS //
 
@@ -103,35 +92,8 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    try {
-      AttributeValidator.namingValue(extension);
-      AttributeValidator.namingValue(displayExtension);
-    }
-    catch (ModelException eM) {
-      throw new GroupAddException(eM.getMessage(), eM);
-    }
-    if (
-      !PrivilegeResolver.canCREATE(
-        this.getSession(), this, this.getSession().getSubject()
-      )
-    )
-    {
-      throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
-    }
-    // TODO 20060925 switch to `isRoot()`?
-    if (this.equals(StemFinder.findRootStem(this.getSession()))) {
-      throw new GroupAddException(
-        "cannot create groups at root stem level"
-      );
-    } 
-    try {
-      GroupFinder.findByName(
-        U.constructName(this.getName(), extension)
-      );
-      throw new GroupAddException("group already exists");
-    }
-    catch (GroupNotFoundException eGNF) {
-      // Ignore.  This is what we want.
+    if (!StemValidator.canAddChildGroup(this, extension, displayExtension)) {
+      throw new GroupAddException();
     }
     try {
       _initializeChildGroupsAndStems(this);
@@ -139,11 +101,8 @@ public class Stem extends Owner {
     catch (HibernateException eH) {
       throw new GroupAddException(eH.getMessage(), eH);
     }
-    String msg = "unable to add group " + this.getName() + ": " + extension + ": ";
     try {
-      Group child = new Group(this.getSession(), this, extension, displayExtension);
-      // Set parent
-      child.setParent_stem(this);
+      Group child = Group.create(this, extension, displayExtension);
       // Add to children 
       Set children  = this.getChildGroupsNpHi();
       children.add(child);
@@ -165,13 +124,13 @@ public class Stem extends Owner {
       return child; // And return the newly created group
     }
     catch (HibernateException eH)           {
-      throw new GroupAddException(msg + eH.getMessage(), eH);
+      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eH.getMessage(), eH);
     }
     catch (SchemaException eS)              {
-      throw new GroupAddException(msg + eS.getMessage(), eS);
+      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eS.getMessage(), eS);
     }
     catch (SourceUnavailableException eSU)  {
-      throw new GroupAddException(msg + eSU.getMessage(), eSU);
+      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eSU.getMessage(), eSU);
     }
   } // public Group addChildGroup(extension, displayExtension)
 
@@ -198,62 +157,33 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
+    if (!StemValidator.canAddChildStem(this, extension, displayExtension)) {
+      throw new StemAddException();
+    }
     try {
-      AttributeValidator.namingValue(extension);
-      AttributeValidator.namingValue(displayExtension);
+      _initializeChildGroupsAndStems(this);
     }
-    catch (ModelException eM) {
-      throw new StemAddException(eM.getMessage(), eM);
+    catch (HibernateException eH) {
+      throw new StemAddException(eH.getMessage(), eH);
     }
-    if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
-      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
-    } 
-    String  name  = U.constructName(this.getName(), extension);
-    String  dName = U.constructName(this.getDisplayName(), displayExtension);
     try {
-      StemFinder.findByName(this.getSession(), name);
-      throw new StemAddException(E.STEM_EXISTS + U.q(name));
+      Stem  child     = Stem.create(this, extension, displayExtension);
+      // Add to children 
+      Set   children  = this.getChildStemsNpHi();
+      children.add(child);
+      this.setChild_stems(children);
+      // And save
+      Set   objects   = new LinkedHashSet();
+      objects.add(child);
+      objects.add(this);
+      HibernateHelper.save(objects);
+      sw.stop();
+      EventLog.info(s, M.STEM_ADD + U.q(child.getName()), sw);
+      _grantDefaultPrivsUponCreate(child);
+      return child;
     }
-    catch (StemNotFoundException eSNF) {
-      // Stem does not exist.  This is what we want.  Now create it.
-
-      try {
-        _initializeChildGroupsAndStems(this);
-      }
-      catch (HibernateException eH) {
-        throw new StemAddException(eH.getMessage(), eH);
-      }
-
-      try {
-        Stem child = new Stem(this.getSession());
-
-        // Set naming attributes
-        child.setStem_extension(extension);
-        child.setDisplay_extension(displayExtension);
-        child.setStem_name(name);
-        child.setDisplay_name(dName);
-        // Set parent
-        child.setParent_stem(this);
-        // Add to children 
-        Set children  = this.getChildStemsNpHi();
-        children.add(child);
-        this.setChild_stems(children);
-        // And save
-        Set objects = new LinkedHashSet();
-        objects.add(child);
-        objects.add(this);
-        HibernateHelper.save(objects);
-        sw.stop();
-        EventLog.info(s, M.STEM_ADD + U.q(child.getName()), sw);
-        _grantDefaultPrivsUponCreate(child);
-        return child;
-      }
-      catch (HibernateException eH) {
-        throw new StemAddException(
-          "Unable to add stem " + this.getName() + ":" + extension + ": " 
-          + eH.getMessage(), eH
-        );
-      }
+    catch (HibernateException eH) {
+      throw new StemAddException(E.CANNOT_CREATE_STEM + eH.getMessage(), eH);
     }
   } // public Stem addChildStem(extension, displayExtension)
 
@@ -896,7 +826,14 @@ public class Stem extends Owner {
   protected static Stem addRootStem(GrouperSession s) 
     throws  GrouperRuntimeException
   {
-    Stem root = new Stem(s);
+    Stem root = new Stem();
+    root.setSession(s);
+    root._setCreated();
+    root.setUuid( GrouperUuid.getUuid() );
+    root.setStem_name( ROOT_INT );
+    root.setDisplay_name( ROOT_INT );
+    root.setStem_extension( ROOT_INT );
+    root.setDisplay_extension( ROOT_INT );
     try {
       HibernateHelper.save(root);
     }
@@ -907,6 +844,24 @@ public class Stem extends Owner {
     }
     return root;
   } // protected static Stem addRootStem(GrouperSession s)
+
+  // @since   1.1.0
+  protected static Stem create(Stem parent, String extn, String displayExtn) {
+    Stem ns = new Stem();
+    ns.setSession( parent.getSession() );
+    // Set parent
+    ns.setParent_stem(parent);
+    // Set create information
+    ns._setCreated();
+    // Assign UUID
+    ns.setUuid( GrouperUuid.getUuid() );
+    // Set naming information
+    ns.setStem_extension(extn);
+    ns.setDisplay_extension(displayExtn);
+    ns.setStem_name( U.constructName( parent.getName(), extn ) );
+    ns.setDisplay_name( U.constructName( parent.getDisplayName(), displayExtn ));
+    return ns;
+  } // protected static Stem create(parent, extn, displayExtn)
 
   // @since 1.0
   protected Set getChildGroupsNpHi() 
@@ -979,24 +934,12 @@ public class Stem extends Owner {
       PrivilegeResolver.grantPriv(root, g, orig.getSubject(), AccessPrivilege.ADMIN);
 
       // Now optionally grant other privs
-      this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.ADMIN  , GrouperConfig.GCGAA
-      );
-      this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.OPTIN  , GrouperConfig.GCGAOI
-      );
-      this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.OPTOUT , GrouperConfig.GCGAOO
-      );
-      this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.READ   , GrouperConfig.GCGAR
-      );
-      this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.UPDATE , GrouperConfig.GCGAU
-      );
-      this._grantOptionalPrivUponCreate(
-        root, g, AccessPrivilege.VIEW   , GrouperConfig.GCGAV
-      );
+      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.ADMIN , GrouperConfig.GCGAA );
+      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.OPTIN , GrouperConfig.GCGAOI);
+      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO);
+      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.READ  , GrouperConfig.GCGAR );
+      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
+      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.VIEW  , GrouperConfig.GCGAV );
 
       g.setSession(orig);
     }
@@ -1200,5 +1143,5 @@ public class Stem extends Owner {
     this.stem_name = stem_name;
   }
 
-}
+} // public class Stem
 

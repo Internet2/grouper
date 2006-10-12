@@ -38,7 +38,7 @@ import  java.util.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.18 2006-09-26 14:17:41 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.19 2006-10-12 18:53:49 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -94,14 +94,10 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     throws SubjectNotFoundException 
   {
     try {
-      return new GrouperSubject(
-        GroupFinder.findByUuid(this._getSession(), id)
-      );
+      return new GrouperSubject( GroupFinder.findByUuid(this._getSession(), id) );
     }
     catch (Exception e) {
-      throw new SubjectNotFoundException(
-        "subject not found: " + e.getMessage(), e
-      );
+      throw new SubjectNotFoundException("subject not found: " + e.getMessage(), e);
     }
   } // public Subject getSubject(id)
 

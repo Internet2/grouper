@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.33 2006-10-11 18:16:09 blair Exp $
+ * @version $Id: E.java,v 1.34 2006-10-12 18:53:49 blair Exp $
  * @since   1.0
  */
 class E {
@@ -28,6 +28,8 @@ class E {
   // PROTECTED CLASS CONSTANTS //
   protected static final String CANNOT_ADMIN              = "subject cannot ADMIN";
   protected static final String CANNOT_CREATE             = "subject cannot CREATE";
+  protected static final String CANNOT_CREATE_GROUP       = "cannot create child group: ";
+  protected static final String CANNOT_CREATE_STEM        = "cannot create child stem: ";
   protected static final String CANNOT_OPTIN              = "subject cannot OPTIN";
   protected static final String CANNOT_OPTOUT             = "subject cannot OPTOUT";
   protected static final String CANNOT_READ               = "subject cannot READ";
@@ -183,7 +185,6 @@ class E {
   protected static final String STEM_ROOTINSTALL          = "unable to install root stem: ";
   protected static final String STEMF_ISCHILDGROUP        = "could not find parent stem: stem=";
   protected static final String STEMF_ISCHILDSTEM         = "could not find parent stem: stem=";
-  protected static final String STEMF_NOTFOUND            = "stem not found: ";
   protected static final String SUBJ_NULL                 = "null subject";
   protected static final String SV_I                      = "null session id";
   protected static final String SV_O                      = "null session object";
