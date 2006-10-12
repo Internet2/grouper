@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.108 2006-10-11 14:35:10 blair Exp $
+ * @version $Id: Group.java,v 1.109 2006-10-12 18:53:49 blair Exp $
  */
 public class Group extends Owner {
 
@@ -58,43 +58,6 @@ public class Group extends Owner {
     super();
   } // protected Group()
 
-  // Return a group with an attached session
-  protected Group(
-    GrouperSession s, Stem ns, String extn, String displayExtn
-  ) 
-    throws SchemaException
-  {
-    this.setSession(s);
-    // Attach group type
-    Set types = this.getGroup_types();
-    types.add( GroupTypeFinder.find("base") );
-    this.setGroup_types(types);
-    // Set create information
-    this._setCreated();
-    // Assign UUID
-    this.setUuid( GrouperUuid.getUuid() );
-    // Set naming information
-    Set attributes = new LinkedHashSet();
-    attributes.add(
-      new Attribute(this, FieldFinder.find(GrouperConfig.ATTR_DE), displayExtn)
-    );
-    attributes.add(
-      new Attribute(
-        this, FieldFinder.find(GrouperConfig.ATTR_DN),
-        U.constructName(ns.getDisplayName(), displayExtn)
-      )
-    );
-    attributes.add(
-      new Attribute(this, FieldFinder.find(GrouperConfig.ATTR_E), extn)
-    );
-    attributes.add(
-      new Attribute(
-        this, FieldFinder.find(GrouperConfig.ATTR_N), U.constructName(ns.getName(), extn)
-      )
-    );
-    this.setGroup_attributes(attributes);
-  } // protected Group(s, ns, extn, displayExtn)
- 
 
   // PUBLIC CLASS METHODS //
 
@@ -2138,8 +2101,47 @@ public class Group extends Owner {
   } // public String toString()
 
 
-  // Protected Class Methods
+  // PROTECTED CLASS METHODS //
   
+  // @since   1.1.0
+  protected static Group create(Stem parent, String extn, String displayExtn)
+    throws SchemaException
+  {
+    Group g = new Group();
+    g.setSession( parent.getSession() );
+    // Set parent
+    g.setParent_stem(parent);
+    // Attach group type
+    Set types = g.getGroup_types();
+    types.add( GroupTypeFinder.find("base") );
+    g.setGroup_types(types);
+    // Set create information
+    g._setCreated();
+    // Assign UUID
+    g.setUuid( GrouperUuid.getUuid() );
+    // Set naming information
+    Set attributes = new LinkedHashSet();
+    attributes.add(
+      new Attribute(g, FieldFinder.find(GrouperConfig.ATTR_DE), displayExtn)
+    );
+    attributes.add(
+      new Attribute(
+        g, FieldFinder.find(GrouperConfig.ATTR_DN),
+        U.constructName(parent.getDisplayName(), displayExtn)
+      )
+    );
+    attributes.add(
+      new Attribute(g, FieldFinder.find(GrouperConfig.ATTR_E), extn)
+    );
+    attributes.add(
+      new Attribute(
+        g, FieldFinder.find(GrouperConfig.ATTR_N), U.constructName(parent.getName(), extn)
+      )
+    );
+    g.setGroup_attributes(attributes);
+    return g;
+  } // protected static Group create(ns, extn, displayExtn)
+ 
   // When retrieving groups via the parent stem we need to manually
   // initialize the attributes and types.
   protected static void initializeGroup(Group g) 
@@ -2149,10 +2151,11 @@ public class Group extends Owner {
     hs.load(g, g.getId());
     Hibernate.initialize( g.getGroup_attributes() );
     hs.close();
-  } // protected void initializeGroup()
+  } // protected static void initializeGroup()
 
 
-  // Protected Instance Methods //
+  // PROTECTED INSTANCE METHODS //
+
   protected void setModified() {
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );

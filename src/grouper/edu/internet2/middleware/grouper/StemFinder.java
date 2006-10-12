@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.29 2006-10-10 15:50:40 blair Exp $
+ * @version $Id: StemFinder.java,v 1.30 2006-10-12 18:53:49 blair Exp $
  */
 public class StemFinder {
 
@@ -52,35 +52,8 @@ public class StemFinder {
     throws StemNotFoundException
   {
     GrouperSessionValidator.validate(s);
-    Stem ns = null;
-    try {
-      if (name.equals(Stem.ROOT_EXT)) {
-        name = Stem.ROOT_INT;
-      }
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Stem as ns where ns.stem_name = :name"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByName");
-      qry.setString("name", name);
-      List    l   = qry.list();
-      if (l.size() == 1) {
-        ns = (Stem) l.get(0);
-        ns.setSession(s);
-      } 
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new StemNotFoundException(
-        E.STEMF_NOTFOUND + "name=" + U.q(name) + " - " + eH.getMessage(), eH
-      );
-    }
-    if (ns == null) {
-      throw new StemNotFoundException(
-        E.STEMF_NOTFOUND + "name=" + U.q(name)
-      );
-    }
+    Stem ns = findByName(name);
+    ns.setSession(s);
     return ns;
   } // public static Stem findByName(s, name)
 
@@ -316,32 +289,50 @@ public class StemFinder {
     }
   } // protected static Set findByCreatedBefore(s, d)
 
+  // @since   1.1.0
+  protected static Stem findByName(String name) 
+    throws  StemNotFoundException
+  {
+    Stem ns = null;
+    try {
+      if (name.equals(Stem.ROOT_EXT)) {
+        name = Stem.ROOT_INT;
+      }
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery("from Stem as ns where ns.stem_name = :name");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindByName");
+      qry.setString("name", name);
+      ns = (Stem) qry.uniqueResult();
+      hs.close();
+      if (ns == null) {
+        throw new StemNotFoundException(E.NO_STEM + " by name: " + U.q(name));
+      }
+      return ns;
+    }
+    catch (HibernateException eH) {
+      throw new StemNotFoundException(E.NO_STEM + ": " + eH.getMessage(), eH);
+    }
+  } // protected static Stem findByName(name)
+
   protected static Stem findByUuid(String uuid)
     throws StemNotFoundException
   {
     try {
-      Stem    ns    = null;
-      Session hs    = HibernateHelper.getSession();
-      Query   qry   = hs.createQuery(
-        "from Stem as ns where ns.uuid = :uuid"
-      );
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery("from Stem as ns where ns.uuid = :uuid");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
-      List    stems = qry.list();
-      if (stems.size() == 1) {
-        ns = (Stem) stems.get(0);
-      }
+      Stem ns = (Stem) qry.uniqueResult();
       hs.close();
       if (ns == null) {
-        throw new StemNotFoundException(E.STEMF_NOTFOUND + "uuid=" + U.q(uuid));
+        throw new StemNotFoundException(E.NO_STEM + " by uuid: " + U.q(uuid));
       }
       return ns; 
     }
     catch (HibernateException eH) {
-      throw new StemNotFoundException(
-        E.STEMF_NOTFOUND + "uuid=" + U.q(uuid) + " - " + eH.getMessage(), eH
-      );
+      throw new StemNotFoundException(E.NO_STEM + ": " + eH.getMessage(), eH);
     }
   } // protected static Stem findByUuid(uuid)
 
