@@ -25,65 +25,14 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.4 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.5 2006-10-13 19:41:47 blair Exp $
  */
 public class PrivHelper {
 
-  // Private Class Constants
   private static final Log LOG = LogFactory.getLog(PrivHelper.class);
 
 
-  // Protected Class Methods
-
-  protected static void getPrivs(
-    GrouperSession  s , Group g       , Subject subj  , int cnt, 
-    boolean admin     , boolean optin , boolean optout,
-    boolean read      , boolean update, boolean view
-  ) 
-  {
-    try {
-      Member  m   = MemberFinder.findBySubject(s, subj);
-      String  msg = subj.getName() + " has " + cnt + " privs on " + g.getName();
-      Assert.assertTrue(
-        msg, g.getPrivs(subj).size() == cnt
-      );
-      Assert.assertTrue(
-        msg, m.getPrivs(g).size()    == cnt
-      );
-      hasPriv(g, subj, m, AccessPrivilege.ADMIN,  admin );
-      hasPriv(g, subj, m, AccessPrivilege.OPTIN,  optin );
-      hasPriv(g, subj, m, AccessPrivilege.OPTOUT, optout);
-      hasPriv(g, subj, m, AccessPrivilege.READ,   read  );
-      hasPriv(g, subj, m, AccessPrivilege.UPDATE, update);
-      hasPriv(g, subj, m, AccessPrivilege.VIEW,   view  );
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
-    }
-  } // protected static void getPrivs(s, g, subj, cnt, admin, optin, optout, read, update view)
-
-
-  protected static void getPrivs(
-    GrouperSession s, Stem ns       , Subject subj, 
-    int cnt         , boolean create, boolean stem
-  ) 
-  {
-    try {
-      Member  m   = MemberFinder.findBySubject(s, subj);
-      String  msg = subj.getName() + " has " + cnt + " privs on " + ns.getName();
-      Assert.assertTrue(
-        msg, ns.getPrivs(subj).size() == cnt
-      );
-      Assert.assertTrue(
-        msg, m.getPrivs(ns).size()    == cnt
-      );
-      hasPriv(ns, subj, m, NamingPrivilege.CREATE, create);
-      hasPriv(ns, subj, m, NamingPrivilege.STEM,   stem);
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
-    }
-  } // protected static void getPrivs(s,ns, subj, cnt, create, stem)
+  // PROTECTED CLASS METHODS //
 
   protected static void getSubjsWithPriv(Group g, Set subjs, Privilege priv) {
     String  msg       = subjs.size() + " subjects with " + priv + " on " + g.getName();
@@ -478,67 +427,9 @@ public class PrivHelper {
     }
   } // protected static void revokePriv(s, ns, priv)
 
-  protected static void subjInGroups(
-    GrouperSession s, Subject subj, Set groups, Privilege priv
-  ) 
-  {
-    String  msg   = subj.getId() + " has " + priv + " on ";
-    Set     where = new HashSet();
-    try {
-      Member    m     = MemberFinder.findBySubject(s, subj);
-      if      (priv.equals(AccessPrivilege.ADMIN))  {
-        where = m.hasAdmin();
-      } 
-      else if (priv.equals(AccessPrivilege.OPTIN))  {
-        where = m.hasOptin();
-      }
-      else if (priv.equals(AccessPrivilege.OPTOUT)) {
-        where = m.hasOptout();
-      }
-      else if (priv.equals(AccessPrivilege.READ))   {
-        where = m.hasRead();
-      }
-      else if (priv.equals(AccessPrivilege.UPDATE)) {
-        where = m.hasUpdate();
-      }
-      else if (priv.equals(AccessPrivilege.VIEW))   {
-        where = m.hasView();
-      }
-      else {
-        Assert.fail("invalid priv: " + priv);
-      }
-      _compareCollections(msg, groups, where);
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
-    }
-  } // protected static void subjInGroups(s, subj, groups, priv)
 
-  protected static void subjInStems(
-    GrouperSession s, Subject subj, Set stems, Privilege priv
-  ) 
-  {
-    String  msg   = subj.getId() + " has " + priv + " on ";
-    Set     where = new HashSet();
-    try {
-      Member    m     = MemberFinder.findBySubject(s, subj);
-      if      (priv.equals(NamingPrivilege.CREATE)) {
-        where = m.hasCreate();
-      } 
-      else if (priv.equals(NamingPrivilege.STEM)) {
-        where = m.hasStem();
-      }
-      else {
-        Assert.fail("invalid priv: " + priv);
-      }
-      _compareCollections(msg, stems, where);
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
-    }
-  } // protected static void subjInStems(s, subj, stems, priv)
+  // PRIVATE CLASS METHODS //
 
-  // Private Class Methods
   private static void _compareCollections(String msg, Set exp, Set got) {
     Set check = new HashSet();
     Assert.assertTrue(

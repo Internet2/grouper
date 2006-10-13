@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.4 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.5 2006-10-13 19:41:47 blair Exp $
  */
 public class MembershipTestHelper {
 
@@ -332,7 +332,7 @@ public class MembershipTestHelper {
   } // protected static void testImmMship(s, g, subj, f)
 
   
-  // Private Class Methods
+  // PRIVATE CLASS METHODS //
 
   private static void _testEff(Group g, Subject subj, Member m) {
     // The basics

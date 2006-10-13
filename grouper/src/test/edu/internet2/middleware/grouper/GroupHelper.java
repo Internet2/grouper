@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.8 2006-10-11 14:35:10 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.9 2006-10-13 19:41:47 blair Exp $
  */
 class GroupHelper {
 
@@ -174,23 +174,6 @@ class GroupHelper {
       Assert.assertTrue("failed to delete group: " + eIP.getMessage(), true);
     }
   } // protected static void deleteFail(s, g, name)
-
-  // Delete a group as a member from a group
-  protected static void deleteMember(Group g, Group gm) {
-    try {
-      Member m = gm.toMember();
-      g.deleteMember(gm.toSubject());
-      Assert.assertTrue("deleted member", true);
-      Assert.assertFalse("g !hasMember m", g.hasMember(gm.toSubject()));
-      Assert.assertFalse("m !isMember g", m.isMember(g));
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail("not privileged to delete member: " + eIP.getMessage());
-    }
-    catch (MemberDeleteException eMA) {
-      Assert.fail("failed to delete member: " + eMA.getMessage());
-    }
-  } // protected static void deleteMember(g, gm)
 
   // Delete a member from a group
   protected static void deleteMember(Group g, Subject subj, Member m) {
@@ -449,99 +432,6 @@ class GroupHelper {
       Assert.fail(eANF.getMessage());
     }
   } // protected static void testAttrs(exp, g)
-
-  protected static void testAttrsFail(Group exp, Group g) {
-    // Naming attrs
-    LOG.debug("testAttrsFail.0");
-    Assert.assertTrue("4 attrs", g.getAttributes().size() == 4);
-    LOG.debug("testAttrsFail.1");
-    Assert.assertTrue(
-      "createSource", g.getCreateSource().equals("")
-    );
-    LOG.debug("testAttrsFail.2");
-    try {
-      Assert.assertTrue(
-        "createSubject", g.getCreateSubject() instanceof Subject
-      );
-    LOG.debug("testAttrsFail.3");
-    }
-    catch (SubjectNotFoundException eSNF) {
-    LOG.debug("testAttrsFail.4");
-      Assert.fail("create subject: " + eSNF.getMessage());
-    }
-    Assert.assertTrue(
-      "createTime", g.getCreateTime() instanceof Date
-    );
-    LOG.debug("testAttrsFail.5");
-    try {
-      g.getAttribute("description");
-    LOG.debug("testAttrsFail.6");
-      Assert.fail("found description");
-    }
-    catch (AttributeNotFoundException eANF) {
-      Assert.assertTrue("no description", true);
-    LOG.debug("testAttrsFail.7");
-    }
-    try {
-      Assert.assertTrue(
-        "[i] displayName", g.getAttribute("displayName").equals(exp.getDisplayName())
-      );
-    LOG.debug("testAttrsFail.8");
-      Assert.assertTrue(
-        "[i] displayExtension", g.getAttribute("displayExtension").equals(exp.getDisplayExtension())
-      );
-    LOG.debug("testAttrsFail.9");
-      Assert.assertTrue(
-        "[i] extension", g.getAttribute("extension").equals(exp.getExtension())
-      );
-    LOG.debug("testAttrsFail.10");
-      Assert.assertTrue(
-        "[i] name", g.getAttribute("name").equals(exp.getName())
-      );
-    LOG.debug("testAttrsFail.11");
-    }
-    catch (AttributeNotFoundException eANF) {
-    LOG.debug("testAttrsFail.12");
-      Assert.fail(eANF.getMessage()); 
-    }
-    Assert.assertTrue(
-      "[d] description", g.getDescription().equals("")
-    );
-    LOG.debug("testAttrsFail.13");
-    Assert.assertTrue(
-      "[d] displayName", g.getDisplayName().equals(exp.getDisplayName())
-    );
-    LOG.debug("testAttrsFail.14");
-    Assert.assertTrue(
-      "[d] displayExtension", g.getDisplayExtension().equals(exp.getDisplayExtension())
-    );
-    LOG.debug("testAttrsFail.15");
-    Assert.assertTrue(
-      "[d] extension", g.getExtension().equals(exp.getExtension())
-    );
-    LOG.debug("testAttrsFail.16");
-    Assert.assertTrue(
-      "modifySource", g.getModifySource().equals("")
-    );
-    LOG.debug("testAttrsFail.17");
-    try {
-      g.getModifySubject();
-      LOG.debug("testAttrsFail.18");
-      Assert.assertTrue("group modified", true);
-    }
-    catch (SubjectNotFoundException eSNF) {
-      Assert.fail("group not modified");
-      LOG.debug("testAttrsFail.19");
-    }
-    Assert.assertTrue(
-      "modifyTime", g.getModifyTime() instanceof Date
-    );
-    LOG.debug("testAttrsFail.20");
-    Assert.assertTrue(
-      "[d] name", g.getName().equals(exp.getName())
-    );
-    LOG.debug("testAttrsFail.21");
-  } // protected static void testAttrsFail(exp, g)
 
   // test converting a Group to a Member
   protected static Member toMember(Group g) {
