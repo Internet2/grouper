@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.133 2006-10-11 18:19:53 blair Exp $ -->
+<!-- $Id: build.xml,v 1.134 2006-10-13 18:38:25 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -649,6 +649,15 @@
     <record name="${log.test.run}" action="stop"/>
   </target>
   <!-- test -->
+
+  <!-- with.clover.test -->
+  <target name="with.clover.test" depends="init">
+    <taskdef resource="clovertasks"/>
+    <clover-setup initString="clover.db">
+      <fileset dir="${src.test}"/>
+    </clover-setup>
+  </target> 
+  <!-- with.clover.test -->
 
   <!-- xml-export -->    
   <target name="xml-export"
