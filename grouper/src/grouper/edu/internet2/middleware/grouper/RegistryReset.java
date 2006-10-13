@@ -28,7 +28,7 @@ import  net.sf.hibernate.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.34 2006-09-27 14:15:29 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.35 2006-10-13 15:55:10 blair Exp $
  */
 public class RegistryReset {
 
@@ -111,7 +111,6 @@ public class RegistryReset {
       String  name  = "my name is " + id;
       HibernateSubject.add(id, SUBJ_TYPE, name);
     }
-    CacheMgr.resetAllCaches();
   } // private void _addSubjects()
 
   private void _abort(String msg) 
@@ -162,8 +161,8 @@ public class RegistryReset {
     // TODO 20060927 Now update the cached types + fields
     GroupTypeFinder.updateKnownTypes();
     FieldFinder.updateKnownFields();
-    CacheMgr.resetAllCaches();
+    SubjectFinder.flushCache();
   } // private void _emptyTables()
 
-}
+} // public class RegistryReset
 
