@@ -37,24 +37,6 @@ Grouper uses this for benchmarking.
 * License:  Apache Software License, Version 1.1
 * Updated:  ?
 
-# GroboTestingJUnit-1.2.1-core.jar        
-
-"JUnit extentions for easing test making."
-
-* Version:  1.2.1
-* Source:   <http://groboutils.sourceforge.net/>
-* License:  MIT
-* Updated:  20060705
-
-# GroboUtilThread-1.0.0alpha2-core.jar
-
-"A utility class which executes a collection of small test methods in parallel."
-
-* Version:  1.2.1
-* Source:   <http://groboutils.sourceforge.net/>
-* License:  MIT
-* Updated:  20060705
-
 # hibernate2-2.1.8.jar
 
 "Hibernate is a powerful, ultra-high performance object/relational
@@ -140,5 +122,5 @@ logging services for purposes of application debugging and auditing."
 
 ---
 
-$Id: README.txt,v 1.5 2006-09-07 19:25:47 blair Exp $
+$Id: README.txt,v 1.6 2006-10-13 19:17:20 blair Exp $
 
