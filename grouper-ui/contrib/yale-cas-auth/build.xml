@@ -31,7 +31,7 @@
 		  	  </copy>
 				  <!--copy web.uob.xml and filter tokens-->
 				  <filter filtersfile="build.properties"/>
-				  <copy file="web.cas1.xml" tofile="${temp.dir}/50.web.cas1.filtered.xml" filtering="true" overwrite="true"/>
-				  <copy file="web.cas.xml" tofile="${temp.dir}/30.web.cas.filtered.xml" filtering="true" overwrite="true"/>  
+				  <!--<copy file="web.cas1.xml" tofile="${temp.dir}/50.web.cas1.filtered.xml" filtering="true" overwrite="true"/>-->
+				  <copy file="web.cas.xml" tofile="${temp.dir}/70.web.cas.filtered.xml" filtering="true" overwrite="true"/>  
 		  </target>
 </project>
