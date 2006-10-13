@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test Groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteGroups.java,v 1.14 2006-10-11 18:16:09 blair Exp $
+ * @version $Id: SuiteGroups.java,v 1.15 2006-10-13 19:17:20 blair Exp $
  */
 public class SuiteGroups extends TestCase {
 
@@ -79,6 +79,7 @@ public class SuiteGroups extends TestCase {
     suite.addTestSuite( TestGroup41.class       );  // revokePriv() - revoke default privilege for all subjects
     // TODO 20060927 Split pre-existing tests
     suite.addTestSuite( TestGroup.class               );
+    suite.addTestSuite( TestGroupAddMember.class      );
     suite.addTestSuite( TestGroupAddMemberGroup.class );
     suite.addTestSuite( TestGroupDeleteMember.class   );
     suite.addTestSuite( TestGroupToMember.class       );
