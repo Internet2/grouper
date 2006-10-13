@@ -23,7 +23,7 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectTestHelper.java,v 1.5 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: SubjectTestHelper.java,v 1.6 2006-10-13 19:41:47 blair Exp $
  */
  class SubjectTestHelper {
 
@@ -76,20 +76,6 @@ import  junit.framework.*;
       T.e(eSNU);
     }
   } // protected static void getSubjectByBadId(id)
-
-  // Don't get a subject by bad identifier
-  protected static void getSubjectByBadIdentifier(String id) { 
-    try {
-      Subject subj = SubjectFinder.findByIdentifier(id);
-      Assert.fail("found bad subject '" + id + "': " + subj);
-    }
-    catch (SubjectNotFoundException e) {
-      Assert.assertTrue("failed to find bad subject", true);
-    }
-    catch (SubjectNotUniqueException eSNU) {
-      T.e(eSNU);
-    }
-  } // protected static void getSubjectByBadIdentifier(id)
 
   // Don't get a subject by bad id and type
   protected static void getSubjectByBadIdType(String id, String type) { 

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.7 2006-10-11 14:15:03 blair Exp $
+ * @version $Id: T.java,v 1.8 2006-10-13 19:41:47 blair Exp $
  * @since   1.0
  */
 public class T {
@@ -70,23 +70,11 @@ public class T {
 
   // Groups //
 
-  // @since   1.0
-  protected static void getEffectiveMembers(Group g, int exp) {
-    LOG.debug("getEffectiveMembers()");
-    T.amount(g.getName() + " eff members", exp, g.getEffectiveMembers().size());
-  } // protected static void getEffectiveMembers(g, exp)
-
   // @since 1.0
   protected static void getEffectiveMemberships(Group g, int exp) {
     LOG.debug("getEffectiveMemberships()");
     T.amount(g.getName() + " eff mships", exp, g.getEffectiveMemberships().size());
   } // protected static void getEffectiveMemberships(g, exp)
-
-  // @since   1.0
-  protected static void getImmediateMembers(Group g, int exp) {
-    LOG.debug("getImmediateMembers()");
-    T.amount(g.getName() + " imm members", exp, g.getImmediateMembers().size());
-  } // protected static void getImmediateMembers(g, exp)
 
   // @since 1.0
   protected static void getImmediateMemberships(Group g, int exp) {
@@ -94,31 +82,11 @@ public class T {
     T.amount(g.getName() + " imm mships", exp, g.getImmediateMemberships().size());
   } // protected static void getImmediateMemberships(g, exp)
 
-  // @since   1.0
-  protected static void getMembers(Group g, int exp) {
-    LOG.debug("getMembers()");
-    T.amount(g.getName() + " members", exp, g.getMembers().size());
-  } // protected static void getMembers(g, exp)
-
   // @since 1.0
   protected static void getMemberships(Group g, int exp) {
     LOG.debug("getMemberships()");
     T.amount(g.getName() + " mships", exp, g.getMemberships().size());
   } // protected static void getMemberships(g, exp)
-
-  // Stems //
-
-  // @since   1.0
-  protected static void getChildGroups(Stem ns, int exp) {
-    LOG.debug("getChildGroups()");
-    T.amount(ns.getName() + " child groups", exp, ns.getChildGroups().size());
-  } // protected static void getChildGroups(ns, exp)
-
-  // @since   1.0
-  protected static void getChildStems(Stem ns, int exp) {
-    LOG.debug("getChildStems()");
-    T.amount(ns.getName() + " child stems", exp, ns.getChildStems().size());
-  } // protected static void getChildStems(ns, exp)
 
   // SubjectFinder //
 
