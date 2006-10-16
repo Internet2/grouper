@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Messages.
  * @author  blair christensen.
- * @version $Id: M.java,v 1.6 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: M.java,v 1.7 2006-10-16 14:39:00 blair Exp $
  * @since   1.0
  */
 class M {
@@ -51,6 +51,7 @@ class M {
   protected static final String GROUPTYPE_DEL       = "delete group type: ";
   protected static final String GROUPTYPE_DELFIELD  = "delete group field: field=";
   protected static final String MEMBER_CHANGESID    = "changed member subjectId: uuid=";
+  protected static final String MEMBER_CHANGE_SSID  = "changed member subject source id: uuid=";
   protected static final String S_GP                = "grant naming priv: stem=";
   protected static final String S_GP_E              = "grant effective naming priv: stem=";
   protected static final String S_RP                = "revoke naming priv: stem=";

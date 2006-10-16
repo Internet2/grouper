@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MemberValidator.java,v 1.1 2006-10-16 14:11:42 blair Exp $
+ * @version $Id: MemberValidator.java,v 1.2 2006-10-16 14:39:00 blair Exp $
  * @since   1.1.0
  */
 class MemberValidator {
@@ -31,7 +31,24 @@ class MemberValidator {
   protected static void canSetSubjectId(Member m, String val) 
     throws  InsufficientPrivilegeException 
   {
-    Validator.argNotNull(val, "null subjectId");
+    _canSetSubjectAttr(m, val, "null subject id");
+  } // protected static void canSetSubjectId(m)
+
+  // @since 1.1.10
+  protected static void canSetSubjectSourceId(Member m, String val) 
+    throws  InsufficientPrivilegeException 
+  {
+    _canSetSubjectAttr(m, val, "null subject source id");
+  } // protected static void canSetSubjectId(m)
+
+
+  // PRIVATE CLASS METHODS //
+
+  // @since   1.1.0
+  private static void _canSetSubjectAttr(Member m, String val, String msg)
+    throws  InsufficientPrivilegeException
+  {
+    Validator.argNotNull(val, msg);
     // Subjects from ISA may not be updated
     if (m.getSubjectSourceId().equals(InternalSourceAdapter.ID)) {
       throw new InsufficientPrivilegeException("cannot modify internal subjects");
@@ -39,7 +56,7 @@ class MemberValidator {
     if (! RootPrivilegeResolver.isRoot( m.getSession()) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_SET_SUBJECTID);
     }
-  } // protected static void canSetSubjectId(m)
+  } // protected static void _canSetSubjectAttr(m)
 
 } // class MemberValidator
 
