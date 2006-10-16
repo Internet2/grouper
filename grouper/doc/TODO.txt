@@ -4,14 +4,13 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.57 2006-10-11 18:46:54 blair Exp $
+$Id: TODO.txt,v 1.58 2006-10-16 19:44:38 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
 
 ### Next Actions
-* BUGFIX    `XmlImporter.update()`
 * CODE		  Move type + field caching to within sessions?
 * CODE      Use `SetUtils` for group math
 * DOC       Migrate impl guide to wiki and export upon release
@@ -40,7 +39,7 @@ $Id: TODO.txt,v 1.57 2006-10-11 18:46:54 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.57 2006-10-11 18:46:54 blair Exp $
+$Id: TODO.txt,v 1.58 2006-10-16 19:44:38 blair Exp $
 
 
 

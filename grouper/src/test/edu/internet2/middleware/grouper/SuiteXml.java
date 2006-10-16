@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test XML.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXml.java,v 1.14 2006-10-16 19:05:57 blair Exp $
+ * @version $Id: SuiteXml.java,v 1.15 2006-10-16 19:44:38 blair Exp $
  * @since   1.0
  */
 public class SuiteXml extends TestCase {
@@ -42,17 +42,17 @@ public class SuiteXml extends TestCase {
     // update()
     suite.addTestSuite( TestXml2.class  );  // update() - OK do not create missing stems
     suite.addTestSuite( TestXml18.class );  // update() - OK do not update stem attrs
-    suite.addTestSuite( TestXml22.class );  // update() - OK update stem privs (ADD) [DEFAULT]
+    suite.addTestSuite( TestXml22.class );  // update() - OK update stem privs (ADD) 
     suite.addTestSuite( TestXml23.class );  // update() - OK update stem privs (IGNORE)
     suite.addTestSuite( TestXml21.class );  // update() - OK update stem privs (REPLACE)
     suite.addTestSuite( TestXml19.class );  // update() - OK do not update missing groups
     suite.addTestSuite( TestXml20.class );  // update() - OK do not update group attrs
-    suite.addTestSuite( TestXml24.class );  // update() - OK update group privs (ADD) [DEFAULT]
+    suite.addTestSuite( TestXml24.class );  // update() - OK update group privs (ADD)
     suite.addTestSuite( TestXml25.class );  // update() - OK update group privs (IGNORE)
     suite.addTestSuite( TestXml26.class );  // update() - OK update group privs (REPLACE)
-    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update mship (ADD)
-    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update mship (IGNORE)
-    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update mship (REPLACE) [DEFAULT]
+    suite.addTestSuite( TestXml27.class );  // update() - OK update mship (ADD)
+    suite.addTestSuite( TestXml28.class );  // update() - OK update mship (IGNORE)
+    suite.addTestSuite( TestXml29.class );  // update() - OK update mship (REPLACE) 
   
     suite.addTestSuite( TestXml3.class  );  // e: full              -- i: full -- stem + attrs + privs
     suite.addTestSuite( TestXml4.class  );  // e: full              -- i: full -- stem: granted priv
