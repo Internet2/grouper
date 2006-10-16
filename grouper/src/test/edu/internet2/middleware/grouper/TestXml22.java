@@ -22,14 +22,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml21.java,v 1.2 2006-10-16 19:05:57 blair Exp $
+ * @version $Id: TestXml22.java,v 1.1 2006-10-16 19:05:57 blair Exp $
  * @since   1.1.0
  */
-public class TestXml21 extends GrouperTest {
+public class TestXml22 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXml21.class);
+  private static final Log LOG = LogFactory.getLog(TestXml22.class);
 
-  public TestXml21(String name) {
+  public TestXml22(String name) {
     super(name);
   }
 
@@ -42,8 +42,8 @@ public class TestXml21 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testUpdateOkNamingPrivsInReplaceMode() {
-    LOG.info("testUpdateOkNamingPrivsInReplaceMode");
+  public void testUpdateOkNamingPrivsInAddMode() {
+    LOG.info("testUpdateOkNamingPrivsInAddMode");
     try {
       // Populate Registry And Verify
       R       r     = R.populateRegistry(2, 0, 0);
@@ -78,7 +78,7 @@ public class TestXml21 extends GrouperTest {
       // Import 
       s                   = GrouperSession.start( SubjectFinder.findRootSubject() );
       Properties  custom  = new Properties();
-      custom.setProperty("import.data.privileges", "replace");
+      custom.setProperty("import.data.privileges", "add");
       XmlImporter importer = new XmlImporter(s, custom);
       importer.update( XmlReader.getDocumentFromString(xml) );
       s.stop();
@@ -88,14 +88,14 @@ public class TestXml21 extends GrouperTest {
       nsA = assertFindStemByName( s, "i2:a" );
       // Should have
       assertStemHasCreate( nsA, SubjectFinder.findAllSubject(), true );
-      // Should no longer have
-      assertStemHasStem( nsA, SubjectFinder.findAllSubject(), false );
+      // Should still have
+      assertStemHasStem( nsA, SubjectFinder.findAllSubject(), true );
       s.stop();
     }
     catch (Exception e) {
       e(e);
     }
-  } // public void testUpdateOkNamingPrivsInReplaceMode()
+  } // public void testUpdateOkNamingPrivsInAddMode()
 
-} // public class TestXml21
+} // public class TestXml22
 
