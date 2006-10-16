@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.75 2006-10-11 14:42:31 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.76 2006-10-16 18:40:02 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1308,18 +1308,13 @@ public class XmlExporter {
     if (subjects.size() == 1) {
       subjects.remove( SubjectFinder.findRootSubject() );
     }
-    if (subjects.isEmpty()) {
-      return;
-    }
-
     this.xml.puts();
     this.xml.puts("<privileges type='" + privilege + "'>");
-    Iterator  subjIterator  = subjects.iterator();
     Subject   subject;
-    boolean   isImmediate   = false;
-
-    while (subjIterator.hasNext()) {
-      subject     = (Subject) subjIterator.next();
+    boolean   isImmediate = false;
+    Iterator  it          = subjects.iterator();
+    while (it.hasNext()) {
+      subject     = (Subject) it.next();
       isImmediate = XmlUtils.hasImmediatePrivilege(subject, o, privilege);
       if (
         (!subject.getId().equals("GrouperSystem"))
