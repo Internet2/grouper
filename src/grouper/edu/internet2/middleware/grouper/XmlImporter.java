@@ -37,7 +37,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.84 2006-10-16 18:41:01 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.85 2006-10-16 19:44:38 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -237,11 +237,7 @@ public class XmlImporter {
   } // public void load(ns, doc)
 
   /**
-   * TODO 20061016 Update memberships and privileges but do not create missing stems or groups.
-   * <p>
-   * <b>NOTE:</b> This method does not currently work properly as groups and
-   * stems <b>ARE</b> created by it.
-   * </p>
+   * Update memberships and privileges but do not create missing stems or groups.
    * <pre class="eg">
    * try {
    *   importer.update( XmlReader.getDocumentFromString(s) );
@@ -1148,7 +1144,10 @@ public class XmlImporter {
       else {
         Iterator it = g.getImmediateMembers(f).iterator();
         while (it.hasNext()) {
-          g.deleteMember( ( (Member) it.next() ).getSubject() );
+          Member m = (Member) it.next();
+          Subject subj = m.getSubject();
+          g.deleteMember(subj, f);
+          //g.deleteMember( ( (Member) it.next() ).getSubject() );
         }
       }
     }
