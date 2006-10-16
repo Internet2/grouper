@@ -24,7 +24,7 @@ import  junit.framework.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.6 2006-10-11 18:16:09 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.7 2006-10-16 18:39:40 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -63,27 +63,41 @@ public class GrouperTest extends TestCase {
    * @since   1.1.0
    */
   public void assertDoNotFindGroupByName(GrouperSession s, String name) {
-    try {
-      GroupFinder.findByName(s, name);
-      fail("unexpectedly found group by name: " + name);
-    }
-    catch (GroupNotFoundException eGNF) {
-      assertTrue(true);
-    }
+    assertDoNotFindGroupByName(s, name, GrouperConfig.EMPTY_STRING);
   } // public void assertDoNotFindGroupByName(s, name)
 
   /**  
    * @since   1.1.0
    */
+  public void assertDoNotFindGroupByName(GrouperSession s, String name, String msg) {
+    try {
+      GroupFinder.findByName(s, name);
+      fail(U.qp(msg) + "unexpectedly found group by name: " + name);
+    }
+    catch (GroupNotFoundException eGNF) {
+      assertTrue(msg, true);
+    }
+  } // public void assertDoNotFindGroupByName(s, name, msg)
+
+  /**  
+   * @since   1.1.0
+   */
   public void assertDoNotFindStemByName(GrouperSession s, String name) {
+    assertDoNotFindStemByName(s, name, GrouperConfig.EMPTY_STRING);
+  } // public void assertDoNotFindStemByName(s, name)
+
+  /**
+   * @since   1.1.0
+   */
+  public void assertDoNotFindStemByName(GrouperSession s, String name, String msg) {
     try {
       StemFinder.findByName(s, name);
-      fail("unexpectedly found stem by name: " + name);
+      fail(U.qp(msg) + "unexpectedly found stem by name: " + name);
     }
     catch (StemNotFoundException eNSNF) {
-      assertTrue(true);
+      assertTrue(msg, true);
     }
-  } // public void assertDoNotFindStemByName(s, name)
+  } // public void assertDoNotFindStemByName(s, name, msg)
 
   /** 
    * @since   1.1.0
@@ -121,16 +135,24 @@ public class GrouperTest extends TestCase {
    * @since   1.1.0
    */
   public Group assertFindGroupByName(GrouperSession s, String name) {
+    return assertFindGroupByName(s, name, GrouperConfig.EMPTY_STRING);
+  } // public Group assertFindGroupByName(s, name)
+
+  /**  
+   * @return  Retrieved {@link Group}.
+   * @since   1.1.0
+   */
+  public Group assertFindGroupByName(GrouperSession s, String name, String msg) {
     Group g = null;
     try {
       g = GroupFinder.findByName(s, name);
-      assertTrue(true);
+      assertTrue(msg, true);
     }
     catch (GroupNotFoundException eGNF) {
-      fail("did not find group (" + name + ") by name: " + eGNF.getMessage());
+      fail(U.qp(msg) + "did not find group (" + name + ") by name: " + eGNF.getMessage());
     }
     return g;
-  } // public Group assertFindGroupByName(s, name)
+  } // public Group assertFindGroupByName(s, name, msg)
 
   /** 
    * @since   1.1.0
@@ -152,16 +174,23 @@ public class GrouperTest extends TestCase {
    * @since   1.1.0
    */
   public Stem assertFindStemByName(GrouperSession s, String name) {
+    return assertFindStemByName(s, name, GrouperConfig.EMPTY_STRING);
+  } // public Stem assertFindStemByName(s, name)
+
+  /**
+   * @since   1.1.0
+   */
+  public Stem assertFindStemByName(GrouperSession s, String name, String msg) {
     Stem ns = null;
     try {
       ns = StemFinder.findByName(s, name);
-      assertTrue(true);
+      assertTrue(msg, true);
     }
     catch (StemNotFoundException eNSNF) {
-      fail("did not find stem (" + name + ") by name: " + eNSNF.getMessage());
+      fail(U.qp(msg) + "did not find stem (" + name + ") by name: " + eNSNF.getMessage());
     }
     return ns;
-  } // public Stem assertFindStemByName(s, name)
+  } // public Stem assertFindStemByName(s, name, msg)
 
   /**
    * @since   1.1.0
