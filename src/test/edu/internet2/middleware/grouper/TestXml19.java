@@ -23,14 +23,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml2.java,v 1.8 2006-10-16 18:41:01 blair Exp $
+ * @version $Id: TestXml19.java,v 1.1 2006-10-16 18:41:01 blair Exp $
  * @since   1.1.0
  */
-public class TestXml2 extends GrouperTest {
+public class TestXml19 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXml2.class);
+  private static final Log LOG = LogFactory.getLog(TestXml19.class);
 
-  public TestXml2(String name) {
+  public TestXml19(String name) {
     super(name);
   }
 
@@ -43,17 +43,20 @@ public class TestXml2 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testUpdateOkDoNotAddMissingStems() {
-    LOG.info("testUpdateOkDoNotAddMissingStems");
+  public void testUpdateOkDoNotAddMissingGroups() {
+    LOG.info("testUpdateOkDoNotAddMissingGroups");
     try {
       // Export - Setup
-      R       r     = R.populateRegistry(2, 0, 0);
-      Stem    nsA   = r.getStem("a");
-      Stem    nsB   = r.getStem("b");
-      String  nameA = nsA.getName();
-      String  nameB = nsB.getName();
-      assertFindStemByName(r.rs, nameA, "setup");
-      assertFindStemByName(r.rs, nameB, "setup");
+      R       r     = R.populateRegistry(1, 2, 0);
+      Group   gA    = r.getGroup("a", "a");
+      Group   gB    = r.getGroup("a", "b");
+      String  nameA = gA.getName();
+      String  nameB = gB.getName();
+      assertFindGroupByName(r.rs, nameA, "setup");
+      assertFindGroupByName(r.rs, nameB, "setup");
+      // These are to make sure no exception is thrown due to gB not existing when updating
+      gB.addMember( SubjectFinder.findAllSubject() );
+      gB.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
       r.rs.stop();
 
       // Export
@@ -68,9 +71,9 @@ public class TestXml2 extends GrouperTest {
       RegistryReset.reset();
 
       // Install Subjects and partial registry
-      r = R.populateRegistry(1, 0, 0);
-      assertFindStemByName(r.rs, nameA, "recreate");
-      assertDoNotFindStemByName(r.rs, nameB, "recreate");
+      r = R.populateRegistry(1, 1, 0);
+      assertFindGroupByName(r.rs, nameA, "recreate");
+      assertDoNotFindGroupByName(r.rs, nameB, "recreate");
       r.rs.stop();
 
       // Update
@@ -81,14 +84,14 @@ public class TestXml2 extends GrouperTest {
 
       // Import - Verify
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      assertFindStemByName(s, nameA, "update");
-      assertDoNotFindStemByName(s, nameB, "update");
+      assertFindGroupByName(s, nameA, "update");
+      assertDoNotFindGroupByName(s, nameB, "update");
       s.stop();
     }
     catch (Exception e) {
       e(e);
     }
-  } // public void testUpdateOkDoNotAddMissingStems()
+  } // public void testUpdateOkDoNotAddMissingGroups()
 
-} // public class TestXml2
+} // public class TestXml19
 
