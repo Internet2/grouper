@@ -22,14 +22,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml21.java,v 1.2 2006-10-16 19:05:57 blair Exp $
+ * @version $Id: TestXml25.java,v 1.1 2006-10-16 19:05:57 blair Exp $
  * @since   1.1.0
  */
-public class TestXml21 extends GrouperTest {
+public class TestXml25 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXml21.class);
+  private static final Log LOG = LogFactory.getLog(TestXml25.class);
 
-  public TestXml21(String name) {
+  public TestXml25(String name) {
     super(name);
   }
 
@@ -42,18 +42,17 @@ public class TestXml21 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testUpdateOkNamingPrivsInReplaceMode() {
-    LOG.info("testUpdateOkNamingPrivsInReplaceMode");
+  public void testUpdateOkNamingPrivsInIgnoreMode() {
+    LOG.info("testUpdateOkNamingPrivsInIgnoreMode");
     try {
       // Populate Registry And Verify
-      R       r     = R.populateRegistry(2, 0, 0);
-      Stem    nsA   = r.getStem("a");
-      Stem    nsB   = r.getStem("b");
-      String  nameA = nsA.getName();
-      String  nameB = nsB.getName();
-      nsA.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.CREATE );
-      // Make sure no exception is thrown due to nsB not existing when updating
-      nsB.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
+      R       r     = R.populateRegistry(1, 2, 0);
+      Group   gA    = r.getGroup("a", "a");
+      Group   gB    = r.getGroup("a", "b");
+      String  nameA = gA.getName();
+      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE );
+      // Make sure no exception is thrown due to gB not existing when updating
+      gB.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
       r.rs.stop();
 
       // Export
@@ -68,34 +67,31 @@ public class TestXml21 extends GrouperTest {
       RegistryReset.reset();
 
       // Install Subjects and partial registry
-      r = R.populateRegistry(1, 0, 0);
-      nsA = assertFindStemByName(r.rs, nameA, "recreate");
-      assertDoNotFindStemByName(r.rs, nameB, "recreate");
-      // Now grant an added priv
-      nsA.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
+      r = R.populateRegistry(1, 1, 0);
+      assertFindGroupByName(r.rs, nameA, "recreate");
       r.rs.stop();
 
       // Import 
       s                   = GrouperSession.start( SubjectFinder.findRootSubject() );
       Properties  custom  = new Properties();
-      custom.setProperty("import.data.privileges", "replace");
+      custom.setProperty("import.data.privileges", "ignore");
       XmlImporter importer = new XmlImporter(s, custom);
       importer.update( XmlReader.getDocumentFromString(xml) );
       s.stop();
 
       // Verify
       s   = GrouperSession.start( SubjectFinder.findRootSubject() );
-      nsA = assertFindStemByName( s, "i2:a" );
-      // Should have
-      assertStemHasCreate( nsA, SubjectFinder.findAllSubject(), true );
-      // Should no longer have
-      assertStemHasStem( nsA, SubjectFinder.findAllSubject(), false );
+      gA = assertFindGroupByName(s, nameA);
+      // Should not have
+      assertGroupHasUpdate( gA, SubjectFinder.findAllSubject(), false );
+      // Should not have
+      assertGroupHasAdmin( gA, SubjectFinder.findAllSubject(), false );
       s.stop();
     }
     catch (Exception e) {
       e(e);
     }
-  } // public void testUpdateOkNamingPrivsInReplaceMode()
+  } // public void testUpdateOkNamingPrivsInIgnoreMode()
 
-} // public class TestXml21
+} // public class TestXml25
 

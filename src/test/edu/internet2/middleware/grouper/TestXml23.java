@@ -22,14 +22,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml21.java,v 1.2 2006-10-16 19:05:57 blair Exp $
+ * @version $Id: TestXml23.java,v 1.1 2006-10-16 19:05:57 blair Exp $
  * @since   1.1.0
  */
-public class TestXml21 extends GrouperTest {
+public class TestXml23 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXml21.class);
+  private static final Log LOG = LogFactory.getLog(TestXml23.class);
 
-  public TestXml21(String name) {
+  public TestXml23(String name) {
     super(name);
   }
 
@@ -42,8 +42,8 @@ public class TestXml21 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testUpdateOkNamingPrivsInReplaceMode() {
-    LOG.info("testUpdateOkNamingPrivsInReplaceMode");
+  public void testUpdateOkNamingPrivsInIgnoreMode() {
+    LOG.info("testUpdateOkNamingPrivsInIgnoreMode");
     try {
       // Populate Registry And Verify
       R       r     = R.populateRegistry(2, 0, 0);
@@ -71,14 +71,12 @@ public class TestXml21 extends GrouperTest {
       r = R.populateRegistry(1, 0, 0);
       nsA = assertFindStemByName(r.rs, nameA, "recreate");
       assertDoNotFindStemByName(r.rs, nameB, "recreate");
-      // Now grant an added priv
-      nsA.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
       r.rs.stop();
 
       // Import 
       s                   = GrouperSession.start( SubjectFinder.findRootSubject() );
       Properties  custom  = new Properties();
-      custom.setProperty("import.data.privileges", "replace");
+      custom.setProperty("import.data.privileges", "ignore");
       XmlImporter importer = new XmlImporter(s, custom);
       importer.update( XmlReader.getDocumentFromString(xml) );
       s.stop();
@@ -86,16 +84,16 @@ public class TestXml21 extends GrouperTest {
       // Verify
       s   = GrouperSession.start( SubjectFinder.findRootSubject() );
       nsA = assertFindStemByName( s, "i2:a" );
-      // Should have
-      assertStemHasCreate( nsA, SubjectFinder.findAllSubject(), true );
-      // Should no longer have
+      // Should not have
+      assertStemHasCreate( nsA, SubjectFinder.findAllSubject(), false );
+      // Should not have
       assertStemHasStem( nsA, SubjectFinder.findAllSubject(), false );
       s.stop();
     }
     catch (Exception e) {
       e(e);
     }
-  } // public void testUpdateOkNamingPrivsInReplaceMode()
+  } // public void testUpdateOkNamingPrivsInIgnoreMode()
 
-} // public class TestXml21
+} // public class TestXml23
 

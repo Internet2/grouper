@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test XML.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXml.java,v 1.13 2006-10-16 18:41:01 blair Exp $
+ * @version $Id: SuiteXml.java,v 1.14 2006-10-16 19:05:57 blair Exp $
  * @since   1.0
  */
 public class SuiteXml extends TestCase {
@@ -42,14 +42,14 @@ public class SuiteXml extends TestCase {
     // update()
     suite.addTestSuite( TestXml2.class  );  // update() - OK do not create missing stems
     suite.addTestSuite( TestXml18.class );  // update() - OK do not update stem attrs
-    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update stem privs (ADD) [DEFAULT]
-    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update stem privs (IGNORE)
+    suite.addTestSuite( TestXml22.class );  // update() - OK update stem privs (ADD) [DEFAULT]
+    suite.addTestSuite( TestXml23.class );  // update() - OK update stem privs (IGNORE)
     suite.addTestSuite( TestXml21.class );  // update() - OK update stem privs (REPLACE)
     suite.addTestSuite( TestXml19.class );  // update() - OK do not update missing groups
     suite.addTestSuite( TestXml20.class );  // update() - OK do not update group attrs
-    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update group privs (ADD) [DEFAULT]
-    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update group privs (IGNORE)
-    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update group privs (REPLACE)
+    suite.addTestSuite( TestXml24.class );  // update() - OK update group privs (ADD) [DEFAULT]
+    suite.addTestSuite( TestXml25.class );  // update() - OK update group privs (IGNORE)
+    suite.addTestSuite( TestXml26.class );  // update() - OK update group privs (REPLACE)
     // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update mship (ADD)
     // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update mship (IGNORE)
     // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update mship (REPLACE) [DEFAULT]
@@ -70,7 +70,6 @@ public class SuiteXml extends TestCase {
     suite.addTestSuite( TestXml17.class );  // e: group/true/true   -- i: full -- group + attrs + privs
     suite.addTestSuite( TestXml11.class );  // e: collection/stems  -- i: full -- nothing
 
-    // XmlExporter
     return suite;
   } // static public Test suite()
 
