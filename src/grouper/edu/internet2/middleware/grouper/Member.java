@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.67 2006-10-05 18:26:05 blair Exp $
+ * @version $Id: Member.java,v 1.68 2006-10-16 14:11:42 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -1086,46 +1086,30 @@ public class Member implements Serializable {
    * }
    * </pre>
    * @param   id  Set subject id to this.
+   * @throws  IllegalArgumentException
    * @throws  InsufficientPrivilegeException
    */
   public void setSubjectId(String id) 
-    throws  InsufficientPrivilegeException
+    throws  IllegalArgumentException,
+            InsufficientPrivilegeException
   {
-    StopWatch sw = new StopWatch();
+    StopWatch sw    = new StopWatch();
     sw.start();
-
-    // Don't let ALL and root be updated
-    if (this.subject_type.equals(GrouperConfig.IST)) {
-      if (this.subject_source.equals(InternalSourceAdapter.ID)) {
-        if (this.subject_id.equals(GrouperConfig.ROOT)) {
-          String err = "cannot change root subject id";
-          throw new InsufficientPrivilegeException(err);
-        }
-        if (this.subject_id.equals(GrouperConfig.ALL)) {
-          String err = "cannot change ALL subject id";
-          throw new InsufficientPrivilegeException(err);
-        }
-      }
-    } 
-    String orig = this.getSubject_id(); // preserve original for logging purposes
-    if (RootPrivilegeResolver.isRoot(this.getSession())) {
-      try {
-        this.setSubject_id(id);
-        HibernateHelper.save(this);
-      }
-      catch (Exception e) {
-        throw new InsufficientPrivilegeException(E.UNABLE_TO_CHANGE_SUBJID + e.getMessage());
-      }
+    MemberValidator.canSetSubjectId(this, id);
+    String    orig  = this.getSubject_id(); // preserve original for logging purposes
+    try {
+      this.setSubject_id(id);
+      HibernateHelper.save(this);
+      sw.stop();
+      EventLog.info(
+        this.getSession(),
+        M.MEMBER_CHANGESID + U.q(this.getUuid()) + " old=" + U.q(orig) + " new=" + U.q(id),
+        sw
+      );
     }
-    else {
-      throw new InsufficientPrivilegeException(E.NO_CHANGE_SUBJID);
+    catch (HibernateException eH) {
+      throw new InsufficientPrivilegeException(eH.getMessage(), eH);
     }
-    sw.stop();
-    EventLog.info(
-      this.getSession(),
-      M.MEMBER_CHANGESID + U.q(this.getUuid()) + " old=" + U.q(orig) + " new=" + U.q(id),
-      sw
-    );
   } // public void setSubjectId(id)
 
   public String toString() {

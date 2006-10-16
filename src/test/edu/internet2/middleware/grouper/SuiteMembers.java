@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMembers.java,v 1.3 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: SuiteMembers.java,v 1.4 2006-10-16 14:11:42 blair Exp $
  */
 public class SuiteMembers extends TestCase {
 
@@ -39,7 +39,7 @@ public class SuiteMembers extends TestCase {
     suite.addTestSuite( TestMember6.class );    // fail: Member.canAdmin(Group) == null
     suite.addTestSuite( TestMember7.class );    // fail: Member.canAdmin(Group) == !priv'd
     suite.addTestSuite( TestMember8.class );    // Member.canAdmin(Group) 
-    suite.addTestSuite( TestMember9.class );    // fail: Member.canOptin(Group) == null
+    suite.addTestSuite( TestMember9.class  );   // fail: Member.canOptin(Group) == null
     suite.addTestSuite( TestMember10.class );   // fail: Member.canOptin(Group) == !priv'd
     suite.addTestSuite( TestMember11.class );   // Member.canOptin(Group) 
     suite.addTestSuite( TestMember12.class );   // fail: Member.canOptout(Group) == null
@@ -54,11 +54,18 @@ public class SuiteMembers extends TestCase {
     suite.addTestSuite( TestMember21.class );   // fail: Member.canView(Group) == null
     suite.addTestSuite( TestMember22.class );   // fail: Member.canView(Group) == !priv'd
     suite.addTestSuite( TestMember23.class );   // Member.canView(Group) 
+    // setSubjectId()
+    suite.addTestSuite( TestMember24.class );   // setSubjectId() - FAIL: !root
+    suite.addTestSuite( TestMember25.class );   // setSubjectId() - OK: root
+    suite.addTestSuite( TestMember26.class );   // setSubjectId() - FAIL: m == GrouperSystem
+    suite.addTestSuite( TestMember27.class );   // setSubjectId() - FAIL: m == GrouperAll
+    // setSubjectSourceId()
+
     // TODO 20060927 Split pre-existing tests
     suite.addTestSuite( TestMember.class        );
     suite.addTestSuite( TestMemberToGroup.class );
     return suite;
   } // static public Test suite()
 
-}
+} // public class SuiteMembers
 
