@@ -16,20 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.subject.*;
 import  java.io.*;
-import  java.util.*;
+import  java.util.Properties;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml4.java,v 1.3 2006-10-16 18:41:01 blair Exp $
+ * @version $Id: TestXml20.java,v 1.1 2006-10-16 18:41:01 blair Exp $
  * @since   1.1.0
  */
-public class TestXml4 extends GrouperTest {
+public class TestXml20 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXml4.class);
+  private static final Log LOG = LogFactory.getLog(TestXml20.class);
 
-  public TestXml4(String name) {
+  public TestXml20(String name) {
     super(name);
   }
 
@@ -42,16 +43,18 @@ public class TestXml4 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testFullExportFullImportFullNamingPrivs() {
-    LOG.info("testFullExportFullImportFullNamingPrivs");
+  public void testUpdateOkDoNotUpdateGroupAttrs() {
+    LOG.info("testUpdateOkDoNotUpdateGroupAttrs");
     try {
-      // Populate Registry And Verify
-      R     r   = R.populateRegistry(1, 0, 0);
-      Stem  nsA = assertFindStemByName( r.rs, "i2:a" );
-      nsA.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.CREATE );
-      nsA.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
-      boolean has_c = nsA.hasCreate( SubjectFinder.findAllSubject() );
-      boolean has_s = nsA.hasStem( SubjectFinder.findAllSubject() );
+      // Export - Setup
+      R       r     = R.populateRegistry(1, 2, 0);
+      Group   gA    = r.getGroup("a", "a");
+      Group   gB    = r.getGroup("a", "b");
+      String  nameA = gA.getName();
+      String  nameB = gB.getName();
+      String  orig  = gA.getDescription();
+      gA.setDescription(nameA);
+      assertGroupDescription(gA, nameA);
       r.rs.stop();
 
       // Export
@@ -62,29 +65,30 @@ public class TestXml4 extends GrouperTest {
       String          xml       = w.toString();
       s.stop();
 
-      // Reset And Verify
+      // Reset
       RegistryReset.reset();
+
+      // Install Subjects and partial registry
+      r = R.populateRegistry(1, 1, 0);
+      assertFindGroupByName(r.rs, nameA, "recreate");
+      r.rs.stop();
+
+      // Update
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      assertDoNotFindStemByName( s, "i2:a" );
+      XmlImporter importer  = new XmlImporter(s, new Properties());
+      importer.update( XmlReader.getDocumentFromString(xml) );
       s.stop();
 
-      // Import 
-      s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      XmlImporter importer = new XmlImporter(s, new Properties());
-      importer.load( XmlReader.getDocumentFromString(xml) );
-      s.stop();
-
-      // Verify
+      // Import - Verify
       s   = GrouperSession.start( SubjectFinder.findRootSubject() );
-      nsA = assertFindStemByName( s, "i2:a" );
-      assertStemHasCreate( nsA, SubjectFinder.findAllSubject(), has_c );
-      assertStemHasStem( nsA, SubjectFinder.findAllSubject(), has_s );
+      gA = assertFindGroupByName(s, nameA, "update");
+      assertGroupDescription(gA, orig);
       s.stop();
     }
     catch (Exception e) {
-      T.e(e);
+      e(e);
     }
-  } // public void testFullExportFullImportFullNamingPrivs()
+  } // public void testUpdateOkDoNotUpdateGroupAttrs()
 
-} // public class TestXml4
+} // public class TestXml20
 

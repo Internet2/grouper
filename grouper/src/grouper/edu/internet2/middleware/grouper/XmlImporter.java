@@ -37,7 +37,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.83 2006-10-11 16:28:51 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.84 2006-10-16 18:41:01 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -61,6 +61,7 @@ public class XmlImporter {
   private List            namingPrivLists = new ArrayList();
   private Properties      options         = new Properties();
   private GrouperSession  s;
+  private boolean         updateOnly      = false;
   
   
   // CONSTRUCTORS //
@@ -236,7 +237,7 @@ public class XmlImporter {
   } // public void load(ns, doc)
 
   /**
-   * Update memberships and privileges but do not create stems or groups.
+   * TODO 20061016 Update memberships and privileges but do not create missing stems or groups.
    * <p>
    * <b>NOTE:</b> This method does not currently work properly as groups and
    * stems <b>ARE</b> created by it.
@@ -259,6 +260,7 @@ public class XmlImporter {
             IllegalArgumentException
   {
     LOG.info("starting update");
+    this._setUpdateOnly(true);
     this._load( StemFinder.findRootStem(this.s), doc );
     LOG.info("finished update");
   } // public void update(doc)
@@ -738,14 +740,21 @@ public class XmlImporter {
     if (this._getDataPrivilegesImportMode().equals(MODE_IGNORE)) {
       return; // Ignore privileges
     }
-    Group     g       = GroupFinder.findByName(s, groupName);
-    Privilege p       = Privilege.getInstance( privs.getAttribute("type") );
-    if (this._getDataPrivilegesImportMode().equals(MODE_REPLACE)) {
-      g.revokePriv(p);
+    try {
+      Group     g = GroupFinder.findByName(s, groupName);
+      Privilege p = Privilege.getInstance( privs.getAttribute("type") );
+      if (this._getDataPrivilegesImportMode().equals(MODE_REPLACE)) {
+        g.revokePriv(p);
+      }
+      Iterator it       = this._getImmediateElements(privs, "subject").iterator();
+      while (it.hasNext()) {
+        this._processAccessPrivListGrantPriv( g, p, (Element) it.next() );
+      }
     }
-    Iterator it       = this._getImmediateElements(privs, "subject").iterator();
-    while (it.hasNext()) {
-      this._processAccessPrivListGrantPriv( g, p, (Element) it.next() );
+    catch (GroupNotFoundException eGNF) {
+      if (!this._getUpdateOnly()) {
+        throw eGNF; // if updating we can ignore, if loading we cannot
+      }
     }
   } // private void _processAccessPrivList(map)
 
@@ -937,6 +946,9 @@ public class XmlImporter {
             InsufficientPrivilegeException,
             StemNotFoundException
   {
+    if (this._getUpdateOnly()) {
+      return; // do not create groups when we are only updating
+    }
     Stem  parent  = StemFinder.findByName(this.s, stem);
     Group child   = parent.addChildGroup(
       e.getAttribute(GrouperConfig.ATTR_E),
@@ -1046,21 +1058,28 @@ public class XmlImporter {
     if (this._getDataListImportMode().equals(MODE_IGNORE)) {
       return; // Ignore lists
     }
-    Group   g = GroupFinder.findByName(s, groupName);
-    Field   f = FieldFinder.find( list.getAttribute("field") );
-    if (!f.getType().equals(FieldType.LIST)) {
-      throw new SchemaException("field is not a list: " + f.getName());
+    try {
+      Group   g = GroupFinder.findByName(s, groupName);
+      Field   f = FieldFinder.find( list.getAttribute("field") );
+      if (!f.getType().equals(FieldType.LIST)) {
+        throw new SchemaException("field is not a list: " + f.getName());
+      }
+      this._processMembershipListAddGroupType(g, f.getGroupType());
+      if (!g.canWriteField(f)) {
+        return;  // We can't write to the field so don't even bother trying
+      }
+      if (!this._processMembershipListHandleImportMode(g, f, list)) {
+        return; // Stop processing as we've done everything already
+      }
+      Iterator it = this._getImmediateElements(list, "subject").iterator();
+      while (it.hasNext()) {
+        this._processMembershipListAddMember( g, f, (Element) it.next() );
+      }
     }
-    this._processMembershipListAddGroupType(g, f.getGroupType());
-    if (!g.canWriteField(f)) {
-      return;  // We can't write to the field so don't even bother trying
-    }
-    if (!this._processMembershipListHandleImportMode(g, f, list)) {
-      return; // Stop processing as we've done everything already
-    }
-    Iterator it = this._getImmediateElements(list, "subject").iterator();
-    while (it.hasNext()) {
-      this._processMembershipListAddMember( g, f, (Element) it.next() );
+    catch (GroupNotFoundException eGNF) {
+      if (!this._getUpdateOnly()) {
+        throw eGNF; // if updating we can ignore, if loading we cannot
+      }
     }
   } // private void _processMembershipList()
 
@@ -1238,14 +1257,21 @@ public class XmlImporter {
     if (this._getDataPrivilegesImportMode().equals(MODE_IGNORE)) {
       return; // Ignore privileges
     }
-    Stem      ns        = StemFinder.findByName(s, stemName);
-    Privilege p         = Privilege.getInstance( privs.getAttribute("type") );
-    if (this._getDataPrivilegesImportMode().equals(MODE_REPLACE)) {
-      ns.revokePriv(p);
+    try {
+      Stem      ns        = StemFinder.findByName(s, stemName);
+      Privilege p         = Privilege.getInstance( privs.getAttribute("type") );
+      if (this._getDataPrivilegesImportMode().equals(MODE_REPLACE)) {
+        ns.revokePriv(p);
+      }
+      Iterator  it        = this._getImmediateElements(privs, "subject").iterator();
+      while (it.hasNext()) {
+        this._processNamingPrivListGrantPriv( ns, p, (Element) it.next() );
+      }
     }
-    Iterator  it        = this._getImmediateElements(privs, "subject").iterator();
-    while (it.hasNext()) {
-      this._processNamingPrivListGrantPriv( ns, p, (Element) it.next() );
+    catch (StemNotFoundException eNSNF) {
+      if (!this._getUpdateOnly()) {
+        throw eNSNF; // if updating we can ignore, if loading we cannot
+      }
     }
   } // private void _processNamingPrivList(map)
 
@@ -1308,6 +1334,9 @@ public class XmlImporter {
             StemModifyException,
             StemNotFoundException
   {
+    if (this._getUpdateOnly()) {
+      return; // do not create stems when we are only updating
+    }
     Stem parent = null;
     if (stem.equals(GrouperConfig.EMPTY_STRING)) {
       parent = StemFinder.findRootStem(this.s);
@@ -1466,6 +1495,11 @@ public class XmlImporter {
     return this.doc;
   } // private Document _getDocument()
 
+  // @since   1.1.0
+  private boolean _getUpdateOnly() {
+    return this.updateOnly;
+  } // private boolean _getUpdateOnly()
+
 
   // SETTERS //
 
@@ -1478,6 +1512,11 @@ public class XmlImporter {
     }
     this.doc = doc;
   } // private void _setDocument(doc)
+
+  // @since   1.1.0
+  private void _setUpdateOnly(boolean updateOnly) {
+    this.updateOnly = updateOnly;
+  } // private void _setUpdateOnly(updateOnly)
 
 } // public class XmlImporter
 

@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml5.java,v 1.4 2006-09-27 18:24:30 blair Exp $
+ * @version $Id: TestXml5.java,v 1.5 2006-10-16 18:41:01 blair Exp $
  * @since   1.1.0
  */
 public class TestXml5 extends GrouperTest {
@@ -83,7 +83,7 @@ public class TestXml5 extends GrouperTest {
       // Import 
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       XmlImporter importer = new XmlImporter(s, new Properties());
-      importer.update( XmlReader.getDocumentFromString(xml) );
+      importer.load( XmlReader.getDocumentFromString(xml) );
       s.stop();
 
       // Verify

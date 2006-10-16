@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test XML.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXml.java,v 1.12 2006-10-11 15:35:43 blair Exp $
+ * @version $Id: SuiteXml.java,v 1.13 2006-10-16 18:41:01 blair Exp $
  * @since   1.0
  */
 public class SuiteXml extends TestCase {
@@ -38,7 +38,22 @@ public class SuiteXml extends TestCase {
     suite.addTest( SuiteXmlReader.suite() );
     suite.addTestSuite( TestXml0.class  );  // TODO 20060926 deprecate? -- e: full; i: Full/Root/String
     suite.addTestSuite( TestXml1.class  );  // TODO 20060926 deprecate? -- e: full; i: Full/Anchored/String
-    suite.addTestSuite( TestXml2.class  );  // TODO 20060926 deprecate? -- e: full; i: Update/Anchored/String
+
+    // update()
+    suite.addTestSuite( TestXml2.class  );  // update() - OK do not create missing stems
+    suite.addTestSuite( TestXml18.class );  // update() - OK do not update stem attrs
+    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update stem privs (ADD) [DEFAULT]
+    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update stem privs (IGNORE)
+    suite.addTestSuite( TestXml21.class );  // update() - OK update stem privs (REPLACE)
+    suite.addTestSuite( TestXml19.class );  // update() - OK do not update missing groups
+    suite.addTestSuite( TestXml20.class );  // update() - OK do not update group attrs
+    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update group privs (ADD) [DEFAULT]
+    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update group privs (IGNORE)
+    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update group privs (REPLACE)
+    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update mship (ADD)
+    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update mship (IGNORE)
+    // TODO 20061016 suite.addTestSuite( TestXmlXX.class );  // update() - OK update mship (REPLACE) [DEFAULT]
+  
     suite.addTestSuite( TestXml3.class  );  // e: full              -- i: full -- stem + attrs + privs
     suite.addTestSuite( TestXml4.class  );  // e: full              -- i: full -- stem: granted priv
     suite.addTestSuite( TestXml5.class  );  // e: full              -- i: full -- group + attrs + privs

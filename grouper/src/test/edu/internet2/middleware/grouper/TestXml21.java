@@ -22,14 +22,14 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml4.java,v 1.3 2006-10-16 18:41:01 blair Exp $
+ * @version $Id: TestXml21.java,v 1.1 2006-10-16 18:41:01 blair Exp $
  * @since   1.1.0
  */
-public class TestXml4 extends GrouperTest {
+public class TestXml21 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXml4.class);
+  private static final Log LOG = LogFactory.getLog(TestXml21.class);
 
-  public TestXml4(String name) {
+  public TestXml21(String name) {
     super(name);
   }
 
@@ -42,16 +42,20 @@ public class TestXml4 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testFullExportFullImportFullNamingPrivs() {
-    LOG.info("testFullExportFullImportFullNamingPrivs");
+  public void testUpdateOkNamingPrivsInReplaceMode() {
+    LOG.info("testUpdateOkNamingPrivsInReplaceMode");
     try {
       // Populate Registry And Verify
-      R     r   = R.populateRegistry(1, 0, 0);
-      Stem  nsA = assertFindStemByName( r.rs, "i2:a" );
+      R       r     = R.populateRegistry(2, 0, 0);
+      Stem    nsA   = r.getStem("a");
+      Stem    nsB   = r.getStem("b");
+      String  nameA = nsA.getName();
+      String  nameB = nsB.getName();
       nsA.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.CREATE );
-      nsA.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
       boolean has_c = nsA.hasCreate( SubjectFinder.findAllSubject() );
       boolean has_s = nsA.hasStem( SubjectFinder.findAllSubject() );
+      // Make sure no exception is thrown due to nsB not existing when updating
+      nsB.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
       r.rs.stop();
 
       // Export
@@ -62,29 +66,39 @@ public class TestXml4 extends GrouperTest {
       String          xml       = w.toString();
       s.stop();
 
-      // Reset And Verify
+      // Reset 
       RegistryReset.reset();
-      s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      assertDoNotFindStemByName( s, "i2:a" );
-      s.stop();
+
+      // Install Subjects and partial registry
+      r = R.populateRegistry(1, 0, 0);
+      nsA = assertFindStemByName(r.rs, nameA, "recreate");
+      assertStemHasStem( nsA, SubjectFinder.findAllSubject(), has_s );
+      assertDoNotFindStemByName(r.rs, nameB, "recreate");
+      // Now grant an added priv
+      nsA.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
+      r.rs.stop();
 
       // Import 
-      s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      XmlImporter importer = new XmlImporter(s, new Properties());
-      importer.load( XmlReader.getDocumentFromString(xml) );
+      s                   = GrouperSession.start( SubjectFinder.findRootSubject() );
+      Properties  custom  = new Properties();
+      custom.setProperty("import.data.privileges", "replace");
+      XmlImporter importer = new XmlImporter(s, custom);
+      importer.update( XmlReader.getDocumentFromString(xml) );
       s.stop();
 
       // Verify
       s   = GrouperSession.start( SubjectFinder.findRootSubject() );
       nsA = assertFindStemByName( s, "i2:a" );
+      // Should have
       assertStemHasCreate( nsA, SubjectFinder.findAllSubject(), has_c );
+      // Should no longer have
       assertStemHasStem( nsA, SubjectFinder.findAllSubject(), has_s );
       s.stop();
     }
     catch (Exception e) {
-      T.e(e);
+      e(e);
     }
-  } // public void testFullExportFullImportFullNamingPrivs()
+  } // public void testUpdateOkNamingPrivsInReplaceMode()
 
-} // public class TestXml4
+} // public class TestXml21
 
