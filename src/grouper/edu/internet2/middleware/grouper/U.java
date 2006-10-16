@@ -22,14 +22,16 @@ import  java.util.*;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.7 2006-10-02 16:29:12 blair Exp $
+ * @version $Id: U.java,v 1.8 2006-10-16 18:39:07 blair Exp $
  * @since   1.0
  */
 class U {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final String Q_CLOSE = "'";
-  private static final String Q_OPEN  = "'";
+  private static final String Q_CLOSE   = "'";
+  private static final String Q_OPEN    = "'";
+  private static final String QP_CLOSE  = ") ";
+  private static final String QP_OPEN   = "(";
 
 
   // PROTECTED CLASS METHODS //
@@ -53,6 +55,14 @@ class U {
   protected static String q(String input) {
     return Q_OPEN + input + Q_CLOSE;
   } // protected static String q(input)
+
+  // @since   1.1.0
+  protected static String qp(String input) {
+    if (Validator.isNotNullOrBlank(input)) {
+      return QP_OPEN + input + QP_CLOSE;
+    }
+    return GrouperConfig.EMPTY_STRING;
+  } // protected static String qp(input)
 
   // @since   1.1.0
   protected static Object realizeInterface(String name) 
