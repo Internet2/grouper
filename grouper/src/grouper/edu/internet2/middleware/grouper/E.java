@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.34 2006-10-12 18:53:49 blair Exp $
+ * @version $Id: E.java,v 1.35 2006-10-16 14:11:42 blair Exp $
  * @since   1.0
  */
 class E {
@@ -34,6 +34,7 @@ class E {
   protected static final String CANNOT_OPTOUT             = "subject cannot OPTOUT";
   protected static final String CANNOT_READ               = "subject cannot READ";
   protected static final String CANNOT_REALIZE_INTERFACE  = "cannot realize interface ";
+  protected static final String CANNOT_SET_SUBJECTID      = "subject cannot setSubjectId()";
   protected static final String CANNOT_STEM               = "subject cannot STEM";
   protected static final String CANNOT_UPDATE             = "subject cannot UPDATE";
   protected static final String CANNOT_VIEW               = "subject cannot VIEW";
@@ -190,7 +191,6 @@ class E {
   protected static final String SV_O                      = "null session object";
   protected static final String SV_M                      = "null session member";
   protected static final String SV_T                      = "null session start time";
-  protected static final String UNABLE_TO_CHANGE_SUBJID   = "unable to change subjectId: ";
 
   // From `MembershipValidator`
   protected static final String ERR_D   = "membership has invalid depth: ";
