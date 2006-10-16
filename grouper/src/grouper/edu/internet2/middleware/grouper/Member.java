@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.68 2006-10-16 14:11:42 blair Exp $
+ * @version $Id: Member.java,v 1.69 2006-10-16 14:39:00 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -1073,7 +1073,7 @@ public class Member implements Serializable {
   } // public boolean isMember(g, f)
 
   /**
-   * Change subject id.
+   * Change subject id associated with member.
    * <p>
    * You must be a root-like {@link Subject} to use this method.
    * </p>
@@ -1111,6 +1111,47 @@ public class Member implements Serializable {
       throw new InsufficientPrivilegeException(eH.getMessage(), eH);
     }
   } // public void setSubjectId(id)
+
+  /**
+   * Change subject source id associated with member.
+   * <p>
+   * You must be a root-like {@link Subject} to use this method.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   m.setSubjectSourceId("new source id");
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to change subject source id
+   * }
+   * </pre>
+   * @param   id  Set subject source id to this.
+   * @throws  IllegalArgumentException
+   * @throws  InsufficientPrivilegeException
+   * @since   1.1.0
+   */
+  public void setSubjectSourceId(String id) 
+    throws  IllegalArgumentException,
+            InsufficientPrivilegeException
+  {
+    StopWatch sw    = new StopWatch();
+    sw.start();
+    MemberValidator.canSetSubjectSourceId(this, id);
+    String    orig  = this.getSubject_source(); // preserve original for logging
+    try {
+      this.setSubject_source(id);
+      HibernateHelper.save(this);
+      sw.stop();
+      EventLog.info(
+        this.getSession(),
+        M.MEMBER_CHANGE_SSID + U.q(this.getUuid()) + " old=" + U.q(orig) + " new=" + U.q(id),
+        sw
+      );
+    }
+    catch (HibernateException eH) {
+      throw new InsufficientPrivilegeException(eH.getMessage(), eH);
+    }
+  } // public void setSubjectSourceId(id)
 
   public String toString() {
     try {

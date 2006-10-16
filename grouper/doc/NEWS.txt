@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.30 2006-09-28 20:02:07 blair Exp $
+$Id: NEWS.txt,v 1.31 2006-10-16 14:39:00 blair Exp $
 
 ---
 
@@ -9,6 +9,7 @@ $Id: NEWS.txt,v 1.30 2006-09-28 20:02:07 blair Exp $
 Released: TBD
 
 ## Changes
+* NEW:    `Member.setSubjectSourceId(id)`
 * UPDATE: Disable Hibernate query cache by default.
 * BUGFIX: Custom group attributes are now supported in `XmlImporter`.
 * UPDATE: `XmlImporter` now sets group-and-stem creation times, creation
