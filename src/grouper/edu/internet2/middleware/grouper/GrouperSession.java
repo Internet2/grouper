@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.38 2006-09-26 14:17:41 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.39 2006-10-16 18:39:23 blair Exp $
  */
 public class GrouperSession {
 
@@ -303,6 +303,9 @@ public class GrouperSession {
     if (s.type.equals("group")) {
       s.who = subj.getName();
     }
+    // Eliminate caches
+    s.ac    = null;
+    s.nc    = null;
     // Persistent
     s.setMember_id(MemberFinder.findBySubject(subj));
     s.setStart_time( new Date() );
