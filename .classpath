@@ -11,8 +11,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/i2mi-common-0.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hsqldb-1.7.2.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate2-2.1.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/GroboUtilThread-1.0.0alpha2-core.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/GroboTestingJUnit-1.2.1-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ehcache-0.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="contrib/gsh/lib/bsh-2.0b4.jar"/>
