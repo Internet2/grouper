@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.31 2006-10-16 14:39:00 blair Exp $
+$Id: NEWS.txt,v 1.32 2006-10-17 16:12:00 blair Exp $
 
 ---
 
@@ -9,6 +9,7 @@ $Id: NEWS.txt,v 1.31 2006-10-16 14:39:00 blair Exp $
 Released: TBD
 
 ## Changes
+* BUGFIX: `SimpleWheelPrivilegeCache` was not properly caching results.
 * NEW:    `Member.setSubjectSourceId(id)`
 * UPDATE: Disable Hibernate query cache by default.
 * BUGFIX: Custom group attributes are now supported in `XmlImporter`.
