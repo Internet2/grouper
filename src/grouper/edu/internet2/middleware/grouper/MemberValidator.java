@@ -16,11 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MemberValidator.java,v 1.2 2006-10-16 14:39:00 blair Exp $
+ * @version $Id: MemberValidator.java,v 1.3 2006-10-17 17:19:37 blair Exp $
  * @since   1.1.0
  */
 class MemberValidator {

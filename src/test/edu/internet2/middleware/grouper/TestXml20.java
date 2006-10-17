@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.util.Properties;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml20.java,v 1.1 2006-10-16 18:41:01 blair Exp $
+ * @version $Id: TestXml20.java,v 1.2 2006-10-17 17:19:37 blair Exp $
  * @since   1.1.0
  */
 public class TestXml20 extends GrouperTest {
@@ -49,9 +48,7 @@ public class TestXml20 extends GrouperTest {
       // Export - Setup
       R       r     = R.populateRegistry(1, 2, 0);
       Group   gA    = r.getGroup("a", "a");
-      Group   gB    = r.getGroup("a", "b");
       String  nameA = gA.getName();
-      String  nameB = gB.getName();
       String  orig  = gA.getDescription();
       gA.setDescription(nameA);
       assertGroupDescription(gA, nameA);

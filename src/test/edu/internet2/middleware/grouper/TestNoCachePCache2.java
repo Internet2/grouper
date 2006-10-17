@@ -17,13 +17,11 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.io.*;
-import  java.util.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestNoCachePCache2.java,v 1.1 2006-10-17 16:12:00 blair Exp $
+ * @version $Id: TestNoCachePCache2.java,v 1.2 2006-10-17 17:19:37 blair Exp $
  * @since   1.1.0
  */
 public class TestNoCachePCache2 extends GrouperTest {
