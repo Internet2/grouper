@@ -24,7 +24,7 @@ import  java.util.*;
  * for wheel group-related privilege updates.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.2 2006-09-13 14:41:11 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.3 2006-10-17 16:12:00 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
@@ -45,7 +45,7 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
     // I'm not sure the logic is entirely correct within here but it does a
     // better job of tracking changes to the wheel group so...
     PrivilegeCacheElement result = new NullPrivilegeCacheElement(o, subj, p);
-    if (this.cache.containsKey(o, p, subj)) { 
+    if (this.getCache().containsKey(o, p, subj)) { 
       // The privilege is cached but...
       // Is the wheel group enabled?
       boolean useCached = true;
@@ -70,7 +70,7 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
         }
       }
       if (useCached) {
-        result = (PrivilegeCacheElement) this.cache.get(o, p, subj);
+        result = (PrivilegeCacheElement) this.getCache().get(o, p, subj);
       }
     }
     return result;
@@ -85,11 +85,17 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
   public void put(Owner o, Subject subj, Privilege p, boolean hasPriv)
     throws  PrivilegeCacheException
   {
-    // Store the value without any cache flushing
-    this.cache.put(o, subj, p, hasPriv);
-    // Update cache modification time
-    this.lastModified = new Date().getTime();
+    super.put(o, subj, p, hasPriv); // Store the value without any cache flushing
+    this._setLastModified();        // Update cache modification time
   } // public void put(o, subj, p, hasPriv)
+
+
+  // PRIVATE INSTANCE METHODS //
+
+  // @since   1.1.0
+  private void _setLastModified() {
+    this.lastModified = new Date().getTime();
+  } // private void _setLastModified()
 
 } // public class SimpleWheelPrivilegeCache extends BasePrivilegeCache
 

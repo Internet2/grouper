@@ -23,13 +23,13 @@ import  org.apache.commons.collections.map.*;
  * A simple caching implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimplePrivilegeCache.java,v 1.4 2006-09-11 19:59:21 blair Exp $
+ * @version $Id: SimplePrivilegeCache.java,v 1.5 2006-10-17 16:12:00 blair Exp $
  * @since   1.1.0     
  */
 public class SimplePrivilegeCache extends BasePrivilegeCache {
 
-  // PROTECTED INSTANCE VARIABLES //
-  protected MultiKeyMap cache = MultiKeyMap.decorate(new HashedMap());
+  // PRIVATE INSTANCE VARIABLES //
+  private MultiKeyMap cache = null; 
 
 
   // PUBLIC INSTANCE METHODS //
@@ -41,8 +41,8 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
    * @since   1.1.0
    */
   public PrivilegeCacheElement get(Owner o, Subject subj, Privilege p) {
-    if (this.cache.containsKey(o, p, subj)) {
-      return (PrivilegeCacheElement) this.cache.get(o, p, subj);
+    if (this.getCache().containsKey(o, p, subj)) {
+      return (PrivilegeCacheElement) this.getCache().get(o, p, subj);
     }
     return new NullPrivilegeCacheElement(o, subj, p);
   } // public PrivilegeCacheElement get(o, subj, p)
@@ -69,9 +69,7 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
     throws  PrivilegeCacheException
   {
     // Store the value without any cache flushing
-    this.cache.put(
-      o, p, subj, new PrivilegeCacheElement(o, subj, p, hasPriv)
-    );
+    this.getCache().put( o, p, subj, new PrivilegeCacheElement(o, subj, p, hasPriv) );
   } // public void put(o, subj, p, hasPriv)
 
   /**
@@ -83,7 +81,7 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
   public void removeAll() 
     throws  PrivilegeCacheException
   {
-    this.cache.clear(); 
+    this.getCache().clear(); 
   } // public void removeAll()
 
   /**
@@ -109,6 +107,17 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
   {
     this.removeAll(); // Flush everything
   } // public void revokePriv(o, subj, p)
+
+
+  // PROTECTED INSTANCE METHODS //
+
+  // @since   1.1.0
+  protected MultiKeyMap getCache() {
+    if (this.cache == null) {
+      this.cache = MultiKeyMap.decorate( new HashedMap() );
+    }
+    return this.cache;
+  } // protected MultiKeyMap getCache()
 
 } // public class SimplePrivilegeCache extends BasePrivilegeCache
 
