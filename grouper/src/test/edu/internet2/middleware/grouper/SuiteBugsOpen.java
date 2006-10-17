@@ -22,15 +22,14 @@ import  junit.framework.*;
  * Test Open Bugs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteBugsOpen.java,v 1.8 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: SuiteBugsOpen.java,v 1.9 2006-10-17 13:31:11 blair Exp $
  * @since   1.0
  */
 public class SuiteBugsOpen extends TestCase {
 
-  public SuiteBugsOpen(String name) {
-    super(name);
-  }
-
+  /**
+   * Current Tests: nil.
+   */
   static public Test suite() {
     TestSuite suite = new TestSuite();
     return suite;
