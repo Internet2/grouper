@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.136 2006-10-13 18:52:52 blair Exp $ -->
+<!-- $Id: build.xml,v 1.137 2006-10-17 17:19:37 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -692,7 +692,7 @@
   <!-- xml-import -->
       
 
-  <!-- TODO what are these doing down here? -->
+  <!-- these remaining ant targets are not very well organized -->
   <target name="jar" depends="dist" />
 
   <target name="with.clover" depends="init">
