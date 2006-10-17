@@ -4,33 +4,24 @@
 This file provides more detailed information on future Grouper
 development as listed in _doc/ROADMAP_..
 
-$Id: TODO.txt,v 1.58 2006-10-16 19:44:38 blair Exp $
+$Id: TODO.txt,v 1.59 2006-10-17 16:44:32 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
 
-### Next Actions
-* CODE		  Move type + field caching to within sessions?
-* CODE      Use `SetUtils` for group math
-* DOC       Migrate impl guide to wiki and export upon release
-
 ### Maybe
-* REFACTOR	`RegistryReset` to no longer add test subjects
-* REFACTOR	`EventLog`
+* REFACTOR  Type + Field caching
+* CODE      Use `SetUtils` (?) for group math
 * REFACTOR	`MemberOf` needs to be tackled again
+* REFACTOR	`EventLog`
+* DEPRECATE `RegistryReset` should *not* add test subjects
 * REFACTOR	`RegistryInstall`
-* CODE      Continue refactoring privilege resolution
+* REFACTOR  Continue refactoring privilege resolution
     * remove `GrouperSession` param from all `can*()` methods
-* CODE      `LessSimplePrivilegeCache` extends `SimplePrivilegeCache`
-  * a hopefully smarter version of `SimplePrivilegeCache`
- * use the `remove()` methods to try and be selective about what is
-    removed from the cache upon mods             
+* CODE      A smarter - and perhaps persistent - privilege cache.
 * CODE      checksum .hbm.xml files to try and ensure i keep schema version accurate
 * CODE      check for *Settings* (and version if it exists) when calling db-init
-* REFACTOR  privilege checking and caching
-    * *NamingResolver*
-    * *AccessResolver*
 * CODE      class to verify that setup is functional
     * find the root stem, exercise subject api, hibernate dialect + driver class, etc
 * REFACTOR  internal root sessions should not need to go through hibernate
@@ -39,7 +30,7 @@ $Id: TODO.txt,v 1.58 2006-10-16 19:44:38 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.58 2006-10-16 19:44:38 blair Exp $
+$Id: TODO.txt,v 1.59 2006-10-17 16:44:32 blair Exp $
 
 
 
