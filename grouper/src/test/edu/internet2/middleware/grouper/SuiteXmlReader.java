@@ -20,14 +20,10 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteXmlReader.java,v 1.1 2006-10-11 15:35:43 blair Exp $
+ * @version $Id: SuiteXmlReader.java,v 1.2 2006-10-17 13:38:22 blair Exp $
  * @since   1.1.0
  */
 public class SuiteXmlReader extends TestCase {
-
-  public SuiteXmlReader(String name) {
-    super(name);
-  }
 
   static public Test suite() {
     TestSuite suite = new TestSuite();        

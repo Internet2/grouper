@@ -20,14 +20,10 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteWheelGroup.java,v 1.2 2006-09-11 19:59:21 blair Exp $
+ * @version $Id: SuiteWheelGroup.java,v 1.3 2006-10-17 13:38:22 blair Exp $
  * @since   1.1
  */
 public class SuiteWheelGroup extends TestCase {
-
-  public SuiteWheelGroup(String name) {
-    super(name);
-  } // public SuiteWheelGroup(name)
 
   static public Test suite() {
     TestSuite suite = new TestSuite();

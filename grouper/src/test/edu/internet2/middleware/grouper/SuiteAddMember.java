@@ -20,14 +20,10 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteAddMember.java,v 1.3 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: SuiteAddMember.java,v 1.4 2006-10-17 13:38:22 blair Exp $
  */
 public class SuiteAddMember extends TestCase {
   
-  public SuiteAddMember(String name) {
-    super(name);
-  } // public SuiteAddMember(name)
-
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(TestAddMember0.class);
@@ -38,5 +34,5 @@ public class SuiteAddMember extends TestCase {
     return suite;
   } // static public Test suite()
 
-}
+} // public class SuiteAddMember
 

@@ -22,14 +22,10 @@ import  junit.framework.*;
  * Test XML Import.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXmlImport.java,v 1.5 2006-10-10 15:33:24 blair Exp $
+ * @version $Id: SuiteXmlImport.java,v 1.6 2006-10-17 13:38:22 blair Exp $
  * @since   1.0
  */
 public class SuiteXmlImport extends TestCase {
-
-  public SuiteXmlImport(String name) {
-    super(name);
-  }
 
   static public Test suite() {
     TestSuite suite = new TestSuite();        

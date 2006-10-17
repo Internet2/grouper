@@ -20,14 +20,10 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberOf.java,v 1.4 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: SuiteMemberOf.java,v 1.5 2006-10-17 13:38:22 blair Exp $
  */
 public class SuiteMemberOf extends TestCase {
   
-  public SuiteMemberOf(String name) {
-    super(name);
-  } // public SuiteMemberOf(name)
-
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( TestMemberOf0.class   );  // eff mship uuid does not change

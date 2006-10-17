@@ -20,14 +20,10 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteGAttrs.java,v 1.2 2006-10-11 16:04:41 blair Exp $
+ * @version $Id: SuiteGAttrs.java,v 1.3 2006-10-17 13:38:22 blair Exp $
  * @since   1.1.0
  */
 public class SuiteGAttrs extends TestCase {
-
-  public SuiteGAttrs(String name) {
-    super(name);
-  }
 
   static public Test suite() {
     TestSuite suite = new TestSuite();        
