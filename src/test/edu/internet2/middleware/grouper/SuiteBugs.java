@@ -22,14 +22,10 @@ import  junit.framework.*;
  * Test Bugs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteBugs.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: SuiteBugs.java,v 1.3 2006-10-17 13:31:11 blair Exp $
  * @since   1.0
  */
 public class SuiteBugs extends TestCase {
-
-  public SuiteBugs(String name) {
-    super(name);
-  }
 
   static public Test suite() {
     TestSuite suite = new TestSuite();        
@@ -38,5 +34,5 @@ public class SuiteBugs extends TestCase {
     return suite;
   } // static public Test suite()
 
-}
+} // public class SuiteBugs
 
