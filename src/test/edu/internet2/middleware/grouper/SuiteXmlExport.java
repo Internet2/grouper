@@ -22,14 +22,10 @@ import  junit.framework.*;
  * Test XML Export.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXmlExport.java,v 1.6 2006-10-10 15:33:24 blair Exp $
+ * @version $Id: SuiteXmlExport.java,v 1.7 2006-10-17 13:38:22 blair Exp $
  * @since   1.0
  */
 public class SuiteXmlExport extends TestCase {
-
-  public SuiteXmlExport(String name) {
-    super(name);
-  }
 
   static public Test suite() {
     TestSuite suite = new TestSuite();        

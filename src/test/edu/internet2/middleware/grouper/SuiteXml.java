@@ -19,17 +19,11 @@ package edu.internet2.middleware.grouper;
 import  junit.framework.*;
 
 /**
- * Test XML.
- * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXml.java,v 1.15 2006-10-16 19:44:38 blair Exp $
+ * @version $Id: SuiteXml.java,v 1.16 2006-10-17 13:38:22 blair Exp $
  * @since   1.0
  */
 public class SuiteXml extends TestCase {
-
-  public SuiteXml(String name) {
-    super(name);
-  }
 
   static public Test suite() {
     TestSuite suite = new TestSuite();        

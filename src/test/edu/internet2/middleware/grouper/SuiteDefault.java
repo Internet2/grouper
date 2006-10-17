@@ -21,13 +21,9 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.12 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.13 2006-10-17 13:38:22 blair Exp $
  */
 public class SuiteDefault extends TestCase {
-
-  public SuiteDefault(String name) {
-    super(name);
-  } // public SuiteDefault(name)
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
@@ -45,19 +41,21 @@ public class SuiteDefault extends TestCase {
     suite.addTest(  SuiteAccessPrivs.suite()  );
     suite.addTest(  SuiteXml.suite()          );
     suite.addTest(  SuiteWheelGroup.suite()   );
-    suite.addTest(  SuiteBugs.suite()         );
 
     // TODO 20060927 Migrate
 
-    suite.addTestSuite(TestField.class);
-    suite.addTestSuite(TestGrFiFindByName.class);
-    suite.addTestSuite(TestGrFiFindByUuid.class);
-    suite.addTestSuite(TestMemberFinder.class);
-    suite.addTestSuite(TestNamingPrivilege.class);
-    suite.addTestSuite(TestPrivCREATE.class);  
-    suite.addTestSuite(TestPrivSTEM.class);
-    suite.addTestSuite(TestStemFinder.class);
-    suite.addTestSuite(TestWrongFieldType.class); 
+    suite.addTestSuite( TestField.class );
+    suite.addTestSuite( TestGrFiFindByName.class );
+    suite.addTestSuite( TestGrFiFindByUuid.class );
+    suite.addTestSuite( TestMemberFinder.class );
+    suite.addTestSuite( TestNamingPrivilege.class );
+    suite.addTestSuite( TestPrivCREATE.class );  
+    suite.addTestSuite( TestPrivSTEM.class );
+    suite.addTestSuite( TestStemFinder.class );
+    suite.addTestSuite( TestWrongFieldType.class ); 
+    suite.addTestSuite( TestBug0.class );  // Population of children-of-via 
+                                           // groups in an immediate mof delete
+    suite.addTestSuite( TestBugsClosed.class );
 
     return suite;
   } // static public Test suite()

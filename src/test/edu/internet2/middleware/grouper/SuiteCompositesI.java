@@ -20,13 +20,9 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteCompositesI.java,v 1.2 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: SuiteCompositesI.java,v 1.3 2006-10-17 13:38:22 blair Exp $
  */
 public class SuiteCompositesI extends TestCase {
-
-  public SuiteCompositesI(String name) {
-    super(name);
-  } // public SuiteCompositesI(name)
 
   static public Test suite() {
     TestSuite suite = new TestSuite();

@@ -22,13 +22,9 @@ import  junit.framework.*;
  * Test Groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteGroups.java,v 1.15 2006-10-13 19:17:20 blair Exp $
+ * @version $Id: SuiteGroups.java,v 1.16 2006-10-17 13:38:22 blair Exp $
  */
 public class SuiteGroups extends TestCase {
-
-  public SuiteGroups(String name) {
-    super(name);
-  }
 
   static public Test suite() {
     TestSuite suite = new TestSuite();        
