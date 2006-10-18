@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.20 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.21 2006-10-18 15:22:12 blair Exp $
  */
 public class FieldFinder {
 
@@ -79,7 +79,6 @@ public class FieldFinder {
   public static Set findAll() 
     throws  GrouperRuntimeException
   {
-    // TODO 20060927 Refactor caching and move to session-context.
     Set fields = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
