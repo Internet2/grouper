@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml6.java,v 1.3 2006-10-16 18:41:01 blair Exp $
+ * @version $Id: TestXml6.java,v 1.4 2006-10-18 15:22:12 blair Exp $
  * @since   1.1.0
  */
 public class TestXml6 extends GrouperTest {
@@ -86,11 +86,9 @@ public class TestXml6 extends GrouperTest {
       assertGroupHasAdmin( gA, SubjectFinder.findAllSubject(), has_a );
       assertGroupHasOptin( gA, SubjectFinder.findAllSubject(), has_oi );
       assertGroupHasOptout( gA, SubjectFinder.findAllSubject(), has_oo );
-      // TODO 20060926 added by default - assertGroupHasRead( gA, SubjectFinder.findAllSubject(), has_r );
-      assertGroupHasRead( gA, SubjectFinder.findAllSubject(), true );
+      assertGroupHasRead( gA, SubjectFinder.findAllSubject(), true ); // added by default
       assertGroupHasUpdate( gA, SubjectFinder.findAllSubject(), has_u );
-      // TODO 20060926 added by default - assertGroupHasView( gA, SubjectFinder.findAllSubject(), has_v );
-      assertGroupHasView( gA, SubjectFinder.findAllSubject(), true );
+      assertGroupHasView( gA, SubjectFinder.findAllSubject(), true ); // added by default
       s.stop();
     }
     catch (Exception e) {

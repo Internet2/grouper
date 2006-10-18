@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.88 2006-10-12 18:53:49 blair Exp $
+ * @version $Id: Stem.java,v 1.89 2006-10-18 15:22:12 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -926,7 +926,7 @@ public class Stem extends Owner {
     // of adding the child stem but as the interfaces may be
     // outside of our control, I don't think we can do that.  
     //
-    // TODO 20060927 Possibly a bug. The modify* attrs get set when granting ADMIN at creation.
+    // TODO 20061018 Possibly a bug. The modify* attrs get set when granting ADMIN at creation.
     try {
       GrouperSession  orig  = this.s;
       GrouperSession  root  = orig.getRootSession();
@@ -963,7 +963,7 @@ public class Stem extends Owner {
     // of adding the child stem but as the interfaces may be
     // outside of our control, I don't think we can do that.  
     //
-    // TODO 20060927 Possibly a bug. The modify* attrs get set when granting privs at creation.
+    // TODO 20061018 Possibly a bug. The modify* attrs get set when granting privs at creation.
     try {
       GrouperSession  orig  = this.s;
       GrouperSession  root  = orig.getRootSession();

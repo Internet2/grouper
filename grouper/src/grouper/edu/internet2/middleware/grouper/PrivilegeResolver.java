@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.71 2006-10-11 14:35:10 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.72 2006-10-18 15:22:12 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -224,6 +224,7 @@ import  java.util.*;
     GrouperSessionValidator.validate(s);
     Set         mships  = new LinkedHashSet();
     Membership  ms;
+    String      msg     = "canViewMemberships: ";
     Iterator    iter    = c.iterator();
     while (iter.hasNext()) {
       ms = (Membership) iter.next();
@@ -237,13 +238,13 @@ import  java.util.*;
         mships.add(ms);
       }
       catch (GroupNotFoundException eGNF)         {
-        // TODO 20060926 ignore?
+        ErrorLog.error(PrivilegeResolver.class, msg + eGNF.getMessage());
       }
       catch (InsufficientPrivilegeException eIP)  {
-        // TODO 20060926 ignore?
+        ErrorLog.error(PrivilegeResolver.class, msg + eIP.getMessage());
       }
       catch (SchemaException eS)                  {
-        // TODO 20060926 ignore?
+        ErrorLog.error(PrivilegeResolver.class, msg + eS.getMessage());
       }
     }
     return mships;
@@ -252,7 +253,8 @@ import  java.util.*;
   // If the subject being added is a group, verify that we can VIEW it
   // @since   1.1.0
   protected static Member canViewSubject(GrouperSession s, Subject subj)
-    throws  ModelException
+    throws  InsufficientPrivilegeException,
+            ModelException
   {
     try {
       Member  m = MemberFinder.findBySubject(s, subj);
@@ -267,10 +269,6 @@ import  java.util.*;
     }
     catch (GroupNotFoundException eGNF)         {
       throw new ModelException(eGNF.getMessage(), eGNF);
-    }
-    catch (InsufficientPrivilegeException eIP)  {
-      // TODO 20060926 why do i rethrow the eIP as an eM?
-      throw new ModelException(eIP.getMessage(), eIP);
     }
     catch (MemberNotFoundException eMNF)        {
       throw new ModelException(eMNF.getMessage(), eMNF);

@@ -20,18 +20,17 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteXml.java,v 1.16 2006-10-17 13:38:22 blair Exp $
+ * @version $Id: SuiteXml.java,v 1.17 2006-10-18 15:22:12 blair Exp $
  * @since   1.0
  */
 public class SuiteXml extends TestCase {
 
   static public Test suite() {
+    // AVAILABLE: 0, 1, 30+
     TestSuite suite = new TestSuite();        
     suite.addTest( SuiteXmlExport.suite() );
     suite.addTest( SuiteXmlImport.suite() );
     suite.addTest( SuiteXmlReader.suite() );
-    suite.addTestSuite( TestXml0.class  );  // TODO 20060926 deprecate? -- e: full; i: Full/Root/String
-    suite.addTestSuite( TestXml1.class  );  // TODO 20060926 deprecate? -- e: full; i: Full/Anchored/String
 
     // update()
     suite.addTestSuite( TestXml2.class  );  // update() - OK do not create missing stems

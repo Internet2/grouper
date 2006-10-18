@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.55 2006-10-11 14:35:10 blair Exp $
+ * @version $Id: Membership.java,v 1.56 2006-10-18 15:22:12 blair Exp $
  */
 public class Membership {
 
@@ -322,10 +322,13 @@ public class Membership {
       HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
       EL.addEffMembers(s, o, subj, f, mof.getEffSaves());
     }
-    catch (HibernateException eH) {
+    catch (HibernateException eH)               {
       throw new MemberAddException(eH.getMessage(), eH);
     }
-    catch (ModelException eM)     {
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new MemberAddException(eIP.getMessage(), eIP);
+    }
+    catch (ModelException eM)                   {
       throw new MemberAddException(eM.getMessage(), eM);
     }    
   } // protected static void addImmediateMembership(s, o, subj, f)
@@ -345,10 +348,13 @@ public class Membership {
       imm.setSession(s);
       return MemberOf.delImmediate(s, o, imm, m);
     }
-    catch (MembershipNotFoundException eMSNF) {
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new MemberDeleteException(eIP.getMessage(), eIP);
+    }
+    catch (MembershipNotFoundException eMSNF)   {
       throw new MemberDeleteException(eMSNF.getMessage(), eMSNF);
     }
-    catch (ModelException eM)                 {
+    catch (ModelException eM)                   {
       throw new MemberDeleteException(eM.getMessage(), eM);
     } 
   } // protected static void delImmediateMembership(s, o, subj, f)
