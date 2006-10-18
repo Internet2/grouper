@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test Groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteGroups.java,v 1.16 2006-10-17 13:38:22 blair Exp $
+ * @version $Id: SuiteGroups.java,v 1.17 2006-10-18 15:40:53 blair Exp $
  */
 public class SuiteGroups extends TestCase {
 
@@ -79,6 +79,14 @@ public class SuiteGroups extends TestCase {
     suite.addTestSuite( TestGroupAddMemberGroup.class );
     suite.addTestSuite( TestGroupDeleteMember.class   );
     suite.addTestSuite( TestGroupToMember.class       );
+    suite.addTestSuite( TestGrFiFindByName.class );
+    suite.addTestSuite( TestGrFiFindByUuid.class );
+    suite.addTestSuite( TestField.class );
+    suite.addTestSuite( TestWrongFieldType.class ); 
+    suite.addTestSuite( TestBug0.class );  // Population of children-of-via 
+                                           // groups in an immediate mof delete
+    suite.addTestSuite( TestBugsClosed.class );
+
     return suite;
   } // static public Test suite()
 
