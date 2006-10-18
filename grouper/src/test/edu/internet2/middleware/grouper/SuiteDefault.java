@@ -21,7 +21,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.14 2006-10-17 16:12:00 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.15 2006-10-18 15:40:53 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -42,22 +42,6 @@ public class SuiteDefault extends TestCase {
     suite.addTest(  SuiteXml.suite()          );
     suite.addTest(  SuiteWheelGroup.suite()   );
     suite.addTest(  SuitePrivCache.suite()    );
-
-    // TODO 20060927 Migrate
-
-    suite.addTestSuite( TestField.class );
-    suite.addTestSuite( TestGrFiFindByName.class );
-    suite.addTestSuite( TestGrFiFindByUuid.class );
-    suite.addTestSuite( TestMemberFinder.class );
-    suite.addTestSuite( TestNamingPrivilege.class );
-    suite.addTestSuite( TestPrivCREATE.class );  
-    suite.addTestSuite( TestPrivSTEM.class );
-    suite.addTestSuite( TestStemFinder.class );
-    suite.addTestSuite( TestWrongFieldType.class ); 
-    suite.addTestSuite( TestBug0.class );  // Population of children-of-via 
-                                           // groups in an immediate mof delete
-    suite.addTestSuite( TestBugsClosed.class );
-
     return suite;
   } // static public Test suite()
 
