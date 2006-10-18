@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.76 2006-10-16 18:40:02 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.77 2006-10-18 14:17:27 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -590,15 +590,16 @@ public class XmlExporter {
     String type   = subj.getType().getName();
     String key    = "export.subject-attributes.source." + source + "." + type;
     String value  = options.getProperty(key);
-    if (XmlUtils.isEmpty(value)) {
+    // TODO 20061018 i'm not keen on these repetitive "if"s
+    if (Validator.isNullOrBlank(value)) {
       key   = "export.subject-attributes.source." + source;
       value = options.getProperty(key);
     }
-    if (XmlUtils.isEmpty(value)) {
+    if (Validator.isNullOrBlank(value)) {
       key   = "export.subject-attributes.type." + type;
       value = options.getProperty(key);
     }
-    if (XmlUtils.isEmpty(value)) {
+    if (Validator.isNullOrBlank(value)) {
       return null;
     }
     if (XmlUtils.SPECIAL_STAR.equals(value)) {
@@ -713,7 +714,7 @@ public class XmlExporter {
     do {
       try {
         parent = parent.getParentStem();
-        if (XmlUtils.isEmpty(parent.getExtension())) {
+        if (Validator.isNullOrBlank( parent.getExtension() ) ) {
           parent = null;
         } 
         else {
@@ -731,7 +732,7 @@ public class XmlExporter {
   // @since   1.1.0
   // TODO 20061003 deprecate
   private boolean _optionTrue(String key) {
-    if (XmlUtils.isEmpty(key)) {
+    if (Validator.isNullOrBlank(key)) {
       options.setProperty(key, "false");
       return false;
     }
@@ -950,7 +951,7 @@ public class XmlExporter {
       try {
         String val = this._fixXmlAttribute(g.getAttribute(f.getName()));
         if (
-                !XmlUtils.isEmpty(val)
+                Validator.isNotNullOrBlank(val)
             &&  ":description:extension:displayExtension:".indexOf(":" + f.getName() + ":") == -1
         ) 
         {
@@ -1473,7 +1474,7 @@ public class XmlExporter {
       this.xml.put(" id='" + subj.getId() + "'");
     }
     Iterator exportAttrs = _getExportAttributes(subj);
-    if (XmlUtils.isEmpty(exportAttrs)) {
+    if (Validator.isNullOrBlank(exportAttrs)) {
       this.xml.puts("/>");
       return;
     }

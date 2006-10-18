@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.10 2006-10-10 15:33:24 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.11 2006-10-18 14:17:27 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -76,15 +76,6 @@ class XmlUtils {
     return XmlUtils._hasImmediateNamingPrivilege(subj, (Stem) o, p);
   } // protected static boolean hasImmediatePrivilege(subj, o, p)
 
-  // @since   1.1.0
-  protected static boolean isEmpty(Object obj) {
-    // TODO 20060922 Switch to `Validator.IsNullOrBlank`?
-    if (obj == null || obj.equals(GrouperConfig.EMPTY_STRING)) {
-      return true;
-    }
-    return false;
-  } // protected static boolean isEmpty(obj)
-  
 
   // PRIVATE CLASS METHODS //
 
