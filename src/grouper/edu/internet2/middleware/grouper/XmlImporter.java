@@ -37,7 +37,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.85 2006-10-16 19:44:38 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.86 2006-10-18 14:17:27 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -277,7 +277,7 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (XmlUtils.isEmpty(id)) {
+    if (Validator.isNullOrBlank(id)) {
       if (type.equals("group")) {
         if (this._isRelativeImport(idfr)) {
           if (Validator.isNotNullOrBlank(this.importRoot)) {
@@ -448,8 +448,8 @@ public class XmlImporter {
       }
     }
     if (
-      !XmlUtils.isEmpty(importRoot)
-      && this.importedGroups.containsKey(importRoot + Stem.ROOT_INT + name)
+          Validator.isNotNullOrBlank(importRoot)
+      &&  this.importedGroups.containsKey(importRoot + Stem.ROOT_INT + name)
     ) 
     {
       return importRoot + Stem.ROOT_INT + name;
@@ -541,7 +541,7 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (XmlUtils.isEmpty(type)) {
+    if (Validator.isNullOrBlank(type)) {
       return SubjectFinder.findById(id);
     }
     return SubjectFinder.findById(id, type);
@@ -552,7 +552,7 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (XmlUtils.isEmpty(type)) {
+    if (Validator.isNullOrBlank(type)) {
       return SubjectFinder.findByIdentifier(identifier);
     }
     return SubjectFinder.findByIdentifier(identifier, type);
@@ -660,7 +660,7 @@ public class XmlImporter {
 
   // @since   1.0
   private boolean _optionTrue(String key) {
-    if (XmlUtils.isEmpty(key)) {
+    if (Validator.isNullOrBlank(key)) {
       options.setProperty(key, "false");
       return false;
     }
@@ -846,7 +846,7 @@ public class XmlImporter {
       if (
             Validator.isNotNullOrBlank(val)
         &&  !val.equals(orig)
-        &&  ( XmlUtils.isEmpty(orig) || this._isUpdatingAttributes() )
+        &&  ( Validator.isNullOrBlank(orig) || this._isUpdatingAttributes() )
       )
       {
         g.setAttribute(name, val);
@@ -968,7 +968,7 @@ public class XmlImporter {
       throw new IllegalStateException("Expected tag: <groupRef> but found <" + tagName + ">");
     }
     String name = groupE.getAttribute(GrouperConfig.ATTR_N);
-    if (XmlUtils.isEmpty(name)) {
+    if (Validator.isNullOrBlank(name)) {
       throw new IllegalStateException("Expected 'name' atribute for <groupRef>");
     }
     return GroupFinder.findByName( s, this._getAbsoluteName(name, stem) );
@@ -1007,11 +1007,11 @@ public class XmlImporter {
     Group g = GroupFinder.findByName(this.s, newGroup);
     if (this._isUpdatingAttributes()) {
       String dExtn  = e.getAttribute(GrouperConfig.ATTR_DE);
-      if (!XmlUtils.isEmpty(dExtn) && !dExtn.equals(g.getDisplayExtension())) {
+      if (Validator.isNotNullOrBlank(dExtn) && !dExtn.equals(g.getDisplayExtension())) {
         g.setDisplayExtension(dExtn);
       }
       String desc   = e.getAttribute(GrouperConfig.ATTR_D);
-      if (!XmlUtils.isEmpty(desc) && !desc.equals(g.getDisplayExtension())) {
+      if (Validator.isNotNullOrBlank(desc) && !desc.equals(g.getDisplayExtension())) {
         g.setDisplayExtension(desc);
       }
     }
@@ -1367,11 +1367,11 @@ public class XmlImporter {
     Stem ns = StemFinder.findByName(this.s, newStem);
     if (this._isUpdatingAttributes()) {
       String dExtn  = e.getAttribute(GrouperConfig.ATTR_DE);
-      if (!XmlUtils.isEmpty(dExtn) && !dExtn.equals(ns.getDisplayExtension())) {
+      if (Validator.isNotNullOrBlank(dExtn) && !dExtn.equals(ns.getDisplayExtension())) {
         ns.setDisplayExtension(dExtn);
       }
       String desc   = e.getAttribute(GrouperConfig.ATTR_D);
-      if (!XmlUtils.isEmpty(desc) && !desc.equals(ns.getDisplayExtension())) {
+      if (Validator.isNotNullOrBlank(desc) && !desc.equals(ns.getDisplayExtension())) {
         ns.setDisplayExtension(desc);
       }
     }
