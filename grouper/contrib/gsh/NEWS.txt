@@ -5,7 +5,7 @@ This file provides information on *GrouperShell* releases.
 
 ---
 
-## GrouperShell 0.0.2-cvs
+## GrouperShell 0.1.0
 
 Released: ????????
 
@@ -37,5 +37,5 @@ Released: 20060720
 
 ---
 
-$Id: NEWS.txt,v 1.6 2006-09-05 17:38:16 blair Exp $
+$Id: NEWS.txt,v 1.7 2006-10-19 13:50:12 blair Exp $
 

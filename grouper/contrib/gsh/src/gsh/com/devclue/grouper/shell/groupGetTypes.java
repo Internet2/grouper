@@ -14,8 +14,8 @@ import  java.util.*;
  * Get a {@link Group}'s {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: groupGetTypes.java,v 1.2 2006-08-30 18:35:38 blair Exp $
- * @since   0.0.2
+ * @version $Id: groupGetTypes.java,v 1.3 2006-10-19 13:50:12 blair Exp $
+ * @since   0.1.0
  */
 public class groupGetTypes {
 
@@ -29,7 +29,7 @@ public class groupGetTypes {
    * @param   name        Name of {@link Group}.
    * @return  Set of {@link GroupType}s.
    * @throws  GrouperShellException
-   * @since   0.0.2
+   * @since   0.1.0
    */
   public static Set invoke(Interpreter i, CallStack stack, String name) 
     throws  GrouperShellException

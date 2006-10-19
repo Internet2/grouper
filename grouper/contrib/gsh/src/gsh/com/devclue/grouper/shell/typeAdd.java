@@ -13,8 +13,8 @@ import  edu.internet2.middleware.grouper.*;
  * Add a {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: typeAdd.java,v 1.2 2006-08-30 18:35:38 blair Exp $
- * @since   0.0.2
+ * @version $Id: typeAdd.java,v 1.3 2006-10-19 13:50:12 blair Exp $
+ * @since   0.1.0
  */
 public class typeAdd {
 
@@ -28,7 +28,7 @@ public class typeAdd {
    * @param   name        Name of {@link GroupType} to add.
    * @return  {@link GroupType}
    * @throws  GrouperShellException
-   * @since   0.0.2
+   * @since   0.1.0
    */
   public static GroupType invoke(Interpreter i, CallStack stack, String name) 
     throws  GrouperShellException
