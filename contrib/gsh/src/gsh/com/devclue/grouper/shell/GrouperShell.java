@@ -14,7 +14,7 @@ import  java.util.*;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.15 2006-10-19 14:03:58 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.16 2006-10-19 14:14:50 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -69,7 +69,6 @@ public class GrouperShell {
 
   // CONSTRUCTORS //
 
-  // @throws  GrouperShellException
   // @since   0.0.1
   private GrouperShell(CommandReader r) 
     throws  GrouperShellException
@@ -94,7 +93,6 @@ public class GrouperShell {
     }
   } // protected static void error(i, e, msg)
 
-  // @throws  bsh.EvalError
   // @since   0.0.1
   protected static Object get(Interpreter i, String key) 
     throws  bsh.EvalError
@@ -102,7 +100,6 @@ public class GrouperShell {
     return i.get(key);
   } // protected static Object set(i, key)
 
-  // @throws  bsh.EvalError
   // @since   0.0.1
   protected static List getHistory(Interpreter i) 
     throws  bsh.EvalError
@@ -114,7 +111,6 @@ public class GrouperShell {
     return history;
   } // protected static List getHistory(i)
 
-  // @throws  GrouperShellException
   // @since   0.0.1
   protected static GrouperSession getSession(Interpreter i) 
     throws  GrouperShellException
@@ -156,7 +152,6 @@ public class GrouperShell {
     return _isTrue(i, GSH_TIMER);
   } // protected static boolean isTimed()
 
-  // @throws  bsh.EvalError
   // @since   0.0.1
   protected static void set(Interpreter i, String key, Object obj) 
     throws  bsh.EvalError
@@ -169,7 +164,6 @@ public class GrouperShell {
     return _isTrue(i, GSH_DEVEL);
   } // protected static boolean isDevel(i)
 
-  // @throws  bsh.EvalError
   // @since   0.0.1
   protected static void setHistory(Interpreter i, int cnt, String cmd) 
     throws  bsh.EvalError
@@ -233,7 +227,6 @@ public class GrouperShell {
     return false;
   } // private boolean _isTimeToExit(cmd)
 
-  // @throws  GrouperShellException
   // @since   0.0.1
   private void _run() 
     throws  GrouperShellException
@@ -264,7 +257,6 @@ public class GrouperShell {
     }
   } // private void _run(r)
 
-  // @throws  GrouperShellException
   // @since   0.0.1
   private void _stopSession() 
     throws  GrouperShellException

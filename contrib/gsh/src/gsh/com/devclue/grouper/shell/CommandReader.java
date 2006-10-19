@@ -14,7 +14,7 @@ import  java.util.*;
  * {@link GrouperShell} Command Reader.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CommandReader.java,v 1.2 2006-08-22 19:48:22 blair Exp $
+ * @version $Id: CommandReader.java,v 1.3 2006-10-19 14:14:50 blair Exp $
  * @since   0.0.1
  */
 class CommandReader {
@@ -27,7 +27,6 @@ class CommandReader {
 
   // CONSTRUCTORS //
 
-  // @throws  GrouperShellException
   // @since   0.0.1
   protected CommandReader(String[] args) 
     throws  GrouperShellException
@@ -56,7 +55,6 @@ class CommandReader {
 
   // PROTECTED INSTANCE METHODS //
 
-   // @throws  GrouperShellException
    // @since   0.0.1
   protected Interpreter getInterpreter() 
     throws  GrouperShellException
@@ -67,7 +65,6 @@ class CommandReader {
     return this.i;
   } // protected Interpreter getInterpreter()
 
-   // @throws  GrouperShellException
    // @since   0.0.1
   protected String next() 
     throws  GrouperShellException

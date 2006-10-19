@@ -14,7 +14,7 @@ import  org.apache.commons.lang.time.*;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.5 2006-10-19 14:11:29 blair Exp $
+ * @version $Id: ShellHelper.java,v 1.6 2006-10-19 14:14:50 blair Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -22,7 +22,6 @@ class ShellHelper {
   // PROTECTED CLASS METHODS //
 
   // @return  Evaluated command.
-  // @throws  GrouperShellException
   // @since   0.0.1
   protected static String eval(Interpreter i, String cmd) 
     throws  GrouperShellException
@@ -60,7 +59,6 @@ class ShellHelper {
     return cmd;
   } // protected static String  eval(i, cmd)
 
-  // @throws  GrouperShellException
   // @since 0.0.1
   protected static void last(Interpreter i, int idx) 
     throws  GrouperShellException
@@ -85,7 +83,6 @@ class ShellHelper {
     }
   } // protected static void last(i, idx)
 
-  // @throws  GrouperShellException
   // @since   0.0.1
   protected static void history(Interpreter i, int cnt) 
     throws  GrouperShellException
