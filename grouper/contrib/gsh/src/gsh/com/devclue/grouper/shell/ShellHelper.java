@@ -14,7 +14,7 @@ import  org.apache.commons.lang.time.*;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.6 2006-10-19 14:14:50 blair Exp $
+ * @version $Id: ShellHelper.java,v 1.7 2006-10-19 14:24:59 blair Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -113,9 +113,9 @@ class ShellHelper {
   // @since   1.1.0
   private static boolean _isLastCommand(String cmd) {
     if (cmd.startsWith("last(")) {
-      return false;
+      return true;
     }
-    return true;
+    return false;
   } // private static boolean _isLastCommand(cmd)
 
 } // class ShellHelper
