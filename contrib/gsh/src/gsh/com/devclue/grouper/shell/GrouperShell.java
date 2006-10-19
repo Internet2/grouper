@@ -14,7 +14,7 @@ import  java.util.*;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.14 2006-10-19 13:50:12 blair Exp $
+ * @version $Id: GrouperShell.java,v 1.15 2006-10-19 14:03:58 blair Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -215,6 +215,24 @@ public class GrouperShell {
 
   // PRIVATE INSTANCE METHODS //
 
+  // I'm not sure if this is the best place for this but...
+  // @since   1.1.0
+  private boolean _isComment(String cmd) {
+    if ( cmd.startsWith("#") || cmd.startsWith("//") ) {
+      return true;
+    }
+    return false;
+  } // private boolean _isComment(cmd)
+
+  // I'm not sure if this is the best place for this but...
+  // @since   1.1.0
+  private boolean _isTimeToExit(String cmd) {
+    if ( cmd.equals("exit") || cmd.equals("quit") ) {
+      return true;
+    }
+    return false;
+  } // private boolean _isTimeToExit(cmd)
+
   // @throws  GrouperShellException
   // @since   0.0.1
   private void _run() 
@@ -234,11 +252,10 @@ public class GrouperShell {
       throw new GrouperShellException(E.I_IMPORT + eBBB.getMessage(), eBBB);
     }
     while ( (cmd = r.next()) != null) {
-      // TODO 20060927 Replace these with something cleaner
-      if ( cmd.startsWith("#") || cmd.startsWith("//") ) {
+      if ( this._isComment(cmd) ) {
         continue;
       }
-      if ( cmd.equals("exit") || cmd.equals("quit") ) {
+      if ( this._isTimeToExit(cmd) ) {
         this._stopSession();
         break;
       }
