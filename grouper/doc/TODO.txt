@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in `doc/ROADMAP.txt`.
 
-$Id: TODO.txt,v 1.63 2006-10-19 15:51:46 blair Exp $
+$Id: TODO.txt,v 1.64 2006-10-19 16:40:18 blair Exp $
 
 ---
 
@@ -12,6 +12,9 @@ $Id: TODO.txt,v 1.63 2006-10-19 15:51:46 blair Exp $
 
 ### Maybe
 * PROJECT   Make gsh core and kill `contrib` area?
+* TESTING   Switch to TestNG?
+* LIBRARIES Upgrade Hibernate
+* LIBRARIES Upgrade HSQLDB or switch to Derby
 * REFACTOR  Eliminate `ModelException`
 * REFACTOR  Type + Field caching
 * CODE      Use `SetUtils` (?) for group math
@@ -32,12 +35,5 @@ $Id: TODO.txt,v 1.63 2006-10-19 15:51:46 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.63 2006-10-19 15:51:46 blair Exp $
-
-
-
-
-
-
-
+$Id: TODO.txt,v 1.64 2006-10-19 16:40:18 blair Exp $
 
