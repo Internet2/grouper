@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: FieldAsMap.java,v 1.1 2006-10-16 20:35:53 isgwb Exp $
+ * @version $Id: FieldAsMap.java,v 1.2 2006-10-19 08:57:21 isgwb Exp $
  */
 public class FieldAsMap extends ObjectAsMap {
 
@@ -40,8 +40,10 @@ public class FieldAsMap extends ObjectAsMap {
 	private Field field = null;
 	private ResourceBundle bundle=null;
 	/**
-	 * @param subject
+	 * @param field
 	 *            to wrap
+	  * @param bundle
+	 *            where to lookup display names
 	 */
 	public FieldAsMap(Field field,ResourceBundle bundle) {
 		super();
