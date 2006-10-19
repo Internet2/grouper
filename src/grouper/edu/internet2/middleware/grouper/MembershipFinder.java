@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.56 2006-10-05 18:38:08 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.57 2006-10-19 16:36:03 blair Exp $
  */
 public class MembershipFinder {
 
@@ -192,7 +192,7 @@ public class MembershipFinder {
   } // protected static Set findAllChildrenNoPriv(ms)
 
   // @since 1.0
-  // TODO 20060927 Smaller!
+  // TODO 20061019 Smaller!  Also: What does this even do?  I can't even remember.
   protected static Set findAllForwardMembershipsNoPriv(
     GrouperSession s, Membership ms, Set children
   ) {

@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.46 2006-10-05 19:22:17 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.47 2006-10-19 16:36:03 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -325,8 +325,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Set       saves   = mof.getSaves();
       Set       deletes = mof.getDeletes();
 
-      // TODO 20060927 Should this be in _Stem_?  
-      ns.setModified();
+      ns.setModified(); // TODO 20061019 Should this be in _Stem_?
       saves.add(ns);
 
       // And then commit changes to registry
