@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.109 2006-10-12 18:53:49 blair Exp $
+ * @version $Id: Group.java,v 1.110 2006-10-19 13:40:32 blair Exp $
  */
 public class Group extends Owner {
 
@@ -382,40 +382,26 @@ public class Group extends Owner {
     throws  GroupDeleteException,
             InsufficientPrivilegeException
   {
-    // TODO 20060927 Refactor into smaller components
     StopWatch sw = new StopWatch();
     sw.start();
-    GrouperSessionValidator.validate(this.getSession());
-    if (
-      !PrivilegeResolver.canADMIN(this.getSession(), this, this.getSession().getSubject())
-    )
-    {
-      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
-    }
+    GroupValidator.canDeleteGroup(this);
     try {
-      Set deletes = new LinkedHashSet();
-
-      // And revoke all access privileges
+      // Revoke all access privs
       this._revokeAllAccessPrivs();
-
-      // Delete composite membership if it exists
+      // ... And delete composite mship if it exists
       if (this.hasComposite()) {
         this.deleteCompositeMember();
       }
-
-      // And delete all memberships - as root
-      deletes.addAll( 
+      // ... And delete all memberships - as root
+      Set deletes = new LinkedHashSet(
         Membership.deleteAllFieldType(
           this.getSession().getRootSession(), this, FieldType.LIST
         )
       );
-
-      // Add the group last for good luck    
+      // ... And add the group last for good luck    
       deletes.add(this);
-
       // Preserve name for logging
       String name = this.getName();
-
       // And then commit changes to registry
       HibernateHelper.delete(deletes);
       sw.stop();
