@@ -4,13 +4,14 @@
 This file provides more detailed information on future Grouper
 development as listed in `doc/ROADMAP.txt`.
 
-$Id: TODO.txt,v 1.62 2006-10-19 13:40:32 blair Exp $
+$Id: TODO.txt,v 1.63 2006-10-19 15:51:46 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
 
 ### Maybe
+* PROJECT   Make gsh core and kill `contrib` area?
 * REFACTOR  Eliminate `ModelException`
 * REFACTOR  Type + Field caching
 * CODE      Use `SetUtils` (?) for group math
@@ -31,7 +32,7 @@ $Id: TODO.txt,v 1.62 2006-10-19 13:40:32 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.62 2006-10-19 13:40:32 blair Exp $
+$Id: TODO.txt,v 1.63 2006-10-19 15:51:46 blair Exp $
 
 
 
