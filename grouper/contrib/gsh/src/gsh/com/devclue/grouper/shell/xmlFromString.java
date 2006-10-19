@@ -8,16 +8,13 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  java.io.*;
 import  java.util.Properties;
-import  org.w3c.dom.*;
 
 /**
  * Import Groups Registry from XML string.
  * <p/>
  * @author  blair christensen.
- * @version $Id: xmlFromString.java,v 1.1 2006-10-19 15:28:59 blair Exp $
+ * @version $Id: xmlFromString.java,v 1.2 2006-10-19 16:17:36 blair Exp $
  * @since   0.1.0
  */
 public class xmlFromString {

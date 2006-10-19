@@ -8,7 +8,6 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.util.Properties;
 
@@ -16,7 +15,7 @@ import  java.util.Properties;
  * Export Groups Registry to XML file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: xmlToFile.java,v 1.1 2006-10-19 15:28:59 blair Exp $
+ * @version $Id: xmlToFile.java,v 1.2 2006-10-19 16:17:36 blair Exp $
  * @since   0.1.0
  */
 public class xmlToFile {
