@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.8 2006-09-05 17:38:16 blair Exp $ -->
+<!-- $Id: build.xml,v 1.9 2006-10-19 13:50:12 blair Exp $ -->
 
 <project name="GrouperShell" default="build" basedir=".">
 
@@ -6,7 +6,7 @@
   <property name="app.name"         value="gsh"                                           />
   <property name="impl.vendor"      value="devclue.com"                                   />
   <property name="impl.url"         value="http://grouper.devclue.com/"                   />
-  <property name="impl.version"     value="0.0.2-cvs"                                     />
+  <property name="impl.version"     value="0.1.0"                                         />
 
   <property name="build"            location="${basedir}/build"                           />
   <property name="build.bin"        location="${basedir}/bin"                             />

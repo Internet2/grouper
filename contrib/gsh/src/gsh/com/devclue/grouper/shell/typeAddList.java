@@ -13,8 +13,8 @@ import  edu.internet2.middleware.grouper.*;
  * Add a list to to a {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: typeAddList.java,v 1.2 2006-08-30 18:35:38 blair Exp $
- * @since   0.0.2
+ * @version $Id: typeAddList.java,v 1.3 2006-10-19 13:50:12 blair Exp $
+ * @since   0.1.0
  */
 public class typeAddList {
 
@@ -31,7 +31,7 @@ public class typeAddList {
    * @param   write       {@link Privilege} required for writing.
    * @return  {@link Field}
    * @throws  GrouperShellException
-   * @since   0.0.2
+   * @since   0.1.0
    */
   public static Field invoke(
     Interpreter i, CallStack stack, String type, String name, Privilege read, Privilege write

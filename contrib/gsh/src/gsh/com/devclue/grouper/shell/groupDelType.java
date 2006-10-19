@@ -13,8 +13,8 @@ import  edu.internet2.middleware.grouper.*;
  * Delete a {@link GroupType} from a {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: groupDelType.java,v 1.2 2006-08-30 18:35:38 blair Exp $
- * @since   0.0.2
+ * @version $Id: groupDelType.java,v 1.3 2006-10-19 13:50:12 blair Exp $
+ * @since   0.1.0
  */
 public class groupDelType {
 
@@ -29,7 +29,7 @@ public class groupDelType {
    * @param   type        Name of {@link GroupType}.
    * @return  True if {@link GroupType} deleted from {@link Group}.
    * @throws  GrouperShellException
-   * @since   0.0.2
+   * @since   0.1.0
    */
   public static boolean invoke(
     Interpreter i, CallStack stack, String name, String type

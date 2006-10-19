@@ -15,7 +15,7 @@ import  java.util.*;
  * Pretty print results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.6 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: p.java,v 1.7 2006-10-19 13:50:12 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -89,7 +89,7 @@ public class p {
   // PRIVATE CLASS METHODS //
  
   // Handle {@link Field}s
-  // @since   0.0.2
+  // @since   0.1.0
   private static void _pp(Interpreter i, Field f) {
     String type = f.getType().toString();  
     if      (f.getType().equals(FieldType.ACCESS))    {
@@ -119,7 +119,7 @@ public class p {
   } // private static void _pp(i, g)
 
   // Handle {@link GroupType}s
-  // @since   0.0.2
+  // @since   0.1.0
   private static void _pp(Interpreter i, GroupType t) {
       i.println("type: " + U.q(t.getName()));
   } // private static void _pp(i, t)
