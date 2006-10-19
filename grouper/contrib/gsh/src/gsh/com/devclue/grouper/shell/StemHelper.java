@@ -13,7 +13,7 @@ import  edu.internet2.middleware.grouper.*;
  * Stem Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.2 2006-08-30 18:35:38 blair Exp $
+ * @version $Id: StemHelper.java,v 1.3 2006-10-19 14:14:50 blair Exp $
  * @since   0.0.1
  */
 class StemHelper {
@@ -21,7 +21,6 @@ class StemHelper {
   // PROTECTED CLASS METHODS //
 
   // @return  Added {@link Stem}.
-  // @throws  GrouperShellException
   // @since   0.0.1
   protected static Stem addStem(
     Interpreter i, String parent, String extn, String displayExtn
