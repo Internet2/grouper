@@ -4,13 +4,11 @@
 This file provides more detailed information on future Grouper
 development as listed in `doc/ROADMAP.txt`.
 
-$Id: TODO.txt,v 1.61 2006-10-18 17:11:49 blair Exp $
+$Id: TODO.txt,v 1.62 2006-10-19 13:40:32 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
-
-* REFACTOR  `Group.delete()`
 
 ### Maybe
 * REFACTOR  Eliminate `ModelException`
@@ -33,7 +31,7 @@ $Id: TODO.txt,v 1.61 2006-10-18 17:11:49 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.61 2006-10-18 17:11:49 blair Exp $
+$Id: TODO.txt,v 1.62 2006-10-19 13:40:32 blair Exp $
 
 
 

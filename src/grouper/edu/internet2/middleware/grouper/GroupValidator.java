@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.20 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.21 2006-10-19 13:40:32 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -104,6 +104,20 @@ class GroupValidator {
       throw new ModelException(E.GROUP_DCFC); 
     }
   } // protected static void canDelCompositeMember(g)
+
+  // @since   1.1.0
+  protected static void canDeleteGroup(Group g)
+    throws  GrouperRuntimeException,
+            InsufficientPrivilegeException
+  {
+    GrouperSessionValidator.validate( g.getSession() );
+    if (
+      !PrivilegeResolver.canADMIN( g.getSession(), g, g.getSession().getSubject() )
+    )
+    {
+      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
+    }
+  } // protected static void canDeleteGroup(g)
 
   // @since 1.0
   protected static void canDelMember(Group g, Subject subj, Field f)
