@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.9 2006-10-19 13:50:12 blair Exp $ -->
+<!-- $Id: build.xml,v 1.10 2006-10-19 15:28:58 blair Exp $ -->
 
 <project name="GrouperShell" default="build" basedir=".">
 
@@ -171,6 +171,9 @@
     </antcall>
     <antcall  target="test-run">
       <param  name="name" value="group_types" />
+    </antcall>
+    <antcall  target="test-run">
+      <param  name="name" value="xml"         />
     </antcall>
   </target>
   <!-- test -->
