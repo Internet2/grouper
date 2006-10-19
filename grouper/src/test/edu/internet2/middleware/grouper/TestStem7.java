@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem7.java,v 1.6 2006-10-18 15:22:12 blair Exp $
+ * @version $Id: TestStem7.java,v 1.7 2006-10-19 16:36:03 blair Exp $
  */
 public class TestStem7 extends TestCase {
 
@@ -52,7 +52,7 @@ public class TestStem7 extends TestCase {
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Assert.assertTrue("modify source", edu.getModifySource().equals(""));
-    // TODO 20061018 Possibly a bug.  The modify* attrs get set when granting STEM at creation.
+    // Possibly a bug.  The modify* attrs get set when granting STEM at creation.
     try {
       Subject modifier = edu.getModifySubject();
       Assert.assertNotNull("modifier !null", modifier);

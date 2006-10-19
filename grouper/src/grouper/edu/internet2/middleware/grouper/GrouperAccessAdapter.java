@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.44 2006-10-05 19:22:17 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.45 2006-10-19 16:36:03 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -328,8 +328,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
       Set       saves   = mof.getSaves();
       Set       deletes = mof.getDeletes();
 
-      // TODO 20060927 Should this be in _Group_?  
-      g.setModified();
+      g.setModified(); // TODO 20061019 Should this be in _Group_?
       saves.add(g);
 
       // And then commit changes to registry
