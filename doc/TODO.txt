@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in `doc/ROADMAP.txt`.
 
-$Id: TODO.txt,v 1.66 2006-10-20 17:52:27 blair Exp $
+$Id: TODO.txt,v 1.67 2006-10-20 19:20:39 blair Exp $
 
 ---
 
@@ -18,10 +18,10 @@ $Id: TODO.txt,v 1.66 2006-10-20 17:52:27 blair Exp $
 * LIBRARIES Upgrade HSQLDB or switch to Derby
 * REFACTOR  Eliminate `ModelException`.  Reasonable idea, horrible execution.
 * REFACTOR  Type + Field caching
-* REFACTOR	`MemberOf` needs to be tackled again
-* REFACTOR	`EventLog`
+* REFACTOR  `MemberOf` needs to be tackled again
+* REFACTOR  `EventLog`
 * DEPRECATE `RegistryReset` should *not* add test subjects
-* REFACTOR	`RegistryInstall`
+* REFACTOR  `RegistryInstall`
 * REFACTOR  Continue refactoring privilege resolution
     * remove `GrouperSession` param from all `can*()` methods
 * CODE      A smarter - and perhaps persistent - privilege cache.
@@ -35,6 +35,6 @@ $Id: TODO.txt,v 1.66 2006-10-20 17:52:27 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.66 2006-10-20 17:52:27 blair Exp $
+$Id: TODO.txt,v 1.67 2006-10-20 19:20:39 blair Exp $
 
 
