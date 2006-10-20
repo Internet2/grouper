@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.20 2006-10-10 15:50:40 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.21 2006-10-20 17:52:27 blair Exp $
  */
 public class GrouperQuery {
 
@@ -70,6 +70,9 @@ public class GrouperQuery {
    * <li>{@link StemNameFilter}</li>
    * <li>{@link UnionFilter}</li>
    * </ul>
+   * <p>
+   * Custom filters can be created by implementing the {@link QueryFilter} interface.
+   * </p>
    * @param   s       Query within this session context.
    * @param   filter  A {@link QueryFilter} specification.
    * @return  A {@link GrouperQuery} object.
@@ -126,7 +129,7 @@ public class GrouperQuery {
   {
     Set         members = new LinkedHashSet();
     Membership  ms;
-    // Retrieve Memberships found by this query and then retrieve Member from // each
+    // Retrieve Memberships found by this query and then retrieve Member from each
     try {
       Iterator it = this.getMemberships().iterator();
       while (it.hasNext()) {

@@ -4,13 +4,14 @@
 This file provides more detailed information on future Grouper
 development as listed in `doc/ROADMAP.txt`.
 
-$Id: TODO.txt,v 1.65 2006-10-19 19:34:15 blair Exp $
+$Id: TODO.txt,v 1.66 2006-10-20 17:52:27 blair Exp $
 
 ---
 
 ## Grouper 1.1.0-cvs
 
 ### Maybe
+* REFACTOR  normalize object translation in `GrouperQuery`
 * PROJECT   Make gsh core and kill `contrib` area?
 * TESTING   Switch to TestNG?
 * LIBRARIES Upgrade Hibernate
@@ -34,6 +35,6 @@ $Id: TODO.txt,v 1.65 2006-10-19 19:34:15 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.65 2006-10-19 19:34:15 blair Exp $
+$Id: TODO.txt,v 1.66 2006-10-20 17:52:27 blair Exp $
 
 
