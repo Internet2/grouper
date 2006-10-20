@@ -13,8 +13,8 @@ qs.version=1-0-RC2
 
 
 #The directory where the QuickStart distribution will be created
-
-quickstart.dir=${basedir}/../grouper-qs
+qs.dirname=grouper-qs
+quickstart.dir=${basedir}/../${qs.dirname=grouper-qs}
 
 
 #true=include build.xml and java/src and java/lib
