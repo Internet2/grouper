@@ -24,13 +24,14 @@ import  java.util.*;
  * for wheel group-related privilege updates.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.3 2006-10-17 16:12:00 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.4 2006-10-23 14:18:46 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
 
   // PRIVATE INSTANCE VARIABLES //
-  private long lastModified  = 0;
+  private long  lastModified  = 0;
+  private Group wheel         = null;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -46,20 +47,24 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
     // better job of tracking changes to the wheel group so...
     PrivilegeCacheElement result = new NullPrivilegeCacheElement(o, subj, p);
     if (this.getCache().containsKey(o, p, subj)) { 
-      // The privilege is cached but...
-      // Is the wheel group enabled?
+      // The privilege is cached ...
+      // ... But is the wheel group enabled?
       boolean useCached = true;
       if (Boolean.valueOf(GrouperConfig.getProperty(GrouperConfig.GWU))) {
         try {
           // Does the wheel group exist?
-          Group wheel = GroupFinder.findByName(
-            o.getSession().getRootSession(), 
-            GrouperConfig.getProperty(GrouperConfig.GWG)
-          );
+          if (this.wheel == null) {
+            this.wheel = GroupFinder.findByName(
+              o.getSession().getRootSession(), GrouperConfig.getProperty(GrouperConfig.GWG)
+            );
+          }
+          else {
+            this.wheel.setSession( o.getSession().getRootSession() );
+          }
           // If the wheel group has been modified since the last time the cache
           // was updated then do not return the cached result.  Instead, let the
           // privilege resolution code resolve the privilege.
-          if (wheel.getModifyTime().getTime() > lastModified) {
+          if (this.wheel.getModifyTime().getTime() > lastModified) {
             useCached = false;  
           }
           // Otherwise return nothing and let the privilege resolution code
