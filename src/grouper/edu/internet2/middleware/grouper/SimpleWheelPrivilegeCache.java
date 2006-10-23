@@ -24,7 +24,7 @@ import  java.util.*;
  * for wheel group-related privilege updates.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.4 2006-10-23 14:18:46 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.5 2006-10-23 14:35:03 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
@@ -57,9 +57,11 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
             this.wheel = GroupFinder.findByName(
               o.getSession().getRootSession(), GrouperConfig.getProperty(GrouperConfig.GWG)
             );
+            DebugLog.info(SimpleWheelPrivilegeCache.class, M.FOUND_WHEEL_GROUP);
           }
           else {
             this.wheel.setSession( o.getSession().getRootSession() );
+            DebugLog.info(SimpleWheelPrivilegeCache.class, M.REUSING_WHEEL_GROUP);
           }
           // If the wheel group has been modified since the last time the cache
           // was updated then do not return the cached result.  Instead, let the
