@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.21 2006-10-20 17:52:27 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.22 2006-10-24 13:51:54 blair Exp $
  */
 public class GrouperQuery {
 
@@ -41,7 +41,7 @@ public class GrouperQuery {
   // PUBLIC CLASS METHODS //
 
   /**
-   * Query the Groups Registry.
+   * Create a query for searching the Groups Registry.
    * <pre class="eg">
    * GrouperQuery gq = GrouperQuery.createQuery(
    *   s, 
@@ -52,26 +52,19 @@ public class GrouperQuery {
    * );
    * </pre>
    * <p>
-   * Grouper includes several default filters:
+   * This method defines a query but <b>does not</b> execute the query.  Evaulation
+   * takes place in the {@link #getGroups()}, {@link #getMembers()}, 
+   * {@link #getMemberships()} and {@link #getStems()} methods.  Those methods
+   * all operate in the same manner.  They first execute the query filter.  This
+   * returns a set of candidate results.  Each method then iterates through the
+   * candidate set, extracting objects of the the appropriate time to return.
+   * Several of the methods also convert between object types in order to return
+   * results.  See each method for more details.
+   * </p>
    * <p>
-   * <ul>
-   * <li>{@link ComplementFilter}</li>
-   * <li>{@link GroupAnyAttributeFilter}</li>
-   * <li>{@link GroupAttributeFilter}</li>
-   * <li>{@link GroupCreatedAfterFilter}</li>
-   * <li>{@link GroupCreatedBeforeFilter}</li>
-   * <li>{@link GroupModifiedAfterFilter}</li>
-   * <li>{@link GroupModifiedBeforeFilter}</li>
-   * <li>{@link GroupNameFilter}</li>
-   * <li>{@link IntersectionFilter}</li>
-   * <li>{@link NullFilter}</li>
-   * <li>{@link StemCreatedAfterFilter}</li>
-   * <li>{@link StemCreatedBeforeFilter}</li>
-   * <li>{@link StemNameFilter}</li>
-   * <li>{@link UnionFilter}</li>
-   * </ul>
-   * <p>
-   * Custom filters can be created by implementing the {@link QueryFilter} interface.
+   * All query filters implement the {@link QueryFilter} interface.  See that
+   * class for information on the query filters supplied by Grouper as well as
+   * information on creating custom query filters.
    * </p>
    * @param   s       Query within this session context.
    * @param   filter  A {@link QueryFilter} specification.
@@ -93,6 +86,10 @@ public class GrouperQuery {
    * <pre class="eg">
    * Set groups = gq.getGroups();
    * </pre>
+   * <p>
+   * This method (currently) performs no candidate object conversion.  Only
+   * {@link Group} objects in the candidate set will be returned.
+   * </p>
    * @return  Set of matching {@link Group} objects.
    * @throws  QueryException
    */
@@ -121,6 +118,10 @@ public class GrouperQuery {
    * <pre class="eg">
    * Set members = gq.getMembers();
    * </pre>
+   * <p>
+   * This method calls {@link #getMemberships()} internally.  Each {@link Membership}'s
+   * {@link Member} is then extracted and returned.  
+   * </p>
    * @return  Set of matching {@link Member} objects.
    * @throws  QueryException
    */
@@ -148,6 +149,11 @@ public class GrouperQuery {
    * <pre class="eg">
    * Set memberships = gq.getMemberships();
    * </pre>
+   * <p>
+   * If this method finds a {@link Group} in the candidate set it will add all 
+   * {@link Membership}s returned by calling {@link Group#getMemberships()} to
+   * the result set.
+   * </p>
    * @return  Set of matching {@link Membership} objects.
    * @throws  QueryException
    */
@@ -178,6 +184,10 @@ public class GrouperQuery {
    * <pre class="eg">
    * Set stems = gq.getStems();
    * </pre>
+   * <p>
+   * This method (currently) performs no candidate object conversion.  Only
+   * {@link Stem} objects in the candidate set will be returned.
+   * </p>
    * @return  Set of matching {@link Stem} objects.
    * @throws  QueryException
    */
