@@ -5,22 +5,32 @@ This file provides information on future Grouper development.
 
 ---
 
-## Grouper 1.1.0-cvs
+## Grouper 1.X.X
 
-Estimated Release: 200610
+Estimated Release: 200703
 
 ### Features
-* Additional query filters to support provisioning
-* Improves XML integration
+* TBD
 
 ---
 
-## Future Releases
-* Improved performance.
+## Grouper 1.X.X
 
-TODO Add additional potential features.
+Estimated Release: 200707
+
+### Features
+* TBD
 
 ---
 
-$Id: ROADMAP.txt,v 1.5 2006-08-11 18:58:54 blair Exp $
+## Grouper 1.X.X
+
+Estimated Release: 200711
+
+### Features
+* TBD
+
+---
+
+$Id: ROADMAP.txt,v 1.6 2006-10-24 14:05:49 blair Exp $
 
