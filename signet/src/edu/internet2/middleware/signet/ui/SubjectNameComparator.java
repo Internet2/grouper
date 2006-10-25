@@ -1,6 +1,6 @@
 /*--
-$Id: SubjectNameComparator.java,v 1.2 2006-02-09 10:33:50 lmcrae Exp $
-$Date: 2006-02-09 10:33:50 $
+$Id: SubjectNameComparator.java,v 1.3 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,7 +19,7 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.Comparator;
-import edu.internet2.middleware.signet.PrivilegedSubject;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 public class SubjectNameComparator implements Comparator {
 
@@ -34,10 +34,10 @@ public class SubjectNameComparator implements Comparator {
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
 	public int compare(Object o1, Object o2) {
-		if (o1 instanceof PrivilegedSubject
-			&& o2 instanceof PrivilegedSubject) {
-			String name1 = ((PrivilegedSubject)o1).getName().toLowerCase();
-			String name2 = ((PrivilegedSubject)o2).getName().toLowerCase();
+		if (o1 instanceof SignetSubject
+			&& o2 instanceof SignetSubject) {
+			String name1 = ((SignetSubject)o1).getName().toLowerCase();
+			String name2 = ((SignetSubject)o2).getName().toLowerCase();
 			return name1.compareTo(name2);
 		}
 		return 0;

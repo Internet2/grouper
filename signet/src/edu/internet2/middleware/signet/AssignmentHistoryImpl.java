@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentHistoryImpl.java,v 1.2 2006-02-09 10:17:58 lmcrae Exp $
-$Date: 2006-02-09 10:17:58 $
+$Id: AssignmentHistoryImpl.java,v 1.3 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -26,8 +26,6 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 /**
  * @author Andy Cohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 class AssignmentHistoryImpl extends HistoryImpl implements AssignmentHistory
 {

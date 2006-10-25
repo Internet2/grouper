@@ -1,6 +1,6 @@
 /*--
-$Id: StartAction.java,v 1.17 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: StartAction.java,v 1.18 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -19,8 +19,6 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -28,8 +26,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
  * <p>
@@ -80,55 +78,55 @@ public final class StartAction extends BaseAction
     if (signet == null)
     {
       signet = new Signet();
-      signet.setLogger(logger);
+      signet.setLogger(log);
       session.setAttribute("signet", signet);
     }
     
 
-    PrivilegedSubject loggedInUser
-    	= (PrivilegedSubject)(session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
+    SignetSubject loggedInUser = (SignetSubject)session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
     if (loggedInUser == null)
     {
+    	String remoteUser = request.getRemoteUser();
+
       // This getRemoteUser() check exists only for Signet demo installations.
       // In the case of a normal production system, user authentication would
       // occur before this "Start" action is accessed.
-      if (request.getRemoteUser() == null)
+      if (null == remoteUser)
       {
         return findDemoLogin(mapping);
       }
       
       // Find the PrivilegedSubject associated with the logged-in
       // user, and stash it in the Session.
-      Set userMatches = signet.getSubjectSources().getPrivilegedSubjectsByDisplayId(
-      			Signet.DEFAULT_SUBJECT_TYPE_ID,
-      			request.getRemoteUser());
-      
-      if (userMatches.size() != 1)
-      {
-      	messages.add
-        ("Found " 
-            + userMatches.size()
-            + " matches for logged-in user with display-ID '"
-            + request.getRemoteUser()
-            + "'. We don't know what to do with any number other than one.");
-        messages.add("All matches:");
-        Iterator userMatchesIterator = userMatches.iterator();
-        while (userMatchesIterator.hasNext())
-        {
-          messages.add
-          (((PrivilegedSubject)(userMatchesIterator.next())).toString());
-        }
-        request.setAttribute(Constants.ERROR_KEY, messages);
-        
-        return findFailure(mapping);
-      }
-      
-      loggedInUser = null;
-      Iterator pSubjectsIterator = userMatches.iterator();
-      while (pSubjectsIterator.hasNext())
-      {
-        loggedInUser = (PrivilegedSubject)(pSubjectsIterator.next());
-      }
+      loggedInUser = signet.getSubjectByIdentifier(remoteUser);
+//      Set userMatches = signet.getSubjectByIdentifier(remoteUser);
+//      
+//      if (userMatches.size() != 1)
+//      {
+//      	messages.add
+//        ("Found " 
+//            + userMatches.size()
+//            + " matches for logged-in user with display-ID '"
+//            + remoteUser
+//            + "'. We don't know what to do with any number other than one.");
+//        messages.add("All matches:");
+//        Iterator userMatchesIterator = userMatches.iterator();
+//        while (userMatchesIterator.hasNext())
+//        {
+//          messages.add
+//          (((PrivilegedSubject)(userMatchesIterator.next())).toString());
+//        }
+//        request.setAttribute(Constants.ERROR_KEY, messages);
+//        
+//        return findFailure(mapping);
+//      }
+//      
+//      loggedInUser = null;
+//      Iterator pSubjectsIterator = userMatches.iterator();
+//      while (pSubjectsIterator.hasNext())
+//      {
+//        loggedInUser = (PrivilegedSubject)(pSubjectsIterator.next());
+//      }
       
       session.setAttribute(Constants.LOGGEDINUSER_ATTRNAME, loggedInUser);
     }

@@ -1,6 +1,6 @@
 /*--
-$Id: DecisionImpl.java,v 1.2 2006-02-09 10:19:30 lmcrae Exp $
-$Date: 2006-02-09 10:19:30 $
+$Id: DecisionImpl.java,v 1.3 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,7 +19,7 @@ limitations under the License.
 package edu.internet2.middleware.signet;
 
 
-class DecisionImpl implements Decision
+public class DecisionImpl implements Decision
 {
   private boolean answer;
   private Reason  reason;

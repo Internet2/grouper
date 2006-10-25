@@ -1,6 +1,6 @@
 /*--
-$Id: ActAsAction.java,v 1.5 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: ActAsAction.java,v 1.6 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -19,18 +19,15 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-
-import edu.internet2.middleware.signet.PrivilegedSubject;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
  * <p>
@@ -83,14 +80,12 @@ public final class ActAsAction extends BaseAction
       return (mapping.findForward("notInitialized"));
     }
     
-    PrivilegedSubject loggedInPrivilegedSubject
-      = (PrivilegedSubject)
-          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
+    SignetSubject loggedInPrivilegedSubject =
+    	(SignetSubject)request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
     
     String compoundId = request.getParameter(Constants.ACTING_FOR_SELECT_ID);
     String idParts[] = Common.parseCompoundId(compoundId);
-    PrivilegedSubject actingAs
-      = signet.getSubjectSources().getPrivilegedSubject(idParts[0], idParts[1]);
+    SignetSubject actingAs = signet.getSubject(idParts[0], idParts[1]);
     
     if (actingAs.equals(loggedInPrivilegedSubject))
     {

@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.18 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: ConfirmAction.java,v 1.19 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -21,26 +21,21 @@ package edu.internet2.middleware.signet.ui;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-
+import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
-
-import edu.internet2.middleware.signet.ui.Constants;
 
 /**
 * <p>
@@ -109,12 +104,9 @@ throws Exception
   Date    effectiveDate   = null;
   Date    expirationDate  = null;
 
-  PrivilegedSubject grantor
-    = (PrivilegedSubject)
-        (session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
-  PrivilegedSubject grantee
-    = (PrivilegedSubject)
-        (session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
+  SignetSubject grantor = (SignetSubject)session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
+  SignetSubject grantee = (SignetSubject)session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
+
   TreeNode scope = (TreeNode)(session.getAttribute("currentScope"));
   Function function = (Function)(session.getAttribute("currentFunction"));
   

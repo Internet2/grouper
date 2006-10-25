@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.15 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: Common.java,v 1.16 2006-10-25 00:10:25 ddonn Exp $
+$Date: 2006-10-25 00:10:25 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
+import junit.framework.TestCase;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentHistory;
 import edu.internet2.middleware.signet.Function;
@@ -23,17 +23,16 @@ import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Privilege;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
-
-import junit.framework.TestCase;
 
 /**
  * @author Andy Cohen
@@ -144,10 +143,10 @@ public class Common extends TestCase
    * @return
    * @throws SignetAuthorityException
    */
-  public static PrivilegedSubject getOriginalGrantor(Grantable grantable)
+  public static SignetSubject getOriginalGrantor(Grantable grantable)
   throws SignetAuthorityException
   {
-    PrivilegedSubject originalGrantor;
+    SignetSubject originalGrantor;
     
     if (grantable.getProxy() == null)
     {
@@ -263,7 +262,7 @@ public class Common extends TestCase
   
   static Set filterProxiesByGrantor
     (Set                all,
-     PrivilegedSubject  grantor)
+     SignetSubject  grantor)
   {
     if (grantor == null)
     {
@@ -315,13 +314,13 @@ public class Common extends TestCase
     return root;
   }
   
-  public static PrivilegedSubject getPrivilegedSubject
+  public static SignetSubject getPrivilegedSubject
     (Signet signet,
      int    subjectIndex)
   throws ObjectNotFoundException
   {
     Subject subject = getSubject(signet, subjectIndex);
-    PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
+    SignetSubject pSubject = signet.getSubject(subject.getSource().getId(), subject.getId());
     return pSubject;
   }
 
@@ -337,10 +336,7 @@ public class Common extends TestCase
   {
     Subject subject = null;
 
-    subject
-      = signet.getSubjectSources().getSubject
-          (Signet.DEFAULT_SUBJECT_TYPE_ID,
-           makeSubjectId(subjectNumber));
+    subject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, makeSubjectId(subjectNumber));
     
     return subject;
   }

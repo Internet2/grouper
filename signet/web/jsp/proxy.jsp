@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: proxy.jsp,v 1.4 2006-05-16 17:37:35 ddonn Exp $
-  $Date: 2006-05-16 17:37:35 $
+  $Id: proxy.jsp,v 1.5 2006-10-25 00:13:31 ddonn Exp $
+  $Date: 2006-10-25 00:13:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -31,7 +31,7 @@
 <%@ page import="java.util.Arrays" %>
 
 <%@ page import="edu.internet2.middleware.subject.Subject" %>
-<%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
+<%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Proxy" %>
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
@@ -52,9 +52,9 @@
     = (Proxy)
          (request.getSession().getAttribute(Constants.PROXY_ATTRNAME));
          
-  PrivilegedSubject grantee      = currentProxy.getGrantee();
-  PrivilegedSubject grantor      = currentProxy.getGrantor();
-  PrivilegedSubject proxySubject = currentProxy.getProxy();
+  SignetSubject grantee      = currentProxy.getGrantee();
+  SignetSubject grantor      = currentProxy.getGrantor();
+  SignetSubject proxySubject = currentProxy.getProxy();
          
   boolean canUse = currentProxy.canUse();
   boolean canExtend = currentProxy.canExtend();
@@ -146,7 +146,6 @@
       <tr>
         <th class="label" scope="row">
           <%=Common.displayDatetime(Constants.DATETIME_FORMAT_12_MINUTE, historyRecord.getDate())%>
-        </td>
         <td>
           <%=Common.describeChange(historyArray, i)%>
         </td>

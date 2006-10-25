@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.15 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: ConfirmProxyAction.java,v 1.16 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -33,11 +33,11 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
 * <p>
@@ -86,10 +86,6 @@ public final class ConfirmProxyAction extends BaseAction
     Date    effectiveDate   = null;
     Date    expirationDate  = null;
   
-    PrivilegedSubject loggedInUser
-      = (PrivilegedSubject)
-          (session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
-  
     // currentProxy is present in the session only if we are editing
     // an existing Proxy. Otherwise, we're attempting to create a new one.
     Proxy proxy
@@ -105,14 +101,12 @@ public final class ConfirmProxyAction extends BaseAction
     Common.showHttpParams
       ("ConfirmProxyAction.execute()", signet.getLogger(), request);
     
-    PrivilegedSubject currentGrantee = null;
+    SignetSubject currentGrantee = null;
     Subsystem subsystem = null;
     
     if (proxy == null)
     {
-      currentGrantee
-        = (PrivilegedSubject)
-            (session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
+      currentGrantee = (SignetSubject)session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
     
       subsystem
         = Common.getSubsystem
@@ -170,6 +164,9 @@ public final class ConfirmProxyAction extends BaseAction
     {
       return findDataEntryErrors(mapping);
     }
+  
+
+    SignetSubject loggedInUser = (SignetSubject)session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
   
     if (proxy != null)
     {

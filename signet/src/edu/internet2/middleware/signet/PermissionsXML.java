@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXML.java,v 1.7 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: PermissionsXML.java,v 1.8 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
 public class PermissionsXML
@@ -44,7 +45,7 @@ public class PermissionsXML
 	   this.signet = signet;
    }
 
-   public void generateXML(PrivilegedSubject privSubject, OutputStream outStream)
+   public void generateXML(SignetSubject privSubject, OutputStream outStream)
       throws Exception {
    
       // ================== Produce document =================
@@ -74,7 +75,7 @@ public class PermissionsXML
       xmlw.writeCharacters("\n");
    
       // -------- Subject --------
-      String privSubjectID = privSubject.getSubjectId();
+      String privSubjectID = privSubject.getId();
 
       xmlw.writeCharacters("   ");
       xmlw.writeStartElement("Subject");
@@ -82,7 +83,7 @@ public class PermissionsXML
       xmlw.writeCharacters("\n");
    
       // -------- SubjectType --------
-      String privSubjectTypeID = privSubject.getSubjectTypeId();
+      String privSubjectTypeID = privSubject.getType().getName();
    
       xmlw.writeCharacters("      ");
       xmlw.writeStartElement("SubjectType");
@@ -236,12 +237,13 @@ public class PermissionsXML
             return;
          }
       
-      String subjectType = args[0];
-      String subjectID = args[1];
+//      String subjectType = args[0];
+//      String subjectID = args[1];
       
       Signet signet = new Signet();
       
-      PrivilegedSubject privSubject = signet.getSubjectSources().getPrivilegedSubject(subjectType, subjectID);
+      SignetSubject privSubject = signet.getSubject(args[0], args[1]);
+//      PrivilegedSubject privSubject = signet.getSubjectSources().getPrivilegedSubject(subjectType, subjectID);
    
       // Create the XML file
       PermissionsXML processor = new PermissionsXML(signet);

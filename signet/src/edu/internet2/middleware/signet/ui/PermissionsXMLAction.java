@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXMLAction.java,v 1.2 2006-02-09 10:32:23 lmcrae Exp $
-$Date: 2006-02-09 10:32:23 $
+$Id: PermissionsXMLAction.java,v 1.3 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -19,19 +19,15 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-
-import edu.internet2.middleware.signet.Assignment;
-import edu.internet2.middleware.signet.PrivilegedSubject;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
  * <p>
@@ -79,9 +75,8 @@ public final class PermissionsXMLAction extends BaseAction
   
     Signet signet = (Signet)(session.getAttribute("signet"));
     
-    PrivilegedSubject loggedInPrivilegedSubject
-      = (PrivilegedSubject)
-          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
+    SignetSubject loggedInPrivilegedSubject =
+    	(SignetSubject)request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
   
     if ((signet == null) || (loggedInPrivilegedSubject == null))
     {

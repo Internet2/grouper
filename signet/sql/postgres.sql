@@ -1,11 +1,11 @@
 -- This is the Postgres DDL for the Signet database
 -- Originally submitted by Simon McLeish, London School of Economics 
 -- modified
---    6/20/2005 - tablename prefixes; assignment history tables; assignment expirationDate
+--    6/20/2005 - tablename prefixes, assignment history tables, assignment expirationDate
 --    1/10/2006 - renamed signet_privilegedSubject to signet_subject
 --    3/09/2006 - add categoryKey, functionKey, subjectKey, choiceKey, choiceSetKey
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.23 2006-04-11 23:20:32 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.24 2006-10-25 00:12:50 ddonn Exp $
 --
 
 -- Tree tables
@@ -42,8 +42,12 @@ drop table signet_limit cascade;
 drop table signet_subsystem cascade;
 
 -- Signet Subject table
+drop table signet_subjectAttrValue;
+drop table signet_subjectAttribute;
 drop table signet_subject;
 drop sequence subjectSerial;
+drop sequence subjectAttrSerial;
+drop sequence subjectAttrValueSerial;
 
 -- Local Source Subject tables (optional)
 drop table SubjectAttribute;
@@ -168,17 +172,47 @@ create table signet_permission_limit
 
 -- Signet Subject table
 
-create sequence subjectSerial START 1;
+-- create sequence subjectSerial START 1;
 
 create table signet_subject (
-	subjectKey          integer             DEFAULT nextval('subjectSerial'),
-	subjectTypeID       varchar(32)         NOT NULL,
-	subjectID           varchar(64)         NOT NULL,
-	description         varchar(255)        NOT NULL,
-	name                varchar(120)        NOT NULL,
+	subjectKey			int8				NOT NULL,
+	sourceID            varchar(64)         NOT NULL,
+	subjectID     		varchar(64)         NOT NULL,
+	type                varchar(32)         NOT NULL,
+	name                varchar(255)        NOT NULL,
 	modifyDatetime      timestamp           NOT NULL,
+	syncDatetime        timestamp           NOT NULL,
 	primary key (subjectKey),
-	unique (subjectTypeID, subjectID)
+	unique (sourceID, subjectID)
+)
+;
+
+-- create sequence subjectAttrSerial START 1;
+
+create table signet_subjectAttribute (
+	subjectAttrKey	int8			NOT NULL,
+	subjectKey		int8			NOT NULL,
+	name			varchar(32)		NOT NULL,
+	modifyDatetime	timestamp		NOT NULL,
+	primary key (subjectAttrKey),
+	foreign key (subjectKey)
+		references signet_subject(subjectKey) ON DELETE CASCADE,
+	unique (subjectKey, name)
+)
+;
+
+-- create sequence subjectAttrValueSerial START 1;
+
+create table signet_subjectAttrValue (
+	subjectAttrValueKey		int8			NOT NULL,
+	subjectAttrKey			int8			NOT NULL,
+	sequence				int8			NOT NULL,
+	value					varchar(255)	NOT NULL,
+	type					varchar(255)	DEFAULT 'string',
+	primary key (subjectAttrValueKey),
+	foreign key (subjectAttrKey)
+		references signet_subjectAttribute(subjectAttrKey) ON DELETE CASCADE,
+	unique (subjectAttrKey, sequence)
 )
 ;
 
@@ -265,19 +299,20 @@ create table signet_assignment
 	grantorKey          integer             NOT NULL,
 	granteeKey          integer             NOT NULL,
 	proxyKey            integer             NULL,
+	revokerKey          integer             NULL,
 	scopeID             varchar(64)         NULL,
 	scopeNodeID         varchar(64)         NULL,
 	canUse              boolean             NOT NULL,
 	canGrant            boolean             NOT NULL,
 	effectiveDate       timestamp           NOT NULL,
 	expirationDate      timestamp           NULL,
-	revokerKey          integer             NULL,
 	modifyDatetime      timestamp           NOT NULL,
 	primary key (assignmentID),
 	foreign key (grantorKey) references signet_subject (subjectKey),
 	foreign key (granteeKey) references signet_subject (subjectKey),
 	foreign key (proxyKey) references signet_subject (subjectKey),
-	foreign key (revokerKey) references signet_subject (subjectKey)
+	foreign key (revokerKey) references signet_subject (subjectKey),
+	foreign key (functionKey) references signet_function (functionKey)
 )
 ;
 
@@ -325,13 +360,13 @@ create table signet_assignment_history
 	grantorKey          integer             NOT NULL,
 	granteeKey          integer             NOT NULL,
 	proxyKey            integer             NULL,
+	revokerKey          integer             NULL,
 	scopeID             varchar(64)         NULL,
 	scopeNodeID         varchar(64)         NULL,
 	canUse              boolean             NOT NULL,
 	canGrant            boolean             NOT NULL,
 	effectiveDate       timestamp           NOT NULL,
 	expirationDate      timestamp           NULL,
-	revokerKey          integer             NULL,
 	historyDatetime     timestamp           NOT NULL,
 	modifyDatetime      timestamp           NOT NULL,
 	primary key (historyID),

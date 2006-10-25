@@ -22,25 +22,25 @@
 			
 		<many-to-one
 			name="grantor"
-			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+			class="edu.internet2.middleware.signet.subjsrc.SignetSubject"
 			column="grantorKey"
 			not-null="true"/>
 
 		<many-to-one
 			name="grantee"
-			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+			class="edu.internet2.middleware.signet.subjsrc.SignetSubject"
 			column="granteeKey"
 			not-null="true"/>
 
 		<many-to-one
 			name="proxySubject"
-			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+			class="edu.internet2.middleware.signet.subjsrc.SignetSubject"
 			column="proxySubjectKey"
 			not-null="false"/>
 
 		<many-to-one
 			name="revoker"
-			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+			class="edu.internet2.middleware.signet.subjsrc.SignetSubject"
 			column="revokerKey"
 			not-null="false"/>
 		

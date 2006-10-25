@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.69 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: Common.java,v 1.70 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -21,31 +21,25 @@ package edu.internet2.middleware.signet.ui;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-// DMD - not used import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessages;
-// DMD - not used import org.apache.struts.util.MessageResources;
-
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentHistory;
 import edu.internet2.middleware.signet.Decision;
@@ -55,7 +49,6 @@ import edu.internet2.middleware.signet.History;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.ProxyHistory;
 import edu.internet2.middleware.signet.SelectionType;
@@ -64,9 +57,8 @@ import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
-
 import edu.internet2.middleware.signet.resource.ResLoaderUI;
-import edu.internet2.middleware.signet.ui.Constants;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 public class Common
@@ -707,7 +699,7 @@ public class Common
    */
   public static String displayActingForOptions
     (Signet             signet,
-     PrivilegedSubject  currentLoggedInPrivilegedSubject,
+     SignetSubject      currentLoggedInPrivilegedSubject,
      String             htmlSelectId,
      String             onChange)
   {
@@ -755,7 +747,7 @@ public class Common
    */
   private static String displayProxyOptions
     (Signet            signet,
-     PrivilegedSubject pSubject)
+     SignetSubject     pSubject)
   {
     StringBuffer outStr = new StringBuffer();
     
@@ -789,14 +781,12 @@ public class Common
     Iterator proxyGrantorsIterator = proxyGrantors.iterator();
     while (proxyGrantorsIterator.hasNext())
     {
-      PrivilegedSubject grantor
-        = (PrivilegedSubject)(proxyGrantorsIterator.next());
-      boolean isCurrent = (grantor.equals(pSubject.getEffectiveEditor()));
+      SignetSubject grantor = (SignetSubject)proxyGrantorsIterator.next();
+
       outStr.append("<OPTION\n");
-      if (isCurrent)
-      {
+
+      if (grantor.equals(pSubject.getEffectiveEditor()))
         outStr.append(" SELECTED\n");
-      }
       
       String grantorName = grantor.getName();
       if (grantor.equals(signet.getSignetSubject()))
@@ -925,30 +915,31 @@ public class Common
   
   
 
-  // This is a shameful little hack to temporarily simulate person-quicksearch
-  // until it's implemented in the upcoming new version of the Subject interface:
-  public static SortedSet filterSearchResults
-  	(Set privilegedSubjects, String searchString)
-  {
-    SortedSet resultSet = new TreeSet();
-    Iterator privilegedSubjectsIterator = privilegedSubjects.iterator();
-    while (privilegedSubjectsIterator.hasNext())
-    {
-      PrivilegedSubject pSubject
-      	= (PrivilegedSubject)(privilegedSubjectsIterator.next());
-    
-      if ((searchString == null)
-          || (searchString.equals(""))
-          || (pSubject.getName().toUpperCase().indexOf
-               (searchString.toUpperCase())
-               	 != -1))
-      {
-        resultSet.add(pSubject);
-      }
-    }
-    
-    return resultSet;
-  }
+// not used
+//  // This is a shameful little hack to temporarily simulate person-quicksearch
+//  // until it's implemented in the upcoming new version of the Subject interface:
+//  public static SortedSet filterSearchResults
+//  	(Set privilegedSubjects, String searchString)
+//  {
+//    SortedSet resultSet = new TreeSet();
+//    Iterator privilegedSubjectsIterator = privilegedSubjects.iterator();
+//    while (privilegedSubjectsIterator.hasNext())
+//    {
+//      PrivilegedSubject pSubject
+//      	= (PrivilegedSubject)(privilegedSubjectsIterator.next());
+//    
+//      if ((searchString == null)
+//          || (searchString.equals(""))
+//          || (pSubject.getName().toUpperCase().indexOf
+//               (searchString.toUpperCase())
+//               	 != -1))
+//      {
+//        resultSet.add(pSubject);
+//      }
+//    }
+//    
+//    return resultSet;
+//  }
   
   public static boolean isSelected
     (Limit  limit,
@@ -996,9 +987,7 @@ public class Common
     return false;
   }
   
-  public static String editLink
-    (PrivilegedSubject  loggedInPrivilegedSubject,
-     Grantable          grantable)
+  public static String editLink(SignetSubject loggedInPrivilegedSubject, Grantable grantable)
   {
     return editLink
       (loggedInPrivilegedSubject,
@@ -1008,7 +997,7 @@ public class Common
   }
   
   public static String editLink
-    (PrivilegedSubject  loggedInPrivilegedSubject,
+    (SignetSubject  loggedInPrivilegedSubject,
      Grantable          grantable,
      String             prompt,
      String             style)
@@ -1091,7 +1080,7 @@ public class Common
   }
   
   public static String revokeBox
-    (PrivilegedSubject  loggedInPrivilegedSubject,
+    (SignetSubject  loggedInPrivilegedSubject,
      Grantable          grantableInstance,
      UnusableStyle      unusableStyle)
   {
@@ -1522,80 +1511,91 @@ public class Common
 //    return outStr.toString();
 //  }
   
-  static public String buildCompoundId(PrivilegedSubject pSubject)
+  static public String buildCompoundId(SignetSubject pSubject)
   {
     return
-      pSubject.getSubjectTypeId()
+      pSubject.getType().getName()
       + Constants.COMPOSITE_ID_DELIMITER
-      + pSubject.getSubjectId();
+      + pSubject.getId();
   }
   
   static public String[] parseCompoundId(String compoundId)
   {
-    StringTokenizer tokenizer
-      = new StringTokenizer(compoundId, Constants.COMPOSITE_ID_DELIMITER);
-    String subjectTypeId = tokenizer.nextToken();
-    String subjectId = tokenizer.nextToken();
-
-    String[] result = {subjectTypeId, subjectId};
-
-    return result;
+	return ((null != compoundId) ?
+			(compoundId.split(Constants.COMPOSITE_ID_DELIMITER)) :
+			(new String[2]));
+// StringTok = bad, String.split = good
+//    StringTokenizer tokenizer
+//      = new StringTokenizer(compoundId, Constants.COMPOSITE_ID_DELIMITER);
+//    String subjectTypeId = tokenizer.nextToken();
+//    String subjectId = tokenizer.nextToken();
+//
+//    String[] result = {subjectTypeId, subjectId};
+//
+//    return result;
   }
 
   static public boolean paramIsPresent(String param)
   {
-    if ((param != null) && (param != ""))
-    {
-      return true;
-    }
+	  return ((param != null) && (0 < param.length()));
+//    if ((param != null) && (param != ""))
+//    {
+//      return true;
+//    }
+//
+//    return false;
+  }
+  
 
-    return false;
-  }
+// not used
+//  static public PrivilegedSubject getSubjectFromSelectList
+//    (Signet             signet,
+//     HttpServletRequest request,
+//     String             selectListName,
+//     String             sessionAttrName)
+//  throws ObjectNotFoundException
+//  {
+//    PrivilegedSubject pSubject = null;
+//    
+//    String compositeId = request.getParameter(selectListName);
+//    if (compositeId != null)
+//    {
+//      String[] idParts = parseCompoundId(compositeId);
+//      pSubject = signet.getSubjectSources().getPrivilegedSubject(idParts[0], idParts[1]);
+//    }
+//    
+//    if (sessionAttrName != null)
+//    {
+//      request.getSession().setAttribute(sessionAttrName, pSubject);
+//    }
+//    
+//    return pSubject;
+//  }
   
-  static public PrivilegedSubject getSubjectFromSelectList
-    (Signet             signet,
-     HttpServletRequest request,
-     String             selectListName,
-     String             sessionAttrName)
-  throws ObjectNotFoundException
-  {
-    PrivilegedSubject pSubject = null;
-    
-    String compositeId = request.getParameter(selectListName);
-    if (compositeId != null)
-    {
-      String[] idParts = parseCompoundId(compositeId);
-      pSubject = signet.getSubjectSources().getPrivilegedSubject(idParts[0], idParts[1]);
-    }
-    
-    if (sessionAttrName != null)
-    {
-      request.getSession().setAttribute(sessionAttrName, pSubject);
-    }
-    
-    return pSubject;
-  }
-  
-  static public PrivilegedSubject getGrantee
+  static public SignetSubject getGrantee
     (Signet             signet,
      HttpServletRequest request)
   throws ObjectNotFoundException
   {
-    PrivilegedSubject grantee;
+    SignetSubject grantee;
     
     // Find the PrivilegedSubject specified by the "grantee" parameters, and
     // stash it in the Session. If those parameters are not present, then
     // it must already be stashed in the Session by some prior action.
+//TODO !!! get SourceId, not Type
+if (true) // side-step compiler error
+  throw new ObjectNotFoundException("Use SourceId, not Type");
+
     String granteeSubjectTypeId = request.getParameter("granteeSubjectTypeId");
     String granteeSubjectId = request.getParameter("granteeSubjectId");
     if (granteeSubjectId != null)
     {
-      grantee = signet.getSubjectSources().getPrivilegedSubject(granteeSubjectTypeId, granteeSubjectId);
+      grantee = signet.getSubject(granteeSubjectTypeId, granteeSubjectId);
       request.getSession().setAttribute(Constants.CURRENTPSUBJECT_ATTRNAME, grantee);
     }
     else
     {
-      grantee= (PrivilegedSubject)(request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
+      grantee = (SignetSubject)request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
     }
     
     return grantee;
@@ -1703,15 +1703,15 @@ public class Common
     return subsystem;
   }
   
-  static public PrivilegedSubject getAndSetPrivilegedSubject
+  static public SignetSubject getAndSetPrivilegedSubject
     (Signet             signet,
      HttpServletRequest request,
      String             paramName,
      String             attrName,
-     PrivilegedSubject  defaultValue)
+     SignetSubject  defaultValue)
   throws ObjectNotFoundException
   {
-    PrivilegedSubject pSubject = null;
+    SignetSubject pSubject = null;
     
     String compoundSubjectId = request.getParameter(paramName);
     
@@ -1720,13 +1720,11 @@ public class Common
     if (compoundSubjectId != null)
     {
       String subjectIdParts[] = parseCompoundId(compoundSubjectId);
-      pSubject = signet.getSubjectSources().getPrivilegedSubject(subjectIdParts[0], subjectIdParts[1]);
+      pSubject = signet.getSubject(subjectIdParts[0], subjectIdParts[1]);
     }
     else
     {
-      pSubject
-        = (PrivilegedSubject)
-            (request.getSession().getAttribute(attrName));
+      pSubject = (SignetSubject)request.getSession().getAttribute(attrName);
     }
     
     if (pSubject == null)
@@ -1846,7 +1844,7 @@ public class Common
   }
   
   static public String subsystemLinks
-    (PrivilegedSubject  pSubject,
+    (SignetSubject  pSubject,
      PrivDisplayType    privDisplayType,
      Subsystem          currentSubsystem)
   {
@@ -1993,7 +1991,7 @@ public class Common
   }
   
   private static Set getAssignmentsGrantedForReport
-    (PrivilegedSubject  pSubject,
+    (SignetSubject  pSubject,
      Subsystem          subsystem,
      Set                statusSet)
   {
@@ -2005,7 +2003,7 @@ public class Common
   }
   
   private static Set getAssignmentsReceivedForReport
-    (PrivilegedSubject  pSubject,
+    (SignetSubject  pSubject,
      Subsystem          subsystem,
      Set                statusSet)
   {
@@ -2017,7 +2015,7 @@ public class Common
   }
   
   private static Set getProxiesGrantedForReport
-    (PrivilegedSubject  pSubject,
+    (SignetSubject  pSubject,
      Subsystem          subsystem,
      Set                statusSet)
   {
@@ -2028,7 +2026,7 @@ public class Common
     return proxies;
   }
   
-  public static boolean hasUsableProxies(PrivilegedSubject pSubject)
+  public static boolean hasUsableProxies(SignetSubject pSubject)
   {
     Set usableProxies = pSubject.getProxiesReceived();
     usableProxies = filterProxies(usableProxies, Status.ACTIVE);
@@ -2042,7 +2040,7 @@ public class Common
     return false;
   }
   
-  public static boolean hasExtensibleProxies(PrivilegedSubject pSubject)
+  public static boolean hasExtensibleProxies(SignetSubject pSubject)
   {
     Set extensibleProxies = pSubject.getProxiesReceived();
     extensibleProxies = filterProxies(extensibleProxies, Status.ACTIVE);
@@ -2057,7 +2055,7 @@ public class Common
   }
   
   private static Set getProxiesReceivedForReport
-    (PrivilegedSubject  pSubject,
+    (SignetSubject  pSubject,
      Subsystem          subsystem,
      Set                statusSet)
   {
@@ -2069,7 +2067,7 @@ public class Common
   }
   
   public static SortedSet getGrantablesForReport
-    (PrivilegedSubject  pSubject,
+    (SignetSubject  pSubject,
      Subsystem          subsystemFilter,
      PrivDisplayType    privDisplayType)
   {
@@ -2130,10 +2128,9 @@ public class Common
     Iterator setWithGroupsIterator = setWithGroups.iterator();
     while (setWithGroupsIterator.hasNext())
     {
-      PrivilegedSubject candidate
-        = (PrivilegedSubject)(setWithGroupsIterator.next());
+      SignetSubject candidate = (SignetSubject)setWithGroupsIterator.next();
       
-      if (!(candidate.getSubjectTypeId().equals
+      if (!(candidate.getType().getName().equals
              (SubjectTypeEnum.GROUP.getName())))
       {
         setWithoutGroups.add(candidate);
@@ -2176,11 +2173,9 @@ public class Common
    */
   public static boolean isSystemAdministrator
     (Signet             signet,
-     PrivilegedSubject  pSubject)
+     SignetSubject  pSubject)
   {
-    PrivilegedSubject effectiveEditor = pSubject.getEffectiveEditor();
-
-    if (effectiveEditor.equals(signet.getSignetSubject()))
+    if (pSubject.getEffectiveEditor().equals(signet.getSignetSubject()))
     {
       Set proxiesReceived = pSubject.getProxiesReceived();
       proxiesReceived = filterProxies(proxiesReceived, Status.ACTIVE);
@@ -2208,23 +2203,22 @@ public class Common
     // If we've gotten this far, we didn't pass the test.
     return false;
   }
-  
-  private static Set filterProxiesByGrantor
-    (Set               proxies,
-     PrivilegedSubject grantor)
+
+
+  public static Set filterProxiesByGrantor(Set proxies, SignetSubject grantor)
   {
-    Set filteredSet = new HashSet();
-    
-    Iterator proxiesIterator = proxies.iterator();
-    while (proxiesIterator.hasNext())
+    Set filteredSet = Collections.synchronizedSet(new HashSet());
+    synchronized(filteredSet)
     {
-      Proxy candidate = (Proxy)(proxiesIterator.next());
-      if (grantor.equals(candidate.getGrantor()))
-      {
-        filteredSet.add(candidate);
-      }
+	    for (Iterator iter = proxies.iterator(); iter.hasNext();)
+	    {
+	      Proxy candidate = (Proxy)(iter.next());
+	
+	      if (grantor.equals(candidate.getGrantor()))
+	        filteredSet.add(candidate);
+	    }
     }
-    
+
     return filteredSet;
   }
 
@@ -2277,7 +2271,7 @@ public class Common
 	 */
 	public static String titleForPrintReport(Subsystem subsystem,
 			PrivDisplayType privDisplayType,
-			PrivilegedSubject  pSubject)
+			SignetSubject  pSubject)
 	{
 		Object[] fmtData = new String[4];
 	
@@ -2303,44 +2297,63 @@ public class Common
 	}
 
 
-  static Set filterProxies(Set all, Status status)
+  public static Set filterProxies(Set all, Status status)
   {
     Set statusSet = new HashSet();
     statusSet.add(status);
     return filterProxies(all, statusSet);
   }
   
-  static Set filterAssignments(Set all, Status status)
+  public static Set filterAssignments(Set all, Status status)
   {
     Set statusSet = new HashSet();
     statusSet.add(status);
     return filterAssignments(all, statusSet);
   }
 
+
   static Set filterAssignments(Set all, Set statusSet)
   {
-    if (statusSet == null)
-    {
+    if ((null == statusSet) || statusSet.isEmpty() || (null == all) || all.isEmpty())
       return all;
-    }
-
-    Set subset = new HashSet();
-    Iterator iterator = all.iterator();
-    while (iterator.hasNext())
+	  
+    Set subset = Collections.synchronizedSet(new HashSet());
+    synchronized (subset)
     {
-      Assignment candidate = (Assignment) (iterator.next());
-      if (statusSet.contains(candidate.getStatus()))
-      {
-        subset.add(candidate);
-      }
+	    for (Iterator iterator = all.iterator(); iterator.hasNext();)
+	    {
+	      Assignment candidate = (Assignment)iterator.next();
+	      if (statusSet.contains(candidate.getStatus()))
+	        subset.add(candidate);
+	    }
     }
 
     return subset;
   }
 
-  static Set filterAssignments(Set all, Subsystem subsystem)
+
+  public static Set filterAssignments(Set all, Subsystem subsystem)
   {
-    if (subsystem == null)
+    if ((null == subsystem) || (null == all) || all.isEmpty())
+      return all;
+
+    Set subset = Collections.synchronizedSet(new HashSet());
+    synchronized (subset)
+    {
+	    for (Iterator iter = all.iterator(); iter.hasNext();)
+	    {
+	      Assignment candidate = (Assignment)iter.next();
+	      if (candidate.getFunction().getSubsystem().equals(subsystem))
+	        subset.add(candidate);
+	    }
+    }
+
+    return subset;
+  }
+
+  public static Set filterAssignments(Set all, Function function)
+  {
+    if (function == null)
     {
       return all;
     }
@@ -2350,7 +2363,7 @@ public class Common
     while (iterator.hasNext())
     {
       Assignment candidate = (Assignment) (iterator.next());
-      if (candidate.getFunction().getSubsystem().equals(subsystem))
+      if (candidate.getFunction().equals(function))
       {
         subset.add(candidate);
       }
@@ -2361,42 +2374,40 @@ public class Common
 
   static Set filterProxies(Set all, Set statusSet)
   {
-    if (statusSet == null)
-    {
+    if ((null == statusSet) || statusSet.isEmpty() || (null == all) || all.isEmpty())
       return all;
-    }
-
-    Set subset = new HashSet();
-    Iterator iterator = all.iterator();
-    while (iterator.hasNext())
+	  
+    Set subset = Collections.synchronizedSet(new HashSet());
+    synchronized (subset)
     {
-      Proxy candidate = (Proxy) (iterator.next());
-      if (statusSet.contains(candidate.getStatus()))
-      {
-        subset.add(candidate);
-      }
-    }
+	    for (Iterator iterator = all.iterator(); iterator.hasNext();)
+	    {
+	      Proxy candidate = (Proxy)iterator.next();
+	      if (statusSet.contains(candidate.getStatus()))
+	        subset.add(candidate);
+		}
+	}
 
     return subset;
   }
 
-  static Set filterProxies(Set all, Subsystem subsystem)
+  public static Set filterProxies(Set all, Subsystem subsystem)
   {
-    if (subsystem == null)
-    {
+    if ((null == subsystem) || (null == all) || all.isEmpty())
       return all;
-    }
-
-    Set subset = new HashSet();
-    Iterator iterator = all.iterator();
-    while (iterator.hasNext())
+ 
+    Set subset = Collections.synchronizedSet(new HashSet());
+    synchronized (subset)
     {
-      Proxy candidate = (Proxy) (iterator.next());
-      if ((candidate.getSubsystem() == null)
-          || candidate.getSubsystem().equals(subsystem))
-      {
-        subset.add(candidate);
-      }
+	    for (Iterator iterator = all.iterator(); iterator.hasNext();)
+	    {
+	      Proxy candidate = (Proxy) (iterator.next());
+	      if ((candidate.getSubsystem() == null)
+	          || candidate.getSubsystem().equals(subsystem))
+	      {
+	        subset.add(candidate);
+	      }
+	    }
     }
 
     return subset;
@@ -2404,33 +2415,39 @@ public class Common
   
   private static Set filterProxiesByUsable(Set all)
   {
-    Set subset = new HashSet();
-    Iterator iterator = all.iterator();
-    while (iterator.hasNext())
+    if ((null == all) || (all.isEmpty()))
+      return (all);
+
+    Set subset = Collections.synchronizedSet(new HashSet());
+    synchronized(subset)
     {
-      Proxy candidate = (Proxy)(iterator.next());
-      if (candidate.canUse())
-      {
-        subset.add(candidate);
-      }
+	    for (Iterator iterator = all.iterator(); iterator.hasNext();)
+	    {
+	      Proxy candidate = (Proxy)(iterator.next());
+	      if (candidate.canUse())
+	        subset.add(candidate);
+	    }
     }
-    
+
     return subset;
   }
   
   private static Set filterProxiesByExtensible(Set all)
   {
-    Set subset = new HashSet();
-    Iterator iterator = all.iterator();
-    while (iterator.hasNext())
+    if ((null == all) || (all.isEmpty()))
+      return (all);
+
+    Set subset = Collections.synchronizedSet(new HashSet());
+    synchronized(subset)
     {
-      Proxy candidate = (Proxy)(iterator.next());
-      if (candidate.canExtend())
-      {
-        subset.add(candidate);
-      }
+	    for (Iterator iterator = all.iterator(); iterator.hasNext();)
+	    {
+	      Proxy candidate = (Proxy)(iterator.next());
+	      if (candidate.canExtend())
+	        subset.add(candidate);
+	    }
     }
-    
+
     return subset;
   }
   
@@ -2476,7 +2493,7 @@ public class Common
     return scopeStr;
   }
   
-  public static String homepageName(PrivilegedSubject loggedInUser)
+  public static String homepageName(SignetSubject loggedInUser)
   {
     StringBuffer homePageName = new StringBuffer();
     

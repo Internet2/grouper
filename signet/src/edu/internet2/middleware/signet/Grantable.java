@@ -1,6 +1,6 @@
 /*--
-$Id: Grantable.java,v 1.8 2006-02-09 10:20:20 lmcrae Exp $
-$Date: 2006-02-09 10:20:20 $
+$Id: Grantable.java,v 1.9 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package edu.internet2.middleware.signet;
 
 import java.util.Date;
 import java.util.Set;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
  * This interface encapsulates some attributes that are common to
@@ -29,7 +30,7 @@ public interface Grantable
 extends Entity, Comparable
 {
   /**
-   * Gets the unique identifier of this grantable entity.
+   * Gets the persisted database-unique identifier of this grantable entity.
    * 
    * @return the unique identifier of this grantable entity.
    */
@@ -42,7 +43,7 @@ extends Entity, Comparable
    * @return the <code>PrivilegedSubject</code>
    * who is the grantee of this grantable entity.
    */
-  public PrivilegedSubject getGrantee();
+  public SignetSubject getGrantee();
 
   /**
    * Gets the <code>PrivilegedSubject</code> 
@@ -51,7 +52,7 @@ extends Entity, Comparable
    * @return the <code>PrivilegedSubject</code> 
    * who is the grantor of this grantable entity.
    */
-  public PrivilegedSubject getGrantor();
+  public SignetSubject getGrantor();
 
   /**
    * Gets the <code>PrivilegedSubject</code> 
@@ -62,7 +63,7 @@ extends Entity, Comparable
    * who acted as a proxy for the official grantor when granting this grantable
    * entity, or <code>null</code> if there was no such proxy involved.
    */
-  public PrivilegedSubject getProxy();
+  public SignetSubject getProxy();
 
 
   /**
@@ -74,7 +75,7 @@ extends Entity, Comparable
    * who revoked this grantable entity, or <code>null</code> if this grantable entity has
    * not yet been revoked.
    */
-  public PrivilegedSubject getRevoker();
+  public SignetSubject getRevoker();
 
   /**
    * Gets the effective date of this grantable entity. This is the date on which
@@ -99,7 +100,7 @@ extends Entity, Comparable
    * @throws SignetAuthorityException
    */
   public void setEffectiveDate
-    (PrivilegedSubject  actor,
+    (SignetSubject  actor,
      Date               effectiveDate)
   throws SignetAuthorityException;
   
@@ -135,7 +136,7 @@ extends Entity, Comparable
    * @throws SignetAuthorityException
    */
   public void setExpirationDate
-    (PrivilegedSubject  editor,
+    (SignetSubject  editor,
      Date               expirationDate)
   throws SignetAuthorityException;
   
@@ -171,7 +172,7 @@ extends Entity, Comparable
    * @see #findDuplicates()
    * 
    */
-  public void revoke(PrivilegedSubject revoker)
+  public void revoke(SignetSubject revoker)
   throws SignetAuthorityException;
   
   /**

@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.35 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: Fixtures.java,v 1.36 2006-10-25 00:10:25 ddonn Exp $
+$Date: 2006-10-25 00:10:25 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,32 +14,30 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.naming.OperationNotSupportedException;
-
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.cfg.Configuration;
-
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Category;
+import edu.internet2.middleware.signet.DataType;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
+import edu.internet2.middleware.signet.SignetFactory;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
-import edu.internet2.middleware.signet.DataType;
-import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
+import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author acohen
@@ -146,12 +144,12 @@ public class Fixtures
   private void createGrantables(Signet signet)
   throws SignetAuthorityException, ObjectNotFoundException
   {
-    PrivilegedSubject sysAdmin
+    SignetSubject sysAdmin
       = designateSysAdmin(Constants.SYSADMIN_SUBJECT_NUMBER);
     
     sysAdmin.setActingAs(signet.getSignetSubject());
     
-    PrivilegedSubject subsystemOwner
+    SignetSubject subsystemOwner
       = designateSubsystemOwner
           (sysAdmin,
            SUBSYSTEM_OWNER_SUBJECT_NUMBER,
@@ -210,7 +208,7 @@ public class Fixtures
     // This will come in handy later for testing the Assignment.getRevoker()
     // method.
     int[] limitChoiceNumbersForRevocation = {0};
-    PrivilegedSubject pSubject0 = Common.getPrivilegedSubject(signet, 0);
+    SignetSubject pSubject0 = Common.getPrivilegedSubject(signet, 0);
     Assignment assignmentForRevocation
       = getOrCreateAssignment
           (pSubject0,
@@ -248,22 +246,26 @@ public class Fixtures
     
     for (int i = 0; i < Constants.MAX_CATEGORIES; i++)
     {
-      Category category = getOrCreateCategory(i); 
+      getOrCreateCategory(i); 
+//      Category category = getOrCreateCategory(i); 
     }
     
     for (int i = 0; i < Constants.MAX_CHOICE_SETS; i++)
     {
-      ChoiceSet choiceSet = getOrCreateChoiceSet(i); 
+      getOrCreateChoiceSet(i); 
+//      ChoiceSet choiceSet = getOrCreateChoiceSet(i); 
     }
     
     for (int i = 0; i < Constants.MAX_LIMITS; i++)
     {
-      Limit limit = getOrCreateLimit(i);
+      getOrCreateLimit(i);
+//      Limit limit = getOrCreateLimit(i);
     }
     
     for (int i = 0; i < Constants.MAX_FUNCTIONS; i++)
     {
-      Function function = getOrCreateFunction(i);
+      getOrCreateFunction(i);
+//      Function function = getOrCreateFunction(i);
     }
     
     for (int permissionNum = 0;
@@ -286,17 +288,15 @@ public class Fixtures
     this.subsystem.save();
   }
 
-  private PrivilegedSubject designateSubsystemOwner
-    (PrivilegedSubject  sysAdmin,
+  private SignetSubject designateSubsystemOwner
+    (SignetSubject  sysAdmin,
      int                subjectNumber,
      Subsystem          subsystem)
   throws
     SignetAuthorityException,
     ObjectNotFoundException
   {
-    PrivilegedSubject subsystemOwner
-      = signet.getSubjectSources().getPrivilegedSubject
-          (Common.getSubject(signet, subjectNumber));
+    SignetSubject subsystemOwner = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectNumber));
     
     Proxy newProxy
       = sysAdmin
@@ -313,15 +313,10 @@ public class Fixtures
     return subsystemOwner;
   }
   
-  private PrivilegedSubject designateSysAdmin
-    (int subjectNumber)
-  throws
-    SignetAuthorityException,
-    ObjectNotFoundException
+  private SignetSubject designateSysAdmin(int subjectNumber)
+  		throws SignetAuthorityException, ObjectNotFoundException
   {
-    PrivilegedSubject sysAdmin
-      = signet.getSubjectSources().getPrivilegedSubject
-          (Common.getSubject(signet, subjectNumber));
+    SignetSubject sysAdmin = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectNumber));
     
     Proxy newProxy
       = signet.getSignetSubject()
@@ -427,14 +422,8 @@ public class Fixtures
     SignetAuthorityException,
     ObjectNotFoundException
   {
-    PrivilegedSubject grantor
-      = signet.getSubjectSources().getPrivilegedSubject
-          (Common.getSubject
-            (signet, grantorSubjectNumber));
-    PrivilegedSubject grantee
-      = signet.getSubjectSources().getPrivilegedSubject
-          (Common.getSubject
-            (signet, granteeSubjectNumber));
+    SignetSubject grantor = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(grantorSubjectNumber));
+    SignetSubject grantee = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(granteeSubjectNumber));
     
     // Before granting this new Proxy, let's see if it already exists
     // in the database.
@@ -468,7 +457,7 @@ public class Fixtures
   }
   
   private Assignment getOrCreateAssignment
-    (PrivilegedSubject  grantor,
+    (SignetSubject  grantor,
      int                subjectNumber,
      int                functionNumber,
      int[]              limitValueNumbers)
@@ -477,8 +466,9 @@ public class Fixtures
   	ObjectNotFoundException
   {
     TreeNode rootNode = getRoot(tree);
-    Subject subject = Common.getSubject(signet, subjectNumber);
-    PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
+//    Subject subject = Common.getSubject(signet, subjectNumber);
+    SignetSubject pSubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectNumber));
+//    PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
     Function function = Common.getFunction(signet, functionNumber);
     Limit[] limitsInDisplayOrder
       = Common.getLimitsInDisplayOrder(function.getLimits());
@@ -535,7 +525,7 @@ public class Fixtures
   }
   
   private Assignment getOrCreateAssignment
-    (PrivilegedSubject  grantor,
+    (SignetSubject  grantor,
      int                assignmentNumber)
   throws
   	SignetAuthorityException,
@@ -594,9 +584,7 @@ public class Fixtures
     }
     catch (ObjectNotFoundException onfe)
     {
-      this.subsystem
-      	= signet.newSubsystem
-      			(Constants.SUBSYSTEM_ID,
+      subsystem= SignetFactory.newSubsystem(signet, Constants.SUBSYSTEM_ID,
       			 Constants.SUBSYSTEM_NAME,
       			 Constants.SUBSYSTEM_HELPTEXT);
     }
@@ -706,23 +694,24 @@ public class Fixtures
     }
     catch (ObjectNotFoundException onfe)
     {
-      choiceSet
-      	= this.signet.newChoiceSet
-      			(subsystem, makeChoiceSetId(choiceSetNumber));
+    	ChoiceSetAdapter csAdapter = SignetFactory.getChoiceSetAdapter(
+    			signet, SignetFactory.DEFAULT_CHOICE_SET_ADAPTER_NAME);
+      choiceSet = SignetFactory.newChoiceSet(
+			signet, csAdapter, subsystem, makeChoiceSetId(choiceSetNumber));
       
       for (int i = 0; i <= choiceSetNumber; i++)
       {
         // Create and persist the Choice object to be tested.
         // ChoiceSet 0 has choice 0 and 0_changed, choiceSet 1 has choices 0, 1, 0_changed and 1_changed, and so on.
-        Choice choice
-        	= choiceSet.addChoice
+//        Choice choice =
+        	choiceSet.addChoice
         			(makeChoiceValue(-1, i),
         			 makeChoiceDisplayValue(i),
   	  			   makeChoiceDisplayOrder(i),
   	  			   makeChoiceRank(i, choiceSetNumber));
         
-        choice
-          = choiceSet.addChoice
+//        choice =
+        	choiceSet.addChoice
               (makeChoiceValue
                  (-1, i, Constants.CHANGED_SUFFIX),
                makeChoiceDisplayValue
@@ -763,26 +752,18 @@ public class Fixtures
       //
       // Even-numbered Limits are multiple-selects, odd-numbered Limits are
       // single-selects.
-      limit
-      	= this.signet.newLimit
-      			(subsystem,
-      			 makeLimitId(limitNumber),
-      			 makeLimitDataType(limitNumber),
-      			 subsystem.getChoiceSet(makeChoiceSetId(limitNumber)),
-      			 makeLimitName(limitNumber),
-      			 limitNumber,
-      		   makeLimitHelpText(limitNumber),
-      		   Status.ACTIVE,
-      		   isEven(limitNumber)
-      		   	? "multipleChoiceCheckboxes.jsp"
-      		   	  : "singleChoicePullDown.jsp");
+      limit = SignetFactory.newLimit(signet, subsystem, makeLimitId(limitNumber),
+				makeLimitDataType(limitNumber),
+				subsystem.getChoiceSet(makeChoiceSetId(limitNumber)),
+				makeLimitName(limitNumber), limitNumber,
+				makeLimitHelpText(limitNumber),
+				Status.ACTIVE,
+				isEven(limitNumber) ? "multipleChoiceCheckboxes.jsp" : "singleChoicePullDown.jsp");
     
       // Fetch that newly-stored Limit object from the subsystem.
       // This step is not really necessary, but exercises a little
       // more code.
-      limit
-       	= this.subsystem.getLimit
-       			(makeLimitId(limitNumber));
+      limit = subsystem.getLimit(makeLimitId(limitNumber));
     }
     
     return limit;
@@ -812,12 +793,17 @@ public class Fixtures
     }
     catch (ObjectNotFoundException onfe)
     {      
-      category
-      	= this.signet.newCategory
-      			(subsystem,
-      			 makeCategoryId(categoryNumber),
-      			 makeCategoryName(categoryNumber),
-      		   Status.ACTIVE);
+      category = SignetFactory.newCategory(
+    		  	subsystem,
+    		  	makeCategoryId(categoryNumber),
+    		  	makeCategoryName(categoryNumber),
+    		  	Status.ACTIVE);
+//      category
+//      	= this.signet.newCategory
+//      			(subsystem,
+//      			 makeCategoryId(categoryNumber),
+//      			 makeCategoryName(categoryNumber),
+//      		   Status.ACTIVE);
     
       // Fetch that newly-stored Function object from the subsystem.
       // This step is not really necessary, but exercises a little
@@ -862,19 +848,18 @@ public class Fixtures
     {      
       // Category 0 contains Function 0, Category 1 contains Function 1,
       // and so forth.
-      function
-      	= this.signet.newFunction
-      			(subsystem.getCategory(makeCategoryId(functionNumber)),
-      			 makeFunctionId(functionNumber),
-      			 makeFunctionName(functionNumber),
-      		   Status.ACTIVE,
-      		   makeFunctionHelpText(functionNumber));
+      function = SignetFactory.newFunction(
+				signet,
+				subsystem.getCategory(makeCategoryId(functionNumber)),
+				makeFunctionId(functionNumber),
+				makeFunctionName(functionNumber),
+				Status.ACTIVE,
+				makeFunctionHelpText(functionNumber));
     
       // Fetch that newly-stored Function object from the subsystem.
       // This step is not really necessary, but exercises a little
       // more code.
-      function
-        = Common.getFunction(this.subsystem, makeFunctionId(functionNumber));
+      function = Common.getFunction(this.subsystem, makeFunctionId(functionNumber));
     }
     
     return function;
@@ -914,11 +899,9 @@ public class Fixtures
     {      
       // Permission 0 contains Limit 0, Permission 1 contains Limit 1,
       // and so forth.
-      permission
-      	= this.signet.newPermission
-      			(subsystem,
-      			 makePermissionId(permissionNumber),
-      		   Status.ACTIVE);
+		permission = SignetFactory.newPermission(subsystem,
+				makePermissionId(permissionNumber),
+				Status.ACTIVE);
     
       // Fetch that newly-stored Permission object from the subsystem.
       // This step is not really necessary, but exercises a little

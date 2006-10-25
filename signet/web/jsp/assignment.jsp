@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.5 2006-06-30 02:04:41 ddonn Exp $
-  $Date: 2006-06-30 02:04:41 $
+  $Id: assignment.jsp,v 1.6 2006-10-25 00:13:31 ddonn Exp $
+  $Date: 2006-10-25 00:13:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -28,7 +28,7 @@
 <%@ page import="java.util.Arrays" %>
 
 <%@ page import="edu.internet2.middleware.subject.Subject" %>
-<%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
+<%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Category" %>
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
@@ -55,22 +55,26 @@
          (request.getSession().getAttribute("currentAssignment"));
          
   Subject grantee
-    = signet.getSubjectSources().getSubject
-        (currentAssignment.getGrantee().getSubjectTypeId(),
-         currentAssignment.getGrantee().getSubjectId());
-  Subject grantor
-    = signet.getSubjectSources().getSubject
-      (currentAssignment.getGrantor().getSubjectTypeId(),
-       currentAssignment.getGrantor().getSubjectId());
+    = signet.getSubject
+        (currentAssignment.getGrantee().getSourceId(),
+         currentAssignment.getGrantee().getId());
+//        (currentAssignment.getGrantee().getSubjectTypeId(),
+//         currentAssignment.getGrantee().getSubjectId());
+// not used
+//  Subject grantor
+//    = signet.getSubjectSources().getSubject
+//      (currentAssignment.getGrantor().getSubjectTypeId(),
+//       currentAssignment.getGrantor().getSubjectId());
        
-  Subject proxy = null;
-  if (currentAssignment.getProxy() != null)
-  {
-    proxy
-      = signet.getSubjectSources().getSubject
-          (currentAssignment.getProxy().getSubjectTypeId(),
-           currentAssignment.getProxy().getSubjectId());
-  }
+// not used
+//  Subject proxy = null;
+//  if (currentAssignment.getProxy() != null)
+//  {
+//    proxy
+//      = signet.getSubjectSources().getSubject
+//          (currentAssignment.getProxy().getSubjectTypeId(),
+//           currentAssignment.getProxy().getSubjectId());
+//  }
          
   boolean canUse = currentAssignment.canUse();
   boolean canGrant = currentAssignment.canGrant();

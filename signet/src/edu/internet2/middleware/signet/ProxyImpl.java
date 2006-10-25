@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyImpl.java,v 1.14 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: ProxyImpl.java,v 1.15 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -21,6 +21,8 @@ package edu.internet2.middleware.signet;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 public class ProxyImpl extends GrantableImpl implements Proxy
 {  
@@ -38,8 +40,8 @@ public class ProxyImpl extends GrantableImpl implements Proxy
   
   public ProxyImpl
   	(Signet                 signet,
-     PrivilegedSubjectImpl  grantor, 
-     PrivilegedSubject 	    grantee,
+     SignetSubject			grantor, 
+     SignetSubject   	    grantee,
      Subsystem              subsystem,
      boolean                canUse,
      boolean                canExtend,
@@ -145,8 +147,8 @@ public class ProxyImpl extends GrantableImpl implements Proxy
     Proxy other = (Proxy)o;
     int comparisonResult;
     
-    PrivilegedSubject thisGrantee = this.getGrantee();
-    PrivilegedSubject otherGrantee = other.getGrantee();
+    SignetSubject thisGrantee = this.getGrantee();
+    SignetSubject otherGrantee = other.getGrantee();
     comparisonResult = thisGrantee.compareTo(otherGrantee);
     
     if (comparisonResult != 0)
@@ -198,39 +200,23 @@ public class ProxyImpl extends GrantableImpl implements Proxy
   
   public void save()
   {
-    this.setModifyDatetime(new Date());
-
-    save(this.getGrantor());
-    save(this.getGrantee());
-    save(this.getRevoker());
-    save(this.getProxy());
-      
-    if (this.getId() != null)
+    if (null != getId())
     {
       // This isn't the first time we've saved this Proxy.
       // We'll increment the instance-number accordingly, and save
       // its history-record right now (just after we save the Proxy
       // record itself, so as to avoid hitting any referential-integrity
       // problems in the database).
-      this.incrementInstanceNumber();
-        
-      ProxyHistory historyRecord
-        = new ProxyHistoryImpl(this);
-      Set historySet = this.getHistory();
-      historySet.add(historyRecord);
-      this.setHistory(historySet);
-      
-      getSignet().getPersistentDB().save(this);
-      // this.getSignet().save(historyRecord);
+      incrementInstanceNumber();
+      getHistory().add(new ProxyHistoryImpl(this));
     }
-    else
-    {
-      // We can't construct the Assignment's initial history-record yet,
-      // because we don't yet know the ID of the assignment. We'll detect that
-      // condition, and construct and save that history-record
-      // later, in the postFlush() method of the Hibernate Interceptor.
-      getSignet().getPersistentDB().save(this);
-    }
+
+    HibernateDB hibr = getSignet().getPersistentDB();
+    // nest the transactions so the DB doesn't get any "old maids"
+    hibr.beginTransaction();
+    super.save();
+	hibr.save(this);
+	hibr.commit();
   }
 
   /* (non-Javadoc)
@@ -283,15 +269,13 @@ public class ProxyImpl extends GrantableImpl implements Proxy
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Proxy#setCanExtend(edu.internet2.middleware.signet.PrivilegedSubject, boolean)
    */
-  public void setCanExtend
-    (PrivilegedSubject  editor,
-     boolean                canExtend)
-  throws SignetAuthorityException
+  public void setCanExtend(SignetSubject editor, boolean canExtend)
+  		throws SignetAuthorityException
   {
     checkEditAuthority(editor);
     
     this.canExtend = canExtend;
-    this.setGrantor((PrivilegedSubjectImpl)editor);
+    this.setGrantor(editor);
   }
 
   /* (non-Javadoc)
@@ -317,14 +301,12 @@ public class ProxyImpl extends GrantableImpl implements Proxy
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Proxy#setCanUse(edu.internet2.middleware.signet.PrivilegedSubject, boolean)
    */
-  public void setCanUse
-    (PrivilegedSubject  editor,
-     boolean            canUse)
-  throws SignetAuthorityException
+  public void setCanUse(SignetSubject editor, boolean canUse)
+  			throws SignetAuthorityException
   {
     checkEditAuthority(editor);
     
-    super.setGrantor((PrivilegedSubjectImpl)editor);
+    super.setGrantor(editor);
     this.canUse = canUse;
   }
 }

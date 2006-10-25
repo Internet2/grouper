@@ -323,7 +323,7 @@ public class TreeXmlLoader
     private String adapterClassName;
     private Set    roots;
     
-    private TreeImpl
+    protected TreeImpl
       (String id,
        String name,
        String adapterClassName)

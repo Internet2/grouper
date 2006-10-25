@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeImpl.java,v 1.8 2006-02-09 10:23:39 lmcrae Exp $
-$Date: 2006-02-09 10:23:39 $
+$Id: PrivilegeImpl.java,v 1.9 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -33,7 +33,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-class PrivilegeImpl
+public class PrivilegeImpl
 implements
   Privilege,
   Comparable
@@ -60,7 +60,7 @@ implements
     this.scope = scope;
   }
   
-  static Set getPrivileges(Assignment assignment)
+  public static Set getPrivileges(Assignment assignment)
   {
     Set privileges = new HashSet();
     

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: not-yet-implemented.jsp,v 1.1 2006-01-10 22:37:02 acohen Exp $
-  $Date: 2006-01-10 22:37:02 $
+  $Id: not-yet-implemented.jsp,v 1.2 2006-10-25 00:13:31 ddonn Exp $
+  $Date: 2006-10-25 00:13:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -31,7 +31,7 @@
 <%@ page import="java.util.TreeSet" %>
 
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
-<%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
+<%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Category" %>
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
@@ -45,12 +45,12 @@
      = (Signet)
          (request.getSession().getAttribute("signet"));
          
-   PrivilegedSubject loggedInPrivilegedSubject
-     = (PrivilegedSubject)
+   SignetSubject loggedInPrivilegedSubject
+     = (SignetSubject)
          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
    
-   PrivilegedSubject currentGranteePrivilegedSubject
-     = (PrivilegedSubject)
+   SignetSubject currentGranteePrivilegedSubject
+     = (SignetSubject)
          (request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
          
    Subsystem currentSubsystem

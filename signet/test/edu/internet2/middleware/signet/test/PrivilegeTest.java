@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeTest.java,v 1.7 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: PrivilegeTest.java,v 1.8 2006-10-25 00:10:25 ddonn Exp $
+$Date: 2006-10-25 00:10:25 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -12,16 +12,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
-
+import junit.framework.TestCase;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Privilege;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.subject.Subject;
-
-import junit.framework.TestCase;
 
 /**
  * @author acohen
@@ -111,21 +109,15 @@ public class PrivilegeTest extends TestCase
     //        Limit 2
     //          limit-value: 2
     
-    Subject subject0
-      = signet.getSubjectSources().getSubject
-          (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(0));
+    SignetSubject pSubject0 = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(0));
     
-    Subject subject1
-      = signet.getSubjectSources().getSubject
-          (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(1));
+    SignetSubject pSubject1 = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(1));
     
-    Subject subject2
-      = signet.getSubjectSources().getSubject
-          (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(2));
+    SignetSubject pSubject2 = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(2));
 
-    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
-    PrivilegedSubject pSubject1 = signet.getSubjectSources().getPrivilegedSubject(subject1);
-    PrivilegedSubject pSubject2 = signet.getSubjectSources().getPrivilegedSubject(subject2);
+//    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
+//    PrivilegedSubject pSubject1 = signet.getSubjectSources().getPrivilegedSubject(subject1);
+//    PrivilegedSubject pSubject2 = signet.getSubjectSources().getPrivilegedSubject(subject2);
     
     Set privileges0 = pSubject0.getPrivileges();
     Set privileges1 = pSubject1.getPrivileges();
@@ -153,11 +145,12 @@ public class PrivilegeTest extends TestCase
          subjectIndex < Constants.MAX_SUBJECTS;
          subjectIndex++)
     {
-      Subject subject
-        = signet.getSubjectSources().getSubject(
-            Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(subjectIndex));
+//      Subject subject
+//        = signet.getSubjectSources().getSubject(
+//            Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
+	SignetSubject pSubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectIndex));
+//      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       Set privileges = pSubject.getPrivileges();
       
       // Here's a picture of the Assignments which this test expects to find:
@@ -234,11 +227,12 @@ public class PrivilegeTest extends TestCase
   {
     // Subject 0 has two Privileges, which are enough to do a little
     // sort-testing.
-    Subject subject0
-      = signet.getSubjectSources().getSubject
-          (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(0));
+//    Subject subject0
+//      = signet.getSubjectSources().getSubject
+//          (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(0));
     
-    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
+	SignetSubject pSubject0 = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(0));
+//    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
     Set privileges = pSubject0.getPrivileges();
     
     assertTrue
@@ -264,12 +258,13 @@ public class PrivilegeTest extends TestCase
          subjectIndex < Constants.MAX_SUBJECTS;
          subjectIndex++)
     {
-      Subject subject
-        = signet.getSubjectSources().getSubject
-            (Signet.DEFAULT_SUBJECT_TYPE_ID,
-             Common.makeSubjectId(subjectIndex));
+//      Subject subject
+//        = signet.getSubjectSources().getSubject
+//            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+//             Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
+	SignetSubject pSubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectIndex));
+//      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       Set privileges = pSubject.getPrivileges();
       
       // Here's a picture of the Assignments which this test expects to find:
@@ -315,12 +310,13 @@ public class PrivilegeTest extends TestCase
          subjectIndex < Constants.MAX_SUBJECTS;
          subjectIndex++)
     {
-      Subject subject
-        = signet.getSubjectSources().getSubject
-            (Signet.DEFAULT_SUBJECT_TYPE_ID,
-             Common.makeSubjectId(subjectIndex));
+//      Subject subject
+//        = signet.getSubjectSources().getSubject
+//            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+//             Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
+	SignetSubject pSubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectIndex));
+//      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       Set privileges = pSubject.getPrivileges();
       
       // Here's a picture of the Assignments which this test expects to find:

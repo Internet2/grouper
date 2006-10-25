@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyHistoryTest.java,v 1.2 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: ProxyHistoryTest.java,v 1.3 2006-10-25 00:10:25 ddonn Exp $
+$Date: 2006-10-25 00:10:25 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,12 +13,12 @@ import java.util.Iterator;
 import java.util.Set;
 import junit.framework.TestCase;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.ProxyHistory;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
-import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 public class ProxyHistoryTest extends TestCase
 {
@@ -79,12 +79,13 @@ public class ProxyHistoryTest extends TestCase
          subjectIndex < Constants.MAX_SUBJECTS;
          subjectIndex++)
     {
-      Subject subject
-       = signet.getSubjectSources().getSubject
-           (Signet.DEFAULT_SUBJECT_TYPE_ID,
-            Common.makeSubjectId(subjectIndex));
+//      Subject subject
+//       = signet.getSubjectSources().getSubject
+//           (Signet.DEFAULT_SUBJECT_TYPE_ID,
+//            Common.makeSubjectId(subjectIndex));
  
-      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
+	SignetSubject pSubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectIndex));
+//      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
  
       Set proxiesReceived = pSubject.getProxiesReceived();
       proxiesReceived
@@ -128,12 +129,13 @@ public class ProxyHistoryTest extends TestCase
          subjectIndex < Constants.MAX_SUBJECTS;
          subjectIndex++)
     {
-      Subject subject
-       = signet.getSubjectSources().getSubject
-           (Signet.DEFAULT_SUBJECT_TYPE_ID,
-            Common.makeSubjectId(subjectIndex));
+//      Subject subject
+//       = signet.getSubjectSources().getSubject
+//           (Signet.DEFAULT_SUBJECT_TYPE_ID,
+//            Common.makeSubjectId(subjectIndex));
  
-      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
+	SignetSubject pSubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectIndex));
+//      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
  
       Set proxiesReceived = pSubject.getProxiesReceived();
       proxiesReceived
@@ -177,12 +179,13 @@ public class ProxyHistoryTest extends TestCase
          subjectIndex < Constants.MAX_SUBJECTS;
          subjectIndex++)
     {
-      Subject subject
-        = signet.getSubjectSources().getSubject
-            (Signet.DEFAULT_SUBJECT_TYPE_ID,
-             Common.makeSubjectId(subjectIndex));
+//      Subject subject
+//        = signet.getSubjectSources().getSubject
+//            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+//             Common.makeSubjectId(subjectIndex));
       
-      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
+	SignetSubject pSubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectIndex));
+//      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       
       Set proxiesReceived = pSubject.getProxiesReceived();
       proxiesReceived
@@ -228,12 +231,13 @@ public class ProxyHistoryTest extends TestCase
     subjectIndex < Constants.MAX_SUBJECTS;
     subjectIndex++)
     {
-      Subject subject
-       = signet.getSubjectSources().getSubject
-           (Signet.DEFAULT_SUBJECT_TYPE_ID,
-            Common.makeSubjectId(subjectIndex));
+//      Subject subject
+//       = signet.getSubjectSources().getSubject
+//           (Signet.DEFAULT_SUBJECT_TYPE_ID,
+//            Common.makeSubjectId(subjectIndex));
 
-      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
+	SignetSubject pSubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectIndex));
+//      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
 
       Set proxiesReceived = pSubject.getProxiesReceived();
 
@@ -250,7 +254,7 @@ public class ProxyHistoryTest extends TestCase
           ProxyHistory proxyHistory
             = (ProxyHistory)(proxyHistoryIterator.next());
 
-          PrivilegedSubject grantee = proxyHistory.getGrantee();
+          SignetSubject grantee = proxyHistory.getGrantee();
           assertEquals(pSubject, grantee);
         }
       }
@@ -264,12 +268,13 @@ public class ProxyHistoryTest extends TestCase
     subjectIndex < Constants.MAX_SUBJECTS;
     subjectIndex++)
     {
-      Subject subject
-       = signet.getSubjectSources().getSubject
-           (Signet.DEFAULT_SUBJECT_TYPE_ID,
-            Common.makeSubjectId(subjectIndex));
+//      Subject subject
+//       = signet.getSubjectSources().getSubject
+//           (Signet.DEFAULT_SUBJECT_TYPE_ID,
+//            Common.makeSubjectId(subjectIndex));
 
-      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
+	SignetSubject pSubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectIndex));
+//      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
 
       Set proxiesGranted = pSubject.getProxiesGranted();
 
@@ -286,7 +291,7 @@ public class ProxyHistoryTest extends TestCase
           ProxyHistory proxyHistory
             = (ProxyHistory)(proxyHistoryIterator.next());
 
-          PrivilegedSubject grantor = proxyHistory.getGrantor();
+          SignetSubject grantor = proxyHistory.getGrantor();
           assertEquals(pSubject, grantor);
         }
       }
@@ -306,8 +311,8 @@ public class ProxyHistoryTest extends TestCase
     // Subject0 has revoked a Proxy held by subject2.
     boolean revokerFound = false;
     
-    PrivilegedSubject expectedRevoker = Common.getPrivilegedSubject(signet, 0);
-    PrivilegedSubject grantee = Common.getPrivilegedSubject(signet, 2);
+    SignetSubject expectedRevoker = Common.getPrivilegedSubject(signet, 0);
+    SignetSubject grantee = Common.getPrivilegedSubject(signet, 2);
     Set proxies = grantee.getProxiesReceived();
     proxies = Common.filterProxies(proxies, Status.INACTIVE);
     Proxy revokedProxy
@@ -320,7 +325,7 @@ public class ProxyHistoryTest extends TestCase
       ProxyHistory proxyHistoryRecord
         = (ProxyHistory)(proxyHistoryIterator.next());
       
-      PrivilegedSubject actualRevoker = proxyHistoryRecord.getRevoker();
+      SignetSubject actualRevoker = proxyHistoryRecord.getRevoker();
       if ((actualRevoker != null) && (actualRevoker.equals(expectedRevoker)))
       {
         revokerFound = true;
@@ -335,19 +340,21 @@ public class ProxyHistoryTest extends TestCase
      int    proxySubjectIndex)
   throws ObjectNotFoundException
   {
-    Subject grantee
-      = signet.getSubjectSources().getSubject
-          (Signet.DEFAULT_SUBJECT_TYPE_ID,
-           Common.makeSubjectId(granteeIndex));
+//    Subject grantee
+//      = signet.getSubjectSources().getSubject
+//          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+//           Common.makeSubjectId(granteeIndex));
   
-    PrivilegedSubject pGrantee = signet.getSubjectSources().getPrivilegedSubject(grantee);
+	SignetSubject pGrantee = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(granteeIndex));
+//    PrivilegedSubject pGrantee = signet.getSubjectSources().getPrivilegedSubject(grantee);
 
-    Subject expectedProxySubject
-      = signet.getSubjectSources().getSubject
-          (Signet.DEFAULT_SUBJECT_TYPE_ID,
-           Common.makeSubjectId(proxySubjectIndex));
+//    Subject expectedProxySubject
+//      = signet.getSubjectSources().getSubject
+//          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+//           Common.makeSubjectId(proxySubjectIndex));
   
-    PrivilegedSubject pExpectedProxySubject = signet.getSubjectSources().getPrivilegedSubject(expectedProxySubject);
+	SignetSubject pExpectedProxySubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(proxySubjectIndex));
+//    PrivilegedSubject pExpectedProxySubject = signet.getSubjectSources().getPrivilegedSubject(expectedProxySubject);
     
     // Let's see if this grantee has at least one Proxy proxied by this
     // proxySubject.
@@ -365,7 +372,7 @@ public class ProxyHistoryTest extends TestCase
         ProxyHistory proxyHistoryRecord
           = (ProxyHistory)(proxyHistoryIterator.next());
         
-        PrivilegedSubject actualProxySubject = proxyHistoryRecord.getProxySubject();
+        SignetSubject actualProxySubject = proxyHistoryRecord.getProxySubject();
           
         if ((actualProxySubject != null)
             && actualProxySubject.equals(pExpectedProxySubject))

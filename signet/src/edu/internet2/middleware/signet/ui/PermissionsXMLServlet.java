@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXMLServlet.java,v 1.3 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: PermissionsXMLServlet.java,v 1.4 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,17 +19,15 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.io.IOException;
-
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.PermissionsXML;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
  * @author Andy Cohen
@@ -67,12 +65,8 @@ public class PermissionsXMLServlet implements Servlet {
     = (Signet)
         (httpRequest.getSession().getAttribute("signet"));
   
-    PrivilegedSubject currentGranteePrivilegedSubject
-      = (PrivilegedSubject)
-          (httpRequest
-            .getSession()
-              .getAttribute
-                (Constants.CURRENTPSUBJECT_ATTRNAME));
+    SignetSubject currentGranteePrivilegedSubject =
+    	(SignetSubject)httpRequest.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
         
     PermissionsXML permissionsXML;
     

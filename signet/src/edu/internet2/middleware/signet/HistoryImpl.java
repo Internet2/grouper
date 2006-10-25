@@ -1,6 +1,6 @@
 /*--
-$Id: HistoryImpl.java,v 1.3 2006-02-09 10:20:56 lmcrae Exp $
-$Date: 2006-02-09 10:20:56 $
+$Id: HistoryImpl.java,v 1.4 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,22 +19,21 @@ limitations under the License.
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
  * @author Andy Cohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 abstract class HistoryImpl implements History
 {
   protected Integer historyId;
   private Date historyDatetime = new Date();
 
-  private PrivilegedSubject  grantor;
-  private PrivilegedSubject  proxySubject;  
-  private PrivilegedSubject  grantee;
-  private PrivilegedSubject  revoker;
+  private SignetSubject  grantor;
+  private SignetSubject  proxySubject;  
+  private SignetSubject  grantee;
+  private SignetSubject  revoker;
   
   private Date              effectiveDate;
   private Date              expirationDate;
@@ -93,7 +92,7 @@ abstract class HistoryImpl implements History
     this.historyId = historyId;
   }
 
-  protected void setGrantee(PrivilegedSubject grantee)
+  protected void setGrantee(SignetSubject grantee)
   {
     this.grantee = grantee;
   }
@@ -101,37 +100,37 @@ abstract class HistoryImpl implements History
   /**
    * @param grantor The grantor to set.
    */
-  protected void setGrantor(PrivilegedSubject grantor)
+  protected void setGrantor(SignetSubject grantor)
   {
     this.grantor = grantor;
   }
 
-  protected void setRevoker(PrivilegedSubject revoker)
+  protected void setRevoker(SignetSubject revoker)
   {
     this.revoker = revoker;
   }
 
-  protected void setProxySubject(PrivilegedSubject proxySubject)
+  protected void setProxySubject(SignetSubject proxySubject)
   {
     this.proxySubject = proxySubject;
   }
   
-  public PrivilegedSubject getGrantor()
+  public SignetSubject getGrantor()
   {
     return this.grantor;
   }
   
-  public PrivilegedSubject getGrantee()
+  public SignetSubject getGrantee()
   {
     return this.grantee;
   }
   
-  public PrivilegedSubject getRevoker()
+  public SignetSubject getRevoker()
   {
     return this.revoker;
   }
   
-  public PrivilegedSubject getProxySubject()
+  public SignetSubject getProxySubject()
   {
     return this.proxySubject;
   }

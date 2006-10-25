@@ -33,10 +33,11 @@ import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
+import edu.internet2.middleware.signet.SignetFactory;
 import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
 public class AssignmentXmlLoader
@@ -236,9 +237,9 @@ public class AssignmentXmlLoader
     SignetAuthorityException
   {
     Function          function    = null;
-    PrivilegedSubject grantor     = null;
-    PrivilegedSubject actingAs    = null;
-    PrivilegedSubject grantee     = null;
+    SignetSubject grantor     = null;
+    SignetSubject actingAs    = null;
+    SignetSubject grantee     = null;
     TreeNode          scope       = null;
     Set               limitValues = new HashSet();
     Assignment        assignment  = null;
@@ -270,7 +271,7 @@ public class AssignmentXmlLoader
       else if (localName.equals(ATTRIBUTENAME_SCOPE))
       {
         String scopeId = parser.getAttributeValue(i);
-        scope = signet.getTreeNode(subsystem.getTree().getId(), scopeId);
+        scope = SignetFactory.getTreeNode(signet, subsystem.getTree().getId(), scopeId);
         if (scope == null)
         {
           throw new ObjectNotFoundException
@@ -321,31 +322,30 @@ public class AssignmentXmlLoader
       }
   }
   
-  private PrivilegedSubject getSubject(Signet signet, String subjectId)
-  throws ObjectNotFoundException
+  private SignetSubject getSubject(Signet signet, String subjectId)
+//  throws ObjectNotFoundException
   {
-    PrivilegedSubject pSubject;
+    SignetSubject pSubject;
     
-    if ("signet".equals(subjectId))
-    {
-      return signet.getSignetSubject();
-    }
-    
-    try
-    {
-      pSubject = signet.getSubjectSources().getPrivilegedSubjectByDisplayId(
-    		  Signet.DEFAULT_SUBJECT_TYPE_ID, subjectId);
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      // Let's give this exception a little more detail.
-      throw new ObjectNotFoundException
-        ("Unable to find Subject '"
-         + subjectId
-         + "' of type '"
-         + Signet.DEFAULT_SUBJECT_TYPE_ID + "'.",
-         onfe);
-    }
+    if (SignetSubject.SIGNET_SUBJECT_ID.equals(subjectId))
+    	pSubject = signet.getSignetSubject();
+    else
+    	pSubject = signet.getSubjectByIdentifier(subjectId);
+//    try
+//    {
+//      pSubject = signet.getSubjectSources().getPrivilegedSubjectByDisplayId(
+//    		  Signet.DEFAULT_SUBJECT_TYPE_ID, subjectId);
+//    }
+//    catch (ObjectNotFoundException onfe)
+//    {
+//      // Let's give this exception a little more detail.
+//      throw new ObjectNotFoundException
+//        ("Unable to find Subject '"
+//         + subjectId
+//         + "' of type '"
+//         + Signet.DEFAULT_SUBJECT_TYPE_ID + "'.",
+//         onfe);
+//    }
     
     return pSubject;
   }
@@ -457,9 +457,9 @@ public class AssignmentXmlLoader
 
   private Assignment buildAssignmentIfComplete
     (Function          function,
-     PrivilegedSubject grantor,
-     PrivilegedSubject actingAs,
-     PrivilegedSubject grantee,
+     SignetSubject grantor,
+     SignetSubject actingAs,
+     SignetSubject grantee,
      TreeNode          scope,
      Set               limitValues)
   throws SignetAuthorityException

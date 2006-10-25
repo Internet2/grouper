@@ -1,6 +1,6 @@
 /*--
-$Id: EntityImpl.java,v 1.10 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: EntityImpl.java,v 1.11 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -293,10 +293,21 @@ public abstract class EntityImpl implements Entity, Name
   
   /**
    * @param status The status to set.
+   * @return True if status was changed, otherwise false
    */
-  public final void setStatus(Status status)
+  public final boolean setStatus(Status status)
   {
-    this.status = status;
+	boolean retval = true; // assume success
+
+	if (null != this.status)
+	{
+		if (retval = !this.status.equals(status)) // yes, I do mean "="
+			this.status = status;
+	}
+	else
+		this.status = status;
+
+	return (retval);
   }
   
   /**

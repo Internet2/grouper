@@ -11,7 +11,7 @@
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Category" %>
-<%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
+<%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
 <%@ page import="edu.internet2.middleware.signet.Proxy" %>
 <%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
@@ -21,8 +21,8 @@
 <%@ page import="edu.internet2.middleware.signet.ui.UnusableStyle" %>
 
 <tiles:useAttribute name="signet"                    classname="Signet" />
-<tiles:useAttribute name="pSubject"                  classname="PrivilegedSubject" />
-<tiles:useAttribute name="loggedInPrivilegedSubject" classname="PrivilegedSubject" />
+<tiles:useAttribute name="pSubject"                  classname="SignetSubject" />
+<tiles:useAttribute name="loggedInPrivilegedSubject" classname="SignetSubject" />
 <tiles:useAttribute name="privDisplayType"           classname="PrivDisplayType" />
 <tiles:useAttribute name="currentSubsystem"          classname="Subsystem" />
 
@@ -149,7 +149,7 @@
   while (assignmentsAndProxiesIterator.hasNext())
   {
     Grantable grantable = (Grantable)(assignmentsAndProxiesIterator.next());
-    PrivilegedSubject grantee = grantable.getGrantee();
+    SignetSubject grantee = grantable.getGrantee();
 %>
         <TR>
           <%

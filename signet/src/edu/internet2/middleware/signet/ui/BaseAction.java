@@ -1,6 +1,6 @@
 /*--
-$Id: BaseAction.java,v 1.6 2006-02-09 10:29:53 lmcrae Exp $
-$Date: 2006-02-09 10:29:53 $
+$Id: BaseAction.java,v 1.7 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,7 +18,8 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.ui;
 
-import java.util.logging.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -31,7 +32,8 @@ public class BaseAction extends Action
   /**
    * The <code>Logger</code> instance for this application.
    */
-  protected Logger logger = Logger.getLogger(Constants.PACKAGE);
+//  protected Logger logger = Logger.getLogger(Constants.PACKAGE);
+  protected Log log = LogFactory.getLog(Constants.PACKAGE);
 
   // ------------------------------------------------------ Protected Methods
 

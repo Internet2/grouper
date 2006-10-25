@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.7 2006-05-09 01:33:33 ddonn Exp $
-  $Date: 2006-05-09 01:33:33 $
+  $Id: main.jsp,v 1.8 2006-10-25 00:13:31 ddonn Exp $
+  $Date: 2006-10-25 00:13:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -208,7 +208,7 @@ System.err.println("RUNNING INITCONTROLS");
 <%@ page import="java.util.TreeSet" %>
 
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
-<%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
+<%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Category" %>
@@ -226,12 +226,12 @@ System.err.println("RUNNING INITCONTROLS");
      = (Signet)
          (request.getSession().getAttribute("signet"));
          
-   PrivilegedSubject loggedInPrivilegedSubject
-     = (PrivilegedSubject)
+   SignetSubject loggedInPrivilegedSubject
+     = (SignetSubject)
          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
          
-   PrivilegedSubject currentPSubject
-     = (PrivilegedSubject)
+   SignetSubject currentPSubject
+     = (SignetSubject)
          (request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
          
    DateFormat dateFormat = DateFormat.getDateInstance();
@@ -290,7 +290,7 @@ System.err.println("RUNNING INITCONTROLS");
 
 
         <form name="grantForm" id="grantForm" action="Functions.do">
-      <div class="grant">
+      <div class="grant" >
         <h2>
         	<%=ResLoaderUI.getString("main.grant.h2.lb")%> <!-- Grant a privilege  -->
         </h2>
@@ -349,7 +349,7 @@ System.err.println("RUNNING INITCONTROLS");
          -->
         <p>
           <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">
-            <img src="images/arrow_right.gif">
+            <img src="images/arrow_right.gif" />
             <%=ResLoaderUI.getString("main.designate_1.href") %>
             <%=currentPSubject.getName()%></a>	<!-- keep closing 'a' tag on same line -->
             <%=ResLoaderUI.getString("main.designate_2.href") %>

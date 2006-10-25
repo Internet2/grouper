@@ -19,36 +19,44 @@ limitations under the License.
 
 package edu.internet2.middleware.signet.util;
 
-import edu.internet2.middleware.signet.*;
-import edu.internet2.middleware.signet.Status;
-
 import java.util.Date;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import edu.internet2.middleware.signet.ObjectNotFoundException;
+import edu.internet2.middleware.signet.Proxy;
+import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetAuthorityException;
+import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 public class SignetProxy
 {
+	public static final String	ACTION_GRANT = "grant";
+	public static final String	ACTION_REVOKE = "revoke";
+	public static final String	ACTION_LIST = "list";
+
 
    public SignetProxy(String action, String adminIdentifier, String subsystemId)
    {
       try {
 
 	      Signet signet = new Signet();
-	      PrivilegedSubject signetSubject = signet.getSignetSubject();
+	      SignetSubject signetSubject = signet.getSignetSubject();
 	
-	      if (action.equals("grant")) {
+	      if (action.equals(ACTION_GRANT)) {
 	
-	         grant (signet, signetSubject, adminIdentifier, subsystemId);
+	         grant(signet, signetSubject, adminIdentifier, subsystemId);
 	
-	      } else if (action.equals("revoke")) {
+	      } else if (action.equals(ACTION_REVOKE)) {
 	
-	         revoke (signet, signetSubject, adminIdentifier, subsystemId);
+	         revoke(signet, signetSubject, adminIdentifier, subsystemId);
 	
-	      } else if (action.equals("list")) {
+	      } else if (action.equals(ACTION_LIST)) {
 	
-	         list (signet, signetSubject, subsystemId);
+	         list(signet, signetSubject, subsystemId);
 	
 	      }
 
@@ -70,13 +78,13 @@ public class SignetProxy
       boolean parsed = false;
       if (args.length > 0) {
          action = args[0];
-         if (action.equalsIgnoreCase("grant") || action.equalsIgnoreCase("revoke")) {
+         if (action.equalsIgnoreCase(ACTION_GRANT) || action.equalsIgnoreCase(ACTION_REVOKE)) {
             adminIdentifier = args[1];
             if (args.length == 3) {
                subsystemId = args[2];
             }
             parsed = true;
-         } else if (action.equalsIgnoreCase("list")) {
+         } else if (action.equalsIgnoreCase(ACTION_LIST)) {
             if (args.length == 2) {
                subsystemId = args[1];
             }
@@ -94,64 +102,58 @@ public class SignetProxy
 
    }
 
-   private void grant(Signet signet, PrivilegedSubject signetSubject, String adminIdentifier, String subsystemId)
-      throws ObjectNotFoundException, SignetAuthorityException {
-
-      PrivilegedSubject sysAdminSubject = signet.getSubjectSources().getPrivilegedSubjectByDisplayId(
-    		  "person", adminIdentifier);
+   private void grant(Signet		signet,
+					SignetSubject	grantorSubj,
+					String			granteeId,
+					String			subsystemId)
+   			throws ObjectNotFoundException, SignetAuthorityException
+   {
+      SignetSubject granteeSubj = signet.getSubjectByIdentifier(granteeId);
       
-      Set proxiesSet = sysAdminSubject.getProxiesReceived();
+      Set proxiesSet = granteeSubj.getProxiesReceived();
       proxiesSet = filterProxies(proxiesSet, Status.ACTIVE);
-      proxiesSet = filterProxiesByGrantor(proxiesSet, signetSubject);
+      proxiesSet = filterProxiesByGrantor(proxiesSet, grantorSubj);
    
-      Date today = new Date();
-      Calendar cal = Calendar.getInstance();  
-      cal.setTime(today);
-      
-      if (subsystemId.equals("")) {
+      Subsystem subsystem = null;
+      boolean error;
+      String statusMsg = null;
+      HibernateDB hibr = signet.getPersistentDB();
+
+      if (subsystemId.equals(""))
+      {
          proxiesSet = filterProxiesByNoSubsystem(proxiesSet);
+         if (error = (proxiesSet.size() > 0))
+            statusMsg = new String("Signet system administration proxy already exists for " + granteeId);
+         else
+        	 statusMsg = new String("Granting Signet system administration proxy to " + granteeId);
+      }
+      else
+      {
+         subsystem = hibr.getSubsystem(subsystemId);
 
-         if (proxiesSet.size() > 0)
-         {
-            System.out.println("Signet system administration proxy already exists for " + adminIdentifier);
-            return;
-         }
-   
-         signet.getPersistentDB().beginTransaction();
-   
-         System.out.println("Granting Signet system administration proxy to " + adminIdentifier);
-    
-         Proxy sysAdminProxy = signetSubject.grantProxy(sysAdminSubject,null,false,true,today,null);
-         sysAdminProxy.save();
-   
-         signet.getPersistentDB().commit();
-
-      } else {
-         Subsystem subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
-      
          proxiesSet = filterProxiesBySubsystem(proxiesSet, subsystem);
-         if (proxiesSet.size() > 0)
-         {
-            System.out.println("Signet subsystem owner proxy already exists for " + adminIdentifier + " in subsystem " + subsystemId);
-            return;
-         }
-   
-         signet.getPersistentDB().beginTransaction();
-   
-         System.out.println("Granting Signet subsystem owner proxy to " + adminIdentifier + " for " + subsystemId);
-    
-         Proxy sysAdminProxy = signetSubject.grantProxy(sysAdminSubject,subsystem,false,true,today,null);
-         sysAdminProxy.save();
-   
-         signet.getPersistentDB().commit();
+         if (error = (proxiesSet.size() > 0))
+        	 statusMsg = new String("Signet subsystem owner proxy already exists for " + granteeId + " in subsystem " + subsystemId);
+         else
+        	 statusMsg = new String("Granting Signet subsystem owner proxy to " + granteeId + " for " + subsystemId);
+      }
+
+      System.out.println(statusMsg);
+
+      if ( !error)
+      {
+		Proxy sysAdminProxy = grantorSubj.grantProxy(
+				granteeSubj, subsystem, false, true, new Date(), null);
+
+		sysAdminProxy.save();
       }
    }
-      
-   private void revoke(Signet signet, PrivilegedSubject signetSubject, String adminIdentifier, String subsystemId)
+
+
+   private void revoke(Signet signet, SignetSubject signetSubject, String adminIdentifier, String subsystemId)
       throws ObjectNotFoundException, SignetAuthorityException {
 
-      PrivilegedSubject sysAdminSubject = 
-    	  signet.getSubjectSources().getPrivilegedSubjectByDisplayId("person", adminIdentifier);
+      SignetSubject sysAdminSubject = signet.getSubjectByIdentifier(adminIdentifier);
       
       Set proxiesSet = sysAdminSubject.getProxiesReceived();
       proxiesSet = filterProxies(proxiesSet, Status.ACTIVE);
@@ -208,7 +210,7 @@ public class SignetProxy
       }
    }
 
-   private void list (Signet signet, PrivilegedSubject signetSubject, String subsystemId)
+   private void list (Signet signet, SignetSubject signetSubject, String subsystemId)
       throws ObjectNotFoundException {
 
       Set proxiesSet = signetSubject.getProxiesGranted();
@@ -229,7 +231,7 @@ public class SignetProxy
          while (proxiesIterator.hasNext())
          {
             Proxy sysAdminProxy = (Proxy)(proxiesIterator.next());
-            PrivilegedSubject grantee = sysAdminProxy.getGrantee();
+            SignetSubject grantee = sysAdminProxy.getGrantee();
             System.out.println("   " + grantee.getName());
          }
       } else {
@@ -249,7 +251,7 @@ public class SignetProxy
          while (proxiesIterator.hasNext())
          {
             Proxy sysAdminProxy = (Proxy)(proxiesIterator.next());
-            PrivilegedSubject grantee = sysAdminProxy.getGrantee();
+            SignetSubject grantee = sysAdminProxy.getGrantee();
             System.out.println("   " + grantee.getName());
          }
 
@@ -285,7 +287,7 @@ public class SignetProxy
      return subset;
    }
    
-   private Set filterProxiesByGrantor (Set all, PrivilegedSubject grantor)
+   private Set filterProxiesByGrantor (Set all, SignetSubject grantor)
    {
      if (grantor == null)
      {

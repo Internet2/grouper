@@ -1,7 +1,7 @@
 --
 -- This is the HSQL DDL for the Signet database
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/hsql.sql,v 1.39 2006-04-11 23:20:32 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/hsql.sql,v 1.40 2006-10-25 00:12:50 ddonn Exp $
 --
 
 -- Tree tables
@@ -27,6 +27,8 @@ drop table signet_permission if exists;
 drop table signet_limit if exists;
 drop table signet_subsystem if exists;
 -- Signet Subject table
+drop table signet_subjectAttrValue if exists;
+drop table signet_subjectAttribute if exists;
 drop table signet_subject if exists;
 -- Local Source Subject tables (optional)
 drop table SubjectAttribute if exists;
@@ -128,16 +130,44 @@ foreign key (limitKey) references signet_limit (limitKey)
 -- Signet Subject tables
 --
 create table signet_subject (
-subjectKey			int                 NOT NULL IDENTITY,
-subjectTypeID       varchar(32)         NOT NULL,
+subjectKey			bigint              NOT NULL IDENTITY,
+sourceID            varchar(64)         NOT NULL,
 subjectID           varchar(64)         NOT NULL,
+type                varchar(32)         NOT NULL,
 name                varchar(120)        NOT NULL,
-description         varchar(255)        NOT NULL,
 modifyDatetime      datetime            NOT NULL,
+syncDatetime        datetime            NOT NULL,
 primary key (subjectKey),
-unique (subjectTypeID, subjectID)
+unique (sourceID, subjectID)
 )
 ;
+create table signet_subjectAttribute (
+subjectAttrKey	bigint			NOT NULL,
+subjectKey		bigint			NOT NULL,
+name			varchar(32)		NOT NULL,
+modifyDatetime	datetime		NOT NULL,
+primary key (subjectAttrKey),
+foreign key (subjectKey)
+references signet_subject(subjectKey) ON DELETE CASCADE,
+unique (subjectKey, name)
+)
+;
+
+-- create sequence subjectAttrValueSerial START 1;
+
+create table signet_subjectAttrValue (
+subjectAttrValueKey		bigint			NOT NULL,
+subjectAttrKey			bigint			NOT NULL,
+sequence				bigint			NOT NULL,
+value					varchar(255)	NOT NULL,
+type					varchar(255)	DEFAULT 'string',
+primary key (subjectAttrValueKey),
+foreign key (subjectAttrKey)
+references signet_subjectAttribute(subjectAttrKey) ON DELETE CASCADE,
+unique (subjectAttrKey, sequence)
+)
+;
+
 --
 -- Tree tables
 --
@@ -213,19 +243,20 @@ functionKey         int                 NOT NULL,
 grantorKey          int                 NOT NULL,
 granteeKey          int                 NOT NULL,
 proxyKey            int                 NULL,
+revokerKey          int                 NULL,
 scopeID             varchar(64)         NULL,
 scopeNodeID         varchar(64)         NULL,
 canUse              bit                 NOT NULL,
 canGrant            bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,
 expirationDate      datetime            NULL,
-revokerKey          int                 NULL,
 modifyDatetime      datetime            NOT NULL,
 primary key (assignmentID),
 foreign key (grantorKey) references signet_subject (subjectKey),
 foreign key (granteeKey) references signet_subject (subjectKey),
 foreign key (proxyKey) references signet_subject (subjectKey),
-foreign key (revokerKey) references signet_subject (subjectKey)
+foreign key (revokerKey) references signet_subject (subjectKey),
+foreign key (functionKey) references signet_function (functionKey)
 )
 ;
 create index signet_assignment_1
@@ -268,13 +299,13 @@ functionKey         int                 NOT NULL,
 grantorKey          int                 NOT NULL,
 granteeKey          int                 NOT NULL,
 proxyKey            int                 NULL,
+revokerKey          int                 NULL,
 scopeID             varchar(64)         NULL,
 scopeNodeID         varchar(64)         NULL,
 canUse              bit                 NOT NULL,
 canGrant            bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,
 expirationDate      datetime            NULL,
-revokerKey          int                 NULL,
 historyDatetime     datetime            NOT NULL,
 modifyDatetime      datetime            NOT NULL,
 primary key (historyID),

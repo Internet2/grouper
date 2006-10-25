@@ -1,6 +1,6 @@
 /*--
-$Id: Proxy.java,v 1.6 2006-02-09 10:23:48 lmcrae Exp $
-$Date: 2006-02-09 10:23:48 $
+$Id: Proxy.java,v 1.7 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,20 +18,14 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
-import java.util.Date;
-import java.util.Set;
-
-import edu.internet2.middleware.signet.Function;
-import edu.internet2.middleware.signet.PrivilegedSubject;
-import edu.internet2.middleware.signet.Status;
-import edu.internet2.middleware.signet.SignetAuthorityException;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
 * 
 * A Proxy represents some granting authority which has been delegated to a 
-* {@link PrivilegedSubject} (often a person). Unlike an (@link Assignment},
-* which invests a <code>PrivilegedSubject</code> with some independent authority
-* of its own, a Proxy allows a PrivilegedSubject to act "in the name of" its
+* {@link SignetSubject} (often a person). Unlike an (@link Assignment},
+* which invests a <code>SignetSubject</code> with some independent authority
+* of its own, a Proxy allows a SignetSubject to act "in the name of" its
 * <code>Proxy</code>-grantor. For example, an administrative assistant who
 * understands how to use the Signet UI may act as a Proxy for a high-ranking
 * official who never actually logs into Signet.
@@ -62,7 +56,7 @@ import edu.internet2.middleware.signet.SignetAuthorityException;
 * An existing Proxy may be modified. To save the modified Proxy,
 * call Proxy.save().
 * 
-* @see PrivilegedSubject
+* @see SignetSubject
 * @see Function
 * 
 */
@@ -83,8 +77,8 @@ extends Grantable
   * 
   * @return canExtend When <code>true</code>, means that the Proxy grantee, when
   *        acting as a Proxy for the Proxy grantor, can grant the grantor's
-  *        Proxy to some third <code>PrivilegedSubject</code>. Note, however,
-  *        that that third <code>PrivilegedSubject</code> is never allowed to
+  *        Proxy to some third <code>SignetSubject</code>. Note, however,
+  *        that that third <code>SignetSubject</code> is never allowed to
   *        further grant that second-hand Proxy.
   */
   public boolean canExtend();
@@ -93,7 +87,7 @@ extends Grantable
    * Changes the extensibility of an existing Proxy. To save this change
    * to the database, call <code>Proxy.save()</code>.
    * 
-   * @param editor the <code>PrivilegedSubject</code> who is responsible for
+   * @param editor the <code>SignetSubject</code> who is responsible for
    * this change.
    *
    * @param canExtend <code>true</code> if this Proxy should be grantable
@@ -101,10 +95,8 @@ extends Grantable
    * 
    * @throws SignetAuthorityException
    */
-  public void setCanExtend
-    (PrivilegedSubject  editor,
-     boolean            canExtend)
-  throws SignetAuthorityException;
+  public void setCanExtend(SignetSubject editor, boolean canExtend)
+  			throws SignetAuthorityException;
 
   /**
    * Indicates whether or not this Proxy can be used directly
@@ -119,7 +111,7 @@ extends Grantable
    * Changes the direct usability of an existing Proxy. To save this change
    * to the database, call <code>Proxy.save()</code>;
    * 
-   * @param editor the <code>PrivilegedSubject</code> who is responsible for
+   * @param editor the <code>SignetSubject</code> who is responsible for
    * this change.
    * 
    * @param canUse <code>false</code> if this Proxy should only be
@@ -128,8 +120,6 @@ extends Grantable
    * 
    * @throws SignetAuthorityException
    */
-  public void setCanUse
-    (PrivilegedSubject  editor,
-     boolean            canUse)
-  throws SignetAuthorityException;
+  public void setCanUse(SignetSubject editor, boolean canUse)
+  		throws SignetAuthorityException;
 }

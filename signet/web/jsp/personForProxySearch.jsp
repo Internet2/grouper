@@ -6,7 +6,7 @@
 <%@ page import="java.net.URLEncoder" %>
 
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
-<%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
+<%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
 <%@ page import="edu.internet2.middleware.signet.choice.Choice" %>
 
 <%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
@@ -25,12 +25,12 @@
      = (Signet)
          (request.getSession().getAttribute("signet"));
 
-  PrivilegedSubject loggedInPrivilegedSubject
-    = (edu.internet2.middleware.signet.PrivilegedSubject)
+  SignetSubject loggedInPrivilegedSubject
+    = (SignetSubject)
         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
 
   String searchString = request.getParameter("searchString");
-  Set result = signet.getSubjectSources().findPrivilegedSubjects(searchString);
+  Set result = signet.getSubjectsByIdentifier(searchString);
   
   // There are some Subjects which are not candidates to serve as proxies
   // for a specific Subject:
@@ -67,8 +67,8 @@
   	Iterator sortSetIterator = sortSet.iterator();
     while (sortSetIterator.hasNext())
     {
-      PrivilegedSubject listSubject
-        = (PrivilegedSubject)(sortSetIterator.next());
+      SignetSubject listSubject
+        = (SignetSubject)(sortSetIterator.next());
       String listSubjectCompoundId = Common.buildCompoundId(listSubject);
 %>
         <option value="<%=listSubjectCompoundId%>">
@@ -90,8 +90,8 @@
 	sortSetIterator = sortSet.iterator();
 	while (sortSetIterator.hasNext())
 	{
-      PrivilegedSubject listSubject
-        = (PrivilegedSubject)(sortSetIterator.next());
+      SignetSubject listSubject
+        = (SignetSubject)(sortSetIterator.next());
       String listSubjectCompoundId = Common.buildCompoundId(listSubject);
 %>
         <div style="display:none" id="SUBJECT_NAME:<%=listSubjectCompoundId%>">

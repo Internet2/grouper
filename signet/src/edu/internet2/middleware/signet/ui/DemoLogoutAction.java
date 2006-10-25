@@ -1,6 +1,6 @@
 /*--
-$Id: DemoLogoutAction.java,v 1.2 2006-02-09 10:31:04 lmcrae Exp $
-$Date: 2006-02-09 10:31:04 $
+$Id: DemoLogoutAction.java,v 1.3 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -19,21 +19,14 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-
-import edu.internet2.middleware.signet.PrivilegedSubject;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.Subsystem;
 
 /**
  * Signet demo-logout action - this action exists only for Signet demo

@@ -1,6 +1,6 @@
 /*--
-$Id: DemoLoginCheckAction.java,v 1.3 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: DemoLoginCheckAction.java,v 1.4 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -19,8 +19,6 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -28,8 +26,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
  * Signet demo-login-check action - this action exists only for Signet demo
@@ -110,36 +108,39 @@ public final class DemoLoginCheckAction extends BaseAction
     
     // Let's look up the username. If it exists, we've got our user.
     
-    Set userMatches = signet.getSubjectSources().getPrivilegedSubjectsByDisplayId(
-    		Signet.DEFAULT_SUBJECT_TYPE_ID, username);
+//    Set userMatches = signet.getSubjectSources().getPrivilegedSubjectsByDisplayId(
+//    		Signet.DEFAULT_SUBJECT_TYPE_ID, username);
+//    
+//    if (userMatches.size() != 1)
+//    {
+//        messages.add
+//      ("Found " 
+//          + userMatches.size()
+//          + " matches for logged-in user with display-ID '"
+//          + request.getRemoteUser()
+//          + "'. We don't know what to do with any number other than one.");
+//      messages.add("All matches:");
+//      Iterator userMatchesIterator = userMatches.iterator();
+//      while (userMatchesIterator.hasNext())
+//      {
+//        messages.add
+//        (((PrivilegedSubject)(userMatchesIterator.next())).toString());
+//      }
+//      request.setAttribute(Constants.ERROR_KEY, messages);
+//      
+//      return findFailure(mapping);
+//    }
     
-    if (userMatches.size() != 1)
-    {
-        messages.add
-      ("Found " 
-          + userMatches.size()
-          + " matches for logged-in user with display-ID '"
-          + request.getRemoteUser()
-          + "'. We don't know what to do with any number other than one.");
-      messages.add("All matches:");
-      Iterator userMatchesIterator = userMatches.iterator();
-      while (userMatchesIterator.hasNext())
-      {
-        messages.add
-        (((PrivilegedSubject)(userMatchesIterator.next())).toString());
-      }
-      request.setAttribute(Constants.ERROR_KEY, messages);
-      
-      return findFailure(mapping);
-    }
-    
-    PrivilegedSubject loggedInUser = null;
-    Iterator pSubjectsIterator = userMatches.iterator();
-    while (pSubjectsIterator.hasNext())
-    {
-      loggedInUser = (PrivilegedSubject)(pSubjectsIterator.next());
-    }
-    
+    SignetSubject loggedInUser = signet.getSubjectByIdentifier(username);
+	if (null == loggedInUser)
+		return (findFailure(mapping));
+
+//    Iterator pSubjectsIterator = userMatches.iterator();
+//    while (pSubjectsIterator.hasNext())
+//    {
+//      loggedInUser = (PrivilegedSubject)(pSubjectsIterator.next());
+//    }
+
     session.setAttribute(Constants.LOGGEDINUSER_ATTRNAME, loggedInUser);
     
     // Forward to our success page, which is the Signet main page.

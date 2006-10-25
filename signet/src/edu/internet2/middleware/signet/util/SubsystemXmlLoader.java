@@ -50,9 +50,11 @@ import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetFactory;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
 import edu.internet2.middleware.signet.tree.Tree;
 // import java.util.logging.Logger;
 
@@ -146,8 +148,8 @@ public class SubsystemXmlLoader {
         // Start transaction and process remainder of document
         signet.getPersistentDB().beginTransaction();
 
-        Subsystem subsystem = signet.newSubsystem(subsystemId, subsystemName, subsystemHelpText,
-                Status.ACTIVE);
+        Subsystem subsystem = SignetFactory.newSubsystem(
+        		signet, subsystemId, subsystemName, subsystemHelpText, Status.ACTIVE);
         subsystem.setTree(tempTree);
         subsystem.save();
 
@@ -215,7 +217,10 @@ public class SubsystemXmlLoader {
             String choicesetId = choicesetIdElem.getTextTrim();
             System.out.println("- - - Id = " + choicesetId);
 
-            ChoiceSet choiceset = signet.newChoiceSet(subsystem, choicesetId);
+            ChoiceSetAdapter csAdapter = SignetFactory.getChoiceSetAdapter(
+            		signet, SignetFactory.DEFAULT_CHOICE_SET_ADAPTER_NAME);
+            ChoiceSet choiceset = SignetFactory.newChoiceSet(
+            		signet, csAdapter, subsystem, choicesetId);
             choiceset.save();
             this.choiceSetMap.put(choicesetId, choiceset);
 
@@ -313,17 +318,8 @@ public class SubsystemXmlLoader {
              + limitChoiceSetId + "\" is not defined");
         }
 
-        Limit limit
-        	= signet.newLimit
-        			(subsystem,
-        			 limitId,
-        			 DataType.TEXT,
-        			 limitChoiceSet,
-               limitName,
-               limitNumber,
-               limitHelpText,
-               Status.ACTIVE,
-               rendererId);
+		Limit limit = SignetFactory.newLimit(signet, subsystem, limitId, DataType.TEXT,
+				limitChoiceSet, limitName, limitNumber, limitHelpText, Status.ACTIVE, rendererId);
         limit.save();
         this.limitMap.put(limitId, limit);
         
@@ -344,7 +340,7 @@ public class SubsystemXmlLoader {
             String permissionId = permissionIdElem.getTextTrim();
             System.out.println("- - - Id = " + permissionId);
 
-            Permission permission = signet.newPermission(subsystem, permissionId, Status.ACTIVE);
+            Permission permission = SignetFactory.newPermission(subsystem, permissionId, Status.ACTIVE);
 
             List permissionLimits = permissionElem.getChildren("PermissionLimit");
             Iterator permissionLimitsIter = permissionLimits.iterator();
@@ -391,8 +387,9 @@ public class SubsystemXmlLoader {
             String categoryName = categoryNameElem.getTextTrim();
             System.out.println("- - - Name = " + categoryName);
 
-            Category category = signet.newCategory(subsystem, categoryId, categoryName,
-                    Status.ACTIVE);
+            Category category = SignetFactory.newCategory(subsystem, categoryId, categoryName, Status.ACTIVE);
+//            Category category = signet.newCategory(subsystem, categoryId, categoryName,
+//                    Status.ACTIVE);
             category.save();
             this.categoryMap.put(categoryId, category);
         }
@@ -429,8 +426,8 @@ public class SubsystemXmlLoader {
                     + functionCategoryId + "\" is not defined");
             }
 
-            Function function = signet.newFunction(functionCategory, functionId, functionName,
-                    Status.ACTIVE, functionHelpText);
+            Function function = SignetFactory.newFunction(signet, functionCategory,
+            		functionId, functionName, Status.ACTIVE, functionHelpText);
             function.save();
 
             List functionPermissions = functionElem.getChildren("FunctionPermission");

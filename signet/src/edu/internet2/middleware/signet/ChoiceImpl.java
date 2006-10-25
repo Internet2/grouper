@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceImpl.java,v 1.9 2006-02-09 10:18:40 lmcrae Exp $
-$Date: 2006-02-09 10:18:40 $
+$Id: ChoiceImpl.java,v 1.10 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,19 +19,16 @@ limitations under the License.
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
-
+import java.util.Iterator;
+import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
-import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
 
 /**
  * @author acohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 class ChoiceImpl implements Choice
 {
@@ -151,6 +148,29 @@ class ChoiceImpl implements Choice
     return this.rank;
   }
   
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.choice.Choice#doesNotExceed(java.util.Set)
+   */
+  	public boolean doesNotExceed(Set choices)
+	{
+		boolean retval = true;
+
+		if (null == choices)
+			return (retval);
+
+		int rank = getRank();
+		for (Iterator choicesIterator = choices.iterator();
+				choicesIterator.hasNext() && retval; )
+		{
+			Choice choiceInSet = (Choice)(choicesIterator.next());
+			// Have we exceeded one of the Choices in the Set
+			retval = choiceInSet.getRank() >= rank;
+		}
+
+		return (retval);
+	}
+
+
   /**
    * @return Returns the modifyDatetime.
    */
@@ -228,11 +248,11 @@ class ChoiceImpl implements Choice
 
     return (this.getDisplayOrder() - choice.getDisplayOrder());
   }
-  
+
   /* This method is for use only by Hibernate.
    * 
    */
-  private Integer getKey()
+  protected Integer getKey()
   {
     return this.key;
   }
@@ -240,7 +260,7 @@ class ChoiceImpl implements Choice
   /* This method is for use only by Hibernate.
    * 
    */
-  private void setKey(Integer key)
+  protected void setKey(Integer key)
   {
     this.key = key;
   }

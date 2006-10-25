@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemImpl.java,v 1.17 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: SubsystemImpl.java,v 1.18 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -305,7 +305,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
     return this.choiceSets;
   }
 
-  private Map buildMap(Set set)
+  protected Map buildMap(Set set)
   {
     Map map = new HashMap(set.size());
     Iterator iterator = set.iterator();
@@ -485,7 +485,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
   }
   
   // This method is only for use by Hibernate.
-  private void setId(String id)
+  protected void setId(String id)
   {
     super.setStringId(id);
   }
@@ -502,7 +502,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
   /**
    * @return
    */
-  boolean isPopulatedForGranting()
+  public boolean isPopulatedForGranting()
   {
     if (this.getTree() == null)
     {

@@ -1,6 +1,6 @@
 /*--
-$Id: TreeImpl.java,v 1.9 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: TreeImpl.java,v 1.10 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -251,11 +251,11 @@ public class TreeImpl extends EntityImpl implements Tree
 
   public TreeAdapter getAdapter()
   {
-    if ((this.adapter == null) && (this.adapterClassName != null))
+    if ((adapter == null) && (adapterClassName != null))
     {
-      this.adapter = this.getSignet().getTreeAdapter(this.adapterClassName);
+      adapter = SignetFactory.getTreeAdapter(getSignet(), adapterClassName);
     }
-    return this.adapter;
+    return adapter;
   }
 
   public void setAdapter(TreeAdapter adapter)
@@ -275,7 +275,7 @@ public class TreeImpl extends EntityImpl implements Tree
 
     if (this.getSignet() != null)
     {
-      this.adapter = this.getSignet().getTreeAdapter(name);
+      this.adapter = SignetFactory.getTreeAdapter(getSignet(), name);
     }
   }
 
@@ -291,7 +291,7 @@ public class TreeImpl extends EntityImpl implements Tree
 
 
   // This method is only for use by Hibernate.
-  private void setId(String id)
+  protected void setId(String id)
   {
     super.setStringId(id);
   }

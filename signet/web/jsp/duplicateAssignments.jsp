@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateAssignments.jsp,v 1.2 2006-05-16 17:37:35 ddonn Exp $
-  $Date: 2006-05-16 17:37:35 $
+  $Id: duplicateAssignments.jsp,v 1.3 2006-10-25 00:13:31 ddonn Exp $
+  $Date: 2006-10-25 00:13:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -38,7 +38,7 @@
 <%@ page import="java.util.Iterator" %>
   
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
-<%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
+<%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Category" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
@@ -60,12 +60,12 @@
      = (Signet)
          (request.getSession().getAttribute("signet"));
          
-  PrivilegedSubject loggedInPrivilegedSubject
-     = (PrivilegedSubject)
+  SignetSubject loggedInPrivilegedSubject
+     = (SignetSubject)
          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
       
-  PrivilegedSubject currentGranteePrivilegedSubject
-    = (PrivilegedSubject)
+  SignetSubject currentGranteePrivilegedSubject
+    = (SignetSubject)
         (request
            .getSession()
              .getAttribute
@@ -79,9 +79,9 @@
    
   String personViewHref
     = "PersonView.do?granteeSubjectTypeId="
-      + currentGranteePrivilegedSubject.getSubjectTypeId()
+      + currentGranteePrivilegedSubject.getSubjectType()
       + "&granteeSubjectId="
-      + currentGranteePrivilegedSubject.getSubjectId()
+      + currentGranteePrivilegedSubject.getId()
       + "&subsystemId="
       + currentAssignment.getFunction().getSubsystem().getId();
 %>

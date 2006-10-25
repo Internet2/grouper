@@ -1,6 +1,6 @@
 /*--
-$Id: OrgBrowseAction.java,v 1.6 2006-02-09 10:32:14 lmcrae Exp $
-$Date: 2006-02-09 10:32:14 $
+$Id: OrgBrowseAction.java,v 1.7 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,24 +19,15 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Category;
 import edu.internet2.middleware.signet.Function;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Subsystem;
 

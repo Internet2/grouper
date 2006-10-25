@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.10 2006-05-16 17:37:35 ddonn Exp $
-  $Date: 2006-05-16 17:37:35 $
+  $Id: designate.jsp,v 1.11 2006-10-25 00:13:31 ddonn Exp $
+  $Date: 2006-10-25 00:13:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -58,7 +58,7 @@
 <%@ page import="java.util.Set" %>
 
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
-<%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
+<%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Proxy" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
 
@@ -72,12 +72,12 @@
      = (Signet)
          (request.getSession().getAttribute("signet"));
 
-  PrivilegedSubject loggedInPrivilegedSubject
-    = (edu.internet2.middleware.signet.PrivilegedSubject)
+  SignetSubject loggedInPrivilegedSubject
+    = (SignetSubject)
         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
          
-  PrivilegedSubject currentPSubject
-    = (PrivilegedSubject)
+  SignetSubject currentPSubject
+    = (SignetSubject)
         (request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
 
   Set grantableSubsystems
@@ -106,9 +106,9 @@
    
   String personViewHref
     = "PersonView.do?granteeSubjectTypeId="
-      + currentPSubject.getSubjectTypeId()
+      + currentPSubject.getSubjectType()
       + "&granteeSubjectId="
-      + currentPSubject.getSubjectId();
+      + currentPSubject.getId();
 %>
 
   <tiles:insert page="/tiles/header.jsp" flush="true" />

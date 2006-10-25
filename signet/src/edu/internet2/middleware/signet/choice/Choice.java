@@ -1,6 +1,6 @@
 /*--
-$Id: Choice.java,v 1.7 2005-07-13 23:28:42 acohen Exp $
-$Date: 2005-07-13 23:28:42 $
+$Id: Choice.java,v 1.8 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,8 @@ see doc/license.txt in this distribution.
 */
 
 package edu.internet2.middleware.signet.choice;
+
+import java.util.Set;
 
 /**
  * Represents a single possible choice within a ChoiceSet.
@@ -42,4 +44,13 @@ extends Comparable
 	 * among other Choices within a ChoiceSet.
 	 */
 	public int getRank();
+
+	/**
+	 * @param choices The Set of Choices to compare the Choice against.
+	 * @return true if the rank of the specified Choice does not exceed the rank
+	 * of the highest-ranking Choice in the Set, and false otherwise.
+	 */
+	public boolean doesNotExceed(Set choices);
+
+
 }

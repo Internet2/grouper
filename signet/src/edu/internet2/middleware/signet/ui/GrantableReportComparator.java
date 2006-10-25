@@ -1,6 +1,6 @@
 /*--
-$Id: GrantableReportComparator.java,v 1.2 2006-02-09 10:31:36 lmcrae Exp $
-$Date: 2006-02-09 10:31:36 $
+$Id: GrantableReportComparator.java,v 1.3 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,9 +19,7 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.Comparator;
-
 import edu.internet2.middleware.signet.Assignment;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
 
 public class GrantableReportComparator implements Comparator

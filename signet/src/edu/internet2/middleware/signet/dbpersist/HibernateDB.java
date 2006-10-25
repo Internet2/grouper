@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.1 2006-06-30 02:04:41 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.2 2006-10-25 00:09:40 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -46,8 +46,6 @@ import edu.internet2.middleware.signet.LimitImpl;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.PermissionImpl;
-import edu.internet2.middleware.signet.PrivilegedSubject;
-import edu.internet2.middleware.signet.PrivilegedSubjectImpl;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.ProxyImpl;
 import edu.internet2.middleware.signet.Signet;
@@ -60,39 +58,35 @@ import edu.internet2.middleware.signet.TreeImpl;
 import edu.internet2.middleware.signet.TreeNodeRelationship;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.resource.ResLoaderApp;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
-/** Singleton wrapper for the Hibernate DB persistence layer */
+/**
+ * Wrapper for the Hibernate DB persistence layer. Each Signet instance has a
+ * reference to it's own HibernateDB object. Each HibernateDB object has it's
+ * own, always-open, Session, which gets re-used each time the beginTransaction-
+ * "some action"-commit cycle occurs. Nested transactions are prevented using the
+ * "push counter" called xactNestingLevel.
+ */
 public class HibernateDB
 {
-	protected static HibernateDB	hInstance;
-	protected static Signet			signet;
-
 	protected Log log = LogFactory.getLog(HibernateDB.class);
 
+	/** It would appear that many persisted objects need a reference to the
+	 * Signet instance, so we save it here and call setSignet on each object as
+	 * it is retieved from persisted store.
+	 */
+	protected Signet			signet;
+	/** The Hibernate Configuration */
 	protected Configuration		cfg;
+	/** the Hibernate Session */
 	protected Session			session;
+	/** The Hibernate Transaction */
 	protected Transaction		tx;
+	/** The "push counter" for nesting transactions. Only the final commit() is
+	 * sent to Hibernate. */
 	protected int				xactNestingLevel = 0;
-	protected HousekeepingInterceptor interceptor;
-
-
-	////////////////////////////////////
-	// static methods
-	////////////////////////////////////
-
-	public static HibernateDB getInstance()
-	{
-		if (null == hInstance)
-			hInstance = new HibernateDB();
-		return (hInstance);
-	}
-
-
-	public static void setSignet(Signet _signet) { signet = _signet; }
-
-	public static Signet getSignet() { return (signet); }
 
 
 	///////////////////////////////////
@@ -100,9 +94,10 @@ public class HibernateDB
 	///////////////////////////////////
 
 	/**
-	 * private because it's a singleton. Use getInstance().
+	 * constructor
+	 * @param signetInstance The instance of a Signet
 	 */
-	private HibernateDB()
+	public HibernateDB(Signet signetInstance)
 	{
 		super();
 
@@ -112,14 +107,15 @@ public class HibernateDB
 			// Read the "hibernate.cfg.xml" file. It is expected to be in a root directory of the classpath
 			cfg.configure();
 
-			String dbAccount = cfg.getProperty("hibernate.connection.username"); //$NON-NLS-1$
-			interceptor = new HousekeepingInterceptor(dbAccount);
-			cfg.setInterceptor(interceptor);
-			SessionFactory sessionFactory = cfg.buildSessionFactory();
-			interceptor.setSessionFactory(sessionFactory);
-
-			session = sessionFactory.openSession();
-			interceptor.setConnection(session.connection());
+			open();
+//			String dbAccount = cfg.getProperty("hibernate.connection.username"); //$NON-NLS-1$
+//			interceptor = new HousekeepingInterceptor(dbAccount);
+//			cfg.setInterceptor(interceptor);
+//			SessionFactory sessionFactory = cfg.buildSessionFactory();
+//			interceptor.setSessionFactory(sessionFactory);
+//
+//			session = sessionFactory.openSession();
+//			interceptor.setConnection(session.connection());
 		}
 		catch (HibernateException he)
 		{
@@ -127,6 +123,8 @@ public class HibernateDB
 			log.error(he.toString());
 			throw new SignetRuntimeException(he);
 		}
+
+		signet = signetInstance;
 	}
 
 
@@ -141,7 +139,9 @@ public class HibernateDB
 	}
 
 
-	/** wrapper method for session */
+	/**
+	 * Load a DB object when the ID is known. Wrapper method for session.
+	 */
 	public Object load(Class loadClass, String id) throws ObjectNotFoundException
 	{
 		Object retval = null;
@@ -157,7 +157,9 @@ public class HibernateDB
 		return (retval);
 	}
 
-	/** wrapper method for session */
+	/**
+	 * Load a DB object when the ID is known. Wrapper method for session.
+	 */
 	public Object load(Class loadClass, Integer id) throws ObjectNotFoundException
 	{
 		Object retval = null;
@@ -187,11 +189,16 @@ public class HibernateDB
 	}
 
 
-	/** wrapper method for session */
-	public List find(String searchString) throws SignetRuntimeException
+	/**
+	 * Run the Hibernate Query Language query and return the results (wrapper method for session)
+	 * @param hibrQuery HQL query
+	 * @return List of matching records
+	 * @throws SignetRuntimeException
+	 */
+	public List find(String hibrQuery) throws SignetRuntimeException
 	{
 		List retval = null;
-		try { retval = session.find(searchString); }
+		try { retval = session.find(hibrQuery); }
 		catch (HibernateException e)
 		{
 			throw new SignetRuntimeException(e);
@@ -201,16 +208,12 @@ public class HibernateDB
 
 	/**
 	 * Begins a Signet transaction.
-	 *  
 	 */
-	public final void beginTransaction()
+	public synchronized void beginTransaction()
 	{
 		if (xactNestingLevel == 0)
 		{
-			try
-			{
-				tx = session.beginTransaction();
-			}
+			try { tx = session.beginTransaction(); }
 			catch (HibernateException e)
 			{
 				throw new SignetRuntimeException(e);
@@ -222,7 +225,7 @@ public class HibernateDB
 	/**
 	 * commit a Signet database transaction.
 	 */
-	public void commit()
+	public synchronized void commit()
 	{
 		if (tx == null)
 		{
@@ -249,16 +252,53 @@ public class HibernateDB
 	}
 
 	/**
+	 * Flush the session (secretly called by Session.commit() so it's not really necessary here).
+	 */
+	public void flush()
+	{
+		try
+		{
+			session.flush();
+		}
+		catch (HibernateException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Open a new Session, closing the old one if it isn't already closed.
+	 * @return Returns the newly-created Session (same as calling getSession())
+	 */
+	public Session open()
+	{
+		if (null != session)
+			close();
+		try
+		{
+			SessionFactory sessionFactory = cfg.buildSessionFactory();
+			session = sessionFactory.openSession();
+		}
+		catch (HibernateException he)
+		{
+			log.error("HibernateDB.HibernateDB: hibernate error");
+			log.error(he.toString());
+			throw new SignetRuntimeException(he);
+		}
+		return (session);
+	}
+
+	/**
 	 * Closes a Signet session.
 	 */
 	public void close()
 	{
 		try
 		{
+			session.flush();
 			session.close();
+			session.getSessionFactory().close();
 			session = null;
-			// We leave the SessionFactory open, in case the application
-			// wants to create a subsequent Signet object.
 		}
 		catch (HibernateException e)
 		{
@@ -268,14 +308,32 @@ public class HibernateDB
 
 	/**
 	 * Saves a new Signet object, and any Signet objects it refers to.
-	 * 
-	 * @param o
+	 * @param o The Object to save. Must have been previously defined in a
+	 * object.hbm.xml configuration file.
 	 */
 	public final void save(Object o)
 	{
 		try
 		{
-			session.save(o);
+			session.saveOrUpdate(o);
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+	}
+
+
+	/**
+	 * Updates an existing Signet object, and any Signet objects it refers to.
+	 * @param o The Object to update. Must have been previously defined in a
+	 * object.hbm.xml configuration file.
+	 */
+	public final void update(Object o)
+	{
+		try
+		{
+			session.update(o);
 		}
 		catch (HibernateException e)
 		{
@@ -556,46 +614,6 @@ public class HibernateDB
 	}
 
 
-	public PrivilegedSubject fetchPrivilegedSubject(String subjectTypeId, String subjectId) throws ObjectNotFoundException
-	{
-		PrivilegedSubjectImpl pSubject;
-		Query query;
-		List resultList;
-		try
-		{
-			query = createQuery("from edu.internet2.middleware.signet.PrivilegedSubjectImpl" + " as privilegedSubject"
-					+ " where subjectID = :id" + " and subjectTypeID = :type");
-			query.setString("id", subjectId);
-			query.setString("type", subjectTypeId);
-			resultList = query.list();
-		}
-		catch (HibernateException e)
-		{
-			throw new SignetRuntimeException(e);
-		}
-		if (resultList.size() > 1)
-		{
-			Object[] msgData = new Object[] { new Integer(resultList.size()), subjectId, subjectTypeId };
-			MessageFormat msg = new MessageFormat(ResLoaderApp.getString("Signet.msg.exc.multiPrivSubj_1") + //$NON-NLS-1$
-					ResLoaderApp.getString("Signet.msg.exc.multiPrivSubj_2") + //$NON-NLS-1$
-					ResLoaderApp.getString("Signet.msg.exc.multiPrivSubj_3")); //$NON-NLS-1$
-			throw new SignetRuntimeException(msg.format(msgData));
-		}
-		if (resultList.size() == 0)
-		{
-			Object[] msgData = new Object[] { subjectTypeId, subjectId };
-			MessageFormat msg = new MessageFormat(ResLoaderApp.getString("Signet.msg.exc.privSubjNotFound")); //$NON-NLS-1$
-			throw new ObjectNotFoundException(msg.format(msgData));
-		}
-		// If we've gotten this far, then resultList.size() must be equal to 1.
-		Set resultSet = new HashSet(resultList);
-		Iterator resultSetIterator = resultSet.iterator();
-		pSubject = (PrivilegedSubjectImpl)(resultSetIterator.next());
-		pSubject.setSignet(signet);
-		return pSubject;
-	}
-
-
 	/**
 	 * This method is only for use by the native Signet TreeAdapter.
 	 * 
@@ -694,5 +712,69 @@ public class HibernateDB
 		return (choiceSet);
 	}
  }
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//		Re-architecture
+//
+/////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Query for a signet_subject that matches the given sourceId/subjectId
+	 * @param sourceId The original Source id of the Subject (from SubjectAPI)
+	 * @param subjectId The original Subject id of the Subject (from SubjectAPI)
+	 * @return A SignetSubject that matches the given sourceId/subjectId or null if not found
+	 */
+	public SignetSubject getSubject(String sourceId, String subjectId)
+			throws ObjectNotFoundException
+	{
+		Query query;
+		List resultList;
+		try
+		{
+			query = createQuery(
+					"from " +
+					SignetSubject.class.getName() +
+					" as signetSubject " +
+					"where " +
+					"sourceID = :source_id " +
+					"and " +
+					"subjectID = :subject_id ");
+			query.setString("subject_id", subjectId);
+			query.setString("source_id", sourceId);
+			resultList = query.list();
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+
+		SignetSubject retval = null;
+
+		Object[] msgData;
+		MessageFormat msgFmt;
+		switch (resultList.size())
+		{
+			case (0):
+				msgData = new Object[] { sourceId, subjectId };
+				String msgTemplate = ResLoaderApp.getString("HibernateDb.msg.exc.SubjNotFound");  //$NON-NLS-1$
+				msgFmt = new MessageFormat(msgTemplate);
+				String msg = msgFmt.format(msgData);
+				throw new ObjectNotFoundException(msg);
+			case (1):
+				retval = (SignetSubject)resultList.iterator().next();
+				break;
+			default:
+				msgData = new Object[] { new Integer(resultList.size()), subjectId, sourceId };
+				msgFmt = new MessageFormat(ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_1") + //$NON-NLS-1$
+						ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_2") + //$NON-NLS-1$
+						ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_3")); //$NON-NLS-1$
+				throw new SignetRuntimeException(msgFmt.format(msgData));
+		}
+
+		return (retval);
+	}
+
 
 }

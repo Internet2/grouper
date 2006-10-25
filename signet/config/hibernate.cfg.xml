@@ -26,8 +26,15 @@
 	</property>
     
     <!-- general connection properties -->
+<property name="hibernate.show_sql">true</property>
+<!--
     <property name="hibernate.show_sql">false</property>
-    
+-->
+
+	<mapping resource="edu/internet2/middleware/signet/sources/SignetSubject.hbm.xml" />
+	<mapping resource="edu/internet2/middleware/signet/sources/SignetSubjectAttr.hbm.xml" />
+	<mapping resource="edu/internet2/middleware/signet/sources/SignetSubjectAttrValue.hbm.xml" />
+
     <mapping
       resource
         ="edu/internet2/middleware/signet/SubsystemImpl.hbm.xml"/>
@@ -46,9 +53,6 @@
     <mapping
       resource
         ="edu/internet2/middleware/signet/TreeNodeImpl.hbm.xml"/>
-    <mapping
-      resource
-        ="edu/internet2/middleware/signet/PrivilegedSubjectImpl.hbm.xml"/>
     <mapping
       resource
         ="edu/internet2/middleware/signet/AssignmentImpl.hbm.xml"/>

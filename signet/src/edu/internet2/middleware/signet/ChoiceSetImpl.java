@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetImpl.java,v 1.9 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: ChoiceSetImpl.java,v 1.10 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -191,8 +191,7 @@ public class ChoiceSetImpl implements ChoiceSet
     if ((this.choiceSetAdapter == null)
         && (this.adapterClassName != null))
     {
-      this.choiceSetAdapter
-      	= signet.getChoiceSetAdapter(this.adapterClassName);
+      this.choiceSetAdapter = SignetFactory.getChoiceSetAdapter(signet, adapterClassName);
     }
     return this.choiceSetAdapter;
   }
@@ -231,7 +230,7 @@ public class ChoiceSetImpl implements ChoiceSet
 
     if (null != signet)
     {
-      this.choiceSetAdapter = signet.getChoiceSetAdapter(name);
+      this.choiceSetAdapter = SignetFactory.getChoiceSetAdapter(signet, name);
     }
   }
 
@@ -267,7 +266,7 @@ public class ChoiceSetImpl implements ChoiceSet
   /* This method is for use only by Hibernate.
    * 
    */
-  private Integer getKey()
+  protected Integer getKey()
   {
     return this.key;
   }
@@ -275,7 +274,7 @@ public class ChoiceSetImpl implements ChoiceSet
   /* This method is for use only by Hibernate.
    * 
    */
-  private void setKey(Integer key)
+  protected void setKey(Integer key)
   {
     this.key = key;
   }

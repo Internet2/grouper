@@ -1,6 +1,6 @@
 /*--
-$Id: History.java,v 1.7 2006-02-09 10:20:47 lmcrae Exp $
-$Date: 2006-02-09 10:20:47 $
+$Id: History.java,v 1.8 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,12 +19,11 @@ limitations under the License.
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
  * @author Andy Cohen
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public interface History
 {
@@ -39,7 +38,7 @@ public interface History
    * <code>PrivilegedSubject</code>, not its state at the time this historical
    * record was created.
    */
-  public PrivilegedSubject getGrantor();
+  public SignetSubject getGrantor();
 
   /**
    * Returns the grantee associated with this historical record.
@@ -52,7 +51,7 @@ public interface History
    * <code>PrivilegedSubject</code>, not its state at the time this historical
    * record was created.
    */
-  public PrivilegedSubject getGrantee();
+  public SignetSubject getGrantee();
 
   /**
    * Returns the revoker associated with this historical record, or
@@ -67,7 +66,7 @@ public interface History
    * <code>PrivilegedSubject</code>, not its state at the time this historical
    * record was created.
    */
-  public PrivilegedSubject getRevoker();
+  public SignetSubject getRevoker();
 
   /**
    * Returns the proxy-subject associated with this historical record, or
@@ -82,7 +81,7 @@ public interface History
    * of that <code>PrivilegedSubject</code>, not its state at the time this
    * historical record was created.
    */
-  public PrivilegedSubject getProxySubject();
+  public SignetSubject getProxySubject();
   
   /**
    * Returns the <code>Status</code> associated with this historical record.

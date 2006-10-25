@@ -1,6 +1,6 @@
 /*--
-$Id: RevokeAndGrantProxyAction.java,v 1.8 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: RevokeAndGrantProxyAction.java,v 1.9 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -19,19 +19,16 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-
-import edu.internet2.middleware.signet.PrivilegedSubject;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
  * <p>
@@ -86,9 +83,8 @@ public final class RevokeAndGrantProxyAction extends BaseAction
       return (mapping.findForward("notInitialized"));
     }
     
-    PrivilegedSubject loggedInPrivilegedSubject
-      = (PrivilegedSubject)
-          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
+    SignetSubject loggedInPrivilegedSubject = (SignetSubject)
+          request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
         
     // Find the Proxies specified by the multi-valued "revoke" parameter,
     // and revoke them.

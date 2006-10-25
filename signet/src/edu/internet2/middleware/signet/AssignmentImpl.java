@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentImpl.java,v 1.39 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: AssignmentImpl.java,v 1.40 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.choice.Choice;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
 public class AssignmentImpl extends GrantableImpl implements Assignment
@@ -46,8 +47,8 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
   
   public AssignmentImpl
   	(Signet							    signet,
-     PrivilegedSubjectImpl	grantor,
-     PrivilegedSubject 	    grantee,
+     SignetSubject	grantor,
+     SignetSubject 	    grantee,
      TreeNode               scope,
      Function               function,
      Set                    limitValues,
@@ -260,14 +261,15 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
   }
 
   public void setCanGrant
-    (PrivilegedSubject  actor,
+    (SignetSubject  actor,
+//    (PrivilegedSubject  actor,
      boolean            canGrant)
   throws SignetAuthorityException
   {
     checkEditAuthority(actor);
     
     this.canGrant = canGrant;
-    this.setGrantor((PrivilegedSubjectImpl)actor);
+    this.setGrantor(actor);
   }
   
   // This method is only for use by Hibernate.
@@ -294,13 +296,14 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
   }
 
   public void setCanUse
-    (PrivilegedSubject  actor,
+    (SignetSubject  actor,
+//    (PrivilegedSubject  actor,
      boolean            canUse)
   throws SignetAuthorityException
   {
     checkEditAuthority(actor);
     
-    super.setGrantor((PrivilegedSubjectImpl)actor);
+    super.setGrantor(actor);
     this.canUse = canUse;
   }
 
@@ -319,8 +322,10 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
     Assignment other = (Assignment)o;
     int comparisonResult;
     
-    PrivilegedSubject thisGrantee = this.getGrantee();
-    PrivilegedSubject otherGrantee = other.getGrantee();
+    SignetSubject thisGrantee = this.getGrantee();
+    SignetSubject otherGrantee = other.getGrantee();
+//    PrivilegedSubject thisGrantee = this.getGrantee();
+//    PrivilegedSubject otherGrantee = other.getGrantee();
     comparisonResult = thisGrantee.compareTo(otherGrantee);
     
     if (comparisonResult != 0)
@@ -406,7 +411,8 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
 
   
   public void setLimitValues
-    (PrivilegedSubject  actor,
+    (SignetSubject  actor,
+//    (PrivilegedSubject  actor,
      Set                limitValues)
   throws SignetAuthorityException
   {
@@ -414,7 +420,7 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
     checkEditAuthority(actor);
     
     this.setLimitValues(limitValues);
-    this.setGrantor((PrivilegedSubjectImpl)actor);
+    this.setGrantor(actor);
   }
   
   private void checkLimitValues(Set limitValues)
@@ -467,37 +473,17 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
   
   public void save()
   {
-    this.setModifyDatetime(new Date());
-
-    save(this.getGrantor());
-    save(this.getGrantee());
-    save(this.getRevoker());
-    save(this.getProxy());
-      
-    if (this.getId() != null)
+    if (null != getId())
     {
       // This isn't the first time we've saved this Assignment.
       // We'll increment the instance-number accordingly, and save
       // its history-record right now (just after we save the Assignment
       // record itself, so as to avoid hitting any referential-integrity
       // problems in the database).
-      this.incrementInstanceNumber();
-        
-      AssignmentHistory historyRecord
-        = new AssignmentHistoryImpl(this);
-      Set historySet = this.getHistory();
-      historySet.add(historyRecord);
-      this.setHistory(historySet);
+      incrementInstanceNumber();
+      getHistory().add(new AssignmentHistoryImpl(this));
       
-      getSignet().getPersistentDB().save(this);
     }
-    else
-    {
-      // We can't construct the Assignment's initial history-record yet,
-      // because we don't yet know the ID of the assignment. We'll detect this
-      // case, construct and save that history-record later, in the postFlush()
-      // method of the Hibernate Interceptor.
-      getSignet().getPersistentDB().save(this);
-    }
+    super.save();
   }
 }

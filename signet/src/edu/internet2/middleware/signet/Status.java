@@ -1,6 +1,6 @@
 /*--
-$Id: Status.java,v 1.8 2006-05-09 01:33:33 ddonn Exp $
-$Date: 2006-05-09 01:33:33 $
+$Id: Status.java,v 1.9 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -140,6 +140,23 @@ public class Status implements ITypeSafeEnum
 		throw new CloneNotSupportedException
 			("Instances of type-safe enumerations are singletons and cannot be cloned.");
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(Object)
+	 */
+	public boolean equals(Object o)
+	{
+		boolean retval = false; // assume failure
+
+		if ((null == o) || !(o instanceof Status))
+			return (retval);
+
+		retval = ((((Status)o).getName().equals(getName())) &&
+				(((Status)o).getHelpText().equals(getHelpText())));
+
+		return (retval);
+	}
+
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()

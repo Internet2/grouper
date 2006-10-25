@@ -1,6 +1,6 @@
 /*--
-$Id: ConditionsAction.java,v 1.8 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: ConditionsAction.java,v 1.9 2006-10-25 00:09:40 ddonn Exp $
+$Date: 2006-10-25 00:09:40 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -28,6 +28,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetFactory;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
 /**
@@ -131,7 +132,7 @@ public final class ConditionsAction extends BaseAction
     
     if (request.getParameter("scope") != null)
     {
-      TreeNode currentScope = signet.getTreeNode(request.getParameter("scope"));
+      TreeNode currentScope = SignetFactory.getTreeNode(signet, request.getParameter("scope"));
       session.setAttribute("currentScope", currentScope);
     }
     else

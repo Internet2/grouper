@@ -71,7 +71,7 @@ public class AssignmentReconcile
       
       if (reconcileDate.equals("")) {
    
-         Set reconciledSet = signet.reconcile();
+         Set reconciledSet = signet.reconcile(new Date());
          System.out.println("- Assignments affected: " + reconciledSet.size());
 
       } else {

@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.11 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: TreeNodeImpl.java,v 1.12 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -269,8 +269,8 @@ implements
   public String toString()
   {
     return this.getTree().getAdapter().getClass().getName()
-           + Signet.SCOPE_PART_DELIMITER + this.getTreeId()
-           + Signet.SCOPE_PART_DELIMITER + this.getId();
+           + SignetFactory.SCOPE_PART_DELIMITER + this.getTreeId()
+           + SignetFactory.SCOPE_PART_DELIMITER + this.getId();
   }
 
   /**

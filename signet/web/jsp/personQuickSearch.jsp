@@ -6,7 +6,7 @@
 <%@ page import="java.net.URLEncoder" %>
 
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
-<%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
+<%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
 <%@ page import="edu.internet2.middleware.signet.choice.Choice" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
@@ -23,7 +23,7 @@
          (request.getSession().getAttribute("signet"));
 
   String searchString = request.getParameter("searchString");
-  Set result = signet.getSubjectSources().findPrivilegedSubjects(searchString);
+  Set result = signet.getSubjectsByIdentifier(searchString);
   Set sortSet = new TreeSet(new SubjectNameComparator());
   sortSet.addAll(result);
 
@@ -45,10 +45,10 @@
   	Iterator sortSetIterator = sortSet.iterator();
     while (sortSetIterator.hasNext())
     {
-      PrivilegedSubject listSubject
-        = (PrivilegedSubject)(sortSetIterator.next());
+      SignetSubject listSubject
+        = (SignetSubject)(sortSetIterator.next());
 %>
-        <A href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?granteeSubjectTypeId=" + listSubject.getSubjectTypeId() + "&granteeSubjectId=" + listSubject.getSubjectId(), "UTF-8")%>'))">
+        <A href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?granteeSubjectTypeId=" + listSubject.getSubjectType() + "&granteeSubjectId=" + listSubject.getId(), "UTF-8")%>'))">
           <%=listSubject.getName()%>
 		</A>
         <DIV class="ident">

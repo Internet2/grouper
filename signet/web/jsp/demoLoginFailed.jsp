@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: demoLoginFailed.jsp,v 1.2 2006-05-09 01:33:33 ddonn Exp $
-  $Date: 2006-05-09 01:33:33 $
+  $Id: demoLoginFailed.jsp,v 1.3 2006-10-25 00:13:31 ddonn Exp $
+  $Date: 2006-10-25 00:13:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -19,7 +19,7 @@
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
   </head>
 
-  <body onLoad="document.form1.username.focus();">
+  <body onload="document.form1.username.focus();">
 
 	<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
   

@@ -1,6 +1,6 @@
 /*--
-$Id: GrantableImpl.java,v 1.14 2006-02-09 10:20:29 lmcrae Exp $
-$Date: 2006-02-09 10:20:29 $
+$Id: GrantableImpl.java,v 1.15 2006-10-25 00:08:28 ddonn Exp $
+$Date: 2006-10-25 00:08:28 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -23,8 +23,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
-abstract class GrantableImpl
+public abstract class GrantableImpl
 extends EntityImpl
 implements Grantable
 {
@@ -39,7 +40,7 @@ implements Grantable
   //
   // If this Grantable instance was granted via a Proxy, then this is the
   // PrivilegedSubject who originally granted that Proxy.
-  private PrivilegedSubjectImpl	grantor;
+  private SignetSubject	grantor;
   
   // If this Grantable instance was granted directly by a PrivilegedSubject,
   // then this is null.
@@ -47,11 +48,11 @@ implements Grantable
   // If this Grantable instance was granted via a Proxy, then this is the
   // PrivilegedSubject who acting on behalf of the PrivilegedSubject who
   // originally granted that Proxy.
-  private PrivilegedSubjectImpl proxy;
+  private SignetSubject proxy;
   
-  private PrivilegedSubjectImpl	grantee;
+  private SignetSubject	grantee;
   
-  private PrivilegedSubjectImpl revoker;
+  private SignetSubject revoker;
   
   private Date                  effectiveDate;
   private Date                  expirationDate = null;
@@ -113,14 +114,14 @@ implements Grantable
   
   public GrantableImpl
   	(Signet							signet,
-     PrivilegedSubject	grantor,
-     PrivilegedSubject 	grantee,
+     SignetSubject	grantor,
+     SignetSubject 	grantee,
      Date               effectiveDate,
      Date               expirationDate)
   {    
     super(signet, null, null, null);
     
-    this.setGrantor((PrivilegedSubjectImpl)grantor);
+    this.setGrantor(grantor);
     this.setGrantee(grantee);
     
     if (effectiveDate == null)
@@ -150,61 +151,61 @@ implements Grantable
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#getGrantee()
    */
-  public PrivilegedSubject getGrantee()
+  public SignetSubject getGrantee()
   {
-    this.grantee.setSignet(this.getSignet());
+//    this.grantee.setSignet(this.getSignet());
     return this.grantee;
   }
   
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#getGrantor()
    */
-  public PrivilegedSubject getGrantor()
+  public SignetSubject getGrantor()
   {
-    this.grantor.setSignet(this.getSignet());
+//    this.grantor.setSignet(this.getSignet());
     return this.grantor;
   }
   
-  public PrivilegedSubject getRevoker()
+  public SignetSubject getRevoker()
   {
-    if (this.revoker != null)
-    {
-      this.revoker.setSignet(this.getSignet());
-    }
+//    if (this.revoker != null)
+//    {
+//      this.revoker.setSignet(this.getSignet());
+//    }
     
     return this.revoker;
   }
   
-  public PrivilegedSubject getProxy()
+  public SignetSubject getProxy()
   {
-    if (this.proxy != null)
-    {
-      this.proxy.setSignet(this.getSignet());
-    }
+//    if (this.proxy != null)
+//    {
+//      this.proxy.setSignet(this.getSignet());
+//    }
     
     return this.proxy;
   }
   
   // This method is only for use by Hibernate.
-  void setProxy(PrivilegedSubject proxy)
+  void setProxy(SignetSubject proxy)
   {
-    this.proxy = (PrivilegedSubjectImpl)proxy;
+    this.proxy = proxy;
   }
   
   /**
    * @param grantee The grantee to set.
    */
-  void setGrantee(PrivilegedSubject grantee)
+  void setGrantee(SignetSubject grantee)
   {
-    this.grantee = (PrivilegedSubjectImpl)grantee;
+    this.grantee = grantee;
   }
   
   /**
    * @param grantor The grantor to set.
    */
-  void setGrantor(PrivilegedSubjectImpl grantor)
+  void setGrantor(SignetSubject grantor)
   {
-    this.grantor = (PrivilegedSubjectImpl)(grantor.getEffectiveEditor());
+    this.grantor = grantor.getEffectiveEditor();
     
     if (!grantor.equals(grantor.getEffectiveEditor()))
     {
@@ -212,11 +213,11 @@ implements Grantable
     }
   }
   
-  void setRevoker(PrivilegedSubjectImpl revoker)
+  void setRevoker(SignetSubject revoker)
   {
     if (revoker != null)
     {
-      this.revoker = (PrivilegedSubjectImpl)(revoker.getEffectiveEditor());
+      this.revoker = revoker.getEffectiveEditor();
     
       if (!revoker.equals(revoker.getEffectiveEditor()))
       {      
@@ -259,7 +260,7 @@ implements Grantable
    * @see edu.internet2.middleware.signet.Assignment#revoke()
    */
   public void revoke
-    (PrivilegedSubject revoker)
+    (SignetSubject revoker)
   throws SignetAuthorityException
   {
     Decision decision = revoker.canEdit(this);
@@ -269,7 +270,7 @@ implements Grantable
       throw new SignetAuthorityException(decision);
     }
 
-    this.setRevoker((PrivilegedSubjectImpl)revoker);
+    this.setRevoker(revoker);
     this.setStatus(Status.INACTIVE);
   }
   
@@ -282,7 +283,7 @@ implements Grantable
   }
   
   protected void checkEditAuthority
-    (PrivilegedSubject actor)
+    (SignetSubject actor)
   throws SignetAuthorityException
   {
     Decision decision = actor.canEdit(this);
@@ -293,7 +294,7 @@ implements Grantable
   }
   
   public void setEffectiveDate
-    (PrivilegedSubject  actor,
+    (SignetSubject  actor,
      Date               date)
   throws SignetAuthorityException
   {
@@ -306,7 +307,7 @@ implements Grantable
     }
     
     this.effectiveDate = date;
-    this.setGrantor((PrivilegedSubjectImpl)actor);
+    this.setGrantor(actor);
   }
 
 
@@ -328,14 +329,14 @@ implements Grantable
    * @see edu.internet2.middleware.signet.Assignment#setExpirationDate(java.util.Date)
    */
   public void setExpirationDate
-    (PrivilegedSubject  actor,
+    (SignetSubject  actor,
      Date               expirationDate)
   throws SignetAuthorityException
   {
     checkEditAuthority(actor);
     
     this.expirationDate = expirationDate;
-    this.setGrantor((PrivilegedSubjectImpl)actor);
+    this.setGrantor(actor);
     this.setModifyDatetime(new Date());
   }
   
@@ -411,53 +412,60 @@ implements Grantable
       ("This method is not yet implemented");
   }
   
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Grantable#evaluate()
+   */
   public boolean evaluate()
   {
-    Date now = new Date();
-    return this.evaluate(now);
+    return (evaluate(new Date()));
   }
 
   /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Assignment#evaluate()
+   * @see edu.internet2.middleware.signet.Grantable#evaluate(java.util.Date)
    */
   public boolean evaluate(Date date)
   {
-    Status  newStatus;
-    boolean statusChanged = false;
-    
-    if (date.compareTo(this.effectiveDate) < 0)
-    {
-      // The effectiveDate has not yet arrived.
+    Status newStatus;
+
+     // The effectiveDate has not yet arrived.
+    if (date.compareTo(effectiveDate) < 0)
       newStatus = Status.PENDING;
-    }
-    else if ((this.expirationDate != null)
-             && (date.compareTo(this.expirationDate) > 0))
-    {
-      // The expirationDate has already passed.
+
+    // The expirationDate has already passed.
+    else if ((expirationDate != null) && (date.compareTo(expirationDate) > 0))
       newStatus = Status.INACTIVE;
-    }
+
+    // we're between the effectiveDate and expirationDate
     else
-    {
       newStatus = Status.ACTIVE;
-    }
     
-    if (!newStatus.equals(this.getStatus()))
-    {
-      this.setStatus(newStatus);
-      statusChanged = true;
-    }
-    
-    return statusChanged;
+    return (setStatus(newStatus));
   }
   
-  protected void save(PrivilegedSubject pSubject)
-  {
-    if ((pSubject != null) && (pSubject.getId() == null))
-    {
-      ((PrivilegedSubjectImpl)pSubject).save();
-    }
-  }
-  
+//  protected void save(SignetSubject pSubject)
+//  {
+////TODO Should use (0 == pSubject.getSubjectKey()) instead???
+//    if ((pSubject != null) && (pSubject.getId() == null))
+//    {
+//      pSubject.save();
+//    }
+//  }
+
+  	public void save()
+	{
+		this.setModifyDatetime(new Date());
+		SignetSubject subj;
+		if (null != (subj = getGrantor()))
+			subj.save();
+		if (null != (subj = getGrantee()))
+			subj.save();
+		if (null != (subj = getRevoker()))
+			subj.save();
+		if (null != (subj = getProxy()))
+			subj.save();
+//		getSignet().getPersistentDB().save(this);
+	}
+ 
   public Set getHistory()
   {
     return this.history;
