@@ -20,13 +20,14 @@ import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.util.*;
 import  java.util.Properties;
+import  org.apache.commons.lang.StringEscapeUtils;
 import  org.apache.commons.logging.*;
 
 /**
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.11 2006-10-18 14:17:27 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.12 2006-10-26 17:09:54 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -75,6 +76,11 @@ class XmlUtils {
     }
     return XmlUtils._hasImmediateNamingPrivilege(subj, (Stem) o, p);
   } // protected static boolean hasImmediatePrivilege(subj, o, p)
+
+  // @since   1.1.0
+  protected static String xmlE(String s) {
+    return StringEscapeUtils.escapeXml(s);
+  } // protected static String xmlE(s)
 
 
   // PRIVATE CLASS METHODS //
