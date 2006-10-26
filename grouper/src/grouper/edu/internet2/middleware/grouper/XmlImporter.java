@@ -37,7 +37,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.86 2006-10-18 14:17:27 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.87 2006-10-26 16:09:05 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -336,16 +336,9 @@ public class XmlImporter {
             + "                     which may be updated. Missing Stems and Groups" + GrouperConfig.NL
             + "                     are not created"                                + GrouperConfig.NL
             + "  filename,          The file to import"                             + GrouperConfig.NL
-            + "  properties,        The name of a standard Java properties file "   + GrouperConfig.NL
-            + "                     which configures the import. Check Javadoc for" + GrouperConfig.NL
-            + "                     a list of properties. If 'properties' is not "  + GrouperConfig.NL
-            + "                      specified, XmlImporter will look for "         + GrouperConfig.NL
-            + "                     'import.properties' in the working directory. " + GrouperConfig.NL
-            + "                     If this file does not exist XmlImporter will "  + GrouperConfig.NL
-            + "                     look on the classpath. If 'properties' is not " + GrouperConfig.NL
-            + "                     specified and 'import.properties' cannot be "   + GrouperConfig.NL
-            + "                     found and import options are not included in "  + GrouperConfig.NL
-            + "                     the XML, the import will fail."                 + GrouperConfig.NL
+            + "  properties,        The name of an optional Java properties file. " + GrouperConfig.NL
+            + "                     Values specified in this properties file will " + GrouperConfig.NL
+            + "                     override the default import behavior."          + GrouperConfig.NL
             ;
   } // private static String _getUsage()
 
