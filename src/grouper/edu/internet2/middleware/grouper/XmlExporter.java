@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.78 2006-10-26 16:09:05 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.79 2006-10-26 17:09:54 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -570,14 +570,6 @@ public class XmlExporter {
     return name;
   } // private String _fixGroupName(name)
 
-  // @since   1.1.0
-  private String _fixXmlAttribute(String value) {
-    value = value.replaceAll("'", "&apos;");
-    value = value.replaceAll("<", "&lt;");
-    value = value.replaceAll(">", "&gt;");
-    return value;
-  } // private String _fixXmlAttribute(value)
-
   // @since   1.0
   private Iterator _getExportAttributes(Subject subj) {
     String source = subj.getSource().getId();
@@ -802,12 +794,12 @@ public class XmlExporter {
     throws  IOException
   {
     this.xml.indent();
-    this.xml.puts("<field name="  + U.q( this._fixXmlAttribute(f.getName()))  );
+    this.xml.puts("<field name="  + U.q( XmlUtils.xmlE( f.getName() ) ) );
     this.xml.indent();
-    this.xml.puts("required="     + U.q( f.getRequired() )                    );
-    this.xml.puts("type="         + U.q( f.getType().toString() )             );
-    this.xml.puts("readPriv="     + U.q( f.getReadPriv().toString() )         );
-    this.xml.puts("writePriv="    + U.q( f.getWritePriv().toString() )        );
+    this.xml.puts("required="     + U.q( f.getRequired() )              );
+    this.xml.puts("type="         + U.q( f.getType().toString() )       );
+    this.xml.puts("readPriv="     + U.q( f.getReadPriv().toString() )   );
+    this.xml.puts("writePriv="    + U.q( f.getWritePriv().toString() )  );
     this.xml.undent();
     this.xml.puts("/>");
     this.xml.undent();
@@ -871,16 +863,16 @@ public class XmlExporter {
     this.xml.puts();
     this.xml.indent();
     this.xml.puts( this.xml.comment( U.q( g.getName() ) ) );
-    this.xml.puts("<group extension=" + U.q( this._fixXmlAttribute(g.getExtension()) )         );
+    this.xml.puts("<group extension=" + U.q( XmlUtils.xmlE( g.getExtension() ) )            );
     this.xml.indent();
-    this.xml.puts("displayExtension=" + U.q( this._fixXmlAttribute(g.getDisplayExtension()) )  );
-    this.xml.puts("name="             + U.q( this._fixXmlAttribute(g.getName()) )              );
-    this.xml.puts("displayName="      + U.q( this._fixXmlAttribute(g.getDisplayName()) )       );
-    this.xml.puts("id="               + U.q( this._fixXmlAttribute(g.getUuid()) )              );
+    this.xml.puts("displayExtension=" + U.q( XmlUtils.xmlE( g.getDisplayExtension() ) )     );
+    this.xml.puts("name="             + U.q( XmlUtils.xmlE( g.getName() ) )                 );
+    this.xml.puts("displayName="      + U.q( XmlUtils.xmlE( g.getDisplayName() ) )          );
+    this.xml.puts("id="               + U.q( XmlUtils.xmlE( g.getUuid() ) )                 );
     this.xml.undent();
     this.xml.puts(">");
     this.xml.indent();
-    this.xml.puts("<description>" + this._fixXmlAttribute(g.getDescription()) + "</description>");
+    this.xml.puts("<description>" + XmlUtils.xmlE( g.getDescription() ) + "</description>"  );
     this.xml.undent();
     // Don't fully undent
   } // private void _writeGroupHeader(g)
@@ -926,7 +918,7 @@ public class XmlExporter {
             SchemaException
   {
     this.xml.indent();
-    this.xml.puts("<groupType name=" + U.q( this._fixXmlAttribute(gt.getName()) ) + ">");
+    this.xml.puts("<groupType name=" + U.q( XmlUtils.xmlE( gt.getName() ) ) + ">");
     Iterator  it  = gt.getFields().iterator();
     while (it.hasNext()) {
       this._writeGroupTypeField(g, (Field) it.next());
@@ -943,7 +935,7 @@ public class XmlExporter {
   {
     if ( !f.getType().equals(FieldType.LIST) && g.canReadField(f) ) {
       try {
-        String val = this._fixXmlAttribute(g.getAttribute(f.getName()));
+        String val = XmlUtils.xmlE( g.getAttribute( f.getName() ) );
         if (
                 Validator.isNotNullOrBlank(val)
             &&  ":description:extension:displayExtension:".indexOf(":" + f.getName() + ":") == -1
@@ -952,7 +944,7 @@ public class XmlExporter {
           this.xml.indent();
           this.xml.puts(
             "<attribute name='"
-            + this._fixXmlAttribute(f.getName()) + "'>" + val
+            + XmlUtils.xmlE( f.getName() ) + "'>" + val
             + "</attribute>"
           );
           this.xml.undent();
@@ -1031,7 +1023,7 @@ public class XmlExporter {
     throws  IOException
   {
     this.xml.indent();
-    this.xml.puts("<groupTypeDef name=" + U.q( this._fixXmlAttribute(gt.getName()) ) + ">");
+    this.xml.puts("<groupTypeDef name=" + U.q( XmlUtils.xmlE( gt.getName() ) ) + ">");
     Iterator it = gt.getFields().iterator();
     while (it.hasNext()) {
       this._writeFieldMetaData( (Field) it.next() );
@@ -1094,7 +1086,7 @@ public class XmlExporter {
     this.xml.indent();
     this.xml.puts(
         "<internalAttribute name=" + U.q(attr) + ">" 
-      + this._fixXmlAttribute(val) + "</internalAttribute>"
+      + XmlUtils.xmlE(val) + "</internalAttribute>"
     ); 
     this.xml.undent();
   } // private void _writeInternalAttribute(attr, val)
@@ -1113,9 +1105,9 @@ public class XmlExporter {
       id      = this._fixGroupName(subj.getName());
     }
     String  txt   = 
-        "<subject " + idAttr + "=" + U.q( this._fixXmlAttribute(id) )
-      + " type="    + U.q( this._fixXmlAttribute(subj.getType().getName()) )
-      + " source="  + U.q( this._fixXmlAttribute(subj.getSource().getId()) );
+        "<subject " + idAttr + "=" + U.q( XmlUtils.xmlE(id)           )
+      + " type="    + U.q( XmlUtils.xmlE( subj.getType().getName() )  )
+      + " source="  + U.q( XmlUtils.xmlE( subj.getSource().getId() )  );
     if (idAttr.equals("identifier")) {
       txt += " id=" + U.q( subj.getId() );
     }
@@ -1194,8 +1186,8 @@ public class XmlExporter {
       }
       this.xml.indent();
       this.xml.puts(
-          "<list field="  + U.q( this._fixXmlAttribute(f.getName()) )
-        + " groupType="   + U.q( this._fixXmlAttribute(f.getGroupType().getName()) )
+          "<list field="  + U.q( XmlUtils.xmlE( f.getName() )                 )
+        + " groupType="   + U.q( XmlUtils.xmlE( f.getGroupType().getName() )  )
         + ">"
       );
       if (isComposite) {
@@ -1203,7 +1195,7 @@ public class XmlExporter {
       }
       this._writeMembers(members, g, f);
       this.xml.puts(
-        "</list> " + this.xml.comment( U.q( this._fixXmlAttribute(f.getName() ) ) ) 
+        "</list> " + this.xml.comment( U.q( XmlUtils.xmlE( f.getName() ) ) ) 
       );
       this.xml.undent();
       this.xml.puts();
@@ -1370,25 +1362,25 @@ public class XmlExporter {
   } // private void _writeStemFooter(stem)
 
   // @since   1.1.0
-  private void _writeStemHeader(Stem stem) 
+  private void _writeStemHeader(Stem ns) 
     throws  IOException
   {
     this.xml.puts();
     this.xml.indent();
-    this.xml.puts( this.xml.comment( U.q( stem.getName() ) ) );
-    this.xml.puts("<stem extension="  + U.q( this._fixXmlAttribute(stem.getExtension()) )         );
+    this.xml.puts( this.xml.comment( U.q( ns.getName() ) ) );
+    this.xml.puts("<stem extension="  + U.q( XmlUtils.xmlE( ns.getExtension() ) )           );
     this.xml.indent();
-    this.xml.puts("displayExtension=" + U.q( this._fixXmlAttribute(stem.getDisplayExtension()) )  );
-    this.xml.puts("name="             + U.q( this._fixXmlAttribute(stem.getName()) )              );
-    this.xml.puts("displayName="      + U.q( this._fixXmlAttribute(stem.getDisplayName()) )       );
-    this.xml.puts("id="               + U.q( this._fixXmlAttribute(stem.getUuid()) )              );
+    this.xml.puts("displayExtension=" + U.q( XmlUtils.xmlE( ns.getDisplayExtension() ) )    );
+    this.xml.puts("name="             + U.q( XmlUtils.xmlE( ns.getName()) )                 );
+    this.xml.puts("displayName="      + U.q( XmlUtils.xmlE( ns.getDisplayName() ) )         );
+    this.xml.puts("id="               + U.q( XmlUtils.xmlE( ns.getUuid() ) )                );
     this.xml.undent();
     this.xml.puts(">");
     this.xml.indent();
-    this.xml.puts("<description>" + this._fixXmlAttribute(stem.getDescription()) + "</description>");
+    this.xml.puts("<description>" + XmlUtils.xmlE( ns.getDescription() ) + "</description>" );
     this.xml.undent();
     // Don't fully undent
-  } // private void _writeStemHeader(stem)
+  } // private void _writeStemHeader(ns)
 
   // @since   1.1.0
   private void _writeStemPrivs(Stem ns) 
@@ -1459,9 +1451,9 @@ public class XmlExporter {
       id = subj.getId();
     }
     this.xml.put(
-      "<subject " + attrName + "='" + this._fixXmlAttribute(id)
-      + "' type='" + this._fixXmlAttribute(subj.getType().getName())
-      + "' source='" + this._fixXmlAttribute(subj.getSource().getId())
+      "<subject " + attrName + "='" + XmlUtils.xmlE(id)
+      + "' type='" + XmlUtils.xmlE( subj.getType().getName() )
+      + "' source='" + XmlUtils.xmlE( subj.getSource().getId() )
       + "'" + immediate
     );
     if ("group".equals(subj.getType().getName())) {
@@ -1497,10 +1489,10 @@ public class XmlExporter {
     throws  IOException
   {
     this.xml.indent();
-    this.xml.puts("<source id=" + U.q( this._fixXmlAttribute(sa.getId()) )  );
+    this.xml.puts("<source id=" + U.q( XmlUtils.xmlE( sa.getId() ) )  );
     this.xml.indent();
-    this.xml.puts("name="       + U.q( sa.getName() )                       );
-    this.xml.puts("class="      + U.q( sa.getClass().getName() )            );
+    this.xml.puts("name="       + U.q( sa.getName() )                 );
+    this.xml.puts("class="      + U.q( sa.getClass().getName() )      );
     this.xml.undent();
     this.xml.puts(">");
     Iterator it = sa.getSubjectTypes().iterator();

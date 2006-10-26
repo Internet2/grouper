@@ -20,13 +20,13 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteXml.java,v 1.17 2006-10-18 15:22:12 blair Exp $
+ * @version $Id: SuiteXml.java,v 1.18 2006-10-26 17:09:54 blair Exp $
  * @since   1.0
  */
 public class SuiteXml extends TestCase {
 
   static public Test suite() {
-    // AVAILABLE: 0, 1, 30+
+    // AVAILABLE: 1, 30+
     TestSuite suite = new TestSuite();        
     suite.addTest( SuiteXmlExport.suite() );
     suite.addTest( SuiteXmlImport.suite() );
@@ -46,7 +46,8 @@ public class SuiteXml extends TestCase {
     suite.addTestSuite( TestXml27.class );  // update() - OK update mship (ADD)
     suite.addTestSuite( TestXml28.class );  // update() - OK update mship (IGNORE)
     suite.addTestSuite( TestXml29.class );  // update() - OK update mship (REPLACE) 
-  
+
+    suite.addTestSuite( TestXml0.class  );  // e: full with escapes -- i: full
     suite.addTestSuite( TestXml3.class  );  // e: full              -- i: full -- stem + attrs + privs
     suite.addTestSuite( TestXml4.class  );  // e: full              -- i: full -- stem: granted priv
     suite.addTestSuite( TestXml5.class  );  // e: full              -- i: full -- group + attrs + privs
