@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.77 2006-10-18 14:17:27 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.78 2006-10-26 16:09:05 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -369,15 +369,9 @@ public class XmlExporter {
             + "                     stem and child Stems or Groups"                 + GrouperConfig.NL
             + "  filename,          The file where exported data will be written."  + GrouperConfig.NL
             + "                     Will overwrite existing files"                  + GrouperConfig.NL
-            + "  properties,        The name of a standard Java properties file "   + GrouperConfig.NL
-            + "                     which configures the export. Check Javadoc for" + GrouperConfig.NL
-            + "                     a list of properties. If 'properties' is not "  + GrouperConfig.NL
-            + "                     specified, XmlExporter will look for "          + GrouperConfig.NL
-            + "                     'export.properties' in the working directory. " + GrouperConfig.NL
-            + "                     If this file does not exist XmlExporter will "  + GrouperConfig.NL
-            + "                     look on the classpath. If 'properties' is not " + GrouperConfig.NL
-            + "                     specified and 'export.properties' cannot be "   + GrouperConfig.NL
-            + "                     found, the export will fail."                   + GrouperConfig.NL
+            + "  properties,        The name of an optional Java properties file. " + GrouperConfig.NL
+            + "                     Values specified in this properties file will " + GrouperConfig.NL
+            + "                     override the default export behavior."          + GrouperConfig.NL
             ;
   } // private static String _getUsage()
 
