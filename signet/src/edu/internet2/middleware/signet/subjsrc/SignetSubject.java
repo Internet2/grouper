@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.1 2006-10-25 00:09:40 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.2 2006-10-27 21:46:35 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -301,9 +301,9 @@ public class SignetSubject implements Subject, Comparable
 	 * @param modifyDatetime The modifyDatetime to set.
 	 * Support for Hibernate
 	 */
-	public void setModifyDatetime(Date modifiyDatetime)
+	public void setModifyDatetime(Date modifyDatetime)
 	{
-		this.modifyDatetime = modifiyDatetime;
+		this.modifyDatetime = modifyDatetime;
 	}
 
 
@@ -955,7 +955,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @param fromGrantor
 	 * @param subsystem
 	 * @param returnReason
-	 * @return
+	 * @return true if Subject has usable proxy, otherwise false
 	 */
 	public boolean hasUsableProxy(
 			SignetSubject fromGrantor, Subsystem subsystem, Reason[] returnReason)
@@ -988,7 +988,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @param pSubject
 	 * @param subsystem
 	 * @param returnReason
-	 * @return
+	 * @return true if Subject has extensible proxy, otherwise false
 	 */
 	public boolean hasExtensibleProxy(
 			SignetSubject pSubject, Subsystem subsystem, Reason[] returnReason)

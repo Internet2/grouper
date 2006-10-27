@@ -117,11 +117,11 @@ public class SubjectFileLoader
    * Creates a new SubjectAttribute, and stores that value in the database.
    * This method updates the database, but does not commit any transaction.
    * 
-   * @param Subject
-   * @param name
-   * @param instance
-   * @param value
-   * @param searchValue
+   * @param subject The Subject that owns the attribute
+   * @param name The attribute name
+   * @param instance The sequence of the attribute value
+   * @param value The value associated with the new attribute
+   * @param searchValue The search value to associate with the attribute
    * @throws SQLException
    */
   public void newAttribute
@@ -215,7 +215,7 @@ public class SubjectFileLoader
    * @param subjectName
    * @param subjectDescription
    * @param subjectDisplayId
-   * @return
+   * @return A new Subject
    * @throws SQLException
    */
   public Subject newSubject
@@ -374,13 +374,13 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
     try {
 
     String lineData = "";
-    String lineData2 = "";
-    String lineData3 = "";
+//    String lineData2 = "";
+//    String lineData3 = "";
     String keyword = "";
     String value = "";
     String subjectSourceID = "";
-    String subjectID = "";
-    String subjectName = "";
+//    String subjectID = "";
+//    String subjectName = "";
     int    lineNumber = 0;
 
    /**
@@ -436,7 +436,7 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
     Subject subject = null;
     String  currAttributeName = "";
     String  prevAttributeName = "";
-    String  attributeName = "";
+//    String  attributeName = "";
     int     attributeInstance = 0;
 
    /**
@@ -463,7 +463,7 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
             // Get the subject header line
             lineData = lineData.substring(1);
             
-            subject = loader.processAddSubject(loader, lineData);
+            subject = SubjectFileLoader.processAddSubject(loader, lineData);
    
             currAttributeName = "";
             prevAttributeName = "";
@@ -471,7 +471,7 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
    
          } else {
    
-            currAttributeName = loader.processSubjectAttribute(loader, subject, lineData, prevAttributeName, attributeInstance);
+            currAttributeName = SubjectFileLoader.processSubjectAttribute(loader, subject, lineData, prevAttributeName, attributeInstance);
             if (currAttributeName.equals(prevAttributeName) ) {
                attributeInstance++;
             } else {
@@ -494,7 +494,7 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
     String subjectName = "";
     String inputSubjectType = "";
     String subjectNormalizedName = "";
-    String attributeName = "";
+//    String attributeName = "";
 
     StringTokenizer st = new StringTokenizer(lineData);
 
@@ -520,7 +520,7 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
      
     subjectName = lineData.substring(subjectID.length()+1);
     subjectName = subjectName.trim();
-    subjectNormalizedName = loader.normalizeString(subjectName);
+    subjectNormalizedName = SubjectFileLoader.normalizeString(subjectName);
 
     // System.out.println("--- SubjectID: " + subjectID + ", SubjectName: " + subjectName);
 

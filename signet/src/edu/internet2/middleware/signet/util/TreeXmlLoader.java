@@ -284,7 +284,7 @@ public class TreeXmlLoader
    * @param id
    * @param name
    * @param adapterClassName
-   * @return
+   * @return A new Tree
    * @throws SQLException
    */
   public Tree newTree

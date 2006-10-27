@@ -1,6 +1,6 @@
 /*--
-$Id: Function.java,v 1.9 2006-02-09 10:20:01 lmcrae Exp $
-$Date: 2006-02-09 10:20:01 $
+$Id: Function.java,v 1.10 2006-10-27 21:46:35 ddonn Exp $
+$Date: 2006-10-27 21:46:35 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -20,13 +20,11 @@ package edu.internet2.middleware.signet;
 
 import java.util.Set;
 
-import edu.internet2.middleware.subject.Subject;
-
 /**
 * Function organizes a group of {@link Permission}s. Each Function is
 * intended to correspond to a business-level task that a
-* {@link PrivilegedSubject} must perform in order to accomplish some business
-* operation.
+* {@link edu.internet2.middleware.signet.subjsrc.SignetSubject SignetSubject} must
+* perform in order to accomplish some business operation.
 * 
 */
 

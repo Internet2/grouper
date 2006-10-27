@@ -1,6 +1,6 @@
 /*--
-$Id: Privilege.java,v 1.4 2006-02-09 10:23:08 lmcrae Exp $
-$Date: 2006-02-09 10:23:08 $
+$Id: Privilege.java,v 1.5 2006-10-27 21:46:35 ddonn Exp $
+$Date: 2006-10-27 21:46:35 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -22,7 +22,8 @@ import java.util.Set;
 
 /**
  * This interface represents a single {@link Permission} held by a single
- * {@link PrivilegedSubject}, along with its {@link Limit}s.
+ * {@link edu.internet2.middleware.signet.subjsrc.SignetSubject SignetSubject},
+ * along with its {@link Limit}s.
  */
 
 public interface Privilege

@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.1 2006-10-25 00:09:40 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.2 2006-10-27 21:46:35 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -144,7 +144,7 @@ public class SignetSource implements Source
 	/**
 	 * Tests to see if this SignetSource supports the given usage (as defined in SubjectSources.xml)
 	 * @param usage The usage to test for
-	 * @returns True is usage is a match, false otherwise.
+	 * @return True is usage is a match, false otherwise.
 	 */
 	public boolean hasUsage(String usage)
 	{
@@ -171,7 +171,7 @@ public class SignetSource implements Source
 
 	/**
 	 * Supports Digester and SubjectSources.xml parsing
-	 * @return
+	 * @return Return the status (e.g. active | inactive)
 	 */
 	public String getStatus()
 	{
@@ -280,7 +280,7 @@ public class SignetSource implements Source
 	}
 
 	/**
-	 * @see edu.internet2.middleware.subject.Source#setName()
+	 * @see edu.internet2.middleware.subject.Source#setName(String)
 	 * Supports Digetster and SubjectSources.xml parsing: maps to xml property sourceName
 	 */
 	public void setSourceName(String name)
@@ -319,7 +319,7 @@ public class SignetSource implements Source
 	}
 
 	/**
-	 * @see edu.internet2.middleware.subject.Source#setName()
+	 * @see edu.internet2.middleware.subject.Source#setName(String)
 	 */
 	public void setName(String name)
 	{
@@ -357,7 +357,7 @@ public class SignetSource implements Source
 	/**
 	 * Tests to see if this SignetSource is of the given type.
 	 * @param type The type to test for
-	 * @returns True if this SignetSource matches the given type, false otherwise.
+	 * @return True if this SignetSource matches the given type, false otherwise.
 	 */
 	public boolean isSubjectType(String type)
 	{
@@ -468,7 +468,7 @@ public class SignetSource implements Source
 	 * Returns a Vector of SignetSubject objects from the SubjectAPI Source that
 	 * this SignetSource represents. It is implied that only Subject objects are
 	 * returned that match the Type specified for this SignetSource in SubjectSources.xml
-	 * @returns A Vector of SignetSubject objects, or empty Vector (never null!)
+	 * @return A Vector of SignetSubject objects, or empty Vector (never null!)
 	 */
 	public Vector getSubjects()
 	{

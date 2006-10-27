@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.1 2006-10-25 00:09:40 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.2 2006-10-27 21:46:35 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -309,7 +309,6 @@ System.out.println("SignetSources.addSource: about to add SignetSource:\n" + sig
 	 * Facade method for SignetSource.
 	 * @param subjectId The subject ID to match
 	 * @return The matching SignetSubject or null
-	 * @see edu.internet2.middleware.subject.Subject#getSubject()
 	 */
 	public SignetSubject getSubject(String sourceId, String subjectId)
 	{
@@ -535,7 +534,7 @@ System.out.println("SignetSources.addSource: about to add SignetSource:\n" + sig
 
 	/**
 	 * Returns a Vector of all SignetSource objects that match the given usage.
-	 * @returns Vector of SignetSource objects, or empty Vector (not null!)
+	 * @return Vector of SignetSource objects, or empty Vector (not null!)
 	 * 
 	 */
 	public Vector getSourcesByUsage(String usage)
@@ -557,7 +556,7 @@ System.out.println("SignetSources.addSource: about to add SignetSource:\n" + sig
 
 	/**
 	 * Returns a Vector of all SignetSource objects that match the given type.
-	 * @returns Vector of SignetSource objects, or empty Vector (not null!)
+	 * @return Vector of SignetSource objects, or empty Vector (not null!)
 	 * 
 	 */
 	public Vector getSourcesByType(String type)

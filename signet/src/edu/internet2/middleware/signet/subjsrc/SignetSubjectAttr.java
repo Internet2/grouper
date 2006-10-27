@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.1 2006-10-25 00:09:40 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.2 2006-10-27 21:46:35 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -161,7 +161,7 @@ public class SignetSubjectAttr
 	}
 
 	/**
-	 * @param name The name to set.
+	 * @param mappedName The name to set.
 	 */
 	public void setMappedName(String mappedName)
 	{
@@ -195,7 +195,7 @@ public class SignetSubjectAttr
 
 	/**
 	 * Replace the Attribute's set of Values and sets each Value's parent and sequence.
-	 * @param sourceValues A Set of Strings
+	 * @param values A Set of Strings
 	 */
 	public void setSourceValues(Set values)
 	{
@@ -214,13 +214,13 @@ public class SignetSubjectAttr
 	 * highest (1-based) number. Sets the value's parent reference.
 	 * @param value The SignetSubjectAttrValue to add
 	 */
-	public void addSourceValue(SignetSubjectAttrValue sourceValue)
+	public void addSourceValue(SignetSubjectAttrValue value)
 	{
-		if (null != sourceValue)
+		if (null != value)
 		{
-			sourceValues.add(sourceValue);
-			sourceValue.setSequence(sourceValues.size() - 1);
-			sourceValue.setParent(this);
+			sourceValues.add(value);
+			value.setSequence(sourceValues.size() - 1);
+			value.setParent(this);
 			refreshModifyDate();
 		}
 	}
@@ -228,7 +228,7 @@ public class SignetSubjectAttr
 	/**
 	 * Add another value to this attribute. Sets the value's sequence to the next
 	 * highest (1-based) number.
-	 * @param value A String to convert to a SignetSubjectAttrValue, then add
+	 * @param strValue A String to convert to a SignetSubjectAttrValue, then add
 	 */
 	public void addSourceValue(String strValue)
 	{

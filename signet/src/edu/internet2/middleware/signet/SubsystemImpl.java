@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemImpl.java,v 1.18 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: SubsystemImpl.java,v 1.19 2006-10-27 21:46:35 ddonn Exp $
+$Date: 2006-10-27 21:46:35 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -500,7 +500,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
   }
 
   /**
-   * @return
+   * @return true if granting can occur, otherwise false
    */
   public boolean isPopulatedForGranting()
   {

@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.1 2006-10-25 00:09:40 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.2 2006-10-27 21:46:35 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -241,7 +241,7 @@ public class PersistedSignetSource extends SignetSource
 	/**
 	 * Define the field used by Signet as the email contact
 	 * Supports Digetster and SubjectSources.xml parsing
-	 * @param contactEmail
+	 * @param email The email contact
 	 */
 	public void setContactEmail(String email)
 	{
@@ -372,7 +372,7 @@ public class PersistedSignetSource extends SignetSource
 	/**
 	 * Tests to see if this SignetSource supports the given usage (as defined in SubjectSources.xml)
 	 * @param usage The usage to test for
-	 * @returns True is usage is a match, false otherwise.
+	 * @return True if usage is a match, false otherwise.
 	 */
 	public boolean hasUsage(String usage)
 	{
@@ -438,7 +438,7 @@ public class PersistedSignetSource extends SignetSource
 
 	/**
 	 * Returns a Vector of SignetSubject objects from the Persisted store.
-	 * @returns A Vector of SignetSubject objects, or empty Vector (not null!)
+	 * @return A Vector of SignetSubject objects, or empty Vector (not null!)
 	 */
 	public Vector getSubjects()
 	{

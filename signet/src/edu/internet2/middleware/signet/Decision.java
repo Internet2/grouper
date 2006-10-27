@@ -1,6 +1,6 @@
 /*--
-$Id: Decision.java,v 1.2 2006-02-09 10:19:23 lmcrae Exp $
-$Date: 2006-02-09 10:19:23 $
+$Id: Decision.java,v 1.3 2006-10-27 21:46:35 ddonn Exp $
+$Date: 2006-10-27 21:46:35 $
 Copyright 2006 Internet2, Stanford University
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,8 @@ package edu.internet2.middleware.signet;
 
 /**
  * This class represents a yes-or-no decision regarding whether or not to
- * allow a specific {@link PrivilegedSubject} to perform a specific Signet
+ * allow a specific {@link edu.internet2.middleware.signet.subjsrc.SignetSubject SignetSubject}
+ * to perform a specific Signet
  * operation, along with the supporting information to explain why that
  * decision was made.
  */
