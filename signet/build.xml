@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.41 2006-06-30 02:04:41 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.42 2006-10-27 20:27:38 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -103,7 +103,7 @@
 			<pathelement location="${source_java.dir}" />
 			<pathelement location="${alt.local.java.dir}" />
 		</path>
-		<javadoc packagenames="edu.internet2.middleware.signet, edu.internet2.middleware.signet.choice, edu.internet2.middleware.signet.tree, edu.internet2.middleware.subject"
+		<javadoc packagenames="edu.internet2.middleware.signet, edu.internet2.middleware.signet.choice, edu.internet2.middleware.signet.dbpersist, edu.internet2.middleware.signet.reconcile, edu.internet2.middleware.signet.resource, edu.internet2.middleware.signet.subjsrc, edu.internet2.middleware.signet.tree, edu.internet2.middleware.signet.util"
 			destdir="${dist_doc.dir}"
 			access="public"
 			use="true"
@@ -194,6 +194,8 @@
 			depends="create_lib_fileset, create_altlib_fileset_yes" >
 		<path id="source.class.path" >
 			<fileset refid="source.lib.fileset" />
+			<fileset refid="i2mi_common_lib.fileset" />
+			<fileset refid="subjectApi_lib.fileset" />
 			<fileset refid="alt.local.lib.fileset" />
 		</path>
 	</target>
@@ -210,6 +212,8 @@
 			depends="create_lib_fileset, create_altlib_fileset_yes" >
 		<copy todir="${dist_lib.dir}" >
 			<fileset refid="source.lib.fileset" />
+			<fileset refid="i2mi_common_lib.fileset" />
+			<fileset refid="subjectApi_lib.fileset" />
 			<fileset refid="alt.local.lib.fileset" />
 		</copy>
 	</target>
@@ -219,6 +223,14 @@
 	<target name="create_lib_fileset" >
 		<fileset id="source.lib.fileset"
 			dir="${source_lib.dir}" >
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset id="i2mi_common_lib.fileset"
+			dir="${i2mi_common_lib.dir}" >
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset id="subjectApi_lib.fileset"
+			dir="${subjectApi_lib.dir}" >
 			<include name="**/*.jar" />
 		</fileset>
 	</target>
@@ -852,10 +864,11 @@
 	<target name="deploy_to_tomcat" >
 		<!-- Either use copy or stop/undeploy/deploy/start. -->
 
+<!--
 		<copy todir="${catalina_home}/webapps" file="${signet.war}" overwrite="true"/>
+-->
 
 		<!-- stop/undeploy/deploy/start requires signetBuildTomcatDefs.xml -->
-<!--
 		<stop username="${tomcat.manager.username}"
 				password="${tomcat.manager.password}"
 				url="${tomcat.manager.url}"
@@ -875,7 +888,6 @@
 				password="${tomcat.manager.password}"
 				url="${tomcat.manager.url}"
 				path="${tomcat.manager.signetpath}" />
- -->
 	</target>
 
 
