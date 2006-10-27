@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.8 2006-10-27 20:40:36 ddonn Exp $ -->
+
+<!--
+	Note that values that enclosed in "@" will be replaced during an
+	Ant build with values that are specified in buildSignet.properties
+-->
+
 <sources>
 
   <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
