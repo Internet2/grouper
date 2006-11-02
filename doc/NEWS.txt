@@ -1,9 +1,18 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.35 2006-10-26 18:28:19 blair Exp $
+$Id: NEWS.txt,v 1.36 2006-11-02 14:35:38 blair Exp $
 
 ---
 
+# Grouper 1.1
+
+Released: 20061102
+
+## Changes
+* No changes since 1.1.0rc3
+
+---
+ 
 # Grouper 1.1.0rc3
 
 Released: 20061026
