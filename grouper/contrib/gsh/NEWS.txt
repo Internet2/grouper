@@ -7,7 +7,7 @@ This file provides information on *GrouperShell* releases.
 
 ## GrouperShell 0.1.0
 
-Released: ????????
+Released: 20061102
 
 ### CHANGES
 * NEW:    Added methods for exporting-and-importing XML:
@@ -46,5 +46,5 @@ Released: 20060720
 
 ---
 
-$Id: NEWS.txt,v 1.8 2006-10-19 15:28:58 blair Exp $
+$Id: NEWS.txt,v 1.9 2006-11-02 14:35:37 blair Exp $
 
