@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SubSuiteSimpleWPCache.java,v 1.1 2006-10-17 16:12:00 blair Exp $
+ * @version $Id: SubSuiteSimpleWPCache.java,v 1.2 2006-11-03 18:30:55 blair Exp $
  * @since   1.1.0
  */
 public class SubSuiteSimpleWPCache extends TestCase {
@@ -44,6 +44,9 @@ public class SubSuiteSimpleWPCache extends TestCase {
 
     // revokePriv(o, subj, p)
 
+    // PROTECTED //
+    suite.addTestSuite( TestSimpleWPCache3.class ); // getMaxWheelAge()
+    
     return suite;
   } // static public Test suite()
 
