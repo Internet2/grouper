@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.36 2006-09-27 18:16:32 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.37 2006-11-03 18:30:55 blair Exp $
  */
 public class GrouperConfig {
 
@@ -61,6 +61,7 @@ public class GrouperConfig {
   protected static final String GWU           = "groups.wheel.use";
   protected static final String IST           = "application";
   protected static final String LIST          = "members";
+  protected static final String MAX_WHEEL_AGE = "edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge";
   protected static final String MSLGEA        = "memberships.log.group.effective.add";
   protected static final String MSLGED        = "memberships.log.group.effective.del";
   protected static final String MSLSEA        = "memberships.log.stem.effective.add";

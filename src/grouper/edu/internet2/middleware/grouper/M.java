@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Messages.
  * @author  blair christensen.
- * @version $Id: M.java,v 1.8 2006-10-23 14:35:03 blair Exp $
+ * @version $Id: M.java,v 1.9 2006-11-03 18:30:55 blair Exp $
  * @since   1.0
  */
 class M {
@@ -31,7 +31,6 @@ class M {
   protected static final String COMP_DEL            = "composite delete: group=";
   protected static final String COMP_MEMADD         = "add composite member: group=";
   protected static final String COMP_MEMDEL         = "delete composite member: group=";
-  protected static final String FOUND_WHEEL_GROUP   = "found wheel group";
   protected static final String G_AM                = "add member: group=";
   protected static final String G_AM_E              = "add effective member: group=";
   protected static final String G_DA                = "delete group attr: group=";
@@ -53,7 +52,6 @@ class M {
   protected static final String INNER_WITHIN_INNER  = "got inner session within inner session";
   protected static final String MEMBER_CHANGESID    = "changed member subjectId: uuid=";
   protected static final String MEMBER_CHANGE_SSID  = "changed member subject source id: uuid=";
-  protected static final String REUSING_WHEEL_GROUP = "reusing previously found wheel group";
   protected static final String S_GP                = "grant naming priv: stem=";
   protected static final String S_GP_E              = "grant effective naming priv: stem=";
   protected static final String S_RP                = "revoke naming priv: stem=";

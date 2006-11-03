@@ -22,16 +22,47 @@ import  java.util.*;
 /** 
  * A simple caching implementation of {@link PrivilegeCache} with better support
  * for wheel group-related privilege updates.
- * <p/>
+ * <p>
+ * The behavior of this cache was changed between Grouper 1.1 and Grouper 1.2.
+ * When an instance of this cache was initialized in 1.1, the wheel group would
+ * be retrieved and then cached for use in all future operations.  If changes
+ * were made to the wheel group outside of this session this cache could return
+ * stale privilege results.  This cache was modified in Grouper 1.2 to impose a
+ * maximum age on the cached wheel group.  If the cached wheel exceeds that
+ * maximum age it will be replaced by a freshly fetched instance of the wheel group.  
+ * The default maximum lifespan in Grouper 1.2 is 5 seconds (5000 milliseconds).
+ * This value can be adjusted by setting the
+ * <tt>edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge</tt>
+ * paramater in the <tt>conf/grouper.properties</tt> configuration file.
+ * </p>
+ * <pre class="eg">
+ * # File: `grouper.properties`
+ * # Refetch the cached wheel every 10 seconds instead of the default 5 seconds
+ * edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge = 10000
+ * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.5 2006-10-23 14:35:03 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.6 2006-11-03 18:30:55 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
 
+  // PROTECTED CLASS CONSTANTS //
+  protected static final long DEFAULT_MAX_AGE = 5000; // protected for testing purposes
+
+
+  // PRIVATE CLASS CONSTANTS //
+  private static final String EXPIRING_WHEEL_GROUP  = "expiring cached wheel group due to age";
+  private static final String FOUND_WHEEL_GROUP     = "found wheel group";
+  private static final String NULL_VALUE            = "null value";
+  private static final String REUSING_WHEEL_GROUP   = "reusing previously found wheel group";
+  private static final String USING_DEFAULT_MAX_AGE = "using default max age for wheel group: ";
+
+
   // PRIVATE INSTANCE VARIABLES //
-  private long  lastModified  = 0;
-  private Group wheel         = null;
+  private long  lastModified    = 0;
+  private long  maxWheelAge     = getMaxWheelAge();
+  private Group wheel           = null;
+  private long  wheelFetchTime  = 0;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -52,28 +83,29 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
       boolean useCached = true;
       if (Boolean.valueOf(GrouperConfig.getProperty(GrouperConfig.GWU))) {
         try {
-          // Does the wheel group exist?
-          if (this.wheel == null) {
-            this.wheel = GroupFinder.findByName(
+          // Does the wheel group exist or has it been too long since we last fetched it?
+          if ( (this.wheel == null) || this._isItTimeToUpdateWheel() ) {
+            this.wheel          = GroupFinder.findByName(
               o.getSession().getRootSession(), GrouperConfig.getProperty(GrouperConfig.GWG)
             );
-            DebugLog.info(SimpleWheelPrivilegeCache.class, M.FOUND_WHEEL_GROUP);
+            this.wheelFetchTime = new Date().getTime();
+            DebugLog.info(SimpleWheelPrivilegeCache.class, FOUND_WHEEL_GROUP);
           }
           else {
             this.wheel.setSession( o.getSession().getRootSession() );
-            DebugLog.info(SimpleWheelPrivilegeCache.class, M.REUSING_WHEEL_GROUP);
+            DebugLog.info(SimpleWheelPrivilegeCache.class, REUSING_WHEEL_GROUP);
           }
           // If the wheel group has been modified since the last time the cache
           // was updated then do not return the cached result.  Instead, let the
           // privilege resolution code resolve the privilege.
-          if (this.wheel.getModifyTime().getTime() > lastModified) {
+          if (this.wheel.getModifyTime().getTime() > this.lastModified) {
             useCached = false;  
           }
           // Otherwise return nothing and let the privilege resolution code
           // figure it out.
         }
         catch (GroupNotFoundException eGNF) {
-          // Ignore
+          useCached = false;
         }
       }
       if (useCached) {
@@ -97,7 +129,35 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
   } // public void put(o, subj, p, hasPriv)
 
 
+  // PROTECTED CLASS METHODS //
+
+  // `protected` for testing purposes
+  // @since   1.2.0
+  protected static long getMaxWheelAge() {
+    String val = GrouperConfig.getProperty(GrouperConfig.MAX_WHEEL_AGE);
+    try {
+      if (val == null) {
+        throw new NumberFormatException(NULL_VALUE);
+      }
+      return Long.parseLong(val);
+    }
+    catch (NumberFormatException eNF) {
+      DebugLog.info(SimpleWheelPrivilegeCache.class, USING_DEFAULT_MAX_AGE + eNF.getMessage());
+      return DEFAULT_MAX_AGE;
+    }
+  } // protected static long getMaxWheelAge()
+
+
   // PRIVATE INSTANCE METHODS //
+
+  // @since   1.2.0
+  private boolean _isItTimeToUpdateWheel() {
+    if ( (new Date().getTime() - this.wheelFetchTime) > this.maxWheelAge ) {
+      DebugLog.info(SimpleWheelPrivilegeCache.class, EXPIRING_WHEEL_GROUP);
+      return true;
+    }
+    return false;
+  } // private boolean _isItTimeToUpdateWheel()
 
   // @since   1.1.0
   private void _setLastModified() {
