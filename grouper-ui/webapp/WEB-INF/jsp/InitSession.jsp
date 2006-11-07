@@ -1,7 +1,7 @@
 <%-- @annotation@ Sets up LocalizationContext for JSTL --%>
 <%--
   @author Gary Brown.
-  @version $Id: InitSession.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: InitSession.jsp,v 1.2 2006-11-07 00:08:04 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -22,7 +22,7 @@ session.setAttribute("org.apache.struts.action.LOCALE",locale);
 
 
 
-<c:set var="sessionInited" scope="session" value="${grouper.locale}"/>
+<!--c:set var="sessionInited" scope="session" value="${grouper.locale}"/-->
 <!--/InitSession-->
 <%-- @annotation@ tiles:insert #1 --%>
 
