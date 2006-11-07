@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.6 2006-10-05 09:00:36 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.7 2006-11-07 00:29:54 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -45,12 +45,8 @@ public class SessionInitialiser {
 
 		String localeStr = request.getParameter("lang");
 		HttpSession session = request.getSession();
-		Locale locale = null;
-		if (localeStr == null) {
-			locale = Locale.getDefault();
-		} else {
-			locale = new Locale(localeStr);
-		}
+		Locale locale = createLocale(localeStr);
+		
 		session.setAttribute("org.apache.struts.action.LOCALE", locale);
 
 		org.apache.struts.config.ModuleConfig configx = (org.apache.struts.config.ModuleConfig) request
@@ -61,7 +57,7 @@ public class SessionInitialiser {
 		SessionInitialiser.init(module, locale.toString(), session);
 		session.setAttribute("javax.servlet.jsp.jstl.fmt.locale", locale);
 
-		session.setAttribute("sessionInited", localeStr);
+		//session.setAttribute("sessionInited", localeStr);
 
 	}
 
@@ -105,7 +101,7 @@ public class SessionInitialiser {
 		if (locale == null || locale.equals("")) {
 			locale = moduleInit.getString("default.locale");
 		}
-		Locale localeObj = new Locale(locale);
+		Locale localeObj = createLocale(locale);
 		ResourceBundle grouperBundle = ResourceBundle.getBundle(
 				"resources.grouper.nav", localeObj);
 		ResourceBundle grouperMediaBundle = ResourceBundle.getBundle(
@@ -199,4 +195,27 @@ public class SessionInitialiser {
 		String authUser = (String) session.getAttribute("authUser");
 		return authUser;
 	}
+	
+	public static Locale createLocale(String localeStr) {
+		if(localeStr==null || localeStr.equals("")) return Locale.getDefault();
+		String[] parts = localeStr.split("_");
+		Locale locale=null;
+		switch (parts.length) {
+		case 1:
+			locale = new Locale(parts[0]);
+			break;
+		case 2:
+			locale = new Locale(parts[0],parts[1]);
+			break;
+		case 3:
+			locale = new Locale(parts[0],parts[1],parts[2]);
+			break;
+
+		default:
+			throw new IllegalArgumentException("Wrong number of parts for locale: " + localeStr);
+			
+		}
+		return locale;
+	}
+
 }
