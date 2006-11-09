@@ -4,11 +4,14 @@
 This file provides more detailed information on future Grouper
 development as listed in `doc/ROADMAP.txt`.
 
-$Id: TODO.txt,v 1.69 2006-10-26 17:09:54 blair Exp $
+$Id: TODO.txt,v 1.70 2006-11-09 19:56:00 blair Exp $
 
 ---
 
 ## Next Release
+* FEATURE   Allow querying for groups by custom group type, both
+            in GroupFinder and as a QueryFilter. [bugzilla#585]
+
 
 ## Later
 * REFACTOR  Stop manually generating XML in `XmlExporter`.  Look into using
@@ -37,6 +40,6 @@ $Id: TODO.txt,v 1.69 2006-10-26 17:09:54 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.69 2006-10-26 17:09:54 blair Exp $
+$Id: TODO.txt,v 1.70 2006-11-09 19:56:00 blair Exp $
 
 
