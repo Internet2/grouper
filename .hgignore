@@ -1,0 +1,14 @@
+syntax: glob
+*~
+*.bak
+*.class
+*.log
+*.log.*
+*.o
+*.swp
+build/
+conf/grouper.hibernate.properties
+conf/log4j.properties
+conf/server.properties
+conf/sources.xml
+dist/
