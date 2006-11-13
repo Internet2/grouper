@@ -16,67 +16,62 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+import  edu.internet2.middleware.subject.*;
 import  org.apache.commons.logging.*;
 
 /**
- * Test {@link MemberFinder}.
- * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberFinder.java,v 1.4 2006-09-06 19:50:21 blair Exp $
+ * @version $Id: TestMemberFinder_FindBySubject.java,v 1.1 2006-11-13 16:47:50 blair Exp $
+ * @since   1.2.0
  */
-public class TestMemberFinder extends TestCase {
-
-  // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestMemberFinder.class);
-
-
-  public TestMemberFinder(String name) {
+public class TestMemberFinder_FindBySubject extends GrouperTest {
+  private static final Log LOG = LogFactory.getLog(TestMemberFinder_FindBySubject.class);
+  public TestMemberFinder_FindBySubject(String name) {
     super(name);
   }
-
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.reset();
   }
-
   protected void tearDown () {
     LOG.debug("tearDown");
   }
 
 
-  // Tests
+  // TESTS //
 
-  public void testFindBySubjectBadSubject() {
-    LOG.info("testFindBySubjectBadSubject");
-    MemberHelper.getMemberBySubjectBad(
-      SessionHelper.getRootSession(), null
-    );
-    Assert.assertTrue("failed to find bad member", true);
-  } // public void testFindBySubjectBadSubject()
-
-  public void testFindBySubject() {
-    LOG.info("testFindBySubject");
+  public void testFailToFindByNullSubject() {
+    LOG.info("testFailToFindByNullSubject");
     try {
-      GrouperSession  s   = SessionHelper.getRootSession();
-      String          id  = "GrouperSystem";
-      Member          m   = MemberHelper.getMemberBySubject(
-        s, SubjectTestHelper.getSubjectById(id)
+      MemberFinder.findBySubject(
+        GrouperSession.start( SubjectFinder.findRootSubject() ),
+        null
       );
-      Assert.assertTrue("found member", true);
-      if (s.getMember().equals(m)) {
-        Assert.assertTrue("s.getMember().equals(m)", true);
-      } 
-      else {
-        Assert.fail("s.getMember().equals(m)");
-      }
-      s.stop();
+      fail("found member by null subject");
+    }
+    catch (MemberNotFoundException eMNF) {
+      assertTrue("OK: did not find member by null subject", true);
     }
     catch (Exception e) {
-      Assert.fail(e.getMessage());
+      T.e(e);
     }
-  } // public void testFindBySubject()
+  } // public void testFailToFindByNullSubject()
 
+  public void testFindGrouperSystemBySubject() {
+    LOG.info("testFindGrouperSystemBySubject");
+    try {
+      MemberFinder.findBySubject(
+        GrouperSession.start( SubjectFinder.findRootSubject() ),
+        SubjectFinder.findRootSubject()
+      );
+      assertTrue("OK: found member by subject", true);
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testFindGrouperSystemBySubject()
+
+/*
   public void testFindByUuid() {
     LOG.info("testFindByUuid");
     try {
@@ -94,6 +89,7 @@ public class TestMemberFinder extends TestCase {
       Assert.fail(e.getMessage());
     } 
   } // public void testFindByUuid()
+*/
 
-}
+} // public class TestMemberFinder_FindBySubject
 
