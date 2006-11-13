@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMembers.java,v 1.7 2006-10-18 15:40:53 blair Exp $
+ * @version $Id: SuiteMembers.java,v 1.8 2006-11-13 16:47:50 blair Exp $
  */
 public class SuiteMembers extends TestCase {
 
@@ -65,7 +65,6 @@ public class SuiteMembers extends TestCase {
     // TODO 20060927 Split pre-existing tests
     suite.addTestSuite( TestMember.class        );
     suite.addTestSuite( TestMemberToGroup.class );
-    suite.addTestSuite( TestMemberFinder.class );
     return suite;
   } // static public Test suite()
 

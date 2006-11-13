@@ -21,27 +21,28 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.15 2006-10-18 15:40:53 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.16 2006-11-13 16:47:50 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest(  SuiteSettings.suite()     );
-    suite.addTest(  SuiteSessions.suite()     );
-    suite.addTest(  SuiteStems.suite()        );
-    suite.addTest(  SuiteGroupTypes.suite()   );
-    suite.addTest(  SuiteGroups.suite()       );
-    suite.addTest(  SuiteComposites.suite()   );
-    suite.addTest(  SuiteSubjects.suite()     );
-    suite.addTest(  SuiteMembers.suite()      );
-    suite.addTest(  SuiteMemberships.suite()  );
-    suite.addTest(  SuiteMemberOf.suite()     );
-    suite.addTest(  SuiteQueries.suite()      );
-    suite.addTest(  SuiteAccessPrivs.suite()  );
-    suite.addTest(  SuiteXml.suite()          );
-    suite.addTest(  SuiteWheelGroup.suite()   );
-    suite.addTest(  SuitePrivCache.suite()    );
+    suite.addTest( SuiteSettings.suite()     );
+    suite.addTest( SuiteSessions.suite()     );
+    suite.addTest( SuiteStems.suite()        );
+    suite.addTest( SuiteGroupTypes.suite()   );
+    suite.addTest( SuiteGroups.suite()       );
+    suite.addTest( SuiteComposites.suite()   );
+    suite.addTest( SuiteSubjects.suite()     );
+    suite.addTest( SuiteMembers.suite()      );
+    suite.addTest( SuiteMemberFinder.suite() );
+    suite.addTest( SuiteMemberships.suite()  );
+    suite.addTest( SuiteMemberOf.suite()     );
+    suite.addTest( SuiteQueries.suite()      );
+    suite.addTest( SuiteAccessPrivs.suite()  );
+    suite.addTest( SuiteXml.suite()          );
+    suite.addTest( SuiteWheelGroup.suite()   );
+    suite.addTest( SuitePrivCache.suite()    );
     return suite;
   } // static public Test suite()
 
