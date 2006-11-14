@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.139 2006-11-03 18:30:54 blair Exp $ -->
+<!-- $Id: build.xml,v 1.140 2006-11-14 20:32:41 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -258,8 +258,7 @@
     <unzip dest="${build.lib}">
       <fileset dir="${lib}">
         <include name="*.jar"/>
-        <exclude name="**/Grobo*.jar"/>
-        <exclude name="**/junit.jar"/>
+        <exclude name="**/UmlGraph-*.jar"/>
       </fileset>
     </unzip>
     <!-- be sure to include _java/lib/README_ -->
@@ -395,6 +394,41 @@
     </javadoc>
   </target>
   <!-- html -->
+
+  <!-- html-uml -->
+  <target name="html-uml" depends="build" description="generate public api docs with uml graphs">
+    <delete dir="${build.javadoc}"/>
+    <mkdir  dir="${build.javadoc}"/>
+    <javadoc  destdir="${build.javadoc}"
+              author="true"
+              version="true"
+              access="public"
+              stylesheetfile="${basedir}/doc/stylesheet.css"
+              classpathref="project.classpath" 
+    >
+      <packageset dir="${src.grouper}" defaultexcludes="yes">
+        <exclude name="edu/internet2/middleware/grouper/bench/**"/>
+        <exclude name="edu/internet2/middleware/grouper/prof/**"/>
+      </packageset>
+      <doclet name="gr.spinellis.umlgraph.doclet.UmlGraphDoc" path="${lib}/UMLGraph-4.4.jar">
+        <param  name="-inferrel"/>
+        <param  name="-inferdep"/>
+        <param  name="-hide" value="java.*"/>
+        <param  name="-collpackages" value="java.util.*"/>
+        <param  name="-qualify"/>
+        <param  name="-postfixpackage"/>
+        <param  name="-nodefontsize" value="9"/>
+        <param  name="-nodefontpackagesize" value="7"/>
+        <param  name="-link" value="http://java.sun.com/j2se/1.5.0/docs/guide/javadoc/doclet/spec"/>
+        <param  name="-link" value="http://java.sun.com/j2se/1.5/docs/api"/>
+        <param  name="-attributes"/>
+        <param  name="-operations"/>
+        <param  name="-constructors"/>
+        <param  name="-types"/>
+      </doclet>
+    </javadoc>
+  </target>
+  <!-- html-uml -->
 
   <!-- hsqldb -->
   <target name="hsqldb" 

@@ -120,7 +120,17 @@ logging services for purposes of application debugging and auditing."
 * License:  Apache License, Version 2.0 (?)
 * Updated:  20060627
 
+# UmlGraph-4.4.jar
+
+"UMLGraph allows the declarative specification and drawing of UML class and
+sequence diagrams."
+
+* Version:  4.4
+* Source:   <http://www.spinellis.gr/sw/umlgraph/>
+* License:  BSD
+* Updated:  20061114
+
 ---
 
-$Id: README.txt,v 1.6 2006-10-13 19:17:20 blair Exp $
+$Id: README.txt,v 1.7 2006-11-14 20:32:41 blair Exp $
 
