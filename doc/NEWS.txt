@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.37 2006-11-03 18:30:54 blair Exp $
+$Id: NEWS.txt,v 1.38 2006-11-14 20:32:41 blair Exp $
 
 ---
 
@@ -9,6 +9,8 @@ $Id: NEWS.txt,v 1.37 2006-11-03 18:30:54 blair Exp $
 Estimated Release: 200703
 
 ## Changes
+* NEW:    Added `lib/UmlGraph-4.4.jar` and `html-uml` ant target for generating
+          Javadoc with (poorly) embedded UML graphs.
 * UPDATE: Changed caching of wheel group in `SimpleWheelPrivilegeCache` by
           setting a TTL on the lifespan of the cached group.  The default TTL is
           5 seconds.  This value can be customized by setting the 
