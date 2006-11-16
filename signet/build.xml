@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.42 2006-10-27 20:27:38 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.43 2006-11-16 16:01:40 lmcrae Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -889,7 +889,6 @@
 				url="${tomcat.manager.url}"
 				path="${tomcat.manager.signetpath}" />
 	</target>
-
 
 </project>
 
