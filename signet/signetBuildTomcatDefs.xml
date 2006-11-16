@@ -1,5 +1,5 @@
 <!--
-	$Header: /home/hagleyj/i2mi/signet/signetBuildTomcatDefs.xml,v 1.1 2006-06-08 21:16:04 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/signetBuildTomcatDefs.xml,v 1.2 2006-11-16 16:00:24 lmcrae Exp $
 
 	Tomcat-specific Ant tasks
 
@@ -20,12 +20,12 @@
 	  These properties define custom tasks for the Ant build tool that interact
 	  with the "/manager" web application installed with Tomcat 5.  Before they
 	  can be successfully utilized, you must perform the following steps:
-	  - Copy the file "server/lib/catalina-ant.jar" from your Tomcat 5
-	    installation into the "lib" directory of your Ant installation.
-	  - Create a "build.properties" file in your application's top-level
-	    source directory (or your user login home directory) that defines
-	    appropriate values for the "manager.password", "manager.url", and
-	    "manager.username" properties described above.
+	   - Copy the file "server/lib/catalina-ant.jar" from your Tomcat 5
+	     installation into the "lib" directory of your Ant installation.
+	   - Create a "build.properties" file in your application's top-level
+	     source directory (or your user login home directory) that defines
+	     appropriate values for the "manager.password", "manager.url", and
+	     "manager.username" properties described above.
 	  For more information about the Manager web application, and the functionality
 	  of these tasks, see <http://localhost:8080/tomcat-docs/manager-howto.html>.
 	-->
