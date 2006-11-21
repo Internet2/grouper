@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.5 2006-06-07 19:02:11 esluss Exp $
-$Date: 2006-06-07 19:02:11 $
+$Id: JDBCSourceAdapter.java,v 1.6 2006-11-21 18:51:29 ddonn Exp $
+$Date: 2006-11-21 18:51:29 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,7 +35,6 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
-import edu.internet2.middleware.subject.SubjectType;
 
 
 /**
@@ -45,16 +43,16 @@ import edu.internet2.middleware.subject.SubjectType;
 public class JDBCSourceAdapter
         extends BaseSourceAdapter {
     
-    private static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
-    
-    String nameAttributeName = null;
-    String subjectIDAttributeName = null;
-    String descriptionAttributeName = null;
-    String subjectTypeString = null;
-    
-    
-    private DataSource dataSource;
-    
+	private static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
+	
+	protected String nameAttributeName;
+	protected String subjectIDAttributeName;
+	protected String descriptionAttributeName;
+	protected String subjectTypeString;
+
+	protected DataSource dataSource;
+
+
     /**
      * Allocates new JDBCSourceAdapter;
      */
@@ -159,8 +157,8 @@ public class JDBCSourceAdapter
             if (!descriptionAttributeName.equals("")) {
                 description = rs.getString(descriptionAttributeName);
             }
-            subject = new JDBCSubject(subjectID,name, description, this.getSubjectType(), this);
-            loadAttributes(subject, rs);
+            Map attributes = loadAttributes(rs);
+            subject = new JDBCSubject(subjectID,name, description, this.getSubjectType(), this, attributes);
         } catch (SQLException ex) {
             log.error("SQLException occurred: " + ex.getMessage(), ex);
         }
@@ -169,9 +167,6 @@ public class JDBCSourceAdapter
     
     private Subject createUniqueSubject(ResultSet rs, Search search, String searchValue)
     throws SubjectNotFoundException,SubjectNotUniqueException {
-        String name = "";
-        String subjectID = "";
-        String description = "";
         Subject subject =null;
         try {
             if (rs == null || !rs.next()) {
@@ -212,7 +207,7 @@ public class JDBCSourceAdapter
     /**
      * Loads attributes for the argument subject.
      */
-    protected Map loadAttributes(JDBCSubject subject, ResultSet rs) {
+    protected Map loadAttributes(ResultSet rs) {
         Map attributes = new HashMap();
         try {
             ResultSetMetaData rsmd = rs.getMetaData();
@@ -240,7 +235,7 @@ public class JDBCSourceAdapter
                 }
                 values.add(value);
             }
-            subject.setAttributes(attributes);
+
         } catch (SQLException ex) {
             log.debug("SQLException occurred: " + ex.getMessage(), ex);
         }
@@ -287,11 +282,11 @@ public class JDBCSourceAdapter
     throws SourceUnavailableException {
         
         GenericObjectPool objectPool = new GenericObjectPool(null);
-        int maxActive = Integer.parseInt((String)props.getProperty("maxActive", "2"));
+        int maxActive = Integer.parseInt(props.getProperty("maxActive", "2"));
         objectPool.setMaxActive(maxActive);
-        int maxIdle = Integer.parseInt((String)props.getProperty("maxIdle", "2"));
+        int maxIdle = Integer.parseInt(props.getProperty("maxIdle", "2"));
         objectPool.setMaxIdle(maxIdle);
-        int maxWait = 1000 * Integer.parseInt((String)props.getProperty("maxWait", "5"));
+        int maxWait = 1000 * Integer.parseInt(props.getProperty("maxWait", "5"));
         objectPool.setMaxWait(maxWait);
         objectPool.setWhenExhaustedAction(GenericObjectPool.WHEN_EXHAUSTED_BLOCK);
         
@@ -348,7 +343,7 @@ public class JDBCSourceAdapter
     
     
     
-    private void closeConnection(Connection conn) {
+    protected void closeConnection(Connection conn) {
         if (conn != null) {
             try {
                 conn.close();
@@ -358,7 +353,7 @@ public class JDBCSourceAdapter
         }
     }
     
-    private void closeStatement(Statement stmt) {
+    protected void closeStatement(Statement stmt) {
         if (stmt != null) {
             try {
                 stmt.close();
@@ -367,4 +362,39 @@ public class JDBCSourceAdapter
             }
         }
     }
+
+	/**
+	 * @return the descriptionAttributeName
+	 */
+	public String getDescriptionAttributeName()
+	{
+		return descriptionAttributeName;
+	}
+
+	/**
+	 * @return the nameAttributeName
+	 */
+	public String getNameAttributeName()
+	{
+		return nameAttributeName;
+	}
+
+	/**
+	 * @return the subjectIDAttributeName
+	 */
+	public String getSubjectIDAttributeName()
+	{
+		return subjectIDAttributeName;
+	}
+
+	/**
+	 * @return the subjectTypeString
+	 */
+	public String getSubjectTypeString()
+	{
+		return subjectTypeString;
+	}
+
+
+
 }

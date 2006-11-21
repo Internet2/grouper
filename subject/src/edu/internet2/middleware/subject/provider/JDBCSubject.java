@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSubject.java,v 1.3 2006-06-07 19:03:54 esluss Exp $
-$Date: 2006-06-07 19:03:54 $
+$Id: JDBCSubject.java,v 1.4 2006-11-21 18:51:29 ddonn Exp $
+$Date: 2006-11-21 18:51:29 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -28,19 +28,28 @@ public class JDBCSubject
     
     private static Log log = LogFactory.getLog(JDBCSubject.class);
     
-    private JDBCSourceAdapter adapter;
+    protected JDBCSourceAdapter adapter;
     
-    private String id;
-    private String name;
-    private String description = null;
-    private String descriptionName;
-    private SubjectType type = null;
-    private Map attributes = null;
+    protected String id;
+    protected String name;
+    protected String description;
+    protected SubjectType type;
+    protected Map attributes;
     
+    /** Public default constructor. It allows subclassing of JDBCSubject! */
+    public JDBCSubject()
+    {
+    	id = null;
+    	name = null;
+    	description = null;
+    	type = null;
+    	attributes = null;
+    }
+
         /*
          * Constructor called by SourceManager.
          */
-    protected JDBCSubject(String id, String name, String description,
+    public JDBCSubject(String id, String name, String description,
             SubjectType type, JDBCSourceAdapter adapter) {
         log.debug("Name = "  + name);
         this.id = id;
@@ -48,6 +57,25 @@ public class JDBCSubject
         this.type = type;
         this.description =description;
         this.adapter = adapter;
+    }
+    
+
+    /**
+     * Constructor that takes the subject's attributes. Needed because the
+     * setAttributes() method is protected.
+     * @param id The subject ID
+     * @param name The subject name
+     * @param description The subject description
+     * @param type The subject type
+     * @param adapter The SourceAdapter
+     * @param attributes The subject attributes
+     */
+    public JDBCSubject(String id, String name, String description,
+            SubjectType type, JDBCSourceAdapter adapter,
+            Map attributes)
+    {
+    	this(id, name, description, type, adapter);
+        setAttributes(attributes);
     }
     
     
