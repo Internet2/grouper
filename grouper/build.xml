@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.140 2006-11-14 20:32:41 blair Exp $ -->
+<!-- $Id: build.xml,v 1.141 2006-11-27 15:04:37 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -357,7 +357,7 @@
   <!-- findbugs -->
   <target name="findbugs" depends="dist,dist-lib">
     <taskdef  name="findbugs"       classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
-    <property name="findbugs.home"  location="${user.home}/Applications/findbugs-1.1.0"/>
+    <property name="findbugs.home"  location="${user.home}/Applications/findbugs"/>
     <findbugs home="${findbugs.home}"
               effort="max"
               reportLevel="low"
