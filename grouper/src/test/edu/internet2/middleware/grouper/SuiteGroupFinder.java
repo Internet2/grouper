@@ -20,24 +20,20 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SubSuiteGFinder.java,v 1.1 2006-10-11 18:16:09 blair Exp $
- * @since   1.1.0
+ * @version $Id: SuiteGroupFinder.java,v 1.1 2006-11-27 17:41:44 blair Exp $
+ * @since   1.2.0
  */
-public class SubSuiteGFinder extends TestCase {
+public class SuiteGroupFinder extends TestCase {
 
-  public SubSuiteGFinder(String name) {
+  public SuiteGroupFinder(String name) {
     super(name);
   }
 
   static public Test suite() {
     TestSuite suite = new TestSuite();        
-    suite.addTestSuite( TestGFinder0.class ); // findByAttribute() - GNF
-    suite.addTestSuite( TestGFinder1.class ); // findByAttribute() - OK
-    suite.addTestSuite( TestGFinder2.class ); // findByAttribute() - null session
-    suite.addTestSuite( TestGFinder3.class ); // findByAttribute() - null attr
-    suite.addTestSuite( TestGFinder4.class ); // findByAttribute() - null val
+    suite.addTestSuite( TestGroupFinder_FindByAttribute.class );
     return suite;
   } // static public Test suite()
 
-} // public class SubSuiteGFinder
+} // public class SuiteGroupFinder
 
