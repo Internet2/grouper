@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteGroupFinder.java,v 1.1 2006-11-27 17:41:44 blair Exp $
+ * @version $Id: SuiteGroupFinder.java,v 1.2 2006-11-27 18:38:43 blair Exp $
  * @since   1.2.0
  */
 public class SuiteGroupFinder extends TestCase {
@@ -32,6 +32,7 @@ public class SuiteGroupFinder extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();        
     suite.addTestSuite( TestGroupFinder_FindByAttribute.class );
+    suite.addTestSuite( TestGroupFinder_FindByType.class );
     return suite;
   } // static public Test suite()
 

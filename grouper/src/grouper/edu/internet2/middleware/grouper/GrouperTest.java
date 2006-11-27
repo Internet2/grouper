@@ -24,7 +24,7 @@ import  junit.framework.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.7 2006-10-16 18:39:40 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.8 2006-11-27 18:38:43 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -73,6 +73,26 @@ public class GrouperTest extends TestCase {
     try {
       GroupFinder.findByName(s, name);
       fail(U.qp(msg) + "unexpectedly found group by name: " + name);
+    }
+    catch (GroupNotFoundException eGNF) {
+      assertTrue(msg, true);
+    }
+  } // public void assertDoNotFindGroupByName(s, name, msg)
+
+  /**  
+   * @since   1.2.0
+   */
+  public void assertDoNotFindGroupByType(GrouperSession s, GroupType type) {
+    assertDoNotFindGroupByType(s, type, GrouperConfig.EMPTY_STRING);
+  } // public void assertDoNotFindGroupByType(s, type)
+
+  /**  
+   * @since   1.2.0
+   */
+  public void assertDoNotFindGroupByType(GrouperSession s, GroupType type, String msg) {
+    try {
+      GroupFinder.findByType(s, type);
+      fail(U.qp(msg) + "unexpectedly found group by type: " + type);
     }
     catch (GroupNotFoundException eGNF) {
       assertTrue(msg, true);
@@ -153,6 +173,29 @@ public class GrouperTest extends TestCase {
     }
     return g;
   } // public Group assertFindGroupByName(s, name, msg)
+
+  /**  
+   * @since   1.2.0
+   */
+  public Group assertFindGroupByType(GrouperSession s, GroupType type) {
+    return assertFindGroupByType(s, type, GrouperConfig.EMPTY_STRING);
+  } // public Group assertFindGroupByType(s, type)
+
+  /**  
+   * @since   1.2.0
+   */
+  public Group assertFindGroupByType(GrouperSession s, GroupType type, String msg) {
+    Group g = null;
+    try {
+      g = GroupFinder.findByType(s, type);
+      assertTrue(msg, true);
+      assertGroupHasType(g, type, true);
+    }
+    catch (GroupNotFoundException eGNF) {
+      fail(U.qp(msg) + "did not find group (" + type + ") by type: " + eGNF.getMessage());
+    }
+    return g;
+  } // public Group assertFindGroupByType(s, type, msg)
 
   /** 
    * @since   1.1.0
