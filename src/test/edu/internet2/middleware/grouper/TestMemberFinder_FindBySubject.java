@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberFinder_FindBySubject.java,v 1.1 2006-11-13 16:47:50 blair Exp $
+ * @version $Id: TestMemberFinder_FindBySubject.java,v 1.2 2006-11-27 17:41:44 blair Exp $
  * @since   1.2.0
  */
 public class TestMemberFinder_FindBySubject extends GrouperTest {
@@ -70,26 +70,6 @@ public class TestMemberFinder_FindBySubject extends GrouperTest {
       T.e(e);
     }
   } // public void testFindGrouperSystemBySubject()
-
-/*
-  public void testFindByUuid() {
-    LOG.info("testFindByUuid");
-    try {
-      GrouperSession  s   = SessionHelper.getRootSession();
-      Member          mBS = MemberFinder.findBySubject(s, s.getSubject());
-      Assert.assertNotNull("mBS !null", mBS);
-      Assert.assertTrue("mBS instanceof Member", mBS instanceof Member);
-      Member          mBU = MemberFinder.findByUuid(s, mBS.getUuid());
-      Assert.assertNotNull("mBU !null", mBU);
-      Assert.assertTrue("mBU instanceof Member", mBU instanceof Member);
-      Assert.assertTrue("mBS == mBU", mBS.equals(mBU));
-      s.stop();
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    } 
-  } // public void testFindByUuid()
-*/
 
 } // public class TestMemberFinder_FindBySubject
 
