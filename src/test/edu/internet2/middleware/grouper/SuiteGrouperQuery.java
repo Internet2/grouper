@@ -20,12 +20,15 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteQueries.java,v 1.7 2006-10-17 13:38:22 blair Exp $
+ * @version $Id: SuiteGrouperQuery.java,v 1.1 2006-11-27 19:43:06 blair Exp $
+ * @since   1.2.0
  */
-public class SuiteQueries extends TestCase {
+public class SuiteGrouperQuery extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
+    suite.addTestSuite( TestGroupTypeFilter.class );
+    // TODO 20061127 Rearrange
     suite.addTestSuite( TestQuery0.class                );  // StemDisplayExtensionFilter - nothing
     suite.addTestSuite( TestQuery1.class                );  // StemDisplayExtensionFilter - something
     suite.addTestSuite( TestQuery2.class                );  // StemDisplayExtensionFilter - something scoped
@@ -46,7 +49,6 @@ public class SuiteQueries extends TestCase {
     suite.addTestSuite( TestQuery17.class               );  // GroupModifiedBefore - something scoped
     suite.addTestSuite( TestQuery18.class               );  // MembershipCreatedAfter
     suite.addTestSuite( TestQuery19.class               );  // MembershipCreatedBefore
-    // TODO 20060927 Split pre-existing tests
     suite.addTestSuite( TestGQComplementFilter.class    );
     suite.addTestSuite( TestGQGroupAnyAttribute.class   );
     suite.addTestSuite( TestGQGroupAttribute.class      );
@@ -62,5 +64,5 @@ public class SuiteQueries extends TestCase {
     return suite;
   } // static public Test suite()
 
-}
+} // public class SuiteGrouperQuery extends TestCase
 

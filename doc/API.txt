@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.39 2006-11-27 18:38:43 blair Exp $
+$Id: API.txt,v 1.40 2006-11-27 19:43:06 blair Exp $
 
 ---
 
@@ -294,6 +294,8 @@ $Id: API.txt,v 1.39 2006-11-27 18:38:43 blair Exp $
 * void                  delete(GrouperSession)
 * void                  deleteField(GrouperSession, name)
 * Set                   getFields()
+
+## GroupTypeFilter extends BaseQueryFilter
 
 ## GroupTypeFinder
 * GroupType             GroupTypeFinder.find(name)

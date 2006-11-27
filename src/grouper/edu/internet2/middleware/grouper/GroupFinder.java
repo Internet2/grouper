@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.33 2006-11-27 18:38:43 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.34 2006-11-27 19:43:06 blair Exp $
  */
 public class GroupFinder {
 
@@ -135,26 +135,14 @@ public class GroupFinder {
   {
     Validator.argNotNull( s,    "null session" );
     Validator.argNotNull( type, "null type"    );
-    // TODO 20061127 can i use a variant of this query in `GroupType.delete()`?
     try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Group as g where :type in elements(g.group_types)"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByType");
-      qry.setParameter("type", type);
-      Group g = (Group) qry.uniqueResult();
-      hs.close();
-      if (g != null) {
-        g.setSession(s);
-        if (s.getMember().canView(g)) {
-          return g;
-        }
+      Set groups = findAllByType(s, type);
+      if (groups.size() == 1) {
+        return (Group) new ArrayList(groups).get(0);
       }
     }
-    catch (HibernateException eH) {
-      throw new GroupNotFoundException(ERR_FINDBYTYPE + eH.getMessage(), eH);
+    catch (QueryException eQ) {
+      throw new GroupNotFoundException(ERR_FINDBYTYPE + eQ.getMessage(), eQ);
     }
     throw new GroupNotFoundException(ERR_FINDBYTYPE + U.q( type.toString() ));
   } // public static Group findByType(s, type)
@@ -189,6 +177,36 @@ public class GroupFinder {
 
 
   // PROTECTED CLASS METHODS //
+
+  // TODO 20061127 can i use a variant of this query in `GroupType.delete()`?
+  // @since   1.2.0
+  protected static Set findAllByType(GrouperSession s, GroupType type) 
+    throws  QueryException
+  {
+    try {
+      Session   hs      = HibernateHelper.getSession();
+      Query     qry     = hs.createQuery(
+        "from Group as g where :type in elements(g.group_types)"
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllByType");
+      qry.setParameter("type", type);
+      List      l       = qry.list();
+      Set       groups  = new LinkedHashSet();
+      Iterator  it      = l.iterator(); // Instead of qry.iterate() in order to avoid lazy instantiation issues 
+      hs.close();
+      Group     g;
+      while (it.hasNext()) {
+        g = (Group) it.next();
+        g.setSession(s);
+        groups.add(g);  
+      }
+      return PrivilegeResolver.canViewGroups(s, groups);
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(eH.getMessage(), eH);
+    }
+  } // protected static Set findAllByType(s, type)
 
   // @return  groups created after this date
   protected static Set findByCreatedAfter(GrouperSession s, Date d) 
