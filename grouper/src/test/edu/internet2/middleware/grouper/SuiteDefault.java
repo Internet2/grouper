@@ -21,7 +21,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.17 2006-11-27 17:41:44 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.18 2006-11-27 19:43:06 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -32,6 +32,7 @@ public class SuiteDefault extends TestCase {
     suite.addTest( SuiteStems.suite()        );
     suite.addTest( SuiteGroupTypes.suite()   );
     suite.addTest( SuiteGroups.suite()       );
+    suite.addTest( SuiteGrouperQuery.suite() );
     suite.addTest( SuiteGroupFinder.suite()  );
     suite.addTest( SuiteComposites.suite()   );
     suite.addTest( SuiteSubjects.suite()     );
@@ -39,7 +40,6 @@ public class SuiteDefault extends TestCase {
     suite.addTest( SuiteMemberFinder.suite() );
     suite.addTest( SuiteMemberships.suite()  );
     suite.addTest( SuiteMemberOf.suite()     );
-    suite.addTest( SuiteQueries.suite()      );
     suite.addTest( SuiteAccessPrivs.suite()  );
     suite.addTest( SuiteXml.suite()          );
     suite.addTest( SuiteWheelGroup.suite()   );
