@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.38 2006-10-16 19:44:38 blair Exp $
+$Id: API.txt,v 1.39 2006-11-27 18:38:43 blair Exp $
 
 ---
 
@@ -233,12 +233,16 @@ $Id: API.txt,v 1.38 2006-10-16 19:44:38 blair Exp $
 * void                  assertDoNotFindGroupByAttribute(GrouperSession, attr, val)
 * void                  assertDoNotFindGroupByName(GrouperSession, name)
 * void                  assertDoNotFindGroupByName(GrouperSession, name, msg)
+* void                  assertDoNotFindGroupByType(GrouperSession, GroupType)
+* void                  assertDoNotFindGroupByType(GrouperSession, GroupType, msg)
 * void                  assertDoNotFindStemByName(GrouperSession, name)
 * void                  assertDoNotFindStemByName(GrouperSession, name, msg)
 * Field                 assertFindField(name)
 * Group                 assertFindGroupByAttribute(GrouperSession, attr, val)
 * Group                 assertFindGroupByName(GrouperSession, name)
 * Group                 assertFindGroupByName(GrouperSession, name, msg)
+* Group                 assertFindGroupByType(GrouperSession, GroupType)
+* Group                 assertFindGroupByType(GrouperSession, GroupType, msg)
 * GroupType             assertFindGroupType(name)
 * Stem                  assertFindStemByName(GrouperSession, name)
 * Stem                  assertFindStemByName(GrouperSession, name, msg)
@@ -274,6 +278,7 @@ $Id: API.txt,v 1.38 2006-10-16 19:44:38 blair Exp $
 ## GroupFinder
 * Group                 GroupFinder.findByAttribute(GrouperSession, attr, val)
 * Group                 GroupFinder.findByName(GrouperSession, name)
+* Group                 GroupFinder.findByType(GrouperSession, GroupType)
 * Group                 GroupFinder.findByUuid(GrouperSession, uuid)
 
 ## GroupModifiedAfterFilter extends BaseQueryFilter

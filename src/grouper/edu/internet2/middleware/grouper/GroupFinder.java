@@ -23,12 +23,14 @@ import  net.sf.hibernate.*;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.32 2006-10-11 18:16:09 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.33 2006-11-27 18:38:43 blair Exp $
  */
 public class GroupFinder {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = GroupFinder.class.getName();
+  private static final String ERR_FINDBYATTRIBUTE = "could not find group by attribute: ";
+  private static final String ERR_FINDBYTYPE      = "could not find group by type: ";
+  private static final String KLASS               = GroupFinder.class.getName();
   
   
   // PUBLIC INSTANCE METHODS //
@@ -78,9 +80,9 @@ public class GroupFinder {
       }
     }
     catch (HibernateException eH) {
-      throw new GroupNotFoundException(E.NO_GROUP_BY_ATTR + eH.getMessage(), eH);
+      throw new GroupNotFoundException(ERR_FINDBYATTRIBUTE + eH.getMessage(), eH);
     }
-    throw new GroupNotFoundException(E.NO_GROUP_BY_ATTR + U.q(attr));
+    throw new GroupNotFoundException(ERR_FINDBYATTRIBUTE + U.q(attr));
   } // public static Group findByAttribute(s, attr, val)
 
   /**
@@ -112,10 +114,56 @@ public class GroupFinder {
   } // public static Group findByName(s, name)
 
   /**
+   * Find a group within the registry by its {@link GroupType}.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByType( s, GroupTypeFinder.find("your type") );
+   * }
+   * catch (GroupNotFoundException eGNF) {
+   *   // Unable to find group by type
+   * }
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   type  Find group with this {@link GroupType}.
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   * @throws  IllegalArgumentException
+   */
+  public static Group findByType(GrouperSession s, GroupType type)
+    throws  GroupNotFoundException,
+            IllegalArgumentException
+  {
+    Validator.argNotNull( s,    "null session" );
+    Validator.argNotNull( type, "null type"    );
+    // TODO 20061127 can i use a variant of this query in `GroupType.delete()`?
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Group as g where :type in elements(g.group_types)"
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindByType");
+      qry.setParameter("type", type);
+      Group g = (Group) qry.uniqueResult();
+      hs.close();
+      if (g != null) {
+        g.setSession(s);
+        if (s.getMember().canView(g)) {
+          return g;
+        }
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GroupNotFoundException(ERR_FINDBYTYPE + eH.getMessage(), eH);
+    }
+    throw new GroupNotFoundException(ERR_FINDBYTYPE + U.q( type.toString() ));
+  } // public static Group findByType(s, type)
+
+  /**
    * Find a group within the registry by UUID.
    * <pre class="eg">
    * try {
-   *   Group g = GroupFinder.findByUuid(uuid);
+   *   Group g = GroupFinder.findByUuid(s, uuid);
    * }
    * catch (GroupNotFoundException e) {
    *   // Group not found
