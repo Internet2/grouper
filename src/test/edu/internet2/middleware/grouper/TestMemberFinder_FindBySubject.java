@@ -16,12 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberFinder_FindBySubject.java,v 1.2 2006-11-27 17:41:44 blair Exp $
+ * @version $Id: TestMemberFinder_FindBySubject.java,v 1.3 2006-11-29 14:40:46 blair Exp $
  * @since   1.2.0
  */
 public class TestMemberFinder_FindBySubject extends GrouperTest {
