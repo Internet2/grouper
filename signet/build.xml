@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.44 2006-11-30 04:21:49 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.45 2006-11-30 18:22:33 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -11,10 +11,18 @@
 
 	<!-- Alt Local Properties (i.e. "Doppleganger") -->
 	<!-- Don't include the following line if there are no alternate sources, libs, etc. -->
+	<!--
 	<property file="/Projects/signet/buildAltLocal.properties" />
+	-->
 
 	<!-- Tomcat-specific Ant build tasks. Remove/replace, as desired, for your environment -->
 	<!-- Note that this import is dependent on properties set in buildSignet.properties -->
+	<!-- Note: If your Ant build produces error messages similar to:
+			...signetBuildTomcatDefs.xml:32: taskdef class org.apache.catalina.ant.DeployTask cannot be found
+		then you need a copy of catalina-ant.jar in Ant's lib directory. For example
+			cp /Tomcat/server/lib/catalina-ant.jar /ant/lib
+		Alternatively, if you don't need to have Ant deploy the newly built Signet
+		to a running instance of Tomcat, you can comment out this line -->
 	<import file="signetBuildTomcatDefs.xml" />
 
 
