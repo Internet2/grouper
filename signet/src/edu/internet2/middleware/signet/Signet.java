@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.61 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: Signet.java,v 1.62 2006-11-30 04:21:49 ddonn Exp $
+$Date: 2006-11-30 04:21:49 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -1375,7 +1375,7 @@ public final class Signet
 
 
 	/**
-	 * Get all Subjects that matches the given identifier.
+	 * Performs a Search for all Subjects that match the given identifier.
 	 * Facade method for SignetSources.
 	 * @param identifier A String that is compared to various fields/attributes (e.g. sunetId)
 	 * @return A Set of SignetSubjects (never null!)
@@ -1383,7 +1383,7 @@ public final class Signet
 	public Set getSubjectsByIdentifier(String identifier)
 	{
 		if (null == signetSources)
-			return (null);
+			return (new HashSet());
 
 		Set retval = signetSources.getSubjectsByIdentifier(identifier);
 
@@ -1428,6 +1428,27 @@ public final class Signet
 			retval = new Vector();
 		else
 			retval = signetSources.getSubjectsByType(type);
+
+		return (retval);
+	}
+
+
+	/**
+	 * Get a Subject, by identifier that matches the given usage.
+	 * This method scans all known SignetSource objects that are members of the given usage.
+	 * Facade method for SignetSources.
+	 * @param usage A String representing the Source usage attribute.
+	 * @param identifier A String representing the Subject
+	 * @return A SignetSubject, or null
+	 */
+	public SignetSubject getSubjectByUsage(String usage, String identifier)
+	{
+		SignetSubject retval;
+
+		if (null == signetSources)
+			retval = null;
+		else
+			retval = signetSources.getSubjectByUsage(usage, identifier);
 
 		return (retval);
 	}

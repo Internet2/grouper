@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.2 2006-10-27 21:46:35 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.3 2006-11-30 04:21:49 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -62,16 +62,16 @@ import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
- * Class to represent a Subject within Signet's context. There are two ways in
- * which a SignetSubject can be created: from an Application's request to
+ * Class to represent a Subject within Signet's context. Typically, there are
+ * two ways a SignetSubject can be created: from an Application's request to
  * Signet.getSubject(), or via retrieval from the Persisted store (Hibernate).
  */
 public class SignetSubject implements Subject, Comparable
 {
 	// This is the metadata that describes Signet's pre-defined application subject.
-	public static final String		SIGNET_NAME = SignetSubject.class.getSimpleName();
-	public static final String		SIGNET_SUBJECT_ID = "Super_" + SIGNET_NAME;
-	public static final String		SIGNET_DESC	= "the Signet system";
+	public static final String		SIGNET_NAME = "Signet";
+	public static final String		SIGNET_SUBJECT_ID = "Super_" + SignetSubject.class.getSimpleName();
+	public static final String		SIGNET_DESC	= "The Signet System";
 
 	/** Primary key for persistent store of Subjects.
 	 * If non-null and non-zero, subject_PK indicates this Subject exists in
@@ -161,11 +161,12 @@ public class SignetSubject implements Subject, Comparable
 
 
 	/**
-	 * Synchronize the data from a SubjectAPI Subject into this Subject
+	 * Synchronize the data from a SubjectAPI Subject into this Subject. Requires
+	 * this Subject to have a valid Source.
 	 * @param apiSubject The SubjectAPI Subject to synchronize with
 	 * @return True if anything changed, otherwise false
 	 */
-	public boolean synchSubject(Subject apiSubject)
+	protected boolean synchSubject(Subject apiSubject)
 	{
 		if ((null == signetSource) || (null == apiSubject))
 			return (false);
@@ -173,18 +174,28 @@ public class SignetSubject implements Subject, Comparable
 		if (this.equals(apiSubject))
 			return(false);
 
-		return (copy(apiSubject));
+		boolean retval;
+		if (apiSubject instanceof SignetSubject)
+			retval = copy((SignetSubject)apiSubject);
+		else
+			retval = copy(apiSubject);
+
+		return (retval);
 	}
 
 
 	/**
 	 * Copy the values from the Subject-API Subject. Note that this is a deep copy
 	 * in that it also copies the original's attributes. The SynchDate and
-	 * ModifyDate are not copied, instead their values are set to 'now'.
-	 * @param apiSubject The original Subject to copy the values from
+	 * ModifyDate are not copied, instead their values are set to 'now'. Note
+	 * too that the following values ARE NOT copied or changed: signetSource,
+	 * actingAs, assignmentsGranted, assignmentsReceived, proxiesGranted,
+	 * and proxiesReceived since these values are not part of the Subject
+	 * interface.
+	 * @param apiSubject The Subject to copy the values from
 	 * @return True if successful, otherwise false
 	 */
-	public boolean copy(Subject apiSubject)
+	protected boolean copy(Subject apiSubject)
 	{
 		if ((null == signetSource) || (null == apiSubject))
 			return (false);
@@ -204,14 +215,81 @@ public class SignetSubject implements Subject, Comparable
 
 
 	/**
+	 * Copy the values from another SignetSubject. Note that this is a deep copy
+	 * in that it also copies the original's attributes. The SynchDate and
+	 * ModifyDate are not copied, instead their values are set to 'now'. Note
+	 * too that signetSource IS copied or changed.
+	 * If the incoming sigSubject is persisted, the the following fields are
+	 * also copied: actingAs, assignmentsGranted, assignmentsReceived,
+	 * proxiesGranted, and proxiesReceived.
+	 * @param otherSubject The SignetSubject to copy the values from
+	 * @return True if successful, otherwise false
+	 */
+	protected boolean copy(SignetSubject otherSubject)
+	{
+		if ((null == signetSource) || (null == otherSubject))
+			return (false);
+
+		setId(otherSubject.getId());
+		setType(signetSource.getSubjectType()); // Signet only supports 1 type per Source
+		setName(otherSubject.getName());
+
+		Date now = new Date();
+		setSynchDatetime(now);
+		setModifyDatetime(now);
+
+		synchAttributes(otherSubject);
+
+		// don't try to copy run-time data from a Subject that came from SubjectAPI
+		if (otherSubject.isPersisted())
+		{
+//TODO it is questionable whether I should copy the 'actingAs' field
+			try
+			{
+				SignetSubject proxy = otherSubject.getEffectiveEditor();
+				if ( !proxy.equals(otherSubject))
+					setActingAs(proxy);
+				else
+					setActingAs(null);
+			}
+			catch (SignetAuthorityException e)
+			{
+				signetSource.getSignet().getLogger().error(e);
+			}
+	
+			setAssignmentsGranted(otherSubject.getAssignmentsGranted());
+			setAssignmentsReceived(otherSubject.getAssignmentsReceived());
+	
+			setProxiesGranted(otherSubject.getProxiesGranted());
+			setProxiesReceived(otherSubject.getProxiesReceived());
+		}
+
+		return (true);
+	}
+
+
+	/**
 	 * Synchronize the SignetSubjectAttrs with the SubjectAPI's attr values. Use
 	 * this Subject's attributes of interest to get attributes, and attr values,
 	 * from the SubjectAPI's Subject and replace this Subject's attrs and values.
 	 * @param apiSubject The SubjectAPI Subject to synch with
 	 */
-	public void synchAttributes(Subject apiSubject)
+	protected void synchAttributes(Subject apiSubject)
 	{
-		if (null == signetSource) // can't continue without a Source
+		if (null == apiSubject)
+			return;
+
+		if (apiSubject instanceof SignetSubject)
+		{
+signetSource.log.warn(
+ "SignetSubject.synchAttributes(Subject) is redirecting to method " +
+ "synchAttributes(SignetSubject) where SignetSubject = \n" +
+ ((SignetSubject)apiSubject).toString());
+			synchAttributes((SignetSubject)apiSubject);
+			return;
+		}
+
+		if (null == signetSource) // can't continue without a Source's mapped attributes
 			return;
 
 		// Get the "attributes of interest" for our Source and the attribute's value
@@ -240,6 +318,27 @@ public class SignetSubject implements Subject, Comparable
 
 			sigAttr.setSourceValues(apiAttrValues); // replace the existing attr values
 		}
+	}
+
+
+	/**
+	 * Synchronize this SignetSubjectAttrs with another SignetSubject's attr values.
+	 * No mapping of attribute names is required because they're both SignetSubjects.
+	 * @param sigSubject The SignetSubject to synch with
+	 */
+	protected void synchAttributes(SignetSubject sigSubject)
+	{
+		if (null == sigSubject)
+			return;
+
+		if (null != signetSubjectAttrs)
+			signetSubjectAttrs.clear();
+		else
+			signetSubjectAttrs = new HashSet();
+
+		Map attrs = sigSubject.getAttributes();
+		if (null != attrs)
+			signetSubjectAttrs.addAll(attrs.values());
 	}
 
 
@@ -401,27 +500,27 @@ public class SignetSubject implements Subject, Comparable
 	}
 
 	// This method is for use only by Hibernate.
-	protected void setAssignmentsGranted(Set assignmentsGranted)
+	protected void setAssignmentsGranted(Set assignments)
 	{
-		this.assignmentsGranted = assignmentsGranted;
+		assignmentsGranted = assignments;
 	}
 	
 	// This method is for use only by Hibernate.
-	protected void setAssignmentsReceived(Set assignmentsReceived)
+	protected void setAssignmentsReceived(Set assignments)
 	{
-		this.assignmentsReceived = assignmentsReceived;
+		assignmentsReceived = assignments;
 	}
 
 	// This method is for use only by Hibernate.
 	protected void setProxiesGranted(Set proxies)
 	{
-		this.proxiesGranted = proxies;
+		proxiesGranted = proxies;
 	}
 	
 	// This method is for use only by Hibernate.
 	protected void setProxiesReceived(Set proxies)
 	{
-		this.proxiesReceived = proxies;
+		proxiesReceived = proxies;
 	}
 
 	/**
@@ -439,7 +538,7 @@ public class SignetSubject implements Subject, Comparable
 //			assignment.setSignet(signet);
 //		}
 		
-		return this.assignmentsReceived;
+		return (assignmentsReceived);
 	}
 
 	public Set getProxiesReceived()
@@ -453,8 +552,73 @@ public class SignetSubject implements Subject, Comparable
 //			proxy.setSignet(signet);
 //		}
 		
-		return this.proxiesReceived;
+		return (proxiesReceived);
 	}
+
+
+//	protected void replaceAssignmentsGranted(Set assignments)
+//	{
+//		if (null == assignments)
+//		{
+//			assignmentsGranted = assignments;
+//			return;
+//		}
+//
+//		if (null == assignmentsGranted)
+//			assignmentsGranted = new HashSet();
+//		else
+//			assignmentsGranted.clear();
+//
+//		assignmentsGranted.addAll(assignments);
+//	}
+//	
+//	protected void replaceAssignmentsReceived(Set assignments)
+//	{
+//		if (null == assignments)
+//		{
+//			assignmentsReceived = assignments;
+//			return;
+//		}
+//
+//		if (null == assignmentsReceived)
+//			assignmentsReceived = new HashSet();
+//		else
+//			assignmentsReceived.clear();
+//
+//		assignmentsReceived.addAll(assignments);
+//	}
+//
+//	protected void replaceProxiesGranted(Set proxies)
+//	{
+//		if (null == proxies)
+//		{
+//			proxiesGranted = proxies;
+//			return;
+//		}
+//
+//		if (null == proxiesGranted)
+//			proxiesGranted = new HashSet();
+//		else
+//			proxiesGranted.clear();
+//
+//		proxiesGranted.addAll(proxies);
+//	}
+//	
+//	protected void replaceProxiesReceived(Set proxies)
+//	{
+//		if (null == proxies)
+//		{
+//			proxiesReceived = proxies;
+//			return;
+//		}
+//
+//		if (null == proxiesReceived)
+//			proxiesReceived = new HashSet();
+//		else
+//			proxiesReceived.clear();
+//
+//		proxiesReceived.addAll(proxies);
+//	}
 
 
 	public void save()
@@ -462,7 +626,14 @@ public class SignetSubject implements Subject, Comparable
 		HibernateDB hibr = signetSource.getParent().getPersistedSource().getPersistedStoreMgr();
 		hibr.beginTransaction();
 		hibr.save(this);
+try
+{
 		hibr.commit();
+}
+catch (SignetRuntimeException e)
+{
+System.out.println("SignetSubject.save: exception during commit. SignetSubject =\n" + toString());
+}
 	}
 
 
@@ -554,32 +725,24 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public String getDescription()
 	{
-		String desc = null;
-
-		if (null != signetSubjectAttrs)
-		{
-			SignetSubjectAttr attr = getAttribute(SignetSources.SIGNET_DESC_TAG);
-			if (null != attr)
-			{
-				SignetSubjectAttrValue value = (SignetSubjectAttrValue)attr.getSourceValues().get(0);
-				desc = value.getValue();
-			}
-		}
-
-		return (desc);
+		String descAttrName = signetSource.getParent().getPersistedSource().getSignetDescription();
+		String retval = getAttributeValue(descAttrName);
+		return (retval);
 	}
 
 	/**
 	 * Set the Subject Description. Stored as an attribute. Supercedes previous
 	 * value since we only want one description for a Subject (attribute supports
 	 * multiple values).
+	 * @param subjectDescription The new description for this Subject
 	 */
 	public void setDescription(String subjectDescription)
 	{
-		SignetSubjectAttr attr = getAttribute(SignetSources.SIGNET_DESC_TAG);
+		String descAttrName = signetSource.getParent().getPersistedSource().getSignetDescription();
+		SignetSubjectAttr attr = getAttribute(descAttrName);
 		if (null == attr)
 		{
-			attr = new SignetSubjectAttr(SignetSources.SIGNET_DESC_TAG);
+			attr = new SignetSubjectAttr(descAttrName);
 			addAttribute(attr);
 		}
 		attr.getSourceValues().clear(); // we only want one description
@@ -614,7 +777,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @param mappedName The mappedName to search for
 	 * @return a SignetSubjectAttr that has a matching mappedName, or null
 	 */
-	protected SignetSubjectAttr getAttribute(String mappedName)
+	public SignetSubjectAttr getAttribute(String mappedName)
 	{
 		SignetSubjectAttr retval = null;
 
@@ -636,7 +799,7 @@ public class SignetSubject implements Subject, Comparable
 	/**
 	 * Searchs for a SignetSubjectAttr that has a matching mappedName and returns
 	 * the Source value, or null if the attribute was not found. If the attribute
-	 * has multiple values, the value of the first (i.e. sequence==1) is returned.
+	 * has multiple values, the value of the first (i.e. sequence==0) is returned.
 	 * @param mappedName The Signet (mapped) attribute name.
 	 * @return The SubjectAPI Subject's attribute value.
 	 * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String)
@@ -649,7 +812,7 @@ public class SignetSubject implements Subject, Comparable
 		for (Iterator viter = values.iterator(); viter.hasNext() && (null == retval); )
 		{
 			SignetSubjectAttrValue value = (SignetSubjectAttrValue)viter.next();
-			if (1 == value.getSequence())
+			if (0 == value.getSequence())
 				retval = value.getValue();
 		}
 
@@ -667,7 +830,7 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public Set getAttributeValues(String mappedName)
 	{
-		HashSet retval = new HashSet();
+		Set retval = new HashSet();
 
 		if ((null == mappedName) || (0 >= mappedName.length()))
 			return (retval);
@@ -699,9 +862,12 @@ public class SignetSubject implements Subject, Comparable
 		{
 			for (Iterator attrs = signetSubjectAttrs.iterator(); attrs.hasNext();)
 			{
+//				Object attr_obj = attrs.next();
+//System.out.println("SignetSubject.getAttributes: attr_obj is a " + attr_obj.getClass().getName());
+//SignetSubjectAttr attr = (SignetSubjectAttr)attr_obj;
 				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
 
-				HashSet valueSet = new HashSet();
+				Set valueSet = new HashSet();
 				for (Iterator values = attr.getSourceValues().iterator(); values.hasNext(); )
 					valueSet.add(((SignetSubjectAttrValue)values.next()).getValue());
 
@@ -754,7 +920,7 @@ public class SignetSubject implements Subject, Comparable
 	}
   
 
-	protected boolean canActAs(SignetSubject actingAs, Subsystem subsystem)
+	public boolean canActAs(SignetSubject actingAs, Subsystem subsystem)
 	{
 		// Everyone can act as nobody else, i.e. self
 		if (null == actingAs)
@@ -914,7 +1080,7 @@ public class SignetSubject implements Subject, Comparable
 	 * be used(!) to grant Assignments. A proxy that is not "useable" can be
 	 * extended to another person, but may not be used to grant Assignments.
 	 */
-	boolean canUseProxy(SignetSubject proxyGrantor, Subsystem subsystem)
+	public boolean canUseProxy(SignetSubject proxyGrantor, Subsystem subsystem)
 	{
 		Set proxies = getFilteredProxySet(proxyGrantor, subsystem);
 		boolean retval = false;
@@ -932,7 +1098,7 @@ public class SignetSubject implements Subject, Comparable
 	 * be used to grant Proxies. A proxy that is not "extensible" can be used to
 	 * grant Assignments, but may not be used to extend Proxies.
 	 */
-	boolean canExtendProxy(SignetSubject proxyGrantor, Subsystem subsystem)
+	public boolean canExtendProxy(SignetSubject proxyGrantor, Subsystem subsystem)
 	{
 		Set proxies = getFilteredProxySet(proxyGrantor, subsystem);
 		boolean retval = false;
@@ -1018,7 +1184,7 @@ public class SignetSubject implements Subject, Comparable
      * @param subsystem The Subsystem
      * @return Filtered Set of Proxy objects
      */
-    Set getFilteredProxySet(SignetSubject subject, Subsystem subsystem)
+    protected Set getFilteredProxySet(SignetSubject subject, Subsystem subsystem)
 	{
 		Set proxies = Common.filterProxies(getProxiesReceived(), Status.ACTIVE);
 		proxies = Common.filterProxies(proxies, subsystem);
@@ -1319,7 +1485,8 @@ public class SignetSubject implements Subject, Comparable
 				Proxy proxy = (Proxy)(proxiesIterator.next());
 				if (proxy.canUse())
 				{
-					if (proxy.getSubsystem() == null)
+					Subsystem proxySubsys = proxy.getSubsystem();
+					if (proxySubsys == null)
 					{
 						Set subsyss = signetSource.getSignet().getSubsystems();
 						for (Iterator candidates = subsyss.iterator(); candidates.hasNext(); )
@@ -1332,13 +1499,8 @@ public class SignetSubject implements Subject, Comparable
 						}
 						grantableSubsystems.addAll(subsyss);
 					}
-					else
-					{
-						if (((SubsystemImpl)(proxy.getSubsystem())).isPopulatedForGranting())
-						{
-							grantableSubsystems.add(proxy.getSubsystem());
-						}
-					}
+					else if (((SubsystemImpl)proxySubsys).isPopulatedForGranting())
+						grantableSubsystems.add(proxySubsys);
 				}
 			}
 			return grantableSubsystems;
@@ -1639,8 +1801,18 @@ public class SignetSubject implements Subject, Comparable
 		{
 			for (Iterator attrs = signetSubjectAttrs.iterator(); attrs.hasNext();)
 			{
+//Object o = attrs.next();
+//if ( !(o instanceof SignetSubjectAttr))
+//{
+//	buf.append("ATTR IS A " + o.getClass().getName() + " ");
+//	Thread.currentThread().dumpStack();
+//}
+//else
+//{
 				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
+//SignetSubjectAttr attr = (SignetSubjectAttr)o;
 				buf.append(attr.toString() + " ");
+//}
 			}
 		}
 		else
@@ -1668,32 +1840,57 @@ public class SignetSubject implements Subject, Comparable
 	 * Field-by-field comparison to another SignetSubject
 	 * @return true if all fields are equal, otherwise false
 	 */
-	public boolean equals(SignetSubject sigSubject)
+	protected boolean equals(SignetSubject sigSubject)
 	{
-		// quick (to implement) and dirty
-		return (toString().equals(sigSubject.toString()));
+//System.out.println("SignetSubject.equals(SignetSubject): top");
+//		if (null == sigSubject)
+//			return (false);
+//System.out.println("SignetSubject.equals(SignetSubject): comparing this to that...");
+//System.out.println("  this=" + toString());
+//System.out.println("  that=" + sigSubject.toString());
+//boolean eq = toString().equals(sigSubject.toString());
+//System.out.println("  this " + (eq ? "equals" : "not equal to") + " that ");
+//		// quick (to implement) and dirty
+//		return (eq);
+		boolean retval = false; // assume failure
+		if (null != sigSubject)
+		{
+			if (retval = valuesEqual(subjectId, sigSubject.getId())) // yes, I do mean "="
+				if (retval = valuesEqual(subjectType, sigSubject.getType().getName())) // yes, I do mean "="
+					if (retval = valuesEqual(subjectName, sigSubject.getName())) // yes, I do mean "="
+						if (retval = valuesEqual(sourceId, sigSubject.getSourceId())) // yes, I do mean "="
+							retval = compareAttributes(sigSubject);
+		}
+		return (retval);
 	}
 
 	/**
 	 * Field-by-field comparison to a Subject
 	 * @return true if equivilent fields are equal, otherwise false
 	 */
-	public boolean equals(Subject apiSubject)
+	protected boolean equals(Subject apiSubject)
 	{
-		boolean retval = false; // assume failure
+		if (null == apiSubject)
+			return (false);
 
-		if (null != apiSubject)
+		boolean retval;
+
+		if (apiSubject instanceof SignetSubject)
+			retval = equals((SignetSubject)apiSubject);
+		else
 		{
 			if (retval = valuesEqual(subjectId, apiSubject.getId())) // yes, I do mean "="
 				if (retval = valuesEqual(subjectType, apiSubject.getType().getName())) // yes, I do mean "="
 					if (retval = valuesEqual(subjectName, apiSubject.getName())) // yes, I do mean "="
 						if (retval = valuesEqual(sourceId, apiSubject.getSource().getId())) // yes, I do mean "="
-							retval = compareAttrs(signetSubjectAttrs, apiSubject.getAttributes());
+							retval = compareSubjApiAttrs(signetSubjectAttrs, apiSubject.getAttributes());
 		}
 
 		return (retval);
 	}
 
+
+	/** Compare two Strings for equality. Does a few more checks than String.equals() */
 	protected boolean valuesEqual(String value1, String value2)
 	{
 		boolean retval = false; // assume failure
@@ -1712,6 +1909,44 @@ public class SignetSubject implements Subject, Comparable
 	}
 
 	/**
+	 * Compare the Attributes between this and another SignetSubject.
+	 * This method DOES NOT dereference the SignetSubject's attribute name mapping
+	 * because the attributes names should already be identical.
+	 * @param The SignetSubject that contains the attributes to compare (passing the
+	 * whole SignetSubject because getAttributes returns an unwieldy Map)
+	 * @return true if all attribute's values are equal, otherwise false
+	 */
+	protected boolean compareAttributes(SignetSubject subject)
+	{
+		if (null == subject)
+			return (false);
+
+		Map otherAttrs = subject.getAttributes();
+		if (null == otherAttrs)
+			return (false);
+
+		// if list sizes are not equal, they're not equal
+		boolean retval = (signetSubjectAttrs.size() == otherAttrs.size());
+
+		if (retval)
+		{
+			// for each of my attributes, get the corresponding attribute for
+			// the other SignetSubject, and compare values. Break on
+			// first non-equal value.
+			for (Iterator myAttrs = signetSubjectAttrs.iterator();
+					myAttrs.hasNext() && retval; )
+			{
+				SignetSubjectAttr myAttr = (SignetSubjectAttr)myAttrs.next();
+				SignetSubjectAttr otherAttr = subject.getAttribute(myAttr.getMappedName());
+				retval = myAttr.equals(otherAttr);
+			}
+		}
+
+		return (retval);
+	}
+
+
+	/**
 	 * Compare the Attributes for a SignetSubject and a Subject (from SubjectAPI).
 	 * This method must dereference the SignetSubject's attribute name mapping
 	 * to match the SubjectAPI's attribute names before the value comparison
@@ -1720,7 +1955,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @param apiAttrs A Map of Attr Name (key) / Attr Values (a Set!) pairs
 	 * @return true if all attribute's values are equal, otherwise false
 	 */
-	protected boolean compareAttrs(Set sigAttrs, Map apiAttrs)
+	protected boolean compareSubjApiAttrs(Set sigAttrs, Map apiAttrs)
 	{
 		// if both are null, they're equal
 		if ((null == sigAttrs) && (null == apiAttrs))

@@ -5,8 +5,22 @@
 --    1/10/2006 - renamed signet_privilegedSubject to signet_subject
 --    3/09/2006 - add categoryKey, functionKey, subjectKey, choiceKey, choiceSetKey
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.24 2006-10-25 00:12:50 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.25 2006-11-30 04:21:49 ddonn Exp $
 --
+
+-- Database: signet_db
+
+-- DROP DATABASE signet_db;
+
+-- Notes:
+--   Postres strongly recommends using UTF8 encoding.
+--   Replace the Owner with an appropriate owner name for your installation.
+--   Use template0 unless you have reason to not use it.
+-- CREATE DATABASE signet_db
+-- 	WITH ENCODING='UTF8'
+-- 		OWNER=pg_user
+-- 		TEMPLATE=template0
+-- 		TABLESPACE=pg_default;
 
 -- Tree tables
 drop table signet_treeNodeRelationship;
@@ -296,10 +310,10 @@ create table signet_assignment
 	instanceNumber      integer             NOT NULL,
 	status              varchar(16)         NOT NULL,
 	functionKey         integer             NOT NULL,
-	grantorKey          integer             NOT NULL,
-	granteeKey          integer             NOT NULL,
-	proxyKey            integer             NULL,
-	revokerKey          integer             NULL,
+	grantorKey          int8                NOT NULL,
+	granteeKey          int8                NOT NULL,
+	proxyKey            int8                NULL,
+	revokerKey          int8                NULL,
 	scopeID             varchar(64)         NULL,
 	scopeNodeID         varchar(64)         NULL,
 	canUse              boolean             NOT NULL,
@@ -357,10 +371,10 @@ create table signet_assignment_history
 	instanceNumber      integer             NOT NULL,
 	status              varchar(16)         NOT NULL,
 	functionKey         integer             NOT NULL,
-	grantorKey          integer             NOT NULL,
-	granteeKey          integer             NOT NULL,
-	proxyKey            integer             NULL,
-	revokerKey          integer             NULL,
+	grantorKey          int8                NOT NULL,
+	granteeKey          int8                NOT NULL,
+	proxyKey            int8                NULL,
+	revokerKey          int8                NULL,
 	scopeID             varchar(64)         NULL,
 	scopeNodeID         varchar(64)         NULL,
 	canUse              boolean             NOT NULL,
@@ -408,14 +422,14 @@ create table signet_proxy
 	instanceNumber      integer             NOT NULL,
 	status              varchar(16)         NOT NULL,
 	subsystemID         varchar(64)         NULL,
-	grantorKey          integer             NOT NULL,
-	granteeKey          integer             NOT NULL,
-	proxySubjectKey     integer             NULL,
+	grantorKey          int8                NOT NULL,
+	granteeKey          int8                NOT NULL,
+	proxySubjectKey     int8                NULL,
+	revokerKey          int8                NULL,
 	canUse              boolean             NOT NULL,
 	canExtend           boolean             NOT NULL,
 	effectiveDate       timestamp           NOT NULL,
 	expirationDate      timestamp           NULL,
-	revokerKey          integer             NULL,
 	modifyDatetime      timestamp           NOT NULL,
 	primary key (proxyID),
 	foreign key (grantorKey) references signet_subject (subjectKey),
@@ -434,14 +448,14 @@ create table signet_proxy_history
 	instanceNumber      integer             NOT NULL,
 	status              varchar(16)         NOT NULL,
 	subsystemID         varchar(64)         NULL,
-	grantorKey          integer             NOT NULL,
-	granteeKey          integer             NOT NULL,
-	proxySubjectKey     integer             NULL,
+	grantorKey          int8                NOT NULL,
+	granteeKey          int8                NOT NULL,
+	proxySubjectKey     int8                NULL,
+	revokerKey          int8                NULL,
 	canUse              boolean             NOT NULL,
 	canExtend           boolean             NOT NULL,
 	effectiveDate       timestamp           NOT NULL,
 	expirationDate      timestamp           NULL,
-	revokerKey          integer             NULL,
 	historyDatetime     timestamp           NOT NULL,
 	modifyDatetime      timestamp           NOT NULL,
 	primary key (historyID),

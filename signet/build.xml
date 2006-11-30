@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.43 2006-11-16 16:01:40 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.44 2006-11-30 04:21:49 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -9,7 +9,7 @@
 	<!-- Global Properties -->
 	<property file="buildSignet.properties" />
 
-	<!-- Alt Local Properties -->
+	<!-- Alt Local Properties (i.e. "Doppleganger") -->
 	<!-- Don't include the following line if there are no alternate sources, libs, etc. -->
 	<property file="/Projects/signet/buildAltLocal.properties" />
 
@@ -31,7 +31,7 @@
 	<!-- =============== target: development ============== -->
 	<target name="development"
 			description="Signet development build"
-			depends="compile, assemble_dev, deploy_dev">
+			depends="clean, compile, assemble_dev, deploy_dev">
 	</target>
 
 
@@ -47,6 +47,8 @@
 	<target name="compile"
 			description="Compile .java files, copy Hibernate mapping files"
 			depends="create_altlocal_java_dir_no, create_classpath" >
+
+		<tstamp/>
 
 		<mkdir dir="${classes.dir}"/>
 
@@ -70,7 +72,7 @@
 	<!-- =============== target: assemble_prod ============= -->
 	<target name="assemble_prod"
 			description="Assemble production output products in preparation for deployment"
-			depends="clean, compile, assemble_all, copy_readmes, create_signet_jars, javadoc" >
+			depends="clean, compile, assemble_all, create_signet_jars, javadoc" >
 	</target>
 
 
@@ -84,7 +86,7 @@
 	<!-- =============== target: deploy_prod ============== -->
 	<target name="deploy_prod"
 			description="Deploy utilities and web app for Production build"
-			depends="assemble_prod, create_webapp, deploy_to_tomcat" >
+			depends="assemble_prod, create_webapp" >
 	</target>
 
 
@@ -130,16 +132,19 @@
 
 	<!-- Private, Utility Targets -->
 
+    <!-- - - - - - - - - target: copy_readmes - -->
+	<target name="copy_readmes" >
+		<copy todir="${dist.util.dir}" >
+			<fileset dir="." >
+				<include name="README*" />
+			</fileset>
+		</copy>
+	</target>
+
+
 	<!-- Note: the "*_yes" and "*_no" targets below determine whether the
 	     optional alt_local_* properties are previously defined. If not defined,
 	     they are given empty values so that Ant doesn't choke. -->
-
-
-    <!-- - - - - - - - - target: copy_readmes - -->
-	<target name="copy_readmes" >
-		<copy todir="${dist.util.dir}" file="README" />
-		<copy todir="${dist.util.dir}" file="LICENSE" />
-	</target>
 
 
     <!-- - - - - - - - - target: create_altlocal_src_fileset_no - -->
@@ -195,7 +200,9 @@
 		<path id="source.class.path" >
 			<fileset refid="source.lib.fileset" />
 			<fileset refid="i2mi_common_lib.fileset" />
+<!-- SubjectAPI JAR is in Signet CVS for now
 			<fileset refid="subjectApi_lib.fileset" />
+-->
 			<fileset refid="alt.local.lib.fileset" />
 		</path>
 	</target>
@@ -203,7 +210,7 @@
 
 	<!-- - - - - - - - - target: assemble_all - - - - - - - - - -->
 	<target name="assemble_all"
-			depends="create_distdirs, copy_config_files, copy_libs, copy_sql, copy_util_scripts, configure_hibernate" >
+			depends="create_distdirs, copy_readmes, copy_config_files, copy_libs, copy_sql, copy_util_scripts, configure_hibernate" >
 	</target>
 
 
@@ -212,8 +219,12 @@
 			depends="create_lib_fileset, create_altlib_fileset_yes" >
 		<copy todir="${dist_lib.dir}" >
 			<fileset refid="source.lib.fileset" />
+			<fileset dir="${source_lib.dir}" includes="**/*license*" />
 			<fileset refid="i2mi_common_lib.fileset" />
+			<fileset dir="${i2mi_common_lib.dir}" includes="**/*license*" />
+<!-- SubjectAPI JAR is in Signet CVS for now 
 			<fileset refid="subjectApi_lib.fileset" />
+-->
 			<fileset refid="alt.local.lib.fileset" />
 		</copy>
 	</target>
@@ -229,10 +240,12 @@
 			dir="${i2mi_common_lib.dir}" >
 			<include name="**/*.jar" />
 		</fileset>
+<!-- SubjectAPI JAR is in Signet CVS for now
 		<fileset id="subjectApi_lib.fileset"
 			dir="${subjectApi_lib.dir}" >
 			<include name="**/*.jar" />
 		</fileset>
+-->
 	</target>
 
 
@@ -358,6 +371,7 @@
 				<include name="SubjectFileLoader/*" />
 				<include name="SubsystemXmlLoader/*" />
 				<include name="TreeXmlLoader/*" />
+				<include name="dist-signet_cp.bat" />
 			</fileset>
 		</copy>
 	</target>
@@ -372,6 +386,16 @@
 	<!-- - - - - - - - - target: create_signet_api_jar - -->
 	<target name="create_signet_api_jar" >
 		<jar destfile="${signet.jar.api}" > 
+			<manifest>
+				<section name="edu/internet2/middleware/signet" >
+				<attribute name="Built-By"                value="${user.name}"/>
+				<attribute name="Implementation-Title"    value="${signet_basename}" />
+				<attribute name="Implementation-Version"  value="${signet_version}" />
+				<attribute name="Implementation-BuildDate" value="${TODAY}" />
+				<attribute name="Implementation-Vendor"   value="${signet_vendor}" />
+				<attribute name="Implementation-URL"      value="${signet_url}" />
+				</section>
+			</manifest>
 			<fileset dir="${classes.dir}" >
 				<exclude name="${signet.jar.ui.files}" />
 				<exclude name="${signet.jar.util.files}" />
@@ -383,6 +407,16 @@
 	<!-- - - - - - - - - target: create_signet_ui_jar - -->
 	<target name="create_signet_ui_jar" >
 		<jar destfile="${signet.jar.ui}" >
+			<manifest>
+				<section name="edu/internet2/middleware/signet/ui" >
+				<attribute name="Built-By"                value="${user.name}"/>
+				<attribute name="Implementation-Title"    value="${signet_basename}" />
+				<attribute name="Implementation-Version"  value="${signet_version}" />
+				<attribute name="Implementation-BuildDate" value="${TODAY}" />
+				<attribute name="Implementation-Vendor"   value="${signet_vendor}" />
+				<attribute name="Implementation-URL"      value="${signet_url}" />
+				</section>
+			</manifest>
 			<fileset dir="${classes.dir}" >
 				<include name="${signet.jar.ui.files}" />
 			</fileset>
@@ -889,6 +923,7 @@
 				url="${tomcat.manager.url}"
 				path="${tomcat.manager.signetpath}" />
 	</target>
+
 
 </project>
 

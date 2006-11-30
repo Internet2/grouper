@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.12 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: TreeNodeImpl.java,v 1.13 2006-11-30 04:21:49 ddonn Exp $
+$Date: 2006-11-30 04:21:49 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
@@ -77,13 +78,20 @@ implements
    */
   public Set getParents()
   {
-    if (parentsAlreadyFetched == false)
+    if ( !parentsAlreadyFetched)
     {
-      this.parents = getSignet().getPersistentDB().getParents(this);
-      parentsAlreadyFetched = true;
+    	Signet mySignet = getSignet();
+    	if (null != mySignet)
+    	{
+    		HibernateDB hibr = mySignet.getPersistentDB();
+    		if (null != hibr)
+    		{
+    			parentsAlreadyFetched = (null != (parents = hibr.getParents(this)));
+    		}
+    	}
     }
 
-    return this.parents;
+    return (parents);
     // return UnmodifiableSet.decorate(this.parents);
   }
 

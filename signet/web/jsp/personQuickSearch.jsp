@@ -10,10 +10,11 @@
 <%@ page import="edu.internet2.middleware.signet.choice.Choice" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@page import="edu.internet2.middleware.signet.ui.Constants"%>
 <%@ page import="edu.internet2.middleware.signet.ui.SubjectNameComparator" %>
 <%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
 
-      <LINK href="styles/signet.css" rel="stylesheet" type="text/css" />
+<LINK href="styles/signet.css" rel="stylesheet" type="text/css" />
     <DIV>
 
       
@@ -48,7 +49,8 @@
       SignetSubject listSubject
         = (SignetSubject)(sortSetIterator.next());
 %>
-        <A href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?granteeSubjectTypeId=" + listSubject.getSubjectType() + "&granteeSubjectId=" + listSubject.getId(), "UTF-8")%>'))">
+        <A href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?" + Constants.SIGNET_SOURCE_ID_HTTPPARAMNAME + "=" + listSubject.getSourceId() + "&" + Constants.SIGNET_SUBJECT_ID_HTTPPARAMNAME + "=" + listSubject.getId(), "UTF-8")%>'))">
+        
           <%=listSubject.getName()%>
 		</A>
         <DIV class="ident">

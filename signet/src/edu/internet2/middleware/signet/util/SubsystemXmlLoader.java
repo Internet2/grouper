@@ -152,8 +152,11 @@ public class SubsystemXmlLoader {
         		signet, subsystemId, subsystemName, subsystemHelpText, Status.ACTIVE);
         subsystem.setTree(tempTree);
         subsystem.save();
+        signet.getPersistentDB().commit();
 
         try {
+        	signet.getPersistentDB().beginTransaction();
+
             processChoiceSet(signet, subsystem, rootElem);
             processLimit(signet, subsystem, rootElem);
             processPermission(signet, subsystem, rootElem);
@@ -161,6 +164,7 @@ public class SubsystemXmlLoader {
             processFunction(signet, subsystem, rootElem);
 
             signet.getPersistentDB().commit();
+
         } catch (ObjectNotFoundException e) {
             throw new ObjectNotFoundException(e.getMessage());
         } catch (NumberFormatException e) {

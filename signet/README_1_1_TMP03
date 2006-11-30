@@ -1,0 +1,71 @@
+Signet  11/22/06
+Release Notes for CVS-tagged version 1.1.TMP03 
+
+1. The 1.1.TMPnn series of checkins contain the new Signet internal architecture
+   and new Signet API. This is still a work-in-progress, hence the TMPnn 
+   designation. TMP03 does seem to be working in all areas but has not undergone
+   rigorous testing.
+
+2. The Signet build (build.xml, et. al.) has been modified as follows:
+  a. Target 'production' no longer deploys signet.war to Tomcat. Target
+     'development' still does, however.
+  b. The 3 signet jar files (signet-api-x.x.x.jar, signet-ui-x.x.x.jar, and
+     signet-util-x.x.x.jar) each contain manifest files with date and version
+     information.
+  c. subject-0.2.2-cvs.jar is assumed to reside in Signet's lib directory.
+     It is checked-in to Signet's CVS and will be retrieved during a checkout.
+     I had to make some changes to SubjectAPI and felt that, for the short-
+     term, it would be better to not have inter-project dependencies.
+  d. The Signet project does depend on the i2mi-common project, which is a
+     collection of 3rd party libraries. There's nothing to build, just check
+     it out from CVS before building Signet. Depending on where you put
+     i2mi-common, you may need to change the build variable
+     'i2mi_common_lib.dir' defined in file buildSignet.properties.
+  e. Any build.xml files, other than signet/build.xml, are probably obsolete
+     and may not work.
+
+3. Signet's persistent store (database) has changed as follows:
+  a. Two new tables have been added: Signet_SubjectAttribute and
+     Signet_SubjectAttrValue. These provide the ability to store multiple
+     values per attribute. For instance, a Person having two login IDs will
+     only have one row in Signet_Subject, one row in Signet_SubjectAttribute,
+     and two rows in Signet_SubjectAttrValue.
+  b. NOTE!! ONLY POSTGRES.SQL IS CURRENT. THE OTHER DDL FILES ARE NOT CURRENT
+     AND WILL NOT WORK. I will try to update them as time permits.
+  c. It was discovered during development that Hibernate (the Object Relational
+     Mapping (ORM) tool Signet uses) ignores the Sequences we defined for
+     various primary keys. Instead, Hibernate uses it's own Sequence -
+     'hibernate_sequence' exclusively for _all_ primary keys. I'm not sure if
+     this occurs only in Postgres or is systemic. More on this later.
+  d. Several tables with foreign keys to signet_subject were modified to use
+     long (int8) values.
+  e. Added Postgres JAR and licence files to CVS.
+
+4. The User Interface was modified to accomodate the new architecture and to
+   also use the new Signet API. Also, some syntax errors were corrected in
+   the JSPs.
+
+5. The Eclipse IDE project was modified as follows:
+   a. Note: if you're a 'command-line kinda person' you can skip this.
+   b. I created several 'User Libraries' to manage the numerous JAR files
+      that Signet depends on. User Libraries are a convenient way of grouping
+      files under a single handle. You can define your own in any one of 
+      several ways. If you want to know how, drop me an e-mail. I created an
+      XML and readme in Signet/DevGoodies/Eclipse_IDE/. You'll get these files
+      the next time you checkout or update from CVS.
+
+6. Signet Utilities (TreeXmlLoader, SubsystemXmlLoader, SubjectFileLoader, and
+   SignetProxy)
+   a. I created a DOS (okay, Windows) batch file that will make setting the
+      CLASSPATH a little easier. Each of the utilities' run.bat files calls
+      util\dist-signet_cp.bat to set the CLASSPATH prior to running the
+      utility. YOU MAY NEED TO CHANGE THE SIGNET_LIBS VARIABLE to have it
+      work properly with your installation.
+   b. I'll try to keep this file current with subsequent Signet releases. But if
+      things suddenly stop working, this is one place to check for problems.
+   c. For Linux/Unix users, the CLASSPATH is still created dynamically. So, the
+      above-mentioned problems are not an issue.
+
+
+      
+   

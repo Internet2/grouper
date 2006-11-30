@@ -1,6 +1,6 @@
 /*--
-$Id: PersonViewAction.java,v 1.11 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: PersonViewAction.java,v 1.12 2006-11-30 04:21:49 ddonn Exp $
+$Date: 2006-11-30 04:21:49 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -78,12 +78,10 @@ public final class PersonViewAction extends BaseAction
       return (mapping.findForward("notInitialized"));
     }
 
-// not used
-//    PrivilegedSubject currentGrantee = Common.getGrantee(signet, request);
+    // get the selected grantee and put it into the HttpServletRequest for later use
+    Common.getGrantee(signet, request);
 
-// not used
-//    Subsystem currentSubsystem =
-    	Common.getAndSetSubsystem
+	Common.getAndSetSubsystem
           (signet,
            request,
            Constants.SUBSYSTEM_HTTPPARAMNAME, // paramName

@@ -1,6 +1,6 @@
 /*--
-$Id: ActAsAction.java,v 1.6 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: ActAsAction.java,v 1.7 2006-11-30 04:21:49 ddonn Exp $
+$Date: 2006-11-30 04:21:49 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -86,15 +86,12 @@ public final class ActAsAction extends BaseAction
     String compoundId = request.getParameter(Constants.ACTING_FOR_SELECT_ID);
     String idParts[] = Common.parseCompoundId(compoundId);
     SignetSubject actingAs = signet.getSubject(idParts[0], idParts[1]);
-    
-    if (actingAs.equals(loggedInPrivilegedSubject))
-    {
+
+    if (loggedInPrivilegedSubject.equals(actingAs))
       loggedInPrivilegedSubject.setActingAs(null);
-    }
+
     else
-    {
       loggedInPrivilegedSubject.setActingAs(actingAs);
-    }
     
     session.setAttribute
       (Constants.CURRENTPSUBJECT_ATTRNAME,

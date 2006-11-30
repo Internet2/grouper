@@ -1,6 +1,6 @@
 /*--
-$Id: GrantableImpl.java,v 1.15 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: GrantableImpl.java,v 1.16 2006-11-30 04:21:49 ddonn Exp $
+$Date: 2006-11-30 04:21:49 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -205,12 +205,20 @@ implements Grantable
    */
   void setGrantor(SignetSubject grantor)
   {
-    this.grantor = grantor.getEffectiveEditor();
-    
-    if (!grantor.equals(grantor.getEffectiveEditor()))
-    {
-      this.proxy = grantor;
-    }
+	if (null == grantor)
+	{
+		this.grantor = grantor;
+		this.proxy = grantor;
+	}
+	else
+	{
+	    this.grantor = grantor.getEffectiveEditor();
+	    
+	    if (!grantor.equals(grantor.getEffectiveEditor()))
+	    {
+	      this.proxy = grantor;
+	    }
+	}
   }
   
   void setRevoker(SignetSubject revoker)

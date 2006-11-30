@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemImpl.java,v 1.19 2006-10-27 21:46:35 ddonn Exp $
-$Date: 2006-10-27 21:46:35 $
+$Id: SubsystemImpl.java,v 1.20 2006-11-30 04:21:49 ddonn Exp $
+$Date: 2006-11-30 04:21:49 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -499,34 +499,28 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
       ("This method is not yet implemented");
   }
 
-  /**
-   * @return true if granting can occur, otherwise false
-   */
-  public boolean isPopulatedForGranting()
-  {
-    if (this.getTree() == null)
-    {
-      // This Subsystem has no Tree, and so none of its Functions
-      // can be granted.
-      return false;
-    }
+	/**
+	 * @return true if granting can occur, otherwise false
+	 */
+	public boolean isPopulatedForGranting()
+	{
+		boolean retval = false; // assume failure
 
-    if (this.getTree().getRoots().size() == 0)
-    {
-      // This Tree contains no TreeNodes, and so none of the
-      // Functions in this Subsystem can actually be granted.
-      return false;
-    }
-
-    if (this.getFunctions().size() == 0)
-    {
-      // This Subsystem contains no Functions, so there's
-      // no granting to be done nohow.
-      return false;
-    }
-
-    // If we've gotten this far, this thing must contain something
-    // worth granting.
-    return true;
-  }
+		Tree _tree = getTree();
+		// if this Subsystem has no Tree, none of its Functions can be granted.
+		if (null != _tree)
+		{
+			Set roots = _tree.getRoots();
+			// if this Tree contains no TreeNodes, none of the Functions in this Subsystem can be granted.
+			if ((null != roots) || (0 < roots.size()))
+			{
+				// if this Subsystem contains no Functions, there's no granting to be done nohow.
+				if (0 < getFunctions().size())
+				{
+					retval = true;
+				}
+			}
+		}
+		return (retval);
+	}
 }

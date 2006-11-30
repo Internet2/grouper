@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttrValue.java,v 1.1 2006-10-25 00:09:40 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttrValue.java,v 1.2 2006-11-30 04:21:49 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -191,11 +191,18 @@ public class SignetSubjectAttrValue
 			return (false);
 	}
 
-	public boolean equals(SignetSubjectAttrValue value)
+	/** Compares the value, type and sequence only */
+	public boolean equals(SignetSubjectAttrValue attrValue)
 	{
 		boolean retval = false; // assume failure
-		if (null != value)
-			retval = toString().equals(value.toString());
+
+		if (null != attrValue)
+		{
+			if (retval = value.equals(attrValue.getValue())) // yes, I do mean "="
+				if (retval = type.equals(attrValue.getType())) // yes, I do mean "="
+					retval = sequence == attrValue.getSequence(); // yes, I do mean "="
+		}
+
 		return (retval);
 	}
 

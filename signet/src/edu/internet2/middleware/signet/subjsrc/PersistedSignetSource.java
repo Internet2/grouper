@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.2 2006-10-27 21:46:35 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.3 2006-11-30 04:21:49 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Vector;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import net.sf.hibernate.Query;
 
@@ -46,11 +47,14 @@ public class PersistedSignetSource extends SignetSource
 
 	/**
 	 * Elapsed time to wait before refreshing Persistent store from the SourceAPI.
-	 * Value is specified in SubjectSources.xml using the 'latencyMinutes' attribute
+	 * Value is specified in SubjectSources.xml using the 'latency' attribute
 	 * of the <persistedSubjectSource> tag.
 	 * Default: 60 minutes, stored as milliseconds.
 	 */
 	protected long				latency;
+//TODO Digester can't find 'long latency' and ignores the xml element unless
+// a 'String latencyMinutes' is defined (even though it's never used!)
+public String latencyMinutes;
 
 	////////////////////////////////////
 	// The following are "attributes of interest" for Signet (when Signet acts
@@ -115,7 +119,7 @@ public class PersistedSignetSource extends SignetSource
 	 * Supports Digetster and SubjectSources.xml parsing
 	 * @return Returns the latency in minutes.
 	 */
-	public long getLatencyMinutes()
+	public long getLatency()
 	{
 		return (latency / minutesToMillis);
 	}
@@ -133,11 +137,11 @@ public class PersistedSignetSource extends SignetSource
 	/**
 	 * Sets the amount of elapsed time of refreshs between SourceAPI and Persistent store.
 	 * Supports Digetster and SubjectSources.xml parsing
-	 * @param latencyMinutes The latencyMinutes to set, converted to millis internally
+	 * @param latencyMinutes The latency to set, converted to millis internally
 	 */
 	public void setLatencyMinutes(String latencyMinutes)
 	{
-		latency = Long.parseLong(latencyMinutes) * minutesToMillis;
+		this.latency = Long.parseLong(latencyMinutes) * minutesToMillis;
 	}
 
 	/**
@@ -361,7 +365,7 @@ public class PersistedSignetSource extends SignetSource
 
 
 	/**
-	 * Add a usage to this source. Called by Digester when parsing SubjectSources.xml.
+	 * PersistedSignetSource is always set to 'all' Usage. Called by Digester when parsing SubjectSources.xml.
 	 * Supports Digester and SubjectSources.xml parsing
 	 */
 	public void addUsage(String usageStr)
@@ -372,20 +376,20 @@ public class PersistedSignetSource extends SignetSource
 	/**
 	 * Tests to see if this SignetSource supports the given usage (as defined in SubjectSources.xml)
 	 * @param usage The usage to test for
-	 * @return True if usage is a match, false otherwise.
+	 * @return Always True because PersistedSignetSource is 'all'
 	 */
 	public boolean hasUsage(String usage)
 	{
-		return (false);
+		return (true);
 	}
 
-	/**
-	 * @return Returns the Vector of all usage values
-	 */
-	public Vector getUsage()
-	{
-		return (new Vector());
-	}
+//	/**
+//	 * @return Returns the Vector of all usage values
+//	 */
+//	public Vector getUsage()
+//	{
+//		return (usage);
+//	}
 
 
 	/**
@@ -425,6 +429,33 @@ public class PersistedSignetSource extends SignetSource
 			if (null != retval)
 				retval.setSource(signetSources.getSource(sourceId));
 			if (isStale(retval))
+//{
+//System.out.println("PersistedSignetSource.getSubject(sourceId, subjectId): persisted subject, before call to synchSubject = \n" + retval.toString());
+				signetSources.synchSubject(retval);
+//}
+		}
+		catch (ObjectNotFoundException e)
+		{
+			log.warn(e);
+		}
+
+		return (retval);
+	}
+
+
+	/**
+	 * @see edu.internet2.middleware.subject.Source#getSubjectByIdentifier(java.lang.String)
+	 */
+	public Subject getSubjectByIdentifier(String identifier)
+	{
+		SignetSubject retval = null;
+
+		try
+		{
+			retval = persistMgr.getSubjectByIdentifier(identifier);
+			if (null != retval)
+				retval.setSource(signetSources.getSource(retval.getSourceId()));
+			if (isStale(retval))
 				signetSources.synchSubject(retval);
 		}
 		catch (ObjectNotFoundException e)
@@ -442,6 +473,7 @@ public class PersistedSignetSource extends SignetSource
 	 */
 	public Vector getSubjects()
 	{
+//TODO Implement getSubjects
 		return null;
 	}
 
@@ -460,7 +492,8 @@ public class PersistedSignetSource extends SignetSource
 
 	public String toString()
 	{
-		return ("PersistedSignetSource: Id=\"" + getId() + "\" " +
+		return (new String(
+				"PersistedSignetSource: Id=\"" + getId() + "\" " +
 				"Name=\"" + getName() + "\" " +
 				"Description=\"" + getSignetDescription() + "\" " +
 				"RefreshLatency=" + (latency / minutesToMillis) + " " +
@@ -468,8 +501,9 @@ public class PersistedSignetSource extends SignetSource
 				"DisplayId=\"" + getSignetDisplayId() + "\" " +
 				"ContactEmail=\"" + getContactEmail() + "\" " +
 				"\n" +
-				vectorToString("UniqueIds", uniqueId) + "\n" +
-				vectorToString("OutputXml", outputXml));
+				vectorToString("UniqueIds", uniqueId) + " \n" +
+				vectorToString("OutputXml", outputXml) + " \n" +
+				vectorToString("Usage", usage)));
 	}
 
 

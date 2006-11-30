@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.70 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: Common.java,v 1.71 2006-11-30 04:21:49 ddonn Exp $
+$Date: 2006-11-30 04:21:49 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -1513,10 +1513,7 @@ public class Common
   
   static public String buildCompoundId(SignetSubject pSubject)
   {
-    return
-      pSubject.getType().getName()
-      + Constants.COMPOSITE_ID_DELIMITER
-      + pSubject.getId();
+    return (new String(pSubject.getSourceId() + Constants.COMPOSITE_ID_DELIMITER + pSubject.getId()));
   }
   
   static public String[] parseCompoundId(String compoundId)
@@ -1582,15 +1579,15 @@ public class Common
     // Find the PrivilegedSubject specified by the "grantee" parameters, and
     // stash it in the Session. If those parameters are not present, then
     // it must already be stashed in the Session by some prior action.
-//TODO !!! get SourceId, not Type
-if (true) // side-step compiler error
-  throw new ObjectNotFoundException("Use SourceId, not Type");
+////TODO !!! get SourceId, not Type
+//if (true) // side-step compiler error
+//  throw new ObjectNotFoundException("Use SourceId, not Type");
 
-    String granteeSubjectTypeId = request.getParameter("granteeSubjectTypeId");
-    String granteeSubjectId = request.getParameter("granteeSubjectId");
+    String granteeSourceId = request.getParameter(Constants.SIGNET_SOURCE_ID_HTTPPARAMNAME);
+    String granteeSubjectId = request.getParameter(Constants.SIGNET_SUBJECT_ID_HTTPPARAMNAME);
     if (granteeSubjectId != null)
     {
-      grantee = signet.getSubject(granteeSubjectTypeId, granteeSubjectId);
+      grantee = signet.getSubject(granteeSourceId, granteeSubjectId);
       request.getSession().setAttribute(Constants.CURRENTPSUBJECT_ATTRNAME, grantee);
     }
     else

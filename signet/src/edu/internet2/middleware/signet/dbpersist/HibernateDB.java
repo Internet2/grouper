@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.2 2006-10-25 00:09:40 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.3 2006-11-30 04:21:50 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -414,10 +414,14 @@ public class HibernateDB
 		List resultList;
 		try
 		{
-			query = createQuery("from edu.internet2.middleware.signet.AssignmentImpl" + " as assignment"
-					+ " where granteeKey  = :granteeKey" + " and functionKey   = :functionKey" + " and scopeID       = :scopeId"
-					+ " and scopeNodeID   = :scopeNodeId" + " and assignmentID != :assignmentId");
-			query.setParameter("granteeKey", assignment.getGrantee().getId(), Hibernate.INTEGER);
+			query = createQuery("from edu.internet2.middleware.signet.AssignmentImpl " +
+					" as assignment " + 
+					" where granteeKey = :granteeKey " + 
+					" and functionKey = :functionKey " + 
+					" and scopeID = :scopeId " + 
+					" and scopeNodeID = :scopeNodeId " +
+					" and assignmentID != :assignmentId ");
+			query.setParameter("granteeKey", assignment.getGrantee().getSubject_PK(), Hibernate.LONG);
 			query.setParameter("functionKey", ((FunctionImpl)(assignment.getFunction())).getKey(), Hibernate.INTEGER);
 			query.setString("scopeId", assignment.getScope().getTree().getId());
 			query.setString("scopeNodeId", assignment.getScope().getId());
@@ -729,11 +733,10 @@ public class HibernateDB
 	public SignetSubject getSubject(String sourceId, String subjectId)
 			throws ObjectNotFoundException
 	{
-		Query query;
 		List resultList;
 		try
 		{
-			query = createQuery(
+			Query query = createQuery(
 					"from " +
 					SignetSubject.class.getName() +
 					" as signetSubject " +
@@ -775,6 +778,68 @@ public class HibernateDB
 
 		return (retval);
 	}
+
+
+	public SignetSubject getSubjectByIdentifier(String identifier)
+			throws ObjectNotFoundException
+	{
+		List resultList;
+		try
+		{
+			Query query = createQuery(
+				"from " +
+					SignetSubject.class.getName() + " signet_subject, " +
+					" signet_subject.subjectAttrs " + " signet_subjectattribute, " +
+					" signet_subjectattribute.sourceValues " + " signet_subjectattrvalue " +
+				" where " +
+					" signet_subjectattrvalue.value = :identifier" +
+					" and " +
+					" signet_subjectattribute.mappedName = 'subjectAuthId' " +
+					" and " +
+					" signet_subjectattrvalue.parent.subjectAttr_PK = signet_subjectattribute.subjectAttr_PK " +
+					" and " +
+					" signet_subjectattribute.parent.subject_PK = signet_subject.subject_PK");
+			query.setString("identifier", identifier);
+			resultList = query.list();
+		}
+		catch (HibernateException he)
+		{
+			throw new SignetRuntimeException(he);
+		}
+
+		SignetSubject retval = null;
+
+		Object[] msgData;
+		MessageFormat msgFmt;
+		switch (resultList.size())
+		{
+			case (0):
+				msgData = new Object[] { identifier };
+				String msgTemplate = ResLoaderApp.getString("HibernateDb.msg.exc.SubjNotFound");  //$NON-NLS-1$
+				msgFmt = new MessageFormat(msgTemplate);
+				String msg = msgFmt.format(msgData);
+				throw new ObjectNotFoundException(msg);
+			case (1):
+// returns an array of arrays!
+// The sub-array contains a SignetSubject, SignetSubjectAttr, and a SignetSubjectAttrValue
+Object obj = resultList.iterator().next();
+if (obj instanceof Object[])
+	retval = (SignetSubject)((Object[])obj)[0];
+else
+	retval = (SignetSubject)obj;
+//				retval = (SignetSubject)resultList.iterator().next();
+				break;
+			default:
+				msgData = new Object[] { new Integer(resultList.size()), identifier };
+				msgFmt = new MessageFormat(ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_1") + //$NON-NLS-1$
+						ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_2") + //$NON-NLS-1$
+						ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_3")); //$NON-NLS-1$
+				throw new SignetRuntimeException(msgFmt.format(msgData));
+		}
+
+		return (retval);
+	}
+
 
 
 }

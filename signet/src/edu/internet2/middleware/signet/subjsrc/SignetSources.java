@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.2 2006-10-27 21:46:35 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.3 2006-11-30 04:21:49 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -33,7 +33,6 @@ import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.resource.ResLoaderApp;
-import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -49,21 +48,40 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class SignetSources
 {
-//TODO Load these as resources!!
-	/* Tags for Digester parser */
+	/** SubjectSources XML Tag */
 	public static final String		TAG_SEP					= "/";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_SRCS_TAG			= "signetSubjectSources";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_SRC_TAG			= "signetSubjectSource";
+	/** SubjectSources XML Tag */
 	public static final String		PERSISTED_SRC_TAG		= "persistedSubjectSource";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_NAME_TAG			= "signetName";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_SORTNAME_TAG		= "signetSortName";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_DESC_TAG			= "signetDescription";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_DISPLAYID_TAG	= "signetDisplayId";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_OUTPUTXML_TAG	= "outputXml";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_UNIQUEID_TAG		= "uniqueId";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_EMAIL_TAG		= "contactEmail";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_USAGE_TAG		= "usage";
+	/** SubjectSources XML Tag */
 	public static final String		SIGNET_MAPPEDATTR_TAG	= "mappedAttribute";
+
+	/** A common Usage value for a SignetSource */
+	public static final String		SIGNET_USAGE_LOGIN		= "login";
+	/** A common Usage value for a SignetSource */
+	public static final String		SIGNET_USAGE_SEARCH		= "search";
+	/** A common Usage value for a SignetSource */
+	public static final String		SIGNET_USAGE_ALL		= "all";
+
 
 	// logging
 	protected Log				log = LogFactory.getLog(Signet.class);
@@ -128,6 +146,7 @@ public class SignetSources
 		}
 
 		sigAppSource = new SignetAppSource(this, SignetAppSource.SIGNET_SOURCE_ID);
+//		sigAppSource.mappedAttributes = persistedSource.getMappedAttributes()
 	}
 
 
@@ -149,7 +168,7 @@ public class SignetSources
 //				"status",		"failover"};
 //		// mapping for Digester and SignetSubjects.xml
 //		String[] xmlAttributesMap =
-//			{"sourceId",	"sourceName",	/*"latencyMinutes",*/	"subjectType",
+//			{"sourceId",	"sourceName",	/*"latency",*/	"subjectType",
 //				"status",		"failover"};
 
 		boolean status = false; // assume failure
@@ -165,7 +184,7 @@ public class SignetSources
 		digester.addSetNext(tag, "addSource");
 
 		tag = buildTag(SIGNET_SRCS_TAG) + buildTag(PERSISTED_SRC_TAG) + SIGNET_NAME_TAG;
-		digester.addCallMethod(tag, "setName", 1);
+		digester.addCallMethod(tag, "setSignetName", 1);
 		digester.addCallParam(tag, 0);
 
 		tag = buildTag(SIGNET_SRCS_TAG) + buildTag(PERSISTED_SRC_TAG) + SIGNET_SORTNAME_TAG;
@@ -252,7 +271,7 @@ public class SignetSources
 		String srcId = signetSource.getId();
 		if ((null != srcId) && (0 < srcId.length()))
 		{
-System.out.println("SignetSources.addSource: about to add SignetSource:\n" + signetSource.toString());
+//System.out.println("SignetSources.addSource: about to add SignetSource:\n" + signetSource.toString());
 			// check if it's already in the "normal" source list
 			if (null == getSource(srcId))
 			{
@@ -345,6 +364,11 @@ System.out.println("SignetSources.addSource: about to add SignetSource:\n" + sig
 
 		SignetSubject retval = null;
 
+		// first, check for persisted subject
+		if (null != persistedSource)
+			retval = (SignetSubject)persistedSource.getSubjectByIdentifier(identifier);
+
+		// if it's not in persisted store, check all regular sources
 		for (Iterator srcs = signetSources.iterator();
 				srcs.hasNext() && (null == retval);)
 		{
@@ -360,11 +384,11 @@ System.out.println("SignetSources.addSource: about to add SignetSource:\n" + sig
 	 * known SignetSource objects, in order, and collects all matching Subjects
 	 * for all Sources.
 	 * @param identifier A String that is compared to various fields/attributes (e.g. sunetId)
-	 * @return A Set of matching SignetSubjects, or an empty Set (not null!)
+	 * @return A Set of matching SignetSubjects, or an empty Set (never null!)
 	 */
 	public Set getSubjectsByIdentifier(String identifier)
 	{
-		HashSet retval = new HashSet();
+		Set retval = new HashSet();
 
 		if ((null == identifier) || (0 >= identifier.length()))
 			return (retval);
@@ -372,9 +396,9 @@ System.out.println("SignetSources.addSource: about to add SignetSource:\n" + sig
 		for (Iterator srcs = signetSources.iterator(); srcs.hasNext(); )
 		{
 			SignetSource src = (SignetSource)srcs.next();
-			Subject subj = src.getSubjectByIdentifier(identifier);
-			if (null != subj)
-				retval.add(subj);
+			Set subjs = src.search(identifier);
+			if (null != subjs)
+				retval.addAll(subjs);
 		}
 
 		return (retval);
@@ -431,6 +455,31 @@ System.out.println("SignetSources.addSource: about to add SignetSource:\n" + sig
 		SignetSource src = getSource(sourceId);
 		if (null != src)
 			retval = src.getSubjects();
+
+		return (retval);
+	}
+
+	/**
+	 * Get a Subject, by identifier that matches the given usage.
+	 * This method scans all known SignetSource objects that match the given
+	 * Usage attribute as defined in the SubjectSources.xml configuration.
+	 * @param usage A String representing the Source usage attribute.
+	 * @param identifier A String representing the Subject
+	 * @return A SignetSubject, or null
+	 */
+	public SignetSubject getSubjectByUsage(String usage, String identifier)
+	{
+		SignetSubject retval = null;
+
+		Vector vSrcs = getSourcesByUsage(usage);
+		if (null != vSrcs)
+		{
+			for (Iterator srcs = vSrcs.iterator(); srcs.hasNext() && (null == retval); )
+			{
+				SignetSource src = (SignetSource)srcs.next();
+				retval = (SignetSubject)src.getSubjectByIdentifier(identifier);
+			}
+		}
 
 		return (retval);
 	}
@@ -502,24 +551,28 @@ System.out.println("SignetSources.addSource: about to add SignetSource:\n" + sig
 	 * Attempt to refresh this SignetSubject with information from it's original
 	 * Source (in the SubjectAPI). Typically, this method is called for Subjects
 	 * that have been retrieved from Persisted store and have exceeded their
-	 * latency (i.e. isStale() == true).
+	 * latency (i.e. isStale() == true). If the SignetSubject is persisted,
+	 * re-persist it after synchronization occurs.
 	 * @return true if the synchronization occurred (whether or not new
 	 * information was actually obtained) or false if the Source is unavailable
+	 * or the original Subject was not found in in the Source.
 	 */
 	public boolean synchSubject(SignetSubject sigSubject)
 	{
 		if (null == sigSubject)
 			return (false);
 
-		SignetSource sigSource = getSource(sigSubject.getSourceId());
-		if (null == sigSource)
-			return (false);
-
-		Subject apiSubject = sigSource.getSubject(sigSubject.getId());
+		SignetSubject apiSubject = getSubjectBySource(sigSubject.getSourceId(), sigSubject.getId());
 		if (null == apiSubject)
 			return (false);
+//System.out.println("\n\nSignetSources.synchSubject: About to synch the following subjects:\n" + sigSubject.toString() + "\n" + apiSubject.toString());
 
-		return (sigSubject.synchSubject(apiSubject));
+		boolean isPersisted = sigSubject.isPersisted();
+		boolean synchStatus = sigSubject.synchSubject(apiSubject);
+		if (isPersisted && synchStatus)
+			sigSubject.save(); // re-persist the updated Subject
+
+		return (synchStatus);
 	}
 
 
@@ -535,20 +588,25 @@ System.out.println("SignetSources.addSource: about to add SignetSource:\n" + sig
 	/**
 	 * Returns a Vector of all SignetSource objects that match the given usage.
 	 * @return Vector of SignetSource objects, or empty Vector (not null!)
-	 * 
 	 */
 	public Vector getSourcesByUsage(String usage)
 	{
 		Vector retval = new Vector();
 
-		if ((null != usage) && (0 < usage.length()))
+		if ((null == usage) || (0 >= usage.length()))
+			return (retval);
+
+		if ((null != persistedSource) && persistedSource.hasUsage(usage))
+			retval.add(persistedSource);
+
+		if ((null != sigAppSource) && sigAppSource.hasUsage(usage))
+			retval.add(sigAppSource);
+
+		for (Iterator srcs = signetSources.iterator(); srcs.hasNext(); )
 		{
-			for (Iterator srcs = signetSources.iterator(); srcs.hasNext();)
-			{
-				SignetSource src = (SignetSource)srcs.next();
-				if (src.hasUsage(usage))
-					retval.add(src);
-			}
+			SignetSource src = (SignetSource)srcs.next();
+			if (src.hasUsage(usage))
+				retval.add(src);
 		}
 
 		return (retval);
@@ -600,13 +658,16 @@ System.out.println("SignetSources.addSource: about to add SignetSource:\n" + sig
 				retval = src;
 		}
 
-		// if not found, is it in Persisted or AppSource?
+		// if not found, is it in AppSource or Persisted?
 		if (null == retval)
 		{
-			if ((null != persistedSource) && (sourceId.equals(persistedSource.getId())))
-				retval = persistedSource;
-			else if ((null != sigAppSource) && (sourceId.equals(sigAppSource.getId())))
+			if ((null != sigAppSource) && (sourceId.equals(sigAppSource.getId())))
 				retval = sigAppSource;
+
+			// shouldn't ever see a SignetSubject whose Source is PersistedSignetSource,
+			// but check anyway
+			else if ((null != persistedSource) && (sourceId.equals(persistedSource.getId())))
+				retval = persistedSource;
 		}
 
 		return (retval);

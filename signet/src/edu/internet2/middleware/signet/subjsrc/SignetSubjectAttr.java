@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.2 2006-10-27 21:46:35 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.3 2006-11-30 04:21:49 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -45,8 +45,9 @@ public class SignetSubjectAttr
 	/**
 	 * Mapped attribute name as defined in SubjectSources.xml. Note that the
 	 * SubjectAPI's attribute name (the name that is mappped _to_) is only
-	 * maintained in this SignetSource that owns the SignetSubject that owns
-	 * this SignetSubjectAttr.
+	 * maintained in the SignetSource that owns the SignetSubject that owns
+	 * this SignetSubjectAttr. mappedName is the Signet-internal attribute name
+	 * that has been homogenized across all Sources. 
 	 */
 	protected String	mappedName;
 
@@ -178,48 +179,46 @@ public class SignetSubjectAttr
 	}
 
 	/**
-//	 * Replace the Attribute's set of Values and sets each Value's parent and sequence.
+	 * Replace this Attribute's set of Values and sets each Value's parent.
+	 * Support for Hibernate.
 	 * @param sourceValues A List of SignetSubjectAttrValue objects
 	 */
 	public void setSourceValues(List sourceValues)
 	{
-		this.sourceValues = sourceValues;
-//		this.sourceValues.clear();
-//
-//		if (null != sourceValues)
-//		{
-//			for (Iterator values = sourceValues.iterator(); values.hasNext(); )
-//				addSourceValue((SignetSubjectAttrValue)values.next());
-//		}
+		if (null != (this.sourceValues = sourceValues)) // yes, I do mean "="
+		{
+			for (Iterator iter = this.sourceValues.iterator(); iter.hasNext(); )
+				((SignetSubjectAttrValue)iter.next()).setParent(this);
+		}
 	}
 
 	/**
 	 * Replace the Attribute's set of Values and sets each Value's parent and sequence.
-	 * @param values A Set of Strings
+	 * @param strValues A Set of Strings
 	 */
-	public void setSourceValues(Set values)
+	public void setSourceValues(Set strValues)
 	{
 		this.sourceValues.clear();
 
-		if (null != values)
+		if (null != strValues)
 		{
-			for (Iterator strs = values.iterator(); strs.hasNext(); )
+			for (Iterator strs = strValues.iterator(); strs.hasNext(); )
 				addSourceValue((String)strs.next());
 		}
 	}
 
 
 	/**
-	 * Add another value to this attribute. Sets the value's sequence to the next
-	 * highest (1-based) number. Sets the value's parent reference.
+	 * Add another value to this attribute. Assumes the value's 0-based sequence
+	 * has already been set. Sets the value's parent reference.
 	 * @param value The SignetSubjectAttrValue to add
 	 */
 	public void addSourceValue(SignetSubjectAttrValue value)
 	{
 		if (null != value)
 		{
-			sourceValues.add(value);
-			value.setSequence(sourceValues.size() - 1);
+			int seq = (int)value.getSequence();
+			sourceValues.add(seq, value);
 			value.setParent(this);
 			refreshModifyDate();
 		}
@@ -233,7 +232,11 @@ public class SignetSubjectAttr
 	public void addSourceValue(String strValue)
 	{
 		if (null != strValue)
-			addSourceValue(new SignetSubjectAttrValue(strValue));
+		{
+			SignetSubjectAttrValue value = new SignetSubjectAttrValue(strValue);
+			value.setSequence(sourceValues.size());
+			addSourceValue(value);
+		}
 	}
 
 	/**
@@ -257,7 +260,7 @@ public class SignetSubjectAttr
 	 */
 	public Set getValuesAsStringSet()
 	{
-		HashSet retval = new HashSet();
+		Set retval = new HashSet();
 
 		if (null == sourceValues)
 			return (retval);
@@ -347,12 +350,26 @@ public class SignetSubjectAttr
 			return (false);
 	}
 
-	/** quick and dirty equals implementation */
+	/** Deep compare of <mappedName> and <sourceValues> only  */
 	public boolean equals(SignetSubjectAttr attr)
 	{
 		boolean retval = false; // assume failure
+
 		if (null != attr)
-			retval = toString().equals(attr.toString());
+		{
+			if (retval = mappedName.equals(attr.getMappedName())) // yes, I do mean "="
+			{
+				List otherValues = attr.getSourceValues();
+				if (retval = sourceValues.size() == otherValues.size()) // yes, I do mean "="
+				for (int i = 0; (i < sourceValues.size()) && retval; i++)
+				{
+					SignetSubjectAttrValue myValue = (SignetSubjectAttrValue)sourceValues.get(i);
+					SignetSubjectAttrValue otherValue = (SignetSubjectAttrValue)otherValues.get(i);
+					retval = myValue.equals(otherValue);
+				}
+			}
+		}
+
 		return (retval);
 	}
 

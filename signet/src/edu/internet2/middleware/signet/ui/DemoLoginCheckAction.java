@@ -1,6 +1,6 @@
 /*--
-$Id: DemoLoginCheckAction.java,v 1.4 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: DemoLoginCheckAction.java,v 1.5 2006-11-30 04:21:49 ddonn Exp $
+$Date: 2006-11-30 04:21:49 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -27,6 +27,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.subjsrc.SignetSources;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
@@ -131,7 +132,7 @@ public final class DemoLoginCheckAction extends BaseAction
 //      return findFailure(mapping);
 //    }
     
-    SignetSubject loggedInUser = signet.getSubjectByIdentifier(username);
+    SignetSubject loggedInUser = signet.getSubjectByUsage(SignetSources.SIGNET_USAGE_LOGIN, username);
 	if (null == loggedInUser)
 		return (findFailure(mapping));
 

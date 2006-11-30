@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.8 2006-10-27 20:40:36 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.9 2006-11-30 04:21:49 ddonn Exp $ -->
 
 <!--
 	Note that values that enclosed in "@" will be replaced during an
@@ -9,7 +9,7 @@
 
 <sources>
 
-  <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
+  <source adapterClass="edu.internet2.middleware.signet.subjsrc.SignetJDBCSourceAdapter">
     <id>local_person</id>
     <name>Local Subject Source for People</name>
     <type>person</type>
@@ -46,7 +46,7 @@
 
      <init-param>
       <param-name>SubjectID_AttributeType</param-name>
-      <param-value>id</param-value>
+      <param-value>subjectid</param-value>
     </init-param>
     <init-param>
       <param-name>Name_AttributeType</param-name>
@@ -54,7 +54,7 @@
     </init-param>
     <init-param>
       <param-name>Description_AttributeType</param-name>
-      <param-value>name</param-value>
+      <param-value>description</param-value>
     </init-param>
 
     <search>
@@ -62,7 +62,7 @@
         <param>
             <param-name>sql</param-name>
             <param-value>
-                select id, 
+<!--                select id, 
                   concat(firstname, concat(' ', lastname)) as name, 
                   concat(lastname, concat(', ', firstname)) as lfname,
                   lastname, firstname, middlename,
@@ -74,6 +74,19 @@
                   left join staff on (staff.individualid = id)
                   left join student on (student.individualid = id)
                 where (id='%TERM%')
+-->
+				SELECT
+						subj.subjecttypeid,
+						subj.subjectid,
+						subj.name			AS name,
+						subj.description	AS description,
+						subj.displayid,
+						subj.modifydatetime
+					FROM
+						subject subj
+					WHERE
+						subj.subjectid = '%TERM%'
+
             </param-value>
        </param>
     </search>
@@ -99,16 +112,13 @@
 				SELECT
 						subj.subjecttypeid,
 						subj.subjectid,
-						subj.name			AS name,
-						subj.description	AS description,
+						subj.name,
+						subj.description,
 						subj.displayid,
-						subj.modifydatetime,
-						attr.name			AS attr_name,
-						attr.value			AS id,
-						attr.searchvalue
+						subj.modifydatetime
 					FROM
-						subject AS subj,
-						subjectattribute AS attr
+						subject subj,
+						subjectattribute attr
 					WHERE
 						subj.subjectid = attr.subjectid AND
 						attr.name = 'loginid' AND
@@ -121,6 +131,7 @@
         <param>
             <param-name>sql</param-name>
             <param-value>
+<!--
                 select id, 
                   concat(firstname, concat(' ', lastname)) as name, 
                   concat(lastname, concat(', ', firstname)) as lfname,
@@ -136,13 +147,33 @@
                   or (lastname like '%%TERM%%') 
                   or (department like '%%TERM%%') 
                   or (account.name like '%%TERM%%')
+-->
+				SELECT
+				        DISTINCT 
+				        subj.subjecttypeid,
+				        subj.subjectid,
+				        subj.name,
+				        subj.description,
+				        subj.displayid,
+				        subj.modifydatetime
+				    FROM
+				        subject subj,
+				        subjectattribute attr
+				    WHERE
+				        subj.subjectid = attr.subjectid AND
+				        ((attr.name = 'loginid' AND
+				            lower(attr.value) like lower('%TERM%')) OR
+				        (attr.name = 'name' AND
+				            lower(attr.value) like lower('%TERM%')) OR
+				        (attr.name = 'all' AND
+				            lower(attr.value) = lower('%TERM%')))
             </param-value>
         </param>
     </search>
 
   </source>
 
-  <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
+  <source adapterClass="edu.internet2.middleware.signet.subjsrc.SignetJDBCSourceAdapter">
     <id>local_group</id>
     <name>Local Subject Source for Groups</name>
     <type>group</type>

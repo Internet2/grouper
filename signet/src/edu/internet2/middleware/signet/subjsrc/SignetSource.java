@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.2 2006-10-27 21:46:35 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.3 2006-11-30 04:21:49 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -42,32 +42,41 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class SignetSource implements Source
 {
+	/** Status of this Source */
 	public static final String		STATUS_ACTIVE			= "active";
+	/** Status of this Source */
 	public static final String		STATUS_INACTIVE			= "inactive";
 //	public static final String		TYPE_DEFAULT			= "any";
-	public static final String		USAGE_DEFAULT			= "all";
+	/** Default Usage value */
+	public static final String		USAGE_DEFAULT			= SignetSources.SIGNET_USAGE_ALL;
 
 	// logging
 	protected Log			log = LogFactory.getLog(SignetSource.class);
 
-	protected String		id;				// Application and SubjectAPI Source 'id'
-	protected String		name;			// SubjectAPI source name, if sourceName is specified in SubjectSources.xml it overrides name from Sources.xml
-	protected String		type;			// the Signet type of this Source
-	protected String		status;			// active or inactive
-	protected boolean		failover;		// indicates whether to run in degraded mode if SubjectAPI is unavailable
-	protected Vector		usage;			// list of usage categories
-	// Signet's attributes-of-interest. Key=mappedAttribute name, Value=sourceAttriubute name.
-	// Note that the mappedAttribute and it's corresponding sourceValue are
-	// stored in each SignetSubject.
+	/** Application and SubjectAPI Source 'id' */
+	protected String		id;
+	/** SubjectAPI source name, if sourceName is specified in SubjectSources.xml it overrides name from Sources.xml */
+	protected String		name;
+	/** the Signet type of this Source */
+	protected String		type;
+	/** active or inactive */
+	protected String		status;
+	/** indicates whether to run in degraded mode if SubjectAPI is unavailable */
+	protected boolean		failover;
+	/** list of usage categories */
+	protected Vector		usage;
+	/** Signet's attributes-of-interest. Key=mappedAttribute name, Value=sourceAttriubute name.
+	    Note that the mappedAttribute and it's corresponding sourceValue are
+	    stored in each SignetSubject. */
 	protected Hashtable		mappedAttributes;
 
-	// Reference to the SourceManager used by this Signet instance
+	/** Reference to the SourceManager used by this Signet instance */
 	protected SourceManager	sourceManager;
 
-	/** Reference to SubjectAPI Source that this is a wrapper for */
+	/** Reference to the real SubjectAPI Source that this is wrapping */
 	protected Source		apiSource;
 
-	// Reference to SignetSources (i.e. back up the chain of command)
+	/** Reference to SignetSources (i.e. back up the chain of command) */
 	protected SignetSources	signetSources;
 
 
@@ -210,14 +219,14 @@ public class SignetSource implements Source
 		if ((null == appAttr) || (0 >= appAttr.length()) ||
 				(null == sourceAttr) || (0 >= sourceAttr.length()))
 		{
-			log.warn("SignetSubjectSource.addMappedAttribute: Warning - " +
+			log.warn("SignetSource.addMappedAttribute: Warning - " +
 					"invalid parameter " + "(" + appAttr + ", " + sourceAttr + ")");
 			return;
 		}
 
 		String oldValue = (String)mappedAttributes.put(appAttr, sourceAttr);
 		if (null != oldValue)
-			log.warn("SignetSubjectSource.addMappedAttribute: Warning - " +
+			log.warn("SignetSource.addMappedAttribute: Warning - " +
 					"previous value in Signet Source \"" + name + "\"" +
 					" for mappedAttribute \"" + appAttr + "\"" +
 					" has been replaced" +
@@ -424,13 +433,15 @@ public class SignetSource implements Source
 	}
 
 	/**
-	 * Returns a Set of SignetSubject objects that match the searchValue
+	 * Returns a Set of SignetSubject objects that match the searchValue. If no
+	 * Subjects are found that match the searchValue, an empty Set is returned.
 	 * @param searchValue The search criteria
+	 * @return A Set of SignetSubjects that match searchValue, or an empty set (never null!)
 	 * @see edu.internet2.middleware.subject.Source#search(java.lang.String)
 	 */
 	public Set search(String searchValue)
 	{
-		HashSet retval = new HashSet();
+		Set retval = new HashSet();
 
 		if ((null == searchValue) || (0 >= searchValue.length()))
 			return (retval);
@@ -483,18 +494,19 @@ public class SignetSource implements Source
 	//////////////////////////////////
 
 	/**
-	 * Returns a formatted String representation of SignetSubjectSource.
+	 * Returns a formatted String representation of SignetSource.
 	 */
 	public String toString()
 	{
-		return ("SignetSource: Id=\"" + getId() + "\" " +
+		return (new String(
+				"SignetSource: Id=\"" + getId() + "\" " +
 				"Name=\"" + getName() + "\" " +
 				"Status=\"" + getStatus() + "\" " +
 				"Failover=\"" + getFailover() + "\" " +
 				"Type=\"" + getSubjectType() + "\" " +
 				"\n" +
-				mappedAttributesToString() + "\n" +
-				vectorToString("Usage", usage));
+				mappedAttributesToString() + " \n" +
+				vectorToString("Usage", usage)));
 	}
 
 	/**

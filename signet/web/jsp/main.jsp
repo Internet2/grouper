@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.8 2006-10-25 00:13:31 ddonn Exp $
-  $Date: 2006-10-25 00:13:31 $
+  $Id: main.jsp,v 1.9 2006-11-30 04:21:50 ddonn Exp $
+  $Date: 2006-11-30 04:21:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -207,6 +207,7 @@ System.err.println("RUNNING INITCONTROLS");
 <%@ page import="java.util.SortedSet" %>
 <%@ page import="java.util.TreeSet" %>
 
+<%@page import="edu.internet2.middleware.subject.Subject"%>
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
@@ -332,8 +333,8 @@ System.err.println("RUNNING INITCONTROLS");
             </label>
             </p>
           
-        </form> <!-- grantForm -->
-      </div> <!-- grant -->
+        </div> <!-- grant -->
+      </form> <!-- grantForm -->
       
       <div class="actionbox"> 
         <h2>

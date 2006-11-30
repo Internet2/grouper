@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetAppSource.java,v 1.1 2006-10-25 00:09:40 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetAppSource.java,v 1.2 2006-11-30 04:21:49 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -48,6 +48,19 @@ public class SignetAppSource extends SignetSource
 		setStatus(SignetSource.STATUS_ACTIVE);
 		setSubjectType(SubjectTypeEnum.APPLICATION.getName());
 		signetSubject = null;
+
+		initAttributes();
+	}
+
+
+	/**
+	 * Initailize the hard-coded attributes for the Signet "super" subject
+	 */
+	protected void initAttributes()
+	{
+		// the only attribute (for now) is Description
+		String descAttr = signetSources.getPersistedSource().getSignetDescription();
+		addMappedAttribute(descAttr, descAttr);
 	}
 
 
@@ -70,15 +83,15 @@ public class SignetAppSource extends SignetSource
 			if (null == signetSubject)
 			{
 				signetSubject = new SignetSubject();
-				signetSubject.setDescription(SignetSubject.SIGNET_DESC);
+				signetSubject.setSource(this);
+
 				signetSubject.setId(SignetSubject.SIGNET_SUBJECT_ID);
 				signetSubject.setName(SignetSubject.SIGNET_NAME);
-				signetSubject.setSource(this);
 				signetSubject.setType(SubjectTypeEnum.APPLICATION.getName());
+				signetSubject.setDescription(SignetSubject.SIGNET_DESC);
+				signetSubject.setModifyDatetime(new Date(System.currentTimeMillis()));
 				signetSubject.setSynchDatetime(new Date(0L));
 			}
-
-			signetSubject.setModifyDatetime(new Date(System.currentTimeMillis()));
 			retval = signetSubject;
 		}
 
@@ -111,7 +124,7 @@ public class SignetAppSource extends SignetSource
 	 */
 	public Set search(String searchValue)
 	{
-		HashSet retval = new HashSet();
+		Set retval = new HashSet();
 
 		if (getSubject(SignetSubject.SIGNET_SUBJECT_ID).getId().equals(searchValue))
 			retval.add(signetSubject);

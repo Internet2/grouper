@@ -29,15 +29,16 @@
 <DIV id="Content"> 
   <DIV id="ViewHead">
     <SPAN class="dropback">
-      <%=ResLoaderUI.getString("privilegesGrantedReport.page.hdr") %></SPAN> 
+      <%=ResLoaderUI.getString("privilegesGrantedReport.page.hdr") %>
+    </SPAN> 
       <H1>
         <%=pSubject.getName()%>
       </H1>
       <SPAN class="ident">
         <%=pSubject.getDescription()%>
       </SPAN>
-    </span> <!-- dropback -->
-  </DIV> <!-- ViewHead -->
+  </DIV> 
+  <!-- ViewHead -->
 
   <DIV class="tableheader">
   <!-- stubbing out export option for release 1.0
@@ -159,7 +160,7 @@
 %>
           <TD><!-- subject -->
               <A
-              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystemFilter == null ? "" : ("&subsystemId=" + subsystemFilter.getId()))%>"> <%=grantee.getName()%> </A> </TD>
+              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectType()%>&granteeSubjectId=<%=grantee.getId()%><%=(subsystemFilter == null ? "" : ("&subsystemId=" + subsystemFilter.getId()))%>"> <%=grantee.getName()%> </A> </TD>
           <!-- subject -->
           <%
     }

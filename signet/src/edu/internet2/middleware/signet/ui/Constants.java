@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.24 2006-05-09 01:33:33 ddonn Exp $
-$Date: 2006-05-09 01:33:33 $
+$Id: Constants.java,v 1.25 2006-11-30 04:21:49 ddonn Exp $
+$Date: 2006-11-30 04:21:49 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -160,6 +160,10 @@ public final class Constants
   public static final String DEMO_USERNAME_HTTPPARAMNAME = "username";
   public static final String DEMO_PASSWORD_HTTPPARAMNAME = "password";
   public static final String DEMO_PASSWORD = "signet";
+
+  public static final String SIGNET_SOURCE_ID_HTTPPARAMNAME = "SignetSourceId_param";
+  public static final String SIGNET_SUBJECT_ID_HTTPPARAMNAME = "SignetSubjectId_param";
+
 
   public static final Subsystem WILDCARD_SUBSYSTEM
     = new Subsystem()
