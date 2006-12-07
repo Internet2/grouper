@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.3 2006-11-30 04:21:49 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.4 2006-12-07 02:12:40 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -82,9 +82,8 @@ public class SignetSources
 	/** A common Usage value for a SignetSource */
 	public static final String		SIGNET_USAGE_ALL		= "all";
 
-
 	// logging
-	protected Log				log = LogFactory.getLog(Signet.class);
+	protected Log				log = LogFactory.getLog(SignetSources.class);
 
 	/** List of "standard" Subject Sources as defined in SubjectSources.xml.
 	 * signetSources is a Vector, as opposed to a Hashtable, because it will be

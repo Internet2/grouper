@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.71 2006-11-30 04:21:49 ddonn Exp $
-$Date: 2006-11-30 04:21:49 $
+$Id: Common.java,v 1.72 2006-12-07 02:12:40 ddonn Exp $
+$Date: 2006-12-07 02:12:40 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -1569,23 +1569,24 @@ public class Common
 //    return pSubject;
 //  }
   
-  static public SignetSubject getGrantee
-    (Signet             signet,
-     HttpServletRequest request)
-  throws ObjectNotFoundException
+  	/**
+	 * Find the PrivilegedSubject specified by the "grantee" parameters, and stash
+	 * it in the Session. If those parameters are not present, then it must already
+	 * be stashed in the Session by some prior action.
+	 * @param signet This instance of Signet (context)
+	 * @param request The Request
+	 * @return The Subject that is the Grantee
+	 * @throws ObjectNotFoundException
+	 */
+  static public SignetSubject getGrantee(Signet signet, HttpServletRequest request)
+				throws ObjectNotFoundException
   {
     SignetSubject grantee;
-    
-    // Find the PrivilegedSubject specified by the "grantee" parameters, and
-    // stash it in the Session. If those parameters are not present, then
-    // it must already be stashed in the Session by some prior action.
-////TODO !!! get SourceId, not Type
-//if (true) // side-step compiler error
-//  throw new ObjectNotFoundException("Use SourceId, not Type");
 
     String granteeSourceId = request.getParameter(Constants.SIGNET_SOURCE_ID_HTTPPARAMNAME);
     String granteeSubjectId = request.getParameter(Constants.SIGNET_SUBJECT_ID_HTTPPARAMNAME);
-    if (granteeSubjectId != null)
+
+    if (null != granteeSubjectId)
     {
       grantee = signet.getSubject(granteeSourceId, granteeSubjectId);
       request.getSession().setAttribute(Constants.CURRENTPSUBJECT_ATTRNAME, grantee);
@@ -1594,7 +1595,7 @@ public class Common
     {
       grantee = (SignetSubject)request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
     }
-    
+
     return grantee;
   }
   

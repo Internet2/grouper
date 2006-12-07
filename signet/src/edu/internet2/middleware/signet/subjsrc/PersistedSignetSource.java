@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.3 2006-11-30 04:21:49 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.4 2006-12-07 02:12:40 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -21,6 +21,8 @@ package edu.internet2.middleware.signet.subjsrc;
 
 import java.util.Calendar;
 import java.util.Vector;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.subject.Subject;
@@ -41,6 +43,9 @@ public class PersistedSignetSource extends SignetSource
 
 	// conversion factor for minutes to/from milliseconds
 	protected static final long minutesToMillis = (60 * 1000);
+
+	// logging
+	protected Log			log = LogFactory.getLog(PersistedSignetSource.class);
 
 	/** The Persisted Store Manager */
 	protected HibernateDB		persistMgr;
@@ -429,10 +434,7 @@ public String latencyMinutes;
 			if (null != retval)
 				retval.setSource(signetSources.getSource(sourceId));
 			if (isStale(retval))
-//{
-//System.out.println("PersistedSignetSource.getSubject(sourceId, subjectId): persisted subject, before call to synchSubject = \n" + retval.toString());
 				signetSources.synchSubject(retval);
-//}
 		}
 		catch (ObjectNotFoundException e)
 		{

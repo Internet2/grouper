@@ -1,6 +1,6 @@
 /*--
-$Id: EntityImpl.java,v 1.11 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: EntityImpl.java,v 1.12 2006-12-07 02:12:40 ddonn Exp $
+$Date: 2006-12-07 02:12:40 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -335,12 +335,11 @@ public abstract class EntityImpl implements Entity, Name
   }
   
   /**
-   * @return Returns the Signet instance associated with this
-   * EntityImpl.
+   * @return Returns the Signet instance associated with this EntityImpl.
    */
-  final Signet getSignet()
+  public Signet getSignet()
   {
-    return this.signet;
+    return (signet);
   }
   
   /**

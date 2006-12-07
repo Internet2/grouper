@@ -26,7 +26,7 @@ import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
  */
 public class SignetJDBCSourceAdapter extends JDBCSourceAdapter
 {
-	private static Log	log	= LogFactory.getLog(SignetJDBCSourceAdapter.class);
+	protected Log	log	= LogFactory.getLog(SignetJDBCSourceAdapter.class);
 
 	/**
 	 * Allocates new JDBCSourceAdapter

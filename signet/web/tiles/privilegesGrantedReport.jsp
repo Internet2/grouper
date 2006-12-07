@@ -86,7 +86,7 @@
           id="showButton"	  
           value="<%=ResLoaderUI.getString("privilegesGrantedReport.show.bt") %>"
           type="submit"
-              <%="disabled=\"disabled\""%>	  
+          disabled="disabled"	  
           class="button1" />
     </FORM>
   </DIV> <!-- tableheader -->
@@ -160,7 +160,12 @@
 %>
           <TD><!-- subject -->
               <A
-              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectType()%>&granteeSubjectId=<%=grantee.getId()%><%=(subsystemFilter == null ? "" : ("&subsystemId=" + subsystemFilter.getId()))%>"> <%=grantee.getName()%> </A> </TD>
+              href="PersonView.do?<%=Constants.SIGNET_SOURCE_ID_HTTPPARAMNAME + "=" + grantee.getSourceId() +
+            		  "&" + Constants.SIGNET_SUBJECT_ID_HTTPPARAMNAME + "=" + grantee.getId() + 
+            		  (subsystemFilter == null ? "" : ("&" + Constants.SUBSYSTEM_HTTPPARAMNAME + "=" + subsystemFilter.getId()))%>">
+            		  <%=grantee.getName()%>
+              </A>
+          </TD>
           <!-- subject -->
           <%
     }

@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.3 2006-11-30 04:21:49 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.4 2006-12-07 02:12:40 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -71,7 +71,7 @@ public class SignetSubject implements Subject, Comparable
 	// This is the metadata that describes Signet's pre-defined application subject.
 	public static final String		SIGNET_NAME = "Signet";
 	public static final String		SIGNET_SUBJECT_ID = "Super_" + SignetSubject.class.getSimpleName();
-	public static final String		SIGNET_DESC	= "The Signet System";
+	public static final String		SIGNET_DESC	= "The " + SIGNET_NAME + " System";
 
 	/** Primary key for persistent store of Subjects.
 	 * If non-null and non-zero, subject_PK indicates this Subject exists in
@@ -218,7 +218,7 @@ public class SignetSubject implements Subject, Comparable
 	 * Copy the values from another SignetSubject. Note that this is a deep copy
 	 * in that it also copies the original's attributes. The SynchDate and
 	 * ModifyDate are not copied, instead their values are set to 'now'. Note
-	 * too that signetSource IS copied or changed.
+	 * too that signetSource IS copied or overwritten.
 	 * If the incoming sigSubject is persisted, the the following fields are
 	 * also copied: actingAs, assignmentsGranted, assignmentsReceived,
 	 * proxiesGranted, and proxiesReceived.
@@ -436,8 +436,8 @@ signetSource.log.warn(
 
 
 	/**
+	 * Set the SourceId for this Subject - Support for Hibernate.  Note: see comment in method body.
 	 * @param sourceId The sourceId to set.
-	 * Support for Hibernate
 	 */
 	public void setSourceId(String sourceId)
 	{
@@ -446,6 +446,15 @@ signetSource.log.warn(
 		// SignetSources.
 		// But if it is Hibernate calling, we'll have to rely on
 		// PersistedSignetSource.getSubject() method will call our setSource().
+		//
+		// The problem is that we've got 2 variables representing the same thing: 
+		//   - sourceId - which is persisted
+		//   - signetSource - which may or may not exist from one
+		//     Signet run to the next.
+		// The sourceId is valid (it's how we got this Subject into persisted 
+		// store in the frist place), but the original Source may not be
+		// available during this execution (hence the invention of the
+		// 'failover' flag in SubjectSources.xml.
 	}
 
 
@@ -460,8 +469,8 @@ signetSource.log.warn(
 
 
 	/**
-	 * @param signetSubjectAttrs The signetSubjectAttrs to set.
 	 * Support for Hibernate
+	 * @param signetSubjectAttrs The signetSubjectAttrs to set.
 	 */
 	public void setSubjectAttrs(Set signetSubjectAttrs)
 	{
@@ -469,89 +478,129 @@ signetSource.log.warn(
 	}
 
 
-	/**
-	 * @return Returns the assignmentsGranted.
-	 * @throws ObjectNotFoundException
-	 */
-	public Set getAssignmentsGranted()
-	{
-//TODO Why does each thing need a reference to Signet?
-//		// Make sure that all of the members of this Set have Signet instances.
-//		for (Iterator iterator = assignmentsGranted.iterator(); iterator.hasNext();)
-//		{
-//			AssignmentImpl assignment = (AssignmentImpl)(iterator.next());
-//			assignment.setSignet(signet);
-//		}
-
-		return (assignmentsGranted);
-	}
-	
-	public Set getProxiesGranted()
-	{
-//TODO Why does each thing need a reference to Signet?
-//		// Make sure that all of the members of this Set have Signet instances.
-//		for (Iterator iterator = proxiesGranted.iterator(); iterator.hasNext();)
-//		{
-//			ProxyImpl proxy = (ProxyImpl)(iterator.next());
-//			proxy.setSignet(signet);
-//		}
-		
-		return this.proxiesGranted;
-	}
-
 	// This method is for use only by Hibernate.
 	protected void setAssignmentsGranted(Set assignments)
 	{
 		assignmentsGranted = assignments;
 	}
 	
-	// This method is for use only by Hibernate.
+	/**
+	 * Support for Hibernate
+	 * @return Returns the assignmentsGranted.
+	 * @throws ObjectNotFoundException
+	 */
+	public Set getAssignmentsGranted()
+	{
+//TODO Why does each thing need a reference to Signet? And, if so, why not set
+//		it when addAssignmentGranted()or setAssignmentGranted() is called?
+		SignetSources srcs;
+		if ((null != signetSource) && (null != (srcs = signetSource.getParent())))
+		{
+			Signet mySignet = srcs.getSignet();
+			// Make sure that all of the members of this Set have Signet instances.
+			for (Iterator iterator = assignmentsGranted.iterator(); iterator.hasNext();)
+			{
+				AssignmentImpl assignment = (AssignmentImpl)(iterator.next());
+				assignment.setSignet(mySignet);
+			}
+		}
+
+		return (assignmentsGranted);
+	}
+	
+
+	/**
+	 * Support for Hibernate
+	 * @param assignments The Assignments to set
+	 */
 	protected void setAssignmentsReceived(Set assignments)
 	{
 		assignmentsReceived = assignments;
 	}
 
-	// This method is for use only by Hibernate.
+	/**
+	 * Support for Hibernate
+	 * @return Returns the assignmentsReceived.
+	 * @throws ObjectNotFoundException
+	 */
+	public Set getAssignmentsReceived()
+	{
+//TODO Why does each thing need a reference to Signet? And, if so, why not set
+//		it when addAssignmentReceived()or setAssignmentsReceived() is called?
+//		// Make sure that all of the members of this Set have Signet instances.
+		SignetSources srcs;
+		if ((null != signetSource) && (null != (srcs = signetSource.getParent())))
+		{
+			Signet mySignet = srcs.getSignet();
+			for (Iterator iterator = assignmentsReceived.iterator(); iterator.hasNext(); )
+			{
+				AssignmentImpl assignment = (AssignmentImpl)(iterator.next());
+				assignment.setSignet(mySignet);
+			}
+		}
+
+		return (assignmentsReceived);
+	}
+
+
+	/**
+	 * Support for Hibernate
+	 * @param proxies The Proxies to set
+	 */
 	protected void setProxiesGranted(Set proxies)
 	{
 		proxiesGranted = proxies;
 	}
 	
-	// This method is for use only by Hibernate.
+	public Set getProxiesGranted()
+	{
+//TODO Why does each thing need a reference to Signet? And, if so, why not set
+//		it when addProxyGranted()or setProxiesGranted() is called?
+		SignetSources srcs;
+		if ((null != signetSource) && (null != (srcs = signetSource.getParent())))
+		{
+			Signet mySignet = srcs.getSignet();
+			// Make sure that all of the members of this Set have Signet instances.
+			for (Iterator iterator = proxiesGranted.iterator(); iterator.hasNext();)
+			{
+				ProxyImpl proxy = (ProxyImpl)(iterator.next());
+				proxy.setSignet(mySignet);
+			}
+		}
+
+		return (proxiesGranted);
+	}
+
+
+	/**
+	 * Support for Hibernate
+	 * @param proxies The Proxies to set
+	 */
 	protected void setProxiesReceived(Set proxies)
 	{
 		proxiesReceived = proxies;
 	}
 
 	/**
-	 * @return Returns the assignmentsReceived.
-	 * @throws ObjectNotFoundException
+	 * Support for Hibernate
+	 * @return A Set of Proxies received by this Subject
 	 */
-	public Set getAssignmentsReceived()
-	{
-//TODO Why does each thing need a reference to Signet?
-//		// Make sure that all of the members of this Set have Signet instances.
-//		Iterator iterator = this.assignmentsReceived.iterator();
-//		while (iterator.hasNext())
-//		{
-//			AssignmentImpl assignment = (AssignmentImpl)(iterator.next());
-//			assignment.setSignet(signet);
-//		}
-		
-		return (assignmentsReceived);
-	}
-
 	public Set getProxiesReceived()
 	{
-//TODO Why does each thing need a reference to Signet?
+//TODO Why does each thing need a reference to Signet? And, if so, why not set
+//		it when addProxyReceived() or setProxiessReceived() is called?
 //		// Make sure that all of the members of this Set have Signet instances.
-//		Iterator iterator = this.proxiesReceived.iterator();
-//		while (iterator.hasNext())
-//		{
-//			ProxyImpl proxy = (ProxyImpl)(iterator.next());
-//			proxy.setSignet(signet);
-//		}
-		
+		SignetSources srcs;
+		if ((null != signetSource) && (null != (srcs = signetSource.getParent())))
+		{
+			Signet mySignet = srcs.getSignet();
+			for (Iterator iterator = proxiesReceived.iterator(); iterator.hasNext(); )
+			{
+				ProxyImpl proxy = (ProxyImpl)(iterator.next());
+				proxy.setSignet(mySignet);
+			}
+		}
+
 		return (proxiesReceived);
 	}
 
@@ -621,6 +670,9 @@ signetSource.log.warn(
 //	}
 
 
+	/**
+	 * Save (persist) this Subject in Signet's persistence layer
+	 */
 	public void save()
 	{
 		HibernateDB hibr = signetSource.getParent().getPersistedSource().getPersistedStoreMgr();
