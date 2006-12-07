@@ -1,0 +1,13 @@
+Signet  12/06/06
+Release Notes for CVS-tagged version SIGNET_1_1_TMP04 
+
+1. Added i2mi-common jars to Signet's new lib/i2mi-common directory and buildSignet.properties.
+2. Bumped signet_version to 1.1_TMP04 (file signet.properties).
+3. EntityImpl.getSignet() is now public and not final.
+4. Reconciler.reconcileGrantables() - reinstated setSignet().
+5. Added logger to PersistedSignetSource, SignetAppSource, SignetJDBCSourceAdapter, SignetSources,
+6. SignetSubject -
+  a) fixed SIGNET_DESC
+  b) reinstated setSignet in getAssignmentsGranted, getAssignmentsReceived, getProxiesGranted, getProxiesREceived and re-ordered methods
+  c) added comments
+7. priviledgesGrantedReport.jsp - fixed error with getting grantee. It was still using the old getSubjectType instead of getSourceId to retrieve a Subject.
