@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.47 2006-10-19 16:36:03 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.48 2006-12-13 20:21:03 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -97,27 +97,16 @@ public class GrouperNamingAdapter implements NamingAdapter {
     GrouperSessionValidator.validate(s);
     Set stems = new LinkedHashSet();
     try {
-      // The subject
-      Member      m     = MemberFinder.findBySubject(s, subj);
-      Membership  msS;
-      Iterator    iter  = MembershipFinder.findMemberships(
-        s, m, GrouperPrivilegeAdapter.getField(priv2list, priv)
-      ).iterator();
-      while (iter.hasNext()) {
-        msS = (Membership) iter.next();
-        msS.setSession(s);
-        stems.add( msS.getStem() );
-      }
-      // And the ALL subject
-      Member      all     = MemberFinder.findAllMember();
-      Membership  msAll;
-      Iterator    iterAll = MembershipFinder.findMemberships(
-        s, all, GrouperPrivilegeAdapter.getField(priv2list, priv)
-      ).iterator();
-      while (iterAll.hasNext()) {
-        msAll = (Membership) iterAll.next();
-        msAll.setSession(s);
-        stems.add( msAll.getStem() );
+      Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
+      // This subject
+      stems.addAll( 
+        GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj), f ) 
+      );
+      // The ALL subject
+      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
+        stems.addAll( 
+          GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.findAllMember(), f ) 
+        );
       }
     }
     catch (MemberNotFoundException eMNF) {

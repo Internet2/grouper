@@ -22,7 +22,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.1 2006-10-05 19:22:17 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.2 2006-12-13 20:21:03 blair Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -90,6 +90,36 @@ class GrouperPrivilegeAdapter {
     }
     return privs;
   } // protected Set getPrivs(s, subj, m, p, it)
+
+  // @since   1.2.0
+  protected static Set internal_getGroupsWhereSubjectHasPriv(GrouperSession s, Member m, Field f)
+    throws  GroupNotFoundException
+  {
+    Set         mships  = new LinkedHashSet();
+    Membership  ms;
+    Iterator    it      = MembershipFinder.findMemberships(s, m, f).iterator();
+    while (it.hasNext()) {
+      ms = (Membership) it.next();
+      ms.setSession(s);
+      mships.add( ms.getGroup() );
+    }
+    return mships;
+  } // protected static Set internal_getGroupsWhereSubjectHasPriv(s, m, f)
+
+  // @since   1.2.0
+  protected static Set internal_getStemsWhereSubjectHasPriv(GrouperSession s, Member m, Field f)
+    throws  StemNotFoundException
+  {
+    Set         mships  = new LinkedHashSet();
+    Membership  ms;
+    Iterator    it      = MembershipFinder.findMemberships(s, m, f).iterator();
+    while (it.hasNext()) {
+      ms = (Membership) it.next();
+      ms.setSession(s);
+      mships.add( ms.getStem() );
+    }
+    return mships;
+  } // protected static Set internal_getStemsWhereSubjectHasPriv(s, m, f)
 
 } // class GrouperPrivilegeAdapter
 
