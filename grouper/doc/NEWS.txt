@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.40 2006-11-27 19:43:06 blair Exp $
+$Id: NEWS.txt,v 1.41 2006-12-13 20:24:13 blair Exp $
 
 ---
 
@@ -9,6 +9,8 @@ $Id: NEWS.txt,v 1.40 2006-11-27 19:43:06 blair Exp $
 Estimated Release: 200703
 
 ## Changes
+* NEW:    Benchmark: `AddAsEffMemberToLotsOfGroups`
+* NEW:    Benchmark: `MemberHasRead`
 * NEW:    `GroupTypeFilter` (BUGZILLA#585)
 * NEW:    `GroupFinder.findByType(GrouperSession, GroupType)` (BUGZILLA#585)
 * NEW:    Added `lib/UmlGraph-4.4.jar` and `html-uml` ant target for generating
