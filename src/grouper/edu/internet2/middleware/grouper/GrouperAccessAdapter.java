@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.45 2006-10-19 16:36:03 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.46 2006-12-13 20:21:03 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -101,27 +101,16 @@ public class GrouperAccessAdapter implements AccessAdapter {
     GrouperSessionValidator.validate(s);
     Set groups = new LinkedHashSet();
     try {
-      // The subject
-      Member      m     = MemberFinder.findBySubject(s, subj);
-      Membership  msS;
-      Iterator    iter  = MembershipFinder.findMemberships(
-        s, m, (Field) FieldFinder.find( (String) priv2list.get(priv) )
-      ).iterator();
-      while (iter.hasNext()) {
-        msS = (Membership) iter.next();
-        msS.setSession(s);
-        groups.add( msS.getGroup() );
-      }
-      // And the ALL subject
-      Member      all   = MemberFinder.findAllMember();
-      Membership  msAll;
-      Iterator  iterAll = MembershipFinder.findMemberships(
-        s, all, GrouperPrivilegeAdapter.getField(priv2list, priv)
-      ).iterator();
-      while (iterAll.hasNext()) {
-        msAll = (Membership) iterAll.next();
-        msAll.setSession(s);
-        groups.add( msAll.getGroup() );
+      Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
+      // This subject
+      groups.addAll( 
+        GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj), f ) 
+      );
+      // The ALL subject
+      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
+        groups.addAll( 
+          GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.findAllMember(), f ) 
+        );
       }
     }
     catch (GroupNotFoundException eGNF) {
