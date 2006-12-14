@@ -22,7 +22,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.3 2006-12-14 15:49:45 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.4 2006-12-14 16:22:05 blair Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -98,7 +98,7 @@ class GrouperPrivilegeAdapter {
     Set         mships  = new LinkedHashSet();
     Membership  ms;
     // Perform query as ROOT to prevent privilege constraints getting in the way
-    Iterator    it      = MembershipFinder.findMemberships( s.getRootSession(), m, f ).iterator();
+    Iterator    it      = MembershipFinder.internal_findMemberships( s.getRootSession(), m, f ).iterator();
     while (it.hasNext()) {
       ms = (Membership) it.next();
       ms.setSession(s);
@@ -114,7 +114,7 @@ class GrouperPrivilegeAdapter {
     Set         mships  = new LinkedHashSet();
     Membership  ms;
     // Perform query as ROOT to prevent privilege constraints getting in the way
-    Iterator    it      = MembershipFinder.findMemberships( s.getRootSession(), m, f ).iterator();
+    Iterator    it      = MembershipFinder.internal_findMemberships( s.getRootSession(), m, f ).iterator();
     while (it.hasNext()) {
       ms = (Membership) it.next();
       ms.setSession(s);
