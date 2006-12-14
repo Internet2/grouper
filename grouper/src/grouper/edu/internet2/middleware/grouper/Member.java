@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.69 2006-10-16 14:39:00 blair Exp $
+ * @version $Id: Member.java,v 1.70 2006-12-14 16:22:05 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -404,9 +404,7 @@ public class Member implements Serializable {
     if (!f.getType().equals(FieldType.LIST)) {
       throw new SchemaException(f + " is not type " + FieldType.LIST);
     }
-    return MembershipFinder.findMemberships(
-      this.getSession(), this, f
-    );
+    return MembershipFinder.internal_findMemberships( this.getSession(), this, f );
   } // public Set getMemberships(f)
 
   /**

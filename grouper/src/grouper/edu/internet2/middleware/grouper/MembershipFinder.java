@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.59 2006-12-14 15:49:45 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.60 2006-12-14 16:22:05 blair Exp $
  */
 public class MembershipFinder {
 
@@ -597,41 +597,6 @@ public class MembershipFinder {
     return subjs;
   } // protected static Set findSubjectsNoPriv(s, o, f)
 
-  protected static Set findMemberships(GrouperSession s, Member m, Field f) {
-     // @filtered  true
-     // @session   true
-    GrouperSessionValidator.validate(s);
-    Set mships  = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindMemberships");
-      qry.setParameter( "member", m                     );
-      qry.setString(    "fname" , f.getName()           );
-      qry.setString(    "ftype" , f.getType().toString());
-      List    l   = qry.list();
-
-      // Don't repeat ourselves
-      if ( !m.equals( MemberFinder.findAllMember() ) ) {
-        qry.setParameter( "member", MemberFinder.findAllMember() );
-        l.addAll( qry.list() );
-      }
-      hs.close();
-
-      mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
-    }
-    return mships;
-  } // protected static Set findMemberships(s, m, f)
-
   protected static Set findMemberships(GrouperSession s, Owner o, Field f) {
      // @filtered true
      // @session  true
@@ -793,6 +758,19 @@ public class MembershipFinder {
     }
     return mships;
   } // protected static Membership findMembershipsNoPrivsNoSession(o, m, f)
+
+  // @since   1.2.0
+  protected static Set internal_findMemberships(GrouperSession s, Member m, Field f) {
+     // @filtered  true
+     // @session   true
+    GrouperSessionValidator.validate(s);
+    Set mships = new LinkedHashSet();
+    mships.addAll( HibernateMembershipDAO.findMemberships(s, m, f) );
+    if ( !m.equals( MemberFinder.findAllMember() ) ) {
+      mships.addAll( HibernateMembershipDAO.findMemberships( s, MemberFinder.findAllMember(), f ) );
+    }
+    return PrivilegeResolver.canViewMemberships(s, mships);
+  } // protected static Set findMemberships(s, m, f)
 
 
   // PRIVATE CLASS METHODS //
