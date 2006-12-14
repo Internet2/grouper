@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.56 2006-10-18 15:22:12 blair Exp $
+ * @version $Id: Membership.java,v 1.57 2006-12-14 18:43:41 blair Exp $
  */
 public class Membership {
 
@@ -41,7 +41,7 @@ public class Membership {
   private String          id;
   private Member          member_id;
   private Owner           owner_id;
-  private Membership      parent_membership;
+  private String          parent_membership;  // UUID of parent membership
   private MembershipType  type;
   private String          uuid;
   private Owner           via_id;
@@ -96,7 +96,7 @@ public class Membership {
     );
     if (hasMS.getDepth() == 0) {
       this.setVia_id(           hasMS.getOwner_id()   );  // hasMember m was immediate
-      this.setParent_membership( ms );
+      this.setParent_membership( ms.getUuid() );
     }
     else {
       this.setVia_id(           hasMS.getVia_id()     );  // hasMember m was effective
@@ -105,7 +105,7 @@ public class Membership {
         this.setParent_membership( hasMS.getParent_membership() );
       }
       else {
-        this.setParent_membership( hasMS );
+        this.setParent_membership( hasMS.getUuid() );
       }
     } 
     this.setSession(            s                     );
@@ -164,7 +164,7 @@ public class Membership {
     // Ideally I would use a Hibernate mapping for this, but...
     //   * It wasn't working and I didn't have time to debug it at the time.
     //   * I still need to filter
-    return MembershipFinder.findChildMemberships(this.getSession(), this);
+    return MembershipFinder.internal_findChildMemberships( this.getSession(), this );
   } // public Set getChildMemberships()
 
 
@@ -234,11 +234,12 @@ public class Membership {
   public Membership getParentMembership() 
     throws MembershipNotFoundException
   {
-    Membership parent = this.getParent_membership();
-    if (parent == null) {
+    String uuid = this.getParent_membership();
+    if (uuid == null) {
       throw new MembershipNotFoundException("no parent");
     }
-    parent.setSession(this.getSession());
+    Membership parent = HibernateMembershipDAO.findByUuid(uuid);
+    parent.setSession( this.getSession() );
     return parent;
   } // public Membership getParentMembership()
 
@@ -491,7 +492,7 @@ public class Membership {
   protected Field getField() {
     return this.field;
   }
-  protected String getId() {
+  private String getId() {
     return this.id;
   }
   protected Member getMember_id() {
@@ -503,7 +504,7 @@ public class Membership {
   protected Owner getOwner_id() {
     return this.owner_id;
   }
-  protected Membership getParent_membership() {
+  protected String getParent_membership() {
     return this.parent_membership;
   }
   protected String getUuid() {
@@ -533,7 +534,7 @@ public class Membership {
   private void setOwner_id(Owner o) {
     this.owner_id = o;
   }
-  private void setParent_membership(Membership parent) {
+  private void setParent_membership(String parent) {
     this.parent_membership = parent;
   }
   private void setCreate_time(long time) {

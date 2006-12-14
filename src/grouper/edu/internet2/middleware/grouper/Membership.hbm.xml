@@ -20,15 +20,11 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.24 2006-09-28 17:23:19 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.25 2006-12-14 18:43:41 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships" batch-size="5">
 
-    <meta attribute="class-description">
-A list membership in the Groups Registry.
-@author blair christensen.
-    </meta>
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateHelper.getSession();</meta>
 
@@ -129,18 +125,18 @@ A list membership in the Groups Registry.
     <!-- depth -->
 
     <!-- parent_membership -->
-    <!-- In theory I should be able to disable updates on this mapping but a quick try didn't work. -->
-    <many-to-one
-      name="parent_membership"
-      class="edu.internet2.middleware.grouper.Membership"
-      cascade="none"
-      update="true"
-      insert="true"
+    <!-- [@since 1.2.0] Refers to parent's UUID, not ID -->
+    <property name="parent_membership"
+              type="string"
+              not-null="false"
+              unique="false"
+              update="false"
     >
       <column name="parent_membership"
               index="membership_parent_idx"
+              length="128"
       />
-    </many-to-one>
+    </property>
     <!-- parent_membership -->
 
     <!-- uuid -->

@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership0.java,v 1.3 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: TestMembership0.java,v 1.4 2006-12-14 18:43:41 blair Exp $
  */
 public class TestMembership0 extends TestCase {
 
@@ -63,7 +63,7 @@ public class TestMembership0 extends TestCase {
         expMS   = ms;
         expUUID = ms.getUuid();
       }
-      Membership ms0 = MembershipFinder.findByUuid(r.rs, expUUID);
+      Membership ms0 = MembershipFinder.internal_findByUuid(r.rs, expUUID);
       Assert.assertEquals("ms0", expMS, ms0);
 
       gA.deleteMember(subjA);

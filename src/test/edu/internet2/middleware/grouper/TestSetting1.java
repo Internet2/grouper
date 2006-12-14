@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSetting1.java,v 1.3 2006-08-30 18:35:37 blair Exp $
+ * @version $Id: TestSetting1.java,v 1.4 2006-12-14 18:43:41 blair Exp $
  */
 public class TestSetting1 extends TestCase {
 
@@ -44,7 +44,7 @@ public class TestSetting1 extends TestCase {
   public void testGetSchemaVersion() {
     LOG.info("testGetSchemaVersion");
     Settings settings = Settings.getSettings();
-    T.amount("using schema version", 1, settings.getSchemaVersion());
+    T.amount("using schema version", 2, settings.getSchemaVersion());
   } // public void testGetSchemaVersion()
 
 }
