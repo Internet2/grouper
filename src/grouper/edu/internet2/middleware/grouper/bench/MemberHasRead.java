@@ -23,13 +23,13 @@ import  edu.internet2.middleware.subject.*;
  * Benchmark <code>Member.hasRead()</code> when <i>GrouperAll</i> has a large
  * number of memberships.
  * @author  blair christensen.
- * @version $Id: MemberHasRead.java,v 1.1 2006-12-13 20:24:13 blair Exp $
+ * @version $Id: MemberHasRead.java,v 1.2 2006-12-14 03:03:07 blair Exp $
  * @since   1.2.0
  */
 public class MemberHasRead extends BaseGrouperBenchmark {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final int CNT = 100;
+  private static final int CNT = 50; // this seems to blow up easily
 
 
   // PRIVATE INSTANCE VARIABLES //
