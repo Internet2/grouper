@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.58 2006-12-13 23:02:41 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.59 2006-12-14 15:49:45 blair Exp $
  */
 public class MembershipFinder {
 
@@ -624,23 +624,7 @@ public class MembershipFinder {
       }
       hs.close();
 
-      // If the session's member is equivalent to the member that we
-      // are searching for, don't filter the results - but still attach
-      // session, otherwise a member that has OPTIN, OPTOUT, etc
-      // will have those results filtered out.
-      // TODO 20061213 the above comment makes no sense to me at the moment
-      if (s.getMember().equals(m)) {
-        Membership  ms;
-        Iterator    iter  = l.iterator();
-        while (iter.hasNext()) {
-          ms = (Membership) iter.next();
-          ms.setSession(s);
-          mships.add(ms);
-        }
-      }
-      else {
-        mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
-      }
+      mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
     }
     catch (HibernateException eH) {
       ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
