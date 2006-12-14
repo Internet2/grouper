@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.60 2006-12-14 16:22:05 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.61 2006-12-14 18:43:41 blair Exp $
  */
 public class MembershipFinder {
 
@@ -182,9 +182,9 @@ public class MembershipFinder {
     Set             children  = new LinkedHashSet();
     GrouperSession  root      = ms.getSession().getRootSession();
     Membership      child;
-    Iterator        iter      = findChildMemberships(root, ms).iterator();
-    while (iter.hasNext()) {
-      child = (Membership) iter.next();
+    Iterator        it        = internal_findChildMemberships(root, ms).iterator();
+    while (it.hasNext()) {
+      child = (Membership) it.next();
       children.addAll(findAllChildrenNoPriv(child));
       children.add(child);
     }
@@ -334,62 +334,6 @@ public class MembershipFinder {
     }
   } // protected static Set findByCreatedAfter(s, d, f)
 
-  protected static Membership findByUuid(GrouperSession s, String uuid) 
-    throws MembershipNotFoundException
-  {
-    GrouperSessionValidator.validate(s);
-    try {
-      Membership  ms  = null;
-      Session     hs  = HibernateHelper.getSession();
-      Query       qry = hs.createQuery(
-        "from Membership as ms where ms.uuid = :uuid"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByUuid");
-      qry.setString("uuid", uuid);
-      List mships  = qry.list();
-      if (mships.size() == 1) {
-        ms = (Membership) mships.get(0);
-        ms.setSession(s);
-      }
-      hs.close();
-      if (ms == null) {
-        throw new MembershipNotFoundException("membership not found");
-      }
-      return ms; 
-    }
-    catch (HibernateException eH) {
-      throw new MembershipNotFoundException(
-        "error finding membership: " + eH.getMessage(), eH
-      );  
-    }
-  } // protected static Membership findByUuid(s, uuid)
-
-  protected static Set findChildMemberships(GrouperSession s, Membership ms) { 
-    /*
-     * @filtered  true
-     * @session   true
-     */
-    GrouperSessionValidator.validate(s);
-    Set mships  = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where ms.parent_membership = :msid"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindChildMemberships");
-      qry.setString("msid", ms.getId());
-      List    l   = qry.list();
-      hs.close();
-      mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
-    }
-    return mships;
-  } // protected static Set findChildMemberships(s, ms)
- 
   protected static Set findEffectiveMemberships(
     Owner o, Member m, Field f, Owner via, int depth
   )
@@ -760,17 +704,35 @@ public class MembershipFinder {
   } // protected static Membership findMembershipsNoPrivsNoSession(o, m, f)
 
   // @since   1.2.0
+  protected static Membership internal_findByUuid(GrouperSession s, String uuid) 
+    throws MembershipNotFoundException
+  {
+    GrouperSessionValidator.validate(s);
+    Membership ms = HibernateMembershipDAO.findByUuid(uuid);
+    ms.setSession(s);
+    return ms;
+  } // protected static Membership internal_findByUuid(s, uuid)
+
+  // @since   1.2.0
+  protected static Set internal_findChildMemberships(GrouperSession s, Membership ms) { 
+     // @filtered  true
+     // @session   true
+    GrouperSessionValidator.validate(s);
+    return PrivilegeResolver.canViewMemberships( s, HibernateMembershipDAO.findChildMemberships(ms) );
+  } // protected static Set internal_findChildMemberships(s, ms)
+ 
+  // @since   1.2.0
   protected static Set internal_findMemberships(GrouperSession s, Member m, Field f) {
      // @filtered  true
      // @session   true
     GrouperSessionValidator.validate(s);
     Set mships = new LinkedHashSet();
-    mships.addAll( HibernateMembershipDAO.findMemberships(s, m, f) );
+    mships.addAll( HibernateMembershipDAO.findMemberships(m, f) );
     if ( !m.equals( MemberFinder.findAllMember() ) ) {
-      mships.addAll( HibernateMembershipDAO.findMemberships( s, MemberFinder.findAllMember(), f ) );
+      mships.addAll( HibernateMembershipDAO.findMemberships( MemberFinder.findAllMember(), f ) );
     }
     return PrivilegeResolver.canViewMemberships(s, mships);
-  } // protected static Set findMemberships(s, m, f)
+  } // protected static Set internal_findMemberships(s, m, f)
 
 
   // PRIVATE CLASS METHODS //

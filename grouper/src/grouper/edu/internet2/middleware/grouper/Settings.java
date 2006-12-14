@@ -24,14 +24,15 @@ import  net.sf.hibernate.*;
  * Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.8 2006-09-26 14:17:41 blair Exp $
+ * @version $Id: Settings.java,v 1.9 2006-12-14 18:43:41 blair Exp $
  * @since   1.0
  */
 class Settings {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final int  CURRENT_SCHEMA_VERSION  = 1;  // == 1.0
-                                                  //  0      == 0.9
+  private static final int  CURRENT_SCHEMA_VERSION  = 2;  //  == 1.2
+                                                  //  1       == 1.0
+                                                  //  0       == 0.9
 
 
   // PRIVATE CLASS PROPERTIES //

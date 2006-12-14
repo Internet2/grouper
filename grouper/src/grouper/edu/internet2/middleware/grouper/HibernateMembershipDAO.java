@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.1 2006-12-14 16:22:05 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.2 2006-12-14 18:43:41 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -35,10 +35,66 @@ class HibernateMembershipDAO {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.2.0  
-  protected static Set findMemberships(GrouperSession s, Member m, Field f) {
-    GrouperSessionValidator.validate(s);
+  // @since   1.2.0
+  protected static Membership find(String id) 
+    throws  MembershipNotFoundException
+  {
+    try {
+      Session     hs = HibernateHelper.getSession();
+      Membership  ms = (Membership) hs.load(Membership.class, id);
+      hs.close();
+      return ms;
+    }
+    catch (HibernateException eH) {
+      throw new MembershipNotFoundException( eH.getMessage(), eH );
+    }
+  } // protected static Membership find(id)
+
+  // @since   1.2.0
+  protected static Membership findByUuid(String uuid) 
+    throws  MembershipNotFoundException 
+  {
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery("from Membership as ms where ms.uuid = :uuid");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindByUuid");
+      qry.setString("uuid", uuid);
+      Membership ms = (Membership) qry.uniqueResult();
+      hs.close();
+      if (ms == null) {
+        throw new MembershipNotFoundException("could not find membership with uuid: " + U.q(uuid));
+      }
+      return ms;
+    }
+    catch (HibernateException eH) {
+      throw new MembershipNotFoundException( eH.getMessage(), eH );
+    }
+
+  } // protected static Membership findByUuid(uuid)
+
+  // @since   1.2.0
+  protected static Set findChildMemberships(Membership ms) {
     Set mships  = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery("from Membership as ms where ms.parent_membership = :uuid");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindChildMemberships");
+      qry.setString( "uuid", ms.getUuid() );
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061214 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected sdtatic Set findChildMemberships(ms)
+
+  // @since   1.2.0  
+  protected static Set findMemberships(Member m, Field f) {
+    Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery(
@@ -60,7 +116,7 @@ class HibernateMembershipDAO {
       ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
     }
     return mships;
-  } // protected static Set findMemberships(s, m, f)
+  } // protected static Set findMemberships(m, f)
 
 } // class HibernateMembershipDAO
 
