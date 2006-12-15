@@ -21,7 +21,7 @@ import  net.sf.hibernate.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.12 2006-10-12 18:53:49 blair Exp $
+ * @version $Id: StemValidator.java,v 1.13 2006-12-15 17:30:52 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -88,22 +88,17 @@ class StemValidator {
     throws  InsufficientPrivilegeException,
             StemDeleteException
   {
-    if (ns.getName().equals(Stem.ROOT_EXT)) {
+    if ( ns.getName().equals(Stem.ROOT_EXT) ) {
       throw new StemDeleteException("cannot delete root stem");
     }
-    if (!PrivilegeResolver.canSTEM(ns, ns.getSession().getSubject())) {
+    if ( !PrivilegeResolver.canSTEM( ns, ns.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
-    try {
-      if (ns.getChildStemsNpHi().size() > 0) {
-        throw new StemDeleteException("cannot delete stem with child stems");
-      }
-      if (ns.getChildGroupsNpHi().size() > 0) {
-        throw new StemDeleteException("cannot delete stem with child groups");
-      }
+    if ( HibernateStemDAO.findChildStems(ns).size() > 0 ) {
+      throw new StemDeleteException("cannot delete stem with child stems");
     }
-    catch (HibernateException eH){
-      throw new StemDeleteException(eH.getMessage(), eH);
+    if ( HibernateStemDAO.findChildGroups(ns).size() > 0 ) {
+      throw new StemDeleteException("cannot delete stem with child groups");
     }
   } // protected static void canDeleteStem(ns)
 
