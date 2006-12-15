@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.4 2006-12-07 02:12:40 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.5 2006-12-15 20:45:37 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -20,14 +20,14 @@ limitations under the License.
 package edu.internet2.middleware.signet.subjsrc;
 
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.sf.hibernate.Query;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
-import net.sf.hibernate.Query;
 
 
 /**
@@ -44,9 +44,6 @@ public class PersistedSignetSource extends SignetSource
 	// conversion factor for minutes to/from milliseconds
 	protected static final long minutesToMillis = (60 * 1000);
 
-	// logging
-	protected Log			log = LogFactory.getLog(PersistedSignetSource.class);
-
 	/** The Persisted Store Manager */
 	protected HibernateDB		persistMgr;
 
@@ -57,8 +54,8 @@ public class PersistedSignetSource extends SignetSource
 	 * Default: 60 minutes, stored as milliseconds.
 	 */
 	protected long				latency;
-//TODO Digester can't find 'long latency' and ignores the xml element unless
-// a 'String latencyMinutes' is defined (even though it's never used!)
+/** TODO Digester can't find 'long latency' and ignores the xml element unless
+ a 'String latencyMinutes' is defined (even though it's never used!) */
 public String latencyMinutes;
 
 	////////////////////////////////////
@@ -82,7 +79,8 @@ public String latencyMinutes;
 	 */
 	public PersistedSignetSource()
 	{
-		// initialize super's attributes (Note: super() is called implicitly)
+		// initialize super's attributes
+		super();
 		type = TYPE_PERSISTED_SRC;
 		status = STATUS_ACTIVE;
 		failover = true;
@@ -416,6 +414,24 @@ public String latencyMinutes;
 
 
 	/**
+	 * Get the SignetSubject that matches the DB primary key from Persisted Store.
+	 * @param subject_pk The primary key
+	 * @return The matching SignetSubject or null
+	 */
+	public SignetSubject getSubject(long subject_pk)
+	{
+		SignetSubject retval;
+		
+		if (null != persistMgr)
+			retval = persistMgr.getSubject(subject_pk);
+		else
+			retval = null;
+
+		return (retval);
+	}
+
+
+	/**
 	 * Find a SignetSubject from the Persisted store that matches the given
 	 * sourceId and subjectId. If found, check if subject.isStale() and 
 	 * try to get fresh Subject info from SubjectAPI.
@@ -426,7 +442,7 @@ public String latencyMinutes;
 	 */
 	public SignetSubject getSubject(String sourceId, String subjectId)
 	{
-		SignetSubject retval = null;
+		SignetSubject retval;
 
 		try
 		{
@@ -438,7 +454,8 @@ public String latencyMinutes;
 		}
 		catch (ObjectNotFoundException e)
 		{
-			log.warn(e);
+			log.debug(e);
+			retval = null;
 		}
 
 		return (retval);
@@ -476,9 +493,104 @@ public String latencyMinutes;
 	public Vector getSubjects()
 	{
 //TODO Implement getSubjects
+System.out.println("PersistedSignetSource.getSubjects: not implemented yet!");
 		return null;
 	}
 
+
+	/**
+	 * Get the set of Proxies granted by the grantor.
+	 * @param grantorId The primary key of the proxy grantor
+	 * @param status The status of the proxy
+	 * @return A Set of ProxyImpl objects that have been granted by grantor.
+	 * May be an empty set but never null.
+	 */
+	public Set getProxiesGranted(long grantorId, String status)
+	{
+		Set proxies;
+
+		if (null != persistMgr)
+		{
+			proxies = persistMgr.getProxiesGranted(grantorId, status);
+		}
+		else
+		{
+			proxies = new HashSet();
+			log.warn("No Persistence Manager found");
+		}
+
+		return (proxies);
+	}
+
+	/**
+	 * Get the set of Proxies granted to grantee.
+	 * @param granteeId The primary key of the proxy grantee
+	 * @param status The status of the proxy
+	 * @return A Set of ProxyImpl objects that have been received by grantee
+	 * May be an empty set but never null.
+	 */
+	public Set getProxiesReceived(long granteeId, String status)
+	{
+		Set proxies;
+
+		if (null != persistMgr)
+		{
+			proxies = persistMgr.getProxiesReceived(granteeId, status);
+		}
+		else
+		{
+			proxies = new HashSet();
+			log.warn("No Persistence Manager found");
+		}
+
+		return (proxies);
+	}
+
+	/**
+	 * Get the set of Assignments granted by the grantor
+	 * @param grantorId The primary key of the assignment grantor
+	 * @return A Set of AssignmentImpl object that have been granted by grantor.
+	 * May be an empty set but never null.
+	 */
+	public Set getAssignmentsGranted(long grantorId, String status)
+	{
+		Set assigns;
+
+		if (null != persistMgr)
+		{
+			assigns = persistMgr.getAssignmentsGranted(grantorId, status);
+		}
+		else
+		{
+			assigns = new HashSet();
+			log.warn("No Persistence Manager found");
+		}
+
+		return (assigns);
+	}
+
+	/**
+	 * Get the set of Assignments granted to grantee
+	 * @param granteeId The primary key of the assignment grantee
+	 * @return A Set of AssignmentImpl object that have been granted to grantee.
+	 * May be an empty set but never null.
+	 */
+	public Set getAssignmentsReceived(long granteeId, String status)
+	{
+		Set assigns;
+
+		if (null != persistMgr)
+		{
+			assigns = persistMgr.getAssignmentsReceived(granteeId, status);
+		}
+		else
+		{
+			assigns = new HashSet();
+			log.warn("No Persistence Manager found");
+		}
+
+		return (assigns);
+	}
 
 	///////////////////////////////////
 	// implements Source

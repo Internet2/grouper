@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <eclipse-userlibraries version="2">
 <library name="i2mi-common_libs" systemlibrary="false">
-<archive path="C:/Projects/i2mi-common/lib/odmg-3.0.jar"/>
-<archive path="C:/Projects/i2mi-common/lib/cglib-nodep-2.1_3.jar"/>
-<archive path="C:/Projects/i2mi-common/lib/commons-beanutils-1.7.0.jar"/>
-<archive path="C:/Projects/i2mi-common/lib/commons-collections-3.2.jar"/>
-<archive path="C:/Projects/i2mi-common/lib/commons-dbcp-1.2.1.jar"/>
-<archive path="C:/Projects/i2mi-common/lib/commons-digester-1.7.jar"/>
-<archive path="C:/Projects/i2mi-common/lib/commons-logging-1.1.jar"/>
-<archive path="C:/Projects/i2mi-common/lib/commons-pool-1.3.jar"/>
-<archive path="C:/Projects/i2mi-common/lib/dom4j-1.6.1.jar"/>
-<archive path="C:/Projects/i2mi-common/lib/junit-4.1.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/cglib-nodep-2.1_3.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/commons-beanutils-1.7.0.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/commons-collections-3.2.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/commons-dbcp-1.2.1.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/commons-digester-1.7.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/commons-logging-1.1.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/commons-pool-1.3.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/dom4j-1.6.1.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/hibernate2.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/hibernate-tools.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/junit-4.1.jar"/>
+<archive path="C:/Projects/signet/lib/i2mi-common/odmg-3.0.jar"/>
 </library>
 <library name="signet_3rdParty_libs" systemlibrary="false">
 <archive path="C:/Projects/signet/lib/commons-lang-1.0.1.jar"/>
-<archive path="C:/Projects/signet/lib/hibernate-tools.jar"/>
-<archive path="C:/Projects/signet/lib/hibernate2.jar"/>
 <archive path="C:/Projects/signet/lib/jdom.jar"/>
 <archive path="C:/Projects/signet/lib/jta.jar"/>
 <archive path="C:/Projects/signet/lib/jTDS2.jar"/>
@@ -31,6 +31,6 @@
 <archive path="C:/Projects/signet/lib/postgresql-8.1-404.jdbc2ee.jar"/>
 </library>
 <library name="subjectAPI_libs" systemlibrary="false">
-<archive path="C:/Projects/subject_latest/dist/subject-0.2.1.jar"/>
+<archive path="C:/Projects/signet/lib/subject-0.2.2-cvs.jar" source="C:/Projects/subject_latest/src"/>
 </library>
 </eclipse-userlibraries>

@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.4 2006-12-07 02:12:40 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.5 2006-12-15 20:45:37 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections.set.UnmodifiableSet;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.Category;
@@ -103,14 +105,9 @@ public class SignetSubject implements Subject, Comparable
 	/** A Subject may act as another Subject for the purpose of managing
 	 * Proxies and Assignments. Not a Hibernate field. */
 	protected SignetSubject	actingAs;
-	/** Assignments that this Subject has made. Hibernate field. */
-	protected Set			assignmentsGranted;	// Hibr field
-	/** Assignments that this Subject has received. Hibernate field. */
-	protected Set			assignmentsReceived;// Hibr field
-	/** Proxies that this Subject has made. Hibernate field. */
-	protected Set			proxiesGranted;		// Hibr field
-	/** Assignments that this Subject has received. Hibernate field. */
-	protected Set			proxiesReceived;	// Hibr field
+
+	/** Logging */
+	protected Log			log = LogFactory.getLog(SignetSubject.class);
 
 
 	/**
@@ -129,10 +126,6 @@ public class SignetSubject implements Subject, Comparable
 		signetSource = null;
 
 		actingAs = null;
-		assignmentsGranted = new HashSet();
-		assignmentsReceived = new HashSet();
-		proxiesGranted = new HashSet();
-		proxiesReceived = new HashSet();
 	}
 
 	/**
@@ -153,10 +146,6 @@ public class SignetSubject implements Subject, Comparable
 		subject_PK = null;
 
 		actingAs = null;
-		assignmentsGranted = new HashSet();
-		assignmentsReceived = new HashSet();
-		proxiesGranted = new HashSet();
-		proxiesReceived = new HashSet();
 	}
 
 
@@ -256,12 +245,6 @@ public class SignetSubject implements Subject, Comparable
 			{
 				signetSource.getSignet().getLogger().error(e);
 			}
-	
-			setAssignmentsGranted(otherSubject.getAssignmentsGranted());
-			setAssignmentsReceived(otherSubject.getAssignmentsReceived());
-	
-			setProxiesGranted(otherSubject.getProxiesGranted());
-			setProxiesReceived(otherSubject.getProxiesReceived());
 		}
 
 		return (true);
@@ -281,7 +264,7 @@ public class SignetSubject implements Subject, Comparable
 
 		if (apiSubject instanceof SignetSubject)
 		{
-signetSource.log.warn(
+log.warn(
  "SignetSubject.synchAttributes(Subject) is redirecting to method " +
  "synchAttributes(SignetSubject) where SignetSubject = \n" +
  ((SignetSubject)apiSubject).toString());
@@ -478,12 +461,6 @@ signetSource.log.warn(
 	}
 
 
-	// This method is for use only by Hibernate.
-	protected void setAssignmentsGranted(Set assignments)
-	{
-		assignmentsGranted = assignments;
-	}
-	
 	/**
 	 * Support for Hibernate
 	 * @return Returns the assignmentsGranted.
@@ -491,32 +468,31 @@ signetSource.log.warn(
 	 */
 	public Set getAssignmentsGranted()
 	{
-//TODO Why does each thing need a reference to Signet? And, if so, why not set
-//		it when addAssignmentGranted()or setAssignmentGranted() is called?
+		Set assignsGranted;
 		SignetSources srcs;
-		if ((null != signetSource) && (null != (srcs = signetSource.getParent())))
+		PersistedSignetSource persistSrc;
+
+		if ( !isPersisted()) // it's not persisted, ergo no assignments
+			assignsGranted = new HashSet();
+
+		else if ((null != signetSource) &&
+			(null != (srcs = signetSource.getParent())) &&
+			(null != (persistSrc = srcs.getPersistedSource())))
 		{
-			Signet mySignet = srcs.getSignet();
-			// Make sure that all of the members of this Set have Signet instances.
-			for (Iterator iterator = assignmentsGranted.iterator(); iterator.hasNext();)
-			{
-				AssignmentImpl assignment = (AssignmentImpl)(iterator.next());
-				assignment.setSignet(mySignet);
-			}
+			assignsGranted = persistSrc.getAssignmentsGranted(subject_PK.longValue(), Status.ACTIVE.toString());
+			Signet signet = signetSource.getSignet();
+			for (Iterator assigns = assignsGranted.iterator(); assigns.hasNext(); )
+				((AssignmentImpl)assigns.next()).setSignet(signet);
+		}
+		else
+		{
+			assignsGranted = new HashSet();
+			log.warn("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
 		}
 
-		return (assignmentsGranted);
+		return (assignsGranted);
 	}
 	
-
-	/**
-	 * Support for Hibernate
-	 * @param assignments The Assignments to set
-	 */
-	protected void setAssignmentsReceived(Set assignments)
-	{
-		assignmentsReceived = assignments;
-	}
 
 	/**
 	 * Support for Hibernate
@@ -525,47 +501,59 @@ signetSource.log.warn(
 	 */
 	public Set getAssignmentsReceived()
 	{
-//TODO Why does each thing need a reference to Signet? And, if so, why not set
-//		it when addAssignmentReceived()or setAssignmentsReceived() is called?
-//		// Make sure that all of the members of this Set have Signet instances.
+		Set assignsReceived;
 		SignetSources srcs;
-		if ((null != signetSource) && (null != (srcs = signetSource.getParent())))
+		PersistedSignetSource persistSrc;
+
+		if ( !isPersisted()) // it's not persisted, ergo no assignments
+			assignsReceived = new HashSet();
+
+		else if ((null != signetSource) &&
+			(null != (srcs = signetSource.getParent())) &&
+			(null != (persistSrc = srcs.getPersistedSource())))
 		{
-			Signet mySignet = srcs.getSignet();
-			for (Iterator iterator = assignmentsReceived.iterator(); iterator.hasNext(); )
-			{
-				AssignmentImpl assignment = (AssignmentImpl)(iterator.next());
-				assignment.setSignet(mySignet);
-			}
+			assignsReceived = persistSrc.getAssignmentsReceived(subject_PK.longValue(), Status.ACTIVE.toString());
+			Signet signet = signetSource.getSignet();
+			for (Iterator assigns = assignsReceived.iterator(); assigns.hasNext(); )
+				((AssignmentImpl)assigns.next()).setSignet(signet);
+		}
+		else
+		{
+			assignsReceived = new HashSet();
+			log.warn("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
 		}
 
-		return (assignmentsReceived);
+		return (assignsReceived);
 	}
 
 
 	/**
-	 * Support for Hibernate
-	 * @param proxies The Proxies to set
+	 * Get the set of Proxies granted by this Subject.
+	 * @return A Set of ProxyImpl objects that have been granted by grantor.
+	 * May be an empty set but never null.
 	 */
-	protected void setProxiesGranted(Set proxies)
-	{
-		proxiesGranted = proxies;
-	}
-	
 	public Set getProxiesGranted()
 	{
-//TODO Why does each thing need a reference to Signet? And, if so, why not set
-//		it when addProxyGranted()or setProxiesGranted() is called?
+		Set proxiesGranted;
 		SignetSources srcs;
-		if ((null != signetSource) && (null != (srcs = signetSource.getParent())))
+		PersistedSignetSource persistSrc;
+
+		if ( !isPersisted()) // it's not persisted, ergo no proxies
+			proxiesGranted = new HashSet();
+
+		else if ((null != signetSource) &&
+			(null != (srcs = signetSource.getParent())) &&
+			(null != (persistSrc = srcs.getPersistedSource())))
 		{
-			Signet mySignet = srcs.getSignet();
-			// Make sure that all of the members of this Set have Signet instances.
-			for (Iterator iterator = proxiesGranted.iterator(); iterator.hasNext();)
-			{
-				ProxyImpl proxy = (ProxyImpl)(iterator.next());
-				proxy.setSignet(mySignet);
-			}
+			proxiesGranted = persistSrc.getProxiesGranted(subject_PK.longValue(), Status.ACTIVE.toString());
+			Signet signet = signetSource.getSignet();
+			for (Iterator proxies = proxiesGranted.iterator(); proxies.hasNext(); )
+				((ProxyImpl)proxies.next()).setSignet(signet);
+		}
+		else
+		{
+			proxiesGranted = new HashSet();
+			log.warn("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
 		}
 
 		return (proxiesGranted);
@@ -574,100 +562,34 @@ signetSource.log.warn(
 
 	/**
 	 * Support for Hibernate
-	 * @param proxies The Proxies to set
-	 */
-	protected void setProxiesReceived(Set proxies)
-	{
-		proxiesReceived = proxies;
-	}
-
-	/**
-	 * Support for Hibernate
 	 * @return A Set of Proxies received by this Subject
 	 */
 	public Set getProxiesReceived()
 	{
-//TODO Why does each thing need a reference to Signet? And, if so, why not set
-//		it when addProxyReceived() or setProxiessReceived() is called?
-//		// Make sure that all of the members of this Set have Signet instances.
+		Set proxiesReceived;
 		SignetSources srcs;
-		if ((null != signetSource) && (null != (srcs = signetSource.getParent())))
+		PersistedSignetSource persistSrc;
+
+		if ( !isPersisted()) // it's not persisted, ergo no proxies
+			proxiesReceived = new HashSet();
+
+		else if ((null != signetSource) &&
+			(null != (srcs = signetSource.getParent())) &&
+			(null != (persistSrc = srcs.getPersistedSource())))
 		{
-			Signet mySignet = srcs.getSignet();
-			for (Iterator iterator = proxiesReceived.iterator(); iterator.hasNext(); )
-			{
-				ProxyImpl proxy = (ProxyImpl)(iterator.next());
-				proxy.setSignet(mySignet);
-			}
+			proxiesReceived = persistSrc.getProxiesReceived(subject_PK.longValue(), Status.ACTIVE.toString());
+			Signet signet = signetSource.getSignet();
+			for (Iterator proxies = proxiesReceived.iterator(); proxies.hasNext(); )
+				((ProxyImpl)proxies.next()).setSignet(signet);
+		}
+		else
+		{
+			proxiesReceived = new HashSet();
+			log.warn("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
 		}
 
 		return (proxiesReceived);
 	}
-
-
-//	protected void replaceAssignmentsGranted(Set assignments)
-//	{
-//		if (null == assignments)
-//		{
-//			assignmentsGranted = assignments;
-//			return;
-//		}
-//
-//		if (null == assignmentsGranted)
-//			assignmentsGranted = new HashSet();
-//		else
-//			assignmentsGranted.clear();
-//
-//		assignmentsGranted.addAll(assignments);
-//	}
-//	
-//	protected void replaceAssignmentsReceived(Set assignments)
-//	{
-//		if (null == assignments)
-//		{
-//			assignmentsReceived = assignments;
-//			return;
-//		}
-//
-//		if (null == assignmentsReceived)
-//			assignmentsReceived = new HashSet();
-//		else
-//			assignmentsReceived.clear();
-//
-//		assignmentsReceived.addAll(assignments);
-//	}
-//
-//	protected void replaceProxiesGranted(Set proxies)
-//	{
-//		if (null == proxies)
-//		{
-//			proxiesGranted = proxies;
-//			return;
-//		}
-//
-//		if (null == proxiesGranted)
-//			proxiesGranted = new HashSet();
-//		else
-//			proxiesGranted.clear();
-//
-//		proxiesGranted.addAll(proxies);
-//	}
-//	
-//	protected void replaceProxiesReceived(Set proxies)
-//	{
-//		if (null == proxies)
-//		{
-//			proxiesReceived = proxies;
-//			return;
-//		}
-//
-//		if (null == proxiesReceived)
-//			proxiesReceived = new HashSet();
-//		else
-//			proxiesReceived.clear();
-//
-//		proxiesReceived.addAll(proxies);
-//	}
 
 
 	/**
@@ -675,7 +597,7 @@ signetSource.log.warn(
 	 */
 	public void save()
 	{
-		HibernateDB hibr = signetSource.getParent().getPersistedSource().getPersistedStoreMgr();
+		HibernateDB hibr = signetSource.getSignet().getPersistentDB();
 		hibr.beginTransaction();
 		hibr.save(this);
 try
@@ -1673,32 +1595,6 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
-	public void addAssignmentGranted(Assignment assignment)
-	{
-		if (null != assignment)
-			assignmentsGranted.add(assignment);
-	}
-
-	public void addAssignmentReceived(Assignment assignment)
-	{
-		if (null != assignment)
-			assignmentsReceived.add(assignment);
-	}
-
-	public void addProxyGranted(Proxy proxy)
-	{
-		if (null != proxy)
-			proxiesGranted.add(proxy);
-	}
-
-	public void addProxyReceived(Proxy proxy)
-	{
-		if (null != proxy)
-			proxiesReceived.add(proxy);
-	}
-
-
-
 	public Assignment grant(
 			SignetSubject grantee,
 			TreeNode scope,
@@ -1708,11 +1604,15 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 			Date effectiveDate, Date expirationDate)
 		throws SignetAuthorityException
 	{
+		if ( !isPersisted())
+			save();
+		if ( !grantee.isPersisted())
+			grantee.save();
+
 		Assignment newAssignment = new AssignmentImpl(
 				signetSource.getSignet(), this, grantee, scope, function, limitValues,
 				canUse, canGrant, effectiveDate, expirationDate);
-		getEffectiveEditor().addAssignmentGranted(newAssignment);
-		grantee.addAssignmentReceived(newAssignment);
+		newAssignment.save();
 
 		return (newAssignment);
 	}
@@ -1728,10 +1628,10 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 			throw new IllegalArgumentException("Cannot grant a Proxy to a NULL grantee.");
 		}
 
-		Proxy newProxy = new ProxyImpl(signetSource.getSignet(), this, grantee, subsystem,
+		Signet mySignet = signetSource.getSignet();
+		Proxy newProxy = new ProxyImpl(mySignet, this, grantee, subsystem,
 				canUse, canExtend, effectiveDate, expirationDate);
-		getEffectiveEditor().addProxyGranted(newProxy);
-		grantee.addProxyReceived(newProxy);
+		newProxy.save();
 
 		return (newProxy);
 	}

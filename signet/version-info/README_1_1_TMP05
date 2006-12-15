@@ -1,0 +1,14 @@
+Signet  12/15/06
+Release Notes for CVS-tagged version SIGNET_1_1_TMP05
+
+1. Modified the way Signet uses Hibernate for SignetSubject loading/saving.
+SignetSubject used to contain Sets of references to Assignments granted/
+received and Proxies granted/received. Those references have been removed and
+replaced with live DB selects when the getAssignmentRecieved/Granted and
+getProxiesReceived/Granted methods are called on SignetSubject.
+
+2. Moved the Hibernate jars under the control of project i2mi-common. They
+will now appear in the lib/i2mi-common directory when Signet project is
+checked-out from CVS.
+
+

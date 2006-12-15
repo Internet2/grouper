@@ -1,7 +1,6 @@
 /*--
-$Id: Common.java,v 1.72 2006-12-07 02:12:40 ddonn Exp $
-$Date: 2006-12-07 02:12:40 $
-  
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.73 2006-12-15 20:45:37 ddonn Exp $
+
 Copyright 2006 Internet2, Stanford University
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -676,7 +675,7 @@ public class Common
       Proxy proxy = (Proxy)grantable;
       outStr
         = "<span class=\"label\">In </span>"
-          + displaySubsystem(proxy);
+          + displaySubsystem(proxy.getSubsystem());
     }
     
     return outStr;
@@ -1120,7 +1119,48 @@ public class Common
     
     return outStr.toString();
   }
-  
+
+
+	/**
+	 * @param style Either CAN_USE_HTTPPARAMNAME or CAN_GRANT_HTTPPARAMNAME
+	 * @param assignment A valid assignment or null
+	 * @param label The label text to display next to the checkbox
+	 * @return A String containing the proper HTML attributes for a Checkbox
+	 */
+	public static String createAssignmentCheckbox(
+				String style,
+				Assignment assignment,
+				String label)
+	{
+		StringBuffer buf = new StringBuffer();
+
+		buf.append("<input ");
+		buf.append("name=\"" + style + "\" ");
+		buf.append("id=\"" + style + "\" ");
+		buf.append("type=\"checkbox\" ");
+		buf.append("value=\"checkbox\" ");
+		if (style.equals(Constants.CAN_USE_HTTPPARAMNAME))
+		{
+			// if not editing an existing Assignment, check this box by default
+			// or if existing assignment and canUse, check it
+			if ((null == assignment) ||
+					(assignment.canUse()))
+				buf.append("checked ");
+		}
+		else if (style.equals(Constants.CAN_GRANT_HTTPPARAMNAME))
+		{
+			// check it only if valid assignment and canGrant
+			if ((null != assignment) &&
+					(assignment.canGrant()))
+				buf.append("checked ");
+		}
+		buf.append("/> ");
+		buf.append(label);
+
+		return (buf.toString());
+	}
+ 
+
   public static String popupIcon(Grantable grantable)
   {
     String outStr;
@@ -1656,13 +1696,13 @@ public class Common
     return privDisplayType;
   }
   
-  static public Subsystem getAndSetSubsystem
-    (Signet             signet,
-     HttpServletRequest request,
-     String             paramName,
-     String             attrName,
-     Subsystem          defaultValue)
-  throws ObjectNotFoundException
+  static public Subsystem getAndSetSubsystem(
+		Signet             signet,
+		HttpServletRequest request,
+		String             paramName,
+		String             attrName,
+		Subsystem          defaultValue)
+	throws ObjectNotFoundException
   {
     Subsystem subsystem = null;
     
@@ -1677,25 +1717,15 @@ public class Common
     if (subsystemId != null)
     {
       if (subsystemId.equals("null"))
-      {
         subsystem = Constants.WILDCARD_SUBSYSTEM;
-      }
       else
-      {
         subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
-      }
     }
     else
-    {
-      subsystem
-        = (Subsystem)
-            (request.getSession().getAttribute(attrName));
-    }
+      subsystem = (Subsystem)(request.getSession().getAttribute(attrName));
     
     if (subsystem == null)
-    {
       subsystem = defaultValue;
-    }
 
     request.getSession().setAttribute(attrName, subsystem);
     return subsystem;
@@ -1907,21 +1937,12 @@ public class Common
     return outStr.toString();
   }
   
-  private static String subsystemLink
-    (Subsystem subsystem,
-     Subsystem currentSubsystem)
+  private static String subsystemLink(Subsystem subsystem, Subsystem currentSubsystem)
   {
     StringBuffer outStr = new StringBuffer();
     String name;
-    
-    if (subsystem.equals(Constants.WILDCARD_SUBSYSTEM))
-    {
-      name = "All";
-    }
-    else
-    {
-      name = subsystem.getName();
-    }
+
+    name = subsystem.equals(Constants.WILDCARD_SUBSYSTEM) ? "All" : subsystem.getName();
 
     if (subsystem.equals(currentSubsystem))
     {
@@ -1939,7 +1960,7 @@ public class Common
       outStr.append(name);
       outStr.append("</a>");
     }
-    
+
     return outStr.toString();
   }
   
@@ -1971,19 +1992,14 @@ public class Common
     return subsystems;
   }
   
-  public static String displaySubsystem(Proxy proxy)
+  public static String displaySubsystem(Subsystem subsystem)
   {
     String    displayStr;
-    Subsystem subsystem = proxy.getSubsystem();
     
-    if ((subsystem == null) || (subsystem == Constants.WILDCARD_SUBSYSTEM))
-    {
+    if ((null == subsystem) || (Constants.WILDCARD_SUBSYSTEM == subsystem))
       displayStr = "any subsystem";
-    }
     else
-    {
       displayStr = subsystem.getName();
-    }
     
     return displayStr;
   }

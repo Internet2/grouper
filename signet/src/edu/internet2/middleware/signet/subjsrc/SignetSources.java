@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.4 2006-12-07 02:12:40 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.5 2006-12-15 20:45:37 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -319,6 +319,24 @@ public class SignetSources
 	////////////////////////////////////
 	// Source & Subject management API
 	////////////////////////////////////
+
+	/**
+	 * Get the SignetSubject that matches the DB primary key from Persisted Store.
+	 * @param subject_pk The primary key
+	 * @return The matching SignetSubject or null
+	 */
+	public SignetSubject getSubject(long subject_pk)
+	{
+		SignetSubject retval;
+
+		if (null != persistedSource)
+			retval = persistedSource.getSubject(subject_pk);
+		else
+			retval = null;
+
+		return (retval);
+	}
+
 
 	/**
 	 * Get a Subject that matches the given subjectId. First, attempt to find the

@@ -1,6 +1,5 @@
 /*--
-$Id: AssignmentImpl.java,v 1.40 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.41 2006-12-15 20:45:37 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -22,18 +21,17 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
 public class AssignmentImpl extends GrantableImpl implements Assignment
 {
-  private TreeNode					scope;
-  private FunctionImpl			function;
-  private Set								limitValues;
-  private boolean						canGrant;
-  private boolean						canUse;
+  private TreeNode			scope;
+  private FunctionImpl		function;
+  private Set				limitValues;
+  private boolean			canGrant;
+  private boolean			canUse;
 
   
   /**
@@ -69,7 +67,7 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
     // The Signet application can only do one thing: Grant a Proxy to a
     // System Administrator. The Signet Application can never directly
     // grant any Assignment to anyone.
-    if (grantor == getSignet().getSignetSubject())
+    if (grantor.equals(getSignet().getSignetSubject()))
     {
       Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
       throw new SignetAuthorityException(decision);
@@ -260,55 +258,60 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
     return this.canGrant;
   }
 
-  public void setCanGrant
-    (SignetSubject  actor,
-//    (PrivilegedSubject  actor,
-     boolean            canGrant)
-  throws SignetAuthorityException
-  {
-    checkEditAuthority(actor);
-    
-    this.canGrant = canGrant;
-    this.setGrantor(actor);
-  }
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Assignment#setCanGrant(edu.internet2.middleware.signet.subjsrc.SignetSubject, boolean)
+	 */
+	public void setCanGrant(SignetSubject actor, boolean canGrant) throws SignetAuthorityException
+	{
+		checkEditAuthority(actor);
+
+		this.canGrant = canGrant;
+
+		setGrantorId(actor.getSubject_PK());
+		setProxyForEffectiveEditor(actor);
+	}
   
-  // This method is only for use by Hibernate.
+  /** This method is only for use by Hibernate. */
   protected void setCanGrant(boolean canGrant)
   {
     this.canGrant = canGrant;
   }
   
-  // This method is only for use by Hibernate.
+  /** This method is only for use by Hibernate. */
   protected boolean getCanGrant()
   {
     return this.canGrant;
   }
 
-  public boolean canUse()
-  {
-    return this.canUse;
-  }
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Assignment#canUse()
+	 */
+	public boolean canUse()
+	{
+	  return this.canUse;
+	}
   
-  // This method is only for use by Hibernate.
+  /** This method is only for use by Hibernate. */
   protected boolean getCanUse()
   {
     return this.canUse;
   }
 
-  public void setCanUse
-    (SignetSubject  actor,
-//    (PrivilegedSubject  actor,
-     boolean            canUse)
-  throws SignetAuthorityException
-  {
-    checkEditAuthority(actor);
-    
-    super.setGrantor(actor);
-    this.canUse = canUse;
-  }
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Assignment#setCanUse(edu.internet2.middleware.signet.subjsrc.SignetSubject, boolean)
+	 */
+	public void setCanUse(SignetSubject actor, boolean canUse) throws SignetAuthorityException
+	{
+		checkEditAuthority(actor);
+
+		this.canUse = canUse;
+
+		setGrantorId(actor.getSubject_PK());
+		setProxyForEffectiveEditor(actor);
+	}
 
 
-  // This method is for use only by Hibernate.
+  /** This method is for use only by Hibernate. */
   protected void setCanUse(boolean canUse)
   {
     this.canUse = canUse;
@@ -324,8 +327,6 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
     
     SignetSubject thisGrantee = this.getGrantee();
     SignetSubject otherGrantee = other.getGrantee();
-//    PrivilegedSubject thisGrantee = this.getGrantee();
-//    PrivilegedSubject otherGrantee = other.getGrantee();
     comparisonResult = thisGrantee.compareTo(otherGrantee);
     
     if (comparisonResult != 0)
@@ -410,21 +411,25 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
   }
 
   
-  public void setLimitValues
-    (SignetSubject  actor,
-//    (PrivilegedSubject  actor,
-     Set                limitValues)
-  throws SignetAuthorityException
-  {
-    checkLimitValues(limitValues);
-    checkEditAuthority(actor);
-    
-    this.setLimitValues(limitValues);
-    this.setGrantor(actor);
-  }
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Assignment#setLimitValues(edu.internet2.middleware.signet.subjsrc.SignetSubject, java.util.Set)
+	 */
+	public void setLimitValues(SignetSubject actor, Set limitValues) throws SignetAuthorityException
+	{
+		checkLimitValues(limitValues);
+		checkEditAuthority(actor);
+
+		this.setLimitValues(limitValues);
+
+		setGrantorId(actor.getSubject_PK());
+		setProxyForEffectiveEditor(actor);
+	}
   
-  private void checkLimitValues(Set limitValues)
-  throws IllegalArgumentException
+	/**
+	 * @param limitValues
+	 * @throws IllegalArgumentException
+	 */
+  private void checkLimitValues(Set limitValues) throws IllegalArgumentException
   {
     Iterator limitValuesIterator = limitValues.iterator();
     while (limitValuesIterator.hasNext())
@@ -457,6 +462,9 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
     }
   }
   
+	/**
+	 * @param limitValues
+	 */
   private void setLimitValues(Set limitValues)
   {
     this.limitValues = limitValues;
@@ -471,19 +479,23 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
   }
 
   
-  public void save()
-  {
-    if (null != getId())
-    {
-      // This isn't the first time we've saved this Assignment.
-      // We'll increment the instance-number accordingly, and save
-      // its history-record right now (just after we save the Assignment
-      // record itself, so as to avoid hitting any referential-integrity
-      // problems in the database).
-      incrementInstanceNumber();
-      getHistory().add(new AssignmentHistoryImpl(this));
-      
-    }
-    super.save();
-  }
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.EntityImpl#save()
+	 */
+	public void save()
+	{
+		if (null != getId())
+		{
+			// This isn't the first time we've saved this Assignment.
+			// We'll increment the instance-number accordingly, and save
+			// its history-record right now (just after we save the Assignment
+			// record itself, so as to avoid hitting any referential-integrity
+			// problems in the database).
+			incrementInstanceNumber();
+			getHistory().add(new AssignmentHistoryImpl(this));
+		}
+
+		super.save();
+	}
+
 }

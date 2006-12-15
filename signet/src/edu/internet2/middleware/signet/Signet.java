@@ -1,6 +1,5 @@
 /*--
-$Id: Signet.java,v 1.62 2006-11-30 04:21:49 ddonn Exp $
-$Date: 2006-11-30 04:21:49 $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.63 2006-12-15 20:45:37 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -1331,6 +1330,22 @@ public final class Signet
 	{
 		SignetSubject retval = getSubject(SignetAppSource.SIGNET_SOURCE_ID,
 				SignetSubject.SIGNET_SUBJECT_ID);
+
+		return (retval);
+	}
+
+
+	/**
+	 * Get the SignetSubject that matches the DB primary key from Persisted Store.
+	 * @param subject_pk The primary key
+	 * @return The matching SignetSubject or null
+	 */
+	public SignetSubject getSubject(long subject_pk)
+	{
+		if (null == signetSources)
+			return (null);
+
+		SignetSubject retval = signetSources.getSubject(subject_pk);
 
 		return (retval);
 	}

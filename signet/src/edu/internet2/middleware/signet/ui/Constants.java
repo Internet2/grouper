@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.25 2006-11-30 04:21:49 ddonn Exp $
-$Date: 2006-11-30 04:21:49 $
+$Id: Constants.java,v 1.26 2006-12-15 20:45:37 ddonn Exp $
+$Date: 2006-12-15 20:45:37 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.Category;
-import edu.internet2.middleware.signet.Function;
+// import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
 // import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
@@ -164,6 +164,10 @@ public final class Constants
   public static final String SIGNET_SOURCE_ID_HTTPPARAMNAME = "SignetSourceId_param";
   public static final String SIGNET_SUBJECT_ID_HTTPPARAMNAME = "SignetSubjectId_param";
 
+  public static final String CAN_USE_HTTPPARAMNAME = "can_use";
+
+  public static final String CAN_GRANT_HTTPPARAMNAME = "can_grant";
+
 
   public static final Subsystem WILDCARD_SUBSYSTEM
     = new Subsystem()
@@ -172,8 +176,8 @@ public final class Constants
         public Set getCategories() {return null;}
         public Category getCategory(String categoryId){return null;}
         public Set getFunctions() {return null;}
-        public void setFunctionsArray(Function[] categories) {}
-        public Function getFunction(String functionId){return null;}
+//        public void setFunctionsArray(Function[] categories) {}
+//        public Function getFunction(String functionId){return null;}
         public Tree getTree() {return null;}
         public void setTree(Tree tree) {}
         public void add(Category category) {}
@@ -184,7 +188,7 @@ public final class Constants
         public Limit getLimit(String id){return null;}
         public Map getPermissions() {return null;}
         public Permission getPermission(String id){return null;}
-        public void setHelpText(String helpText) {}
+//        public void setHelpText(String helpText) {}
         public String getHelpText() {return null;}
         public void save() {}
         public void inactivate() {}

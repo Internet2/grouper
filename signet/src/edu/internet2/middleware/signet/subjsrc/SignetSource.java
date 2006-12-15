@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.3 2006-11-30 04:21:49 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.4 2006-12-15 20:45:37 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -51,7 +51,7 @@ public class SignetSource implements Source
 	public static final String		USAGE_DEFAULT			= SignetSources.SIGNET_USAGE_ALL;
 
 	// logging
-	protected Log			log = LogFactory.getLog(SignetSource.class);
+	protected Log			log;
 
 	/** Application and SubjectAPI Source 'id' */
 	protected String		id;
@@ -83,6 +83,7 @@ public class SignetSource implements Source
 	/** default constructor */
 	public SignetSource()
 	{
+		log = LogFactory.getLog(this.getClass());
 		id = null;
 		name = null;
 		type = null;

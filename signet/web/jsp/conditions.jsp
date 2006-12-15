@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: conditions.jsp,v 1.5 2006-10-25 00:13:31 ddonn Exp $
-  $Date: 2006-10-25 00:13:31 $
+  $Id: conditions.jsp,v 1.6 2006-12-15 20:45:37 ddonn Exp $
+  $Date: 2006-12-15 20:45:37 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -418,43 +418,15 @@
 
                     <td><%=ResLoaderUI.getString("conditions.holdercan.txt") %></td>
                     <td>
-                      <input
-                        name="can_use"
-                        id="can_use"
-                        type="checkbox"
-                        value="checkbox"
-                        <%=(currentAssignment==null
-                         /* We're not editing an existing Assignment, so
-                          * check this box as a default value.
-                          */
-                         ? "CHECKED"
-                         /* We are editing an existing Assignment, so get
-                          * this box's status from the Assignment.
-                          */
-                         : (currentAssignment.canUse()
-                              ? "CHECKED"
-                              : ""))%>
-                      />
-                      <%=ResLoaderUI.getString("conditions.canuse.txt") %>
+					<%=Common.createAssignmentCheckbox(
+							Constants.CAN_USE_HTTPPARAMNAME,
+							currentAssignment, 
+							ResLoaderUI.getString("conditions.canuse.txt")) %>
                       <br />
-                      <input
-                        name="can_grant"
-                        id="can_grant"
-                        type="checkbox"
-                        value="checkbox"
-                        <%=(currentAssignment==null
-                            /* We're not editing an existing Assignment, so
-                             * un-check this box as a default value.
-                             */
-                            ? ""
-                            /* We are editing an existing Assignment, so get
-                             * this box's status from the Assignment.
-                             */
-                            : (currentAssignment.canGrant()
-                                 ? "CHECKED"
-                                 : ""))%>
-                      />
-                      <%=ResLoaderUI.getString("conditions.toothers.txt") %>
+                     <%=Common.createAssignmentCheckbox(
+                     		Constants.CAN_GRANT_HTTPPARAMNAME,
+                     		currentAssignment,
+                     		ResLoaderUI.getString("conditions.toothers.txt")) %>
                     </td>
                   </tr>
                 </table>

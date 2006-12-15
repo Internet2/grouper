@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.3 2006-11-30 04:21:50 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.4 2006-12-15 20:45:37 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -88,6 +88,39 @@ public class HibernateDB
 	 * sent to Hibernate. */
 	protected int				xactNestingLevel = 0;
 
+	protected static final String	Qry_subjectByPK =
+			"from edu.internet2.middleware.signet.SignetSubject " + //$NON-NLS-1$
+			" as subject " + //$NON-NLS-1$
+			" where subjectkey = :subjectkey "; //$NON-NLS-1$
+
+	protected static final String	Qry_proxiesGranted =
+			"from edu.internet2.middleware.signet.ProxyImpl " + //$NON-NLS-1$
+			" as proxy " +  //$NON-NLS-1$
+			" where grantorKey = :grantorKey " + //$NON-NLS-1$
+			" and " + //$NON-NLS-1$
+			" status = :status "; //$NON-NLS-1$
+
+	protected static final String	Qry_proxiesReceived =
+			"from edu.internet2.middleware.signet.ProxyImpl " + //$NON-NLS-1$
+			" as proxy " +  //$NON-NLS-1$
+			" where granteeKey = :granteeKey " + //$NON-NLS-1$
+			" and " + //$NON-NLS-1$
+			" status = :status "; //$NON-NLS-1$
+
+	protected static final String	Qry_assignmentsGranted =
+			"from edu.internet2.middleware.signet.AssignmentImpl " + //$NON-NLS-1$
+			" as assignment " +  //$NON-NLS-1$
+			" where grantorKey = :grantorKey " + //$NON-NLS-1$
+			" and " + //$NON-NLS-1$
+			" status = :status "; //$NON-NLS-1$
+
+	protected static final String	Qry_assignmentsReceived =
+			"from edu.internet2.middleware.signet.AssignmentImpl " + //$NON-NLS-1$
+			" as assignment " +  //$NON-NLS-1$
+			" where granteeKey = :granteeKey " + //$NON-NLS-1$
+			" and " + //$NON-NLS-1$
+			" status = :status "; //$NON-NLS-1$
+
 
 	///////////////////////////////////
 	// class methods
@@ -161,6 +194,25 @@ public class HibernateDB
 	 * Load a DB object when the ID is known. Wrapper method for session.
 	 */
 	public Object load(Class loadClass, Integer id) throws ObjectNotFoundException
+	{
+		Object retval = null;
+		try { retval = session.load(loadClass, id); }
+		catch (net.sf.hibernate.ObjectNotFoundException onfe)
+		{
+			throw new ObjectNotFoundException(onfe);
+		}
+		catch (HibernateException he)
+		{
+			throw new SignetRuntimeException(he);
+		}
+		return (retval);
+	}
+
+
+	/**
+	 * Load a DB object when the ID is known. Wrapper method for session.
+	 */
+	public Object load(Class loadClass, Long id) throws ObjectNotFoundException
 	{
 		Object retval = null;
 		try { retval = session.load(loadClass, id); }
@@ -661,6 +713,120 @@ public class HibernateDB
 	}
 
 
+	/**
+	 * Get the set of Proxies granted by the grantor.
+	 * @param grantorId The primary key of the proxy grantor
+	 * @param status The status of the proxy
+	 * @return A Set of ProxyImpl objects that have been granted by grantor.
+	 * May be an empty set but never null.
+	 */
+	public Set getProxiesGranted(long grantorId, String status)
+	{
+		Set retval = new HashSet();
+
+		Query qry = createQuery(Qry_proxiesGranted);
+		qry.setLong("grantorKey", grantorId);
+		qry.setString("status", status);
+		try
+		{
+			retval.addAll(qry.list());
+//			for (Iterator proxies = qry.iterate(); proxies.hasNext(); )
+//				retval.add(proxies.next());
+		}
+		catch (HibernateException e)
+		{
+			log.error("Unable to obtain iterator for results");
+		}
+
+		return (retval);
+	}
+
+	/**
+	 * Get the set of Proxies granted to the grantee.
+	 * @param granteeId The primary key of the proxy grantee
+	 * @param status The status of the proxy
+	 * @return A Set of ProxyImpl objects that have been granted to grantee.
+	 * May be an empty set but never null.
+	 */
+	public Set getProxiesReceived(long granteeId, String status)
+	{
+		Set retval = new HashSet();
+
+		Query qry = createQuery(Qry_proxiesReceived);
+		qry.setLong("granteeKey", granteeId);
+		qry.setString("status", status);
+		try
+		{
+			retval.addAll(qry.list());
+//			for (Iterator proxies = qry.iterate(); proxies.hasNext(); )
+//				retval.add(proxies.next());
+		}
+		catch (HibernateException e)
+		{
+			log.error("Unable to obtain iterator for results");
+		}
+
+		return (retval);
+	}
+
+
+	/**
+	 * Get the set of Assignments granted by the grantor.
+	 * @param grantorId The primary key of the assignment grantor
+	 * @param status The status of the assignment
+	 * @return A Set of AssignmentImpl objects that have been granted by grantor.
+	 * May be an empty set but never null.
+	 */
+	public Set getAssignmentsGranted(long grantorId, String status)
+	{
+		Set retval = new HashSet();
+
+		Query qry = createQuery(Qry_assignmentsGranted);
+		qry.setLong("grantorKey", grantorId);
+		qry.setString("status", status);
+		try
+		{
+			retval.addAll(qry.list());
+//			for (Iterator proxies = qry.iterate(); proxies.hasNext(); )
+//				retval.add(proxies.next());
+		}
+		catch (HibernateException e)
+		{
+			log.error("Unable to obtain iterator for results");
+		}
+
+		return (retval);
+	}
+
+	/**
+	 * Get the set of Assignments granted to the grantee.
+	 * @param granteeId The primary key of the assignment grantee
+	 * @param status The status of the assignment
+	 * @return A Set of AssignmentImpl objects that have been granted to grantee.
+	 * May be an empty set but never null.
+	 */
+	public Set getAssignmentsReceived(long granteeId, String status)
+	{
+		Set retval = new HashSet();
+
+		Query qry = createQuery(Qry_assignmentsReceived);
+		qry.setLong("granteeKey", granteeId);
+		qry.setString("status", status);
+		try
+		{
+			retval.addAll(qry.list());
+//			for (Iterator proxies = qry.iterate(); proxies.hasNext(); )
+//				retval.add(proxies.next());
+		}
+		catch (HibernateException e)
+		{
+			log.error("Unable to obtain iterator for results");
+		}
+
+		return (retval);
+	}
+
+
 	///////////////////////////////////
 	// unit test support
 	///////////////////////////////////
@@ -723,6 +889,29 @@ public class HibernateDB
 //		Re-architecture
 //
 /////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Get the SignetSubject that matches the DB primary key from Persisted Store.
+	 * @param subject_pk The primary key
+	 * @return The matching SignetSubject or null
+	 */
+	public SignetSubject getSubject(long subject_pk)
+	{
+		SignetSubject subject;
+
+		try
+		{
+			subject = (SignetSubject)load(SignetSubject.class, new Long(subject_pk));
+		}
+		catch (ObjectNotFoundException e)
+		{
+			log.error("No SignetSubject found with subjectkey=" + subject_pk);
+			subject = null;
+		}
+
+		return (subject);
+	}
+
 
 	/**
 	 * Query for a signet_subject that matches the given sourceId/subjectId

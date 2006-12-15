@@ -1,6 +1,5 @@
 /*--
-$Id: ProxyImpl.java,v 1.15 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.16 2006-12-15 20:45:37 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -21,7 +20,7 @@ package edu.internet2.middleware.signet;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import edu.internet2.middleware.signet.dbpersist.HibernateDB;
+import edu.internet2.middleware.signet.resource.ResLoaderApp;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 public class ProxyImpl extends GrantableImpl implements Proxy
@@ -38,6 +37,17 @@ public class ProxyImpl extends GrantableImpl implements Proxy
     super();
   }
   
+  /** Constructor
+	 * @param signet
+	 * @param grantor
+	 * @param grantee
+	 * @param subsystem
+	 * @param canUse
+	 * @param canExtend
+	 * @param effectiveDate
+	 * @param expirationDate
+	 * @throws SignetAuthorityException
+	 */
   public ProxyImpl
   	(Signet                 signet,
      SignetSubject			grantor, 
@@ -87,11 +97,10 @@ public class ProxyImpl extends GrantableImpl implements Proxy
       }
     }
     
-    if ((canUse == false) && (canExtend == false))
+    if ( !(canUse | canExtend)) // if can't use and can't extend
     {
-      throw new IllegalArgumentException
-        ("It is illegal to create a new Proxy with both its canUse"
-         + " and canExtend attributes set false.");
+      throw new IllegalArgumentException(
+    		  ResLoaderApp.getString("ProxyImpl.ProxyImpl.CantUseOrExtend")); //$NON-NLS-1$
     }
     
     this.subsystem = (SubsystemImpl)subsystem;
@@ -125,18 +134,6 @@ public class ProxyImpl extends GrantableImpl implements Proxy
     }
     
     return this.subsystem;
-  }
-  
-  /**
-   * @return A brief description of this AssignmentImpl. The exact details
-   * 		of the representation are unspecified and subject to change.
-   */
-  public String toString()
-  {
-    return
-      "[id=" + getId()
-      + ",instance=" + getInstanceNumber()
-      + ",subsystem=" + getSubsystem() + "]";
   }
   
   /* (non-Javadoc)
@@ -197,35 +194,34 @@ public class ProxyImpl extends GrantableImpl implements Proxy
   {
     return (getSignet().getPersistentDB().findDuplicates(this));
   }
-  
-  public void save()
-  {
-    if (null != getId())
-    {
-      // This isn't the first time we've saved this Proxy.
-      // We'll increment the instance-number accordingly, and save
-      // its history-record right now (just after we save the Proxy
-      // record itself, so as to avoid hitting any referential-integrity
-      // problems in the database).
-      incrementInstanceNumber();
-      getHistory().add(new ProxyHistoryImpl(this));
-    }
 
-    HibernateDB hibr = getSignet().getPersistentDB();
-    // nest the transactions so the DB doesn't get any "old maids"
-    hibr.beginTransaction();
-    super.save();
-	hibr.save(this);
-	hibr.commit();
-  }
 
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Assignment#getActualStartDatetime()
-   */
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.EntityImpl#save()
+	 */
+	public void save()
+	{
+		if (null != getId())
+		{
+			// This isn't the first time we've saved this Proxy.
+			// We'll increment the instance-number accordingly, and save
+			// its history-record right now (just after we save the Proxy
+			// record itself, so as to avoid hitting any referential-integrity
+			// problems in the database).
+			incrementInstanceNumber();
+			getHistory().add(new ProxyHistoryImpl(this));
+		}
+
+		super.save();
+	}
+
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Assignment#getActualStartDatetime()
+	 */
   public Date getActualStartDatetime()
   {
-    throw new UnsupportedOperationException
-      ("This method is not yet implemented.");
+    throw new UnsupportedOperationException(
+    		ResLoaderApp.getString("general.method.not.implemented")); //$NON-NLS-1$
   }
 
   /* (non-Javadoc)
@@ -233,8 +229,8 @@ public class ProxyImpl extends GrantableImpl implements Proxy
    */
   public Date getActualEndDatetime()
   {
-    throw new UnsupportedOperationException
-      ("This method is not yet implemented.");
+    throw new UnsupportedOperationException(
+    		ResLoaderApp.getString("general.method.not.implemented")); //$NON-NLS-1$
   }
 
   /* (non-Javadoc)
@@ -242,8 +238,8 @@ public class ProxyImpl extends GrantableImpl implements Proxy
    */
   public void inactivate()
   {
-    throw new UnsupportedOperationException
-      ("This method is not yet implemented");
+    throw new UnsupportedOperationException(
+    		ResLoaderApp.getString("general.method.not.implemented")); //$NON-NLS-1$
   }
 
   /* (non-Javadoc)
@@ -266,21 +262,22 @@ public class ProxyImpl extends GrantableImpl implements Proxy
     this.canExtend = canExtend;
   }
 
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Proxy#setCanExtend(edu.internet2.middleware.signet.PrivilegedSubject, boolean)
-   */
-  public void setCanExtend(SignetSubject editor, boolean canExtend)
-  		throws SignetAuthorityException
-  {
-    checkEditAuthority(editor);
-    
-    this.canExtend = canExtend;
-    this.setGrantor(editor);
-  }
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Proxy#setCanExtend(edu.internet2.middleware.signet.PrivilegedSubject, boolean)
+	 */
+	public void setCanExtend(SignetSubject editor, boolean canExtend) throws SignetAuthorityException
+	{
+		checkEditAuthority(editor);
 
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Proxy#canUse()
-   */
+		this.canExtend = canExtend;
+
+		setGrantorId(editor.getSubject_PK());
+		setProxyForEffectiveEditor(editor);
+	}
+
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Proxy#canUse()
+	 */
   public boolean canUse()
   {
     return this.canUse;
@@ -298,15 +295,37 @@ public class ProxyImpl extends GrantableImpl implements Proxy
     this.canUse = canUse;
   }
 
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Proxy#setCanUse(edu.internet2.middleware.signet.PrivilegedSubject, boolean)
-   */
-  public void setCanUse(SignetSubject editor, boolean canUse)
-  			throws SignetAuthorityException
-  {
-    checkEditAuthority(editor);
-    
-    super.setGrantor(editor);
-    this.canUse = canUse;
-  }
+	/*
+	 * (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Proxy#setCanUse(edu.internet2.middleware.signet.PrivilegedSubject, boolean)
+	 */
+	public void setCanUse(SignetSubject editor, boolean canUse) throws SignetAuthorityException
+	{
+		checkEditAuthority(editor);
+
+		this.canUse = canUse;
+
+		setGrantorId(editor.getSubject_PK());
+		setProxyForEffectiveEditor(editor);
+	}
+
+
+	// ///////////////////////////////////
+	// overrides Object
+	/////////////////////////////////////
+
+	/**
+	 * @return Returns the contents of ProxyImpl including the values from
+	 * it's super classes.
+	 */
+	public String toString()
+	{
+		StringBuffer buf = new StringBuffer(super.toString());
+		buf.append(", subsystem=" + (null != subsystem ? subsystem.toString() : "null"));
+		buf.append(", canExtend=" + canExtend);
+		buf.append(", canUse=" + canUse);
+		return (buf.toString());
+	}
+  
+
 }

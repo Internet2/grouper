@@ -1,3 +1,4 @@
+<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.38 2006-12-15 20:45:37 ddonn Exp $ -->
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.util.Set" %>
@@ -101,9 +102,9 @@
    		action="Revoke.do"
    		method="post"
    		id="checkform"
-	      onSubmit
-	        ="return confirm
-	           ('Are you sure you want to revoke the selected privileges(s)?\nThis action cannot be undone.\nClick OK to confirm.');">
+   		title="<%=ResLoaderUI.getString("privilegesGrantedReport.warning.title") %>"
+	    onSubmit="return confirm
+	           (<%=new String("'" + ResLoaderUI.getString("privilegesGrantedReport.warning.txt") + "'") %>);">
 	
     <DIV class="tablecontent">    
       <TABLE>

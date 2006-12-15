@@ -1,6 +1,5 @@
 /*--
-$Id: EntityImpl.java,v 1.12 2006-12-07 02:12:40 ddonn Exp $
-$Date: 2006-12-07 02:12:40 $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.13 2006-12-15 20:45:37 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -18,18 +17,25 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
+import java.text.DateFormat;
 import java.util.Date;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 
 /**
  * Every Signet entity contains an entity of this abstract class, which
  * ensures that every Signet entity has its full complement of common
  * attributes.
  * 
+ * NOTE: This class and all it's subclasses should be 
+ * rearchitected to better handle the notion of "id". GrantableImpl and it's 
+ * subclasses use an integer-based id whereas EntityImpl uses a String-based id. 
  */
 public abstract class EntityImpl implements Entity, Name
 {
+	protected Log				log;
+
   private Signet				signet;
   private String 				id;
   private String 				name;
@@ -66,45 +72,35 @@ public abstract class EntityImpl implements Entity, Name
    * program that last modified this entity.
    */
   private String 	modifyUserID;
+
   
+	/**
+	 * Hibernate requires that each persistable entity have a default constructor.
+	 */
+	protected EntityImpl()
+	{
+		log = LogFactory.getLog(this.getClass());
+	}
+
+	/**
+	 * @param signet The Signet instance thats associated with thie EntityImpl.
+	 * @param id A short mnemonic id which will appear in XML documents and other documents used by analysts.
+	 * @param name A descriptive name which will appear in UIs and documents exposed to users.
+	 * @param status The {@link Status} of this EntityImpl.
+	 */
+	protected EntityImpl(Signet signet, String id, String name, Status status)
+	{
+		this();
+		this.signet = signet;
+		this.id = id;
+		this.name = name;
+		this.status = status;
+	}
+
+
   /**
-   * @param signet
-   * 		The Signet instance thats associated with thie EntityImpl.
-   * @param id
-   *		A short mnemonic id which will appear in XML documents and
-   *    other documents used by analysts.
-   * @param name
-   *    A descriptive name which will appear in UIs and documents
-   *    exposed to users.
-   * @param status
-   * 		The {@link Status} of this EntityImpl.
-   */
-  EntityImpl
-  (Signet signet,
-   String id,
-   String name,
-   Status status)
-  {
-    super();
-    this.signet = signet;
-    this.id = id;
-    this.name = name;
-    this.status = status;
-  }
-  
-  /**
-   * Hibernate requires that each persistable entity have a default
-   * constructor.
-   */
-  EntityImpl()
-  {
-    super();
-  }
-  
-  /**
-   * @return Returns a short mnemonic id which will appear in XML
-   * 		documents and other documents used by analysts.
-   */
+	 * @return Returns a short mnemonic id which will appear in XML documents and other documents used by analysts.
+	 */
   public String getStringId()
   {
     return id;
@@ -318,21 +314,6 @@ public abstract class EntityImpl implements Entity, Name
     this.name = name;
   }
   
-  /**
-   * @return A brief description of this entity. The exact details
-   * 		of the representation are unspecified and subject to change.
-   */
-  public String toString()
-  {
-    return 
-    	new 
-    		ToStringBuilder(this)
-    			.append("id", getStringId())
-    				.append("status", getStatus())
-    				.append("createDatetime", getCreateDatetime())
-    				.append("modifyDatetime", getModifyDatetime())
-    				.toString();
-  }
   
   /**
    * @return Returns the Signet instance associated with this EntityImpl.
@@ -355,9 +336,51 @@ public abstract class EntityImpl implements Entity, Name
     }
   }
   
-  public void save()
-  {
-    setModifyDatetime(new Date());
-    getSignet().getPersistentDB().save(this);
-  }
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Entity#save()
+	 */
+	public void save()
+	{
+		if (null != signet)
+		{
+			HibernateDB hibr = signet.getPersistentDB();
+			if (null != hibr)
+			{
+				setModifyDatetime(new Date());
+
+				hibr.beginTransaction();
+				hibr.save(this);
+				hibr.commit();
+			}
+			else
+				log.error("No Persistent DB available while attempting to save " + this.getClass().getName() + ".");
+		}
+		else
+			log.error("No Signet instance available while attempting to save " + this.getClass().getName() + ".");
+	}
+
+
+	// ///////////////////////////////////////
+	// overrides Object
+	/////////////////////////////////////////
+
+	public String toString()
+	{
+		DateFormat df = DateFormat.getDateInstance();
+		StringBuffer buf = new StringBuffer();
+		buf.append("name=" + name);
+		buf.append(", id(EntityImpl)=" + id);
+		buf.append(", status=" + status.toString());
+		buf.append(", comment=\"" + comment + "\"");
+		buf.append(", createDate=" + (null != createDatetime ? df.format(createDatetime) : "null"));
+		buf.append(", modifyDate=" + (null != modifyDatetime ? df.format(modifyDatetime) : "null"));
+		buf.append(", createDbAccount=" + createDbAccount);
+		buf.append(", createContext=" + createContext);
+		buf.append(", modifyDbAccount=" + modifyDbAccount);
+		buf.append(", modifyContext=" + modifyContext);
+		buf.append(", createUserID=" + createUserID);
+		buf.append(", modifyUserID=" + modifyUserID);
+		return (buf.toString());
+	}
+
 }

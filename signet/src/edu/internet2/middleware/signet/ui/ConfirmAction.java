@@ -1,6 +1,5 @@
 /*--
-$Id: ConfirmAction.java,v 1.19 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.20 2006-12-15 20:45:37 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -99,8 +98,6 @@ throws Exception
   }
 
   HttpSession session = request.getSession(); 
-  boolean canUse;
-  boolean canGrant;
   Date    effectiveDate   = null;
   Date    expirationDate  = null;
 
@@ -124,10 +121,7 @@ throws Exception
   
   Common.showHttpParams
     ("ConfirmAction.execute()", signet.getLogger(), request);
-  
-  String canUseString = request.getParameter("can_use");
-  String canGrantString = request.getParameter("can_grant");
-  
+
   Date defaultEffectiveDate;
   if ((assignment != null) && (assignment.getStatus().equals(Status.ACTIVE)))
   {
@@ -164,24 +158,6 @@ throws Exception
           (request, actionMessages, Constants.EXPIRATION_DATE_PREFIX);
   }
 
-  if (Common.paramIsPresent(canUseString))
-  {
-    canUse = true;
-  }
-  else
-  {
-    canUse = false;
-  }
-  
-  if (Common.paramIsPresent(canGrantString))
-  {
-    canGrant = true;
-  }
-  else
-  {
-    canGrant = false;
-  }
-  
   Set limitValues = LimitRenderer.getAllLimitValues(signet, request);
   
   // If we've detected any data-entry errors, let's bail out here, before we
@@ -190,7 +166,10 @@ throws Exception
   {
     return findDataEntryErrors(mapping);
   }
-  
+
+  boolean canUse = Common.paramIsPresent(request.getParameter(Constants.CAN_USE_HTTPPARAMNAME));
+  boolean canGrant = Common.paramIsPresent(request.getParameter(Constants.CAN_GRANT_HTTPPARAMNAME));
+
   if (assignment != null)
   {
     // We're editing an existing Assignment.
