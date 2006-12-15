@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.90 2006-10-19 16:36:03 blair Exp $
+ * @version $Id: Stem.java,v 1.91 2006-12-15 17:30:52 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -40,8 +40,6 @@ public class Stem extends Owner {
 
 
   // HIBERNATE PROPERITES //
-  private Set     child_groups        = new LinkedHashSet();
-  private Set     child_stems         = new LinkedHashSet();
   private String  display_extension;
   private String  display_name;
   private Stem    parent_stem;
@@ -96,17 +94,7 @@ public class Stem extends Owner {
       throw new GroupAddException();
     }
     try {
-      _initializeChildGroupsAndStems(this);
-    }
-    catch (HibernateException eH) {
-      throw new GroupAddException(eH.getMessage(), eH);
-    }
-    try {
-      Group child = Group.create(this, extension, displayExtension);
-      // Add to children 
-      Set children  = this.getChildGroupsNpHi();
-      children.add(child);
-      this.setChild_groups(children);
+      Group   child = Group.create(this, extension, displayExtension);
       // Now create as member
       Member  m     = new Member( new GrouperSubject(child) );
 
@@ -161,17 +149,7 @@ public class Stem extends Owner {
       throw new StemAddException();
     }
     try {
-      _initializeChildGroupsAndStems(this);
-    }
-    catch (HibernateException eH) {
-      throw new StemAddException(eH.getMessage(), eH);
-    }
-    try {
       Stem  child     = Stem.create(this, extension, displayExtension);
-      // Add to children 
-      Set   children  = this.getChildStemsNpHi();
-      children.add(child);
-      this.setChild_stems(children);
       // And save
       Set   objects   = new LinkedHashSet();
       objects.add(child);
@@ -252,26 +230,18 @@ public class Stem extends Owner {
    * @return  Set of {@link Group} objects
    */
   public Set getChildGroups() {
-    Set children = new LinkedHashSet();
-    try {
-      GrouperSession  s       = this.getSession();
-      Subject         subj    = s.getSubject(); 
-      Group           child;
-      Iterator        iter    = this.getChildGroupsNpHi().iterator();
-      while (iter.hasNext()) {
-        child = (Group) iter.next();
-        child.setSession(s);
-        if (RootPrivilegeResolver.canVIEW(child, subj)) {
-          children.add(child);
-        }
+    Group     child;
+    Subject   subj    = this.getSession().getSubject();
+    Set       groups  = new LinkedHashSet();
+    Iterator  it      = HibernateStemDAO.findChildGroups(this).iterator();
+    while (it.hasNext()) {
+      child = (Group) it.next();
+      child.setSession( this.getSession() );
+      if ( RootPrivilegeResolver.canVIEW(child, subj) ) {
+        groups.add(child);
       }
     }
-    catch (Exception e) {
-      // @exception HibernateException
-      // @exception SessionException
-      ErrorLog.error(Stem.class, e.getMessage());
-    }
-    return children;
+    return groups;
   } // public Set getChildGroups()
 
   /**
@@ -283,21 +253,15 @@ public class Stem extends Owner {
    * @return  Set of {@link Stem} objects
    */
   public Set getChildStems() {
-    GrouperSessionValidator.validate(s);
-    Set children = new LinkedHashSet();
-    try {
-      Stem      child;
-      Iterator  iter  = this.getChildStemsNpHi().iterator();
-      while (iter.hasNext()) {
-        child = (Stem) iter.next();
-        child.setSession(this.getSession());
-        children.add(child);
-      }
+    Stem      child;
+    Set       stems = new LinkedHashSet();
+    Iterator  it    = HibernateStemDAO.findChildStems(this).iterator();
+    while (it.hasNext()) {
+      child = (Stem) it.next();
+      child.setSession( this.getSession() );
+      stems.add(child);
     }
-    catch (HibernateException eH) {
-      ErrorLog.error(Stem.class, E.STEM_GETCHILDSTEMS + eH.getMessage());
-    }
-    return children;
+    return stems;
   } // public Set getChildStems()
 
   /**
@@ -777,15 +741,10 @@ public class Stem extends Owner {
     String msg = "unable to set displayExtension: ";
     try {
       Set objects = new HashSet();
-      _initializeChildGroupsAndStems(this);
       this.setDisplay_extension(value);
       this.setModified();
       try {
-        this.setDisplay_name(
-          U.constructName(
-            this.getParentStem().getDisplayName(), value
-          )
-        );
+        this.setDisplay_name( U.constructName( this.getParentStem().getDisplayName(), value ) );
       }
       catch (StemNotFoundException eSNF) {
         // I guess we're the root stem
@@ -863,22 +822,6 @@ public class Stem extends Owner {
     return ns;
   } // protected static Stem create(parent, extn, displayExtn)
 
-  // @since 1.0
-  protected Set getChildGroupsNpHi() 
-    throws  HibernateException
-  {
-    _initializeChildGroupsAndStems(this);
-    return this.getChild_groups();
-  } // protected Set getChildGroupsNpHi()
-
-  // @since 1.0
-  protected Set getChildStemsNpHi() 
-    throws  HibernateException
-  {
-    _initializeChildGroupsAndStems(this);
-    return this.getChild_stems();
-  } // protected Set getChildStemsNpHi()
-
   protected void setModified() {
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
@@ -894,25 +837,6 @@ public class Stem extends Owner {
     }
     return false;
   } // protected boolean isRootStem()
-
-
-  // PRIVATE CLASS METHODS //
-
-  // The child_groups and child_stems collections have lazy
-  // associations so we need to manually initialize as needed.
-  // TODO 20061011 Deprecate in favor of `getChildGroupsNpHi()` and `getChildStemsNpHi()`?
-  //      Actually, there is far too much magic going on here.
-  private static void _initializeChildGroupsAndStems(Stem ns) 
-    throws  HibernateException
-  {
-    Session     hs  = HibernateHelper.getSession();
-    Transaction tx  = hs.beginTransaction();
-    hs.load(ns, ns.getId());
-    Hibernate.initialize( ns.getChild_stems() );
-    Hibernate.initialize( ns.getChild_groups() );
-    tx.commit();
-    hs.close();
-  } // private static void _initializeChildGroupsAndStems(ns) 
 
 
   // PRIVATE INSTANCE METHODS //
@@ -1022,13 +946,11 @@ public class Stem extends Owner {
   {
     Set       objects = new LinkedHashSet();
     Group     child;
-    Iterator  iter    = this.getChild_groups().iterator();
-    while (iter.hasNext()) {
-      child = (Group) iter.next();
-      child.setSession(this.s);
-      child.setDisplayName(
-        U.constructName( this.getDisplayName(), child.getDisplayExtension() )
-      );
+    Iterator  it      = HibernateStemDAO.findChildGroups(this).iterator();
+    while (it.hasNext()) {
+      child = (Group) it.next();
+      child.setSession( this.getSession() );
+      child.setDisplayName( U.constructName( this.getDisplayName(), child.getDisplayExtension() ) );
       child.setModified();
       objects.add(child);
     }
@@ -1040,8 +962,8 @@ public class Stem extends Owner {
   {
     Set objects = new LinkedHashSet();
     try {
-      objects.addAll(this._renameChildStemsAndGroups());
-      objects.addAll(this._renameChildGroups());
+      objects.addAll( this._renameChildStemsAndGroups() );
+      objects.addAll( this._renameChildGroups() );
     }
     catch (HibernateException eH) {
       String msg = E.HIBERNATE + eH.getMessage();
@@ -1056,14 +978,11 @@ public class Stem extends Owner {
   {
     Set       objects = new LinkedHashSet();
     Stem      child;
-    Iterator  iter    = this.getChild_stems().iterator();
-    while (iter.hasNext()) {
-      child = (Stem) iter.next();    
-      child.setSession(this.s);
-      _initializeChildGroupsAndStems(child);
-      child.setDisplay_name(
-        U.constructName( this.getDisplayName(), child.getDisplayExtension() )
-      );
+    Iterator  it      = HibernateStemDAO.findChildStems(this).iterator();
+    while (it.hasNext()) {
+      child = (Stem) it.next();    
+      child.setSession( this.getSession() );
+      child.setDisplay_name( U.constructName( this.getDisplayName(), child.getDisplayExtension() ) );
       objects.addAll( child._renameChildGroups() );
       child.setModified();
       objects.add(child);
@@ -1091,12 +1010,6 @@ public class Stem extends Owner {
 
 
   // GETTERS //
-  private Set getChild_groups() { 
-    return this.child_groups;
-  }
-  private Set getChild_stems() { 
-    return this.child_stems;
-  }
   private String getDisplay_extension() {
     return this.display_extension;
   }
@@ -1118,12 +1031,6 @@ public class Stem extends Owner {
 
 
   // SETTERS //
-  private void setChild_groups(Set child_groups) {
-    this.child_groups = child_groups;
-  }
-  private void setChild_stems(Set child_stems) {
-    this.child_stems = child_stems;
-  }
   private void setDisplay_extension(String display_extension) {
     this.display_extension = display_extension;
   }

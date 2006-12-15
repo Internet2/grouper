@@ -20,15 +20,11 @@
   limitations under the License.
 -->
 
-<!-- $Id: Owner.hbm.xml,v 1.13 2006-09-27 17:50:03 blair Exp $ -->
+<!-- $Id: Owner.hbm.xml,v 1.14 2006-12-15 17:30:52 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Owner" table="grouper_owners">
 
-    <meta attribute="class-description">
-An owner within the Groups Registry.
-@author blair christensen.
-    </meta>
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateHelper.getSession();</meta>
 
@@ -116,34 +112,6 @@ An owner within the Groups Registry.
 
     <joined-subclass  name="Stem" table="grouper_stems">
       <key column="owner_id"/>
-
-      <!-- child_groups -->
-      <set  
-        name="child_groups"
-        table="grouper_groups"
-        cascade="none"
-        inverse="true"
-        lazy="true"
-        batch-size="10"
-      >
-        <key column="parent_stem"/>
-        <one-to-many class="edu.internet2.middleware.grouper.Group" />
-      </set>
-      <!-- child_groups -->
-
-      <!-- child_stems -->
-      <set  
-        name="child_stems"
-        table="grouper_stems"
-        cascade="none"
-        inverse="true"
-        lazy="true"
-        batch-size="10"
-      >
-        <key column="parent_stem"/>
-        <one-to-many class="edu.internet2.middleware.grouper.Stem" />
-      </set>
-      <!-- child_stems -->
 
       <!-- description -->
       <property 

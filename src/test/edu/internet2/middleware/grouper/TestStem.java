@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.4 2006-08-30 19:31:02 blair Exp $
+ * @version $Id: TestStem.java,v 1.5 2006-12-15 17:30:52 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -104,56 +104,40 @@ public class TestStem extends TestCase {
 
   public void testGetChildStems() {
     LOG.info("testGetChildStems");
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    StemHelper.addChildStem(root, "com", "commercial");
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    StemHelper.addChildStem(edu, "i2", "internet2");
-    StemHelper.addChildStem(edu, "uofc", "uchicago");
-    StemHelper.addChildStem(root, "net", "network");
-    StemHelper.addChildStem(root, "org", "organization");
-    Set children = root.getChildStems();
-    Assert.assertTrue("4 child stems", children.size() == 4);
-    Iterator iter = children.iterator();
-    while (iter.hasNext()) {
-      Stem child = (Stem) iter.next();
-      try {
-        Stem parent = child.getParentStem();
-        Assert.assertTrue("child stem has parent", true);
-        Assert.assertTrue("parent == root", parent.equals(root));
-        Assert.assertTrue(
-          "root has STEM on parent", parent.hasStem(s.getSubject())
-        );
+    try {
+      R         r         = R.populateRegistry(4, 0, 0);
+      Set       children  = r.ns.getChildStems();
+      T.amount( "child stems", 4, children.size() );
+      Stem      child;
+      Iterator  it        = children.iterator();
+      while (it.hasNext()) {
+        child = (Stem) it.next();
+        assertTrue( "child stem has right parent", child.getParentStem().equals(r.ns) );
       }
-      catch (StemNotFoundException eSNF) {
-        Assert.fail("child stem has no parent: " + eSNF.getMessage());
-      }
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
     }
   } // public void testGetChildStems()
 
   public void testGetChildGroups() {
     LOG.info("testGetChildGroups");
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Stem            uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
-    StemHelper.addChildGroup(uofc, "bsd", "bsd");
-    StemHelper.addChildGroup(uofc, "gsb", "gsb");
-    StemHelper.addChildGroup(uofc, "hum", "hum");
-    StemHelper.addChildGroup(uofc, "law", "law");
-    StemHelper.addChildGroup(uofc, "psd", "psd");
-    StemHelper.addChildGroup(uofc, "ssd", "ssd");
-    Set children = uofc.getChildGroups();
-    Assert.assertTrue("6 child groups", children.size() == 6);
-    Iterator iter = children.iterator();
-    while (iter.hasNext()) {
-      Group child = (Group) iter.next();
-      Stem parent = child.getParentStem();
-      Assert.assertNotNull("child group has parent", parent);
-      Assert.assertTrue("parent == uofc", parent.equals(uofc));
-      Assert.assertTrue(
-        "root has STEM on parent", parent.hasStem(s.getSubject())
-      );
+    try {
+      R         r         = R.populateRegistry(1, 4, 0);
+      Stem      nsA       = r.getStem("a");
+      Set       children  = nsA.getChildGroups();
+      T.amount( "child groups", 4, children.size() );
+      Group     child;
+      Iterator  it        = children.iterator();
+      while (it.hasNext()) {
+        child = (Group) it.next();
+        assertTrue( "child group has right parent", child.getParentStem().equals(nsA) );
+      }
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
     }
   } // public void testGetChildGroups()
 
