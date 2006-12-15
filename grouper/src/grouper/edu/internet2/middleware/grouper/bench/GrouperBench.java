@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.17 2006-12-13 20:24:13 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.18 2006-12-15 15:13:45 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -65,6 +65,7 @@ public class GrouperBench {
       run( new XmlUpdateEmpty()               );
       run( new MemberHasRead()                );
       run( new AddAsEffMemberToLotsOfGroups() );
+      run( new AddLotsOfGroupsToStem()        );
     }
     catch (GrouperRuntimeException eGRE) {
       LOG.fatal(eGRE.getMessage());
