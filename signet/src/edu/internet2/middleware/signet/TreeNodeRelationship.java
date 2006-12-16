@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeRelationship.java,v 1.4 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: TreeNodeRelationship.java,v 1.5 2006-12-16 01:08:53 ddonn Exp $
+$Date: 2006-12-16 01:08:53 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -58,7 +58,7 @@ public class TreeNodeRelationship implements Serializable
   /**
    * @param child The child to set.
    */
-  private void setChildNodeId(String childNodeId)
+  protected void setChildNodeId(String childNodeId)
   {
     this.childNodeId = childNodeId;
   }
@@ -72,7 +72,7 @@ public class TreeNodeRelationship implements Serializable
   /**
    * @param parent The parent to set.
    */
-  private void setParentNodeId(String parentNodeId)
+  protected void setParentNodeId(String parentNodeId)
   {
     this.parentNodeId = parentNodeId;
   }
@@ -82,7 +82,7 @@ public class TreeNodeRelationship implements Serializable
     return this.treeId;
   }
   
-  private void setTreeId(String treeId)
+  protected void setTreeId(String treeId)
   {
     this.treeId = treeId;
   }

@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValue.java,v 1.11 2006-02-09 10:22:11 lmcrae Exp $
-$Date: 2006-02-09 10:22:11 $
+$Id: LimitValue.java,v 1.12 2006-12-16 01:08:53 ddonn Exp $
+$Date: 2006-12-16 01:08:53 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,16 +18,11 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
-import java.util.Comparator;
-import java.util.HashSet;
-
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
-import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
 
 /**
  * Encapsulates the many-to-many relationship between Limits and their selected
@@ -36,8 +31,6 @@ import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
 public class LimitValue
 implements Comparable
 {
-  private static Comparator displayOrderComparator;
-  
   private Limit		limit;
   private String	value;
   

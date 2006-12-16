@@ -1,6 +1,6 @@
 /*--
-$Id: SubjectFileLoaderTest.java,v 1.3 2005-06-01 06:13:08 mnguyen Exp $
-$Date: 2005-06-01 06:13:08 $
+$Id: SubjectFileLoaderTest.java,v 1.4 2006-12-16 01:08:53 ddonn Exp $
+$Date: 2006-12-16 01:08:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -29,7 +29,7 @@ import junit.framework.TestCase;
 public class SubjectFileLoaderTest extends TestCase
 {
   private SubjectFileLoader  subjectManager;
-  private Signet          signet;
+  protected Signet          signet;
   
   public static void main(String[] args)
   {

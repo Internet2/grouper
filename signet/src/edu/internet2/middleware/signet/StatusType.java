@@ -1,6 +1,6 @@
 /*--
-$Id: StatusType.java,v 1.5 2006-02-09 10:25:18 lmcrae Exp $
-$Date: 2006-02-09 10:25:18 $
+$Id: StatusType.java,v 1.6 2006-12-16 01:08:53 ddonn Exp $
+$Date: 2006-12-16 01:08:53 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,16 +18,13 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
-import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-
-import net.sf.hibernate.UserType;
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.type.Type;
+import net.sf.hibernate.UserType;
 
 /**
 * Should never be used by Signet application programs. Manages persistence for
@@ -64,7 +61,7 @@ public class StatusType implements UserType
   */
  public Object deepCopy(Object value)
  {
-   return (Status) value;
+   return (value);
  }
 
  /**

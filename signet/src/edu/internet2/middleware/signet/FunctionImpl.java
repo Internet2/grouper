@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.15 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: FunctionImpl.java,v 1.16 2006-12-16 01:08:53 ddonn Exp $
+$Date: 2006-12-16 01:08:53 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -328,7 +328,7 @@ public class FunctionImpl extends EntityImpl implements Function
   
 
   // This method is only for use by Hibernate.
-  private void setId(String id)
+  protected void setId(String id)
   {
     super.setStringId(id);
   }
@@ -351,7 +351,7 @@ public class FunctionImpl extends EntityImpl implements Function
   /* This method is for use only by Hibernate.
    * 
    */
-  private void setKey(Integer key)
+  protected void setKey(Integer key)
   {
     this.key = key;
   }

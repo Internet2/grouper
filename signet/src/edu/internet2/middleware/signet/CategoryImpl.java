@@ -1,6 +1,6 @@
 /*--
-$Id: CategoryImpl.java,v 1.9 2006-02-09 10:18:22 lmcrae Exp $
-$Date: 2006-02-09 10:18:22 $
+$Id: CategoryImpl.java,v 1.10 2006-12-16 01:08:53 ddonn Exp $
+$Date: 2006-12-16 01:08:53 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,12 +19,9 @@ limitations under the License.
 package edu.internet2.middleware.signet;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -192,7 +189,7 @@ implements Category
   }
   
   // This method is only for use by Hibernate.
-  private void setId(String id)
+  protected void setId(String id)
   {
     super.setStringId(id);
   }
@@ -214,7 +211,7 @@ implements Category
   /* This method is for use only by Hibernate.
    * 
    */
-  private void setKey(Integer key)
+  protected void setKey(Integer key)
   {
     this.key = key;
   }

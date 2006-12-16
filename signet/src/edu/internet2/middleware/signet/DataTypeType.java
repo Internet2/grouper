@@ -1,6 +1,5 @@
 /*--
-$Id: DataTypeType.java,v 1.3 2006-02-09 10:19:15 lmcrae Exp $
-$Date: 2006-02-09 10:19:15 $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/DataTypeType.java,v 1.4 2006-12-16 01:08:53 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,16 +17,13 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
-import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-
-import net.sf.hibernate.UserType;
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.type.Type;
+import net.sf.hibernate.UserType;
 
 /**
 * Should never be used by Signet application programs. Manages persistence for
@@ -64,7 +60,7 @@ public class DataTypeType implements UserType
   */
  public Object deepCopy(Object value)
  {
-   return (DataType) value;
+   return (value);
  }
 
  /**

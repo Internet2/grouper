@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeFullyQualifiedId.java,v 1.4 2006-02-09 10:26:18 lmcrae Exp $
-$Date: 2006-02-09 10:26:18 $
+$Id: TreeNodeFullyQualifiedId.java,v 1.5 2006-12-16 01:08:53 ddonn Exp $
+$Date: 2006-12-16 01:08:53 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -71,12 +71,12 @@ implements Serializable
     return this.treeNodeId;
   }
   
-  private void setTreeId(String id)
+  protected void setTreeId(String id)
   {
     this.treeId = id;
   }
   
-  private void setTreeNodeId(String id)
+  protected void setTreeNodeId(String id)
   {
     this.treeNodeId = id;
   }

@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.16 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: LimitImpl.java,v 1.17 2006-12-16 01:08:53 ddonn Exp $
+$Date: 2006-12-16 01:08:53 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -434,7 +434,7 @@ public final class LimitImpl implements Limit
   /* This method is for use only by Hibernate.
    * 
    */
-  private Integer getKey()
+  protected Integer getKey()
   {
     return this.key;
   }
