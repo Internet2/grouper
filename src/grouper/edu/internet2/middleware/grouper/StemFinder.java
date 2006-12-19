@@ -16,14 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  net.sf.hibernate.*;
+import  java.util.Date;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Set;
 
 /**
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.31 2006-10-18 15:22:12 blair Exp $
+ * @version $Id: StemFinder.java,v 1.32 2006-12-19 18:56:44 blair Exp $
  */
 public class StemFinder {
 
@@ -52,7 +54,7 @@ public class StemFinder {
     throws StemNotFoundException
   {
     GrouperSessionValidator.validate(s);
-    Stem ns = findByName(name);
+    Stem ns = internal_findByName(name);
     ns.setSession(s);
     return ns;
   } // public static Stem findByName(s, name)
@@ -101,240 +103,145 @@ public class StemFinder {
     throws StemNotFoundException
   {
     GrouperSessionValidator.validate(s);
-    Stem ns = findByUuid(uuid);
+    Stem ns = internal_findByUuid(uuid);
     ns.setSession(s);
     return ns;
   } // public static Stem findByUuid(s, uuid)
 
 
   // PROTECTED CLASS METHODS //
-  protected static Set findByApproximateDisplayExtension(GrouperSession s, String val) 
+
+  // @since   1.2.0
+  protected static Set internal_findAllByApproximateDisplayExtension(GrouperSession s, String val) 
     throws  QueryException
   {
-    Set stems = new LinkedHashSet();
-    try {
-      Session   hs      = HibernateHelper.getSession();
-      Query     qry     = hs.createQuery(
-        "from Stem as ns where ns.display_extension like :value"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByApproximateDisplayExtension");
-      qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
-      Stem      ns;
-      Iterator  iter    = qry.iterate();
-      while (iter.hasNext()) {
-        ns = (Stem) iter.next();
-        ns.setSession(s);
-        stems.add(ns);
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding stems: " + eH.getMessage(), eH
-      );
+    // @session true
+    Set       stems = new LinkedHashSet();
+    Stem      ns;
+    Iterator  it    = HibernateStemDAO.findAllByApproximateDisplayExtension(val).iterator();
+    while (it.hasNext()) {
+      ns = (Stem) it.next();
+      ns.setSession(s);
+      stems.add(ns);
     }
     return stems;
-  } // protected static Set findByApproximateDisplayExtension(s, val)
+  } // protected static Set internal_findAllByApproximateDisplayExtension(s, val)
 
-  protected static Set findByApproximateDisplayName(GrouperSession s, String val) 
+  // @since   1.2.0
+  protected static Set internal_findAllByApproximateDisplayName(GrouperSession s, String val) 
     throws  QueryException
   {
-    Set stems = new LinkedHashSet();
-    try {
-      Session   hs      = HibernateHelper.getSession();
-      Query     qry     = hs.createQuery(
-        "from Stem as ns where ns.display_name like :value"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByApproximateDisplayName");
-      qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
-      Stem      ns;
-      Iterator  iter    = qry.iterate();
-      while (iter.hasNext()) {
-        ns = (Stem) iter.next();
-        ns.setSession(s);
-        stems.add(ns);
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding stems: " + eH.getMessage(), eH
-      );
+    // @session true
+    Set       stems = new LinkedHashSet();
+    Stem      ns;
+    Iterator  it    = HibernateStemDAO.findAllByApproximateDisplayName(val).iterator();
+    while (it.hasNext()) {
+      ns = (Stem) it.next();
+      ns.setSession(s);
+      stems.add(ns);
     }
     return stems;
-  } // protected static Set findByApproximateDisplayName(s, val)
+  } // protected static Set internal_findAllByApproximateDisplayExtension(s, val)
 
-  protected static Set findByApproximateExtension(GrouperSession s, String val) 
+  // @since   1.2.0
+  protected static Set internal_findAllByApproximateExtension(GrouperSession s, String val) 
     throws  QueryException
   {
-    Set stems = new LinkedHashSet();
-    try {
-      Session   hs      = HibernateHelper.getSession();
-      Query     qry     = hs.createQuery(
-        "from Stem as ns where ns.stem_extension like :value"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByApproximateExtension");
-      qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
-      Stem      ns;
-      Iterator  iter    = qry.iterate();
-      while (iter.hasNext()) {
-        ns = (Stem) iter.next();
-        ns.setSession(s);
-        stems.add(ns);
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding stems: " + eH.getMessage(), eH
-      );
+    // @session true
+    Set       stems = new LinkedHashSet();
+    Stem      ns;
+    Iterator  it    = HibernateStemDAO.findAllByApproximateExtension(val).iterator();
+    while (it.hasNext()) {
+      ns = (Stem) it.next();
+      ns.setSession(s);
+      stems.add(ns);
     }
     return stems;
-  } // protected static Set findByApproximateExtension(s, val)
+  } // protected static Set internal_findAllByApproximateExtension(s, val)
 
-  protected static Set findByApproximateName(GrouperSession s, String val) 
+  // @since   1.2.0
+  protected static Set internal_findAllByApproximateName(GrouperSession s, String val) 
     throws  QueryException
   {
-    Set stems = new LinkedHashSet();
-    try {
-      Session   hs      = HibernateHelper.getSession();
-      Query     qry     = hs.createQuery(
-        "from Stem as ns where ns.stem_name like :value"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByApproximateName");
-      qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
-      Stem      ns;
-      Iterator  iter    = qry.iterate();
-      while (iter.hasNext()) {
-        ns = (Stem) iter.next();
-        ns.setSession(s);
-        stems.add(ns);
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding stems: " + eH.getMessage(), eH
-      );
+    // @session true
+    Set       stems = new LinkedHashSet();
+    Stem      ns;
+    Iterator  it    = HibernateStemDAO.findAllByApproximateName(val).iterator();
+    while (it.hasNext()) {
+      ns = (Stem) it.next();
+      ns.setSession(s);
+      stems.add(ns);
     }
     return stems;
-  } // protected static Set findByApproximateName(s, val)
+  } // protected static Set internal_findAllByApproximateName(s, val)
 
-  protected static Set findByApproximateNameAny(GrouperSession s, String name) 
+  // @since   1.2.0
+  protected static Set internal_findAllByApproximateNameAny(GrouperSession s, String val) 
     throws  QueryException
   {
-    Set stems = new LinkedHashSet();
-    try {
-      Session   hs      = HibernateHelper.getSession();
-      Query     qry     = hs.createQuery(
-        "from Stem as ns where "
-        + "   lower(ns.stem_name)         like :name "
-        + "or lower(ns.display_name)      like :name "
-        + "or lower(ns.stem_extension)    like :name "
-        + "or lower(ns.display_extension) like :name" 
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByApproximateNameAny");
-      qry.setString("name", "%" + name.toLowerCase() + "%");
-      Stem      ns;
-      Iterator  iter    = qry.iterate();
-      while (iter.hasNext()) {
-        ns = (Stem) iter.next();
-        ns.setSession(s);
-        stems.add(ns);
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding stems: " + eH.getMessage(), eH
-      );
+    // @session true
+    Set       stems = new LinkedHashSet();
+    Stem      ns;
+    Iterator  it    = HibernateStemDAO.findAllByApproximateNameAny(val).iterator();
+    while (it.hasNext()) {
+      ns = (Stem) it.next();
+      ns.setSession(s);
+      stems.add(ns);
     }
     return stems;
-  } // protected static Set findByApproximateNameAny(s, name)
+  } // protected static Set internal_findAllByApproximateNameAny(s, val)
 
-  // @return  stems created after this date
-  protected static Set findByCreatedAfter(GrouperSession s, Date d) 
-    throws QueryException 
+  // @since   1.2.0
+  protected static Set internal_findAllByCreatedAfter(GrouperSession s, Date d) 
+    throws  QueryException
   {
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery("from Stem as ns where ns.create_time > :time");
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByCreatedAfter");
-      return _findByDate(s, hs, qry, d);
+    // @session true
+    Set       stems = new LinkedHashSet();
+    Stem      ns;
+    Iterator  it    = HibernateStemDAO.findAllByCreatedAfter(d).iterator();
+    while (it.hasNext()) {
+      ns = (Stem) it.next();
+      ns.setSession(s);
+      stems.add(ns);
     }
-    catch (HibernateException eH) {
-      throw new QueryException("error finding stems: " + eH.getMessage(), eH);  
-    }
-  } // protected static Set findByCreatedAfter(s, d)
+    return stems;
+  } // protected static Set internal_findAllByCreatedAfter(s, d)
 
-  // @return  stems created before this date
-  protected static Set findByCreatedBefore(GrouperSession s, Date d) 
-    throws QueryException 
+  // @since   1.2.0
+  protected static Set internal_findAllByCreatedBefore(GrouperSession s, Date d) 
+    throws  QueryException
   {
-    try {
-      Session   hs    = HibernateHelper.getSession();
-      Query     qry   = hs.createQuery("from Stem as ns where ns.create_time < :time");
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByCreatedBefore");
-      return _findByDate(s, hs, qry, d);
+    // @session true
+    Set       stems = new LinkedHashSet();
+    Stem      ns;
+    Iterator  it    = HibernateStemDAO.findAllByCreatedBefore(d).iterator();
+    while (it.hasNext()) {
+      ns = (Stem) it.next();
+      ns.setSession(s);
+      stems.add(ns);
     }
-    catch (HibernateException eH) {
-      throw new QueryException("error finding stems: " + eH.getMessage(), eH);  
-    }
-  } // protected static Set findByCreatedBefore(s, d)
+    return stems;
+  } // protected static Set internal_findAllByCreatedBefore(s, d)
 
-  // @since   1.1.0
-  protected static Stem findByName(String name) 
+  // @since   1.2.0
+  protected static Stem internal_findByName(String name) 
     throws  StemNotFoundException
   {
+    // @session false
     Stem ns = null;
-    try {
-      if (name.equals(Stem.ROOT_EXT)) {
-        name = Stem.ROOT_INT;
-      }
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery("from Stem as ns where ns.stem_name = :name");
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByName");
-      qry.setString("name", name);
-      ns = (Stem) qry.uniqueResult();
-      hs.close();
-      if (ns == null) {
-        throw new StemNotFoundException(E.NO_STEM + " by name: " + U.q(name));
-      }
-      return ns;
+    if (name.equals(Stem.ROOT_EXT)) {
+      name = Stem.ROOT_INT;
     }
-    catch (HibernateException eH) {
-      throw new StemNotFoundException(E.NO_STEM + ": " + eH.getMessage(), eH);
-    }
-  } // protected static Stem findByName(name)
+    return HibernateStemDAO.findByName(name);
+  } // protected static Stem internal_findByName(name)
 
-  protected static Stem findByUuid(String uuid)
-    throws StemNotFoundException
+  // @since   1.2.0
+  protected static Stem internal_findByUuid(String uuid)
+    throws  StemNotFoundException
   {
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery("from Stem as ns where ns.uuid = :uuid");
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByUuid");
-      qry.setString("uuid", uuid);
-      Stem ns = (Stem) qry.uniqueResult();
-      hs.close();
-      if (ns == null) {
-        throw new StemNotFoundException(E.NO_STEM + " by uuid: " + U.q(uuid));
-      }
-      return ns; 
-    }
-    catch (HibernateException eH) {
-      throw new StemNotFoundException(E.NO_STEM + ": " + eH.getMessage(), eH);
-    }
-  } // protected static Stem findByUuid(uuid)
+    // @session false
+    return HibernateStemDAO.findByUuid(uuid);
+  } // protected static Stem internal_findByUuid(uuid)
 
   // TODO 20061018 Is this the right location?  And should it be top-down?
   protected static boolean isChild(Stem ns, Group g) {
@@ -392,27 +299,6 @@ public class StemFinder {
     }
     return false;
   } // protected static boolean isChild(ns, stem)
-
-
-  // PRIVATE CLASS METHODS //
-
-  // @since   1.1.0
-  private static Set _findByDate(GrouperSession s, Session hs, Query qry, Date d)
-    throws  HibernateException
-  {
-    qry.setLong( "time", d.getTime() );
-    List        l     = qry.list();
-    hs.close();
-    Stem        ns;
-    Set         stems = new LinkedHashSet();
-    Iterator    it    = l.iterator();
-    while (it.hasNext()) {
-      ns = (Stem) it.next();
-      ns.setSession(s);
-      stems.add(ns);
-    }
-    return stems;
-  } // private static Set _findByDate(s, hs, qry, d)
 
 } // public class StemFinder
 

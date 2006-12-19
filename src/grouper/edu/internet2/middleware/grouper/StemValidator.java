@@ -21,7 +21,7 @@ import  net.sf.hibernate.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.13 2006-12-15 17:30:52 blair Exp $
+ * @version $Id: StemValidator.java,v 1.14 2006-12-19 18:56:44 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -74,7 +74,7 @@ class StemValidator {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     } 
     try {
-      StemFinder.findByName( U.constructName(ns.getName(), extension) );
+      StemFinder.internal_findByName( U.constructName(ns.getName(), extension) );
       throw new StemAddException("stem already exists");
     }
     catch (StemNotFoundException eSNF) {
