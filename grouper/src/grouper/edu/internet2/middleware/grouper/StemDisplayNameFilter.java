@@ -22,7 +22,7 @@ import  java.util.*;
  * Query by stem attribute.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDisplayNameFilter.java,v 1.5 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: StemDisplayNameFilter.java,v 1.6 2006-12-19 18:56:44 blair Exp $
  */
 public class StemDisplayNameFilter extends BaseQueryFilter {
 
@@ -53,7 +53,7 @@ public class StemDisplayNameFilter extends BaseQueryFilter {
     throws QueryException
   {
     GrouperSessionValidator.validate(s);
-    Set candidates  = StemFinder.findByApproximateDisplayName(s, this.val);
+    Set candidates  = StemFinder.internal_findAllByApproximateDisplayName(s, this.val);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;
   } // public Set getResults(s)

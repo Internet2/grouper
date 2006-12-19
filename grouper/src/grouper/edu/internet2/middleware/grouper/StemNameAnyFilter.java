@@ -24,7 +24,7 @@ import  java.util.*;
  * Query by group name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemNameAnyFilter.java,v 1.4 2006-09-06 15:30:40 blair Exp $
+ * @version $Id: StemNameAnyFilter.java,v 1.5 2006-12-19 18:56:44 blair Exp $
  */
 public class StemNameAnyFilter extends BaseQueryFilter {
 
@@ -57,7 +57,7 @@ public class StemNameAnyFilter extends BaseQueryFilter {
     throws QueryException
   {
     GrouperSessionValidator.validate(s);
-    Set candidates  = StemFinder.findByApproximateNameAny(s, this.name);
+    Set candidates  = StemFinder.internal_findAllByApproximateNameAny(s, this.name);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;
   } // public Set getResults(s)
