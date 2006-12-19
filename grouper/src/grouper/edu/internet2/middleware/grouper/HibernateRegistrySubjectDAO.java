@@ -23,13 +23,13 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link HibernateSubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistrySubjectDAO.java,v 1.1 2006-12-19 19:34:08 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.1 2006-12-19 19:38:10 blair Exp $
  * @since   1.2.0
  */
-class RegistrySubjectDAO {
+class HibernateRegistrySubjectDAO {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = RegistrySubjectDAO.class.getName();
+  private static final String KLASS = HibernateRegistrySubjectDAO.class.getName();
 
 
   // PROTECTED CLASS METHODS //
@@ -60,5 +60,5 @@ class RegistrySubjectDAO {
     }
   } // protected static HibernateSubject find(id, type)
 
-} // class RegistrySubjectDAO
+} // class HibernateRegistrySubjectDAO
 
