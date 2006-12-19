@@ -16,12 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  net.sf.hibernate.*;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Set;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.11 2006-09-13 15:04:11 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.12 2006-12-19 19:56:00 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {
@@ -54,17 +55,17 @@ public class CompositeFinder {
     GrouperSession  s     = g.getSession();
     Member          m     = s.getMember();
     Composite       c;
-    Iterator        iter  = findAsFactorNoPriv(g).iterator();
-    while (iter.hasNext()) {
-      c = (Composite) iter.next();
+    Iterator        it    = internal_findAsFactor(g).iterator();
+    while (it.hasNext()) {
+      c = (Composite) it.next();
       c.setSession(s);
       try {
-        if (m.canView(c.getOwnerGroup())) {
+        if ( m.canView( c.getOwnerGroup() ) ) {
           where.add(c);
         }
       }
       catch (GroupNotFoundException eGNF) {
-        ErrorLog.error(CompositeFinder.class, E.COMPF_FINDASFACTOR + eGNF.getMessage());
+        ErrorLog.error( CompositeFinder.class, E.COMPF_FINDASFACTOR + eGNF.getMessage() );
       }
     } 
     return where;
@@ -83,11 +84,11 @@ public class CompositeFinder {
   public static Composite findAsOwner(Group g) 
     throws  CompositeNotFoundException
   {
-    Composite c = findAsOwnerNoPriv(g);
-    GrouperSession  s     = g.getSession();
-    Member          m     = s.getMember();
+    Composite       c = internal_findAsOwner(g);
+    GrouperSession  s = g.getSession();
+    Member          m = s.getMember();
     try {
-      if (m.canView(c.getOwnerGroup())) {
+      if ( m.canView( c.getOwnerGroup() ) ) {
         return c;
       }
       throw new CompositeNotFoundException();
@@ -99,59 +100,32 @@ public class CompositeFinder {
 
 
   // PROTECTED CLASS METHODS //
-  // @since 1.0
-  protected static Set findAsFactorNoPriv(Owner o) {
-    Set composites = new LinkedHashSet();
-    try {
-      Session   hs  = HibernateHelper.getSession();
-      Query     qry = hs.createQuery(
-          "from Composite as c where (" 
-        + " c.left = :left or c.right = :right "
-        + ")"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".IsFactor");
-      qry.setParameter( "left"  , o );
-      qry.setParameter( "right" , o );
-      Composite c;
-      Iterator  iter  = qry.list().iterator();
-      while (iter.hasNext()) {
-        c = (Composite) iter.next();
-        c.setSession(o.getSession());
-        composites.add(c);
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(CompositeFinder.class, E.COMPF_ISFACTOR + eH.getMessage());
+
+  // @since   1.2.0
+  protected static Set internal_findAsFactor(Owner o) {
+    // @filtered  false
+    // @session   true
+    Set       composites  = new LinkedHashSet();
+    Composite c;
+    Iterator  it          = HibernateCompositeDAO.findAsFactor(o).iterator();
+    while (it.hasNext()) {
+      c = (Composite) it.next();
+      c.setSession( o.getSession() );
+      composites.add(c);
     }
     return composites;
-  } // protected static Set findAsFactorNoPriv(o)
+  } // protected static Set internal_findAsFactor(o)
 
-  // @since 1.0
-  protected static Composite findAsOwnerNoPriv(Owner o) 
+  // @since   1.2.0
+  protected static Composite internal_findAsOwner(Owner o)
     throws  CompositeNotFoundException
   {
-    try {
-      Session   hs  = HibernateHelper.getSession();
-      Query     qry = hs.createQuery(
-        "from Composite as c where c.owner = :owner"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".IsOwner");
-      qry.setParameter( "owner" , o );
-      Composite c   = (Composite) qry.uniqueResult();
-      hs.close();
-      if (c == null) {
-        throw new CompositeNotFoundException(E.COMP_NOTOWNER);
-      }
-      c.setSession(o.getSession());
-      return c;
-    }
-    catch (HibernateException eH) {
-      throw new CompositeNotFoundException(eH.getMessage(), eH);
-    }
-  } // protected static Composite findAsOwnerNoPriv(o)
+    // @filtered  false
+    // @session   true
+    Composite c = HibernateCompositeDAO.findAsOwner(o);
+    c.setSession( o.getSession() );
+    return c;
+  } // protected static Composite internal_findAsOwner(o)
 
-}
+} // public class CompositeFinder
 
