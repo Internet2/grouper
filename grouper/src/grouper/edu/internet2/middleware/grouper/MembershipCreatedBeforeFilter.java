@@ -22,7 +22,7 @@ import  java.util.*;
  * Query by memberships created before the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipCreatedBeforeFilter.java,v 1.1 2006-09-11 18:14:47 blair Exp $
+ * @version $Id: MembershipCreatedBeforeFilter.java,v 1.2 2006-12-19 17:37:41 blair Exp $
  * @since   1.1.0
  */
 public class MembershipCreatedBeforeFilter extends BaseQueryFilter {
@@ -55,7 +55,7 @@ public class MembershipCreatedBeforeFilter extends BaseQueryFilter {
     throws QueryException
   {
     GrouperSessionValidator.validate(s);
-    Set candidates  = MembershipFinder.findByCreatedBefore(s, this.d, this.f);
+    Set candidates  = MembershipFinder.internal_findAllByCreatedBefore(s, this.d, this.f);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;
   } // public Set getResults(s)

@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.110 2006-10-19 13:40:32 blair Exp $
+ * @version $Id: Group.java,v 1.111 2006-12-19 17:37:41 blair Exp $
  */
 public class Group extends Owner {
 
@@ -795,7 +795,7 @@ public class Group extends Owner {
    * @since   1.0
    */
   public Set getCompositeMemberships() {
-    return MembershipFinder.findMembershipsByType(
+    return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
       this.getSession(), this, Group.getDefaultList(), MembershipType.C
     );
   } // public Set getCompositeMemberships()
@@ -986,7 +986,7 @@ public class Group extends Owner {
   public Set getEffectiveMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findMembershipsByType(
+    return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
       this.getSession(), this, f, MembershipType.E
     );
   } // public Set getEffectiveMemberships(f)
@@ -1085,7 +1085,7 @@ public class Group extends Owner {
     throws  SchemaException
   {
     GrouperSessionValidator.validate(this.getSession());
-    return MembershipFinder.findMembershipsByType(
+    return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
       this.getSession(), this, f, MembershipType.I
     );
   } // public Set getImmediateMemberships(f)

@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.48 2006-12-13 20:21:03 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.49 2006-12-19 17:37:41 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -145,10 +145,12 @@ public class GrouperNamingAdapter implements NamingAdapter {
       while (iterP.hasNext()) {
         p     = (Privilege) iterP.next();
         f     = GrouperPrivilegeAdapter.getField(priv2list, p);   
-        iterM = MembershipFinder.findMembershipsNoPrivsNoSession(ns, m, f).iterator();
+        iterM = MembershipFinder.internal_findAllByOwnerAndMemberAndField(ns, m, f).iterator();
         privs.addAll( GrouperPrivilegeAdapter.getPrivs(s, subj, m, p, iterM) );
-        iterA = MembershipFinder.findMembershipsNoPrivsNoSession(ns, all, f).iterator();
-        privs.addAll( GrouperPrivilegeAdapter.getPrivs(s, subj, all, p, iterA) );
+        if (!m.equals(all)) {
+          iterA = MembershipFinder.internal_findAllByOwnerAndMemberAndField(ns, all, f).iterator();
+          privs.addAll( GrouperPrivilegeAdapter.getPrivs(s, subj, all, p, iterA) );
+        }
       }
     }
     catch (MemberNotFoundException eMNF) {
