@@ -23,13 +23,13 @@ import  edu.internet2.middleware.subject.*;
  * Benchmarking adding a member to a group that is privileged on a lot of other
  * groups.
  * @author  blair christensen.
- * @version $Id: AddAsEffMemberToLotsOfGroups.java,v 1.2 2006-12-14 03:03:07 blair Exp $
+ * @version $Id: AddAsEffMemberToLotsOfGroups.java,v 1.3 2006-12-19 13:32:35 blair Exp $
  * @since   1.2.0
  */
 public class AddAsEffMemberToLotsOfGroups extends BaseGrouperBenchmark {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final int CNT = 50; // i think this blows up quickly just like `MemberHasRead`
+  private static final int CNT = 15; // i think this blows up quickly just like `MemberHasRead`
 
 
   // PRIVATE INSTANCE VARIABLES //

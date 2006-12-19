@@ -22,13 +22,13 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Add a number of groups beneath a single stem.
  * @author  blair christensen.
- * @version $Id: AddLotsOfGroupsToStem.java,v 1.1 2006-12-15 15:13:45 blair Exp $
+ * @version $Id: AddLotsOfGroupsToStem.java,v 1.2 2006-12-19 13:32:35 blair Exp $
  * @since   1.2.0
  */
 public class AddLotsOfGroupsToStem extends BaseGrouperBenchmark {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final int CNT = 50; // i think this blows up quickly just like `MemberHasRead`
+  private static final int CNT = 10; // i think this blows up quickly just like `MemberHasRead`
 
 
   // PRIVATE INSTANCE VARIABLES //
