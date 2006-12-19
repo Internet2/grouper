@@ -16,14 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  net.sf.hibernate.*;
+import  java.util.HashMap;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Map;
+import  java.util.Set;
 
 /**
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.19 2006-09-26 13:38:23 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.20 2006-12-19 19:16:41 blair Exp $
  */
 public class GroupTypeFinder {
 
@@ -165,23 +168,17 @@ public class GroupTypeFinder {
   private static Set _findAll() 
     throws  GrouperRuntimeException
   {
-    Set types = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery("from GroupType order by name asc");
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindAll");
-      types.addAll(qry.list());
-      hs.close();  
+      Set types = HibernateGroupTypeDAO.findAll();
+      DebugLog.info( GroupTypeFinder.class, "found group types: " + types.size() );
+      return types;
     }
-    catch (HibernateException eH) {
-      String msg = E.GROUPTYPE_FINDALL + eH.getMessage();
+    catch (GrouperRuntimeException eGRE) {
+      String msg = E.GROUPTYPE_FINDALL + eGRE.getMessage();
       ErrorLog.fatal(GroupTypeFinder.class, msg);
-      throw new GrouperRuntimeException(msg, eH);
+      throw new GrouperRuntimeException(msg, eGRE);
     }
-    DebugLog.info(GroupTypeFinder.class, "found group types: " + types.size());
-    return types;
   } // private Static Set _findAll()
 
-}
+} // public class GroupTypeFinder
 
