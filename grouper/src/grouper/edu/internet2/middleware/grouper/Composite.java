@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.22 2006-10-11 14:35:10 blair Exp $
+ * @version $Id: Composite.java,v 1.23 2006-12-19 19:56:00 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -196,7 +196,7 @@ public class Composite extends Owner {
   // @since 1.0
   protected static void update(Owner o) {
     Composite c;
-    Iterator  iter  = CompositeFinder.findAsFactorNoPriv(o).iterator();
+    Iterator  iter  = CompositeFinder.internal_findAsFactor(o).iterator();
     while (iter.hasNext()) {
       c = (Composite) iter.next();
       c.update();
@@ -316,7 +316,7 @@ public class Composite extends Owner {
     Iterator  iterU = updates.iterator();
     while (iterU.hasNext()) {
       o     = (Owner) iterU.next();
-      iter  = CompositeFinder.findAsFactorNoPriv(o).iterator();
+      iter  = CompositeFinder.internal_findAsFactor(o).iterator();
       while (iter.hasNext()) {
         c = (Composite) iter.next();
         c.update();
