@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.11 2006-09-11 16:58:02 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.12 2006-12-19 17:37:41 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
@@ -163,7 +163,7 @@ class MembershipValidator {
     throws  ModelException
   {
     try {
-      MembershipFinder.findMembershipByTypeNoPrivNoSession(
+      MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
         ms.getOwner_id(), ms.getMember_id(), ms.getField(), MembershipType.I
       );
       throw new ModelException(E.ERR_MAE);

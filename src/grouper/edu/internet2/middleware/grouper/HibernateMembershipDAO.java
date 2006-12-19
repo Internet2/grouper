@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.util.Date;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
 import  net.sf.hibernate.*;
@@ -24,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.2 2006-12-14 18:43:41 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.3 2006-12-19 17:37:41 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -51,6 +52,340 @@ class HibernateMembershipDAO {
   } // protected static Membership find(id)
 
   // @since   1.2.0
+  protected static Set findAllByCreatedAfter(Date d, Field f) {
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where      "
+        + "     ms.create_time  > :time   "
+        + "and  ms.field.name   = :fname  "
+        + "and  ms.field.type   = :ftype  "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
+      qry.setLong(   "time",  d.getTime()            );
+      qry.setString( "fname", f.getName()            );
+      qry.setString( "ftype", f.getType().toString() );
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findAllByCreatedAfter(d, f)
+
+  // @since   1.2.0
+  protected static Set findAllByCreatedBefore(Date d, Field f) {
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where      "
+        + "     ms.create_time  < :time   "
+        + "and  ms.field.name   = :fname  "
+        + "and  ms.field.type   = :ftype  "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
+      qry.setLong(   "time",  d.getTime()            );
+      qry.setString( "fname", f.getName()            );
+      qry.setString( "ftype", f.getType().toString() );
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findAllByCreatedBefore(d, f)
+
+  // @since   1.2.0
+  protected static Set findAllByMember(Member m) {
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery("from Membership as ms where ms.member_id = :member");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllByMember");
+      qry.setParameter("member", m);
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findAllByMember(m)
+
+  // @since   1.2.0
+  protected static Set findAllByMemberAndVia(Member m, Owner via) {
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.member_id  = :member "
+        + "and  ms.via_id     = :via    "
+      );
+      qry.setCacheable(false);  // TODO 20061219 Comment was "Don't cache".  Why not?
+      qry.setParameter( "member", m   );
+      qry.setParameter( "via",    via );
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findAllByMemberAndVia(m, via)
+
+  // @since   1.2.0
+  protected static Set findAllByOwnerAndField(Owner o, Field f) {
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :owner  "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllByOwnerAndField");
+      qry.setEntity( "owner", o                      ); 
+      qry.setString( "fname", f.getName()            );
+      qry.setString( "ftype", f.getType().toString() ); 
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findAllByOwnerAndField(o, f)
+
+  // @since   1.2.0
+  protected static Set findAllByOwnerAndFieldAndType(Owner o, Field f, MembershipType type) {
+    Set mships  = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :owner  "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.mship_type = :type   "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindMembershipsByType");
+      qry.setParameter( "owner" , o                       );
+      qry.setString(    "fname" , f.getName()             );
+      qry.setString(    "ftype" , f.getType().toString()  );
+      qry.setString(    "type"  , type.toString()         );
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findAllByOwnerAndFieldAndType(o, f, type)
+
+  // @since   1.2.0
+  protected static Set findAllByOwnerAndMemberAndField(Owner o, Member m, Field f) {
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :owner  " 
+        + "and  ms.member_id  = :member "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype"
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField");
+      qry.setParameter( "owner",  o                      );
+      qry.setParameter( "member", m                      );
+      qry.setString(    "fname",  f.getName()            );
+      qry.setString(    "ftype",  f.getType().toString() );
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findAllByOwnerAndMemberAndField(o, m, f)
+
+  // @since   1.2.0
+  protected static Set findAllEffective(Owner o, Member m, Field f, Owner via, int depth) {
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where      "
+        + "     ms.owner_id     = :owner  "
+        + "and  ms.member_id    = :member "
+        + "and  ms.field.name   = :fname  "
+        + "and  ms.field.type   = :ftype  "
+        + "and  ms.mship_type   = :type   "
+        + "and  ms.via_id       = :via    "
+        + "and  ms.depth        = :depth"
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllEffective");
+      qry.setParameter( "owner",  o                           );
+      qry.setParameter( "member", m                           );
+      qry.setString(    "fname",  f.getName()                 );
+      qry.setString(    "ftype",  f.getType().toString()      );
+      qry.setString(    "type",   MembershipType.E.toString() );
+      qry.setParameter( "via",    via                         );
+      qry.setInteger(   "depth",  depth                       );
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findAllEffective(o, m, f, via, depth)
+
+  // @since   1.2.0
+  protected static Set findAllEffectiveByMemberAndField(Member m, Field f) {
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.member_id  = :member "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.mship_type = :type   "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllEffectiveByMemberAndField");
+      qry.setParameter( "member", m                           );
+      qry.setString(    "fname",  f.getName()                 );
+      qry.setString(    "ftype",  f.getType().toString()      );
+      qry.setString(    "type",   MembershipType.E.toString() );
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findEffectiveByMemberAndField(m, f)
+
+  // @since   1.2.0 
+  protected static Set findAllEffectiveByOwnerAndMemberAndField(
+    Owner o, Member m, Field f
+  )
+  {
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :owner  "
+        + "and  ms.member_id  = :member "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.mship_type = :type   "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllEffectiveByOwnerAndMemberAndField");
+      qry.setParameter( "owner",  o                           );
+      qry.setParameter( "member", m                           );
+      qry.setString(    "fname",  f.getName()                 );
+      qry.setString(    "ftype",  f.getType().toString()      );
+      qry.setString(    "type",   MembershipType.E.toString() );
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findAllEffectiveByOwnerAndMemberAndField(o, m, f)
+
+  // @since   1.2.0
+  protected static Set findAllImmediateByMemberAndField(Member m, Field f) {
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.member_id  = :member "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.mship_type = :type   "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllImmediateByMemberAndField");      
+      qry.setParameter( "member", m                           );
+      qry.setString(    "fname",  f.getName()                 );
+      qry.setString(    "ftype",  f.getType().toString()      );
+      qry.setString(    "type",   MembershipType.I.toString() );
+      mships.addAll( qry.list() );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      // TODO 20061219 this should throw some flavor of exception
+      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+    }
+    return mships;
+  } // protected static Set findAllImmediateByMemberAndField(m, f)
+
+  // @since   1.2.0
+  protected static Membership findByOwnerAndMemberAndFieldAndType(
+    Owner o, Member m, Field f, MembershipType type
+  )
+    throws  MembershipNotFoundException // TODO 20061219 should throw/return something else.  null?
+  {
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery(
+        "from Membership as ms where    "
+        + "     ms.owner_id   = :owner  "
+        + "and  ms.member_id  = :member "
+        + "and  ms.field.name = :fname  "
+        + "and  ms.field.type = :ftype  "
+        + "and  ms.mship_type = :type   "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindByOwnerAndMemberAndFieldAndType");
+      qry.setParameter( "owner",  o                      );
+      qry.setParameter( "member", m                      );
+      qry.setString(    "fname",  f.getName()            );
+      qry.setString(    "ftype",  f.getType().toString() ); 
+      qry.setString(    "type",   type.toString()        );
+      Membership ms = (Membership) qry.uniqueResult();
+      hs.close();
+      if (ms == null) {
+        throw new MembershipNotFoundException();
+      }
+      return ms;
+    }
+    catch (HibernateException eH) {
+      throw new MembershipNotFoundException( eH.getMessage(), eH );
+    }
+  } // protected static Membership findByOwnerAndMemberAndFieldAndType(o, m, f, type)
+
+  // @since   1.2.0
   protected static Membership findByUuid(String uuid) 
     throws  MembershipNotFoundException 
   {
@@ -74,7 +409,7 @@ class HibernateMembershipDAO {
   } // protected static Membership findByUuid(uuid)
 
   // @since   1.2.0
-  protected static Set findChildMemberships(Membership ms) {
+  protected static Set findChildMemberships(Membership ms) { // TODO 20061219 rename
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -93,7 +428,7 @@ class HibernateMembershipDAO {
   } // protected sdtatic Set findChildMemberships(ms)
 
   // @since   1.2.0  
-  protected static Set findMemberships(Member m, Field f) {
+  protected static Set findMemberships(Member m, Field f) { // TODO 20061219 rename
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();

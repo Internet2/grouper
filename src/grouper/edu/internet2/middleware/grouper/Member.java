@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.70 2006-12-14 16:22:05 blair Exp $
+ * @version $Id: Member.java,v 1.71 2006-12-19 17:37:41 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -299,7 +299,7 @@ public class Member implements Serializable {
   public Set getEffectiveMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findEffectiveMemberships(
+    return MembershipFinder.internal_findAllEffectiveByMemberAndField(
       this.getSession(), this, f
     );
   } // public Set getEffectiveMemberships(f)
@@ -362,9 +362,7 @@ public class Member implements Serializable {
   public Set getImmediateMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findImmediateMemberships(
-      this.getSession(), this, f
-    );
+    return MembershipFinder.internal_findAllImmediateByMemberAndField( this.getSession(), this, f );
   } // public Set getImmediateMemberships(f)
 
   /**
@@ -944,13 +942,13 @@ public class Member implements Serializable {
   {
     boolean rv = false;
     if (
-      MembershipFinder.findEffectiveMemberships(g, this, f).size() > 0
+      MembershipFinder.internal_findAllEffectiveByOwnerAndMemberAndField(g, this, f).size() > 0
     ) 
     {
       rv = true;
     }
     else if (
-      MembershipFinder.findEffectiveMemberships(
+      MembershipFinder.internal_findAllEffectiveByOwnerAndMemberAndField(
         g, MemberFinder.findAllMember(), f
       ).size() > 0
     )
@@ -1010,7 +1008,7 @@ public class Member implements Serializable {
       }
       catch (MembershipNotFoundException eMNF) {
         try {
-          MembershipFinder.findMembershipByTypeNoPrivNoSession(
+          MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
             g, MemberFinder.findAllMember(), f, MembershipType.I
           );
           rv = true;
@@ -1240,7 +1238,7 @@ public class Member implements Serializable {
   // @filtered  no
   // @session   yes
   protected Set getAllMemberships() {
-    return MembershipFinder.findAllMemberships(this.getSession(), this);
+    return MembershipFinder.internal_findAllByMember( this.getSession(), this );
   } // protected Set getAllMemberships()
 
   protected GrouperSession getSession() {
@@ -1316,12 +1314,12 @@ public class Member implements Serializable {
     throws  SchemaException
   {
     boolean rv  = false;
-    Set mships = MembershipFinder.findMembershipsNoPrivsNoSession(o, this, f);
+    Set mships = MembershipFinder.internal_findAllByOwnerAndMemberAndField(o, this, f);
     if (mships.size() > 0) {
       rv = true;
     }
     else {
-      mships = MembershipFinder.findMembershipsNoPrivsNoSession(
+      mships = MembershipFinder.internal_findAllByOwnerAndMemberAndField(
         o, MemberFinder.findAllMember(), f
       );
       if (mships.size() > 0) {

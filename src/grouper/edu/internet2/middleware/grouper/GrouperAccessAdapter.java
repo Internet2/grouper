@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.46 2006-12-13 20:21:03 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.47 2006-12-19 17:37:41 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -145,10 +145,12 @@ public class GrouperAccessAdapter implements AccessAdapter {
       while (iterP.hasNext()) {
         p             = (Privilege) iterP.next();
         Field   f     = GrouperPrivilegeAdapter.getField(priv2list, p);
-        Iterator  iterM = MembershipFinder.findMembershipsNoPrivsNoSession(g, m, f).iterator();
+        Iterator  iterM = MembershipFinder.internal_findAllByOwnerAndMemberAndField(g, m, f).iterator();
         privs.addAll( GrouperPrivilegeAdapter.getPrivs(s, subj, m, p, iterM) );
-        Iterator  iterA = MembershipFinder.findMembershipsNoPrivsNoSession(g, all, f).iterator();
-        privs.addAll( GrouperPrivilegeAdapter.getPrivs(s, subj, all, p, iterA) );
+        if (!m.equals(all)) {
+          Iterator  iterA = MembershipFinder.internal_findAllByOwnerAndMemberAndField(g, all, f).iterator();
+          privs.addAll( GrouperPrivilegeAdapter.getPrivs(s, subj, all, p, iterA) );
+        }
       }
     }
     catch (MemberNotFoundException eMNF) {

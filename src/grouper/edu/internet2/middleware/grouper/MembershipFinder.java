@@ -17,14 +17,16 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  net.sf.hibernate.*;
+import  java.util.Date;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Set;
 
 /**
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.61 2006-12-14 18:43:41 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.62 2006-12-19 17:37:41 blair Exp $
  */
 public class MembershipFinder {
 
@@ -59,7 +61,7 @@ public class MembershipFinder {
     try {
       Field       f   = Group.getDefaultList();
       Member      m   = MemberFinder.findBySubject(s, subj);
-      Membership  ms  = findMembershipByTypeNoPrivNoSession(g, m, f, MembershipType.C);
+      Membership  ms  = internal_findByOwnerAndMemberAndFieldAndType(g, m, f, MembershipType.C);
       ms.setSession(s);
       PrivilegeResolver.canPrivDispatch(
         s, ms.getGroup(), s.getSubject(), f.getReadPriv()
@@ -106,7 +108,7 @@ public class MembershipFinder {
     Set mships = new LinkedHashSet();
     try {
       Member      m     = MemberFinder.findBySubject(s, subj);
-      Set         effs  = findEffectiveMemberships(g, m, f, via, depth);
+      Set         effs  = internal_findAllEffective(g, m, f, via, depth);
       if (effs.size() > 0) {
         try {
           PrivilegeResolver.canPrivDispatch(
@@ -155,7 +157,7 @@ public class MembershipFinder {
     GrouperSessionValidator.validate(s);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
-      Membership  ms  = findMembershipByTypeNoPrivNoSession(g, m, f, MembershipType.I);
+      Membership  ms  = internal_findByOwnerAndMemberAndFieldAndType(g, m, f, MembershipType.I);
       ms.setSession(s);
       PrivilegeResolver.canPrivDispatch(
         s, ms.getGroup(), s.getSubject(), f.getReadPriv()
@@ -198,23 +200,25 @@ public class MembershipFinder {
   ) {
     // @filtered  false
     // @session   true
-    Set         mships        = new LinkedHashSet();
-    Iterator    iter          = findAllViaNoSessionNoPriv(ms).iterator();
+    Set         mships      = new LinkedHashSet();
+    Iterator    it          = HibernateMembershipDAO.findAllByMemberAndVia( 
+      ms.getMember_id(), ms.getOwner_id() 
+    ).iterator();
     Membership  child;
     Set         childEffs;
     Iterator    childIter;
     Membership  eff;  
     Membership  newChild;
     Iterator    newChildIter;
-    while (iter.hasNext()) {
-      eff = (Membership) iter.next();
+    while (it.hasNext()) {
+      eff = (Membership) it.next();
       eff.setSession(s);
       childIter = children.iterator();
       while (childIter.hasNext()) {
         child = (Membership) childIter.next();
         child.setSession(s);  
         try {
-          childEffs = findEffectiveMemberships(
+          childEffs = internal_findAllEffective(
             eff.getOwner_id(), child.getMember_id(), eff.getField(), child.getVia_id(), 
             eff.getDepth() + child.getDepth()
           );
@@ -232,252 +236,6 @@ public class MembershipFinder {
     }
     return mships;
   } // protected static Set findAllForwardMembershipsNoPriv(s, ms, children)
-
-  protected static Set findAllMemberships(GrouperSession s, Member m) {
-    /*
-     * @filtered  false
-     * @session   true
-     */
-    GrouperSessionValidator.validate(s);
-    Set mships  = new LinkedHashSet();
-    try {
-      Session   hs    = HibernateHelper.getSession();
-      Query     qry   = hs.createQuery(
-        "from Membership as ms where ms.member_id = :member"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindAllMemberships");
-      qry.setParameter("member", m);
-      Membership  ms;
-      Iterator    iter  = qry.iterate();
-      while (iter.hasNext()) {
-        ms = (Membership) iter.next();
-        ms.setSession(s);
-        mships.add(ms);
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
-    }
-    return mships;
-  } // protected static Set findAllMemberships(s, m)
-
-  // @since 1.0
-  protected static Set findAllViaNoSessionNoPriv(Membership ms) {
-    // @filtered  false
-    // @session   false
-    Set via = new LinkedHashSet();
-    try {
-      Session   hs  = HibernateHelper.getSession();
-      Query     qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.member_id  = :member "
-        + "and  ms.via_id     = :via    "
-      );
-      qry.setCacheable(false);  // Don't cache
-      qry.setParameter( "member"  , ms.getMember_id() );
-      qry.setParameter( "via"     , ms.getOwner_id()  );
-      Membership  eff;
-      Iterator    iter  = qry.iterate();
-      while (iter.hasNext()) {
-        eff = (Membership) iter.next();
-        via.add(eff);
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(MembershipFinder.class, E.MSF_FINDALLVIA + eH.getMessage());
-    }
-    return via;
-  } // protected static Set findAllViaNoSessionNoPriv(ms)
-
-  // @since   1.1.0
-  protected static Set findByCreatedAfter(GrouperSession s, Date d, Field f) 
-    throws QueryException 
-  {
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where      "
-        + "     ms.create_time  > :time   "
-        + "and  ms.field.name   = :fname  "
-        + "and  ms.field.type   = :ftype  "
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByCreatedAfter");
-      return _findByDate(s, hs, qry, d, f);
-    }
-    catch (HibernateException eH) {
-      throw new QueryException("error finding memberships: " + eH.getMessage(), eH);  
-    }
-  } // protected static Set findByCreatedAfter(s, d, f)
-
-  // @since   1.1.0
-  protected static Set findByCreatedBefore(GrouperSession s, Date d, Field f) 
-    throws QueryException 
-  {
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where      "
-        + "     ms.create_time  < :time   "
-        + "and  ms.field.name   = :fname  "
-        + "and  ms.field.type   = :ftype  "
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByCreatedBefore");
-      return _findByDate(s, hs, qry, d, f);
-    }
-    catch (HibernateException eH) {
-      throw new QueryException("error finding memberships: " + eH.getMessage(), eH);  
-    }
-  } // protected static Set findByCreatedAfter(s, d, f)
-
-  protected static Set findEffectiveMemberships(
-    Owner o, Member m, Field f, Owner via, int depth
-  )
-    throws MembershipNotFoundException
-  {
-    /*
-     * @filtered  false
-     * @session   false
-     */
-    Set mships = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where      "
-        + "     ms.owner_id     = :owner  "
-        + "and  ms.member_id    = :member "
-        + "and  ms.field.name   = :fname  "
-        + "and  ms.field.type   = :ftype  "
-        + "and  ms.mship_type   = :type   "
-        + "and  ms.via_id       = :via    "
-        + "and  ms.depth        = :depth"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindEffectiveMemberships");
-      qry.setParameter( "owner"   , o                           );
-      qry.setParameter( "member"  , m                           );
-      qry.setString(    "fname"   , f.getName()                 );
-      qry.setString(    "ftype"   , f.getType().toString()      );
-      qry.setString(    "type"    , MembershipType.E.toString() );
-      qry.setParameter( "via"     , via                         );
-      qry.setInteger(   "depth"   , depth                       );
-      mships.addAll(qry.list());
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new MembershipNotFoundException(eH.getMessage(), eH);
-    }
-    return mships;
-  } // protected static Set findEffectiveMembership(o, m, field, via, depth)
-
-  protected static Set findEffectiveMemberships(
-    GrouperSession s, Member m, Field f
-  )
-  {
-    /*
-     * @filtered  true
-     * @session   true
-     */
-    GrouperSessionValidator.validate(s);
-    Set mships  = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
-        + "and  ms.mship_type = :type   "
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindEffectiveMembershipsMember");
-      qry.setParameter( "member", m                           );
-      qry.setString(    "fname" , f.getName()                 );
-      qry.setString(    "ftype" , f.getType().toString()      );
-      qry.setString(    "type"  , MembershipType.E.toString() );
-      List    l   = qry.list();
-      hs.close();
-      mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
-    }
-    return mships;
-  } // protected static Set findEffectiveMemberships(s, m, f)
-
-  protected static Set findEffectiveMemberships(
-    Owner o, Member m, Field f
-  )
-  {
-    /*
-     * @filtered  false
-     * @session   false
-     */
-    Set mships = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.owner_id   = :owner  "
-        + "and  ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
-        + "and  ms.mship_type = :type   "
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindEffectiveMembershipsOwnerMember");
-      qry.setParameter( "owner" , o                           );
-      qry.setParameter( "member", m                           );
-      qry.setString(    "fname" , f.getName()                 );
-      qry.setString(    "ftype" , f.getType().toString()      );
-      qry.setString(    "type"  , MembershipType.E.toString() );
-      mships.addAll(qry.list());
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
-    }
-    return mships;
-  } // protected static Membership findEffectiveMemberships(o, m, f)
-
-  protected static Set findImmediateMemberships(
-    GrouperSession s, Member m, Field f
-  )
-  {
-    /*
-     * @filtered  true
-     * @session   true
-     */
-    GrouperSessionValidator.validate(s);
-    Set mships  = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
-        + "and  ms.mship_type = :type   "
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindImmediateMembershipsMember");      
-      qry.setParameter( "member", m                           );
-      qry.setString(    "fname" , f.getName()                 );
-      qry.setString(    "ftype" , f.getType().toString()      );
-      qry.setString(    "type"  , MembershipType.I.toString() );
-      List    l   = qry.list();
-      hs.close();
-      mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
-    }
-    return mships;
-  } // protected static Set findImmediateMemberships(s, m, f)
 
   protected static Set findMembers(GrouperSession s, Group g, Field f) {
      // @filtered  true  MembershipFinder.findMemberships(s, g, f) 
@@ -526,7 +284,7 @@ public class MembershipFinder {
     GrouperSessionValidator.validate(s);
     Set         subjs = new LinkedHashSet();
     Membership  ms;
-    Iterator    iter  = findMembershipsNoPriv(s, o, f).iterator();
+    Iterator    iter  = internal_findAllByOwnerAndField(s, o, f).iterator();
     while (iter.hasNext()) {
       ms = (Membership) iter.next();
       try {
@@ -544,76 +302,10 @@ public class MembershipFinder {
   protected static Set findMemberships(GrouperSession s, Owner o, Field f) {
      // @filtered true
      // @session  true
-    return new LinkedHashSet( PrivilegeResolver.canViewMemberships( s, findMembershipsNoPriv(s, o, f) ) );
+    return new LinkedHashSet( 
+      PrivilegeResolver.canViewMemberships( s, internal_findAllByOwnerAndField(s, o, f) ) 
+    );
   } // protected static Set findMemberships(s, o, f)
-
-  // @since 1.0.1
-  protected static Set findMembershipsNoPriv(GrouperSession s, Owner o, Field f) {
-     // @filtered false
-     // @session  true
-    GrouperSessionValidator.validate(s);
-    Set mships  = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.owner_id   = :owner  "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindMembershipsOwner");
-      qry.setEntity( "owner" , o ); 
-      qry.setString(    "fname"   , f.getName()             );
-      qry.setString(    "ftype"   , f.getType().toString()  ); 
-      List l = qry.list();
-      hs.close();
-      mships.addAll( U.setMembershipSessions(s, l) );
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
-    }
-    return mships;
-  } // protected static Set findMembershipsNoPriv(s, o, f)
-
-  // @since 1.0
-  protected static Membership findMembershipByTypeNoPrivNoSession(
-    Owner o, Member m, Field f, MembershipType type
-  )
-    throws  MembershipNotFoundException
-  {
-     // @filtered  false
-     // @session   false
-    List mships = new ArrayList();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.owner_id   = :owner  "
-        + "and  ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
-        + "and  ms.mship_type = :type   "
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindMembershipByType");
-      qry.setParameter( "owner"   , o                       );
-      qry.setParameter( "member"  , m                       );
-      qry.setString(    "fname"   , f.getName()             );
-      qry.setString(    "ftype"   , f.getType().toString()  ); 
-      qry.setString(    "type"    , type.toString()         );
-      mships.addAll(qry.list());
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new MembershipNotFoundException(eH.getMessage(), eH);
-    }
-    if (mships.size() == 1) {
-      Membership ms = (Membership) mships.get(0);
-      return ms;
-    }
-    throw new MembershipNotFoundException();
-  } // protected static Membership findMembershipByTypeNoPrivNoSession(o, m, f, type)
 
   // @since 1.0
   protected static Set findMembersByType(
@@ -625,9 +317,9 @@ public class MembershipFinder {
     GrouperSessionValidator.validate(s);
     Set         members = new LinkedHashSet();
     Membership  ms;
-    Iterator    iter    = findMembershipsByType(s, g, f, type).iterator();
-    while (iter.hasNext()) {
-      ms = (Membership) iter.next();
+    Iterator    it      = internal_findAllByOwnerAndFieldAndType(s, g, f, type).iterator();
+    while (it.hasNext()) {
+      ms = (Membership) it.next();
       try {
         members.add(ms.getMember());
       }
@@ -638,75 +330,145 @@ public class MembershipFinder {
     return members;
   } // protected static Set findMembersByType(s, g, f, type)
 
-  // @since 1.0
-  protected static Set findMembershipsByType(
+  // @since   1.2.0
+  protected static Set internal_findAllByCreatedAfter(GrouperSession s, Date d, Field f) 
+    throws QueryException 
+  {
+    // @filtered  false
+    // @session   true
+    Set         mships  = new LinkedHashSet();
+    Membership  ms;
+    Iterator    it      = HibernateMembershipDAO.findAllByCreatedAfter(d, f).iterator();
+    while (it.hasNext()) {
+      ms = (Membership) it.next();
+      ms.setSession(s);
+      mships.add(ms);
+    }
+    return mships;
+  } // protected static Set internal_findAllByCreatedAfter(s, d, f)
+
+  // @since   1.2.0
+  protected static Set internal_findAllByCreatedBefore(GrouperSession s, Date d, Field f) 
+    throws QueryException 
+  {
+    // @filtered  false
+    // @session   true
+    Set         mships  = new LinkedHashSet();
+    Membership  ms;
+    Iterator    it      = HibernateMembershipDAO.findAllByCreatedBefore(d, f).iterator();
+    while (it.hasNext()) {
+      ms = (Membership) it.next();
+      ms.setSession(s);
+      mships.add(ms);
+    }
+    return mships;
+  } // protected static Set internal_findAllByCreatedBefore(s, d, f)
+
+  // @since   1.2.0
+  protected static Set internal_findAllByMember(GrouperSession s, Member m) {
+     // @filtered  false
+     // @session   true
+    GrouperSessionValidator.validate(s);
+    return PrivilegeResolver.canViewMemberships( s, HibernateMembershipDAO.findAllByMember(m) );
+  } // protected static Set internal_findAllByMember(s, m)
+
+  // @since   1.2.0
+  protected static Set internal_findAllByOwnerAndField(GrouperSession s, Owner o, Field f) {
+     // @filtered false
+     // @session  true
+    GrouperSessionValidator.validate(s);
+    Set         mships  = new LinkedHashSet();
+    Membership  ms;
+    Iterator    it      = HibernateMembershipDAO.findAllByOwnerAndField(o, f).iterator();
+    while (it.hasNext()) {
+      ms = (Membership) it.next();
+      ms.setSession(s);
+      mships.add(ms);
+    }
+    return mships;
+  } // protected static Set internal_findAllByOwnerAndField(s, o, f)
+
+  // @since   1.2.0
+  protected static Set internal_findAllByOwnerAndFieldAndType(
     GrouperSession s, Owner o, Field f, MembershipType type
   )
   {
      // @filtered  true
      // @session   true
     GrouperSessionValidator.validate(s);
-    Set mships  = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.owner_id   = :owner  "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
-        + "and  ms.mship_type = :type   "
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindMembershipsByType");
-      qry.setParameter( "owner" , o                       );
-      qry.setString(    "fname" , f.getName()             );
-      qry.setString(    "ftype" , f.getType().toString()  );
-      qry.setString(    "type"  , type.toString()         );
-      List    l   = qry.list();
-      hs.close();
-      mships.addAll( PrivilegeResolver.canViewMemberships(s, l) );
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
-    }
-    return mships;
-  } // protected static Set findMembershipsByType(s, o, f)
+    return PrivilegeResolver.canViewMemberships(
+      s, HibernateMembershipDAO.findAllByOwnerAndFieldAndType(o, f, type)
+    );
+  } // protected static Set internal_findAllByOwnerAndFieldAndType(s, o, f, type)
 
-  protected static Set findMembershipsNoPrivsNoSession(
-    Owner o, Member m, Field f
+  // @since   1.2.0
+  protected static Set internal_findAllByOwnerAndMemberAndField(Owner o, Member m, Field f) {
+    // @filtered  false
+    // @session   false
+    return HibernateMembershipDAO.findAllByOwnerAndMemberAndField(o, m, f);
+  } // protected static Set internal_findAllByOwnerAndMemberAndField(o, m, f)
+
+  // @since   1.2.0
+  protected static Set internal_findAllEffective(
+    Owner o, Member m, Field f, Owner via, int depth
   )
+    throws MembershipNotFoundException
   {
      // @filtered  false
      // @session   false
-    Set mships = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.owner_id   = :owner  " 
-        + "and  ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindMembershipsOwnerMember");
-      qry.setParameter( "owner" , o                     );
-      qry.setParameter( "member", m                     );
-      qry.setString(    "fname" , f.getName()           );
-      qry.setString(    "ftype" , f.getType().toString());
-      mships.addAll(qry.list());
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      ErrorLog.error(MembershipFinder.class, E.HIBERNATE + eH.getMessage());
-    }
-    return mships;
-  } // protected static Membership findMembershipsNoPrivsNoSession(o, m, f)
+    return HibernateMembershipDAO.findAllEffective(o, m, f, via, depth);
+  } // protected static Set internal_findAllEffective(o, m, field, via, depth)
+
+  // @since   1.2.0
+  protected static Set internal_findAllEffectiveByMemberAndField(
+    GrouperSession s, Member m, Field f
+  ) 
+  {
+    // @filtered  true
+    // @session   true
+    GrouperSessionValidator.validate(s);
+    return PrivilegeResolver.canViewMemberships( 
+      s, HibernateMembershipDAO.findAllEffectiveByMemberAndField(m, f) 
+    );
+  } // protected static Set internal_findAllEffectiveByMemberAndField(s, m, f)
+
+  // @since   1.2.0
+  protected static Set internal_findAllEffectiveByOwnerAndMemberAndField(
+    Owner o, Member m, Field f
+  ) 
+  {
+    // @filtered  false
+    // @session   false
+    return HibernateMembershipDAO.findAllEffectiveByOwnerAndMemberAndField(o, m, f);
+  } // protected static Set internal_findAllEffectiveByOwnerAndMemberAndField(o, m, f)
+
+  // @since   1.2.0
+  protected static Set internal_findAllImmediateByMemberAndField(GrouperSession s, Member m, Field f) {
+    // @filtered  true
+    // @session   true
+    GrouperSessionValidator.validate(s);
+    return PrivilegeResolver.canViewMemberships( 
+      s, HibernateMembershipDAO.findAllImmediateByMemberAndField(m, f) 
+    );
+  } // protected static Set internal_findAllImmediateByMemberAndField(s, m, f)
+
+  // @since   1.2.0
+  protected static Membership internal_findByOwnerAndMemberAndFieldAndType(
+    Owner o, Member m, Field f, MembershipType type
+  )
+    throws  MembershipNotFoundException
+  {
+    // @filtered  false
+    // @session   false
+    return HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(o, m, f, type);
+  } // protected static Membership internal_findByOwnerAndMemberAndFieldAndType(o, m, f, type)
 
   // @since   1.2.0
   protected static Membership internal_findByUuid(GrouperSession s, String uuid) 
     throws MembershipNotFoundException
   {
+    // @filtered  false
+    // @session   true
     GrouperSessionValidator.validate(s);
     Membership ms = HibernateMembershipDAO.findByUuid(uuid);
     ms.setSession(s);
@@ -733,31 +495,6 @@ public class MembershipFinder {
     }
     return PrivilegeResolver.canViewMemberships(s, mships);
   } // protected static Set internal_findMemberships(s, m, f)
-
-
-  // PRIVATE CLASS METHODS //
-
-  // @since   1.1.0
-  private static Set _findByDate(
-    GrouperSession s, Session hs, Query qry, Date d, Field f
-  )
-    throws  HibernateException
-  {
-    qry.setLong(    "time"  , d.getTime()             );
-    qry.setString(  "fname" , f.getName()             );
-    qry.setString(  "ftype" , f.getType().toString()  );
-    List        l       = qry.list();
-    hs.close();
-    Membership  ms;
-    Set         mships  = new LinkedHashSet();
-    Iterator    it      = l.iterator();
-    while (it.hasNext()) {
-      ms = (Membership) it.next();
-      ms.setSession(s);
-      mships.add(ms);
-    }
-    return mships;
-  } // private static Set _findByDate(s, hs, qry, d, f)
 
 } // public class MembershipFinder
 

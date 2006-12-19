@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.57 2006-12-14 18:43:41 blair Exp $
+ * @version $Id: Membership.java,v 1.58 2006-12-19 17:37:41 blair Exp $
  */
 public class Membership {
 
@@ -343,7 +343,7 @@ public class Membership {
       GrouperSessionValidator.validate(s); 
       // Who we're deleting
       Member      m   = PrivilegeResolver.canViewSubject(s, subj);
-      Membership  imm = MembershipFinder.findMembershipByTypeNoPrivNoSession(
+      Membership  imm = MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
         o, m, f, MembershipType.I
       );
       imm.setSession(s);
@@ -366,7 +366,7 @@ public class Membership {
   {
     try {
       GrouperSessionValidator.validate(s);
-      GrouperSession orig   = s;
+      GrouperSession  orig  = s;
       GrouperSession  root  = orig.getRootSession();
       o.setSession(root);
 
@@ -388,7 +388,7 @@ public class Membership {
       // Now deal with immediate members
       Membership  msM;
       MemberOf    mofM;
-      Iterator    iterHas = MembershipFinder.findMembershipsByType(
+      Iterator    iterHas = MembershipFinder.internal_findAllByOwnerAndFieldAndType(
         root, o, f, MembershipType.I
       ).iterator();
       while (iterHas.hasNext()) {
