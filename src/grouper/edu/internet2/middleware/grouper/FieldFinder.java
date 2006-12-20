@@ -16,14 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  net.sf.hibernate.*;
+import  java.util.HashMap;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Map;
+import  java.util.Set;
 
 /**
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.21 2006-10-18 15:22:12 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.22 2006-12-20 15:08:22 blair Exp $
  */
 public class FieldFinder {
 
@@ -79,22 +82,8 @@ public class FieldFinder {
   public static Set findAll() 
     throws  GrouperRuntimeException
   {
-    Set fields = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery("from Field order by field_name asc");
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindAll");
-      fields.addAll(qry.list());
-      hs.close();  
-    }
-    catch (HibernateException eH) {
-      String msg = E.FIELD_FINDALL + eH.getMessage();
-      ErrorLog.fatal(FieldFinder.class, msg);
-      throw new GrouperRuntimeException(msg, eH);
-    }
-    return fields;
-  } // public Static Set findAll()
+    return HibernateFieldDAO.findAll();
+  } // public static Set findAll()
 
   /**
    * Find all fields of the specified type.
@@ -105,25 +94,8 @@ public class FieldFinder {
   public static Set findAllByType(FieldType type) 
     throws  SchemaException
   {
-    Set fields = new LinkedHashSet();
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Field where field_type = :type order by field_name asc"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindAllByType");
-      qry.setString("type", type.toString());
-      fields.addAll(qry.list());
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      String msg = E.FIELD_FINDTYPE + eH.getMessage();
-      ErrorLog.error(FieldFinder.class, msg);
-      throw new SchemaException(msg, eH);
-    }
-    return fields;
-  } // public static Set fieldAllByType(type)
+    return HibernateFieldDAO.findAllByType(type);
+  } // public static Set findAllByType(type)
 
 
   // PROTECTED CLASS METHODS //
