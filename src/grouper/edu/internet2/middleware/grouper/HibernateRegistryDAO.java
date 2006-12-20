@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.1 2006-12-20 18:41:56 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.2 2006-12-20 18:53:08 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {
@@ -33,6 +33,24 @@ class HibernateRegistryDAO {
 
 
   // PROTECTED CLASS METHODS //
+
+  // @return  {@link Settings} or <code>null</code>
+  // @since   1.2.0
+  protected static Settings findSettings()
+    throws  GrouperException
+  {
+    Settings settings = null;
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = hs.createQuery("from Settings");
+      settings  = (Settings) qry.uniqueResult();
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperException( eH.getMessage(), eH );
+    }
+    return settings;
+  } // protected static Settings findSettings()
 
   // @since   1.2.0
   protected static void resetRegistry() 
