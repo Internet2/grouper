@@ -28,7 +28,7 @@ import  net.sf.hibernate.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.36 2006-10-18 15:22:12 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.37 2006-12-20 18:31:49 blair Exp $
  */
 public class RegistryReset {
 
@@ -109,7 +109,7 @@ public class RegistryReset {
     for (int i=0; i<10; i++) {
       String  id    = "test.subject." + i;
       String  name  = "my name is " + id;
-      HibernateSubject.add(id, SUBJ_TYPE, name);
+      HibernateSubject.internal_add(id, SUBJ_TYPE, name);
     }
   } // private void _addSubjects()
 

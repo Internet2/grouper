@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * <p><b>This class is experimental and will change in future Grouper
  * releases.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.17 2006-12-19 19:38:10 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.18 2006-12-20 18:31:49 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {
@@ -96,7 +96,7 @@ public class HibernateSubject implements Serializable {
     if (!RootPrivilegeResolver.isRoot(s)) {
       throw new InsufficientPrivilegeException(E.ROOTLIKE_TO_ADD_HSUBJ);
     }    
-    return add(id, type, name);
+    return internal_add(id, type, name);
   } // public static HibernateSubject add(s, id, type, name)
 
 
@@ -125,28 +125,18 @@ public class HibernateSubject implements Serializable {
   // PROTECTED CLASS METHODS //
 
   // @since   1.1.0
-  protected static HibernateSubject add(String id, String type, String name)
+  protected static HibernateSubject internal_add(String id, String type, String name)
     throws  GrouperException
   {
     try {
-      try {
-        HibernateRegistrySubjectDAO.find(id, type);
-        throw new GrouperException(E.SUBJ_ALREADY_EXISTS + id + "/" + type + "/" + name);
-      }
-      catch (SubjectNotFoundException eSNF) {
-        Session           hs    = HibernateHelper.getSession();
-        Transaction       tx    = hs.beginTransaction();
-        HibernateSubject  subj  = new HibernateSubject(id, type, name);
-        hs.save(subj);
-        tx.commit();
-        hs.close();
-        return subj;
-      }
+      HibernateRegistrySubjectDAO.find(id, type);
+      throw new GrouperException(E.SUBJ_ALREADY_EXISTS + id + "/" + type + "/" + name);
     }
-    catch (HibernateException eH) {
-      throw new GrouperException(eH.getMessage(), eH);
+    catch (SubjectNotFoundException eSNF) {
+      HibernateSubject subj = new HibernateSubject(id, type, name);
+      return HibernateRegistrySubjectDAO.create(subj);
     }
-  } // protected static HibernateSubject add(id, type, name)
+  } // protected static HibernateSubject internal_add(id, type, name)
 
 
   // GETTERS //
