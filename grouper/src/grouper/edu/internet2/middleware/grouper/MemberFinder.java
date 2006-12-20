@@ -17,14 +17,12 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  net.sf.hibernate.*;
 
 /**
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.24 2006-09-27 17:54:32 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.25 2006-12-20 15:39:27 blair Exp $
  */
 public class MemberFinder {
 
@@ -79,31 +77,12 @@ public class MemberFinder {
     throws MemberNotFoundException
   {
     GrouperSessionValidator.validate(s);
-    try {
-      Member  m       = null;
-      Session hs      = HibernateHelper.getSession();
-      Query   qry     = hs.createQuery(
-        "from Member as m where m.member_id = :uuid"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByUuid");
-      qry.setString("uuid", uuid);
-      List    members = qry.list();
-      if (members.size() == 1) {
-        m = (Member) members.get(0);
-        m.setSession(s);
-      }
-      hs.close();
-      if (m == null) {
-        throw new MemberNotFoundException("matching members: " + members.size());
-      }
-      return m;
+    Member m = HibernateMemberDAO.findByUuid(uuid);
+    if (m == null) {
+      throw new MemberNotFoundException("member not found");
     }
-    catch (HibernateException eMNF) {
-      throw new MemberNotFoundException(
-        "member not found: " + eMNF.getMessage(), eMNF
-      );
-    }
+    m.setSession(s);
+    return m;
   } // public static Member findByUuid(s, uuid)
 
   
@@ -128,41 +107,22 @@ public class MemberFinder {
     if (subj == null) {
       throw new MemberNotFoundException();
     }
-    Member m = findBySubject(subj.getId(), subj.getSource().getId(), subj.getType().getName());
+    Member m = internal_findBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() );
     m.setSubject(subj);
     return m;
   } // protected static Member findBySubject(subj)
 
-  // @since   1.1.0
-  protected static Member findBySubject(String id, String src, String type) 
+  // @since   1.2.0
+  protected static Member internal_findBySubject(String id, String src, String type) 
     throws  MemberNotFoundException
   {
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Member as m where "
-        + "     m.subject_id      = :sid    "  
-        + "and  m.subject_source  = :source "
-        + "and  m.subject_type    = :type"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindBySubject");
-      qry.setString("sid",    id    );
-      qry.setString("type",   type  );
-      qry.setString("source", src   );
-      Member  m   = (Member) qry.uniqueResult();
-      hs.close();
-      if (m != null) {
-        return m; // Return existing *Member*
-      }
+    // @session false
+    Member m = HibernateMemberDAO.findBySubject(id, src, type);
+    if (m == null) {
       return Member.addMember(id, src, type); // Create new *Member*
     }
-    catch (HibernateException eH) {
-      String msg = E.MEMBER_NEITHER_FOUND_NOR_CREATED + eH.getMessage();
-      ErrorLog.error(MemberFinder.class, msg);
-      throw new MemberNotFoundException(msg, eH);
-    }
-  } // protected static Member findBySubject(subj)
+    return m; // Return existing *Member*
+  } // protected static Member internal_findBySubject(id, src, type)
 
 } // public class MemberFinder
 
