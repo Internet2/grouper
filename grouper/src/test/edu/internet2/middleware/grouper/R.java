@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: R.java,v 1.7 2006-10-11 14:35:10 blair Exp $
+ * @version $Id: R.java,v 1.8 2006-12-20 18:31:49 blair Exp $
  */
 class R {
 
@@ -72,7 +72,7 @@ class R {
     for (int i=0; i<nSubjects; i++) {
       String            id    = _getSuffix(i);
       String            name  = "subject " + id;
-      HibernateSubject  subj  = HibernateSubject.add(id, "person", name);
+      HibernateSubject  subj  = HibernateSubject.internal_add(id, "person", name);
       r.subjects.put(id, subj);
       LOG.debug("created subject: " + subj);
     }

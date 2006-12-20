@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link HibernateSubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.1 2006-12-19 19:38:10 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.2 2006-12-20 18:31:49 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistrySubjectDAO {
@@ -33,6 +33,23 @@ class HibernateRegistrySubjectDAO {
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  protected static HibernateSubject create(HibernateSubject subj)
+    throws  GrouperException // TODO 20061220 change exception
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      hs.save(subj);
+      tx.commit();
+      hs.close();
+      return subj;
+    }
+    catch (HibernateException eH) {
+      throw new GrouperException(eH.getMessage(), eH);
+    }
+  } // protected static HibernateSubject add(id, type, name)
 
   // @since   1.2.0
   protected static HibernateSubject find(String id, String type) 
