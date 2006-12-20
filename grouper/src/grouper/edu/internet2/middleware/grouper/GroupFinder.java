@@ -16,14 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  net.sf.hibernate.*;
+import  java.util.ArrayList;
+import  java.util.Date;
+import  java.util.Set;
 
 /**
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.34 2006-11-27 19:43:06 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.35 2006-12-20 17:13:37 blair Exp $
  */
 public class GroupFinder {
 
@@ -59,30 +60,14 @@ public class GroupFinder {
     Validator.argNotNull( s,    "null session"   );
     Validator.argNotNull( attr, "null attribute" );
     Validator.argNotNull( val,  "null value"     );
-    try {
-      Group   g   = null;
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Attribute as a where a.field.name = :field and a.value like :value"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByAttribute");
-      qry.setString("field", attr);
-      qry.setString("value", val);
-      Attribute a = (Attribute) qry.uniqueResult();
-      hs.close();
-      if (a != null) {
-        g = a.getGroup();
-        g.setSession(s);
-        if (s.getMember().canView(g)) {
-          return g;
-        }
+    Group g = HibernateGroupDAO.findByAttribute(attr, val);
+    if (g != null) {
+      g.setSession(s);
+      if ( s.getMember().canView(g) ) {
+        return g;
       }
     }
-    catch (HibernateException eH) {
-      throw new GroupNotFoundException(ERR_FINDBYATTRIBUTE + eH.getMessage(), eH);
-    }
-    throw new GroupNotFoundException(ERR_FINDBYATTRIBUTE + U.q(attr));
+    throw new GroupNotFoundException( ERR_FINDBYATTRIBUTE + U.q(attr) );
   } // public static Group findByAttribute(s, attr, val)
 
   /**
@@ -104,7 +89,7 @@ public class GroupFinder {
     throws GroupNotFoundException
   {
     GrouperSessionValidator.validate(s);
-    Group g = findByName(name);
+    Group g = internal_findByName(name);
     g.setSession(s);
     if (RootPrivilegeResolver.canVIEW(g, s.getSubject())) {
       return g;
@@ -136,7 +121,7 @@ public class GroupFinder {
     Validator.argNotNull( s,    "null session" );
     Validator.argNotNull( type, "null type"    );
     try {
-      Set groups = findAllByType(s, type);
+      Set groups = internal_findAllByType(s, type);
       if (groups.size() == 1) {
         return (Group) new ArrayList(groups).get(0);
       }
@@ -178,281 +163,107 @@ public class GroupFinder {
 
   // PROTECTED CLASS METHODS //
 
-  // TODO 20061127 can i use a variant of this query in `GroupType.delete()`?
   // @since   1.2.0
-  protected static Set findAllByType(GrouperSession s, GroupType type) 
+  protected static Set internal_findAllByAnyApproximateAttr(GrouperSession s, String val) 
     throws  QueryException
   {
-    try {
-      Session   hs      = HibernateHelper.getSession();
-      Query     qry     = hs.createQuery(
-        "from Group as g where :type in elements(g.group_types)"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindAllByType");
-      qry.setParameter("type", type);
-      List      l       = qry.list();
-      Set       groups  = new LinkedHashSet();
-      Iterator  it      = l.iterator(); // Instead of qry.iterate() in order to avoid lazy instantiation issues 
-      hs.close();
-      Group     g;
-      while (it.hasNext()) {
-        g = (Group) it.next();
-        g.setSession(s);
-        groups.add(g);  
-      }
-      return PrivilegeResolver.canViewGroups(s, groups);
-    }
-    catch (HibernateException eH) {
-      throw new QueryException(eH.getMessage(), eH);
-    }
-  } // protected static Set findAllByType(s, type)
-
-  // @return  groups created after this date
-  protected static Set findByCreatedAfter(GrouperSession s, Date d) 
-    throws QueryException 
-  {
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Group as g where g.create_time > :time"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByCreatedAfter");
-      return _findByDate(s, hs, qry, d);
-    }
-    catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding groups: " + eH.getMessage(), eH
-      );  
-    }
-  } // protected static Set findByCreatedAfter(s, d)
-
-  // @return  groups created before this date
-  protected static Set findByCreatedBefore(GrouperSession s, Date d) 
-    throws QueryException 
-  {
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Group as g where g.create_time < :time"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByCreatedBefore");
-      return _findByDate(s, hs, qry, d);
-    }
-    catch (HibernateException eH) {
-      throw new QueryException("error finding groups: " + eH.getMessage(), eH);  
-    }
-  } // protected static Set findByCreatedBefore(s, d)
-
-  protected static Set findByAnyApproximateAttr(GrouperSession s, String val) 
-    throws  QueryException
-  {
+    // @filtered  true
+    // @session   true
     GrouperSessionValidator.validate(s);
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Attribute as a where lower(a.value) like :value"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByAnyApproximateAttr");
-      return _findByAttribute(s, hs, qry, val);
-    }
-    catch (HibernateException eH) {
-      throw new QueryException("error finding groups: " + eH.getMessage(), eH);
-    }
-  } // protected static Set findByAnyApproximateAttr(s, val)
+    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByAnyApproximateAttr(val) );
+  } // protected static Set internal_findAllByAnyApproximateAttr(s, val)
 
-  protected static Set findByApproximateAttr(GrouperSession s, String attr, String val) 
+  // @since   1.2.0
+  protected static Set internal_findAllByApproximateAttr(GrouperSession s, String attr, String val) 
     throws  QueryException
   {
+    // @filtered  true
+    // @session   true
     GrouperSessionValidator.validate(s);
-    try {
-      Session   hs    = HibernateHelper.getSession();
-      Query     qry   = hs.createQuery(
-        "from Attribute as a where "
-        + "a.field.name = :field and lower(a.value) like :value"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByApproximateAttr");
-      qry.setString("field", attr);
-      return _findByAttribute(s, hs, qry, val);
-    }
-    catch (HibernateException eH) {
-      throw new QueryException("error finding groups: " + eH.getMessage(), eH);
-    }
-  } // protected static Set findByApproximateAttr(s, attr, val)
+    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByApproximateAttr(attr, val) );
+  } // protected static Set internal_findAllByApproximateAttr(s, attr, val)
 
-  protected static Set findByApproximateName(GrouperSession s, String name) 
+  // @since   1.2.0
+  protected static Set internal_findAllByApproximateName(GrouperSession s, String name) 
     throws  QueryException
   {
+    // @filtered  true
+    // @session   true
     GrouperSessionValidator.validate(s);
-    Set groups = new LinkedHashSet();
-    try {
-      Session   hs    = HibernateHelper.getSession();
-      Query     qry   = hs.createQuery(
-        "from Attribute as a where "
-        + "   (a.field.name = 'name'              and lower(a.value) like :value) "
-        + "or (a.field.name = 'displayName'       and lower(a.value) like :value) "
-        + "or (a.field.name = 'extension'         and lower(a.value) like :value) "
-        + "or (a.field.name = 'displayExtension'  and lower(a.value) like :value)"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByApproximateName");
-      qry.setString("value", "%" + name.toLowerCase() + "%");
-      Group     g;
-      Iterator  iter  = qry.iterate();
-      while (iter.hasNext()) {
-        g = ( (Attribute) iter.next() ).getGroup();
-        g.setSession(s);
-        groups.add(g);
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding groups: " + eH.getMessage(), eH
-      );
-    }
-    return PrivilegeResolver.canViewGroups(s, groups);
-  } // protected static Set findByApproximateName(s, name)
+    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByApproximateName(name) );
+  } // protected static Set internal_findAllByApproximateName(s, name)
 
-  // @return  groups modifed after this date
-  // @since   1.1.0
-  protected static Set findByModifiedAfter(GrouperSession s, Date d) 
+  // @since   1.2.0
+  protected static Set internal_findAllByCreatedAfter(GrouperSession s, Date d) 
     throws QueryException 
   {
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Group as g where g.modify_time > :time"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByModifiedAfter");
-      return _findByDate(s, hs, qry, d);
-    }
-    catch (HibernateException eH) {
-      throw new QueryException(
-        "error finding groups: " + eH.getMessage(), eH
-      );  
-    }
-  } // protected static Set findByModifiedAfter(s, d)
-
-  // @return  groups modifed before this date
-  // @since   1.1.0
-  protected static Set findByModifiedBefore(GrouperSession s, Date d) 
+    // @filtered  true
+    // @session   true
+    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByCreatedAfter(d) );
+  } // protected static Set internal_findAllByCreatedAfter(s, d)
+    
+  // @since   1.2.0
+  protected static Set internal_findAllByCreatedBefore(GrouperSession s, Date d) 
     throws QueryException 
   {
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = hs.createQuery(
-        "from Group as g where g.modify_time < :time"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByModifiedBefore");
-      return _findByDate(s, hs, qry, d);
-    }
-    catch (HibernateException eH) {
-      throw new QueryException("error finding groups: " + eH.getMessage(), eH);  
-    }
-  } // protected static Set findByModifiedBefore(s, d)
+    // @filtered  true
+    // @session   true
+    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByCreatedBefore(d) );
+  } // protected static Set internal_findAllByCreatedBefore(s, d)
+    
+  // @since   1.2.0
+  protected static Set internal_findAllByModifiedAfter(GrouperSession s, Date d) 
+    throws QueryException 
+  {
+    // @filtered  true
+    // @session   true
+    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByModifiedAfter(d) );
+  } // protected static Set internal_findAllByModifiedAfter(s, d)
+    
+  // @since   1.2.0
+  protected static Set internal_findAllByModifiedBefore(GrouperSession s, Date d) 
+    throws QueryException 
+  {
+    // @filtered  true
+    // @session   true
+    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByModifiedBefore(d) );
+  } // protected static Set internal_findAllByModifiedBefore(s, d)
+    
+  // @since   1.2.0
+  protected static Set internal_findAllByType(GrouperSession s, GroupType type) 
+    throws  QueryException
+  {
+    // @filtered  true
+    // @session   true
+    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByType(type) );
+  } // protected static Set internal_findAllByType(s, type)
 
-  // Needs _protected_ access so that _Stem.addChildGroup()_ can check
-  // to see if the group exists before creating it.
-  // @caller: Stem.addChildGroup()
-  protected static Group findByName(String name)
+  // @since   1.2.0
+  protected static Group internal_findByName(String name)
     throws  GroupNotFoundException
   {
-    try {
-      Group   g     = null;
-      Session hs    = HibernateHelper.getSession();
-      Query   qry   = hs.createQuery(
-        "from Attribute as a where "
-        + "a.field.name = 'name' and a.value = :value"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByName");
-      qry.setString("value", name);
-      List    attrs = qry.list();
-      if (attrs.size() == 1) {
-        g = ( (Attribute) attrs.get(0) ).getGroup();
-      }
-      hs.close();
-      if (g == null) {
-        throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
-      }
-      return g; 
+    // @filtered  false
+    // @session   false
+    Group g = HibernateGroupDAO.findByName(name);
+    if (g == null) {
+      throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
     }
-    catch (HibernateException eH) {
-      throw new GroupNotFoundException(
-        E.GROUP_NOTFOUND + " by name: " + name + "(" + eH.getMessage() + ")", eH
-      );
-    }
-  } // protected static Group findByName(name)
+    return g;
+  } // protected static Group internal_findByname(name)
 
 
   // PRIVATE CLASS METHODS //
 
-  // @since   1.1.0
-  private static Set _findByAttribute(GrouperSession s, Session hs, Query qry, String val) 
-    throws  HibernateException
-  {
-    qry.setString( "value", "%" + val.toLowerCase() + "%" );
-    Group     g;
-    Set       groups  = new LinkedHashSet();
-    Iterator  it      = qry.iterate();
-    while (it.hasNext()) {
-      g = ( (Attribute) it.next() ).getGroup();
-      g.setSession(s);
-      groups.add(g);
-    }
-    hs.close();
-    return PrivilegeResolver.canViewGroups(s, groups);
-  } // private static Set _findByAttribute(s, hs, qry, val)
-
-  // @since   1.1.0
-  private static Set _findByDate(GrouperSession s, Session hs, Query qry, Date d)
-    throws  HibernateException
-  {
-    qry.setLong( "time", d.getTime() );
-    List        l       = qry.list();
-    hs.close();
-    Group       g;
-    Set         groups  = new LinkedHashSet();
-    Iterator    it      = l.iterator();
-    while (it.hasNext()) {
-      g = (Group) it.next();
-      g.setSession(s);
-      groups.add(g);
-    }
-    return PrivilegeResolver.canViewGroups(s, groups);
-  } // private static Set _findByDate(s, hs, qry, d)
-
   private static Group _findByUuid(String uuid)
     throws  GroupNotFoundException
   {
-    try {
-      Group   g       = null;
-      Session hs      = HibernateHelper.getSession();
-      Query   qry   = hs.createQuery(
-        "from Group as g where g.uuid = :uuid"
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByUuid");
-      qry.setString("uuid", uuid);
-      g = (Group) qry.uniqueResult();
-      hs.close();
-      if (g == null) {
-        throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
-      }
-      return g; 
+    // @filtered  false
+    // @session   false
+    Group g = HibernateGroupDAO.findByUuid(uuid);
+    if (g == null) {
+      throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
     }
-    catch (HibernateException eH) {
-      throw new GroupNotFoundException(
-        E.GROUP_NOTFOUND + " by uuid: " + uuid + "(" + eH.getMessage() + ")", eH
-      );  
-    }
+    return g;
   } // private static Group _findByUuid(uuid)
 
 } // public class GroupFinder

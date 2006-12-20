@@ -22,7 +22,7 @@ import  java.util.Set;
  * Query by {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFilter.java,v 1.1 2006-11-27 19:43:06 blair Exp $
+ * @version $Id: GroupTypeFilter.java,v 1.2 2006-12-20 17:13:37 blair Exp $
  * @since   1.2.0
  */
 public class GroupTypeFilter extends BaseQueryFilter {
@@ -52,7 +52,7 @@ public class GroupTypeFilter extends BaseQueryFilter {
     throws QueryException
   {
     GrouperSessionValidator.validate(s);
-    return this.filterByScope( this.ns, GroupFinder.findAllByType(s, this.type) );
+    return this.filterByScope( this.ns, GroupFinder.internal_findAllByType(s, this.type) );
   } // public Set getResults(s)
 
 } // public class GroupTypeFilter extends BaseQueryFilter

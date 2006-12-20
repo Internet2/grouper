@@ -21,7 +21,7 @@ import  net.sf.hibernate.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.14 2006-12-19 18:56:44 blair Exp $
+ * @version $Id: StemValidator.java,v 1.15 2006-12-20 17:13:37 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -48,7 +48,7 @@ class StemValidator {
       throw new GroupAddException("cannot create groups at root stem level");
     }
     try {
-      GroupFinder.findByName( U.constructName(ns.getName(), extension) );
+      GroupFinder.internal_findByName( U.constructName(ns.getName(), extension) );
       throw new GroupAddException("group already exists");
     }
     catch (GroupNotFoundException eGNF) {
