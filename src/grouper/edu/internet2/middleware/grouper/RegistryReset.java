@@ -16,9 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  net.sf.hibernate.*;
-
 
 /**
  * Perform low-level operations on the Groups Registry.
@@ -28,7 +25,7 @@ import  net.sf.hibernate.*;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.37 2006-12-20 18:31:49 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.38 2006-12-20 18:41:56 blair Exp $
  */
 public class RegistryReset {
 
@@ -121,43 +118,9 @@ public class RegistryReset {
   } // private void _abort(msg)
 
   private void _emptyTables() 
-    throws  HibernateException
+    throws  GrouperException
   {
-    Session     hs  = HibernateHelper.getSession();
-    Transaction tx  = hs.beginTransaction();
-
-    hs.delete("from Membership");
-    hs.delete("from GrouperSession");
-
-    hs.delete("from Composite");
-    hs.delete("from Group");
-    List l = hs.find("from Stem as ns where ns.stem_name like '" + Stem.ROOT_INT + "'");
-    if (l.size() == 1) {
-      Stem    root  = (Stem) l.get(0);
-      String  uuid  = root.getUuid();
-      root.setModifier_id(  null);
-      root.setModify_source(null);
-      root.setModify_time(  0   );
-      hs.saveOrUpdate(root);
-      hs.delete("from Owner as o where o.uuid != '" + uuid + "'");
-    }
-    else {
-      hs.delete("from Owner");
-    }
-
-    hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
-    hs.delete(
-      "from GroupType as t where (  "
-      + "     t.name != 'base'      "
-      + "and  t.name != 'naming'    "
-      + ")"
-    );
-    // TODO 20061018 Once properly mapped I can delete the explicit attr delete
-    hs.delete("from HibernateSubjectAttribute");
-    hs.delete("from HibernateSubject");
-
-    tx.commit();
-    hs.close();
+    HibernateRegistryDAO.resetRegistry();
     // TODO 20061018 Now update the cached types + fields
     GroupTypeFinder.updateKnownTypes();
     FieldFinder.updateKnownFields();
