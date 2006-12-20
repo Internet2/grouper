@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.12 2006-06-19 17:00:57 blair Exp $    
+ * @version $Id: Field.java,v 1.13 2006-12-20 18:20:55 blair Exp $    
  */
 public class Field implements Serializable {
 
@@ -44,12 +44,11 @@ public class Field implements Serializable {
     
   // CONSTRUCTORS //
   
-  /**
-   * For Hibernate.
-   */  
-  public Field() {
+  // For Hibernate.
+  // @since   1.2.0
+  private Field() {
     super();
-  }
+  } // private Field()
 
   protected Field(
     String field, FieldType type, Privilege read, Privilege write, boolean nullable
@@ -123,40 +122,11 @@ public class Field implements Serializable {
 
   // PROTECTED INSTANCE METHODS //
   // @since 1.0
-  protected boolean inUse() 
+  protected boolean internal_isInUse() 
     throws  SchemaException
   {
-    try {
-      Session hs  = HibernateHelper.getSession();
-      Query   qry = null;
-      if      (this.getType().equals(FieldType.ATTRIBUTE)) {
-        qry = hs.createQuery(
-          "from Attribute as a where a.field.name = :name"
-        );
-      }
-      else if (this.getType().equals(FieldType.LIST))      {
-        qry = hs.createQuery(
-          "from Membership as ms where ms.field.name = :name"
-        );
-      }
-      if (qry == null) {
-        String msg = E.GROUPTYPE_FIELDNODELTYPE + this.getType().toString();
-        ErrorLog.error(GroupType.class, msg);
-        throw new SchemaException(msg);
-      }
-      qry.setCacheable(false);
-      qry.setString("name", this.getField_name());
-      if (qry.list().size() > 0) {
-        return true;
-      }
-    }
-    catch (HibernateException eH) {
-      String msg = E.HIBERNATE + eH.getMessage();
-      ErrorLog.error(Field.class, msg);
-      throw new SchemaException(msg, eH);
-    }
-    return false;
-  } // protected boolean inUse()
+    return HibernateFieldDAO.isInUse(this);
+  } // protected boolean internal_isInUse()
 
 
   // GETTERS //
