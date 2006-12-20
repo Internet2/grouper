@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.9 2006-12-14 18:43:41 blair Exp $
+ * @version $Id: Settings.java,v 1.10 2006-12-20 18:53:08 blair Exp $
  * @since   1.0
  */
 class Settings {
@@ -64,23 +64,17 @@ class Settings {
     return CURRENT_SCHEMA_VERSION;
   } // protected static int getCurrentSchemaVersion()
 
-  // @since 1.0
-  protected static Settings getSettings() 
+  // @since   1.2.0
+  protected static Settings internal_getSettings() 
     throws  GrouperRuntimeException
   {
     String msg = E.SETTINGS;
     if (_s == null) {
       try {
-        Session hs  = HibernateHelper.getSession();
-        Query   qry = hs.createQuery("from Settings");
-        List    l   = qry.list();
-        if (l.size() == 1) {
-          _s = (Settings) l.get(0);
-        }
-        hs.close();
+        _s = HibernateRegistryDAO.findSettings();
       }
-      catch (Exception e) {
-        msg += e.getMessage(); // update the error message
+      catch (GrouperException eGE) {
+        msg += eGE.getMessage(); // update the error message
       }
     }
     if (_s == null) {
@@ -88,7 +82,7 @@ class Settings {
       throw new GrouperRuntimeException(msg);
     }
     return _s;
-  } // protected static Settings getSettings()
+  } // protected static Settings internal_getSettings()
 
 
   // GETTERS //
