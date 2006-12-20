@@ -17,7 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
+import  java.util.Date;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.40 2006-10-23 14:35:03 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.41 2006-12-20 19:14:11 blair Exp $
  */
 public class GrouperSession {
 
@@ -69,23 +69,13 @@ public class GrouperSession {
     throws SessionException
   {
     try {
-      // No cascading so save everything myself
-      StopWatch sw = new StopWatch();
+      StopWatch       sw  = new StopWatch();
       sw.start();
-      GrouperSession s = _getSession(subject);
-      Set objects = new LinkedHashSet();
-      objects.add(s.getMember_id());
-      objects.add(s);
-      HibernateHelper.save(objects);
+      GrouperSession  s   = HibernateGrouperSessionDAO.create( _getSession(subject) );
       sw.stop();
-      EventLog.info(s.toString(), M.S_START, sw);
+      EventLog.info( s.toString(), M.S_START, sw );
       return s;
     }
-    catch (HibernateException eH)         {
-      String msg = E.S_START + eH.getMessage();
-      ErrorLog.fatal(GrouperSession.class, msg);
-      throw new SessionException(msg, eH);
-    } 
     catch (MemberNotFoundException eMNF)  {
       String msg = E.S_START + eMNF.getMessage();
       ErrorLog.fatal(GrouperSession.class, msg);
@@ -207,31 +197,24 @@ public class GrouperSession {
   public void stop() 
     throws  SessionException
   {
-    try {
-      if (this.getId() != null) {
-        StopWatch sw = new StopWatch();
-        sw.start();
-        // So we don't log transient sessions
-        String sessionToString = this.toString();
-        // For logging session duration
-        long   start  = this.getStart_time().getTime();
-        HibernateHelper.delete(this);
-        this.setId(null);
-        sw.stop();
-        Date  now = new Date();
-        long  dur = now.getTime() - start;
-        EventLog.info(sessionToString, M.S_STOP + dur + "ms", sw);
-      }
-      this.setMember_id(null);
-      this.setSession_id(null);
-      this.setStart_time(null);
-      this.subj = null;
+    if (this.getId() != null) {
+      StopWatch sw = new StopWatch();
+      sw.start();
+      // So we don't log transient sessions
+      String sessionToString = this.toString();
+      // For logging session duration
+      long   start  = this.getStart_time().getTime();
+      HibernateGrouperSessionDAO.delete(this);
+      this.setId(null);
+      sw.stop();
+      Date  now = new Date();
+      long  dur = now.getTime() - start;
+      EventLog.info(sessionToString, M.S_STOP + dur + "ms", sw);
     }
-    catch (HibernateException eH) {
-      String msg = E.S_STOP + eH.getMessage();
-      ErrorLog.error(GrouperSession.class, msg);
-      throw new SessionException(msg, eH);
-    }
+    this.setMember_id(null);
+    this.setSession_id(null);
+    this.setStart_time(null);
+    this.subj = null;
   } // public void stop()
 
   public String toString() {
