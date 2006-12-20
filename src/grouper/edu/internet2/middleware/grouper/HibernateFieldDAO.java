@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.1 2006-12-20 15:08:22 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.2 2006-12-20 18:20:55 blair Exp $
  * @since   1.2.0
  */
 class HibernateFieldDAO {
@@ -79,6 +79,38 @@ class HibernateFieldDAO {
     }
     return fields;
   } // protected static Set fieldAllByType(type)
+
+  // @since   1.2.0
+  protected static boolean isInUse(Field f) 
+    throws  SchemaException
+  {
+    try {
+      Session hs  = HibernateHelper.getSession();
+      Query   qry = null;
+      if      ( f.getType().equals(FieldType.ATTRIBUTE) ) {
+        qry = hs.createQuery("from Attribute as a where a.field.name = :name");
+      }
+      else if ( f.getType().equals(FieldType.LIST) )      {
+        qry = hs.createQuery("from Membership as ms where ms.field.name = :name");
+      }
+      else {
+        String msg = E.GROUPTYPE_FIELDNODELTYPE + f.getType().toString();
+        ErrorLog.error(HibernateFieldDAO.class, msg);
+        throw new SchemaException(msg);
+      }
+      qry.setCacheable(false);
+      qry.setString("name", f.getName() );
+      if (qry.list().size() > 0) {
+        return true;
+      }
+    }
+    catch (HibernateException eH) {
+      String msg = E.HIBERNATE + eH.getMessage();
+      ErrorLog.error(HibernateFieldDAO.class, msg);
+      throw new SchemaException(msg, eH);
+    }
+    return false;
+  } // protected static boolean isInUse()
 
 } // class HibernateFieldDAO
 
