@@ -37,7 +37,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.87 2006-10-26 16:09:05 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.88 2006-12-20 15:39:27 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1411,7 +1411,7 @@ public class XmlImporter {
     String  msg = "error setting createSubject: ";
     try {
       o.setCreator_id( 
-        MemberFinder.findBySubject(
+        MemberFinder.internal_findBySubject(
           e0.getAttribute("id"), e0.getAttribute("source"), e0.getAttribute("type")
         )
       );
