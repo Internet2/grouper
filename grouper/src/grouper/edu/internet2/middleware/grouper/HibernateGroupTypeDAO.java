@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GroupType} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.1 2006-12-19 19:16:41 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.2 2006-12-21 19:23:35 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupTypeDAO {
@@ -34,6 +34,55 @@ class HibernateGroupTypeDAO {
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  protected static GroupType create(GroupType type)
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        hs.save(type);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+      return type;
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static GroupType create(type)
+
+  // @since   1.2.0
+  protected static void delete(GroupType type)
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        hs.delete(type);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static void delete(type)
 
   // @since   1.2.0
   protected static Set findAll() 
@@ -53,6 +102,30 @@ class HibernateGroupTypeDAO {
     }
     return types;
   } // protected static Set findAll()
+
+  // @since   1.2.0
+  protected static void update(GroupType type)
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        hs.update(type);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static void saveOrUpdate(type)
 
 } // class HibernateGroupTypeDAO
 

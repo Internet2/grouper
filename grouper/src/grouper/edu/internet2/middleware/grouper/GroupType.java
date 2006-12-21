@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.29 2006-12-20 18:20:55 blair Exp $
+ * @version $Id: GroupType.java,v 1.30 2006-12-21 19:23:35 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -107,20 +107,20 @@ public class GroupType implements Serializable {
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     }
+    type = new GroupType(name, new HashSet(), true, false);
+    type.setCreator_id(   s.getMember()                   );
+    type.setCreate_time(  new java.util.Date().getTime()  );
     try {
-      type = new GroupType(name, new HashSet(), true, false);
-      type.setCreator_id(   s.getMember()                   );
-      type.setCreate_time(  new java.util.Date().getTime()  );
-      HibernateHelper.save(type);
-      sw.stop();
-      EventLog.info(s, M.GROUPTYPE_ADD + U.q(type.toString()), sw);
-      return type;
+      type = HibernateGroupTypeDAO.create(type);
     }
-    catch (HibernateException eH) {
-      String msg = E.GROUPTYPE_ADD + name + ": " + eH.getMessage();
+    catch (GrouperDAOException eDAO) {
+      String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
       ErrorLog.error(GroupType.class, msg);
-      throw new SchemaException(msg, eH);
+      throw new SchemaException(msg, eDAO);
     }
+    sw.stop();
+    EventLog.info(s, M.GROUPTYPE_ADD + U.q(type.toString()), sw);
+    return type;
   } // public static GroupType createType(s, name)
 
 
@@ -223,45 +223,29 @@ public class GroupType implements Serializable {
       throw new InsufficientPrivilegeException(msg);
     }
     try {
-      // TODO 20061011 I *really* should not need to drop down to JDBC for this
-      //      And, of course, I can't even iterate through this type's
-      //      fields to check if they are in use - because it might not
-      //      have any fields!
-      Session           hs  = HibernateHelper.getSession();
-      Connection        c   = hs.connection();
-      PreparedStatement st  = c.prepareStatement(
-        "select count(ggt.type_id) from grouper_groups_types ggt where ggt.type_id = ?"
-      );
-      st.setString(1, this.getId());
-      ResultSet         rs  = st.executeQuery();
-      if (rs.next()) {
-        int size = rs.getInt(1);
-        if (size > 0) {
-          String msg = E.GROUPTYPE_DELINUSE;
-          ErrorLog.error(GroupType.class, msg);
-          throw new SchemaException(msg);
-        }
+      if ( HibernateGroupDAO.findAllByType(this).size() > 0 ) {
+        String msg = E.GROUPTYPE_DELINUSE;
+        ErrorLog.error(GroupType.class, msg);
+        throw new SchemaException(msg);
       }
-      hs.close();
-
       // Now delete the type
       String typeName = this.getName(); // For logging purposes
-      HibernateHelper.delete(this);
+      HibernateGroupTypeDAO.delete(this);
       sw.stop();
       EventLog.info(s, M.GROUPTYPE_DEL + U.q(typeName), sw);
       // TODO 20061011 Now update the cached types + fields
       GroupTypeFinder.updateKnownTypes();
       FieldFinder.updateKnownFields();
     }
-    catch (HibernateException eH) {
-      String msg = E.GROUPTYPE_DEL + eH.getMessage();
+    catch (GrouperDAOException eDAO) {
+      String msg = E.GROUPTYPE_DEL + eDAO.getMessage();
       ErrorLog.error(GroupType.class, msg);
-      throw new SchemaException(msg, eH);
+      throw new SchemaException(msg, eDAO);
     }
-    catch (SQLException eSQL) {
-      String msg = E.GROUPTYPE_DEL + eSQL.getMessage();
+    catch (QueryException eQ) {
+      String msg = E.GROUPTYPE_DEL + eQ.getMessage();
       ErrorLog.error(GroupType.class, msg);
-      throw new SchemaException(msg, eSQL);
+      throw new SchemaException(msg, eQ);
     }
   } // public void delete(s)
 
@@ -305,9 +289,9 @@ public class GroupType implements Serializable {
     // With validation complete, delete the field
     try {
       Set fields = this.getFields();
-      if (fields.remove(f)) {
+      if ( fields.remove(f) ) {
         this.setFields(fields);
-        HibernateHelper.save(this);
+        HibernateGroupTypeDAO.update(this);
         sw.stop();
         EventLog.info(
           s,
@@ -321,10 +305,10 @@ public class GroupType implements Serializable {
         throw new SchemaException(msg);
       }
     }
-    catch (HibernateException eH) {
-      String msg = E.GROUPTYPE_FIELDDEL + eH.getMessage();
+    catch (GrouperDAOException eDAO) {
+      String msg = E.GROUPTYPE_FIELDDEL + eDAO.getMessage();
       ErrorLog.error(GroupType.class, msg);
-      throw new SchemaException(msg, eH);
+      throw new SchemaException(msg, eDAO);
     }
   } // public void deleteField(s, name)
 
@@ -354,18 +338,7 @@ public class GroupType implements Serializable {
   } // public String toString()
 
 
-  // Protected Class Methods
-  // When retrieving groups via the parent stem we need to manually
-  // initialize the types - which means we then need to manually
-  // initialize the fields..
-  protected static void initializeGroupType(GroupType type) 
-    throws  HibernateException
-  {
-    Session hs = HibernateHelper.getSession();
-    hs.load(type, type.getId());
-    Hibernate.initialize( type.getFields() );
-    hs.close();
-  } // protected void initializeGroupType()
+  // PROTECTED CLASS METHODS //
 
   protected static boolean isSystemType(GroupType type) {
     String name = type.getName();
@@ -397,7 +370,7 @@ public class GroupType implements Serializable {
       f = new Field(name, type, read, write, nullable);
       fields.add(f);
       this.setFields(fields);
-      HibernateHelper.save(this);
+      HibernateGroupTypeDAO.update(this);
       sw.stop();
       EventLog.info(
         s, 
@@ -407,10 +380,10 @@ public class GroupType implements Serializable {
       );
       return f;
     }
-    catch (HibernateException eS) {
-      String msg = E.GROUPTYPE_FIELDADD + name + ": " + eS.getMessage();
+    catch (GrouperDAOException eDAO) {
+      String msg = E.GROUPTYPE_FIELDADD + name + ": " + eDAO.getMessage();
       ErrorLog.error(GroupType.class, msg);
-      throw new SchemaException(msg, eS);
+      throw new SchemaException(msg, eDAO);
     }
   } // private void _addField(s, name, type, read, write, required)
 
