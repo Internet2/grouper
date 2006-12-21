@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.1 2006-12-20 17:13:37 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.2 2006-12-21 16:45:28 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO {
@@ -274,6 +274,68 @@ class HibernateGroupDAO {
     }
     return g; 
   } // private static Group _findByUuid(uuid)
+
+  // @since   1.2.0
+  protected static void revokePriv(Group g, MemberOf mof)
+    throws  RevokePrivilegeException  // TODO 20061221 what exception?
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        Object    obj;
+        Iterator  it  = mof.getDeletes().iterator();
+        while (it.hasNext()) {
+          hs.delete( it.next() );
+        }
+        it            = mof.getSaves().iterator();
+        while (it.hasNext()) {
+          hs.saveOrUpdate( it.next() );
+        }
+        hs.update(g);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw new RevokePrivilegeException( eH.getMessage(), eH );
+      }
+      finally {
+        hs.close(); 
+      }
+    }
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException( eH.getMessage(), eH );
+    }
+  } // protected static void revokePriv(g, mof)
+
+  // @since   1.2.0
+  protected static void revokePriv(Group g, Set toDelete)
+    throws  RevokePrivilegeException  // TODO 20061221 what exception?
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        Object    obj;
+        Iterator  it  = toDelete.iterator();
+        while (it.hasNext()) {
+          hs.delete( it.next() );
+        }
+        hs.update(g);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw new RevokePrivilegeException( eH.getMessage(), eH );
+      }
+      finally {
+        hs.close(); 
+      }
+    }
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException( eH.getMessage(), eH );
+    }
+  } // protected static void revokePriv(g, toDelete)
 
 } // class HibernateGroupDAO
 
