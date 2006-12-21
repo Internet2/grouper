@@ -17,12 +17,21 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.io.*;
+import  java.io.IOException;
 import  java.text.DateFormat;
 import  java.text.SimpleDateFormat;
 import  java.text.ParseException;
-import  java.util.*;
-import  net.sf.hibernate.*;
+import  java.util.ArrayList;
+import  java.util.Collection;
+import  java.util.Date;
+import  java.util.HashMap;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.List;
+import  java.util.Map;
+import  java.util.Properties;
+import  java.util.Set;
+import  java.util.Vector;
 import  org.apache.commons.logging.*;
 import  org.w3c.dom.*;
 
@@ -37,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.88 2006-12-20 15:39:27 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.89 2006-12-21 18:22:34 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -613,14 +622,14 @@ public class XmlImporter {
     catch (GroupAddException eGA)               {
       throw new GrouperException(eGA.getMessage(), eGA);
     }
+    catch (GrouperDAOException eDAO)             {
+      throw new GrouperException( eDAO.getMessage(), eDAO );
+    }
     catch (GroupModifyException eGM)            {
       throw new GrouperException(eGM.getMessage(), eGM);
     }
     catch (GroupNotFoundException eGNF)         {
       throw new GrouperException(eGNF.getMessage(), eGNF);
-    }
-    catch (HibernateException eH)               {
-      throw new GrouperException(eH.getMessage(), eH);
     }
     catch (InsufficientPrivilegeException eIP)  {
       throw new GrouperException(eIP.getMessage(), eIP);
@@ -682,10 +691,10 @@ public class XmlImporter {
   private void _process(Element e, String stem) 
     throws  AttributeNotFoundException,
             GroupAddException,
+            GrouperDAOException,
             GrouperException,
             GroupModifyException,
             GroupNotFoundException,
-            HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
             StemAddException,
@@ -907,10 +916,10 @@ public class XmlImporter {
   private void _processGroup(Element e, String stem) 
     throws  AttributeNotFoundException,
             GroupAddException,
+            GrouperDAOException,
             GrouperException,
             GroupModifyException,
             GroupNotFoundException,
-            HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
             StemNotFoundException
@@ -930,8 +939,8 @@ public class XmlImporter {
   // @since   1.1.0
   private void _processGroupCreate(Element e, String stem) 
     throws  GroupAddException,
+            GrouperDAOException,
             GroupModifyException,
-            HibernateException,
             InsufficientPrivilegeException,
             StemNotFoundException
   {
@@ -971,10 +980,10 @@ public class XmlImporter {
   private void _processGroups(Element e, String stem) 
     throws  AttributeNotFoundException,
             GroupAddException,
+            GrouperDAOException,
             GrouperException,
             GroupModifyException,
             GroupNotFoundException,
-            HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
             StemAddException,
@@ -1297,10 +1306,10 @@ public class XmlImporter {
   private void _processPath(Element e, String stem) 
     throws  AttributeNotFoundException,
             GroupAddException,
+            GrouperDAOException,
             GrouperException,
             GroupModifyException,
             GroupNotFoundException,
-            HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
             StemAddException,
@@ -1320,7 +1329,7 @@ public class XmlImporter {
 
   // @since   1.1.0
   private void _processPathCreate(Element e, String stem) 
-    throws  HibernateException,
+    throws  GrouperDAOException,
             InsufficientPrivilegeException,
             StemAddException,
             StemModifyException,
@@ -1374,10 +1383,10 @@ public class XmlImporter {
   private void _processPaths(Element e, String stem) 
     throws  AttributeNotFoundException,
             GroupAddException,
+            GrouperDAOException,
             GrouperException,
             GroupModifyException,
             GroupNotFoundException,
-            HibernateException,
             InsufficientPrivilegeException,
             SchemaException,
             StemAddException,
@@ -1443,7 +1452,7 @@ public class XmlImporter {
 
   // @since   1.1.0
   private void _setInternalAttributes(Owner o, Element e) 
-    throws  HibernateException
+    throws  GrouperDAOException
   {
     String    attr;
     boolean   modified    = false;
@@ -1464,18 +1473,18 @@ public class XmlImporter {
       }
     }
     if (modified) {
-      HibernateHelper.save(o);
+      HibernateOwnerDAO.update(o);
     }
   } // private void _setInternalAttributesAttributes(ns, e)
 
   // @since   1.1.0
   private void _setUuid(Owner o, Element e) 
-    throws  HibernateException
+    throws  GrouperDAOException
   {
     String uuid = e.getAttribute("id");
     if (Validator.isNotNullOrBlank(uuid)) {
       o.setUuid(uuid);
-      HibernateHelper.save(o);
+      HibernateOwnerDAO.update(o);
     }
   } // private void _setUuid(o, e)
 

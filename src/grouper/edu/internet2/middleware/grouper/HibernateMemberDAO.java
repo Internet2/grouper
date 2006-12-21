@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.1 2006-12-20 15:39:27 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.2 2006-12-21 18:22:34 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO {
@@ -34,6 +34,32 @@ class HibernateMemberDAO {
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  protected static Member create(Member m) 
+    throws  MemberNotFoundException // TODO 20061221 what exception?
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        HibernateHelper.save(m);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+      return m;
+    }
+    catch (HibernateException eH) {
+      // TODO 20061221 this probably shouldn't be here
+      throw new MemberNotFoundException( "unable to save member: " + eH.getMessage(), eH );
+    }
+  } // protected static Member create(m)
 
   // @return  {@link Member} or <code>null</code>
   // @since   1.2.0
@@ -82,6 +108,29 @@ class HibernateMemberDAO {
     }
     return m;
   } // protected static Member findByUuid(uuid)
+
+  // @since   1.2.0
+  protected static void update(Member m) 
+    throws  InsufficientPrivilegeException  // TODO 20061221 what exception?
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        hs.update(m);
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      } 
+    }
+    catch (HibernateException eH) {
+      throw new InsufficientPrivilegeException( eH.getMessage(), eH );
+    }
+  } // protected static void update(m)
 
 } // class HibernateMemberDAO
 
