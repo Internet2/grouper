@@ -31,7 +31,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.115 2006-12-21 20:28:26 blair Exp $
+ * @version $Id: Group.java,v 1.116 2006-12-21 20:36:39 blair Exp $
  */
 public class Group extends Owner {
 
@@ -1908,13 +1908,13 @@ public class Group extends Owner {
 
       this.setGroup_attributes( this._updateSystemAttrs(f, value, attrs) );
       this.setModified();
-      HibernateHelper.save(this);
+      HibernateGroupDAO.update(this);
 
       sw.stop();
       EL.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
     }
-    catch (HibernateException eH) {
-      throw new GroupModifyException(eH.getMessage(), eH);
+    catch (GrouperDAOException eDAO) {
+      throw new GroupModifyException( eDAO.getMessage(), eDAO );
     }
     catch (InsufficientPrivilegeException eIP) {
       throw eIP;
@@ -2130,17 +2130,6 @@ public class Group extends Owner {
     return g;
   } // protected static Group create(ns, extn, displayExtn)
  
-  // When retrieving groups via the parent stem we need to manually
-  // initialize the attributes and types.
-  protected static void initializeGroup(Group g) 
-    throws  HibernateException
-  {
-    Session hs = HibernateHelper.getSession();
-    hs.load(g, g.getId());
-    Hibernate.initialize( g.getGroup_attributes() );
-    hs.close();
-  } // protected static void initializeGroup()
-
 
   // PROTECTED INSTANCE METHODS //
 
