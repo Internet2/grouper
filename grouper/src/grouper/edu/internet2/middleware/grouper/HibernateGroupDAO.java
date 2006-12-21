@@ -26,10 +26,10 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.2 2006-12-21 16:45:28 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.3 2006-12-21 20:15:30 blair Exp $
  * @since   1.2.0
  */
-class HibernateGroupDAO {
+class HibernateGroupDAO extends HibernateDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateGroupDAO.class.getName();
@@ -337,5 +337,5 @@ class HibernateGroupDAO {
     }
   } // protected static void revokePriv(g, toDelete)
 
-} // class HibernateGroupDAO
+} // class HibernateGroupDAO extends HibernateDAO
 

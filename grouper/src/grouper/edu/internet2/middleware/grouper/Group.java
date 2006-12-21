@@ -17,9 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
+import  java.util.Date;
+import  java.util.HashMap;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Map;
+import  java.util.Set;
 import  net.sf.hibernate.*;
-
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
@@ -27,7 +31,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.113 2006-12-21 16:02:12 blair Exp $
+ * @version $Id: Group.java,v 1.114 2006-12-21 20:15:30 blair Exp $
  */
 public class Group extends Owner {
 
@@ -229,12 +233,9 @@ public class Group extends Owner {
     sw.start();
     GroupValidator.canAddType(this.getSession(), this, type);
     try {
-      Session   hs    = HibernateHelper.getSession();
-      Set       types = this.getGroup_types();
-      types.add(type);
+      Set types = this.getGroup_types();
       this.setGroup_types(types);
-      HibernateHelper.save(this);
-      hs.close();
+      HibernateGroupDAO.update(this);
       sw.stop();
       EventLog.info(
         this.getSession(),
@@ -242,10 +243,10 @@ public class Group extends Owner {
         sw
       );
     }
-    catch (HibernateException eH) {
-      String msg = E.GROUP_TYPEADD + type + ": " + eH.getMessage();
+    catch (GrouperDAOException eDAO) {
+      String msg = E.GROUP_TYPEADD + type + ": " + eDAO.getMessage();
       ErrorLog.error(Group.class, msg);
-      throw new GroupModifyException(msg, eH); 
+      throw new GroupModifyException(msg, eDAO); 
     }
   } // public void addType(type)
 
