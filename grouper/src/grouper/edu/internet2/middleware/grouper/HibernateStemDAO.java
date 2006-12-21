@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import  java.util.Date;
+import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
 import  net.sf.hibernate.*;
@@ -25,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.2 2006-12-19 18:56:44 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.3 2006-12-21 16:55:20 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO {
@@ -256,6 +257,68 @@ class HibernateStemDAO {
     }
     return stems;
   } // protected sdtatic Set findChildStems(ns)
+
+  // @since   1.2.0
+  protected static void revokePriv(Stem ns, MemberOf mof)
+    throws  RevokePrivilegeException  // TODO 20061221 what exception?
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        Object    obj;
+        Iterator  it  = mof.getDeletes().iterator();
+        while (it.hasNext()) {
+          hs.delete( it.next() );
+        }
+        it            = mof.getSaves().iterator();
+        while (it.hasNext()) {
+          hs.saveOrUpdate( it.next() );
+        }
+        hs.update(ns);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw new RevokePrivilegeException( eH.getMessage(), eH );
+      }
+      finally {
+        hs.close(); 
+      }
+    }
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException( eH.getMessage(), eH );
+    }
+  } // protected static void revokePriv(ns, mof)
+
+  // @since   1.2.0
+  protected static void revokePriv(Stem ns, Set toDelete)
+    throws  RevokePrivilegeException  // TODO 20061221 what exception?
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        Object    obj;
+        Iterator  it  = toDelete.iterator();
+        while (it.hasNext()) {
+          hs.delete( it.next() );
+        }
+        hs.update(ns);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw new RevokePrivilegeException( eH.getMessage(), eH );
+      }
+      finally {
+        hs.close(); 
+      }
+    }
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException( eH.getMessage(), eH );
+    }
+  } // protected static void revokePriv(ns, toDelete)
 
 } // class HibernateStemDAO
 
