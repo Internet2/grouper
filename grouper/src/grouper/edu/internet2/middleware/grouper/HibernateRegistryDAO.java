@@ -16,14 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.util.Iterator;
 import  java.util.List;
+import  java.util.Set;
 import  net.sf.hibernate.*;
 
 /**
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.3 2006-12-21 16:24:18 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.4 2006-12-21 17:24:11 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {
@@ -43,7 +45,7 @@ class HibernateRegistryDAO {
     try {
       Session hs  = HibernateHelper.getSession();
       Query   qry = hs.createQuery("from Settings");
-      settings  = (Settings) qry.uniqueResult();
+      settings = (Settings) qry.uniqueResult();
       hs.close();
     }
     catch (HibernateException eH) {
@@ -51,6 +53,37 @@ class HibernateRegistryDAO {
     }
     return settings;
   } // protected static Settings findSettings()
+
+  // @since   1.2.0
+  protected static void initializeRegistry(Set types, Settings settings)
+    throws  GrouperRuntimeException
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        Object    obj;
+        Iterator  it  = types.iterator();
+        while (it.hasNext()) {
+          hs.save( it.next() );
+        }
+        hs.save(settings);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+    }
+    catch (HibernateException eH) {
+      String msg = E.RI_IS + eH.getMessage();
+      ErrorLog.fatal(HibernateRegistryDAO.class, msg);
+      throw new GrouperRuntimeException(msg, eH);
+    }
+  } // protected static void initializeRegistry(types, settings)
 
   // @since   1.2.0
   protected static void resetRegistry() 

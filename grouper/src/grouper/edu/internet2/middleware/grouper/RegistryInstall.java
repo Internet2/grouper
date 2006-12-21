@@ -16,14 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  net.sf.hibernate.*;
+import  java.util.LinkedHashSet;
+import  java.util.Set;
 
 /** 
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.28 2006-09-21 16:10:23 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.29 2006-12-21 17:24:11 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -40,11 +40,13 @@ public class RegistryInstall {
   private static void _installFieldsAndTypes() 
     throws  GrouperRuntimeException
   {
+    // TODO 20061221 THIS. IS. SO. UGLY.
+
     Set base_f    = new LinkedHashSet();
     Set fields    = new LinkedHashSet();
     Set naming_f  = new LinkedHashSet();
     Set types     = new LinkedHashSet();
-   
+  
     // Base Attributes
     base_f.add(
       new Field(
@@ -145,23 +147,12 @@ public class RegistryInstall {
     fields.addAll(base_f);
     fields.addAll(naming_f);
 
-    try {
-      Session   hs        = HibernateHelper.getSession();
-      Set       objects   = new LinkedHashSet();
-      Settings  settings  = new Settings(Settings.getCurrentSchemaVersion());
-      objects.addAll(types);
-      objects.add(settings);
-      HibernateHelper.save(objects);
-      hs.close();
-      EventLog.info("set schema version   : " + settings.getSchemaVersion()  );
-      EventLog.info("group types installed: " + types.size()                 );
-      EventLog.info("fields installed     : " + fields.size()                );
-    }
-    catch (HibernateException eH) {
-      String msg = E.RI_IS + eH.getMessage();
-      ErrorLog.fatal(RegistryInstall.class, msg);
-      throw new GrouperRuntimeException(msg, eH);
-    }
+    Settings settings = new Settings( Settings.getCurrentSchemaVersion() );
+
+    HibernateRegistryDAO.initializeRegistry(types, settings);
+    EventLog.info("set schema version   : " + settings.getSchemaVersion()  );
+    EventLog.info("group types installed: " + types.size()                 );
+    EventLog.info("fields installed     : " + fields.size()                );
   } // private static void _installFieldsAndTypes()
 
   private static void _installGroupsAndStems() 
