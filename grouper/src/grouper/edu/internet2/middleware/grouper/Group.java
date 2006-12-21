@@ -31,7 +31,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.114 2006-12-21 20:15:30 blair Exp $
+ * @version $Id: Group.java,v 1.115 2006-12-21 20:28:26 blair Exp $
  */
 public class Group extends Owner {
 
@@ -234,6 +234,7 @@ public class Group extends Owner {
     GroupValidator.canAddType(this.getSession(), this, type);
     try {
       Set types = this.getGroup_types();
+      types.add(type);
       this.setGroup_types(types);
       HibernateGroupDAO.update(this);
       sw.stop();
