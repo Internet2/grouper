@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.23 2006-12-19 19:56:00 blair Exp $
+ * @version $Id: Composite.java,v 1.24 2006-12-21 15:23:38 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -199,7 +199,7 @@ public class Composite extends Owner {
     Iterator  iter  = CompositeFinder.internal_findAsFactor(o).iterator();
     while (iter.hasNext()) {
       c = (Composite) iter.next();
-      c.update();
+      c._update();
     }
   } // protected static void update(o)
 
@@ -256,8 +256,37 @@ public class Composite extends Owner {
     // marking as modified is irrelevant. 
   } // protected void setModified()
 
+
+  // PRIVATE CLASS METHODS //
+
   // @since 1.0
-  protected void update() {
+  private static void _update(Set mships) {
+    Set         updates = new LinkedHashSet();
+    Membership  ms;
+    Iterator    iterMS  = mships.iterator();
+    while (iterMS.hasNext()) {
+      ms = (Membership) iterMS.next();
+      updates.add( ms.getOwner_id() ); 
+    }
+    Owner     o;
+    Iterator  iter;
+    Composite c;
+    Iterator  iterU = updates.iterator();
+    while (iterU.hasNext()) {
+      o     = (Owner) iterU.next();
+      iter  = CompositeFinder.internal_findAsFactor(o).iterator();
+      while (iter.hasNext()) {
+        c = (Composite) iter.next();
+        c._update();
+      }
+    }
+  } // private static void _update(mships)
+
+
+  // PRIVATE INSTANCE METHODS //
+
+  // @since   1.2.0
+  private void _update() {
     //  TODO  20061011 Assuming this is actually correct I am sure it can be
     //        improved upon.  At least it isn't as bad as the first
     //        (functional) approach taken.  Or even the second, third
@@ -278,9 +307,9 @@ public class Composite extends Owner {
       adds.removeAll(cur);
 
       if ( (adds.size() > 0) || (deletes.size() > 0) ) {
-        HibernateHelper.saveAndDelete(adds, deletes);
-        EventLog.compositeUpdate(this, adds, deletes, sw);
+        HibernateCompositeDAO.update(adds, deletes);
         sw.stop();
+        EventLog.compositeUpdate(this, adds, deletes, sw);
         Composite._update(deletes);
         Composite._update(adds);
       }
@@ -289,40 +318,11 @@ public class Composite extends Owner {
       String msg = E.COMP_UPDATE + eGNF.getMessage();
       ErrorLog.error(Composite.class, msg);
     }
-    catch (HibernateException eH) {
-      String msg = E.COMP_UPDATE + eH.getMessage();
-      ErrorLog.error(Composite.class, msg);
-    }
     catch (ModelException eM) {
       String msg = E.COMP_UPDATE + eM.getMessage();
       ErrorLog.error(Composite.class, msg);
     }
-  } // protected void update()
-
-
-  // PRIVATE CLASS METHODS //
-  // @since 1.0
-  private static void _update(Set mships) {
-    Set         updates = new LinkedHashSet();
-    Membership  ms;
-    Iterator    iterMS  = mships.iterator();
-    while (iterMS.hasNext()) {
-      ms = (Membership) iterMS.next();
-      updates.add( ms.getOwner_id() ); 
-    }
-    Owner     o;
-    Iterator  iter;
-    Composite c;
-    Iterator  iterU = updates.iterator();
-    while (iterU.hasNext()) {
-      o     = (Owner) iterU.next();
-      iter  = CompositeFinder.internal_findAsFactor(o).iterator();
-      while (iter.hasNext()) {
-        c = (Composite) iter.next();
-        c.update();
-      }
-    }
-  } // private static void _update(mships)
+  } // private void _update()
 
 
   // GETTERS //
