@@ -19,7 +19,9 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
-import  java.util.*;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Set;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
@@ -27,7 +29,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.71 2006-12-19 17:37:41 blair Exp $
+ * @version $Id: Member.java,v 1.72 2006-12-21 18:22:34 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -1093,19 +1095,14 @@ public class Member implements Serializable {
     sw.start();
     MemberValidator.canSetSubjectId(this, id);
     String    orig  = this.getSubject_id(); // preserve original for logging purposes
-    try {
-      this.setSubject_id(id);
-      HibernateHelper.save(this);
-      sw.stop();
-      EventLog.info(
-        this.getSession(),
-        M.MEMBER_CHANGESID + U.q(this.getUuid()) + " old=" + U.q(orig) + " new=" + U.q(id),
-        sw
-      );
-    }
-    catch (HibernateException eH) {
-      throw new InsufficientPrivilegeException(eH.getMessage(), eH);
-    }
+    this.setSubject_id(id);
+    HibernateMemberDAO.update(this);
+    sw.stop();
+    EventLog.info(
+      this.getSession(),
+      M.MEMBER_CHANGESID + U.q(this.getUuid()) + " old=" + U.q(orig) + " new=" + U.q(id),
+      sw
+    );
   } // public void setSubjectId(id)
 
   /**
@@ -1134,19 +1131,14 @@ public class Member implements Serializable {
     sw.start();
     MemberValidator.canSetSubjectSourceId(this, id);
     String    orig  = this.getSubject_source(); // preserve original for logging
-    try {
-      this.setSubject_source(id);
-      HibernateHelper.save(this);
-      sw.stop();
-      EventLog.info(
-        this.getSession(),
-        M.MEMBER_CHANGE_SSID + U.q(this.getUuid()) + " old=" + U.q(orig) + " new=" + U.q(id),
-        sw
-      );
-    }
-    catch (HibernateException eH) {
-      throw new InsufficientPrivilegeException(eH.getMessage(), eH);
-    }
+    this.setSubject_source(id);
+    HibernateMemberDAO.update(this);
+    sw.stop();
+    EventLog.info(
+      this.getSession(),
+      M.MEMBER_CHANGE_SSID + U.q(this.getUuid()) + " old=" + U.q(orig) + " new=" + U.q(id),
+      sw
+    );
   } // public void setSubjectSourceId(id)
 
   public String toString() {
@@ -1214,22 +1206,12 @@ public class Member implements Serializable {
 
   // PROTECTED CLASS METHODS //
 
-  // Add a new Member to the Registry
-  // @since   1.1.0
-  protected static Member addMember(String id, String src, String type)
+  // @since   1.2.0
+  protected static Member internal_addMember(String id, String src, String type)
     throws MemberNotFoundException 
   {
-    try {
-      Member m = new Member(id, src, type);
-      HibernateHelper.save(m);
-      return m;
-    }
-    catch (HibernateException eH) {
-      throw new MemberNotFoundException(
-        "unable to save member: " + eH.getMessage(), eH
-      );
-    }
-  } // protected static Member addMember(id, src, type)
+    return HibernateMemberDAO.create( new Member(id, src, type) );
+  } // protected static Member internal_addMember(id, src, type)
 
 
   // PROTECTED INSTANCE METHODS //

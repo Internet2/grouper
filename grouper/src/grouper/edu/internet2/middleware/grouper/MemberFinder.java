@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.25 2006-12-20 15:39:27 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.26 2006-12-21 18:22:34 blair Exp $
  */
 public class MemberFinder {
 
@@ -119,7 +119,7 @@ public class MemberFinder {
     // @session false
     Member m = HibernateMemberDAO.findBySubject(id, src, type);
     if (m == null) {
-      return Member.addMember(id, src, type); // Create new *Member*
+      return Member.internal_addMember(id, src, type); // Create new *Member*
     }
     return m; // Return existing *Member*
   } // protected static Member internal_findBySubject(id, src, type)
