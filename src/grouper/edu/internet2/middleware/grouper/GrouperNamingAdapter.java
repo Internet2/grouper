@@ -17,9 +17,11 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  net.sf.hibernate.*;
-
+import  java.util.HashMap;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Map;
+import  java.util.Set;
 
 /** 
  * Default implementation of the Grouper {@link NamingPrivilege}
@@ -29,7 +31,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.49 2006-12-19 17:37:41 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.50 2006-12-21 16:55:20 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -262,21 +264,12 @@ public class GrouperNamingAdapter implements NamingAdapter {
     GrouperSessionValidator.validate(s);
     Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
     StemValidator.canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
-
-    // The objects that will need updating and deleting
-    Set     saves   = new LinkedHashSet();
-    Set     deletes = new LinkedHashSet();
-
     ns.setModified();
-    saves.add(ns);
-
     try {
-      // Find privileges that need to be revoked and then update registry
-      deletes = Membership.deleteAllField(s, ns, f);
-      HibernateHelper.saveAndDelete(saves, deletes);
+      HibernateStemDAO.revokePriv( ns, Membership.deleteAllField(s, ns, f) );
     }
-    catch (Exception e) {
-      throw new RevokePrivilegeException(e.getMessage(), e);
+    catch (MemberDeleteException eMD) {
+      throw new RevokePrivilegeException( eMD.getMessage(), eMD );
     }
   } // public void revokePriv(s, ns, priv)
 
@@ -308,25 +301,16 @@ public class GrouperNamingAdapter implements NamingAdapter {
             RevokePrivilegeException,
             SchemaException
   {
+    GrouperSessionValidator.validate(s);
+    Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
+    StemValidator.canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
     try {
-      GrouperSessionValidator.validate(s);
-      Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
-      StemValidator.canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
-      MemberOf  mof     = Membership.delImmediateMembership(s, ns, subj, f);
-      Set       saves   = mof.getSaves();
-      Set       deletes = mof.getDeletes();
-
-      ns.setModified(); // TODO 20061019 Should this be in _Stem_?
-      saves.add(ns);
-
-      // And then commit changes to registry
-      HibernateHelper.saveAndDelete(saves, deletes);
-    }
-    catch (HibernateException eH) {
-      throw new RevokePrivilegeException(eH);
+      MemberOf mof = Membership.delImmediateMembership(s, ns, subj, f);
+      ns.setModified();
+      HibernateStemDAO.revokePriv(ns, mof);
     }
     catch (MemberDeleteException eMD) {
-      throw new RevokePrivilegeException(eMD);
+      throw new RevokePrivilegeException( eMD.getMessage(), eMD );
     }
   } // public void revokePriv(s, ns, subj, priv)
 
