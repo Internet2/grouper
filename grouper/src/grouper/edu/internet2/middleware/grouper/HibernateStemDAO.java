@@ -26,16 +26,69 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.3 2006-12-21 16:55:20 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.4 2006-12-21 20:07:31 blair Exp $
  * @since   1.2.0
  */
-class HibernateStemDAO {
+class HibernateStemDAO extends HibernateDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateStemDAO.class.getName();
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  protected static Group createChildGroup(Stem parent, Group child, Member m)
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        hs.save(child);
+        hs.update(parent);
+        hs.save(m);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+      return child;
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static Group createChildGroup(parent, child, m)
+
+  // @since   1.2.0
+  protected static Stem createChildStem(Stem parent, Stem child)
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        hs.save(child);
+        hs.update(parent);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+      return child;
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static Stem createChildStem(parent, child)
 
   // @since   1.2.0
   protected static Set findAllByApproximateDisplayExtension(String val) {
@@ -292,6 +345,35 @@ class HibernateStemDAO {
   } // protected static void revokePriv(ns, mof)
 
   // @since   1.2.0
+  protected static void renameStemAndChildren(Stem ns, Set children)
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        Object    obj;
+        Iterator  it  = children.iterator();
+        while (it.hasNext()) {
+          hs.update( it.next() );
+        }
+        hs.update(ns);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();  
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static void renameStemAndChildren(ns, children)
+  
+  // @since   1.2.0
   protected static void revokePriv(Stem ns, Set toDelete)
     throws  RevokePrivilegeException  // TODO 20061221 what exception?
   {
@@ -320,5 +402,5 @@ class HibernateStemDAO {
     }
   } // protected static void revokePriv(ns, toDelete)
 
-} // class HibernateStemDAO
+} // class HibernateStemDAO extends HibernateDAO
 

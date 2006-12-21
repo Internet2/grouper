@@ -17,7 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
+import  java.util.Date;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Set;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.lang.builder.*;
@@ -26,7 +29,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.91 2006-12-15 17:30:52 blair Exp $
+ * @version $Id: Stem.java,v 1.92 2006-12-21 20:07:31 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -95,24 +98,17 @@ public class Stem extends Owner {
     }
     try {
       Group   child = Group.create(this, extension, displayExtension);
-      // Now create as member
-      Member  m     = new Member( new GrouperSubject(child) );
-
-      // And save
-      Set objects = new LinkedHashSet();
-      objects.add(child);
-      objects.add(this);
-      objects.add(m);
-      HibernateHelper.save(objects);
-
+      Member  m     = new Member( new GrouperSubject(child) );  // Create group-as-member immediately.  
+                                                                // This helped with a problem that I 
+                                                                // have since forgotten.
+      child = HibernateStemDAO.createChildGroup(this, child, new Member( new GrouperSubject(child) ) );
       sw.stop();
       EventLog.info(s, M.GROUP_ADD + U.q(child.getName()), sw);
       _grantDefaultPrivsUponCreate(child);
-
-      return child; // And return the newly created group
+      return child; 
     }
-    catch (HibernateException eH)           {
-      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eH.getMessage(), eH);
+    catch (GrouperDAOException eDAO)        {
+      throw new GroupAddException( E.CANNOT_CREATE_GROUP + eDAO.getMessage(), eDAO );
     }
     catch (SchemaException eS)              {
       throw new GroupAddException(E.CANNOT_CREATE_GROUP + eS.getMessage(), eS);
@@ -145,23 +141,18 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if (!StemValidator.canAddChildStem(this, extension, displayExtension)) {
+    if ( !StemValidator.canAddChildStem(this, extension, displayExtension) ) {
       throw new StemAddException();
     }
     try {
-      Stem  child     = Stem.create(this, extension, displayExtension);
-      // And save
-      Set   objects   = new LinkedHashSet();
-      objects.add(child);
-      objects.add(this);
-      HibernateHelper.save(objects);
+      Stem child = HibernateStemDAO.createChildStem( this, Stem.create(this, extension, displayExtension) );
       sw.stop();
       EventLog.info(s, M.STEM_ADD + U.q(child.getName()), sw);
       _grantDefaultPrivsUponCreate(child);
       return child;
     }
-    catch (HibernateException eH) {
-      throw new StemAddException(E.CANNOT_CREATE_STEM + eH.getMessage(), eH);
+    catch (GrouperDAOException eDAO) {
+      throw new StemAddException( E.CANNOT_CREATE_STEM + eDAO.getMessage(), eDAO );
     }
   } // public Stem addChildStem(extension, displayExtension)
 
@@ -192,12 +183,12 @@ public class Stem extends Owner {
     try {
       String name = this.getName();   // Preserve name for logging
       this._revokeAllNamingPrivs();   // Revoke privs
-      HibernateHelper.delete(this);   // And delete
+      HibernateStemDAO.delete(this);  // And delete
       sw.stop();
       EventLog.info(this.getSession(), M.STEM_DEL + U.q(name), sw);
     }
-    catch (HibernateException eH)         {
-      throw new StemDeleteException(eH.getMessage(), eH);
+    catch (GrouperDAOException eDAO)      {
+      throw new StemDeleteException( eDAO.getMessage(), eDAO );
     }
     catch (RevokePrivilegeException eRP)  {
       throw new StemDeleteException(eRP.getMessage(), eRP);
@@ -688,16 +679,15 @@ public class Stem extends Owner {
     if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
-    String msg = "unable to set description: ";
     try {
       this.setStem_description(value);
       this.setModified();
-      HibernateHelper.save(this);
+      HibernateStemDAO.update(this);
       sw.stop();
       EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_D, value, sw);
     }
-    catch (HibernateException eH) {
-      throw new StemModifyException(msg + eH.getMessage(), eH);
+    catch (GrouperDAOException eDAO) {
+      throw new StemModifyException( "unable to set description: " + eDAO.getMessage(), eDAO );
     }
   } // public void setDescription(value)
 
@@ -738,9 +728,8 @@ public class Stem extends Owner {
     if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
-    String msg = "unable to set displayExtension: ";
     try {
-      Set objects = new HashSet();
+      Set objects = new LinkedHashSet();
       this.setDisplay_extension(value);
       this.setModified();
       try {
@@ -750,17 +739,14 @@ public class Stem extends Owner {
         // I guess we're the root stem
         this.setDisplay_name(value);
       }
-      // Now iterate through all child groups and stems (as root),
-      // renaming each.
+      // Now iterate through all child groups and stems (as root), renaming each.
       GrouperSession  orig  = this.getSession();
       this.setSession( orig.getRootSession() );
-      objects.addAll( this._renameChildren() );
-      objects.add(this);
-      HibernateHelper.save(objects);
+      HibernateStemDAO.renameStemAndChildren( this, this._renameChildren() );
       this.setSession(orig);
     }
-    catch (HibernateException eH) {
-      throw new StemModifyException(msg + eH.getMessage(), eH);
+    catch (GrouperDAOException eDAO) {
+      throw new StemModifyException( "unable to set displayExtension: " + eDAO.getMessage(), eDAO );
     }
     sw.stop();
     // Reset for logging purposes
@@ -782,7 +768,23 @@ public class Stem extends Owner {
 
 
   // PROTECTED CLASS METHODS //
-  protected static Stem addRootStem(GrouperSession s) 
+
+  // @since   1.1.0
+  protected static Stem create(Stem parent, String extn, String displayExtn) {
+    Stem ns = new Stem();
+    ns.setSession( parent.getSession() );
+    ns.setParent_stem(parent);            // Set parent
+    ns._setCreated();                     // Set creation information
+    ns.setUuid( GrouperUuid.getUuid() );  // Assign UUID
+    ns.setStem_extension(extn);           // Set naming information
+    ns.setDisplay_extension(displayExtn);
+    ns.setStem_name( U.constructName( parent.getName(), extn ) );
+    ns.setDisplay_name( U.constructName( parent.getDisplayName(), displayExtn ));
+    return ns;
+  } // protected static Stem create(parent, extn, displayExtn)
+
+  // @since   1.2.0
+  protected static Stem internal_addRootStem(GrouperSession s) 
     throws  GrouperRuntimeException
   {
     Stem root = new Stem();
@@ -794,33 +796,15 @@ public class Stem extends Owner {
     root.setStem_extension( ROOT_INT );
     root.setDisplay_extension( ROOT_INT );
     try {
-      HibernateHelper.save(root);
+      root = (Stem) HibernateStemDAO.create(root);
     }
-    catch (HibernateException eH) {
-      String msg = E.STEM_ROOTINSTALL + eH.getMessage();
+    catch (GrouperDAOException eDAO) {
+      String msg = E.STEM_ROOTINSTALL + eDAO.getMessage();
       ErrorLog.fatal(Stem.class, msg);
-      throw new GrouperRuntimeException(msg, eH);
+      throw new GrouperRuntimeException(msg, eDAO);
     }
     return root;
-  } // protected static Stem addRootStem(GrouperSession s)
-
-  // @since   1.1.0
-  protected static Stem create(Stem parent, String extn, String displayExtn) {
-    Stem ns = new Stem();
-    ns.setSession( parent.getSession() );
-    // Set parent
-    ns.setParent_stem(parent);
-    // Set create information
-    ns._setCreated();
-    // Assign UUID
-    ns.setUuid( GrouperUuid.getUuid() );
-    // Set naming information
-    ns.setStem_extension(extn);
-    ns.setDisplay_extension(displayExtn);
-    ns.setStem_name( U.constructName( parent.getName(), extn ) );
-    ns.setDisplay_name( U.constructName( parent.getDisplayName(), displayExtn ));
-    return ns;
-  } // protected static Stem create(parent, extn, displayExtn)
+  } // protected static Stem internal_addRootStem(GrouperSession s)
 
   protected void setModified() {
     this.setModifier_id( s.getMember()        );
