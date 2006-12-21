@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.112 2006-12-19 19:56:00 blair Exp $
+ * @version $Id: Group.java,v 1.113 2006-12-21 16:02:12 blair Exp $
  */
 public class Group extends Owner {
 
@@ -752,7 +752,7 @@ public class Group extends Owner {
   public Map getAttributes() {
     Map       filtered  = new HashMap();
     Attribute attr;
-    Iterator  iter      = this._getAttributesNoPrivs().values().iterator();
+    Iterator  iter      = this.internal_getAttributes().values().iterator();
     while (iter.hasNext()) {
       attr = (Attribute) iter.next();
       try {
@@ -2142,6 +2142,18 @@ public class Group extends Owner {
 
   // PROTECTED INSTANCE METHODS //
 
+  // @return  Map of group attributes.  Key is attribute name.  Value is Attribute object.
+  // @since   1.2.0
+  protected Map internal_getAttributes() {
+    Attribute a;
+    Iterator  it  = this.getGroup_attributes().iterator();
+    while (it.hasNext()) {
+      a = (Attribute) it.next();
+      this.attrs.put( a.getField().getName(), a );
+    }
+    return this.attrs;
+  } // protected Map internal_getAttributesNoPrivs()
+  
   protected void setModified() {
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
@@ -2165,7 +2177,7 @@ public class Group extends Owner {
   // PRIVATE INSTANCE METHODS //
   private String _getAttributeNoPrivs(String attr) {
     String    val   = GrouperConfig.EMPTY_STRING;
-    Map       attrs = this._getAttributesNoPrivs();
+    Map       attrs = this.internal_getAttributes();
     if (attrs.containsKey(attr)) {
       Attribute a = (Attribute) attrs.get(attr);
       val = a.getValue();
@@ -2173,16 +2185,6 @@ public class Group extends Owner {
     return val;
   } // private String _getAttributeNoPrivs(attr)
 
-  private Map _getAttributesNoPrivs() {
-    Attribute attr;
-    Iterator  iter  = this.getGroup_attributes().iterator();
-    while (iter.hasNext()) {
-      attr = (Attribute) iter.next();
-      this.attrs.put(attr.getField().getName(), attr);
-    }
-    return this.attrs;
-  } // private Map _getAttributesNoPrivs()
-  
   private void _revokeAllAccessPrivs() 
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException, 
