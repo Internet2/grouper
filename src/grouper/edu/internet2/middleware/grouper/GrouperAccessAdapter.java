@@ -17,9 +17,11 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  net.sf.hibernate.*;
-
+import  java.util.HashMap;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Map;
+import  java.util.Set;
 
 /** 
  * Grouper Access Privilege interface.
@@ -29,7 +31,7 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.47 2006-12-19 17:37:41 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.48 2006-12-21 16:45:28 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -264,21 +266,12 @@ public class GrouperAccessAdapter implements AccessAdapter {
     Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
     GroupValidator.isTypeEqual(f, FieldType.ACCESS);
     GroupValidator.canWriteField(g, s.getSubject(), f);
-
-    // The objects that will need updating and deleting
-    Set saves   = new LinkedHashSet();
-    Set deletes = new LinkedHashSet();
-
     g.setModified();
-    saves.add(g);
-
     try {
-      // Find privileges that need to be revoked and then update registry
-      deletes = Membership.deleteAllField(s, g, f);
-      HibernateHelper.saveAndDelete(saves, deletes);
+      HibernateGroupDAO.revokePriv( g, Membership.deleteAllField(s, g, f) );
     }
-    catch (Exception e) {
-      throw new RevokePrivilegeException(e.getMessage(), e);
+    catch (MemberDeleteException eMD) {
+      throw new RevokePrivilegeException( eMD.getMessage(), eMD );
     }
   } // public void revokePriv(s, g, priv)
 
@@ -310,26 +303,17 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException,
             SchemaException
   {
+    GrouperSessionValidator.validate(s);
+    Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
+    GroupValidator.isTypeEqual(f, FieldType.ACCESS);
+    GroupValidator.canWriteField( g, s.getSubject(), f );
     try {
-      GrouperSessionValidator.validate(s);
-      Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
-      GroupValidator.isTypeEqual(f, FieldType.ACCESS);
-      GroupValidator.canWriteField(g, s.getSubject(), f);
-      MemberOf  mof     = Membership.delImmediateMembership(s, g, subj, f);
-      Set       saves   = mof.getSaves();
-      Set       deletes = mof.getDeletes();
-
-      g.setModified(); // TODO 20061019 Should this be in _Group_?
-      saves.add(g);
-
-      // And then commit changes to registry
-      HibernateHelper.saveAndDelete(saves, deletes);
-    }
-    catch (HibernateException eH) {
-      throw new RevokePrivilegeException(eH);
+      MemberOf mof = Membership.delImmediateMembership(s, g, subj, f);
+      g.setModified();
+      HibernateGroupDAO.revokePriv(g, mof);
     }
     catch (MemberDeleteException eMD) {
-      throw new RevokePrivilegeException(eMD);
+      throw new RevokePrivilegeException( eMD.getMessage(), eMD );
     }
   } // public void revokePriv(s, g, subj, priv)
 

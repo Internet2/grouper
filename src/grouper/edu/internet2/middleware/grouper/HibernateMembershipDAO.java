@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.4 2006-12-21 16:24:18 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.5 2006-12-21 16:45:28 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -458,6 +458,7 @@ class HibernateMembershipDAO {
   protected static void update(MemberOf mof) 
     throws  MemberAddException  // TODO 20061221 which exception?  
   {
+    // TODO 20061221 just passing in mof is ugly, especially given what mof returns
     try {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
