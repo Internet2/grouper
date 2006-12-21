@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GrouperSession} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.1 2006-12-20 19:14:11 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.2 2006-12-21 16:24:18 blair Exp $
  * @since   1.2.0
  */
 class HibernateGrouperSessionDAO {
@@ -40,13 +40,23 @@ class HibernateGrouperSessionDAO {
     try {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
-      hs.saveOrUpdate( s.getMember_id() );
-      hs.save(s);
-      tx.commit();
-      hs.close();
+      try {
+        hs.saveOrUpdate( s.getMember_id() );
+        hs.save(s);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        String msg = E.S_START + eH.getMessage();
+        ErrorLog.fatal(HibernateGrouperSessionDAO.class, msg);
+        throw new SessionException(msg, eH);
+      }
+      finally {
+        hs.close();
+      }
       return s;
     }
-    catch (HibernateException eH)         {
+    catch (HibernateException eH) {
       String msg = E.S_START + eH.getMessage();
       ErrorLog.fatal(HibernateGrouperSessionDAO.class, msg);
       throw new SessionException(msg, eH);
@@ -60,9 +70,19 @@ class HibernateGrouperSessionDAO {
     try {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
-      hs.delete(s);
-      tx.commit();
-      hs.close();
+      try {
+        hs.delete(s);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        String msg = E.S_STOP + eH.getMessage();
+        ErrorLog.error(HibernateGrouperSessionDAO.class, msg);
+        throw new SessionException(msg, eH);
+      }
+      finally {
+        hs.close();
+      }
     }
     catch (HibernateException eH) {
       String msg = E.S_STOP + eH.getMessage();

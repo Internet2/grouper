@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.2 2006-12-20 18:53:08 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.3 2006-12-21 16:24:18 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {
@@ -60,38 +60,46 @@ class HibernateRegistryDAO {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
 
-      hs.delete("from Membership");
-      hs.delete("from GrouperSession");
+      try {
+        hs.delete("from Membership");
+        hs.delete("from GrouperSession");
 
-      hs.delete("from Composite");
-      hs.delete("from Group");
-      List l = hs.find("from Stem as ns where ns.stem_name like '" + Stem.ROOT_INT + "'");
-      if (l.size() == 1) {
-        Stem    root  = (Stem) l.get(0);
-        String  uuid  = root.getUuid();
-        root.setModifier_id(  null);
-        root.setModify_source(null);
-        root.setModify_time(  0   );
-        hs.saveOrUpdate(root);
-        hs.delete("from Owner as o where o.uuid != '" + uuid + "'");
+        hs.delete("from Composite");
+        hs.delete("from Group");
+        List l = hs.find("from Stem as ns where ns.stem_name like '" + Stem.ROOT_INT + "'");
+        if (l.size() == 1) {
+          Stem    root  = (Stem) l.get(0);
+          String  uuid  = root.getUuid();
+          root.setModifier_id(  null);
+          root.setModify_source(null);
+          root.setModify_time(  0   );
+          hs.saveOrUpdate(root);
+          hs.delete("from Owner as o where o.uuid != '" + uuid + "'");
+        }
+        else {
+          hs.delete("from Owner");
+        }
+
+        hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
+        hs.delete(
+          "from GroupType as t where (  "
+          + "     t.name != 'base'      "
+          + "and  t.name != 'naming'    "
+          + ")"
+        );
+        // TODO 20061018 Once properly mapped I can delete the explicit attr delete
+        hs.delete("from HibernateSubjectAttribute");
+        hs.delete("from HibernateSubject");
+
+        tx.commit();
       }
-      else {
-        hs.delete("from Owner");
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw new GrouperException( eH.getMessage(), eH );
       }
-
-      hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
-      hs.delete(
-        "from GroupType as t where (  "
-        + "     t.name != 'base'      "
-        + "and  t.name != 'naming'    "
-        + ")"
-      );
-      // TODO 20061018 Once properly mapped I can delete the explicit attr delete
-      hs.delete("from HibernateSubjectAttribute");
-      hs.delete("from HibernateSubject");
-
-      tx.commit();
-      hs.close();
+      finally {
+        hs.close();
+      }
     }
     catch (HibernateException eH) {
       throw new GrouperException( eH.getMessage(), eH );

@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.2 2006-12-21 15:23:38 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.3 2006-12-21 16:24:18 blair Exp $
  * @since   1.2.0
  */
 class HibernateCompositeDAO {
@@ -87,17 +87,27 @@ class HibernateCompositeDAO {
     try {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
-      Object      obj;
-      Iterator    it  = toDelete.iterator();
-      while (it.hasNext()) {
-        hs.delete( it.next() );
-      } 
-      it              = toAdd.iterator();
-      while (it.hasNext()) {
-        hs.save( it.next() );
+      try {
+        Object      obj;
+        Iterator    it  = toDelete.iterator();
+        while (it.hasNext()) {
+          hs.delete( it.next() );
+        } 
+        it              = toAdd.iterator();
+        while (it.hasNext()) {
+          hs.save( it.next() );
+        }
+        tx.commit();
       }
-      tx.commit();
-      hs.close();
+      catch (HibernateException eH) {
+        tx.rollback();
+        // TODO 20061221 shouldn't we really do more than just log an error message here?
+        String msg = E.COMP_UPDATE + eH.getMessage();
+        ErrorLog.error(HibernateCompositeDAO.class, msg);
+      }
+      finally {
+        hs.close();
+      }
     }
     catch (HibernateException eH) {
       // TODO 20061221 shouldn't we really do more than just log an error message here?

@@ -17,7 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
+import  java.util.Date;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Set;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
@@ -25,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.58 2006-12-19 17:37:41 blair Exp $
+ * @version $Id: Membership.java,v 1.59 2006-12-21 16:24:18 blair Exp $
  */
 public class Membership {
 
@@ -320,11 +323,8 @@ public class Membership {
       Member      m   = PrivilegeResolver.canViewSubject(s, subj);
       Membership  imm = new Membership(s, o, m, f);
       MemberOf    mof = MemberOf.addImmediate(s, o, imm, m);
-      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      HibernateMembershipDAO.update(mof);
       EL.addEffMembers(s, o, subj, f, mof.getEffSaves());
-    }
-    catch (HibernateException eH)               {
-      throw new MemberAddException(eH.getMessage(), eH);
     }
     catch (InsufficientPrivilegeException eIP)  {
       throw new MemberAddException(eIP.getMessage(), eIP);
