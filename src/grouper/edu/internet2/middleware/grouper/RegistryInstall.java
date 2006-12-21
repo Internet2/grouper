@@ -23,7 +23,7 @@ import  java.util.Set;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.29 2006-12-21 17:24:11 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.30 2006-12-21 20:07:31 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -164,7 +164,7 @@ public class RegistryInstall {
           GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID
         )
       );
-      Stem.addRootStem(s);
+      Stem.internal_addRootStem(s);
       EventLog.info(s, M.STEM_ROOTINSTALL);
     }
     catch (Exception e) { 
