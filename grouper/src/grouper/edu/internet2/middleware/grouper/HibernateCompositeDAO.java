@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.3 2006-12-21 16:24:18 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.4 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateCompositeDAO {
@@ -88,12 +88,11 @@ class HibernateCompositeDAO {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Object      obj;
-        Iterator    it  = toDelete.iterator();
+        Iterator it = toDelete.iterator();
         while (it.hasNext()) {
           hs.delete( it.next() );
         } 
-        it              = toAdd.iterator();
+        it = toAdd.iterator();
         while (it.hasNext()) {
           hs.save( it.next() );
         }

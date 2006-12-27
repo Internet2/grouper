@@ -26,13 +26,9 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.62 2006-12-19 17:37:41 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.63 2006-12-27 18:22:21 blair Exp $
  */
 public class MembershipFinder {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = MembershipFinder.class.getName();
-  
   
   // PUBLIC CLASS METHODS //
 

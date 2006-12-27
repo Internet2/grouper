@@ -16,15 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
 import  net.sf.hibernate.*;
 
 /**
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.2 2006-12-21 18:22:34 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.3 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO {

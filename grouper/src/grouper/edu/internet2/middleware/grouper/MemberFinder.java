@@ -22,14 +22,10 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.26 2006-12-21 18:22:34 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.27 2006-12-27 18:22:21 blair Exp $
  */
 public class MemberFinder {
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = MemberFinder.class.getName();
-  
-  
   // PUBLIC CLASS METHODS //
 
   /**

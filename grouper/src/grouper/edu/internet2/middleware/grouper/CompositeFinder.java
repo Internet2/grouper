@@ -22,15 +22,11 @@ import  java.util.Set;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.12 2006-12-19 19:56:00 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.13 2006-12-27 18:22:21 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = CompositeFinder.class.getName();
-  
-  
+    
   // CONSTRUCTORS //
   // @since   1.0
   private CompositeFinder() {

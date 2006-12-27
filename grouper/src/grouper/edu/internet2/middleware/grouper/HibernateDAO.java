@@ -22,14 +22,10 @@ import  net.sf.hibernate.*;
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.1 2006-12-21 20:07:31 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.2 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateDAO {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = HibernateDAO.class.getName();
-
 
   // PROTECTED CLASS METHODS //
 

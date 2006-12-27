@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  java.util.*;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
@@ -25,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.24 2006-12-21 15:23:38 blair Exp $
+ * @version $Id: Composite.java,v 1.25 2006-12-27 18:22:21 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {

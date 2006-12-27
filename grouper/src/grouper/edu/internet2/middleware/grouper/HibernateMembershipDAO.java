@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.5 2006-12-21 16:45:28 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.6 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -463,12 +463,11 @@ class HibernateMembershipDAO {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Object      obj;
-        Iterator    it  = mof.getDeletes().iterator();
+        Iterator it = mof.getDeletes().iterator();
         while (it.hasNext()) {
           hs.delete( it.next() );
         }
-        it              = mof.getSaves().iterator();
+        it = mof.getSaves().iterator();
         while (it.hasNext()) {
           hs.saveOrUpdate( it.next() );
         }

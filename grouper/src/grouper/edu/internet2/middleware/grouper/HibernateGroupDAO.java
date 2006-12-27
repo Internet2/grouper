@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.3 2006-12-21 20:15:30 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.4 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO {
@@ -283,12 +283,11 @@ class HibernateGroupDAO extends HibernateDAO {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Object    obj;
-        Iterator  it  = mof.getDeletes().iterator();
+        Iterator it = mof.getDeletes().iterator();
         while (it.hasNext()) {
           hs.delete( it.next() );
         }
-        it            = mof.getSaves().iterator();
+        it = mof.getSaves().iterator();
         while (it.hasNext()) {
           hs.saveOrUpdate( it.next() );
         }
@@ -316,8 +315,7 @@ class HibernateGroupDAO extends HibernateDAO {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Object    obj;
-        Iterator  it  = toDelete.iterator();
+        Iterator it = toDelete.iterator();
         while (it.hasNext()) {
           hs.delete( it.next() );
         }

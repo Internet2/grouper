@@ -17,9 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import  java.io.Serializable;
-import  java.sql.*;
 import  java.util.*;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
@@ -27,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.30 2006-12-21 19:23:35 blair Exp $
+ * @version $Id: GroupType.java,v 1.31 2006-12-27 18:22:21 blair Exp $
  */
 public class GroupType implements Serializable {
 

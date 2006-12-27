@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.4 2006-12-21 20:07:31 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.5 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -319,8 +319,7 @@ class HibernateStemDAO extends HibernateDAO {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Object    obj;
-        Iterator  it  = mof.getDeletes().iterator();
+        Iterator it = mof.getDeletes().iterator();
         while (it.hasNext()) {
           hs.delete( it.next() );
         }
@@ -352,8 +351,7 @@ class HibernateStemDAO extends HibernateDAO {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Object    obj;
-        Iterator  it  = children.iterator();
+        Iterator it = children.iterator();
         while (it.hasNext()) {
           hs.update( it.next() );
         }
@@ -381,8 +379,7 @@ class HibernateStemDAO extends HibernateDAO {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Object    obj;
-        Iterator  it  = toDelete.iterator();
+        Iterator it = toDelete.iterator();
         while (it.hasNext()) {
           hs.delete( it.next() );
         }

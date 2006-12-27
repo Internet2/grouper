@@ -24,14 +24,13 @@ import  java.util.Set;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.35 2006-12-20 17:13:37 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.36 2006-12-27 18:22:21 blair Exp $
  */
 public class GroupFinder {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String ERR_FINDBYATTRIBUTE = "could not find group by attribute: ";
   private static final String ERR_FINDBYTYPE      = "could not find group by type: ";
-  private static final String KLASS               = GroupFinder.class.getName();
   
   
   // PUBLIC INSTANCE METHODS //

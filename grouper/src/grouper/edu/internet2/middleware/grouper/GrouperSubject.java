@@ -23,14 +23,13 @@ import  java.util.HashMap;
 import  java.util.LinkedHashSet;
 import  java.util.Map;
 import  java.util.Set;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.27 2006-12-21 16:02:12 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.28 2006-12-27 18:22:21 blair Exp $
  */
 public class GrouperSubject implements Subject {
 

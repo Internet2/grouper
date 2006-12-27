@@ -26,13 +26,9 @@ import  java.util.Set;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.20 2006-12-19 19:16:41 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.21 2006-12-27 18:22:21 blair Exp $
  */
 public class GroupTypeFinder {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = GroupTypeFinder.class.getName();
-  
   
   // PRIVATE CLASS VARIABLES //
   private static Map types = new HashMap();

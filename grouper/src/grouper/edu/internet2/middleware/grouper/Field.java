@@ -17,14 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 import  java.io.Serializable;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.13 2006-12-20 18:20:55 blair Exp $    
+ * @version $Id: Field.java,v 1.14 2006-12-27 18:22:21 blair Exp $    
  */
 public class Field implements Serializable {
 

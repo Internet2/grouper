@@ -25,14 +25,10 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.32 2006-12-19 18:56:44 blair Exp $
+ * @version $Id: StemFinder.java,v 1.33 2006-12-27 18:22:21 blair Exp $
  */
 public class StemFinder {
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = StemFinder.class.getName();
-  
-  
   // PUBLIC CLASS METHODS //
 
   /**
@@ -228,7 +224,6 @@ public class StemFinder {
     throws  StemNotFoundException
   {
     // @session false
-    Stem ns = null;
     if (name.equals(Stem.ROOT_EXT)) {
       name = Stem.ROOT_INT;
     }

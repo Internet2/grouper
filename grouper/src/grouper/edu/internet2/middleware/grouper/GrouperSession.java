@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
@@ -26,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.41 2006-12-20 19:14:11 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.42 2006-12-27 18:22:21 blair Exp $
  */
 public class GrouperSession {
 

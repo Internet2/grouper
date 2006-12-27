@@ -17,12 +17,11 @@
 
 package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*; 
-import  edu.internet2.middleware.subject.*;      
 
 /**
  * Add a number of groups beneath a single stem.
  * @author  blair christensen.
- * @version $Id: AddLotsOfGroupsToStem.java,v 1.2 2006-12-19 13:32:35 blair Exp $
+ * @version $Id: AddLotsOfGroupsToStem.java,v 1.3 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 public class AddLotsOfGroupsToStem extends BaseGrouperBenchmark {
