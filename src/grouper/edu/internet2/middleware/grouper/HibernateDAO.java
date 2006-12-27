@@ -16,13 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.util.ArrayList;
+import  java.util.Collection;
+import  java.util.Iterator;
 import  net.sf.hibernate.*;
 
 /**
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.2 2006-12-27 18:22:21 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.3 2006-12-27 19:18:29 blair Exp $
  * @since   1.2.0
  */
 class HibernateDAO {
@@ -55,14 +58,17 @@ class HibernateDAO {
   } // protected static Object create(obj)
 
   // @since   1.2.0
-  protected static void delete(Object obj) 
+  protected static void delete(Collection c) 
     throws  GrouperDAOException 
   {
     try {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        hs.delete(obj);
+        Iterator it = c.iterator();
+        while (it.hasNext()) {
+          hs.delete( it.next() );
+        }
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -76,6 +82,15 @@ class HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
+  } // protected static void delete(c)
+
+  // @since   1.2.0
+  protected static void delete(Object obj) 
+    throws  GrouperDAOException 
+  {
+    Collection c = new ArrayList();
+    c.add(obj);
+    delete(c);
   } // protected static void delete(obj)
 
   // @since   1.2.0
