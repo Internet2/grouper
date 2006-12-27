@@ -29,7 +29,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.92 2006-12-21 20:07:31 blair Exp $
+ * @version $Id: Stem.java,v 1.93 2006-12-27 18:22:21 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -97,10 +97,7 @@ public class Stem extends Owner {
       throw new GroupAddException();
     }
     try {
-      Group   child = Group.create(this, extension, displayExtension);
-      Member  m     = new Member( new GrouperSubject(child) );  // Create group-as-member immediately.  
-                                                                // This helped with a problem that I 
-                                                                // have since forgotten.
+      Group child = Group.create(this, extension, displayExtension);
       child = HibernateStemDAO.createChildGroup(this, child, new Member( new GrouperSubject(child) ) );
       sw.stop();
       EventLog.info(s, M.GROUP_ADD + U.q(child.getName()), sw);
@@ -729,15 +726,13 @@ public class Stem extends Owner {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
-      Set objects = new LinkedHashSet();
       this.setDisplay_extension(value);
       this.setModified();
       try {
         this.setDisplay_name( U.constructName( this.getParentStem().getDisplayName(), value ) );
       }
       catch (StemNotFoundException eSNF) {
-        // I guess we're the root stem
-        this.setDisplay_name(value);
+        this.setDisplay_name(value); // I guess we're the root stem
       }
       // Now iterate through all child groups and stems (as root), renaming each.
       GrouperSession  orig  = this.getSession();

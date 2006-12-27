@@ -17,11 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  net.sf.hibernate.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.15 2006-12-20 17:13:37 blair Exp $
+ * @version $Id: StemValidator.java,v 1.16 2006-12-27 18:22:21 blair Exp $
  * @since   1.0
  */
 class StemValidator {

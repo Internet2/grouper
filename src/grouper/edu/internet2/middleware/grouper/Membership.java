@@ -21,14 +21,13 @@ import  java.util.Date;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.59 2006-12-21 16:24:18 blair Exp $
+ * @version $Id: Membership.java,v 1.60 2006-12-27 18:22:21 blair Exp $
  */
 public class Membership {
 

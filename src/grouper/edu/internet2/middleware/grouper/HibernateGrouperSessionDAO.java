@@ -22,14 +22,10 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GrouperSession} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.2 2006-12-21 16:24:18 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.3 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateGrouperSessionDAO {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = HibernateGrouperSessionDAO.class.getName();
-
 
   // PROTECTED CLASS METHODS //
 

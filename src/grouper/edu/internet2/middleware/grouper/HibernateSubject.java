@@ -19,7 +19,6 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
@@ -28,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * <p><b>This class is experimental and will change in future Grouper
  * releases.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.18 2006-12-20 18:31:49 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.19 2006-12-27 18:22:21 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {

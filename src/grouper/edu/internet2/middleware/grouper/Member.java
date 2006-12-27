@@ -22,14 +22,13 @@ import  java.io.Serializable;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.72 2006-12-21 18:22:34 blair Exp $
+ * @version $Id: Member.java,v 1.73 2006-12-27 18:22:21 blair Exp $
  */
 public class Member implements Serializable {
 

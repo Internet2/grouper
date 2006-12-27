@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*; 
-import  edu.internet2.middleware.subject.*;      
+import  edu.internet2.middleware.grouper.*;    
 
 /**
  * Benchmark <code>Member.hasRead()</code> when <i>GrouperAll</i> has a large
  * number of memberships.
  * @author  blair christensen.
- * @version $Id: MemberHasRead.java,v 1.2 2006-12-14 03:03:07 blair Exp $
+ * @version $Id: MemberHasRead.java,v 1.3 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 public class MemberHasRead extends BaseGrouperBenchmark {

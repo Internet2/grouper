@@ -22,14 +22,10 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Owner} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateOwnerDAO.java,v 1.1 2006-12-21 18:22:34 blair Exp $
+ * @version $Id: HibernateOwnerDAO.java,v 1.2 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateOwnerDAO {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = HibernateOwnerDAO.class.getName();
-
 
   // PROTECTED CLASS METHODS //
 

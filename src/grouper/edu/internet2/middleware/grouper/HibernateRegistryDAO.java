@@ -25,14 +25,10 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.4 2006-12-21 17:24:11 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.5 2006-12-27 18:22:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = HibernateRegistryDAO.class.getName();
-
 
   // PROTECTED CLASS METHODS //
 
@@ -62,8 +58,7 @@ class HibernateRegistryDAO {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Object    obj;
-        Iterator  it  = types.iterator();
+        Iterator  it = types.iterator();
         while (it.hasNext()) {
           hs.save( it.next() );
         }

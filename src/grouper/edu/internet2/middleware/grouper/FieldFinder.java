@@ -26,13 +26,12 @@ import  java.util.Set;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.22 2006-12-20 15:08:22 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.23 2006-12-27 18:22:21 blair Exp $
  */
 public class FieldFinder {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Map    FIELDS  = new HashMap();
-  private static final String KLASS   = FieldFinder.class.getName();
+  private static final Map FIELDS = new HashMap();
 
 
   // STATIC
