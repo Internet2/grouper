@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.4 2006-12-27 18:22:21 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.5 2006-12-27 19:18:29 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO {
@@ -334,6 +334,37 @@ class HibernateGroupDAO extends HibernateDAO {
       throw new RevokePrivilegeException( eH.getMessage(), eH );
     }
   } // protected static void revokePriv(g, toDelete)
+
+  // @since   1.2.0
+  protected static void updateMemberships(MemberOf mof)
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateHelper.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        Iterator it = mof.getDeletes().iterator();
+        while (it.hasNext()) {
+          hs.delete( it.next() );
+        }
+        it = mof.getSaves().iterator();
+        while (it.hasNext()) {
+          hs.saveOrUpdate( it.next() );
+        }
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static void updateMemberships(mof)
 
 } // class HibernateGroupDAO extends HibernateDAO
 

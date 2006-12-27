@@ -23,7 +23,6 @@ import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Map;
 import  java.util.Set;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
@@ -31,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.116 2006-12-21 20:36:39 blair Exp $
+ * @version $Id: Group.java,v 1.117 2006-12-27 19:18:29 blair Exp $
  */
 public class Group extends Owner {
 
@@ -120,17 +119,16 @@ public class Group extends Owner {
       Composite c   = new Composite(this.getSession(), this, left, right, type);
       GroupValidator.canAddCompositeMember(this, c);
       MemberOf  mof = MemberOf.addComposite(this.getSession(), this, c);
-      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      HibernateGroupDAO.updateMemberships(mof);
       EventLog.groupAddComposite(this.getSession(), c, mof, sw);
       Composite.update(this);
       sw.stop();
     }
-    catch (HibernateException eH) {
-      throw new MemberAddException(eH);
+    catch (GrouperDAOException eDAO) {
+      throw new MemberAddException( eDAO.getMessage(), eDAO );
     }
     catch (ModelException eM) {
-      // Fragile tests rely upon the message being precise
-      throw new MemberAddException(eM.getMessage(), eM);
+      throw new MemberAddException( eM.getMessage(), eM ); // Fragile tests rely upon the message being precise
     }
     catch (SchemaException eS) {
       throw new MemberAddException(eS);
@@ -400,17 +398,14 @@ public class Group extends Owner {
           this.getSession().getRootSession(), this, FieldType.LIST
         )
       );
-      // ... And add the group last for good luck    
-      deletes.add(this);
-      // Preserve name for logging
-      String name = this.getName();
-      // And then commit changes to registry
-      HibernateHelper.delete(deletes);
+      deletes.add(this);            // ... And add the group last for good luck    
+      String name = this.getName(); // Preserve name for logging
+      HibernateGroupDAO.delete(deletes);
       sw.stop();
       EventLog.info(this.getSession(), M.GROUP_DEL + U.q(name), sw);
     }
-    catch (HibernateException eH) {
-      throw new GroupDeleteException(eH.getMessage(), eH);
+    catch (GrouperDAOException eDAO) {
+      throw new GroupDeleteException( eDAO.getMessage(), eDAO );
     }
     catch (MemberDeleteException eMD) {
       throw new GroupDeleteException(eMD.getMessage(), eMD);
@@ -478,7 +473,7 @@ public class Group extends Owner {
         this.setModified();
         this.setGroup_attributes(attrs);
         saves.add(this);
-        HibernateHelper.saveAndDelete(saves, deletes);
+        HibernateGroupDAO.update(this);
         this.attrs.remove(attr); // Remove cached attribute
       }
       else {
@@ -487,8 +482,8 @@ public class Group extends Owner {
       sw.stop();
       EL.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
     }
-    catch (HibernateException eH) {
-      throw new GroupModifyException(eH.getMessage(), eH);
+    catch (GrouperDAOException eDAO) {
+      throw new GroupModifyException( eDAO.getMessage(), eDAO );
     }
     catch (InsufficientPrivilegeException eIP) {
       throw eIP;
@@ -528,7 +523,7 @@ public class Group extends Owner {
       GroupValidator.canDelCompositeMember(this);
       Composite c   = CompositeFinder.internal_findAsOwner(this);
       MemberOf  mof = MemberOf.delComposite(this.getSession(), this, c);
-      HibernateHelper.saveAndDelete(mof.getSaves(), mof.getDeletes());
+      HibernateGroupDAO.updateMemberships(mof);
       EventLog.groupDelComposite(this.getSession(), c, mof, sw);
       Composite.update(this);
       sw.stop();
@@ -536,8 +531,8 @@ public class Group extends Owner {
     catch (CompositeNotFoundException eCNF) {
       throw new MemberDeleteException(eCNF);
     }
-    catch (HibernateException eH) {
-      throw new MemberDeleteException(eH);
+    catch (GrouperDAOException eDAO) {
+      throw new MemberDeleteException( eDAO.getMessage(), eDAO );
     }
     catch (ModelException eM) {
       // Fragile tests rely upon the message being precise
@@ -602,26 +597,16 @@ public class Group extends Owner {
             MemberDeleteException,
             SchemaException
   {
-    StopWatch sw = new StopWatch();
+    StopWatch sw  = new StopWatch();
     sw.start();
     GroupValidator.canDelMember(this, subj, f);
-    MemberOf  mof     = Membership.delImmediateMembership(
-      this.getSession(), this, subj, f
-    );
-    Set       saves   = mof.getSaves();
-    Set       deletes = mof.getDeletes();
-
-    this.setModified();
-    saves.add(this);
-
-    // And then commit changes to registry
+    MemberOf  mof = Membership.delImmediateMembership(this.getSession(), this, subj, f);
     try {
-      HibernateHelper.saveAndDelete(saves, deletes);
+      HibernateGroupDAO.updateMemberships(mof);
     }
-    catch (HibernateException eH) {
-      throw new MemberDeleteException(eH);
+    catch (GrouperDAOException eDAO) {
+      throw new MemberDeleteException( eDAO.getMessage(), eDAO );
     }
-
     sw.stop();
     EL.groupDelMember(this.getSession(), this.getName(), subj, f, sw);
     EL.delEffMembers(this.getSession(), this, subj, f, mof.getEffDeletes());
@@ -660,12 +645,10 @@ public class Group extends Owner {
     String msg = E.GROUP_TYPEDEL + type + ": "; 
     try {
       GroupValidator.canDeleteType(this.getSession(), this, type);
-      Session   hs    = HibernateHelper.getSession();
       Set       types = this.getGroup_types();
       types.remove(type);
       this.setGroup_types(types);
-      HibernateHelper.save(this);
-      hs.close();
+      HibernateGroupDAO.update(this);
       sw.stop();
       EventLog.info(
         this.getSession(),
@@ -673,10 +656,10 @@ public class Group extends Owner {
         sw
       );
     }
-    catch (HibernateException eH) {
-      msg += eH.getMessage();
+    catch (GrouperDAOException eDAO) {
+      msg += eDAO.getMessage();
       ErrorLog.error(Group.class, msg);
-      throw new GroupModifyException(msg, eH);
+      throw new GroupModifyException(msg, eDAO);
     }
     catch (ModelException eM) {
       msg += eM.getMessage();
