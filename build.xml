@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.141 2006-11-27 15:04:37 blair Exp $ -->
+<!-- $Id: build.xml,v 1.142 2007-01-04 14:26:23 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -20,6 +20,7 @@
   <property name="build"                  location="${basedir}/build"/>
   <property name="dist"                   location="${basedir}/dist"/>
   <property name="dist.run"               location="${dist}/run"/>
+  <property name="dist.test"              location="${dist}/test"/>
   <property name="build.grouper"          location="${build}/grouper"/>
   <property name="build.javadoc"          location="${dist}/api"/>
   <property name="build.lib"              location="${build}/lib"/>
@@ -45,6 +46,7 @@
             classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
             classpathref="project.classpath"
   />
+  <taskdef  resource="clovertasks"/>
 
   <!-- bench -->
   <target name="bench" 
@@ -139,12 +141,22 @@
   <target name="clean" description="clean up" >
     <delete dir="${build}"/>
     <delete dir="${dist}"/>
-    <delete dir="clover"/>
-    <delete>
-      <fileset dir="." includes="clover.db*"/>
-    </delete>
+    <clover-clean/>
   </target>
   <!-- clean -->
+
+  <!-- clover.html -->
+  <target name="clover.html" depends="with.clover">
+    <clover-report>
+      <current  outfile="clover">
+        <format       type="html"/>
+        <testresults  dir="${dist.test}">
+          <include  name="**/TEST*xml"/>
+        </testresults>
+      </current>
+    </clover-report>
+  </target>
+  <!-- clover.html -->
 
   <!-- conf-init -->
   <target name="conf-init"
@@ -668,27 +680,59 @@
   <!-- test-build -->
 
   <!-- test -->
-  <target name="test" depends="test-build">
+  <target name="test" 
+          depends="test-build"
+          description="run unit tests"
+  >
     <record name="${log.test.run}" action="start"/>
-    <!-- Run the test suite -->
-    <java fork="true" 
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="junit.textui.TestRunner"
-          taskname="junit" 
-          failonerror="true"
+    <mkdir  dir="${dist.test}"/>
+    <junit  fork="yes"
+            haltonerror="no"
+            haltonfailure="no"
+            maxmemory="${memory.max}"
+            printsummary="yes"
+            showoutput="yes"
     >
-      <arg value="edu.internet2.middleware.grouper.SuiteDefault"/>
-    </java>
+      <classpath  refid="project.classpath"/>
+      <formatter  type="xml"/>
+      <test       name="edu.internet2.middleware.grouper.SuiteDefault"
+                  todir="${dist.test}"
+      />
+<!-- TODO 20061228 Switch to batchtest once I've migrated the tests
+      <batchtest  fork="yes"
+                  todir="${dist.test}"
+      >
+        <formatter  type="xml"/>
+        <fileset    dir="${src.test}">
+          <include  name="**/Test*.java"/>
+          <exclude  name="**/Suite*.java"/>
+        </fileset>  
+      </batchtest>
+-->
+    </junit>
     <record name="${log.test.run}" action="stop"/>
   </target>
   <!-- test -->
+
+  <!-- with.clover -->
+  <target name="with.clover" depends="init">
+    <clover-setup>
+      <fileset  dir="${src.grouper}">
+        <exclude  name="**/bench/*"/>
+        <exclude  name="**/eg/**"/>
+        <exclude  name="**/prof/*"/>
+      </fileset>
+    </clover-setup>
+  </target> 
+  <!-- with.clover -->
 
   <!-- with.clover.test -->
   <target name="with.clover.test" depends="init">
     <taskdef resource="clovertasks"/>
     <clover-setup initString="clover.db">
-      <fileset dir="${src.test}"/>
+      <fileset  dir="${src.test}">
+        <include  name="**/Test*.java"/>
+      </fileset>
     </clover-setup>
   </target> 
   <!-- with.clover.test -->
@@ -728,25 +772,6 @@
 
   <!-- these remaining ant targets are not very well organized -->
   <target name="jar" depends="dist" />
-
-  <target name="with.clover" depends="init">
-    <taskdef resource="clovertasks"/>
-    <clover-setup initString="clover.db">
-      <fileset dir="${src.grouper}">
-        <exclude name="**/bench/*"/>
-        <exclude name="**/eg/**"/>
-        <exclude name="**/prof/*"/>
-      </fileset>
-    </clover-setup>
-  </target> 
-
-  <target name="clover.html" depends="with.clover">
-    <clover-report>
-      <current outfile="clover">
-        <format type="html"/>
-      </current>
-    </clover-report>
-  </target>
 
   <target name="clover.log" depends="with.clover">
     <clover-log/>
