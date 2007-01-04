@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.6 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.7 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -42,7 +42,7 @@ class HibernateStemDAO extends HibernateDAO {
     throws  GrouperDAOException
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.save(child);
@@ -69,7 +69,7 @@ class HibernateStemDAO extends HibernateDAO {
     throws  GrouperDAOException
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.save(child);
@@ -94,7 +94,7 @@ class HibernateStemDAO extends HibernateDAO {
   protected static Set findAllByApproximateDisplayExtension(String val) {
     Set stems = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Stem as ns where ns.display_extension like :value");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByApproximateDisplayExtension");
@@ -113,7 +113,7 @@ class HibernateStemDAO extends HibernateDAO {
   protected static Set findAllByApproximateDisplayName(String val) {
     Set stems = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Stem as ns where ns.display_name like :value");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByApproximateDisplayName");
@@ -132,7 +132,7 @@ class HibernateStemDAO extends HibernateDAO {
   protected static Set findAllByApproximateExtension(String val) {
     Set stems = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Stem as ns where ns.stem_extension like :value");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByApproximateExtension");
@@ -151,7 +151,7 @@ class HibernateStemDAO extends HibernateDAO {
   protected static Set findAllByApproximateName(String val) {
     Set stems = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Stem as ns where ns.stem_name like :value");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByApproximateName");
@@ -170,7 +170,7 @@ class HibernateStemDAO extends HibernateDAO {
   protected static Set findAllByApproximateNameAny(String name) {
     Set stems = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Stem as ns where "
         + "   lower(ns.stem_name)         like :name "
@@ -195,7 +195,7 @@ class HibernateStemDAO extends HibernateDAO {
   protected static Set findAllByCreatedAfter(Date d) {
     Set stems = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Stem as ns where ns.create_time > :time");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
@@ -214,7 +214,7 @@ class HibernateStemDAO extends HibernateDAO {
   protected static Set findAllByCreatedBefore(Date d) {
     Set stems = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Stem as ns where ns.create_time < :time");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedBefore");
@@ -234,7 +234,7 @@ class HibernateStemDAO extends HibernateDAO {
     throws  StemNotFoundException
   {
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Stem as ns where ns.stem_name = :name");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByName");
@@ -256,7 +256,7 @@ class HibernateStemDAO extends HibernateDAO {
     throws StemNotFoundException
   {
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Stem as ns where ns.uuid = :uuid");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByUuid");
@@ -277,7 +277,7 @@ class HibernateStemDAO extends HibernateDAO {
   protected static Set findChildGroups(Stem ns) { // TODO 20061219 rename
     Set groups = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Group as g where g.parent_stem = :id");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindChildGroups");
@@ -296,7 +296,7 @@ class HibernateStemDAO extends HibernateDAO {
   protected static Set findChildStems(Stem ns) { // TODO 20601219 rename
     Set stems = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Stem as ns where ns.parent_stem = :id");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindChildStems");
@@ -316,7 +316,7 @@ class HibernateStemDAO extends HibernateDAO {
     throws  RevokePrivilegeException  // TODO 20061221 what exception?
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         Iterator it = mof.getDeletes().iterator();
@@ -348,7 +348,7 @@ class HibernateStemDAO extends HibernateDAO {
     throws  GrouperDAOException
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         Iterator it = children.iterator();
@@ -376,7 +376,7 @@ class HibernateStemDAO extends HibernateDAO {
     throws  RevokePrivilegeException  // TODO 20061221 what exception?
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         Iterator it = toDelete.iterator();

@@ -20,13 +20,13 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.26 2007-01-04 17:17:45 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.27 2007-01-04 17:50:51 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships" batch-size="5">
 
     <meta attribute="implement-equals">true</meta>
-    <meta attribute="session-method">HibernateHelper.getSession();</meta>
+    <meta attribute="session-method">HibernateDAO.getSession();</meta>
 
     <cache usage="read-write"/>
 

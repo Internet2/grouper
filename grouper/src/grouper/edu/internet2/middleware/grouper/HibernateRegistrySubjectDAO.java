@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link HibernateSubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.6 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistrySubjectDAO {
@@ -35,7 +35,7 @@ class HibernateRegistrySubjectDAO {
     throws  GrouperException // TODO 20061220 change exception
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.save(subj);
@@ -60,7 +60,7 @@ class HibernateRegistrySubjectDAO {
     throws  SubjectNotFoundException
   {
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from HibernateSubject as hs where " 
         + "     hs.subjectId      = :id    "

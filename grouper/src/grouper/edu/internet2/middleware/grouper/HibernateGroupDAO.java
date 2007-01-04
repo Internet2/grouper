@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.6 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.7 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO {
@@ -41,7 +41,7 @@ class HibernateGroupDAO extends HibernateDAO {
   protected static Set findAllByAnyApproximateAttr(String val) {
     Set groups = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Attribute as a where lower(a.value) like :value");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr");
@@ -63,7 +63,7 @@ class HibernateGroupDAO extends HibernateDAO {
   protected static Set findAllByApproximateAttr(String attr, String val) {
     Set groups = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Attribute as a where a.field.name = :field and lower(a.value) like :value"
       );
@@ -88,7 +88,7 @@ class HibernateGroupDAO extends HibernateDAO {
   protected static Set findAllByApproximateName(String name) {
     Set groups = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Attribute as a where "
         + "   (a.field.name = 'name'              and lower(a.value) like :value) "
@@ -116,7 +116,7 @@ class HibernateGroupDAO extends HibernateDAO {
   protected static Set findAllByCreatedAfter(Date d) {
     Set groups = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Group as g where g.create_time > :time");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
@@ -135,7 +135,7 @@ class HibernateGroupDAO extends HibernateDAO {
   protected static Set findAllByCreatedBefore(Date d) {
     Set groups = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Group as g where g.create_time < :time");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedBefore");
@@ -154,7 +154,7 @@ class HibernateGroupDAO extends HibernateDAO {
   protected static Set findAllByModifiedAfter(Date d) {
     Set groups = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Group as g where g.modify_time > :time");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByModifiedAfter");
@@ -173,7 +173,7 @@ class HibernateGroupDAO extends HibernateDAO {
   protected static Set findAllByModifiedBefore(Date d) {
     Set groups = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Group as g where g.modify_time < :time");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByModifiedBefore");
@@ -195,7 +195,7 @@ class HibernateGroupDAO extends HibernateDAO {
   {
     Set groups = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Group as g where :type in elements(g.group_types)");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByType");
@@ -214,7 +214,7 @@ class HibernateGroupDAO extends HibernateDAO {
   protected static Group findByAttribute(String attr, String val) {
     Group g = null;
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Attribute as a where a.field.name = :field and a.value like :value");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByAttribute");
@@ -238,7 +238,7 @@ class HibernateGroupDAO extends HibernateDAO {
   protected static Group findByName(String name) {
     Group g = null;
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Attribute as a where a.field.name = 'name' and a.value = :value");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByName");
@@ -260,7 +260,7 @@ class HibernateGroupDAO extends HibernateDAO {
   protected static Group findByUuid(String uuid) {
     Group g = null;
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Group as g where g.uuid = :uuid");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByUuid");
@@ -280,7 +280,7 @@ class HibernateGroupDAO extends HibernateDAO {
     throws  RevokePrivilegeException  // TODO 20061221 what exception?
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         Iterator it = mof.getDeletes().iterator();
@@ -312,7 +312,7 @@ class HibernateGroupDAO extends HibernateDAO {
     throws  RevokePrivilegeException  // TODO 20061221 what exception?
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         Iterator it = toDelete.iterator();
@@ -340,7 +340,7 @@ class HibernateGroupDAO extends HibernateDAO {
     throws  GrouperDAOException
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         Iterator it = mof.getDeletes().iterator();

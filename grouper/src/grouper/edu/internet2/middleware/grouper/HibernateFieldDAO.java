@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.4 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateFieldDAO {
@@ -41,7 +41,7 @@ class HibernateFieldDAO {
   {
     Set fields = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Field order by field_name asc");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAll");
@@ -62,7 +62,7 @@ class HibernateFieldDAO {
   {
     Set fields = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Field where field_type = :type order by field_name asc"
       );
@@ -85,7 +85,7 @@ class HibernateFieldDAO {
     throws  SchemaException
   {
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = null;
       if      ( f.getType().equals(FieldType.ATTRIBUTE) ) {
         qry = hs.createQuery("from Attribute as a where a.field.name = :name");

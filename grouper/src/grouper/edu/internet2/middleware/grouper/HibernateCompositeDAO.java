@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.6 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateCompositeDAO {
@@ -40,7 +40,7 @@ class HibernateCompositeDAO {
   protected static Set findAsFactor(Owner o) {
     Set composites = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
           "from Composite as c where (" 
         + " c.left = :left or c.right = :right "
@@ -65,7 +65,7 @@ class HibernateCompositeDAO {
     throws  CompositeNotFoundException
   {
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Composite as c where c.owner = :owner");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAsOwner");
@@ -85,7 +85,7 @@ class HibernateCompositeDAO {
   // @since   1.2.0
   protected static void update(Set toAdd, Set toDelete) {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         Iterator it = toDelete.iterator();

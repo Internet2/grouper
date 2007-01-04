@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Owner} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateOwnerDAO.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateOwnerDAO.java,v 1.4 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateOwnerDAO {
@@ -34,7 +34,7 @@ class HibernateOwnerDAO {
     throws  GrouperDAOException
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.update(o);
