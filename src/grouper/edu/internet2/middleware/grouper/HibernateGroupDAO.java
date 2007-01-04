@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.7 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.8 2007-01-04 19:24:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO {
@@ -38,7 +38,9 @@ class HibernateGroupDAO extends HibernateDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static Set findAllByAnyApproximateAttr(String val) {
+  protected static Set findAllByAnyApproximateAttr(String val) 
+    throws  GrouperDAOException
+  {
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -53,14 +55,15 @@ class HibernateGroupDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061220 this should throw some flavor of exception
-      ErrorLog.error( HibernateGroupDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return groups;
   } // protected static Set findAllByAnyApproximateAttr(val)
 
   // @since   1.2.0
-  protected static Set findAllByApproximateAttr(String attr, String val) {
+  protected static Set findAllByApproximateAttr(String attr, String val) 
+    throws  GrouperDAOException
+  {
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -78,14 +81,15 @@ class HibernateGroupDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061220 this should throw some flavor of exception
-      ErrorLog.error( HibernateGroupDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return groups;
   } // protected static Set findAllByApproximateAttr(attr, val)
 
   // @since   1.2.0
-  protected static Set findAllByApproximateName(String name) {
+  protected static Set findAllByApproximateName(String name) 
+    throws  GrouperDAOException
+  {
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -106,14 +110,15 @@ class HibernateGroupDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061220 this should throw some flavor of exception
-      ErrorLog.error( HibernateGroupDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return groups;
   } // protected static Set internal_findAllByApproximateName(name)
 
   // @since   1.2.0
-  protected static Set findAllByCreatedAfter(Date d) {
+  protected static Set findAllByCreatedAfter(Date d) 
+    throws  GrouperDAOException
+  {
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -125,14 +130,15 @@ class HibernateGroupDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061220 this should throw some flavor of exception
-      ErrorLog.error( HibernateGroupDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return groups;
   } // protected static Set findAllByCreatedAfter(d)
 
   // @since   1.2.0
-  protected static Set findAllByCreatedBefore(Date d) {
+  protected static Set findAllByCreatedBefore(Date d) 
+    throws  GrouperDAOException
+  {
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -144,14 +150,15 @@ class HibernateGroupDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061220 this should throw some flavor of exception
-      ErrorLog.error( HibernateGroupDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return groups;
   } // protected static Set findAllByCreatedBefore(d)
 
   // @since   1.2.0
-  protected static Set findAllByModifiedAfter(Date d) {
+  protected static Set findAllByModifiedAfter(Date d) 
+    throws  GrouperDAOException
+  {
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -163,14 +170,15 @@ class HibernateGroupDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061220 this should throw some flavor of exception
-      ErrorLog.error( HibernateGroupDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return groups;
   } // protected static Set findAllByModifiedAfter(d)
 
   // @since   1.2.0
-  protected static Set findAllByModifiedBefore(Date d) {
+  protected static Set findAllByModifiedBefore(Date d) 
+    throws  GrouperDAOException
+  {
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -182,8 +190,7 @@ class HibernateGroupDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061220 this should throw some flavor of exception
-      ErrorLog.error( HibernateGroupDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return groups;
   } // protected static Set findAllByModifiedBefore(d)
@@ -191,7 +198,7 @@ class HibernateGroupDAO extends HibernateDAO {
   // TODO 20061127 can i use a variant of this query in `GroupType.delete()`?
   // @since   1.2.0
   protected static Set findAllByType(GroupType type) 
-    throws  QueryException
+    throws  GrouperDAOException
   {
     Set groups = new LinkedHashSet();
     try {
@@ -204,14 +211,16 @@ class HibernateGroupDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new QueryException(eH.getMessage(), eH);
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return groups;
   } // protected static Set findAllByType(s, type)
 
   // @return  {@link Group} or <code>null</code>
   // @since   1.2.0
-  protected static Group findByAttribute(String attr, String val) {
+  protected static Group findByAttribute(String attr, String val) 
+    throws  GrouperDAOException
+  {
     Group g = null;
     try {
       Session hs  = HibernateDAO.getSession();
@@ -227,15 +236,16 @@ class HibernateGroupDAO extends HibernateDAO {
       }
     }
     catch (HibernateException eH) {
-      // TODO 20061220 exception?
-      ErrorLog.error( HibernateGroupDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return g;
   } // protected static Group findByAttribute(attr, val)
 
   // @return  {@link Group} or <code>null</code>
   // @since   1.2.0
-  protected static Group findByName(String name) {
+  protected static Group findByName(String name) 
+    throws  GrouperDAOException
+  {
     Group g = null;
     try {
       Session hs  = HibernateDAO.getSession();
@@ -250,14 +260,16 @@ class HibernateGroupDAO extends HibernateDAO {
       }
     }
     catch (HibernateException eH) {
-      // TODO 20061220 throw exception?
-      ErrorLog.error( HibernateGroupDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return g;
   } // protected static Group findByName(name)
+
   // @return  {@link Group} or <code>null</code>
   // @since   1.2.0
-  protected static Group findByUuid(String uuid) {
+  protected static Group findByUuid(String uuid) 
+    throws  GrouperDAOException
+  {
     Group g = null;
     try {
       Session hs  = HibernateDAO.getSession();
@@ -269,15 +281,14 @@ class HibernateGroupDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061220 throw exception?
-      ErrorLog.error( HibernateGroupDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return g; 
   } // private static Group _findByUuid(uuid)
 
   // @since   1.2.0
   protected static void revokePriv(Group g, MemberOf mof)
-    throws  RevokePrivilegeException  // TODO 20061221 what exception?
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -296,20 +307,20 @@ class HibernateGroupDAO extends HibernateDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        throw new RevokePrivilegeException( eH.getMessage(), eH );
+        throw eH;
       }
       finally {
         hs.close(); 
       }
     }
     catch (HibernateException eH) {
-      throw new RevokePrivilegeException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void revokePriv(g, mof)
 
   // @since   1.2.0
   protected static void revokePriv(Group g, Set toDelete)
-    throws  RevokePrivilegeException  // TODO 20061221 what exception?
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -324,14 +335,14 @@ class HibernateGroupDAO extends HibernateDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        throw new RevokePrivilegeException( eH.getMessage(), eH );
+        throw eH;
       }
       finally {
         hs.close(); 
       }
     }
     catch (HibernateException eH) {
-      throw new RevokePrivilegeException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void revokePriv(g, toDelete)
 

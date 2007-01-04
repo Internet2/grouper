@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.7 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.8 2007-01-04 19:24:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -91,7 +91,9 @@ class HibernateStemDAO extends HibernateDAO {
   } // protected static Stem createChildStem(parent, child)
 
   // @since   1.2.0
-  protected static Set findAllByApproximateDisplayExtension(String val) {
+  protected static Set findAllByApproximateDisplayExtension(String val) 
+    throws  GrouperDAOException
+  {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -103,14 +105,15 @@ class HibernateStemDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateStemDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
   } // protected static Set findAllByApproximateDisplayExtension(val)
 
   // @since   1.2.0
-  protected static Set findAllByApproximateDisplayName(String val) {
+  protected static Set findAllByApproximateDisplayName(String val) 
+    throws  GrouperDAOException
+  {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -122,14 +125,15 @@ class HibernateStemDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateStemDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
   } // protected static Set findAllByApproximateDisplayName(val)
 
   // @since   1.2.0
-  protected static Set findAllByApproximateExtension(String val) {
+  protected static Set findAllByApproximateExtension(String val) 
+    throws  GrouperDAOException
+  {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -141,14 +145,15 @@ class HibernateStemDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateStemDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
   } // protected static Set findAllByApproximateExtension(val)
 
   // @since   1.2.0
-  protected static Set findAllByApproximateName(String val) {
+  protected static Set findAllByApproximateName(String val) 
+    throws  GrouperDAOException
+  {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -160,14 +165,15 @@ class HibernateStemDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateStemDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
   } // protected static Set findAllByApproximateName(val)
 
   // @since   1.2.0
-  protected static Set findAllByApproximateNameAny(String name) {
+  protected static Set findAllByApproximateNameAny(String name) 
+    throws  GrouperDAOException
+  {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -185,14 +191,15 @@ class HibernateStemDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateStemDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
   } // protected static Set findAllByApproximateNameAny(name)
 
   // @since   1.2.0
-  protected static Set findAllByCreatedAfter(Date d) {
+  protected static Set findAllByCreatedAfter(Date d) 
+    throws  GrouperDAOException
+  {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -204,14 +211,15 @@ class HibernateStemDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateStemDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
   } // protected static Set findAllByCreatedAfter(d)
 
   // @since   1.2.0
-  protected static Set findAllByCreatedBefore(Date d) {
+  protected static Set findAllByCreatedBefore(Date d) 
+    throws  GrouperDAOException
+  {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -223,15 +231,15 @@ class HibernateStemDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateStemDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
   } // protected static Set findAllByCreatedBefore(d)
 
   // @since   1.2.0
   protected static Stem findByName(String name) 
-    throws  StemNotFoundException
+    throws  GrouperDAOException,
+            StemNotFoundException
   {
     try {
       Session hs  = HibernateDAO.getSession();
@@ -242,18 +250,19 @@ class HibernateStemDAO extends HibernateDAO {
       Stem ns = (Stem) qry.uniqueResult();
       hs.close();
       if (ns == null) {
-        throw new StemNotFoundException();
+        throw new StemNotFoundException(); // TODO 20070104 null or ex?
       }
       return ns;
     }
     catch (HibernateException eH) {
-      throw new StemNotFoundException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static Stem findByName(name)
 
   // @since   1.2.0
   protected static Stem findByUuid(String uuid)
-    throws StemNotFoundException
+    throws GrouperDAOException,
+            StemNotFoundException
   {
     try {
       Session hs  = HibernateDAO.getSession();
@@ -264,17 +273,19 @@ class HibernateStemDAO extends HibernateDAO {
       Stem ns = (Stem) qry.uniqueResult();
       hs.close();
       if (ns == null) {
-        throw new StemNotFoundException();
+        throw new StemNotFoundException(); // TODO 20070104 null or ex?
       }
       return ns; 
     }
     catch (HibernateException eH) {
-      throw new StemNotFoundException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static Stem findByUuid(uuid)
 
   // @since   1.2.0
-  protected static Set findChildGroups(Stem ns) { // TODO 20061219 rename
+  protected static Set findChildGroups(Stem ns) // TODO 20061219 rename
+    throws  GrouperDAOException
+  {
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -286,14 +297,15 @@ class HibernateStemDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061215 this should throw some flavor of exception
-      ErrorLog.error( HibernateStemDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return groups;
   } // protected sdtatic Set findChildGroups(ns)
 
   // @since   1.2.0
-  protected static Set findChildStems(Stem ns) { // TODO 20601219 rename
+  protected static Set findChildStems(Stem ns) // TODO 20601219 rename
+    throws  GrouperDAOException
+  {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -305,15 +317,14 @@ class HibernateStemDAO extends HibernateDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061215 this should throw some flavor of exception
-      ErrorLog.error( HibernateStemDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
   } // protected sdtatic Set findChildStems(ns)
 
   // @since   1.2.0
   protected static void revokePriv(Stem ns, MemberOf mof)
-    throws  RevokePrivilegeException  // TODO 20061221 what exception?
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -332,14 +343,14 @@ class HibernateStemDAO extends HibernateDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        throw new RevokePrivilegeException( eH.getMessage(), eH );
+        throw eH;
       }
       finally {
         hs.close(); 
       }
     }
     catch (HibernateException eH) {
-      throw new RevokePrivilegeException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void revokePriv(ns, mof)
 
@@ -373,7 +384,7 @@ class HibernateStemDAO extends HibernateDAO {
   
   // @since   1.2.0
   protected static void revokePriv(Stem ns, Set toDelete)
-    throws  RevokePrivilegeException  // TODO 20061221 what exception?
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -388,14 +399,14 @@ class HibernateStemDAO extends HibernateDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        throw new RevokePrivilegeException( eH.getMessage(), eH );
+        throw eH;
       }
       finally {
         hs.close(); 
       }
     }
     catch (HibernateException eH) {
-      throw new RevokePrivilegeException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void revokePriv(ns, toDelete)
 

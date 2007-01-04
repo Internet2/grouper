@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.7 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.8 2007-01-04 19:24:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {
@@ -35,7 +35,7 @@ class HibernateRegistryDAO {
   // @return  {@link Settings} or <code>null</code>
   // @since   1.2.0
   protected static Settings findSettings()
-    throws  GrouperException
+    throws  GrouperDAOException
   {
     Settings settings = null;
     try {
@@ -45,14 +45,14 @@ class HibernateRegistryDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new GrouperException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return settings;
   } // protected static Settings findSettings()
 
   // @since   1.2.0
   protected static void initializeRegistry(Set types, Settings settings)
-    throws  GrouperRuntimeException
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -76,13 +76,13 @@ class HibernateRegistryDAO {
     catch (HibernateException eH) {
       String msg = E.RI_IS + eH.getMessage();
       ErrorLog.fatal(HibernateRegistryDAO.class, msg);
-      throw new GrouperRuntimeException(msg, eH);
+      throw new GrouperDAOException(msg, eH);
     }
   } // protected static void initializeRegistry(types, settings)
 
   // @since   1.2.0
   protected static void resetRegistry() 
-    throws  GrouperException
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -123,14 +123,14 @@ class HibernateRegistryDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        throw new GrouperException( eH.getMessage(), eH );
+        throw eH;
       }
       finally {
         hs.close();
       }
     }
     catch (HibernateException eH) {
-      throw new GrouperException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void resetRegistry()
 
