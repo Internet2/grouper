@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.143 2007-01-04 15:23:55 blair Exp $ -->
+<!-- $Id: build.xml,v 1.144 2007-01-04 15:31:21 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -141,9 +141,14 @@
   <target name="clean" description="clean up" >
     <delete dir="${build}"/>
     <delete dir="${dist}"/>
-    <clover-clean/>
   </target>
   <!-- clean -->
+
+  <!-- clean.clover -->
+  <target name="clean.clover" description="clean up after clover">
+    <clover-clean/>
+  </target>
+  <!-- clean.clover -->
 
   <!-- clover.html -->
   <target name="clover.html" depends="with.clover">
