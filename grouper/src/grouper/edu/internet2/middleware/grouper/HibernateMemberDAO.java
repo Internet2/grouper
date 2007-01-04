@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.6 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.7 2007-01-04 19:24:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO {
@@ -35,7 +35,7 @@ class HibernateMemberDAO {
 
   // @since   1.2.0
   protected static Member create(Member m) 
-    throws  MemberNotFoundException // TODO 20061221 what exception?
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -54,14 +54,15 @@ class HibernateMemberDAO {
       return m;
     }
     catch (HibernateException eH) {
-      // TODO 20061221 this probably shouldn't be here
-      throw new MemberNotFoundException( "unable to save member: " + eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static Member create(m)
 
   // @return  {@link Member} or <code>null</code>
   // @since   1.2.0
-  protected static Member findBySubject(String id, String src, String type) {
+  protected static Member findBySubject(String id, String src, String type) 
+    throws  GrouperDAOException
+  {
     Member m = null;
     try {
       Session hs  = HibernateDAO.getSession();
@@ -80,16 +81,18 @@ class HibernateMemberDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061220 exception?
       String msg = E.MEMBER_NEITHER_FOUND_NOR_CREATED + eH.getMessage();
-      ErrorLog.error(HibernateMemberDAO.class, msg);
+      ErrorLog.fatal(HibernateMemberDAO.class, msg);
+      throw new GrouperDAOException(msg, eH);
     }
     return m;
   } // protected static Member findBySubject(id, src, type)
 
   // @return  {@link Member} or <code>null</code>
   // @since   1.2.0
-  protected static Member findByUuid(String uuid) {
+  protected static Member findByUuid(String uuid) 
+    throws  GrouperDAOException
+  {
     Member m = null;
     try {
       Session hs  = HibernateDAO.getSession();
@@ -100,16 +103,16 @@ class HibernateMemberDAO {
       m = (Member) qry.uniqueResult(); // null if not found
       hs.close();
     }
-    catch (HibernateException eMNF) {
-      // TODO 20061220 exception?
-      ErrorLog.error( HibernateMemberDAO.class, eMNF.getMessage() );
+    catch (HibernateException eH) {
+      ErrorLog.fatal( HibernateMemberDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return m;
   } // protected static Member findByUuid(uuid)
 
   // @since   1.2.0
   protected static void update(Member m) 
-    throws  InsufficientPrivilegeException  // TODO 20061221 what exception?
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -126,7 +129,7 @@ class HibernateMemberDAO {
       } 
     }
     catch (HibernateException eH) {
-      throw new InsufficientPrivilegeException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void update(m)
 

@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.6 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.7 2007-01-04 19:24:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateCompositeDAO {
@@ -37,7 +37,9 @@ class HibernateCompositeDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static Set findAsFactor(Owner o) {
+  protected static Set findAsFactor(Owner o) 
+    throws  GrouperDAOException
+  {
     Set composites = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -54,15 +56,15 @@ class HibernateCompositeDAO {
       hs.close();
     }
     catch (HibernateException eH) { 
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateCompositeDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return composites;
   } // protected static Set findAsFactor(o)
 
   // @since   1.2.0
   protected static Composite findAsOwner(Owner o) 
-    throws  CompositeNotFoundException
+    throws  CompositeNotFoundException,
+            GrouperDAOException
   {
     try {
       Session hs  = HibernateDAO.getSession();
@@ -72,18 +74,20 @@ class HibernateCompositeDAO {
       qry.setParameter("owner", o);
       Composite c = (Composite) qry.uniqueResult();
       hs.close();
-      if (c == null) {
+      if (c == null) { // TODO 20070104 null or exception?
         throw new CompositeNotFoundException(E.COMP_NOTOWNER);
       }
       return c;
     }
     catch (HibernateException eH) {
-      throw new CompositeNotFoundException(eH.getMessage(), eH);
+      throw new GrouperDAOException( eH.getMessage(), eH) ;
     }
   } // protected static Composite findAsOwner(o)
 
   // @since   1.2.0
-  protected static void update(Set toAdd, Set toDelete) {
+  protected static void update(Set toAdd, Set toDelete) 
+    throws  GrouperDAOException
+  {
     try {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
@@ -100,18 +104,15 @@ class HibernateCompositeDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        // TODO 20061221 shouldn't we really do more than just log an error message here?
         String msg = E.COMP_UPDATE + eH.getMessage();
-        ErrorLog.error(HibernateCompositeDAO.class, msg);
+        throw new GrouperDAOException( E.COMP_UPDATE + eH.getMessage(), eH );
       }
       finally {
         hs.close();
       }
     }
     catch (HibernateException eH) {
-      // TODO 20061221 shouldn't we really do more than just log an error message here?
-      String msg = E.COMP_UPDATE + eH.getMessage();
-      ErrorLog.error(HibernateCompositeDAO.class, msg);
+      throw new GrouperDAOException( E.COMP_UPDATE + eH.getMessage(), eH);
     }
   } // protected static void update(toAdd, toDelete)
 

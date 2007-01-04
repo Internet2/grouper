@@ -22,7 +22,7 @@ package edu.internet2.middleware.grouper;
  * Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.12 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: Settings.java,v 1.13 2007-01-04 19:24:09 blair Exp $
  * @since   1.0
  */
 class Settings {
@@ -63,21 +63,9 @@ class Settings {
   } // protected static int getCurrentSchemaVersion()
 
   // @since   1.2.0
-  protected static Settings internal_getSettings() 
-    throws  GrouperRuntimeException
-  {
-    String msg = E.SETTINGS;
+  protected static Settings internal_getSettings() {
     if (_s == null) {
-      try {
-        _s = HibernateRegistryDAO.findSettings();
-      }
-      catch (GrouperException eGE) {
-        msg += eGE.getMessage(); // update the error message
-      }
-    }
-    if (_s == null) {
-      ErrorLog.fatal(Settings.class, msg);
-      throw new GrouperRuntimeException(msg);
+      _s = HibernateRegistryDAO.findSettings();
     }
     return _s;
   } // protected static Settings internal_getSettings()

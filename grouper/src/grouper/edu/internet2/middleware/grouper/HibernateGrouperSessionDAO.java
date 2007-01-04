@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GrouperSession} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.5 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.6 2007-01-04 19:24:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateGrouperSessionDAO {
@@ -31,7 +31,7 @@ class HibernateGrouperSessionDAO {
 
   // @since   1.2.0
   protected static GrouperSession create(GrouperSession s)
-    throws  SessionException // TODO 20061220 proper exception?
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -43,9 +43,7 @@ class HibernateGrouperSessionDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        String msg = E.S_START + eH.getMessage();
-        ErrorLog.fatal(HibernateGrouperSessionDAO.class, msg);
-        throw new SessionException(msg, eH);
+        throw eH;
       }
       finally {
         hs.close();
@@ -55,13 +53,13 @@ class HibernateGrouperSessionDAO {
     catch (HibernateException eH) {
       String msg = E.S_START + eH.getMessage();
       ErrorLog.fatal(HibernateGrouperSessionDAO.class, msg);
-      throw new SessionException(msg, eH);
+      throw new GrouperDAOException(msg, eH);
     } 
   } // protected static GrouperSession create(s)
 
   // @since   1.2.0 
   protected static void delete(GrouperSession s) 
-    throws  SessionException // TODO 20061220 proper exception
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -72,9 +70,7 @@ class HibernateGrouperSessionDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        String msg = E.S_STOP + eH.getMessage();
-        ErrorLog.error(HibernateGrouperSessionDAO.class, msg);
-        throw new SessionException(msg, eH);
+        throw eH;
       }
       finally {
         hs.close();
@@ -82,8 +78,8 @@ class HibernateGrouperSessionDAO {
     }
     catch (HibernateException eH) {
       String msg = E.S_STOP + eH.getMessage();
-      ErrorLog.error(HibernateGrouperSessionDAO.class, msg);
-      throw new SessionException(msg, eH);
+      ErrorLog.fatal(HibernateGrouperSessionDAO.class, msg);
+      throw new GrouperDAOException(msg, eH);
     }
   } // protected static void delete(s)
 

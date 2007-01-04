@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.8 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.9 2007-01-04 19:24:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -38,22 +38,9 @@ class HibernateMembershipDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static Membership find(String id) 
-    throws  MembershipNotFoundException
+  protected static Set findAllByCreatedAfter(Date d, Field f) 
+    throws  GrouperDAOException
   {
-    try {
-      Session     hs = HibernateDAO.getSession();
-      Membership  ms = (Membership) hs.load(Membership.class, id);
-      hs.close();
-      return ms;
-    }
-    catch (HibernateException eH) {
-      throw new MembershipNotFoundException( eH.getMessage(), eH );
-    }
-  } // protected static Membership find(id)
-
-  // @since   1.2.0
-  protected static Set findAllByCreatedAfter(Date d, Field f) {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -72,14 +59,15 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findAllByCreatedAfter(d, f)
 
   // @since   1.2.0
-  protected static Set findAllByCreatedBefore(Date d, Field f) {
+  protected static Set findAllByCreatedBefore(Date d, Field f) 
+    throws  GrouperDAOException
+  {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -98,14 +86,15 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findAllByCreatedBefore(d, f)
 
   // @since   1.2.0
-  protected static Set findAllByMember(Member m) {
+  protected static Set findAllByMember(Member m) 
+    throws  GrouperDAOException
+  {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -117,14 +106,15 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findAllByMember(m)
 
   // @since   1.2.0
-  protected static Set findAllByMemberAndVia(Member m, Owner via) {
+  protected static Set findAllByMemberAndVia(Member m, Owner via) 
+    throws  GrouperDAOException
+  {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -140,14 +130,15 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findAllByMemberAndVia(m, via)
 
   // @since   1.2.0
-  protected static Set findAllByOwnerAndField(Owner o, Field f) {
+  protected static Set findAllByOwnerAndField(Owner o, Field f) 
+    throws  GrouperDAOException
+  {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -166,14 +157,15 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findAllByOwnerAndField(o, f)
 
   // @since   1.2.0
-  protected static Set findAllByOwnerAndFieldAndType(Owner o, Field f, MembershipType type) {
+  protected static Set findAllByOwnerAndFieldAndType(Owner o, Field f, MembershipType type) 
+    throws  GrouperDAOException
+  {
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -194,14 +186,15 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findAllByOwnerAndFieldAndType(o, f, type)
 
   // @since   1.2.0
-  protected static Set findAllByOwnerAndMemberAndField(Owner o, Member m, Field f) {
+  protected static Set findAllByOwnerAndMemberAndField(Owner o, Member m, Field f) 
+    throws  GrouperDAOException
+  {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -222,14 +215,15 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findAllByOwnerAndMemberAndField(o, m, f)
 
   // @since   1.2.0
-  protected static Set findAllEffective(Owner o, Member m, Field f, Owner via, int depth) {
+  protected static Set findAllEffective(Owner o, Member m, Field f, Owner via, int depth) 
+    throws  GrouperDAOException
+  {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -256,14 +250,15 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findAllEffective(o, m, f, via, depth)
 
   // @since   1.2.0
-  protected static Set findAllEffectiveByMemberAndField(Member m, Field f) {
+  protected static Set findAllEffectiveByMemberAndField(Member m, Field f) 
+    throws  GrouperDAOException
+  {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -284,8 +279,7 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findEffectiveByMemberAndField(m, f)
@@ -294,6 +288,7 @@ class HibernateMembershipDAO {
   protected static Set findAllEffectiveByOwnerAndMemberAndField(
     Owner o, Member m, Field f
   )
+    throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
     try {
@@ -317,14 +312,15 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findAllEffectiveByOwnerAndMemberAndField(o, m, f)
 
   // @since   1.2.0
-  protected static Set findAllImmediateByMemberAndField(Member m, Field f) {
+  protected static Set findAllImmediateByMemberAndField(Member m, Field f) 
+    throws  GrouperDAOException
+  {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -345,8 +341,7 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061219 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findAllImmediateByMemberAndField(m, f)
@@ -355,7 +350,8 @@ class HibernateMembershipDAO {
   protected static Membership findByOwnerAndMemberAndFieldAndType(
     Owner o, Member m, Field f, MembershipType type
   )
-    throws  MembershipNotFoundException // TODO 20061219 should throw/return something else.  null?
+    throws  GrouperDAOException,
+            MembershipNotFoundException // TODO 20061219 should throw/return something else.  null?
   {
     try {
       Session hs  = HibernateDAO.getSession();
@@ -377,18 +373,19 @@ class HibernateMembershipDAO {
       Membership ms = (Membership) qry.uniqueResult();
       hs.close();
       if (ms == null) {
-        throw new MembershipNotFoundException();
+        throw new MembershipNotFoundException(); // TODO 20070104 null or ex?
       }
       return ms;
     }
     catch (HibernateException eH) {
-      throw new MembershipNotFoundException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static Membership findByOwnerAndMemberAndFieldAndType(o, m, f, type)
 
   // @since   1.2.0
   protected static Membership findByUuid(String uuid) 
-    throws  MembershipNotFoundException 
+    throws  GrouperDAOException,
+            MembershipNotFoundException 
   {
     try {
       Session hs  = HibernateDAO.getSession();
@@ -399,18 +396,21 @@ class HibernateMembershipDAO {
       Membership ms = (Membership) qry.uniqueResult();
       hs.close();
       if (ms == null) {
+        // TODO 20070104 null or ex?
         throw new MembershipNotFoundException("could not find membership with uuid: " + U.q(uuid));
       }
       return ms;
     }
     catch (HibernateException eH) {
-      throw new MembershipNotFoundException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
 
   } // protected static Membership findByUuid(uuid)
 
   // @since   1.2.0
-  protected static Set findChildMemberships(Membership ms) { // TODO 20061219 rename
+  protected static Set findChildMemberships(Membership ms) // TODO 20061219 rename
+    throws  GrouperDAOException
+  {
     Set mships  = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -422,14 +422,15 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061214 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected sdtatic Set findChildMemberships(ms)
 
   // @since   1.2.0  
-  protected static Set findMemberships(Member m, Field f) { // TODO 20061219 rename
+  protected static Set findMemberships(Member m, Field f) // TODO 20061219 rename
+    throws  GrouperDAOException
+  {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
@@ -448,15 +449,14 @@ class HibernateMembershipDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      // TODO 20061214 this should throw some flavor of exception
-      ErrorLog.error( HibernateMembershipDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
   } // protected static Set findMemberships(m, f)
 
   // @since   1.2.0
   protected static void update(MemberOf mof) 
-    throws  MemberAddException  // TODO 20061221 which exception?  
+    throws  GrouperDAOException
   {
     // TODO 20061221 just passing in mof is ugly, especially given what mof returns
     try {
@@ -475,14 +475,14 @@ class HibernateMembershipDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        throw new MemberAddException( eH.getMessage(), eH );
+        throw eH;
       }
       finally {
         hs.close();
       }
     }
     catch (HibernateException eH) {
-      throw new MemberAddException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void update(mof)
 

@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.32 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GroupType.java,v 1.33 2007-01-04 19:24:09 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -239,11 +239,6 @@ public class GroupType implements Serializable {
       String msg = E.GROUPTYPE_DEL + eDAO.getMessage();
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg, eDAO);
-    }
-    catch (QueryException eQ) {
-      String msg = E.GROUPTYPE_DEL + eQ.getMessage();
-      ErrorLog.error(GroupType.class, msg);
-      throw new SchemaException(msg, eQ);
     }
   } // public void delete(s)
 

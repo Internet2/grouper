@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.4 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.5 2007-01-04 19:24:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateFieldDAO {
@@ -51,14 +51,14 @@ class HibernateFieldDAO {
     catch (HibernateException eH) {
       String msg = E.FIELD_FINDALL + eH.getMessage();
       ErrorLog.fatal(FieldFinder.class, msg);
-      throw new GrouperRuntimeException(msg, eH);
+      throw new GrouperDAOException(msg, eH);
     }
     return fields;
   } // protected Static Set findAll()
 
   // @since   1.2.0
   protected static Set findAllByType(FieldType type) 
-    throws  SchemaException
+    throws  GrouperDAOException
   {
     Set fields = new LinkedHashSet();
     try {
@@ -74,15 +74,16 @@ class HibernateFieldDAO {
     }
     catch (HibernateException eH) {
       String msg = E.FIELD_FINDTYPE + eH.getMessage();
-      ErrorLog.error(FieldFinder.class, msg);
-      throw new SchemaException(msg, eH);
+      ErrorLog.fatal(FieldFinder.class, msg);
+      throw new GrouperDAOException(msg, eH);
     }
     return fields;
   } // protected static Set fieldAllByType(type)
 
   // @since   1.2.0
   protected static boolean isInUse(Field f) 
-    throws  SchemaException
+    throws  GrouperDAOException,
+            SchemaException
   {
     try {
       Session hs  = HibernateDAO.getSession();
@@ -106,8 +107,8 @@ class HibernateFieldDAO {
     }
     catch (HibernateException eH) {
       String msg = E.HIBERNATE + eH.getMessage();
-      ErrorLog.error(HibernateFieldDAO.class, msg);
-      throw new SchemaException(msg, eH);
+      ErrorLog.fatal(HibernateFieldDAO.class, msg);
+      throw new GrouperDAOException(msg, eH);
     }
     return false;
   } // protected static boolean isInUse()

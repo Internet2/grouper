@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link HibernateSubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.6 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.7 2007-01-04 19:24:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistrySubjectDAO {
@@ -32,7 +32,7 @@ class HibernateRegistrySubjectDAO {
 
   // @since   1.2.0
   protected static HibernateSubject create(HibernateSubject subj)
-    throws  GrouperException // TODO 20061220 change exception
+    throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
@@ -43,7 +43,7 @@ class HibernateRegistrySubjectDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        throw new GrouperException( eH.getMessage(), eH );
+        throw eH;
       }
       finally {
         hs.close();
@@ -51,13 +51,14 @@ class HibernateRegistrySubjectDAO {
       return subj;
     }
     catch (HibernateException eH) {
-      throw new GrouperException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static HibernateSubject add(id, type, name)
 
   // @since   1.2.0
   protected static HibernateSubject find(String id, String type) 
-    throws  SubjectNotFoundException
+    throws  GrouperDAOException,
+            SubjectNotFoundException
   {
     try {
       Session hs  = HibernateDAO.getSession();
@@ -77,7 +78,7 @@ class HibernateRegistrySubjectDAO {
       return subj;
     }
     catch (HibernateException eH) {
-      throw new SubjectNotFoundException( eH.getMessage(), eH );
+      throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static HibernateSubject find(id, type)
 

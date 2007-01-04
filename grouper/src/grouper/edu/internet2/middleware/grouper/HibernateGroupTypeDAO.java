@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GroupType} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.4 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.5 2007-01-04 19:24:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupTypeDAO {
@@ -86,7 +86,7 @@ class HibernateGroupTypeDAO {
 
   // @since   1.2.0
   protected static Set findAll() 
-    throws  GrouperRuntimeException
+    throws  GrouperDAOException
   {
     Set types = new LinkedHashSet();
     try {
@@ -98,7 +98,7 @@ class HibernateGroupTypeDAO {
       hs.close();  
     }
     catch (HibernateException eH) {
-      throw new GrouperRuntimeException( eH.getMessage(), eH ); // TODO 20061219 throw something else
+      throw new GrouperDAOException( eH.getMessage(), eH ); 
     }
     return types;
   } // protected static Set findAll()
