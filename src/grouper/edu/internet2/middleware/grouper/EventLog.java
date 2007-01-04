@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2006 The University Of Chicago
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.26 2006-09-11 14:00:33 blair Exp $
+ * @version $Id: EventLog.java,v 1.27 2007-01-04 17:17:45 blair Exp $
  */
 class EventLog {
 

@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2006 The University Of Chicago
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import  java.util.*;
  * Privilege schema specification.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.16 2006-09-27 14:15:30 blair Exp $
+ * @version $Id: Privilege.java,v 1.17 2007-01-04 17:17:45 blair Exp $
  */
 public class Privilege implements Serializable {
 

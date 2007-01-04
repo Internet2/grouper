@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2006 The University Of Chicago
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Base implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BasePrivilegeCache.java,v 1.3 2006-09-08 19:17:59 blair Exp $
+ * @version $Id: BasePrivilegeCache.java,v 1.4 2007-01-04 17:17:45 blair Exp $
  * @since   1.1.0     
  */
 public abstract class BasePrivilegeCache implements PrivilegeCache {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 blair christensen.
+ * Copyright (C) 2006-2007 blair christensen.
  * All Rights Reserved.
  *
  * You may use and distribute under the same terms as Grouper itself.
@@ -15,7 +15,7 @@ import  java.util.Properties;
  * Import Groups Registry from XML URL.
  * <p/>
  * @author  blair christensen.
- * @version $Id: xmlFromURL.java,v 1.2 2006-10-19 16:17:36 blair Exp $
+ * @version $Id: xmlFromURL.java,v 1.3 2007-01-04 17:17:45 blair Exp $
  * @since   0.1.0
  */
 public class xmlFromURL {

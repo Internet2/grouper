@@ -1,5 +1,5 @@
 /*
- Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+ Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
  Copyright 2004-2006 The University Of Bristol
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.89 2006-12-21 18:22:34 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.90 2007-01-04 17:17:45 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {

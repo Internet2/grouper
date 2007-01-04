@@ -1,5 +1,5 @@
 /*
- Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
+ Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
  Copyright 2004-2006 The University Of Bristol
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.79 2006-10-26 17:09:54 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.80 2007-01-04 17:17:45 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {

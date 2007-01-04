@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 blair christensen.
+ * Copyright (C) 2006-2007 blair christensen.
  * All Rights Reserved.
  *
  * You may use and distribute under the same terms as Grouper itself.
@@ -14,7 +14,7 @@ import  org.apache.commons.lang.time.*;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.7 2006-10-19 14:24:59 blair Exp $
+ * @version $Id: ShellHelper.java,v 1.8 2007-01-04 17:17:45 blair Exp $
  * @since   0.0.1
  */
 class ShellHelper {

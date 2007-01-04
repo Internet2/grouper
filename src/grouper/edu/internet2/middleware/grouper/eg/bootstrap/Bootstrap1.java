@@ -1,6 +1,6 @@
 /*
-  Copyright 2006 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2006 The University Of Chicago
+  Copyright (C) 2006-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2006-2007 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ import  org.apache.commons.logging.*;       // For logging
  * retrieving <i>GrouperSystem</i>: {@link SubjectFinder#findRootSubject()}.
  * </p>
  * @author  blair christensen.
- * @version $Id: Bootstrap1.java,v 1.1 2006-09-08 19:17:59 blair Exp $
+ * @version $Id: Bootstrap1.java,v 1.2 2007-01-04 17:17:45 blair Exp $
  * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/bootstrap/Bootstrap1.java?root=I2MI&view=markup">Source</a>
  * @since   1.1.0
  */

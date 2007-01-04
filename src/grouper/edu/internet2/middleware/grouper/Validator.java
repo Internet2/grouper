@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2006 The University Of Chicago
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * Validation methods that apply to multiple Grouper classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.18 2006-10-18 14:17:27 blair Exp $
+ * @version $Id: Validator.java,v 1.19 2007-01-04 17:17:45 blair Exp $
  */
 class Validator {
 
