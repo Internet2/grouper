@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.142 2007-01-04 14:26:23 blair Exp $ -->
+<!-- $Id: build.xml,v 1.143 2007-01-04 15:23:55 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -729,7 +729,7 @@
   <!-- with.clover.test -->
   <target name="with.clover.test" depends="init">
     <taskdef resource="clovertasks"/>
-    <clover-setup initString="clover.db">
+    <clover-setup>
       <fileset  dir="${src.test}">
         <include  name="**/Test*.java"/>
       </fileset>
