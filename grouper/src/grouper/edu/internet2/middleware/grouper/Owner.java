@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2006 The University Of Chicago
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * An object that can have memberships assigned to it.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.18 2006-09-26 14:17:41 blair Exp $
+ * @version $Id: Owner.java,v 1.19 2007-01-04 17:17:45 blair Exp $
  * @since   1.0
  */
 public abstract class Owner {

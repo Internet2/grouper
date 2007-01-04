@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2006 The University Of Chicago
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.5 2006-12-27 19:18:29 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.6 2007-01-04 17:17:45 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO {

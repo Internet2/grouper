@@ -1,6 +1,6 @@
 /*
-  Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2004-2006 The University Of Chicago
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * Generic Grouper DAO exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOException.java,v 1.1 2006-12-21 18:22:34 blair Exp $
+ * @version $Id: GrouperDAOException.java,v 1.2 2007-01-04 17:17:45 blair Exp $
  * @since   1.2.0
  */
 public class GrouperDAOException extends GrouperException {

@@ -1,6 +1,6 @@
 /*
-  Copyright 2006 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2006 The University Of Chicago
+  Copyright (C) 2006-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2006-2007 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import  edu.internet2.middleware.subject.*;
  * Benchmarking adding a member to a group that is privileged on a lot of other
  * groups.
  * @author  blair christensen.
- * @version $Id: AddAsEffMemberToLotsOfGroups.java,v 1.3 2006-12-19 13:32:35 blair Exp $
+ * @version $Id: AddAsEffMemberToLotsOfGroups.java,v 1.4 2007-01-04 17:17:45 blair Exp $
  * @since   1.2.0
  */
 public class AddAsEffMemberToLotsOfGroups extends BaseGrouperBenchmark {
