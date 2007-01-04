@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.5 2007-01-04 17:36:15 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO {
@@ -41,7 +41,7 @@ class HibernateMemberDAO {
       Session     hs  = HibernateHelper.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        HibernateHelper.save(m);
+        hs.save(m);
         tx.commit();
       }
       catch (HibernateException eH) {
