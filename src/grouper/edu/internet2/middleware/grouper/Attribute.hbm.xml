@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Attribute.hbm.xml,v 1.12 2007-01-04 17:17:45 blair Exp $ -->
+<!-- $Id: Attribute.hbm.xml,v 1.13 2007-01-04 17:50:51 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Attribute" table="grouper_attributes">
@@ -30,7 +30,7 @@ A group attribute within the Groups registry.
 @author blair christensen.
     </meta>
     <meta attribute="implement-equals">true</meta>
-    <meta attribute="session-method">HibernateHelper.getSession();</meta>
+    <meta attribute="session-method">HibernateDAO.getSession();</meta>
 
     <cache usage="read-write"/>
 

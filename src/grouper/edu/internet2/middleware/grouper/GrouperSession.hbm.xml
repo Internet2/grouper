@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: GrouperSession.hbm.xml,v 1.9 2007-01-04 17:17:45 blair Exp $ -->
+<!-- $Id: GrouperSession.hbm.xml,v 1.10 2007-01-04 17:50:51 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="GrouperSession" table="grouper_sessions">
@@ -30,7 +30,7 @@ Grouper API session.
 @author blair christensen.
     </meta>
     <meta attribute="implement-equals">true</meta>
-    <meta attribute="session-method">HibernateHelper.getSession();</meta>
+    <meta attribute="session-method">HibernateDAO.getSession();</meta>
 
     <cache usage="read-write"/>
 

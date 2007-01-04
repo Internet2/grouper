@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GrouperSession} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.5 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateGrouperSessionDAO {
@@ -34,7 +34,7 @@ class HibernateGrouperSessionDAO {
     throws  SessionException // TODO 20061220 proper exception?
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.saveOrUpdate( s.getMember_id() );
@@ -64,7 +64,7 @@ class HibernateGrouperSessionDAO {
     throws  SessionException // TODO 20061220 proper exception
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.delete(s);

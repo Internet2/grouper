@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.5 2007-01-04 17:36:15 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.6 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO {
@@ -38,7 +38,7 @@ class HibernateMemberDAO {
     throws  MemberNotFoundException // TODO 20061221 what exception?
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.save(m);
@@ -64,7 +64,7 @@ class HibernateMemberDAO {
   protected static Member findBySubject(String id, String src, String type) {
     Member m = null;
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Member as m where "
         + "     m.subject_id      = :sid    "  
@@ -92,7 +92,7 @@ class HibernateMemberDAO {
   protected static Member findByUuid(String uuid) {
     Member m = null;
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Member as m where m.member_id = :uuid");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByUuid");
@@ -112,7 +112,7 @@ class HibernateMemberDAO {
     throws  InsufficientPrivilegeException  // TODO 20061221 what exception?
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.update(m);

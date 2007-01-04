@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GroupType} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.4 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupTypeDAO {
@@ -40,7 +40,7 @@ class HibernateGroupTypeDAO {
     throws  GrouperDAOException
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.save(type);
@@ -65,7 +65,7 @@ class HibernateGroupTypeDAO {
     throws  GrouperDAOException
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.delete(type);
@@ -90,7 +90,7 @@ class HibernateGroupTypeDAO {
   {
     Set types = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from GroupType order by name asc");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAll");
@@ -108,7 +108,7 @@ class HibernateGroupTypeDAO {
     throws  GrouperDAOException
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.update(type);

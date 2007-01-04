@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.7 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.8 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -42,7 +42,7 @@ class HibernateMembershipDAO {
     throws  MembershipNotFoundException
   {
     try {
-      Session     hs = HibernateHelper.getSession();
+      Session     hs = HibernateDAO.getSession();
       Membership  ms = (Membership) hs.load(Membership.class, id);
       hs.close();
       return ms;
@@ -56,7 +56,7 @@ class HibernateMembershipDAO {
   protected static Set findAllByCreatedAfter(Date d, Field f) {
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where      "
         + "     ms.create_time  > :time   "
@@ -82,7 +82,7 @@ class HibernateMembershipDAO {
   protected static Set findAllByCreatedBefore(Date d, Field f) {
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where      "
         + "     ms.create_time  < :time   "
@@ -108,7 +108,7 @@ class HibernateMembershipDAO {
   protected static Set findAllByMember(Member m) {
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Membership as ms where ms.member_id = :member");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByMember");
@@ -127,7 +127,7 @@ class HibernateMembershipDAO {
   protected static Set findAllByMemberAndVia(Member m, Owner via) {
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.member_id  = :member "
@@ -150,7 +150,7 @@ class HibernateMembershipDAO {
   protected static Set findAllByOwnerAndField(Owner o, Field f) {
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
@@ -176,7 +176,7 @@ class HibernateMembershipDAO {
   protected static Set findAllByOwnerAndFieldAndType(Owner o, Field f, MembershipType type) {
     Set mships  = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
@@ -204,7 +204,7 @@ class HibernateMembershipDAO {
   protected static Set findAllByOwnerAndMemberAndField(Owner o, Member m, Field f) {
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  " 
@@ -232,7 +232,7 @@ class HibernateMembershipDAO {
   protected static Set findAllEffective(Owner o, Member m, Field f, Owner via, int depth) {
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where      "
         + "     ms.owner_id     = :owner  "
@@ -266,7 +266,7 @@ class HibernateMembershipDAO {
   protected static Set findAllEffectiveByMemberAndField(Member m, Field f) {
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.member_id  = :member "
@@ -297,7 +297,7 @@ class HibernateMembershipDAO {
   {
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
@@ -327,7 +327,7 @@ class HibernateMembershipDAO {
   protected static Set findAllImmediateByMemberAndField(Member m, Field f) {
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.member_id  = :member "
@@ -358,7 +358,7 @@ class HibernateMembershipDAO {
     throws  MembershipNotFoundException // TODO 20061219 should throw/return something else.  null?
   {
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
@@ -391,7 +391,7 @@ class HibernateMembershipDAO {
     throws  MembershipNotFoundException 
   {
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Membership as ms where ms.uuid = :uuid");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByUuid");
@@ -413,7 +413,7 @@ class HibernateMembershipDAO {
   protected static Set findChildMemberships(Membership ms) { // TODO 20061219 rename
     Set mships  = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Membership as ms where ms.parent_membership = :uuid");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindChildMemberships");
@@ -432,7 +432,7 @@ class HibernateMembershipDAO {
   protected static Set findMemberships(Member m, Field f) { // TODO 20061219 rename
     Set mships = new LinkedHashSet();
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.member_id  = :member "
@@ -460,7 +460,7 @@ class HibernateMembershipDAO {
   {
     // TODO 20061221 just passing in mof is ugly, especially given what mof returns
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         Iterator it = mof.getDeletes().iterator();

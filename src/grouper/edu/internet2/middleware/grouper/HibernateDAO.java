@@ -16,19 +16,59 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.io.InputStream;
 import  java.util.ArrayList;
 import  java.util.Collection;
 import  java.util.Iterator;
+import  java.util.Properties;
 import  net.sf.hibernate.*;
+import  net.sf.hibernate.cfg.*;
 
 /**
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.5 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateDAO {
+
+  // PRIVATE CLASS CONSTANTS //
+  private static final Configuration  CFG;
+  private static final SessionFactory FACTORY;
+
+
+  // STATIC //
+  static {
+    try {
+      // Find the custom configuration file
+      InputStream in  = HibernateDAO.class.getResourceAsStream(GrouperConfig.HIBERNATE_CF);  
+      Properties  p   = new Properties();
+      p.load(in);
+      // And now load all configuration information
+      CFG = new Configuration()
+        .addProperties(p)
+        .addClass(Attribute.class)
+        .addClass(Field.class)
+        .addClass(GrouperSession.class)
+        .addClass(GroupType.class)
+        .addClass(HibernateSubject.class)
+        .addClass(HibernateSubjectAttribute.class)
+        .addClass(Member.class)
+        .addClass(Membership.class)
+        .addClass(Owner.class)
+        .addClass(Settings.class)
+        ;
+      // And finally create our session factory
+      FACTORY = CFG.buildSessionFactory();
+    } 
+    catch (Throwable t) {
+      String msg = E.HIBERNATE_INIT + t.getMessage();
+      ErrorLog.fatal(HibernateDAO.class, msg);
+      throw new ExceptionInInitializerError(t);
+    }
+  } // static
+
 
   // PROTECTED CLASS METHODS //
 
@@ -37,7 +77,7 @@ class HibernateDAO {
     throws  GrouperDAOException 
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.save(obj);
@@ -62,7 +102,7 @@ class HibernateDAO {
     throws  GrouperDAOException 
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         Iterator it = c.iterator();
@@ -94,11 +134,18 @@ class HibernateDAO {
   } // protected static void delete(obj)
 
   // @since   1.2.0
+	protected static Session getSession()
+    throws HibernateException
+  {
+		return FACTORY.openSession();
+	} // protected static Session getSession()
+
+  // @since   1.2.0
   protected static void update(Object obj) 
     throws  GrouperDAOException 
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         hs.update(obj);

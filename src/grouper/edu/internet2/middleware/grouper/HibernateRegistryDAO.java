@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.6 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.7 2007-01-04 17:50:51 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {
@@ -39,7 +39,7 @@ class HibernateRegistryDAO {
   {
     Settings settings = null;
     try {
-      Session hs  = HibernateHelper.getSession();
+      Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Settings");
       settings = (Settings) qry.uniqueResult();
       hs.close();
@@ -55,7 +55,7 @@ class HibernateRegistryDAO {
     throws  GrouperRuntimeException
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
         Iterator  it = types.iterator();
@@ -85,7 +85,7 @@ class HibernateRegistryDAO {
     throws  GrouperException
   {
     try {
-      Session     hs  = HibernateHelper.getSession();
+      Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
 
       try {
