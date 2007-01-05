@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.80 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.81 2007-01-05 14:56:26 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1237,7 +1237,7 @@ public class XmlExporter {
   {
     boolean isImmediate = true;
     // How do composites fit in here?
-    if (membership.getMship_type().equals(MembershipType.E)) {
+    if (membership.getMship_type().equals(Membership.INTERNAL_TYPE_E)) {
       isImmediate = false;
     }
 

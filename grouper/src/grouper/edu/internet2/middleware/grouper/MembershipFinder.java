@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.64 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.65 2007-01-05 14:56:26 blair Exp $
  */
 public class MembershipFinder {
   
@@ -57,7 +57,7 @@ public class MembershipFinder {
     try {
       Field       f   = Group.getDefaultList();
       Member      m   = MemberFinder.findBySubject(s, subj);
-      Membership  ms  = internal_findByOwnerAndMemberAndFieldAndType(g, m, f, MembershipType.C);
+      Membership  ms  = internal_findByOwnerAndMemberAndFieldAndType(g, m, f, Membership.INTERNAL_TYPE_C);
       ms.setSession(s);
       PrivilegeResolver.canPrivDispatch(
         s, ms.getGroup(), s.getSubject(), f.getReadPriv()
@@ -153,7 +153,7 @@ public class MembershipFinder {
     GrouperSessionValidator.validate(s);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
-      Membership  ms  = internal_findByOwnerAndMemberAndFieldAndType(g, m, f, MembershipType.I);
+      Membership  ms  = internal_findByOwnerAndMemberAndFieldAndType(g, m, f, Membership.INTERNAL_TYPE_I);
       ms.setSession(s);
       PrivilegeResolver.canPrivDispatch(
         s, ms.getGroup(), s.getSubject(), f.getReadPriv()
@@ -304,10 +304,7 @@ public class MembershipFinder {
   } // protected static Set findMemberships(s, o, f)
 
   // @since 1.0
-  protected static Set findMembersByType(
-    GrouperSession s, Group g, Field f, MembershipType type
-  ) 
-  {
+  protected static Set findMembersByType(GrouperSession s, Group g, Field f, String type) {
      // @filtered  true  MembershipFinder.findMembershipsByType(s, o, f) 
      // @session   true  MembershipFinder.findMembershipsByType(s, o, f)
     GrouperSessionValidator.validate(s);
@@ -385,10 +382,7 @@ public class MembershipFinder {
   } // protected static Set internal_findAllByOwnerAndField(s, o, f)
 
   // @since   1.2.0
-  protected static Set internal_findAllByOwnerAndFieldAndType(
-    GrouperSession s, Owner o, Field f, MembershipType type
-  )
-  {
+  protected static Set internal_findAllByOwnerAndFieldAndType(GrouperSession s, Owner o, Field f, String type) {
      // @filtered  true
      // @session   true
     GrouperSessionValidator.validate(s);
@@ -449,9 +443,7 @@ public class MembershipFinder {
   } // protected static Set internal_findAllImmediateByMemberAndField(s, m, f)
 
   // @since   1.2.0
-  protected static Membership internal_findByOwnerAndMemberAndFieldAndType(
-    Owner o, Member m, Field f, MembershipType type
-  )
+  protected static Membership internal_findByOwnerAndMemberAndFieldAndType(Owner o, Member m, Field f, String type)
     throws  MembershipNotFoundException
   {
     // @filtered  false

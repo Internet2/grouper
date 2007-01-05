@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.74 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: Member.java,v 1.75 2007-01-05 14:56:26 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -1010,7 +1010,7 @@ public class Member implements Serializable {
       catch (MembershipNotFoundException eMNF) {
         try {
           MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
-            g, MemberFinder.findAllMember(), f, MembershipType.I
+            g, MemberFinder.findAllMember(), f, Membership.INTERNAL_TYPE_I
           );
           rv = true;
         }
