@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.118 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: Group.java,v 1.119 2007-01-05 14:56:26 blair Exp $
  */
 public class Group extends Owner {
 
@@ -767,7 +767,7 @@ public class Group extends Owner {
    */
   public Set getCompositeMembers() {
     return MembershipFinder.findMembersByType(
-      this.getSession(), this, Group.getDefaultList(), MembershipType.C
+      this.getSession(), this, Group.getDefaultList(), Membership.INTERNAL_TYPE_C
     );
   } // public Set getCompositeMembers()
 
@@ -781,7 +781,7 @@ public class Group extends Owner {
    */
   public Set getCompositeMemberships() {
     return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-      this.getSession(), this, Group.getDefaultList(), MembershipType.C
+      this.getSession(), this, Group.getDefaultList(), Membership.INTERNAL_TYPE_C
     );
   } // public Set getCompositeMemberships()
 
@@ -933,7 +933,7 @@ public class Group extends Owner {
     throws  SchemaException
   {
     return MembershipFinder.findMembersByType(
-      this.getSession(), this, f, MembershipType.E
+      this.getSession(), this, f, Membership.INTERNAL_TYPE_E
     );
   }  // public Set getEffectiveMembers(f)
 
@@ -972,7 +972,7 @@ public class Group extends Owner {
     throws  SchemaException
   {
     return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-      this.getSession(), this, f, MembershipType.E
+      this.getSession(), this, f, Membership.INTERNAL_TYPE_E
     );
   } // public Set getEffectiveMemberships(f)
 
@@ -1031,7 +1031,7 @@ public class Group extends Owner {
     throws  SchemaException
   {
     return MembershipFinder.findMembersByType(
-      this.getSession(), this, f, MembershipType.I
+      this.getSession(), this, f, Membership.INTERNAL_TYPE_I
     );
   } // public Set getImmediateMembers(f)
 
@@ -1071,7 +1071,7 @@ public class Group extends Owner {
   {
     GrouperSessionValidator.validate(this.getSession());
     return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-      this.getSession(), this, f, MembershipType.I
+      this.getSession(), this, f, Membership.INTERNAL_TYPE_I
     );
   } // public Set getImmediateMemberships(f)
 

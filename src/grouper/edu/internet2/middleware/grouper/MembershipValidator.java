@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.13 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.14 2007-01-05 14:56:26 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
@@ -31,7 +31,7 @@ class MembershipValidator {
   protected static void validateComposite(Membership ms)
     throws  ModelException
   {
-    _validate(ms, MembershipType.C); 
+    _validate(ms, Membership.INTERNAL_TYPE_C); 
     // Verify Depth
     if (ms.getDepth() != 0) {
       throw new ModelException(E.ERR_D + ms.getDepth());
@@ -54,7 +54,7 @@ class MembershipValidator {
   protected static void validateEffective(Membership ms)
     throws  ModelException
   {
-    _validate(ms, MembershipType.E); 
+    _validate(ms, Membership.INTERNAL_TYPE_E); 
     // Verify Depth
     if (!(ms.getDepth() > 0)) {
       throw new ModelException(E.ERR_D + ms.getDepth());
@@ -77,7 +77,7 @@ class MembershipValidator {
   protected static void validateImmediate(Membership ms)
     throws  ModelException
   {
-    _validate(ms, MembershipType.I); 
+    _validate(ms, Membership.INTERNAL_TYPE_I); 
     _validateDoesNotExist(ms);
     _notCircular(ms);
     // Verify Depth
@@ -119,11 +119,11 @@ class MembershipValidator {
   } // private static void _notCircular(ms)
 
   // @since 1.0
-  private static void _validate(Membership ms, MembershipType type) 
+  private static void _validate(Membership ms, String type) 
     throws  ModelException
   {
     GrouperSessionValidator.validate(ms.getSession());
-    MembershipType  t = ms.getMship_type();
+    String t = ms.getMship_type();
     Owner           o = ms.getOwner_id();
     Member          m = ms.getMember_id();
     Field           f = ms.getField();
@@ -164,7 +164,7 @@ class MembershipValidator {
   {
     try {
       MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
-        ms.getOwner_id(), ms.getMember_id(), ms.getField(), MembershipType.I
+        ms.getOwner_id(), ms.getMember_id(), ms.getField(), Membership.INTERNAL_TYPE_I
       );
       throw new ModelException(E.ERR_MAE);
     }

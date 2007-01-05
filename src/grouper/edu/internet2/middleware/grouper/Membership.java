@@ -27,9 +27,15 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.61 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: Membership.java,v 1.62 2007-01-05 14:56:26 blair Exp $
  */
 public class Membership {
+
+  // PROTECTED CLASS CONSTANTS //
+  protected static final String INTERNAL_TYPE_C = "composite";
+  protected static final String INTERNAL_TYPE_E = "effective";
+  protected static final String INTERNAL_TYPE_I = "immediate";
+
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL = new EventLog();
@@ -44,7 +50,7 @@ public class Membership {
   private Member          member_id;
   private Owner           owner_id;
   private String          parent_membership;  // UUID of parent membership
-  private MembershipType  type;
+  private String          type;
   private String          uuid;
   private Owner           via_id;
 
@@ -66,7 +72,7 @@ public class Membership {
     this.setOwner_id(           o                     );
     this.setMember_id(          m                     );
     this.setField(              f                     );
-    this.setMship_type(         MembershipType.I      );
+    this.setMship_type(         INTERNAL_TYPE_I       );
     this.setUuid(               GrouperUuid.getUuid() );
     this.setDepth(              0                     );
     this.setVia_id(             null                  );
@@ -91,7 +97,7 @@ public class Membership {
       throw new ModelException(eMNF);
     }
     this.setField(              ms.getList()          );  // original f
-    this.setMship_type(         MembershipType.E      );
+    this.setMship_type(         INTERNAL_TYPE_E       );
     this.setUuid(               GrouperUuid.getUuid() );
     this.setDepth(                                        // increment depth with proper offset
       ms.getDepth() + hasMS.getDepth() + offset
@@ -123,7 +129,7 @@ public class Membership {
     this.setOwner_id(           o                             );
     this.setMember_id(          m                             );
     this.setField(              f                             );
-    this.setMship_type(         MembershipType.C              );
+    this.setMship_type(         INTERNAL_TYPE_C               );
     this.setUuid(               GrouperUuid.getUuid()         );
     this.setDepth(              0                             );
     this.setVia_id(             via                           );
@@ -343,7 +349,7 @@ public class Membership {
       // Who we're deleting
       Member      m   = PrivilegeResolver.canViewSubject(s, subj);
       Membership  imm = MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
-        o, m, f, MembershipType.I
+        o, m, f, INTERNAL_TYPE_I
       );
       imm.setSession(s);
       return MemberOf.delImmediate(s, o, imm, m);
@@ -388,7 +394,7 @@ public class Membership {
       Membership  msM;
       MemberOf    mofM;
       Iterator    iterHas = MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-        root, o, f, MembershipType.I
+        root, o, f, INTERNAL_TYPE_I
       ).iterator();
       while (iterHas.hasNext()) {
         msM   = (Membership) iterHas.next();
@@ -497,7 +503,7 @@ public class Membership {
   protected Member getMember_id() {
     return this.member_id;
   }
-  protected MembershipType getMship_type() {
+  protected String getMship_type() {
     return this.type;
   }
   protected Owner getOwner_id() {
@@ -527,7 +533,7 @@ public class Membership {
   private void setMember_id(Member member_id) {
     this.member_id = member_id;
   }
-  private void setMship_type(MembershipType type) {
+  private void setMship_type(String type) {
     this.type = type;
   }
   private void setOwner_id(Owner o) {

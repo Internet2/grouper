@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.9 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.10 2007-01-05 14:56:26 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -163,7 +163,7 @@ class HibernateMembershipDAO {
   } // protected static Set findAllByOwnerAndField(o, f)
 
   // @since   1.2.0
-  protected static Set findAllByOwnerAndFieldAndType(Owner o, Field f, MembershipType type) 
+  protected static Set findAllByOwnerAndFieldAndType(Owner o, Field f, String type) 
     throws  GrouperDAOException
   {
     Set mships  = new LinkedHashSet();
@@ -181,7 +181,7 @@ class HibernateMembershipDAO {
       qry.setParameter( "owner" , o                       );
       qry.setString(    "fname" , f.getName()             );
       qry.setString(    "ftype" , f.getType().toString()  );
-      qry.setString(    "type"  , type.toString()         );
+      qry.setString(    "type"  , type                    );
       mships.addAll( qry.list() );
       hs.close();
     }
@@ -243,7 +243,7 @@ class HibernateMembershipDAO {
       qry.setParameter( "member", m                           );
       qry.setString(    "fname",  f.getName()                 );
       qry.setString(    "ftype",  f.getType().toString()      );
-      qry.setString(    "type",   MembershipType.E.toString() );
+      qry.setString(    "type",   Membership.INTERNAL_TYPE_E.toString() );
       qry.setParameter( "via",    via                         );
       qry.setInteger(   "depth",  depth                       );
       mships.addAll( qry.list() );
@@ -274,7 +274,7 @@ class HibernateMembershipDAO {
       qry.setParameter( "member", m                           );
       qry.setString(    "fname",  f.getName()                 );
       qry.setString(    "ftype",  f.getType().toString()      );
-      qry.setString(    "type",   MembershipType.E.toString() );
+      qry.setString(    "type",   Membership.INTERNAL_TYPE_E.toString() );
       mships.addAll( qry.list() );
       hs.close();
     }
@@ -307,7 +307,7 @@ class HibernateMembershipDAO {
       qry.setParameter( "member", m                           );
       qry.setString(    "fname",  f.getName()                 );
       qry.setString(    "ftype",  f.getType().toString()      );
-      qry.setString(    "type",   MembershipType.E.toString() );
+      qry.setString(    "type",   Membership.INTERNAL_TYPE_E.toString() );
       mships.addAll( qry.list() );
       hs.close();
     }
@@ -336,7 +336,7 @@ class HibernateMembershipDAO {
       qry.setParameter( "member", m                           );
       qry.setString(    "fname",  f.getName()                 );
       qry.setString(    "ftype",  f.getType().toString()      );
-      qry.setString(    "type",   MembershipType.I.toString() );
+      qry.setString(    "type",   Membership.INTERNAL_TYPE_I.toString() );
       mships.addAll( qry.list() );
       hs.close();
     }
@@ -347,9 +347,7 @@ class HibernateMembershipDAO {
   } // protected static Set findAllImmediateByMemberAndField(m, f)
 
   // @since   1.2.0
-  protected static Membership findByOwnerAndMemberAndFieldAndType(
-    Owner o, Member m, Field f, MembershipType type
-  )
+  protected static Membership findByOwnerAndMemberAndFieldAndType(Owner o, Member m, Field f, String type)
     throws  GrouperDAOException,
             MembershipNotFoundException // TODO 20061219 should throw/return something else.  null?
   {
@@ -369,7 +367,7 @@ class HibernateMembershipDAO {
       qry.setParameter( "member", m                      );
       qry.setString(    "fname",  f.getName()            );
       qry.setString(    "ftype",  f.getType().toString() ); 
-      qry.setString(    "type",   type.toString()        );
+      qry.setString(    "type",   type                   );
       Membership ms = (Membership) qry.uniqueResult();
       hs.close();
       if (ms == null) {

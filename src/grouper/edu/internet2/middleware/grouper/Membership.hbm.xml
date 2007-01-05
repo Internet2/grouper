@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.27 2007-01-04 17:50:51 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.28 2007-01-05 14:56:26 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships" batch-size="5">
@@ -88,8 +88,11 @@
     <!-- field -->
 
     <!-- mship_type -->
-    <property name="mship_type"
-              type="edu.internet2.middleware.grouper.MembershipUserType"
+    <property 
+      name="mship_type"
+      type="string"
+      not-null="true"
+      update="false"
     >
       <column name="mship_type"
               not-null="true"
