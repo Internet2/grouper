@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.120 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: Group.java,v 1.121 2007-01-08 18:04:06 blair Exp $
  */
 public class Group extends Owner {
 
@@ -117,8 +117,8 @@ public class Group extends Owner {
       StopWatch sw  = new StopWatch();
       sw.start();
       Composite c   = new Composite(this.internal_getSession(), this, left, right, type);
-      GroupValidator.canAddCompositeMember(this, c);
-      MemberOf  mof = MemberOf.addComposite(this.internal_getSession(), this, c);
+      GroupValidator.internal_canAddCompositeMember(this, c);
+      MemberOf  mof = MemberOf.internal_addComposite( this.internal_getSession(), this, c );
       HibernateGroupDAO.updateMemberships(mof);
       EventLog.groupAddComposite(this.internal_getSession(), c, mof, sw);
       Composite.internal_update(this);
@@ -193,8 +193,8 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    GroupValidator.canAddMember(this, subj, f);
-    Membership.addImmediateMembership(this.internal_getSession(), this, subj, f);
+    GroupValidator.internal_canAddMember(this, subj, f);
+    Membership.internal_addImmediateMembership( this.internal_getSession(), this, subj, f );
     EL.groupAddMember(this.internal_getSession(), this.getName(), subj, f, sw);
     Composite.internal_update(this);
     sw.stop();
@@ -229,7 +229,7 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    GroupValidator.canAddType(this.internal_getSession(), this, type);
+    GroupValidator.internal_canAddType(this.internal_getSession(), this, type);
     try {
       Set types = this.getGroup_types();
       types.add(type);
@@ -296,9 +296,9 @@ public class Group extends Owner {
             SchemaException
   {
     Validator.internal_argNotNull(subj, E.SUBJ_NULL);
-    GroupValidator.isTypeValid(f);
+    GroupValidator.internal_isTypeValid(f);
     try {
-      GroupValidator.canReadField(this, subj, f);
+      GroupValidator.internal_canReadField(this, subj, f);
     }
     catch (InsufficientPrivilegeException eIP) {
       return false;
@@ -352,9 +352,9 @@ public class Group extends Owner {
             SchemaException
   {
     Validator.internal_argNotNull(subj, E.SUBJ_NULL);
-    GroupValidator.isTypeValid(f);
+    GroupValidator.internal_isTypeValid(f);
     try {
-      GroupValidator.canWriteField(this, subj, f);
+      GroupValidator.internal_canWriteField(this, subj, f);
     }
     catch (InsufficientPrivilegeException eIP) {
       return false;
@@ -384,7 +384,7 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    GroupValidator.canDeleteGroup(this);
+    GroupValidator.internal_canDeleteGroup(this);
     try {
       // Revoke all access privs
       this._revokeAllAccessPrivs();
@@ -394,7 +394,7 @@ public class Group extends Owner {
       }
       // ... And delete all memberships - as root
       Set deletes = new LinkedHashSet(
-        Membership.deleteAllFieldType(
+        Membership.internal_deleteAllFieldType(
           this.internal_getSession().internal_getRootSession(), this, FieldType.LIST
         )
       );
@@ -448,7 +448,7 @@ public class Group extends Owner {
         throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
       }
       Field f = FieldFinder.find(attr);
-      GroupValidator.canDelAttribute(this, f);
+      GroupValidator.internal_canDelAttribute(this, f);
 
       // TODO 20061011 REFACTOR: I'm not comfortable with this code
       Set       saves   = new LinkedHashSet();
@@ -520,9 +520,9 @@ public class Group extends Owner {
     try {
       StopWatch sw  = new StopWatch();
       sw.start();
-      GroupValidator.canDelCompositeMember(this);
+      GroupValidator.internal_canDelCompositeMember(this);
       Composite c   = CompositeFinder.internal_findAsOwner(this);
-      MemberOf  mof = MemberOf.delComposite(this.internal_getSession(), this, c);
+      MemberOf  mof = MemberOf.internal_delComposite( this.internal_getSession(), this, c );
       HibernateGroupDAO.updateMemberships(mof);
       EventLog.groupDelComposite(this.internal_getSession(), c, mof, sw);
       Composite.internal_update(this);
@@ -599,8 +599,8 @@ public class Group extends Owner {
   {
     StopWatch sw  = new StopWatch();
     sw.start();
-    GroupValidator.canDelMember(this, subj, f);
-    MemberOf  mof = Membership.delImmediateMembership(this.internal_getSession(), this, subj, f);
+    GroupValidator.internal_canDelMember(this, subj, f);
+    MemberOf  mof = Membership.internal_delImmediateMembership( this.internal_getSession(), this, subj, f );
     try {
       HibernateGroupDAO.updateMemberships(mof);
     }
@@ -609,7 +609,7 @@ public class Group extends Owner {
     }
     sw.stop();
     EL.groupDelMember(this.internal_getSession(), this.getName(), subj, f, sw);
-    EL.delEffMembers(this.internal_getSession(), this, subj, f, mof.getEffDeletes());
+    EL.delEffMembers(this.internal_getSession(), this, subj, f, mof.internal_getEffDeletes());
     Composite.internal_update(this);
   } // public void deleteMember(subj, f)
 
@@ -644,7 +644,7 @@ public class Group extends Owner {
     sw.start();
     String msg = E.GROUP_TYPEDEL + type + ": "; 
     try {
-      GroupValidator.canDeleteType(this.internal_getSession(), this, type);
+      GroupValidator.internal_canDeleteType(this.internal_getSession(), this, type);
       Set       types = this.getGroup_types();
       types.remove(type);
       this.setGroup_types(types);
@@ -723,7 +723,7 @@ public class Group extends Owner {
   public String getAttribute(String attr) 
     throws  AttributeNotFoundException
   {
-    GroupValidator.canGetAttribute(this, attr);
+    GroupValidator.internal_canGetAttribute(this, attr);
     return this._getAttributeNoPrivs(attr);
   } // public String getAttribute(attr)
 
@@ -742,7 +742,7 @@ public class Group extends Owner {
       attr = (Attribute) iter.next();
       try {
         Field f = attr.getField();
-        GroupValidator.canReadField(
+        GroupValidator.internal_canReadField(
           this, this.internal_getSession().getSubject(), f
         );
         filtered.put(f.getName(), attr.getValue());
@@ -766,7 +766,7 @@ public class Group extends Owner {
    * @since   1.0
    */
   public Set getCompositeMembers() {
-    return MembershipFinder.findMembersByType(
+    return MembershipFinder.internal_findMembersByType(
       this.internal_getSession(), this, Group.getDefaultList(), Membership.INTERNAL_TYPE_C
     );
   } // public Set getCompositeMembers()
@@ -932,7 +932,7 @@ public class Group extends Owner {
   public Set getEffectiveMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findMembersByType(
+    return MembershipFinder.internal_findMembersByType(
       this.internal_getSession(), this, f, Membership.INTERNAL_TYPE_E
     );
   }  // public Set getEffectiveMembers(f)
@@ -1030,7 +1030,7 @@ public class Group extends Owner {
   public Set getImmediateMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findMembersByType(
+    return MembershipFinder.internal_findMembersByType(
       this.internal_getSession(), this, f, Membership.INTERNAL_TYPE_I
     );
   } // public Set getImmediateMembers(f)
@@ -1109,7 +1109,7 @@ public class Group extends Owner {
   public Set getMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findMembers(this.internal_getSession(), this, f);
+    return MembershipFinder.internal_findMembers( this.internal_getSession(), this, f );
   } // public Set getMembers(f)
 
   /**
@@ -1146,7 +1146,7 @@ public class Group extends Owner {
   public Set getMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findMemberships(this.internal_getSession(), this, f);
+    return MembershipFinder.internal_findMemberships( this.internal_getSession(), this, f );
   } // public Set getMemberships(f)
 
   /**
@@ -1870,7 +1870,7 @@ public class Group extends Owner {
     try {
       StopWatch sw = new StopWatch();
       sw.start();
-      Field f = GroupValidator.canSetAttribute(this, attr, value);
+      Field f = GroupValidator.internal_canSetAttribute(this, attr, value);
 
       // TODO 20061011 REFACTOR: I'm not comfortable with this code
       Set       attrs = new LinkedHashSet();
@@ -2074,8 +2074,8 @@ public class Group extends Owner {
 
   // PROTECTED CLASS METHODS //
   
-  // @since   1.1.0
-  protected static Group create(Stem parent, String extn, String displayExtn)
+  // @since   1.2.0
+  protected static Group internal_create(Stem parent, String extn, String displayExtn)
     throws SchemaException
   {
     Group g = new Group();
@@ -2089,7 +2089,7 @@ public class Group extends Owner {
     // Set create information
     g._setCreated();
     // Assign UUID
-    g.setUuid( GrouperUuid.getUuid() );
+    g.setUuid( GrouperUuid.internal_getUuid() );
     // Set naming information
     Set attributes = new LinkedHashSet();
     attributes.add(
@@ -2111,7 +2111,7 @@ public class Group extends Owner {
     );
     g.setGroup_attributes(attributes);
     return g;
-  } // protected static Group create(ns, extn, displayExtn)
+  } // protected static Group internal_create(ns, extn, displayExtn)
  
 
   // PROTECTED INSTANCE METHODS //
@@ -2134,7 +2134,8 @@ public class Group extends Owner {
     this.setModify_time( new Date().getTime() );
   } // protected void internal_setModified()
 
-  protected void setDisplayName(String value) {
+  // @since   1.2.0
+  protected void internal_setDisplayName(String value) {
     Set       attrs = new LinkedHashSet();
     Attribute a;
     Iterator  iter  = this.getGroup_attributes().iterator();
@@ -2146,7 +2147,7 @@ public class Group extends Owner {
       attrs.add(a);
     }
     this.setGroup_attributes(attrs);
-  } // protected void setDisplayName(value)
+  } // protected void internal_setDisplayName(value)
 
 
   // PRIVATE INSTANCE METHODS //

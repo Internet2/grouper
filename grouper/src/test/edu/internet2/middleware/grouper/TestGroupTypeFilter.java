@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupTypeFilter.java,v 1.2 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGroupTypeFilter.java,v 1.3 2007-01-08 18:04:07 blair Exp $
  * @since   1.2.0
  */
 public class TestGroupTypeFilter extends GrouperTest {
@@ -55,7 +55,7 @@ public class TestGroupTypeFilter extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testQueryByGroupTypeFilterNothing()
 
@@ -73,7 +73,7 @@ public class TestGroupTypeFilter extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testQueryByGroupTypeFilterSomething()
 
@@ -103,7 +103,7 @@ public class TestGroupTypeFilter extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testQueryByGroupTypeFilterSomethingCustomType()
 
@@ -121,7 +121,7 @@ public class TestGroupTypeFilter extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testQueryByGroupTypeFilterSomethingScoped()
 
@@ -151,7 +151,7 @@ public class TestGroupTypeFilter extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testQueryByGroupTypeFilterSomethingScopedCustomType()
 

@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.63 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: Membership.java,v 1.64 2007-01-08 18:04:07 blair Exp $
  */
 public class Membership {
 
@@ -73,14 +73,14 @@ public class Membership {
     this.setMember_id(          m                     );
     this.setField(              f                     );
     this.setMship_type(         INTERNAL_TYPE_I       );
-    this.setUuid(               GrouperUuid.getUuid() );
+    this.setUuid(               GrouperUuid.internal_getUuid() );
     this.setDepth(              0                     );
     this.setVia_id(             null                  );
     this.setParent_membership(  null                  );
     this.internal_setSession(            s                     );
     this.setCreator_id(         orig.getMember()      );
     this.setCreate_time(        new Date().getTime()  );
-    MembershipValidator.validateImmediate(this);
+    MembershipValidator.internal_validateImmediate(this);
   } // protected Membership(o, m, f)
 
   // Effective
@@ -98,7 +98,7 @@ public class Membership {
     }
     this.setField(              ms.getList()          );  // original f
     this.setMship_type(         INTERNAL_TYPE_E       );
-    this.setUuid(               GrouperUuid.getUuid() );
+    this.setUuid(               GrouperUuid.internal_getUuid() );
     this.setDepth(                                        // increment depth with proper offset
       ms.getDepth() + hasMS.getDepth() + offset
     );
@@ -119,7 +119,7 @@ public class Membership {
     this.internal_setSession(            s                     );
     this.setCreator_id(         s.getMember()         );
     this.setCreate_time(        new Date().getTime()  );
-    MembershipValidator.validateEffective(this);
+    MembershipValidator.internal_validateEffective(this);
   } // protected static Membership newEffectiveMembership(s, ms, hasMS)
 
   // Composite
@@ -130,14 +130,14 @@ public class Membership {
     this.setMember_id(          m                             );
     this.setField(              f                             );
     this.setMship_type(         INTERNAL_TYPE_C               );
-    this.setUuid(               GrouperUuid.getUuid()         );
+    this.setUuid(               GrouperUuid.internal_getUuid()         );
     this.setDepth(              0                             );
     this.setVia_id(             via                           );
     this.setParent_membership(  null                          );
     this.internal_setSession(   o.internal_getSession()       );
     this.setCreator_id(         orig.getMember()              );
     this.setCreate_time(        new Date().getTime()          );
-    MembershipValidator.validateComposite(this);
+    MembershipValidator.internal_validateComposite(this);
   } // protected Membership(o, m, f, via, orig)
 
 
@@ -312,13 +312,14 @@ public class Membership {
   } // public int hashCode()
 
   public String toString() {
-    return MembershipHelper.getPretty(this);
+    return MembershipHelper.internal_getPretty(this);
   } // public String toString()
 
 
   // PROTECTED CLASS METHODS //
 
-  protected static void addImmediateMembership(
+  // @since   1.2.0
+  protected static void internal_addImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f
   )
     throws  MemberAddException
@@ -327,9 +328,9 @@ public class Membership {
       GrouperSessionValidator.internal_validate(s);
       Member      m   = PrivilegeResolver.internal_canViewSubject(s, subj);
       Membership  imm = new Membership(s, o, m, f);
-      MemberOf    mof = MemberOf.addImmediate(s, o, imm, m);
+      MemberOf    mof = MemberOf.internal_addImmediate(s, o, imm, m);
       HibernateMembershipDAO.update(mof);
-      EL.addEffMembers(s, o, subj, f, mof.getEffSaves());
+      EL.addEffMembers( s, o, subj, f, mof.internal_getEffSaves() );
     }
     catch (InsufficientPrivilegeException eIP)  {
       throw new MemberAddException(eIP.getMessage(), eIP);
@@ -337,9 +338,10 @@ public class Membership {
     catch (ModelException eM)                   {
       throw new MemberAddException(eM.getMessage(), eM);
     }    
-  } // protected static void addImmediateMembership(s, o, subj, f)
+  } // protected static void internal_addImmediateMembership(s, o, subj, f)
 
-  protected static MemberOf delImmediateMembership(
+  // @since   1.2.0
+  protected static MemberOf internal_delImmediateMembership(
     GrouperSession s, Owner o, Subject subj, Field f
   )
     throws  MemberDeleteException
@@ -352,7 +354,7 @@ public class Membership {
         o, m, f, INTERNAL_TYPE_I
       );
       imm.internal_setSession(s);
-      return MemberOf.delImmediate(s, o, imm, m);
+      return MemberOf.internal_delImmediate(s, o, imm, m);
     }
     catch (InsufficientPrivilegeException eIP)  {
       throw new MemberDeleteException(eIP.getMessage(), eIP);
@@ -363,9 +365,10 @@ public class Membership {
     catch (ModelException eM)                   {
       throw new MemberDeleteException(eM.getMessage(), eM);
     } 
-  } // protected static void delImmediateMembership(s, o, subj, f)
+  } // protected static void internal_delImmediateMembership(s, o, subj, f)
 
-  protected static Set deleteAllField(GrouperSession s, Owner o, Field f)
+  // @since   1.2.0
+  protected static Set internal_deleteAllField(GrouperSession s, Owner o, Field f)
     throws  MemberDeleteException,
             SchemaException
   {
@@ -383,10 +386,10 @@ public class Membership {
         Iterator    iterIs  = ( (Group) o).toMember().getImmediateMemberships(f).iterator();
         while (iterIs.hasNext()) {
           msG   = (Membership) iterIs.next();
-          mofG  = Membership.delImmediateMembership(
+          mofG  = Membership.internal_delImmediateMembership(
             s, msG.getOwner_id(), msG.getMember().getSubject(), msG.getField()
           );
-          deletes.addAll( mofG.getDeletes() );
+          deletes.addAll( mofG.internal_getDeletes() );
         }
       }
 
@@ -398,8 +401,8 @@ public class Membership {
       ).iterator();
       while (iterHas.hasNext()) {
         msM   = (Membership) iterHas.next();
-        mofM  = Membership.delImmediateMembership(s, o, msM.getMember().getSubject(), f);
-        deletes.addAll( mofM.getDeletes() );
+        mofM  = Membership.internal_delImmediateMembership(s, o, msM.getMember().getSubject(), f);
+        deletes.addAll( mofM.internal_getDeletes() );
       }
 
       o.internal_setSession(orig);
@@ -411,9 +414,10 @@ public class Membership {
     catch (SubjectNotFoundException eSNF) {
       throw new MemberDeleteException(eSNF);
     }
-  } // protected static Set deleteAllField(s, o, f)
+  } // protected static Set internal_deleteAllField(s, o, f)
 
-  protected static Set deleteAllFieldType(GrouperSession s, Owner o, FieldType type) 
+  // @since   1.2.0
+  protected static Set internal_deleteAllFieldType(GrouperSession s, Owner o, FieldType type) 
     throws  MemberDeleteException,
             SchemaException
   {
@@ -427,12 +431,12 @@ public class Membership {
     Iterator  iter  = FieldFinder.findAllByType(type).iterator();
     while (iter.hasNext()) {
       f = (Field) iter.next();
-      deletes.addAll( deleteAllField(s, o, f) );
+      deletes.addAll( internal_deleteAllField(s, o, f) );
     }
 
     o.internal_setSession(orig);
     return deletes;
-  } // protected static Set deleteAllFieldType(s, o, f)
+  } // protected static Set internal_deleteAllFieldType(s, o, f)
 
 
   // PROTECTED INSTANCE METHODS //

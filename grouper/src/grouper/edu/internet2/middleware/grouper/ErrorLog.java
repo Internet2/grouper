@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
  * Grouper API error logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ErrorLog.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: ErrorLog.java,v 1.6 2007-01-08 18:04:06 blair Exp $
  * @since   1.0
  */
 class ErrorLog {
@@ -40,12 +40,12 @@ class ErrorLog {
   // PROTECTED CLASS METHODS //
   // @since 1.0
   protected static void error(Class c, String msg) {
-    LOG.error(LogHelper.formatClass(c) + msg);
+    LOG.error(LogHelper.internal_formatClass(c) + msg);
   } // protected static void error(c, msg)
 
   // @since 1.0
   protected static void fatal(Class c, String msg) {
-    LOG.fatal(LogHelper.formatClass(c) + msg);
+    LOG.fatal(LogHelper.internal_formatClass(c) + msg);
   } // protected static void fatal(c, msg)
 
 }

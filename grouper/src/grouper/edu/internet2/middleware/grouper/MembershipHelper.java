@@ -22,12 +22,14 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.9 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.10 2007-01-08 18:04:07 blair Exp $
  */
 class MembershipHelper {
 
   // PROTECTED CLASS METHODS //
-  protected static String getPretty(Membership ms) {
+
+  // @since   1.2.0
+  protected static String internal_getPretty(Membership ms) {
     String  via = GrouperConfig.EMPTY_STRING;
     if (ms.getVia_id() != null) {
       if (ms.getVia_id() instanceof Composite) {
@@ -81,7 +83,7 @@ class MembershipHelper {
     else {
       throw new GrouperRuntimeException("INVALID OWNER CLASS: " + o.getClass().getName());
     }
-  } // protected static String getPretty(ms)
+  } // protected static String internal_getPretty(ms)
 
 } // class MembershipHelper
  

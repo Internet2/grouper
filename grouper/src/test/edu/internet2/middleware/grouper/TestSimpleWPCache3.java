@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSimpleWPCache3.java,v 1.4 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestSimpleWPCache3.java,v 1.5 2007-01-08 18:04:07 blair Exp $
  * @since   1.2.0
  */
 public class TestSimpleWPCache3 extends GrouperTest {
@@ -88,7 +88,7 @@ public class TestSimpleWPCache3 extends GrouperTest {
       );
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testGetMaxWheelAge()
 

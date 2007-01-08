@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.29 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.30 2007-01-08 18:04:06 blair Exp $
  */
 public class MemberFinder {
 
@@ -48,7 +48,7 @@ public class MemberFinder {
     throws  MemberNotFoundException
   {
     GrouperSessionValidator.internal_validate(s);
-    Member m = findBySubject(subj);
+    Member m = internal_findBySubject(subj);
     m.internal_setSession(s);
     return m;
   } // public static Member findBySubject(s, subj)
@@ -84,29 +84,31 @@ public class MemberFinder {
   
   // PROTECTED CLASS METHODS //
 
-  protected static Member findAllMember() 
+  // @since   1.2.0
+  protected static Member internal_findAllMember() 
     throws  GrouperRuntimeException
   {
     try {
-      return MemberFinder.findBySubject(SubjectFinder.findAllSubject()); 
+      return MemberFinder.internal_findBySubject(SubjectFinder.findAllSubject()); 
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.MEMBERF_FINDALLMEMBER + eMNF.getMessage();
       ErrorLog.fatal(MemberFinder.class, msg);
       throw new GrouperRuntimeException(msg, eMNF);
     }
-  } // protected static Member findAllMember()
+  } // protected static Member internal_findAllMember()
 
-  protected static Member findBySubject(Subject subj) 
+  // @since   1.2.0
+  protected static Member internal_findBySubject(Subject subj) 
     throws  MemberNotFoundException
   {
     if (subj == null) {
       throw new MemberNotFoundException();
     }
     Member m = internal_findBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() );
-    m.setSubject(subj);
+    m.internal_setSubject(subj);
     return m;
-  } // protected static Member findBySubject(subj)
+  } // protected static Member internal_findBySubject(subj)
 
   // @since   1.2.0
   protected static Member internal_findBySubject(String id, String src, String type) 

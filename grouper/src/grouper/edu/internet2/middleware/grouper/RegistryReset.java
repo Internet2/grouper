@@ -25,7 +25,7 @@ package edu.internet2.middleware.grouper;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.40 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.41 2007-01-08 18:04:07 blair Exp $
  */
 public class RegistryReset {
 
@@ -125,7 +125,7 @@ public class RegistryReset {
   {
     HibernateRegistryDAO.resetRegistry();
     // TODO 20061018 Now update the cached types + fields
-    GroupTypeFinder.updateKnownTypes();
+    GroupTypeFinder.internal_updateKnownTypes();
     FieldFinder.internal_updateKnownFields();
     SubjectFinder.internal_flushCache();
   } // private void _emptyTables()

@@ -20,15 +20,15 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.15 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.16 2007-01-08 18:04:07 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.0
-  protected static void validateComposite(Membership ms)
+  // @since   1.2.0
+  protected static void internal_validateComposite(Membership ms)
     throws  ModelException
   {
     _validate(ms, Membership.INTERNAL_TYPE_C); 
@@ -48,10 +48,10 @@ class MembershipValidator {
     if (ms.getParent_membership() != null) {
       throw new ModelException(E.ERR_PMS);
     }
-  } // protected static void validateComposite(ms)
+  } // protected static void internal_validateComposite(ms)
 
-  // @since 1.0
-  protected static void validateEffective(Membership ms)
+  // @since   1.2.0
+  protected static void internal_validateEffective(Membership ms)
     throws  ModelException
   {
     _validate(ms, Membership.INTERNAL_TYPE_E); 
@@ -71,10 +71,10 @@ class MembershipValidator {
     if (ms.getParent_membership() == null) {
       throw new ModelException(E.MSV_NO_PARENT);
     }
-  } // protected static void validateEffective(ms)
+  } // protected static void internal_validateEffective(ms)
 
-  // @since 1.0
-  protected static void validateImmediate(Membership ms)
+  // @since   1.2.0
+  protected static void internal_validateImmediate(Membership ms)
     throws  ModelException
   {
     _validate(ms, Membership.INTERNAL_TYPE_I); 
@@ -92,7 +92,7 @@ class MembershipValidator {
     if (ms.getParent_membership() != null) {
       throw new ModelException(E.ERR_PMS);
     }
-  } // protected static void validateImmediate(ms)
+  } // protected static void internal_validateImmediate(ms)
 
 
   // PRIVATE CLASS METHODS //

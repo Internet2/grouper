@@ -20,43 +20,43 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.23 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.24 2007-01-08 18:04:06 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.0
-  protected static void canAddCompositeMember(Group g, Composite c)
+  // @since   1.2.0
+  protected static void internal_canAddCompositeMember(Group g, Composite c)
     throws  InsufficientPrivilegeException,
             ModelException,
             SchemaException
   {
     Field f = Group.getDefaultList();
-    isTypeEqual(f, FieldType.LIST);
-    canWriteField(g, g.internal_getSession().getSubject(), f);
+    internal_isTypeEqual(f, FieldType.LIST);
+    internal_canWriteField(g, g.internal_getSession().getSubject(), f);
     if (g.hasComposite()) {
       throw new ModelException(E.GROUP_ACTC);
     }
     if (g.getMembers().size() > 0) {
       throw new ModelException(E.GROUP_ACTM);
     }
-  } // protected static void canAddCompositeMember(g, c)
+  } // protected static void internal_canAddCompositeMember(g, c)
 
-  // @since 1.0
-  protected static void canAddMember(Group g, Subject subj, Field f)
+  // @since   1.2.0
+  protected static void internal_canAddMember(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
             MemberAddException,
             SchemaException
   {
     try {
-      isTypeEqual(f, FieldType.LIST);
-      canWriteField(g, g.internal_getSession().getSubject(), f);
+      internal_isTypeEqual(f, FieldType.LIST);
+      internal_canWriteField(g, g.internal_getSession().getSubject(), f);
     }
     catch (InsufficientPrivilegeException eIP0) {
       try {
-        canOptin(g, subj, f);
+        internal_canOptin(g, subj, f);
       }
       catch (InsufficientPrivilegeException eIP1) {
         // Throw with original message
@@ -66,10 +66,10 @@ class GroupValidator {
     if ( (f.equals(Group.getDefaultList())) && (g.hasComposite()) ) {
       throw new MemberAddException(E.GROUP_AMTC);
     }
-  } // protected static void canAddMember(g, subj, f)
+  } // protected static void internal_canAddMember(g, subj, f)
 
-  // @since   1.1.0
-  protected static void canAddType(GrouperSession s, Group g, GroupType type) 
+  // @since   1.2.0
+  protected static void internal_canAddType(GrouperSession s, Group g, GroupType type) 
     throws  GroupModifyException,
             InsufficientPrivilegeException,
             SchemaException
@@ -77,11 +77,11 @@ class GroupValidator {
     if (g.hasType(type)) {
       throw new GroupModifyException(E.GROUP_HAS_TYPE);
     }
-    GroupValidator.canModGroupType(s, g, type);
-  } // protected static void canAddType(s, g, type)
+    GroupValidator.internal_canModGroupType(s, g, type);
+  } // protected static void internal_canAddType(s, g, type)
 
-  // @since 1.0
-  protected static void canDelAttribute(Group g, Field f) 
+  // @since   1.2.0
+  protected static void internal_canDelAttribute(Group g, Field f) 
     throws  InsufficientPrivilegeException,
             ModelException,
             SchemaException
@@ -89,24 +89,24 @@ class GroupValidator {
     if (f.getRequired()) {
       throw new ModelException(E.GROUP_DRA + f.getName());
     }
-    canModAttribute(g, f);
-  } // protected static void canDelAttribute(g, f, value)
+    internal_canModAttribute(g, f);
+  } // protected static void internal_canDelAttribute(g, f, value)
 
-  // @since 1.0
-  protected static void canDelCompositeMember(Group g)
+  // @since   1.2.0
+  protected static void internal_canDelCompositeMember(Group g)
     throws  InsufficientPrivilegeException,
             ModelException,
             SchemaException
   {
     Field f = Group.getDefaultList();
-    canWriteField(g, g.internal_getSession().getSubject(), f);
+    internal_canWriteField(g, g.internal_getSession().getSubject(), f);
     if (!g.hasComposite()) {
       throw new ModelException(E.GROUP_DCFC); 
     }
-  } // protected static void canDelCompositeMember(g)
+  } // protected static void internal_canDelCompositeMember(g)
 
-  // @since   1.1.0
-  protected static void canDeleteGroup(Group g)
+  // @since   1.2.0
+  protected static void internal_canDeleteGroup(Group g)
     throws  GrouperRuntimeException,
             InsufficientPrivilegeException
   {
@@ -117,21 +117,21 @@ class GroupValidator {
     {
       throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
     }
-  } // protected static void canDeleteGroup(g)
+  } // protected static void internal_canDeleteGroup(g)
 
-  // @since 1.0
-  protected static void canDelMember(Group g, Subject subj, Field f)
+  // @since   1.2.0
+  protected static void internal_canDelMember(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
             MemberDeleteException,
             SchemaException
   {
     try {
-      isTypeEqual(f, FieldType.LIST);
-      canWriteField(g, g.internal_getSession().getSubject(), f);
+      internal_isTypeEqual(f, FieldType.LIST);
+      internal_canWriteField(g, g.internal_getSession().getSubject(), f);
     }
     catch (InsufficientPrivilegeException eIP0) {
       try {
-        canOptout(g, subj, f);
+        internal_canOptout(g, subj, f);
       }
       catch (InsufficientPrivilegeException eIP1) {
         // Throw with original message
@@ -141,10 +141,10 @@ class GroupValidator {
     if ( (f.equals(Group.getDefaultList())) && (g.hasComposite()) ) {
       throw new MemberDeleteException(E.GROUP_DMFC);
     }
-  } // protected static void canDelMember(g, subj, f)
+  } // protected static void internal_canDelMember(g, subj, f)
 
-  // @since 1.1.0
-  protected static void canDeleteType(GrouperSession s, Group g, GroupType type) 
+  // @since   1.2.0
+  protected static void internal_canDeleteType(GrouperSession s, Group g, GroupType type) 
     throws  InsufficientPrivilegeException,
             ModelException,
             SchemaException
@@ -152,12 +152,11 @@ class GroupValidator {
     if (!g.hasType(type)) {
       throw new ModelException("does not have type");
     }
-    canModGroupType(s, g, type);
-  } // protected static void canDeleteGroupType(s, g, type)
+    internal_canModGroupType(s, g, type);
+  } // protected static void internal_canDeleteGroupType(s, g, type)
 
-  // @throws  AttributeNotFoundException
-  // @since   1.1.0
-  protected static void canGetAttribute(Group g, String attr) 
+  // @since   1.2.0
+  protected static void internal_canGetAttribute(Group g, String attr) 
     throws  AttributeNotFoundException
   {
     if (!AttributeValidator.internal_isPermittedName(attr)) {
@@ -165,11 +164,11 @@ class GroupValidator {
     }
     try {
       Field f = FieldFinder.find(attr);
-      isTypeEqual(f, FieldType.ATTRIBUTE);
+      internal_isTypeEqual(f, FieldType.ATTRIBUTE);
       if (!g.hasType( f.getGroupType() ) ) {
         throw new SchemaException(E.GROUP_DOES_NOT_HAVE_TYPE + f.getGroupType().toString());
       }
-      canReadField(g, g.internal_getSession().getSubject(), f);
+      internal_canReadField(g, g.internal_getSession().getSubject(), f);
     }
     catch (InsufficientPrivilegeException eIP) {
       throw new AttributeNotFoundException(eIP);
@@ -177,32 +176,32 @@ class GroupValidator {
     catch (SchemaException eS) {
       throw new AttributeNotFoundException(eS);
     }
-  } // protected static void canGetAttribute(g, attr)
+  } // protected static void internal_canGetAttribute(g, attr)
 
-  // @since 1.0
-  protected static void canModAttribute(Group g, Field f) 
+  // @since   1.2.0
+  protected static void internal_canModAttribute(Group g, Field f) 
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    isTypeEqual(f, FieldType.ATTRIBUTE);
-    canWriteField(g, g.internal_getSession().getSubject(), f);
-  } // protected static void canModAttribute(g, f)
+    internal_isTypeEqual(f, FieldType.ATTRIBUTE);
+    internal_canWriteField(g, g.internal_getSession().getSubject(), f);
+  } // protected static void internal_canModAttribute(g, f)
 
-  // @since 1.0
-  protected static void canModGroupType(GrouperSession s, Group g, GroupType type) 
+  // @since   1.2.0
+  protected static void internal_canModGroupType(GrouperSession s, Group g, GroupType type) 
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    if (GroupType.isSystemType(type)) {
+    if ( GroupType.internal_isSystemType(type) ) {
       throw new SchemaException("cannot edit system group types");
     }
     if (!PrivilegeResolver.internal_canADMIN(s, g, s.getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
     }
-  } // protected static void canModGroupType(s, g, type)
+  } // protected static void internal_canModGroupType(s, g, type)
 
-  // @since 1.0
-  protected static void canOptin(Group g, Subject subj, Field f) 
+  // @since   1.2.0
+  protected static void internal_canOptin(Group g, Subject subj, Field f) 
     throws  InsufficientPrivilegeException
   {
     if (!
@@ -215,10 +214,10 @@ class GroupValidator {
     if (!PrivilegeResolver.internal_canOPTIN(g.internal_getSession(), g, subj)) {
       throw new InsufficientPrivilegeException(E.CANNOT_OPTIN);
     }
-  } // protected static void canOptin(g, subj, f)
+  } // protected static void internal_canOptin(g, subj, f)
 
-  // @since 1.0
-  protected static void canOptout(Group g, Subject subj, Field f) 
+  // @since   1.2.0
+  protected static void internal_canOptout(Group g, Subject subj, Field f) 
     throws  InsufficientPrivilegeException
   {
     if (!
@@ -231,10 +230,10 @@ class GroupValidator {
     if (!PrivilegeResolver.internal_canOPTOUT(g.internal_getSession(), g, subj)) {
       throw new InsufficientPrivilegeException(E.CANNOT_OPTOUT);
     }
-  } // protected static void canOptin(g, subj, f)
+  } // protected static void internal_canOptin(g, subj, f)
 
-  // @since 1.1
-  protected static void canReadField(Group g, Subject subj, Field f)
+  // @since   1.2.0
+  protected static void internal_canReadField(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
             SchemaException
   {
@@ -243,16 +242,11 @@ class GroupValidator {
       throw new SchemaException(E.INVALID_GROUP_TYPE + f.getGroupType().toString());
     }
     PrivilegeResolver.internal_canPrivDispatch(g.internal_getSession(), g, subj, f.getReadPriv());
-  } // protected static void canReadField(g, subj, f)
+  } // protected static void internal_canReadField(g, subj, f)
 
   // @return  Attribute as {@link Field}
-  // @throws  AttributeNotFoundException
-  // @throws  GroupModifyException
-  // @throws  InsufficientPrivilegeException
-  // @throws  ModelException
-  // @throws  SchemaException
-  // @since   1.1.0
-  protected static Field canSetAttribute(Group g, String attr, String value) 
+  // @since   1.2.0
+  protected static Field internal_canSetAttribute(Group g, String attr, String value) 
     throws  AttributeNotFoundException,
             GroupModifyException,
             InsufficientPrivilegeException,
@@ -272,12 +266,12 @@ class GroupValidator {
     if (f.getName().equals(GrouperConfig.ATTR_DN)) {
       AttributeValidator.internal_namingValue(value);
     }
-    canModAttribute(g, f);
+    internal_canModAttribute(g, f);
     return f;
-  } // protected static Field canSetAttribute(g, attr, value)
+  } // protected static Field internal_canSetAttribute(g, attr, value)
 
-  // @since 1.1
-  protected static void canWriteField(Group g, Subject subj, Field f)
+  // @since   1.2.0
+  protected static void internal_canWriteField(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
             SchemaException
   {  
@@ -286,22 +280,20 @@ class GroupValidator {
       throw new SchemaException(E.INVALID_GROUP_TYPE + f.getGroupType().toString());
     }
     PrivilegeResolver.internal_canPrivDispatch(g.internal_getSession(), g, subj, f.getWritePriv());
-  } // protected static void canWriteField(s, g, subj, f)
+  } // protected static void internal_canWriteField(s, g, subj, f)
 
-  // is this field of the appropriate type
-  // @since 1.0
-  protected static void isTypeEqual(Field f, FieldType type)
+  // @since   1.2.0
+  protected static void internal_isTypeEqual(Field f, FieldType type)
     throws  SchemaException
   {
-    isTypeValid(f);
+    internal_isTypeValid(f);
     if (!f.getType().equals(type)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }
-  } // protected static void isTypeEqual(f, type)
+  } // protected static void internal_isTypeEqual(f, type)
 
-  // is this f valid for groups
-  // @since 1.0
-  protected static void isTypeValid(Field f)
+  // @since   1.2.0
+  protected static void internal_isTypeValid(Field f)
     throws  IllegalArgumentException,
             SchemaException
   {
@@ -317,7 +309,7 @@ class GroupValidator {
     {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }
-  } // protected static void isTypeValid(f)
+  } // protected static void internal_isTypeValid(f)
 
 }
 

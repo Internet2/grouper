@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.28 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: EventLog.java,v 1.29 2007-01-08 18:04:06 blair Exp $
  */
 class EventLog {
 
@@ -109,7 +109,7 @@ class EventLog {
       sw
     );
     EventLog.groupAddAndDelCompositeMembers(
-      s, c, mof.getSaves(), mof.getDeletes(), sw
+      s, c, mof.internal_getSaves(), mof.internal_getDeletes(), sw
     );
   } // protected static void groupAddComposite(s, c, mof, sw)
 
@@ -128,7 +128,7 @@ class EventLog {
       sw
     );
     EventLog.groupAddAndDelCompositeMembers(
-      s, c, mof.getSaves(), mof.getDeletes(), sw
+      s, c, mof.internal_getSaves(), mof.internal_getDeletes(), sw
     );
   } // protected static void groupDelComposite(s, c, mof, sw)
 
@@ -139,7 +139,7 @@ class EventLog {
 
   // @since 1.0
   protected static void info(GrouperSession s, String msg) {
-    LOG.info(LogHelper.formatSession(s) + msg);
+    LOG.info(LogHelper.internal_formatSession(s) + msg);
   } // protected static void info(s, msg)
 
   // @since 1.0
@@ -153,7 +153,7 @@ class EventLog {
   ) 
   {
     LOG.info(
-      LogHelper.formatSession(sessionToString) + msg + LogHelper.formatStopWatch(sw)
+      LogHelper.internal_formatSession(sessionToString) + msg + LogHelper.internal_formatStopWatch(sw)
     );
   } // protected static void info(log, sessionToString, msg, sw)
 
@@ -391,7 +391,7 @@ class EventLog {
     // membership change
     msg += " subject=" + SubjectHelper.internal_getPretty(subj) + ")";
     // Now log it
-    LOG.info( LogHelper.formatMsg(s, msg) );
+    LOG.info( LogHelper.internal_formatMsg(s, msg) );
     // Reset to the original session
     eff.internal_setSession(s);
   } // private void _eff(root, s, msg, name, subj, f, eff, field)

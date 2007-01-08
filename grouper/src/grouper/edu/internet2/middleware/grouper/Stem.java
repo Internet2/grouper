@@ -29,7 +29,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.95 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: Stem.java,v 1.96 2007-01-08 18:04:07 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -97,7 +97,7 @@ public class Stem extends Owner {
       throw new GroupAddException();
     }
     try {
-      Group child = Group.create(this, extension, displayExtension);
+      Group child = Group.internal_create(this, extension, displayExtension);
       child = HibernateStemDAO.createChildGroup(this, child, new Member( new GrouperSubject(child) ) );
       sw.stop();
       EventLog.info(s, M.GROUP_ADD + U.internal_q(child.getName()), sw);
@@ -770,7 +770,7 @@ public class Stem extends Owner {
     ns.internal_setSession( parent.internal_getSession() );
     ns.setParent_stem(parent);            // Set parent
     ns._setCreated();                     // Set creation information
-    ns.setUuid( GrouperUuid.getUuid() );  // Assign UUID
+    ns.setUuid( GrouperUuid.internal_getUuid() );  // Assign UUID
     ns.setStem_extension(extn);           // Set naming information
     ns.setDisplay_extension(displayExtn);
     ns.setStem_name( U.internal_constructName( parent.getName(), extn ) );
@@ -785,7 +785,7 @@ public class Stem extends Owner {
     Stem root = new Stem();
     root.internal_setSession(s);
     root._setCreated();
-    root.setUuid( GrouperUuid.getUuid() );
+    root.setUuid( GrouperUuid.internal_getUuid() );
     root.setStem_name( ROOT_INT );
     root.setDisplay_name( ROOT_INT );
     root.setStem_extension( ROOT_INT );
@@ -930,7 +930,7 @@ public class Stem extends Owner {
     while (it.hasNext()) {
       child = (Group) it.next();
       child.internal_setSession( this.internal_getSession() );
-      child.setDisplayName( U.internal_constructName( this.getDisplayName(), child.getDisplayExtension() ) );
+      child.internal_setDisplayName( U.internal_constructName( this.getDisplayName(), child.getDisplayExtension() ) );
       child.internal_setModified();
       objects.add(child);
     }
