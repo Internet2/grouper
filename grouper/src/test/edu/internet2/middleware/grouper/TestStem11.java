@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem11.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestStem11.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  * @since   1.0.1
  */
 public class TestStem11 extends TestCase {
@@ -51,15 +51,15 @@ public class TestStem11 extends TestCase {
       Subject         subjA = r.getSubject("a");
       GrouperSession  s     = GrouperSession.start(subjA);
 
-      r.ns.setSession(s);
+      r.ns.internal_setSession(s);
 
       T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
       T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
       T.amount("creators before grant", 0, r.ns.getCreators().size()  );
 
-      r.ns.setSession(r.rs);
+      r.ns.internal_setSession(r.rs);
       r.ns.grantPriv(subjA, NamingPrivilege.STEM);
-      r.ns.setSession(s);
+      r.ns.internal_setSession(s);
 
       T.amount("privs after grant"    , 1, r.ns.getPrivs(subjA).size());
       T.amount("stemmers after grant" , 2, r.ns.getStemmers().size()  );

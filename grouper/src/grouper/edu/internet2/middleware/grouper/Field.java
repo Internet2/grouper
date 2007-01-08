@@ -23,7 +23,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.15 2007-01-04 17:17:45 blair Exp $    
+ * @version $Id: Field.java,v 1.16 2007-01-08 16:43:56 blair Exp $    
  */
 public class Field implements Serializable {
 
@@ -120,7 +120,8 @@ public class Field implements Serializable {
 
 
   // PROTECTED INSTANCE METHODS //
-  // @since 1.0
+
+  // @since   1.2.0
   protected boolean internal_isInUse() 
     throws  SchemaException
   {

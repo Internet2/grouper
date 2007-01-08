@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport2.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestXmlExport2.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 public class TestXmlExport2 extends GrouperTest {
@@ -46,7 +46,7 @@ public class TestXmlExport2 extends GrouperTest {
     try {
       String[] args = {};
       try {
-        XmlArgs.getXmlExportArgs(args);
+        XmlArgs.internal_getXmlExportArgs(args);
         fail("did not throw IllegalStateException with 0 args");
       }
       catch (IllegalStateException eIS) {
@@ -64,7 +64,7 @@ public class TestXmlExport2 extends GrouperTest {
       String      subj  = "GrouperSystem";
       String      file  = "export.xml";
       String[]    args  = { subj, file };
-      Properties  rc    = XmlArgs.getXmlExportArgs(args);
+      Properties  rc    = XmlArgs.internal_getXmlExportArgs(args);
       assertTrue( "subject" , rc.getProperty(XmlArgs.RC_SUBJ).equals(subj)  );
       assertTrue( "file"    , rc.getProperty(XmlArgs.RC_EFILE).equals(file) );
     }
@@ -80,7 +80,7 @@ public class TestXmlExport2 extends GrouperTest {
       String      file  = "export.xml";
       String      props = "user.properties";
       String[]    args  = { subj, file, props };
-      Properties  rc    = XmlArgs.getXmlExportArgs(args);
+      Properties  rc    = XmlArgs.internal_getXmlExportArgs(args);
       assertTrue( "subject" , rc.getProperty(XmlArgs.RC_SUBJ).equals(subj)    );
       assertTrue( "file"    , rc.getProperty(XmlArgs.RC_EFILE).equals(file)   );
       assertTrue( "props"   , rc.getProperty(XmlArgs.RC_UPROPS).equals(props) );
@@ -95,7 +95,7 @@ public class TestXmlExport2 extends GrouperTest {
     try {
       String[]    args  = { "GrouperSystem", "export.xml", "user.properties", "extra arg" };
       try {
-        XmlArgs.getXmlExportArgs(args);
+        XmlArgs.internal_getXmlExportArgs(args);
         fail("did not throw IllegalArgumentException with too many position args");
       }
       catch (IllegalArgumentException eIA) {
@@ -114,7 +114,7 @@ public class TestXmlExport2 extends GrouperTest {
       String      file  = "export.xml";
       String      name  = "i2";
       String[]    args  = { subj, file, "-name", name };
-      Properties  rc    = XmlArgs.getXmlExportArgs(args);
+      Properties  rc    = XmlArgs.internal_getXmlExportArgs(args);
       assertTrue( "subject" , rc.getProperty(XmlArgs.RC_SUBJ).equals(subj)  );
       assertTrue( "file"    , rc.getProperty(XmlArgs.RC_EFILE).equals(file) );
       assertTrue( "name"    , rc.getProperty(XmlArgs.RC_NAME).equals(name)  );
@@ -131,7 +131,7 @@ public class TestXmlExport2 extends GrouperTest {
       String      file  = "export.xml";
       String      uuid  = "abcdefg";
       String[]    args  = { subj, file, "-id", uuid };
-      Properties  rc    = XmlArgs.getXmlExportArgs(args);
+      Properties  rc    = XmlArgs.internal_getXmlExportArgs(args);
       assertTrue( "subject" , rc.getProperty(XmlArgs.RC_SUBJ).equals(subj)  );
       assertTrue( "file"    , rc.getProperty(XmlArgs.RC_EFILE).equals(file) );
       assertTrue( "uuid"    , rc.getProperty(XmlArgs.RC_UUID).equals(uuid)  );
@@ -146,7 +146,7 @@ public class TestXmlExport2 extends GrouperTest {
     try {
       String[]    args  = { "GrouperSystem", "export.xml", "-name", "root", "-id", "abdefg" };
       try {
-        XmlArgs.getXmlExportArgs(args);
+        XmlArgs.internal_getXmlExportArgs(args);
         fail("did not throw IlllegalArgumentException when both -name and -id specified");
       }
       catch (IllegalArgumentException eIA) {  

@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.35 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: MemberOf.java,v 1.36 2007-01-08 16:43:56 blair Exp $
  */
 class MemberOf {
 
@@ -73,7 +73,7 @@ class MemberOf {
     mof.effSaves.addAll(  mof._evalComposite()  );  // Find the composites
     mof.saves.addAll(     mof.effSaves          );
     mof._resetSessions();
-    mof.o.setModified();
+    mof.o.internal_setModified();
     mof.saves.add(mof.c);     // Save the composite
     mof.saves.add(mof.o);     // Update the owner
     return mof;
@@ -90,7 +90,7 @@ class MemberOf {
     mof.effSaves.addAll( mof._evalAddImmediate()  );  // Find the new effs
     mof.saves.addAll(   mof.effSaves              );
     mof._resetSessions();
-    mof.o.setModified();
+    mof.o.internal_setModified();
     mof.saves.add(ms);      // Save the immediate
     mof.saves.add(mof.o);   // Update the owner
     return mof;
@@ -129,7 +129,7 @@ class MemberOf {
     }
 
     mof._resetSessions();
-    mof.o.setModified();
+    mof.o.internal_setModified();
     mof.deletes.add(mof.c);   // Delete the composite
     mof.saves.add(mof.o);     // Update the owner
     return mof;
@@ -150,7 +150,7 @@ class MemberOf {
     Iterator    iter      = MembershipFinder.findAllChildrenNoPriv(ms).iterator();
     while (iter.hasNext()) {
       child = (Membership) iter.next();
-      child.setSession(s);
+      child.internal_setSession(s);
       children.add(child);
     }
     mof.effDeletes.addAll(children);
@@ -163,7 +163,7 @@ class MemberOf {
     mof.deletes.addAll(mof.effDeletes);
     mof.deletes.add(ms);
     mof._resetSessions();
-    mof.o.setModified();
+    mof.o.internal_setModified();
     mof.deletes.add(ms);    // Delete the immediate
     mof.saves.add(mof.o);   // Update the owner
     return mof;
@@ -267,7 +267,7 @@ class MemberOf {
     while (iter.hasNext()) {
       m   = (Member) iter.next();
       imm = new Membership(o, m, this.f, c, this.s);
-      imm.setSession(root);
+      imm.internal_setSession(root);
       mships.add(imm);
     }
     return mships;
@@ -381,7 +381,7 @@ class MemberOf {
         // Convert member back to a group
         Group gAsM = this.m.toGroup();
         // And attach root session for better looking up of memberships
-        gAsM.setSession(this.root);
+        gAsM.internal_setSession(this.root);
         // Find members of m 
         hasMembers = gAsM.getMemberships();
       }
@@ -395,17 +395,17 @@ class MemberOf {
   // Reset attached sessions to their original state
   private void _resetSessions() {
     if (this.c != null) {
-      this.c.setSession(this.s);
+      this.c.internal_setSession(this.s);
     }
     if (this.o != null) {
-      this.o.setSession(this.s);
+      this.o.internal_setSession(this.s);
     }
     Set         tmp       = new LinkedHashSet();
     Membership  msS;
     Iterator    saveIter  = this.effSaves.iterator();
     while (saveIter.hasNext()) {
       msS = (Membership) saveIter.next();
-      msS.setSession(this.s);
+      msS.internal_setSession(this.s);
       tmp.add(msS);
     }
     this.saves            = tmp;
@@ -414,7 +414,7 @@ class MemberOf {
     Iterator    delIter   = this.deletes.iterator();
     while (delIter.hasNext()) {
       msD = (Membership) delIter.next();
-      msD.setSession(this.s);
+      msD.internal_setSession(this.s);
       tmp.add(msD);
     }
     this.deletes = tmp;
@@ -422,15 +422,15 @@ class MemberOf {
 
   // Switch all sessions to root sessions
   private void _setSessions() {
-    this.root = this.s.getRootSession();
+    this.root = this.s.internal_getRootSession();
     if (this.c != null) {
-      this.c.setSession(this.root);
+      this.c.internal_setSession(this.root);
     }
     if (this.m != null) {
-      this.m.setSession(this.root);
+      this.m.internal_setSession(this.root);
     }
     if (this.o != null) {
-      this.o.setSession(this.root);
+      this.o.internal_setSession(this.root);
     }
   } // private void _setSessions()
 

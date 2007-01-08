@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlImport1.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestXmlImport1.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 public class TestXmlImport1 extends TestCase {
@@ -55,7 +55,7 @@ public class TestXmlImport1 extends TestCase {
       );
       Assert.assertNotNull("xml !null", xml);
       Assert.assertTrue("xml instanceof XmlImporter", xml instanceof XmlImporter);
-      Properties options = xml.getOptions();
+      Properties options = xml.internal_getOptions();
       Assert.assertNotNull("options !null", options);
       T.amount("set options", 6, options.size());
       String k = "import.metadata.group-types";

@@ -25,7 +25,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.34 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: StemFinder.java,v 1.35 2007-01-08 16:43:56 blair Exp $
  */
 public class StemFinder {
 
@@ -49,9 +49,9 @@ public class StemFinder {
   public static Stem findByName(GrouperSession s, String name) 
     throws StemNotFoundException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     Stem ns = internal_findByName(name);
-    ns.setSession(s);
+    ns.internal_setSession(s);
     return ns;
   } // public static Stem findByName(s, name)
 
@@ -68,7 +68,7 @@ public class StemFinder {
   public static Stem findRootStem(GrouperSession s) 
     throws  GrouperRuntimeException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     try {
       return StemFinder.findByName(s, Stem.ROOT_INT);
     }
@@ -98,9 +98,9 @@ public class StemFinder {
   public static Stem findByUuid(GrouperSession s, String uuid) 
     throws StemNotFoundException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     Stem ns = internal_findByUuid(uuid);
-    ns.setSession(s);
+    ns.internal_setSession(s);
     return ns;
   } // public static Stem findByUuid(s, uuid)
 
@@ -117,7 +117,7 @@ public class StemFinder {
     Iterator  it    = HibernateStemDAO.findAllByApproximateDisplayExtension(val).iterator();
     while (it.hasNext()) {
       ns = (Stem) it.next();
-      ns.setSession(s);
+      ns.internal_setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -133,7 +133,7 @@ public class StemFinder {
     Iterator  it    = HibernateStemDAO.findAllByApproximateDisplayName(val).iterator();
     while (it.hasNext()) {
       ns = (Stem) it.next();
-      ns.setSession(s);
+      ns.internal_setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -149,7 +149,7 @@ public class StemFinder {
     Iterator  it    = HibernateStemDAO.findAllByApproximateExtension(val).iterator();
     while (it.hasNext()) {
       ns = (Stem) it.next();
-      ns.setSession(s);
+      ns.internal_setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -165,7 +165,7 @@ public class StemFinder {
     Iterator  it    = HibernateStemDAO.findAllByApproximateName(val).iterator();
     while (it.hasNext()) {
       ns = (Stem) it.next();
-      ns.setSession(s);
+      ns.internal_setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -181,7 +181,7 @@ public class StemFinder {
     Iterator  it    = HibernateStemDAO.findAllByApproximateNameAny(val).iterator();
     while (it.hasNext()) {
       ns = (Stem) it.next();
-      ns.setSession(s);
+      ns.internal_setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -197,7 +197,7 @@ public class StemFinder {
     Iterator  it    = HibernateStemDAO.findAllByCreatedAfter(d).iterator();
     while (it.hasNext()) {
       ns = (Stem) it.next();
-      ns.setSession(s);
+      ns.internal_setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -213,7 +213,7 @@ public class StemFinder {
     Iterator  it    = HibernateStemDAO.findAllByCreatedBefore(d).iterator();
     while (it.hasNext()) {
       ns = (Stem) it.next();
-      ns.setSession(s);
+      ns.internal_setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -239,7 +239,8 @@ public class StemFinder {
   } // protected static Stem internal_findByUuid(uuid)
 
   // TODO 20061018 Is this the right location?  And should it be top-down?
-  protected static boolean isChild(Stem ns, Group g) {
+  // @since   1.2.0
+  protected static boolean internal_isChild(Stem ns, Group g) {
     Stem parent = g.getParentStem();
     try {
       while (parent != null) {
@@ -254,14 +255,15 @@ public class StemFinder {
       }
     }
     catch (StemNotFoundException eSNF) {
-      String msg = E.STEMF_ISCHILDGROUP + U.q(parent.getName()) + " " + eSNF.getMessage();
+      String msg = E.STEMF_ISCHILDGROUP + U.internal_q(parent.getName()) + " " + eSNF.getMessage();
       ErrorLog.error(StemFinder.class, msg);
     }
     return false;
-  } // protected static boolean isChild(ns, g)
+  } // protected static boolean internal_isChild(ns, g)
 
   // TODO 20061018 Is this the right location?  And should it be top-down?
-  protected static boolean isChild(Stem ns, Stem stem) {
+  // @since   1.2.0
+  protected static boolean internal_isChild(Stem ns, Stem stem) {
     // our start stem is the root stem.  bail out immediately.
     if (stem.getName().equals(Stem.ROOT_EXT)) {
       return false;
@@ -286,14 +288,14 @@ public class StemFinder {
         msg += "null";
       }
       else {
-        msg += U.q(parent.getName());
+        msg += U.internal_q(parent.getName());
       }
-      msg += " start=" + U.q(stem.getName());
+      msg += " start=" + U.internal_q(stem.getName());
       msg += " " + eSNF.getMessage();
       ErrorLog.error(StemFinder.class, msg);
     }
     return false;
-  } // protected static boolean isChild(ns, stem)
+  } // protected static boolean internal_isChild(ns, stem)
 
 } // public class StemFinder
 

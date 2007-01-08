@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * A null {@link PrivilegeCache} element.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NullPrivilegeCacheElement.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: NullPrivilegeCacheElement.java,v 1.4 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 public class NullPrivilegeCacheElement extends PrivilegeCacheElement {
@@ -34,7 +34,7 @@ public class NullPrivilegeCacheElement extends PrivilegeCacheElement {
    */
   public NullPrivilegeCacheElement(Owner o, Subject subj, Privilege p) { 
     super(o, subj, p);
-    this.setIsCached(false);
+    this.internal_setIsCached(false);
   } // public NullPrivilegeCacheElement(o, subj, p)
 
 

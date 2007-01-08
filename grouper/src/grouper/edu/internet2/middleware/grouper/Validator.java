@@ -21,29 +21,29 @@ package edu.internet2.middleware.grouper;
  * Validation methods that apply to multiple Grouper classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Validator.java,v 1.19 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: Validator.java,v 1.20 2007-01-08 16:43:56 blair Exp $
  */
 class Validator {
 
   // PROTECTED CLASS METHODS //
   
   // Throw IAE if argument is null
-  // @since 1.0
-  protected static void argNotNull(Object o, String msg)
+  // @since   1.2.0
+  protected static void internal_argNotNull(Object o, String msg)
     throws  IllegalArgumentException
   {
     if (o == null) {
       throw new IllegalArgumentException(msg);
     }
-  } // protected static void argNotNull(o, msg)
+  } // protected static void internal_argNotNull(o, msg)
 
-  // @since   1.1.0
-  protected static boolean isNotNullOrBlank(Object s) {
-    return !isNullOrBlank(s);
-  } // protected static boolean isNotNullOrBlank(s)
+  // @since   1.2.0
+  protected static boolean internal_isNotNullOrBlank(Object s) {
+    return !internal_isNullOrBlank(s);
+  } // protected static boolean internal_isNotNullOrBlank(s)
 
-  // @since   1.1.0
-  protected static boolean isNullOrBlank(Object s) {
+  // @since   1.2.0
+  protected static boolean internal_isNullOrBlank(Object s) {
     if (
       (s == null)
       ||
@@ -55,26 +55,26 @@ class Validator {
       return true;
     }
     return false;
-  } // protected static boolean isNullOrBlank(s)
+  } // protected static boolean internal_isNullOrBlank(s)
 
-  // @since 1.0
-  protected static void notNullPerModel(Object o, String msg) 
+  // @since   1.2.0
+  protected static void internal_notNullPerModel(Object o, String msg) // TODO 20070108 deprecate
     throws  ModelException
   {
     if (o == null) {
       throw new ModelException(msg);
     }
-  } // protected static void notNullPerModel(o, msg)
+  } // protected static void internal_notNullPerModel(o, msg)
 
   // Throw NPE if value is null
-  // @since 1.0
-  protected static void valueNotNull(Object o, String msg) 
+  // @since   1.2.0
+  protected static void internal_valueNotNull(Object o, String msg) 
     throws  NullPointerException
   {
     if (o == null) {
       throw new NullPointerException(msg);
     }   
-  } // protected static void valueNotNull(o, msg)
+  } // protected static void internal_valueNotNull(o, msg)
 
 } // class Validator
 

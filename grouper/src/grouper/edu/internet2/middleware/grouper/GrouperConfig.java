@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.38 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.39 2007-01-08 16:43:56 blair Exp $
  */
 public class GrouperConfig {
 
@@ -146,20 +146,20 @@ public class GrouperConfig {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.1.0
-  protected static Properties getHibernateProperties() {
+  // @since   1.2.0
+  protected static Properties internal_getHibernateProperties() {
     return hib_props;
-  } // protected static Properties getHibernateProperties()
+  } // protected static Properties internal_getHibernateProperties()
 
-  // @since   1.1.0
-  protected static Properties getProperties() {
+  // @since   1.2.0
+  protected static Properties internal_getProperties() {
     return grouper_props;
-  } // protected static Properties getProperties()
+  } // protected static Properties internal_getProperties()
 
-  // @since   1.1.0
-  protected static void setProperty(String property, String value) {
+  // @since   1.2.0
+  protected static void internal_setProperty(String property, String value) {
     grouper_props.setProperty(property, value);
-  } // protected static void setProperty(property, value):w
+  } // protected static void internal_setProperty(property, value):w
 
 
   // PRIVATE CLASS METHODS //

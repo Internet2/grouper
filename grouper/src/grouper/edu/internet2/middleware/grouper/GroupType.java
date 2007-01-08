@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.33 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: GroupType.java,v 1.34 2007-01-08 16:43:56 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -89,7 +89,7 @@ public class GroupType implements Serializable {
     GroupType type  = null;
     StopWatch sw    = new StopWatch();
     sw.start();
-    if (!RootPrivilegeResolver.isRoot(s)) {
+    if (!RootPrivilegeResolver.internal_isRoot(s)) {
       String msg = E.GROUPTYPE_NOADD;
       ErrorLog.error(GroupType.class, msg);
       throw new InsufficientPrivilegeException(msg);
@@ -117,7 +117,7 @@ public class GroupType implements Serializable {
       throw new SchemaException(msg, eDAO);
     }
     sw.stop();
-    EventLog.info(s, M.GROUPTYPE_ADD + U.q(type.toString()), sw);
+    EventLog.info(s, M.GROUPTYPE_ADD + U.internal_q(type.toString()), sw);
     return type;
   } // public static GroupType createType(s, name)
 
@@ -215,7 +215,7 @@ public class GroupType implements Serializable {
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     } 
-    if (!RootPrivilegeResolver.isRoot(s)) {
+    if (!RootPrivilegeResolver.internal_isRoot(s)) {
       String msg = E.GROUPTYPE_NODEL;
       ErrorLog.error(GroupType.class, msg);
       throw new InsufficientPrivilegeException(msg);
@@ -230,10 +230,10 @@ public class GroupType implements Serializable {
       String typeName = this.getName(); // For logging purposes
       HibernateGroupTypeDAO.delete(this);
       sw.stop();
-      EventLog.info(s, M.GROUPTYPE_DEL + U.q(typeName), sw);
+      EventLog.info(s, M.GROUPTYPE_DEL + U.internal_q(typeName), sw);
       // TODO 20061011 Now update the cached types + fields
       GroupTypeFinder.updateKnownTypes();
-      FieldFinder.updateKnownFields();
+      FieldFinder.internal_updateKnownFields();
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_DEL + eDAO.getMessage();
@@ -288,7 +288,7 @@ public class GroupType implements Serializable {
         sw.stop();
         EventLog.info(
           s,
-          M.GROUPTYPE_DELFIELD + U.q(f.getName()) + " type=" + U.q(this.getName()),
+          M.GROUPTYPE_DELFIELD + U.internal_q(f.getName()) + " type=" + U.internal_q(this.getName()),
           sw
         );
       }
@@ -367,8 +367,8 @@ public class GroupType implements Serializable {
       sw.stop();
       EventLog.info(
         s, 
-        M.GROUPTYPE_ADDFIELD + U.q(f.getName()) + " ftype=" + U.q(type.toString()) 
-        + " gtype=" + U.q(this.getName()),
+        M.GROUPTYPE_ADDFIELD + U.internal_q(f.getName()) + " ftype=" + U.internal_q(type.toString()) 
+        + " gtype=" + U.internal_q(this.getName()),
         sw
       );
       return f;

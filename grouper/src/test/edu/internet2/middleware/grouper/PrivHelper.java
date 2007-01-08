@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.6 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.7 2007-01-08 16:43:56 blair Exp $
  */
 public class PrivHelper {
 
@@ -280,7 +280,7 @@ public class PrivHelper {
       g.revokePriv(subj, priv);  
       if      (priv.equals(AccessPrivilege.READ)) {  
         // Granted to ALL by default - but possibly revoked
-        if (SubjectHelper.eq(subj, SubjectTestHelper.SUBJA)) { 
+        if (SubjectHelper.internal_eq(subj, SubjectTestHelper.SUBJA)) { 
           hasPriv(g, subj, m, priv, false);
         }
         else {
@@ -289,7 +289,7 @@ public class PrivHelper {
       }
       else if (priv.equals(AccessPrivilege.VIEW)) {
         // Granted to ALL by default - but possibly revoked
-        if (SubjectHelper.eq(subj, SubjectTestHelper.SUBJA)) { 
+        if (SubjectHelper.internal_eq(subj, SubjectTestHelper.SUBJA)) { 
           hasPriv(g, subj, m, priv, false);
         }
         else {

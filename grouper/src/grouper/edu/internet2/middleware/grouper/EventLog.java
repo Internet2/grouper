@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.27 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: EventLog.java,v 1.28 2007-01-08 16:43:56 blair Exp $
  */
 class EventLog {
 
@@ -66,7 +66,7 @@ class EventLog {
   )
   {
     EventLog.groupAddAndDelCompositeMembers(
-      c.getSession(), c, saves, deletes, sw
+      c.internal_getSession(), c, saves, deletes, sw
     );
   } // protected static void compositeUpdate(c, saves, deletes)
 
@@ -81,7 +81,7 @@ class EventLog {
       obj = iter.next();
       if (obj instanceof Membership) {
         Membership ms = (Membership) obj;
-        _member(s, M.COMP_MEMADD, c.getOwnerName(), ms, sw);
+        _member(s, M.COMP_MEMADD, c.internal_getOwnerName(), ms, sw);
       }
     }
     iter = deletes.iterator();
@@ -89,7 +89,7 @@ class EventLog {
       obj = iter.next();
       if (obj instanceof Membership) {
         Membership ms = (Membership) obj;
-        _member(s, M.COMP_MEMDEL, c.getOwnerName(), ms, sw);
+        _member(s, M.COMP_MEMDEL, c.internal_getOwnerName(), ms, sw);
       }
     }
   } // protected static void groupAddAndDelCompositeMembers(s, c, mof, sw)
@@ -102,10 +102,10 @@ class EventLog {
     EventLog.info(
       s, 
       M.COMP_ADD 
-      + U.q(c.getOwnerName()                    )
-      + " type="  + U.q(c.getType().toString()  )
-      + " left="  + U.q(c.getLeftName()         )
-      + " right=" + U.q(c.getRightName()        ),
+      + U.internal_q(c.internal_getOwnerName()                    )
+      + " type="  + U.internal_q(c.getType().toString()  )
+      + " left="  + U.internal_q(c.internal_getLeftName()         )
+      + " right=" + U.internal_q(c.internal_getRightName()        ),
       sw
     );
     EventLog.groupAddAndDelCompositeMembers(
@@ -121,10 +121,10 @@ class EventLog {
     EventLog.info(
       s, 
       M.COMP_DEL 
-      + U.q(c.getOwnerName()                    )
-      + " type="  + U.q(c.getType().toString()  )
-      + " left="  + U.q(c.getLeftName()         )
-      + " right=" + U.q(c.getRightName()        ),
+      + U.internal_q(c.internal_getOwnerName()                    )
+      + " type="  + U.internal_q(c.getType().toString()  )
+      + " left="  + U.internal_q(c.internal_getLeftName()         )
+      + " right=" + U.internal_q(c.internal_getRightName()        ),
       sw
     );
     EventLog.groupAddAndDelCompositeMembers(
@@ -184,12 +184,12 @@ class EventLog {
   {
     if      (o instanceof Group) {
       if (this.log_eff_group_del == true) {
-        this._delEffs(s, "group=" + U.q( ( (Group) o).getName() ), subj, f, effs);
+        this._delEffs(s, "group=" + U.internal_q( ( (Group) o).getName() ), subj, f, effs);
       }
     }
     else if (o instanceof Stem) {
       if (this.log_eff_stem_del == true) {
-        this._delEffs(s, "stem=" + U.q( ( (Stem) o).getName() ), subj, f, effs);
+        this._delEffs(s, "stem=" + U.internal_q( ( (Stem) o).getName() ), subj, f, effs);
       }
     }
     else {
@@ -284,15 +284,15 @@ class EventLog {
   {
     String subject = GrouperConfig.EMPTY_STRING;
     try {
-      subject = SubjectHelper.getPretty(ms.getMember().getSubject());
+      subject = SubjectHelper.internal_getPretty(ms.getMember().getSubject());
     }
     catch (Exception e) {
-      subject = U.q(e.getMessage());
+      subject = U.internal_q(e.getMessage());
     }
     EventLog.info(
       s,
-      msg           + U.q(where) 
-      + " list="    + U.q(ms.getList().getName())  
+      msg           + U.internal_q(where) 
+      + " list="    + U.internal_q(ms.getList().getName())  
       + " subject=" + subject,
       sw
     );
@@ -305,7 +305,7 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    GrouperSession  root  = s.getRootSession();
+    GrouperSession  root  = s.internal_getRootSession();
     Membership      eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
@@ -326,7 +326,7 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    GrouperSession  root  = s.getRootSession();
+    GrouperSession  root  = s.internal_getRootSession();
     Membership      eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
@@ -349,16 +349,16 @@ class EventLog {
   )
   {
     // Proxy as root so that we don't run into priv problems
-    eff.setSession(root);
+    eff.internal_setSession(root);
     // Get eff owner
     try {
       Group g = eff.getGroup();
-      msg += "group=" + U.q(g.getName());
+      msg += "group=" + U.internal_q(g.getName());
     }
     catch (GroupNotFoundException eGNF) {
       try {
         Stem ns = eff.getStem();
-        msg += "stem=" + U.q(ns.getName());
+        msg += "stem=" + U.internal_q(ns.getName());
       }
       catch (StemNotFoundException eSNF) {
         ErrorLog.error(EventLog.class, E.EVENT_EFFOWNER + eSNF.getMessage());
@@ -366,11 +366,11 @@ class EventLog {
       }
     }   
     // Get eff field
-    msg += " " + field + U.q(eff.getList().getName());
+    msg += " " + field + U.internal_q(eff.getList().getName());
     // Get eff subject
     try {
       Subject subject = eff.getMember().getSubject();
-      msg += " subject=" + SubjectHelper.getPretty(subject);
+      msg += " subject=" + SubjectHelper.internal_getPretty(subject);
     }
     catch (Exception e) {
       ErrorLog.error(EventLog.class, E.EVENT_EFFSUBJ + e.getMessage());
@@ -379,21 +379,21 @@ class EventLog {
     // Get added or removed message that caused this effective membership change
     msg += " (" + name + " ";
     if      (f.getType().equals(FieldType.ACCESS)) {
-      msg += "priv=" + U.q(f.getName());
+      msg += "priv=" + U.internal_q(f.getName());
     }
     else if (f.getType().equals(FieldType.LIST)) {
-      msg += "list=" + U.q(f.getName());
+      msg += "list=" + U.internal_q(f.getName());
     }
     else if (f.getType().equals(FieldType.NAMING)) {
-      msg += "priv=" + U.q(f.getName());
+      msg += "priv=" + U.internal_q(f.getName());
     }
     // Get added or removed subject that caused this effective
     // membership change
-    msg += " subject=" + SubjectHelper.getPretty(subj) + ")";
+    msg += " subject=" + SubjectHelper.internal_getPretty(subj) + ")";
     // Now log it
     LOG.info( LogHelper.formatMsg(s, msg) );
     // Reset to the original session
-    eff.setSession(s);
+    eff.internal_setSession(s);
   } // private void _eff(root, s, msg, name, subj, f, eff, field)
 
   private void _grantPriv(
@@ -402,8 +402,8 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + U.q(name) + " priv=" + U.q(p.getName()) + " subject=" 
-      + SubjectHelper.getPretty(subj),
+      msg + U.internal_q(name) + " priv=" + U.internal_q(p.getName()) + " subject=" 
+      + SubjectHelper.internal_getPretty(subj),
       sw
     );
   } // private void _grantPriv(s, msg, name, subj, p, sw)
@@ -414,8 +414,8 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + U.q(group) + " list=" + U.q(f.getName()) + " subject=" 
-      + SubjectHelper.getPretty(subj),
+      msg + U.internal_q(group) + " list=" + U.internal_q(f.getName()) + " subject=" 
+      + SubjectHelper.internal_getPretty(subj),
       sw
     );
   } // private void _member(s, msg, group, subj, f, sw)
@@ -425,7 +425,7 @@ class EventLog {
   )
   {
     EventLog.info(
-      s, msg + U.q(name) + " priv=" + U.q(p.getName()), sw
+      s, msg + U.internal_q(name) + " priv=" + U.internal_q(p.getName()), sw
     );
   } // private void _revokePriv(s, msg, name, p, sw)
 
@@ -435,8 +435,8 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + U.q(name) + " priv=" + U.q(p.getName()) + " subject=" 
-      + SubjectHelper.getPretty(subj),
+      msg + U.internal_q(name) + " priv=" + U.internal_q(p.getName()) + " subject=" 
+      + SubjectHelper.internal_getPretty(subj),
       sw
     );
   } // private void _revokePriv(s, msg, name, subj, p, sw)
@@ -445,7 +445,7 @@ class EventLog {
     GrouperSession s, String msg, String name, String attr, String val, StopWatch sw
   )
   {
-    EventLog.info(s, msg + U.q(name) + " attr=" + U.q(attr) + " value=" + U.q(val), sw);
+    EventLog.info(s, msg + U.internal_q(name) + " attr=" + U.internal_q(attr) + " value=" + U.internal_q(val), sw);
   } // private void _setAttr(s, msg, attr, val, sw)
 }
 

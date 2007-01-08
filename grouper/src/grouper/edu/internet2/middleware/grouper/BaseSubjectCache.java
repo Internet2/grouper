@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Base implementation of {@link SubjectCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseSubjectCache.java,v 1.2 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: BaseSubjectCache.java,v 1.3 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0     
  */
 public abstract class BaseSubjectCache implements SubjectCache {
@@ -46,7 +46,7 @@ public abstract class BaseSubjectCache implements SubjectCache {
   public static SubjectCache getCache(String klass) 
     throws  GrouperRuntimeException
   {
-    return (SubjectCache) U.realizeInterface(klass);
+    return (SubjectCache) U.internal_realizeInterface(klass);
   } // public static SubjectCache getCache(klass)
 
 

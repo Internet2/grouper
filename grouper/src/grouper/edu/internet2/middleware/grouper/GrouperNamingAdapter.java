@@ -31,7 +31,7 @@ import  java.util.Set;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.51 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.52 2007-01-08 16:43:56 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -67,9 +67,9 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
     throws  SchemaException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     return MembershipFinder.findSubjectsNoPriv(
-      s, ns, GrouperPrivilegeAdapter.getField(priv2list, priv)
+      s, ns, GrouperPrivilegeAdapter.internal_getField(priv2list, priv)
     );
   } // public Set getSubjectsWithPriv(s, ns, priv)
 
@@ -96,16 +96,16 @@ public class GrouperNamingAdapter implements NamingAdapter {
   ) 
     throws  SchemaException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     Set stems = new LinkedHashSet();
     try {
-      Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
+      Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
       // This subject
       stems.addAll( 
         GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj), f ) 
       );
       // The ALL subject
-      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
+      if ( !( SubjectHelper.internal_eq(subj, SubjectFinder.findAllSubject() ) ) ) {
         stems.addAll( 
           GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.findAllMember(), f ) 
         );
@@ -134,7 +134,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @return  Set of {@link NamingPrivilege} objects.
    */
   public Set getPrivs(GrouperSession s, Stem ns, Subject subj) {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     Set privs = new LinkedHashSet();
     try {
       Member    m     = MemberFinder.findBySubject(s, subj);
@@ -146,12 +146,12 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Iterator  iterP = Privilege.getNamingPrivs().iterator();
       while (iterP.hasNext()) {
         p     = (Privilege) iterP.next();
-        f     = GrouperPrivilegeAdapter.getField(priv2list, p);   
+        f     = GrouperPrivilegeAdapter.internal_getField(priv2list, p);   
         iterM = MembershipFinder.internal_findAllByOwnerAndMemberAndField(ns, m, f).iterator();
-        privs.addAll( GrouperPrivilegeAdapter.getPrivs(s, subj, m, p, iterM) );
+        privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, m, p, iterM) );
         if (!m.equals(all)) {
           iterA = MembershipFinder.internal_findAllByOwnerAndMemberAndField(ns, all, f).iterator();
-          privs.addAll( GrouperPrivilegeAdapter.getPrivs(s, subj, all, p, iterA) );
+          privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, all, p, iterA) );
         }
       }
     }
@@ -194,9 +194,9 @@ public class GrouperNamingAdapter implements NamingAdapter {
             SchemaException
   {
     try {
-      GrouperSessionValidator.validate(s);
-      Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
-      StemValidator.canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
+      GrouperSessionValidator.internal_validate(s);
+      Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+      StemValidator.internal_canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
       Membership.addImmediateMembership(s, ns, subj, f);
     }
     catch (MemberAddException eMA) {
@@ -223,11 +223,11 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws  SchemaException 
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(s, subj);
-      rv = m.isMember(ns, GrouperPrivilegeAdapter.getField(priv2list, priv));
+      rv = m.isMember(ns, GrouperPrivilegeAdapter.internal_getField(priv2list, priv));
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.GPA_MNF + eMNF.getMessage();
@@ -261,10 +261,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
             RevokePrivilegeException,
             SchemaException
   {
-    GrouperSessionValidator.validate(s);
-    Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
-    StemValidator.canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
-    ns.setModified();
+    GrouperSessionValidator.internal_validate(s);
+    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    StemValidator.internal_canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
+    ns.internal_setModified();
     try {
       HibernateStemDAO.revokePriv( ns, Membership.deleteAllField(s, ns, f) );
     }
@@ -301,12 +301,12 @@ public class GrouperNamingAdapter implements NamingAdapter {
             RevokePrivilegeException,
             SchemaException
   {
-    GrouperSessionValidator.validate(s);
-    Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
-    StemValidator.canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
+    GrouperSessionValidator.internal_validate(s);
+    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    StemValidator.internal_canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
     try {
       MemberOf mof = Membership.delImmediateMembership(s, ns, subj, f);
-      ns.setModified();
+      ns.internal_setModified();
       HibernateStemDAO.revokePriv(ns, mof);
     }
     catch (MemberDeleteException eMD) {

@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.10 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.11 2007-01-08 16:43:56 blair Exp $
  */
 class GroupHelper {
 
@@ -447,7 +447,7 @@ class GroupHelper {
       );
       Assert.assertTrue(
         "m source",
-        m.getSubjectSourceId().equals(SubjectFinder.getGSA().getId())
+        m.getSubjectSourceId().equals(SubjectFinder.internal_getGSA().getId())
       );
       return m;
     }

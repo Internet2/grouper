@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestAddMember2.java,v 1.6 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestAddMember2.java,v 1.7 2007-01-08 16:43:56 blair Exp $
  */
 public class TestAddMember2 extends TestCase {
 
@@ -35,7 +35,7 @@ public class TestAddMember2 extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

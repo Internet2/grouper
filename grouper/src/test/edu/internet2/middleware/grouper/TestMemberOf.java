@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test memberOf calculations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberOf.java,v 1.6 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestMemberOf.java,v 1.7 2007-01-08 16:43:56 blair Exp $
  */
 public class TestMemberOf extends TestCase {
 
@@ -50,7 +50,7 @@ public class TestMemberOf extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");

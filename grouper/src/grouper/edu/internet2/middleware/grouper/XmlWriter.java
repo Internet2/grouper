@@ -22,7 +22,7 @@ import  java.io.*;
  * Create XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlWriter.java,v 1.7 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: XmlWriter.java,v 1.8 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 class XmlWriter {
@@ -46,51 +46,51 @@ class XmlWriter {
   // PROTECTED INSTANCE METHODS //
 
   // Close {@link Writer}.
-  // @since   1.1.0
-  protected void close() 
+  // @since   1.2.0
+  protected void internal_close() 
     throws  IOException
   {
     this.w.close();
-  } // protected void close()
+  } // protected void internal_close()
 
   // Return a XML comment.
-  // @since   1.1.0
-  protected String comment(String s) 
+  // @since   1.2.0
+  protected String internal_comment(String s) 
   {
     return "<!-- " + s + " -->";
-  } // protected String comment(s)
+  } // protected String internal_comment(s)
 
-  // @since   1.1.0
-  protected void indent() {
+  // @since   1.2.0
+  protected void internal_indent() {
     this.padding = this._getPadding() + "  ";
-  } // protected void indent();
+  } // protected void internal_indent();
 
   // Output string to {@link Writer} with leading padding.
-  // @since   1.1.0
-  protected void put(String s) 
+  // @since   1.2.0
+  protected void internal_put(String s) 
     throws  IOException
   {
     this.w.write( this._getPadding() + s );
-  } // protected void put0(s)
+  } // protected void internal_put(s)
 
   // Output platform-appropriate newline to {@link Writer}.
-  // @since   1.1.0
-  protected void puts() 
+  // @since   1.2.0
+  protected void internal_puts() 
     throws  IOException
   {
     this.w.write(this.newLine);
-  } // protected void puts(s)
+  } // protected void internal_puts(s)
 
   // Output string to {@link Writer} with platform-appropriate newline and leading padding.
-  // @since   1.1.0
-  protected void puts(String s) 
+  // @since   1.2.0
+  protected void internal_puts(String s) 
     throws  IOException
   {
-    this.put( s + this.newLine );
-  } // protected void puts(s)
+    this.internal_put( s + this.newLine );
+  } // protected void internal_puts(s)
 
-  // @since   1.1.0
-  protected void undent() 
+  // @since   1.2.0
+  protected void internal_undent() 
     throws  GrouperRuntimeException
   {
     if (this._getPadding().length() < 2) {
@@ -101,7 +101,7 @@ class XmlWriter {
     else {
       this.padding = this._getPadding().substring(2);
     }
-  } // protected void undent();
+  } // protected void internal_undent();
 
 
   // PRIVATE INSTANCE METHODS //

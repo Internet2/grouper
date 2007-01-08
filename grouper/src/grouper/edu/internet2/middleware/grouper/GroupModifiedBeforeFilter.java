@@ -23,7 +23,7 @@ import  java.util.*;
  * Query by groups modified before the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupModifiedBeforeFilter.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GroupModifiedBeforeFilter.java,v 1.5 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 public class GroupModifiedBeforeFilter extends BaseQueryFilter {
@@ -53,7 +53,7 @@ public class GroupModifiedBeforeFilter extends BaseQueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     Set candidates  = GroupFinder.internal_findAllByModifiedBefore(s, this.d);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;

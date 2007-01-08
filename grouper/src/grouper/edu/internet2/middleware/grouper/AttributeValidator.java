@@ -20,7 +20,7 @@ import  java.util.regex.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AttributeValidator.java,v 1.8 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: AttributeValidator.java,v 1.9 2007-01-08 16:43:56 blair Exp $
  */
 class AttributeValidator {
 
@@ -32,22 +32,22 @@ class AttributeValidator {
   // PROTECTED CLASS METHODS //
 
   // @since   1.1.0
-  protected static boolean isPermittedName(String name) {
-    return Validator.isNotNullOrBlank(name);
-  } // protected static boolean isPermittedName(name)
+  protected static boolean internal_isPermittedName(String name) {
+    return Validator.internal_isNotNullOrBlank(name);
+  } // protected static boolean internal_isPermittedName(name)
   
   // @since   1.1.0
-  protected static boolean isPermittedValue(String value) {
-    return Validator.isNotNullOrBlank(value);
-  } // protected static boolean isPermittedValue(value)
+  protected static boolean internal_isPermittedValue(String value) {
+    return Validator.internal_isNotNullOrBlank(value);
+  } // protected static boolean internal_isPermittedValue(value)
   
-  protected static void namingValue(String value)
+  protected static void internal_namingValue(String value)
     throws  ModelException
   {
-    Validator.notNullPerModel(value, E.ATTR_NULL);
+    Validator.internal_notNullPerModel(value, E.ATTR_NULL);
     _noColon(value);
     _notJustWhiteSpace(value);
-  } // protected static void namingValue(value)
+  } // protected static void internal_namingValue(value)
    
 
   // PRIVATE CLASS METHODS // 

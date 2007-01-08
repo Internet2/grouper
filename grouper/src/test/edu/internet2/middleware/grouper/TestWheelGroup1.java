@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestWheelGroup1.java,v 1.4 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestWheelGroup1.java,v 1.5 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 public class TestWheelGroup1 extends TestCase {
@@ -54,12 +54,12 @@ public class TestWheelGroup1 extends TestCase {
       Stem    etc   = r.root.addChildStem("etc", "etc");
       Group   wheel = etc.addChildGroup("wheel", "wheel");
       wheel.addMember(subjA);
-      GrouperConfig.setProperty(GrouperConfig.GWU, "true"     );
-      GrouperConfig.setProperty(GrouperConfig.GWG, "etc:wheel");
+      GrouperConfig.internal_setProperty(GrouperConfig.GWU, "true"     );
+      GrouperConfig.internal_setProperty(GrouperConfig.GWG, "etc:wheel");
 
       GrouperSession nrs = GrouperSession.start(subjA);
-      Assert.assertTrue("is root", RootPrivilegeResolver.isRoot(nrs));
-      gA.setSession(nrs);
+      Assert.assertTrue("is root", RootPrivilegeResolver.internal_isRoot(nrs));
+      gA.internal_setSession(nrs);
       gA.grantPriv(subjB, AccessPrivilege.ADMIN);
       Assert.assertTrue("granted privilege due to wheel", true);
       nrs.stop();
@@ -69,7 +69,7 @@ public class TestWheelGroup1 extends TestCase {
       T.e(e);
     }
     finally {
-      GrouperConfig.setProperty(GrouperConfig.GWU, "false" ); // turn wheel back off
+      GrouperConfig.internal_setProperty(GrouperConfig.GWU, "false" ); // turn wheel back off
     }
   } // public void testGrantAdminWithWheel()
 

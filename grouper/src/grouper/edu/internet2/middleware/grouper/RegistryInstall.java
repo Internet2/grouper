@@ -23,7 +23,7 @@ import  java.util.Set;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.31 2007-01-04 17:17:45 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.32 2007-01-08 16:43:56 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -147,7 +147,7 @@ public class RegistryInstall {
     fields.addAll(base_f);
     fields.addAll(naming_f);
 
-    Settings settings = new Settings( Settings.getCurrentSchemaVersion() );
+    Settings settings = new Settings( Settings.internal_getCurrentSchemaVersion() );
 
     HibernateRegistryDAO.initializeRegistry(types, settings);
     EventLog.info("set schema version   : " + settings.getSchemaVersion()  );

@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * <p><b>This class is experimental and will change in future Grouper
  * releases.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.20 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.21 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {
@@ -92,7 +92,7 @@ public class HibernateSubject implements Serializable {
     throws  GrouperException,
             InsufficientPrivilegeException
   {
-    if (!RootPrivilegeResolver.isRoot(s)) {
+    if (!RootPrivilegeResolver.internal_isRoot(s)) {
       throw new InsufficientPrivilegeException(E.ROOTLIKE_TO_ADD_HSUBJ);
     }    
     return internal_add(id, type, name);

@@ -22,7 +22,7 @@ import  java.util.Properties;
  * XML Command Line Argument Processing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlArgs.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: XmlArgs.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 class XmlArgs {
@@ -50,8 +50,8 @@ class XmlArgs {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.1.0
-  protected static Properties getXmlExportArgs(String args[])
+  // @since   1.2.0
+  protected static Properties internal_getXmlExportArgs(String args[])
     throws  IllegalArgumentException,
             IllegalStateException
   {
@@ -92,10 +92,10 @@ class XmlArgs {
     }
     _enoughArgs(inputPos);
     return rc;
-  } // protected static Properties getXmlExportArgs(args)
+  } // protected static Properties internal_getXmlExportArgs(args)
 
-  // @since   1.1.0
-  protected static Properties getXmlImportArgs(String[] args) 
+  // @since   1.2.0
+  protected static Properties internal_getXmlImportArgs(String[] args) 
     throws  IllegalArgumentException,
             IllegalStateException
   {
@@ -131,10 +131,10 @@ class XmlArgs {
     }
     _enoughArgs(inputPos);
     return rc;
-  } // protected static Properties getXmlImportArgs(args)
+  } // protected static Properties internal_getXmlImportArgs(args)
 
-  // @since   1.1.0
-  protected static boolean wantsHelp(String[] args) {
+  // @since   1.2.0
+  protected static boolean internal_wantsHelp(String[] args) {
     if (
       args.length == 0
       || 
@@ -144,7 +144,7 @@ class XmlArgs {
       return true;
     }
     return false;
-  } // protected static void wantsHelp(args)
+  } // protected static void internal_wantsHelp(args)
 
 
   // PRIVATE CLASS METHODS //
@@ -201,7 +201,7 @@ class XmlArgs {
       rc.setProperty(RC_UPROPS, arg);
       break;
     case 3:
-      throw new IllegalArgumentException(E_TOO_MANY_ARGS + U.q(arg));
+      throw new IllegalArgumentException(E_TOO_MANY_ARGS + U.internal_q(arg));
     }
   } // private static void _handlePositionalArg(rc, inputPos, arg, file)
 

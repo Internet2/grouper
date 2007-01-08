@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.24 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.25 2007-01-08 16:43:56 blair Exp $
  */
 public class FieldFinder {
 
@@ -63,7 +63,7 @@ public class FieldFinder {
       return (Field) FIELDS.get(name);
     }
     // If not, refresh known types as it may be new and try again. 
-    updateKnownFields();
+    internal_updateKnownFields();
     if (FIELDS.containsKey(name)) {
       return (Field) FIELDS.get(name);
     }
@@ -98,8 +98,9 @@ public class FieldFinder {
 
 
   // PROTECTED CLASS METHODS //
-  // @since 1.0
-  protected static void updateKnownFields() {
+
+  // @since   1.2.0
+  protected static void internal_updateKnownFields() {
     // This method irks me still even if it is now more functionally correct
     Set fieldsInRegistry = findAll();
     // Look for types to add
@@ -127,7 +128,7 @@ public class FieldFinder {
       field = (String) toDelIter.next();
       FIELDS.remove(field);  
     }
-  } // protected static void updateKnownFields()
+  } // protected static void internal_updateKnownFields()
 
 }
 

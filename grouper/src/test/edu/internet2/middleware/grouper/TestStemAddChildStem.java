@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test {@link Stem.addChildStem()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildStem.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestStemAddChildStem.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  */
 public class TestStemAddChildStem extends TestCase {
 
@@ -31,7 +31,7 @@ public class TestStemAddChildStem extends TestCase {
   }
 
   protected void setUp () {
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

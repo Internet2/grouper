@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperSessionValidator.java,v 1.8 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperSessionValidator.java,v 1.9 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 class GrouperSessionValidator {
@@ -27,20 +27,20 @@ class GrouperSessionValidator {
   // PROTECTED CLASS METHODS //
 
   // @throws  GrouperRuntimeException
-  // @since   1.1
-  protected static void validate(GrouperSession s)
+  // @since   1.2.0
+  protected static void internal_validate(GrouperSession s)
     throws  GrouperRuntimeException
   {
     try {
-      Validator.valueNotNull( s                 , E.SV_O );
-      Validator.valueNotNull( s.getMember_id()  , E.SV_M );
-      Validator.valueNotNull( s.getSession_id() , E.SV_I );
-      Validator.valueNotNull( s.getStart_time() , E.SV_T );
+      Validator.internal_valueNotNull( s                 , E.SV_O );
+      Validator.internal_valueNotNull( s.getMember_id()  , E.SV_M );
+      Validator.internal_valueNotNull( s.getSession_id() , E.SV_I );
+      Validator.internal_valueNotNull( s.getStart_time() , E.SV_T );
     }
     catch (NullPointerException eNP) {
       throw new GrouperRuntimeException(eNP.getMessage(), eNP);
     }
-  } // protected static void validate(s)
+  } // protected static void internal_validate(s)
 
 } // class GrouperSessionValidator
 

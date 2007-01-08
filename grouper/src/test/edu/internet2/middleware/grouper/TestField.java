@@ -23,7 +23,7 @@ import  junit.framework.*;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.4 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestField.java,v 1.5 2007-01-08 16:43:56 blair Exp $
  */
 public class TestField extends TestCase {
 
@@ -32,7 +32,7 @@ public class TestField extends TestCase {
   }
 
   protected void setUp () {
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

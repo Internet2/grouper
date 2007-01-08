@@ -22,25 +22,25 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.1.0
-  protected static Field getField(Map priv2list, Privilege p)
+  // @since   1.2.0
+  protected static Field internal_getField(Map priv2list, Privilege p)
     throws  SchemaException
   {
     if (priv2list.containsKey(p)) {
       return FieldFinder.find( (String) priv2list.get(p) );
     }
     throw new SchemaException("invalid privilege");
-  } // protected static Field getField(priv2list, p)
+  } // protected static Field internal_getField(priv2list, p)
 
-  // @since   1.1.0
-  protected static Set getPrivs(
+  // @since   1.2.0
+  protected static Set internal_getPrivs(
     GrouperSession s, Subject subj, Member m, Privilege p, Iterator it
   )
     throws  SchemaException
@@ -52,9 +52,9 @@ class GrouperPrivilegeAdapter {
     boolean     revoke  = true;
     while (it.hasNext()) {
       ms = (Membership) it.next();
-      ms.setSession(s);
+      ms.internal_setSession(s);
       try {
-        if (!SubjectHelper.eq(m.getSubject(), subj)) {
+        if (!SubjectHelper.internal_eq(m.getSubject(), subj)) {
           owner   = m.getSubject();
           revoke  = false;
         }
@@ -89,7 +89,7 @@ class GrouperPrivilegeAdapter {
       }
     }
     return privs;
-  } // protected Set getPrivs(s, subj, m, p, it)
+  } // protected Set internal_getPrivs(s, subj, m, p, it)
 
   // @since   1.2.0
   protected static Set internal_getGroupsWhereSubjectHasPriv(GrouperSession s, Member m, Field f)
@@ -98,10 +98,10 @@ class GrouperPrivilegeAdapter {
     Set         mships  = new LinkedHashSet();
     Membership  ms;
     // Perform query as ROOT to prevent privilege constraints getting in the way
-    Iterator    it      = MembershipFinder.internal_findMemberships( s.getRootSession(), m, f ).iterator();
+    Iterator    it      = MembershipFinder.internal_findMemberships( s.internal_getRootSession(), m, f ).iterator();
     while (it.hasNext()) {
       ms = (Membership) it.next();
-      ms.setSession(s);
+      ms.internal_setSession(s);
       mships.add( ms.getGroup() );
     }
     return mships;
@@ -114,10 +114,10 @@ class GrouperPrivilegeAdapter {
     Set         mships  = new LinkedHashSet();
     Membership  ms;
     // Perform query as ROOT to prevent privilege constraints getting in the way
-    Iterator    it      = MembershipFinder.internal_findMemberships( s.getRootSession(), m, f ).iterator();
+    Iterator    it      = MembershipFinder.internal_findMemberships( s.internal_getRootSession(), m, f ).iterator();
     while (it.hasNext()) {
       ms = (Membership) it.next();
-      ms.setSession(s);
+      ms.internal_setSession(s);
       mships.add( ms.getStem() );
     }
     return mships;

@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.43 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.44 2007-01-08 16:43:56 blair Exp $
  */
 public class GrouperSession {
 
@@ -37,8 +37,8 @@ public class GrouperSession {
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private PrivilegeCache  ac    = getAccessCache();
-  private PrivilegeCache  nc    = getNamingCache();
+  private PrivilegeCache  ac    = internal_getAccessCache();
+  private PrivilegeCache  nc    = internal_getNamingCache();
   private GrouperSession  ps    = null; // parent session of root session
   private GrouperSession  rs    = null; // inner root session
   private Subject         subj  = null;
@@ -118,8 +118,8 @@ public class GrouperSession {
     throws  NullPointerException
   {
     Member m = this.getMember_id();
-    Validator.valueNotNull(m, E.MEMBER_NULL);
-    m.setSession(this);
+    Validator.internal_valueNotNull(m, E.MEMBER_NULL);
+    m.internal_setSession(this);
     return m;
   } // public Member getMember()
 
@@ -137,7 +137,7 @@ public class GrouperSession {
   /**
    * Get this session's id.
    * <pre class="eg">
-   * String id = s.getSessionId();
+   * String id = s.internal_getSessionId();
    * </pre>
    * @return  The session id.
    */
@@ -219,8 +219,8 @@ public class GrouperSession {
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append("session_id"    , this.getSession_id()  )
-      .append("subject_id"    , U.q(this.who)         )
-      .append("subject_type"  , U.q(this.type)        )
+      .append("subject_id"    , U.internal_q(this.who)         )
+      .append("subject_type"  , U.internal_q(this.type)        )
       .toString();
   } // public String toString()
 
@@ -228,8 +228,8 @@ public class GrouperSession {
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since   1.1.0
-  protected PrivilegeCache getAccessCache() {
+  // @since   1.2.0
+  protected PrivilegeCache internal_getAccessCache() {
     if (this.ac == null) {
       this.ac = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PACI));
       DebugLog.info(
@@ -237,10 +237,10 @@ public class GrouperSession {
       );
     }
     return this.ac;
-  } // protected PrivilegeCache getAccessCache()
+  } // protected PrivilegeCache internal_getAccessCache()
 
-  // @since   1.1.0
-  protected PrivilegeCache getNamingCache() {
+  // @since   1.2.0
+  protected PrivilegeCache internal_getNamingCache() {
     if (this.nc == null) {
       this.nc = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PNCI));
       DebugLog.info(
@@ -248,11 +248,11 @@ public class GrouperSession {
       );
     }
     return this.nc;
-  } // protected PrivilegeCache getNamingCache()
+  } // protected PrivilegeCache internal_getNamingCache()
 
   // @throws  GrouperRuntimeException
-  // @since   1.1.0
-  protected GrouperSession getRootSession() 
+  // @since   1.2.0
+  protected GrouperSession internal_getRootSession() 
     throws  GrouperRuntimeException
   {
     if (this._getParentSession() != null) { 
@@ -270,7 +270,7 @@ public class GrouperSession {
       }
     }
     return this.rs;
-  } // protected GrouperSession getRootSession()
+  } // protected GrouperSession internal_getRootSession()
 
 
   // PRIVATE STATIC METHODS //

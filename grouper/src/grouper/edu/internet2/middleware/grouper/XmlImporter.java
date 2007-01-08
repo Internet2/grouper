@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.90 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.91 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -131,7 +131,7 @@ public class XmlImporter {
   public XmlImporter(GrouperSession s, Properties userOptions) 
   {
     try {
-      this.options  = XmlUtils.getSystemProperties(LOG, CF);
+      this.options  = XmlUtils.internal_getSystemProperties(LOG, CF);
     }
     catch (IOException eIO) {
       throw new GrouperRuntimeException(eIO.getMessage(), eIO);
@@ -150,13 +150,13 @@ public class XmlImporter {
    * @since   1.1.0
    */
   public static void main(String[] args) {
-    if (XmlArgs.wantsHelp(args)) {
+    if (XmlArgs.internal_wantsHelp(args)) {
       System.out.println( _getUsage() );
       System.exit(0);
     }
     Properties rc = new Properties();
     try {
-      rc = XmlArgs.getXmlImportArgs(args);
+      rc = XmlArgs.internal_getXmlImportArgs(args);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -170,7 +170,7 @@ public class XmlImporter {
         GrouperSession.start(
           SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ) )
         ),
-        XmlUtils.getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS))
+        XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS))
       );
       _handleArgs(importer, rc);
       LOG.debug("Finished import of [" + rc.getProperty(XmlArgs.RC_IFILE) + "]");
@@ -240,7 +240,7 @@ public class XmlImporter {
     throws  GrouperException,
             IllegalArgumentException
   {
-    LOG.info("starting load at " + U.q(ns.getName()));
+    LOG.info("starting load at " + U.internal_q(ns.getName()));
     this._load(ns, doc);
     LOG.info("finished load");
   } // public void load(ns, doc)
@@ -273,10 +273,10 @@ public class XmlImporter {
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since   1.1.0
-  protected Properties getOptions() {
+  // @since   1.2.0
+  protected Properties internal_getOptions() {
     return (Properties) options.clone();
-  } // protected Properties getOptions()
+  } // protected Properties internal_getOptions()
 
 
   // PRIVATE CLASS METHODS //
@@ -286,18 +286,18 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (Validator.isNullOrBlank(id)) {
+    if (Validator.internal_isNullOrBlank(id)) {
       if (type.equals("group")) {
         if (this._isRelativeImport(idfr)) {
-          if (Validator.isNotNullOrBlank(this.importRoot)) {
-            idfr = U.constructName( this.importRoot, idfr.substring(1) );
+          if (Validator.internal_isNotNullOrBlank(this.importRoot)) {
+            idfr = U.internal_constructName( this.importRoot, idfr.substring(1) );
           }
           else {
             idfr = idfr.substring(1);
           }
         }
         else {
-          LOG.warn("not absolutizing idfr: " + U.q(idfr));
+          LOG.warn("not absolutizing idfr: " + U.internal_q(idfr));
         }
       }
       return this._getSubjectByIdentifier(idfr, type);
@@ -371,14 +371,14 @@ public class XmlImporter {
           try {
             ns = StemFinder.findByUuid(importer.s, uuid);
           } catch (StemNotFoundException e) {
-            throw new IllegalArgumentException(E.NO_STEM_UUID + U.q(uuid));
+            throw new IllegalArgumentException(E.NO_STEM_UUID + U.internal_q(uuid));
           }
         } 
         else if (name != null) {
           try {
             ns = StemFinder.findByName(importer.s, name);
           } catch (StemNotFoundException e) {
-            throw new IllegalArgumentException(E.NO_STEM_NAME + U.q(name));
+            throw new IllegalArgumentException(E.NO_STEM_NAME + U.internal_q(name));
           }
         }
         if (ns == null) {
@@ -446,11 +446,11 @@ public class XmlImporter {
           name = name.substring(3);
           stem = stem.substring(0, stem.lastIndexOf(Stem.ROOT_INT));
         }
-        name = U.constructName(stem, name);
+        name = U.internal_constructName(stem, name);
       }
     }
     if (
-          Validator.isNotNullOrBlank(importRoot)
+          Validator.internal_isNotNullOrBlank(importRoot)
       &&  this.importedGroups.containsKey(importRoot + Stem.ROOT_INT + name)
     ) 
     {
@@ -543,7 +543,7 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (Validator.isNullOrBlank(type)) {
+    if (Validator.internal_isNullOrBlank(type)) {
       return SubjectFinder.findById(id);
     }
     return SubjectFinder.findById(id, type);
@@ -554,7 +554,7 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (Validator.isNullOrBlank(type)) {
+    if (Validator.internal_isNullOrBlank(type)) {
       return SubjectFinder.findByIdentifier(identifier);
     }
     return SubjectFinder.findByIdentifier(identifier, type);
@@ -562,17 +562,17 @@ public class XmlImporter {
 
   // @since   1.1.0
   private boolean _isApplyNewGroupTypesEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "import.data.apply-new-group-types");
+    return XmlUtils.internal_getBooleanOption(this.options, "import.data.apply-new-group-types");
   } // private boolean _isApplyNewGroupTypesEnabled()
   
   // @since   1.1.0
   private boolean _isMetadataGroupTypeImportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "import.metadata.group-types");
+    return XmlUtils.internal_getBooleanOption(this.options, "import.metadata.group-types");
   } // private boolean _isMetadataGroupTypeImportEnabled()
 
   // @since   1.1.0
   private boolean _isMetadataGroupTypeAttributeImportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "import.metadata.group-typea-attributes");
+    return XmlUtils.internal_getBooleanOption(this.options, "import.metadata.group-typea-attributes");
   } // private boolean _isMetadataGroupTypeAttributeImportEnabled()
 
   // @since   1.1.0
@@ -590,7 +590,7 @@ public class XmlImporter {
 
   // @since   1.1.0
   private boolean _isUpdatingAttributes() {
-    return XmlUtils.getBooleanOption(this.options, "import.data.update-attributes");
+    return XmlUtils.internal_getBooleanOption(this.options, "import.data.update-attributes");
   } // private boolean _isUpdatingAttributes()
 
   // @since   1.1.0
@@ -601,7 +601,7 @@ public class XmlImporter {
     this._setDocument(doc);
     try {
       this.importRoot = ns.getName();
-      if (ns.isRootStem()) {
+      if (ns.internal_isRootStem()) {
         this.importRoot = GrouperConfig.EMPTY_STRING;
       }
       this._processProperties();
@@ -662,7 +662,7 @@ public class XmlImporter {
 
   // @since   1.0
   private boolean _optionTrue(String key) {
-    if (Validator.isNullOrBlank(key)) {
+    if (Validator.internal_isNullOrBlank(key)) {
       options.setProperty(key, "false");
       return false;
     }
@@ -770,7 +770,7 @@ public class XmlImporter {
       Subject subj = this._findSubject( 
         el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
       );
-      if (!XmlUtils.hasImmediatePrivilege(subj, g, p.getName())) {
+      if (!XmlUtils.internal_hasImmediatePrivilege(subj, g, p.getName())) {
         g.grantPriv(subj, p);
       }
     }
@@ -846,9 +846,9 @@ public class XmlImporter {
       orig    = g.getAttribute(name); 
       val     = ( (Text) elAttr.getFirstChild() ).getData();
       if (
-            Validator.isNotNullOrBlank(val)
+            Validator.internal_isNotNullOrBlank(val)
         &&  !val.equals(orig)
-        &&  ( Validator.isNullOrBlank(orig) || this._isUpdatingAttributes() )
+        &&  ( Validator.internal_isNullOrBlank(orig) || this._isUpdatingAttributes() )
       )
       {
         g.setAttribute(name, val);
@@ -891,7 +891,7 @@ public class XmlImporter {
       );
     } 
     catch (GroupNotFoundException eGNF) {
-      LOG.error("error processing composite for " + U.q(g.getName()) + ": " + eGNF.getMessage());
+      LOG.error("error processing composite for " + U.internal_q(g.getName()) + ": " + eGNF.getMessage());
       return;
     }
   } // private void _processComposite(composite, group)
@@ -907,7 +907,7 @@ public class XmlImporter {
     String name = XmlImporter._getText(typeE);
     CompositeType ctype = CompositeType.getInstance(name);
     if (ctype == null) {
-      throw new IllegalStateException("could not resolve composite type: " + U.q(name));
+      throw new IllegalStateException("could not resolve composite type: " + U.internal_q(name));
     }
     return ctype;
   }  // private CompositeType _processCompositeType(typeE)
@@ -924,7 +924,7 @@ public class XmlImporter {
             SchemaException,
             StemNotFoundException
   {
-    String newGroup = U.constructName( stem, e.getAttribute(GrouperConfig.ATTR_E) );
+    String newGroup = U.internal_constructName( stem, e.getAttribute(GrouperConfig.ATTR_E) );
     try {
       this._processGroupUpdate(e, newGroup);  // Try and update
     } 
@@ -953,7 +953,7 @@ public class XmlImporter {
       e.getAttribute(GrouperConfig.ATTR_DE)
     );
     String description = e.getAttribute(GrouperConfig.ATTR_D);
-    if (Validator.isNotNullOrBlank(description)) {
+    if (Validator.internal_isNotNullOrBlank(description)) {
       child.setDescription(description);
     }
     this._setUuid(child, e);
@@ -970,7 +970,7 @@ public class XmlImporter {
       throw new IllegalStateException("Expected tag: <groupRef> but found <" + tagName + ">");
     }
     String name = groupE.getAttribute(GrouperConfig.ATTR_N);
-    if (Validator.isNullOrBlank(name)) {
+    if (Validator.internal_isNullOrBlank(name)) {
       throw new IllegalStateException("Expected 'name' atribute for <groupRef>");
     }
     return GroupFinder.findByName( s, this._getAbsoluteName(name, stem) );
@@ -1009,11 +1009,11 @@ public class XmlImporter {
     Group g = GroupFinder.findByName(this.s, newGroup);
     if (this._isUpdatingAttributes()) {
       String dExtn  = e.getAttribute(GrouperConfig.ATTR_DE);
-      if (Validator.isNotNullOrBlank(dExtn) && !dExtn.equals(g.getDisplayExtension())) {
+      if (Validator.internal_isNotNullOrBlank(dExtn) && !dExtn.equals(g.getDisplayExtension())) {
         g.setDisplayExtension(dExtn);
       }
       String desc   = e.getAttribute(GrouperConfig.ATTR_D);
-      if (Validator.isNotNullOrBlank(desc) && !desc.equals(g.getDisplayExtension())) {
+      if (Validator.internal_isNotNullOrBlank(desc) && !desc.equals(g.getDisplayExtension())) {
         g.setDisplayExtension(desc);
       }
     }
@@ -1158,7 +1158,7 @@ public class XmlImporter {
       rv = false; // Omit remaining processing
     }
     if (compE != null && hasMembers) {
-      LOG.warn("Cannot add composite membership to group that already has members: " + U.q(g.getName()));
+      LOG.warn("Cannot add composite membership to group that already has members: " + U.internal_q(g.getName()));
       rv = false; // Omit remaining processing
     }
     return rv;
@@ -1290,7 +1290,7 @@ public class XmlImporter {
       Subject subj = this._findSubject( 
         el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
       );
-      if (!XmlUtils.hasImmediatePrivilege(subj, ns, p.getName())) {
+      if (!XmlUtils.internal_hasImmediatePrivilege(subj, ns, p.getName())) {
         ns.grantPriv(subj, p);
       }
     }
@@ -1316,7 +1316,7 @@ public class XmlImporter {
             StemModifyException,
             StemNotFoundException
   {
-    String newStem = U.constructName( stem, e.getAttribute(GrouperConfig.ATTR_E) );
+    String newStem = U.internal_constructName( stem, e.getAttribute(GrouperConfig.ATTR_E) );
     try {
       this._processPathUpdate(e, newStem);  // Try and update
     } 
@@ -1350,7 +1350,7 @@ public class XmlImporter {
       e.getAttribute(GrouperConfig.ATTR_DE)
     );
     String  description   = e.getAttribute(GrouperConfig.ATTR_D);
-    if (Validator.isNotNullOrBlank(description)) {
+    if (Validator.internal_isNotNullOrBlank(description)) {
       child.setDescription(description);
     }
     this._setUuid(child, e);
@@ -1369,11 +1369,11 @@ public class XmlImporter {
     Stem ns = StemFinder.findByName(this.s, newStem);
     if (this._isUpdatingAttributes()) {
       String dExtn  = e.getAttribute(GrouperConfig.ATTR_DE);
-      if (Validator.isNotNullOrBlank(dExtn) && !dExtn.equals(ns.getDisplayExtension())) {
+      if (Validator.internal_isNotNullOrBlank(dExtn) && !dExtn.equals(ns.getDisplayExtension())) {
         ns.setDisplayExtension(dExtn);
       }
       String desc   = e.getAttribute(GrouperConfig.ATTR_D);
-      if (Validator.isNotNullOrBlank(desc) && !desc.equals(ns.getDisplayExtension())) {
+      if (Validator.internal_isNotNullOrBlank(desc) && !desc.equals(ns.getDisplayExtension())) {
         ns.setDisplayExtension(desc);
       }
     }
@@ -1482,7 +1482,7 @@ public class XmlImporter {
     throws  GrouperDAOException
   {
     String uuid = e.getAttribute("id");
-    if (Validator.isNotNullOrBlank(uuid)) {
+    if (Validator.internal_isNotNullOrBlank(uuid)) {
       o.setUuid(uuid);
       HibernateOwnerDAO.update(o);
     }

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType4.java,v 1.4 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGroupType4.java,v 1.5 2007-01-08 16:43:56 blair Exp $
  */
 public class TestGroupType4 extends TestCase {
 
@@ -58,7 +58,7 @@ public class TestGroupType4 extends TestCase {
 
       // Now start non-root session and add+delete group type as non-root
       GrouperSession nrs = GrouperSession.start(subj);
-      g.setSession(nrs);
+      g.internal_setSession(nrs);
       Assert.assertFalse( "no custom type"      , g.hasType(type) );
       g.addType(type);
       Assert.assertTrue(  "now has custom type" , g.hasType(type) );

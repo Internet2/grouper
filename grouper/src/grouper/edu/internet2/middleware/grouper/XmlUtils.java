@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.13 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.14 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -39,23 +39,23 @@ class XmlUtils {
 
   // PROTECTED CLASS METHODS //
   
-  // @since   1.1.0
-  protected static boolean getBooleanOption(Properties opts, String key) {
+  // @since   1.2.0
+  protected static boolean internal_getBooleanOption(Properties opts, String key) {
     return Boolean.valueOf( opts.getProperty(key, "false") );
-  } // protected static boolean getBooleanOption(opts, key)
+  } // protected static boolean internal_getBooleanOption(opts, key)
 
-  // @since   1.1.0 
-  protected static Properties getSystemProperties(Log log, String file) 
+  // @since   1.2.0 
+  protected static Properties internal_getSystemProperties(Log log, String file) 
     throws  IOException
   {
     Properties props = new Properties();
     log.debug("loading system properties: " + file);
     props.load( XmlExporter.class.getResourceAsStream(file) );
     return props;
-  } // protected static Properties getSystemProperties(log, file);
+  } // protected static Properties internal-getSystemProperties(log, file);
 
-  // @since   1.1.0
-  protected static Properties getUserProperties(Log log, String file) 
+  // @since   1.2.0
+  protected static Properties internal_getUserProperties(Log log, String file) 
     throws  FileNotFoundException,
             IOException
   {
@@ -67,20 +67,20 @@ class XmlUtils {
       is.close();
     } 
     return props;
-  } // protected static Properties getUserProperties(log, file)
+  } // protected static Properties internal_getUserProperties(log, file)
 
-  // @since   1.1.0
-  protected static boolean hasImmediatePrivilege(Subject subj, Owner o, String p) {
+  // @since   1.2.0
+  protected static boolean internal_hasImmediatePrivilege(Subject subj, Owner o, String p) {
     if (o instanceof Group) {
       return XmlUtils._hasImmediateAccessPrivilege(subj, (Group) o, p);
     }
     return XmlUtils._hasImmediateNamingPrivilege(subj, (Stem) o, p);
-  } // protected static boolean hasImmediatePrivilege(subj, o, p)
+  } // protected static boolean internal_hasImmediatePrivilege(subj, o, p)
 
-  // @since   1.1.0
-  protected static String xmlE(String s) {
+  // @since   1.2.0
+  protected static String internal_xmlE(String s) {
     return StringEscapeUtils.escapeXml(s);
-  } // protected static String xmlE(s)
+  } // protected static String internal_xmlE(s)
 
 
   // PRIVATE CLASS METHODS //
@@ -91,7 +91,7 @@ class XmlUtils {
     Iterator        it  = g.getPrivs(subj).iterator();
     while (it.hasNext()) {
       ap = (AccessPrivilege) it.next();
-      if ( ap.getName().equals(p) && SubjectHelper.eq( ap.getOwner(), subj ) ) {
+      if ( ap.getName().equals(p) && SubjectHelper.internal_eq( ap.getOwner(), subj ) ) {
         return true;
       }
     }
@@ -104,7 +104,7 @@ class XmlUtils {
     Iterator        it  = ns.getPrivs(subj).iterator();
     while (it.hasNext()) {
       np = (NamingPrivilege) it.next();
-      if ( np.getName().equals(p) && SubjectHelper.eq( np.getOwner(), subj ) ) {
+      if ( np.getName().equals(p) && SubjectHelper.internal_eq( np.getOwner(), subj ) ) {
         return true;
       }
     }

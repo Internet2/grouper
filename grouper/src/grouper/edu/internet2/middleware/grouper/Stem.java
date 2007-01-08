@@ -29,7 +29,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.94 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: Stem.java,v 1.95 2007-01-08 16:43:56 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -93,14 +93,14 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if (!StemValidator.canAddChildGroup(this, extension, displayExtension)) {
+    if (!StemValidator.internal_canAddChildGroup(this, extension, displayExtension)) {
       throw new GroupAddException();
     }
     try {
       Group child = Group.create(this, extension, displayExtension);
       child = HibernateStemDAO.createChildGroup(this, child, new Member( new GrouperSubject(child) ) );
       sw.stop();
-      EventLog.info(s, M.GROUP_ADD + U.q(child.getName()), sw);
+      EventLog.info(s, M.GROUP_ADD + U.internal_q(child.getName()), sw);
       _grantDefaultPrivsUponCreate(child);
       return child; 
     }
@@ -138,13 +138,13 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if ( !StemValidator.canAddChildStem(this, extension, displayExtension) ) {
+    if ( !StemValidator.internal_canAddChildStem(this, extension, displayExtension) ) {
       throw new StemAddException();
     }
     try {
-      Stem child = HibernateStemDAO.createChildStem( this, Stem.create(this, extension, displayExtension) );
+      Stem child = HibernateStemDAO.createChildStem( this, Stem.internal_create(this, extension, displayExtension) );
       sw.stop();
-      EventLog.info(s, M.STEM_ADD + U.q(child.getName()), sw);
+      EventLog.info(s, M.STEM_ADD + U.internal_q(child.getName()), sw);
       _grantDefaultPrivsUponCreate(child);
       return child;
     }
@@ -175,14 +175,14 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    GrouperSessionValidator.validate(this.getSession());
-    StemValidator.canDeleteStem(this);
+    GrouperSessionValidator.internal_validate(this.internal_getSession());
+    StemValidator.internal_canDeleteStem(this);
     try {
       String name = this.getName();   // Preserve name for logging
       this._revokeAllNamingPrivs();   // Revoke privs
       HibernateStemDAO.delete(this);  // And delete
       sw.stop();
-      EventLog.info(this.getSession(), M.STEM_DEL + U.q(name), sw);
+      EventLog.info(this.internal_getSession(), M.STEM_DEL + U.internal_q(name), sw);
     }
     catch (GrouperDAOException eDAO)      {
       throw new StemDeleteException( eDAO.getMessage(), eDAO );
@@ -219,13 +219,13 @@ public class Stem extends Owner {
    */
   public Set getChildGroups() {
     Group     child;
-    Subject   subj    = this.getSession().getSubject();
+    Subject   subj    = this.internal_getSession().getSubject();
     Set       groups  = new LinkedHashSet();
     Iterator  it      = HibernateStemDAO.findChildGroups(this).iterator();
     while (it.hasNext()) {
       child = (Group) it.next();
-      child.setSession( this.getSession() );
-      if ( RootPrivilegeResolver.canVIEW(child, subj) ) {
+      child.internal_setSession( this.internal_getSession() );
+      if ( RootPrivilegeResolver.internal_canVIEW(child, subj) ) {
         groups.add(child);
       }
     }
@@ -246,7 +246,7 @@ public class Stem extends Owner {
     Iterator  it    = HibernateStemDAO.findChildStems(this).iterator();
     while (it.hasNext()) {
       child = (Stem) it.next();
-      child.setSession( this.getSession() );
+      child.internal_setSession( this.internal_getSession() );
       stems.add(child);
     }
     return stems;
@@ -315,8 +315,8 @@ public class Stem extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getSubjectsWithPriv(
-        this.getSession(), this, NamingPrivilege.CREATE
+      return PrivilegeResolver.internal_getSubjectsWithPriv(
+        this.internal_getSession(), this, NamingPrivilege.CREATE
       );
     }
     catch (SchemaException eS) {
@@ -478,7 +478,7 @@ public class Stem extends Owner {
     if (parent == null) {
       throw new StemNotFoundException();
     }
-    parent.setSession(this.getSession());
+    parent.internal_setSession(this.internal_getSession());
     return parent;
   } // public Stem getParentStem()
 
@@ -491,7 +491,7 @@ public class Stem extends Owner {
    * @return  Set of {@link NamingPrivilege} objects.
    */
   public Set getPrivs(Subject subj) {
-    return PrivilegeResolver.getPrivs(this.getSession(), this, subj);
+    return PrivilegeResolver.internal_getPrivs(this.internal_getSession(), this, subj);
   } // public Set getPrivs(subj)
 
   /**
@@ -506,8 +506,8 @@ public class Stem extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getSubjectsWithPriv(
-        this.getSession(), this, NamingPrivilege.STEM
+      return PrivilegeResolver.internal_getSubjectsWithPriv(
+        this.internal_getSession(), this, NamingPrivilege.STEM
       );
     }
     catch (SchemaException eS) {
@@ -541,9 +541,9 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.grantPriv(this.getSession(), this, subj, priv);
+    PrivilegeResolver.internal_grantPriv(this.internal_getSession(), this, subj, priv);
     sw.stop();
-    EL.stemGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
+    EL.stemGrantPriv(this.internal_getSession(), this.getName(), subj, priv, sw);
   } // public void grantPriv(subj, priv)
 
   /**
@@ -559,7 +559,7 @@ public class Stem extends Owner {
    * @return  Boolean true if the subject has CREATE.
    */
   public boolean hasCreate(Subject subj) {
-    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, NamingPrivilege.CREATE);
+    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, NamingPrivilege.CREATE);
   } // public boolean hasCreate(subj)
  
   /**
@@ -575,7 +575,7 @@ public class Stem extends Owner {
    * @return  Boolean true if the subject has STEM.
    */
   public boolean hasStem(Subject subj) {
-    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, NamingPrivilege.STEM);
+    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, NamingPrivilege.STEM);
   } // public boolean hasStem(subj)
  
   public int hashCode() {
@@ -612,9 +612,9 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.revokePriv(this.getSession(), this, priv);
+    PrivilegeResolver.internal_revokePriv(this.internal_getSession(), this, priv);
     sw.stop();
-    EL.stemRevokePriv(this.getSession(), this.getName(), priv, sw);
+    EL.stemRevokePriv(this.internal_getSession(), this.getName(), priv, sw);
   } // public void revokePriv(priv)
  
   /**
@@ -644,9 +644,9 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.revokePriv(this.getSession(), this, subj, priv);
+    PrivilegeResolver.internal_revokePriv(this.internal_getSession(), this, subj, priv);
     sw.stop();
-    EL.stemRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
+    EL.stemRevokePriv(this.internal_getSession(), this.getName(), subj, priv, sw);
   } // public void revokePriv(subj, priv)
  
   /**
@@ -673,15 +673,15 @@ public class Stem extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
+    if (!RootPrivilegeResolver.internal_canSTEM(this, this.internal_getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
       this.setStem_description(value);
-      this.setModified();
+      this.internal_setModified();
       HibernateStemDAO.update(this);
       sw.stop();
-      EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_D, value, sw);
+      EL.stemSetAttr(this.internal_getSession(), this.getName(), GrouperConfig.ATTR_D, value, sw);
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set description: " + eDAO.getMessage(), eDAO );
@@ -713,7 +713,7 @@ public class Stem extends Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     try {
-      AttributeValidator.namingValue(value);
+      AttributeValidator.internal_namingValue(value);
     }
     catch (ModelException eM) {
       if (!(this.getStem_name().equals(ROOT_INT) && value.equals(ROOT_EXT))) {
@@ -722,23 +722,23 @@ public class Stem extends Owner {
       // Appease Oracle
       value = ROOT_INT;
     }
-    if (!RootPrivilegeResolver.canSTEM(this, this.getSession().getSubject())) {
+    if (!RootPrivilegeResolver.internal_canSTEM(this, this.internal_getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
       this.setDisplay_extension(value);
-      this.setModified();
+      this.internal_setModified();
       try {
-        this.setDisplay_name( U.constructName( this.getParentStem().getDisplayName(), value ) );
+        this.setDisplay_name( U.internal_constructName( this.getParentStem().getDisplayName(), value ) );
       }
       catch (StemNotFoundException eSNF) {
         this.setDisplay_name(value); // I guess we're the root stem
       }
       // Now iterate through all child groups and stems (as root), renaming each.
-      GrouperSession  orig  = this.getSession();
-      this.setSession( orig.getRootSession() );
+      GrouperSession  orig  = this.internal_getSession();
+      this.internal_setSession( orig.internal_getRootSession() );
       HibernateStemDAO.renameStemAndChildren( this, this._renameChildren() );
-      this.setSession(orig);
+      this.internal_setSession(orig);
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set displayExtension: " + eDAO.getMessage(), eDAO );
@@ -748,7 +748,7 @@ public class Stem extends Owner {
     if (value.equals(ROOT_INT)) {
       value = ROOT_EXT;
     }
-    EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_DE, value, sw);
+    EL.stemSetAttr(this.internal_getSession(), this.getName(), GrouperConfig.ATTR_DE, value, sw);
   } // public void setDisplayExtension(value)
 
   public String toString() {
@@ -764,26 +764,26 @@ public class Stem extends Owner {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.1.0
-  protected static Stem create(Stem parent, String extn, String displayExtn) {
+  // @since   1.2.0
+  protected static Stem internal_create(Stem parent, String extn, String displayExtn) {
     Stem ns = new Stem();
-    ns.setSession( parent.getSession() );
+    ns.internal_setSession( parent.internal_getSession() );
     ns.setParent_stem(parent);            // Set parent
     ns._setCreated();                     // Set creation information
     ns.setUuid( GrouperUuid.getUuid() );  // Assign UUID
     ns.setStem_extension(extn);           // Set naming information
     ns.setDisplay_extension(displayExtn);
-    ns.setStem_name( U.constructName( parent.getName(), extn ) );
-    ns.setDisplay_name( U.constructName( parent.getDisplayName(), displayExtn ));
+    ns.setStem_name( U.internal_constructName( parent.getName(), extn ) );
+    ns.setDisplay_name( U.internal_constructName( parent.getDisplayName(), displayExtn ));
     return ns;
-  } // protected static Stem create(parent, extn, displayExtn)
+  } // protected static Stem internal_create(parent, extn, displayExtn)
 
   // @since   1.2.0
   protected static Stem internal_addRootStem(GrouperSession s) 
     throws  GrouperRuntimeException
   {
     Stem root = new Stem();
-    root.setSession(s);
+    root.internal_setSession(s);
     root._setCreated();
     root.setUuid( GrouperUuid.getUuid() );
     root.setStem_name( ROOT_INT );
@@ -801,21 +801,22 @@ public class Stem extends Owner {
     return root;
   } // protected static Stem internal_addRootStem(GrouperSession s)
 
-  protected void setModified() {
+  // @since   1.2.0
+  protected void internal_setModified() {
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
-  } // protected void setModified()
+  } // protected void internal_setModified()
 
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since 1.1.0
-  protected boolean isRootStem() {
+  // @since   1.2.0
+  protected boolean internal_isRootStem() {
     if (this.getName().equals(ROOT_EXT)) {
       return true;
     }
     return false;
-  } // protected boolean isRootStem()
+  } // protected boolean internal_isRootStem()
 
 
   // PRIVATE INSTANCE METHODS //
@@ -832,9 +833,9 @@ public class Stem extends Owner {
     // Possibly a bug. The modify* attrs get set when granting ADMIN at creation.
     try {
       GrouperSession  orig  = this.s;
-      GrouperSession  root  = orig.getRootSession();
-      g.setSession(root);
-      PrivilegeResolver.grantPriv(root, g, orig.getSubject(), AccessPrivilege.ADMIN);
+      GrouperSession  root  = orig.internal_getRootSession();
+      g.internal_setSession(root);
+      PrivilegeResolver.internal_grantPriv(root, g, orig.getSubject(), AccessPrivilege.ADMIN);
 
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.ADMIN , GrouperConfig.GCGAA );
@@ -844,7 +845,7 @@ public class Stem extends Owner {
       this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
       this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.VIEW  , GrouperConfig.GCGAV );
 
-      g.setSession(orig);
+      g.internal_setSession(orig);
     }
     catch (GrantPrivilegeException eGP)         {
       throw new GroupAddException(eGP.getMessage(), eGP);
@@ -869,9 +870,9 @@ public class Stem extends Owner {
     // Possibly a bug. The modify* attrs get set when granting privs at creation.
     try {
       GrouperSession  orig  = this.s;
-      GrouperSession  root  = orig.getRootSession();
-      ns.setSession(root);
-      PrivilegeResolver.grantPriv(root, ns, orig.getSubject(), NamingPrivilege.STEM);
+      GrouperSession  root  = orig.internal_getRootSession();
+      ns.internal_setSession(root);
+      PrivilegeResolver.internal_grantPriv(root, ns, orig.getSubject(), NamingPrivilege.STEM);
 
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(
@@ -881,7 +882,7 @@ public class Stem extends Owner {
         root, ns, NamingPrivilege.STEM  , GrouperConfig.SCGAS
       );
 
-      ns.setSession(orig);
+      ns.internal_setSession(orig);
     }
     catch (GrantPrivilegeException eGP)         {
       throw new StemAddException(eGP.getMessage(), eGP);
@@ -907,15 +908,15 @@ public class Stem extends Owner {
       sw.start();
       if      (o.getClass().equals(Group.class)) {
         Group g = (Group) o;
-        PrivilegeResolver.grantPriv(root, g, all, p);
+        PrivilegeResolver.internal_grantPriv(root, g, all, p);
         sw.stop();
-        EL.groupGrantPriv(this.getSession(), g.getName(), all, p, sw);
+        EL.groupGrantPriv(this.internal_getSession(), g.getName(), all, p, sw);
       }
       else if (o.getClass().equals(Stem.class)) {
         Stem ns = (Stem) o;
-        PrivilegeResolver.grantPriv(root, ns, all, p);
+        PrivilegeResolver.internal_grantPriv(root, ns, all, p);
         sw.stop();
-        EL.stemGrantPriv(this.getSession(), ns.getName(), all, p, sw);
+        EL.stemGrantPriv(this.internal_getSession(), ns.getName(), all, p, sw);
       }
     }
   } // private void _grantOptionalPrivUponCreate(root, o, p, opt)
@@ -928,9 +929,9 @@ public class Stem extends Owner {
     Iterator  it      = HibernateStemDAO.findChildGroups(this).iterator();
     while (it.hasNext()) {
       child = (Group) it.next();
-      child.setSession( this.getSession() );
-      child.setDisplayName( U.constructName( this.getDisplayName(), child.getDisplayExtension() ) );
-      child.setModified();
+      child.internal_setSession( this.internal_getSession() );
+      child.setDisplayName( U.internal_constructName( this.getDisplayName(), child.getDisplayExtension() ) );
+      child.internal_setModified();
       objects.add(child);
     }
     return objects;
@@ -960,10 +961,10 @@ public class Stem extends Owner {
     Iterator  it      = HibernateStemDAO.findChildStems(this).iterator();
     while (it.hasNext()) {
       child = (Stem) it.next();    
-      child.setSession( this.getSession() );
-      child.setDisplay_name( U.constructName( this.getDisplayName(), child.getDisplayExtension() ) );
+      child.internal_setSession( this.internal_getSession() );
+      child.setDisplay_name( U.internal_constructName( this.getDisplayName(), child.getDisplayExtension() ) );
       objects.addAll( child._renameChildGroups() );
-      child.setModified();
+      child.internal_setModified();
       objects.add(child);
       objects.addAll( child._renameChildStemsAndGroups() );
     }
@@ -975,11 +976,11 @@ public class Stem extends Owner {
             RevokePrivilegeException, 
             SchemaException
   {
-    GrouperSession orig = this.getSession();
-    this.setSession( orig.getRootSession() ); // proxy as root
+    GrouperSession orig = this.internal_getSession();
+    this.internal_setSession( orig.internal_getRootSession() ); // proxy as root
     this.revokePriv(NamingPrivilege.CREATE);
     this.revokePriv(NamingPrivilege.STEM);
-    this.setSession(orig);
+    this.internal_setSession(orig);
   } // private void _revokeAllNamingPrivs()
 
   private void _setCreated() {

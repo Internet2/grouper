@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Base implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BasePrivilegeCache.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: BasePrivilegeCache.java,v 1.5 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0     
  */
 public abstract class BasePrivilegeCache implements PrivilegeCache {
@@ -46,7 +46,7 @@ public abstract class BasePrivilegeCache implements PrivilegeCache {
   public static PrivilegeCache getCache(String klass) 
     throws  GrouperRuntimeException
   {
-    return (PrivilegeCache) U.realizeInterface(klass);
+    return (PrivilegeCache) U.internal_realizeInterface(klass);
   } // public static PrivilegeCache getCache(klass)
 
 

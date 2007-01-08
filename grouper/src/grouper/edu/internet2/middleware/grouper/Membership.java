@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.62 2007-01-05 14:56:26 blair Exp $
+ * @version $Id: Membership.java,v 1.63 2007-01-08 16:43:56 blair Exp $
  */
 public class Membership {
 
@@ -68,7 +68,7 @@ public class Membership {
   protected Membership(GrouperSession orig, Owner o, Member m, Field f)
     throws  ModelException
   {
-    GrouperSession s = o.getSession();
+    GrouperSession s = o.internal_getSession();
     this.setOwner_id(           o                     );
     this.setMember_id(          m                     );
     this.setField(              f                     );
@@ -77,7 +77,7 @@ public class Membership {
     this.setDepth(              0                     );
     this.setVia_id(             null                  );
     this.setParent_membership(  null                  );
-    this.setSession(            s                     );
+    this.internal_setSession(            s                     );
     this.setCreator_id(         orig.getMember()      );
     this.setCreate_time(        new Date().getTime()  );
     MembershipValidator.validateImmediate(this);
@@ -116,7 +116,7 @@ public class Membership {
         this.setParent_membership( hasMS.getUuid() );
       }
     } 
-    this.setSession(            s                     );
+    this.internal_setSession(            s                     );
     this.setCreator_id(         s.getMember()         );
     this.setCreate_time(        new Date().getTime()  );
     MembershipValidator.validateEffective(this);
@@ -134,7 +134,7 @@ public class Membership {
     this.setDepth(              0                             );
     this.setVia_id(             via                           );
     this.setParent_membership(  null                          );
-    this.setSession(            o.getSession()                );
+    this.internal_setSession(   o.internal_getSession()       );
     this.setCreator_id(         orig.getMember()              );
     this.setCreate_time(        new Date().getTime()          );
     MembershipValidator.validateComposite(this);
@@ -172,7 +172,7 @@ public class Membership {
     // Ideally I would use a Hibernate mapping for this, but...
     //   * It wasn't working and I didn't have time to debug it at the time.
     //   * I still need to filter
-    return MembershipFinder.internal_findChildMemberships( this.getSession(), this );
+    return MembershipFinder.internal_findChildMemberships( this.internal_getSession(), this );
   } // public Set getChildMemberships()
 
 
@@ -188,7 +188,7 @@ public class Membership {
   {
     if (this.getOwner_id() instanceof Group) {
       Group g = (Group) this.getOwner_id();
-      g.setSession(this.getSession());
+      g.internal_setSession(this.internal_getSession());
       return g;
     }
     throw new GroupNotFoundException();
@@ -216,13 +216,13 @@ public class Membership {
   public Member getMember() 
     throws MemberNotFoundException
   {
-    GrouperSessionValidator.validate(this.getSession());
+    GrouperSessionValidator.internal_validate(this.internal_getSession());
     Member m = this.getMember_id();
     if (m == null) {
       String msg = "unable to get member";
       throw new MemberNotFoundException(msg);
     }
-    m.setSession(this.getSession());
+    m.internal_setSession(this.internal_getSession());
     return m;
   } // public Member getMember()
 
@@ -247,7 +247,7 @@ public class Membership {
       throw new MembershipNotFoundException("no parent");
     }
     Membership parent = HibernateMembershipDAO.findByUuid(uuid);
-    parent.setSession( this.getSession() );
+    parent.internal_setSession( this.internal_getSession() );
     return parent;
   } // public Membership getParentMembership()
 
@@ -269,7 +269,7 @@ public class Membership {
   {
     if (this.getVia_id() != null) {
       Owner via = this.getVia_id();
-      via.setSession(this.getSession());
+      via.internal_setSession(this.internal_getSession());
       return via;
     }
     throw new OwnerNotFoundException();
@@ -295,7 +295,7 @@ public class Membership {
   {
     Owner via = this.getVia_id();
     if ( (via != null) && (via instanceof Group) ) {
-      via.setSession(this.getSession());
+      via.internal_setSession(this.internal_getSession());
       return (Group) via;
     }
     throw new GroupNotFoundException();
@@ -324,8 +324,8 @@ public class Membership {
     throws  MemberAddException
   {
     try {
-      GrouperSessionValidator.validate(s);
-      Member      m   = PrivilegeResolver.canViewSubject(s, subj);
+      GrouperSessionValidator.internal_validate(s);
+      Member      m   = PrivilegeResolver.internal_canViewSubject(s, subj);
       Membership  imm = new Membership(s, o, m, f);
       MemberOf    mof = MemberOf.addImmediate(s, o, imm, m);
       HibernateMembershipDAO.update(mof);
@@ -345,13 +345,13 @@ public class Membership {
     throws  MemberDeleteException
   {
     try {
-      GrouperSessionValidator.validate(s); 
+      GrouperSessionValidator.internal_validate(s); 
       // Who we're deleting
-      Member      m   = PrivilegeResolver.canViewSubject(s, subj);
+      Member      m   = PrivilegeResolver.internal_canViewSubject(s, subj);
       Membership  imm = MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
         o, m, f, INTERNAL_TYPE_I
       );
-      imm.setSession(s);
+      imm.internal_setSession(s);
       return MemberOf.delImmediate(s, o, imm, m);
     }
     catch (InsufficientPrivilegeException eIP)  {
@@ -370,10 +370,10 @@ public class Membership {
             SchemaException
   {
     try {
-      GrouperSessionValidator.validate(s);
+      GrouperSessionValidator.internal_validate(s);
       GrouperSession  orig  = s;
-      GrouperSession  root  = orig.getRootSession();
-      o.setSession(root);
+      GrouperSession  root  = orig.internal_getRootSession();
+      o.internal_setSession(root);
 
       Set deletes = new LinkedHashSet();
 
@@ -402,7 +402,7 @@ public class Membership {
         deletes.addAll( mofM.getDeletes() );
       }
 
-      o.setSession(orig);
+      o.internal_setSession(orig);
       return deletes;
     }
     catch (MemberNotFoundException eMNF) {
@@ -417,9 +417,9 @@ public class Membership {
     throws  MemberDeleteException,
             SchemaException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     GrouperSession orig = s;
-    o.setSession( orig.getRootSession() );
+    o.internal_setSession( orig.internal_getRootSession() );
 
     Set deletes = new LinkedHashSet();
 
@@ -430,7 +430,7 @@ public class Membership {
       deletes.addAll( deleteAllField(s, o, f) );
     }
 
-    o.setSession(orig);
+    o.internal_setSession(orig);
     return deletes;
   } // protected static Set deleteAllFieldType(s, o, f)
 
@@ -446,42 +446,44 @@ public class Membership {
   protected Member getCreator() {
     return this.getCreator_id();
   } // protected Member getCreator()
-  
-  protected GrouperSession getSession() {
-    GrouperSessionValidator.validate(this.s);
+ 
+  // @since   1.2.0 
+  protected GrouperSession internal_getSession() {
+    GrouperSessionValidator.internal_validate(this.s);
     return this.s;
-  } // protected GrouperSession getSession()
+  } // protected GrouperSession internal_getSession()
 
   protected Stem getStem() 
     throws StemNotFoundException
   {
     if (this.getOwner_id() instanceof Stem) {
       Stem ns = (Stem) this.getOwner_id();
-      ns.setSession(this.getSession());
+      ns.internal_setSession(this.internal_getSession());
       return ns;
     }
     throw new StemNotFoundException();
   } // public Stem getStem()
 
-  protected void setSession(GrouperSession s) {
-    GrouperSessionValidator.validate(s);
+  // @since   1.2.0
+  protected void internal_setSession(GrouperSession s) {
+    GrouperSessionValidator.internal_validate(s);
     this.s = s;
     Owner   o = this.getOwner_id();
     Member  m = this.getMember_id();
     Owner   v = this.getVia_id();
     if (o != null) {
-      o.setSession(this.s);
+      o.internal_setSession(this.s);
       this.setOwner_id(o);
     }
     if (m != null) {
-      m.setSession(this.s);
+      m.internal_setSession(this.s);
       this.setMember_id(m);
     }
     if (v != null) {
-      v.setSession(this.s);
+      v.internal_setSession(this.s);
       this.setVia_id(v);
     }
-  } // protected void setSession(s)
+  } // protected void internal_setSession(s)
 
 
   // GETTERS // 

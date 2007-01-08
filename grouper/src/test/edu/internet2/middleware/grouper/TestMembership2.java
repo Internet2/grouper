@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership2.java,v 1.2 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestMembership2.java,v 1.3 2007-01-08 16:43:56 blair Exp $
  */
 public class TestMembership2 extends TestCase {
 
@@ -55,7 +55,7 @@ public class TestMembership2 extends TestCase {
       gA.addMember(subjA);
       gB.addMember( gA.toSubject() );
       gC.grantPriv( subjA, AccessPrivilege.ADMIN );
-      gC.setSession( GrouperSession.start(subjA) );
+      gC.internal_setSession( GrouperSession.start(subjA) );
       gC.addCompositeMember(CompositeType.INTERSECTION, gA, gB);
       Date    future  = DateHelper.getFutureDate();
 
@@ -78,7 +78,7 @@ public class TestMembership2 extends TestCase {
       Membership c = (Membership) comps.get(0); 
       Assert.assertTrue("c ctime after $BEFORE"   , c.getCreateTime().getTime() > before.getTime());
       Assert.assertTrue("c ctime before $FUTURE"  , c.getCreateTime().getTime() < future.getTime());
-      Assert.assertTrue("c creator" , c.getCreator().equals(gC.getSession().getMember()));
+      Assert.assertTrue("c creator" , c.getCreator().equals(gC.internal_getSession().getMember()));
 
       r.rs.stop();
     }

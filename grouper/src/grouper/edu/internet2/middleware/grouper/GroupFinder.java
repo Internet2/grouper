@@ -24,7 +24,7 @@ import  java.util.Set;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.37 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.38 2007-01-08 16:43:56 blair Exp $
  */
 public class GroupFinder {
 
@@ -56,17 +56,17 @@ public class GroupFinder {
     throws  GroupNotFoundException,
             IllegalArgumentException
   {
-    Validator.argNotNull( s,    "null session"   );
-    Validator.argNotNull( attr, "null attribute" );
-    Validator.argNotNull( val,  "null value"     );
+    Validator.internal_argNotNull( s,    "null session"   );
+    Validator.internal_argNotNull( attr, "null attribute" );
+    Validator.internal_argNotNull( val,  "null value"     );
     Group g = HibernateGroupDAO.findByAttribute(attr, val);
     if (g != null) {
-      g.setSession(s);
+      g.internal_setSession(s);
       if ( s.getMember().canView(g) ) {
         return g;
       }
     }
-    throw new GroupNotFoundException( ERR_FINDBYATTRIBUTE + U.q(attr) );
+    throw new GroupNotFoundException( ERR_FINDBYATTRIBUTE + U.internal_q(attr) );
   } // public static Group findByAttribute(s, attr, val)
 
   /**
@@ -87,10 +87,10 @@ public class GroupFinder {
   public static Group findByName(GrouperSession s, String name) 
     throws GroupNotFoundException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     Group g = internal_findByName(name);
-    g.setSession(s);
-    if (RootPrivilegeResolver.canVIEW(g, s.getSubject())) {
+    g.internal_setSession(s);
+    if (RootPrivilegeResolver.internal_canVIEW(g, s.getSubject())) {
       return g;
     }
     ErrorLog.error(GroupFinder.class, E.GF_FBNAME + E.CANNOT_VIEW);
@@ -117,8 +117,8 @@ public class GroupFinder {
     throws  GroupNotFoundException,
             IllegalArgumentException
   {
-    Validator.argNotNull( s,    "null session" );
-    Validator.argNotNull( type, "null type"    );
+    Validator.internal_argNotNull( s,    "null session" );
+    Validator.internal_argNotNull( type, "null type"    );
     try {
       Set groups = internal_findAllByType(s, type);
       if (groups.size() == 1) {
@@ -128,7 +128,7 @@ public class GroupFinder {
     catch (QueryException eQ) {
       throw new GroupNotFoundException(ERR_FINDBYTYPE + eQ.getMessage(), eQ);
     }
-    throw new GroupNotFoundException(ERR_FINDBYTYPE + U.q( type.toString() ));
+    throw new GroupNotFoundException(ERR_FINDBYTYPE + U.internal_q( type.toString() ));
   } // public static Group findByType(s, type)
 
   /**
@@ -149,10 +149,10 @@ public class GroupFinder {
   public static Group findByUuid(GrouperSession s, String uuid) 
     throws GroupNotFoundException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     Group g = _findByUuid(uuid);
-    g.setSession(s);
-    if (RootPrivilegeResolver.canVIEW(g, s.getSubject())) {
+    g.internal_setSession(s);
+    if (RootPrivilegeResolver.internal_canVIEW(g, s.getSubject())) {
       return g;
     }
     ErrorLog.error(GroupFinder.class, E.GF_FBUUID + E.CANNOT_VIEW);
@@ -168,8 +168,8 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    GrouperSessionValidator.validate(s);
-    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByAnyApproximateAttr(val) );
+    GrouperSessionValidator.internal_validate(s);
+    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByAnyApproximateAttr(val) );
   } // protected static Set internal_findAllByAnyApproximateAttr(s, val)
 
   // @since   1.2.0
@@ -178,8 +178,8 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    GrouperSessionValidator.validate(s);
-    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByApproximateAttr(attr, val) );
+    GrouperSessionValidator.internal_validate(s);
+    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByApproximateAttr(attr, val) );
   } // protected static Set internal_findAllByApproximateAttr(s, attr, val)
 
   // @since   1.2.0
@@ -188,8 +188,8 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    GrouperSessionValidator.validate(s);
-    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByApproximateName(name) );
+    GrouperSessionValidator.internal_validate(s);
+    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByApproximateName(name) );
   } // protected static Set internal_findAllByApproximateName(s, name)
 
   // @since   1.2.0
@@ -198,7 +198,7 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByCreatedAfter(d) );
+    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByCreatedAfter(d) );
   } // protected static Set internal_findAllByCreatedAfter(s, d)
     
   // @since   1.2.0
@@ -207,7 +207,7 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByCreatedBefore(d) );
+    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByCreatedBefore(d) );
   } // protected static Set internal_findAllByCreatedBefore(s, d)
     
   // @since   1.2.0
@@ -216,7 +216,7 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByModifiedAfter(d) );
+    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByModifiedAfter(d) );
   } // protected static Set internal_findAllByModifiedAfter(s, d)
     
   // @since   1.2.0
@@ -225,7 +225,7 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByModifiedBefore(d) );
+    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByModifiedBefore(d) );
   } // protected static Set internal_findAllByModifiedBefore(s, d)
     
   // @since   1.2.0
@@ -234,7 +234,7 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    return PrivilegeResolver.canViewGroups( s, HibernateGroupDAO.findAllByType(type) );
+    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByType(type) );
   } // protected static Set internal_findAllByType(s, type)
 
   // @since   1.2.0

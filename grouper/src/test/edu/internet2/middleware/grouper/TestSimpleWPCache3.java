@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSimpleWPCache3.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestSimpleWPCache3.java,v 1.4 2007-01-08 16:43:56 blair Exp $
  * @since   1.2.0
  */
 public class TestSimpleWPCache3 extends GrouperTest {
@@ -52,39 +52,39 @@ public class TestSimpleWPCache3 extends GrouperTest {
       assertEquals( 
         "not configured so using default",
         SimpleWheelPrivilegeCache.DEFAULT_MAX_AGE, 
-        SimpleWheelPrivilegeCache.getMaxWheelAge()
+        SimpleWheelPrivilegeCache.internal_getMaxWheelAge()
       );
 
       // Improper value configured
       String val = "not a long value";
-      GrouperConfig.setProperty(GrouperConfig.MAX_WHEEL_AGE, val);
+      GrouperConfig.internal_setProperty(GrouperConfig.MAX_WHEEL_AGE, val);
       assertEquals( 
         "inappropriately configured", val, GrouperConfig.getProperty(GrouperConfig.MAX_WHEEL_AGE) 
       );
       assertEquals( 
         "inappropriately configured",
         SimpleWheelPrivilegeCache.DEFAULT_MAX_AGE, 
-        SimpleWheelPrivilegeCache.getMaxWheelAge()
+        SimpleWheelPrivilegeCache.internal_getMaxWheelAge()
       );
 
       // Custom value
       val = "5555";
-      GrouperConfig.setProperty(GrouperConfig.MAX_WHEEL_AGE, val);
+      GrouperConfig.internal_setProperty(GrouperConfig.MAX_WHEEL_AGE, val);
       assertEquals( 
         "configured", val, GrouperConfig.getProperty(GrouperConfig.MAX_WHEEL_AGE) 
       );
       assertEquals( 
-        "using custom value", Long.parseLong(val), SimpleWheelPrivilegeCache.getMaxWheelAge()
+        "using custom value", Long.parseLong(val), SimpleWheelPrivilegeCache.internal_getMaxWheelAge()
       );
 
       // Reset
-      GrouperConfig.setProperty(
+      GrouperConfig.internal_setProperty(
         GrouperConfig.MAX_WHEEL_AGE, new String(GrouperConfig.MAX_WHEEL_AGE)
       );
       assertEquals( 
         "reset to default value", 
         SimpleWheelPrivilegeCache.DEFAULT_MAX_AGE, 
-        SimpleWheelPrivilegeCache.getMaxWheelAge()
+        SimpleWheelPrivilegeCache.internal_getMaxWheelAge()
       );
     }
     catch (Exception e) {
