@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link HibernateSubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.7 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.8 2007-01-08 14:36:45 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistrySubjectDAO {
@@ -72,7 +72,7 @@ class HibernateRegistrySubjectDAO {
       qry.setString( "type", type );
       HibernateSubject subj = (HibernateSubject) qry.uniqueResult();
       hs.close();
-      if (subj == null) {
+      if (subj == null) { // TODO 20070108 null or ex?
         throw new SubjectNotFoundException("subject not found"); 
       }
       return subj;
