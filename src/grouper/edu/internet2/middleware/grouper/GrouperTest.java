@@ -24,7 +24,7 @@ import  junit.framework.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.10 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.11 2007-01-08 18:04:06 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -473,8 +473,8 @@ public class GrouperTest extends TestCase {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.1.0
-  protected static void e(Exception e) {
+  // @since   1.2.0
+  protected static void internal_e(Exception e) {
     e.printStackTrace();
     fail("UNEXPECTED EXCEPTION: " + e.getMessage());
   } // protected static void e(e)

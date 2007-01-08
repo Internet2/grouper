@@ -22,7 +22,7 @@ import  org.apache.commons.lang.time.*;
  * Grouper log helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: LogHelper.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: LogHelper.java,v 1.5 2007-01-08 18:04:06 blair Exp $
  * @since   1.0
  */
 class LogHelper {
@@ -35,30 +35,31 @@ class LogHelper {
 
 
   // PROTECTED CLASS METHODS //
-  // @since 1.0
-  protected static String formatClass(Class c) {
+
+  // @since   1.2.0
+  protected static String internal_formatClass(Class c) {
     return OPEN_B + c.getName() + CLOSE_B;
-  } // protected static String formatClass(c)
+  } // protected static String internal_formatClass(c)
 
-  // @since 1.0
-  protected static String formatMsg(GrouperSession s, String msg) {
-    return formatSession(s) + msg;
-  } // protected static String formatMsg(s, msg)
+  // @since   1.2.0
+  protected static String internal_formatMsg(GrouperSession s, String msg) {
+    return internal_formatSession(s) + msg;
+  } // protected static String internal_formatMsg(s, msg)
 
-  // @since 1.0
-  protected static String formatSession(GrouperSession s) {
-    return formatSession(s.toString());
-  } // protected static String formatSession(s)
+  // @since   1.2.0
+  protected static String internal_formatSession(GrouperSession s) {
+    return internal_formatSession(s.toString());
+  } // protected static String internal_formatSession(s)
 
-  // @since 1.0
-  protected static String formatSession(String s) {
+  // @since   1.2.0
+  protected static String internal_formatSession(String s) {
     return OPEN_B + s + CLOSE_B;
-  } // protected static String formatSession(s)
+  } // protected static String internal_formatSession(s)
 
-  // @since 1.0 
-  protected static String formatStopWatch(StopWatch sw) {
+  // @since   1.2.0
+  protected static String internal_formatStopWatch(StopWatch sw) {
     return OPEN_P + sw.getTime() + CLOSE_P;
-  } // protected static String formatStopWatch(sw)
+  } // protected static String internal_formatStopWatch(sw)
 
 }
 

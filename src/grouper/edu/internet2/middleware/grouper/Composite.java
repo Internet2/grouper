@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.27 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: Composite.java,v 1.28 2007-01-08 18:04:06 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -50,7 +50,7 @@ public class Composite extends Owner {
     this.internal_setSession(      s                     ); 
     this.setCreator_id(   s.getMember()         );
     this.setCreate_time(  new Date().getTime()  );
-    this.setUuid(         GrouperUuid.getUuid() );
+    this.setUuid(         GrouperUuid.internal_getUuid() );
     this.setOwner(        o                     );
     this.setLeft(         l                     );
     this.setRight(        r                     );
@@ -297,10 +297,10 @@ public class Composite extends Owner {
       GrouperSession rs  = this.internal_getSession().internal_getRootSession();
       this.internal_setSession(rs);
       Group           g   = this.getOwnerGroup();
-      MemberOf        mof = MemberOf.addComposite(rs, g, this);
+      MemberOf        mof = MemberOf.internal_addComposite(rs, g, this);
 
       Set cur     = g.getMemberships();         // Current mships
-      Set should  = mof.getEffSaves();          // What mships should be
+      Set should  = mof.internal_getEffSaves();          // What mships should be
       Set deletes = new LinkedHashSet(cur);     // deletes  = cur - should
       deletes.removeAll(should);
       Set adds    = new LinkedHashSet(should);  // adds     = should - cur

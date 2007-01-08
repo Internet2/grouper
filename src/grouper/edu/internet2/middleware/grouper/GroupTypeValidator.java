@@ -21,21 +21,21 @@ package edu.internet2.middleware.grouper;
  * Validation methods that apply to {@link GroupType}s.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeValidator.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GroupTypeValidator.java,v 1.8 2007-01-08 18:04:06 blair Exp $
  * @since   1.1.0
  */
 class GroupTypeValidator {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.1.0
-  protected static void canAddFieldToType(
+  // @since   1.2.0
+  protected static void internal_canAddFieldToType(
     GrouperSession s, GroupType gt, String name, FieldType ft, Privilege read, Privilege write
   ) 
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    GroupTypeValidator.canModifyField(s, gt);
+    GroupTypeValidator.internal_canModifyField(s, gt);
     try {
       FieldFinder.find(name);
       throw new SchemaException(E.FIELD_ALREADY_EXISTS + name);
@@ -50,33 +50,33 @@ class GroupTypeValidator {
         throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
       }
     } 
-  } // protected static void canAddFieldToType(s, gt, name, ft, read, write)
+  } // protected static void internal-canAddFieldToType(s, gt, name, ft, read, write)
 
-  // @since   1.1.0 
-  protected static void canDeleteFieldFromType(
+  // @since   1.2.0 
+  protected static void internal_canDeleteFieldFromType(
     GrouperSession s, GroupType type, Field f
   )
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    canModifyField(s, type);
+    internal_canModifyField(s, type);
     if (!f.getGroupType().equals(type)) {
       throw new SchemaException(E.FIELD_DOES_NOT_BELONG_TO_TYPE + f.getGroupType());
     }
-  } // protected static void canDeleteFieldFromType(s, type, f)
+  } // protected static void internal_canDeleteFieldFromType(s, type, f)
 
-  // @since   1.1.0
-  protected static void canModifyField(GrouperSession s, GroupType type) 
+  // @since   1.2.0
+  protected static void internal_canModifyField(GrouperSession s, GroupType type) 
     throws  InsufficientPrivilegeException,
             SchemaException
   {
     if (!RootPrivilegeResolver.internal_isRoot(s)) {
       throw new InsufficientPrivilegeException(E.GROUPTYPE_CANNOT_MODIFY_TYPE);
     }
-    if (GroupType.isSystemType(type)) {
+    if ( GroupType.internal_isSystemType(type) ) {
       throw new SchemaException(E.GROUPTYPE_CANNOT_MODIFY_SYSTEM_TYPES);
     }
-  } // protected static void canModifyField(s, type)
+  } // protected static void internal_canModifyField(s, type)
 
 
   // PRIVATE CLASS METHODS // 

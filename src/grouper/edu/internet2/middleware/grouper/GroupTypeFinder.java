@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.22 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.23 2007-01-08 18:04:06 blair Exp $
  */
 public class GroupTypeFinder {
   
@@ -76,7 +76,7 @@ public class GroupTypeFinder {
       return (GroupType) types.get(name);
     }
     // If not, refresh known types as it may be new and try again. 
-    updateKnownTypes();
+    internal_updateKnownTypes();
     if (types.containsKey(name)) {
       return (GroupType) types.get(name);
     }
@@ -93,7 +93,7 @@ public class GroupTypeFinder {
    * @return  A {@link Set} of {@link GroupType} objects.
    */
   public static Set findAll() {
-    updateKnownTypes();
+    internal_updateKnownTypes();
     Set       values  = new LinkedHashSet();
     GroupType t;
     Iterator  iter    = types.values().iterator();
@@ -128,8 +128,9 @@ public class GroupTypeFinder {
 
 
   // PROTECTED CLASS METHODS //
-  // @since 1.0
-  protected static void updateKnownTypes() {
+
+  // @since   1.2.0
+  protected static void internal_updateKnownTypes() {
     // This method irks me still even if it is now more functionally correct
     Set typesInRegistry = _findAll();
     // Look for types to add
@@ -157,7 +158,7 @@ public class GroupTypeFinder {
       type = (String) toDelIter.next();
       types.remove(type);  
     }
-  } // protected static void updateKnownTypes()
+  } // protected static void internal_updateKnownTypes()
 
 
   // PRIVATE CLASS METHODS //

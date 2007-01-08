@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlReader0.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestXmlReader0.java,v 1.4 2007-01-08 18:04:07 blair Exp $
  * @since   1.1.0
  */
 public class TestXmlReader0 extends GrouperTest {
@@ -57,7 +57,7 @@ public class TestXmlReader0 extends GrouperTest {
       assertTrue(true);
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testGetDocumentFromString()
 

@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml28.java,v 1.2 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestXml28.java,v 1.3 2007-01-08 18:04:07 blair Exp $
  * @since   1.1.0
  */
 public class TestXml28 extends GrouperTest {
@@ -95,7 +95,7 @@ public class TestXml28 extends GrouperTest {
       s.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testUpdateOkMembershipsInIgnoreMode()
 

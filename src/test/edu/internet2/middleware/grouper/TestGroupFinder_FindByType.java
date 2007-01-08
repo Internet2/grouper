@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupFinder_FindByType.java,v 1.2 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGroupFinder_FindByType.java,v 1.3 2007-01-08 18:04:07 blair Exp $
  * @since   1.2.0
  */
 public class TestGroupFinder_FindByType extends GrouperTest {
@@ -51,7 +51,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
       assertTrue(true);
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testFailToFindGroupByTypeNullSession()
 
@@ -66,7 +66,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
       assertTrue(true);
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testFailToFindGroupByTypeNullType()
 
@@ -81,7 +81,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
       assertTrue(true);
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testFailToFindGroupByTypeInvalidType()
 
@@ -93,7 +93,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testFailToFindGroupByType()
 
@@ -106,7 +106,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testFindGroupByType()
 
@@ -119,7 +119,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testFailToFindGroupByTypeNotUnique()
 
@@ -134,7 +134,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testFindGroupByCustomType()
 
@@ -151,7 +151,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testFailToFindGroupByCustomTypeNotUnique()
 

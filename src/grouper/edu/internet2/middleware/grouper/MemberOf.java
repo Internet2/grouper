@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.36 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: MemberOf.java,v 1.37 2007-01-08 18:04:06 blair Exp $
  */
 class MemberOf {
 
@@ -63,8 +63,8 @@ class MemberOf {
   // PROTECTED CLASS METHODS //
  
   // Calculate addition of a composite membership 
-  // @since 1.0
-  protected static MemberOf addComposite(
+  // @since   1.2.0
+  protected static MemberOf internal_addComposite(
     GrouperSession s, Owner o, Composite c
   )
     throws  ModelException
@@ -77,10 +77,10 @@ class MemberOf {
     mof.saves.add(mof.c);     // Save the composite
     mof.saves.add(mof.o);     // Update the owner
     return mof;
-  } // protected static MemberOf addComposite(s, o, c)
+  } // protected static MemberOf internal_addComposite(s, o, c)
 
-  // @since 1.0
-  protected static MemberOf addImmediate(
+  // @since   1.2.0
+  protected static MemberOf internal_addImmediate(
     GrouperSession s, Owner o, Membership ms, Member m
   )
     throws  ModelException
@@ -94,11 +94,11 @@ class MemberOf {
     mof.saves.add(ms);      // Save the immediate
     mof.saves.add(mof.o);   // Update the owner
     return mof;
-  } // protected static MemberOf addImmediate(s, o, m, ms)
+  } // protected static MemberOf internal_addImmediate(s, o, m, ms)
 
   // Calculate deletion of a composite membership 
-  // @since 1.0
-  protected static MemberOf delComposite(
+  // @since   1.2.0
+  protected static MemberOf internal_delComposite(
     GrouperSession s, Owner o, Composite c
   )
     throws  ModelException
@@ -118,10 +118,8 @@ class MemberOf {
     while (iterH.hasNext()) {
       ms = (Membership) iterH.next();
       try {
-        MemberOf    msMof = MemberOf.delImmediate(
-          s, o, ms, ms.getMember()
-        );
-        mof.deletes.addAll(     msMof.getDeletes()    );
+        MemberOf msMof = MemberOf.internal_delImmediate( s, o, ms, ms.getMember() );
+        mof.deletes.addAll( msMof.internal_getDeletes() );
       }
       catch (Exception e) {
         throw new ModelException(e);
@@ -133,11 +131,10 @@ class MemberOf {
     mof.deletes.add(mof.c);   // Delete the composite
     mof.saves.add(mof.o);     // Update the owner
     return mof;
-  } // protected static MemberOf delComposite(s, o, c)
+  } // protected static MemberOf internal_delComposite(s, o, c)
 
-  // @throws  MemberDeleteException
-  // @since   1.1.0
-  protected static MemberOf delImmediate(
+  // @since   1.2.0
+  protected static MemberOf internal_delImmediate(
     GrouperSession s, Owner o, Membership ms, Member m
   )
     throws  MemberDeleteException
@@ -147,7 +144,7 @@ class MemberOf {
     // Find child memberships that need deletion
     Membership  child;
     Set         children  = new LinkedHashSet();
-    Iterator    iter      = MembershipFinder.findAllChildrenNoPriv(ms).iterator();
+    Iterator    iter      = MembershipFinder.internal_findAllChildrenNoPriv(ms).iterator();
     while (iter.hasNext()) {
       child = (Membership) iter.next();
       child.internal_setSession(s);
@@ -156,7 +153,7 @@ class MemberOf {
     mof.effDeletes.addAll(children);
     // Find all effective memberships that need deletion
     mof.effDeletes.addAll( 
-      MembershipFinder.findAllForwardMembershipsNoPriv(s, ms, children) 
+      MembershipFinder.internal_findAllForwardMembershipsNoPriv(s, ms, children) 
     );
 
     // And now set everything else
@@ -167,27 +164,30 @@ class MemberOf {
     mof.deletes.add(ms);    // Delete the immediate
     mof.saves.add(mof.o);   // Update the owner
     return mof;
-  } // protected static MemberOf delImmediate(s, o, m, ms)
+  } // protected static MemberOf internal_delImmediate(s, o, m, ms)
 
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since 1.0
-  protected Set getDeletes() {
+  // @since   1.2.0
+  protected Set internal_getDeletes() {
     return this.deletes;
-  } // protected Set getDeletes()
-  // @since 1.0
-  protected Set getEffDeletes() {
+  } // protected Set internal_getDeletes()
+
+  // @since   1.2.0
+  protected Set internal_getEffDeletes() {
     return this.effDeletes;
-  } // protected Set getEffDeletes()
-  // @since 1.0
-  protected Set getEffSaves() {
+  } // protected Set internal_getEffDeletes()
+
+  // @since   1.2.0
+  protected Set internal_getEffSaves() {
     return this.effSaves;
-  } // protected Set getEffSaves()
-  // @since 1.0
-  protected Set getSaves() {
+  } // protected Set internal_getEffSaves()
+
+  // @since   1.2.0
+  protected Set internal_getSaves() {
     return this.saves;
-  } // protected Set getSaves()
+  } // protected Set internal_getSaves()
 
 
   // PRIVATE INSTANCE METHODS //
@@ -356,7 +356,7 @@ class MemberOf {
     // If we are working on a group, where is it a member
     Set isMember  = new LinkedHashSet();
     if (this.o instanceof Group) {
-      isMember = ( (Group) o).toMember().getAllMemberships();
+      isMember = ( (Group) o).toMember().internal_getAllMemberships();
     }
     // Members of m if o is a group
     Set hasMembers  = this._findMembersOfMember();

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.9 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: T.java,v 1.10 2007-01-08 18:04:07 blair Exp $
  * @since   1.0
  */
 public class T {
@@ -48,8 +48,8 @@ public class T {
   // @since   1.0
   // TODO 20061011 deprecate in favor of `GrouperTest.e(e)`
   protected static void e(Exception e) {
-    GrouperTest.e(e);
-  } // protected static void e(e)
+    GrouperTest.internal_e(e);
+  } // protected static void internal_e(e)
 
   // @since   1.1.0
   protected static void fail(String msg) {

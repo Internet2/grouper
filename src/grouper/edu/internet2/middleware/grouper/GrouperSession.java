@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.44 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.45 2007-01-08 18:04:06 blair Exp $
  */
 public class GrouperSession {
 
@@ -289,9 +289,9 @@ public class GrouperSession {
     s.ac    = null;
     s.nc    = null;
     // Persistent
-    s.setMember_id(MemberFinder.findBySubject(subj));
+    s.setMember_id( MemberFinder.internal_findBySubject(subj) );
     s.setStart_time( new Date() );
-    s.setSession_id( GrouperUuid.getUuid() );
+    s.setSession_id( GrouperUuid.internal_getUuid() );
     return s;
   } // private GrouperSession(subj) 
 

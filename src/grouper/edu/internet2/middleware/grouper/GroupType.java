@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.34 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GroupType.java,v 1.35 2007-01-08 18:04:06 blair Exp $
  */
 public class GroupType implements Serializable {
 
@@ -210,7 +210,7 @@ public class GroupType implements Serializable {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if (isSystemType(this)) {
+    if ( internal_isSystemType(this) ) {
       String msg = E.GROUPTYPE_NODELSYS + this.getName();
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
@@ -232,7 +232,7 @@ public class GroupType implements Serializable {
       sw.stop();
       EventLog.info(s, M.GROUPTYPE_DEL + U.internal_q(typeName), sw);
       // TODO 20061011 Now update the cached types + fields
-      GroupTypeFinder.updateKnownTypes();
+      GroupTypeFinder.internal_updateKnownTypes();
       FieldFinder.internal_updateKnownFields();
     }
     catch (GrouperDAOException eDAO) {
@@ -273,7 +273,7 @@ public class GroupType implements Serializable {
     StopWatch sw  = new StopWatch();
     sw.start();
     Field     f   = FieldFinder.find(name);  
-    GroupTypeValidator.canDeleteFieldFromType(s, this, f);
+    GroupTypeValidator.internal_canDeleteFieldFromType(s, this, f);
     if ( f.internal_isInUse() ) {
       String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
       ErrorLog.error(GroupType.class, msg);
@@ -333,13 +333,14 @@ public class GroupType implements Serializable {
 
   // PROTECTED CLASS METHODS //
 
-  protected static boolean isSystemType(GroupType type) {
+  // @since   1.2.0
+  protected static boolean internal_isSystemType(GroupType type) {
     String name = type.getName();
     if ( (name.equals("base")) || (name.equals("naming")) ) {
       return true;
     }
     return false;
-  } // protected static boolean isSystemType(type)
+  } // protected static boolean internal_isSystemType(type)
 
 
   // PRIVATE INSTANCE METHODSs //
@@ -353,7 +354,7 @@ public class GroupType implements Serializable {
     Field     f   = null;
     StopWatch sw  = new StopWatch();
     sw.start();
-    GroupTypeValidator.canAddFieldToType(s, this, name, type, read, write);
+    GroupTypeValidator.internal_canAddFieldToType(s, this, name, type, read, write);
     try {
       boolean nullable = true;
       if (required == true) {

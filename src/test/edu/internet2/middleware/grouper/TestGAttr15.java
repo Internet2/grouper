@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr15.java,v 1.3 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestGAttr15.java,v 1.4 2007-01-08 18:04:07 blair Exp $
  * @since   1.1.0
  */
 public class TestGAttr15 extends GrouperTest {
@@ -60,7 +60,7 @@ public class TestGAttr15 extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      e(e);
+      internal_e(e);
     }
   } // public void testFailDeleteAttributeBlankAttributeNotRootButHasAdmin()
 

@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.76 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: Member.java,v 1.77 2007-01-08 18:04:06 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -62,7 +62,7 @@ public class Member implements Serializable {
     this.setSubject_id( id );
     this.setSubject_source( src );
     this.setSubject_type( type );
-    this.setMember_id( GrouperUuid.getUuid() );
+    this.setMember_id( GrouperUuid.internal_getUuid() );
   } // protected Member(id, src, type)
 
   // Default constructor for Hibernate.
@@ -950,7 +950,7 @@ public class Member implements Serializable {
     }
     else if (
       MembershipFinder.internal_findAllEffectiveByOwnerAndMemberAndField(
-        g, MemberFinder.findAllMember(), f
+        g, MemberFinder.internal_findAllMember(), f
       ).size() > 0
     )
     {
@@ -1010,7 +1010,7 @@ public class Member implements Serializable {
       catch (MembershipNotFoundException eMNF) {
         try {
           MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
-            g, MemberFinder.findAllMember(), f, Membership.INTERNAL_TYPE_I
+            g, MemberFinder.internal_findAllMember(), f, Membership.INTERNAL_TYPE_I
           );
           rv = true;
         }
@@ -1092,7 +1092,7 @@ public class Member implements Serializable {
   {
     StopWatch sw    = new StopWatch();
     sw.start();
-    MemberValidator.canSetSubjectId(this, id);
+    MemberValidator.internal_canSetSubjectId(this, id);
     String    orig  = this.getSubject_id(); // preserve original for logging purposes
     this.setSubject_id(id);
     HibernateMemberDAO.update(this);
@@ -1128,7 +1128,7 @@ public class Member implements Serializable {
   {
     StopWatch sw    = new StopWatch();
     sw.start();
-    MemberValidator.canSetSubjectSourceId(this, id);
+    MemberValidator.internal_canSetSubjectSourceId(this, id);
     String    orig  = this.getSubject_source(); // preserve original for logging
     this.setSubject_source(id);
     HibernateMemberDAO.update(this);
@@ -1215,24 +1215,26 @@ public class Member implements Serializable {
 
   // PROTECTED INSTANCE METHODS //
  
-  // Find *all* memberships for this member 
-  // @filtered  no
-  // @session   yes
-  protected Set getAllMemberships() {
+  // @since   1.2.0
+  protected Set internal_getAllMemberships() {
+    // Find *all* memberships for this member 
+    // @filtered  no
+    // @session   yes
     return MembershipFinder.internal_findAllByMember( this.internal_getSession(), this );
-  } // protected Set getAllMemberships()
+  } // protected Set internal_getAllMemberships()
 
   // @since   1.2.0
   protected GrouperSession internal_getSession() {
     GrouperSessionValidator.internal_validate(this.s);
     return this.s;
   } // protected GrouperSession internal_getSession()
-  
-  protected boolean isMember(Stem ns, Field f) 
+ 
+  // @since   1.2.0 
+  protected boolean internal_isMember(Stem ns, Field f) 
     throws  SchemaException
   {
     return this._isMember(ns, f);
-  } // protected boolean isMember(ns, f)
+  } // protected boolean internal_isMember(ns, f)
 
   // @since   1.2.0
   protected void internal_setSession(GrouperSession s) {
@@ -1240,10 +1242,10 @@ public class Member implements Serializable {
     this.s = s;
   } // protected void internal_setSession(s)
 
-  // Assign Subject
-  protected void setSubject(Subject subj) {
+  // @since   1.2.0
+  protected void internal_setSubject(Subject subj) {
     this.subj = subj;
-  } // protected void setSubject(subj)
+  } // protected void internal_setSubject(subj)
 
 
   // PRIVATE INSTANCE METHODS //
@@ -1302,7 +1304,7 @@ public class Member implements Serializable {
     }
     else {
       mships = MembershipFinder.internal_findAllByOwnerAndMemberAndField(
-        o, MemberFinder.findAllMember(), f
+        o, MemberFinder.internal_findAllMember(), f
       );
       if (mships.size() > 0) {
         rv = true;

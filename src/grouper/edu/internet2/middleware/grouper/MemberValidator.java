@@ -19,26 +19,26 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MemberValidator.java,v 1.5 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: MemberValidator.java,v 1.6 2007-01-08 18:04:06 blair Exp $
  * @since   1.1.0
  */
 class MemberValidator {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.1.10
-  protected static void canSetSubjectId(Member m, String val) 
+  // @since   1.2.0
+  protected static void internal_canSetSubjectId(Member m, String val) 
     throws  InsufficientPrivilegeException 
   {
     _canSetSubjectAttr(m, val, "null subject id");
-  } // protected static void canSetSubjectId(m)
+  } // protected static void internal_canSetSubjectId(m)
 
-  // @since 1.1.10
-  protected static void canSetSubjectSourceId(Member m, String val) 
+  // @since   1.2.0
+  protected static void internal_canSetSubjectSourceId(Member m, String val) 
     throws  InsufficientPrivilegeException 
   {
     _canSetSubjectAttr(m, val, "null subject source id");
-  } // protected static void canSetSubjectId(m)
+  } // protected static void internal_canSetSubjectId(m)
 
 
   // PRIVATE CLASS METHODS //

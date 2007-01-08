@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.66 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.67 2007-01-08 18:04:07 blair Exp $
  */
 public class MembershipFinder {
   
@@ -175,23 +175,23 @@ public class MembershipFinder {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.1.0
-  protected static Set findAllChildrenNoPriv(Membership ms) {
+  // @since   1.2.0
+  protected static Set internal_findAllChildrenNoPriv(Membership ms) {
     Set             children  = new LinkedHashSet();
     GrouperSession  root      = ms.internal_getSession().internal_getRootSession();
     Membership      child;
     Iterator        it        = internal_findChildMemberships(root, ms).iterator();
     while (it.hasNext()) {
       child = (Membership) it.next();
-      children.addAll(findAllChildrenNoPriv(child));
+      children.addAll( internal_findAllChildrenNoPriv(child) );
       children.add(child);
     }
     return children;
-  } // protected static Set findAllChildrenNoPriv(ms)
+  } // protected static Set internal_findAllChildrenNoPriv(ms)
 
-  // @since 1.0
   // TODO 20061019 Smaller!  Also: What does this even do?  I can't even remember.
-  protected static Set findAllForwardMembershipsNoPriv(
+  // @since   1.2.0
+  protected static Set internal_findAllForwardMembershipsNoPriv(
     GrouperSession s, Membership ms, Set children
   ) {
     // @filtered  false
@@ -231,15 +231,16 @@ public class MembershipFinder {
       mships.add(eff);
     }
     return mships;
-  } // protected static Set findAllForwardMembershipsNoPriv(s, ms, children)
+  } // protected static Set internal_findAllForwardMembershipsNoPriv(s, ms, children)
 
-  protected static Set findMembers(GrouperSession s, Group g, Field f) {
+  // @since   1.2.0
+  protected static Set internal_findMembers(GrouperSession s, Group g, Field f) {
      // @filtered  true  MembershipFinder.findMemberships(s, g, f) 
      // @session   true  MembershipFinder.findMemberships(s, g, f)
     GrouperSessionValidator.internal_validate(s);
     Set         members = new LinkedHashSet();
     Membership  ms;
-    Iterator    iter    = findMemberships(s, g, f).iterator();
+    Iterator    iter    = internal_findMemberships(s, g, f).iterator();
     while (iter.hasNext()) {
       ms = (Membership) iter.next();
       try {
@@ -250,15 +251,16 @@ public class MembershipFinder {
       }
     }
     return members;
-  } // protected static Set findMembers(s, g, f)
+  } // protected static Set internal_findMembers(s, g, f)
 
-  protected static Set findSubjects(GrouperSession s, Owner o, Field f) {
+  // @since   1.2.0
+  protected static Set internal_findSubjects(GrouperSession s, Owner o, Field f) {
     // @filtered  true
     // @session   true
     GrouperSessionValidator.internal_validate(s);
     Set         subjs = new LinkedHashSet();
     Membership  ms;
-    Iterator    iter  = findMemberships(s, o, f).iterator();
+    Iterator    iter  = internal_findMemberships(s, o, f).iterator();
     while (iter.hasNext()) {
       ms = (Membership) iter.next();
       try {
@@ -271,10 +273,10 @@ public class MembershipFinder {
       }
     }
     return subjs;
-  } // protected static Set findSubjects(s, o, f)
+  } // protected static Set internal_findSubjects(s, o, f)
 
-  // @since 1.0.1 
-  protected static Set findSubjectsNoPriv(GrouperSession s, Owner o, Field f) {
+  // @since   1.2.0
+  protected static Set internal_findSubjectsNoPriv(GrouperSession s, Owner o, Field f) {
      // @filtered  false
      // @session   true 
     GrouperSessionValidator.internal_validate(s);
@@ -293,18 +295,19 @@ public class MembershipFinder {
       }
     }
     return subjs;
-  } // protected static Set findSubjectsNoPriv(s, o, f)
+  } // protected static Set internal_findSubjectsNoPriv(s, o, f)
 
-  protected static Set findMemberships(GrouperSession s, Owner o, Field f) {
+  // @since   1.2.0
+  protected static Set internal_findMemberships(GrouperSession s, Owner o, Field f) {
      // @filtered true
      // @session  true
     return new LinkedHashSet( 
       PrivilegeResolver.internal_canViewMemberships( s, internal_findAllByOwnerAndField(s, o, f) ) 
     );
-  } // protected static Set findMemberships(s, o, f)
+  } // protected static Set internal_findMemberships(s, o, f)
 
-  // @since 1.0
-  protected static Set findMembersByType(GrouperSession s, Group g, Field f, String type) {
+  // @since   1.2.0
+  protected static Set internal_findMembersByType(GrouperSession s, Group g, Field f, String type) {
      // @filtered  true  MembershipFinder.findMembershipsByType(s, o, f) 
      // @session   true  MembershipFinder.findMembershipsByType(s, o, f)
     GrouperSessionValidator.internal_validate(s);
@@ -321,7 +324,7 @@ public class MembershipFinder {
       }
     }
     return members;
-  } // protected static Set findMembersByType(s, g, f, type)
+  } // protected static Set internal_findMembersByType(s, g, f, type)
 
   // @since   1.2.0
   protected static Set internal_findAllByCreatedAfter(GrouperSession s, Date d, Field f) 
@@ -478,8 +481,8 @@ public class MembershipFinder {
     GrouperSessionValidator.internal_validate(s);
     Set mships = new LinkedHashSet();
     mships.addAll( HibernateMembershipDAO.findMemberships(m, f) );
-    if ( !m.equals( MemberFinder.findAllMember() ) ) {
-      mships.addAll( HibernateMembershipDAO.findMemberships( MemberFinder.findAllMember(), f ) );
+    if ( !m.equals( MemberFinder.internal_findAllMember() ) ) {
+      mships.addAll( HibernateMembershipDAO.findMemberships( MemberFinder.internal_findAllMember(), f ) );
     }
     return PrivilegeResolver.internal_canViewMemberships(s, mships);
   } // protected static Set internal_findMemberships(s, m, f)

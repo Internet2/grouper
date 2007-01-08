@@ -23,15 +23,17 @@ import  org.doomdark.uuid.UUIDGenerator;
  * Generate UUIDs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperUuid.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperUuid.java,v 1.6 2007-01-08 18:04:06 blair Exp $
  *     
 */
 class GrouperUuid {
 
-  // Protected Class Methods
-  protected static String getUuid() {
+  // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  protected static String internal_getUuid() {
     return UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
-  }
+  } // protected static String internal_getUuid()
 
 }
 
