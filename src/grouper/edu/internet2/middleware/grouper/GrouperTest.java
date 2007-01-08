@@ -24,7 +24,7 @@ import  junit.framework.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.9 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.10 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -72,7 +72,7 @@ public class GrouperTest extends TestCase {
   public void assertDoNotFindGroupByName(GrouperSession s, String name, String msg) {
     try {
       GroupFinder.findByName(s, name);
-      fail(U.qp(msg) + "unexpectedly found group by name: " + name);
+      fail(U.internal_qp(msg) + "unexpectedly found group by name: " + name);
     }
     catch (GroupNotFoundException eGNF) {
       assertTrue(msg, true);
@@ -92,7 +92,7 @@ public class GrouperTest extends TestCase {
   public void assertDoNotFindGroupByType(GrouperSession s, GroupType type, String msg) {
     try {
       GroupFinder.findByType(s, type);
-      fail(U.qp(msg) + "unexpectedly found group by type: " + type);
+      fail(U.internal_qp(msg) + "unexpectedly found group by type: " + type);
     }
     catch (GroupNotFoundException eGNF) {
       assertTrue(msg, true);
@@ -112,7 +112,7 @@ public class GrouperTest extends TestCase {
   public void assertDoNotFindStemByName(GrouperSession s, String name, String msg) {
     try {
       StemFinder.findByName(s, name);
-      fail(U.qp(msg) + "unexpectedly found stem by name: " + name);
+      fail(U.internal_qp(msg) + "unexpectedly found stem by name: " + name);
     }
     catch (StemNotFoundException eNSNF) {
       assertTrue(msg, true);
@@ -169,7 +169,7 @@ public class GrouperTest extends TestCase {
       assertTrue(msg, true);
     }
     catch (GroupNotFoundException eGNF) {
-      fail(U.qp(msg) + "did not find group (" + name + ") by name: " + eGNF.getMessage());
+      fail(U.internal_qp(msg) + "did not find group (" + name + ") by name: " + eGNF.getMessage());
     }
     return g;
   } // public Group assertFindGroupByName(s, name, msg)
@@ -192,7 +192,7 @@ public class GrouperTest extends TestCase {
       assertGroupHasType(g, type, true);
     }
     catch (GroupNotFoundException eGNF) {
-      fail(U.qp(msg) + "did not find group (" + type + ") by type: " + eGNF.getMessage());
+      fail(U.internal_qp(msg) + "did not find group (" + type + ") by type: " + eGNF.getMessage());
     }
     return g;
   } // public Group assertFindGroupByType(s, type, msg)
@@ -230,7 +230,7 @@ public class GrouperTest extends TestCase {
       assertTrue(msg, true);
     }
     catch (StemNotFoundException eNSNF) {
-      fail(U.qp(msg) + "did not find stem (" + name + ") by name: " + eNSNF.getMessage());
+      fail(U.internal_qp(msg) + "did not find stem (" + name + ") by name: " + eNSNF.getMessage());
     }
     return ns;
   } // public Stem assertFindStemByName(s, name, msg)
@@ -321,7 +321,7 @@ public class GrouperTest extends TestCase {
       }
       else {
         _fail(
-          G, name, SubjectHelper.getPretty(subj)  + " is member/" + f.getName(),
+          G, name, SubjectHelper.internal_getPretty(subj)  + " is member/" + f.getName(),
           Boolean.toString(exp), Boolean.toString(got)
         );
       }
@@ -499,7 +499,7 @@ public class GrouperTest extends TestCase {
     }
     else {
       _fail(
-        type, who, SubjectHelper.getPretty(subj) + " has " + what, 
+        type, who, SubjectHelper.internal_getPretty(subj) + " has " + what, 
         Boolean.toString(exp), Boolean.toString(got)
       );
     }
@@ -517,11 +517,11 @@ public class GrouperTest extends TestCase {
 
   // @since   1.1.0
   private void _assertSubject(String type, String who, String what, Subject exp, Subject got) {
-    if (SubjectHelper.eq(exp, got)) {
+    if (SubjectHelper.internal_eq(exp, got)) {
       assertTrue(true);
     }
     else {
-      _fail(type, who, what, SubjectHelper.getPretty(exp), SubjectHelper.getPretty(got));
+      _fail(type, who, what, SubjectHelper.internal_getPretty(exp), SubjectHelper.internal_getPretty(got));
     }
   } // private void _assertSubject(type, who, what, exp, got)
 

@@ -23,13 +23,18 @@ import  edu.internet2.middleware.subject.provider.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.13 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.14 2007-01-08 16:43:56 blair Exp $
  */
 class SubjectHelper {
 
+  // PROTECTED CLASS CONSTANTS //
+  protected static final String BAD_SUBJ_ID   = "i do not exist"; // TODO 20070108 what is this doing here?
+
+
   // PROTECTED CLASS METHODS //
 
-  protected static boolean eq(Subject a, Subject b) {
+  // @since   1.2.0
+  protected static boolean internal_eq(Subject a, Subject b) {
     if ( (a == null) || (b == null) ) {
       return false;
     }
@@ -43,18 +48,16 @@ class SubjectHelper {
       return true;
     }
     return false;
-  } // protected static boolean eq(a, b)
+  } // protected static boolean internal_eq(a, b)
 
-  protected static String getPretty(Subject subj) {
+  // @since   1.2.0
+  protected static String internal_getPretty(Subject subj) {
     String pretty = subj.getId();
     if (subj.getType().equals(SubjectTypeEnum.valueOf("group"))) {
       pretty = subj.getName();
     }
-    return U.q(pretty) + "/" + U.q(subj.getType().getName()) + "/" + U.q(subj.getSource().getId());
-  } // protected static String getPretty(subj)
-
-  // Protected Class Constants
-  public static final String BAD_SUBJ_ID   = "i do not exist";
+    return U.internal_q(pretty) + "/" + U.internal_q(subj.getType().getName()) + "/" + U.internal_q(subj.getSource().getId());
+  } // protected static String internal_getPretty(subj)
 
 } // class SubjectHelper
  

@@ -20,77 +20,77 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.17 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: StemValidator.java,v 1.18 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 class StemValidator {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.1.0
-  protected static boolean canAddChildGroup(Stem ns, String extension, String displayExtension)
+  // @since   1.2.0
+  protected static boolean internal_canAddChildGroup(Stem ns, String extension, String displayExtension)
     throws  GroupAddException,
             InsufficientPrivilegeException
   {
     boolean rv = false;
     try {
-      AttributeValidator.namingValue(extension);
-      AttributeValidator.namingValue(displayExtension);
+      AttributeValidator.internal_namingValue(extension);
+      AttributeValidator.internal_namingValue(displayExtension);
     }
     catch (ModelException eM) {
       throw new GroupAddException(eM.getMessage(), eM);
     }
-    if (!PrivilegeResolver.canCREATE( ns.getSession(), ns, ns.getSession().getSubject() )) {
+    if (!PrivilegeResolver.internal_canCREATE( ns.internal_getSession(), ns, ns.internal_getSession().getSubject() )) {
       throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
     }
-    if (ns.isRootStem()) {
+    if (ns.internal_isRootStem()) {
       throw new GroupAddException("cannot create groups at root stem level");
     }
     try {
-      GroupFinder.internal_findByName( U.constructName(ns.getName(), extension) );
+      GroupFinder.internal_findByName( U.internal_constructName(ns.getName(), extension) );
       throw new GroupAddException("group already exists");
     }
     catch (GroupNotFoundException eGNF) {
       rv = true; // Group does not exist.  This is what we want.
     }
     return rv;
-  } // protected static boolean canAddChildGroup(ns, extension, displayExtension)
+  } // protected static boolean internal_canAddChildGroup(ns, extension, displayExtension)
 
-  // @since   1.1.0
-  protected static boolean canAddChildStem(Stem ns, String extension, String displayExtension)
+  // @since   1.2.0
+  protected static boolean internal_canAddChildStem(Stem ns, String extension, String displayExtension)
     throws  InsufficientPrivilegeException,
             StemAddException
   {
     boolean rv = false;
     try {
-      AttributeValidator.namingValue(extension);
-      AttributeValidator.namingValue(displayExtension);
+      AttributeValidator.internal_namingValue(extension);
+      AttributeValidator.internal_namingValue(displayExtension);
     }
     catch (ModelException eM) {
       throw new StemAddException(eM.getMessage(), eM);
     }
-    if (!RootPrivilegeResolver.canSTEM( ns, ns.getSession().getSubject()) ) {
+    if (!RootPrivilegeResolver.internal_canSTEM( ns, ns.internal_getSession().getSubject()) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     } 
     try {
-      StemFinder.internal_findByName( U.constructName(ns.getName(), extension) );
+      StemFinder.internal_findByName( U.internal_constructName(ns.getName(), extension) );
       throw new StemAddException("stem already exists");
     }
     catch (StemNotFoundException eSNF) {
       rv = true; // Stem does not exist.  This is what we want.
     }
     return rv;
-  } // protected static boolean canAddChildStem(ns, extension, displayExtension)
+  } // protected static boolean internal_canAddChildStem(ns, extension, displayExtension)
 
-  // @since 1.0
-  protected static void canDeleteStem(Stem ns) 
+  // @since   1.2.0
+  protected static void internal_canDeleteStem(Stem ns) 
     throws  InsufficientPrivilegeException,
             StemDeleteException
   {
     if ( ns.getName().equals(Stem.ROOT_EXT) ) {
       throw new StemDeleteException("cannot delete root stem");
     }
-    if ( !PrivilegeResolver.canSTEM( ns, ns.getSession().getSubject() ) ) {
+    if ( !PrivilegeResolver.internal_canSTEM( ns, ns.internal_getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     if ( HibernateStemDAO.findChildStems(ns).size() > 0 ) {
@@ -99,10 +99,10 @@ class StemValidator {
     if ( HibernateStemDAO.findChildGroups(ns).size() > 0 ) {
       throw new StemDeleteException("cannot delete stem with child groups");
     }
-  } // protected static void canDeleteStem(ns)
+  } // protected static void internal_canDeleteStem(ns)
 
-  // @since 1.0
-  protected static void canWriteField(
+  // @since   1.2.0
+  protected static void internal_canWriteField(
     Stem ns, Subject subj, Field f, FieldType type
   )
     throws  InsufficientPrivilegeException,
@@ -112,8 +112,8 @@ class StemValidator {
     if (!f.getType().equals(type)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
-    PrivilegeResolver.canPrivDispatch(ns.getSession(), ns, subj, f.getWritePriv());
-  } // protected static void canWriteField(ns, subj, f, type)
+    PrivilegeResolver.internal_canPrivDispatch(ns.internal_getSession(), ns, subj, f.getWritePriv());
+  } // protected static void internal_canWriteField(ns, subj, f, type)
 
 }
 

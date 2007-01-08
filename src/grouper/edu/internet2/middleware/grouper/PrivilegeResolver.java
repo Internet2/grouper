@@ -24,13 +24,13 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.73 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.74 2007-01-08 16:43:56 blair Exp $
  */
  class PrivilegeResolver {
 
   // PRIVATE CLASS VARIABLES //
-  private static  AccessAdapter     access    = getAccess();
-  private static  NamingAdapter     naming    = getNaming();
+  private static  AccessAdapter     access    = internal_getAccess();
+  private static  NamingAdapter     naming    = internal_getNaming();
 
 
   // CONSTRUCTORS //
@@ -42,48 +42,48 @@ import  java.util.*;
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.1.0
-  protected static boolean canADMIN(GrouperSession s, Group g, Subject subj) {
-    return PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN);
-  } // protected static boolean canADMIN(s, g, subj)
+  // @since   1.2.0
+  protected static boolean internal_canADMIN(GrouperSession s, Group g, Subject subj) {
+    return PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.ADMIN);
+  } // protected static boolean internal_canADMIN(s, g, subj)
 
-  // @since   1.1.0
-  protected static boolean canCREATE(GrouperSession s, Stem ns, Subject subj) {
-    return PrivilegeResolver.hasPriv(s, ns, subj, NamingPrivilege.CREATE);
-  } // protected static boolean canCREATE(s, ns, subj)
+  // @since   1.2.0
+  protected static boolean internal_canCREATE(GrouperSession s, Stem ns, Subject subj) {
+    return PrivilegeResolver.internal_hasPriv(s, ns, subj, NamingPrivilege.CREATE);
+  } // protected static boolean internal_canCREATE(s, ns, subj)
 
-  // @since   1.1.0
-  protected static boolean canOPTIN(GrouperSession s, Group g, Subject subj) {
+  // @since   1.2.0
+  protected static boolean internal_canOPTIN(GrouperSession s, Group g, Subject subj) {
     if (
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.OPTIN)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.OPTIN)
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.ADMIN)
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.UPDATE)
     )
     {
       return true;
     }
     return false;
-  } // protected static boolean canOPTIN(s, g, subj)
+  } // protected static boolean internal_canOPTIN(s, g, subj)
 
-  // @since   1.1.0
-  protected static boolean canOPTOUT(GrouperSession s, Group g, Subject subj) {
+  // @since   1.2.0
+  protected static boolean internal_canOPTOUT(GrouperSession s, Group g, Subject subj) {
     if (
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.ADMIN)
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.UPDATE)
     )
     {
       return true;
     }
     return false; 
-  } // protected static boolean canOPTOUT(s, g, subj)
+  } // protected static boolean internal_canOPTOUT(s, g, subj)
 
-  // @since   1.1.0
-  protected static void canPrivDispatch(
+  // @since   1.2.0
+  protected static void internal_canPrivDispatch(
     GrouperSession s, Owner o, Subject subj, Privilege priv
   )
     throws  InsufficientPrivilegeException,
@@ -92,49 +92,49 @@ import  java.util.*;
     boolean rv  = false;
     String  msg = GrouperConfig.EMPTY_STRING; 
     if      (priv.equals(AccessPrivilege.ADMIN))  {
-      rv = canADMIN(s, (Group) o, subj);
+      rv = internal_canADMIN(s, (Group) o, subj);
       if (!rv) {
         msg = E.CANNOT_ADMIN;
       }
     }
     else if (priv.equals(NamingPrivilege.CREATE)) { 
-      rv = canCREATE(s, (Stem) o, subj);
+      rv = internal_canCREATE(s, (Stem) o, subj);
       if (!rv) {
         msg = E.CANNOT_CREATE;
       }
     }
     else if (priv.equals(AccessPrivilege.OPTIN))  {
-      rv = canOPTIN(s, (Group) o, subj);
+      rv = internal_canOPTIN(s, (Group) o, subj);
       if (!rv) {
         msg = E.CANNOT_OPTIN;
       }
     }
     else if (priv.equals(AccessPrivilege.OPTOUT)) {
-      rv = canOPTOUT(s, (Group) o, subj);
+      rv = internal_canOPTOUT(s, (Group) o, subj);
       if (!rv) {
         msg = E.CANNOT_OPTOUT;
       }
     }
     else if (priv.equals(AccessPrivilege.READ))   {
-      rv = canREAD(s, (Group) o, subj);
+      rv = internal_canREAD(s, (Group) o, subj);
       if (!rv) {
         msg = E.CANNOT_READ;
       }
     }
     else if (priv.equals(NamingPrivilege.STEM))   {
-      rv = canSTEM((Stem) o, subj);
+      rv = internal_canSTEM((Stem) o, subj);
       if (!rv) {
         msg = E.CANNOT_STEM;
       }
     }
     else if (priv.equals(AccessPrivilege.VIEW))   {
-      rv = canVIEW((Group) o, subj);
+      rv = internal_canVIEW((Group) o, subj);
       if (!rv) {
         msg = E.CANNOT_VIEW;
       }
     }
     else if (priv.equals(AccessPrivilege.UPDATE)) {
-      rv = canUPDATE(s, (Group) o, subj);
+      rv = internal_canUPDATE(s, (Group) o, subj);
       if (!rv) {
         msg = E.CANNOT_UPDATE;
       }
@@ -148,90 +148,90 @@ import  java.util.*;
     if (!rv) {
       throw new InsufficientPrivilegeException(msg);
     }
-  } // protected static void canPrivDispatch(s, o, subj, priv)
+  } // protected static void internal_canPrivDispatch(s, o, subj, priv)
 
-  // @since   1.1.0
-  protected static boolean canREAD(GrouperSession s, Group g, Subject subj) {
+  // @since   1.2.0
+  protected static boolean internal_canREAD(GrouperSession s, Group g, Subject subj) {
     if (
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.READ)  
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.READ)  
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.ADMIN)
     )
     {
       return true;
     }
     return false; 
-   }// protected static boolean canREAD(s, g, subj)
+   }// protected static boolean internal_canREAD(s, g, subj)
 
-  // @since   1.1.0
-  protected static boolean canSTEM(Stem ns, Subject subj) {
-    return PrivilegeResolver.hasPriv(ns.getSession(), ns, subj, NamingPrivilege.STEM);
-  } // protected static boolean canSTEM(ns, subj)
+  // @since   1.2.0
+  protected static boolean internal_canSTEM(Stem ns, Subject subj) {
+    return PrivilegeResolver.internal_hasPriv(ns.internal_getSession(), ns, subj, NamingPrivilege.STEM);
+  } // protected static boolean internal_canSTEM(ns, subj)
 
-  // @since   1.1.0
-  protected static boolean canUPDATE(GrouperSession s, Group g, Subject subj) {
+  // @since   1.2.0
+  protected static boolean internal_canUPDATE(GrouperSession s, Group g, Subject subj) {
     if (
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.UPDATE)
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.ADMIN)
     )
     {
       return true;
     }
     return false; 
-  } // protected static boolean canUPDATE(s, g, subj)
+  } // protected static boolean internal_canUPDATE(s, g, subj)
 
-  // @since   1.1.0
-  protected static boolean canVIEW(Group g, Subject subj) {
-    GrouperSession s = g.getSession();
+  // @since   1.2.0
+  protected static boolean internal_canVIEW(Group g, Subject subj) {
+    GrouperSession s = g.internal_getSession();
     if (
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.VIEW)  
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.VIEW)  
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.READ)  
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.READ)  
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.ADMIN)
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.UPDATE)
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.OPTIN) 
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.OPTIN) 
       ||
-      PrivilegeResolver.hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
+      PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
     )
     {
       return true;
     }
     return false; 
-  } // protected static boolean canVIEW(g, subj)
+  } // protected static boolean internal_canVIEW(g, subj)
 
-  // @since   1.1.0
-  protected static Set canViewGroups(GrouperSession s, Set candidates) {
+  // @since   1.2.0
+  protected static Set internal_canViewGroups(GrouperSession s, Set candidates) {
     Set             groups  = new LinkedHashSet();
     Group           g;
     Iterator        iter    = candidates.iterator();
     while (iter.hasNext()) {
       g = (Group) iter.next();
-      g.setSession(s);
+      g.internal_setSession(s);
       // Can we view the group
-      if (canVIEW(g, s.getSubject())) {
+      if (internal_canVIEW(g, s.getSubject())) {
         groups.add(g);
       }
     }
     return groups;
-  } // protected static Set canViewGroups(s, candidates)
+  } // protected static Set internal_canViewGroups(s, candidates)
 
-  // @since   1.1.0
-  protected static Set canViewMemberships(GrouperSession s, Collection c) {
-    GrouperSessionValidator.validate(s);
+  // @since   1.2.0
+  protected static Set internal_canViewMemberships(GrouperSession s, Collection c) {
+    GrouperSessionValidator.internal_validate(s);
     Set         mships  = new LinkedHashSet();
     Membership  ms;
     String      msg     = "canViewMemberships: ";
     Iterator    iter    = c.iterator();
     while (iter.hasNext()) {
       ms = (Membership) iter.next();
-      ms.setSession(s);
+      ms.internal_setSession(s);
       try {
         if (FieldType.ACCESS.equals(ms.getList().getType())) {
-          canPrivDispatch(
+          internal_canPrivDispatch(
             s, ms.getGroup(), s.getSubject(), ms.getList().getReadPriv()
           );
         }
@@ -248,11 +248,11 @@ import  java.util.*;
       }
     }
     return mships;
-  } // protected static Set canViewMemberships(s, c)
+  } // protected static Set internal_canViewMemberships(s, c)
   
   // If the subject being added is a group, verify that we can VIEW it
-  // @since   1.1.0
-  protected static Member canViewSubject(GrouperSession s, Subject subj)
+  // @since   1.2.0
+  protected static Member internal_canViewSubject(GrouperSession s, Subject subj)
     throws  InsufficientPrivilegeException,
             ModelException
   {
@@ -261,7 +261,7 @@ import  java.util.*;
       if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
         Subject who   = s.getSubject();
         Group   what  = m.toGroup();
-        if (!canVIEW(what, who)) {
+        if (!internal_canVIEW(what, who)) {
           throw new InsufficientPrivilegeException(E.CANNOT_VIEW);
         }
       }
@@ -273,116 +273,116 @@ import  java.util.*;
     catch (MemberNotFoundException eMNF)        {
       throw new ModelException(eMNF.getMessage(), eMNF);
     }
-  } // protected static Member canViewSubject(s, subj)
+  } // protected static Member internal_canViewSubject(s, subj)
 
-  // @since   1.1.0
-  protected static AccessAdapter getAccess() {
+  // @since   1.2.0
+  protected static AccessAdapter internal_getAccess() {
     if (access == null) {
-      access = (AccessAdapter) U.realizeInterface(
+      access = (AccessAdapter) U.internal_realizeInterface(
         GrouperConfig.getProperty(GrouperConfig.PAI)
       );
     }
     return access;
-  } // protected static AccessAdapter getAccess()
+  } // protected static AccessAdapter internal_getAccess()
 
-  // @since   1.1.0 
-  protected static Set getGroupsWhereSubjectHasPriv(
+  // @since   1.2.0 
+  protected static Set internal_getGroupsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
   ) 
     throws  SchemaException
   {
-    return getAccess().getGroupsWhereSubjectHasPriv(s, subj, priv);
-  } // protected static Set getGroupsWhereSubjectHasPriv(s, subj, priv)
+    return internal_getAccess().getGroupsWhereSubjectHasPriv(s, subj, priv);
+  } // protected static Set internal-getGroupsWhereSubjectHasPriv(s, subj, priv)
 
-  // @since   1.1.0
-  protected static NamingAdapter getNaming() {
+  // @since   1.2.0
+  protected static NamingAdapter internal_getNaming() {
     if (naming == null) {
-      naming = (NamingAdapter) U.realizeInterface(
+      naming = (NamingAdapter) U.internal_realizeInterface(
         GrouperConfig.getProperty(GrouperConfig.PNI)
       );
     }
     return naming;
-  } // protected static AccessAdapter getNaming()
+  } // protected static AccessAdapter internal_getNaming()
 
-  // @since   1.1.0
-  protected static Set getPrivs(
+  // @since   1.2.0
+  protected static Set internal_getPrivs(
     GrouperSession s, Group g, Subject subj
   )
   {
-    return getAccess().getPrivs(s, g, subj);
-  } // protected static Set getPrivs(s, g, subj)
+    return internal_getAccess().getPrivs(s, g, subj);
+  } // protected static Set internal_getPrivs(s, g, subj)
 
-  // @since   1.1.0
-  protected static Set getPrivs(
+  // @since   1.2.0
+  protected static Set internal_getPrivs(
     GrouperSession s, Stem ns, Subject subj
   )
   {
-    return getNaming().getPrivs(s, ns, subj);
-  } // protected static Set getPrivs(s, ns, subj)
+    return internal_getNaming().getPrivs(s, ns, subj);
+  } // protected static Set internal_getPrivs(s, ns, subj)
 
-  // @since   1.1.0
-  protected static Set getStemsWhereSubjectHasPriv(
+  // @since   1.2.0
+  protected static Set internal_getStemsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
   ) 
     throws  SchemaException
   {
-    return getNaming().getStemsWhereSubjectHasPriv(s, subj, priv);
-  } // protected static Set getStemsWhereSubjectHasPriv(s, subj, priv)
+    return internal_getNaming().getStemsWhereSubjectHasPriv(s, subj, priv);
+  } // protected static Set internal_getStemsWhereSubjectHasPriv(s, subj, priv)
 
-  // @since   1.1.0
-  protected static Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
+  // @since   1.2.0
+  protected static Set internal_getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
     throws  SchemaException
   {
-    return getAccess().getSubjectsWithPriv(s, g, priv);
-  } // protected static Set getSubjectsWithPriv(s, g, priv)
+    return internal_getAccess().getSubjectsWithPriv(s, g, priv);
+  } // protected static Set internal_getSubjectsWithPriv(s, g, priv)
 
-  // @since   1.1.0
-  protected static Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
+  // @since   1.2.0
+  protected static Set internal_getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
     throws SchemaException
   {
-    return getNaming().getSubjectsWithPriv(s, ns, priv);
-  } // protected static Set getSubjectsWithPriv(s, ns, priv)
+    return internal_getNaming().getSubjectsWithPriv(s, ns, priv);
+  } // protected static Set internal_getSubjectsWithPriv(s, ns, priv)
 
-  // @since   1.1.0
-  protected static void grantPriv(
+  // @since   1.2.0
+  protected static void internal_grantPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
     throws  GrantPrivilegeException,
             InsufficientPrivilegeException,
             SchemaException
   {
-    getAccess().grantPriv(s, g, subj, priv);
-    s.getAccessCache().grantPriv(g, subj, priv);
-  } // protected static void grantPriv(s, g, subj, priv)
+    internal_getAccess().grantPriv(s, g, subj, priv);
+    s.internal_getAccessCache().grantPriv(g, subj, priv);
+  } // protected static void internal_grantPriv(s, g, subj, priv)
 
-  // @since   1.1.0
-  protected static void grantPriv(
+  // @since   1.2.0
+  protected static void internal_grantPriv(
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
     throws  GrantPrivilegeException,
             InsufficientPrivilegeException,
             SchemaException
   {
-    getNaming().grantPriv(s, ns, subj, priv);
-    s.getNamingCache().grantPriv(ns, subj, priv);
-  } // protected static void grantPriv(s, ns, subj, priv)
+    internal_getNaming().grantPriv(s, ns, subj, priv);
+    s.internal_getNamingCache().grantPriv(ns, subj, priv);
+  } // protected static void internal_grantPriv(s, ns, subj, priv)
 
-  // @since   1.1.0
-  protected static boolean hasPriv(
+  // @since   1.2.0
+  protected static boolean internal_hasPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     boolean rv = false;
-    PrivilegeCacheElement el = s.getAccessCache().get(g, subj, priv);
+    PrivilegeCacheElement el = s.internal_getAccessCache().get(g, subj, priv);
     if (el.getIsCached()) {
       rv = el.getHasPriv(); // use cached result
     }
     else {
       try { // TODO 20061011 Eliminate the try/catch
         if (
-             RootPrivilegeResolver.isRoot(s, subj)
-          || getAccess().hasPriv(s, g, subj, priv)
+             RootPrivilegeResolver.internal_isRoot(s, subj)
+          || internal_getAccess().hasPriv(s, g, subj, priv)
           || _isAll(s, g, priv)
         )
         {
@@ -393,25 +393,25 @@ import  java.util.*;
         rv = false; 
       }
     }
-    s.getAccessCache().put(g, subj, priv, rv);
+    s.internal_getAccessCache().put(g, subj, priv, rv);
     return rv;
-  } // protected static boolean hasPriv(s, g, subj, priv)
+  } // protected static boolean internal_hasPriv(s, g, subj, priv)
 
-  // @since   1.1.0
-  protected static boolean hasPriv(
+  // @since   1.2.0
+  protected static boolean internal_hasPriv(
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
   {
     boolean rv = false;
-    PrivilegeCacheElement el = s.getNamingCache().get(ns, subj, priv);
+    PrivilegeCacheElement el = s.internal_getNamingCache().get(ns, subj, priv);
     if (el.getIsCached()) {
       rv = el.getHasPriv(); // use cached result
     }
     else {
       try { // TODO 20061011 Eliminate the try/catch
         if (
-             RootPrivilegeResolver.isRoot(s, subj)
-          || getNaming().hasPriv(s, ns, subj, priv)
+             RootPrivilegeResolver.internal_isRoot(s, subj)
+          || internal_getNaming().hasPriv(s, ns, subj, priv)
           || _isAll(s, ns, priv)
         )
         {
@@ -422,53 +422,53 @@ import  java.util.*;
         rv = false; 
       }
     }
-    s.getNamingCache().put(ns, subj, priv, rv);
+    s.internal_getNamingCache().put(ns, subj, priv, rv);
     return rv;
-  } // protected static boolean hasPriv(s, ns, subj, priv)
+  } // protected static boolean internal_hasPriv(s, ns, subj, priv)
 
-  // @since   1.1.0
-  protected static void revokePriv(GrouperSession s, Group g, Privilege priv)
+  // @since   1.2.0
+  protected static void internal_revokePriv(GrouperSession s, Group g, Privilege priv)
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException,
             SchemaException
   {
-    getAccess().revokePriv(s, g, priv);
-    s.getAccessCache().revokePriv(g, priv);
-  } // protected static void revokePriv(s, g, priv)
+    internal_getAccess().revokePriv(s, g, priv);
+    s.internal_getAccessCache().revokePriv(g, priv);
+  } // protected static void internal_revokePriv(s, g, priv)
 
-  // @since   1.1.0
-  protected static void revokePriv(GrouperSession s, Stem ns, Privilege priv)
+  // @since   1.2.0
+  protected static void internal_revokePriv(GrouperSession s, Stem ns, Privilege priv)
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException,
             SchemaException
   {
-    getNaming().revokePriv(s, ns, priv);
-    s.getNamingCache().revokePriv(ns, priv);
-  } // protected static void revokePriv(s, ns, priv)
+    internal_getNaming().revokePriv(s, ns, priv);
+    s.internal_getNamingCache().revokePriv(ns, priv);
+  } // protected static void internal_revokePriv(s, ns, priv)
 
-  // @since   1.1.0
-  protected static void revokePriv(
+  // @since   1.2.0
+  protected static void internal_revokePriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException,
             SchemaException
   {
-    getAccess().revokePriv(s, g, subj, priv);
-    s.getAccessCache().revokePriv(g, subj, priv);
-  } // protected static void revokePriv(s, g, subj, priv)
+    internal_getAccess().revokePriv(s, g, subj, priv);
+    s.internal_getAccessCache().revokePriv(g, subj, priv);
+  } // protected static void internal_revokePriv(s, g, subj, priv)
 
-  // @since   1.1.0
-  protected static void revokePriv(
+  // @since   1.2.0
+  protected static void internal_revokePriv(
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException,
             SchemaException
   {
-    getNaming().revokePriv(s, ns, subj, priv);
-    s.getNamingCache().revokePriv(ns, subj, priv);
-  } // protected static void revokePriv(s, ns, subj, priv)
+    internal_getNaming().revokePriv(s, ns, subj, priv);
+    s.internal_getNamingCache().revokePriv(ns, subj, priv);
+  } // protected static void internal_revokePriv(s, ns, subj, priv)
 
 
   // PRIVATE CLASS METHODS //
@@ -477,14 +477,14 @@ import  java.util.*;
   private static boolean _isAll(GrouperSession s, Group g, Privilege priv) 
     throws  SchemaException
   {
-    return getAccess().hasPriv(s, g, SubjectFinder.findAllSubject(), priv);
+    return internal_getAccess().hasPriv(s, g, SubjectFinder.findAllSubject(), priv);
   } // private static boolean _isAll(s, g, priv);
 
   // @since   1.1.0
   private static boolean _isAll(GrouperSession s, Stem ns, Privilege priv) 
     throws  SchemaException
   {
-    return getNaming().hasPriv(s, ns, SubjectFinder.findAllSubject(), priv);
+    return internal_getNaming().hasPriv(s, ns, SubjectFinder.findAllSubject(), priv);
   } // private static boolean _isAll(s, ns, priv);
 
 } // class PrivilegeResolver

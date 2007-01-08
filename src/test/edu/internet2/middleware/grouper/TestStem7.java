@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem7.java,v 1.8 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestStem7.java,v 1.9 2007-01-08 16:43:56 blair Exp $
  */
 public class TestStem7 extends TestCase {
 
@@ -39,7 +39,7 @@ public class TestStem7 extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {
@@ -57,7 +57,7 @@ public class TestStem7 extends TestCase {
       Subject modifier = edu.getModifySubject();
       Assert.assertNotNull("modifier !null", modifier);
       Assert.assertTrue(
-        "modifier", SubjectHelper.eq(modifier, s.getSubject())
+        "modifier", SubjectHelper.internal_eq(modifier, s.getSubject())
       );
     }
     catch (SubjectNotFoundException eSNF) {

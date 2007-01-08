@@ -23,7 +23,7 @@ import  junit.framework.*;
  * {@link Member} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberHelper.java,v 1.7 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: MemberHelper.java,v 1.8 2007-01-08 16:43:56 blair Exp $
  */
 public class MemberHelper {
 
@@ -43,7 +43,7 @@ public class MemberHelper {
       );
       Assert.assertTrue(
         "m source",
-        m.getSubjectSourceId().equals(SubjectFinder.getGSA().getId())
+        m.getSubjectSourceId().equals(SubjectFinder.internal_getGSA().getId())
       );
       return g;
     }

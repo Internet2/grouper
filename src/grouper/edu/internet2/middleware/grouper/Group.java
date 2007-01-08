@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.119 2007-01-05 14:56:26 blair Exp $
+ * @version $Id: Group.java,v 1.120 2007-01-08 16:43:56 blair Exp $
  */
 public class Group extends Owner {
 
@@ -116,12 +116,12 @@ public class Group extends Owner {
     try {
       StopWatch sw  = new StopWatch();
       sw.start();
-      Composite c   = new Composite(this.getSession(), this, left, right, type);
+      Composite c   = new Composite(this.internal_getSession(), this, left, right, type);
       GroupValidator.canAddCompositeMember(this, c);
-      MemberOf  mof = MemberOf.addComposite(this.getSession(), this, c);
+      MemberOf  mof = MemberOf.addComposite(this.internal_getSession(), this, c);
       HibernateGroupDAO.updateMemberships(mof);
-      EventLog.groupAddComposite(this.getSession(), c, mof, sw);
-      Composite.update(this);
+      EventLog.groupAddComposite(this.internal_getSession(), c, mof, sw);
+      Composite.internal_update(this);
       sw.stop();
     }
     catch (GrouperDAOException eDAO) {
@@ -194,9 +194,9 @@ public class Group extends Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     GroupValidator.canAddMember(this, subj, f);
-    Membership.addImmediateMembership(this.getSession(), this, subj, f);
-    EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
-    Composite.update(this);
+    Membership.addImmediateMembership(this.internal_getSession(), this, subj, f);
+    EL.groupAddMember(this.internal_getSession(), this.getName(), subj, f, sw);
+    Composite.internal_update(this);
     sw.stop();
   } // public void addMember(subj, f)
 
@@ -229,7 +229,7 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    GroupValidator.canAddType(this.getSession(), this, type);
+    GroupValidator.canAddType(this.internal_getSession(), this, type);
     try {
       Set types = this.getGroup_types();
       types.add(type);
@@ -237,8 +237,8 @@ public class Group extends Owner {
       HibernateGroupDAO.update(this);
       sw.stop();
       EventLog.info(
-        this.getSession(),
-        M.GROUP_ADDTYPE + U.q(this.getName()) + " type=" + U.q(type.toString()),
+        this.internal_getSession(),
+        M.GROUP_ADDTYPE + U.internal_q(this.getName()) + " type=" + U.internal_q(type.toString()),
         sw
       );
     }
@@ -270,7 +270,7 @@ public class Group extends Owner {
     throws  IllegalArgumentException,
             SchemaException
   {
-    return this.canReadField(this.getSession().getSubject(), f);
+    return this.canReadField(this.internal_getSession().getSubject(), f);
   } // public boolean canReadField(f)
 
   /**
@@ -295,7 +295,7 @@ public class Group extends Owner {
     throws  IllegalArgumentException,
             SchemaException
   {
-    Validator.argNotNull(subj, E.SUBJ_NULL);
+    Validator.internal_argNotNull(subj, E.SUBJ_NULL);
     GroupValidator.isTypeValid(f);
     try {
       GroupValidator.canReadField(this, subj, f);
@@ -327,7 +327,7 @@ public class Group extends Owner {
     throws  IllegalArgumentException,
             SchemaException
   {
-    return this.canWriteField(this.getSession().getSubject(), f);
+    return this.canWriteField(this.internal_getSession().getSubject(), f);
   } // public boolean canWriteField(f)
 
   /**
@@ -351,7 +351,7 @@ public class Group extends Owner {
     throws  IllegalArgumentException,
             SchemaException
   {
-    Validator.argNotNull(subj, E.SUBJ_NULL);
+    Validator.internal_argNotNull(subj, E.SUBJ_NULL);
     GroupValidator.isTypeValid(f);
     try {
       GroupValidator.canWriteField(this, subj, f);
@@ -395,14 +395,14 @@ public class Group extends Owner {
       // ... And delete all memberships - as root
       Set deletes = new LinkedHashSet(
         Membership.deleteAllFieldType(
-          this.getSession().getRootSession(), this, FieldType.LIST
+          this.internal_getSession().internal_getRootSession(), this, FieldType.LIST
         )
       );
       deletes.add(this);            // ... And add the group last for good luck    
       String name = this.getName(); // Preserve name for logging
       HibernateGroupDAO.delete(deletes);
       sw.stop();
-      EventLog.info(this.getSession(), M.GROUP_DEL + U.q(name), sw);
+      EventLog.info(this.internal_getSession(), M.GROUP_DEL + U.internal_q(name), sw);
     }
     catch (GrouperDAOException eDAO) {
       throw new GroupDeleteException( eDAO.getMessage(), eDAO );
@@ -444,7 +444,7 @@ public class Group extends Owner {
     try {
       StopWatch sw = new StopWatch();
       sw.start();
-      if (!AttributeValidator.isPermittedName(attr)) {
+      if (!AttributeValidator.internal_isPermittedName(attr)) {
         throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
       }
       Field f = FieldFinder.find(attr);
@@ -470,7 +470,7 @@ public class Group extends Owner {
         }
       }
       if (found) {
-        this.setModified();
+        this.internal_setModified();
         this.setGroup_attributes(attrs);
         saves.add(this);
         HibernateGroupDAO.update(this);
@@ -480,7 +480,7 @@ public class Group extends Owner {
         throw new AttributeNotFoundException();
       }
       sw.stop();
-      EL.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
+      EL.groupDelAttr(this.internal_getSession(), this.getName(), attr, val, sw);
     }
     catch (GrouperDAOException eDAO) {
       throw new GroupModifyException( eDAO.getMessage(), eDAO );
@@ -522,10 +522,10 @@ public class Group extends Owner {
       sw.start();
       GroupValidator.canDelCompositeMember(this);
       Composite c   = CompositeFinder.internal_findAsOwner(this);
-      MemberOf  mof = MemberOf.delComposite(this.getSession(), this, c);
+      MemberOf  mof = MemberOf.delComposite(this.internal_getSession(), this, c);
       HibernateGroupDAO.updateMemberships(mof);
-      EventLog.groupDelComposite(this.getSession(), c, mof, sw);
-      Composite.update(this);
+      EventLog.groupDelComposite(this.internal_getSession(), c, mof, sw);
+      Composite.internal_update(this);
       sw.stop();
     }
     catch (CompositeNotFoundException eCNF) {
@@ -600,7 +600,7 @@ public class Group extends Owner {
     StopWatch sw  = new StopWatch();
     sw.start();
     GroupValidator.canDelMember(this, subj, f);
-    MemberOf  mof = Membership.delImmediateMembership(this.getSession(), this, subj, f);
+    MemberOf  mof = Membership.delImmediateMembership(this.internal_getSession(), this, subj, f);
     try {
       HibernateGroupDAO.updateMemberships(mof);
     }
@@ -608,9 +608,9 @@ public class Group extends Owner {
       throw new MemberDeleteException( eDAO.getMessage(), eDAO );
     }
     sw.stop();
-    EL.groupDelMember(this.getSession(), this.getName(), subj, f, sw);
-    EL.delEffMembers(this.getSession(), this, subj, f, mof.getEffDeletes());
-    Composite.update(this);
+    EL.groupDelMember(this.internal_getSession(), this.getName(), subj, f, sw);
+    EL.delEffMembers(this.internal_getSession(), this, subj, f, mof.getEffDeletes());
+    Composite.internal_update(this);
   } // public void deleteMember(subj, f)
 
   /**
@@ -644,15 +644,15 @@ public class Group extends Owner {
     sw.start();
     String msg = E.GROUP_TYPEDEL + type + ": "; 
     try {
-      GroupValidator.canDeleteType(this.getSession(), this, type);
+      GroupValidator.canDeleteType(this.internal_getSession(), this, type);
       Set       types = this.getGroup_types();
       types.remove(type);
       this.setGroup_types(types);
       HibernateGroupDAO.update(this);
       sw.stop();
       EventLog.info(
-        this.getSession(),
-        M.GROUP_DELTYPE + U.q(this.getName()) + " type=" + U.q(type.toString()),
+        this.internal_getSession(),
+        M.GROUP_DELTYPE + U.internal_q(this.getName()) + " type=" + U.internal_q(type.toString()),
         sw
       );
     }
@@ -695,8 +695,8 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.ADMIN
+      return PrivilegeResolver.internal_getSubjectsWithPriv(
+        this.internal_getSession(), this, AccessPrivilege.ADMIN
       );
     }
     catch (SchemaException eS) {
@@ -743,7 +743,7 @@ public class Group extends Owner {
       try {
         Field f = attr.getField();
         GroupValidator.canReadField(
-          this, this.getSession().getSubject(), f
+          this, this.internal_getSession().getSubject(), f
         );
         filtered.put(f.getName(), attr.getValue());
       }
@@ -767,7 +767,7 @@ public class Group extends Owner {
    */
   public Set getCompositeMembers() {
     return MembershipFinder.findMembersByType(
-      this.getSession(), this, Group.getDefaultList(), Membership.INTERNAL_TYPE_C
+      this.internal_getSession(), this, Group.getDefaultList(), Membership.INTERNAL_TYPE_C
     );
   } // public Set getCompositeMembers()
 
@@ -781,7 +781,7 @@ public class Group extends Owner {
    */
   public Set getCompositeMemberships() {
     return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-      this.getSession(), this, Group.getDefaultList(), Membership.INTERNAL_TYPE_C
+      this.internal_getSession(), this, Group.getDefaultList(), Membership.INTERNAL_TYPE_C
     );
   } // public Set getCompositeMemberships()
 
@@ -933,7 +933,7 @@ public class Group extends Owner {
     throws  SchemaException
   {
     return MembershipFinder.findMembersByType(
-      this.getSession(), this, f, Membership.INTERNAL_TYPE_E
+      this.internal_getSession(), this, f, Membership.INTERNAL_TYPE_E
     );
   }  // public Set getEffectiveMembers(f)
 
@@ -972,7 +972,7 @@ public class Group extends Owner {
     throws  SchemaException
   {
     return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-      this.getSession(), this, f, Membership.INTERNAL_TYPE_E
+      this.internal_getSession(), this, f, Membership.INTERNAL_TYPE_E
     );
   } // public Set getEffectiveMemberships(f)
 
@@ -1031,7 +1031,7 @@ public class Group extends Owner {
     throws  SchemaException
   {
     return MembershipFinder.findMembersByType(
-      this.getSession(), this, f, Membership.INTERNAL_TYPE_I
+      this.internal_getSession(), this, f, Membership.INTERNAL_TYPE_I
     );
   } // public Set getImmediateMembers(f)
 
@@ -1069,9 +1069,9 @@ public class Group extends Owner {
   public Set getImmediateMemberships(Field f) 
     throws  SchemaException
   {
-    GrouperSessionValidator.validate(this.getSession());
+    GrouperSessionValidator.internal_validate(this.internal_getSession());
     return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-      this.getSession(), this, f, Membership.INTERNAL_TYPE_I
+      this.internal_getSession(), this, f, Membership.INTERNAL_TYPE_I
     );
   } // public Set getImmediateMemberships(f)
 
@@ -1109,7 +1109,7 @@ public class Group extends Owner {
   public Set getMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findMembers(this.getSession(), this, f);
+    return MembershipFinder.findMembers(this.internal_getSession(), this, f);
   } // public Set getMembers(f)
 
   /**
@@ -1146,7 +1146,7 @@ public class Group extends Owner {
   public Set getMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.findMemberships(this.getSession(), this, f);
+    return MembershipFinder.findMemberships(this.internal_getSession(), this, f);
   } // public Set getMemberships(f)
 
   /**
@@ -1237,8 +1237,8 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.OPTIN
+      return PrivilegeResolver.internal_getSubjectsWithPriv(
+        this.internal_getSession(), this, AccessPrivilege.OPTIN
       );
     } 
     catch (SchemaException eS) { 
@@ -1260,8 +1260,8 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.OPTOUT
+      return PrivilegeResolver.internal_getSubjectsWithPriv(
+        this.internal_getSession(), this, AccessPrivilege.OPTOUT
       );
     } 
     catch (SchemaException eS) { 
@@ -1280,7 +1280,7 @@ public class Group extends Owner {
    */
   public Stem getParentStem() {
     Stem parent = this.getParent_stem();
-    parent.setSession(this.getSession());
+    parent.internal_setSession(this.internal_getSession());
     return parent;
   } // public Stem getParentStem()
 
@@ -1293,8 +1293,8 @@ public class Group extends Owner {
    * @return  Set of {@link AccessPrivilege} objects.
    */
   public Set getPrivs(Subject subj) {
-    return PrivilegeResolver.getPrivs(
-      this.getSession(), this, subj
+    return PrivilegeResolver.internal_getPrivs(
+      this.internal_getSession(), this, subj
     );
   } // public Set getPrivs(subj)
 
@@ -1311,8 +1311,8 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.READ
+      return PrivilegeResolver.internal_getSubjectsWithPriv(
+        this.internal_getSession(), this, AccessPrivilege.READ
       );
     } 
     catch (SchemaException eS) { 
@@ -1333,7 +1333,7 @@ public class Group extends Owner {
   public Set getRemovableTypes() {
     Set types = new LinkedHashSet();
     // Must have ADMIN to remove types.
-    if (PrivilegeResolver.canADMIN(this.s, this, this.s.getSubject())) {
+    if (PrivilegeResolver.internal_canADMIN(this.s, this, this.s.getSubject())) {
       GroupType t;
       Iterator  iter  = this.getTypes().iterator();
       while (iter.hasNext()) {
@@ -1378,8 +1378,8 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.UPDATE
+      return PrivilegeResolver.internal_getSubjectsWithPriv(
+        this.internal_getSession(), this, AccessPrivilege.UPDATE
       );
     } 
     catch (SchemaException eS) { 
@@ -1401,8 +1401,8 @@ public class Group extends Owner {
     throws  GrouperRuntimeException
   {
     try {
-      return PrivilegeResolver.getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.VIEW
+      return PrivilegeResolver.internal_getSubjectsWithPriv(
+        this.internal_getSession(), this, AccessPrivilege.VIEW
       );
     } 
     catch (SchemaException eS) { 
@@ -1438,9 +1438,9 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.grantPriv(this.getSession(), this, subj, priv);
+    PrivilegeResolver.internal_grantPriv(this.internal_getSession(), this, subj, priv);
     sw.stop();
-    EL.groupGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
+    EL.groupGrantPriv(this.internal_getSession(), this.getName(), subj, priv, sw);
   }  // public void grantPriv(subj, priv)
 
   /**
@@ -1457,7 +1457,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has ADMIN.
    */
   public boolean hasAdmin(Subject subj) {
-    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.ADMIN);
+    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.ADMIN);
   } // public boolean hasAdmin(subj)
 
   /**
@@ -1527,7 +1527,7 @@ public class Group extends Owner {
   {
     boolean rv = false;
     try {
-      Member m = MemberFinder.findBySubject(this.getSession(), subj);
+      Member m = MemberFinder.findBySubject(this.internal_getSession(), subj);
       rv = m.isEffectiveMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
@@ -1584,7 +1584,7 @@ public class Group extends Owner {
   {
     boolean rv = false;
     try {
-      Member m = MemberFinder.findBySubject(this.getSession(), subj);
+      Member m = MemberFinder.findBySubject(this.internal_getSession(), subj);
       rv = m.isImmediateMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
@@ -1649,7 +1649,7 @@ public class Group extends Owner {
   {
     boolean rv = false;
     try {
-      Member m = MemberFinder.findBySubject(this.getSession(), subj);
+      Member m = MemberFinder.findBySubject(this.internal_getSession(), subj);
       rv = m.isMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
@@ -1672,7 +1672,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has OPTIN.
    */
   public boolean hasOptin(Subject subj) {
-    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.OPTIN);
+    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.OPTIN);
   } // public boolean hasOption(subj)
 
   /**
@@ -1689,7 +1689,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has OPTOUT.
    */
   public boolean hasOptout(Subject subj) {
-    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.OPTOUT);
+    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.OPTOUT);
   } // public boolean hasOptout(subj)
 
   /**
@@ -1706,7 +1706,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has READ.
    */
   public boolean hasRead(Subject subj) {
-    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.READ);
+    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.READ);
   } // public boolean hasRead(subj)
 
   /**
@@ -1742,7 +1742,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has UPDATE.
    */
   public boolean hasUpdate(Subject subj) {
-    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.UPDATE);
+    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.UPDATE);
   } // public boolean hasUpdate(subj)
 
   /**
@@ -1759,7 +1759,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has VIEW.
    */
   public boolean hasView(Subject subj) {
-    return PrivilegeResolver.hasPriv(this.getSession(), this, subj, AccessPrivilege.VIEW);
+    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.VIEW);
   } // public boolean hasView(subj)
 
   /**
@@ -1804,9 +1804,9 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.revokePriv(this.getSession(), this, priv);
+    PrivilegeResolver.internal_revokePriv(this.internal_getSession(), this, priv);
     sw.stop();
-    EL.groupRevokePriv(this.getSession(), this.getName(), priv, sw);
+    EL.groupRevokePriv(this.internal_getSession(), this.getName(), priv, sw);
   } // public void revokePriv(priv)
 
   /**
@@ -1835,9 +1835,9 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.revokePriv(this.getSession(), this, subj, priv);
+    PrivilegeResolver.internal_revokePriv(this.internal_getSession(), this, subj, priv);
     sw.stop();
-    EL.groupRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
+    EL.groupRevokePriv(this.internal_getSession(), this.getName(), subj, priv, sw);
   } // public void revokePriv(subj, priv)
 
   /**
@@ -1890,11 +1890,11 @@ public class Group extends Owner {
       }
 
       this.setGroup_attributes( this._updateSystemAttrs(f, value, attrs) );
-      this.setModified();
+      this.internal_setModified();
       HibernateGroupDAO.update(this);
 
       sw.stop();
-      EL.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
+      EL.groupSetAttr(this.internal_getSession(), this.getName(), attr, value, sw);
     }
     catch (GrouperDAOException eDAO) {
       throw new GroupModifyException( eDAO.getMessage(), eDAO );
@@ -2015,11 +2015,11 @@ public class Group extends Owner {
   public Member toMember() 
     throws  GrouperRuntimeException
   {
-    GrouperSessionValidator.validate(this.getSession());
+    GrouperSessionValidator.internal_validate(this.internal_getSession());
     if (as_member == null) {
       try {
         as_member = MemberFinder.findBySubject(
-          this.getSession(), this.toSubject()
+          this.internal_getSession(), this.toSubject()
         );
       }  
       catch (MemberNotFoundException eMNF) {
@@ -2045,11 +2045,11 @@ public class Group extends Owner {
   public Subject toSubject() 
     throws  GrouperRuntimeException
   {
-    GrouperSessionValidator.validate(this.getSession());
+    GrouperSessionValidator.internal_validate(this.internal_getSession());
     if (as_subj == null) {
       try {
         as_subj = SubjectFinder.findById(
-          this.getUuid(), "group", SubjectFinder.getGSA().getId()
+          this.getUuid(), "group", SubjectFinder.internal_getGSA().getId()
         );
       }
       catch (Exception e) {
@@ -2079,7 +2079,7 @@ public class Group extends Owner {
     throws SchemaException
   {
     Group g = new Group();
-    g.setSession( parent.getSession() );
+    g.internal_setSession( parent.internal_getSession() );
     // Set parent
     g.setParent_stem(parent);
     // Attach group type
@@ -2098,7 +2098,7 @@ public class Group extends Owner {
     attributes.add(
       new Attribute(
         g, FieldFinder.find(GrouperConfig.ATTR_DN),
-        U.constructName(parent.getDisplayName(), displayExtn)
+        U.internal_constructName(parent.getDisplayName(), displayExtn)
       )
     );
     attributes.add(
@@ -2106,7 +2106,7 @@ public class Group extends Owner {
     );
     attributes.add(
       new Attribute(
-        g, FieldFinder.find(GrouperConfig.ATTR_N), U.constructName(parent.getName(), extn)
+        g, FieldFinder.find(GrouperConfig.ATTR_N), U.internal_constructName(parent.getName(), extn)
       )
     );
     g.setGroup_attributes(attributes);
@@ -2127,11 +2127,12 @@ public class Group extends Owner {
     }
     return this.attrs;
   } // protected Map internal_getAttributesNoPrivs()
-  
-  protected void setModified() {
+ 
+  // @since   1.2.0 
+  protected void internal_setModified() {
     this.setModifier_id( s.getMember()        );
     this.setModify_time( new Date().getTime() );
-  } // protected void setModified()
+  } // protected void internal_setModified()
 
   protected void setDisplayName(String value) {
     Set       attrs = new LinkedHashSet();
@@ -2164,8 +2165,8 @@ public class Group extends Owner {
             RevokePrivilegeException, 
             SchemaException
   {
-    GrouperSession orig = this.getSession();
-    this.setSession( orig.getRootSession() ); // proxy as root
+    GrouperSession orig = this.internal_getSession();
+    this.internal_setSession( orig.internal_getRootSession() ); // proxy as root
 
     this.revokePriv(AccessPrivilege.ADMIN);
     this.revokePriv(AccessPrivilege.OPTIN);
@@ -2174,7 +2175,7 @@ public class Group extends Owner {
     this.revokePriv(AccessPrivilege.UPDATE);
     this.revokePriv(AccessPrivilege.VIEW);
 
-    this.setSession(orig);
+    this.internal_setSession(orig);
   } // private void _revokeAllAccessPrivs()
 
   private void _setCreated() {
@@ -2192,8 +2193,8 @@ public class Group extends Owner {
       while (iter.hasNext()) {
         a = (Attribute) iter.next();
         if (a.getField().getName().equals(GrouperConfig.ATTR_N)) {
-          AttributeValidator.namingValue(value);
-          String newVal = U.constructName(
+          AttributeValidator.internal_namingValue(value);
+          String newVal = U.internal_constructName(
             this.getParentStem().getName(), value
           );
           a.setValue(newVal);
@@ -2207,8 +2208,8 @@ public class Group extends Owner {
       while (iter.hasNext()) {
         a = (Attribute) iter.next();
         if (a.getField().getName().equals(GrouperConfig.ATTR_DN)) {
-          AttributeValidator.namingValue(value);
-          String newVal = U.constructName(
+          AttributeValidator.internal_namingValue(value);
+          String newVal = U.internal_constructName(
             this.getParentStem().getDisplayName(), value
           );
           a.setValue(newVal);

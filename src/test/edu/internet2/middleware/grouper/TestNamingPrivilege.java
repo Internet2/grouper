@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestNamingPrivilege.java,v 1.6 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestNamingPrivilege.java,v 1.7 2007-01-08 16:43:56 blair Exp $
  */
 public class TestNamingPrivilege extends TestCase {
 
@@ -47,7 +47,7 @@ public class TestNamingPrivilege extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");
@@ -92,11 +92,11 @@ public class TestNamingPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "edu/subj0 owner create: " + np.getOwner().getId(),
-          SubjectHelper.eq(np.getOwner(), uofc.toSubject())
+          SubjectHelper.internal_eq(np.getOwner(), uofc.toSubject())
         );
         Assert.assertTrue(
           "edu/subj0 subj create: " + np.getSubject().getId(),
-          SubjectHelper.eq(np.getSubject(), subj0)
+          SubjectHelper.internal_eq(np.getSubject(), subj0)
         );
         Assert.assertTrue(
           "edu/subj0 isRevokable create: " + np.isRevokable(),
@@ -131,11 +131,11 @@ public class TestNamingPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "uofc/subj0 owner stem: " + np.getOwner().getId(),
-          SubjectHelper.eq(np.getOwner(), subj0)
+          SubjectHelper.internal_eq(np.getOwner(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 subj stem: " + np.getSubject().getId(),
-          SubjectHelper.eq(np.getSubject(), subj0)
+          SubjectHelper.internal_eq(np.getSubject(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 isRevokable stem: " + np.isRevokable(),

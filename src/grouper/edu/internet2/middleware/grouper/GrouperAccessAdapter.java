@@ -31,7 +31,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.49 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.50 2007-01-08 16:43:56 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -71,7 +71,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
     throws  SchemaException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     return MembershipFinder.findSubjects(
       s, g, (Field) FieldFinder.find( (String) priv2list.get(priv) )
     );
@@ -100,16 +100,16 @@ public class GrouperAccessAdapter implements AccessAdapter {
   ) 
     throws  SchemaException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     Set groups = new LinkedHashSet();
     try {
-      Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
+      Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
       // This subject
       groups.addAll( 
         GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj), f ) 
       );
       // The ALL subject
-      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
+      if ( !( SubjectHelper.internal_eq(subj, SubjectFinder.findAllSubject() ) ) ) {
         groups.addAll( 
           GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.findAllMember(), f ) 
         );
@@ -137,7 +137,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @return  Set of privileges.
    */
   public Set getPrivs(GrouperSession s, Group g, Subject subj) {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     Set privs = new LinkedHashSet();
     try {
       Member    m     = MemberFinder.findBySubject(s, subj);
@@ -146,12 +146,12 @@ public class GrouperAccessAdapter implements AccessAdapter {
       Iterator  iterP = Privilege.getAccessPrivs().iterator();
       while (iterP.hasNext()) {
         p             = (Privilege) iterP.next();
-        Field   f     = GrouperPrivilegeAdapter.getField(priv2list, p);
+        Field   f     = GrouperPrivilegeAdapter.internal_getField(priv2list, p);
         Iterator  iterM = MembershipFinder.internal_findAllByOwnerAndMemberAndField(g, m, f).iterator();
-        privs.addAll( GrouperPrivilegeAdapter.getPrivs(s, subj, m, p, iterM) );
+        privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, m, p, iterM) );
         if (!m.equals(all)) {
           Iterator  iterA = MembershipFinder.internal_findAllByOwnerAndMemberAndField(g, all, f).iterator();
-          privs.addAll( GrouperPrivilegeAdapter.getPrivs(s, subj, all, p, iterA) );
+          privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, all, p, iterA) );
         }
       }
     }
@@ -194,8 +194,8 @@ public class GrouperAccessAdapter implements AccessAdapter {
             SchemaException
   {
     try {
-      GrouperSessionValidator.validate(s);
-      Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
+      GrouperSessionValidator.internal_validate(s);
+      Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
       GroupValidator.isTypeEqual(f, FieldType.ACCESS);
       GroupValidator.canWriteField(g, s.getSubject(), f);
       Membership.addImmediateMembership(s, g, subj, f);
@@ -224,11 +224,11 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws  SchemaException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(s, subj);
-      rv = m.isMember(g, GrouperPrivilegeAdapter.getField(priv2list, priv) );
+      rv = m.isMember(g, GrouperPrivilegeAdapter.internal_getField(priv2list, priv) );
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.GPA_MNF + eMNF.getMessage();
@@ -262,11 +262,11 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException,
             SchemaException
   {
-    GrouperSessionValidator.validate(s);
-    Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
+    GrouperSessionValidator.internal_validate(s);
+    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
     GroupValidator.isTypeEqual(f, FieldType.ACCESS);
     GroupValidator.canWriteField(g, s.getSubject(), f);
-    g.setModified();
+    g.internal_setModified();
     try {
       HibernateGroupDAO.revokePriv( g, Membership.deleteAllField(s, g, f) );
     }
@@ -303,13 +303,13 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException,
             SchemaException
   {
-    GrouperSessionValidator.validate(s);
-    Field f = GrouperPrivilegeAdapter.getField(priv2list, priv);
+    GrouperSessionValidator.internal_validate(s);
+    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
     GroupValidator.isTypeEqual(f, FieldType.ACCESS);
     GroupValidator.canWriteField( g, s.getSubject(), f );
     try {
       MemberOf mof = Membership.delImmediateMembership(s, g, subj, f);
-      g.setModified();
+      g.internal_setModified();
       HibernateGroupDAO.revokePriv(g, mof);
     }
     catch (MemberDeleteException eMD) {

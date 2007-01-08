@@ -24,7 +24,7 @@ import  java.util.Properties;
  * Report on system and configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperInfo.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperInfo.java,v 1.4 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 public class GrouperInfo {
@@ -67,7 +67,7 @@ public class GrouperInfo {
   // @since   1.1.0
   private static void _getGrouperInfo() {
     //_getProps( GrouperConfig.getProperties() );
-    Properties props = GrouperConfig.getProperties();
+    Properties props = GrouperConfig.internal_getProperties();
     _get( "privileges.access.interface"       , props );
     _get( "privileges.naming.interface"       , props );
     _get( "privileges.access.cache.interface" , props );
@@ -78,7 +78,7 @@ public class GrouperInfo {
 
   // @since   1.1.0
   private static void _getHibernateInfo() {
-    Properties props = GrouperConfig.getHibernateProperties();
+    Properties props = GrouperConfig.internal_getHibernateProperties();
     _get( "hibernate.dialect"                 , props );
     _get( "hibernate.connection.driver_class" , props );
     _get( "hibernate.connection.url"          , props );

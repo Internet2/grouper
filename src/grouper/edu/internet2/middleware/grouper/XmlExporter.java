@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.81 2007-01-05 14:56:26 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.82 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -176,7 +176,7 @@ public class XmlExporter {
     throws  GrouperRuntimeException
   {
     try {
-      this.options  = XmlUtils.getSystemProperties(LOG, CF);
+      this.options  = XmlUtils.internal_getSystemProperties(LOG, CF);
     }
     catch (IOException eIO) {
       throw new GrouperRuntimeException(eIO.getMessage(), eIO);
@@ -194,13 +194,13 @@ public class XmlExporter {
    * @since   1.1.0
    */
   public static void main(String args[]) {
-    if (XmlArgs.wantsHelp(args)) {
+    if (XmlArgs.internal_wantsHelp(args)) {
       System.out.println( _getUsage() );
       System.exit(0);
     }
     Properties rc = new Properties();
     try {
-      rc = XmlArgs.getXmlExportArgs(args);
+      rc = XmlArgs.internal_getXmlExportArgs(args);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -214,7 +214,7 @@ public class XmlExporter {
         GrouperSession.start(
           SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ) )
         ),
-        XmlUtils.getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS) )
+        XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS) )
       );
       _handleArgs(exporter, rc);
       LOG.debug("Finished export to [" + rc.getProperty(XmlArgs.RC_EFILE) + "]");
@@ -288,7 +288,7 @@ public class XmlExporter {
   {
     this.xml            = new XmlWriter(writer);
     this.isRelative     = relative;
-    if (ns.isRootStem()) {
+    if (ns.internal_isRootStem()) {
       this.includeParent = false; // TODO 20061010 includeParent is still sort of magic to /me
     }
     this._export(ns);
@@ -316,10 +316,10 @@ public class XmlExporter {
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since   1.1.0
-  protected Properties getOptions() {
+  // @since   1.2.0
+  protected Properties internal_getOptions() {
     return (Properties) this.options.clone();
-  } // protected Properties getOptions()
+  } // protected Properties internal_getOptions()
 
 
   // PRIVATE CLASS METHODS //
@@ -485,8 +485,8 @@ public class XmlExporter {
       this._writeHeader();
       int     counter       = 0;
       if (this._isDataExportEnabled()) {
-        this.xml.indent();
-        this.xml.puts("<dataList>");
+        this.xml.internal_indent();
+        this.xml.internal_puts("<dataList>");
         Iterator it = c.iterator();
         Object obj;
         while (it.hasNext())       {
@@ -504,39 +504,39 @@ public class XmlExporter {
           } 
           else if (obj instanceof Subject)    {
             if (counter == 1) {
-              this.xml.puts("<exportOnly/>");
+              this.xml.internal_puts("<exportOnly/>");
             }
             this._writeSubject( (Subject) obj);
           } 
           else if (obj instanceof Member)     {
             if (counter == 1) {
-              this.xml.puts("<exportOnly/>");
+              this.xml.internal_puts("<exportOnly/>");
             }
             this._writeSubject( ((Member) obj).getSubject());
           } 
           else if (obj instanceof Membership) {
             if (counter == 1) {
-              this.xml.puts("<exportOnly/>");
+              this.xml.internal_puts("<exportOnly/>");
             }
             this._writeMembership( (Membership) obj);
           } 
           else {
             LOG.error("Don't know about exporting " + obj);
           }
-          this.xml.puts();
+          this.xml.internal_puts();
         }
-        this.xml.puts("</dataList>");
-        this.xml.undent();
-        this.xml.puts();
+        this.xml.internal_puts("</dataList>");
+        this.xml.internal_undent();
+        this.xml.internal_puts();
       }
-      this.xml.indent();
-      this.xml.puts("<exportComments><![CDATA[");
-      this.xml.indent();
-      this.xml.puts(msg);
-      this.xml.undent();
-      this.xml.puts("]]></exportComments>");
-      this.xml.undent();
-      this.xml.puts();
+      this.xml.internal_indent();
+      this.xml.internal_puts("<exportComments><![CDATA[");
+      this.xml.internal_indent();
+      this.xml.internal_puts(msg);
+      this.xml.internal_undent();
+      this.xml.internal_puts("]]></exportComments>");
+      this.xml.internal_undent();
+      this.xml.internal_puts();
       this._writeFooter();
     }
     catch (CompositeNotFoundException eCNF) {
@@ -577,15 +577,15 @@ public class XmlExporter {
     String key    = "export.subject-attributes.source." + source + "." + type;
     String value  = options.getProperty(key);
     // TODO 20061018 i'm not keen on these repetitive "if"s
-    if (Validator.isNullOrBlank(value)) {
+    if (Validator.internal_isNullOrBlank(value)) {
       key   = "export.subject-attributes.source." + source;
       value = options.getProperty(key);
     }
-    if (Validator.isNullOrBlank(value)) {
+    if (Validator.internal_isNullOrBlank(value)) {
       key   = "export.subject-attributes.type." + type;
       value = options.getProperty(key);
     }
-    if (Validator.isNullOrBlank(value)) {
+    if (Validator.internal_isNullOrBlank(value)) {
       return null;
     }
     if (XmlUtils.SPECIAL_STAR.equals(value)) {
@@ -625,47 +625,47 @@ public class XmlExporter {
 
   // @since   1.1.0
   private boolean _isAccessPrivExportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "export.privs.access");
+    return XmlUtils.internal_getBooleanOption(this.options, "export.privs.access");
   } // private boolean _isAccessPrivExportEnabled()
   
   // @since   1.1.0
   private boolean _isDataExportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "export.data");
+    return XmlUtils.internal_getBooleanOption(this.options, "export.data");
   } // private boolean _isDataExportEnabled()
 
   // @since   1.1.0
   private boolean _isGroupInternalAttrsExportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "export.group.internal-attributes");
+    return XmlUtils.internal_getBooleanOption(this.options, "export.group.internal-attributes");
   } // private boolean _isGroupInternalAttrsExportEnabled()
 
   // @since   1.1.0
   private boolean _isGroupListImmediateOnlyExportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "export.group.lists.immediate-only");
+    return XmlUtils.internal_getBooleanOption(this.options, "export.group.lists.immediate-only");
   } // private boolean _isGroupListImmediateOnlyExportEnabled()
 
   // @since   1.1.0
   private boolean _isGroupMemberImmediateOnlyExportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "export.group.members.immediate-only");
+    return XmlUtils.internal_getBooleanOption(this.options, "export.group.members.immediate-only");
   } // private boolean _isGroupMemberImmediateOnlyExportEnabled()
 
   // @since   1.1.0
   private boolean _isMetadataExportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "export.metadata");
+    return XmlUtils.internal_getBooleanOption(this.options, "export.metadata");
   } // private boolean _isMetadataExportEnabled()
 
   // @since   1.1.0
   private boolean _isNamingPrivExportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "export.privs.naming");
+    return XmlUtils.internal_getBooleanOption(this.options, "export.privs.naming");
   } // private boolean _isNamingPrivExportEnabled()
 
   // @since   1.1.0
   private boolean _isParentPrivsExportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "export.privs.for-parents");
+    return XmlUtils.internal_getBooleanOption(this.options, "export.privs.for-parents");
   } // private boolean _isParentPrivsExportEnabled()
 
   // @since   1.1.0
   private boolean _isStemInternalAttrsExportEnabled() {
-    return XmlUtils.getBooleanOption(this.options, "export.stem.internal-attributes");
+    return XmlUtils.internal_getBooleanOption(this.options, "export.stem.internal-attributes");
   } // private boolean _isStemInternalAttrsExportEnabled()
 
   // @since   1.1.0
@@ -700,7 +700,7 @@ public class XmlExporter {
     do {
       try {
         parent = parent.getParentStem();
-        if (Validator.isNullOrBlank( parent.getExtension() ) ) {
+        if (Validator.internal_isNullOrBlank( parent.getExtension() ) ) {
           parent = null;
         } 
         else {
@@ -718,7 +718,7 @@ public class XmlExporter {
   // @since   1.1.0
   // TODO 20061003 deprecate
   private boolean _optionTrue(String key) {
-    if (Validator.isNullOrBlank(key)) {
+    if (Validator.internal_isNullOrBlank(key)) {
       options.setProperty(key, "false");
       return false;
     }
@@ -753,24 +753,24 @@ public class XmlExporter {
     throws  GroupNotFoundException,
             IOException
   {
-    this.xml.puts("<composite>");
+    this.xml.internal_puts("<composite>");
     this._writeGroupRef(comp.getLeftGroup());
-    this.xml.puts();
-    this.xml.puts(
+    this.xml.internal_puts();
+    this.xml.internal_puts(
       "<compositeType>" + comp.getType().toString() + "</compositeType>"
     );
-    this.xml.puts();
+    this.xml.internal_puts();
     this._writeGroupRef(comp.getRightGroup());
-    this.xml.puts("</composite>");
+    this.xml.internal_puts("</composite>");
   } // private void _writeComposite(comp)
 
   // @since   1.1.0
   private void _writeExportParams(Owner o)
     throws  IOException
   {
-    this.xml.indent();
-    this.xml.puts("<exportParams>");
-    this.xml.indent();
+    this.xml.internal_indent();
+    this.xml.internal_puts("<exportParams>");
+    this.xml.internal_indent();
     String s = "<node type='";
     if (o instanceof Group) {
       s += "group'>";
@@ -778,31 +778,31 @@ public class XmlExporter {
     else {
       s += "stem'>";
     }
-    this.xml.puts( s + o.getName() + "</node>" );
-    this.xml.puts("<relative>" + isRelative + "</relative>");
+    this.xml.internal_puts( s + o.getName() + "</node>" );
+    this.xml.internal_puts("<relative>" + isRelative + "</relative>");
     if (o instanceof Stem) {
-      this.xml.puts("<includeParent>" + includeParent + "</includeParent>");
+      this.xml.internal_puts("<includeParent>" + includeParent + "</includeParent>");
     }
-    this.xml.undent();
-    this.xml.puts("</exportParams>");
-    this.xml.undent();
-    this.xml.puts();
+    this.xml.internal_undent();
+    this.xml.internal_puts("</exportParams>");
+    this.xml.internal_undent();
+    this.xml.internal_puts();
   } // private void _writeExportParams(o)
 
   // @since   1.1.0
   private void _writeFieldMetaData(Field f) 
     throws  IOException
   {
-    this.xml.indent();
-    this.xml.puts("<field name="  + U.q( XmlUtils.xmlE( f.getName() ) ) );
-    this.xml.indent();
-    this.xml.puts("required="     + U.q( f.getRequired() )              );
-    this.xml.puts("type="         + U.q( f.getType().toString() )       );
-    this.xml.puts("readPriv="     + U.q( f.getReadPriv().toString() )   );
-    this.xml.puts("writePriv="    + U.q( f.getWritePriv().toString() )  );
-    this.xml.undent();
-    this.xml.puts("/>");
-    this.xml.undent();
+    this.xml.internal_indent();
+    this.xml.internal_puts("<field name="  + U.internal_q( XmlUtils.internal_xmlE( f.getName() ) ) );
+    this.xml.internal_indent();
+    this.xml.internal_puts("required="     + U.internal_q( f.getRequired() )              );
+    this.xml.internal_puts("type="         + U.internal_q( f.getType().toString() )       );
+    this.xml.internal_puts("readPriv="     + U.internal_q( f.getReadPriv().toString() )   );
+    this.xml.internal_puts("writePriv="    + U.internal_q( f.getWritePriv().toString() )  );
+    this.xml.internal_undent();
+    this.xml.internal_puts("/>");
+    this.xml.internal_undent();
   } // private void _writeFieldMetaData(f)
 
   // @since   1.1.0
@@ -811,19 +811,19 @@ public class XmlExporter {
   {
     Date    now       = new Date();
     long    duration  = (now.getTime() - this.startTime.getTime()) / 1000;
-    this.xml.indent();
-    this.xml.puts("<exportInfo>");
-    this.xml.indent();
-    this.xml.puts("<start>" + startTime + "</start>");
-    this.xml.puts("<end>" + now + "</end>");
-    this.xml.puts("<duration>" + duration + "</duration>");
+    this.xml.internal_indent();
+    this.xml.internal_puts("<exportInfo>");
+    this.xml.internal_indent();
+    this.xml.internal_puts("<start>" + startTime + "</start>");
+    this.xml.internal_puts("<end>" + now + "</end>");
+    this.xml.internal_puts("<duration>" + duration + "</duration>");
     this._writeOptions();
-    this.xml.undent();
-    this.xml.puts("</exportInfo>");
-    this.xml.undent();
-    this.xml.puts("</registry>");
-    this.xml.puts();
-    this.xml.close();
+    this.xml.internal_undent();
+    this.xml.internal_puts("</exportInfo>");
+    this.xml.internal_undent();
+    this.xml.internal_puts("</registry>");
+    this.xml.internal_puts();
+    this.xml.internal_close();
   } // private _writeFooter()
 
   // @since 1.1.0
@@ -849,10 +849,10 @@ public class XmlExporter {
   private void _writeGroupFooter(Group g) 
     throws  IOException
   {
-    this.xml.puts("</group>");
-    this.xml.puts( this.xml.comment( U.q(g.getName() ) ) );
-    this.xml.undent(); // Undent the surplus indent from the header
-    this.xml.puts();
+    this.xml.internal_puts("</group>");
+    this.xml.internal_puts( this.xml.internal_comment( U.internal_q(g.getName() ) ) );
+    this.xml.internal_undent(); // Undent the surplus indent from the header
+    this.xml.internal_puts();
   } // private void _writeGroupFooter(g)
 
   // @since   1.1.0
@@ -860,20 +860,20 @@ public class XmlExporter {
   private void _writeGroupHeader(Group g)  
     throws  IOException
   {
-    this.xml.puts();
-    this.xml.indent();
-    this.xml.puts( this.xml.comment( U.q( g.getName() ) ) );
-    this.xml.puts("<group extension=" + U.q( XmlUtils.xmlE( g.getExtension() ) )            );
-    this.xml.indent();
-    this.xml.puts("displayExtension=" + U.q( XmlUtils.xmlE( g.getDisplayExtension() ) )     );
-    this.xml.puts("name="             + U.q( XmlUtils.xmlE( g.getName() ) )                 );
-    this.xml.puts("displayName="      + U.q( XmlUtils.xmlE( g.getDisplayName() ) )          );
-    this.xml.puts("id="               + U.q( XmlUtils.xmlE( g.getUuid() ) )                 );
-    this.xml.undent();
-    this.xml.puts(">");
-    this.xml.indent();
-    this.xml.puts("<description>" + XmlUtils.xmlE( g.getDescription() ) + "</description>"  );
-    this.xml.undent();
+    this.xml.internal_puts();
+    this.xml.internal_indent();
+    this.xml.internal_puts( this.xml.internal_comment( U.internal_q( g.getName() ) ) );
+    this.xml.internal_puts("<group extension=" + U.internal_q( XmlUtils.internal_xmlE( g.getExtension() ) )            );
+    this.xml.internal_indent();
+    this.xml.internal_puts("displayExtension=" + U.internal_q( XmlUtils.internal_xmlE( g.getDisplayExtension() ) )     );
+    this.xml.internal_puts("name="             + U.internal_q( XmlUtils.internal_xmlE( g.getName() ) )                 );
+    this.xml.internal_puts("displayName="      + U.internal_q( XmlUtils.internal_xmlE( g.getDisplayName() ) )          );
+    this.xml.internal_puts("id="               + U.internal_q( XmlUtils.internal_xmlE( g.getUuid() ) )                 );
+    this.xml.internal_undent();
+    this.xml.internal_puts(">");
+    this.xml.internal_indent();
+    this.xml.internal_puts("<description>" + XmlUtils.internal_xmlE( g.getDescription() ) + "</description>"  );
+    this.xml.internal_undent();
     // Don't fully undent
   } // private void _writeGroupHeader(g)
 
@@ -903,13 +903,13 @@ public class XmlExporter {
   private void _writeGroupRef(Group group, boolean writeAbsoluteName) 
     throws  IOException
   {
-    this.xml.puts("<groupRef id='" + group.getUuid() + "'");
+    this.xml.internal_puts("<groupRef id='" + group.getUuid() + "'");
     String name = group.getName();
     if (!writeAbsoluteName) {
       name = this._fixGroupName(name);
     }
-    this.xml.puts("        name='" + name + "'");
-    this.xml.puts(" displayName='" + group.getDisplayName() + "'/>");
+    this.xml.internal_puts("        name='" + name + "'");
+    this.xml.internal_puts(" displayName='" + group.getDisplayName() + "'/>");
   } // private void _writeGroupRef(group, writeAbsoluteName)
 
   // @since   1.1.0
@@ -917,15 +917,15 @@ public class XmlExporter {
     throws  IOException,
             SchemaException
   {
-    this.xml.indent();
-    this.xml.puts("<groupType name=" + U.q( XmlUtils.xmlE( gt.getName() ) ) + ">");
+    this.xml.internal_indent();
+    this.xml.internal_puts("<groupType name=" + U.internal_q( XmlUtils.internal_xmlE( gt.getName() ) ) + ">");
     Iterator  it  = gt.getFields().iterator();
     while (it.hasNext()) {
       this._writeGroupTypeField(g, (Field) it.next());
     }
-    this.xml.puts("</groupType>");
-    this.xml.undent();
-    this.xml.puts();
+    this.xml.internal_puts("</groupType>");
+    this.xml.internal_undent();
+    this.xml.internal_puts();
   } // private void _writeGroupType(group, groupType)
 
   // @since   1.1.0
@@ -935,19 +935,19 @@ public class XmlExporter {
   {
     if ( !f.getType().equals(FieldType.LIST) && g.canReadField(f) ) {
       try {
-        String val = XmlUtils.xmlE( g.getAttribute( f.getName() ) );
+        String val = XmlUtils.internal_xmlE( g.getAttribute( f.getName() ) );
         if (
-                Validator.isNotNullOrBlank(val)
+                Validator.internal_isNotNullOrBlank(val)
             &&  ":description:extension:displayExtension:".indexOf(":" + f.getName() + ":") == -1
         ) 
         {
-          this.xml.indent();
-          this.xml.puts(
+          this.xml.internal_indent();
+          this.xml.internal_puts(
             "<attribute name='"
-            + XmlUtils.xmlE( f.getName() ) + "'>" + val
+            + XmlUtils.internal_xmlE( f.getName() ) + "'>" + val
             + "</attribute>"
           );
-          this.xml.undent();
+          this.xml.internal_undent();
         }
       }
       catch (AttributeNotFoundException eANF) {
@@ -964,14 +964,14 @@ public class XmlExporter {
     if (this._optionTrue("export.group.custom-attributes")) {
       Set types = g.getRemovableTypes(); 
       if (!types.isEmpty()) {
-        this.xml.indent();
-        this.xml.puts("<groupTypes>");
+        this.xml.internal_indent();
+        this.xml.internal_puts("<groupTypes>");
         Iterator it = types.iterator();
         while (it.hasNext()) {
           this._writeGroupType(g, (GroupType) it.next());
         }
-        this.xml.puts("</groupTypes>");
-        this.xml.undent();
+        this.xml.internal_puts("</groupTypes>");
+        this.xml.internal_undent();
       }
     }
   } // private void _writeAttributes(g)
@@ -987,11 +987,11 @@ public class XmlExporter {
             SubjectNotFoundException
   {
     if (this._isDataExportEnabled()) {
-      this.xml.indent();
-      this.xml.puts("<data>");
+      this.xml.internal_indent();
+      this.xml.internal_puts("<data>");
       this._writeOwnerStack( this._getStackToWrite(o) );
-      this.xml.puts("</data>");
-      this.xml.undent();
+      this.xml.internal_puts("</data>");
+      this.xml.internal_undent();
       LOG.debug("Finished repository data as XML");
     }
   } // private void _writeData(o)
@@ -1022,14 +1022,14 @@ public class XmlExporter {
   private void _writeGroupType(GroupType gt) 
     throws  IOException
   {
-    this.xml.indent();
-    this.xml.puts("<groupTypeDef name=" + U.q( XmlUtils.xmlE( gt.getName() ) ) + ">");
+    this.xml.internal_indent();
+    this.xml.internal_puts("<groupTypeDef name=" + U.internal_q( XmlUtils.internal_xmlE( gt.getName() ) ) + ">");
     Iterator it = gt.getFields().iterator();
     while (it.hasNext()) {
       this._writeFieldMetaData( (Field) it.next() );
     }
-    this.xml.puts("</groupTypeDef>");
-    this.xml.undent();
+    this.xml.internal_puts("</groupTypeDef>");
+    this.xml.internal_undent();
   } // private void _writeGroupTypesMetaData(gt)
 
   // @since   1.1.0
@@ -1040,14 +1040,14 @@ public class XmlExporter {
     if (types.isEmpty()) {
       return;
     }
-    this.xml.indent();
-    this.xml.puts("<groupTypesMetaData>");
+    this.xml.internal_indent();
+    this.xml.internal_puts("<groupTypesMetaData>");
     Iterator  it  = types.iterator();
     while (it.hasNext()) {
       this._writeGroupType( (GroupType) it.next() );
     }
-    this.xml.puts("</groupTypesMetaData>");
-    this.xml.undent();
+    this.xml.internal_puts("</groupTypesMetaData>");
+    this.xml.internal_undent();
   } // private void _writeGroupTypesMetaData()
 
   // @since   1.1.0
@@ -1055,8 +1055,8 @@ public class XmlExporter {
     throws  GrouperException,
             IOException 
   {
-    this.xml.puts("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    this.xml.puts("<registry>");
+    this.xml.internal_puts("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    this.xml.internal_puts("<registry>");
   } // private void _writeHeader()
 
   // @since   1.1.0
@@ -1064,31 +1064,31 @@ public class XmlExporter {
     throws  IOException
   {
     Date d = new Date(l);
-    this.xml.indent();
-    this.xml.puts(
-        "<internalAttribute name=" + U.q(attr) + ">" 
+    this.xml.internal_indent();
+    this.xml.internal_puts(
+        "<internalAttribute name=" + U.internal_q(attr) + ">" 
       + Long.toString( d.getTime() ) 
       + "</internalAttribute> " 
-      + this.xml.comment( d.toString() )
+      + this.xml.internal_comment( d.toString() )
     ); 
-    this.xml.undent();
+    this.xml.internal_undent();
   } // private void _writeInternalAttribute(attr, d)
 
   // @since   1.1.0
   private void _writeInternalAttribute(String attr, String val)
     throws  IOException
   {
-    if (!Validator.isNotNullOrBlank(val)) {
+    if (!Validator.internal_isNotNullOrBlank(val)) {
       // Since I'm now using the internal methods to access the attr values I
       // need to be more careful about NULLs
       val = GrouperConfig.EMPTY_STRING;
     }
-    this.xml.indent();
-    this.xml.puts(
-        "<internalAttribute name=" + U.q(attr) + ">" 
-      + XmlUtils.xmlE(val) + "</internalAttribute>"
+    this.xml.internal_indent();
+    this.xml.internal_puts(
+        "<internalAttribute name=" + U.internal_q(attr) + ">" 
+      + XmlUtils.internal_xmlE(val) + "</internalAttribute>"
     ); 
-    this.xml.undent();
+    this.xml.internal_undent();
   } // private void _writeInternalAttribute(attr, val)
 
   // @since   1.1.0
@@ -1105,20 +1105,20 @@ public class XmlExporter {
       id      = this._fixGroupName(subj.getName());
     }
     String  txt   = 
-        "<subject " + idAttr + "=" + U.q( XmlUtils.xmlE(id)           )
-      + " type="    + U.q( XmlUtils.xmlE( subj.getType().getName() )  )
-      + " source="  + U.q( XmlUtils.xmlE( subj.getSource().getId() )  );
+        "<subject " + idAttr + "=" + U.internal_q( XmlUtils.internal_xmlE(id)           )
+      + " type="    + U.internal_q( XmlUtils.internal_xmlE( subj.getType().getName() )  )
+      + " source="  + U.internal_q( XmlUtils.internal_xmlE( subj.getSource().getId() )  );
     if (idAttr.equals("identifier")) {
-      txt += " id=" + U.q( subj.getId() );
+      txt += " id=" + U.internal_q( subj.getId() );
     }
     txt += "/>";
-    this.xml.indent();
-    this.xml.puts("<internalAttribute name=" + U.q(attr) + ">");
-    this.xml.indent();
-    this.xml.puts(txt);
-    this.xml.undent();
-    this.xml.puts("</internalAttribute>");
-    this.xml.undent();
+    this.xml.internal_indent();
+    this.xml.internal_puts("<internalAttribute name=" + U.internal_q(attr) + ">");
+    this.xml.internal_indent();
+    this.xml.internal_puts(txt);
+    this.xml.internal_undent();
+    this.xml.internal_puts("</internalAttribute>");
+    this.xml.internal_undent();
   } // private void _writeInternalAttribute(attr, subj, comment)
 
   // @since   1.1.0
@@ -1133,8 +1133,8 @@ public class XmlExporter {
       ( o instanceof Stem  && this._isStemInternalAttrsExportEnabled()  )
     )
     {
-      this.xml.indent();
-      this.xml.puts("<internalAttributes>");
+      this.xml.internal_indent();
+      this.xml.internal_puts("<internalAttributes>");
       this._writeInternalAttribute( "parentStem"    , this._getParentStemName(o)  );
       this._writeInternalAttribute( "createSource"  , o.getCreate_source()        );
       this._writeInternalAttribute( "createSubject" , o.getCreator_id()           );
@@ -1142,9 +1142,9 @@ public class XmlExporter {
       this._writeInternalAttribute( "modifySource"  , o.getModify_source()        );
       this._writeInternalAttribute( "modifySubject" , o.getModifier_id()          );
       this._writeInternalAttribute( "modifyTime"    , o.getModify_time()          );
-      this.xml.puts("</internalAttributes>");
-      this.xml.undent();
-      this.xml.puts();
+      this.xml.internal_puts("</internalAttributes>");
+      this.xml.internal_undent();
+      this.xml.internal_puts();
     }
   } // private void _writeInternalAttributes(o)
 
@@ -1184,21 +1184,21 @@ public class XmlExporter {
       if (members.isEmpty() && !isComposite) {
         return;
       }
-      this.xml.indent();
-      this.xml.puts(
-          "<list field="  + U.q( XmlUtils.xmlE( f.getName() )                 )
-        + " groupType="   + U.q( XmlUtils.xmlE( f.getGroupType().getName() )  )
+      this.xml.internal_indent();
+      this.xml.internal_puts(
+          "<list field="  + U.internal_q( XmlUtils.internal_xmlE( f.getName() )                 )
+        + " groupType="   + U.internal_q( XmlUtils.internal_xmlE( f.getGroupType().getName() )  )
         + ">"
       );
       if (isComposite) {
         this._writeComposite( CompositeFinder.findAsOwner(g) );
       }
       this._writeMembers(members, g, f);
-      this.xml.puts(
-        "</list> " + this.xml.comment( U.q( XmlUtils.xmlE( f.getName() ) ) ) 
+      this.xml.internal_puts(
+        "</list> " + this.xml.internal_comment( U.internal_q( XmlUtils.internal_xmlE( f.getName() ) ) ) 
       );
-      this.xml.undent();
-      this.xml.puts();
+      this.xml.internal_undent();
+      this.xml.internal_puts();
     }
   } // private void _writeListField(g, f)
 
@@ -1241,13 +1241,13 @@ public class XmlExporter {
       isImmediate = false;
     }
 
-    this.xml.puts("<membership>");
-    this.xml.puts("<depth>" + membership.getDepth() + "</depth>");
-    this.xml.puts("<listName>" + membership.getList().getName() + "</listName>");
-    this.xml.puts("<immediate>" + isImmediate + "</immediate>");
+    this.xml.internal_puts("<membership>");
+    this.xml.internal_puts("<depth>" + membership.getDepth() + "</depth>");
+    this.xml.internal_puts("<listName>" + membership.getList().getName() + "</listName>");
+    this.xml.internal_puts("<immediate>" + isImmediate + "</immediate>");
     _writeGroupRef(membership.getGroup(), true);
     this._writeSubject(membership.getMember().getSubject());
-    this.xml.puts("</membership>");
+    this.xml.internal_puts("</membership>");
   } // private void _writeMembership(membership)
 
   // @since   1.1.0
@@ -1256,13 +1256,13 @@ public class XmlExporter {
             IOException 
   {
     if (this._isMetadataExportEnabled()) {
-      this.xml.indent();
-      this.xml.puts("<metadata>");
+      this.xml.internal_indent();
+      this.xml.internal_puts("<metadata>");
       this._writeGroupTypesMetaData();
-      this.xml.puts();
+      this.xml.internal_puts();
       this._writeSubjectSourcesMetaData();
-      this.xml.puts("</metadata>");
-      this.xml.undent();
+      this.xml.internal_puts("</metadata>");
+      this.xml.internal_undent();
     }
   } // private void _writeMetaData()
 
@@ -1270,20 +1270,20 @@ public class XmlExporter {
   private void _writeOptions() 
     throws  IOException
   {
-    this.xml.puts("<options>");
-    this.xml.indent();
+    this.xml.internal_puts("<options>");
+    this.xml.internal_indent();
     String    key;
     List      opts  = new ArrayList( options.keySet() );
     Collections.sort(opts);
     Iterator  it    = opts.iterator();
     while (it.hasNext()) {
       key = (String) it.next();
-      this.xml.puts(
-        "<option key=" + U.q(key) + ">" + options.getProperty(key) + "</option>"
+      this.xml.internal_puts(
+        "<option key=" + U.internal_q(key) + ">" + options.getProperty(key) + "</option>"
       );
     }
-    this.xml.undent();
-    this.xml.puts("</options>");
+    this.xml.internal_undent();
+    this.xml.internal_puts("</options>");
   } // private void _writeOptions()
 
   // @since   1.1.0
@@ -1295,14 +1295,14 @@ public class XmlExporter {
     if (subjects.size() == 1) {
       subjects.remove( SubjectFinder.findRootSubject() );
     }
-    this.xml.puts();
-    this.xml.puts("<privileges type='" + privilege + "'>");
+    this.xml.internal_puts();
+    this.xml.internal_puts("<privileges type='" + privilege + "'>");
     Subject   subject;
     boolean   isImmediate = false;
     Iterator  it          = subjects.iterator();
     while (it.hasNext()) {
       subject     = (Subject) it.next();
-      isImmediate = XmlUtils.hasImmediatePrivilege(subject, o, privilege);
+      isImmediate = XmlUtils.internal_hasImmediatePrivilege(subject, o, privilege);
       if (
         (!subject.getId().equals("GrouperSystem"))
         && 
@@ -1311,7 +1311,7 @@ public class XmlExporter {
         this._writeSubject(subject, " immediate='" + isImmediate + "' ");
       }
     }
-    this.xml.puts("</privileges> " + this.xml.comment(privilege));
+    this.xml.internal_puts("</privileges> " + this.xml.internal_comment(privilege));
   } // private void _writePrivileges(privilege, subjects, o)
 
   // @since   1.1.0
@@ -1355,30 +1355,30 @@ public class XmlExporter {
   private void _writeStemFooter(Stem ns) 
     throws  IOException
   {
-    this.xml.puts("</stem>");
-    this.xml.puts( this.xml.comment( U.q(ns.getName() ) ) );
-    this.xml.undent(); // Undent the surplus indent from the header
-    this.xml.puts();
+    this.xml.internal_puts("</stem>");
+    this.xml.internal_puts( this.xml.internal_comment( U.internal_q(ns.getName() ) ) );
+    this.xml.internal_undent(); // Undent the surplus indent from the header
+    this.xml.internal_puts();
   } // private void _writeStemFooter(stem)
 
   // @since   1.1.0
   private void _writeStemHeader(Stem ns) 
     throws  IOException
   {
-    this.xml.puts();
-    this.xml.indent();
-    this.xml.puts( this.xml.comment( U.q( ns.getName() ) ) );
-    this.xml.puts("<stem extension="  + U.q( XmlUtils.xmlE( ns.getExtension() ) )           );
-    this.xml.indent();
-    this.xml.puts("displayExtension=" + U.q( XmlUtils.xmlE( ns.getDisplayExtension() ) )    );
-    this.xml.puts("name="             + U.q( XmlUtils.xmlE( ns.getName()) )                 );
-    this.xml.puts("displayName="      + U.q( XmlUtils.xmlE( ns.getDisplayName() ) )         );
-    this.xml.puts("id="               + U.q( XmlUtils.xmlE( ns.getUuid() ) )                );
-    this.xml.undent();
-    this.xml.puts(">");
-    this.xml.indent();
-    this.xml.puts("<description>" + XmlUtils.xmlE( ns.getDescription() ) + "</description>" );
-    this.xml.undent();
+    this.xml.internal_puts();
+    this.xml.internal_indent();
+    this.xml.internal_puts( this.xml.internal_comment( U.internal_q( ns.getName() ) ) );
+    this.xml.internal_puts("<stem extension="  + U.internal_q( XmlUtils.internal_xmlE( ns.getExtension() ) )           );
+    this.xml.internal_indent();
+    this.xml.internal_puts("displayExtension=" + U.internal_q( XmlUtils.internal_xmlE( ns.getDisplayExtension() ) )    );
+    this.xml.internal_puts("name="             + U.internal_q( XmlUtils.internal_xmlE( ns.getName()) )                 );
+    this.xml.internal_puts("displayName="      + U.internal_q( XmlUtils.internal_xmlE( ns.getDisplayName() ) )         );
+    this.xml.internal_puts("id="               + U.internal_q( XmlUtils.internal_xmlE( ns.getUuid() ) )                );
+    this.xml.internal_undent();
+    this.xml.internal_puts(">");
+    this.xml.internal_indent();
+    this.xml.internal_puts("<description>" + XmlUtils.internal_xmlE( ns.getDescription() ) + "</description>" );
+    this.xml.internal_undent();
     // Don't fully undent
   } // private void _writeStemHeader(ns)
 
@@ -1450,21 +1450,21 @@ public class XmlExporter {
     } else {
       id = subj.getId();
     }
-    this.xml.put(
-      "<subject " + attrName + "='" + XmlUtils.xmlE(id)
-      + "' type='" + XmlUtils.xmlE( subj.getType().getName() )
-      + "' source='" + XmlUtils.xmlE( subj.getSource().getId() )
+    this.xml.internal_put(
+      "<subject " + attrName + "='" + XmlUtils.internal_xmlE(id)
+      + "' type='" + XmlUtils.internal_xmlE( subj.getType().getName() )
+      + "' source='" + XmlUtils.internal_xmlE( subj.getSource().getId() )
       + "'" + immediate
     );
     if ("group".equals(subj.getType().getName())) {
-      this.xml.put(" id='" + subj.getId() + "'");
+      this.xml.internal_put(" id='" + subj.getId() + "'");
     }
     Iterator exportAttrs = _getExportAttributes(subj);
-    if (Validator.isNullOrBlank(exportAttrs)) {
-      this.xml.puts("/>");
+    if (Validator.internal_isNullOrBlank(exportAttrs)) {
+      this.xml.internal_puts("/>");
       return;
     }
-    this.xml.puts(">");
+    this.xml.internal_puts(">");
     String    attr;
     Iterator  attrIt;
     String    attrValue;
@@ -1472,15 +1472,15 @@ public class XmlExporter {
     while (exportAttrs.hasNext()) {
       attr = (String) exportAttrs.next();
       values = subj.getAttributeValues(attr);
-      this.xml.puts("<subjectAttribute name='" + attr + "'>");
+      this.xml.internal_puts("<subjectAttribute name='" + attr + "'>");
       attrIt = values.iterator();
       while (attrIt.hasNext()) {
         attrValue = (String) attrIt.next();
-        this.xml.puts("<value>" + attrValue + "</value>");
+        this.xml.internal_puts("<value>" + attrValue + "</value>");
       }
-      this.xml.puts("</subjectAttribute>");
+      this.xml.internal_puts("</subjectAttribute>");
     }
-    this.xml.puts("</subject>");
+    this.xml.internal_puts("</subject>");
 
   } // private void _writeSubject(subj, immediate)
 
@@ -1488,19 +1488,19 @@ public class XmlExporter {
   private void _writeSubjectSourceMetaData(Source sa) 
     throws  IOException
   {
-    this.xml.indent();
-    this.xml.puts("<source id=" + U.q( XmlUtils.xmlE( sa.getId() ) )  );
-    this.xml.indent();
-    this.xml.puts("name="       + U.q( sa.getName() )                 );
-    this.xml.puts("class="      + U.q( sa.getClass().getName() )      );
-    this.xml.undent();
-    this.xml.puts(">");
+    this.xml.internal_indent();
+    this.xml.internal_puts("<source id=" + U.internal_q( XmlUtils.internal_xmlE( sa.getId() ) )  );
+    this.xml.internal_indent();
+    this.xml.internal_puts("name="       + U.internal_q( sa.getName() )                 );
+    this.xml.internal_puts("class="      + U.internal_q( sa.getClass().getName() )      );
+    this.xml.internal_undent();
+    this.xml.internal_puts(">");
     Iterator it = sa.getSubjectTypes().iterator();
     while (it.hasNext()) {
       this._writeSubjectSourceTypesMetaData( (SubjectType) it.next() );
     }
-    this.xml.puts("</source>");
-    this.xml.undent();
+    this.xml.internal_puts("</source>");
+    this.xml.internal_undent();
   } // private void _writeSubjectSourceMetaData(sa)
 
   // @since   1.1.0
@@ -1508,8 +1508,8 @@ public class XmlExporter {
     throws  GrouperException,
             IOException 
   {
-    this.xml.indent();
-    this.xml.puts("<subjectSourceMetaData>");
+    this.xml.internal_indent();
+    this.xml.internal_puts("<subjectSourceMetaData>");
     try {
       Iterator it = SourceManager.getInstance().getSources().iterator();
       while (it.hasNext()) {
@@ -1520,8 +1520,8 @@ public class XmlExporter {
       throw new GrouperException(e.getMessage(), e);
     }
     finally {
-      this.xml.puts("</subjectSourceMetaData>");
-      this.xml.undent();
+      this.xml.internal_puts("</subjectSourceMetaData>");
+      this.xml.internal_undent();
     }
   } // private void _writeSubjectSourcesMetaData()
 
@@ -1529,9 +1529,9 @@ public class XmlExporter {
   private void _writeSubjectSourceTypesMetaData(SubjectType st) 
     throws  IOException
   {
-    this.xml.indent();
-    this.xml.puts("<subjectType name=" + U.q( st.getName() ) + "/>");
-    this.xml.undent();
+    this.xml.internal_indent();
+    this.xml.internal_puts("<subjectType name=" + U.internal_q( st.getName() ) + "/>");
+    this.xml.internal_undent();
   } // private void _writeSubjectSourceTypesMetaData(st)
   
 } // public class XmlExporter

@@ -24,7 +24,7 @@ import  java.util.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.30 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.31 2007-01-08 16:43:56 blair Exp $
  */
 public class SubjectFinder {
 
@@ -457,14 +457,14 @@ public class SubjectFinder {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.1.0
-  protected static void flushCache() {
+  // @since   1.2.0
+  protected static void internal_flushCache() {
     _getIdCache().removeAll();
     _getIdfrCache().removeAll();
-  } // protected static void flushCache()
+  } // protected static void internal_flushCache()
 
-  // @since   1.0
-  protected static Source getGSA() {
+  // @since   1.2.0
+  protected static Source internal_getGSA() {
     if (gsa == null) {
       Iterator iter = MGR.getSources().iterator();
       while (iter.hasNext()) {
@@ -474,10 +474,10 @@ public class SubjectFinder {
           break;
         }
       }
-      Validator.valueNotNull(gsa, E.SF_GETSA);
+      Validator.internal_valueNotNull(gsa, E.SF_GETSA);
     }
     return gsa;
-  } // protected static Source getGSA()
+  } // protected static Source internal_getGSA()
 
 
   // PRIVATE CLASS METHODS //

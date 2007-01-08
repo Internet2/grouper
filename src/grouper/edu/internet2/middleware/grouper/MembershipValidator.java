@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.14 2007-01-05 14:56:26 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.15 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
@@ -108,7 +108,7 @@ class MembershipValidator {
     if ( (o instanceof Group) && (f.getName().equals(GrouperConfig.LIST)) ) {
       Group g = (Group) o;
       try {
-        if (SubjectHelper.eq(g.toSubject(), m.getSubject())) {
+        if (SubjectHelper.internal_eq(g.toSubject(), m.getSubject())) {
           throw new ModelException(E.MSV_CIRCULAR);
         }
       }
@@ -122,13 +122,13 @@ class MembershipValidator {
   private static void _validate(Membership ms, String type) 
     throws  ModelException
   {
-    GrouperSessionValidator.validate(ms.getSession());
+    GrouperSessionValidator.internal_validate(ms.internal_getSession());
     String t = ms.getMship_type();
     Owner           o = ms.getOwner_id();
     Member          m = ms.getMember_id();
     Field           f = ms.getField();
-    Validator.notNullPerModel(ms.getCreateTime(), "null creation time");
-    Validator.notNullPerModel(ms.getCreator()   , "null creator"      );
+    Validator.internal_notNullPerModel(ms.getCreateTime(), "null creation time");
+    Validator.internal_notNullPerModel(ms.getCreator()   , "null creator"      );
     // Verify type
     if (!t.equals(type)) {
       throw new ModelException(E.MSV_TYPE + t);

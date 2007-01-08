@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test use of the OPTOUT {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivOPTOUT.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestPrivOPTOUT.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  */
 public class TestPrivOPTOUT extends TestCase {
 
@@ -47,7 +47,7 @@ public class TestPrivOPTOUT extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
     s     = SessionHelper.getRootSession();
     nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     root  = StemHelper.findRootStem(s);

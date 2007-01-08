@@ -22,7 +22,7 @@ import  java.util.*;
  * Null {@link QueryFilter} that will never return any results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NullFilter.java,v 1.9 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: NullFilter.java,v 1.10 2007-01-08 16:43:56 blair Exp $
  */
 public class NullFilter extends BaseQueryFilter {
 
@@ -33,7 +33,7 @@ public class NullFilter extends BaseQueryFilter {
   // PUBLIC INSTANCE METHODS //
 
   public Set getResults(GrouperSession s) {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     return RESULTS;
   } // public Set getResults(s)
 

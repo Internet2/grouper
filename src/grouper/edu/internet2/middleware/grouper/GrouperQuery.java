@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.23 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.24 2007-01-08 16:43:56 blair Exp $
  */
 public class GrouperQuery {
 
@@ -74,7 +74,7 @@ public class GrouperQuery {
   public static GrouperQuery createQuery(GrouperSession s, QueryFilter filter) 
     throws QueryException
   {
-    GrouperSessionValidator.validate(s);
+    GrouperSessionValidator.internal_validate(s);
     return new GrouperQuery(s, filter);
   } // public static GrouperQuery createQuery(s, filter)
 

@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * An object that can have memberships assigned to it.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.19 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: Owner.java,v 1.20 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 public abstract class Owner {
@@ -52,25 +52,25 @@ public abstract class Owner {
   // PROTECTED ABSTRACT INSTANCE METHODS //
 
   // @since 1.1.0
-  protected abstract String getName();
+  protected abstract String getName(); // TODO 20070108 rename with "internal_" prefix?
 
   // @since 1.0
-  protected abstract void setModified();
+  protected abstract void internal_setModified();
 
 
   // PROTECTED INSTANCE METHODS //
 
   // @since 1.0
-  protected GrouperSession getSession() {
-    GrouperSessionValidator.validate(this.s);
+  protected GrouperSession internal_getSession() {
+    GrouperSessionValidator.internal_validate(this.s);
     return this.s;
-  } // protected GrouperSession getSession()
+  } // protected GrouperSession internal_getSession()
 
   // @since 1.0
-  protected void setSession(GrouperSession s) {
-    GrouperSessionValidator.validate(s);
+  protected void internal_setSession(GrouperSession s) {
+    GrouperSessionValidator.internal_validate(s);
     this.s = s;
-  } // protected void setSession(s)
+  } // protected void internal_setSession(s)
 
 
   // GETTERS //

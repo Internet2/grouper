@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU11.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestCompositeU11.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  */
 public class TestCompositeU11 extends TestCase {
 
@@ -63,7 +63,7 @@ public class TestCompositeU11 extends TestCase {
       Membership ms = MembershipFinder.findCompositeMembership(r.rs, a, subjA);
       Assert.assertNotNull( "imm ms"    , ms);
       Assert.assertEquals(  "ms group"  , a     , ms.getGroup()   );
-      Assert.assertTrue(    "ms subj"   , SubjectHelper.eq(subjA, ms.getMember().getSubject())  );
+      Assert.assertTrue(    "ms subj"   , SubjectHelper.internal_eq(subjA, ms.getMember().getSubject())  );
       Assert.assertEquals(  "ms list"   , f     , ms.getList()    );
       T.amount( "ms depth", 0, ms.getDepth() );
       Owner via = ms.getVia();

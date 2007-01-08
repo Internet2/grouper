@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSetting3.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestSetting3.java,v 1.4 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 public class TestSetting3 extends TestCase {
@@ -34,7 +34,7 @@ public class TestSetting3 extends TestCase {
 
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {  

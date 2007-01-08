@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Privilege resolution (as root) class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RootPrivilegeResolver.java,v 1.7 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: RootPrivilegeResolver.java,v 1.8 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
  class RootPrivilegeResolver extends PrivilegeResolver {
@@ -36,43 +36,43 @@ import  edu.internet2.middleware.subject.*;
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.1.0
-  protected static boolean canSTEM(Stem ns, Subject subj) {
-    GrouperSession  s   = ns.getSession();  
-    ns.setSession( s.getRootSession() );
-    boolean         rv  = PrivilegeResolver.canSTEM(ns, subj);
-    ns.setSession(s);
+  // @since   1.2.0
+  protected static boolean internal_canSTEM(Stem ns, Subject subj) {
+    GrouperSession  s   = ns.internal_getSession();  
+    ns.internal_setSession( s.internal_getRootSession() );
+    boolean         rv  = PrivilegeResolver.internal_canSTEM(ns, subj);
+    ns.internal_setSession(s);
     return rv; 
-  } // protected static boolean canSTEM(ns, subj)
+  } // protected static boolean internal_canSTEM(ns, subj)
 
-  // @since   1.1.0
-  protected static boolean canVIEW(Group g, Subject subj) {
-    GrouperSession  s   = g.getSession();  
-    g.setSession( s.getRootSession() );
-    boolean         rv  = PrivilegeResolver.canVIEW(g, subj);
-    g.setSession(s);
+  // @since   1.2.0
+  protected static boolean internal_canVIEW(Group g, Subject subj) {
+    GrouperSession  s   = g.internal_getSession();  
+    g.internal_setSession( s.internal_getRootSession() );
+    boolean         rv  = PrivilegeResolver.internal_canVIEW(g, subj);
+    g.internal_setSession(s);
     return rv; 
-  } // protected static boolean canVIEW(g, subj)
+  } // protected static boolean internal_canVIEW(g, subj)
 
-  // @since   1.1.0
-  protected static boolean isRoot(GrouperSession s) {
-    return isRoot(s, s.getSubject());
-  } // protected static boolean isRoot(s)
+  // @since   1.2.0
+  protected static boolean internal_isRoot(GrouperSession s) {
+    return internal_isRoot(s, s.getSubject());
+  } // protected static boolean internal_isRoot(s)
 
-  // @since   1.1.0
-  // TODO 20061011 `PrivilegeResolver.hasPriv()` still requires this variant.
+  // @since   1.2.0
+  // TODO 20061011 `PrivilegeResolver.internal_hasPriv()` still requires this variant.
   //      `TestMember???` is an example test that fails otherwise.
-  protected static boolean isRoot(GrouperSession s, Subject subj) {
+  protected static boolean internal_isRoot(GrouperSession s, Subject subj) {
     boolean rv    = false;
     // First check to see if this is GrouperSystem
-    if ( SubjectHelper.eq(subj, SubjectFinder.findRootSubject()) ) {
+    if ( SubjectHelper.internal_eq(subj, SubjectFinder.findRootSubject()) ) {
       rv = true;
     }  
     else {
       rv = _isWheel(s, subj);
     }
     return rv;
-  } // protected static boolean isRoot(s)
+  } // protected static boolean internal_isRoot(s)
 
 
   // PRIVATE CLASS METHODS //
@@ -86,7 +86,7 @@ import  edu.internet2.middleware.subject.*;
       String name = GrouperConfig.getProperty(GrouperConfig.GWG);
       try {
         // I suspect this isn't great for the performance
-        Group wheel = GroupFinder.findByName(s.getRootSession(), name);
+        Group wheel = GroupFinder.findByName(s.internal_getRootSession(), name);
         rv          = wheel.hasMember(subj);
       }
       catch (GroupNotFoundException eGNF) {

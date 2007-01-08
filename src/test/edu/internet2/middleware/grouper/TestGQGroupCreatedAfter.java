@@ -23,7 +23,7 @@ import  junit.framework.*;
  * Test {@link GroupCreatedAfterFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupCreatedAfter.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGQGroupCreatedAfter.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  */
 public class TestGQGroupCreatedAfter extends TestCase {
 
@@ -32,7 +32,7 @@ public class TestGQGroupCreatedAfter extends TestCase {
   }
 
   protected void setUp () {
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

@@ -29,7 +29,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.29 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.30 2007-01-08 16:43:56 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -53,7 +53,7 @@ public class GrouperSubject implements Subject {
     this.g        = g;
     this.id       = g.getUuid();
     this.name     = g.getName();
-    this.adapter  = (GrouperSourceAdapter) SubjectFinder.getGSA();
+    this.adapter  = (GrouperSourceAdapter) SubjectFinder.internal_getGSA();
   } // protected GrouperSubject(g, sa)
 
 
@@ -63,7 +63,7 @@ public class GrouperSubject implements Subject {
    * @since 1.0
    */
   public boolean equals(Object other) {
-    // TODO 20061011 I should modify *SubjectHelper.eq(this, other)* so that I can just call that.
+    // TODO 20061011 I should modify *SubjectHelper.internal_eq(this, other)* so that I can just call that.
     if (this == other) {
       return true;
     }

@@ -25,7 +25,7 @@ package edu.internet2.middleware.grouper;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.39 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.40 2007-01-08 16:43:56 blair Exp $
  */
 public class RegistryReset {
 
@@ -75,7 +75,9 @@ public class RegistryReset {
 
 
   // PROTECTED CLASS METHODS //
-  protected static void addTestSubjects() { 
+
+  // @since   1.2.0
+  protected static void internal_addTestSubjects() { 
     RegistryReset rr = new RegistryReset();
     try {
       rr._addSubjects();
@@ -84,9 +86,10 @@ public class RegistryReset {
       e.printStackTrace();
       rr._abort(e.getMessage());
     }
-  } // protected static void addTestSubjects()
+  } // protected static void internal_addTestSubjects()
 
-  protected static void resetRegistryAndAddTestSubjects() { 
+  // @since   1.2.0
+  protected static void internal_resetRegistryAndAddTestSubjects() { 
     RegistryReset rr = new RegistryReset();
     try {
       rr._emptyTables();
@@ -96,7 +99,7 @@ public class RegistryReset {
       e.printStackTrace();
       rr._abort(e.getMessage());
     }
-  } // protected static void resetRegistryAndAddTestSubjects()
+  } // protected static void internal_resetRegistryAndAddTestSubjects()
 
 
   // PRIVATE INSTANCE METHODS //
@@ -123,8 +126,8 @@ public class RegistryReset {
     HibernateRegistryDAO.resetRegistry();
     // TODO 20061018 Now update the cached types + fields
     GroupTypeFinder.updateKnownTypes();
-    FieldFinder.updateKnownFields();
-    SubjectFinder.flushCache();
+    FieldFinder.internal_updateKnownFields();
+    SubjectFinder.internal_flushCache();
   } // private void _emptyTables()
 
 } // public class RegistryReset

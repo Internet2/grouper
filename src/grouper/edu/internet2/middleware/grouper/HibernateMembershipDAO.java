@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.10 2007-01-05 14:56:26 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.11 2007-01-08 16:43:56 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -395,7 +395,7 @@ class HibernateMembershipDAO {
       hs.close();
       if (ms == null) {
         // TODO 20070104 null or ex?
-        throw new MembershipNotFoundException("could not find membership with uuid: " + U.q(uuid));
+        throw new MembershipNotFoundException("could not find membership with uuid: " + U.internal_q(uuid));
       }
       return ms;
     }

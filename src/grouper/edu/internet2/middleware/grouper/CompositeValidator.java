@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.7 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.8 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 class CompositeValidator {
@@ -27,10 +27,10 @@ class CompositeValidator {
   // PROTECTED CLASS METHODS //
 
   // @since 1.0
-  protected static void validate(Composite c) 
+  protected static void internal_validate(Composite c) 
     throws  ModelException
   {
-    GrouperSessionValidator.validate(c.getSession());
+    GrouperSessionValidator.internal_validate(c.internal_getSession());
     Owner o = c.getOwner();
     Owner l = c.getLeft();
     Owner r = c.getRight();

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestWheelGroup0.java,v 1.4 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestWheelGroup0.java,v 1.5 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 public class TestWheelGroup0 extends TestCase {
@@ -53,12 +53,12 @@ public class TestWheelGroup0 extends TestCase {
       // Enable wheel
       Stem    etc   = r.root.addChildStem("etc", "etc");
       etc.addChildGroup("wheel", "wheel");
-      GrouperConfig.setProperty(GrouperConfig.GWU, "true"     );
-      GrouperConfig.setProperty(GrouperConfig.GWG, "etc:wheel");
+      GrouperConfig.internal_setProperty(GrouperConfig.GWU, "true"     );
+      GrouperConfig.internal_setProperty(GrouperConfig.GWG, "etc:wheel");
 
       GrouperSession nrs = GrouperSession.start(subjA);
-      Assert.assertFalse("is !root", RootPrivilegeResolver.isRoot(nrs));
-      gA.setSession(nrs);
+      Assert.assertFalse("is !root", RootPrivilegeResolver.internal_isRoot(nrs));
+      gA.internal_setSession(nrs);
       try {
         gA.grantPriv(subjB, AccessPrivilege.ADMIN);
         Assert.fail("FAIL: privilege inappropriately granted");
@@ -76,7 +76,7 @@ public class TestWheelGroup0 extends TestCase {
       T.e(e);
     }
     finally {
-      GrouperConfig.setProperty(GrouperConfig.GWU, "false" ); // turn wheel back off
+      GrouperConfig.internal_setProperty(GrouperConfig.GWU, "false" ); // turn wheel back off
     }
   } // public void testGrantAdminWithoutWheel()
 

@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdFindByIdfr.java,v 1.7 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestSuFiInSoAdFindByIdfr.java,v 1.8 2007-01-08 16:43:56 blair Exp $
  */
 public class TestSuFiInSoAdFindByIdfr extends TestCase {
 
@@ -31,7 +31,7 @@ public class TestSuFiInSoAdFindByIdfr extends TestCase {
   }
 
   protected void setUp () {
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

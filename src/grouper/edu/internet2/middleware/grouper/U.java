@@ -22,7 +22,7 @@ import  java.util.*;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.10 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: U.java,v 1.11 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 class U {
@@ -37,35 +37,35 @@ class U {
   // PROTECTED CLASS METHODS //
   
   // This isn't the best place for this but until I have a better idea...
-  // @since   1.1.0
-  protected static String constructName(String stem, String extn) {
+  // @since   1.2.0
+  protected static String internal_constructName(String stem, String extn) {
     // TODO 20061018 I should perform validation here, no?
     if (stem.equals(Stem.ROOT_EXT)) {
       return extn;
     }
     return stem + Stem.ROOT_INT + extn;
-  } // protected static String constructName(stem, extn)
+  } // protected static String internal_constructName(stem, extn)
  
-  // @since   1.1.0
-  protected static String q(boolean input) {
-    return U.q( Boolean.toString(input) );
-  } // protected static String q(input)
+  // @since   1.2.0
+  protected static String internal_q(boolean input) {
+    return U.internal_q( Boolean.toString(input) );
+  } // protected static String internal_q(input)
  
-  // @since 1.0
-  protected static String q(String input) {
+  // @since   1.2.0
+  protected static String internal_q(String input) {
     return Q_OPEN + input + Q_CLOSE;
-  } // protected static String q(input)
+  } // protected static String internal_q(input)
 
-  // @since   1.1.0
-  protected static String qp(String input) {
-    if (Validator.isNotNullOrBlank(input)) {
+  // @since   1.2.0
+  protected static String internal_qp(String input) {
+    if (Validator.internal_isNotNullOrBlank(input)) {
       return QP_OPEN + input + QP_CLOSE;
     }
     return GrouperConfig.EMPTY_STRING;
-  } // protected static String qp(input)
+  } // protected static String internal_qp(input)
 
-  // @since   1.1.0
-  protected static Object realizeInterface(String name) 
+  // @since   1.2.0
+  protected static Object internal_realizeInterface(String name) 
     throws  GrouperRuntimeException
   {
     try {
@@ -80,20 +80,20 @@ class U {
       ErrorLog.fatal(PrivilegeResolver.class, msg);
       throw new GrouperRuntimeException(msg, e);
     }
-  } // protected static Object realizeInterface(name)
+  } // protected static Object internal_realizeInterface(name)
 
-  // @since 1.1.0
-  protected static Set setMembershipSessions(GrouperSession s, List l) {
+  // @since   1.2.0
+  protected static Set internal_setMembershipSessions(GrouperSession s, List l) {
     Membership  ms;
     Set         mships  = new LinkedHashSet();
     Iterator    iter    = l.iterator();
     while (iter.hasNext()) {
       ms = (Membership) iter.next();
-      ms.setSession(s);
+      ms.internal_setSession(s);
       mships.add(ms);
     }
     return mships;
-  } // protected static Set setMembershipSessions(s, l)
+  } // protected static Set internal_setMembershipSessions(s, l)
 
 } // class U
 

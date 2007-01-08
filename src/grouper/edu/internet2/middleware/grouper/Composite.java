@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.26 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: Composite.java,v 1.27 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -47,7 +47,7 @@ public class Composite extends Owner {
   protected Composite(GrouperSession s, Owner o, Owner l, Owner r, CompositeType type) 
     throws  ModelException
   {
-    this.setSession(      s                     ); 
+    this.internal_setSession(      s                     ); 
     this.setCreator_id(   s.getMember()         );
     this.setCreate_time(  new Date().getTime()  );
     this.setUuid(         GrouperUuid.getUuid() );
@@ -55,7 +55,7 @@ public class Composite extends Owner {
     this.setLeft(         l                     );
     this.setRight(        r                     );
     this.setType(         type                  );
-    CompositeValidator.validate(this);
+    CompositeValidator.internal_validate(this);
   } // protected Composite(s, o, l, r, type)  
   
 
@@ -96,9 +96,9 @@ public class Composite extends Owner {
   {
     Group g = (Group) this.getLeft();
     try {
-      Validator.valueNotNull(g, E.GROUP_NULL);
-      GrouperSession s = this.getSession();
-      g.setSession(s);
+      Validator.internal_valueNotNull(g, E.GROUP_NULL);
+      GrouperSession s = this.internal_getSession();
+      g.internal_setSession(s);
       s.getMember().canView(g);
       return g;
     }
@@ -126,9 +126,9 @@ public class Composite extends Owner {
   {
     Group g = (Group) this.getOwner();
     try {
-      Validator.valueNotNull(g, E.GROUP_NULL);
-      GrouperSession s = this.getSession();
-      g.setSession(s);
+      Validator.internal_valueNotNull(g, E.GROUP_NULL);
+      GrouperSession s = this.internal_getSession();
+      g.internal_setSession(s);
       s.getMember().canView(g);
       return g;
     }
@@ -156,9 +156,9 @@ public class Composite extends Owner {
   {
     Group g = (Group) this.getRight();
     try {
-      Validator.valueNotNull(g, E.GROUP_NULL);
-      GrouperSession s = this.getSession();
-      g.setSession(s);
+      Validator.internal_valueNotNull(g, E.GROUP_NULL);
+      GrouperSession s = this.internal_getSession();
+      g.internal_setSession(s);
       s.getMember().canView(g);
       return g;
     }
@@ -184,76 +184,77 @@ public class Composite extends Owner {
   public String toString() {
     return  new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append(  "type"  , this.getType().toString() )
-      .append(  "owner" , U.q(this.getOwnerName() ) )
-      .append(  "left"  , U.q(this.getLeftName()  ) )
-      .append(  "right" , U.q(this.getRightName() ) )
+      .append(  "owner" , U.internal_q(this.internal_getOwnerName() ) )
+      .append(  "left"  , U.internal_q(this.internal_getLeftName()  ) )
+      .append(  "right" , U.internal_q(this.internal_getRightName() ) )
       .toString();
   } // public String toString()
 
 
-  // Protected Class Methods //
-  // @since 1.0
-  protected static void update(Owner o) {
+  // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  protected static void internal_update(Owner o) {
     Composite c;
     Iterator  iter  = CompositeFinder.internal_findAsFactor(o).iterator();
     while (iter.hasNext()) {
       c = (Composite) iter.next();
       c._update();
     }
-  } // protected static void update(o)
+  } // protected static void internal_update(o)
 
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since 1.0
-  protected String getLeftName() {
+  // @since   1.2.0
+  protected String internal_getLeftName() {
     try {
       Group g = (Group) this.getLeft();
-      Validator.valueNotNull(g, E.GROUP_NULL);
+      Validator.internal_valueNotNull(g, E.GROUP_NULL);
       return g.getName();
     }
     catch (NullPointerException eNP) {
-      ErrorLog.error(Composite.class, E.COMP_NULL_LEFT_GROUP + U.q(this.getUuid()));
+      ErrorLog.error(Composite.class, E.COMP_NULL_LEFT_GROUP + U.internal_q(this.getUuid()));
       return GrouperConfig.EMPTY_STRING;
     }
-  } // protected String getLeftName()
+  } // protected String internal_getLeftName()
 
-  // @since 1.0
-  protected String getOwnerName() {
+  // @since   1.2.0
+  protected String internal_getOwnerName() {
     try {
       Group g = (Group) this.getOwner();
-      Validator.valueNotNull(g, E.GROUP_NULL);
+      Validator.internal_valueNotNull(g, E.GROUP_NULL);
       return g.getName();
     }
     catch (NullPointerException eNP) {
-      ErrorLog.error(Composite.class, E.COMP_NULL_OWNER_GROUP + U.q(this.getUuid()));
+      ErrorLog.error(Composite.class, E.COMP_NULL_OWNER_GROUP + U.internal_q(this.getUuid()));
       return GrouperConfig.EMPTY_STRING;
     }
-  } // protected String getOwnerName()
+  } // protected String internal_getOwnerName()
 
-  // @since 1.0
-  protected String getRightName() {
+  // @since   1.2.0
+  protected String internal_getRightName() {
     try {
       Group g = (Group) this.getRight();
-      Validator.valueNotNull(g, E.GROUP_NULL);
+      Validator.internal_valueNotNull(g, E.GROUP_NULL);
       return g.getName();
     }
     catch (NullPointerException eNP) {
-      ErrorLog.error(Composite.class, E.COMP_NULL_RIGHT_GROUP + U.q(this.getUuid()));
+      ErrorLog.error(Composite.class, E.COMP_NULL_RIGHT_GROUP + U.internal_q(this.getUuid()));
       return GrouperConfig.EMPTY_STRING;
     }
-  } // protected String getRightName()
+  } // protected String internal_getRightName()
 
   // @since   1.1.0
   protected String getName() {
     return this.getClass().getName();
   } // protected String getName()
 
-  // @since   1.0
-  protected void setModified() {
+  // @since   1.2.0
+  protected void internal_setModified() {
     // As composites can only be created and deleted at this time,
     // marking as modified is irrelevant. 
-  } // protected void setModified()
+  } // protected void internal_setModified()
 
 
   // PRIVATE CLASS METHODS //
@@ -293,8 +294,8 @@ public class Composite extends Owner {
     try {
       StopWatch sw  = new StopWatch();
       sw.start();
-      GrouperSession rs  = this.getSession().getRootSession();
-      this.setSession(rs);
+      GrouperSession rs  = this.internal_getSession().internal_getRootSession();
+      this.internal_setSession(rs);
       Group           g   = this.getOwnerGroup();
       MemberOf        mof = MemberOf.addComposite(rs, g, this);
 

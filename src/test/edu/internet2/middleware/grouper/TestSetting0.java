@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSetting0.java,v 1.6 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestSetting0.java,v 1.7 2007-01-08 16:43:56 blair Exp $
  */
 public class TestSetting0 extends TestCase {
 
@@ -43,7 +43,7 @@ public class TestSetting0 extends TestCase {
 
   public void testGetCurrentSchemaVersion() {
     LOG.info("testGetCurrentSchemaVersion");
-    T.amount("current schema version", 2, Settings.getCurrentSchemaVersion());
+    T.amount("current schema version", 2, Settings.internal_getCurrentSchemaVersion());
   } // public void testGetCurrentSchemaVersion()
 
 }

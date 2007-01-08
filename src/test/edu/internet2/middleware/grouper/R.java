@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: R.java,v 1.9 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: R.java,v 1.10 2007-01-08 16:43:56 blair Exp $
  */
 class R {
 
@@ -85,7 +85,7 @@ class R {
   protected Group getGroup(String stem, String group) 
     throws  Exception
   {
-    String key = U.constructName(stem, group);
+    String key = U.internal_constructName(stem, group);
     if (this.groups.containsKey(key)) {
       return (Group) this.groups.get(key);
     }

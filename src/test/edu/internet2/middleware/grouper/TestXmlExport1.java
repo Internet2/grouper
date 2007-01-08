@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport1.java,v 1.7 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestXmlExport1.java,v 1.8 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 public class TestXmlExport1 extends TestCase {
@@ -51,7 +51,7 @@ public class TestXmlExport1 extends TestCase {
         GrouperSession.start( SubjectFinder.findRootSubject() ),
         custom
       );  
-      Properties  options = xml.getOptions();
+      Properties  options = xml.internal_getOptions();
       Assert.assertTrue("13 set options", options.size() == 13);
       String k = "export.metadata";
       String v = "false";

@@ -23,7 +23,7 @@ import  org.apache.commons.lang.builder.*;
  * A {@link PrivilegeCache} element.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCacheElement.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: PrivilegeCacheElement.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  * @since   1.1.0
  */
 public class PrivilegeCacheElement {
@@ -142,10 +142,10 @@ public class PrivilegeCacheElement {
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since   1.1.0
-  protected void setIsCached(boolean cached) {
+  // @since   1.2.0
+  protected void internal_setIsCached(boolean cached) {
     this.isCached = cached;
-  } // protected void setIsCached(cached0
+  } // protected void internal_setIsCached(cached0
 
 } // public class PrivilegeCacheElement
 

@@ -23,7 +23,7 @@ import  junit.framework.*;
  * Test {@link IntersectionFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQIntersectionFilter.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGQIntersectionFilter.java,v 1.6 2007-01-08 16:43:56 blair Exp $
  */
 public class TestGQIntersectionFilter extends TestCase {
 
@@ -32,7 +32,7 @@ public class TestGQIntersectionFilter extends TestCase {
   }
 
   protected void setUp () {
-    RegistryReset.resetRegistryAndAddTestSubjects();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {

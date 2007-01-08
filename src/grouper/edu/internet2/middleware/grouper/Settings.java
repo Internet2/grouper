@@ -22,7 +22,7 @@ package edu.internet2.middleware.grouper;
  * Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.13 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: Settings.java,v 1.14 2007-01-08 16:43:56 blair Exp $
  * @since   1.0
  */
 class Settings {
@@ -57,10 +57,10 @@ class Settings {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.0
-  protected static int getCurrentSchemaVersion() {
+  // @since   1.2.0
+  protected static int internal_getCurrentSchemaVersion() {
     return CURRENT_SCHEMA_VERSION;
-  } // protected static int getCurrentSchemaVersion()
+  } // protected static int internal_getCurrentSchemaVersion()
 
   // @since   1.2.0
   protected static Settings internal_getSettings() {
