@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.144 2007-01-04 15:31:21 blair Exp $ -->
+<!-- $Id: build.xml,v 1.145 2007-01-09 17:30:23 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -689,11 +689,14 @@
           depends="test-build"
           description="run unit tests"
   >
+    <echo/>
+    <echo   message="*** results can be found in ${dist.test} ***"/>
+    <echo/>
     <record name="${log.test.run}" action="start"/>
     <mkdir  dir="${dist.test}"/>
     <junit  fork="yes"
-            haltonerror="no"
-            haltonfailure="no"
+            haltonerror="yes"
+            haltonfailure="yes"
             maxmemory="${memory.max}"
             printsummary="yes"
             showoutput="yes"

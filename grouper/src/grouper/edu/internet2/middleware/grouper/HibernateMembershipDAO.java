@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.12 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.13 2007-01-09 17:30:23 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -124,8 +124,8 @@ class HibernateMembershipDAO {
         + "and  ms.via_id     = :via    "
       );
       qry.setCacheable(false);  // TODO 20061219 Comment was "Don't cache".  Why not?
-      qry.setParameter( "member", m   );
-      qry.setParameter( "via",    via );
+      qry.setParameter( "member", m             );
+      qry.setParameter( "via",    via.getUuid() );
       mships.addAll( qry.list() );
       hs.close();
     }
@@ -221,7 +221,7 @@ class HibernateMembershipDAO {
   } // protected static Set findAllByOwnerAndMemberAndField(o, m, f)
 
   // @since   1.2.0
-  protected static Set findAllEffective(Owner o, Member m, Field f, Owner via, int depth) 
+  protected static Set findAllEffective(Owner o, Member m, Field f, String viaUUID, int depth) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -244,7 +244,7 @@ class HibernateMembershipDAO {
       qry.setString(    "fname",  f.getName()                 );
       qry.setString(    "ftype",  f.getType().toString()      );
       qry.setString(    "type",   Membership.INTERNAL_TYPE_E.toString() );
-      qry.setParameter( "via",    via                         );
+      qry.setString(    "via",    viaUUID                     );
       qry.setInteger(   "depth",  depth                       );
       mships.addAll( qry.list() );
       hs.close();

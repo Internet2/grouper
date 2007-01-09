@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.43 2006-12-15 15:13:45 blair Exp $
+$Id: NEWS.txt,v 1.44 2007-01-09 17:30:23 blair Exp $
 
 ---
 
@@ -9,12 +9,13 @@ $Id: NEWS.txt,v 1.43 2006-12-15 15:13:45 blair Exp $
 Estimated Release: 200703
 
 ## Changes
-* NEW:    Benchmark: `AddLotsOfGroupsToStem`
 * UPDATE: !!!
-          `Membership` altered to store the UUID of its parent membership
-          instead of its ID within the Groups Registry.  This causes no 
-          schema changes but will render any existing data inaccurate.
+          `grouper_memberships` table altered.  While there are no schema
+          changes any existing data will now be inaccurate.
+          * `parent_membership` now stores the UUID of the parent membership 
+          * `via_id` now stores the UUID of the via object.
           !!!
+* NEW:    Benchmark: `AddLotsOfGroupsToStem`
 * NEW:    Benchmark: `AddAsEffMemberToLotsOfGroups`
 * NEW:    Benchmark: `MemberHasRead`
 * NEW:    `GroupTypeFilter` (BUGZILLA#585)

@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.9 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.10 2007-01-09 17:30:23 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO {
@@ -265,25 +265,28 @@ class HibernateGroupDAO extends HibernateDAO {
     return g;
   } // protected static Group findByName(name)
 
-  // @return  {@link Group} or <code>null</code>
+  // @return  {@link Group} or thwo exception
   // @since   1.2.0
   protected static Group findByUuid(String uuid) 
-    throws  GrouperDAOException
+    throws  GrouperDAOException,
+            GroupNotFoundException
   {
-    Group g = null;
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Group as g where g.uuid = :uuid");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
-      g = (Group) qry.uniqueResult();
+      Group   g   = (Group) qry.uniqueResult();
       hs.close();
+      if (g == null) {
+        throw new GroupNotFoundException();
+      }
+      return g;
     }
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-    return g; 
   } // private static Group _findByUuid(uuid)
 
   // @since   1.2.0

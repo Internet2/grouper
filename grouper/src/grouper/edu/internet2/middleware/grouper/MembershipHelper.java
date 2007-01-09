@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.10 2007-01-08 18:04:07 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.11 2007-01-09 17:30:23 blair Exp $
  */
 class MembershipHelper {
 
@@ -30,33 +30,8 @@ class MembershipHelper {
 
   // @since   1.2.0
   protected static String internal_getPretty(Membership ms) {
-    String  via = GrouperConfig.EMPTY_STRING;
-    if (ms.getVia_id() != null) {
-      if (ms.getVia_id() instanceof Composite) {
-        Composite c = (Composite) ms.getVia_id();
-        String  left  = GrouperConfig.EMPTY_STRING;
-        String  owner = GrouperConfig.EMPTY_STRING;
-        String  right = GrouperConfig.EMPTY_STRING;
-        try {
-          owner = c.getOwnerGroup().getName();
-          left  = c.getLeftGroup().getName();
-          right = c.getRightGroup().getName();
-        }
-        catch (GroupNotFoundException eGNF) {
-          // Ignore
-        }
-        via = c.getType().toString() 
-          + "/group=" + owner
-          + "/left="  + left
-          + "/right=" + right
-          ;
-      }
-      else {
-        Group v = (Group) ms.getVia_id();
-        via = v.getName();
-      }
-    }
-    Owner o = ms.getOwner_id();
+    String  via = _getViaString( ms.getVia_id() );
+    Owner   o   = ms.getOwner_id();
     if      (o instanceof Composite) {
       return new ToStringBuilder(ms).toString();
     }
@@ -84,6 +59,44 @@ class MembershipHelper {
       throw new GrouperRuntimeException("INVALID OWNER CLASS: " + o.getClass().getName());
     }
   } // protected static String internal_getPretty(ms)
+
+  // @since   1.2.0
+  private static String _getViaString(String viaUUID) {
+    String s = GrouperConfig.EMPTY_STRING;
+    if (viaUUID != null) {
+      try {
+        Owner via = HibernateOwnerDAO.findByUuid(viaUUID);
+        if (via instanceof Composite) {
+          Composite c     = (Composite) via;
+          String    left  = GrouperConfig.EMPTY_STRING;
+          String    owner = GrouperConfig.EMPTY_STRING;
+          String    right = GrouperConfig.EMPTY_STRING;
+          try {
+            owner = c.getOwnerGroup().getName();
+            left  = c.getLeftGroup().getName();
+            right = c.getRightGroup().getName();
+          }
+          catch (GroupNotFoundException eGNF) {
+            // TODO 20070109 what goes here?
+          }
+          s = c.getType().toString() 
+            + "/group=" + owner
+            + "/left="  + left
+            + "/right=" + right
+            ;
+        }
+        else {
+          Group g = (Group) via;
+          s       = g.getName();
+        }
+      }
+      catch (OwnerNotFoundException eONF) {
+        // TODO 20070109 what goes here?
+      }
+    }
+    return s;
+  } // private static String _getViaString(viaUUID)
+
 
 } // class MembershipHelper
  

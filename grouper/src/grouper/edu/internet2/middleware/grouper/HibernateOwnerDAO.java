@@ -22,12 +22,40 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Owner} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateOwnerDAO.java,v 1.4 2007-01-04 17:50:51 blair Exp $
+ * @version $Id: HibernateOwnerDAO.java,v 1.5 2007-01-09 17:30:23 blair Exp $
  * @since   1.2.0
  */
 class HibernateOwnerDAO {
 
+  // PRIVATE CLASS CONSTANTS //
+  private static final String KLASS = HibernateOwnerDAO.class.getName();
+
+
   // PROTECTED CLASS METHODS //
+
+  // @return  {@link Owner} or throw {@link OwnerNotFoundException}
+  // @since   1.2.0
+  protected static Owner findByUuid(String uuid) 
+    throws  GrouperDAOException,
+            OwnerNotFoundException
+  {
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from Owner as o where o.uuid = :uuid");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindByUuid");
+      qry.setString("uuid", uuid);
+      Owner o = (Owner) qry.uniqueResult();
+      hs.close();
+      if (o == null) {
+        throw new OwnerNotFoundException();
+      } 
+      return o;
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // private static Owner findByUuid(uuid)
 
   // @since   1.2.0
   protected static void update(Owner o) 
