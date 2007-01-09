@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.68 2007-01-09 17:30:23 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.69 2007-01-09 19:33:57 blair Exp $
  */
 public class MembershipFinder {
   
@@ -373,7 +373,7 @@ public class MembershipFinder {
     GrouperSessionValidator.internal_validate(s);
     Set         mships  = new LinkedHashSet();
     Membership  ms;
-    Iterator    it      = HibernateMembershipDAO.findAllByOwnerAndField(o, f).iterator();
+    Iterator    it      = HibernateMembershipDAO.findAllByOwnerAndField(o.getId(), f).iterator(); // XXX
     while (it.hasNext()) {
       ms = (Membership) it.next();
       ms.internal_setSession(s);
@@ -388,7 +388,7 @@ public class MembershipFinder {
      // @session   true
     GrouperSessionValidator.internal_validate(s);
     return PrivilegeResolver.internal_canViewMemberships(
-      s, HibernateMembershipDAO.findAllByOwnerAndFieldAndType(o, f, type)
+      s, HibernateMembershipDAO.findAllByOwnerAndFieldAndType(o.getId(), f, type) // XXX
     );
   } // protected static Set internal_findAllByOwnerAndFieldAndType(s, o, f, type)
 
@@ -396,7 +396,7 @@ public class MembershipFinder {
   protected static Set internal_findAllByOwnerAndMemberAndField(Owner o, Member m, Field f) {
     // @filtered  false
     // @session   false
-    return HibernateMembershipDAO.findAllByOwnerAndMemberAndField(o, m, f);
+    return HibernateMembershipDAO.findAllByOwnerAndMemberAndField(o.getId(), m, f); // XXX
   } // protected static Set internal_findAllByOwnerAndMemberAndField(o, m, f)
 
   // @since   1.2.0
@@ -407,7 +407,7 @@ public class MembershipFinder {
   {
      // @filtered  false
      // @session   false
-    return HibernateMembershipDAO.findAllEffective(o, m, f, viaUUID, depth);
+    return HibernateMembershipDAO.findAllEffective(o.getId(), m, f, viaUUID, depth); // XXX
   } // protected static Set internal_findAllEffective(o, m, field, viaUUID, depth)
 
   // @since   1.2.0
@@ -430,7 +430,7 @@ public class MembershipFinder {
   {
     // @filtered  false
     // @session   false
-    return HibernateMembershipDAO.findAllEffectiveByOwnerAndMemberAndField(o, m, f);
+    return HibernateMembershipDAO.findAllEffectiveByOwnerAndMemberAndField(o.getId(), m, f); // XXX
   } // protected static Set internal_findAllEffectiveByOwnerAndMemberAndField(o, m, f)
 
   // @since   1.2.0
@@ -449,7 +449,7 @@ public class MembershipFinder {
   {
     // @filtered  false
     // @session   false
-    return HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(o, m, f, type);
+    return HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(o.getId(), m, f, type); // XXX
   } // protected static Membership internal_findByOwnerAndMemberAndFieldAndType(o, m, f, type)
 
   // @since   1.2.0
