@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.67 2007-01-08 18:04:07 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.68 2007-01-09 17:30:23 blair Exp $
  */
 public class MembershipFinder {
   
@@ -96,15 +96,13 @@ public class MembershipFinder {
     throws  MembershipNotFoundException,
             SchemaException
   {
-    /* 
-     * @filtered  true
-     * @session   true
-     */
+     // @filtered  true
+     // @session   true
     GrouperSessionValidator.internal_validate(s);
     Set mships = new LinkedHashSet();
     try {
       Member      m     = MemberFinder.findBySubject(s, subj);
-      Set         effs  = internal_findAllEffective(g, m, f, via, depth);
+      Set         effs  = internal_findAllEffective(g, m, f, via.getUuid(), depth);
       if (effs.size() > 0) {
         try {
           PrivilegeResolver.internal_canPrivDispatch(
@@ -403,14 +401,14 @@ public class MembershipFinder {
 
   // @since   1.2.0
   protected static Set internal_findAllEffective(
-    Owner o, Member m, Field f, Owner via, int depth
+    Owner o, Member m, Field f, String viaUUID, int depth
   )
     throws MembershipNotFoundException
   {
      // @filtered  false
      // @session   false
-    return HibernateMembershipDAO.findAllEffective(o, m, f, via, depth);
-  } // protected static Set internal_findAllEffective(o, m, field, via, depth)
+    return HibernateMembershipDAO.findAllEffective(o, m, f, viaUUID, depth);
+  } // protected static Set internal_findAllEffective(o, m, field, viaUUID, depth)
 
   // @since   1.2.0
   protected static Set internal_findAllEffectiveByMemberAndField(

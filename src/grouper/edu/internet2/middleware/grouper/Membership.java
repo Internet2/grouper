@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.64 2007-01-08 18:04:07 blair Exp $
+ * @version $Id: Membership.java,v 1.65 2007-01-09 17:30:23 blair Exp $
  */
 public class Membership {
 
@@ -52,7 +52,7 @@ public class Membership {
   private String          parent_membership;  // UUID of parent membership
   private String          type;
   private String          uuid;
-  private Owner           via_id;
+  private String          via_id;
 
   
   // PRIVATE INSTANCE VARIABLES //
@@ -103,7 +103,7 @@ public class Membership {
       ms.getDepth() + hasMS.getDepth() + offset
     );
     if (hasMS.getDepth() == 0) {
-      this.setVia_id(           hasMS.getOwner_id()   );  // hasMember m was immediate
+      this.setVia_id(           hasMS.getOwner_id().getUuid()   );  // hasMember m was immediate
       this.setParent_membership( ms.getUuid() );
     }
     else {
@@ -132,7 +132,7 @@ public class Membership {
     this.setMship_type(         INTERNAL_TYPE_C               );
     this.setUuid(               GrouperUuid.internal_getUuid()         );
     this.setDepth(              0                             );
-    this.setVia_id(             via                           );
+    this.setVia_id(             via.getUuid()                 );
     this.setParent_membership(  null                          );
     this.internal_setSession(   o.internal_getSession()       );
     this.setCreator_id(         orig.getMember()              );
@@ -267,12 +267,13 @@ public class Membership {
   public Owner getVia()
     throws  OwnerNotFoundException
   {
-    if (this.getVia_id() != null) {
-      Owner via = this.getVia_id();
-      via.internal_setSession(this.internal_getSession());
-      return via;
+    String uuid = this.getVia_id();
+    if (uuid == null) {
+      throw new OwnerNotFoundException();
     }
-    throw new OwnerNotFoundException();
+    Owner via = HibernateOwnerDAO.findByUuid(uuid);
+    via.internal_setSession( this.internal_getSession() );
+    return via;
   } // public Owner getVia()
  
   /**
@@ -293,12 +294,13 @@ public class Membership {
   public Group getViaGroup() 
     throws GroupNotFoundException
   {
-    Owner via = this.getVia_id();
-    if ( (via != null) && (via instanceof Group) ) {
-      via.internal_setSession(this.internal_getSession());
-      return (Group) via;
+    String uuid = this.getVia_id();
+    if (uuid == null) {
+      throw new GroupNotFoundException();
     }
-    throw new GroupNotFoundException();
+    Group via = HibernateGroupDAO.findByUuid(uuid);
+    via.internal_setSession( this.internal_getSession() );
+    return via;
   } // public Group getViaGroup()
 
   public int hashCode() {
@@ -474,7 +476,6 @@ public class Membership {
     this.s = s;
     Owner   o = this.getOwner_id();
     Member  m = this.getMember_id();
-    Owner   v = this.getVia_id();
     if (o != null) {
       o.internal_setSession(this.s);
       this.setOwner_id(o);
@@ -482,10 +483,6 @@ public class Membership {
     if (m != null) {
       m.internal_setSession(this.s);
       this.setMember_id(m);
-    }
-    if (v != null) {
-      v.internal_setSession(this.s);
-      this.setVia_id(v);
     }
   } // protected void internal_setSession(s)
 
@@ -521,7 +518,7 @@ public class Membership {
   protected String getUuid() {
     return this.uuid;
   }
-  protected Owner getVia_id() {
+  protected String getVia_id() {
     return this.via_id;
   }
 
@@ -554,7 +551,7 @@ public class Membership {
   private void setCreator_id(Member m) {
     this.creator_id = m;
   }
-  private void setVia_id(Owner via) {
+  private void setVia_id(String via) {
     this.via_id = via;
   }
   private void setUuid(String uuid) {

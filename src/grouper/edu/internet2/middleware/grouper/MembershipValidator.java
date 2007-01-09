@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.16 2007-01-08 18:04:07 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.17 2007-01-09 17:30:23 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
@@ -37,13 +37,9 @@ class MembershipValidator {
       throw new ModelException(E.ERR_D + ms.getDepth());
     }
     // Verify Via
-    Owner via = ms.getVia_id();
-    if (via == null) {
-      throw new ModelException(E.ERR_V);
-    }
-    if (!(via instanceof Composite)) {
-      throw new ModelException(E.ERR_VC + via.getClass().getName());
-    }
+    if ( ms.getVia_id() == null ) {
+      throw new ModelException(E.ERR_VC + "null");
+    }    
     // Verify Parent Membership
     if (ms.getParent_membership() != null) {
       throw new ModelException(E.ERR_PMS);
@@ -60,13 +56,9 @@ class MembershipValidator {
       throw new ModelException(E.ERR_D + ms.getDepth());
     }
     // Verify Via
-    Owner via = ms.getVia_id();
-    if (via == null) {
-      throw new ModelException(E.ERR_EV);
-    }
-    if (!(via instanceof Group)) {
-      throw new ModelException(E.ERR_VC + via.getClass().getName());
-    }
+    if ( ms.getVia_id() == null ) {
+      throw new ModelException(E.ERR_VC + "null");
+    }    
     // Verify Parent Membership
     if (ms.getParent_membership() == null) {
       throw new ModelException(E.MSV_NO_PARENT);

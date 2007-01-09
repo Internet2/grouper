@@ -29,7 +29,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.30 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.31 2007-01-09 17:30:23 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -131,12 +131,12 @@ public class GrouperSubject implements Subject {
   // @since   1.2.0 
   private Map _getAttributes() {
     if ( this.attrs.size() == 0 ) {
-      this.g = HibernateGroupDAO.findByUuid( this.getId() );
-      if (this.g == null) {
-        ErrorLog.error(GrouperSubject.class, "unable to retrieve group attributes");
-      }
-      else {
+      try {
+        this.g = HibernateGroupDAO.findByUuid( this.getId() );
         this._populateAttributes(); // populates `this.attrs`
+      }
+      catch (GroupNotFoundException eGNF) {
+        ErrorLog.error( GrouperSubject.class, "unable to retrieve group attributes: " + eGNF.getMessage() );
       }
     }
     return this.attrs;
