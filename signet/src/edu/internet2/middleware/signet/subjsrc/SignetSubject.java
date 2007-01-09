@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.5 2006-12-15 20:45:37 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.6 2007-01-09 01:01:25 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -476,7 +476,7 @@ log.warn(
 			assignsGranted = new HashSet();
 
 		else if ((null != signetSource) &&
-			(null != (srcs = signetSource.getParent())) &&
+			(null != (srcs = signetSource.getSources())) &&
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
 			assignsGranted = persistSrc.getAssignmentsGranted(subject_PK.longValue(), Status.ACTIVE.toString());
@@ -509,7 +509,7 @@ log.warn(
 			assignsReceived = new HashSet();
 
 		else if ((null != signetSource) &&
-			(null != (srcs = signetSource.getParent())) &&
+			(null != (srcs = signetSource.getSources())) &&
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
 			assignsReceived = persistSrc.getAssignmentsReceived(subject_PK.longValue(), Status.ACTIVE.toString());
@@ -542,7 +542,7 @@ log.warn(
 			proxiesGranted = new HashSet();
 
 		else if ((null != signetSource) &&
-			(null != (srcs = signetSource.getParent())) &&
+			(null != (srcs = signetSource.getSources())) &&
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
 			proxiesGranted = persistSrc.getProxiesGranted(subject_PK.longValue(), Status.ACTIVE.toString());
@@ -574,7 +574,7 @@ log.warn(
 			proxiesReceived = new HashSet();
 
 		else if ((null != signetSource) &&
-			(null != (srcs = signetSource.getParent())) &&
+			(null != (srcs = signetSource.getSources())) &&
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
 			proxiesReceived = persistSrc.getProxiesReceived(subject_PK.longValue(), Status.ACTIVE.toString());
@@ -699,7 +699,7 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	 */
 	public String getDescription()
 	{
-		String descAttrName = signetSource.getParent().getPersistedSource().getSignetDescription();
+		String descAttrName = signetSource.getSources().getPersistedSource().getSignetDescription();
 		String retval = getAttributeValue(descAttrName);
 		return (retval);
 	}
@@ -712,7 +712,7 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	 */
 	public void setDescription(String subjectDescription)
 	{
-		String descAttrName = signetSource.getParent().getPersistedSource().getSignetDescription();
+		String descAttrName = signetSource.getSources().getPersistedSource().getSignetDescription();
 		SignetSubjectAttr attr = getAttribute(descAttrName);
 		if (null == attr)
 		{

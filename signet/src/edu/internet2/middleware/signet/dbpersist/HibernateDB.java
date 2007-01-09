@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.4 2006-12-15 20:45:37 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.5 2007-01-09 01:01:25 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -67,26 +67,25 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * reference to it's own HibernateDB object. Each HibernateDB object has it's
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
- * "push counter" called xactNestingLevel.
+ * "push counter" called transactDepth.
  */
 public class HibernateDB
 {
-	protected Log log = LogFactory.getLog(HibernateDB.class);
-
-	/** It would appear that many persisted objects need a reference to the
-	 * Signet instance, so we save it here and call setSignet on each object as
-	 * it is retieved from persisted store.
-	 */
+	/** logging */
+	protected Log				log;
+	/** Reference to the Signet instance. */
 	protected Signet			signet;
 	/** The Hibernate Configuration */
 	protected Configuration		cfg;
-	/** the Hibernate Session */
+	/** the Hibernate Session. Note only one Session, permanently open. */
 	protected Session			session;
 	/** The Hibernate Transaction */
 	protected Transaction		tx;
 	/** The "push counter" for nesting transactions. Only the final commit() is
 	 * sent to Hibernate. */
-	protected int				xactNestingLevel = 0;
+	protected int				transactDepth;
+	/** synchronization lock for transactDepth */
+	protected Boolean			transactLock;
 
 	protected static final String	Qry_subjectByPK =
 			"from edu.internet2.middleware.signet.SignetSubject " + //$NON-NLS-1$
@@ -128,27 +127,20 @@ public class HibernateDB
 
 	/**
 	 * constructor
-	 * @param signetInstance The instance of a Signet
+	 * @param signetInstance The Signet instance
 	 */
 	public HibernateDB(Signet signetInstance)
 	{
-		super();
+		log = LogFactory.getLog(HibernateDB.class);
+		transactDepth = 0;
+		transactLock = new Boolean(false);
 
 		cfg = new Configuration();
 		try
 		{
 			// Read the "hibernate.cfg.xml" file. It is expected to be in a root directory of the classpath
 			cfg.configure();
-
 			open();
-//			String dbAccount = cfg.getProperty("hibernate.connection.username"); //$NON-NLS-1$
-//			interceptor = new HousekeepingInterceptor(dbAccount);
-//			cfg.setInterceptor(interceptor);
-//			SessionFactory sessionFactory = cfg.buildSessionFactory();
-//			interceptor.setSessionFactory(sessionFactory);
-//
-//			session = sessionFactory.openSession();
-//			interceptor.setConnection(session.connection());
 		}
 		catch (HibernateException he)
 		{
@@ -174,6 +166,10 @@ public class HibernateDB
 
 	/**
 	 * Load a DB object when the ID is known. Wrapper method for session.
+	 * @param loadClass Class to load
+	 * @param id Primary key for DB-mapped class
+	 * @return Instance of the requested Class
+	 * @throws ObjectNotFoundException
 	 */
 	public Object load(Class loadClass, String id) throws ObjectNotFoundException
 	{
@@ -192,6 +188,10 @@ public class HibernateDB
 
 	/**
 	 * Load a DB object when the ID is known. Wrapper method for session.
+	 * @param loadClass Class to load
+	 * @param id Primary key for DB-mapped class
+	 * @return Instance of the requested Class
+	 * @throws ObjectNotFoundException
 	 */
 	public Object load(Class loadClass, Integer id) throws ObjectNotFoundException
 	{
@@ -211,6 +211,10 @@ public class HibernateDB
 
 	/**
 	 * Load a DB object when the ID is known. Wrapper method for session.
+	 * @param loadClass Class to load
+	 * @param id Primary key for DB-mapped class
+	 * @return Instance of the requested Class
+	 * @throws ObjectNotFoundException
 	 */
 	public Object load(Class loadClass, Long id) throws ObjectNotFoundException
 	{
@@ -228,7 +232,12 @@ public class HibernateDB
 	}
 
 
-	/** wrapper method for session */
+	/**
+	 *  wrapper method for session
+	 * @param queryString
+	 * @return
+	 * @throws SignetRuntimeException
+	 */
 	public Query createQuery(String queryString) throws SignetRuntimeException
 	{
 		Query retval = null;
@@ -263,7 +272,7 @@ public class HibernateDB
 	 */
 	public synchronized void beginTransaction()
 	{
-		if (xactNestingLevel == 0)
+		if (0 == transactDepth)
 		{
 			try { tx = session.beginTransaction(); }
 			catch (HibernateException e)
@@ -271,7 +280,7 @@ public class HibernateDB
 				throw new SignetRuntimeException(e);
 			}
 		}
-		xactNestingLevel++;
+		transactDepth++;
 	}
 
 	/**
@@ -283,13 +292,13 @@ public class HibernateDB
 		{
 			throw new IllegalStateException(ResLoaderApp.getString("Signet.msg.exc.sigTrans")); //$NON-NLS-1$
 		}
-		if (xactNestingLevel < 1)
+		if (transactDepth < 1)
 		{
 			throw new SignetRuntimeException(ResLoaderApp.getString("Signet.msg.exc.transNest_1") + //$NON-NLS-1$
 					ResLoaderApp.getString("Signet.msg.exc.transNest_2")); //$NON-NLS-1$
 		}
-		xactNestingLevel--;
-		if (xactNestingLevel == 0)
+		transactDepth--;
+		if (0 == transactDepth)
 		{
 			try
 			{
@@ -320,7 +329,7 @@ public class HibernateDB
 
 	/**
 	 * Open a new Session, closing the old one if it isn't already closed.
-	 * @return Returns the newly-created Session (same as calling getSession())
+	 * @return Returns a new Session
 	 */
 	public Session open()
 	{

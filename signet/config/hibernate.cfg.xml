@@ -5,32 +5,24 @@
   '-//Hibernate/Hibernate Configuration DTD//EN'
   'http://hibernate.sourceforge.net/hibernate-configuration-2.0.dtd'>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/hibernate.cfg.xml,v 1.24 2006-11-30 04:21:49 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/hibernate.cfg.xml,v 1.25 2007-01-09 01:01:25 ddonn Exp $ -->
 
 <hibernate-configuration>
   <session-factory>
     
     <!-- Database connection properties -->
-    <property name="hibernate.dialect">
-	  @DB_DIALECT@
-	</property>
-    <property name="hibernate.connection.driver_class">
-	  @DB_DRIVER@
-	</property>
-    <property name="hibernate.connection.url">
-	  @DB_URL@
-	</property>
-    <property name="hibernate.connection.username">
-	  @DB_USERNAME@
-	</property>
-    <property name="hibernate.connection.password">
-	  @DB_PASSWORD@
-	</property>
+    <property name="hibernate.dialect">@DB_DIALECT@</property>
+    <property name="hibernate.connection.driver_class">@DB_DRIVER@</property>
+    <property name="hibernate.connection.url">@DB_URL@</property>
+    <property name="hibernate.connection.username">@DB_USERNAME@</property>
+    <property name="hibernate.connection.password">@DB_PASSWORD@</property>
     
     <!-- general connection properties -->
     <property name="hibernate.show_sql">false</property>
 <!--	<property name="hibernate.show_sql">true</property>  -->
 <!-- 	<property name="hibernate.cglib.use_reflection_optimizer">false</property> -->
+	<!-- Create a DB connection pool of 20 connections -->
+<!--	<property name="hibernate.connection.pool_size"> 20 </property> -->
 
 	<mapping resource="edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml" />
 	<mapping resource="edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml" />

@@ -1,0 +1,32 @@
+Signet  12/05/07
+Release Notes for CVS-tagged version SIGNET_1_1_TMP06
+
+1. Deleted unused classes:
+   - ChoiceFullyQualifiedId
+   - HtmlLimitRenderer
+   - HtmlLimitRendererImpl
+   - LimitShapeType
+   - ValueTypeType
+
+2. Modified the build files
+   - renamed buildAltLocal.properties to buildCustom.properties
+   - renamed properties with buildCustom.properties (and build.xml)
+
+3. Renamed SignetSource.getParent() to getSources()
+
+4. Added build_info.odg and .pdf to DevGoodies, an OpenOffice 2.1 presentation
+  that describes the build process.
+
+Still to do:
+
+1. Fix bug where SignetSubjects retrieved from PersistedSignetSource
+  (e.g. subj.getAssignmentsGranted()) had no runtime SubjectSource available
+  for src.getSignet(), etc.
+
+2. Migrate from Hibernate 2.x to 3.x (see Hibernate Migration Guide
+  http://www.hibernate.org/250.html).
+
+3. 
+
+
+  

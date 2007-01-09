@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.5 2006-12-15 20:45:37 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.6 2007-01-09 01:01:25 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -83,7 +83,7 @@ public class SignetSources
 	public static final String		SIGNET_USAGE_ALL		= "all";
 
 	// logging
-	protected Log				log = LogFactory.getLog(SignetSources.class);
+	protected Log				log;
 
 	/** List of "standard" Subject Sources as defined in SubjectSources.xml.
 	 * signetSources is a Vector, as opposed to a Hashtable, because it will be
@@ -114,6 +114,8 @@ public class SignetSources
 	/** default constructor */
 	private SignetSources()
 	{
+		log = LogFactory.getLog(SignetSources.class);
+
 		persistedSource = null;
 		signetSources = new Vector();
 
@@ -158,7 +160,7 @@ public class SignetSources
 	 * @param configFile
 	 * @return true on success, false otherwise
 	 */
-	protected synchronized boolean parseConfigFile(String configFile)
+	protected boolean parseConfigFile(String configFile)
 	{
 		// mapping for Digester and SignetSubjects.xml
 // This doesn't seem to work reliably
@@ -262,7 +264,7 @@ public class SignetSources
 	 * Support for Digester
 	 * @param signetSource The SignetSource to add.
 	 */
-	public synchronized void addSource(SignetSource signetSource)
+	public void addSource(SignetSource signetSource)
 	{
 		if (null == signetSource)
 			return;
@@ -291,7 +293,7 @@ public class SignetSources
 					signetSources.add(signetSource); // append to end of list
 				}
 
-				signetSource.setParent(this);
+				signetSource.setSources(this);
 			}
 			else
 				log.info("A " + SIGNET_SRC_TAG + " with ID=\"" + srcId + "\" already exists. Ignoring.");
@@ -604,7 +606,7 @@ public class SignetSources
 
 	/**
 	 * Returns a Vector of all SignetSource objects that match the given usage.
-	 * @return Vector of SignetSource objects, or empty Vector (not null!)
+	 * @return Vector of SignetSource objects, or empty Vector (never null!)
 	 */
 	public Vector getSourcesByUsage(String usage)
 	{
@@ -631,7 +633,7 @@ public class SignetSources
 
 	/**
 	 * Returns a Vector of all SignetSource objects that match the given type.
-	 * @return Vector of SignetSource objects, or empty Vector (not null!)
+	 * @return Vector of SignetSource objects, or empty Vector (never null!)
 	 * 
 	 */
 	public Vector getSourcesByType(String type)

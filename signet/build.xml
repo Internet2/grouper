@@ -1,21 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.50 2006-12-16 01:32:18 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.51 2007-01-09 01:01:25 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
 	<!-- Signet version number and signet basename. Import this before all others! -->
 	<property file="config/signet.properties" />
 
-	<!-- Global Properties -->
-	<property file="buildSignet.properties" />
-
-	<!-- Alt Local Properties (i.e. "Doppleganger") -->
-	<!-- Don't include the following line if there are no alternate sources, libs, etc. -->
 	<!--
-	<property file="/Projects/signet/buildAltLocal.properties" />
+		Custom Properties (i.e. "Doppleganger")
+		Don't include the following line if there are no alternate sources, libs, etc.
+		NOTE: if you intend to use this file to override any of the mandatory
+		properties (defined in buildSignet.properties), you must import the
+		overrides FIRST. Ant does not assign new values if a property is
+		already defined: your override must be defined BEFORE the default value
+		is defined.
+	-->
+	<!--
+	<property file="/Projects/signet/buildCustom.properties" />
 	-->
 
-	<!-- Tomcat-specific Ant build tasks. Remove/replace, as desired, for your
+	<!--
+		Global Properties
+		This file contains required properties.
+	-->
+	<property file="buildSignet.properties" />
+
+	<!--
+		Tomcat-specific Ant build tasks. Remove/replace, as desired, for your
 		environment. Note that this import is dependent on properties set in
 		buildSignet.properties.
 		Note: If your Ant build produces error messages similar to:
@@ -68,7 +79,7 @@
 				optimize="${compile.optimize}"
 				deprecation="${compile.deprecation}" >
 			<src path="${source_java.dir}" />
-			<src path="${alt.local.java.dir}" />
+			<src path="${custom.java.dir}" />
 			<!-- following line specifies non-standard compile options -->
 			<!-- <compilerarg line="${compile.other.args}" /> -->
 		</javac>
@@ -115,7 +126,7 @@
 			depends="create_sourcepath, create_classpath" >
 		<path id="javadoc.src.path">
 			<pathelement location="${source_java.dir}" />
-			<pathelement location="${alt.local.java.dir}" />
+			<pathelement location="${custom.java.dir}" />
 		</path>
 		<javadoc packagenames="edu.internet2.middleware.signet, 
 				edu.internet2.middleware.signet.choice, 
@@ -169,8 +180,8 @@
 
     <!-- - - - - - - - - target: create_altlocal_src_fileset_no - -->
     <target name="create_altlocal_java_dir_no"
-			unless="alt.local.java.dir" >
-		<property name="alt.local.java.dir" value="" />
+			unless="custom.java.dir" >
+		<property name="custom.java.dir" value="" />
     </target>
 
 
@@ -179,7 +190,7 @@
     		depends="create_source_src_fileset, create_altlocal_src_fileset_yes">
 		<path id="source.path" >
 			<fileset refid="source.src.fileset" />
-			<fileset refid="alt.local.src.fileset" />
+			<fileset refid="custom.src.fileset" />
 		</path>
     </target>
 
@@ -196,9 +207,9 @@
     <!-- - - - - - - - - target: create_altlocal_src_fileset_yes - -->
     <target name="create_altlocal_src_fileset_yes"
 			depends="create_altlocal_src_fileset_no"
-			if="alt.local.java.dir" >
-		<fileset id="alt.local.src.fileset"
-			dir="${alt.local.java.dir}" >
+			if="custom.java.dir" >
+		<fileset id="custom.src.fileset"
+			dir="${custom.java.dir}" >
 			<include name="**/*.java" />
 		</fileset>
     </target>
@@ -206,8 +217,8 @@
 
     <!-- - - - - - - - - target: create_altlocal_src_fileset_no - -->
     <target name="create_altlocal_src_fileset_no"
-			unless="alt.local.java.dir" >
-		<fileset id="alt.local.src.fileset"
+			unless="custom.java.dir" >
+		<fileset id="custom.src.fileset"
 			dir="" >
 			<include name="" />
 		</fileset>
@@ -223,7 +234,7 @@
 <!-- SubjectAPI JAR is in Signet CVS for now
 			<fileset refid="subjectApi_lib.fileset" />
 -->
-			<fileset refid="alt.local.lib.fileset" />
+			<fileset refid="custom.lib.fileset" />
 		</path>
 	</target>
 
@@ -245,7 +256,7 @@
 <!-- SubjectAPI JAR is in Signet CVS for now 
 			<fileset refid="subjectApi_lib.fileset" />
 -->
-			<fileset refid="alt.local.lib.fileset" />
+			<fileset refid="custom.lib.fileset" />
 		</copy>
 	</target>
 
@@ -272,9 +283,9 @@
 	<!-- - - - - - - - - target: create_altlib_fileset_yes - -->
 	<target name="create_altlib_fileset_yes"
 			depends="create_altlib_fileset_no"
-			if="alt.local.lib.dir" >
-		<fileset id="alt.local.lib.fileset"
-			dir="${alt.local.lib.dir}" >
+			if="custom.lib.dir" >
+		<fileset id="custom.lib.fileset"
+			dir="${custom.lib.dir}" >
 			<include name="**/*.jar" />
 		</fileset>
 	</target>
@@ -282,8 +293,8 @@
 
 	<!-- - - - - - - - - target: create_altlib_fileset_no - -->
 	<target name="create_altlib_fileset_no"
-			unless="alt.local.lib.dir" >
-		<fileset id="alt.local.lib.fileset"
+			unless="custom.lib.dir" >
+		<fileset id="custom.lib.fileset"
 			dir="">
 			<include name=""/>
 		</fileset>
@@ -306,7 +317,7 @@
 			depends="create_sql_fileset, create_altsql_fileset_yes" >
 		<copy todir="${dist_sql.dir}" >
 			<fileset refid="source.sql.fileset" />
-			<fileset refid="alt.local.sql.fileset" />
+			<fileset refid="custom.sql.fileset" />
 		</copy>
 	</target>
 
@@ -323,9 +334,9 @@
 	<!-- - - - - - - - - target: create_altsql_fileset_yes - -->
 	<target name="create_altsql_fileset_yes"
 			depends="create_altsql_fileset_no"
-			if="alt.local.sql.dir" >
-		<fileset id="alt.local.sql.fileset"
-			dir="${alt.local.sql.dir}" >
+			if="custom.sql.dir" >
+		<fileset id="custom.sql.fileset"
+			dir="${custom.sql.dir}" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -333,8 +344,8 @@
 
 	<!-- - - - - - - - - target: create_altsql_fileset_no - -->
 	<target name="create_altsql_fileset_no"
-			unless="alt.local.sql.dir" >
-		<fileset id="alt.local.sql.fileset"
+			unless="custom.sql.dir" >
+		<fileset id="custom.sql.fileset"
 			dir="" >
 			<include name="" />
 		</fileset>
@@ -346,7 +357,7 @@
 			depends="create_config_fileset, create_altconfig_fileset_yes" >
 		<copy todir="${dist_config.dir}" >
 			<fileset refid="source.config.fileset" />
-			<fileset refid="alt.local.config.fileset" />
+			<fileset refid="custom.config.fileset" />
 		</copy>
 	</target>
 
@@ -363,9 +374,9 @@
 	<!-- - - - - - - - - target: create_altconfig_fileset_yes - -->
 	<target name="create_altconfig_fileset_yes"
 			depends="create_altconfig_fileset_no"
-			if="alt.local.config.dir" >
-		<fileset id="alt.local.config.fileset" 
-				dir="${alt.local.config.dir}" >
+			if="custom.config.dir" >
+		<fileset id="custom.config.fileset" 
+				dir="${custom.config.dir}" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -373,8 +384,8 @@
 
 	<!-- - - - - - - - - target: create_altconfig_fileset_no - -->
 	<target name="create_altconfig_fileset_no"
-			unless="alt.local.config.dir" >
-		<fileset id="alt.local.config.fileset" 
+			unless="custom.config.dir" >
+		<fileset id="custom.config.fileset" 
 				dir="" >
 			<include name="" />
 		</fileset>
@@ -563,7 +574,7 @@
 			depends="create_webapp_dirs, copy_altweb_configs_yes" >
 		<copy todir="${dist_webapp.dir}" >
 			<fileset dir="${source_webapp.config.dir}" />
-			<fileset refid="alt.local.webconfig.fileset" />
+			<fileset refid="custom.webconfig.fileset" />
 		</copy>
 	</target>
 -->
@@ -572,9 +583,9 @@
 	<!-- - - - - - - - - target: copy_altweb_configs_yes - -->
 	<target name="copy_altweb_configs_yes"
 			depends="copy_altweb_configs_no"
-			if="alt.local.webconfig.dir" >
-		<fileset id="alt.local.webconfig.fileset"
-				dir="alt.local.webconfig.dir" >
+			if="custom.webconfig.dir" >
+		<fileset id="custom.webconfig.fileset"
+				dir="custom.webconfig.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -582,8 +593,8 @@
 
 	<!-- - - - - - - - - target: copy_altweb_configs_no - -->
 	<target name="copy_altweb_configs_no"
-			unless="alt.local.webconfig.dir" >
-		<fileset id="alt.local.webconfig.fileset"
+			unless="custom.webconfig.dir" >
+		<fileset id="custom.webconfig.fileset"
 				dir="" >
 			<include name="" />
 		</fileset>
@@ -596,7 +607,7 @@
 			depends="create_webapp_dirs, copy_altweb_images_yes" >
 		<copy todir="${webapp.images.dir}" >
 			<fileset dir="${source_webapp.images.dir}" />
-			<fileset refid="alt.local.webimages.fileset" />
+			<fileset refid="custom.webimages.fileset" />
 		</copy>
 	</target>
 -->
@@ -604,9 +615,9 @@
 	<!-- - - - - - - - - target: copy_altweb_images_yes - -->
 	<target name="copy_altweb_images_yes"
 			depends="copy_altweb_images_no"
-			if="alt.local.webimages.dir" >
-		<fileset id="alt.local.webimages.fileset"
-				dir="alt.local.webimages.dir" >
+			if="custom.webimages.dir" >
+		<fileset id="custom.webimages.fileset"
+				dir="custom.webimages.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -614,8 +625,8 @@
 
 	<!-- - - - - - - - - target: copy_altweb_images_no - -->
 	<target name="copy_altweb_images_no"
-			unless="alt.local.webimages.dir" >
-		<fileset id="alt.local.webimages.fileset"
+			unless="custom.webimages.dir" >
+		<fileset id="custom.webimages.fileset"
 				dir="" >
 			<include name="" />
 		</fileset>
@@ -628,7 +639,7 @@
 			depends="create_webapp_dirs, copy_altweb_jsps_yes" >
 		<copy todir="${webapp.jsp.dir}" >
 			<fileset dir="${source_webapp.jsp.dir}" />
-			<fileset refid="alt.local.webjsp.fileset" />
+			<fileset refid="custom.webjsp.fileset" />
 		</copy>
 	</target>
 -->
@@ -636,9 +647,9 @@
 	<!-- - - - - - - - - target: copy_altweb_jsps_yes - -->
 	<target name="copy_altweb_jsps_yes"
 			depends="copy_altweb_jsps_no"
-			if="alt.local.webjsp.dir" >
-		<fileset id="alt.local.webjsp.fileset"
-				dir="alt.local.webjsp.dir" >
+			if="custom.webjsp.dir" >
+		<fileset id="custom.webjsp.fileset"
+				dir="custom.webjsp.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -646,8 +657,8 @@
 
 	<!-- - - - - - - - - target: copy_altweb_jsps_no - -->
 	<target name="copy_altweb_jsps_no"
-			unless="alt.local.webjsp.dir" >
-		<fileset id="alt.local.webjsp.fileset"
+			unless="custom.webjsp.dir" >
+		<fileset id="custom.webjsp.fileset"
 				dir="" >
 			<include name="" />
 		</fileset>
@@ -657,9 +668,9 @@
 	<!-- - - - - - - - - target: copy_altweb_metainf_yes - -->
 	<target name="copy_altweb_metainf_yes"
 			depends="copy_altweb_metainf_no"
-			if="alt.local.webmetainf.dir" >
-		<fileset id="alt.local.webmetainf.fileset"
-				dir="alt.local.webmetainf.dir" >
+			if="custom.webmetainf.dir" >
+		<fileset id="custom.webmetainf.fileset"
+				dir="custom.webmetainf.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -667,8 +678,8 @@
 
 	<!-- - - - - - - - - target: copy_altweb_metainf_no - -->
 	<target name="copy_altweb_metainf_no"
-			unless="alt.local.webmetainf.dir" >
-		<fileset id="alt.local.webmetainf.fileset"
+			unless="custom.webmetainf.dir" >
+		<fileset id="custom.webmetainf.fileset"
 				dir="" >
 			<include name="" />
 		</fileset>
@@ -681,7 +692,7 @@
 			depends="create_webapp_dirs, copy_altweb_scripts_yes" >
 		<copy todir="${webapp.scripts.dir}" >
 			<fileset dir="${source_webapp.scripts.dir}" />
-			<fileset refid="alt.local.webscripts.fileset" />
+			<fileset refid="custom.webscripts.fileset" />
 		</copy>
 	</target>
 -->
@@ -689,9 +700,9 @@
 	<!-- - - - - - - - - target: copy_altweb_scripts_yes - -->
 	<target name="copy_altweb_scripts_yes"
 			depends="copy_altweb_scripts_no"
-			if="alt.local.webscripts.dir" >
-		<fileset id="alt.local.webscripts.fileset"
-				dir="alt.local.webscripts.dir" >
+			if="custom.webscripts.dir" >
+		<fileset id="custom.webscripts.fileset"
+				dir="custom.webscripts.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -699,8 +710,8 @@
 
 	<!-- - - - - - - - - target: copy_altweb_scripts_no - -->
 	<target name="copy_altweb_scripts_no"
-			unless="alt.local.webscripts.dir" >
-		<fileset id="alt.local.webscripts.fileset"
+			unless="custom.webscripts.dir" >
+		<fileset id="custom.webscripts.fileset"
 				dir="" >
 			<include name="" />
 		</fileset>
@@ -713,7 +724,7 @@
 			depends="create_webapp_dirs, copy_altweb_styles_yes" >
 		<copy todir="${webapp.styles.dir}" >
 			<fileset dir="${source_webapp.styles.dir}" />
-			<fileset refid="alt.local.webstyles.fileset" />
+			<fileset refid="custom.webstyles.fileset" />
 		</copy>
 	</target>
 -->
@@ -721,9 +732,9 @@
 	<!-- - - - - - - - - target: copy_altweb_styles_yes - -->
 	<target name="copy_altweb_styles_yes"
 			depends="copy_altweb_styles_no"
-			if="alt.local.webstyles.dir" >
-		<fileset id="alt.local.webstyles.fileset"
-				dir="alt.local.webstyles.dir" >
+			if="custom.webstyles.dir" >
+		<fileset id="custom.webstyles.fileset"
+				dir="custom.webstyles.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -731,8 +742,8 @@
 
 	<!-- - - - - - - - - target: copy_altweb_styles_no - -->
 	<target name="copy_altweb_styles_no"
-			unless="alt.local.webstyles.dir" >
-		<fileset id="alt.local.webstyles.fileset"
+			unless="custom.webstyles.dir" >
+		<fileset id="custom.webstyles.fileset"
 				dir="" >
 			<include name="" />
 		</fileset>
@@ -745,7 +756,7 @@
 			depends="create_webapp_dirs, copy_altweb_tiles_yes" >
 		<copy todir="${webapp.tiles.dir}" >
 			<fileset dir="${source_webapp.tiles.dir}" />
-			<fileset refid="alt.local.webtiles.fileset" />
+			<fileset refid="custom.webtiles.fileset" />
 		</copy>
 	</target>
 -->
@@ -753,9 +764,9 @@
 	<!-- - - - - - - - - target: copy_altweb_tiles_yes - -->
 	<target name="copy_altweb_tiles_yes"
 			depends="copy_altweb_tiles_no"
-			if="alt.local.webtiles.dir" >
-		<fileset id="alt.local.webtiles.fileset"
-				dir="alt.local.webtiles.dir" >
+			if="custom.webtiles.dir" >
+		<fileset id="custom.webtiles.fileset"
+				dir="custom.webtiles.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -763,8 +774,8 @@
 
 	<!-- - - - - - - - - target: copy_altweb_tiles_no - -->
 	<target name="copy_altweb_tiles_no"
-			unless="alt.local.webtiles.dir" >
-		<fileset id="alt.local.webtiles.fileset"
+			unless="custom.webtiles.dir" >
+		<fileset id="custom.webtiles.fileset"
 				dir="" >
 			<include name="" />
 		</fileset>
@@ -875,31 +886,31 @@
 			<fileset dir="${source_webapp.dir}" includes="index.jsp" />
 
 			<metainf dir="${source_webapp.metainf.dir}" />
-			<metainf refid="alt.local.webmetainf.fileset" />
+			<metainf refid="custom.webmetainf.fileset" />
 
 			<webinf dir="${source_webapp.images.dir}"		prefix="${dirname.images}" />
-			<webinf refid="alt.local.webimages.fileset"		prefix="${dirname.images}" />
+			<webinf refid="custom.webimages.fileset"		prefix="${dirname.images}" />
 
 			<webinf dir="${source_webapp.jsp.dir}"			prefix="${dirname.jsp}" />
-			<webinf refid="alt.local.webjsp.fileset"		prefix="${dirname.jsp}" />
+			<webinf refid="custom.webjsp.fileset"			prefix="${dirname.jsp}" />
 
 			<webinf dir="${source_webapp.scripts.dir}"		prefix="${dirname.scripts}" />
-			<webinf refid="alt.local.webscripts.fileset"	prefix="${dirname.scripts}" />
+			<webinf refid="custom.webscripts.fileset"		prefix="${dirname.scripts}" />
 
 			<webinf dir="${source_webapp.styles.dir}"		prefix="${dirname.styles}" />
-			<webinf refid="alt.local.webstyles.fileset"		prefix="${dirname.styles}" />
+			<webinf refid="custom.webstyles.fileset"		prefix="${dirname.styles}" />
 
 			<webinf dir="${source_webapp.tiles.dir}"		prefix="${dirname.tiles}" />
-			<webinf refid="alt.local.webtiles.fileset"		prefix="${dirname.tiles}" />
+			<webinf refid="custom.webtiles.fileset"			prefix="${dirname.tiles}" />
 
 			<webinf dir="${source_webapp.config.dir}" >		<exclude name="web.xml"/> </webinf>
-			<webinf refid="alt.local.webconfig.fileset" />
+			<webinf refid="custom.webconfig.fileset" />
 
 			<!-- Note: config files are copied from dist_config.dir because they may get
 			     modified by the configure_hibernate target -->
 			<classes dir="${dist_config.dir}" />
 <!--			<classes refid="source.config.fileset" /> -->
-			<classes refid="alt.local.config.fileset" /> 
+			<classes refid="custom.config.fileset" /> 
 
 			<lib dir="${dist_lib.dir}" />
 		</war>

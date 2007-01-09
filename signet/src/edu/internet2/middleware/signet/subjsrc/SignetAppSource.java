@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetAppSource.java,v 1.4 2006-12-16 01:08:53 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetAppSource.java,v 1.5 2007-01-09 01:01:25 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -42,7 +42,7 @@ public class SignetAppSource extends SignetSource
 	public SignetAppSource(SignetSources sources, String id)
 	{
 		super();
-		setParent(sources);
+		setSources(sources);
 		setId(id);
 		setName(id);
 		setStatus(SignetSource.STATUS_ACTIVE);

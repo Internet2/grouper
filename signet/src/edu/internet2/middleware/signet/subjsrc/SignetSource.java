@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.4 2006-12-15 20:45:37 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.5 2007-01-09 01:01:25 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -99,13 +99,13 @@ public class SignetSource implements Source
 	/**
 	 * @return The SignetSources that owns this SignetSource
 	 */
-	public SignetSources getParent()
+	public SignetSources getSources()
 	{
 		return (signetSources);
 	}
 
 	/** Set the parent (SignetSources) of this Source */
-	public void setParent(SignetSources parent)
+	public void setSources(SignetSources parent)
 	{
 		signetSources = parent;
 	}

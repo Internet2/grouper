@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.5 2006-12-15 20:45:37 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.6 2007-01-09 01:01:25 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -23,7 +23,6 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
-import net.sf.hibernate.Query;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.subject.Subject;
@@ -325,32 +324,6 @@ public String latencyMinutes;
 	}
 
 
-	////////////////////////////////////////
-	// support for persistent store (i.e. Hibernate)
-	////////////////////////////////////////
-
-	public Query createQuery()
-	{
-		return null;
-	}
-
-	public void beginTransaction()
-	{
-	}
-
-	public void close()
-	{
-	}
-
-	public void commit()
-	{
-	}
-
-	public void save()
-	{
-	}
-
-
 	///////////////////////////////////
 	// overrides SignetSource
 	///////////////////////////////////
@@ -358,7 +331,7 @@ public String latencyMinutes;
 	/**
 	 * Override SignetSource.setSourceManager() because there is no corresponding
 	 * SubjectAPI Source lookup to perform for a PersistedSignetSource. Each
-	 * Subject retrieved from Persisted store has it's own SourceId reference!
+	 * Subject retrieved from Persisted store has it's own, original SourceId reference!
 	 * @see edu.internet2.middleware.signet.subjsrc.SignetSource#setSourceManager(edu.internet2.middleware.subject.provider.SourceManager)
 	 */
 	public void setSourceManager(SourceManager sourceManager)
@@ -385,14 +358,6 @@ public String latencyMinutes;
 	{
 		return (true);
 	}
-
-//	/**
-//	 * @return Returns the Vector of all usage values
-//	 */
-//	public Vector getUsage()
-//	{
-//		return (usage);
-//	}
 
 
 	/**
@@ -421,7 +386,7 @@ public String latencyMinutes;
 	public SignetSubject getSubject(long subject_pk)
 	{
 		SignetSubject retval;
-		
+
 		if (null != persistMgr)
 			retval = persistMgr.getSubject(subject_pk);
 		else
@@ -488,7 +453,7 @@ public String latencyMinutes;
 
 	/**
 	 * Returns a Vector of SignetSubject objects from the Persisted store.
-	 * @return A Vector of SignetSubject objects, or empty Vector (not null!)
+	 * @return A Vector of SignetSubject objects, or empty Vector (never null!)
 	 */
 	public Vector getSubjects()
 	{
@@ -592,13 +557,6 @@ System.out.println("PersistedSignetSource.getSubjects: not implemented yet!");
 		return (assigns);
 	}
 
-	///////////////////////////////////
-	// implements Source
-	///////////////////////////////////
-
-//	public void init()
-//	{
-//	}
 
 	////////////////////////////////
 	// overrides Object
@@ -619,6 +577,5 @@ System.out.println("PersistedSignetSource.getSubjects: not implemented yet!");
 				vectorToString("OutputXml", outputXml) + " \n" +
 				vectorToString("Usage", usage)));
 	}
-
 
 }
