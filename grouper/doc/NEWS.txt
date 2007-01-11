@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.47 2007-01-11 19:49:16 blair Exp $
+$Id: NEWS.txt,v 1.48 2007-01-11 20:28:05 blair Exp $
 
 ---
 
@@ -17,6 +17,7 @@ Estimated Release: 200703
           * `parent_membership` now stores the UUID of the parent membership .
           * `owner_id` now stores the UUID of the owner object.
           * `via_id` now stores the UUID of the via object.
+          * Eliminated all constraints referencing other tables.
           !!!
 * NEW:    Benchmark: `AddLotsOfGroupsToStem`
 * NEW:    Benchmark: `AddAsEffMemberToLotsOfGroups`

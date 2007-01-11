@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.5 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.6 2007-01-11 20:28:05 blair Exp $
  * @since   1.2.0
  */
 class HibernateFieldDAO {
@@ -92,7 +92,7 @@ class HibernateFieldDAO {
         qry = hs.createQuery("from Attribute as a where a.field.name = :name");
       }
       else if ( f.getType().equals(FieldType.LIST) )      {
-        qry = hs.createQuery("from Membership as ms where ms.field.name = :name");
+        qry = hs.createQuery("from Membership as ms where ms.list_name = :name");
       }
       else {
         String msg = E.GROUPTYPE_FIELDNODELTYPE + f.getType().toString();

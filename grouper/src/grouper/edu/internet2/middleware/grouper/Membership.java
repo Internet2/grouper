@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.68 2007-01-11 19:49:16 blair Exp $
+ * @version $Id: Membership.java,v 1.69 2007-01-11 20:28:05 blair Exp $
  */
 public class Membership {
 
@@ -45,8 +45,9 @@ public class Membership {
   private String  creator_id;
   private long    create_time;
   private int     depth;
-  private Field   field;
   private String  id;
+  private String  list_name;
+  private String  list_type;
   private String  member_id;
   private String  owner_id;
   private String  parent_membership;  // UUID of parent membership
@@ -71,7 +72,8 @@ public class Membership {
     GrouperSession s = o.internal_getSession();
     this.setOwner_id( o.getUuid() );
     this.setMember_id( m.getUuid() );
-    this.setField(f);
+    this.setList_name( f.getName() );
+    this.setList_type( f.getType().toString() );
     this.setMship_type(INTERNAL_TYPE_I);
     this.setUuid( GrouperUuid.internal_getUuid() );
     this.setDepth(0);
@@ -96,7 +98,8 @@ public class Membership {
     catch (MemberNotFoundException eMNF) {
       throw new ModelException(eMNF);
     }
-    this.setField( ms.getList() );  // original f
+    this.setList_name( ms.getList().getName() );  // original field
+    this.setList_type( ms.getList().getType().toString() ); // original field
     this.setMship_type(INTERNAL_TYPE_E);
     this.setUuid( GrouperUuid.internal_getUuid() );
     this.setDepth( ms.getDepth() + hasMS.getDepth() + offset ); // increment depth with proper offset
@@ -126,7 +129,8 @@ public class Membership {
   {
     this.setOwner_id( o.getUuid() );
     this.setMember_id( m.getUuid() );
-    this.setField(f);
+    this.setList_name( f.getName() );
+    this.setList_type( f.getType().toString() );
     this.setMship_type(INTERNAL_TYPE_C);
     this.setUuid( GrouperUuid.internal_getUuid() );
     this.setDepth(0);
@@ -150,12 +154,12 @@ public class Membership {
     }
     Membership otherMembership = (Membership) other;
     return new EqualsBuilder()
-      .append(this.getUuid()      , otherMembership.getUuid()     )
-      .append(this.getOwner_id()  , otherMembership.getOwner_id() )
-      .append(this.getMember_id() , otherMembership.getMember_id())
-      .append(this.getField()     , otherMembership.getField()    )
-      .append(this.getVia_id()    , otherMembership.getVia_id()   )
-      .append(this.getDepth()     , otherMembership.getDepth()    )
+      .append( this.getUuid(),      otherMembership.getUuid()      )
+      .append( this.getOwner_id(),  otherMembership.getOwner_id()  )
+      .append( this.getMember_id(), otherMembership.getMember_id() )
+      .append( this.getList(),      otherMembership.getList()      )
+      .append( this.getVia_id(),    otherMembership.getVia_id()    )
+      .append( this.getDepth(),     otherMembership.getDepth()     )
       .isEquals();
   } // public boolean equals(other)
 
@@ -201,7 +205,12 @@ public class Membership {
    * @return  The {@link Field} type of this membership.
    */
   public Field getList() {
-    return this.getField();
+    try {
+      return FieldFinder.find( this.getList_name() );
+    }
+    catch (SchemaException eS) {
+      throw new GrouperRuntimeException( eS.getMessage(), eS );
+    }
   } // public Field getList()
 
   /**
@@ -303,11 +312,11 @@ public class Membership {
 
   public int hashCode() {
     return new HashCodeBuilder()
-      .append(this.getOwner_id()  )
-      .append(this.getMember_id() )
-      .append(this.getField()     )
-      .append(this.getVia_id()    )
-      .append(this.getDepth()     )
+      .append( this.getOwner_id()  )
+      .append( this.getMember_id() )
+      .append( this.getList()      )
+      .append( this.getVia_id()    )
+      .append( this.getDepth()     )
       .toHashCode();
   } // public int hashCode()
 
@@ -386,7 +395,7 @@ public class Membership {
           while (iterIs.hasNext()) {
             msG   = (Membership) iterIs.next();
             mofG  = Membership.internal_delImmediateMembership(
-              s, msG.internal_getOwner(), msG.getMember().getSubject(), msG.getField()
+              s, msG.internal_getOwner(), msG.getMember().getSubject(), msG.getList()
             );
             deletes.addAll( mofG.internal_getDeletes() );
           }
@@ -510,11 +519,14 @@ public class Membership {
   public int getDepth() {
     return this.depth;
   }
-  protected Field getField() {
-    return this.field;
-  }
   private String getId() {
     return this.id;
+  }
+  private String getList_name() {
+    return this.list_name;
+  }
+  private String getList_type() {
+    return this.list_type;
   }
   protected String getMember_id() {
     return this.member_id;
@@ -540,11 +552,14 @@ public class Membership {
   private void setDepth(int depth) {
     this.depth = depth;
   }
-  private void setField(Field f) {
-    this.field = f;
-  }
   private void setId(String id) {
     this.id = id;
+  }
+  private void setList_name(String list_name) {
+    this.list_name = list_name;
+  }
+  private void setList_type(String list_type) {
+    this.list_type = list_type;
   }
   private void setMember_id(String member_id) {
     this.member_id = member_id;
