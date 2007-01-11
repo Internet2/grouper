@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.91 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.92 2007-01-11 14:22:06 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -948,15 +948,15 @@ public class XmlImporter {
       return; // do not create groups when we are only updating
     }
     Stem  parent  = StemFinder.findByName(this.s, stem);
-    Group child   = parent.addChildGroup(
+    Group child   = parent.internal_addChildGroup(
       e.getAttribute(GrouperConfig.ATTR_E),
-      e.getAttribute(GrouperConfig.ATTR_DE)
+      e.getAttribute(GrouperConfig.ATTR_DE),
+      e.getAttribute("id")
     );
     String description = e.getAttribute(GrouperConfig.ATTR_D);
     if (Validator.internal_isNotNullOrBlank(description)) {
       child.setDescription(description);
     }
-    this._setUuid(child, e);
     this._setInternalAttributes(child, e);
     this.importedGroups.put( child.getName(), SPECIAL_C );
   } // private void _processGroupCreate(e, stem)
@@ -1345,15 +1345,15 @@ public class XmlImporter {
     else {
       parent = StemFinder.findByName(this.s, stem);
     } 
-    Stem child = parent.addChildStem(
+    Stem child = parent.internal_addChildStem(
       e.getAttribute(GrouperConfig.ATTR_E),
-      e.getAttribute(GrouperConfig.ATTR_DE)
+      e.getAttribute(GrouperConfig.ATTR_DE),
+      e.getAttribute("id")
     );
     String  description   = e.getAttribute(GrouperConfig.ATTR_D);
     if (Validator.internal_isNotNullOrBlank(description)) {
       child.setDescription(description);
     }
-    this._setUuid(child, e);
     this._setInternalAttributes(child, e);
   } // private void _processPathCreate(e, stem)
 
@@ -1476,17 +1476,6 @@ public class XmlImporter {
       HibernateOwnerDAO.update(o);
     }
   } // private void _setInternalAttributesAttributes(ns, e)
-
-  // @since   1.1.0
-  private void _setUuid(Owner o, Element e) 
-    throws  GrouperDAOException
-  {
-    String uuid = e.getAttribute("id");
-    if (Validator.internal_isNotNullOrBlank(uuid)) {
-      o.setUuid(uuid);
-      HibernateOwnerDAO.update(o);
-    }
-  } // private void _setUuid(o, e)
 
 
   // GETTERS //

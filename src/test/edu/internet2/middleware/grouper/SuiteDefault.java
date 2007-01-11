@@ -21,29 +21,29 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.19 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.20 2007-01-11 14:22:06 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest( SuiteSettings.suite()     );
-    suite.addTest( SuiteSessions.suite()     );
-    suite.addTest( SuiteStems.suite()        );
-    suite.addTest( SuiteGroupTypes.suite()   );
-    suite.addTest( SuiteGroups.suite()       );
-    suite.addTest( SuiteGrouperQuery.suite() );
-    suite.addTest( SuiteGroupFinder.suite()  );
-    suite.addTest( SuiteComposites.suite()   );
-    suite.addTest( SuiteSubjects.suite()     );
-    suite.addTest( SuiteMembers.suite()      );
-    suite.addTest( SuiteMemberFinder.suite() );
-    suite.addTest( SuiteMemberships.suite()  );
-    suite.addTest( SuiteMemberOf.suite()     );
-    suite.addTest( SuiteAccessPrivs.suite()  );
-    suite.addTest( SuiteXml.suite()          );
-    suite.addTest( SuiteWheelGroup.suite()   );
-    suite.addTest( SuitePrivCache.suite()    );
+    suite.addTest( SuiteSettings.suite()         );
+    suite.addTest( SuiteSessions.suite()         );
+    suite.addTest( SuiteStems.suite()            );
+    suite.addTest( SuiteGroupTypes.suite()       );
+    suite.addTest( SuiteGroups.suite()           );
+    suite.addTest( SuiteGrouperQuery.suite()     );
+    suite.addTest( SuiteGroupFinder.suite()      );
+    suite.addTest( SuiteComposites.suite()       );
+    suite.addTest( SuiteSubjects.suite()         );
+    suite.addTest( SuiteMembers.suite()          );
+    suite.addTest( SuiteMemberFinder.suite()     );
+    suite.addTest( SuiteMemberships.suite()      );
+    suite.addTest( SuiteMemberOf.suite()         );
+    suite.addTest( SuiteAccessPrivs.suite()      );
+    suite.addTest( SuiteXml.suite()              );
+    suite.addTest( SuiteWheelGroup.suite()       );
+    suite.addTest( SuitePrivCache.suite()        );
     return suite;
   } // static public Test suite()
 

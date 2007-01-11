@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.121 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: Group.java,v 1.122 2007-01-11 14:22:06 blair Exp $
  */
 public class Group extends Owner {
 
@@ -1706,7 +1706,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has READ.
    */
   public boolean hasRead(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.READ);
+    return PrivilegeResolver.internal_hasPriv( this.internal_getSession(), this, subj, AccessPrivilege.READ );
   } // public boolean hasRead(subj)
 
   /**
@@ -2075,43 +2075,38 @@ public class Group extends Owner {
   // PROTECTED CLASS METHODS //
   
   // @since   1.2.0
-  protected static Group internal_create(Stem parent, String extn, String displayExtn)
+  protected static Group internal_create(Stem parent, String extn, String dExtn, String uuid)
     throws SchemaException
   {
     Group g = new Group();
     g.internal_setSession( parent.internal_getSession() );
-    // Set parent
     g.setParent_stem(parent);
     // Attach group type
     Set types = g.getGroup_types();
     types.add( GroupTypeFinder.find("base") );
     g.setGroup_types(types);
-    // Set create information
-    g._setCreated();
-    // Assign UUID
-    g.setUuid( GrouperUuid.internal_getUuid() );
+    g._setCreated(); // Set create information
+    if (uuid == null) {
+      g.setUuid( GrouperUuid.internal_getUuid() );
+    }
+    else {
+      g.setUuid(uuid);
+    }
     // Set naming information
     Set attributes = new LinkedHashSet();
-    attributes.add(
-      new Attribute(g, FieldFinder.find(GrouperConfig.ATTR_DE), displayExtn)
-    );
+    attributes.add( new Attribute(g, FieldFinder.find(GrouperConfig.ATTR_DE), dExtn) );
     attributes.add(
       new Attribute(
-        g, FieldFinder.find(GrouperConfig.ATTR_DN),
-        U.internal_constructName(parent.getDisplayName(), displayExtn)
+        g, FieldFinder.find(GrouperConfig.ATTR_DN), U.internal_constructName(parent.getDisplayName(), dExtn)
       )
     );
+    attributes.add( new Attribute(g, FieldFinder.find(GrouperConfig.ATTR_E), extn) );
     attributes.add(
-      new Attribute(g, FieldFinder.find(GrouperConfig.ATTR_E), extn)
-    );
-    attributes.add(
-      new Attribute(
-        g, FieldFinder.find(GrouperConfig.ATTR_N), U.internal_constructName(parent.getName(), extn)
-      )
+      new Attribute( g, FieldFinder.find(GrouperConfig.ATTR_N), U.internal_constructName(parent.getName(), extn) )
     );
     g.setGroup_attributes(attributes);
     return g;
-  } // protected static Group internal_create(ns, extn, displayExtn)
+  } // protected static Group internal_create(ns, extn, dExtn, uuid)
  
 
   // PROTECTED INSTANCE METHODS //

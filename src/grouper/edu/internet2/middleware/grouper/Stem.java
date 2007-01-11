@@ -29,7 +29,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.96 2007-01-08 18:04:07 blair Exp $
+ * @version $Id: Stem.java,v 1.97 2007-01-11 14:22:06 blair Exp $
  */
 public class Stem extends Owner {
 
@@ -91,28 +91,7 @@ public class Stem extends Owner {
     throws  GroupAddException,
             InsufficientPrivilegeException
   {
-    StopWatch sw = new StopWatch();
-    sw.start();
-    if (!StemValidator.internal_canAddChildGroup(this, extension, displayExtension)) {
-      throw new GroupAddException();
-    }
-    try {
-      Group child = Group.internal_create(this, extension, displayExtension);
-      child = HibernateStemDAO.createChildGroup(this, child, new Member( new GrouperSubject(child) ) );
-      sw.stop();
-      EventLog.info(s, M.GROUP_ADD + U.internal_q(child.getName()), sw);
-      _grantDefaultPrivsUponCreate(child);
-      return child; 
-    }
-    catch (GrouperDAOException eDAO)        {
-      throw new GroupAddException( E.CANNOT_CREATE_GROUP + eDAO.getMessage(), eDAO );
-    }
-    catch (SchemaException eS)              {
-      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eS.getMessage(), eS);
-    }
-    catch (SourceUnavailableException eSU)  {
-      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eSU.getMessage(), eSU);
-    }
+    return internal_addChildGroup(extension, displayExtension, null);
   } // public Group addChildGroup(extension, displayExtension)
 
   /**
@@ -136,23 +115,9 @@ public class Stem extends Owner {
     throws  InsufficientPrivilegeException,
             StemAddException 
   {
-    StopWatch sw = new StopWatch();
-    sw.start();
-    if ( !StemValidator.internal_canAddChildStem(this, extension, displayExtension) ) {
-      throw new StemAddException();
-    }
-    try {
-      Stem child = HibernateStemDAO.createChildStem( this, Stem.internal_create(this, extension, displayExtension) );
-      sw.stop();
-      EventLog.info(s, M.STEM_ADD + U.internal_q(child.getName()), sw);
-      _grantDefaultPrivsUponCreate(child);
-      return child;
-    }
-    catch (GrouperDAOException eDAO) {
-      throw new StemAddException( E.CANNOT_CREATE_STEM + eDAO.getMessage(), eDAO );
-    }
+    return internal_addChildStem(extension, displayExtension, null);
   } // public Stem addChildStem(extension, displayExtension)
-
+  
   /**
    * Delete this stem from the Groups Registry.
    * <pre class="eg">
@@ -765,18 +730,23 @@ public class Stem extends Owner {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static Stem internal_create(Stem parent, String extn, String displayExtn) {
+  protected static Stem internal_create(Stem parent, String extn, String dExtn, String uuid) {
     Stem ns = new Stem();
     ns.internal_setSession( parent.internal_getSession() );
     ns.setParent_stem(parent);            // Set parent
     ns._setCreated();                     // Set creation information
-    ns.setUuid( GrouperUuid.internal_getUuid() );  // Assign UUID
+    if (uuid == null) {
+      ns.setUuid( GrouperUuid.internal_getUuid() );  // Assign UUID
+    }
+    else {
+      ns.setUuid(uuid);
+    }
     ns.setStem_extension(extn);           // Set naming information
-    ns.setDisplay_extension(displayExtn);
+    ns.setDisplay_extension(dExtn);
     ns.setStem_name( U.internal_constructName( parent.getName(), extn ) );
-    ns.setDisplay_name( U.internal_constructName( parent.getDisplayName(), displayExtn ));
+    ns.setDisplay_name( U.internal_constructName( parent.getDisplayName(), dExtn ));
     return ns;
-  } // protected static Stem internal_create(parent, extn, displayExtn)
+  } // protected static Stem internal_create(parent, extn, dExtn, uuid)
 
   // @since   1.2.0
   protected static Stem internal_addRootStem(GrouperSession s) 
@@ -809,6 +779,57 @@ public class Stem extends Owner {
 
 
   // PROTECTED INSTANCE METHODS //
+
+  // @since   1.2.0
+  protected Group internal_addChildGroup(String extn, String dExtn, String uuid) 
+    throws  GroupAddException,
+            InsufficientPrivilegeException
+  {
+    StopWatch sw = new StopWatch();
+    sw.start();
+    if (!StemValidator.internal_canAddChildGroup(this, extn, dExtn)) {
+      throw new GroupAddException();
+    }
+    try {
+      Group child = Group.internal_create(this, extn, dExtn, uuid);
+      child = HibernateStemDAO.createChildGroup(this, child, new Member( new GrouperSubject(child) ) );
+      sw.stop();
+      EventLog.info(s, M.GROUP_ADD + U.internal_q(child.getName()), sw);
+      _grantDefaultPrivsUponCreate(child);
+      return child; 
+    }
+    catch (GrouperDAOException eDAO)        {
+      throw new GroupAddException( E.CANNOT_CREATE_GROUP + eDAO.getMessage(), eDAO );
+    }
+    catch (SchemaException eS)              {
+      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eS.getMessage(), eS);
+    }
+    catch (SourceUnavailableException eSU)  {
+      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eSU.getMessage(), eSU);
+    }
+  } // protected Group internal_addChildGroup(extn, dExtn, uuid)
+
+  // @since   1.2.0
+  protected Stem internal_addChildStem(String extn, String dExtn, String uuid) 
+    throws  StemAddException,
+            InsufficientPrivilegeException
+  {
+    StopWatch sw = new StopWatch();
+    sw.start();
+    if ( !StemValidator.internal_canAddChildStem(this, extn, dExtn) ) {
+      throw new StemAddException();
+    }
+    try {
+      Stem child = HibernateStemDAO.createChildStem( this, Stem.internal_create(this, extn, dExtn, uuid) );
+      sw.stop();
+      EventLog.info(s, M.STEM_ADD + U.internal_q(child.getName()), sw);
+      _grantDefaultPrivsUponCreate(child);
+      return child;
+    }
+    catch (GrouperDAOException eDAO) {
+      throw new StemAddException( E.CANNOT_CREATE_STEM + eDAO.getMessage(), eDAO );
+    }
+  }  // protected Stem internal_addChildStem(extn, dExtn, uuid)
 
   // @since   1.2.0
   protected boolean internal_isRootStem() {

@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.9 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.10 2007-01-11 14:22:06 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -261,7 +261,7 @@ class HibernateStemDAO extends HibernateDAO {
 
   // @since   1.2.0
   protected static Stem findByUuid(String uuid)
-    throws GrouperDAOException,
+    throws  GrouperDAOException,
             StemNotFoundException
   {
     try {

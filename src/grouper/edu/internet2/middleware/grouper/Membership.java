@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.65 2007-01-09 17:30:23 blair Exp $
+ * @version $Id: Membership.java,v 1.66 2007-01-11 14:22:06 blair Exp $
  */
 public class Membership {
 
@@ -48,7 +48,7 @@ public class Membership {
   private Field           field;
   private String          id;
   private Member          member_id;
-  private Owner           owner_id;
+  private String          owner_id;
   private String          parent_membership;  // UUID of parent membership
   private String          type;
   private String          uuid;
@@ -69,7 +69,7 @@ public class Membership {
     throws  ModelException
   {
     GrouperSession s = o.internal_getSession();
-    this.setOwner_id(           o                     );
+    this.setOwner_id(           o.getUuid()           );
     this.setMember_id(          m                     );
     this.setField(              f                     );
     this.setMship_type(         INTERNAL_TYPE_I       );
@@ -103,7 +103,7 @@ public class Membership {
       ms.getDepth() + hasMS.getDepth() + offset
     );
     if (hasMS.getDepth() == 0) {
-      this.setVia_id(           hasMS.getOwner_id().getUuid()   );  // hasMember m was immediate
+      this.setVia_id(           hasMS.getOwner_id()   );  // hasMember m was immediate
       this.setParent_membership( ms.getUuid() );
     }
     else {
@@ -126,7 +126,7 @@ public class Membership {
   protected Membership(Owner o, Member m, Field f, Composite via, GrouperSession orig)
     throws  ModelException
   {
-    this.setOwner_id(           o                             );
+    this.setOwner_id(           o.getUuid()                   );
     this.setMember_id(          m                             );
     this.setField(              f                             );
     this.setMship_type(         INTERNAL_TYPE_C               );
@@ -186,12 +186,13 @@ public class Membership {
   public Group getGroup() 
     throws  GroupNotFoundException
   {
-    if (this.getOwner_id() instanceof Group) {
-      Group g = (Group) this.getOwner_id();
-      g.internal_setSession(this.internal_getSession());
-      return g;
+    String uuid = this.getOwner_id();
+    if (uuid == null) {
+      throw new GroupNotFoundException();
     }
-    throw new GroupNotFoundException();
+    Group g = HibernateGroupDAO.findByUuid(uuid);
+    g.internal_setSession( this.internal_getSession() );
+    return g;
   } // public Group getGroup()
 
   /**
@@ -386,12 +387,17 @@ public class Membership {
         Membership  msG;
         MemberOf    mofG;
         Iterator    iterIs  = ( (Group) o).toMember().getImmediateMemberships(f).iterator();
-        while (iterIs.hasNext()) {
-          msG   = (Membership) iterIs.next();
-          mofG  = Membership.internal_delImmediateMembership(
-            s, msG.getOwner_id(), msG.getMember().getSubject(), msG.getField()
-          );
-          deletes.addAll( mofG.internal_getDeletes() );
+        try { // TODO 20070109 i'm not happy about the try/catch and call to `internal_getOwner()`
+          while (iterIs.hasNext()) {
+            msG   = (Membership) iterIs.next();
+            mofG  = Membership.internal_delImmediateMembership(
+              s, msG.internal_getOwner(), msG.getMember().getSubject(), msG.getField()
+            );
+            deletes.addAll( mofG.internal_getDeletes() );
+          }
+        }
+        catch (OwnerNotFoundException eONF) {
+          throw new MemberDeleteException( eONF.getMessage(), eONF );
         }
       }
 
@@ -452,7 +458,20 @@ public class Membership {
   protected Member getCreator() {
     return this.getCreator_id();
   } // protected Member getCreator()
- 
+
+  // @since   1.2.0
+  protected Owner internal_getOwner() 
+    throws  OwnerNotFoundException
+  { 
+    String uuid = this.getOwner_id();
+    if (uuid == null) {
+      throw new OwnerNotFoundException();
+    }
+    Owner o = HibernateOwnerDAO.findByUuid(uuid);
+    o.internal_setSession( this.internal_getSession() );
+    return o;
+  } // protected Owner internal_getOwner()
+
   // @since   1.2.0 
   protected GrouperSession internal_getSession() {
     GrouperSessionValidator.internal_validate(this.s);
@@ -462,24 +481,20 @@ public class Membership {
   protected Stem getStem() 
     throws StemNotFoundException
   {
-    if (this.getOwner_id() instanceof Stem) {
-      Stem ns = (Stem) this.getOwner_id();
-      ns.internal_setSession(this.internal_getSession());
-      return ns;
+    String uuid = this.getOwner_id();
+    if (uuid == null) {
+      throw new StemNotFoundException();
     }
-    throw new StemNotFoundException();
+    Stem ns = HibernateStemDAO.findByUuid(uuid);
+    ns.internal_setSession( this.internal_getSession() );
+    return ns;
   } // public Stem getStem()
 
   // @since   1.2.0
   protected void internal_setSession(GrouperSession s) {
     GrouperSessionValidator.internal_validate(s);
     this.s = s;
-    Owner   o = this.getOwner_id();
     Member  m = this.getMember_id();
-    if (o != null) {
-      o.internal_setSession(this.s);
-      this.setOwner_id(o);
-    }
     if (m != null) {
       m.internal_setSession(this.s);
       this.setMember_id(m);
@@ -509,7 +524,7 @@ public class Membership {
   protected String getMship_type() {
     return this.type;
   }
-  protected Owner getOwner_id() {
+  protected String getOwner_id() {
     return this.owner_id;
   }
   protected String getParent_membership() {
@@ -539,7 +554,7 @@ public class Membership {
   private void setMship_type(String type) {
     this.type = type;
   }
-  private void setOwner_id(Owner o) {
+  private void setOwner_id(String o) {
     this.owner_id = o;
   }
   private void setParent_membership(String parent) {

@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.77 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: Member.java,v 1.78 2007-01-11 14:22:06 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -1303,11 +1303,13 @@ public class Member implements Serializable {
       rv = true;
     }
     else {
-      mships = MembershipFinder.internal_findAllByOwnerAndMemberAndField(
-        o, MemberFinder.internal_findAllMember(), f
-      );
-      if (mships.size() > 0) {
-        rv = true;
+      if ( !this.equals( MemberFinder.internal_findAllMember() ) ) {
+        mships = MembershipFinder.internal_findAllByOwnerAndMemberAndField(
+          o, MemberFinder.internal_findAllMember(), f
+        );
+        if (mships.size() > 0) {
+          rv = true;
+        }
       }
     }
     return rv;
