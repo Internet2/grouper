@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.7 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.8 2007-01-11 19:49:16 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO {
@@ -88,26 +88,29 @@ class HibernateMemberDAO {
     return m;
   } // protected static Member findBySubject(id, src, type)
 
-  // @return  {@link Member} or <code>null</code>
+  // @return  {@link Member} or throws ex
   // @since   1.2.0
   protected static Member findByUuid(String uuid) 
-    throws  GrouperDAOException
+    throws  GrouperDAOException,
+            MemberNotFoundException
   {
-    Member m = null;
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from Member as m where m.member_id = :uuid");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
-      m = (Member) qry.uniqueResult(); // null if not found
+      Member m = (Member) qry.uniqueResult(); // null if not found
       hs.close();
+      if (m == null) {
+        throw new MemberNotFoundException();
+      }
+      return m;
     }
     catch (HibernateException eH) {
       ErrorLog.fatal( HibernateMemberDAO.class, eH.getMessage() );
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-    return m;
   } // protected static Member findByUuid(uuid)
 
   // @since   1.2.0

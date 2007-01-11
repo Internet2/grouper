@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.19 2007-01-11 18:05:45 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.20 2007-01-11 19:49:16 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
@@ -95,7 +95,7 @@ class MembershipValidator {
   {
     try {
       Group   g = ms.getGroup();
-      Member  m = ms.getMember_id();
+      Member  m = ms.getMember();
       Field   f = ms.getField();
       if ( f.getName().equals(GrouperConfig.LIST) ) {
         try {
@@ -109,7 +109,10 @@ class MembershipValidator {
       }
     }
     catch (GroupNotFoundException eGNF) {
-      // ignore
+      // If the owner is not a group then it can't be circular
+    } 
+    catch (MemberNotFoundException eMNF) {
+      throw new ModelException( eMNF.getMessage(), eMNF );
     } 
   } // private static void _notCircular(ms)
 
@@ -119,10 +122,9 @@ class MembershipValidator {
   {
     GrouperSessionValidator.internal_validate(ms.internal_getSession());
     String  t = ms.getMship_type();
-    Member  m = ms.getMember_id();
     Field   f = ms.getField();
     Validator.internal_notNullPerModel( ms.internal_getCreateTime(), "null creation time" );
-    Validator.internal_notNullPerModel( ms.internal_getCreator()   , "null creator"       );
+    Validator.internal_notNullPerModel( ms.getCreator_id(),          "null creator"       );
     // Verify type
     if (!t.equals(type)) {
       throw new ModelException(E.MSV_TYPE + t);
@@ -138,8 +140,14 @@ class MembershipValidator {
       throw new ModelException( E.ERR_OC + eONF.getMessage(), eONF );
     }
     // Verify Member
-    if (m == null) {
-      throw new ModelException(E.ERR_M);
+    try {
+      HibernateMemberDAO.findByUuid( ms.getMember_id() );
+    }
+    catch (GrouperDAOException eDAO) {
+      throw new ModelException(E.ERR_M + ": " + eDAO.getMessage() );
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new ModelException(E.ERR_M + ": " + eMNF.getMessage() );
     }
     // Verify Field
     if (! 

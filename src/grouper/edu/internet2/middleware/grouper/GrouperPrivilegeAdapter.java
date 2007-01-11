@@ -22,7 +22,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.7 2007-01-11 19:49:16 blair Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -77,7 +77,7 @@ class GrouperPrivilegeAdapter {
         }
         else                        {
           privs.add(
-            new NamingPrivilege(ms.getStem(), subj, owner, p, s.getNamingClass(), revoke)
+            new NamingPrivilege(ms.internal_getStem(), subj, owner, p, s.getNamingClass(), revoke)
           );
         }
       }
@@ -118,7 +118,7 @@ class GrouperPrivilegeAdapter {
     while (it.hasNext()) {
       ms = (Membership) it.next();
       ms.internal_setSession(s);
-      mships.add( ms.getStem() );
+      mships.add( ms.internal_getStem() );
     }
     return mships;
   } // protected static Set internal_getStemsWhereSubjectHasPriv(s, m, f)

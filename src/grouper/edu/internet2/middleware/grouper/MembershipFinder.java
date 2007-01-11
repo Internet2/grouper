@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.70 2007-01-11 14:22:06 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.71 2007-01-11 19:49:16 blair Exp $
  */
 public class MembershipFinder {
   
@@ -57,7 +57,7 @@ public class MembershipFinder {
     try {
       Field       f   = Group.getDefaultList();
       Member      m   = MemberFinder.findBySubject(s, subj);
-      Membership  ms  = internal_findByOwnerAndMemberAndFieldAndType(g, m, f, Membership.INTERNAL_TYPE_C);
+      Membership  ms  = internal_findByOwnerAndMemberAndFieldAndType( g, m.getUuid(), f, Membership.INTERNAL_TYPE_C );
       ms.internal_setSession(s);
       PrivilegeResolver.internal_canPrivDispatch(
         s, ms.getGroup(), s.getSubject(), f.getReadPriv()
@@ -102,7 +102,7 @@ public class MembershipFinder {
     Set mships = new LinkedHashSet();
     try {
       Member      m     = MemberFinder.findBySubject(s, subj);
-      Set         effs  = internal_findAllEffective(g.getUuid(), m, f, via.getUuid(), depth);
+      Set         effs  = internal_findAllEffective( g.getUuid(), m.getUuid(), f, via.getUuid(), depth );
       if (effs.size() > 0) {
         try {
           PrivilegeResolver.internal_canPrivDispatch(
@@ -151,7 +151,7 @@ public class MembershipFinder {
     GrouperSessionValidator.internal_validate(s);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
-      Membership  ms  = internal_findByOwnerAndMemberAndFieldAndType(g, m, f, Membership.INTERNAL_TYPE_I);
+      Membership  ms  = internal_findByOwnerAndMemberAndFieldAndType( g, m.getUuid(), f, Membership.INTERNAL_TYPE_I );
       ms.internal_setSession(s);
       PrivilegeResolver.internal_canPrivDispatch(
         s, ms.getGroup(), s.getSubject(), f.getReadPriv()
@@ -363,7 +363,7 @@ public class MembershipFinder {
      // @filtered  false
      // @session   true
     GrouperSessionValidator.internal_validate(s);
-    return PrivilegeResolver.internal_canViewMemberships( s, HibernateMembershipDAO.findAllByMember(m) );
+    return PrivilegeResolver.internal_canViewMemberships( s, HibernateMembershipDAO.findAllByMember( m.getUuid() ) );
   } // protected static Set internal_findAllByMember(s, m)
 
   // @since   1.2.0
@@ -396,17 +396,17 @@ public class MembershipFinder {
   protected static Set internal_findAllByOwnerAndMemberAndField(Owner o, Member m, Field f) {
     // @filtered  false
     // @session   false
-    return HibernateMembershipDAO.findAllByOwnerAndMemberAndField(o.getUuid(), m, f);
+    return HibernateMembershipDAO.findAllByOwnerAndMemberAndField( o.getUuid(), m.getUuid(), f );
   } // protected static Set internal_findAllByOwnerAndMemberAndField(o, m, f)
 
   // @since   1.2.0
-  protected static Set internal_findAllEffective(String ownerUUID, Member m, Field f, String viaUUID, int depth)
+  protected static Set internal_findAllEffective(String ownerUUID, String mUUID, Field f, String viaUUID, int depth)
     throws MembershipNotFoundException
   {
      // @filtered  false
      // @session   false
-    return HibernateMembershipDAO.findAllEffective(ownerUUID, m, f, viaUUID, depth);
-  } // protected static Set internal_findAllEffective(ownerUUID, m, field, viaUUID, depth)
+    return HibernateMembershipDAO.findAllEffective( ownerUUID, mUUID, f, viaUUID, depth );
+  } // protected static Set internal_findAllEffective(ownerUUID, mUUID, field, viaUUID, depth)
 
   // @since   1.2.0
   protected static Set internal_findAllEffectiveByMemberAndField(
@@ -417,7 +417,7 @@ public class MembershipFinder {
     // @session   true
     GrouperSessionValidator.internal_validate(s);
     return PrivilegeResolver.internal_canViewMemberships( 
-      s, HibernateMembershipDAO.findAllEffectiveByMemberAndField(m, f) 
+      s, HibernateMembershipDAO.findAllEffectiveByMemberAndField( m.getUuid(), f ) 
     );
   } // protected static Set internal_findAllEffectiveByMemberAndField(s, m, f)
 
@@ -428,7 +428,7 @@ public class MembershipFinder {
   {
     // @filtered  false
     // @session   false
-    return HibernateMembershipDAO.findAllEffectiveByOwnerAndMemberAndField(o.getUuid(), m, f);
+    return HibernateMembershipDAO.findAllEffectiveByOwnerAndMemberAndField( o.getUuid(), m.getUuid(), f );
   } // protected static Set internal_findAllEffectiveByOwnerAndMemberAndField(o, m, f)
 
   // @since   1.2.0
@@ -437,17 +437,17 @@ public class MembershipFinder {
     // @session   true
     GrouperSessionValidator.internal_validate(s);
     return PrivilegeResolver.internal_canViewMemberships( 
-      s, HibernateMembershipDAO.findAllImmediateByMemberAndField(m, f) 
+      s, HibernateMembershipDAO.findAllImmediateByMemberAndField( m.getUuid(), f ) 
     );
   } // protected static Set internal_findAllImmediateByMemberAndField(s, m, f)
 
   // @since   1.2.0
-  protected static Membership internal_findByOwnerAndMemberAndFieldAndType(Owner o, Member m, Field f, String type)
+  protected static Membership internal_findByOwnerAndMemberAndFieldAndType(Owner o, String mUUID, Field f, String type)
     throws  MembershipNotFoundException
   {
     // @filtered  false
     // @session   false
-    return HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(o.getUuid(), m, f, type);
+    return HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( o.getUuid(), mUUID, f, type);
   } // protected static Membership internal_findByOwnerAndMemberAndFieldAndType(o, m, f, type)
 
   // @since   1.2.0
@@ -476,9 +476,9 @@ public class MembershipFinder {
      // @session   true
     GrouperSessionValidator.internal_validate(s);
     Set mships = new LinkedHashSet();
-    mships.addAll( HibernateMembershipDAO.findMemberships(m, f) );
+    mships.addAll( HibernateMembershipDAO.findMemberships( m.getUuid(), f ) );
     if ( !m.equals( MemberFinder.internal_findAllMember() ) ) {
-      mships.addAll( HibernateMembershipDAO.findMemberships( MemberFinder.internal_findAllMember(), f ) );
+      mships.addAll( HibernateMembershipDAO.findMemberships( MemberFinder.internal_findAllMember().getUuid(), f ) );
     }
     return PrivilegeResolver.internal_canViewMemberships(s, mships);
   } // protected static Set internal_findMemberships(s, m, f)

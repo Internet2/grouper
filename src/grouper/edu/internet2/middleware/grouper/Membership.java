@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.67 2007-01-11 18:05:45 blair Exp $
+ * @version $Id: Membership.java,v 1.68 2007-01-11 19:49:16 blair Exp $
  */
 public class Membership {
 
@@ -47,7 +47,7 @@ public class Membership {
   private int     depth;
   private Field   field;
   private String  id;
-  private Member  member_id;
+  private String  member_id;
   private String  owner_id;
   private String  parent_membership;  // UUID of parent membership
   private String  type;
@@ -70,7 +70,7 @@ public class Membership {
   {
     GrouperSession s = o.internal_getSession();
     this.setOwner_id( o.getUuid() );
-    this.setMember_id(m);
+    this.setMember_id( m.getUuid() );
     this.setField(f);
     this.setMship_type(INTERNAL_TYPE_I);
     this.setUuid( GrouperUuid.internal_getUuid() );
@@ -91,7 +91,7 @@ public class Membership {
   { 
     this.setOwner_id( ms.getOwner_id() );
     try {
-      this.setMember_id( hasMS.getMember() );  // hasMember m
+      this.setMember_id( hasMS.getMember().getUuid() );  // hasMember m
     }
     catch (MemberNotFoundException eMNF) {
       throw new ModelException(eMNF);
@@ -125,7 +125,7 @@ public class Membership {
     throws  ModelException
   {
     this.setOwner_id( o.getUuid() );
-    this.setMember_id(m);
+    this.setMember_id( m.getUuid() );
     this.setField(f);
     this.setMship_type(INTERNAL_TYPE_C);
     this.setUuid( GrouperUuid.internal_getUuid() );
@@ -215,13 +215,12 @@ public class Membership {
   public Member getMember() 
     throws MemberNotFoundException
   {
-    GrouperSessionValidator.internal_validate(this.internal_getSession());
-    Member m = this.getMember_id();
-    if (m == null) {
-      String msg = "unable to get member";
-      throw new MemberNotFoundException(msg);
+    String uuid = this.getMember_id();
+    if (uuid == null) {
+      throw new MemberNotFoundException("membership does not have a member!");
     }
-    m.internal_setSession(this.internal_getSession());
+    Member m = HibernateMemberDAO.findByUuid(uuid);
+    m.internal_setSession( this.internal_getSession() );
     return m;
   } // public Member getMember()
 
@@ -351,9 +350,7 @@ public class Membership {
       GrouperSessionValidator.internal_validate(s); 
       // Who we're deleting
       Member      m   = PrivilegeResolver.internal_canViewSubject(s, subj);
-      Membership  imm = MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
-        o, m, f, INTERNAL_TYPE_I
-      );
+      Membership  imm = MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType( o, m.getUuid(), f, INTERNAL_TYPE_I );
       imm.internal_setSession(s);
       return MemberOf.internal_delImmediate(s, o, imm, m);
     }
@@ -453,7 +450,9 @@ public class Membership {
   } // protected Date internal_getCreateTime()
 
   // @since   1.2.0
-  protected Member internal_getCreator() {
+  protected Member internal_getCreator() 
+    throws  MemberNotFoundException
+  {
     try {
       return HibernateMemberDAO.findByUuid( this.getCreator_id() );
     }
@@ -481,7 +480,14 @@ public class Membership {
     return this.s;
   } // protected GrouperSession internal_getSession()
 
-  protected Stem getStem() 
+  // @since   1.2.0
+  protected void internal_setSession(GrouperSession s) {
+    GrouperSessionValidator.internal_validate(s);
+    this.s = s;
+  } // protected void internal_setSession(s)
+
+  // @since   1.2.0
+  protected Stem internal_getStem() 
     throws StemNotFoundException
   {
     String uuid = this.getOwner_id();
@@ -491,25 +497,14 @@ public class Membership {
     Stem ns = HibernateStemDAO.findByUuid(uuid);
     ns.internal_setSession( this.internal_getSession() );
     return ns;
-  } // public Stem getStem()
-
-  // @since   1.2.0
-  protected void internal_setSession(GrouperSession s) {
-    GrouperSessionValidator.internal_validate(s);
-    this.s = s;
-    Member  m = this.getMember_id();
-    if (m != null) {
-      m.internal_setSession(this.s);
-      this.setMember_id(m);
-    }
-  } // protected void internal_setSession(s)
+  } // public Stem internal_getStem()
 
 
   // GETTERS // 
   private long getCreate_time() {
     return this.create_time;
   }
-  private String getCreator_id() {
+  protected String getCreator_id() {
     return this.creator_id;
   }
   public int getDepth() {
@@ -521,7 +516,7 @@ public class Membership {
   private String getId() {
     return this.id;
   }
-  protected Member getMember_id() {
+  protected String getMember_id() {
     return this.member_id;
   }
   protected String getMship_type() {
@@ -551,7 +546,7 @@ public class Membership {
   private void setId(String id) {
     this.id = id;
   }
-  private void setMember_id(Member member_id) {
+  private void setMember_id(String member_id) {
     this.member_id = member_id;
   }
   private void setMship_type(String type) {
