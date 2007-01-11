@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.18 2007-01-11 14:22:06 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.19 2007-01-11 18:05:45 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
@@ -121,8 +121,8 @@ class MembershipValidator {
     String  t = ms.getMship_type();
     Member  m = ms.getMember_id();
     Field   f = ms.getField();
-    Validator.internal_notNullPerModel(ms.getCreateTime(), "null creation time");
-    Validator.internal_notNullPerModel(ms.getCreator()   , "null creator"      );
+    Validator.internal_notNullPerModel( ms.internal_getCreateTime(), "null creation time" );
+    Validator.internal_notNullPerModel( ms.internal_getCreator()   , "null creator"       );
     // Verify type
     if (!t.equals(type)) {
       throw new ModelException(E.MSV_TYPE + t);

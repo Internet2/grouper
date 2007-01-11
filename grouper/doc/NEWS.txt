@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.45 2007-01-11 14:22:05 blair Exp $
+$Id: NEWS.txt,v 1.46 2007-01-11 18:05:44 blair Exp $
 
 ---
 
@@ -12,6 +12,7 @@ Estimated Release: 200703
 * UPDATE: !!!
           `grouper_memberships` table altered.  While there are no schema
           changes any existing data will now be inaccurate.
+          * `creator_id` now stores the UUID of the creating member.
           * `parent_membership` now stores the UUID of the parent membership 
           * `owner_id` now stores the UUID of the owner object.
           * `via_id` now stores the UUID of the via object.

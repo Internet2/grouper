@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership2.java,v 1.3 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestMembership2.java,v 1.4 2007-01-11 18:05:45 blair Exp $
  */
 public class TestMembership2 extends TestCase {
 
@@ -62,23 +62,23 @@ public class TestMembership2 extends TestCase {
       List imms   = new ArrayList( gA.getImmediateMemberships() );
       T.amount("immediate mships", 1, imms.size());
       Membership i = (Membership) imms.get(0); 
-      Assert.assertTrue("i ctime after $BEFORE"   , i.getCreateTime().getTime() > before.getTime());
-      Assert.assertTrue("i ctime before $FUTURE"  , i.getCreateTime().getTime() < future.getTime());
-      Assert.assertTrue("i creator" , i.getCreator().equals(r.rs.getMember()));
+      Assert.assertTrue("i ctime after $BEFORE"   , i.internal_getCreateTime().getTime() > before.getTime());
+      Assert.assertTrue("i ctime before $FUTURE"  , i.internal_getCreateTime().getTime() < future.getTime());
+      Assert.assertTrue("i creator" , i.internal_getCreator().equals(r.rs.getMember()));
 
       List effs   = new ArrayList( gB.getEffectiveMemberships() );
       T.amount("effective mships", 1, effs.size());
       Membership e = (Membership) effs.get(0); 
-      Assert.assertTrue("e ctime after $BEFORE"   , e.getCreateTime().getTime() > before.getTime());
-      Assert.assertTrue("e ctime before $FUTURE"  , e.getCreateTime().getTime() < future.getTime());
-      Assert.assertTrue("e creator" , e.getCreator().equals(r.rs.getMember()));
+      Assert.assertTrue("e ctime after $BEFORE"   , e.internal_getCreateTime().getTime() > before.getTime());
+      Assert.assertTrue("e ctime before $FUTURE"  , e.internal_getCreateTime().getTime() < future.getTime());
+      Assert.assertTrue("e creator" , e.internal_getCreator().equals(r.rs.getMember()));
 
       List comps  = new ArrayList( gC.getCompositeMemberships() );
       T.amount("composite mships", 1, comps.size());
       Membership c = (Membership) comps.get(0); 
-      Assert.assertTrue("c ctime after $BEFORE"   , c.getCreateTime().getTime() > before.getTime());
-      Assert.assertTrue("c ctime before $FUTURE"  , c.getCreateTime().getTime() < future.getTime());
-      Assert.assertTrue("c creator" , c.getCreator().equals(gC.internal_getSession().getMember()));
+      Assert.assertTrue("c ctime after $BEFORE"   , c.internal_getCreateTime().getTime() > before.getTime());
+      Assert.assertTrue("c ctime before $FUTURE"  , c.internal_getCreateTime().getTime() < future.getTime());
+      Assert.assertTrue("c creator" , c.internal_getCreator().equals(gC.internal_getSession().getMember()));
 
       r.rs.stop();
     }
