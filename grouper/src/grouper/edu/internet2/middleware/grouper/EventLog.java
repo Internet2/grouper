@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.29 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: EventLog.java,v 1.30 2007-01-11 19:49:16 blair Exp $
  */
 class EventLog {
 
@@ -357,7 +357,7 @@ class EventLog {
     }
     catch (GroupNotFoundException eGNF) {
       try {
-        Stem ns = eff.getStem();
+        Stem ns = eff.internal_getStem();
         msg += "stem=" + U.internal_q(ns.getName());
       }
       catch (StemNotFoundException eSNF) {
