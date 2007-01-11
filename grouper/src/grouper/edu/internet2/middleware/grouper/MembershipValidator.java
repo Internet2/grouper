@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.17 2007-01-09 17:30:23 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.18 2007-01-11 14:22:06 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
@@ -93,21 +93,24 @@ class MembershipValidator {
   private static void _notCircular(Membership ms) 
     throws  ModelException
   {
-    Owner           o = ms.getOwner_id();
-    Member          m = ms.getMember_id();
-    Field           f = ms.getField();
-
-    if ( (o instanceof Group) && (f.getName().equals(GrouperConfig.LIST)) ) {
-      Group g = (Group) o;
-      try {
-        if (SubjectHelper.internal_eq(g.toSubject(), m.getSubject())) {
-          throw new ModelException(E.MSV_CIRCULAR);
+    try {
+      Group   g = ms.getGroup();
+      Member  m = ms.getMember_id();
+      Field   f = ms.getField();
+      if ( f.getName().equals(GrouperConfig.LIST) ) {
+        try {
+          if (SubjectHelper.internal_eq(g.toSubject(), m.getSubject())) {
+            throw new ModelException(E.MSV_CIRCULAR);
+          }
+        }
+        catch (SubjectNotFoundException eSNF) {
+          throw new ModelException(eSNF);
         }
       }
-      catch (SubjectNotFoundException eSNF) {
-        throw new ModelException(eSNF);
-      }
     }
+    catch (GroupNotFoundException eGNF) {
+      // ignore
+    } 
   } // private static void _notCircular(ms)
 
   // @since 1.0
@@ -115,10 +118,9 @@ class MembershipValidator {
     throws  ModelException
   {
     GrouperSessionValidator.internal_validate(ms.internal_getSession());
-    String t = ms.getMship_type();
-    Owner           o = ms.getOwner_id();
-    Member          m = ms.getMember_id();
-    Field           f = ms.getField();
+    String  t = ms.getMship_type();
+    Member  m = ms.getMember_id();
+    Field   f = ms.getField();
     Validator.internal_notNullPerModel(ms.getCreateTime(), "null creation time");
     Validator.internal_notNullPerModel(ms.getCreator()   , "null creator"      );
     // Verify type
@@ -126,11 +128,14 @@ class MembershipValidator {
       throw new ModelException(E.MSV_TYPE + t);
     }
     // Verify Owner
-    if (o == null) {
-      throw new ModelException(E.ERR_O);
+    try {
+      Owner o = ms.internal_getOwner();
+      if (! ( (o instanceof Group) || (o instanceof Stem) ) ) {
+        throw new ModelException(E.ERR_OC + o.getClass().getName());
+      }
     }
-    if (! ( (o instanceof Group) || (o instanceof Stem) ) ) {
-      throw new ModelException(E.ERR_OC + o.getClass().getName());
+    catch (OwnerNotFoundException eONF) {
+      throw new ModelException( E.ERR_OC + eONF.getMessage(), eONF );
     }
     // Verify Member
     if (m == null) {
@@ -156,12 +161,15 @@ class MembershipValidator {
   {
     try {
       MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
-        ms.getOwner_id(), ms.getMember_id(), ms.getField(), Membership.INTERNAL_TYPE_I
+        ms.internal_getOwner(), ms.getMember_id(), ms.getField(), Membership.INTERNAL_TYPE_I
       );
       throw new ModelException(E.ERR_MAE);
     }
     catch (MembershipNotFoundException eMNF) {
       // Ignore - this is what we want. 
+    }
+    catch (OwnerNotFoundException eONF) {
+      throw new ModelException( "ms owner mysteriously does not exist: " + eONF.getMessage(), eONF );
     }
   } // private static void _validateDoesNotExist(ms)
 

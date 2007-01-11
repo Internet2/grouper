@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.30 2007-01-09 17:32:26 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.31 2007-01-11 14:22:06 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships" batch-size="5">
@@ -41,16 +41,20 @@
     <!-- id -->
 
     <!-- owner_id -->
-    <many-to-one  name="owner_id"
-                  class="edu.internet2.middleware.grouper.Owner" 
-                  cascade="none"
+    <!-- [@since 1.2.0] Refers to owner's UUID, not ID -->
+    <property name="owner_id"
+              type="string"
+              not-null="true"
+              unique="false"
+              update="false"
     >
       <column name="owner_id"
-              unique-key="members_idx"
               not-null="true"
+              length="128"
+              unique-key="members_idx"
               index="membership_owner_idx"
       />
-    </many-to-one>
+    </property>
     <!-- owner_id -->
 
     <!-- member_id -->
@@ -151,6 +155,7 @@
       type="string"
       not-null="true"
       unique="true"
+      update="true"
     >
       <column name="membership_uuid"
               unique-key="members_idx"

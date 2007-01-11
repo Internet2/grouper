@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.28 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: Composite.java,v 1.29 2007-01-11 14:22:06 blair Exp $
  * @since   1.0
  */
 public class Composite extends Owner {
@@ -259,26 +259,31 @@ public class Composite extends Owner {
 
   // PRIVATE CLASS METHODS //
 
-  // @since 1.0
+  // @since   1.0
   private static void _update(Set mships) {
-    Set         updates = new LinkedHashSet();
-    Membership  ms;
-    Iterator    iterMS  = mships.iterator();
-    while (iterMS.hasNext()) {
-      ms = (Membership) iterMS.next();
-      updates.add( ms.getOwner_id() ); 
-    }
-    Owner     o;
-    Iterator  iter;
-    Composite c;
-    Iterator  iterU = updates.iterator();
-    while (iterU.hasNext()) {
-      o     = (Owner) iterU.next();
-      iter  = CompositeFinder.internal_findAsFactor(o).iterator();
-      while (iter.hasNext()) {
-        c = (Composite) iter.next();
-        c._update();
+    try {
+      Set         updates = new LinkedHashSet();
+      Membership  ms;
+      Iterator    iterMS  = mships.iterator();
+      while (iterMS.hasNext()) {
+        ms = (Membership) iterMS.next();
+        updates.add( ms.internal_getOwner() ); // may throw eONF
       }
+      Owner     o;
+      Iterator  iter;
+      Composite c;
+      Iterator  iterU = updates.iterator();
+      while (iterU.hasNext()) {
+        o     = (Owner) iterU.next();
+        iter  = CompositeFinder.internal_findAsFactor(o).iterator();
+        while (iter.hasNext()) {
+          c = (Composite) iter.next();
+          c._update();
+        }
+      }
+    }
+    catch (OwnerNotFoundException eONF) {
+      throw new GrouperRuntimeException( "error updating composites: " + eONF.getMessage(), eONF );
     }
   } // private static void _update(mships)
 

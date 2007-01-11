@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.14 2007-01-09 19:33:57 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.15 2007-01-11 14:22:06 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -112,7 +112,7 @@ class HibernateMembershipDAO {
   } // protected static Set findAllByMember(m)
 
   // @since   1.2.0
-  protected static Set findAllByMemberAndVia(Member m, Owner via) 
+  protected static Set findAllByMemberAndVia(Member m, String viaUUID) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -124,8 +124,8 @@ class HibernateMembershipDAO {
         + "and  ms.via_id     = :via    "
       );
       qry.setCacheable(false);  // TODO 20061219 Comment was "Don't cache".  Why not?
-      qry.setParameter( "member", m             );
-      qry.setParameter( "via",    via.getUuid() );
+      qry.setParameter( "member", m       );
+      qry.setString(    "via",    viaUUID );
       mships.addAll( qry.list() );
       hs.close();
     }
@@ -133,10 +133,10 @@ class HibernateMembershipDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByMemberAndVia(m, via)
+  } // protected static Set findAllByMemberAndVia(m, viaUUID)
 
   // @since   1.2.0
-  protected static Set findAllByOwnerAndField(String ownerID, Field f) 
+  protected static Set findAllByOwnerAndField(String ownerUUID, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -150,7 +150,7 @@ class HibernateMembershipDAO {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByOwnerAndField");
-      qry.setString( "owner", ownerID                ); 
+      qry.setString( "owner", ownerUUID                ); 
       qry.setString( "fname", f.getName()            );
       qry.setString( "ftype", f.getType().toString() ); 
       mships.addAll( qry.list() );
@@ -160,10 +160,10 @@ class HibernateMembershipDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByOwnerAndField(ownerID, f)
+  } // protected static Set findAllByOwnerAndField(ownerUUID, f)
 
   // @since   1.2.0
-  protected static Set findAllByOwnerAndFieldAndType(String ownerID, Field f, String type) 
+  protected static Set findAllByOwnerAndFieldAndType(String ownerUUID, Field f, String type) 
     throws  GrouperDAOException
   {
     Set mships  = new LinkedHashSet();
@@ -178,7 +178,7 @@ class HibernateMembershipDAO {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindMembershipsByType");
-      qry.setString( "owner" , ownerID                 );
+      qry.setString( "owner" , ownerUUID                 );
       qry.setString( "fname" , f.getName()             );
       qry.setString( "ftype" , f.getType().toString()  );
       qry.setString( "type"  , type                    );
@@ -189,10 +189,10 @@ class HibernateMembershipDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByOwnerAndFieldAndType(ownerID, f, type)
+  } // protected static Set findAllByOwnerAndFieldAndType(ownerUUID, f, type)
 
   // @since   1.2.0
-  protected static Set findAllByOwnerAndMemberAndField(String ownerID, Member m, Field f) 
+  protected static Set findAllByOwnerAndMemberAndField(String ownerUUID, Member m, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -207,7 +207,7 @@ class HibernateMembershipDAO {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField");
-      qry.setString(    "owner",  ownerID                );
+      qry.setString(    "owner",  ownerUUID                );
       qry.setParameter( "member", m                      );
       qry.setString(    "fname",  f.getName()            );
       qry.setString(    "ftype",  f.getType().toString() );
@@ -218,10 +218,10 @@ class HibernateMembershipDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByOwnerAndMemberAndField(ownerID, m, f)
+  } // protected static Set findAllByOwnerAndMemberAndField(ownerUUID, m, f)
 
   // @since   1.2.0
-  protected static Set findAllEffective(String ownerID, Member m, Field f, String viaUUID, int depth) 
+  protected static Set findAllEffective(String ownerUUID, Member m, Field f, String viaUUID, int depth) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -239,7 +239,7 @@ class HibernateMembershipDAO {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllEffective");
-      qry.setString(    "owner",  ownerID                     );
+      qry.setString(    "owner",  ownerUUID                     );
       qry.setParameter( "member", m                           );
       qry.setString(    "fname",  f.getName()                 );
       qry.setString(    "ftype",  f.getType().toString()      );
@@ -253,7 +253,7 @@ class HibernateMembershipDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllEffective(ownerID, m, f, via, depth)
+  } // protected static Set findAllEffective(ownerUUID, m, f, via, depth)
 
   // @since   1.2.0
   protected static Set findAllEffectiveByMemberAndField(Member m, Field f) 
@@ -285,7 +285,7 @@ class HibernateMembershipDAO {
   } // protected static Set findEffectiveByMemberAndField(m, f)
 
   // @since   1.2.0 
-  protected static Set findAllEffectiveByOwnerAndMemberAndField(String ownerID, Member m, Field f)
+  protected static Set findAllEffectiveByOwnerAndMemberAndField(String ownerUUID, Member m, Field f)
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -301,7 +301,7 @@ class HibernateMembershipDAO {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllEffectiveByOwnerAndMemberAndField");
-      qry.setString(    "owner",  ownerID                     );
+      qry.setString(    "owner",  ownerUUID                     );
       qry.setParameter( "member", m                           );
       qry.setString(    "fname",  f.getName()                 );
       qry.setString(    "ftype",  f.getType().toString()      );
@@ -313,7 +313,7 @@ class HibernateMembershipDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllEffectiveByOwnerAndMemberAndField(ownerID, m, f)
+  } // protected static Set findAllEffectiveByOwnerAndMemberAndField(ownerUUID, m, f)
 
   // @since   1.2.0
   protected static Set findAllImmediateByMemberAndField(Member m, Field f) 
@@ -345,7 +345,7 @@ class HibernateMembershipDAO {
   } // protected static Set findAllImmediateByMemberAndField(m, f)
 
   // @since   1.2.0
-  protected static Membership findByOwnerAndMemberAndFieldAndType(String ownerID, Member m, Field f, String type)
+  protected static Membership findByOwnerAndMemberAndFieldAndType(String ownerUUID, Member m, Field f, String type)
     throws  GrouperDAOException,
             MembershipNotFoundException // TODO 20061219 should throw/return something else.  null?
   {
@@ -361,7 +361,7 @@ class HibernateMembershipDAO {
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByOwnerAndMemberAndFieldAndType");
-      qry.setString(    "owner",  ownerID                );
+      qry.setString(    "owner",  ownerUUID                );
       qry.setParameter( "member", m                      );
       qry.setString(    "fname",  f.getName()            );
       qry.setString(    "ftype",  f.getType().toString() ); 
@@ -376,7 +376,7 @@ class HibernateMembershipDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static Membership findByOwnerAndMemberAndFieldAndType(ownerID, m, f, type)
+  } // protected static Membership findByOwnerAndMemberAndFieldAndType(ownerUUID, m, f, type)
 
   // @since   1.2.0
   protected static Membership findByUuid(String uuid) 
