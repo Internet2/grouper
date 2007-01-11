@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.66 2007-01-11 14:22:06 blair Exp $
+ * @version $Id: Membership.java,v 1.67 2007-01-11 18:05:45 blair Exp $
  */
 public class Membership {
 
@@ -42,17 +42,17 @@ public class Membership {
 
 
   // HIBERNATE PROPERTIES //
-  private Member          creator_id;
-  private long            create_time;
-  private int             depth;
-  private Field           field;
-  private String          id;
-  private Member          member_id;
-  private String          owner_id;
-  private String          parent_membership;  // UUID of parent membership
-  private String          type;
-  private String          uuid;
-  private String          via_id;
+  private String  creator_id;
+  private long    create_time;
+  private int     depth;
+  private Field   field;
+  private String  id;
+  private Member  member_id;
+  private String  owner_id;
+  private String  parent_membership;  // UUID of parent membership
+  private String  type;
+  private String  uuid;
+  private String  via_id;
 
   
   // PRIVATE INSTANCE VARIABLES //
@@ -69,17 +69,17 @@ public class Membership {
     throws  ModelException
   {
     GrouperSession s = o.internal_getSession();
-    this.setOwner_id(           o.getUuid()           );
-    this.setMember_id(          m                     );
-    this.setField(              f                     );
-    this.setMship_type(         INTERNAL_TYPE_I       );
-    this.setUuid(               GrouperUuid.internal_getUuid() );
-    this.setDepth(              0                     );
-    this.setVia_id(             null                  );
-    this.setParent_membership(  null                  );
-    this.internal_setSession(            s                     );
-    this.setCreator_id(         orig.getMember()      );
-    this.setCreate_time(        new Date().getTime()  );
+    this.setOwner_id( o.getUuid() );
+    this.setMember_id(m);
+    this.setField(f);
+    this.setMship_type(INTERNAL_TYPE_I);
+    this.setUuid( GrouperUuid.internal_getUuid() );
+    this.setDepth(0);
+    this.setVia_id(null);
+    this.setParent_membership(null);
+    this.internal_setSession(s);
+    this.setCreator_id( orig.getMember().getUuid() );
+    this.setCreate_time( new Date().getTime() );
     MembershipValidator.internal_validateImmediate(this);
   } // protected Membership(o, m, f)
 
@@ -89,25 +89,23 @@ public class Membership {
   )
     throws  ModelException
   { 
-    this.setOwner_id(           ms.getOwner_id()      );
+    this.setOwner_id( ms.getOwner_id() );
     try {
-      this.setMember_id(          hasMS.getMember()   );  // hasMember m
+      this.setMember_id( hasMS.getMember() );  // hasMember m
     }
     catch (MemberNotFoundException eMNF) {
       throw new ModelException(eMNF);
     }
-    this.setField(              ms.getList()          );  // original f
-    this.setMship_type(         INTERNAL_TYPE_E       );
-    this.setUuid(               GrouperUuid.internal_getUuid() );
-    this.setDepth(                                        // increment depth with proper offset
-      ms.getDepth() + hasMS.getDepth() + offset
-    );
+    this.setField( ms.getList() );  // original f
+    this.setMship_type(INTERNAL_TYPE_E);
+    this.setUuid( GrouperUuid.internal_getUuid() );
+    this.setDepth( ms.getDepth() + hasMS.getDepth() + offset ); // increment depth with proper offset
     if (hasMS.getDepth() == 0) {
-      this.setVia_id(           hasMS.getOwner_id()   );  // hasMember m was immediate
+      this.setVia_id( hasMS.getOwner_id() );  // hasMember m was immediate
       this.setParent_membership( ms.getUuid() );
     }
     else {
-      this.setVia_id(           hasMS.getVia_id()     );  // hasMember m was effective
+      this.setVia_id( hasMS.getVia_id() );  // hasMember m was effective
       // TODO 20061011 I have no idea what is going on here
       if ( hasMS.getParent_membership() != null ) {
         this.setParent_membership( hasMS.getParent_membership() );
@@ -116,9 +114,9 @@ public class Membership {
         this.setParent_membership( hasMS.getUuid() );
       }
     } 
-    this.internal_setSession(            s                     );
-    this.setCreator_id(         s.getMember()         );
-    this.setCreate_time(        new Date().getTime()  );
+    this.internal_setSession(s);
+    this.setCreator_id( s.getMember().getUuid() );
+    this.setCreate_time( new Date().getTime() );
     MembershipValidator.internal_validateEffective(this);
   } // protected static Membership newEffectiveMembership(s, ms, hasMS)
 
@@ -126,17 +124,17 @@ public class Membership {
   protected Membership(Owner o, Member m, Field f, Composite via, GrouperSession orig)
     throws  ModelException
   {
-    this.setOwner_id(           o.getUuid()                   );
-    this.setMember_id(          m                             );
-    this.setField(              f                             );
-    this.setMship_type(         INTERNAL_TYPE_C               );
-    this.setUuid(               GrouperUuid.internal_getUuid()         );
-    this.setDepth(              0                             );
-    this.setVia_id(             via.getUuid()                 );
-    this.setParent_membership(  null                          );
-    this.internal_setSession(   o.internal_getSession()       );
-    this.setCreator_id(         orig.getMember()              );
-    this.setCreate_time(        new Date().getTime()          );
+    this.setOwner_id( o.getUuid() );
+    this.setMember_id(m);
+    this.setField(f);
+    this.setMship_type(INTERNAL_TYPE_C);
+    this.setUuid( GrouperUuid.internal_getUuid() );
+    this.setDepth(0);
+    this.setVia_id( via.getUuid() );
+    this.setParent_membership(null);
+    this.internal_setSession(  o.internal_getSession() );
+    this.setCreator_id( orig.getMember().getUuid() );
+    this.setCreate_time( new Date().getTime() );
     MembershipValidator.internal_validateComposite(this);
   } // protected Membership(o, m, f, via, orig)
 
@@ -449,15 +447,20 @@ public class Membership {
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since   1.1.0
-  protected Date getCreateTime() {
-    return new Date(this.getCreate_time());
-  } // protected Date getCreateTime()
+  // @since   1.2.0
+  protected Date internal_getCreateTime() {
+    return new Date( this.getCreate_time() );
+  } // protected Date internal_getCreateTime()
 
-  // @since   1.1.0
-  protected Member getCreator() {
-    return this.getCreator_id();
-  } // protected Member getCreator()
+  // @since   1.2.0
+  protected Member internal_getCreator() {
+    try {
+      return HibernateMemberDAO.findByUuid( this.getCreator_id() );
+    }
+    catch (GrouperDAOException eDAO) {
+      throw new GrouperRuntimeException( eDAO.getMessage(), eDAO );
+    }
+  } // protected Member internal_getCreator()
 
   // @since   1.2.0
   protected Owner internal_getOwner() 
@@ -506,7 +509,7 @@ public class Membership {
   private long getCreate_time() {
     return this.create_time;
   }
-  private Member getCreator_id() {
+  private String getCreator_id() {
     return this.creator_id;
   }
   public int getDepth() {
@@ -563,7 +566,7 @@ public class Membership {
   private void setCreate_time(long time) {
     this.create_time = time;
   }
-  private void setCreator_id(Member m) {
+  private void setCreator_id(String m) {
     this.creator_id = m;
   }
   private void setVia_id(String via) {
