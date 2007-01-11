@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.16 2007-01-11 19:49:16 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.17 2007-01-11 20:28:05 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO {
@@ -47,8 +47,8 @@ class HibernateMembershipDAO {
       Query   qry = hs.createQuery(
         "from Membership as ms where      "
         + "     ms.create_time  > :time   "
-        + "and  ms.field.name   = :fname  "
-        + "and  ms.field.type   = :ftype  "
+        + "and  ms.list_name    = :fname  "
+        + "and  ms.list_type    = :ftype  "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
@@ -74,8 +74,8 @@ class HibernateMembershipDAO {
       Query   qry = hs.createQuery(
         "from Membership as ms where      "
         + "     ms.create_time  < :time   "
-        + "and  ms.field.name   = :fname  "
-        + "and  ms.field.type   = :ftype  "
+        + "and  ms.list_name    = :fname  "
+        + "and  ms.list_type    = :ftype  "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
@@ -145,8 +145,8 @@ class HibernateMembershipDAO {
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
+        + "and  ms.list_name  = :fname  "
+        + "and  ms.list_type  = :ftype  "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByOwnerAndField");
@@ -172,8 +172,8 @@ class HibernateMembershipDAO {
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
+        + "and  ms.list_name  = :fname  "
+        + "and  ms.list_type  = :ftype  "
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
@@ -202,8 +202,8 @@ class HibernateMembershipDAO {
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  " 
         + "and  ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype"
+        + "and  ms.list_name  = :fname  "
+        + "and  ms.list_type  = :ftype"
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField");
@@ -231,8 +231,8 @@ class HibernateMembershipDAO {
         "from Membership as ms where      "
         + "     ms.owner_id     = :owner  "
         + "and  ms.member_id    = :member "
-        + "and  ms.field.name   = :fname  "
-        + "and  ms.field.type   = :ftype  "
+        + "and  ms.list_name    = :fname  "
+        + "and  ms.list_type    = :ftype  "
         + "and  ms.mship_type   = :type   "
         + "and  ms.via_id       = :via    "
         + "and  ms.depth        = :depth"
@@ -265,8 +265,8 @@ class HibernateMembershipDAO {
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
+        + "and  ms.list_name  = :fname  "
+        + "and  ms.list_type  = :ftype  "
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
@@ -295,8 +295,8 @@ class HibernateMembershipDAO {
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
         + "and  ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
+        + "and  ms.list_name  = :fname  "
+        + "and  ms.list_type  = :ftype  "
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
@@ -325,8 +325,8 @@ class HibernateMembershipDAO {
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
+        + "and  ms.list_name  = :fname  "
+        + "and  ms.list_type  = :ftype  "
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
@@ -355,8 +355,8 @@ class HibernateMembershipDAO {
         "from Membership as ms where    "
         + "     ms.owner_id   = :owner  "
         + "and  ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype  "
+        + "and  ms.list_name  = :fname  "
+        + "and  ms.list_type  = :ftype  "
         + "and  ms.mship_type = :type   "
       );
       qry.setCacheable(true);
@@ -433,8 +433,8 @@ class HibernateMembershipDAO {
       Query   qry = hs.createQuery(
         "from Membership as ms where    "
         + "     ms.member_id  = :member "
-        + "and  ms.field.name = :fname  "
-        + "and  ms.field.type = :ftype"
+        + "and  ms.list_name  = :fname  "
+        + "and  ms.list_type  = :ftype"
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindMemberships");

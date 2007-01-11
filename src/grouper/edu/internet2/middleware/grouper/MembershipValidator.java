@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.20 2007-01-11 19:49:16 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.21 2007-01-11 20:28:05 blair Exp $
  * @since   1.0
  */
 class MembershipValidator {
@@ -96,7 +96,7 @@ class MembershipValidator {
     try {
       Group   g = ms.getGroup();
       Member  m = ms.getMember();
-      Field   f = ms.getField();
+      Field   f = ms.getList();
       if ( f.getName().equals(GrouperConfig.LIST) ) {
         try {
           if (SubjectHelper.internal_eq(g.toSubject(), m.getSubject())) {
@@ -122,7 +122,7 @@ class MembershipValidator {
   {
     GrouperSessionValidator.internal_validate(ms.internal_getSession());
     String  t = ms.getMship_type();
-    Field   f = ms.getField();
+    Field   f = ms.getList();
     Validator.internal_notNullPerModel( ms.internal_getCreateTime(), "null creation time" );
     Validator.internal_notNullPerModel( ms.getCreator_id(),          "null creator"       );
     // Verify type
@@ -169,7 +169,7 @@ class MembershipValidator {
   {
     try {
       MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
-        ms.internal_getOwner(), ms.getMember_id(), ms.getField(), Membership.INTERNAL_TYPE_I
+        ms.internal_getOwner(), ms.getMember_id(), ms.getList(), Membership.INTERNAL_TYPE_I
       );
       throw new ModelException(E.ERR_MAE);
     }

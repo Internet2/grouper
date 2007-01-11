@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.12 2007-01-11 14:22:06 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.13 2007-01-11 20:28:05 blair Exp $
  */
 class MembershipHelper {
 
@@ -43,21 +43,21 @@ class MembershipHelper {
       else if (o instanceof Group) {
         Group   g   = (Group) o;
         return new ToStringBuilder(ms)
-          .append(  "group"   , g.getName()             )
-          .append(  "subject" , ms.getMember_id()       )
-          .append(  "field"   , ms.getField().getName() )
-          .append(  "depth"   , ms.getDepth()           )
-          .append(  "via"     , via                     )
+          .append( "group",   g.getName()            )
+          .append( "subject", ms.getMember_id()      )
+          .append( "field",   ms.getList().getName() )
+          .append( "depth",   ms.getDepth()          )
+          .append( "via",     via                    )
           .toString();
       }
       else if (o instanceof Stem) {
         Stem ns = (Stem) o;
         return new ToStringBuilder(ms)
-          .append(  "stem"    , ns.getName()            )
-          .append(  "subject" , ms.getMember_id()       )
-          .append(  "field"   , ms.getField().getName() ) 
-          .append(  "depth"   , ms.getDepth()           )
-          .append(  "via"     , via                     )
+          .append( "stem",    ns.getName()           )
+          .append( "subject", ms.getMember_id()      )
+          .append( "field",   ms.getList().getName() ) 
+          .append( "depth",   ms.getDepth()          )
+          .append( "via",     via                    )
           .toString();
       }
       else {

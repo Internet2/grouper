@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.71 2007-01-11 19:49:16 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.72 2007-01-11 20:28:05 blair Exp $
  */
 public class MembershipFinder {
   
@@ -213,7 +213,7 @@ public class MembershipFinder {
         child.internal_setSession(s);  
         try {
           childEffs = internal_findAllEffective(
-            eff.getOwner_id(), child.getMember_id(), eff.getField(), child.getVia_id(), 
+            eff.getOwner_id(), child.getMember_id(), eff.getList(), child.getVia_id(), 
             eff.getDepth() + child.getDepth()
           );
           newChildIter = childEffs.iterator();
