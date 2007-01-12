@@ -1,6 +1,7 @@
-package edu.internet2.middleware.ldappcTest;
-
-/**
+/*
+  Copyright 2006-2007 The University Of Chicago
+  Copyright 2006-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2006-2007 EDUCAUSE
  *  SkeletonTest.java
  *  Template used to create other tests
  */

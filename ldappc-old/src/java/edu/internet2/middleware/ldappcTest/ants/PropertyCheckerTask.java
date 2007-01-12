@@ -1,6 +1,7 @@
-package edu.internet2.middleware.ldappcTest.ants;
-
-import org.apache.tools.ant.BuildException;
+/*
+  Copyright 2006-2007 The University Of Chicago
+  Copyright 2006-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2006-2007 EDUCAUSE
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.Project;
 

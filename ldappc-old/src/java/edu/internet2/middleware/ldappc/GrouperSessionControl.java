@@ -1,6 +1,7 @@
-package edu.internet2.middleware.ldappc;
-
-
+/*
+  Copyright 2006-2007 The University Of Chicago
+  Copyright 2006-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2006-2007 EDUCAUSE
 import  edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.ldappc.logging.DebugLog;

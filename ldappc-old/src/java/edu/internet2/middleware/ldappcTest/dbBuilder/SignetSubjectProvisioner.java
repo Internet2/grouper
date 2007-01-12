@@ -1,6 +1,7 @@
-package edu.internet2.middleware.ldappcTest.dbBuilder;
-
 /*
+  Copyright 2006-2007 The University Of Chicago
+  Copyright 2006-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2006-2007 EDUCAUSE
 Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
 Copyright 2004-2006 The University Of Chicago
 
