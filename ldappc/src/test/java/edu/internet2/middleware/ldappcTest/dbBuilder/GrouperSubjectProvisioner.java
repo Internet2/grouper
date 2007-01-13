@@ -2,8 +2,6 @@
   Copyright 2006-2007 The University Of Chicago
   Copyright 2006-2007 University Corporation for Advanced Internet Development, Inc.
   Copyright 2006-2007 EDUCAUSE
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Chicago
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,6 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+package edu.internet2.middleware.ldappcTest.dbBuilder;
 
 import java.util.Iterator;
 import java.util.Set;
