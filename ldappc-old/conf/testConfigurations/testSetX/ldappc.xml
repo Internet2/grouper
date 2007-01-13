@@ -124,7 +124,7 @@
                 <parameter name="security_credentials" value="xxx" />
                  -->
                 <parameter name="security_principal" value="cn=manager,dc=my-domain,dc=com" />
-                <parameter name="security_credentials" value="GetFromPropertiesFile" />
+                <parameter name="security_credentials" value="123" />
             </parameter-list>
         </context>
     </ldap>

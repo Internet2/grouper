@@ -90,7 +90,7 @@ package edu.internet2.middleware.ldappc.documentation;
  * in a command window, and type "ant".  This will run the ant build.xml script 
  * found in that directory in the interactive mode that will prompt you for common 
  * Ant targets.  The first time you use the script, and after you have modified the
- * ldapppc.xml and testLdappc.properties files as instructed herein, select the "install" target.  
+ * ldappc.xml and (rarely) the testLdappc.properties files as instructed herein, select the "install" target.  
  * Alternatively, use the "help" target to gain a better understanding of the Ant 
  * script first.  The install target will compile the source code and create 
  * class files under the build/classes directory.  It will also automatically 
@@ -439,7 +439,7 @@ package edu.internet2.middleware.ldappc.documentation;
  * not have an environmental variable JAVA_HOME set to the directory 
  * for JDK1.5.  A third properties file, testLdappc.properties, is used for 
  * providing data to the Ldappc testing code.  Most users will never
- * need to use this file.
+ * need to modify this file.
  * </p>
  * <p>
  * 1)  The master ant properties file. (Optional)
