@@ -1,6 +1,6 @@
 /*-- 
 
- $Id: jdom.license.txt,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
+ $Id: jdom.license.txt,v 1.1 2007-01-16 18:21:21 ddonn Exp $
 
  Copyright (C) 2001 Brett McLaughlin & Jason Hunter.
  All rights reserved.

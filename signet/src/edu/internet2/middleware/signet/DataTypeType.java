@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/DataTypeType.java,v 1.4 2006-12-16 01:08:53 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/DataTypeType.java,v 1.5 2007-01-16 18:21:21 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -17,13 +17,14 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
+import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.UserType;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.usertype.UserType;
 
 /**
 * Should never be used by Signet application programs. Manages persistence for
@@ -164,5 +165,52 @@ public class DataTypeType implements UserType
      name = ((DataType) value).getName();
    Hibernate.STRING.nullSafeSet(st, name, index);
  }
+
+
+	///////////////////////////////////////
+	// support for Hibernate 3.x
+	///////////////////////////////////////
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.hibernate.usertype.UserType#assemble(java.io.Serializable, java.lang.Object)
+	 */
+	public Object assemble(Serializable cached, Object owner) throws HibernateException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.hibernate.usertype.UserType#disassemble(java.lang.Object)
+	 */
+	public Serializable disassemble(Object value) throws HibernateException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.hibernate.usertype.UserType#hashCode(java.lang.Object)
+	 */
+	public int hashCode(Object x) throws HibernateException
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.hibernate.usertype.UserType#replace(java.lang.Object, java.lang.Object, java.lang.Object)
+	 */
+	public Object replace(Object original, Object target, Object owner) throws HibernateException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 
 }

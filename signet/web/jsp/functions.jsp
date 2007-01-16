@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: functions.jsp,v 1.5 2006-10-25 00:13:31 ddonn Exp $
-  $Date: 2006-10-25 00:13:31 $
+  $Id: functions.jsp,v 1.6 2007-01-16 18:21:21 ddonn Exp $
+  $Date: 2007-01-16 18:21:21 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -248,9 +248,12 @@
           	<h2><%=ResLoaderUI.getString("functions.help.hdr") %> </h2>
           	<p><%=ResLoaderUI.getString("functions.help1.ttl") %> </p>
           	<ol>
-          	  <li><b><%=ResLoaderUI.getString("functions.help1.msg1.txt") %> <i> <br />
-       	      </i></b><%=ResLoaderUI.getString("functions.help1.msg2.txt") %> </li>
-          	  <p style="margin: 10px 0px 2px -20px;>"<%=ResLoaderUI.getString("functions.help2.ttl") %> </p>
+          	  <li>
+          	  	<b><%=ResLoaderUI.getString("functions.help1.msg1.txt") %></b>
+          	  	<br />
+       	      	<%=ResLoaderUI.getString("functions.help1.msg2.txt") %>
+       	      </li>
+          	  <li style="margin: 10px 0px 2px -20px;"><%=ResLoaderUI.getString("functions.help2.ttl") %></li>
 			  <li> <%=ResLoaderUI.getString("functions.help2.msg1.txt") %> </li>
           	  <li> <%=ResLoaderUI.getString("functions.help2.msg2.txt") %> </li>
        	    </ol>

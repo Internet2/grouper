@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.6 2007-01-09 01:01:25 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.7 2007-01-16 18:21:21 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -1627,6 +1627,9 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		{
 			throw new IllegalArgumentException("Cannot grant a Proxy to a NULL grantee.");
 		}
+
+		if ( !grantee.isPersisted()) // grantee may have just come in from SubjectAPI
+			grantee.save();
 
 		Signet mySignet = signetSource.getSignet();
 		Proxy newProxy = new ProxyImpl(mySignet, this, grantee, subsystem,

@@ -3,9 +3,9 @@
   hibernate-configuration
   PUBLIC
   '-//Hibernate/Hibernate Configuration DTD//EN'
-  'http://hibernate.sourceforge.net/hibernate-configuration-2.0.dtd'>
+  'http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd'>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/hibernate.cfg.xml,v 1.25 2007-01-09 01:01:25 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/hibernate.cfg.xml,v 1.26 2007-01-16 18:21:21 ddonn Exp $ -->
 
 <hibernate-configuration>
   <session-factory>
@@ -17,12 +17,20 @@
     <property name="hibernate.connection.username">@DB_USERNAME@</property>
     <property name="hibernate.connection.password">@DB_PASSWORD@</property>
     
-    <!-- general connection properties -->
+    <!-- general configuration properties -->
     <property name="hibernate.show_sql">false</property>
 <!--	<property name="hibernate.show_sql">true</property>  -->
 <!-- 	<property name="hibernate.cglib.use_reflection_optimizer">false</property> -->
 	<!-- Create a DB connection pool of 20 connections -->
 <!--	<property name="hibernate.connection.pool_size"> 20 </property> -->
+
+	<!-- Use the Hibr 2.x query translator -->
+<!--	<property name="hibernate.query.factory_class">org.hibernate.hql.classic.ClassicQueryTranslatorFactory</property>  -->
+	<!-- Use the Hibr 3.x query translator (default) -->
+	<property name="hibernate.query.factory_class">org.hibernate.hql.ast.ASTQueryTranslatorFactory</property>
+
+
+	<!-- import the object/relational mapping files -->
 
 	<mapping resource="edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml" />
 	<mapping resource="edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml" />

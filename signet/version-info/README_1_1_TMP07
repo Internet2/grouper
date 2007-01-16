@@ -1,0 +1,21 @@
+Signet  01/16/07
+Release Notes for CVS-tagged version SIGNET_1_1_TMP07
+
+Changes in this version:
+
+1. Migrate from Hibernate 2.x to 3.2 (see Hibernate Migration Guide
+  http://www.hibernate.org/250.html).
+
+2. Removed unnecessary JARs from /lib. Signet.war went from 13.3 Mb to 7.2 Mb!!
+
+3. Switched to commons-dbcp database connection pool manager
+
+Still to do:
+
+1. Fix bug where SignetSubjects retrieved from PersistedSignetSource
+  (e.g. subj.getAssignmentsGranted()) had no runtime SubjectSource available
+  for src.getSignet(), etc.
+
+2. Change DB session management in HibernatDB.java. Currently one session is
+used throughout the life of the app. We should be creating a new session for
+each transaction.

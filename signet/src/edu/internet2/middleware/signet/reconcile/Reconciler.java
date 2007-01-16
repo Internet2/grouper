@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/reconcile/Reconciler.java,v 1.2 2006-12-07 02:12:40 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/reconcile/Reconciler.java,v 1.3 2007-01-16 18:21:21 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import edu.internet2.middleware.signet.Grantable;
 import edu.internet2.middleware.signet.GrantableImpl;
 import edu.internet2.middleware.signet.Signet;

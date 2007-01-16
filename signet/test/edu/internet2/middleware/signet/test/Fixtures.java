@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.36 2006-10-25 00:10:25 ddonn Exp $
-$Date: 2006-10-25 00:10:25 $
+$Id: Fixtures.java,v 1.37 2007-01-16 18:21:21 ddonn Exp $
+$Date: 2007-01-16 18:21:21 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -15,8 +15,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.naming.OperationNotSupportedException;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.cfg.Configuration;
+import org.hibernate.HibernateException;
+import org.hibernate.cfg.Configuration;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Category;
 import edu.internet2.middleware.signet.DataType;

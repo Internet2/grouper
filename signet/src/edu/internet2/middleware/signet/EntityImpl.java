@@ -1,6 +1,6 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.13 2006-12-15 20:45:37 ddonn Exp $
- 
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.14 2007-01-16 18:21:21 ddonn Exp $
+
 Copyright 2006 Internet2, Stanford University
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -109,7 +109,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param id The id to set.
    */
-  final void setStringId(String id)
+  protected void setStringId(String id)
   {
     if ((this.id != null) && !(this.id.equals(id)))
     {
@@ -138,7 +138,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return Returns the account which created this entity.
    */
-  final String getCreateDbAccount()
+  protected String getCreateDbAccount()
   {
     return this.createDbAccount;
   }
@@ -146,7 +146,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return Returns the source of this entity's creation.
    */
-  final String getCreateContext()
+  protected String getCreateContext()
   {
     return this.createContext;
   }
@@ -154,7 +154,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return Returns the date and time this entity was first created.
    */
-  public final Date getCreateDatetime()
+  public Date getCreateDatetime()
   {
     return this.createDatetime;
   }
@@ -162,7 +162,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return Returns the account which last modified this entity.
    */
-  final String getModifyDbAccount()
+  protected String getModifyDbAccount()
   {
     return this.modifyDbAccount;
   }
@@ -170,7 +170,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return Returns the source of this entity's last modification.
    */
-  final String getModifyContext()
+  protected String getModifyContext()
   {
     return this.modifyContext;
   }
@@ -178,7 +178,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return Returns the date and time this entity was last modified.
    */
-  final Date getModifyDatetime()
+  protected Date getModifyDatetime()
   {
     return this.modifyDatetime;
   }
@@ -186,7 +186,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param createDbAccount The createDbAccount to set.
    */
-  final void setCreateDbAccount(String createDbAccount)
+  protected void setCreateDbAccount(String createDbAccount)
   {
     this.createDbAccount = createDbAccount;
   }
@@ -194,7 +194,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param createContext The createContext to set.
    */
-  final void setCreateContext(String createContext)
+  protected void setCreateContext(String createContext)
   {
     this.createContext = createContext;
   }
@@ -202,7 +202,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param createDatetime The createDatetime to set.
    */
-  final void setCreateDatetime(Date createDatetime)
+  protected void setCreateDatetime(Date createDatetime)
   {
     this.createDatetime = createDatetime;
   }
@@ -210,7 +210,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param modifyDbAccount The modifyDbAccount to set.
    */
-  final void setModifyDbAccount(String modifyDbAccount)
+  protected void setModifyDbAccount(String modifyDbAccount)
   {
     this.modifyDbAccount = modifyDbAccount;
   }
@@ -218,7 +218,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param modifyContext The modifyContext to set.
    */
-  final void setModifyContext(String modifyContext)
+  protected void setModifyContext(String modifyContext)
   {
     this.modifyContext = modifyContext;
   }
@@ -226,7 +226,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param modifyDatetime The modifyDatetime to set.
    */
-  final void setModifyDatetime(Date modifyDatetime)
+  protected void setModifyDatetime(Date modifyDatetime)
   {
     this.modifyDatetime = modifyDatetime;
   }
@@ -234,7 +234,7 @@ public abstract class EntityImpl implements Entity, Name
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Entity#setCreateUserID(java.lang.String)
    */
-  final void setCreateUserID(String userID)
+  protected void setCreateUserID(String userID)
   {
     this.createUserID = userID;
   }
@@ -242,7 +242,7 @@ public abstract class EntityImpl implements Entity, Name
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Entity#setModifyUserID(java.lang.String)
    */
-  final void setModifyUserID(String userID)
+  protected void setModifyUserID(String userID)
   {
     this.modifyUserID = userID;
   }
@@ -250,7 +250,7 @@ public abstract class EntityImpl implements Entity, Name
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Entity#getCreateUserID()
    */
-  final String getCreateUserID()
+  protected String getCreateUserID()
   {
     return this.createUserID;
   }
@@ -258,7 +258,7 @@ public abstract class EntityImpl implements Entity, Name
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Entity#getModifyUserID()
    */
-  final String getModifyUserID()
+  protected String getModifyUserID()
   {
     return this.modifyUserID;
   }
@@ -266,7 +266,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param comment A comment for the use of metadata maintainers.
    */
-  final void setComment(String comment)
+  protected void setComment(String comment)
   {
     this.comment = comment;
   }
@@ -274,7 +274,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return A comment for the use of metadata maintainers.
    */
-  final String getComment()
+  protected String getComment()
   {
     return this.comment;
   }
@@ -282,7 +282,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return Returns the status.
    */
-  public final Status getStatus()
+  public Status getStatus()
   {
     return status;
   }
@@ -291,7 +291,7 @@ public abstract class EntityImpl implements Entity, Name
    * @param status The status to set.
    * @return True if status was changed, otherwise false
    */
-  public final boolean setStatus(Status status)
+  public boolean setStatus(Status status)
   {
 	boolean retval = true; // assume success
 
@@ -309,7 +309,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param name The name to set.
    */
-  final void setName(String name)
+  protected void setName(String name)
   {
     this.name = name;
   }

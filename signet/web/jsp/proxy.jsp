@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: proxy.jsp,v 1.5 2006-10-25 00:13:31 ddonn Exp $
-  $Date: 2006-10-25 00:13:31 $
+  $Id: proxy.jsp,v 1.6 2007-01-16 18:21:21 ddonn Exp $
+  $Date: 2007-01-16 18:21:21 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -92,7 +92,7 @@
           <%=ResLoaderUI.getString("proxy.in.txt") %>
         </th>
         <td>
-          <%=Common.displaySubsystem(currentProxy)%>
+          <%=Common.displaySubsystem(currentProxy.getSubsystem())%>
         </td>
       </tr>
  
@@ -146,6 +146,7 @@
       <tr>
         <th class="label" scope="row">
           <%=Common.displayDatetime(Constants.DATETIME_FORMAT_12_MINUTE, historyRecord.getDate())%>
+        </th>
         <td>
           <%=Common.describeChange(historyArray, i)%>
         </td>

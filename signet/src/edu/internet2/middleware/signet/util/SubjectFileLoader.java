@@ -36,10 +36,10 @@ import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.cfg.Configuration;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 
 public class SubjectFileLoader
 {

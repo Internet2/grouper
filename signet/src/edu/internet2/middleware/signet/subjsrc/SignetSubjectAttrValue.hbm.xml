@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
-          "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttrValue.hbm.xml,v 1.1 2006-10-25 00:09:40 ddonn Exp $ -->
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttrValue.hbm.xml,v 1.2 2007-01-16 18:21:21 ddonn Exp $ -->
 
 <hibernate-mapping>
 	<class

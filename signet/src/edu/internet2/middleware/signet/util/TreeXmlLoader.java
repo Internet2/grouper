@@ -39,10 +39,10 @@ import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeAdapter;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.cfg.Configuration;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 
 public class TreeXmlLoader
 {

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.5 2007-01-09 01:01:25 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.6 2007-01-16 18:21:21 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -20,19 +20,20 @@ limitations under the License.
 package edu.internet2.middleware.signet.dbpersist;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.Transaction;
-import net.sf.hibernate.cfg.Configuration;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 import org.apache.commons.collections.set.UnmodifiableSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,6 +60,8 @@ import edu.internet2.middleware.signet.TreeNodeRelationship;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.resource.ResLoaderApp;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
+import edu.internet2.middleware.signet.subjsrc.SignetSubjectAttr;
+import edu.internet2.middleware.signet.subjsrc.SignetSubjectAttrValue;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
@@ -84,41 +87,61 @@ public class HibernateDB
 	/** The "push counter" for nesting transactions. Only the final commit() is
 	 * sent to Hibernate. */
 	protected int				transactDepth;
-	/** synchronization lock for transactDepth */
-	protected Boolean			transactLock;
 
 	protected static final String	Qry_subjectByPK =
-			"from edu.internet2.middleware.signet.SignetSubject " + //$NON-NLS-1$
+			"from " + SignetSubject.class.getName() + //$NON-NLS-1$
 			" as subject " + //$NON-NLS-1$
 			" where subjectkey = :subjectkey "; //$NON-NLS-1$
 
 	protected static final String	Qry_proxiesGranted =
-			"from edu.internet2.middleware.signet.ProxyImpl " + //$NON-NLS-1$
+			"from " + ProxyImpl.class.getName() + //$NON-NLS-1$
 			" as proxy " +  //$NON-NLS-1$
 			" where grantorKey = :grantorKey " + //$NON-NLS-1$
 			" and " + //$NON-NLS-1$
 			" status = :status "; //$NON-NLS-1$
 
 	protected static final String	Qry_proxiesReceived =
-			"from edu.internet2.middleware.signet.ProxyImpl " + //$NON-NLS-1$
+			"from " + ProxyImpl.class.getName() + //$NON-NLS-1$
 			" as proxy " +  //$NON-NLS-1$
 			" where granteeKey = :granteeKey " + //$NON-NLS-1$
 			" and " + //$NON-NLS-1$
 			" status = :status "; //$NON-NLS-1$
 
 	protected static final String	Qry_assignmentsGranted =
-			"from edu.internet2.middleware.signet.AssignmentImpl " + //$NON-NLS-1$
+			"from " + AssignmentImpl.class.getName() + //$NON-NLS-1$
 			" as assignment " +  //$NON-NLS-1$
 			" where grantorKey = :grantorKey " + //$NON-NLS-1$
 			" and " + //$NON-NLS-1$
 			" status = :status "; //$NON-NLS-1$
 
 	protected static final String	Qry_assignmentsReceived =
-			"from edu.internet2.middleware.signet.AssignmentImpl " + //$NON-NLS-1$
+			"from " + AssignmentImpl.class.getName() + //$NON-NLS-1$
 			" as assignment " +  //$NON-NLS-1$
 			" where granteeKey = :granteeKey " + //$NON-NLS-1$
 			" and " + //$NON-NLS-1$
 			" status = :status "; //$NON-NLS-1$
+
+	protected static final String Qry_subjByIdSrc =
+			"from " + SignetSubject.class.getName() + //$NON-NLS-1$
+			" as signetSubject " + //$NON-NLS-1$
+			"where " + //$NON-NLS-1$
+			"sourceID = :source_id " + //$NON-NLS-1$
+			"and " + //$NON-NLS-1$
+			"subjectID = :subject_id "; //$NON-NLS-1$
+
+	protected static final String Qry_subjectById =
+			"from " + //$NON-NLS-1$
+				SignetSubject.class.getName() + " signet_subject, " + //$NON-NLS-1$
+				SignetSubjectAttr.class.getName() + " signet_subjectattribute, " + //$NON-NLS-1$
+				SignetSubjectAttrValue.class.getName() + " signet_subjectattrvalue " + //$NON-NLS-1$
+			" where " + //$NON-NLS-1$
+				" signet_subjectattrvalue.value = :identifier" + //$NON-NLS-1$
+				" and " + //$NON-NLS-1$
+				" signet_subjectattribute.mappedName = 'subjectAuthId' " + //$NON-NLS-1$
+				" and " + //$NON-NLS-1$
+				" signet_subjectattrvalue.parent.subjectAttr_PK = signet_subjectattribute.subjectAttr_PK " + //$NON-NLS-1$
+				" and " + //$NON-NLS-1$
+				" signet_subjectattribute.parent.subject_PK = signet_subject.subject_PK"; //$NON-NLS-1$
 
 
 	///////////////////////////////////
@@ -133,7 +156,6 @@ public class HibernateDB
 	{
 		log = LogFactory.getLog(HibernateDB.class);
 		transactDepth = 0;
-		transactLock = new Boolean(false);
 
 		cfg = new Configuration();
 		try
@@ -144,7 +166,7 @@ public class HibernateDB
 		}
 		catch (HibernateException he)
 		{
-			log.error("HibernateDB.HibernateDB: hibernate error");
+			log.error("HibernateDB.HibernateDB: hibernate error"); //$NON-NLS-1$
 			log.error(he.toString());
 			throw new SignetRuntimeException(he);
 		}
@@ -175,7 +197,7 @@ public class HibernateDB
 	{
 		Object retval = null;
 		try { retval = session.load(loadClass, id); }
-		catch (net.sf.hibernate.ObjectNotFoundException onfe)
+		catch (org.hibernate.ObjectNotFoundException onfe)
 		{
 			throw new ObjectNotFoundException(onfe);
 		}
@@ -197,7 +219,7 @@ public class HibernateDB
 	{
 		Object retval = null;
 		try { retval = session.load(loadClass, id); }
-		catch (net.sf.hibernate.ObjectNotFoundException onfe)
+		catch (org.hibernate.ObjectNotFoundException onfe)
 		{
 			throw new ObjectNotFoundException(onfe);
 		}
@@ -220,7 +242,7 @@ public class HibernateDB
 	{
 		Object retval = null;
 		try { retval = session.load(loadClass, id); }
-		catch (net.sf.hibernate.ObjectNotFoundException onfe)
+		catch (org.hibernate.ObjectNotFoundException onfe)
 		{
 			throw new ObjectNotFoundException(onfe);
 		}
@@ -233,15 +255,15 @@ public class HibernateDB
 
 
 	/**
-	 *  wrapper method for session
-	 * @param queryString
+	 * Create a Hibernate Query (wrapper method for Session)
+	 * @param hibrQuery
 	 * @return
 	 * @throws SignetRuntimeException
 	 */
-	public Query createQuery(String queryString) throws SignetRuntimeException
+	public Query createQuery(String hibrQuery) throws SignetRuntimeException
 	{
 		Query retval = null;
-		try { retval = session.createQuery(queryString); }
+		try { retval = session.createQuery(hibrQuery); }
 		catch (HibernateException he)
 		{
 			throw new SignetRuntimeException(he);
@@ -252,23 +274,31 @@ public class HibernateDB
 
 	/**
 	 * Run the Hibernate Query Language query and return the results (wrapper method for session)
-	 * @param hibrQuery HQL query
+	 * @param hibrQuery HQL query string
 	 * @return List of matching records
 	 * @throws SignetRuntimeException
 	 */
 	public List find(String hibrQuery) throws SignetRuntimeException
 	{
 		List retval = null;
-		try { retval = session.find(hibrQuery); }
-		catch (HibernateException e)
+
+		if ((null == hibrQuery) || (0 >= hibrQuery.length()))
+			retval = new ArrayList();
+		else
 		{
-			throw new SignetRuntimeException(e);
+			Query query = createQuery(hibrQuery);
+			try { retval = query.list(); }
+			catch (HibernateException e)
+			{
+				throw new SignetRuntimeException(e);
+			}
 		}
+
 		return (retval);
 	}
 
 	/**
-	 * Begins a Signet transaction.
+	 * Begins a Signet transaction (wrapper method for Session).
 	 */
 	public synchronized void beginTransaction()
 	{
@@ -284,7 +314,7 @@ public class HibernateDB
 	}
 
 	/**
-	 * commit a Signet database transaction.
+	 * commit a Signet database transaction (wrapper method for Session).
 	 */
 	public synchronized void commit()
 	{
@@ -934,16 +964,9 @@ public class HibernateDB
 		List resultList;
 		try
 		{
-			Query query = createQuery(
-					"from " +
-					SignetSubject.class.getName() +
-					" as signetSubject " +
-					"where " +
-					"sourceID = :source_id " +
-					"and " +
-					"subjectID = :subject_id ");
-			query.setString("subject_id", subjectId);
-			query.setString("source_id", sourceId);
+			Query query = createQuery(Qry_subjByIdSrc);
+			query.setString("subject_id", subjectId); //$NON-NLS-1$
+			query.setString("source_id", sourceId); //$NON-NLS-1$
 			resultList = query.list();
 		}
 		catch (HibernateException e)
@@ -984,20 +1007,8 @@ public class HibernateDB
 		List resultList;
 		try
 		{
-			Query query = createQuery(
-				"from " +
-					SignetSubject.class.getName() + " signet_subject, " +
-					" signet_subject.subjectAttrs " + " signet_subjectattribute, " +
-					" signet_subjectattribute.sourceValues " + " signet_subjectattrvalue " +
-				" where " +
-					" signet_subjectattrvalue.value = :identifier" +
-					" and " +
-					" signet_subjectattribute.mappedName = 'subjectAuthId' " +
-					" and " +
-					" signet_subjectattrvalue.parent.subjectAttr_PK = signet_subjectattribute.subjectAttr_PK " +
-					" and " +
-					" signet_subjectattribute.parent.subject_PK = signet_subject.subject_PK");
-			query.setString("identifier", identifier);
+			Query query = createQuery(Qry_subjectById);
+			query.setString("identifier", identifier); //$NON-NLS-1$
 			resultList = query.list();
 		}
 		catch (HibernateException he)
