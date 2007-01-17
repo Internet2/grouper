@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.7 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.8 2007-01-17 20:38:50 blair Exp $
  * @since   1.2.0
  */
 class HibernateCompositeDAO {
@@ -104,7 +104,6 @@ class HibernateCompositeDAO {
       }
       catch (HibernateException eH) {
         tx.rollback();
-        String msg = E.COMP_UPDATE + eH.getMessage();
         throw new GrouperDAOException( E.COMP_UPDATE + eH.getMessage(), eH );
       }
       finally {
