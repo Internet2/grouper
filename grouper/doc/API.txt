@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.40 2006-11-27 19:43:06 blair Exp $
+$Id: API.txt,v 1.41 2007-02-08 16:25:25 blair Exp $
 
 ---
 
@@ -29,13 +29,13 @@ $Id: API.txt,v 1.40 2006-11-27 19:43:06 blair Exp $
 * void                  revokePriv(GrouperSession, stem, subject, naming priv)
 
 ## PrivilegeCache - SUBJECT TO CHANGE!
-* PrivilegeCacheElement get(Owner, Subject, Privilege)
-* void                  grantPriv(Owner, Subject, Privilege)
-* void                  put(Owner, Subject, Privilege, boolean)
-* void                  revokePriv(Owner, Privilege)
-* void                  revokePriv(Owner, Subject, Privilege)
+* PrivilegeCacheElement get(<Owner>, Subject, Privilege)
+* void                  grantPriv(<Owner>, Subject, Privilege)
+* void                  put(<Owner>, Subject, Privilege, boolean)
+* void                  revokePriv(<Owner>, Privilege)
+* void                  revokePriv(<Owner>, Subject, Privilege)
 * void                  removeAll()
-* void                  update(Owner, Subject, Privilege, boolean)
+* void                  update(<Owner>, Subject, Privilege, boolean)
 
 ## QueryFilter
 * Set                   getResults(GrouperSession)
@@ -355,8 +355,8 @@ $Id: API.txt,v 1.40 2006-11-27 19:43:06 blair Exp $
 * boolean               isEffectiveMember(group, field)
 * boolean               isImmediateMember(group)
 * boolean               isImmediateMember(group, field)
-* boolean               isMember(group)
-* boolean               isMember(group, field)
+* boolean               isMember(<Group>)
+* boolean               isMember(<Group>, <Field>)
 * void                  setSubjectId(id)
 * void                  setSubjectSourceId(id) 
 * Group                 toGroup()
@@ -367,11 +367,16 @@ $Id: API.txt,v 1.40 2006-11-27 19:43:06 blair Exp $
 
 ## Membership
 * Set                   getChildMemberships()
+* Date                  getCreateTime()
+* Member                getCreator()
 * int                   getDepth()
 * Group                 getGroup()
 * Field                 getList()
 * Member                getMember()
+* Owner                 getOwner()
 * Membership            getParentMembership()
+* Stem                  getStem()
+* String                getType()
 * Owner                 getVia()
 * Group                 getViaGroup()
 

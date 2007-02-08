@@ -25,9 +25,9 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem6.java,v 1.5 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestStem6.java,v 1.6 2007-02-08 16:25:25 blair Exp $
  */
-public class TestStem6 extends TestCase {
+public class TestStem6 extends GrouperTest {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestStem6.class);
@@ -48,27 +48,32 @@ public class TestStem6 extends TestCase {
 
   public void testGetCreateAttrs() {
     LOG.info("testGetCreateAttrs");
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Assert.assertTrue("create source", edu.getCreateSource().equals(""));
     try {
-      Subject creator = edu.getCreateSubject();
-      Assert.assertNotNull("creator !null", creator);
-      Assert.assertTrue("creator", creator.equals(s.getSubject()));
+      GrouperSession  s     = SessionHelper.getRootSession();
+      Stem            root  = StemHelper.findRootStem(s);
+      Stem            edu   = root.addChildStem("edu", "education");
+      Assert.assertTrue("create source", edu.getCreateSource().equals(""));
+      try {
+        Subject creator = edu.getCreateSubject();
+        Assert.assertNotNull("creator !null", creator);
+        Assert.assertTrue("creator", creator.equals(s.getSubject()));
+      }
+      catch (SubjectNotFoundException eSNF) {
+        Assert.fail("no create subject");
+      }
+      Date  d       = edu.getCreateTime();
+      Assert.assertNotNull("create time !null", d);
+      Assert.assertTrue("create time instanceof Date", d instanceof Date);
+      long  create  = d.getTime();
+      long  epoch   = new Date(0).getTime();
+      Assert.assertFalse(
+        "create[" + create + "] != epoch[" + epoch + "]",
+        create == epoch
+      );
     }
-    catch (SubjectNotFoundException eSNF) {
-      Assert.fail("no create subject");
+    catch (Exception e) {
+      T.e(e);
     }
-    Date  d       = edu.getCreateTime();
-    Assert.assertNotNull("create time !null", d);
-    Assert.assertTrue("create time instanceof Date", d instanceof Date);
-    long  create  = d.getTime();
-    long  epoch   = new Date(0).getTime();
-    Assert.assertFalse(
-      "create[" + create + "] != epoch[" + epoch + "]",
-      create == epoch
-    );
   } // public void testGetCreateAttrs()
 
 }

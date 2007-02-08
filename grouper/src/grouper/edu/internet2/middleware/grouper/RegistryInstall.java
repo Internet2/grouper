@@ -23,7 +23,7 @@ import  java.util.Set;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.32 2007-01-08 16:43:56 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.33 2007-02-08 16:25:25 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -31,148 +31,58 @@ public class RegistryInstall {
 
   public static void main(String[] args) {
     // Install group types, fields and privileges
-    _installFieldsAndTypes();
-    _installGroupsAndStems();
+    try {
+      GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
+      _installFieldsAndTypes(s);
+      _installGroupsAndStems(s);
+      s.stop();
+    }
+    catch (Exception e) {
+      String msg = "unable to initialize registry: " + e.getMessage();
+      ErrorLog.fatal(RegistryInstall.class, msg);
+      throw new GrouperRuntimeException(msg, e);
+    }
   } // public static void main(args)
 
 
   // PRIVATE CLASS METHODS //
-  private static void _installFieldsAndTypes() 
+  private static void _installFieldsAndTypes(GrouperSession s) 
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    GroupType base    = GroupType.internal_createType(s, "base", false, false);
+    // base attributes
+    base.internal_addField( s, "description",      FieldType.ATTRIBUTE, AccessPrivilege.READ, AccessPrivilege.ADMIN,  false );
+    base.internal_addField( s, "displayExtension", FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true  );
+    base.internal_addField( s, "displayName",      FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true  );
+    base.internal_addField( s, "extension",        FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true  );
+    base.internal_addField( s, "name",             FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true  );
+    // base lists
+    base.internal_addField( s, "members", FieldType.LIST, AccessPrivilege.READ, AccessPrivilege.UPDATE, false );
+    // reserve access privs
+    base.internal_addField( s, "admins",   FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false );
+    base.internal_addField( s, "optouts",  FieldType.ACCESS, AccessPrivilege.UPDATE, AccessPrivilege.UPDATE, false );
+    base.internal_addField( s, "optins",   FieldType.ACCESS, AccessPrivilege.UPDATE, AccessPrivilege.UPDATE, false );
+    base.internal_addField( s, "readers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false );
+    base.internal_addField( s, "updaters", FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false );
+    base.internal_addField( s, "viewers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false );
+
+    GroupType naming  = GroupType.internal_createType(s, "naming", false, true);
+    // reserve naming privs
+    naming.internal_addField( s, "creators", FieldType.NAMING, NamingPrivilege.STEM, NamingPrivilege.STEM, false);
+    naming.internal_addField( s, "stemmers", FieldType.NAMING, NamingPrivilege.STEM, NamingPrivilege.STEM, false);
+
+    // TODO 20070207 what should i do with `Settings`?
+    SettingsDTO settings = new SettingsDTO();
+    settings.setSchemaVersion( Settings.internal_getCurrentSchemaVersion() );
+    HibernateSettingsDAO.create(settings);
+  } // private static void _installFieldsAndTypes(s)
+
+  private static void _installGroupsAndStems(GrouperSession s) 
     throws  GrouperRuntimeException
   {
-    // TODO 20061221 THIS. IS. SO. UGLY.
-
-    Set base_f    = new LinkedHashSet();
-    Set fields    = new LinkedHashSet();
-    Set naming_f  = new LinkedHashSet();
-    Set types     = new LinkedHashSet();
-  
-    // Base Attributes
-    base_f.add(
-      new Field(
-        GrouperConfig.ATTR_D, FieldType.ATTRIBUTE, AccessPrivilege.READ, AccessPrivilege.ADMIN, true
-      )
-    );
-    base_f.add(
-      new Field(
-        GrouperConfig.ATTR_DN, FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, false
-      )
-    );
-    base_f.add(
-      new Field(
-        GrouperConfig.ATTR_DE, FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN, false
-      )
-    );
-    base_f.add(
-      new Field(
-        GrouperConfig.ATTR_E, FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN, false
-      )
-    );
-    base_f.add(
-      new Field(
-        GrouperConfig.ATTR_N, FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, false
-      )
-    );
-    // Base Access Privileges
-    base_f.add(
-      new Field(
-        "admins"                , FieldType.ACCESS,
-        AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
-        true
-      )
-    );
-    base_f.add(
-      new Field(
-        GrouperConfig.LIST      , FieldType.LIST,
-        AccessPrivilege.READ    , AccessPrivilege.UPDATE,
-        true
-      )
-    );
-    base_f.add(
-      new Field(
-        "optins"                , FieldType.ACCESS,
-        AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE,
-        true
-      )
-    );
-    base_f.add(
-      new Field(
-        "optouts"               , FieldType.ACCESS,
-        AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE,
-        true
-      )
-    );
-    base_f.add(
-      new Field(
-        "readers"               , FieldType.ACCESS,
-        AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
-        true
-      )
-    );
-    base_f.add(
-      new Field(
-        "updaters"              , FieldType.ACCESS,
-        AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
-        true
-      )
-    );
-    base_f.add(
-      new Field(
-        "viewers"               , FieldType.ACCESS,
-        AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
-        true
-      )
-    );
-    // Naming Privileges
-    naming_f.add(
-      new Field(
-        "creators"              , FieldType.NAMING,
-        NamingPrivilege.STEM    , NamingPrivilege.STEM,
-        true
-      )
-    );
-    naming_f.add(
-      new Field(
-        "stemmers"              , FieldType.NAMING,
-        NamingPrivilege.STEM    , NamingPrivilege.STEM,
-        true
-      )
-    );
-
-    GroupType base    = new GroupType("base", base_f, false, false);
-    types.add(base);
-    GroupType naming  = new GroupType("naming", naming_f, false, true);
-    types.add(naming);
-  
-    fields.addAll(base_f);
-    fields.addAll(naming_f);
-
-    Settings settings = new Settings( Settings.internal_getCurrentSchemaVersion() );
-
-    HibernateRegistryDAO.initializeRegistry(types, settings);
-    EventLog.info("set schema version   : " + settings.getSchemaVersion()  );
-    EventLog.info("group types installed: " + types.size()                 );
-    EventLog.info("fields installed     : " + fields.size()                );
-  } // private static void _installFieldsAndTypes()
-
-  private static void _installGroupsAndStems() 
-    throws  GrouperRuntimeException
-  {
-    try {
-      GrouperSession s = GrouperSession.start(
-        SubjectFinder.findById(
-          GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID
-        )
-      );
-      Stem.internal_addRootStem(s);
-      EventLog.info(s, M.STEM_ROOTINSTALL);
-    }
-    catch (Exception e) { 
-      String msg = E.RI_ISG + e.getMessage();
-      ErrorLog.fatal(RegistryInstall.class, msg);
-      throw new GrouperRuntimeException(msg, e);
-    }
-  } // private static void _installGroupsAndStems()
+    Stem.internal_addRootStem(s);
+  } // private static void _installGroupsAndStems(s)
 
 }
 

@@ -23,9 +23,9 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership0.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestMembership0.java,v 1.6 2007-02-08 16:25:25 blair Exp $
  */
-public class TestMembership0 extends TestCase {
+public class TestMembership0 extends GrouperTest {
 
   private static final Log LOG = LogFactory.getLog(TestMembership0.class);
 
@@ -63,7 +63,9 @@ public class TestMembership0 extends TestCase {
         expMS   = ms;
         expUUID = ms.getUuid();
       }
-      Membership ms0 = MembershipFinder.internal_findByUuid(r.rs, expUUID);
+      Membership ms0 = new Membership();
+      ms0.setDTO( HibernateMembershipDAO.findByUuid(expUUID) );
+      ms0.setSession(r.rs);
       Assert.assertEquals("ms0", expMS, ms0);
 
       gA.deleteMember(subjA);

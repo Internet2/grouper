@@ -19,75 +19,68 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.8 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.9 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 class CompositeValidator {
 
   // PROTECTED CLASS METHODS //
 
-  // @since 1.0
-  protected static void internal_validate(Composite c) 
+  //  @since 1.2.0
+  protected static void internal_validate(CompositeDTO c) 
     throws  ModelException
   {
-    GrouperSessionValidator.internal_validate(c.internal_getSession());
-    Owner o = c.getOwner();
-    Owner l = c.getLeft();
-    Owner r = c.getRight();
-    _notNull(o, E.COMP_O);
-    _rightOwnerClass(o);
-    _notNull(l, E.COMP_L);
-    _rightFactorClass(l, E.COMP_LC);
-    _notNull(r, E.COMP_R);
-    _rightFactorClass(r, E.COMP_RC);
-    _notCyclic(o, l, r);
-    _notNull(c.getType(), E.COMP_T);
+    GroupDTO o, l, r = null;
+    if (c.getCreateTime() <= 0) {
+      throw new ModelException("composite has invalid createTime");
+    }
+    if (c.getCreatorUuid() == null) {
+      throw new ModelException("composite has null creator");
+    }
+    if (c.getUuid() == null) {
+      throw new ModelException("composite has null uuid");
+    }
+    try {
+      o = HibernateGroupDAO.findByUuid( c.getFactorOwnerUuid() );
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new ModelException("invalid owner class");
+    }
+    try {
+      l = HibernateGroupDAO.findByUuid( c.getLeftFactorUuid() );
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new ModelException("invalid left factor class");
+    }
+    try {
+      r = HibernateGroupDAO.findByUuid( c.getRightFactorUuid() );
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new ModelException("invalid right factor class");
+    }
+    _notCyclic(c);
+    if ( c.getType() == null ) {
+      throw new ModelException(E.COMP_T);
+    }
   } // protected static void validate(Composite c)
 
 
   // PRIVATE CLASS METHODS //  
 
-  // @since 1.0
-  private static void _notCyclic(Owner o, Owner l, Owner r)
+  // @since   1.2.0
+  private static void _notCyclic(CompositeDTO c) 
     throws  ModelException
   {
-    if (l.equals(r)) {
+    if ( c.getLeftFactorUuid().equals( c.getRightFactorUuid() ) )   {
       throw new ModelException(E.COMP_LR);
     }
-    if (o.equals(l)) {
+    if ( c.getFactorOwnerUuid().equals( c.getLeftFactorUuid() ) )   {
       throw new ModelException(E.COMP_CL);
     }
-    if (o.equals(r)) {
+    if ( c.getFactorOwnerUuid().equals( c.getRightFactorUuid() ) )  {
       throw new ModelException(E.COMP_CR);
     }
-  } // private static void _notCyclic(o, l, r)
+  } // private static void _notCyclic(c)
 
-  // @since 1.0
-  private static void _notNull(Object obj, String msg) 
-    throws  ModelException
-  {
-    if (obj == null) {
-      throw new ModelException(msg);
-    }
-  } // private static void _notNull(obj, msg)
-
-  // @since 1.0
-  private static void _rightFactorClass(Owner f, String msg)
-    throws  ModelException
-  {
-    if (!(f instanceof Group)) {
-      throw new ModelException(msg);
-    }
-  } // private static void _rightFactorClass(f, msg)
-
-  // @since 1.0
-  private static void _rightOwnerClass(Owner o) 
-    throws  ModelException
-  {
-    if ( !( (o instanceof Group) || (o instanceof Stem) ) ) {
-      throw new ModelException(E.COMP_OC);
-    }
-  } // private static void _rightOwnerClass(o)
-
-}
+} // class CompositeValidator
 

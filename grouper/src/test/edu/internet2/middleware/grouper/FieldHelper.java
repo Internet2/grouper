@@ -22,7 +22,7 @@ import  junit.framework.*;
 * Field-related helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldHelper.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: FieldHelper.java,v 1.5 2007-02-08 16:25:25 blair Exp $
  */
 public class FieldHelper {
 
@@ -49,10 +49,10 @@ public class FieldHelper {
   )
   {
     Assert.assertTrue(name + " instanceof Field", f instanceof Field);
-    Assert.assertTrue(name + " name  = " + name, f.getName().equals(name));
-    Assert.assertTrue(name + " type  = " + type, f.getType().toString().equals(type.toString()));
-    Assert.assertTrue(name + " read  = " + read, f.getReadPriv().equals(read));
-    Assert.assertTrue(name + " write = " + read, f.getWritePriv().equals(write));
+    T.string( "field name", name, f.getName() );
+    T.string( "field type", type.toString(), f.getType().toString() );
+    T.string( "field read priv", read.toString(), f.getReadPriv().toString() );
+    T.string( "field write priv", write.toString(), f.getWritePriv().toString() );
   } // private static void _testField(f, name, type, read, write)
 
 }

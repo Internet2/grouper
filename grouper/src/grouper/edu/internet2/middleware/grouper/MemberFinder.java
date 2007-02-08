@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.30 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.31 2007-02-08 16:25:25 blair Exp $
  */
 public class MemberFinder {
 
@@ -49,7 +49,7 @@ public class MemberFinder {
   {
     GrouperSessionValidator.internal_validate(s);
     Member m = internal_findBySubject(subj);
-    m.internal_setSession(s);
+    m.setSession(s);
     return m;
   } // public static Member findBySubject(s, subj)
 
@@ -73,11 +73,10 @@ public class MemberFinder {
     throws MemberNotFoundException
   {
     GrouperSessionValidator.internal_validate(s);
-    Member m = HibernateMemberDAO.findByUuid(uuid);
-    if (m == null) {
-      throw new MemberNotFoundException("member not found");
-    }
-    m.internal_setSession(s);
+    MemberDTO dto = HibernateMemberDAO.findByUuid(uuid);
+    Member    m   = new Member();
+    m.setDTO(dto);
+    m.setSession(s);
     return m;
   } // public static Member findByUuid(s, uuid)
 
@@ -89,7 +88,7 @@ public class MemberFinder {
     throws  GrouperRuntimeException
   {
     try {
-      return MemberFinder.internal_findBySubject(SubjectFinder.findAllSubject()); 
+      return MemberFinder.internal_findBySubject( SubjectFinder.findAllSubject() ); 
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.MEMBERF_FINDALLMEMBER + eMNF.getMessage();
@@ -99,27 +98,51 @@ public class MemberFinder {
   } // protected static Member internal_findAllMember()
 
   // @since   1.2.0
+  protected static Member internal_findRootMember() 
+    throws  GrouperRuntimeException
+  {
+    try {
+      return MemberFinder.internal_findBySubject( SubjectFinder.findRootSubject() ); 
+    }
+    catch (MemberNotFoundException eShouldNeverHappen) {
+      String msg = "unable to fetch GrouperSystem as member: " + eShouldNeverHappen.getMessage();
+      ErrorLog.fatal(MemberFinder.class, msg);
+      throw new GrouperRuntimeException(msg, eShouldNeverHappen);
+    }
+  } // protected static Member internal_findRootMember()
+
+  // @since   1.2.0
   protected static Member internal_findBySubject(Subject subj) 
     throws  MemberNotFoundException
   {
     if (subj == null) {
       throw new MemberNotFoundException();
     }
-    Member m = internal_findBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() );
-    m.internal_setSubject(subj);
+    Member m = new Member();
+    m.setDTO( internal_findBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) );
     return m;
   } // protected static Member internal_findBySubject(subj)
 
   // @since   1.2.0
-  protected static Member internal_findBySubject(String id, String src, String type) 
+  // TODO 20070123  this should really be renamed to reflect that it will create the member
+  //                if it cannot be found
+  protected static MemberDTO internal_findBySubject(String id, String src, String type) 
     throws  MemberNotFoundException
   {
     // @session false
-    Member m = HibernateMemberDAO.findBySubject(id, src, type);
-    if (m == null) {
-      return Member.internal_addMember(id, src, type); // Create new *Member*
+    MemberDTO dto = null;
+    try {
+      dto = HibernateMemberDAO.findBySubject(id, src, type);
     }
-    return m; // Return existing *Member*
+    catch (MemberNotFoundException eMNF) {
+      dto = new MemberDTO();
+      dto.setMemberUuid( GrouperUuid.internal_getUuid() );
+      dto.setSubjectId(id);
+      dto.setSubjectSourceId(src);
+      dto.setSubjectTypeId(type);
+      dto.setId( HibernateMemberDAO.create(dto) ); // create new member
+    }
+    return dto; // return existing member
   } // protected static Member internal_findBySubject(id, src, type)
 
 } // public class MemberFinder

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject10.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestSubject10.java,v 1.4 2007-02-08 16:25:25 blair Exp $
  */
 public class TestSubject10 extends TestCase {
 
@@ -49,7 +49,7 @@ public class TestSubject10 extends TestCase {
       Group           gA      = r.getGroup("a", "a");
       Group           gB      = r.getGroup("a", "b");
       Subject         subjA   = r.getSubject("a");
-      GrouperSubject  subjGA  = new GrouperSubject(gA);
+      GrouperSubject  subjGA  = new GrouperSubject( gA.getDTO() );
       Assert.assertTrue(
         "gA == gA"    , subjGA.equals(gA.toSubject())
       );

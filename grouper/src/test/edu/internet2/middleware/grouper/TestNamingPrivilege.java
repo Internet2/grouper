@@ -25,9 +25,9 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestNamingPrivilege.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestNamingPrivilege.java,v 1.8 2007-02-08 16:25:25 blair Exp $
  */
-public class TestNamingPrivilege extends TestCase {
+public class TestNamingPrivilege extends GrouperTest {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestNamingPrivilege.class);

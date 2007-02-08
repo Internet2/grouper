@@ -31,7 +31,7 @@ import  java.util.Set;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.53 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.54 2007-02-08 16:25:25 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -141,17 +141,16 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Member    all   = MemberFinder.internal_findAllMember();     
       Privilege p;
       Field     f;
-      Iterator  iterM;
-      Iterator  iterA;
+      Iterator  it;
       Iterator  iterP = Privilege.getNamingPrivs().iterator();
       while (iterP.hasNext()) {
-        p     = (Privilege) iterP.next();
-        f     = GrouperPrivilegeAdapter.internal_getField(priv2list, p);   
-        iterM = MembershipFinder.internal_findAllByOwnerAndMemberAndField(ns, m, f).iterator();
-        privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, m, p, iterM) );
+        p   = (Privilege) iterP.next();
+        f   = GrouperPrivilegeAdapter.internal_getField(priv2list, p);   
+        it  = HibernateMembershipDAO.findAllByOwnerAndMemberAndField( ns.getUuid(), m.getDTO().getMemberUuid(), f ).iterator();
+        privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, m, p, it) );
         if (!m.equals(all)) {
-          iterA = MembershipFinder.internal_findAllByOwnerAndMemberAndField(ns, all, f).iterator();
-          privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, all, p, iterA) );
+          it = HibernateMembershipDAO.findAllByOwnerAndMemberAndField( ns.getUuid(), all.getDTO().getMemberUuid(), f ).iterator();
+          privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, all, p, it) );
         }
       }
     }
@@ -227,7 +226,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(s, subj);
-      rv = m.internal_isMember( ns, GrouperPrivilegeAdapter.internal_getField(priv2list, priv) );
+      rv = m.isMember( ns.getUuid(), GrouperPrivilegeAdapter.internal_getField(priv2list, priv) );
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.GPA_MNF + eMNF.getMessage();
@@ -266,7 +265,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     StemValidator.internal_canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
     ns.internal_setModified();
     try {
-      HibernateStemDAO.revokePriv( ns, Membership.internal_deleteAllField(s, ns, f) );
+      HibernateStemDAO.revokePriv( ns.getDTO(), Membership.internal_deleteAllField(s, ns, f) );
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
@@ -307,7 +306,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     try {
       MemberOf mof = Membership.internal_delImmediateMembership(s, ns, subj, f);
       ns.internal_setModified();
-      HibernateStemDAO.revokePriv(ns, mof);
+      HibernateStemDAO.revokePriv( ns.getDTO(), mof );
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );

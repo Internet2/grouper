@@ -22,9 +22,9 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU11.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestCompositeU11.java,v 1.7 2007-02-08 16:25:25 blair Exp $
  */
-public class TestCompositeU11 extends TestCase {
+public class TestCompositeU11 extends GrouperTest {
 
   // Private Static Class Constants
   private static final Log LOG = LogFactory.getLog(TestCompositeU11.class);
@@ -66,13 +66,13 @@ public class TestCompositeU11 extends TestCase {
       Assert.assertTrue(    "ms subj"   , SubjectHelper.internal_eq(subjA, ms.getMember().getSubject())  );
       Assert.assertEquals(  "ms list"   , f     , ms.getList()    );
       T.amount( "ms depth", 0, ms.getDepth() );
-      Owner via = ms.getVia();
+      Composite via = ms.getViaComposite();
       Assert.assertNotNull( "ms via !null"      , via );
       Assert.assertTrue(    "ms via Composite"  , via instanceof Composite  );
       Composite u = (Composite) via;
-      Assert.assertEquals(  "u owner" , u.getOwner()        , a           );
-      Assert.assertEquals(  "u left"  , u.getLeft()         , b           );
-      Assert.assertEquals(  "u right" , u.getRight()        , c           );
+      Assert.assertEquals(  "u owner" , u.getDTO().getFactorOwnerUuid(),  a.getUuid() );
+      Assert.assertEquals(  "u left"  , u.getDTO().getLeftFactorUuid(),   b.getUuid() );
+      Assert.assertEquals(  "u right" , u.getDTO().getRightFactorUuid(),  c.getUuid() );
       Assert.assertEquals(  "u type"  , CompositeType.UNION , u.getType() );
       r.rs.stop();
     }

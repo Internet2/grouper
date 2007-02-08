@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Messages.
  * @author  blair christensen.
- * @version $Id: M.java,v 1.10 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: M.java,v 1.11 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 class M {
@@ -58,7 +58,6 @@ class M {
   protected static final String S_RP_E              = "revoke effective naming priv: stem=";
   protected static final String S_SA                = "set stem attr: stem=";
   protected static final String S_START             = "session: start";
-  protected static final String S_STOP              = "session: stop duration=";
   protected static final String STEM_ADD            = "add stem: ";
   protected static final String STEM_DEL            = "delete stem: ";
   protected static final String STEM_ROOTINSTALL    = "root stem installed";

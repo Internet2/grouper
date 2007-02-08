@@ -20,15 +20,11 @@
   limitations under the License.
 -->
 
-<!-- $Id: Attribute.hbm.xml,v 1.13 2007-01-04 17:50:51 blair Exp $ -->
+<!-- $Id: HibernateGroupTypeDAO.hbm.xml,v 1.1 2007-02-08 16:25:25 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="Attribute" table="grouper_attributes">
+  <class name="HibernateGroupTypeDAO" table="grouper_types" >
 
-    <meta attribute="class-description">
-A group attribute within the Groups registry.
-@author blair christensen.
-    </meta>
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateDAO.getSession();</meta>
 
@@ -43,56 +39,70 @@ A group attribute within the Groups registry.
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
-    <version name="version" column="version"/>
 
-
-<!--
-  I had a unique index across `group_id`, `field_name` and `field_type` but
-  Oracle did **not** like it one bit.
--->
-
-    <!-- group_id -->
-    <many-to-one
-      name="group"
-      class="edu.internet2.middleware.grouper.Group" 
-      not-null="true"
-    >
-      <column name="group_id"
-              index="attribute_group_idx"
-      />
-    </many-to-one>
-    <!-- group_id -->
-
-    <!-- field -->
-    <property name="field"
-              type="edu.internet2.middleware.grouper.FieldUserType"
+    <!-- typeUuid -->
+    <property name="typeUuid"
+              type="string"
+              unique="true"
               update="false"
-    > 
-      <column name="field_name"
-              not-null="true"
-              length="32"
-              index="attribute_field_idx"
-      />
-      <column name="field_type"
-              not-null="true"
-              length="32"
-              index="attribute_field_idx"
-      />
-    </property>
-    <!-- field -->
-
-    <!-- value -->
-    <property 
-      name="value"
-      type="string"
-      length="1024"
     >
-      <column name="value"
+      <column name="type_uuid"
+              length="128"
               not-null="true"
-              index="attribute_value_idx"
       />
     </property>
-    <!-- value -->
+    <!-- typeUuid -->
+
+    <!-- name -->
+    <property name="name"
+              type="string"
+              not-null="true"
+              unique="true"
+    />
+    <!-- name -->
+
+    <!-- creatorUuid -->
+    <!-- [@since 1.2.0] Refers to creator's UUID, not ID -->
+    <!-- TODO 20070119 make `not-null="true"` once i fix `RegistryInstall` -->
+    <property name="creatorUuid"
+              type="string"
+              unique="false"
+              update="false"
+    >
+      <column name="creator_uuid"
+              length="128"
+              not-null="true"
+      />
+    </property>
+    <!-- creatorUuid -->
+
+    <!-- createTime -->
+    <property name="createTime"
+              type="long"
+              not-null="true"
+              update="false"
+    >
+      <column name="create_time"
+              not-null="true"
+      />
+    </property>
+    <!-- create_time -->
+
+    <!-- isAssignable -->
+    <property name="isAssignable"
+              type="boolean"
+    >
+      <column name="is_assignable"/>
+    </property>
+    <!-- isAssignable -->
+
+    <!-- isInternal -->
+    <property name="isInternal"
+              type="boolean"
+    >
+      <column name="is_internal"/>
+    </property>
+    <!-- isInternal -->
 
   </class>
 </hibernate-mapping>

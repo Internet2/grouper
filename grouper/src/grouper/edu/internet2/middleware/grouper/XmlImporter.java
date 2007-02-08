@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.92 2007-01-11 14:22:06 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.93 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1419,11 +1419,21 @@ public class XmlImporter {
     Element e0  = this._getImmediateElement(e, "subject");
     String  msg = "error setting createSubject: ";
     try {
-      o.setCreator_id( 
-        MemberFinder.internal_findBySubject(
-          e0.getAttribute("id"), e0.getAttribute("source"), e0.getAttribute("type")
-        )
-      );
+      // TODO 20070130 not happy about this
+      if (o instanceof Group) {
+        ( (Group) o).getDTO().setCreatorUuid( 
+          MemberFinder.internal_findBySubject(
+            e0.getAttribute("id"), e0.getAttribute("source"), e0.getAttribute("type")
+          ).getMemberUuid()
+        );
+      }
+      else {
+        ( (Stem) o).getDTO().setCreatorUuid( 
+          MemberFinder.internal_findBySubject(
+            e0.getAttribute("id"), e0.getAttribute("source"), e0.getAttribute("type")
+          ).getMemberUuid()
+        );
+      }
       return true;
     }
     catch (MemberNotFoundException eMNF) {
@@ -1437,7 +1447,13 @@ public class XmlImporter {
   private boolean _setCreateTime(Owner o, Element e) {
     String msg = "error setting createTime: ";
     try { 
-      o.setCreate_time( this._parseTime( XmlImporter._getText(e) ).getTime() );
+      // TODO 20070130 not happy about this
+      if (o instanceof Group) {
+        ( (Group) o ).getDTO().setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
+      }
+      else {
+        ( (Stem) o ).getDTO().setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
+      }
       return true;
     }
     catch (GrouperException eG) {
@@ -1473,7 +1489,7 @@ public class XmlImporter {
       }
     }
     if (modified) {
-      HibernateOwnerDAO.update(o);
+      HibernateDAO.update(o);
     }
   } // private void _setInternalAttributesAttributes(ns, e)
 

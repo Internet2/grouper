@@ -20,15 +20,11 @@
   limitations under the License.
 -->
 
-<!-- $Id: GrouperSession.hbm.xml,v 1.10 2007-01-04 17:50:51 blair Exp $ -->
+<!-- $Id: HibernateMemberDAO.hbm.xml,v 1.1 2007-02-08 16:25:25 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="GrouperSession" table="grouper_sessions">
+  <class name="HibernateMemberDAO" table="grouper_members">
 
-    <meta attribute="class-description">
-Grouper API session.
-@author blair christensen.
-    </meta>
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateDAO.getSession();</meta>
 
@@ -40,42 +36,64 @@ Grouper API session.
         unsaved-value="null"
         length="128"
     >
-      <meta attribute="use-in-tostring">false</meta>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
 
-
-    <!-- member_id -->
-    <many-to-one
-      name="member_id"
-      class="edu.internet2.middleware.grouper.Member" 
-      cascade="none"
-    />
-    <!-- member_id -->
-
-    <!-- start_time -->
+    <!-- memberUuid -->
     <property 
-      name="start_time"
-      type="java.util.Date"
-      not-null="true"
-      update="false"
-    />
-    <!-- start_time -->
-
-    <!-- session_id -->
-    <property 
-      name="session_id"
+      name="memberUuid"
       type="string"
-      not-null="true"
       unique="true"
     >
-      <column name="session_uuid"
+      <column name="member_uuid"
+              not-null="true"
               length="128"
+              index="member_uuid_idx"
       />
     </property>
-    <!-- session_id -->
+    <!-- memberUuid -->
+
+    <!-- subjectId -->
+    <property 
+      name="subjectId"
+      type="string"
+    >
+      <column name="subject_id" 
+              not-null="true"
+              index="member_subjectid_idx"
+              unique-key="subject_idx"
+      />
+    </property>
+    <!-- subjectId -->
+
+    <!-- subjectSourceId -->
+    <property 
+      name="subjectSourceId"
+      type="string"
+    >
+      <column name="subject_source" 
+              not-null="true"
+              index="member_subjectsource_idx"
+              unique-key="subject_idx"
+      />
+    </property>
+    <!-- subjectSourceId -->
+
+    <!-- subjectTypeId -->
+    <property 
+      name="subjectTypeId"
+      type="string"
+    >
+      <column name="subject_type" 
+              not-null="true"
+              index="member_subjecttype_idx"
+              unique-key="subject_idx"
+      />
+    </property>
+    <!-- subjectTypeId -->
 
   </class>
+
 </hibernate-mapping>
 

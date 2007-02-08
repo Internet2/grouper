@@ -20,10 +20,11 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.35 2007-01-11 20:28:05 blair Exp $ -->
+<!-- $Id: HibernateMembershipDAO.hbm.xml,v 1.1 2007-02-08 16:25:25 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="Membership" table="grouper_memberships" batch-size="5">
+  <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
+  <class name="HibernateMembershipDAO" table="grouper_memberships" batch-size="5">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateDAO.getSession();</meta>
@@ -40,9 +41,9 @@
     </id>
     <!-- id -->
 
-    <!-- owner_id -->
+    <!-- ownerUuid -->
     <!-- [@since 1.2.0] Refers to owner's UUID, not ID -->
-    <property name="owner_id"
+    <property name="ownerUuid"
               type="string"
               not-null="true"
               unique="false"
@@ -55,11 +56,11 @@
               index="membership_owner_idx"
       />
     </property>
-    <!-- owner_id -->
+    <!-- ownerUuid -->
 
-    <!-- member_id -->
+    <!-- memberUuid -->
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
-    <property name="member_id"
+    <property name="memberUuid"
               type="string"
               not-null="true"
               unique="false"
@@ -72,10 +73,10 @@
               index="membership_member_idx"
       />
     </property>
-    <!-- member_id -->
+    <!-- memberUuid -->
 
-    <!-- list_name -->
-    <property name="list_name"
+    <!-- listName -->
+    <property name="listName"
               type="string"
               not-null="true"
               unique="false"
@@ -88,10 +89,10 @@
               index="membership_field_idx"
       />
     </property>
-    <!-- list_name -->
+    <!-- listName -->
 
-    <!-- list_type -->
-    <property name="list_type"
+    <!-- listType -->
+    <property name="listType"
               type="string"
               not-null="true"
               unique="false"
@@ -104,11 +105,11 @@
               index="membership_field_idx"
       />
     </property>
-    <!-- list_type -->
+    <!-- listType -->
 
-    <!-- mship_type -->
+    <!-- type -->
     <property 
-      name="mship_type"
+      name="type"
       type="string"
       not-null="true"
       update="false"
@@ -119,11 +120,11 @@
               index="membership_type_idx"
       />
     </property>
-    <!-- mship_type -->
+    <!-- type -->
 
-    <!-- via_id -->
+    <!-- viaUuid -->
     <!-- [@since 1.2.0] Refers to parent's UUID, not ID -->
-    <property name="via_id"
+    <property name="viaUuid"
               type="string"
               not-null="false"
               unique="false"
@@ -134,7 +135,7 @@
               length="128"
       />
     </property>
-    <!-- via_id -->
+    <!-- viaUuid -->
 
     <!-- depth -->
     <property name="depth"
@@ -149,9 +150,9 @@
     </property>
     <!-- depth -->
 
-    <!-- parent_membership -->
+    <!-- parentUuid -->
     <!-- [@since 1.2.0] Refers to parent's UUID, not ID -->
-    <property name="parent_membership"
+    <property name="parentUuid"
               type="string"
               not-null="false"
               unique="false"
@@ -162,11 +163,11 @@
               length="128"
       />
     </property>
-    <!-- parent_membership -->
+    <!-- parentUuid -->
 
-    <!-- uuid -->
+    <!-- membershipUuid -->
     <property 
-      name="uuid"
+      name="membershipUuid"
       type="string"
       not-null="true"
       unique="true"
@@ -177,11 +178,11 @@
               length="128"
       />
     </property>
-    <!-- uuid -->
+    <!-- membershipUuid -->
 
-    <!-- creator_id -->
+    <!-- creatorUuid -->
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
-    <property name="creator_id"
+    <property name="creatorUuid"
               type="string"
               not-null="false"
               unique="false"
@@ -192,10 +193,10 @@
               length="128"
       />
     </property>
-    <!-- creator_id -->
+    <!-- creatorUuid -->
 
-    <!-- create_time -->
-    <property name="create_time"
+    <!-- createTime -->
+    <property name="createTime"
               type="long"
               not-null="true"
               update="false"
@@ -204,7 +205,7 @@
               index="membership_createtime_idx"
       />
     </property>
-    <!-- create_time -->
+    <!-- createTime -->
 
   </class>
 </hibernate-mapping>

@@ -24,9 +24,9 @@ import  org.apache.commons.logging.*;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestGroupTypes.java,v 1.7 2007-02-08 16:25:25 blair Exp $
  */
-public class TestGroupTypes extends TestCase {
+public class TestGroupTypes extends GrouperTest {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestGroupTypes.class);
@@ -176,10 +176,10 @@ public class TestGroupTypes extends TestCase {
       Assert.fail("added field to base type"); 
     }
     catch (InsufficientPrivilegeException eIP) {
-      Assert.fail("unexpected exception: " + eIP.getMessage());
+      Assert.assertTrue("cannot modify fields on system types", true);
     }
-    catch (SchemaException eS) {
-      Assert.assertTrue("field already exists", true);
+    catch (Exception e) {
+      T.e(e);
     }
     finally {
       SessionHelper.stop(s);
@@ -199,10 +199,10 @@ public class TestGroupTypes extends TestCase {
       Assert.fail("added field to base type"); 
     }
     catch (InsufficientPrivilegeException eIP) {
-      Assert.fail("unexpected exception: " + eIP.getMessage());
+      Assert.assertTrue("cannot modify fields on system types", true);
     }
-    catch (SchemaException eS) {
-      Assert.assertTrue("cannot add to base", true);
+    catch (Exception e) {
+      T.e(e);
     }
     finally {
       SessionHelper.stop(s);
@@ -222,10 +222,10 @@ public class TestGroupTypes extends TestCase {
       Assert.fail("added field to naming type"); 
     }
     catch (InsufficientPrivilegeException eIP) {
-      Assert.fail("unexpected exception: " + eIP.getMessage());
+      Assert.assertTrue("cannot modify fields on system types", true);
     }
-    catch (SchemaException eS) {
-      Assert.assertTrue("cannot add to naming", true);
+    catch (Exception e) {
+      T.e(e);
     }
     finally {
       SessionHelper.stop(s);
@@ -397,41 +397,34 @@ public class TestGroupTypes extends TestCase {
       GroupType custom = GroupType.createType(s, type);
       Field f = custom.addList(s, name, read, write);
       Assert.assertTrue("added LIST field", true);
+
+      Stem  root  = StemFinder.findRootStem(s);
+      Stem  edu   = root.addChildStem("edu", "edu");
+      Group g     = edu.addChildGroup("g", "g");
+
+      Assert.assertTrue("no custom type", !g.hasType(custom));
+
+      g.addType(custom);
+      Assert.assertTrue("custom type", g.hasType(custom));
+
+      g.addMember(SubjectTestHelper.SUBJ0, f);
+      Assert.assertTrue("has member", g.hasMember(SubjectTestHelper.SUBJ0, f));
+
+      g.deleteMember(SubjectTestHelper.SUBJ0, f);
+
+      g.deleteType(custom);
+      Assert.assertTrue("custom type removed", !g.hasType(custom));
+
       try {
-        Stem  root  = StemFinder.findRootStem(s);
-        Stem  edu   = root.addChildStem("edu", "edu");
-        Group g     = edu.addChildGroup("g", "g");
-
-        Assert.assertTrue("no custom type", !g.hasType(custom));
-
-        g.addType(custom);
-        Assert.assertTrue("custom type", g.hasType(custom));
-
         g.addMember(SubjectTestHelper.SUBJ0, f);
-        Assert.assertTrue("has member", g.hasMember(SubjectTestHelper.SUBJ0, f));
-
-        g.deleteMember(SubjectTestHelper.SUBJ0, f);
-
-        g.deleteType(custom);
-        Assert.assertTrue("custom type removed", !g.hasType(custom));
-
-        try {
-          g.addMember(SubjectTestHelper.SUBJ0, f);
-          Assert.fail("added field without type");
-        }
-        catch (Exception e) {
-          Assert.assertTrue("could not add field without type", true);
-        }
+        Assert.fail("added field without type");
       }
       catch (Exception e) {
-        Assert.fail(e.getMessage());
+        Assert.assertTrue("could not add field without type", true);
       }
     }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail("unexpected exception: " + eIP.getMessage());
-    }
-    catch (SchemaException eS) {
-      Assert.fail("unexpected exception: " + eS.getMessage());
+    catch (Exception e) {
+      T.e(e);
     }
     finally {
       SessionHelper.stop(s);
@@ -450,44 +443,34 @@ public class TestGroupTypes extends TestCase {
       GroupType custom = GroupType.createType(s, type);
       custom.addAttribute(s, name, read, write, req);
       Assert.assertTrue("added ATTRIBUTE field", true);
+
+      Stem  root  = StemFinder.findRootStem(s);
+      Stem  edu   = root.addChildStem("edu", "edu");
+      Group g     = edu.addChildGroup("g", "g");
+
+      Assert.assertTrue("no custom type", !g.hasType(custom));
+
+      g.addType(custom);
+      Assert.assertTrue("custom type", g.hasType(custom));
+
+      g.setAttribute(name, name);
+      Assert.assertTrue( "has attribute", g.getAttribute(name).equals(name) );
+
+      g.deleteAttribute(name);
+
+      g.deleteType(custom);
+      Assert.assertTrue("custom type removed", !g.hasType(custom));
+
       try {
-        Stem  root  = StemFinder.findRootStem(s);
-        Stem  edu   = root.addChildStem("edu", "edu");
-        Group g     = edu.addChildGroup("g", "g");
-
-        Assert.assertTrue("no custom type", !g.hasType(custom));
-
-        g.addType(custom);
-        Assert.assertTrue("custom type", g.hasType(custom));
-
         g.setAttribute(name, name);
-        Assert.assertTrue(
-          "has attribute", 
-          g.getAttribute(name).equals(name)
-        );
-
-        g.deleteAttribute(name);
-
-        g.deleteType(custom);
-        Assert.assertTrue("custom type removed", !g.hasType(custom));
-
-        try {
-          g.setAttribute(name, name);
-          Assert.fail("added field without type");
-        }
-        catch (Exception e) {
-          Assert.assertTrue("could not add field without type", true);
-        }
+        Assert.fail("added field without type");
       }
-      catch (Exception e) {
-        Assert.fail(e.getMessage());
+      catch (Exception e) { // TODO 20070207 bah.  too much!
+        Assert.assertTrue("could not add field without type", true);
       }
     }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail("unexpected exception: " + eIP.getMessage());
-    }
-    catch (SchemaException eS) {
-      Assert.fail("unexpected exception: " + eS.getMessage());
+    catch (Exception e) {
+      T.e(e);
     }
     finally {
       SessionHelper.stop(s);

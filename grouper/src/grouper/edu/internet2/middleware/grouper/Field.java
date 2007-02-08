@@ -17,51 +17,23 @@
 
 package edu.internet2.middleware.grouper;
 import  java.io.Serializable;
-import  org.apache.commons.lang.builder.*;
 
 /** 
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.16 2007-01-08 16:43:56 blair Exp $    
+ * @version $Id: Field.java,v 1.17 2007-02-08 16:25:25 blair Exp $    
  */
-public class Field implements Serializable {
+public class Field extends GrouperAPI implements Serializable {
 
   // PUBLIC CLASS CONSTANTS //
   public static final long serialVersionUID = 2072790175332537149L;
 
 
-  // HIBERNATE PROPERTIES //
-  private String    field_name;
-  private FieldType field_type;
-  private GroupType group_type;
-  private String    id;
-  private boolean   nullable;
-  private Privilege read_priv;
-  private Privilege write_priv;
-
-    
-  // CONSTRUCTORS //
-  
-  // For Hibernate.
-  // @since   1.2.0
-  private Field() {
-    super();
-  } // private Field()
-
-  protected Field(
-    String field, FieldType type, Privilege read, Privilege write, boolean nullable
-  ) 
-  {
-    this.setField_name(field);
-    this.setField_type(type);
-    this.setNullable(nullable);
-    this.setRead_priv(read);
-    this.setWrite_priv(write);
-  } // protected Field(field, type, read, write)
-
-
   // PUBLIC INSTANCE METHODS //
+
+  /**
+   */
   public boolean equals(Object other) {
     if (this == other) { 
       return true;
@@ -69,112 +41,79 @@ public class Field implements Serializable {
     if (!(other instanceof Field)) {
       return false;
     }
-    Field otherField = (Field) other;
-    return new EqualsBuilder()
-           .append(this.getField_name(),  otherField.getField_name())
-           .append(this.getField_type(),  otherField.getField_type())
-           .isEquals();
+    return this.getDTO().equals( ( (Field) other ).getDTO() );
   } // public boolean equals(other)
 
-  public GroupType getGroupType() {
-    return this.getGroup_type();
+  /**
+   */
+  public GroupType getGroupType() 
+    throws  IllegalStateException
+  {
+    try {
+      return (GroupType) Rosetta.getAPI( HibernateGroupTypeDAO.findByUuid( this.getDTO().getGroupTypeUuid() ) );
+    }
+    catch (SchemaException eS) {
+      throw new IllegalStateException( "unable to fetch GroupType: " + eS.getMessage() );
+    }
   } // public GroupType getGroupType()
 
+  /**
+   */
   public FieldType getType() {
-    return this.getField_type();
+    return FieldType.getInstance( this.getDTO().getType() );
   } // public FieldType getType()
 
+  /**
+   */
   public String getName() {
-    return this.getField_name();
+    return this.getDTO().getName();
   } // public String getName()
 
+  /**
+   */
   public Privilege getReadPriv() {
-    return this.getRead_priv();
+    return Privilege.getInstance( this.getDTO().getReadPrivilege() ); 
   } // public Privilege getReadPriv()
 
+  /**
+   */
   public boolean getRequired() {
-    if (this.getNullable() == true) {
-      return false;
-    }
-    return true;
+    return !this.getDTO().getIsNullable();
   } // public boolean isRequired()
 
+  /**
+   */
   public Privilege getWritePriv() {
-    return this.getWrite_priv();
+    return Privilege.getInstance( this.getDTO().getWritePrivilege() );
   } // public Privilege getWritePriv()
 
+  /**
+   */
   public int hashCode() {
-    return new HashCodeBuilder()
-           .append(getField_name()        )
-           .append(getField_type()        )
-           .toHashCode();
+    return this.getDTO().hashCode();
   } // public int hashCode()
 
+  /**
+   */
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-      .append("name"        , this.getField_name()  )
-      .append("group type"  , this.getGroup_type()  )
-      .append("field type"  , this.getField_type()  )
-      .toString();
+    return this.getDTO().toString();
   } // public String toString()
 
 
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
+  protected FieldDTO getDTO() {
+    return (FieldDTO) super.getDTO();
+  } // protected FieldDTO getDTO()
+
+  // @since   1.2.0
+  // TODO 20070206 rename|relocate
   protected boolean internal_isInUse() 
     throws  SchemaException
   {
     return HibernateFieldDAO.isInUse(this);
   } // protected boolean internal_isInUse()
 
-
-  // GETTERS //
-  private String getField_name() {
-    return this.field_name;
-  }
-  private FieldType getField_type() {
-    return this.field_type;
-  }
-  private GroupType getGroup_type() {
-    return this.group_type;
-  }
-  private String getId() {
-    return this.id;
-  }
-  private boolean getNullable() {
-    return this.nullable;
-  }
-  private Privilege getRead_priv() {
-    return this.read_priv;
-  }
-  private Privilege getWrite_priv() {
-    return this.write_priv;
-  }
-
-
-  // SETTERS //
-  private void setField_name(String field_name) {
-    this.field_name = field_name;
-  }
-  private void setField_type(FieldType type) {
-    this.field_type = type;
-  }
-  protected void setGroup_type(GroupType type) {
-    this.group_type = type;
-  }
-  private void setId(String id) {
-    this.id = id;
-  }
-  private void setNullable(boolean nullable) {
-    this.nullable = nullable;
-  }
-  private void setRead_priv(Privilege read) {
-    this.read_priv = read;
-  }
-  private void setWrite_priv(Privilege write) {
-    this.write_priv = write;
-  }
-
-}
+} // public class Field extends GrouperAPI implements Serializable
 

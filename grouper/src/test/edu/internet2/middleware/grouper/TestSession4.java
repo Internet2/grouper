@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession4.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestSession4.java,v 1.8 2007-02-08 16:25:25 blair Exp $
  */
 public class TestSession4 extends TestCase {
 
@@ -53,18 +53,28 @@ public class TestSession4 extends TestCase {
         s.getMember();
         Assert.fail("FAIL: got member");
       }
-      catch (NullPointerException eNP) {
+      catch (IllegalStateException eNullMember) {
         Assert.assertTrue("OK: failed to get member", true);
       }
       try {
         s.getSubject();
         Assert.fail("FAIL: got subject");
       }
-      catch (RuntimeException eR) {
+      catch (IllegalStateException eNullSubject) {
         Assert.assertTrue("OK: failed to get subject", true);
       }
-      Assert.assertNull("null session id", s.getSessionId());
-      Assert.assertNull("null start time", s.getStartTime());
+      try {
+        Assert.assertNull("null session id", s.getSessionId());
+      }
+      catch (IllegalStateException eNullSessionId) {
+        Assert.assertTrue("OK: failed to get session id", true);
+      }
+      try {
+        Assert.assertNull("null start time", s.getStartTime());
+      }
+      catch (IllegalStateException eNullStartTime) {
+        Assert.assertTrue("OK: failed to get start time", true);
+      }
     }
     catch (Exception e) {
       T.e(e);

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestWheelGroup0.java,v 1.5 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestWheelGroup0.java,v 1.6 2007-02-08 16:25:25 blair Exp $
  * @since   1.1.0
  */
 public class TestWheelGroup0 extends TestCase {
@@ -58,7 +58,7 @@ public class TestWheelGroup0 extends TestCase {
 
       GrouperSession nrs = GrouperSession.start(subjA);
       Assert.assertFalse("is !root", RootPrivilegeResolver.internal_isRoot(nrs));
-      gA.internal_setSession(nrs);
+      gA.setSession(nrs);
       try {
         gA.grantPriv(subjB, AccessPrivilege.ADMIN);
         Assert.fail("FAIL: privilege inappropriately granted");

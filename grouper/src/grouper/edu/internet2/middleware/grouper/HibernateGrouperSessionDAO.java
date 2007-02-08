@@ -16,29 +16,37 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.util.Date;
 import  net.sf.hibernate.*;
 
 /**
  * Stub Hibernate {@link GrouperSession} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.6 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.7 2007-02-08 16:25:25 blair Exp $
  * @since   1.2.0
  */
-class HibernateGrouperSessionDAO {
+class HibernateGrouperSessionDAO extends HibernateDAO {
+
+  // HIBERNATE PROPERTIES //
+  private String  id;
+  private String  memberUUID;
+  private String  sessionUUID;
+  private Date    startTime;
+
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static GrouperSession create(GrouperSession s)
+  protected static String create(GrouperSessionDTO dto)
     throws  GrouperDAOException
   {
     try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
+      Session       hs  = HibernateDAO.getSession();
+      Transaction   tx  = hs.beginTransaction();
+      HibernateDAO  dao = Rosetta.getDAO(dto);
       try {
-        hs.saveOrUpdate( s.getMember_id() );
-        hs.save(s);
+        hs.save(dao);
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -48,24 +56,23 @@ class HibernateGrouperSessionDAO {
       finally {
         hs.close();
       }
-      return s;
+      return dao.getId();
     }
     catch (HibernateException eH) {
-      String msg = E.S_START + eH.getMessage();
-      ErrorLog.fatal(HibernateGrouperSessionDAO.class, msg);
-      throw new GrouperDAOException(msg, eH);
+      throw new GrouperDAOException( eH.getMessage(), eH );
     } 
-  } // protected static GrouperSession create(s)
+  } // protected static String create(dto)
 
   // @since   1.2.0 
-  protected static void delete(GrouperSession s) 
+  protected static void delete(GrouperSessionDTO dto)
     throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        hs.delete(s);
+        Object obj = hs.load( HibernateGrouperSessionDAO.class, dto.getId() );
+        hs.delete( hs.load( HibernateGrouperSessionDAO.class, dto.getId() ) );
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -81,7 +88,37 @@ class HibernateGrouperSessionDAO {
       ErrorLog.fatal(HibernateGrouperSessionDAO.class, msg);
       throw new GrouperDAOException(msg, eH);
     }
-  } // protected static void delete(s)
+  } // protected static void delete(dto)
 
-} // class HibernateGrouperSessionDAO
+
+  // GETTERS //
+  protected String getId() {
+    return this.id;
+  }
+  protected String getMemberUuid() {
+    return this.memberUUID;
+  }
+  protected String getSessionUuid() {
+    return this.sessionUUID;
+  }
+  protected Date getStartTime() {
+    return this.startTime;
+  }
+
+
+  // SETTERS //
+  protected void setId(String id) {
+    this.id = id;
+  }
+  protected void setMemberUuid(String memberUUID) {
+    this.memberUUID = memberUUID;
+  }
+  protected void setSessionUuid(String sessionUUID) {
+    this.sessionUUID = sessionUUID;
+  }
+  protected void setStartTime(Date startTime) {
+    this.startTime = startTime;
+  }
+
+} // class HibernateGrouperSessionDAO extends HibernateDAO
 

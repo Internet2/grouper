@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Privilege resolution (as root) class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RootPrivilegeResolver.java,v 1.8 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: RootPrivilegeResolver.java,v 1.9 2007-02-08 16:25:25 blair Exp $
  * @since   1.1.0
  */
  class RootPrivilegeResolver extends PrivilegeResolver {
@@ -38,19 +38,19 @@ import  edu.internet2.middleware.subject.*;
 
   // @since   1.2.0
   protected static boolean internal_canSTEM(Stem ns, Subject subj) {
-    GrouperSession  s   = ns.internal_getSession();  
-    ns.internal_setSession( s.internal_getRootSession() );
+    GrouperSession  s   = ns.getSession();  
+    ns.setSession( s.getDTO().getRootSession() );
     boolean         rv  = PrivilegeResolver.internal_canSTEM(ns, subj);
-    ns.internal_setSession(s);
+    ns.setSession(s);
     return rv; 
   } // protected static boolean internal_canSTEM(ns, subj)
 
   // @since   1.2.0
   protected static boolean internal_canVIEW(Group g, Subject subj) {
-    GrouperSession  s   = g.internal_getSession();  
-    g.internal_setSession( s.internal_getRootSession() );
+    GrouperSession  s   = g.getSession();  
+    g.setSession( s.getDTO().getRootSession() );
     boolean         rv  = PrivilegeResolver.internal_canVIEW(g, subj);
-    g.internal_setSession(s);
+    g.setSession(s);
     return rv; 
   } // protected static boolean internal_canVIEW(g, subj)
 
@@ -86,7 +86,7 @@ import  edu.internet2.middleware.subject.*;
       String name = GrouperConfig.getProperty(GrouperConfig.GWG);
       try {
         // I suspect this isn't great for the performance
-        Group wheel = GroupFinder.findByName(s.internal_getRootSession(), name);
+        Group wheel = GroupFinder.findByName( s.getDTO().getRootSession(), name );
         rv          = wheel.hasMember(subj);
       }
       catch (GroupNotFoundException eGNF) {

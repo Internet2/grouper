@@ -22,7 +22,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.7 2007-01-11 19:49:16 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.8 2007-02-08 16:25:25 blair Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -51,8 +51,9 @@ class GrouperPrivilegeAdapter {
     Set         privs   = new LinkedHashSet();
     boolean     revoke  = true;
     while (it.hasNext()) {
-      ms = (Membership) it.next();
-      ms.internal_setSession(s);
+      ms = new Membership();
+      ms.setDTO( (MembershipDTO) it.next() );
+      ms.setSession(s);
       try {
         if (!SubjectHelper.internal_eq(m.getSubject(), subj)) {
           owner   = m.getSubject();
@@ -77,7 +78,7 @@ class GrouperPrivilegeAdapter {
         }
         else                        {
           privs.add(
-            new NamingPrivilege(ms.internal_getStem(), subj, owner, p, s.getNamingClass(), revoke)
+            new NamingPrivilege( ms.getStem(), subj, owner, p, s.getNamingClass(), revoke )
           );
         }
       }
@@ -98,10 +99,10 @@ class GrouperPrivilegeAdapter {
     Set         mships  = new LinkedHashSet();
     Membership  ms;
     // Perform query as ROOT to prevent privilege constraints getting in the way
-    Iterator    it      = MembershipFinder.internal_findMemberships( s.internal_getRootSession(), m, f ).iterator();
+    Iterator    it      = MembershipFinder.internal_findMemberships( s.getDTO().getRootSession(), m, f ).iterator();
     while (it.hasNext()) {
       ms = (Membership) it.next();
-      ms.internal_setSession(s);
+      ms.setSession(s);
       mships.add( ms.getGroup() );
     }
     return mships;
@@ -114,11 +115,11 @@ class GrouperPrivilegeAdapter {
     Set         mships  = new LinkedHashSet();
     Membership  ms;
     // Perform query as ROOT to prevent privilege constraints getting in the way
-    Iterator    it      = MembershipFinder.internal_findMemberships( s.internal_getRootSession(), m, f ).iterator();
+    Iterator    it      = MembershipFinder.internal_findMemberships( s.getDTO().getRootSession(), m, f ).iterator();
     while (it.hasNext()) {
       ms = (Membership) it.next();
-      ms.internal_setSession(s);
-      mships.add( ms.internal_getStem() );
+      ms.setSession(s);
+      mships.add( ms.getStem() );
     }
     return mships;
   } // protected static Set internal_getStemsWhereSubjectHasPriv(s, m, f)

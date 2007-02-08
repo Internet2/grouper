@@ -24,7 +24,7 @@ import  java.util.Set;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.38 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.39 2007-02-08 16:25:25 blair Exp $
  */
 public class GroupFinder {
 
@@ -59,9 +59,11 @@ public class GroupFinder {
     Validator.internal_argNotNull( s,    "null session"   );
     Validator.internal_argNotNull( attr, "null attribute" );
     Validator.internal_argNotNull( val,  "null value"     );
-    Group g = HibernateGroupDAO.findByAttribute(attr, val);
-    if (g != null) {
-      g.internal_setSession(s);
+    GroupDTO dto = HibernateGroupDAO.findByAttribute(attr, val);
+    if (dto != null) {
+      Group g = new Group();
+      g.setDTO(dto);
+      g.setSession(s);
       if ( s.getMember().canView(g) ) {
         return g;
       }
@@ -88,8 +90,9 @@ public class GroupFinder {
     throws GroupNotFoundException
   {
     GrouperSessionValidator.internal_validate(s);
-    Group g = internal_findByName(name);
-    g.internal_setSession(s);
+    Group g = new Group();
+    g.setDTO( HibernateGroupDAO.findByName(name) );
+    g.setSession(s);
     if (RootPrivilegeResolver.internal_canVIEW(g, s.getSubject())) {
       return g;
     }
@@ -119,14 +122,9 @@ public class GroupFinder {
   {
     Validator.internal_argNotNull( s,    "null session" );
     Validator.internal_argNotNull( type, "null type"    );
-    try {
-      Set groups = internal_findAllByType(s, type);
-      if (groups.size() == 1) {
-        return (Group) new ArrayList(groups).get(0);
-      }
-    }
-    catch (QueryException eQ) {
-      throw new GroupNotFoundException(ERR_FINDBYTYPE + eQ.getMessage(), eQ);
+    Set groups = PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByType(type) );
+    if (groups.size() == 1) {
+      return (Group) new ArrayList(groups).get(0);
     }
     throw new GroupNotFoundException(ERR_FINDBYTYPE + U.internal_q( type.toString() ));
   } // public static Group findByType(s, type)
@@ -150,8 +148,9 @@ public class GroupFinder {
     throws GroupNotFoundException
   {
     GrouperSessionValidator.internal_validate(s);
-    Group g = _findByUuid(uuid);
-    g.internal_setSession(s);
+    Group g = new Group();
+    g.setDTO( HibernateGroupDAO.findByUuid(uuid) );
+    g.setSession(s);
     if (RootPrivilegeResolver.internal_canVIEW(g, s.getSubject())) {
       return g;
     }
@@ -228,42 +227,5 @@ public class GroupFinder {
     return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByModifiedBefore(d) );
   } // protected static Set internal_findAllByModifiedBefore(s, d)
     
-  // @since   1.2.0
-  protected static Set internal_findAllByType(GrouperSession s, GroupType type) 
-    throws  QueryException
-  {
-    // @filtered  true
-    // @session   true
-    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByType(type) );
-  } // protected static Set internal_findAllByType(s, type)
-
-  // @since   1.2.0
-  protected static Group internal_findByName(String name)
-    throws  GroupNotFoundException
-  {
-    // @filtered  false
-    // @session   false
-    Group g = HibernateGroupDAO.findByName(name);
-    if (g == null) {
-      throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
-    }
-    return g;
-  } // protected static Group internal_findByname(name)
-
-
-  // PRIVATE CLASS METHODS //
-
-  private static Group _findByUuid(String uuid)
-    throws  GroupNotFoundException
-  {
-    // @filtered  false
-    // @session   false
-    Group g = HibernateGroupDAO.findByUuid(uuid);
-    if (g == null) {
-      throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
-    }
-    return g;
-  } // private static Group _findByUuid(uuid)
-
 } // public class GroupFinder
 

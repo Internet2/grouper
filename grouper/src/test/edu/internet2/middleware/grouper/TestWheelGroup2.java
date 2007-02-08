@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestWheelGroup2.java,v 1.5 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestWheelGroup2.java,v 1.6 2007-02-08 16:25:25 blair Exp $
  * @since   1.1.0
  */
 public class TestWheelGroup2 extends TestCase {
@@ -59,7 +59,7 @@ public class TestWheelGroup2 extends TestCase {
 
       GrouperSession nrs = GrouperSession.start(subjA);
       Assert.assertTrue("is root due to all", RootPrivilegeResolver.internal_isRoot(nrs));
-      gA.internal_setSession(nrs);
+      gA.setSession(nrs);
       gA.grantPriv(subjB, AccessPrivilege.ADMIN);
       Assert.assertTrue("granted privilege due to all being wheel", true);
       nrs.stop();

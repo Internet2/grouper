@@ -22,9 +22,9 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeC32.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestCompositeC32.java,v 1.4 2007-02-08 16:25:25 blair Exp $
  */
-public class TestCompositeC32 extends TestCase {
+public class TestCompositeC32 extends GrouperTest {
 
   // Private Static Class Constants
   private static final Log LOG = LogFactory.getLog(TestCompositeC32.class);

@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Settings.hbm.xml,v 1.5 2007-01-04 17:50:51 blair Exp $ -->
+<!-- $Id: HibernateGrouperSessionDAO.hbm.xml,v 1.1 2007-02-08 16:25:25 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="Settings" table="grouper_settings">
+  <class name="HibernateGrouperSessionDAO" table="grouper_sessions">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateDAO.getSession();</meta>
@@ -32,23 +32,51 @@
 
     <!-- id -->
     <id name="id" 
-        type="string" 
+        type="string"
         unsaved-value="null"
         length="128"
     >
+      <meta attribute="use-in-tostring">false</meta>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
 
-    <!-- schema_version -->
-    <property name="schemaVersion"
-              type="integer"
-    >
-      <column name="schema_version"
+    <!-- memberUuid -->
+    <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
+    <property name="memberUuid"
+              type="string"
               not-null="true"
+              unique="false"
+              update="false"
+    >
+      <column name="member_id"
+              not-null="true"
+              length="128"
       />
     </property>
-    <!-- schema_version -->
+    <!-- memberUuid -->
+
+    <!-- startTime -->
+    <property 
+      name="startTime"
+      type="java.util.Date"
+      not-null="true"
+      update="false"
+    />
+    <!-- startTime -->
+
+    <!-- sessionId -->
+    <property 
+      name="sessionUuid"
+      type="string"
+      not-null="true"
+      unique="true"
+    >
+      <column name="session_uuid"
+              length="128"
+      />
+    </property>
+    <!-- sessionUuid -->
 
   </class>
 </hibernate-mapping>

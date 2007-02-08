@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
 import  net.sf.hibernate.*;
@@ -24,16 +25,77 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.6 2007-01-11 20:28:05 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.7 2007-02-08 16:25:25 blair Exp $
  * @since   1.2.0
  */
-class HibernateFieldDAO {
+class HibernateFieldDAO extends HibernateDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateFieldDAO.class.getName();
 
 
+  // PRIVATE INSTANCE VARIABLES //
+  private String  fieldUUID;
+  private String  groupTypeUUID;
+  private String  id;
+  private boolean isNullable;
+  private String  name;
+  private String  readPrivilege;
+  private String  type;
+  private String  writePrivilege;
+
+
   // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  protected static String create(FieldDTO f)
+    throws  GrouperDAOException
+  {
+    try {
+      Session       hs  = HibernateDAO.getSession();
+      Transaction   tx  = hs.beginTransaction();
+      HibernateDAO  dao = Rosetta.getDAO(f);
+      try {
+        hs.save(dao);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+      return dao.getId();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static String create(FieldDTO f)
+
+  // @since   1.2.0
+  protected static void delete(FieldDTO f) 
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateDAO.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        hs.delete( Rosetta.getDAO(f) );
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close(); 
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static void delete(f)
 
   // @since   1.2.0
   protected static Set findAll() 
@@ -42,10 +104,10 @@ class HibernateFieldDAO {
     Set fields = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from Field order by field_name asc");
+      Query   qry = hs.createQuery("from HibernateFieldDAO order by name asc");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAll");
-      fields.addAll( qry.list() );
+      fields.addAll( Rosetta.getDTO( qry.list() ) );
       hs.close();  
     }
     catch (HibernateException eH) {
@@ -57,19 +119,41 @@ class HibernateFieldDAO {
   } // protected Static Set findAll()
 
   // @since   1.2.0
+  protected static Set findAllFieldsByGroupType(String uuid)
+    throws  GrouperDAOException
+  {
+    Set fields = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateFieldDAO as f where f.groupTypeUuid = :uuid order by f.name asc");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindAllFieldsByGroupType");
+      qry.setString("uuid", uuid);
+      HibernateFieldDAO f;
+      Iterator          it = qry.iterate();
+      while (it.hasNext()) {
+        fields.add( (FieldDTO) Rosetta.getDTO( it.next() ) );
+      }
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return fields;
+  } // protected static Set findAllFieldsByGroupType(uuid)
+
+  // @since   1.2.0
   protected static Set findAllByType(FieldType type) 
     throws  GrouperDAOException
   {
     Set fields = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery(
-        "from Field where field_type = :type order by field_name asc"
-      );
+      Query   qry = hs.createQuery("from HibernateFieldDAO where type = :type order by name asc");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByType");
       qry.setString( "type", type.toString() );
-      fields.addAll( qry.list() );
+      fields.addAll( Rosetta.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -89,10 +173,10 @@ class HibernateFieldDAO {
       Session hs  = HibernateDAO.getSession();
       Query   qry = null;
       if      ( f.getType().equals(FieldType.ATTRIBUTE) ) {
-        qry = hs.createQuery("from Attribute as a where a.field.name = :name");
+        qry = hs.createQuery("from HibernateAttributeDAO as a where a.attrName = :name");
       }
       else if ( f.getType().equals(FieldType.LIST) )      {
-        qry = hs.createQuery("from Membership as ms where ms.list_name = :name");
+        qry = hs.createQuery("from HibernateMembershipDAO as ms where ms.listName = :name");
       }
       else {
         String msg = E.GROUPTYPE_FIELDNODELTYPE + f.getType().toString();
@@ -113,5 +197,61 @@ class HibernateFieldDAO {
     return false;
   } // protected static boolean isInUse()
 
-} // class HibernateFieldDAO
+
+  // GETTERS //
+
+  protected String getFieldUuid() {
+    return this.fieldUUID;
+  }
+  protected String getGroupTypeUuid() {
+    return this.groupTypeUUID;
+  }
+  protected String getId() {
+    return this.id;
+  }
+  protected boolean getIsNullable() {
+    return this.isNullable;
+  }
+  protected String getName() {
+    return this.name;
+  }
+  protected String getReadPrivilege() {
+    return this.readPrivilege;
+  }
+  protected String getType() {
+    return this.type;
+  }
+  protected String getWritePrivilege() {
+    return this.writePrivilege;
+  }
+
+
+  // SETTERS //
+
+  protected void setFieldUuid(String fieldUUID) {
+    this.fieldUUID = fieldUUID;
+  }
+  protected void setGroupTypeUuid(String groupTypeUUID) {
+    this.groupTypeUUID = groupTypeUUID;
+  }
+  protected void setId(String id) {
+    this.id = id;
+  }
+  protected void setIsNullable(boolean isNullable) {
+    this.isNullable = isNullable;
+  }
+  protected void setName(String name) {
+    this.name = name;
+  }
+  protected void setReadPrivilege(String readPrivilege) {
+    this.readPrivilege = readPrivilege;
+  }
+  protected void setType(String type) {
+    this.type = type;
+  }
+  protected void setWritePrivilege(String writePrivilege) {
+    this.writePrivilege = writePrivilege;
+  }
+
+} // class HibernateFieldDAO extends HibernateDAO
 
