@@ -22,7 +22,7 @@ import  java.util.*;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.11 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: U.java,v 1.12 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 class U {
@@ -89,7 +89,7 @@ class U {
     Iterator    iter    = l.iterator();
     while (iter.hasNext()) {
       ms = (Membership) iter.next();
-      ms.internal_setSession(s);
+      ms.setSession(s);
       mships.add(ms);
     }
     return mships;

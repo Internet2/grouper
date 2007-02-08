@@ -22,10 +22,10 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr0.java,v 1.2 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGAttr0.java,v 1.3 2007-02-08 16:25:25 blair Exp $
  * @since   1.1.0
  */
-public class TestGAttr0 extends TestCase {
+public class TestGAttr0 extends GrouperTest {
 
   private static final Log LOG = LogFactory.getLog(TestGAttr0.class);
 

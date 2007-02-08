@@ -25,9 +25,9 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.8 2007-02-08 16:25:25 blair Exp $
  */
-public class TestBugsClosed extends TestCase {
+public class TestBugsClosed extends GrouperTest {
 
   // Private Static Class Constants
   private static final Log LOG = LogFactory.getLog(TestBugsClosed.class);
@@ -442,9 +442,7 @@ public class TestBugsClosed extends TestCase {
       Stem            C     = StemFinder.findByName(nrs, "edu:c");
 
       Set create  = m.hasCreate();
-      Assert.assertTrue(
-        "CREATE/1 ("  + create.size() + ")", create.size()  == 1
-      );
+      T.amount( "CREATE", 1, create.size() );
       Assert.assertTrue("CREATE/A/HAS", A.hasCreate(subj) );
       Assert.assertTrue("CREATE/B/HAS", !B.hasCreate(subj));
       Assert.assertTrue("CREATE/C/HAS", !C.hasCreate(subj));
@@ -453,9 +451,7 @@ public class TestBugsClosed extends TestCase {
       Assert.assertTrue("CREATE/C/IS" , !m.hasCreate(C)   );
 
       Set stem    = m.hasStem();
-      Assert.assertTrue(
-        "STEM/1   ("  + stem.size()   + ")", stem.size()    == 1
-      );
+      T.amount( "STEM", 1, stem.size() );
       Assert.assertTrue("STEM/A/HAS"  , !A.hasStem(subj)  );
       Assert.assertTrue("STEM/B/HAS"  , B.hasStem(subj)   );
       Assert.assertTrue("STEM/C/HAS"  , !C.hasStem(subj)  );

@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperSessionValidator.java,v 1.9 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GrouperSessionValidator.java,v 1.10 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 class GrouperSessionValidator {
@@ -32,10 +32,10 @@ class GrouperSessionValidator {
     throws  GrouperRuntimeException
   {
     try {
-      Validator.internal_valueNotNull( s                 , E.SV_O );
-      Validator.internal_valueNotNull( s.getMember_id()  , E.SV_M );
-      Validator.internal_valueNotNull( s.getSession_id() , E.SV_I );
-      Validator.internal_valueNotNull( s.getStart_time() , E.SV_T );
+      Validator.internal_valueNotNull( s,                           E.SV_O );
+      Validator.internal_valueNotNull( s.getDTO().getMemberUuid(),  E.SV_M );
+      Validator.internal_valueNotNull( s.getDTO().getSessionUuid(), E.SV_I );
+      Validator.internal_valueNotNull( s.getDTO().getStartTime(),   E.SV_T );
     }
     catch (NullPointerException eNP) {
       throw new GrouperRuntimeException(eNP.getMessage(), eNP);

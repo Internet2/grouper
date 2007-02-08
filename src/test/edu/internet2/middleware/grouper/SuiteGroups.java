@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test Groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteGroups.java,v 1.19 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SuiteGroups.java,v 1.20 2007-02-08 16:25:25 blair Exp $
  */
 public class SuiteGroups extends TestCase {
 
@@ -72,6 +72,7 @@ public class SuiteGroups extends TestCase {
     suite.addTestSuite( TestGroup39.class       );  // throw eIP, not eGM, if not priv'd to delete attr
     suite.addTestSuite( TestGroup40.class       );  // revokePriv() - revoke default privilege from GrouperAll
     suite.addTestSuite( TestGroup41.class       );  // revokePriv() - revoke default privilege for all subjects
+    suite.addTestSuite( TestGroup42.class       );  // saved attribute persists across sessions
     // TODO 20060927 Split pre-existing tests
     suite.addTestSuite( TestGroup.class               );
     suite.addTestSuite( TestGroupAddMember.class      );

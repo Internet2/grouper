@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.30 2007-01-11 19:49:16 blair Exp $
+ * @version $Id: EventLog.java,v 1.31 2007-02-08 16:25:25 blair Exp $
  */
 class EventLog {
 
@@ -65,9 +65,7 @@ class EventLog {
     Composite c, Set saves, Set deletes, StopWatch sw
   )
   {
-    EventLog.groupAddAndDelCompositeMembers(
-      c.internal_getSession(), c, saves, deletes, sw
-    );
+    EventLog.groupAddAndDelCompositeMembers( c.getSession(), c, saves, deletes, sw );
   } // protected static void compositeUpdate(c, saves, deletes)
 
   // @since 1.0
@@ -75,21 +73,22 @@ class EventLog {
     GrouperSession s, Composite c, Set saves, Set deletes, StopWatch sw
   )
   {
-    Object    obj;
-    Iterator  iter  = saves.iterator();
-    while (iter.hasNext()) {
-      obj = iter.next();
+    Object      obj;
+    Membership  ms;
+    Iterator    it  = saves.iterator();
+    while (it.hasNext()) {
+      obj = it.next();
       if (obj instanceof Membership) {
-        Membership ms = (Membership) obj;
-        _member(s, M.COMP_MEMADD, c.internal_getOwnerName(), ms, sw);
+        ms = (Membership) obj;
+        _member( s, M.COMP_MEMADD, CompositeHelper.getOwnerName(c), ms, sw );
       }
     }
-    iter = deletes.iterator();
-    while (iter.hasNext()) {
-      obj = iter.next();
+    it = deletes.iterator();
+    while (it.hasNext()) {
+      obj = it.next();
       if (obj instanceof Membership) {
-        Membership ms = (Membership) obj;
-        _member(s, M.COMP_MEMDEL, c.internal_getOwnerName(), ms, sw);
+        ms = (Membership) obj;
+        _member( s, M.COMP_MEMDEL, CompositeHelper.getOwnerName(c), ms, sw );
       }
     }
   } // protected static void groupAddAndDelCompositeMembers(s, c, mof, sw)
@@ -100,12 +99,14 @@ class EventLog {
   )
   {
     EventLog.info(
-      s, 
+      s
+      , 
       M.COMP_ADD 
-      + U.internal_q(c.internal_getOwnerName()                    )
-      + " type="  + U.internal_q(c.getType().toString()  )
-      + " left="  + U.internal_q(c.internal_getLeftName()         )
-      + " right=" + U.internal_q(c.internal_getRightName()        ),
+      + U.internal_q( CompositeHelper.getOwnerName(c) )
+      + " type="  + U.internal_q(c.getType().toString() )
+      + " left="  + U.internal_q( CompositeHelper.getLeftName(c) )
+      + " right=" + U.internal_q( CompositeHelper.getRightName(c) )
+      ,
       sw
     );
     EventLog.groupAddAndDelCompositeMembers(
@@ -119,12 +120,14 @@ class EventLog {
   )
   {
     EventLog.info(
-      s, 
+      s
+      , 
       M.COMP_DEL 
-      + U.internal_q(c.internal_getOwnerName()                    )
+      + U.internal_q( CompositeHelper.getOwnerName(c) )
       + " type="  + U.internal_q(c.getType().toString()  )
-      + " left="  + U.internal_q(c.internal_getLeftName()         )
-      + " right=" + U.internal_q(c.internal_getRightName()        ),
+      + " left="  + U.internal_q( CompositeHelper.getLeftName(c) )
+      + " right=" + U.internal_q( CompositeHelper.getRightName(c) )
+      ,
       sw
     );
     EventLog.groupAddAndDelCompositeMembers(
@@ -305,18 +308,18 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    GrouperSession  root  = s.internal_getRootSession();
-    Membership      eff;
+    GrouperSession  root  = s.getDTO().getRootSession();
+    MembershipDTO   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
-      eff = (Membership) iter.next();
-      if      (eff.getList().getType().equals(FieldType.ACCESS)) {
+      eff = (MembershipDTO) iter.next();
+      if      ( eff.getListType().equals(FieldType.ACCESS) )  {
         this._eff(root, s, M.G_GP_E, name, subj, f, eff, "priv="); 
       }
-      else if (eff.getList().getType().equals(FieldType.LIST)) {
+      else if ( eff.getListType().equals(FieldType.LIST) )    {
         this._eff(root, s, M.G_AM_E, name, subj, f, eff, "list="); 
       }
-      else if (eff.getList().getType().equals(FieldType.NAMING)) {
+      else if ( eff.getListType().equals(FieldType.NAMING) )  {
         this._eff(root, s, M.S_GP_E, name, subj, f, eff, "priv="); 
       }
     }
@@ -326,18 +329,18 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    GrouperSession  root  = s.internal_getRootSession();
-    Membership      eff;
+    GrouperSession  root  = s.getDTO().getRootSession();
+    MembershipDTO   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
-      eff = (Membership) iter.next();
-      if      (eff.getList().getType().equals(FieldType.ACCESS)) {
+      eff = (MembershipDTO) iter.next();
+      if      ( eff.getListType().equals(FieldType.ACCESS) )  {
         this._eff(root, s, M.G_RP_E, name, subj, f, eff, "priv="); 
       }
-      else if (eff.getList().getType().equals(FieldType.LIST)) {
+      else if ( eff.getListType().equals(FieldType.LIST) )    {
         this._eff(root, s, M.G_DM_E, name, subj, f, eff, "list="); 
       }
-      else if (eff.getList().getType().equals(FieldType.NAMING)) {
+      else if ( eff.getListType().equals(FieldType.NAMING) )  {
         this._eff(root, s, M.S_RP_E, name, subj, f, eff, "priv="); 
       }
     }
@@ -345,20 +348,19 @@ class EventLog {
 
   private void _eff(
     GrouperSession root, GrouperSession s, String msg, String name, 
-    Subject subj, Field f,Membership eff, String field
+    Subject subj, Field f,MembershipDTO eff, String field
   )
   {
-    // Proxy as root so that we don't run into priv problems
-    eff.internal_setSession(root);
     // Get eff owner
     try {
-      Group g = eff.getGroup();
-      msg += "group=" + U.internal_q(g.getName());
+      Group g = new Group();
+      g.setDTO( HibernateGroupDAO.findByUuid( eff.getOwnerUuid() ) );
+      msg += "group=" + U.internal_q( g.getName() );
     }
     catch (GroupNotFoundException eGNF) {
       try {
-        Stem ns = eff.internal_getStem();
-        msg += "stem=" + U.internal_q(ns.getName());
+        StemDTO ns = HibernateStemDAO.findByUuid( eff.getOwnerUuid() );
+        msg += "stem=" + U.internal_q( ns.getName() );
       }
       catch (StemNotFoundException eSNF) {
         ErrorLog.error(EventLog.class, E.EVENT_EFFOWNER + eSNF.getMessage());
@@ -366,10 +368,13 @@ class EventLog {
       }
     }   
     // Get eff field
-    msg += " " + field + U.internal_q(eff.getList().getName());
+    msg += " " + field + U.internal_q( eff.getListName() );
     // Get eff subject
     try {
-      Subject subject = eff.getMember().getSubject();
+      MemberDTO m       = HibernateMemberDAO.findByUuid( eff.getMemberUuid() );
+      Subject   subject = SubjectFinder.findById(
+        m.getSubjectId(), m.getSubjectTypeId(), m.getSubjectSourceId()
+      );
       msg += " subject=" + SubjectHelper.internal_getPretty(subject);
     }
     catch (Exception e) {
@@ -378,13 +383,13 @@ class EventLog {
     }
     // Get added or removed message that caused this effective membership change
     msg += " (" + name + " ";
-    if      (f.getType().equals(FieldType.ACCESS)) {
+    if      ( f.getType().equals(FieldType.ACCESS) )  {
       msg += "priv=" + U.internal_q(f.getName());
     }
-    else if (f.getType().equals(FieldType.LIST)) {
+    else if ( f.getType().equals(FieldType.LIST) )    {
       msg += "list=" + U.internal_q(f.getName());
     }
-    else if (f.getType().equals(FieldType.NAMING)) {
+    else if ( f.getType().equals(FieldType.NAMING) )  {
       msg += "priv=" + U.internal_q(f.getName());
     }
     // Get added or removed subject that caused this effective
@@ -393,7 +398,6 @@ class EventLog {
     // Now log it
     LOG.info( LogHelper.internal_formatMsg(s, msg) );
     // Reset to the original session
-    eff.internal_setSession(s);
   } // private void _eff(root, s, msg, name, subj, f, eff, field)
 
   private void _grantPriv(

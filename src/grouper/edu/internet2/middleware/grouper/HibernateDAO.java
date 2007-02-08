@@ -28,14 +28,15 @@ import  net.sf.hibernate.cfg.*;
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.6 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.7 2007-02-08 16:25:25 blair Exp $
  * @since   1.2.0
  */
-class HibernateDAO {
+abstract class HibernateDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Configuration  CFG;
   private static final SessionFactory FACTORY;
+  private static final String         KLASS   = HibernateDAO.class.getName();
 
 
   // STATIC //
@@ -48,16 +49,19 @@ class HibernateDAO {
       // And now load all configuration information
       CFG = new Configuration()
         .addProperties(p)
-        .addClass(Attribute.class)
-        .addClass(Field.class)
-        .addClass(GrouperSession.class)
-        .addClass(GroupType.class)
-        .addClass(HibernateSubject.class)
-        .addClass(HibernateSubjectAttribute.class)
-        .addClass(Member.class)
-        .addClass(Membership.class)
-        .addClass(Owner.class)
-        .addClass(Settings.class)
+        .addClass(HibernateAttributeDAO.class)
+        .addClass(HibernateCompositeDAO.class)
+        .addClass(HibernateFieldDAO.class)
+        .addClass(HibernateGroupDAO.class)
+        .addClass(HibernateGroupTypeDAO.class)
+        .addClass(HibernateGroupTypeTupleDAO.class)
+        .addClass(HibernateGrouperSessionDAO.class)
+        .addClass(HibernateMemberDAO.class)
+        .addClass(HibernateMembershipDAO.class)
+        .addClass(HibernateSettingsDAO.class)
+        .addClass(HibernateStemDAO.class)
+        .addClass(HibernateSubject.class)           // TODO 20070206 convert
+        .addClass(HibernateSubjectAttribute.class)  // TODO 20070206 convert
         ;
       // And finally create our session factory
       FACTORY = CFG.buildSessionFactory();
@@ -73,14 +77,15 @@ class HibernateDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static Object create(Object obj) 
+  protected static String create(Object obj) 
     throws  GrouperDAOException 
   {
     try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
+      Session       hs  = HibernateDAO.getSession();
+      Transaction   tx  = hs.beginTransaction();
+      HibernateDAO  dao = Rosetta.getDAO(obj);
       try {
-        hs.save(obj);
+        hs.save(dao);
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -90,12 +95,12 @@ class HibernateDAO {
       finally {
         hs.close();
       } 
-      return obj;
+      return dao.getId();
     }
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static Object create(obj)
+  } // protected static String create(obj)
 
   // @since   1.2.0
   protected static void delete(Collection c) 
@@ -107,7 +112,7 @@ class HibernateDAO {
       try {
         Iterator it = c.iterator();
         while (it.hasNext()) {
-          hs.delete( it.next() );
+          hs.delete( Rosetta.getDAO( it.next() ) );
         }
         tx.commit();
       }
@@ -148,7 +153,7 @@ class HibernateDAO {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        hs.update(obj);
+        hs.update( Rosetta.getDAO(obj) );
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -164,5 +169,11 @@ class HibernateDAO {
     }
   } // protected static void update(obj)
 
-} // class HibernateDAO
+
+  // PROTECTED ABSTRACT METHODS //
+
+  // @since   1.2.0
+  protected abstract String getId();
+
+} // abstracdt class HibernateDAO
 

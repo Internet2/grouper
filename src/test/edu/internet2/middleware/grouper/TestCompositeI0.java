@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeI0.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestCompositeI0.java,v 1.7 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 public class TestCompositeI0 extends TestCase {
@@ -47,7 +47,7 @@ public class TestCompositeI0 extends TestCase {
       R               r   = R.populateRegistry(1, 3, 1);
       GrouperSession  nrs = GrouperSession.start( r.getSubject("a") );
       Group           a   = r.getGroup("a", "a");
-      a.internal_setSession(nrs);
+      a.setSession(nrs);
       a.addCompositeMember(
         CompositeType.INTERSECTION, r.getGroup("a", "b"), r.getGroup("a", "c")
       );

@@ -22,27 +22,31 @@ import  java.util.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.37 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: MemberOf.java,v 1.38 2007-02-08 16:25:25 blair Exp $
  */
 class MemberOf {
 
   // PRIVATE INSTANCE VARIABLES //
   private Composite       c;
   private Set             deletes     = new LinkedHashSet();
+  private MembershipDTO   ms;
   private Set             effDeletes  = new LinkedHashSet();
   private Set             effSaves    = new LinkedHashSet();
   private Field           f;
-  private Member          m;
-  private Membership      ms;
   private Owner           o;
+  private Member          m;
   private GrouperSession  root;
   private GrouperSession  s;    
   private Set             saves       = new LinkedHashSet();
 
 
   // CONSTRUCTORS //
-  private MemberOf(GrouperSession s, Owner o, Member m, Membership ms) {
-    this.f  = ms.getList();
+
+  // @since   1.2.0
+  private MemberOf(GrouperSession s, Owner o, Member m, MembershipDTO ms) 
+    throws  SchemaException
+  {
+    this.f  = FieldFinder.find( ms.getListName() );
     this.m  = m;
     this.ms = ms;
     this.o  = o;
@@ -64,43 +68,50 @@ class MemberOf {
  
   // Calculate addition of a composite membership 
   // @since   1.2.0
-  protected static MemberOf internal_addComposite(
-    GrouperSession s, Owner o, Composite c
-  )
+  protected static MemberOf internal_addComposite(GrouperSession s, Group g, Composite c)
     throws  ModelException
   {
-    MemberOf mof = new MemberOf(s, o, c);
+    MemberOf mof = new MemberOf(s, g, c);
     mof.effSaves.addAll(  mof._evalComposite()  );  // Find the composites
     mof.saves.addAll(     mof.effSaves          );
     mof._resetSessions();
-    mof.o.internal_setModified();
+    ( (Group) mof.o ).internal_setModified();
     mof.saves.add(mof.c);     // Save the composite
     mof.saves.add(mof.o);     // Update the owner
     return mof;
-  } // protected static MemberOf internal_addComposite(s, o, c)
+  } // protected static MemberOf internal_addComposite(s, g, c)
 
   // @since   1.2.0
   protected static MemberOf internal_addImmediate(
-    GrouperSession s, Owner o, Membership ms, Member m
+    GrouperSession s, Owner o, MembershipDTO dto, Member m
   )
     throws  ModelException
   {
-    MemberOf  mof = new MemberOf(s, o, m, ms);
-    mof.saves.add(m);       // Save the member
-    mof.effSaves.addAll( mof._evalAddImmediate()  );  // Find the new effs
-    mof.saves.addAll(   mof.effSaves              );
-    mof._resetSessions();
-    mof.o.internal_setModified();
-    mof.saves.add(ms);      // Save the immediate
-    mof.saves.add(mof.o);   // Update the owner
-    return mof;
-  } // protected static MemberOf internal_addImmediate(s, o, m, ms)
+    try {
+      MemberOf  mof = new MemberOf(s, o, m, dto);
+      mof.saves.add(m);     // Save the member
+      mof.effSaves.addAll( mof._evalAddImmediate()  );  // Find the new effs
+      mof.saves.addAll(   mof.effSaves              );
+      mof._resetSessions();
+      // TODO 20070130 bah
+      if (o instanceof Group) {
+        ( (Group) mof.o ).internal_setModified();
+      }
+      else {
+        ( (Stem) mof.o ).internal_setModified();
+      }
+      mof.saves.add(dto);   // Save the immediate
+      mof.saves.add(mof.o); // Update the owner
+      return mof;
+    }
+    catch (SchemaException eS) {
+      throw new ModelException( eS.getMessage(), eS );
+    }
+  } // protected static MemberOf internal_addImmediate(s, o, m, dto)
 
   // Calculate deletion of a composite membership 
   // @since   1.2.0
-  protected static MemberOf internal_delComposite(
-    GrouperSession s, Owner o, Composite c
-  )
+  protected static MemberOf internal_delComposite(GrouperSession s, Owner o, Composite c)
     throws  ModelException
   {
     //  TODO  20061011 In theory I shouldn't need to pass along `o` as I can just get it 
@@ -118,7 +129,7 @@ class MemberOf {
     while (iterH.hasNext()) {
       ms = (Membership) iterH.next();
       try {
-        MemberOf msMof = MemberOf.internal_delImmediate( s, o, ms, ms.getMember() );
+        MemberOf msMof = MemberOf.internal_delImmediate( s, o, ms.getDTO(), ms.getMember() );
         mof.deletes.addAll( msMof.internal_getDeletes() );
       }
       catch (Exception e) {
@@ -127,7 +138,13 @@ class MemberOf {
     }
 
     mof._resetSessions();
-    mof.o.internal_setModified();
+    // TODO 20070130 bah
+    if (o instanceof Group) {
+      ( (Group) mof.o ).internal_setModified();
+    }
+    else {
+      ( (Stem) mof.o ).internal_setModified();
+    }
     mof.deletes.add(mof.c);   // Delete the composite
     mof.saves.add(mof.o);     // Update the owner
     return mof;
@@ -135,36 +152,45 @@ class MemberOf {
 
   // @since   1.2.0
   protected static MemberOf internal_delImmediate(
-    GrouperSession s, Owner o, Membership ms, Member m
+    GrouperSession s, Owner o, MembershipDTO dto, Member m
   )
     throws  MemberDeleteException
   {
-    MemberOf  mof = new MemberOf(s, o, m, ms);
+    try {
+      MemberOf  mof = new MemberOf(s, o, m, dto);
 
-    // Find child memberships that need deletion
-    Membership  child;
-    Set         children  = new LinkedHashSet();
-    Iterator    iter      = MembershipFinder.internal_findAllChildrenNoPriv(ms).iterator();
-    while (iter.hasNext()) {
-      child = (Membership) iter.next();
-      child.internal_setSession(s);
-      children.add(child);
+      // Find child memberships that need deletion
+      MembershipDTO child;
+      Set           children  = new LinkedHashSet();
+      Iterator      it        = MembershipFinder.internal_findAllChildrenNoPriv(dto).iterator();
+      while (it.hasNext()) {
+        children.add( (MembershipDTO) it.next() );
+      }
+      mof.effDeletes.addAll(children);
+      // Find all effective memberships that need deletion
+      mof.effDeletes.addAll( 
+        MembershipFinder.internal_findAllForwardMembershipsNoPriv(s, dto, children) 
+      );
+
+      // And now set everything else
+      mof.deletes.addAll(mof.effDeletes);
+      mof._resetSessions();
+      // TODO 20070130 bah    
+      if (o instanceof Group) {
+        ( (Group) mof.o ).internal_setModified();
+      }
+      else {
+        ( (Stem) mof.o ).internal_setModified();
+      }
+      mof.deletes.add(dto); // Delete the immediate
+      // TODO 20070201 disabled
+      // mof.saves.add(mof.o); // Update the owner
+      return mof;
     }
-    mof.effDeletes.addAll(children);
-    // Find all effective memberships that need deletion
-    mof.effDeletes.addAll( 
-      MembershipFinder.internal_findAllForwardMembershipsNoPriv(s, ms, children) 
-    );
-
-    // And now set everything else
-    mof.deletes.addAll(mof.effDeletes);
-    mof.deletes.add(ms);
-    mof._resetSessions();
-    mof.o.internal_setModified();
-    mof.deletes.add(ms);    // Delete the immediate
-    mof.saves.add(mof.o);   // Update the owner
-    return mof;
-  } // protected static MemberOf internal_delImmediate(s, o, m, ms)
+    catch (SchemaException eS) {
+      throw new MemberDeleteException( eS.getMessage(), eS );
+    }
+  } // protected static MemberOf internal_delImmediate(s, o, m, dto)
 
 
   // PROTECTED INSTANCE METHODS //
@@ -196,14 +222,40 @@ class MemberOf {
   private Set _addHasMembersToOwner(Set hasMembers) 
     throws  ModelException
   {
-    Set         mships  = new LinkedHashSet();
-    Membership  hasMS;
-    Membership  eff;
-    Iterator    iter    = hasMembers.iterator();
+    Set           mships  = new LinkedHashSet();
+    Membership    hasMS;
+    Membership    eff;
+    MembershipDTO dto;
+    Iterator      iter    = hasMembers.iterator();
     while (iter.hasNext()) {
       hasMS = (Membership) iter.next();
-      eff   = new Membership(this.s, this.ms, hasMS, 1);
-      mships.add(eff);
+
+      dto = new MembershipDTO();
+      dto.setCreateTime( new Date().getTime() );
+      dto.setCreatorUuid( this.s.getMember().getUuid() );
+      dto.setDepth( this.ms.getDepth() + hasMS.getDTO().getDepth() + 1 );
+      dto.setListName( this.ms.getListName() );
+      dto.setListType( this.ms.getListType() );
+      dto.setMemberUuid( hasMS.getDTO().getMemberUuid() );
+      dto.setMembershipUuid( GrouperUuid.internal_getUuid() );
+      dto.setOwnerUuid( this.ms.getOwnerUuid() );
+      dto.setType(Membership.EFFECTIVE);
+      if ( hasMS.getDTO().getDepth() == 0 ) {
+        dto.setViaUuid( hasMS.getDTO().getOwnerUuid() );  // hasMember m was immediate
+        dto.setParentUuid( this.ms.getMembershipUuid() );
+      }
+      else {
+        dto.setViaUuid( hasMS.getDTO().getViaUuid() ); // hasMember m was effective
+        if ( hasMS.getDTO().getParentUuid() != null ) {
+          dto.setParentUuid( hasMS.getDTO().getParentUuid() );
+        }
+        else {
+          dto.setParentUuid( hasMS.getDTO().getMembershipUuid() );
+        }
+      }
+      MembershipValidator.internal_validateEffective(dto);
+
+      mships.add(dto);
     }
     return mships;
   } // private Set _addHasMembersToOwner(hasMembers)
@@ -216,18 +268,44 @@ class MemberOf {
 
     // Add the members of m to where g is a member but only if f == "members"
     if (this.f.equals(Group.getDefaultList())) {
-      Membership  isMS;
-      Iterator    hasIter;
-      Membership  hasMS;
-      Membership  eff;
-      Iterator    isIter  = isMember.iterator();
+      Membership    isMS;
+      Iterator      hasIter;
+      Membership    hasMS;
+      Membership    eff;
+      MembershipDTO dto;
+      Iterator      isIter  = isMember.iterator();
       while (isIter.hasNext()) {
         isMS = (Membership) isIter.next();
         hasIter = hasMembers.iterator();
         while (hasIter.hasNext()) {
           hasMS = (Membership) hasIter.next();
-          eff   = new Membership(this.s, isMS, hasMS, 2);
-          mships.add(eff);
+
+          dto = new MembershipDTO();
+          dto.setCreateTime( new Date().getTime() );
+          dto.setCreatorUuid( this.s.getMember().getUuid() );
+          dto.setDepth( isMS.getDTO().getDepth() + hasMS.getDTO().getDepth() + 2 );
+          dto.setListName( isMS.getDTO().getListName() );
+          dto.setListType( isMS.getDTO().getListType() );
+          dto.setMemberUuid( hasMS.getDTO().getMemberUuid() );
+          dto.setMembershipUuid( GrouperUuid.internal_getUuid() );
+          dto.setOwnerUuid( isMS.getDTO().getOwnerUuid() );
+          dto.setType(Membership.EFFECTIVE);
+          if ( hasMS.getDTO().getDepth() == 0 ) {
+            dto.setViaUuid( hasMS.getDTO().getOwnerUuid() );  // hasMember m was immediate
+            dto.setParentUuid( isMS.getDTO().getMembershipUuid() );
+          }
+          else {
+            dto.setViaUuid( hasMS.getDTO().getViaUuid() ); // hasMember m was effective
+            if ( hasMS.getDTO().getParentUuid() != null ) {
+              dto.setParentUuid( hasMS.getDTO().getParentUuid() );
+            }
+            else {
+              dto.setParentUuid( hasMS.getDTO().getMembershipUuid() );
+            }
+          }
+          MembershipValidator.internal_validateEffective(dto);
+
+          mships.add(dto);
         }
       }
     }
@@ -243,13 +321,39 @@ class MemberOf {
 
     // Add m to where g is a member if f == "members"
     if (this.f.equals(Group.getDefaultList())) {
-      Membership  isMS;
-      Membership  eff;
-      Iterator    isIter  = isMember.iterator();
+      Membership    isMS;
+      Membership    eff;
+      MembershipDTO dto;
+      Iterator      isIter  = isMember.iterator();
       while (isIter.hasNext()) {
         isMS  = (Membership) isIter.next();
-        eff   = new Membership(this.s, isMS, this.ms, 1);
-        mships.add(eff);
+
+        dto = new MembershipDTO();
+        dto.setCreateTime( new Date().getTime() );
+        dto.setCreatorUuid( this.s.getMember().getUuid() );
+        dto.setDepth( isMS.getDTO().getDepth() + this.ms.getDepth() + 1 );
+        dto.setListName( isMS.getDTO().getListName() );
+        dto.setListType( isMS.getDTO().getListType() );
+        dto.setMemberUuid( this.ms.getMemberUuid() );
+        dto.setMembershipUuid( GrouperUuid.internal_getUuid() );
+        dto.setOwnerUuid( isMS.getDTO().getOwnerUuid() );
+        dto.setType(Membership.EFFECTIVE);
+        if ( this.ms.getDepth() == 0 ) {
+          dto.setViaUuid( this.ms.getOwnerUuid() );  // ms m was immediate
+          dto.setParentUuid( isMS.getDTO().getMembershipUuid() );
+        }
+        else {
+          dto.setViaUuid( this.ms.getViaUuid() ); // ms m was effective
+          if ( this.ms.getParentUuid() != null ) {
+            dto.setParentUuid( this.ms.getParentUuid() );
+          }
+          else {
+            dto.setParentUuid( this.ms.getMembershipUuid() );
+          }
+        }
+        MembershipValidator.internal_validateEffective(dto);
+
+        mships.add(dto);
       }
     }
 
@@ -260,15 +364,29 @@ class MemberOf {
   private Set _createNewMembershipObjects(Set members) 
     throws  ModelException
   {
-    Set         mships  = new LinkedHashSet();
-    Member      m;
-    Membership  imm;
-    Iterator    iter    = members.iterator();
+    Set           mships  = new LinkedHashSet();
+    Member        m;
+    Membership    imm;
+    MembershipDTO dto;
+    Iterator      iter    = members.iterator();
     while (iter.hasNext()) {
       m   = (Member) iter.next();
-      imm = new Membership(o, m, this.f, c, this.s);
-      imm.internal_setSession(root);
-      mships.add(imm);
+
+      dto = new MembershipDTO();
+      dto.setCreateTime( new Date().getTime() );
+      dto.setCreatorUuid( this.s.getMember().getUuid() );
+      dto.setDepth(0);
+      dto.setListName( this.f.getName() );
+      dto.setListType( this.f.getType().toString() );
+      dto.setMemberUuid( m.getUuid() );
+      dto.setMembershipUuid( GrouperUuid.internal_getUuid() );
+      dto.setOwnerUuid( o.getUuid() );
+      dto.setParentUuid(null);
+      dto.setType(Membership.COMPOSITE);
+      dto.setViaUuid( this.c.getUuid() );
+      MembershipValidator.internal_validateComposite(dto);
+
+      mships.add(dto);
     }
     return mships;
   } // private Set _createNewMembershipObjects(members)
@@ -303,8 +421,8 @@ class MemberOf {
       Set   tmp   = new LinkedHashSet();
       Group left  = this.c.getLeftGroup();
       Group right = this.c.getRightGroup();
-      tmp.addAll(     left.getMembers()   );
-      tmp.removeAll(  right.getMembers()  );
+      tmp.addAll( left.getMembers() );
+      tmp.removeAll( right.getMembers() );
       return this._createNewMembershipObjects(tmp);
     }
     catch (GroupNotFoundException eGNF) {
@@ -356,7 +474,9 @@ class MemberOf {
     // If we are working on a group, where is it a member
     Set isMember  = new LinkedHashSet();
     if (this.o instanceof Group) {
-      isMember = ( (Group) o).toMember().internal_getAllMemberships();
+      isMember = MembershipFinder.internal_findAllByMember( 
+        ( (Group) o ).getSession(), ( (Group) o ).toMember() 
+      );
     }
     // Members of m if o is a group
     Set hasMembers  = this._findMembersOfMember();
@@ -381,7 +501,7 @@ class MemberOf {
         // Convert member back to a group
         Group gAsM = this.m.toGroup();
         // And attach root session for better looking up of memberships
-        gAsM.internal_setSession(this.root);
+        gAsM.setSession(this.root);
         // Find members of m 
         hasMembers = gAsM.getMemberships();
       }
@@ -394,43 +514,45 @@ class MemberOf {
 
   // Reset attached sessions to their original state
   private void _resetSessions() {
-    if (this.c != null) {
-      this.c.internal_setSession(this.s);
-    }
     if (this.o != null) {
-      this.o.internal_setSession(this.s);
+      if (this.o instanceof Group) {
+        ( (Group) this.o ).setSession(this.s);
+      }
+      else {
+        ( (Stem) this.o ).setSession(this.s);
+      }
     }
-    Set         tmp       = new LinkedHashSet();
-    Membership  msS;
-    Iterator    saveIter  = this.effSaves.iterator();
-    while (saveIter.hasNext()) {
-      msS = (Membership) saveIter.next();
-      msS.internal_setSession(this.s);
-      tmp.add(msS);
+    // TODO 20070124 WTF!?!?
+    Set           tmp = new LinkedHashSet();
+    MembershipDTO ms;
+    Iterator      it  = this.effSaves.iterator();
+    while ( it.hasNext() ) {
+      ms = (MembershipDTO) it.next();
+      tmp.add(ms);
     }
-    this.saves            = tmp;
-    tmp                   = new LinkedHashSet();
-    Membership  msD;
-    Iterator    delIter   = this.deletes.iterator();
-    while (delIter.hasNext()) {
-      msD = (Membership) delIter.next();
-      msD.internal_setSession(this.s);
-      tmp.add(msD);
+    this.saves  = tmp;
+    tmp         = new LinkedHashSet();
+    it          = this.deletes.iterator();
+    while ( it.hasNext() ) {
+      ms = (MembershipDTO) it.next();
+      tmp.add(ms);
     }
     this.deletes = tmp;
   } // private void _resetSessions()
 
   // Switch all sessions to root sessions
   private void _setSessions() {
-    this.root = this.s.internal_getRootSession();
-    if (this.c != null) {
-      this.c.internal_setSession(this.root);
-    }
+    this.root = this.s.getDTO().getRootSession();
     if (this.m != null) {
-      this.m.internal_setSession(this.root);
+      this.m.setSession(this.root);
     }
     if (this.o != null) {
-      this.o.internal_setSession(this.root);
+      if (this.o instanceof Group) {
+        ( (Group) this.o ).setSession(this.root);
+      }
+      else {
+        ( (Stem) this.o ).setSession(this.root);
+      }
     }
   } // private void _setSessions()
 

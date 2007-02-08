@@ -22,10 +22,10 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestWheelGroup3.java,v 1.5 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestWheelGroup3.java,v 1.6 2007-02-08 16:25:25 blair Exp $
  * @since   1.1.0
  */
-public class TestWheelGroup3 extends TestCase {
+public class TestWheelGroup3 extends GrouperTest {
 
   private static final Log LOG = LogFactory.getLog(TestWheelGroup3.class);
 

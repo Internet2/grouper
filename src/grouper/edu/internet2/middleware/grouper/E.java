@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.37 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: E.java,v 1.38 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 class E {
@@ -166,7 +166,6 @@ class E {
   protected static final String RI_IS                     = "unable to install schema: ";
   protected static final String RI_ISG                    = "unable to install base stems and groups: ";
   protected static final String S_NOSTARTROOT             = "unable to start root session: ";
-  protected static final String S_GETSUBJECT              = "unable to get subject associated with session: ";
   protected static final String S_START                   = "unable to start session: ";
   protected static final String S_STOP                    = "unable to stop session: ";
   protected static final String SC_NOTFOUND               = "subject cache not found: ";

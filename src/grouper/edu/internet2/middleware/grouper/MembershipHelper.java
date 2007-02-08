@@ -22,88 +22,35 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.13 2007-01-11 20:28:05 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.14 2007-02-08 16:25:25 blair Exp $
  */
 class MembershipHelper {
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static String internal_getPretty(Membership ms) {
-    String via = _getViaString(ms);
-    String uuid = ms.getOwner_id();
-    if (uuid == null) {
-      throw new GrouperRuntimeException("NULL OWNER");      
-    }
+  protected static Owner getOwner(Membership ms) 
+    throws  IllegalStateException
+  {
+    // TODO 20070130 what should this do with sessions?
+    String uuid = ms.getDTO().getOwnerUuid();
     try {
-      Owner o = HibernateOwnerDAO.findByUuid(uuid);
-      if      (o instanceof Composite) {
-        return new ToStringBuilder(ms).toString();
+      Group g = new Group();
+      g.setDTO( HibernateGroupDAO.findByUuid(uuid) );
+      return g;
+    }
+    catch (GroupNotFoundException eGNF) {
+      try {
+        Stem ns = new Stem();
+        ns.setDTO( HibernateStemDAO.findByUuid(uuid) );
+        return ns;
       }
-      else if (o instanceof Group) {
-        Group   g   = (Group) o;
-        return new ToStringBuilder(ms)
-          .append( "group",   g.getName()            )
-          .append( "subject", ms.getMember_id()      )
-          .append( "field",   ms.getList().getName() )
-          .append( "depth",   ms.getDepth()          )
-          .append( "via",     via                    )
-          .toString();
-      }
-      else if (o instanceof Stem) {
-        Stem ns = (Stem) o;
-        return new ToStringBuilder(ms)
-          .append( "stem",    ns.getName()           )
-          .append( "subject", ms.getMember_id()      )
-          .append( "field",   ms.getList().getName() ) 
-          .append( "depth",   ms.getDepth()          )
-          .append( "via",     via                    )
-          .toString();
-      }
-      else {
-        throw new GrouperRuntimeException("INVALID OWNER CLASS: " + o.getClass().getName());
+      catch (StemNotFoundException eNSNF) {
+        // ignore
       }
     }
-    catch (OwnerNotFoundException eONF) {
-      throw new GrouperRuntimeException( "OWNER NOT FOUND: " + eONF.getMessage(), eONF );
-    }
-  } // protected static String internal_getPretty(ms)
-
-  // @since   1.2.0
-  private static String _getViaString(Membership ms)  {
-    String s = GrouperConfig.EMPTY_STRING;
-    try {
-      Owner via = ms.internal_getOwner();
-      if (via instanceof Composite) {
-        Composite c     = (Composite) via;
-        String    left  = GrouperConfig.EMPTY_STRING;
-        String    owner = GrouperConfig.EMPTY_STRING;
-        String    right = GrouperConfig.EMPTY_STRING;
-        try {
-          owner = c.getOwnerGroup().getName();
-          left  = c.getLeftGroup().getName();
-          right = c.getRightGroup().getName();
-        }
-        catch (GroupNotFoundException eGNF) {
-          // TODO 20070109 what goes here?
-        }
-        s = c.getType().toString() 
-          + "/group=" + owner
-          + "/left="  + left
-          + "/right=" + right
-          ;
-      }
-      else {
-        Group g = (Group) via;
-        s       = g.getName();
-      }
-    }
-    catch (OwnerNotFoundException eONF) {
-      // TODO 20070109 what goes here?
-    }
-    return s;
-  } // private static String _getViaString(ms)
-
+    throw new IllegalStateException("unable to find membership owner " + uuid);
+  } // protected static Owner getOwner()
 
 } // class MembershipHelper
  

@@ -25,60 +25,12 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.8 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.9 2007-02-08 16:25:25 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {
 
   // PROTECTED CLASS METHODS //
-
-  // @return  {@link Settings} or <code>null</code>
-  // @since   1.2.0
-  protected static Settings findSettings()
-    throws  GrouperDAOException
-  {
-    Settings settings = null;
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from Settings");
-      settings = (Settings) qry.uniqueResult();
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return settings;
-  } // protected static Settings findSettings()
-
-  // @since   1.2.0
-  protected static void initializeRegistry(Set types, Settings settings)
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        Iterator  it = types.iterator();
-        while (it.hasNext()) {
-          hs.save( it.next() );
-        }
-        hs.save(settings);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-    }
-    catch (HibernateException eH) {
-      String msg = E.RI_IS + eH.getMessage();
-      ErrorLog.fatal(HibernateRegistryDAO.class, msg);
-      throw new GrouperDAOException(msg, eH);
-    }
-  } // protected static void initializeRegistry(types, settings)
 
   // @since   1.2.0
   protected static void resetRegistry() 
@@ -87,32 +39,22 @@ class HibernateRegistryDAO {
     try {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
-
       try {
-        hs.delete("from Membership");
-        hs.delete("from GrouperSession");
+        hs.delete("from HibernateMembershipDAO");
+        hs.delete("from HibernateGrouperSessionDAO");
 
-        hs.delete("from Composite");
-        hs.delete("from Group");
-        List l = hs.find("from Stem as ns where ns.stem_name like '" + Stem.ROOT_INT + "'");
-        if (l.size() == 1) {
-          Stem    root  = (Stem) l.get(0);
-          String  uuid  = root.getUuid();
-          root.setModifier_id(  null);
-          root.setModify_source(null);
-          root.setModify_time(  0   );
-          hs.saveOrUpdate(root);
-          hs.delete("from Owner as o where o.uuid != '" + uuid + "'");
-        }
-        else {
-          hs.delete("from Owner");
-        }
-
-        hs.delete("from Member as m where m.subject_id != 'GrouperSystem'");
+        hs.delete("from HibernateCompositeDAO");
+        hs.delete("from HibernateAttributeDAO"); // TODO 20070207 this should not be necessary
+        hs.delete("from HibernateGroupDAO");
+        hs.delete("from HibernateStemDAO as ns where ns.name not like '" + Stem.ROOT_INT + "'");
+        hs.delete("from HibernateMemberDAO as m where m.subjectId != 'GrouperSystem'");
+        // TODO 20070207 what about associated fields?
+        // TODO 20070207 and tuples!
+        hs.delete("from HibernateGroupTypeTupleDAO");
         hs.delete(
-          "from GroupType as t where (  "
-          + "     t.name != 'base'      "
-          + "and  t.name != 'naming'    "
+          "from HibernateGroupTypeDAO as t where (  "
+          + "     t.name != 'base'    "
+          + "and  t.name != 'naming'  "
           + ")"
         );
         // TODO 20061018 Once properly mapped I can delete the explicit attr delete
@@ -122,6 +64,7 @@ class HibernateRegistryDAO {
         tx.commit();
       }
       catch (HibernateException eH) {
+        eH.printStackTrace();
         tx.rollback();
         throw eH;
       }

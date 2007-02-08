@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr18.java,v 1.4 2007-01-08 18:04:07 blair Exp $
+ * @version $Id: TestGAttr18.java,v 1.5 2007-02-08 16:25:25 blair Exp $
  * @since   1.1.0
  */
 public class TestGAttr18 extends GrouperTest {
@@ -49,7 +49,7 @@ public class TestGAttr18 extends GrouperTest {
       Subject subjA = r.getSubject("a");
       gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
       r.rs.stop();  
-      gA.internal_setSession( GrouperSession.start(subjA) );
+      gA.setSession( GrouperSession.start(subjA) );
       try {
         gA.deleteAttribute(null);
         fail("deleted null attribute");

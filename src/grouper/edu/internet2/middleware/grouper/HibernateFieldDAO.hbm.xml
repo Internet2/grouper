@@ -20,15 +20,11 @@
   limitations under the License.
 -->
 
-<!-- $Id: Field.hbm.xml,v 1.15 2007-01-04 17:50:51 blair Exp $ -->
+<!-- $Id: HibernateFieldDAO.hbm.xml,v 1.1 2007-02-08 16:25:25 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="Field" table="grouper_fields">
+  <class name="HibernateFieldDAO" table="grouper_fields">
 
-    <meta attribute="class-description">
-Schema specification for a Group attribute or list.
-@author blair christensen.
-    </meta>
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateDAO.getSession();</meta>
 
@@ -45,67 +41,84 @@ Schema specification for a Group attribute or list.
     <!-- id -->
 
 
-    <!-- group_type -->
-    <many-to-one  name="group_type"
-                  class="edu.internet2.middleware.grouper.GroupType"
+    <!-- fieldUuid -->
+    <property name="fieldUuid"
+              type="string"
+              unique="true"
+              update="false"
     >
-      <column name="group_type" 
+      <column name="field_uuid"
               not-null="true"
-      />
-    </many-to-one>
-    <!-- group_type -->
-
-    <!-- field_type -->
-    <property name="field_type"
-              type="edu.internet2.middleware.grouper.FieldTypeUserType"
-    >
-      <column name="field_type"
-              not-null="true"
-              index="field_type_idx"
-              length="32"
+              length="128"
       />
     </property>
-    <!-- field_type -->
+    <!-- fieldUuid -->
 
-    <!-- field_name -->
-    <property name="field_name"
+    <!-- groupTypeUuid -->
+    <property name="groupTypeUuid"
+              type="string"
+              unique="false"
+              update="false"
+    >
+      <column name="grouptype_uuid"
+              not-null="true"
+              length="128"
+      />
+    </property>
+    <!-- groupTypeUuid -->
+
+    <!-- isNullable -->
+    <property name="isNullable"
+              type="boolean"
+    >
+      <column name="is_nullable"/>
+    </property>
+    <!-- isNullable -->
+
+    <!-- name -->
+    <property name="name"
               type="string"
     >
-      <column name="field_name"
+      <column name="name"
               not-null="true"
+              length="32"
               unique="true"
+      />
+    </property>
+    <!-- name -->
+
+    <!-- readPrivilege -->
+    <property name="readPrivilege"
+              type="string"
+    >
+      <column name="read_privilege"
+              not-null="true"
               length="32"
       />
     </property>
-    <!-- field_name -->
+    <!-- readPrivilege -->
 
-    <!-- read_priv -->
-    <property name="read_priv"
-              type="edu.internet2.middleware.grouper.PrivilegeUserType"
+    <!-- type -->
+    <property name="type"
+              type="string"
     >
-      <column name="read_priv"
+      <column name="type"
               not-null="true"
-              length="128"
+              length="32"
       />
     </property>
-    <!-- read_priv -->
+    <!-- type -->
 
-    <!-- write_priv -->
-    <property name="write_priv"
-              type="edu.internet2.middleware.grouper.PrivilegeUserType"
+    <!-- writePrivilege -->
+    <property name="writePrivilege"
+              type="string"
     >
-      <column name="write_priv"
+      <column name="write_privilege"
               not-null="true"
-              length="128"
+              length="32"
       />
     </property>
-    <!-- write_priv -->
-  
-    <!-- nullable -->
-    <property name="nullable"
-              type="boolean"
-    />
-    <!-- nullable -->
+    <!-- writePrivilege -->
 
   </class>
 </hibernate-mapping>

@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.82 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.83 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1121,9 +1121,10 @@ public class XmlExporter {
     this.xml.internal_undent();
   } // private void _writeInternalAttribute(attr, subj, comment)
 
-  // @since   1.1.0
+  // @since   1.2.0
   private void _writeInternalAttributes(Owner o) 
     throws  IOException,
+            MemberNotFoundException,
             StemNotFoundException,
             SubjectNotFoundException
   {
@@ -1135,13 +1136,24 @@ public class XmlExporter {
     {
       this.xml.internal_indent();
       this.xml.internal_puts("<internalAttributes>");
-      this._writeInternalAttribute( "parentStem"    , this._getParentStemName(o)  );
-      this._writeInternalAttribute( "createSource"  , o.getCreate_source()        );
-      this._writeInternalAttribute( "createSubject" , o.getCreator_id()           );
-      this._writeInternalAttribute( "createTime"    , o.getCreate_time()          );
-      this._writeInternalAttribute( "modifySource"  , o.getModify_source()        );
-      this._writeInternalAttribute( "modifySubject" , o.getModifier_id()          );
-      this._writeInternalAttribute( "modifyTime"    , o.getModify_time()          );
+      this._writeInternalAttribute( "parentStem",     this._getParentStemName(o)   );
+      // TODO 20070130 grrrrr
+      if (o instanceof Group) {
+        Group     g   = (Group) o;
+        GroupDTO  dto = g.getDTO();
+        this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, dto.getCreatorUuid() ) );
+        this._writeInternalAttribute( "createTime",     dto.getCreateTime() );
+        this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, dto.getModifierUuid() ) );
+        this._writeInternalAttribute( "modifyTime",     dto.getModifyTime() );
+      }
+      else {
+        Stem    ns  = (Stem) o;
+        StemDTO dto = ns.getDTO();
+        this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, dto.getCreatorUuid() ) );
+        this._writeInternalAttribute( "createTime",     dto.getCreateTime() );
+        this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, dto.getModifierUuid() ) );
+        this._writeInternalAttribute( "modifyTime",     dto.getModifyTime() );
+      }
       this.xml.internal_puts("</internalAttributes>");
       this.xml.internal_undent();
       this.xml.internal_puts();
@@ -1237,7 +1249,7 @@ public class XmlExporter {
   {
     boolean isImmediate = true;
     // How do composites fit in here?
-    if (membership.getMship_type().equals(Membership.INTERNAL_TYPE_E)) {
+    if (membership.getType().equals(Membership.EFFECTIVE)) {
       isImmediate = false;
     }
 

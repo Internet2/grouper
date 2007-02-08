@@ -17,7 +17,9 @@
 
 package edu.internet2.middleware.grouper;
 import  java.io.Serializable;
-import  java.util.*;
+import  java.util.Date;
+import  java.util.LinkedHashSet;
+import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
@@ -25,35 +27,12 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.35 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: GroupType.java,v 1.36 2007-02-08 16:25:25 blair Exp $
  */
-public class GroupType implements Serializable {
+public class GroupType extends GrouperAPI implements Serializable {
 
   // PUBLIC CLASS CONSTANTS //
   public static final long serialVersionUID = 8214760621248803096L;
-
-
-  // HIBERNATE PROPERTIES //
-  private boolean assignable    = true;
-  private Member  creator_id;
-  private long    create_time;
-  private Set     fields        = new LinkedHashSet();
-  private String  id;
-  private boolean internal      = false;
-  private String  name;
-
-
-  // CONSTRUCTORS //
-  public GroupType() {
-    super();
-  } // public GroupType()
-
-  protected GroupType(String name, Set fields, boolean assignable, boolean internal) {
-    this.setName(name);
-    this.setFields(fields); 
-    this.setAssignable(assignable);
-    this.setInternal(internal);
-  } // protected GroupType(name, fields, assignable, internal)
 
 
   // PUBLIC CLASS METHODS //
@@ -86,36 +65,9 @@ public class GroupType implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    GroupType type  = null;
-    StopWatch sw    = new StopWatch();
+    StopWatch sw = new StopWatch();
     sw.start();
-    if (!RootPrivilegeResolver.internal_isRoot(s)) {
-      String msg = E.GROUPTYPE_NOADD;
-      ErrorLog.error(GroupType.class, msg);
-      throw new InsufficientPrivilegeException(msg);
-    }
-    try {
-      type = GroupTypeFinder.find(name);  // type already exists
-    }
-    catch (SchemaException eS) {
-      // Type not found.  This is what we want.
-    } 
-    if (type != null) {
-      String msg = E.GROUPTYPE_EXISTS + name;
-      ErrorLog.error(GroupType.class, msg);
-      throw new SchemaException(msg);
-    }
-    type = new GroupType(name, new HashSet(), true, false);
-    type.setCreator_id(   s.getMember()                   );
-    type.setCreate_time(  new java.util.Date().getTime()  );
-    try {
-      type = HibernateGroupTypeDAO.create(type);
-    }
-    catch (GrouperDAOException eDAO) {
-      String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
-      ErrorLog.error(GroupType.class, msg);
-      throw new SchemaException(msg, eDAO);
-    }
+    GroupType type = internal_createType(s, name, true, false);
     sw.stop();
     EventLog.info(s, M.GROUPTYPE_ADD + U.internal_q(type.toString()), sw);
     return type;
@@ -152,7 +104,14 @@ public class GroupType implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    return this._addField(s, name, FieldType.ATTRIBUTE, read, write, required);
+    this._cannotModifySystemTypes();
+    if (!Privilege.isAccess(read)) {
+      throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
+    }
+    if (!Privilege.isAccess(write)) {
+      throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
+    }
+    return this.internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required);
   } // public Field addAttribute(s, name, read, write, required)
 
   /**
@@ -182,7 +141,14 @@ public class GroupType implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    return this._addField(s, name, FieldType.LIST, read, write, false);
+    this._cannotModifySystemTypes();
+    if (!Privilege.isAccess(read)) {
+      throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
+    }
+    if (!Privilege.isAccess(write)) {
+      throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
+    }
+    return this.internal_addField(s, name, FieldType.LIST, read, write, false);
   } // public Field addList(s, name, read, write)
 
   /*
@@ -211,7 +177,7 @@ public class GroupType implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     if ( internal_isSystemType(this) ) {
-      String msg = E.GROUPTYPE_NODELSYS + this.getName();
+      String msg = E.GROUPTYPE_NODELSYS + this.getDTO().getName();
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     } 
@@ -227,8 +193,8 @@ public class GroupType implements Serializable {
         throw new SchemaException(msg);
       }
       // Now delete the type
-      String typeName = this.getName(); // For logging purposes
-      HibernateGroupTypeDAO.delete(this);
+      String typeName = this.getDTO().getName(); // For logging purposes
+      HibernateGroupTypeDAO.delete( this.getDTO() );
       sw.stop();
       EventLog.info(s, M.GROUPTYPE_DEL + U.internal_q(typeName), sw);
       // TODO 20061011 Now update the cached types + fields
@@ -281,14 +247,14 @@ public class GroupType implements Serializable {
     }
     // With validation complete, delete the field
     try {
-      Set fields = this.getFields();
+      Set fields = this.getDTO().getFields();
       if ( fields.remove(f) ) {
-        this.setFields(fields);
-        HibernateGroupTypeDAO.update(this);
+        this.getDTO().setFields(fields);
+        HibernateFieldDAO.delete( f.getDTO() );
         sw.stop();
         EventLog.info(
           s,
-          M.GROUPTYPE_DELFIELD + U.internal_q(f.getName()) + " type=" + U.internal_q(this.getName()),
+          M.GROUPTYPE_DELFIELD + U.internal_q(f.getName()) + " type=" + U.internal_q(this.getDTO().getName()),
           sw
         );
       }
@@ -312,28 +278,88 @@ public class GroupType implements Serializable {
     if (!(other instanceof GroupType)) {
       return false;
     }
-    GroupType otherType = (GroupType) other;
-    return new EqualsBuilder()
-      .append(this.getName()  , otherType.getName())
-      .isEquals();
+    return this.getDTO().equals( ( (GroupType) other ).getDTO() );
   } // public boolean equals(other)
 
+  /**
+   * Get group fields for this group type.
+   * @return  A set of {@link Field} objects.
+   */
+  public Set getFields() {
+    return (Set) Rosetta.getAPI( this.getDTO().getFields() );
+  } // public Set getFields()
+
+  /**
+   * Get group type name.
+   * @return  group type name.
+   */
+  public String getName() {
+    return this.getDTO().getName();
+  } // public String getName()
+
+  /**
+   */
   public int hashCode() {
-    return new HashCodeBuilder()
-      .append(getName())
-      .toHashCode();
+    return this.getDTO().hashCode();
   } // public int hashCode()
 
+  /**
+   */
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-      .append("name",   this.getName()  )
-      .toString();
+    return this.getDTO().toString();
   } // public String toString()
 
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
+  protected static GroupType internal_createType(
+    GrouperSession s, String name, boolean isAssignable, boolean isInternal)
+      throws  InsufficientPrivilegeException,
+              SchemaException
+  { 
+    if (!RootPrivilegeResolver.internal_isRoot(s)) {
+      String msg = E.GROUPTYPE_NOADD;
+      ErrorLog.error(GroupType.class, msg);
+      throw new InsufficientPrivilegeException(msg);
+    }
+    GroupType type = null;
+    try {
+      // TODO 20070206 call the dao method
+      type = GroupTypeFinder.find(name);  // type already exists
+    }
+    catch (SchemaException eS) {
+      // Type not found.  This is what we want.
+    } 
+    // TODO 20070206 yuck
+    if (type != null) {
+      String msg = E.GROUPTYPE_EXISTS + name;
+      ErrorLog.error(GroupType.class, msg);
+      throw new SchemaException(msg);
+    }
+    GroupTypeDTO dto = new GroupTypeDTO();
+    dto.setCreateTime( new Date().getTime() );
+    dto.setCreatorUuid( s.getMember().getUuid() );
+    dto.setFields( new LinkedHashSet() );
+    dto.setIsAssignable(isAssignable);  
+    dto.setIsInternal(isInternal);
+    dto.setName(name);
+    dto.setTypeUuid( GrouperUuid.internal_getUuid() );
+    try {
+      dto.setId( HibernateGroupTypeDAO.create(dto) );
+    }
+    catch (GrouperDAOException eDAO) {
+      String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
+      ErrorLog.error(GroupType.class, msg);
+      throw new SchemaException(msg, eDAO);
+    }
+    type = new GroupType();
+    type.setDTO(dto);
+    return type;
+  } // protected static GroupType internal_createType(s, name, isAssignable, isInternal)
+
+  // @since   1.2.0
+  // TODO 20070206 rename|relocate
   protected static boolean internal_isSystemType(GroupType type) {
     String name = type.getName();
     if ( (name.equals("base")) || (name.equals("naming")) ) {
@@ -343,15 +369,16 @@ public class GroupType implements Serializable {
   } // protected static boolean internal_isSystemType(type)
 
 
-  // PRIVATE INSTANCE METHODSs //
-  private Field _addField(
-      GrouperSession s, String name, FieldType type, Privilege read, 
-      Privilege write, boolean required
+  // PROTECTED INSTANCE METHODS //
+
+  // @since   1.2.0
+  // TODO 20070206 rename|relocate
+  protected Field internal_addField(
+    GrouperSession s, String name, FieldType type, Privilege read, Privilege write, boolean required
   )
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    Field     f   = null;
     StopWatch sw  = new StopWatch();
     sw.start();
     GroupTypeValidator.internal_canAddFieldToType(s, this, name, type, read, write);
@@ -360,16 +387,29 @@ public class GroupType implements Serializable {
       if (required == true) {
         nullable = false;
       }
-      Set fields = this.getFields();
-      f = new Field(name, type, read, write, nullable);
+      FieldDTO dto = new FieldDTO();
+      dto.setFieldUuid( GrouperUuid.internal_getUuid() );
+      dto.setGroupTypeUuid( this.getDTO().getTypeUuid() );
+      dto.setIsNullable(nullable);
+      dto.setName(name);
+      dto.setReadPrivilege(read);
+      dto.setType(type);
+      dto.setWritePrivilege(write);
+
+      dto.setId( HibernateFieldDAO.create(dto) );
+
+      Field f = new Field();
+      f.setDTO(dto);
+
+      Set fields = this.getDTO().getFields();
       fields.add(f);
-      this.setFields(fields);
-      HibernateGroupTypeDAO.update(this);
+      this.getDTO().setFields(fields);
+
       sw.stop();
       EventLog.info(
         s, 
         M.GROUPTYPE_ADDFIELD + U.internal_q(f.getName()) + " ftype=" + U.internal_q(type.toString()) 
-        + " gtype=" + U.internal_q(this.getName()),
+        + " gtype=" + U.internal_q(this.getDTO().getName()),
         sw
       );
       return f;
@@ -379,68 +419,24 @@ public class GroupType implements Serializable {
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg, eDAO);
     }
-  } // private void _addField(s, name, type, read, write, required)
+  } // protected Field internal_addField(s, name, type, read, write, required)
+
+  // @since   1.2.0
+  protected GroupTypeDTO getDTO() {
+    return (GroupTypeDTO) super.getDTO();
+  } // protected GroupTypeDTO getDTO()
 
 
-  // GETTERS //
-  protected boolean getAssignable() {
-    return this.assignable;
-  }
-  private long getCreate_time() {
-    return this.create_time;
-  }
-  private Member getCreator_id() {
-    return this.creator_id;
-  }
-  /**
-   * Get group fields for this group type.
-   * @return  A set of {@link Field} objects.
-   */
-  public Set getFields() {
-    return this.fields;
-  } // public Set getFields()
-  private String getId() {
-    return this.id;
-  } // private String getId()
-  protected boolean getInternal() {
-    return this.internal;
-  }
-  /**
-   * Get group type name.
-   * @return  group type name.
-   */
-  public String getName() {
-    return this.name;
-  } // public String getName()
-
-
-  // SETTERS //
-  private void setAssignable(boolean assignable) {
-    this.assignable = assignable;
-  }
-  private void setCreate_time(long time) {
-    this.create_time = time;
-  }
-  private void setCreator_id(Member m) {
-    this.creator_id = m;
-  }
-  protected void setFields(Set fields) {
-    Field     f;
-    Iterator  iter  = fields.iterator();
-    while (iter.hasNext()) {
-      f = (Field) iter.next();
-      f.setGroup_type(this); 
+  // PRIVATE INSTANCE METHODS //
+ 
+  //  @since    1.2.0
+  private void _cannotModifySystemTypes()
+    throws  InsufficientPrivilegeException
+  {
+    if ( internal_isSystemType(this) ) {
+      throw new InsufficientPrivilegeException(E.GROUPTYPE_CANNOT_MODIFY_SYSTEM_TYPES);
     }
-    this.fields = fields;
-  } // protected void setFields(fields)
-  private void setId(String id) {
-    this.id = id;
-  } // private void setId()
-  private void setInternal(boolean internal) {
-    this.internal = internal;
-  }
-  private void setName(String name) {
-    this.name = name;
-  } // private void setName(name)
+  } // private void _cannotModifySystemTypes()
 
-}
+} // public class GroupType extends GrouperAPI implements Serializable
+

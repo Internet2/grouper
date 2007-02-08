@@ -28,48 +28,17 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.79 2007-01-11 19:49:16 blair Exp $
+ * @version $Id: Member.java,v 1.80 2007-02-08 16:25:25 blair Exp $
  */
-public class Member implements Serializable {
+public class Member extends GrouperAPI implements Serializable {
 
   // PUBLIC CLASS CONSTANTS //
   public static final long serialVersionUID = 2348656645982471668L;
 
 
-  // HIBERNATE PROPERTIES //
-  private String  id;
-  private String  subject_id;
-  private String  subject_source;
-  private String  subject_type;
-  private String  uuid;
-
-
   // PRIVATE TRANSIENT INSTANCE PROPERTIES //
-  private transient Group           g     = null;
-  private transient GrouperSession  s     = null;
-  private transient Subject         subj  = null;
-
-
-  // CONSTRUCTORS //
-
-  protected Member(Subject subj) {
-    this( subj.getId(), subj.getSource().getId(), subj.getType().getName() );
-  } // protected Member(subj)
-
-  // @since   1.1.0
-  protected Member(String id, String src, String type) {
-    // Persistent Properties
-    this.setSubject_id( id );
-    this.setSubject_source( src );
-    this.setSubject_type( type );
-    this.setMember_id( GrouperUuid.internal_getUuid() );
-  } // protected Member(id, src, type)
-
-  // Default constructor for Hibernate.
-  // @since   1.0
-  private Member() {
-    super();
-  } // private Member()
+  private transient Group   g     = null;
+  private transient Subject subj  = null;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -89,7 +58,7 @@ public class Member implements Serializable {
     Validator.internal_argNotNull(g, E.GROUP_NULL);
     try {
       return PrivilegeResolver.internal_canADMIN(
-        this.internal_getSession(), g, this.getSubject()
+        this.getSession(), g, this.getSubject()
       );
     }
     catch (SubjectNotFoundException eSNF) {
@@ -112,7 +81,7 @@ public class Member implements Serializable {
     Validator.internal_argNotNull(ns, E.STEM_NULL);
     try {
       return PrivilegeResolver.internal_canCREATE(
-        this.internal_getSession(), ns, this.getSubject()
+        this.getSession(), ns, this.getSubject()
       );
     }
     catch (SubjectNotFoundException eSNF) {
@@ -135,7 +104,7 @@ public class Member implements Serializable {
     Validator.internal_argNotNull(g, E.GROUP_NULL);
     try {
       return PrivilegeResolver.internal_canOPTIN(
-        this.internal_getSession(), g, this.getSubject()
+        this.getSession(), g, this.getSubject()
       );
     }
     catch (SubjectNotFoundException eSNF) {
@@ -158,7 +127,7 @@ public class Member implements Serializable {
     Validator.internal_argNotNull(g, E.GROUP_NULL);
     try {
       return PrivilegeResolver.internal_canOPTOUT(
-        this.internal_getSession(), g, this.getSubject()
+        this.getSession(), g, this.getSubject()
       );
     }
     catch (SubjectNotFoundException eSNF) {
@@ -181,7 +150,7 @@ public class Member implements Serializable {
     Validator.internal_argNotNull(g, E.GROUP_NULL);
     try {
       return PrivilegeResolver.internal_canREAD(
-        this.internal_getSession(), g, this.getSubject()
+        this.getSession(), g, this.getSubject()
       );
     }
     catch (SubjectNotFoundException eSNF) {
@@ -225,7 +194,7 @@ public class Member implements Serializable {
     Validator.internal_argNotNull(g, E.GROUP_NULL);
     try {
       return PrivilegeResolver.internal_canUPDATE(
-        this.internal_getSession(), g, this.getSubject()
+        this.getSession(), g, this.getSubject()
       );
     }
     catch (SubjectNotFoundException eSNF) {
@@ -301,7 +270,7 @@ public class Member implements Serializable {
     throws  SchemaException
   {
     return MembershipFinder.internal_findAllEffectiveByMemberAndField(
-      this.internal_getSession(), this, f
+      this.getSession(), this, f
     );
   } // public Set getEffectiveMemberships(f)
 
@@ -363,7 +332,7 @@ public class Member implements Serializable {
   public Set getImmediateMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.internal_findAllImmediateByMemberAndField( this.internal_getSession(), this, f );
+    return MembershipFinder.internal_findAllImmediateByMemberAndField( this.getSession(), this, f );
   } // public Set getImmediateMemberships(f)
 
   /**
@@ -403,7 +372,7 @@ public class Member implements Serializable {
     if (!f.getType().equals(FieldType.LIST)) {
       throw new SchemaException(f + " is not type " + FieldType.LIST);
     }
-    return MembershipFinder.internal_findMemberships( this.internal_getSession(), this, f );
+    return MembershipFinder.internal_findMemberships( this.getSession(), this, f );
   } // public Set getMemberships(f)
 
   /**
@@ -417,7 +386,7 @@ public class Member implements Serializable {
   public Set getPrivs(Group g) {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getPrivs(this.internal_getSession(), g, this.getSubject());
+      privs = PrivilegeResolver.internal_getPrivs(this.getSession(), g, this.getSubject());
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -436,7 +405,7 @@ public class Member implements Serializable {
   public Set getPrivs(Stem ns) {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getPrivs(this.internal_getSession(), ns, this.getSubject());
+      privs = PrivilegeResolver.internal_getPrivs(this.getSession(), ns, this.getSubject());
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -464,7 +433,7 @@ public class Member implements Serializable {
     if (this.subj == null) {
       try {
         this.subj = SubjectFinder.findById(
-          this.getSubject_id(), this.getSubject_type(), this.getSubjectSourceId()
+          this.getDTO().getSubjectId(), this.getDTO().getSubjectTypeId(), this.getDTO().getSubjectSourceId()
         );
       }
       catch (SourceUnavailableException eSU) {
@@ -486,7 +455,7 @@ public class Member implements Serializable {
    * @return  Subject id
    */ 
   public String getSubjectId() {
-    return this.getSubject_id();
+    return this.getDTO().getSubjectId();
   }
 
   /**
@@ -518,7 +487,7 @@ public class Member implements Serializable {
    * @return  Subject's {@link Source} id
    */
   public String getSubjectSourceId() {
-    return this.getSubject_source();
+    return this.getDTO().getSubjectSourceId();
   } 
 
   /**
@@ -530,7 +499,7 @@ public class Member implements Serializable {
    * @return  Subject's {@link SubjectType}
    */ 
   public SubjectType getSubjectType() {
-    return SubjectTypeEnum.valueOf(this.getSubject_type());
+    return SubjectTypeEnum.valueOf( this.getDTO().getSubjectTypeId() );
   } // public SubjectType getSubjectType()
 
   /**
@@ -542,7 +511,7 @@ public class Member implements Serializable {
    * @return  Subject's type id.
    */ 
   public String getSubjectTypeId() {
-    return this.getSubject_type();
+    return this.getDTO().getSubjectTypeId();
   }
 
   /**
@@ -554,7 +523,7 @@ public class Member implements Serializable {
    * @return  Member's UUID.
    */
   public String getUuid() {
-    return this.getMember_id();
+    return this.getDTO().getMemberUuid();
   }
 
   /**
@@ -571,7 +540,7 @@ public class Member implements Serializable {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.internal_getSession(), this.getSubject(), AccessPrivilege.ADMIN
+        this.getSession(), this.getSubject(), AccessPrivilege.ADMIN
       );
     }
     catch (SchemaException eS) { 
@@ -614,7 +583,7 @@ public class Member implements Serializable {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.internal_getStemsWhereSubjectHasPriv(
-        this.internal_getSession(), this.getSubject(), NamingPrivilege.CREATE
+        this.getSession(), this.getSubject(), NamingPrivilege.CREATE
       );
     } 
     catch (SchemaException eS) { 
@@ -657,7 +626,7 @@ public class Member implements Serializable {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.internal_getSession(), this.getSubject(), AccessPrivilege.OPTIN
+        this.getSession(), this.getSubject(), AccessPrivilege.OPTIN
       );
     }
     catch (SchemaException eS) { 
@@ -700,7 +669,7 @@ public class Member implements Serializable {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.internal_getSession(), this.getSubject(), AccessPrivilege.OPTOUT
+        this.getSession(), this.getSubject(), AccessPrivilege.OPTOUT
       );
     }
     catch (SchemaException eS) { 
@@ -743,7 +712,7 @@ public class Member implements Serializable {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.internal_getSession(), this.getSubject(), AccessPrivilege.READ
+        this.getSession(), this.getSubject(), AccessPrivilege.READ
       );
     }
     catch (SchemaException eS) { 
@@ -786,7 +755,7 @@ public class Member implements Serializable {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.internal_getStemsWhereSubjectHasPriv(
-        this.internal_getSession(), this.getSubject(), NamingPrivilege.STEM
+        this.getSession(), this.getSubject(), NamingPrivilege.STEM
       );
     }
     catch (SchemaException eS) { 
@@ -828,7 +797,7 @@ public class Member implements Serializable {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.internal_getSession(), this.getSubject(), AccessPrivilege.UPDATE
+        this.getSession(), this.getSubject(), AccessPrivilege.UPDATE
       );
     }
     catch (SchemaException eS) { 
@@ -871,7 +840,7 @@ public class Member implements Serializable {
     Set privs = new LinkedHashSet();
     try {
       privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.internal_getSession(), this.getSubject(), AccessPrivilege.VIEW
+        this.getSession(), this.getSubject(), AccessPrivilege.VIEW
       );
     }
     catch (SchemaException eS) { 
@@ -1004,13 +973,13 @@ public class Member implements Serializable {
     try {
       Subject subj = this.getSubject();
       try {
-        MembershipFinder.findImmediateMembership(this.internal_getSession(), g, subj, f);
+        MembershipFinder.findImmediateMembership(this.getSession(), g, subj, f);
         rv = true;
       }
       catch (MembershipNotFoundException eMNF) {
         try {
-          MembershipFinder.internal_findByOwnerAndMemberAndFieldAndType(
-            g, MemberFinder.internal_findAllMember().getUuid(), f, Membership.INTERNAL_TYPE_I
+          HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(
+            g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f, Membership.IMMEDIATE
           );
           rv = true;
         }
@@ -1037,21 +1006,23 @@ public class Member implements Serializable {
    * @throws  GrouperRuntimeException
    */
   public boolean isMember(Group g) 
-    throws  GrouperRuntimeException
   {
     try {
-      return this._isMember(g, Group.getDefaultList());
+      return this.isMember( g, Group.getDefaultList() );
     }
-    catch (SchemaException eS) {
+    catch (SchemaException eShouldNeverHappen) {
       // If we don't have "members" we have serious issues
-      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      String msg = "this should never happen: default group list not found: " + eShouldNeverHappen.getMessage();
       ErrorLog.fatal(Member.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eShouldNeverHappen);
     }
   } // public boolean isMember(g)
 
   /**
    * Test whether a member belongs to the specified group list.
+   * <p>
+   * This method will eventually be deprecated and replaced by {@link #isMember(Owner, Field)}.
+   * </p>
    * <pre class="eg">
    * // Does this member belong to the specified group?
    * if (m.isMember(g, f)) {
@@ -1066,7 +1037,7 @@ public class Member implements Serializable {
   public boolean isMember(Group g, Field f) 
     throws  SchemaException
   {
-    return this._isMember(g, f);
+    return this.isMember( g.getUuid(), f );
   } // public boolean isMember(g, f)
 
   /**
@@ -1093,12 +1064,12 @@ public class Member implements Serializable {
     StopWatch sw    = new StopWatch();
     sw.start();
     MemberValidator.internal_canSetSubjectId(this, id);
-    String    orig  = this.getSubject_id(); // preserve original for logging purposes
-    this.setSubject_id(id);
-    HibernateMemberDAO.update(this);
+    String    orig  = this.getDTO().getSubjectId(); // preserve original for logging purposes
+    this.getDTO().setSubjectId(id);
+    HibernateMemberDAO.update( this.getDTO() );
     sw.stop();
     EventLog.info(
-      this.internal_getSession(),
+      this.getSession(),
       M.MEMBER_CHANGESID + U.internal_q(this.getUuid()) + " old=" + U.internal_q(orig) + " new=" + U.internal_q(id),
       sw
     );
@@ -1129,25 +1100,16 @@ public class Member implements Serializable {
     StopWatch sw    = new StopWatch();
     sw.start();
     MemberValidator.internal_canSetSubjectSourceId(this, id);
-    String    orig  = this.getSubject_source(); // preserve original for logging
-    this.setSubject_source(id);
-    HibernateMemberDAO.update(this);
+    String    orig  = this.getDTO().getSubjectSourceId();
+    this.getDTO().setSubjectSourceId(id);
+    HibernateMemberDAO.update( this.getDTO() );
     sw.stop();
     EventLog.info(
-      this.internal_getSession(),
+      this.getSession(),
       M.MEMBER_CHANGE_SSID + U.internal_q(this.getUuid()) + " old=" + U.internal_q(orig) + " new=" + U.internal_q(id),
       sw
     );
   } // public void setSubjectSourceId(id)
-
-  public String toString() {
-    try {
-      return SubjectHelper.internal_getPretty(this.getSubject());
-    }
-    catch (SubjectNotFoundException eSNF) {
-      return new ToStringBuilder(this).toString();
-    }
-  } // public String toString()
 
   public boolean equals(Object other) {
     if (this == other) {
@@ -1156,22 +1118,11 @@ public class Member implements Serializable {
     if (!(other instanceof Member)) {
       return false;
     }
-    Member otherMember = (Member) other;
-    return new EqualsBuilder()
-      .append(this.getSubject_id()    , otherMember.getSubject_id()     )
-      .append(this.getSubject_source(), otherMember.getSubject_source() )
-      .append(this.getSubject_type()  , otherMember.getSubject_type()   )
-      .append(this.getUuid()          , otherMember.getUuid()           )
-      .isEquals();
+    return this.getDTO().equals( ( (Member) other ).getDTO() );
   } // public boolean equals(other)
 
   public int hashCode() {
-    return new HashCodeBuilder()
-      .append(getSubject_id()     )
-      .append(getSubject_source() )
-      .append(getSubject_type()   )
-      .append(getUuid()           )
-      .toHashCode();
+    return this.getDTO().hashCode();
   } // public int hashCode()
 
   /**
@@ -1190,11 +1141,11 @@ public class Member implements Serializable {
   public Group toGroup() 
     throws GroupNotFoundException 
   {
-    if (SubjectFinder.internal_getGSA().getId().equals(this.getSubject_source())) {
+    if ( SubjectFinder.internal_getGSA().getId().equals( this.getDTO().getSubjectSourceId() ) ) {
       if (this.g == null) {
-        this.g = GroupFinder.findByUuid(this.internal_getSession(), this.getSubjectId());
+        this.g = GroupFinder.findByUuid( this.getSession(), this.getDTO().getSubjectId() );
       }
-      this.g.internal_setSession(this.internal_getSession());
+      this.g.setSession(this.getSession());
       return this.g;
     }
     else {
@@ -1202,53 +1153,48 @@ public class Member implements Serializable {
     }
   } // public Group toGroup()
 
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static Member internal_addMember(String id, String src, String type)
-    throws MemberNotFoundException 
-  {
-    return HibernateMemberDAO.create( new Member(id, src, type) );
-  } // protected static Member internal_addMember(id, src, type)
+  public String toString() {
+    // TODO 20070125 replace with call to DTO?
+    try {
+      return SubjectHelper.internal_getPretty(this.getSubject());
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return new ToStringBuilder(this).toString();
+    }
+  } // public String toString()
 
 
   // PROTECTED INSTANCE METHODS //
- 
-  // @since   1.2.0
-  protected Set internal_getAllMemberships() {
-    // Find *all* memberships for this member 
-    // @filtered  no
-    // @session   yes
-    return MembershipFinder.internal_findAllByMember( this.internal_getSession(), this );
-  } // protected Set internal_getAllMemberships()
 
   // @since   1.2.0
-  protected GrouperSession internal_getSession() {
-    GrouperSessionValidator.internal_validate(this.s);
-    return this.s;
-  } // protected GrouperSession internal_getSession()
- 
-  // @since   1.2.0 
-  protected boolean internal_isMember(Stem ns, Field f) 
-    throws  SchemaException
-  {
-    return this._isMember(ns, f);
-  } // protected boolean internal_isMember(ns, f)
+  protected MemberDTO getDTO() {
+    return (MemberDTO) super.getDTO();
+  } // protected MemberDTO getDTO()
 
+  // TODO 20070130  can i relocate this?
   // @since   1.2.0
-  protected void internal_setSession(GrouperSession s) {
-    GrouperSessionValidator.internal_validate(s);
-    this.s = s;
-  } // protected void internal_setSession(s)
-
-  // @since   1.2.0
-  protected void internal_setSubject(Subject subj) {
-    this.subj = subj;
-  } // protected void internal_setSubject(subj)
+  protected boolean isMember(String ownerUUID, Field f) {
+    boolean rv      = false;
+    Set     mships  = HibernateMembershipDAO.findAllByOwnerAndMemberAndField( ownerUUID, this.getDTO().getMemberUuid(), f );
+    if (mships.size() > 0) {
+      rv = true;
+    }
+    else {
+      Member all = MemberFinder.internal_findAllMember();
+      if ( !this.equals(all) ) {
+        mships = HibernateMembershipDAO.findAllByOwnerAndMemberAndField( ownerUUID, all.getDTO().getMemberUuid(), f );
+        if (mships.size() > 0) {
+          rv = true;
+        }
+      }
+    }
+    return rv;
+  } // protected boolean isMember(ownerUUID, f);
 
 
   // PRIVATE INSTANCE METHODS //
+
+  // TODO 20070123 review all of the below methods to determine whether they should remain
 
   // @since   1.1.0
   private Set _getGroups(Iterator it) {
@@ -1259,7 +1205,7 @@ public class Member implements Serializable {
       ms = (Membership) it.next();
       try {
         g = ms.getGroup();
-        g.internal_setSession( this.internal_getSession() );
+        g.setSession( this.getSession() );
         groups.add(g);  
       }
       catch (GroupNotFoundException eGNF) {
@@ -1275,7 +1221,7 @@ public class Member implements Serializable {
   private boolean _hasPriv(Group g, Privilege priv) {
     boolean rv = false;
     try {
-      rv = PrivilegeResolver.internal_hasPriv(this.internal_getSession(), g, this.getSubject(), priv);
+      rv = PrivilegeResolver.internal_hasPriv(this.getSession(), g, this.getSubject(), priv);
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -1286,7 +1232,7 @@ public class Member implements Serializable {
   private boolean _hasPriv(Stem ns, Privilege priv) {
     boolean rv = false;
     try {
-      rv = PrivilegeResolver.internal_hasPriv(this.internal_getSession(), ns, this.getSubject(), priv);
+      rv = PrivilegeResolver.internal_hasPriv(this.getSession(), ns, this.getSubject(), priv);
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -1294,62 +1240,5 @@ public class Member implements Serializable {
     return rv;
   } // private boolean _hasPriv(ns, priv)
 
-  private boolean _isMember(Owner o, Field f)
-    throws  SchemaException
-  {
-    boolean rv  = false;
-    Set mships = MembershipFinder.internal_findAllByOwnerAndMemberAndField(o, this, f);
-    if (mships.size() > 0) {
-      rv = true;
-    }
-    else {
-      if ( !this.equals( MemberFinder.internal_findAllMember() ) ) {
-        mships = MembershipFinder.internal_findAllByOwnerAndMemberAndField(
-          o, MemberFinder.internal_findAllMember(), f
-        );
-        if (mships.size() > 0) {
-          rv = true;
-        }
-      }
-    }
-    return rv;
-  } // private boolean _isMember(o, f);
-
-
-  // GETTERS //
-  private String getId() {
-    return this.id;
-  } 
-  private String getMember_id() {
-    return this.uuid;
-  }
-  private String getSubject_id() {
-    return this.subject_id;
-  }
-  private String getSubject_source() {
-    return this.subject_source;
-  }
-  private String getSubject_type() {
-    return this.subject_type;
-  }
-
-
-  // SETTERS //
-  private void setId(String id) {
-    this.id = id;
-  }
-  private void setMember_id(String uuid) {
-    this.uuid = uuid;
-  }
-  private void setSubject_id(String subject_id) {
-    this.subject_id = subject_id;
-  }
-  private void setSubject_source(String subject_source) {
-    this.subject_source = subject_source;
-  }
-  private void setSubject_type(String subject_type) {
-    this.subject_type = subject_type;
-  }
-
-} // public class Member
+} // public class Member extends GrouperAPI implements Serializable
 

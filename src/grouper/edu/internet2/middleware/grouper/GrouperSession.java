@@ -25,31 +25,12 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.45 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.46 2007-02-08 16:25:25 blair Exp $
  */
-public class GrouperSession {
-
-  // HIBERNATE PROPERTIES //
-  private String  id;
-  private Member  member_id;
-  private String  session_id;
-  private Date    start_time;
-
+public class GrouperSession extends GrouperAPI {
 
   // PRIVATE INSTANCE VARIABLES //
-  private PrivilegeCache  ac    = internal_getAccessCache();
-  private PrivilegeCache  nc    = internal_getNamingCache();
-  private GrouperSession  ps    = null; // parent session of root session
-  private GrouperSession  rs    = null; // inner root session
-  private Subject         subj  = null;
-  private String          type;
-  private String          who;
-
-
-  // CONSTRUCTORS //
-  private GrouperSession() { 
-    // Default constructor for Hibernate
-  } // private GrouperSession()
+  private GrouperSessionDTO dto  = null;
 
 
   // PUBLIC CLASS METHODS //
@@ -68,9 +49,21 @@ public class GrouperSession {
     throws SessionException
   {
     try {
-      StopWatch       sw  = new StopWatch();
+      StopWatch sw = new StopWatch();
       sw.start();
-      GrouperSession  s   = HibernateGrouperSessionDAO.create( _getSession(subject) );
+
+      Member m = MemberFinder.internal_findBySubject(subject); // this will create the member if it doesn't already exist
+
+      GrouperSessionDTO dto = new GrouperSessionDTO();
+      dto.setMemberUuid( m.getUuid() );
+      dto.setStartTime( new Date() );
+      dto.setSessionUuid( GrouperUuid.internal_getUuid() );
+      dto.setSubject(subject);
+
+      dto.setId( HibernateGrouperSessionDAO.create(dto) );
+      GrouperSession s = new GrouperSession();
+      s.setDTO(dto);
+
       sw.stop();
       EventLog.info( s.toString(), M.S_START, sw );
       return s;
@@ -86,14 +79,14 @@ public class GrouperSession {
   // PUBLIC INSTANCE METHODS //
 
   public boolean equals(Object other) {
-    if ( (this == other ) ) return true;
-    if ( !(other instanceof GrouperSession) ) return false;
-    GrouperSession castOther = (GrouperSession) other;
-    return new EqualsBuilder()
-           .append(this.getSession_id(), castOther.getSession_id())
-           .append(this.getMember_id(), castOther.getMember_id())
-           .isEquals();
-  }
+    if (this == other) {
+      return true;
+    }
+    if ( !(other instanceof GrouperSession) ) {
+      return false;
+    }
+    return this.getDTO().equals( ( (GrouperSession) other ).getDTO() );
+  } // public boolean equals(other)
 
   /**
    * Get name of class being used for access privileges.
@@ -111,16 +104,27 @@ public class GrouperSession {
    * <pre class="eg">
    * Member m = s.getMember(); 
    * </pre>
+   * <p>
+   * As of 1.2.0, this method throws an {@link IllegalStateException} instead of
+   * a {@link NullPointerException} when the member cannot be retrieved.
+   * </p>
    * @return  A {@link Member} object.
-   * @throws  NullPointerException if {@link Member} null.
+   * @throws  IllegalStateException if {@link Member} cannot be returned.
    */
   public Member getMember() 
-    throws  NullPointerException
+    throws  IllegalStateException
   {
-    Member m = this.getMember_id();
-    Validator.internal_valueNotNull(m, E.MEMBER_NULL);
-    m.internal_setSession(this);
-    return m;
+    try {
+      Member m = new Member();
+      m.setDTO( HibernateMemberDAO.findByUuid( this.getDTO().getMemberUuid() ) );
+      m.setSession(this);
+      return m;
+    }
+    catch (MemberNotFoundException eShouldNeverHappen) {
+      throw new IllegalStateException( 
+        "this should never happen: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen
+      );
+    }
   } // public Member getMember()
 
   /**
@@ -142,7 +146,7 @@ public class GrouperSession {
    * @return  The session id.
    */
   public String getSessionId() {
-    return this.getSession_id();
+    return this.getDTO().getSessionUuid();
   } // public String getSessionId()
 
   /**
@@ -153,7 +157,7 @@ public class GrouperSession {
    * @return  This session's start time.
    */
   public Date getStartTime() {
-    return this.getStart_time();
+    return this.getDTO().getStartTime();
   } // public Date getStartTime()
 
   /**
@@ -167,25 +171,17 @@ public class GrouperSession {
   public Subject getSubject() 
     throws  GrouperRuntimeException
   {
-    if (this.subj == null) {
-      try {
-        this.subj = this.getMember_id().getSubject();
-      }
-      catch (Exception e) {
-        String msg = E.S_GETSUBJECT + e.getMessage();
-        ErrorLog.fatal(GrouperSession.class, msg);
-        throw new GrouperRuntimeException(msg);
-      }
+    if ( this.getDTO().getSubject() == null ) {
+      String msg = "unable to get subject associated with session";
+      ErrorLog.fatal(GrouperSession.class, msg);
+      throw new GrouperRuntimeException(msg);
     }
-    return this.subj;
+    return this.getDTO().getSubject();
   } // public Subject getSubject()
 
   public int hashCode() {
-    return new HashCodeBuilder()
-           .append(getSession_id())
-           .append(getMember_id())
-           .toHashCode();
-  }
+    return this.getDTO().hashCode();
+  } // public int hashCode()
 
   /**
    * Stop this API session.
@@ -196,147 +192,35 @@ public class GrouperSession {
   public void stop() 
     throws  SessionException
   {
-    if (this.getId() != null) {
-      StopWatch sw = new StopWatch();
+    if ( this.getDTO().getId() != null ) { // We have a persistent session
+      StopWatch sw    = new StopWatch();
       sw.start();
-      // So we don't log transient sessions
-      String sessionToString = this.toString();
-      // For logging session duration
-      long   start  = this.getStart_time().getTime();
-      HibernateGrouperSessionDAO.delete(this);
-      this.setId(null);
+      long      start = this.getStartTime().getTime();
+      HibernateGrouperSessionDAO.delete( this.getDTO() );
       sw.stop();
-      Date  now = new Date();
-      long  dur = now.getTime() - start;
-      EventLog.info(sessionToString, M.S_STOP + dur + "ms", sw);
+      Date      now   = new Date();
+      long      dur   = now.getTime() - start;
+      EventLog.info( this.toString(), "session: stop duration=" + + dur + "ms", sw );
     }
-    this.setMember_id(null);
-    this.setSession_id(null);
-    this.setStart_time(null);
-    this.subj = null;
+    this.setDTO(null);
   } // public void stop()
 
   public String toString() {
+    // TODO 20070125 replace with call to DTO?
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-      .append("session_id"    , this.getSession_id()  )
-      .append("subject_id"    , U.internal_q(this.who)         )
-      .append("subject_type"  , U.internal_q(this.type)        )
+      .append( "session_id",   this.getDTO().getSessionUuid()                                 )
+      .append( "subject_id",   U.internal_q( this.getDTO().getSubject().getId() )             )
+      .append( "subject_type", U.internal_q( this.getDTO().getSubject().getType().getName() ) )
       .toString();
   } // public String toString()
-
 
 
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected PrivilegeCache internal_getAccessCache() {
-    if (this.ac == null) {
-      this.ac = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PACI));
-      DebugLog.info(
-        GrouperSession.class, "using access cache: " + ac.getClass().getName()
-      );
-    }
-    return this.ac;
-  } // protected PrivilegeCache internal_getAccessCache()
+  protected GrouperSessionDTO getDTO() {
+    return (GrouperSessionDTO) super.getDTO();
+  } // protected GrouperSessionDTO getDTO()
 
-  // @since   1.2.0
-  protected PrivilegeCache internal_getNamingCache() {
-    if (this.nc == null) {
-      this.nc = BasePrivilegeCache.getCache(GrouperConfig.getProperty(GrouperConfig.PNCI));
-      DebugLog.info(
-        GrouperSession.class, "using naming cache: " + nc.getClass().getName()
-      );
-    }
-    return this.nc;
-  } // protected PrivilegeCache internal_getNamingCache()
-
-  // @throws  GrouperRuntimeException
-  // @since   1.2.0
-  protected GrouperSession internal_getRootSession() 
-    throws  GrouperRuntimeException
-  {
-    if (this._getParentSession() != null) { 
-      DebugLog.info(GrouperSession.class, M.INNER_WITHIN_INNER);
-    }
-    if (this.rs == null) {
-      try {
-        this.rs = _getSession( SubjectFinder.findRootSubject() );
-        this.rs._setParentSession(this);
-      }
-      catch (MemberNotFoundException eMNF) {
-        String msg = E.S_NOSTARTROOT + eMNF.getMessage();
-        ErrorLog.fatal(GrouperSession.class, msg);
-        throw new GrouperRuntimeException(msg, eMNF);
-      }
-    }
-    return this.rs;
-  } // protected GrouperSession internal_getRootSession()
-
-
-  // PRIVATE STATIC METHODS //
-  private static GrouperSession _getSession(Subject subj) 
-    throws  MemberNotFoundException
-  {
-    GrouperSession s = new GrouperSession();
-    // Transient
-    s.subj  = subj;
-    s.who   = subj.getId();
-    s.type  = subj.getType().getName();
-    if (s.type.equals("group")) {
-      s.who = subj.getName();
-    }
-    // Eliminate caches
-    s.ac    = null;
-    s.nc    = null;
-    // Persistent
-    s.setMember_id( MemberFinder.internal_findBySubject(subj) );
-    s.setStart_time( new Date() );
-    s.setSession_id( GrouperUuid.internal_getUuid() );
-    return s;
-  } // private GrouperSession(subj) 
-
-
-  // PRIVATE INSTANCE METHODS //
-
-  // @since   1.1.0
-  private GrouperSession _getParentSession() {
-    return this.ps;
-  } // private GrouperSession getParentSession()
-
-  // @since   1.1.0
-  private void _setParentSession(GrouperSession parent) {
-    this.ps = parent;
-  } // private void setParentSession(parent)
-
-
-  // GETTERS //
-  private String getId() {
-    return this.id;
-  }
-  protected Member getMember_id() {
-    return this.member_id;
-  }
-  protected String getSession_id() {
-    return this.session_id;
-  }
-  protected Date getStart_time() {
-    return this.start_time;
-  }
-
-
-  // SETTERS //
-  private void setId(String id) {
-    this.id = id;
-  }
-  private void setMember_id(Member member_id) {
-    this.member_id = member_id;
-  }
-  private void setSession_id(String session_id) {
-    this.session_id = session_id;
-  }
-  private void setStart_time(Date start_time) {
-    this.start_time = start_time;
-  }
-
-}
+} // public class GrouperSession extends GrouperAPI
 

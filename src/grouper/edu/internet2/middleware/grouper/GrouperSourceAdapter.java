@@ -38,7 +38,7 @@ import  java.util.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.20 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.21 2007-02-08 16:25:25 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -94,10 +94,13 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     throws SubjectNotFoundException 
   {
     try {
-      return new GrouperSubject( GroupFinder.findByUuid(this._getSession(), id) );
+      return new GrouperSubject( HibernateGroupDAO.findByUuid(id) );
     }
-    catch (Exception e) {
-      throw new SubjectNotFoundException("subject not found: " + e.getMessage(), e);
+    catch (GroupNotFoundException eGNF) {
+      throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );
+    }
+    catch (SourceUnavailableException eSU) {
+      throw new SubjectNotFoundException( "subject not found: " + eSU.getMessage(), eSU );
     }
   } // public Subject getSubject(id)
 
@@ -129,14 +132,13 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     throws SubjectNotFoundException 
   {
     try {
-      return new GrouperSubject(
-        GroupFinder.findByName(this._getSession(), name)
-      );
+      return new GrouperSubject( HibernateGroupDAO.findByName(name) );
     }
-    catch (Exception e) {
-      throw new SubjectNotFoundException(
-        "subject not found: " + e.getMessage(), e
-      );
+    catch (GroupNotFoundException eGNF) {
+      throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );
+    }
+    catch (SourceUnavailableException eSU) {
+      throw new SubjectNotFoundException( "subject not found: " + eSU.getMessage(), eSU );
     }
   } // public Subject getSubjectByIdentifier(name)
 

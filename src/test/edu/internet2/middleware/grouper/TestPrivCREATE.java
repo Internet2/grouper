@@ -24,9 +24,9 @@ import  org.apache.commons.logging.*;
  * Test use of the CREATE {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivCREATE.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestPrivCREATE.java,v 1.7 2007-02-08 16:25:25 blair Exp $
  */
-public class TestPrivCREATE extends TestCase {
+public class TestPrivCREATE extends GrouperTest {
 
   // Private Class Constants
   private static final Log        LOG   = LogFactory.getLog(TestPrivCREATE.class); 
@@ -87,13 +87,18 @@ public class TestPrivCREATE extends TestCase {
 
   public void testCreateChildGroupWithGroupCREATE() {
     LOG.info("testCreateChildGroupWithGroupCREATE");
-    MembershipTestHelper.testImm(s, i2, subj0, "members");
-    PrivHelper.grantPriv(s, edu, i2.toSubject(), NamingPrivilege.CREATE);
-    Assert.assertTrue("i2 has priv", edu.hasCreate(i2.toSubject()));
-    Assert.assertTrue("subj0 has priv", edu.hasCreate(subj0));
-    a = StemHelper.findByName(nrs, edu.getName());
-    StemHelper.addChildGroup(a, "uofc", "uchicago");
+    try {
+      MembershipTestHelper.testImm(s, i2, subj0, "members");
+      PrivHelper.grantPriv(s, edu, i2.toSubject(), NamingPrivilege.CREATE);
+      Assert.assertTrue("i2 has priv", edu.hasCreate(i2.toSubject()));
+      Assert.assertTrue("subj0 has priv", edu.hasCreate(subj0));
+      a = StemHelper.findByName(nrs, edu.getName());
+      StemHelper.addChildGroup(a, "uofc", "uchicago");
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
   } // public void testCreateChildGroupWithGroupCREATE()
 
-} 
+} // public class TestPrivCREATE extends GrouperTest 
 

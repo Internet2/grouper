@@ -21,9 +21,9 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSetting0.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestSetting0.java,v 1.8 2007-02-08 16:25:25 blair Exp $
  */
-public class TestSetting0 extends TestCase {
+public class TestSetting0 extends GrouperTest {
 
   // Private Static Class Constants
   private static final Log LOG = LogFactory.getLog(TestSetting0.class);

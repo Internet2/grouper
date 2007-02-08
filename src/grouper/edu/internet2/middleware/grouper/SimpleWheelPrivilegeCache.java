@@ -41,7 +41,7 @@ import  java.util.*;
  * edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge = 10000
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.8 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.9 2007-02-08 16:25:25 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
@@ -84,15 +84,15 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
       if (Boolean.valueOf(GrouperConfig.getProperty(GrouperConfig.GWU))) {
         try {
           // Does the wheel group exist or has it been too long since we last fetched it?
+          GrouperSession rs = ( (GrouperAPI) o ).getSession().getDTO().getRootSession();
           if ( (this.wheel == null) || this._isItTimeToUpdateWheel() ) {
-            this.wheel          = GroupFinder.findByName(
-              o.internal_getSession().internal_getRootSession(), GrouperConfig.getProperty(GrouperConfig.GWG)
-            );
+            // TODO 20070208 couldn't i just use the DAO?
+            this.wheel = GroupFinder.findByName( rs, GrouperConfig.getProperty(GrouperConfig.GWG) );
             this.wheelFetchTime = new Date().getTime();
             DebugLog.info(SimpleWheelPrivilegeCache.class, FOUND_WHEEL_GROUP);
           }
           else {
-            this.wheel.internal_setSession( o.internal_getSession().internal_getRootSession() );
+            this.wheel.setSession(rs);
             DebugLog.info(SimpleWheelPrivilegeCache.class, REUSING_WHEEL_GROUP);
           }
           // If the wheel group has been modified since the last time the cache

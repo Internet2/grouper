@@ -25,7 +25,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.35 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: StemFinder.java,v 1.36 2007-02-08 16:25:25 blair Exp $
  */
 public class StemFinder {
 
@@ -50,8 +50,13 @@ public class StemFinder {
     throws StemNotFoundException
   {
     GrouperSessionValidator.internal_validate(s);
-    Stem ns = internal_findByName(name);
-    ns.internal_setSession(s);
+    // TODO 20070201 bah.  should be in dao if it exists at all.
+    if ( name.equals(Stem.ROOT_EXT) ) {
+      name = Stem.ROOT_INT;
+    }
+    Stem ns = new Stem();
+    ns.setDTO( HibernateStemDAO.findByName(name) );
+    ns.setSession(s);
     return ns;
   } // public static Stem findByName(s, name)
 
@@ -99,8 +104,9 @@ public class StemFinder {
     throws StemNotFoundException
   {
     GrouperSessionValidator.internal_validate(s);
-    Stem ns = internal_findByUuid(uuid);
-    ns.internal_setSession(s);
+    Stem ns = new Stem();
+    ns.setDTO( HibernateStemDAO.findByUuid(uuid) );
+    ns.setSession(s);
     return ns;
   } // public static Stem findByUuid(s, uuid)
 
@@ -116,8 +122,9 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = HibernateStemDAO.findAllByApproximateDisplayExtension(val).iterator();
     while (it.hasNext()) {
-      ns = (Stem) it.next();
-      ns.internal_setSession(s);
+      ns = new Stem();
+      ns.setDTO( (StemDTO) it.next() );
+      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -132,8 +139,9 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = HibernateStemDAO.findAllByApproximateDisplayName(val).iterator();
     while (it.hasNext()) {
-      ns = (Stem) it.next();
-      ns.internal_setSession(s);
+      ns = new Stem();
+      ns.setDTO( (StemDTO) it.next() );
+      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -148,8 +156,9 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = HibernateStemDAO.findAllByApproximateExtension(val).iterator();
     while (it.hasNext()) {
-      ns = (Stem) it.next();
-      ns.internal_setSession(s);
+      ns = new Stem();
+      ns.setDTO( (StemDTO) it.next() );
+      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -164,8 +173,9 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = HibernateStemDAO.findAllByApproximateName(val).iterator();
     while (it.hasNext()) {
-      ns = (Stem) it.next();
-      ns.internal_setSession(s);
+      ns = new Stem();
+      ns.setDTO( (StemDTO) it.next() );
+      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -180,8 +190,9 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = HibernateStemDAO.findAllByApproximateNameAny(val).iterator();
     while (it.hasNext()) {
-      ns = (Stem) it.next();
-      ns.internal_setSession(s);
+      ns = new Stem();
+      ns.setDTO( (StemDTO) it.next() );
+      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -196,8 +207,9 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = HibernateStemDAO.findAllByCreatedAfter(d).iterator();
     while (it.hasNext()) {
-      ns = (Stem) it.next();
-      ns.internal_setSession(s);
+      ns = new Stem();
+      ns.setDTO( (StemDTO) it.next() );
+      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -212,15 +224,16 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = HibernateStemDAO.findAllByCreatedBefore(d).iterator();
     while (it.hasNext()) {
-      ns = (Stem) it.next();
-      ns.internal_setSession(s);
+      ns = new Stem();
+      ns.setDTO( (StemDTO) it.next() );
+      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
   } // protected static Set internal_findAllByCreatedBefore(s, d)
 
   // @since   1.2.0
-  protected static Stem internal_findByName(String name) 
+  protected static StemDTO internal_findByName(String name) 
     throws  StemNotFoundException
   {
     // @session false
@@ -228,15 +241,7 @@ public class StemFinder {
       name = Stem.ROOT_INT;
     }
     return HibernateStemDAO.findByName(name);
-  } // protected static Stem internal_findByName(name)
-
-  // @since   1.2.0
-  protected static Stem internal_findByUuid(String uuid)
-    throws  StemNotFoundException
-  {
-    // @session false
-    return HibernateStemDAO.findByUuid(uuid);
-  } // protected static Stem internal_findByUuid(uuid)
+  } // protected static StemDTO internal_findByName(name)
 
   // TODO 20061018 Is this the right location?  And should it be top-down?
   // @since   1.2.0

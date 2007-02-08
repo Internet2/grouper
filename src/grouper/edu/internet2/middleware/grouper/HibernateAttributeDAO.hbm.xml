@@ -20,15 +20,11 @@
   limitations under the License.
 -->
 
-<!-- $Id: Member.hbm.xml,v 1.15 2007-01-04 17:50:51 blair Exp $ -->
+<!-- $Id: HibernateAttributeDAO.hbm.xml,v 1.1 2007-02-08 16:25:25 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="Member" table="grouper_members">
+  <class name="HibernateAttributeDAO" table="grouper_attributes">
 
-    <meta attribute="class-description">
-A member within the Groups Registry.
-@author blair christensen.
-    </meta>
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateDAO.getSession();</meta>
 
@@ -44,60 +40,57 @@ A member within the Groups Registry.
     </id>
     <!-- id -->
 
-    <!-- member_id -->
-    <property 
-      name="member_id"
-      type="string"
-      unique="true"
-    >
-      <column name="member_uuid"
+<!--
+  I had a unique index across `group_id`, `field_name` and `field_type` but
+  Oracle did **not** like it one bit.
+-->
+
+    <!-- groupUuid -->
+    <!-- [@since 1.2.0] Refers to group's UUID, not ID -->
+    <property name="groupUuid"
+              type="string"
+              unique="false"
               not-null="true"
+    >
+      <column name="group_id"
               length="128"
-              index="member_uuid_idx"
+              index="attribute_group_idx"
+              unique-key="attribute_uniq_idx"
       />
     </property>
-    <!-- member_id -->
+    <!-- groupUuid -->
 
-    <!-- subject_id -->
-    <property 
-      name="subject_id"
-      type="string"
-    >
-      <column name="subject_id" 
+    <!-- attrName -->
+    <property name="attrName"
+              type="string"
               not-null="true"
-              index="member_subjectid_idx"
-              unique-key="subject_idx"
+              unique="false"
+              update="false"
+    >
+      <column name="field_name"
+              not-null="true"
+              length="32"
+              index="attribute_field_idx"
+              unique-key="attribute_uniq_idx"
       />
     </property>
-    <!-- subject_id -->
+    <!-- attrName -->
 
-    <!-- subject_source -->
+    <!-- value -->
     <property 
-      name="subject_source"
+      name="value"
       type="string"
+      length="1024"
     >
-      <column name="subject_source" 
+      <column name="value"
               not-null="true"
-              index="member_subjectsource_idx"
-              unique-key="subject_idx"
+              index="attribute_value_idx"
+              length="1024"
+              unique-key="attribute_uniq_idx"
       />
     </property>
-    <!-- subject_source -->
-
-    <!-- subject_type -->
-    <property 
-      name="subject_type"
-      type="string"
-    >
-      <column name="subject_type" 
-              not-null="true"
-              index="member_subjecttype_idx"
-              unique-key="subject_idx"
-      />
-    </property>
-    <!-- subject_type -->
+    <!-- value -->
 
   </class>
-
 </hibernate-mapping>
 

@@ -25,9 +25,9 @@ import  org.apache.commons.logging.*;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestGroup.java,v 1.7 2007-02-08 16:25:25 blair Exp $
  */
-public class TestGroup extends TestCase {
+public class TestGroup extends GrouperTest {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestGroup.class);

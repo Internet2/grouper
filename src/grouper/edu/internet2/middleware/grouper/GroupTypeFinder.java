@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.23 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.24 2007-02-08 16:25:25 blair Exp $
  */
 public class GroupTypeFinder {
   
@@ -99,7 +99,7 @@ public class GroupTypeFinder {
     Iterator  iter    = types.values().iterator();
     while (iter.hasNext()) {
       t = (GroupType) iter.next();
-      if (!t.getInternal()) {
+      if ( !t.getDTO().getIsInternal() ) {
         values.add(t); // We only want !internal group types
       }
     }
@@ -119,7 +119,7 @@ public class GroupTypeFinder {
     Iterator  iter  = findAll().iterator();
     while (iter.hasNext()) {
       t = (GroupType) iter.next();
-      if (t.getAssignable()) {
+      if ( t.getDTO().getIsAssignable() ) {
         types.add(t);
       }
     }
@@ -166,7 +166,13 @@ public class GroupTypeFinder {
     throws  GrouperRuntimeException
   {
     try {
-      Set types = HibernateGroupTypeDAO.findAll();
+      Set       types = new LinkedHashSet();
+      Iterator  it    = HibernateGroupTypeDAO.findAll().iterator();
+      while (it.hasNext()) {
+        GroupType type = new GroupType();
+        type.setDTO( (GroupTypeDTO) it.next() );
+        types.add(type);
+      }
       DebugLog.info( GroupTypeFinder.class, "found group types: " + types.size() );
       return types;
     }

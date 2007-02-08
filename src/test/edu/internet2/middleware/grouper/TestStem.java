@@ -25,9 +25,9 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestStem.java,v 1.8 2007-02-08 16:25:25 blair Exp $
  */
-public class TestStem extends TestCase {
+public class TestStem extends GrouperTest {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestStem.class);
@@ -338,7 +338,7 @@ public class TestStem extends TestCase {
     // Now rename as subj0
     GrouperSession  nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     Stem            eduNR = StemHelper.findByName(nrs, edu.getName());
-    
+   
     // Now rename
     String exp = "higher ed";
     try {
@@ -423,7 +423,7 @@ public class TestStem extends TestCase {
       Assert.assertTrue("no exceptions", true);
     }
     catch (Exception e) {
-      Assert.fail(e.getMessage());
+      T.e(e);
     }
   } // public void testChildStemsAndGroupsLazyInitialization() 
 

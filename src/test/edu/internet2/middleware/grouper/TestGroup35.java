@@ -22,9 +22,9 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup35.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGroup35.java,v 1.4 2007-02-08 16:25:25 blair Exp $
  */
-public class TestGroup35 extends TestCase {
+public class TestGroup35 extends GrouperTest {
 
   private static final Log LOG = LogFactory.getLog(TestGroup35.class);
 
@@ -51,9 +51,7 @@ public class TestGroup35 extends TestCase {
       Subject     subjA = r.getSubject("a");
       gB.addMember(subjA);
       gA.addCompositeMember(CompositeType.UNION, gB, gC);
-      Membership  ms    = MembershipFinder.findCompositeMembership(
-        r.rs, gA, subjA
-      );  
+      Membership  ms    = MembershipFinder.findCompositeMembership(r.rs, gA, subjA);  
       // Fail
       try {
         ms.getViaGroup();
@@ -64,10 +62,10 @@ public class TestGroup35 extends TestCase {
       }
       // Pass 
       try {
-        Owner o = ms.getVia();
+        Composite o = ms.getViaComposite();
         Assert.assertTrue("via is composite", o instanceof Composite);
       }
-      catch (OwnerNotFoundException eONF) {
+      catch (CompositeNotFoundException eONF) {
         Assert.fail("FAIL: did not get via");
       }
       r.rs.stop();

@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.74 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.75 2007-02-08 16:25:25 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -165,7 +165,7 @@ import  java.util.*;
 
   // @since   1.2.0
   protected static boolean internal_canSTEM(Stem ns, Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(ns.internal_getSession(), ns, subj, NamingPrivilege.STEM);
+    return PrivilegeResolver.internal_hasPriv(ns.getSession(), ns, subj, NamingPrivilege.STEM);
   } // protected static boolean internal_canSTEM(ns, subj)
 
   // @since   1.2.0
@@ -183,7 +183,7 @@ import  java.util.*;
 
   // @since   1.2.0
   protected static boolean internal_canVIEW(Group g, Subject subj) {
-    GrouperSession s = g.internal_getSession();
+    GrouperSession s = g.getSession();
     if (
       PrivilegeResolver.internal_hasPriv(s, g, subj, AccessPrivilege.VIEW)  
       ||
@@ -207,10 +207,10 @@ import  java.util.*;
   protected static Set internal_canViewGroups(GrouperSession s, Set candidates) {
     Set             groups  = new LinkedHashSet();
     Group           g;
-    Iterator        iter    = candidates.iterator();
-    while (iter.hasNext()) {
-      g = (Group) iter.next();
-      g.internal_setSession(s);
+    Iterator        it      = candidates.iterator();
+    while (it.hasNext()) {
+      g = (Group) Rosetta.getAPI( it.next() );
+      g.setSession(s);
       // Can we view the group
       if (internal_canVIEW(g, s.getSubject())) {
         groups.add(g);
@@ -222,13 +222,14 @@ import  java.util.*;
   // @since   1.2.0
   protected static Set internal_canViewMemberships(GrouperSession s, Collection c) {
     GrouperSessionValidator.internal_validate(s);
-    Set         mships  = new LinkedHashSet();
-    Membership  ms;
-    String      msg     = "canViewMemberships: ";
-    Iterator    iter    = c.iterator();
-    while (iter.hasNext()) {
-      ms = (Membership) iter.next();
-      ms.internal_setSession(s);
+    Set           mships  = new LinkedHashSet();
+    Membership    ms;
+    String        msg     = "canViewMemberships: ";
+    Iterator      it      = c.iterator();
+    while (it.hasNext()) {
+      ms = new Membership();
+      ms.setDTO( (MembershipDTO) it.next() );
+      ms.setSession(s);
       try {
         if (FieldType.ACCESS.equals(ms.getList().getType())) {
           internal_canPrivDispatch(
@@ -352,7 +353,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getAccess().grantPriv(s, g, subj, priv);
-    s.internal_getAccessCache().grantPriv(g, subj, priv);
+    s.getDTO().getAccessCache().grantPriv(g, subj, priv);
   } // protected static void internal_grantPriv(s, g, subj, priv)
 
   // @since   1.2.0
@@ -364,7 +365,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getNaming().grantPriv(s, ns, subj, priv);
-    s.internal_getNamingCache().grantPriv(ns, subj, priv);
+    s.getDTO().getNamingCache().grantPriv(ns, subj, priv);
   } // protected static void internal_grantPriv(s, ns, subj, priv)
 
   // @since   1.2.0
@@ -374,7 +375,7 @@ import  java.util.*;
   {
     GrouperSessionValidator.internal_validate(s);
     boolean rv = false;
-    PrivilegeCacheElement el = s.internal_getAccessCache().get(g, subj, priv);
+    PrivilegeCacheElement el = s.getDTO().getAccessCache().get(g, subj, priv);
     if (el.getIsCached()) {
       rv = el.getHasPriv(); // use cached result
     }
@@ -393,7 +394,7 @@ import  java.util.*;
         rv = false; 
       }
     }
-    s.internal_getAccessCache().put(g, subj, priv, rv);
+    s.getDTO().getAccessCache().put(g, subj, priv, rv);
     return rv;
   } // protected static boolean internal_hasPriv(s, g, subj, priv)
 
@@ -403,7 +404,7 @@ import  java.util.*;
   )
   {
     boolean rv = false;
-    PrivilegeCacheElement el = s.internal_getNamingCache().get(ns, subj, priv);
+    PrivilegeCacheElement el = s.getDTO().getNamingCache().get(ns, subj, priv);
     if (el.getIsCached()) {
       rv = el.getHasPriv(); // use cached result
     }
@@ -422,7 +423,7 @@ import  java.util.*;
         rv = false; 
       }
     }
-    s.internal_getNamingCache().put(ns, subj, priv, rv);
+    s.getDTO().getNamingCache().put(ns, subj, priv, rv);
     return rv;
   } // protected static boolean internal_hasPriv(s, ns, subj, priv)
 
@@ -433,7 +434,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getAccess().revokePriv(s, g, priv);
-    s.internal_getAccessCache().revokePriv(g, priv);
+    s.getDTO().getAccessCache().revokePriv(g, priv);
   } // protected static void internal_revokePriv(s, g, priv)
 
   // @since   1.2.0
@@ -443,7 +444,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getNaming().revokePriv(s, ns, priv);
-    s.internal_getNamingCache().revokePriv(ns, priv);
+    s.getDTO().getNamingCache().revokePriv(ns, priv);
   } // protected static void internal_revokePriv(s, ns, priv)
 
   // @since   1.2.0
@@ -455,7 +456,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getAccess().revokePriv(s, g, subj, priv);
-    s.internal_getAccessCache().revokePriv(g, subj, priv);
+    s.getDTO().getAccessCache().revokePriv(g, subj, priv);
   } // protected static void internal_revokePriv(s, g, subj, priv)
 
   // @since   1.2.0
@@ -467,7 +468,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getNaming().revokePriv(s, ns, subj, priv);
-    s.internal_getNamingCache().revokePriv(ns, subj, priv);
+    s.getDTO().getNamingCache().revokePriv(ns, subj, priv);
   } // protected static void internal_revokePriv(s, ns, subj, priv)
 
 

@@ -24,40 +24,10 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.29 2007-01-11 14:22:06 blair Exp $
+ * @version $Id: Composite.java,v 1.30 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
-public class Composite extends Owner {
-
-  // HIBERNATE PROPERTIES //
-  private Owner         left  = null;
-  private Owner         owner = null;
-  private Owner         right = null;
-  private CompositeType type  = null;
-
-
-  // CONSTRUCTORS //
-
-  // Default constructor for Hibernate.
-  // @since   1.0
-  protected Composite() {
-    super();
-  } // protected Composite()
-
-  protected Composite(GrouperSession s, Owner o, Owner l, Owner r, CompositeType type) 
-    throws  ModelException
-  {
-    this.internal_setSession(      s                     ); 
-    this.setCreator_id(   s.getMember()         );
-    this.setCreate_time(  new Date().getTime()  );
-    this.setUuid(         GrouperUuid.internal_getUuid() );
-    this.setOwner(        o                     );
-    this.setLeft(         l                     );
-    this.setRight(        r                     );
-    this.setType(         type                  );
-    CompositeValidator.internal_validate(this);
-  } // protected Composite(s, o, l, r, type)  
-  
+public class Composite extends GrouperAPI {
 
   // PUBLIC INSTANCE METHODS //
   /**
@@ -70,11 +40,7 @@ public class Composite extends Owner {
     if (!(other instanceof Composite)) {
       return false;
     }
-    Composite otherComposite = (Composite) other;
-    return new EqualsBuilder()
-      .append(this.getUuid()        , otherComposite.getUuid()       )
-      .append(this.getCreator_id()  , otherComposite.getCreator_id() )
-      .isEquals();
+    return this.getDTO().equals( ( (Composite) other ).getDTO() );
   } // public boolean equals(other)
 
   /**
@@ -94,17 +60,12 @@ public class Composite extends Owner {
   public Group getLeftGroup() 
     throws  GroupNotFoundException
   {
-    Group g = (Group) this.getLeft();
-    try {
-      Validator.internal_valueNotNull(g, E.GROUP_NULL);
-      GrouperSession s = this.internal_getSession();
-      g.internal_setSession(s);
-      s.getMember().canView(g);
-      return g;
-    }
-    catch (Exception e) {
-      throw new GroupNotFoundException(e);
-    }
+    // XXX
+    Group g = new Group();
+    g.setDTO( HibernateGroupDAO.findByUuid( this.getDTO().getLeftFactorUuid() ) );
+    g.setSession( this.getSession() );
+    s.getMember().canView(g);
+    return g;
   } // public Group getLeftGroup()
 
   /**
@@ -124,17 +85,11 @@ public class Composite extends Owner {
   public Group getOwnerGroup() 
     throws  GroupNotFoundException
   {
-    Group g = (Group) this.getOwner();
-    try {
-      Validator.internal_valueNotNull(g, E.GROUP_NULL);
-      GrouperSession s = this.internal_getSession();
-      g.internal_setSession(s);
-      s.getMember().canView(g);
-      return g;
-    }
-    catch (Exception e) {
-      throw new GroupNotFoundException(e);
-    }
+    Group g = new Group();
+    g.setDTO( HibernateGroupDAO.findByUuid( this.getDTO().getFactorOwnerUuid() ) );
+    g.setSession( this.getSession() );
+    s.getMember().canView(g);
+    return g;
   } // public Group getOwnerGroup()
 
   /**
@@ -154,96 +109,77 @@ public class Composite extends Owner {
   public Group getRightGroup() 
     throws  GroupNotFoundException
   {
-    Group g = (Group) this.getRight();
-    try {
-      Validator.internal_valueNotNull(g, E.GROUP_NULL);
-      GrouperSession s = this.internal_getSession();
-      g.internal_setSession(s);
-      s.getMember().canView(g);
-      return g;
-    }
-    catch (Exception e) {
-      throw new GroupNotFoundException(e);
-    }
+    Group g = new Group();
+    g.setDTO( HibernateGroupDAO.findByUuid( this.getDTO().getRightFactorUuid() ) );
+    g.setSession( this.getSession() );
+    s.getMember().canView(g);
+    return g;
   } // public Group getLeftGroup()
 
   /**
-   * @since 1.0
+   * Return this composite's type.
+   * <pre class="eg">
+   * CompositeType type = c.getType();
+   * </pre>
+   * @return  {@link CompositeType} of this {@link Composite}.
+   * @since   1.0
+   */
+  public CompositeType getType() {
+    return CompositeType.getInstance( this.getDTO().getType() );
+  } // public CompositeType getType()
+
+  /**
+   */
+  public String getUuid() {
+    return this.getDTO().getUuid();
+  } // public String getUuid()
+
+  /**
+   * @since   1.0
    */
   public int hashCode() {
-    return new HashCodeBuilder()
-      .append(this.getUuid()        )
-      .append(this.getCreator_id()  )
-      .toHashCode()
-      ;
+    return this.getDTO().hashCode();
   } // public int hashCode()
 
   /**
    * @since 1.0
    */
   public String toString() {
+    // TODO 20070125 replace with call to DTO?
     return  new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-      .append(  "type"  , this.getType().toString() )
-      .append(  "owner" , U.internal_q(this.internal_getOwnerName() ) )
-      .append(  "left"  , U.internal_q(this.internal_getLeftName()  ) )
-      .append(  "right" , U.internal_q(this.internal_getRightName() ) )
+      .append( "type",  this.getType()                                     )
+      .append( "owner", U.internal_q( CompositeHelper.getOwnerName(this) ) )
+      .append( "left",  U.internal_q( CompositeHelper.getLeftName(this)  ) )
+      .append( "right", U.internal_q( CompositeHelper.getRightName(this) ) )
       .toString();
   } // public String toString()
 
 
   // PROTECTED CLASS METHODS //
 
+  // TODO 20070125 revisit these methods once initial daoification is complete
+
   // @since   1.2.0
-  protected static void internal_update(Owner o) {
+  protected static void internal_update(Group g) {
     Composite c;
-    Iterator  iter  = CompositeFinder.internal_findAsFactor(o).iterator();
-    while (iter.hasNext()) {
-      c = (Composite) iter.next();
+    Iterator  it  = HibernateCompositeDAO.findAsFactor( g.getDTO() ).iterator();
+    while (it.hasNext()) {
+      c = new Composite();
+      c.setDTO( (CompositeDTO) it.next() );
+      c.setSession( g.getSession() );
       c._update();
     }
-  } // protected static void internal_update(o)
+  } // protected static void internal_update(g)
 
 
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected String internal_getLeftName() {
-    try {
-      Group g = (Group) this.getLeft();
-      Validator.internal_valueNotNull(g, E.GROUP_NULL);
-      return g.getName();
-    }
-    catch (NullPointerException eNP) {
-      ErrorLog.error(Composite.class, E.COMP_NULL_LEFT_GROUP + U.internal_q(this.getUuid()));
-      return GrouperConfig.EMPTY_STRING;
-    }
-  } // protected String internal_getLeftName()
-
-  // @since   1.2.0
-  protected String internal_getOwnerName() {
-    try {
-      Group g = (Group) this.getOwner();
-      Validator.internal_valueNotNull(g, E.GROUP_NULL);
-      return g.getName();
-    }
-    catch (NullPointerException eNP) {
-      ErrorLog.error(Composite.class, E.COMP_NULL_OWNER_GROUP + U.internal_q(this.getUuid()));
-      return GrouperConfig.EMPTY_STRING;
-    }
-  } // protected String internal_getOwnerName()
-
-  // @since   1.2.0
-  protected String internal_getRightName() {
-    try {
-      Group g = (Group) this.getRight();
-      Validator.internal_valueNotNull(g, E.GROUP_NULL);
-      return g.getName();
-    }
-    catch (NullPointerException eNP) {
-      ErrorLog.error(Composite.class, E.COMP_NULL_RIGHT_GROUP + U.internal_q(this.getUuid()));
-      return GrouperConfig.EMPTY_STRING;
-    }
-  } // protected String internal_getRightName()
+  protected CompositeDTO getDTO() {
+    return (CompositeDTO) super.getDTO();
+  } // protected CompositeDTO getDTO()
+ 
+  // TODO 20070125 revisit these methods once initial daoification is complete
 
   // @since   1.1.0
   protected String getName() {
@@ -261,29 +197,33 @@ public class Composite extends Owner {
 
   // @since   1.0
   private static void _update(Set mships) {
-    try {
-      Set         updates = new LinkedHashSet();
-      Membership  ms;
-      Iterator    iterMS  = mships.iterator();
-      while (iterMS.hasNext()) {
-        ms = (Membership) iterMS.next();
-        updates.add( ms.internal_getOwner() ); // may throw eONF
+    Set         updates = new LinkedHashSet();
+    Membership  ms;
+    Iterator    iterMS  = mships.iterator();
+    while (iterMS.hasNext()) {
+      // TODO 20070125 !!!
+      Object obj = iterMS.next();
+      if (obj instanceof MembershipDTO) {
+        Membership tmp = new Membership();
+        tmp.setDTO( (MembershipDTO) obj );
+        updates.add( MembershipHelper.getOwner(tmp) );
       }
-      Owner     o;
-      Iterator  iter;
-      Composite c;
-      Iterator  iterU = updates.iterator();
-      while (iterU.hasNext()) {
-        o     = (Owner) iterU.next();
-        iter  = CompositeFinder.internal_findAsFactor(o).iterator();
-        while (iter.hasNext()) {
-          c = (Composite) iter.next();
-          c._update();
-        }
+      else {
+        updates.add( MembershipHelper.getOwner( (Membership) obj ) );
       }
     }
-    catch (OwnerNotFoundException eONF) {
-      throw new GrouperRuntimeException( "error updating composites: " + eONF.getMessage(), eONF );
+    Group     g;
+    Iterator  iter;
+    Composite c;
+    Iterator  iterU = updates.iterator();
+    while (iterU.hasNext()) {
+      g     = (Group) iterU.next();
+      iter  = HibernateCompositeDAO.findAsFactor( g.getDTO() ).iterator();
+      while (iter.hasNext()) {
+        c = new Composite();
+        c.setDTO( (CompositeDTO) iter.next() );
+        c._update();
+      }
     }
   } // private static void _update(mships)
 
@@ -299,13 +239,15 @@ public class Composite extends Owner {
     try {
       StopWatch sw  = new StopWatch();
       sw.start();
-      GrouperSession rs  = this.internal_getSession().internal_getRootSession();
-      this.internal_setSession(rs);
+      // TODO 20070208 THIS. SHOULD. NOT. BE. NECESSARY.
+      //GrouperSession rs  = this.getSession().getDTO().getRootSession();
+      GrouperSession rs = GrouperSession.start( SubjectFinder.findRootSubject() );
+      this.setSession(rs);
       Group           g   = this.getOwnerGroup();
       MemberOf        mof = MemberOf.internal_addComposite(rs, g, this);
 
       Set cur     = g.getMemberships();         // Current mships
-      Set should  = mof.internal_getEffSaves();          // What mships should be
+      Set should  = mof.internal_getEffSaves(); // What mships should be
       Set deletes = new LinkedHashSet(cur);     // deletes  = cur - should
       deletes.removeAll(should);
       Set adds    = new LinkedHashSet(should);  // adds     = should - cur
@@ -327,52 +269,11 @@ public class Composite extends Owner {
       String msg = E.COMP_UPDATE + eM.getMessage();
       ErrorLog.error(Composite.class, msg);
     }
+    catch (SessionException eS) {
+      String msg = E.COMP_UPDATE + eS.getMessage();
+      ErrorLog.error(Composite.class, msg);
+    }
   } // private void _update()
 
-
-  // GETTERS //
-  // @since 1.0
-  protected Owner getLeft() {
-    return this.left;
-  }
-  // @since 1.0
-  protected Owner getOwner() {
-    return this.owner;
-  }
-  // @since 1.0
-  protected Owner getRight() {
-    return this.right;
-  }
-  /**
-   * Return this composite's type.
-   * <pre class="eg">
-   * CompositeType type = c.getType();
-   * </pre>
-   * @return  {@link CompositeType} of this {@link Composite}.
-   * @since   1.0
-   */
-  public CompositeType getType() {
-    return this.type;
-  } // public CompositeType getType()
-
-
-  // SETTERS //
-  // @since 1.0
-  private void setLeft(Owner l) {
-    this.left = l;
-  }
-  // @since 1.0
-  private void setOwner(Owner o) {
-    this.owner = o;
-  }
-  // @since 1.0
-  private void setRight(Owner r) {
-    this.right = r;
-  }
-  // @since 1.0
-  private void setType(CompositeType type) {
-    this.type = type;
-  }
-
-}
+} // public class Composite extends GrouperAPI
 

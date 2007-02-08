@@ -30,36 +30,20 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.122 2007-01-11 14:22:06 blair Exp $
+ * @version $Id: Group.java,v 1.123 2007-02-08 16:25:25 blair Exp $
  */
-public class Group extends Owner {
+public class Group extends GrouperAPI implements Owner {
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL = new EventLog();
 
 
-  // HIBERNATE PROPERTIES //
-  private Set     group_attributes;
-  private Set     group_types         = new LinkedHashSet(); 
-  private Stem    parent_stem;
-
-
   // PRIVATE INSTANCE VARIABLES //
   private Member  as_member = null;
   private Subject as_subj   = null;
-  private Map     attrs     = new HashMap();
   private Subject creator;
   private Subject modifier;
   private Set     types     = null;
-
-
-  // CONSTRUCTORS //
-
-  // Default constructor for Hibernate.
-  // @since   1.0
-  protected Group() {
-    super();
-  } // protected Group()
 
 
   // PUBLIC CLASS METHODS //
@@ -116,11 +100,24 @@ public class Group extends Owner {
     try {
       StopWatch sw  = new StopWatch();
       sw.start();
-      Composite c   = new Composite(this.internal_getSession(), this, left, right, type);
-      GroupValidator.internal_canAddCompositeMember(this, c);
-      MemberOf  mof = MemberOf.internal_addComposite( this.internal_getSession(), this, c );
+
+      Composite     c   = new Composite();
+      CompositeDTO  dto = new CompositeDTO();
+      dto.setCreateTime( new Date().getTime() );
+      dto.setCreatorUuid( this.getSession().getMember().getUuid() );
+      dto.setFactorOwnerUuid( this.getDTO().getUuid() );
+      dto.setLeftFactorUuid( left.getDTO().getUuid() );
+      dto.setRightFactorUuid( right.getDTO().getUuid() );
+      dto.setType( type.toString() );
+      dto.setUuid( GrouperUuid.internal_getUuid() );
+      CompositeValidator.internal_validate(dto);
+      c.setDTO(dto);
+      c.setSession( this.getSession() );
+
+      GroupValidator.internal_canAddCompositeMember(this);
+      MemberOf mof = MemberOf.internal_addComposite( this.getSession(), this, c );
       HibernateGroupDAO.updateMemberships(mof);
-      EventLog.groupAddComposite(this.internal_getSession(), c, mof, sw);
+      EventLog.groupAddComposite( this.getSession(), c, mof, sw );
       Composite.internal_update(this);
       sw.stop();
     }
@@ -194,8 +191,8 @@ public class Group extends Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     GroupValidator.internal_canAddMember(this, subj, f);
-    Membership.internal_addImmediateMembership( this.internal_getSession(), this, subj, f );
-    EL.groupAddMember(this.internal_getSession(), this.getName(), subj, f, sw);
+    Membership.internal_addImmediateMembership( this.getSession(), this, subj, f );
+    EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
     Composite.internal_update(this);
     sw.stop();
   } // public void addMember(subj, f)
@@ -229,15 +226,18 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    GroupValidator.internal_canAddType(this.internal_getSession(), this, type);
+    GroupValidator.internal_canAddType(this.getSession(), this, type);
     try {
-      Set types = this.getGroup_types();
-      types.add(type);
-      this.setGroup_types(types);
-      HibernateGroupDAO.update(this);
+      Set types = this.getDTO().getTypes();
+      types.add( type.getDTO() );
+      this.getDTO().setTypes(types);
+
+      this.internal_setModified();
+
+      HibernateGroupDAO.addType(this, type);
       sw.stop();
       EventLog.info(
-        this.internal_getSession(),
+        this.getSession(),
         M.GROUP_ADDTYPE + U.internal_q(this.getName()) + " type=" + U.internal_q(type.toString()),
         sw
       );
@@ -270,7 +270,7 @@ public class Group extends Owner {
     throws  IllegalArgumentException,
             SchemaException
   {
-    return this.canReadField(this.internal_getSession().getSubject(), f);
+    return this.canReadField(this.getSession().getSubject(), f);
   } // public boolean canReadField(f)
 
   /**
@@ -327,7 +327,7 @@ public class Group extends Owner {
     throws  IllegalArgumentException,
             SchemaException
   {
-    return this.canWriteField(this.internal_getSession().getSubject(), f);
+    return this.canWriteField(this.getSession().getSubject(), f);
   } // public boolean canWriteField(f)
 
   /**
@@ -395,14 +395,14 @@ public class Group extends Owner {
       // ... And delete all memberships - as root
       Set deletes = new LinkedHashSet(
         Membership.internal_deleteAllFieldType(
-          this.internal_getSession().internal_getRootSession(), this, FieldType.LIST
+          this.getSession().getDTO().getRootSession(), this, FieldType.LIST
         )
       );
       deletes.add(this);            // ... And add the group last for good luck    
       String name = this.getName(); // Preserve name for logging
       HibernateGroupDAO.delete(deletes);
       sw.stop();
-      EventLog.info(this.internal_getSession(), M.GROUP_DEL + U.internal_q(name), sw);
+      EventLog.info(this.getSession(), M.GROUP_DEL + U.internal_q(name), sw);
     }
     catch (GrouperDAOException eDAO) {
       throw new GroupDeleteException( eDAO.getMessage(), eDAO );
@@ -451,36 +451,19 @@ public class Group extends Owner {
       GroupValidator.internal_canDelAttribute(this, f);
 
       // TODO 20061011 REFACTOR: I'm not comfortable with this code
-      Set       saves   = new LinkedHashSet();
-      Set       deletes = new LinkedHashSet();
-      Set       attrs   = new LinkedHashSet();
-      boolean   found   = false; // so we know if there was actually anything to delete
-      String    val     = GrouperConfig.EMPTY_STRING; // for logging purposes
-      Attribute a;
-      Iterator  iter    = this.getGroup_attributes().iterator();
-      while (iter.hasNext()) {
-        a = (Attribute) iter.next();
-        if (a.getField().equals(f)) {
-          val = a.getValue();
-          deletes.add(a); // deleting
-          found = true;
-        }
-        else {
-          attrs.add(a); // preserving
-        }
-      }
-      if (found) {
+      Map attrs = this.getDTO().getAttributes();
+      if (attrs.containsKey(attr)) {
+        String val = (String) attrs.get(attr); // for logging
+        attrs.remove(attr);
+        this.getDTO().setAttributes(attrs);
         this.internal_setModified();
-        this.setGroup_attributes(attrs);
-        saves.add(this);
-        HibernateGroupDAO.update(this);
-        this.attrs.remove(attr); // Remove cached attribute
+        HibernateGroupDAO.update(this); // TODO 20070207 bah
+        sw.stop();
+        EL.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
       }
       else {
         throw new AttributeNotFoundException();
       }
-      sw.stop();
-      EL.groupDelAttr(this.internal_getSession(), this.getName(), attr, val, sw);
     }
     catch (GrouperDAOException eDAO) {
       throw new GroupModifyException( eDAO.getMessage(), eDAO );
@@ -521,10 +504,12 @@ public class Group extends Owner {
       StopWatch sw  = new StopWatch();
       sw.start();
       GroupValidator.internal_canDelCompositeMember(this);
-      Composite c   = CompositeFinder.internal_findAsOwner(this);
-      MemberOf  mof = MemberOf.internal_delComposite( this.internal_getSession(), this, c );
+      CompositeDTO  dto = HibernateCompositeDAO.findAsOwner( this.getDTO() );
+      Composite     c   = new Composite();
+      c.setDTO(dto);
+      MemberOf      mof = MemberOf.internal_delComposite( this.getSession(), this, c );
       HibernateGroupDAO.updateMemberships(mof);
-      EventLog.groupDelComposite(this.internal_getSession(), c, mof, sw);
+      EventLog.groupDelComposite( this.getSession(), c, mof, sw );
       Composite.internal_update(this);
       sw.stop();
     }
@@ -600,7 +585,7 @@ public class Group extends Owner {
     StopWatch sw  = new StopWatch();
     sw.start();
     GroupValidator.internal_canDelMember(this, subj, f);
-    MemberOf  mof = Membership.internal_delImmediateMembership( this.internal_getSession(), this, subj, f );
+    MemberOf  mof = Membership.internal_delImmediateMembership( this.getSession(), this, subj, f );
     try {
       HibernateGroupDAO.updateMemberships(mof);
     }
@@ -608,8 +593,8 @@ public class Group extends Owner {
       throw new MemberDeleteException( eDAO.getMessage(), eDAO );
     }
     sw.stop();
-    EL.groupDelMember(this.internal_getSession(), this.getName(), subj, f, sw);
-    EL.delEffMembers(this.internal_getSession(), this, subj, f, mof.internal_getEffDeletes());
+    EL.groupDelMember(this.getSession(), this.getName(), subj, f, sw);
+    EL.delEffMembers(this.getSession(), this, subj, f, mof.internal_getEffDeletes());
     Composite.internal_update(this);
   } // public void deleteMember(subj, f)
 
@@ -644,14 +629,18 @@ public class Group extends Owner {
     sw.start();
     String msg = E.GROUP_TYPEDEL + type + ": "; 
     try {
-      GroupValidator.internal_canDeleteType(this.internal_getSession(), this, type);
-      Set       types = this.getGroup_types();
-      types.remove(type);
-      this.setGroup_types(types);
-      HibernateGroupDAO.update(this);
+      GroupValidator.internal_canDeleteType( this.getSession(), this, type );
+
+      Set types = this.getDTO().getTypes();
+      types.remove( type.getDTO() );
+      this.getDTO().setTypes(types);
+
+      this.internal_setModified();
+
+      HibernateGroupDAO.deleteType(this, type);
       sw.stop();
       EventLog.info(
-        this.internal_getSession(),
+        this.getSession(),
         M.GROUP_DELTYPE + U.internal_q(this.getName()) + " type=" + U.internal_q(type.toString()),
         sw
       );
@@ -675,12 +664,7 @@ public class Group extends Owner {
     if (!(other instanceof Group)) {
       return false;
     }
-    Group otherGroup = (Group) other;
-    return new EqualsBuilder()
-      .append(this.getCreator_id()  , otherGroup.getCreator_id()  )
-      .append(this.getCreate_time() , otherGroup.getCreate_time() )
-      .append(this.getUuid()        , otherGroup.getUuid()        )
-      .isEquals();
+    return this.getDTO().equals( ( (Group) other ).getDTO() );
   } // public boolean equals(other)
 
   /**
@@ -696,7 +680,7 @@ public class Group extends Owner {
   {
     try {
       return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.internal_getSession(), this, AccessPrivilege.ADMIN
+        this.getSession(), this, AccessPrivilege.ADMIN
       );
     }
     catch (SchemaException eS) {
@@ -724,7 +708,12 @@ public class Group extends Owner {
     throws  AttributeNotFoundException
   {
     GroupValidator.internal_canGetAttribute(this, attr);
-    return this._getAttributeNoPrivs(attr);
+    String  val   = GrouperConfig.EMPTY_STRING;
+    Map     attrs = this.getDTO().getAttributes();
+    if (attrs.containsKey(attr)) {
+      return (String) attrs.get(attr);
+    }
+    return val;
   } // public String getAttribute(attr)
 
   /**
@@ -736,22 +725,12 @@ public class Group extends Owner {
    */
   public Map getAttributes() {
     Map       filtered  = new HashMap();
-    Attribute attr;
-    Iterator  iter      = this.internal_getAttributes().values().iterator();
-    while (iter.hasNext()) {
-      attr = (Attribute) iter.next();
-      try {
-        Field f = attr.getField();
-        GroupValidator.internal_canReadField(
-          this, this.internal_getSession().getSubject(), f
-        );
-        filtered.put(f.getName(), attr.getValue());
-      }
-      catch (InsufficientPrivilegeException eIP) {
-        // ignore
-      }
-      catch (SchemaException eS) {
-        ErrorLog.error(Group.class, E.GROUP_GETATTRS + eS.getMessage());
+    Map.Entry kv;
+    Iterator  it        = this.getDTO().getAttributes().entrySet().iterator();
+    while (it.hasNext()) {
+      kv = (Map.Entry) it.next();
+      if ( this._canReadField( (String) kv.getKey() ) ) {
+        filtered.put( (String) kv.getKey(), (String) kv.getValue() );
       }
     }
     return filtered;
@@ -767,7 +746,7 @@ public class Group extends Owner {
    */
   public Set getCompositeMembers() {
     return MembershipFinder.internal_findMembersByType(
-      this.internal_getSession(), this, Group.getDefaultList(), Membership.INTERNAL_TYPE_C
+      this.getSession(), this, Group.getDefaultList(), Membership.COMPOSITE
     );
   } // public Set getCompositeMembers()
 
@@ -781,7 +760,7 @@ public class Group extends Owner {
    */
   public Set getCompositeMemberships() {
     return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-      this.internal_getSession(), this, Group.getDefaultList(), Membership.INTERNAL_TYPE_C
+      this.getSession(), this, Group.getDefaultList(), Membership.COMPOSITE
     );
   } // public Set getCompositeMemberships()
 
@@ -794,11 +773,7 @@ public class Group extends Owner {
    * @return  Create source for this group.
    */
   public String getCreateSource() {
-    String source = this.getCreate_source();
-    if (source == null) {
-      source = GrouperConfig.EMPTY_STRING;
-    }
-    return source;
+    return GrouperConfig.EMPTY_STRING;
   } // public String getCreateSource()
   
   /**
@@ -819,7 +794,19 @@ public class Group extends Owner {
     throws SubjectNotFoundException
   {
     if (this.creator == null) {
-      this.creator = this.getCreator_id().getSubject();
+      try {
+        MemberDTO dto = HibernateMemberDAO.findByUuid( this.getDTO().getCreatorUuid() );
+        this.creator  = SubjectFinder.findById( dto.getSubjectId(), dto.getSubjectTypeId(), dto.getSubjectSourceId() );
+      }
+      catch (MemberNotFoundException eMNF) {
+        throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
+      }
+      catch (SourceUnavailableException eSU) {
+        throw new SubjectNotFoundException( eSU.getMessage(), eSU );
+      }
+      catch (SubjectNotUniqueException eSNU) {
+        throw new SubjectNotFoundException( eSNU.getMessage(), eSNU );
+      }
     }
     return this.creator; 
   } // public Subject getCreateSubject() 
@@ -833,7 +820,7 @@ public class Group extends Owner {
    * @return  {@link Date} that this group was created.
    */
   public Date getCreateTime() {
-    return new Date(this.getCreate_time());
+    return new Date(this.getDTO().getCreateTime());
   } // public Date getCreateTime()
 
   /**
@@ -866,8 +853,8 @@ public class Group extends Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = this._getAttributeNoPrivs(GrouperConfig.ATTR_DE);
-    if (val.equals(GrouperConfig.EMPTY_STRING)) {
+    String val = (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_DE);
+    if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.fatal(Group.class, E.GROUP_NODE);
       throw new GrouperRuntimeException(E.GROUP_NODE);
@@ -888,8 +875,8 @@ public class Group extends Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = this._getAttributeNoPrivs(GrouperConfig.ATTR_DN);
-    if (val.equals(GrouperConfig.EMPTY_STRING)) {
+    String val = (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_DN);
+    if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.fatal(Group.class, E.GROUP_NODN);
       throw new GrouperRuntimeException(E.GROUP_NODN);
@@ -932,9 +919,7 @@ public class Group extends Owner {
   public Set getEffectiveMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.internal_findMembersByType(
-      this.internal_getSession(), this, f, Membership.INTERNAL_TYPE_E
-    );
+    return MembershipFinder.internal_findMembersByType(this.getSession(), this, f, Membership.EFFECTIVE);
   }  // public Set getEffectiveMembers(f)
 
   /**
@@ -972,7 +957,7 @@ public class Group extends Owner {
     throws  SchemaException
   {
     return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-      this.internal_getSession(), this, f, Membership.INTERNAL_TYPE_E
+      this.getSession(), this, f, Membership.EFFECTIVE
     );
   } // public Set getEffectiveMemberships(f)
 
@@ -987,8 +972,8 @@ public class Group extends Owner {
   public String getExtension() {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = this._getAttributeNoPrivs(GrouperConfig.ATTR_E);
-    if (val.equals(GrouperConfig.EMPTY_STRING)) {
+    String val = (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_E);
+    if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.error(Group.class, E.GROUP_NOE);
       throw new GrouperRuntimeException(E.GROUP_NOE);
@@ -1031,7 +1016,7 @@ public class Group extends Owner {
     throws  SchemaException
   {
     return MembershipFinder.internal_findMembersByType(
-      this.internal_getSession(), this, f, Membership.INTERNAL_TYPE_I
+      this.getSession(), this, f, Membership.IMMEDIATE
     );
   } // public Set getImmediateMembers(f)
 
@@ -1069,9 +1054,9 @@ public class Group extends Owner {
   public Set getImmediateMemberships(Field f) 
     throws  SchemaException
   {
-    GrouperSessionValidator.internal_validate(this.internal_getSession());
+    GrouperSessionValidator.internal_validate(this.getSession());
     return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-      this.internal_getSession(), this, f, Membership.INTERNAL_TYPE_I
+      this.getSession(), this, f, Membership.IMMEDIATE
     );
   } // public Set getImmediateMemberships(f)
 
@@ -1109,7 +1094,7 @@ public class Group extends Owner {
   public Set getMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.internal_findMembers( this.internal_getSession(), this, f );
+    return MembershipFinder.internal_findMembers( this.getSession(), this, f );
   } // public Set getMembers(f)
 
   /**
@@ -1146,7 +1131,7 @@ public class Group extends Owner {
   public Set getMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.internal_findMemberships( this.internal_getSession(), this, f );
+    return MembershipFinder.internal_findMemberships( this.getSession(), this, f );
   } // public Set getMemberships(f)
 
   /**
@@ -1157,11 +1142,7 @@ public class Group extends Owner {
    * @return  Modify source for this group.
    */
   public String getModifySource() {
-    String source = this.getModify_source();
-    if (source == null) {
-      source = GrouperConfig.EMPTY_STRING;
-    }
-    return source;
+    return GrouperConfig.EMPTY_STRING;
   } // public String getModifySource()
   
   /**
@@ -1181,13 +1162,22 @@ public class Group extends Owner {
     throws SubjectNotFoundException
   {
     if (this.modifier == null) {
-      Member m = this.getModifier_id();
-      if (m == null) {
-        throw new SubjectNotFoundException(
-          "group has not been modified"
-        );
+      if ( this.getDTO().getModifierUuid() == null) {
+        throw new SubjectNotFoundException("group has not been modified");
       }
-      this.modifier = m.getSubject();
+      try {
+        MemberDTO dto = HibernateMemberDAO.findByUuid( this.getDTO().getModifierUuid() );
+        this.modifier = SubjectFinder.findById( dto.getSubjectId(), dto.getSubjectTypeId(), dto.getSubjectSourceId() );
+      }
+      catch (MemberNotFoundException eMNF) {
+        throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
+      }
+      catch (SourceUnavailableException eSU) {
+        throw new SubjectNotFoundException( eSU.getMessage(), eSU );
+      }
+      catch (SubjectNotUniqueException eSNU) {
+        throw new SubjectNotFoundException( eSNU.getMessage(), eSNU );
+      }
     }
     return this.modifier; 
   } // public Subject getModifySubject()
@@ -1200,7 +1190,7 @@ public class Group extends Owner {
    * @return  {@link Date} that this group was last modified.
    */
   public Date getModifyTime() {
-    return new Date(this.getModify_time());
+    return new Date(this.getDTO().getModifyTime());
   }
 
   /**
@@ -1216,8 +1206,8 @@ public class Group extends Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = this._getAttributeNoPrivs(GrouperConfig.ATTR_N);
-    if (val.equals(GrouperConfig.EMPTY_STRING)) {
+    String val = (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_N);
+    if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.error(Group.class, E.GROUP_NON);
       throw new GrouperRuntimeException(E.GROUP_NON);
@@ -1238,7 +1228,7 @@ public class Group extends Owner {
   {
     try {
       return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.internal_getSession(), this, AccessPrivilege.OPTIN
+        this.getSession(), this, AccessPrivilege.OPTIN
       );
     } 
     catch (SchemaException eS) { 
@@ -1261,7 +1251,7 @@ public class Group extends Owner {
   {
     try {
       return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.internal_getSession(), this, AccessPrivilege.OPTOUT
+        this.getSession(), this, AccessPrivilege.OPTOUT
       );
     } 
     catch (SchemaException eS) { 
@@ -1278,10 +1268,25 @@ public class Group extends Owner {
    * </pre>
    * @return  Parent {@link Stem}.
    */
-  public Stem getParentStem() {
-    Stem parent = this.getParent_stem();
-    parent.internal_setSession(this.internal_getSession());
-    return parent;
+  public Stem getParentStem() 
+    throws  IllegalStateException
+  {
+    String uuid = this.getDTO().getParentUuid();
+    if (uuid == null) {
+      throw new IllegalStateException("group has no parent stem");
+    }
+    try {
+      Stem parent = new Stem();
+      parent.setDTO( HibernateStemDAO.findByUuid(uuid) );
+      parent.setSession( this.getSession() );
+      return parent;
+    }
+    catch (StemNotFoundException eShouldNeverHappen) {
+      throw new IllegalStateException( 
+        "this should never happen: group has no parent stem: " + eShouldNeverHappen.getMessage(), 
+        eShouldNeverHappen 
+      );
+    }
   } // public Stem getParentStem()
 
   /**
@@ -1294,7 +1299,7 @@ public class Group extends Owner {
    */
   public Set getPrivs(Subject subj) {
     return PrivilegeResolver.internal_getPrivs(
-      this.internal_getSession(), this, subj
+      this.getSession(), this, subj
     );
   } // public Set getPrivs(subj)
 
@@ -1312,7 +1317,7 @@ public class Group extends Owner {
   {
     try {
       return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.internal_getSession(), this, AccessPrivilege.READ
+        this.getSession(), this, AccessPrivilege.READ
       );
     } 
     catch (SchemaException eS) { 
@@ -1338,7 +1343,7 @@ public class Group extends Owner {
       Iterator  iter  = this.getTypes().iterator();
       while (iter.hasNext()) {
         t = (GroupType) iter.next();
-        if (t.getAssignable()) {
+        if ( t.getDTO().getIsAssignable() ) {
           types.add(t);
         }
       }
@@ -1355,12 +1360,13 @@ public class Group extends Owner {
    */
   public Set getTypes() {
     Set       types = new LinkedHashSet();
-    GroupType t;
-    Iterator  iter  = this.getGroup_types().iterator();
-    while (iter.hasNext()) {
-      t = (GroupType) iter.next();
-      if (!t.getInternal()) {
-        types.add(t);
+    Iterator  it    = this.getDTO().getTypes().iterator();
+    while (it.hasNext()) {
+      GroupTypeDTO dto = (GroupTypeDTO) it.next();
+      if ( !dto.getIsInternal() ) {
+        GroupType type = new GroupType();
+        type.setDTO(dto);
+        types.add(type);
       }
     }
     return types;
@@ -1379,7 +1385,7 @@ public class Group extends Owner {
   {
     try {
       return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.internal_getSession(), this, AccessPrivilege.UPDATE
+        this.getSession(), this, AccessPrivilege.UPDATE
       );
     } 
     catch (SchemaException eS) { 
@@ -1388,6 +1394,12 @@ public class Group extends Owner {
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public set getUpdateres()
+
+  /**
+   */
+  public String getUuid() {
+    return this.getDTO().getUuid();
+  } // public String getUuid()
 
   /**
    * Get subjects with the VIEW privilege on this group.
@@ -1402,7 +1414,7 @@ public class Group extends Owner {
   {
     try {
       return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.internal_getSession(), this, AccessPrivilege.VIEW
+        this.getSession(), this, AccessPrivilege.VIEW
       );
     } 
     catch (SchemaException eS) { 
@@ -1438,9 +1450,9 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.internal_grantPriv(this.internal_getSession(), this, subj, priv);
+    PrivilegeResolver.internal_grantPriv(this.getSession(), this, subj, priv);
     sw.stop();
-    EL.groupGrantPriv(this.internal_getSession(), this.getName(), subj, priv, sw);
+    EL.groupGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
   }  // public void grantPriv(subj, priv)
 
   /**
@@ -1457,7 +1469,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has ADMIN.
    */
   public boolean hasAdmin(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.ADMIN);
+    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, AccessPrivilege.ADMIN);
   } // public boolean hasAdmin(subj)
 
   /**
@@ -1471,7 +1483,7 @@ public class Group extends Owner {
    */
   public boolean hasComposite() {
     try {
-      CompositeFinder.internal_findAsOwner(this);
+      HibernateCompositeDAO.findAsOwner( this.getDTO() );
       return true;
     }
     catch (CompositeNotFoundException eCNF) {
@@ -1527,7 +1539,7 @@ public class Group extends Owner {
   {
     boolean rv = false;
     try {
-      Member m = MemberFinder.findBySubject(this.internal_getSession(), subj);
+      Member m = MemberFinder.findBySubject(this.getSession(), subj);
       rv = m.isEffectiveMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
@@ -1584,7 +1596,7 @@ public class Group extends Owner {
   {
     boolean rv = false;
     try {
-      Member m = MemberFinder.findBySubject(this.internal_getSession(), subj);
+      Member m = MemberFinder.findBySubject(this.getSession(), subj);
       rv = m.isImmediateMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
@@ -1594,12 +1606,8 @@ public class Group extends Owner {
   } // public boolean hasImmediateMember(subj, f)
 
   public int hashCode() {
-    return new HashCodeBuilder()
-      .append(this.getCreator_id()  )
-      .append(this.getCreate_time() )
-      .append(this.getUuid()        )
-      .toHashCode();
-  }
+    return this.getDTO().hashCode();
+  } // public int hashCode()
 
   /**
    * Check whether the subject is a member of this group.
@@ -1621,11 +1629,11 @@ public class Group extends Owner {
     try {
       return this.hasMember(subj, getDefaultList());
     }
-    catch (SchemaException eS) {
+    catch (SchemaException eShouldNeverHappen) {
       // If we don't have "members" we have serious issues
-      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      String msg = "this should never happen: default group list not found: " + eShouldNeverHappen.getMessage();
       ErrorLog.fatal(Group.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
+      throw new GrouperRuntimeException(msg, eShouldNeverHappen);
     }
   } // public boolean hasMember(subj)
 
@@ -1649,7 +1657,7 @@ public class Group extends Owner {
   {
     boolean rv = false;
     try {
-      Member m = MemberFinder.findBySubject(this.internal_getSession(), subj);
+      Member m = MemberFinder.findBySubject(this.getSession(), subj);
       rv = m.isMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
@@ -1672,7 +1680,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has OPTIN.
    */
   public boolean hasOptin(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.OPTIN);
+    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, AccessPrivilege.OPTIN);
   } // public boolean hasOption(subj)
 
   /**
@@ -1689,7 +1697,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has OPTOUT.
    */
   public boolean hasOptout(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.OPTOUT);
+    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, AccessPrivilege.OPTOUT);
   } // public boolean hasOptout(subj)
 
   /**
@@ -1706,7 +1714,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has READ.
    */
   public boolean hasRead(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv( this.internal_getSession(), this, subj, AccessPrivilege.READ );
+    return PrivilegeResolver.internal_hasPriv( this.getSession(), this, subj, AccessPrivilege.READ );
   } // public boolean hasRead(subj)
 
   /**
@@ -1720,13 +1728,8 @@ public class Group extends Owner {
    * @param   type  The {@link GroupType} to check.
    */
   public boolean hasType(GroupType type) {
-    // if (this.getGroup_types().contains(type)) {
-    Set types = this.getGroup_types();
-    if (types.contains(type)) {
-      return true;
-    }
-    return false;
-  }
+    return this.getDTO().getTypes().contains( type.getDTO() );
+  } // public boolean hasType(type)
 
   /**
    * Check whether the subject has UPDATE on this group.
@@ -1742,7 +1745,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has UPDATE.
    */
   public boolean hasUpdate(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.UPDATE);
+    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, AccessPrivilege.UPDATE);
   } // public boolean hasUpdate(subj)
 
   /**
@@ -1759,7 +1762,7 @@ public class Group extends Owner {
    * @return  Boolean true if subject has VIEW.
    */
   public boolean hasView(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.internal_getSession(), this, subj, AccessPrivilege.VIEW);
+    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, AccessPrivilege.VIEW);
   } // public boolean hasView(subj)
 
   /**
@@ -1772,8 +1775,7 @@ public class Group extends Owner {
    * @return  Boolean true if group is a factor in a composite membership.
    */
   public boolean isComposite() {
-    Set factors = CompositeFinder.internal_findAsFactor(this);
-    if (factors.size() > 0) {
+    if ( HibernateCompositeDAO.findAsFactor( this.getDTO() ).size() > 0 ) {
       return true;
     }
     return false;
@@ -1804,9 +1806,9 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.internal_revokePriv(this.internal_getSession(), this, priv);
+    PrivilegeResolver.internal_revokePriv(this.getSession(), this, priv);
     sw.stop();
-    EL.groupRevokePriv(this.internal_getSession(), this.getName(), priv, sw);
+    EL.groupRevokePriv(this.getSession(), this.getName(), priv, sw);
   } // public void revokePriv(priv)
 
   /**
@@ -1835,9 +1837,9 @@ public class Group extends Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.internal_revokePriv(this.internal_getSession(), this, subj, priv);
+    PrivilegeResolver.internal_revokePriv(this.getSession(), this, subj, priv);
     sw.stop();
-    EL.groupRevokePriv(this.internal_getSession(), this.getName(), subj, priv, sw);
+    EL.groupRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
   } // public void revokePriv(subj, priv)
 
   /**
@@ -1870,31 +1872,20 @@ public class Group extends Owner {
     try {
       StopWatch sw = new StopWatch();
       sw.start();
-      Field f = GroupValidator.internal_canSetAttribute(this, attr, value);
-
-      // TODO 20061011 REFACTOR: I'm not comfortable with this code
-      Set       attrs = new LinkedHashSet();
-      boolean   found = false; // So we know if we are adding or updating
-      Attribute a;
-      Iterator  iter  = this.getGroup_attributes().iterator();
-      while (iter.hasNext()) {
-        a = (Attribute) iter.next();
-        if (a.getField().equals(f)) {
-          a.setValue(value); // updating
-          found = true;
-        }
-        attrs.add(a);
+      GroupValidator.internal_canSetAttribute(this, attr, value);
+      Map attrs = this.getDTO().getAttributes();
+      attrs.put(attr, value);
+      if      ( attr.equals(GrouperConfig.ATTR_E) )   {
+        attrs.put( GrouperConfig.ATTR_N, U.internal_constructName( this.getParentStem().getName(), value ) );
       }
-      if (!found) {
-        attrs.add(new Attribute(this, f, value)); // adding 
+      else if ( attr.equals(GrouperConfig.ATTR_DE) )  {
+        attrs.put( GrouperConfig.ATTR_DN, U.internal_constructName( this.getParentStem().getDisplayName(), value ) );
       }
-
-      this.setGroup_attributes( this._updateSystemAttrs(f, value, attrs) );
+      this.getDTO().setAttributes(attrs);
       this.internal_setModified();
       HibernateGroupDAO.update(this);
-
       sw.stop();
-      EL.groupSetAttr(this.internal_getSession(), this.getName(), attr, value, sw);
+      EL.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
     }
     catch (GrouperDAOException eDAO) {
       throw new GroupModifyException( eDAO.getMessage(), eDAO );
@@ -2015,11 +2006,11 @@ public class Group extends Owner {
   public Member toMember() 
     throws  GrouperRuntimeException
   {
-    GrouperSessionValidator.internal_validate(this.internal_getSession());
+    GrouperSessionValidator.internal_validate(this.getSession());
     if (as_member == null) {
       try {
         as_member = MemberFinder.findBySubject(
-          this.internal_getSession(), this.toSubject()
+          this.getSession(), this.toSubject()
         );
       }  
       catch (MemberNotFoundException eMNF) {
@@ -2045,7 +2036,7 @@ public class Group extends Owner {
   public Subject toSubject() 
     throws  GrouperRuntimeException
   {
-    GrouperSessionValidator.internal_validate(this.internal_getSession());
+    GrouperSessionValidator.internal_validate(this.getSession());
     if (as_subj == null) {
       try {
         as_subj = SubjectFinder.findById(
@@ -2064,105 +2055,59 @@ public class Group extends Owner {
   } // public Subject toSubject()
 
   public String toString() {
+    // TODO 20070125 replace with call to DTO?
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
-      .append(  GrouperConfig.ATTR_N  , this._getAttributeNoPrivs(GrouperConfig.ATTR_N) )
-      .append(  "uuid"                , this.getUuid()                                  )
+      .append( GrouperConfig.ATTR_N, (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_N) )
+      .append( "uuid", this.getUuid() )
       .toString();
   } // public String toString()
 
 
-  // PROTECTED CLASS METHODS //
-  
-  // @since   1.2.0
-  protected static Group internal_create(Stem parent, String extn, String dExtn, String uuid)
-    throws SchemaException
-  {
-    Group g = new Group();
-    g.internal_setSession( parent.internal_getSession() );
-    g.setParent_stem(parent);
-    // Attach group type
-    Set types = g.getGroup_types();
-    types.add( GroupTypeFinder.find("base") );
-    g.setGroup_types(types);
-    g._setCreated(); // Set create information
-    if (uuid == null) {
-      g.setUuid( GrouperUuid.internal_getUuid() );
-    }
-    else {
-      g.setUuid(uuid);
-    }
-    // Set naming information
-    Set attributes = new LinkedHashSet();
-    attributes.add( new Attribute(g, FieldFinder.find(GrouperConfig.ATTR_DE), dExtn) );
-    attributes.add(
-      new Attribute(
-        g, FieldFinder.find(GrouperConfig.ATTR_DN), U.internal_constructName(parent.getDisplayName(), dExtn)
-      )
-    );
-    attributes.add( new Attribute(g, FieldFinder.find(GrouperConfig.ATTR_E), extn) );
-    attributes.add(
-      new Attribute( g, FieldFinder.find(GrouperConfig.ATTR_N), U.internal_constructName(parent.getName(), extn) )
-    );
-    g.setGroup_attributes(attributes);
-    return g;
-  } // protected static Group internal_create(ns, extn, dExtn, uuid)
- 
-
   // PROTECTED INSTANCE METHODS //
 
-  // @return  Map of group attributes.  Key is attribute name.  Value is Attribute object.
   // @since   1.2.0
-  protected Map internal_getAttributes() {
-    Attribute a;
-    Iterator  it  = this.getGroup_attributes().iterator();
-    while (it.hasNext()) {
-      a = (Attribute) it.next();
-      this.attrs.put( a.getField().getName(), a );
-    }
-    return this.attrs;
-  } // protected Map internal_getAttributesNoPrivs()
+  protected GroupDTO getDTO() {
+    return (GroupDTO) super.getDTO();
+  } // protected GroupDTO getDTO()
  
-  // @since   1.2.0 
-  protected void internal_setModified() {
-    this.setModifier_id( s.getMember()        );
-    this.setModify_time( new Date().getTime() );
-  } // protected void internal_setModified()
+  // TODO 20070125 revisit these methods once initial daoification is complete
 
-  // @since   1.2.0
-  protected void internal_setDisplayName(String value) {
-    Set       attrs = new LinkedHashSet();
-    Attribute a;
-    Iterator  iter  = this.getGroup_attributes().iterator();
-    while (iter.hasNext()) {
-      a = (Attribute) iter.next();
-      if (a.getField().getName().equals(GrouperConfig.ATTR_DN)) {
-        a.setValue(value);
-      }
-      attrs.add(a);
-    }
-    this.setGroup_attributes(attrs);
-  } // protected void internal_setDisplayName(value)
+  // @since   1.2.0 
+  // TODO 20070206 i dislike this method
+  protected void internal_setModified() {
+    this.getDTO().setModifierUuid( s.getMember().getUuid() );
+    this.getDTO().setModifyTime( new Date().getTime() );
+  } // protected void internal_setModified()
 
 
   // PRIVATE INSTANCE METHODS //
-  private String _getAttributeNoPrivs(String attr) {
-    String    val   = GrouperConfig.EMPTY_STRING;
-    Map       attrs = this.internal_getAttributes();
-    if (attrs.containsKey(attr)) {
-      Attribute a = (Attribute) attrs.get(attr);
-      val = a.getValue();
+
+  // @since   1.2.0
+  private boolean _canReadField(String name) {
+    boolean rv = false;
+    try {
+      PrivilegeResolver.internal_canPrivDispatch( 
+        this.getSession(), this, this.getSession().getSubject(), FieldFinder.find(name).getReadPriv()
+      );
+      rv = true;
     }
-    return val;
-  } // private String _getAttributeNoPrivs(attr)
+    catch (InsufficientPrivilegeException eIP) {
+      // TODO 20070131  ignore - for now
+    }
+    catch (SchemaException eS) {
+      // TODO 20070131  ignore - for now
+    }
+    return rv;
+  } // private boolean _canReadField(name)
 
   private void _revokeAllAccessPrivs() 
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException, 
             SchemaException
   {
-    GrouperSession orig = this.internal_getSession();
-    this.internal_setSession( orig.internal_getRootSession() ); // proxy as root
+    GrouperSession orig = this.getSession();
+    this.setSession( orig.getDTO().getRootSession() ); // proxy as root
 
     this.revokePriv(AccessPrivilege.ADMIN);
     this.revokePriv(AccessPrivilege.OPTIN);
@@ -2171,92 +2116,8 @@ public class Group extends Owner {
     this.revokePriv(AccessPrivilege.UPDATE);
     this.revokePriv(AccessPrivilege.VIEW);
 
-    this.internal_setSession(orig);
+    this.setSession(orig);
   } // private void _revokeAllAccessPrivs()
 
-  private void _setCreated() {
-    this.setCreator_id( s.getMember()         );
-    this.setCreate_time( new Date().getTime() );
-  } // private void _setCreated()
-
-  private Set _updateSystemAttrs(Field f, String value, Set attrs) 
-    throws  ModelException
-  {
-    Set updated = new LinkedHashSet();
-    if      (f.getName().equals(GrouperConfig.ATTR_E)) {
-      Attribute a;
-      Iterator  iter  = attrs.iterator();
-      while (iter.hasNext()) {
-        a = (Attribute) iter.next();
-        if (a.getField().getName().equals(GrouperConfig.ATTR_N)) {
-          AttributeValidator.internal_namingValue(value);
-          String newVal = U.internal_constructName(
-            this.getParentStem().getName(), value
-          );
-          a.setValue(newVal);
-        }
-        updated.add(a);
-      }
-    }
-    else if (f.getName().equals(GrouperConfig.ATTR_DE)) {
-      Attribute a;
-      Iterator  iter  = attrs.iterator();
-      while (iter.hasNext()) {
-        a = (Attribute) iter.next();
-        if (a.getField().getName().equals(GrouperConfig.ATTR_DN)) {
-          AttributeValidator.internal_namingValue(value);
-          String newVal = U.internal_constructName(
-            this.getParentStem().getDisplayName(), value
-          );
-          a.setValue(newVal);
-        }
-        updated.add(a);
-      }
-    } else {
-      updated = attrs;
-    }
-    return updated;
-  } // private Set _updateSystemAttrs(f, value, attrs
-
-
-  // GETTERS //
-  private Set getGroup_attributes() {
-    return this.group_attributes;
-  }
-  private Set getGroup_types() {
-    // We only want to return the singleton instances of each group
-    // type.  This saves from potential catastrophe when saving objects
-    // as well as (hopefully) being more efficient.
-    if (this.types == null) {
-      types           = new LinkedHashSet();
-      GroupType type;
-      Iterator  iter  = this.group_types.iterator();
-      while (iter.hasNext()) {
-        try {
-          type = (GroupType) iter.next();
-          types.add( GroupTypeFinder.find( type.toString() ) );
-        }
-        catch (SchemaException eS) {
-          ErrorLog.error(Group.class, E.GROUP_SCHEMA + eS.getMessage());
-        }
-      }
-    }
-    return this.types;
-  }
-  private Stem getParent_stem() {
-    return this.parent_stem;
-  }
-
-  // SETTERS //
-  private void setGroup_attributes(Set group_attributes) {
-    this.group_attributes = group_attributes;
-  }
-  private void setGroup_types(Set types) {
-    this.group_types = types;
-  }
-  protected void setParent_stem(Stem parent_stem) {
-    this.parent_stem = parent_stem;
-  }
-
-}
+} // public class Group extends GrouperAPI implements Owner
 

@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.24 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.25 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -28,21 +28,21 @@ class GroupValidator {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static void internal_canAddCompositeMember(Group g, Composite c)
+  protected static void internal_canAddCompositeMember(Group g)
     throws  InsufficientPrivilegeException,
             ModelException,
             SchemaException
   {
     Field f = Group.getDefaultList();
     internal_isTypeEqual(f, FieldType.LIST);
-    internal_canWriteField(g, g.internal_getSession().getSubject(), f);
-    if (g.hasComposite()) {
+    internal_canWriteField(g, g.getSession().getSubject(), f);
+    if ( g.hasComposite() ) {
       throw new ModelException(E.GROUP_ACTC);
     }
     if (g.getMembers().size() > 0) {
       throw new ModelException(E.GROUP_ACTM);
     }
-  } // protected static void internal_canAddCompositeMember(g, c)
+  } // protected static void internal_canAddCompositeMember(g)
 
   // @since   1.2.0
   protected static void internal_canAddMember(Group g, Subject subj, Field f)
@@ -52,7 +52,7 @@ class GroupValidator {
   {
     try {
       internal_isTypeEqual(f, FieldType.LIST);
-      internal_canWriteField(g, g.internal_getSession().getSubject(), f);
+      internal_canWriteField(g, g.getSession().getSubject(), f);
     }
     catch (InsufficientPrivilegeException eIP0) {
       try {
@@ -99,7 +99,7 @@ class GroupValidator {
             SchemaException
   {
     Field f = Group.getDefaultList();
-    internal_canWriteField(g, g.internal_getSession().getSubject(), f);
+    internal_canWriteField(g, g.getSession().getSubject(), f);
     if (!g.hasComposite()) {
       throw new ModelException(E.GROUP_DCFC); 
     }
@@ -110,9 +110,9 @@ class GroupValidator {
     throws  GrouperRuntimeException,
             InsufficientPrivilegeException
   {
-    GrouperSessionValidator.internal_validate( g.internal_getSession() );
+    GrouperSessionValidator.internal_validate( g.getSession() );
     if (
-      !PrivilegeResolver.internal_canADMIN( g.internal_getSession(), g, g.internal_getSession().getSubject() )
+      !PrivilegeResolver.internal_canADMIN( g.getSession(), g, g.getSession().getSubject() )
     )
     {
       throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
@@ -127,7 +127,7 @@ class GroupValidator {
   {
     try {
       internal_isTypeEqual(f, FieldType.LIST);
-      internal_canWriteField(g, g.internal_getSession().getSubject(), f);
+      internal_canWriteField(g, g.getSession().getSubject(), f);
     }
     catch (InsufficientPrivilegeException eIP0) {
       try {
@@ -168,7 +168,7 @@ class GroupValidator {
       if (!g.hasType( f.getGroupType() ) ) {
         throw new SchemaException(E.GROUP_DOES_NOT_HAVE_TYPE + f.getGroupType().toString());
       }
-      internal_canReadField(g, g.internal_getSession().getSubject(), f);
+      internal_canReadField(g, g.getSession().getSubject(), f);
     }
     catch (InsufficientPrivilegeException eIP) {
       throw new AttributeNotFoundException(eIP);
@@ -184,7 +184,7 @@ class GroupValidator {
             SchemaException
   {
     internal_isTypeEqual(f, FieldType.ATTRIBUTE);
-    internal_canWriteField(g, g.internal_getSession().getSubject(), f);
+    internal_canWriteField(g, g.getSession().getSubject(), f);
   } // protected static void internal_canModAttribute(g, f)
 
   // @since   1.2.0
@@ -205,13 +205,13 @@ class GroupValidator {
     throws  InsufficientPrivilegeException
   {
     if (!
-        (SubjectHelper.internal_eq(g.internal_getSession().getSubject(), subj)) 
+        (SubjectHelper.internal_eq(g.getSession().getSubject(), subj)) 
       && f.equals(Group.getDefaultList()) 
     )
     {
       throw new InsufficientPrivilegeException(E.GROUP_COI);
     } 
-    if (!PrivilegeResolver.internal_canOPTIN(g.internal_getSession(), g, subj)) {
+    if (!PrivilegeResolver.internal_canOPTIN(g.getSession(), g, subj)) {
       throw new InsufficientPrivilegeException(E.CANNOT_OPTIN);
     }
   } // protected static void internal_canOptin(g, subj, f)
@@ -221,13 +221,13 @@ class GroupValidator {
     throws  InsufficientPrivilegeException
   {
     if (!
-        (SubjectHelper.internal_eq(g.internal_getSession().getSubject(), subj)) 
+        (SubjectHelper.internal_eq(g.getSession().getSubject(), subj)) 
       && f.equals(Group.getDefaultList()) 
     )
     {
       throw new InsufficientPrivilegeException(E.GROUP_COO);
     } 
-    if (!PrivilegeResolver.internal_canOPTOUT(g.internal_getSession(), g, subj)) {
+    if (!PrivilegeResolver.internal_canOPTOUT(g.getSession(), g, subj)) {
       throw new InsufficientPrivilegeException(E.CANNOT_OPTOUT);
     }
   } // protected static void internal_canOptin(g, subj, f)
@@ -241,7 +241,7 @@ class GroupValidator {
     if (!g.hasType( f.getGroupType() ) ) {
       throw new SchemaException(E.INVALID_GROUP_TYPE + f.getGroupType().toString());
     }
-    PrivilegeResolver.internal_canPrivDispatch(g.internal_getSession(), g, subj, f.getReadPriv());
+    PrivilegeResolver.internal_canPrivDispatch(g.getSession(), g, subj, f.getReadPriv());
   } // protected static void internal_canReadField(g, subj, f)
 
   // @return  Attribute as {@link Field}
@@ -259,13 +259,15 @@ class GroupValidator {
     if (!AttributeValidator.internal_isPermittedValue(value)) {
       throw new GroupModifyException(E.INVALID_ATTR_VALUE + value);
     }
+    if (
+          attr.equals(GrouperConfig.ATTR_DE)
+      ||  attr.equals(GrouperConfig.ATTR_DN)
+      ||  attr.equals(GrouperConfig.ATTR_E)
+    )
+    {
+      AttributeValidator.internal_namingValue(value);
+    }
     Field f = FieldFinder.find(attr);
-    if (f.getName().equals(GrouperConfig.ATTR_DE)) {
-      AttributeValidator.internal_namingValue(value);
-    }
-    if (f.getName().equals(GrouperConfig.ATTR_DN)) {
-      AttributeValidator.internal_namingValue(value);
-    }
     internal_canModAttribute(g, f);
     return f;
   } // protected static Field internal_canSetAttribute(g, attr, value)
@@ -279,7 +281,7 @@ class GroupValidator {
     if (!g.hasType( f.getGroupType() ) ) {
       throw new SchemaException(E.INVALID_GROUP_TYPE + f.getGroupType().toString());
     }
-    PrivilegeResolver.internal_canPrivDispatch(g.internal_getSession(), g, subj, f.getWritePriv());
+    PrivilegeResolver.internal_canPrivDispatch(g.getSession(), g, subj, f.getWritePriv());
   } // protected static void internal_canWriteField(s, g, subj, f)
 
   // @since   1.2.0

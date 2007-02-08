@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.48 2007-01-11 20:28:05 blair Exp $
+$Id: NEWS.txt,v 1.49 2007-02-08 16:25:25 blair Exp $
 
 ---
 
@@ -9,16 +9,20 @@ $Id: NEWS.txt,v 1.48 2007-01-11 20:28:05 blair Exp $
 Estimated Release: 200703
 
 ## Changes
-* UPDATE: !!!
-          `grouper_memberships` table altered.  While there are no schema
-          changes any existing data will now be inaccurate.
-          * `creator_id` now stores the UUID of the creating member.
-          * `member_id` now stores the UUID of the member.
-          * `parent_membership` now stores the UUID of the parent membership .
-          * `owner_id` now stores the UUID of the owner object.
-          * `via_id` now stores the UUID of the via object.
-          * Eliminated all constraints referencing other tables.
-          !!!
+* UPDATE: The database schema has changed significantly and is not backwards
+          compatibile.
+* NEW:    `Membership.getViaComposite()`
+* NEW:    `Membership.getType()`
+* NEW:    `Membership.getCreateTime()`
+* NEW:    `Membership.getCreator()`
+* NEW:    `Membership.getOwner()`
+* NEW:    `Membership.getStem()`
+* NEW:    `Member.isMember0(<Owner>, <Field>)`.  This will eventually
+          deprecate and replace `Member.isMember(<Group>, <Field>)`.
+* UPDATE: API updated to include an internal DAO layer providing separation
+          between the business logic and the persistence logic.  Classes that
+          have been converted:
+          * `GrouperSession`
 * NEW:    Benchmark: `AddLotsOfGroupsToStem`
 * NEW:    Benchmark: `AddAsEffMemberToLotsOfGroups`
 * NEW:    Benchmark: `MemberHasRead`

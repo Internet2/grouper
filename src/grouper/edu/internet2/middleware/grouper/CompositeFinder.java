@@ -22,7 +22,7 @@ import  java.util.Set;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.15 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.16 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {
@@ -48,13 +48,14 @@ public class CompositeFinder {
    */
   public static Set findAsFactor(Group g) {
     Set             where = new LinkedHashSet();
-    GrouperSession  s     = g.internal_getSession();
+    GrouperSession  s     = g.getSession();
     Member          m     = s.getMember();
     Composite       c;
-    Iterator        it    = internal_findAsFactor(g).iterator();
+    Iterator        it    = HibernateCompositeDAO.findAsFactor( g.getDTO() ).iterator();
     while (it.hasNext()) {
-      c = (Composite) it.next();
-      c.internal_setSession(s);
+      c = new Composite();
+      c.setDTO( (CompositeDTO) it.next() );
+      c.setSession(s);
       try {
         if ( m.canView( c.getOwnerGroup() ) ) {
           where.add(c);
@@ -80,9 +81,11 @@ public class CompositeFinder {
   public static Composite findAsOwner(Group g) 
     throws  CompositeNotFoundException
   {
-    Composite       c = internal_findAsOwner(g);
-    GrouperSession  s = g.internal_getSession();
+    GrouperSession  s = g.getSession();
     Member          m = s.getMember();
+    Composite       c = new Composite();
+    c.setDTO( HibernateCompositeDAO.findAsOwner( g.getDTO() ) );
+    c.setSession(s);
     try {
       if ( m.canView( c.getOwnerGroup() ) ) {
         return c;
@@ -93,35 +96,6 @@ public class CompositeFinder {
       throw new CompositeNotFoundException();
     }
   } // public static Composite findAsOwner(g)
-
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static Set internal_findAsFactor(Owner o) {
-    // @filtered  false
-    // @session   true
-    Set       composites  = new LinkedHashSet();
-    Composite c;
-    Iterator  it          = HibernateCompositeDAO.findAsFactor(o).iterator();
-    while (it.hasNext()) {
-      c = (Composite) it.next();
-      c.internal_setSession( o.internal_getSession() );
-      composites.add(c);
-    }
-    return composites;
-  } // protected static Set internal_findAsFactor(o)
-
-  // @since   1.2.0
-  protected static Composite internal_findAsOwner(Owner o)
-    throws  CompositeNotFoundException
-  {
-    // @filtered  false
-    // @session   true
-    Composite c = HibernateCompositeDAO.findAsOwner(o);
-    c.internal_setSession( o.internal_getSession() );
-    return c;
-  } // protected static Composite internal_findAsOwner(o)
 
 } // public class CompositeFinder
 

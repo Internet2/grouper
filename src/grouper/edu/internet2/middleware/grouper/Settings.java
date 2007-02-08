@@ -22,11 +22,12 @@ package edu.internet2.middleware.grouper;
  * Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Settings.java,v 1.14 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: Settings.java,v 1.15 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
-class Settings {
+class Settings extends GrouperAPI {
 
+  // TODO 20070207 technically this should be in the DAO only
   // PRIVATE CLASS CONSTANTS //
   private static final int  CURRENT_SCHEMA_VERSION  = 2;  //  == 1.2
                                                   //  1       == 1.0
@@ -35,24 +36,6 @@ class Settings {
 
   // PRIVATE CLASS PROPERTIES //
   private static Settings _s = null;
-
-
-  // HIBERNATE PROPERTIES //
-  private String  id;
-  private int     schemaVersion;
-
-
-  // CONSTRUCTORS //
-
-  // @since 1.0
-  private Settings() {
-    // For Hibernate
-  } // private Settings()
-
-  // @since 1.0
-  protected Settings(int version) {
-    this.setSchemaVersion(version);
-  } // protected Settings(version)
 
 
   // PROTECTED CLASS METHODS //
@@ -65,32 +48,24 @@ class Settings {
   // @since   1.2.0
   protected static Settings internal_getSettings() {
     if (_s == null) {
-      _s = HibernateRegistryDAO.findSettings();
+      SettingsDTO dto = HibernateSettingsDAO.findSettings();
+      _s = new Settings();
+      _s.setDTO(dto);
     }
     return _s;
   } // protected static Settings internal_getSettings()
 
 
-  // GETTERS //
-  // @since 1.0
-  protected String getId() {
-    return this.id;
-  }
-  // @since 1.0
+  // PROTECTED INSTANCE METHODS //
+
+  // @since   1.2.0
+  protected SettingsDTO getDTO() {
+    return (SettingsDTO) super.getDTO();
+  } // protected SettingsDTO getDTO()
+
   protected int getSchemaVersion() {
-    return this.schemaVersion;
-  }
+    return this.getDTO().getSchemaVersion();
+  } // protected int getSchemaVersion()
 
-
-  // SETTERS //
-  // @since 1.0
-  protected void setId(String id) {
-    this.id = id;
-  }
-  // @since 1.0
-  protected void setSchemaVersion(int version) {
-    this.schemaVersion = version;
-  }
-
-}
+} // class Settings extends GrouperAPI
 

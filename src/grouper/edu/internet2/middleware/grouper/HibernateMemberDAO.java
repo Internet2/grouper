@@ -22,26 +22,35 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.8 2007-01-11 19:49:16 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.9 2007-02-08 16:25:25 blair Exp $
  * @since   1.2.0
  */
-class HibernateMemberDAO {
+class HibernateMemberDAO extends HibernateDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateMemberDAO.class.getName();
 
 
+  // HIBERNATE PROPERTIES //
+  private String  id;
+  private String  memberUUID;
+  private String  subjectID;
+  private String  subjectSourceID;
+  private String  subjectTypeID;
+
+
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static Member create(Member m) 
+  protected static String create(MemberDTO dto) 
     throws  GrouperDAOException
   {
     try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
+      Session       hs  = HibernateDAO.getSession();
+      Transaction   tx  = hs.beginTransaction();
+      HibernateDAO  dao = Rosetta.getDAO(dto);
       try {
-        hs.save(m);
+        hs.save(dao);
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -51,77 +60,90 @@ class HibernateMemberDAO {
       finally {
         hs.close();
       }
-      return m;
+      return dao.getId();
     }
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static Member create(m)
+  } // protected static String create(dto)
 
-  // @return  {@link Member} or <code>null</code>
   // @since   1.2.0
-  protected static Member findBySubject(String id, String src, String type) 
-    throws  GrouperDAOException
+  protected static MemberDTO findBySubject(String id, String src, String type) 
+    throws  GrouperDAOException,
+            MemberNotFoundException
   {
-    Member m = null;
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Member as m where "
-        + "     m.subject_id      = :sid    "  
-        + "and  m.subject_source  = :source "
-        + "and  m.subject_type    = :type"
+        "from HibernateMemberDAO as m where "
+        + "     m.subjectId       = :sid    "  
+        + "and  m.subjectSourceId = :source "
+        + "and  m.subjectTypeId   = :type"
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindBySubject");
       qry.setString( "sid",    id   );
       qry.setString( "type",   type );
       qry.setString( "source", src  );
-      m = (Member) qry.uniqueResult(); // null if not found
+      HibernateMemberDAO dao = (HibernateMemberDAO) qry.uniqueResult();
       hs.close();
+      if (dao == null) {
+        throw new MemberNotFoundException();
+      }
+      MemberDTO dto = new MemberDTO();
+      dto.setId( dao.getId() );
+      dto.setMemberUuid( dao.getMemberUuid() );
+      dto.setSubjectId( dao.getSubjectId() );
+      dto.setSubjectSourceId( dao.getSubjectSourceId() );
+      dto.setSubjectTypeId( dao.getSubjectTypeId() );
+      return dto;
     }
     catch (HibernateException eH) {
       String msg = E.MEMBER_NEITHER_FOUND_NOR_CREATED + eH.getMessage();
       ErrorLog.fatal(HibernateMemberDAO.class, msg);
       throw new GrouperDAOException(msg, eH);
     }
-    return m;
-  } // protected static Member findBySubject(id, src, type)
+  } // protected static MemberDTO findBySubject(id, src, type)
 
-  // @return  {@link Member} or throws ex
   // @since   1.2.0
-  protected static Member findByUuid(String uuid) 
+  protected static MemberDTO findByUuid(String uuid) 
     throws  GrouperDAOException,
             MemberNotFoundException
   {
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from Member as m where m.member_id = :uuid");
+      Query   qry = hs.createQuery("from HibernateMemberDAO as m where m.memberUuid = :uuid");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
-      Member m = (Member) qry.uniqueResult(); // null if not found
+      HibernateMemberDAO dao = (HibernateMemberDAO) qry.uniqueResult(); 
       hs.close();
-      if (m == null) {
+      if (dao == null) {
         throw new MemberNotFoundException();
       }
-      return m;
+      MemberDTO dto = new MemberDTO();
+      dto.setId( dao.getId() );
+      dto.setMemberUuid( dao.getMemberUuid() );
+      dto.setSubjectId( dao.getSubjectId() );
+      dto.setSubjectSourceId( dao.getSubjectSourceId() );
+      dto.setSubjectTypeId( dao.getSubjectTypeId() );
+      return dto;
     }
     catch (HibernateException eH) {
       ErrorLog.fatal( HibernateMemberDAO.class, eH.getMessage() );
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static Member findByUuid(uuid)
+  } // protected static MemberDTO findByUuid(uuid)
 
   // @since   1.2.0
-  protected static void update(Member m) 
+  protected static void update(MemberDTO dto) 
     throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        hs.update(m);
+        hs.update( dto.getDAO() );
       }
       catch (HibernateException eH) {
         tx.rollback();
@@ -134,7 +156,43 @@ class HibernateMemberDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static void update(m)
+  } // protected static void update(dto)
 
-} // class HibernateMemberDAO
+
+  // GETTERS //
+  protected String getId() {
+    return this.id;
+  } 
+  protected String getMemberUuid() {
+    return this.memberUUID;
+  }
+  protected String getSubjectId() {
+    return this.subjectID;
+  }
+  protected String getSubjectSourceId() {
+    return this.subjectSourceID;
+  }
+  protected String getSubjectTypeId() {
+    return this.subjectTypeID;
+  }
+
+
+  // SETTERS //
+  protected void setId(String id) {
+    this.id = id;
+  }
+  protected void setMemberUuid(String memberUUID) {
+    this.memberUUID = memberUUID;
+  }
+  protected void setSubjectId(String subjectID) {
+    this.subjectID = subjectID;
+  }
+  protected void setSubjectSourceId(String subjectSourceID) {
+    this.subjectSourceID = subjectSourceID;
+  }
+  protected void setSubjectTypeId(String subjectTypeID) {
+    this.subjectTypeID = subjectTypeID;
+  }
+
+} // class HibernateMemberDAO extends HibernateDAO
 

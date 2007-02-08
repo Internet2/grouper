@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: GroupType.hbm.xml,v 1.15 2007-01-04 17:50:51 blair Exp $ -->
+<!-- $Id: HibernateSettingsDAO.hbm.xml,v 1.1 2007-02-08 16:25:25 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="GroupType" table="grouper_types" >
+  <class name="HibernateSettingsDAO" table="grouper_settings">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateDAO.getSession();</meta>
@@ -32,7 +32,7 @@
 
     <!-- id -->
     <id name="id" 
-        type="string"
+        type="string" 
         unsaved-value="null"
         length="128"
     >
@@ -40,51 +40,15 @@
     </id>
     <!-- id -->
 
-    <!-- name -->
-    <property name="name"
-              type="string"
-              not-null="true"
-              unique="true"
-    />
-    <!-- name -->
-
-    <!-- creator_id -->
-    <many-to-one  name="creator_id"
-                  class="edu.internet2.middleware.grouper.Member" 
-    />
-    <!-- creator_id -->
-
-    <!-- create_time -->
-    <property name="create_time"
-              type="long"
-              not-null="true"
-              update="false"
-    />
-    <!-- create_time -->
-
-    <!-- fields -->
-    <set  name="fields"
-          inverse="true"
-          cascade="all-delete-orphan"
-          order-by="field_name asc"
+    <!-- schemaVersion -->
+    <property name="schemaVersion"
+              type="integer"
     >
-      <key column="group_type"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Field" />
-    </set>
-    <!-- fields -->
-
-    <!-- assignable -->
-    <property
-      name="assignable"
-      type="boolean"
-    />
-    <!-- assignable -->
-
-    <!-- internal -->
-    <property
-      name="internal"
-      type="boolean"
-    />
+      <column name="schema_version"
+              not-null="true"
+      />
+    </property>
+    <!-- schemaVersion -->
 
   </class>
 </hibernate-mapping>

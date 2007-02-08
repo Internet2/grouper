@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MemberValidator.java,v 1.6 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: MemberValidator.java,v 1.7 2007-02-08 16:25:25 blair Exp $
  * @since   1.1.0
  */
 class MemberValidator {
@@ -52,7 +52,7 @@ class MemberValidator {
     if (m.getSubjectSourceId().equals(InternalSourceAdapter.ID)) {
       throw new InsufficientPrivilegeException("cannot modify internal subjects");
     }
-    if (! RootPrivilegeResolver.internal_isRoot( m.internal_getSession()) ) {
+    if (! RootPrivilegeResolver.internal_isRoot( m.getSession()) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_SET_SUBJECTID);
     }
   } // protected static void _canSetSubjectAttr(m)

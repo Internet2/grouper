@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * Validation methods that apply to {@link GroupType}s.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeValidator.java,v 1.8 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: GroupTypeValidator.java,v 1.9 2007-02-08 16:25:25 blair Exp $
  * @since   1.1.0
  */
 class GroupTypeValidator {
@@ -35,21 +35,23 @@ class GroupTypeValidator {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    GroupTypeValidator.internal_canModifyField(s, gt);
+    if (!RootPrivilegeResolver.internal_isRoot(s)) {
+      throw new InsufficientPrivilegeException(E.GROUPTYPE_CANNOT_MODIFY_TYPE);
+    }
+    // 20070206 moved system-type validation to public methods for adding fields
+    boolean exists = false;
     try {
       FieldFinder.find(name);
-      throw new SchemaException(E.FIELD_ALREADY_EXISTS + name);
+      exists = true;
     }
     catch (SchemaException eS) {
       // The field doesn't exist.  Now see if it can be created.
-      _isRightFieldType(ft.toString());
-      if (!Privilege.isAccess(read)) {
-        throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
-      }
-      if (!Privilege.isAccess(write)) {
-        throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
-      }
+      // 20070206 eliminated FieldType validation check
+      // 20070206 moved priv-type validationt to public methods for adding fields
     } 
+    if (exists) {
+      throw new SchemaException(E.FIELD_ALREADY_EXISTS + name);
+    }
   } // protected static void internal-canAddFieldToType(s, gt, name, ft, read, write)
 
   // @since   1.2.0 
@@ -77,27 +79,6 @@ class GroupTypeValidator {
       throw new SchemaException(E.GROUPTYPE_CANNOT_MODIFY_SYSTEM_TYPES);
     }
   } // protected static void internal_canModifyField(s, type)
-
-
-  // PRIVATE CLASS METHODS // 
-  
-  // @throws  SchemaException
-  // @since   1.1.0
-  private static void _isRightFieldType(String type) 
-    throws  SchemaException 
-  {
-    if 
-    (
-      !(
-        (type.equals(FieldType.ATTRIBUTE.toString()) ) 
-        || 
-        (type.equals(FieldType.LIST.toString())      ) 
-      )
-    )
-    {
-      throw new SchemaException(E.FIELD_INVALID_TYPE + type);
-    }
-  } // private static void _isRightFieldType(type)
 
 } // class GroupTypeValidator
 

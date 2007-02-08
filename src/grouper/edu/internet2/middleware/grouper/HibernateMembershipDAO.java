@@ -26,13 +26,28 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.17 2007-01-11 20:28:05 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.18 2007-02-08 16:25:25 blair Exp $
  * @since   1.2.0
  */
-class HibernateMembershipDAO {
+class HibernateMembershipDAO extends HibernateDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateMembershipDAO.class.getName();
+
+
+  // HIBERNATE PROPERTIES //
+  private long    createTime;
+  private String  creatorUUID;
+  private int     depth;
+  private String  id;
+  private String  listName;
+  private String  listType;
+  private String  memberUUID;
+  private String  ownerUUID;
+  private String  parentUUID;
+  private String  type;
+  private String  membershipUUID;
+  private String  viaUUID;
 
 
   // PROTECTED CLASS METHODS //
@@ -45,17 +60,17 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where      "
-        + "     ms.create_time  > :time   "
-        + "and  ms.list_name    = :fname  "
-        + "and  ms.list_type    = :ftype  "
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.createTime > :time             "
+        + "and  ms.listName   = :fname            "
+        + "and  ms.listType   = :ftype            "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
       qry.setLong(   "time",  d.getTime()            );
       qry.setString( "fname", f.getName()            );
       qry.setString( "ftype", f.getType().toString() );
-      mships.addAll( qry.list() );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -72,17 +87,17 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where      "
-        + "     ms.create_time  < :time   "
-        + "and  ms.list_name    = :fname  "
-        + "and  ms.list_type    = :ftype  "
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.createTime < :time             "
+        + "and  ms.listName   = :fname            "
+        + "and  ms.listType   = :ftype            "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
       qry.setLong(   "time",  d.getTime()            );
       qry.setString( "fname", f.getName()            );
       qry.setString( "ftype", f.getType().toString() );
-      mships.addAll( qry.list() );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -98,11 +113,11 @@ class HibernateMembershipDAO {
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from Membership as ms where ms.member_id = :member");
+      Query   qry = hs.createQuery("from HibernateMembershipDAO as ms where ms.memberUuid = :member");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByMember");
       qry.setString("member", mUUID);
-      mships.addAll( qry.list() );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -119,14 +134,14 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.member_id  = :member "
-        + "and  ms.via_id     = :via    "
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.memberUuid  = :member          "
+        + "and  ms.viaUuid     = :via             "
       );
       qry.setCacheable(false);  // TODO 20061219 Comment was "Don't cache".  Why not?
       qry.setString( "member", mUUID   );
       qry.setString( "via",    viaUUID );
-      mships.addAll( qry.list() );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -143,17 +158,17 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.owner_id   = :owner  "
-        + "and  ms.list_name  = :fname  "
-        + "and  ms.list_type  = :ftype  "
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.ownerUuid   = :owner            "
+        + "and  ms.listName  = :fname            "
+        + "and  ms.listType  = :ftype            "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByOwnerAndField");
       qry.setString( "owner", ownerUUID                ); 
       qry.setString( "fname", f.getName()            );
       qry.setString( "ftype", f.getType().toString() ); 
-      mships.addAll( qry.list() );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -170,11 +185,11 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.owner_id   = :owner  "
-        + "and  ms.list_name  = :fname  "
-        + "and  ms.list_type  = :ftype  "
-        + "and  ms.mship_type = :type   "
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.ownerUuid   = :owner            "
+        + "and  ms.listName  = :fname            "
+        + "and  ms.listType  = :ftype            "
+        + "and  ms.type = :type             "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindMembershipsByType");
@@ -182,7 +197,7 @@ class HibernateMembershipDAO {
       qry.setString( "fname" , f.getName()             );
       qry.setString( "ftype" , f.getType().toString()  );
       qry.setString( "type"  , type                    );
-      mships.addAll( qry.list() );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -199,11 +214,11 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.owner_id   = :owner  " 
-        + "and  ms.member_id  = :member "
-        + "and  ms.list_name  = :fname  "
-        + "and  ms.list_type  = :ftype"
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.ownerUuid   = :owner            "  
+        + "and  ms.memberUuid  = :member           "
+        + "and  ms.listName  = :fname            "
+        + "and  ms.listType  = :ftype            "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField");
@@ -211,7 +226,7 @@ class HibernateMembershipDAO {
       qry.setString( "member", mUUID                  );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
-      mships.addAll( qry.list() );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -221,6 +236,26 @@ class HibernateMembershipDAO {
   } // protected static Set findAllByOwnerAndMemberAndField(ownerUUID, mUUID, f)
 
   // @since   1.2.0
+  protected static Set findAllChildMemberships(MembershipDTO dto) 
+    throws  GrouperDAOException
+  {
+    Set mships  = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateMembershipDAO as ms where ms.parentUuid = :uuid");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindChildMemberships");
+      qry.setString( "uuid", dto.getMembershipUuid() );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return mships;
+  } // protected sdtatic Set findAllChildMemberships(dto)
+
+  // @since   1.2.0
   protected static Set findAllEffective(String ownerUUID, String mUUID, Field f, String viaUUID, int depth) 
     throws  GrouperDAOException
   {
@@ -228,14 +263,14 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where      "
-        + "     ms.owner_id     = :owner  "
-        + "and  ms.member_id    = :member "
-        + "and  ms.list_name    = :fname  "
-        + "and  ms.list_type    = :ftype  "
-        + "and  ms.mship_type   = :type   "
-        + "and  ms.via_id       = :via    "
-        + "and  ms.depth        = :depth"
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.ownerUuid  = :owner            "
+        + "and  ms.memberUuid = :member           "
+        + "and  ms.listName   = :fname            "
+        + "and  ms.listType   = :ftype            "
+        + "and  ms.type       = :type             "
+        + "and  ms.viaUuid    = :via              "
+        + "and  ms.depth      = :depth            "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllEffective");
@@ -243,10 +278,10 @@ class HibernateMembershipDAO {
       qry.setString( "member", mUUID                  );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
-      qry.setString( "type",   Membership.INTERNAL_TYPE_E.toString() );
+      qry.setString( "type",   Membership.EFFECTIVE   );
       qry.setString( "via",    viaUUID                );
       qry.setInteger("depth",  depth                  );
-      mships.addAll( qry.list() );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -263,19 +298,19 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.member_id  = :member "
-        + "and  ms.list_name  = :fname  "
-        + "and  ms.list_type  = :ftype  "
-        + "and  ms.mship_type = :type   "
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.memberUuid  = :member           "
+        + "and  ms.listName  = :fname            "
+        + "and  ms.listType  = :ftype            "
+        + "and  ms.type = :type             "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllEffectiveByMemberAndField");
       qry.setString( "member", mUUID                  );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
-      qry.setString( "type",   Membership.INTERNAL_TYPE_E.toString() );
-      mships.addAll( qry.list() );
+      qry.setString( "type",   Membership.EFFECTIVE   );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -292,12 +327,12 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.owner_id   = :owner  "
-        + "and  ms.member_id  = :member "
-        + "and  ms.list_name  = :fname  "
-        + "and  ms.list_type  = :ftype  "
-        + "and  ms.mship_type = :type   "
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.ownerUuid  = :owner            "
+        + "and  ms.memberUuid = :member           "
+        + "and  ms.listName   = :fname            "
+        + "and  ms.listType   = :ftype            "
+        + "and  ms.type       = :type             "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllEffectiveByOwnerAndMemberAndField");
@@ -305,8 +340,8 @@ class HibernateMembershipDAO {
       qry.setString( "member", mUUID                  );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
-      qry.setString( "type",   Membership.INTERNAL_TYPE_E.toString() );
-      mships.addAll( qry.list() );
+      qry.setString( "type",   Membership.EFFECTIVE   );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -323,19 +358,19 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.member_id  = :member "
-        + "and  ms.list_name  = :fname  "
-        + "and  ms.list_type  = :ftype  "
-        + "and  ms.mship_type = :type   "
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.memberUuid = :member           "
+        + "and  ms.listName   = :fname            "
+        + "and  ms.listType   = :ftype            "
+        + "and  ms.type       = :type             "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllImmediateByMemberAndField");      
       qry.setString( "member", mUUID                  );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
-      qry.setString( "type",   Membership.INTERNAL_TYPE_I.toString() );
-      mships.addAll( qry.list() );
+      qry.setString( "type",   Membership.IMMEDIATE   );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -345,19 +380,19 @@ class HibernateMembershipDAO {
   } // protected static Set findAllImmediateByMemberAndField(mUUID, f)
 
   // @since   1.2.0
-  protected static Membership findByOwnerAndMemberAndFieldAndType(String ownerUUID, String mUUID, Field f, String type)
+  protected static MembershipDTO findByOwnerAndMemberAndFieldAndType(String ownerUUID, String mUUID, Field f, String type)
     throws  GrouperDAOException,
             MembershipNotFoundException // TODO 20061219 should throw/return something else.  null?
   {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.owner_id   = :owner  "
-        + "and  ms.member_id  = :member "
-        + "and  ms.list_name  = :fname  "
-        + "and  ms.list_type  = :ftype  "
-        + "and  ms.mship_type = :type   "
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.ownerUuid  = :owner            "
+        + "and  ms.memberUuid = :member           "
+        + "and  ms.listName   = :fname            "
+        + "and  ms.listType   = :ftype            "
+        + "and  ms.type       = :type             "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByOwnerAndMemberAndFieldAndType");
@@ -366,62 +401,42 @@ class HibernateMembershipDAO {
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() ); 
       qry.setString( "type",   type                   );
-      Membership ms = (Membership) qry.uniqueResult();
+      HibernateMembershipDAO dao = (HibernateMembershipDAO) qry.uniqueResult();
       hs.close();
-      if (ms == null) {
+      if (dao == null) {
         throw new MembershipNotFoundException(); // TODO 20070104 null or ex?
       }
-      return ms;
+      return MembershipDTO.getDTO(dao);
     }
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static Membership findByOwnerAndMemberAndFieldAndType(ownerUUID, mUUID, f, type)
+  } // protected static MembershipDTO findByOwnerAndMemberAndFieldAndType(ownerUUID, mUUID, f, type)
 
   // @since   1.2.0
-  protected static Membership findByUuid(String uuid) 
+  protected static MembershipDTO findByUuid(String uuid) 
     throws  GrouperDAOException,
             MembershipNotFoundException 
   {
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from Membership as ms where ms.uuid = :uuid");
+      Query   qry = hs.createQuery("from HibernateMembershipDAO as ms where ms.membershipUuid = :uuid");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
-      Membership ms = (Membership) qry.uniqueResult();
+      HibernateMembershipDAO dao = (HibernateMembershipDAO) qry.uniqueResult();
       hs.close();
-      if (ms == null) {
+      if (dao == null) {
         // TODO 20070104 null or ex?
         throw new MembershipNotFoundException("could not find membership with uuid: " + U.internal_q(uuid));
       }
-      return ms;
+      return MembershipDTO.getDTO(dao);
     }
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
 
-  } // protected static Membership findByUuid(uuid)
-
-  // @since   1.2.0
-  protected static Set findChildMemberships(Membership ms) // TODO 20061219 rename
-    throws  GrouperDAOException
-  {
-    Set mships  = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from Membership as ms where ms.parent_membership = :uuid");
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindChildMemberships");
-      qry.setString( "uuid", ms.getUuid() );
-      mships.addAll( qry.list() );
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return mships;
-  } // protected sdtatic Set findChildMemberships(ms)
+  } // protected static MembershipDTO findByUuid(uuid)
 
   // @since   1.2.0  
   protected static Set findMemberships(String mUUID, Field f) // TODO 20061219 rename
@@ -431,17 +446,17 @@ class HibernateMembershipDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from Membership as ms where    "
-        + "     ms.member_id  = :member "
-        + "and  ms.list_name  = :fname  "
-        + "and  ms.list_type  = :ftype"
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.memberUuid = :member           "
+        + "and  ms.listName   = :fname            "
+        + "and  ms.listType   = :ftype            "
       );
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindMemberships");
       qry.setString( "member", mUUID                  );
       qry.setString( "fname" , f.getName()            );
       qry.setString( "ftype" , f.getType().toString() );
-      mships.addAll( qry.list() );
+      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
     catch (HibernateException eH) {
@@ -451,6 +466,7 @@ class HibernateMembershipDAO {
   } // protected static Set findMemberships(mUUID, f)
 
   // @since   1.2.0
+  // TODO 20070124 refactor usage of this method
   protected static void update(MemberOf mof) 
     throws  GrouperDAOException
   {
@@ -461,11 +477,11 @@ class HibernateMembershipDAO {
       try {
         Iterator it = mof.internal_getDeletes().iterator();
         while (it.hasNext()) {
-          hs.delete( it.next() );
+          hs.delete( Rosetta.getDAO( it.next() ) );
         }
         it = mof.internal_getSaves().iterator();
         while (it.hasNext()) {
-          hs.saveOrUpdate( it.next() );
+          hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
         }
         tx.commit();
       }
@@ -482,5 +498,86 @@ class HibernateMembershipDAO {
     }
   } // protected static void update(mof)
 
-} // class HibernateMembershipDAO
+  
+  // GETTERS //
+  
+  protected long getCreateTime() {
+    return this.createTime;
+  }
+  protected String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+  protected int getDepth() {
+    return this.depth;
+  }
+  protected String getId() {
+    return this.id;
+  }
+  protected String getListName() {
+    return this.listName;
+  }
+  protected String getListType() {
+    return this.listType;
+  }
+  protected String getMemberUuid() {
+    return this.memberUUID;
+  }
+  protected String getOwnerUuid() {
+    return this.ownerUUID;
+  }
+  protected String getParentUuid() {
+    return this.parentUUID;
+  }
+  protected String getType() {
+    return this.type;
+  }
+  protected String getMembershipUuid() {
+    return this.membershipUUID;
+  }
+  protected String getViaUuid() {
+    return this.viaUUID;
+  }
+
+
+  // SETTERS //
+
+  protected void setCreateTime(long createTime) {
+    this.createTime = createTime;
+  }
+  protected void setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+  }
+  protected void setDepth(int depth) {
+    this.depth = depth;
+  }
+  protected void setId(String id) {
+    this.id = id;
+  }
+  protected void setListName(String listName) {
+    this.listName = listName;
+  }
+  protected void setListType(String listType) {
+    this.listType = listType;
+  }
+  protected void setMemberUuid(String memberUUID) {
+    this.memberUUID = memberUUID;
+  }
+  protected void setOwnerUuid(String ownerUUID) {
+    this.ownerUUID = ownerUUID;
+  }
+  protected void setParentUuid(String parentUUID) {
+    this.parentUUID = parentUUID;
+  }
+  protected void setType(String type) {
+    this.type = type;
+  }
+  protected void setMembershipUuid(String membershipUUID) {
+    this.membershipUUID = membershipUUID;
+  }
+  protected void setViaUuid(String viaUUID) {
+    this.viaUUID = viaUUID;
+  }
+
+} // class HibernateMembershipDAO extends HibernateDAO
+
 

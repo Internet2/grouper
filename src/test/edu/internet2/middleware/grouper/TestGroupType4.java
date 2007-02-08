@@ -22,9 +22,9 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType4.java,v 1.5 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestGroupType4.java,v 1.6 2007-02-08 16:25:25 blair Exp $
  */
-public class TestGroupType4 extends TestCase {
+public class TestGroupType4 extends GrouperTest {
 
   // Private Static Class Constants
   private static final Log LOG = LogFactory.getLog(TestGroupType4.class);
@@ -58,7 +58,7 @@ public class TestGroupType4 extends TestCase {
 
       // Now start non-root session and add+delete group type as non-root
       GrouperSession nrs = GrouperSession.start(subj);
-      g.internal_setSession(nrs);
+      g.setSession(nrs);
       Assert.assertFalse( "no custom type"      , g.hasType(type) );
       g.addType(type);
       Assert.assertTrue(  "now has custom type" , g.hasType(type) );

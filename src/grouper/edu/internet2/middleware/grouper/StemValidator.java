@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.18 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: StemValidator.java,v 1.19 2007-02-08 16:25:25 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -40,14 +40,14 @@ class StemValidator {
     catch (ModelException eM) {
       throw new GroupAddException(eM.getMessage(), eM);
     }
-    if (!PrivilegeResolver.internal_canCREATE( ns.internal_getSession(), ns, ns.internal_getSession().getSubject() )) {
+    if (!PrivilegeResolver.internal_canCREATE( ns.getSession(), ns, ns.getSession().getSubject() )) {
       throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
     }
     if (ns.internal_isRootStem()) {
       throw new GroupAddException("cannot create groups at root stem level");
     }
     try {
-      GroupFinder.internal_findByName( U.internal_constructName(ns.getName(), extension) );
+      HibernateGroupDAO.findByName( U.internal_constructName(ns.getName(), extension) );
       throw new GroupAddException("group already exists");
     }
     catch (GroupNotFoundException eGNF) {
@@ -69,7 +69,7 @@ class StemValidator {
     catch (ModelException eM) {
       throw new StemAddException(eM.getMessage(), eM);
     }
-    if (!RootPrivilegeResolver.internal_canSTEM( ns, ns.internal_getSession().getSubject()) ) {
+    if (!RootPrivilegeResolver.internal_canSTEM( ns, ns.getSession().getSubject()) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     } 
     try {
@@ -90,7 +90,7 @@ class StemValidator {
     if ( ns.getName().equals(Stem.ROOT_EXT) ) {
       throw new StemDeleteException("cannot delete root stem");
     }
-    if ( !PrivilegeResolver.internal_canSTEM( ns, ns.internal_getSession().getSubject() ) ) {
+    if ( !PrivilegeResolver.internal_canSTEM( ns, ns.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     if ( HibernateStemDAO.findChildStems(ns).size() > 0 ) {
@@ -112,7 +112,7 @@ class StemValidator {
     if (!f.getType().equals(type)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
-    PrivilegeResolver.internal_canPrivDispatch(ns.internal_getSession(), ns, subj, f.getWritePriv());
+    PrivilegeResolver.internal_canPrivDispatch(ns.getSession(), ns, subj, f.getWritePriv());
   } // protected static void internal_canWriteField(ns, subj, f, type)
 
 }

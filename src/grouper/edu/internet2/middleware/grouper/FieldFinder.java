@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.25 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.26 2007-02-08 16:25:25 blair Exp $
  */
 public class FieldFinder {
 
@@ -81,7 +81,7 @@ public class FieldFinder {
   public static Set findAll() 
     throws  GrouperRuntimeException
   {
-    return HibernateFieldDAO.findAll();
+    return (Set) Rosetta.getAPI( HibernateFieldDAO.findAll() );
   } // public static Set findAll()
 
   /**
@@ -93,7 +93,7 @@ public class FieldFinder {
   public static Set findAllByType(FieldType type) 
     throws  SchemaException
   {
-    return HibernateFieldDAO.findAllByType(type);
+    return (Set) Rosetta.getAPI( HibernateFieldDAO.findAllByType(type) );
   } // public static Set findAllByType(type)
 
 
@@ -104,12 +104,12 @@ public class FieldFinder {
     // This method irks me still even if it is now more functionally correct
     Set fieldsInRegistry = findAll();
     // Look for types to add
-    Field     fA;
+    Field     f;
     Iterator  addIter = fieldsInRegistry.iterator();
     while (addIter.hasNext()) {
-      fA = (Field) addIter.next();
-      if (!FIELDS.containsKey(fA.getName())) {
-        FIELDS.put(fA.getName(), fA); // New field.  Add it to the cached list.
+      f = (Field) addIter.next();
+      if ( !FIELDS.containsKey( f.getName() ) ) {
+        FIELDS.put( f.getName(), f ); // New field.  Add it to the cached list.
       }
     }
     // Look for fields to remove
