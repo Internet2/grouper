@@ -21,13 +21,14 @@ import  edu.internet2.middleware.grouper.*;
 /**
  * Base class for setting up a profiling run.
  * @author  blair christensen.
- * @version $Id: BaseGrouperProfSetup.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: BaseGrouperProfSetup.java,v 1.4 2007-02-14 18:15:50 blair Exp $
  * @since   1.1.0
  */
 public class BaseGrouperProfSetup {
   // MAIN //
   public static void main(String args[]) {
     run();
+    System.exit(0); 
   } // public static void main(args[])
 
 
@@ -38,7 +39,6 @@ public class BaseGrouperProfSetup {
    */
   protected static void run() {
     RegistryReset.reset();
-    System.exit(0); 
   } // protected static void run()
 
 } // public class BaseGrouperProfSetup

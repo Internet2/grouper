@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.37 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: GroupType.java,v 1.38 2007-02-14 18:15:50 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -285,7 +285,7 @@ public class GroupType extends GrouperAPI implements Serializable {
    * @return  A set of {@link Field} objects.
    */
   public Set getFields() {
-    return (Set) Rosetta.getAPI( this.getDTO().getFields() );
+    return new LinkedHashSet( Rosetta.getAPI( this.getDTO().getFields() ) );
   } // public Set getFields()
 
   /**
