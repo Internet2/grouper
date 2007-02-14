@@ -22,13 +22,12 @@ import  java.util.LinkedHashSet;
 import  java.util.Set;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.lang.time.*;
 
 /** 
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.6 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.7 2007-02-14 17:06:28 blair Exp $
  */
 class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
 
@@ -39,7 +38,6 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
   // PRIVATE INSTANCE VARIABLES //
   private String  creatorUUID;
   private long    createTime;
-  private Set     fields;
   private boolean isAssignable  = true;
   private boolean isInternal    = false;
   private String  id;
@@ -260,7 +258,6 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
     this.createTime = createTime;
   }
   protected void setFields(Set fields) {
-    this.fields = fields;
   }
   protected void setIsAssignable(boolean isAssignable) {
     this.isAssignable = isAssignable;

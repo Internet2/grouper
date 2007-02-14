@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.123 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: Group.java,v 1.124 2007-02-14 17:06:28 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -43,11 +43,10 @@ public class Group extends GrouperAPI implements Owner {
   private Subject as_subj   = null;
   private Subject creator;
   private Subject modifier;
-  private Set     types     = null;
-
-
+  
+  
   // PUBLIC CLASS METHODS //
-
+  
   /**
    * Retrieve default members {@link Field}.
    * <pre class="eg">

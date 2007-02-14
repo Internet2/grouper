@@ -16,20 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * {@link Member} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberDTO.java,v 1.1 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: MemberDTO.java,v 1.2 2007-02-14 17:06:28 blair Exp $
  */
 class MemberDTO extends BaseGrouperDTO {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final Class KLASS = MemberDTO.class;
-
 
   // PRIVATE INSTANCE VARIABLES //
   private String  id;

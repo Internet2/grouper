@@ -16,16 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.Serializable;
 import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.lang.time.*;
 
 /** 
  * {@link GroupType} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeDTO.java,v 1.1 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: GroupTypeDTO.java,v 1.2 2007-02-14 17:06:28 blair Exp $
  * @since   1.2.0
  */
 class GroupTypeDTO extends BaseGrouperDTO {

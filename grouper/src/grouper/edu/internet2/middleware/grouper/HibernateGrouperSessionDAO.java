@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GrouperSession} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.7 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.8 2007-02-14 17:06:28 blair Exp $
  * @since   1.2.0
  */
 class HibernateGrouperSessionDAO extends HibernateDAO {
@@ -71,7 +71,6 @@ class HibernateGrouperSessionDAO extends HibernateDAO {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Object obj = hs.load( HibernateGrouperSessionDAO.class, dto.getId() );
         hs.delete( hs.load( HibernateGrouperSessionDAO.class, dto.getId() ) );
         tx.commit();
       }

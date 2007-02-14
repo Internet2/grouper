@@ -16,16 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.Iterator;
-import  java.util.List;
-import  java.util.Set;
 import  net.sf.hibernate.*;
 
 /**
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.9 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.10 2007-02-14 17:06:28 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {

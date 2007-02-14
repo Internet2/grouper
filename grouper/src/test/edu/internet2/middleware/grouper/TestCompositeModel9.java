@@ -16,12 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel9.java,v 1.5 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestCompositeModel9.java,v 1.6 2007-02-14 17:06:28 blair Exp $
  */
 public class TestCompositeModel9 extends GrouperTest {
 

@@ -21,13 +21,12 @@ import  java.util.Date;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
-import  org.apache.commons.lang.builder.*;
 
 /** 
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.70 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: Membership.java,v 1.71 2007-02-14 17:06:28 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
