@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteGroupTypes.java,v 1.8 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SuiteGroupTypes.java,v 1.9 2007-02-14 20:55:35 blair Exp $
  */
 public class SuiteGroupTypes extends TestCase {
 
@@ -38,7 +38,6 @@ public class SuiteGroupTypes extends TestCase {
     suite.addTestSuite( TestGroupType9.class  );  // delete type
     suite.addTestSuite( TestGroupType10.class );  // delete type with fields
     suite.addTestSuite( TestGroupType11.class );  // use custom attribute as non-root
-    // TODO 20060927 Split pre-existing tests. 
     //      And the damn ordering is important here as these tests leave junk behind.
     //      I need to fix that.
     suite.addTestSuite( TestGroupTypes.class  );  
