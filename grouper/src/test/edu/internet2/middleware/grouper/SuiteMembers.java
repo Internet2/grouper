@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMembers.java,v 1.9 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SuiteMembers.java,v 1.10 2007-02-14 20:55:35 blair Exp $
  */
 public class SuiteMembers extends TestCase {
 
@@ -61,8 +61,6 @@ public class SuiteMembers extends TestCase {
     suite.addTestSuite( TestMember30.class );   // setSubjectSourceId() - FAIL: m == GrouperSystem
     suite.addTestSuite( TestMember31.class );   // setSubjectSourceId() - FAIL: m == GrouperAll
     suite.addTestSuite( TestMember32.class );   // setSubjectSourceId() - OK: root
-
-    // TODO 20060927 Split pre-existing tests
     suite.addTestSuite( TestMember.class        );
     suite.addTestSuite( TestMemberToGroup.class );
     return suite;
