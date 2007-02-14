@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.125 2007-02-14 17:34:14 blair Exp $
+ * @version $Id: Group.java,v 1.126 2007-02-14 19:34:09 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -115,7 +115,7 @@ public class Group extends GrouperAPI implements Owner {
 
       GroupValidator.internal_canAddCompositeMember(this);
       MemberOf mof = MemberOf.internal_addComposite( this.getSession(), this, c );
-      HibernateGroupDAO.updateMemberships(mof);
+      HibernateMembershipDAO.update(mof);
       EventLog.groupAddComposite( this.getSession(), c, mof, sw );
       Composite.internal_update(this);
       sw.stop();
@@ -507,7 +507,7 @@ public class Group extends GrouperAPI implements Owner {
       Composite     c   = new Composite();
       c.setDTO(dto);
       MemberOf      mof = MemberOf.internal_delComposite( this.getSession(), this, c );
-      HibernateGroupDAO.updateMemberships(mof);
+      HibernateMembershipDAO.update(mof);
       EventLog.groupDelComposite( this.getSession(), c, mof, sw );
       Composite.internal_update(this);
       sw.stop();
@@ -586,7 +586,7 @@ public class Group extends GrouperAPI implements Owner {
     GroupValidator.internal_canDelMember(this, subj, f);
     MemberOf  mof = Membership.internal_delImmediateMembership( this.getSession(), this, subj, f );
     try {
-      HibernateGroupDAO.updateMemberships(mof);
+      HibernateMembershipDAO.update(mof);
     }
     catch (GrouperDAOException eDAO) {
       throw new MemberDeleteException( eDAO.getMessage(), eDAO );
