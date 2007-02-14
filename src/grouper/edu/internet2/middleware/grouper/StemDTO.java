@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
 import  java.util.Collection;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -27,13 +26,9 @@ import  org.apache.commons.lang.builder.*;
  * {@link Stem} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDTO.java,v 1.1 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: StemDTO.java,v 1.2 2007-02-14 17:06:28 blair Exp $
  */
 class StemDTO extends BaseGrouperDTO {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final Class KLASS = StemDTO.class;
-
 
   // PRIVATE INSTANCE VARIABLES //
   private String  createSource;

@@ -20,14 +20,13 @@ import  java.io.Serializable;
 import  java.util.Date;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
-import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
 /** 
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.36 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: GroupType.java,v 1.37 2007-02-14 17:06:28 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 

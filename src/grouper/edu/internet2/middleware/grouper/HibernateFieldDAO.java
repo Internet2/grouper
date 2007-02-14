@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.7 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.8 2007-02-14 17:06:28 blair Exp $
  * @since   1.2.0
  */
 class HibernateFieldDAO extends HibernateDAO {
@@ -129,8 +129,7 @@ class HibernateFieldDAO extends HibernateDAO {
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindAllFieldsByGroupType");
       qry.setString("uuid", uuid);
-      HibernateFieldDAO f;
-      Iterator          it = qry.iterate();
+      Iterator it = qry.iterate();
       while (it.hasNext()) {
         fields.add( (FieldDTO) Rosetta.getDTO( it.next() ) );
       }

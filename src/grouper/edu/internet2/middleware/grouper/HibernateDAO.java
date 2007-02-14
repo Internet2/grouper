@@ -28,7 +28,7 @@ import  net.sf.hibernate.cfg.*;
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.7 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.8 2007-02-14 17:06:28 blair Exp $
  * @since   1.2.0
  */
 abstract class HibernateDAO {
@@ -36,7 +36,6 @@ abstract class HibernateDAO {
   // PRIVATE CLASS CONSTANTS //
   private static final Configuration  CFG;
   private static final SessionFactory FACTORY;
-  private static final String         KLASS   = HibernateDAO.class.getName();
 
 
   // STATIC //

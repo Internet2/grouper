@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.73 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.74 2007-02-14 17:06:28 blair Exp $
  */
 public class MembershipFinder {
   
@@ -197,7 +197,6 @@ public class MembershipFinder {
     // @session   false
     Set         mships      = new LinkedHashSet();
     Iterator    it          = HibernateMembershipDAO.findAllByMemberAndVia( dto.getMemberUuid(), dto.getOwnerUuid() ).iterator();
-    Set         childEffs;
     Iterator    childIter;
     Iterator    newChildIter;
     while (it.hasNext()) {

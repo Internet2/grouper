@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.9 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.10 2007-02-14 17:06:28 blair Exp $
  * @since   1.0
  */
 class CompositeValidator {
@@ -30,7 +30,6 @@ class CompositeValidator {
   protected static void internal_validate(CompositeDTO c) 
     throws  ModelException
   {
-    GroupDTO o, l, r = null;
     if (c.getCreateTime() <= 0) {
       throw new ModelException("composite has invalid createTime");
     }
@@ -41,19 +40,19 @@ class CompositeValidator {
       throw new ModelException("composite has null uuid");
     }
     try {
-      o = HibernateGroupDAO.findByUuid( c.getFactorOwnerUuid() );
+      HibernateGroupDAO.findByUuid( c.getFactorOwnerUuid() );
     }
     catch (GroupNotFoundException eGNF) {
       throw new ModelException("invalid owner class");
     }
     try {
-      l = HibernateGroupDAO.findByUuid( c.getLeftFactorUuid() );
+      HibernateGroupDAO.findByUuid( c.getLeftFactorUuid() );
     }
     catch (GroupNotFoundException eGNF) {
       throw new ModelException("invalid left factor class");
     }
     try {
-      r = HibernateGroupDAO.findByUuid( c.getRightFactorUuid() );
+      HibernateGroupDAO.findByUuid( c.getRightFactorUuid() );
     }
     catch (GroupNotFoundException eGNF) {
       throw new ModelException("invalid right factor class");

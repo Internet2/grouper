@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession6.java,v 1.7 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestSession6.java,v 1.8 2007-02-14 17:06:28 blair Exp $
  */
 public class TestSession6 extends TestCase {
 
@@ -47,7 +47,6 @@ public class TestSession6 extends TestCase {
     LOG.info("testCanGetInnerSessionWithinInnerSession");
     try {
       GrouperSession  s   = GrouperSession.start( SubjectFinder.findRootSubject());
-      GrouperSession  rs  = s.getDTO().getRootSession();
       // TODO 20061011 I don't think I should allow this but the code is too tangled to fix at the moment
       s.getDTO().getRootSession();
       Assert.assertTrue("got inner session within inner session", true);

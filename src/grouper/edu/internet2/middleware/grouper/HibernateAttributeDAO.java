@@ -16,21 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /**
  * Stub Hibernate Group {@link Attribute} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateAttributeDAO.java,v 1.1 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateAttributeDAO.java,v 1.2 2007-02-14 17:06:28 blair Exp $
  * @since   1.2.0
  */
 class HibernateAttributeDAO extends HibernateDAO {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = HibernateAttributeDAO.class.getName();
-
 
   // PRIVATE INSTANCE VARIABLES //
   private String  attrName;

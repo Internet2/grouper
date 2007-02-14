@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.30 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: Composite.java,v 1.31 2007-02-14 17:06:28 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -198,7 +198,6 @@ public class Composite extends GrouperAPI {
   // @since   1.0
   private static void _update(Set mships) {
     Set         updates = new LinkedHashSet();
-    Membership  ms;
     Iterator    iterMS  = mships.iterator();
     while (iterMS.hasNext()) {
       // TODO 20070125 !!!

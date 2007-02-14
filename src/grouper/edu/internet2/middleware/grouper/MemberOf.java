@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.38 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: MemberOf.java,v 1.39 2007-02-14 17:06:28 blair Exp $
  */
 class MemberOf {
 
@@ -160,7 +160,6 @@ class MemberOf {
       MemberOf  mof = new MemberOf(s, o, m, dto);
 
       // Find child memberships that need deletion
-      MembershipDTO child;
       Set           children  = new LinkedHashSet();
       Iterator      it        = MembershipFinder.internal_findAllChildrenNoPriv(dto).iterator();
       while (it.hasNext()) {
@@ -224,7 +223,6 @@ class MemberOf {
   {
     Set           mships  = new LinkedHashSet();
     Membership    hasMS;
-    Membership    eff;
     MembershipDTO dto;
     Iterator      iter    = hasMembers.iterator();
     while (iter.hasNext()) {
@@ -271,7 +269,6 @@ class MemberOf {
       Membership    isMS;
       Iterator      hasIter;
       Membership    hasMS;
-      Membership    eff;
       MembershipDTO dto;
       Iterator      isIter  = isMember.iterator();
       while (isIter.hasNext()) {
@@ -322,7 +319,6 @@ class MemberOf {
     // Add m to where g is a member if f == "members"
     if (this.f.equals(Group.getDefaultList())) {
       Membership    isMS;
-      Membership    eff;
       MembershipDTO dto;
       Iterator      isIter  = isMember.iterator();
       while (isIter.hasNext()) {
@@ -366,7 +362,6 @@ class MemberOf {
   {
     Set           mships  = new LinkedHashSet();
     Member        m;
-    Membership    imm;
     MembershipDTO dto;
     Iterator      iter    = members.iterator();
     while (iter.hasNext()) {
