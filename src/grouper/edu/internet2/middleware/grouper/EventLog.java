@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.31 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: EventLog.java,v 1.32 2007-02-14 18:15:50 blair Exp $
  */
 class EventLog {
 
@@ -313,13 +313,13 @@ class EventLog {
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
       eff = (MembershipDTO) iter.next();
-      if      ( eff.getListType().equals(FieldType.ACCESS) )  {
+      if      ( eff.getListType().equals(FieldType.ACCESS.toString()) )  {
         this._eff(root, s, M.G_GP_E, name, subj, f, eff, "priv="); 
       }
-      else if ( eff.getListType().equals(FieldType.LIST) )    {
+      else if ( eff.getListType().equals(FieldType.LIST.toString()) )    {
         this._eff(root, s, M.G_AM_E, name, subj, f, eff, "list="); 
       }
-      else if ( eff.getListType().equals(FieldType.NAMING) )  {
+      else if ( eff.getListType().equals(FieldType.NAMING.toString()) )  {
         this._eff(root, s, M.S_GP_E, name, subj, f, eff, "priv="); 
       }
     }
@@ -334,13 +334,13 @@ class EventLog {
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
       eff = (MembershipDTO) iter.next();
-      if      ( eff.getListType().equals(FieldType.ACCESS) )  {
+      if      ( eff.getListType().equals(FieldType.ACCESS.toString()) )  {
         this._eff(root, s, M.G_RP_E, name, subj, f, eff, "priv="); 
       }
-      else if ( eff.getListType().equals(FieldType.LIST) )    {
+      else if ( eff.getListType().equals(FieldType.LIST.toString()) )    {
         this._eff(root, s, M.G_DM_E, name, subj, f, eff, "list="); 
       }
-      else if ( eff.getListType().equals(FieldType.NAMING) )  {
+      else if ( eff.getListType().equals(FieldType.NAMING.toString()) )  {
         this._eff(root, s, M.S_RP_E, name, subj, f, eff, "priv="); 
       }
     }

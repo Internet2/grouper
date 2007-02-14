@@ -24,10 +24,11 @@ import  junit.framework.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.11 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.12 2007-02-14 18:15:50 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
+  // TODO 20070214 this should probably extend `Assert` rather than `TestCase`, but...
 
   // PRIVATE CLASS CONSTANTS //
   private static final String G   = "group";

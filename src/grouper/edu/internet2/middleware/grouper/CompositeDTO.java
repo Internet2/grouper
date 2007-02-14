@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Composite} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeDTO.java,v 1.2 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: CompositeDTO.java,v 1.3 2007-02-14 18:15:50 blair Exp $
  */
 class CompositeDTO extends BaseGrouperDTO {
 
@@ -59,6 +59,15 @@ class CompositeDTO extends BaseGrouperDTO {
       .append( this.getUuid(), that.getUuid() )
       .isEquals();
   } // public boolean equals(other)
+
+  /**
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getUuid() )
+      .toHashCode();
+  } // public int hashCode()
 
   /**
    * @since   1.2.0
