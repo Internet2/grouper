@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.40 2007-02-14 17:34:14 blair Exp $
+ * @version $Id: MemberOf.java,v 1.41 2007-02-14 17:46:06 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -357,7 +357,6 @@ class MemberOf extends BaseMemberOf {
       MembershipDTO isMS;
       Iterator      hasIt;
       MembershipDTO hasMS;
-      Membership    eff;
       MembershipDTO dto;
       Iterator      isIt    = isMember.iterator();
       while (isIt.hasNext()) {
