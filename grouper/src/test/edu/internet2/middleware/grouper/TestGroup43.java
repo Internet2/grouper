@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.4 2007-02-14 19:55:17 blair Exp $
+ * @version $Id: TestGroup43.java,v 1.5 2007-02-14 20:01:15 blair Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -215,7 +215,7 @@ public class TestGroup43 extends GrouperTest {
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
       Group g = GroupFinder.findByUuid( s, gA.getUuid() );
-      assertTrue( "gA modifyTime < pre",  g.getModifyTime().getTime() < pre );
+      assertTrue( "gA modifyTime <= pre",  g.getModifyTime().getTime() <= pre );
 
       s.stop();
       r.rs.stop();
