@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.124 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: Group.java,v 1.125 2007-02-14 17:34:14 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -2075,7 +2075,7 @@ public class Group extends GrouperAPI implements Owner {
   // @since   1.2.0 
   // TODO 20070206 i dislike this method
   protected void internal_setModified() {
-    this.getDTO().setModifierUuid( s.getMember().getUuid() );
+    this.getDTO().setModifierUuid( this.getSession().getMember().getUuid() );
     this.getDTO().setModifyTime( new Date().getTime() );
   } // protected void internal_setModified()
 

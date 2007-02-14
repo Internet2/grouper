@@ -23,9 +23,9 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership2.java,v 1.5 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestMembership2.java,v 1.6 2007-02-14 17:34:14 blair Exp $
  */
-public class TestMembership2 extends TestCase {
+public class TestMembership2 extends GrouperTest {
 
   private static final Log LOG = LogFactory.getLog(TestMembership2.class);
 

@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.18 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.19 2007-02-14 17:34:14 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO extends HibernateDAO {
@@ -480,6 +480,14 @@ class HibernateMembershipDAO extends HibernateDAO {
           hs.delete( Rosetta.getDAO( it.next() ) );
         }
         it = mof.internal_getSaves().iterator();
+        while (it.hasNext()) {
+          hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
+        }
+        it = mof.getModifiedGroups().iterator();
+        while (it.hasNext()) {
+          hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
+        }
+        it = mof.getModifiedStems().iterator();
         while (it.hasNext()) {
           hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
         }

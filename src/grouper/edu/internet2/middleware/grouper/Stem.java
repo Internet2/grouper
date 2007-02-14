@@ -31,7 +31,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.98 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: Stem.java,v 1.99 2007-02-14 17:34:14 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -745,7 +745,7 @@ public class Stem extends GrouperAPI implements Owner {
 
   // @since   1.2.0
   protected void internal_setModified() {
-    this.getDTO().setModifierUuid( s.getMember().getUuid() );
+    this.getDTO().setModifierUuid( this.getSession().getMember().getUuid() );
     this.getDTO().setModifyTime(  new Date().getTime()    );
   } // protected void internal_setModified()
 

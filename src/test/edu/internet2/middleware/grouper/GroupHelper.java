@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.11 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.12 2007-02-14 17:34:14 blair Exp $
  */
 class GroupHelper {
 
@@ -43,7 +43,7 @@ class GroupHelper {
       Assert.assertTrue("added member", true);
     }
     catch (Exception e) {
-      Assert.fail(e.getMessage());
+      T.e(e);
     }
   } // protected static void addMember(g, subj, list)
 

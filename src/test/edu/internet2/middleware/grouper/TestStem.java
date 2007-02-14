@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.8 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestStem.java,v 1.9 2007-02-14 17:34:14 blair Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -321,69 +321,74 @@ public class TestStem extends GrouperTest {
 
   public void testPropagateDisplayExtensionChangeAsNonRoot() {
     LOG.info("testPropagateExtensionChangeAsNonRoot");
-    // Create stems + groups as root
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Stem            i2    = StemHelper.addChildStem(edu, "i2", "internet2");
-    Stem            uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
-    Group           bsd   = StemHelper.addChildGroup(uofc, "bsd", "biological sciences division");
-    Group           psd   = StemHelper.addChildGroup(uofc, "psd", "physical sciences division");
-    // Grant subj0 STEM on edu
-    PrivHelper.grantPriv(s, edu, SubjectTestHelper.SUBJ0, NamingPrivilege.STEM);
-    // And revoke VIEW + READ from ALL on one of the child groups
-    PrivHelper.revokePriv(s, psd, SubjectTestHelper.SUBJA, AccessPrivilege.VIEW);
-    PrivHelper.revokePriv(s, psd, SubjectTestHelper.SUBJA, AccessPrivilege.READ);
-   
-    // Now rename as subj0
-    GrouperSession  nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-    Stem            eduNR = StemHelper.findByName(nrs, edu.getName());
-   
-    // Now rename
-    String exp = "higher ed";
     try {
-      eduNR.setDisplayExtension(exp);
-      Assert.assertTrue(
+      // Create stems + groups as root
+      GrouperSession  s     = SessionHelper.getRootSession();
+      Stem            root  = StemHelper.findRootStem(s);
+      Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+      Stem            i2    = StemHelper.addChildStem(edu, "i2", "internet2");
+      Stem            uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
+      Group           bsd   = StemHelper.addChildGroup(uofc, "bsd", "biological sciences division");
+      Group           psd   = StemHelper.addChildGroup(uofc, "psd", "physical sciences division");
+      // Grant subj0 STEM on edu
+      PrivHelper.grantPriv(s, edu, SubjectTestHelper.SUBJ0, NamingPrivilege.STEM);
+      // And revoke VIEW + READ from ALL on one of the child groups
+      PrivHelper.revokePriv(s, psd, SubjectTestHelper.SUBJA, AccessPrivilege.VIEW);
+      PrivHelper.revokePriv(s, psd, SubjectTestHelper.SUBJA, AccessPrivilege.READ);
+   
+      // Now rename as subj0
+      GrouperSession  nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
+      Stem            eduNR = StemHelper.findByName(nrs, edu.getName());
+   
+      // Now rename
+      String exp = "higher ed";
+      try {
+        eduNR.setDisplayExtension(exp);
+        Assert.assertTrue(
         "mod'd edu displayExtension (" + eduNR.getDisplayExtension() + ")", 
         eduNR.getDisplayExtension().equals(exp)
-      );
+        );
+        Assert.assertTrue(
+          "mod'd edu displayName (" + edu.getDisplayName() + ")", 
+          eduNR.getDisplayName().equals(exp)
+        );
+      }
+      catch (Exception e) {
+        Assert.fail("unable to change stem displayName: " + e.getMessage());
+      }
+    
+      // Now retrieve the children and check them 
+      Stem i2R = StemHelper.findByName(nrs, i2.getName());
+      exp = eduNR.getDisplayName() + ":internet2";
       Assert.assertTrue(
-        "mod'd edu displayName (" + edu.getDisplayName() + ")", 
-        eduNR.getDisplayName().equals(exp)
+        "mod'd i2 displayName=(" + i2R.getDisplayName() + ") (" + exp + ")", 
+        i2R.getDisplayName().equals(exp)
+      );
+
+      exp = eduNR.getDisplayName() + ":uchicago";
+      Stem  uofcR = StemHelper.findByName(nrs, uofc.getName());
+      Assert.assertTrue(
+        "mod'd uofc displayName=(" + uofcR.getDisplayName() + ") (" + exp + ")", 
+        uofcR.getDisplayName().equals(exp)
+      );
+      exp = uofcR.getDisplayName() + ":biological sciences division";
+      Group bsdR  = GroupHelper.findByName(nrs, bsd.getName());
+      Assert.assertTrue(
+        "mod'd bsd edu displayName=(" + bsdR.getDisplayName() + ") (" + exp + ")", 
+        bsdR.getDisplayName().equals(exp)
+      );
+
+      // Check this one as root as subj0 doesn't have READ or VIEW
+      exp = uofcR.getDisplayName() + ":physical sciences division";
+      Group psdR  = GroupHelper.findByName(s, psd.getName());
+      Assert.assertTrue(
+        "mod'd psd edu displayName=(" + psdR.getDisplayName() + ") (" + exp + ")", 
+        psdR.getDisplayName().equals(exp)
       );
     }
     catch (Exception e) {
-      Assert.fail("unable to change stem displayName: " + e.getMessage());
+      T.e(e);
     }
-    
-    // Now retrieve the children and check them 
-    Stem i2R = StemHelper.findByName(nrs, i2.getName());
-    exp = eduNR.getDisplayName() + ":internet2";
-    Assert.assertTrue(
-      "mod'd i2 displayName=(" + i2R.getDisplayName() + ") (" + exp + ")", 
-      i2R.getDisplayName().equals(exp)
-    );
-
-    exp = eduNR.getDisplayName() + ":uchicago";
-    Stem  uofcR = StemHelper.findByName(nrs, uofc.getName());
-    Assert.assertTrue(
-      "mod'd uofc displayName=(" + uofcR.getDisplayName() + ") (" + exp + ")", 
-      uofcR.getDisplayName().equals(exp)
-    );
-    exp = uofcR.getDisplayName() + ":biological sciences division";
-    Group bsdR  = GroupHelper.findByName(nrs, bsd.getName());
-    Assert.assertTrue(
-      "mod'd bsd edu displayName=(" + bsdR.getDisplayName() + ") (" + exp + ")", 
-      bsdR.getDisplayName().equals(exp)
-    );
-
-    // Check this one as root as subj0 doesn't have READ or VIEW
-    exp = uofcR.getDisplayName() + ":physical sciences division";
-    Group psdR  = GroupHelper.findByName(s, psd.getName());
-    Assert.assertTrue(
-      "mod'd psd edu displayName=(" + psdR.getDisplayName() + ") (" + exp + ")", 
-      psdR.getDisplayName().equals(exp)
-    );
   } // public void testPropagateExtensionChangeAsNonRoot()
 
   public void testChildStemsAndGroupsLazyInitialization() {

@@ -26,7 +26,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.71 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: Membership.java,v 1.72 2007-02-14 17:34:14 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -278,20 +278,14 @@ public class Membership extends GrouperAPI {
       Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
 
       MembershipDTO dto = new MembershipDTO();
-      dto.setCreateTime( new Date().getTime() );
       dto.setCreatorUuid( s.getMember().getUuid() );
-      dto.setDepth(0);
       dto.setListName( f.getName() );
       dto.setListType( f.getType().toString() );
       dto.setMemberUuid( m.getUuid() );
-      dto.setMembershipUuid( GrouperUuid.internal_getUuid() );
       dto.setOwnerUuid( o.getUuid() );
-      dto.setParentUuid(null);
-      dto.setType(IMMEDIATE);
-      dto.setViaUuid(null);
       MembershipValidator.internal_validateImmediate(dto);
 
-      MemberOf mof = MemberOf.internal_addImmediate(s, o, dto, m);
+      MemberOf mof = MemberOf.internal_addImmediate( s, o, dto, m.getDTO() );
       HibernateMembershipDAO.update(mof);
       EL.addEffMembers( s, o, subj, f, mof.internal_getEffSaves() );
     }
@@ -314,7 +308,9 @@ public class Membership extends GrouperAPI {
       // Who we're deleting
       Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
       return MemberOf.internal_delImmediate(
-        s, o, HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( o.getUuid(), m.getUuid(), f, IMMEDIATE ), m
+        s, o, 
+        HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( o.getUuid(), m.getUuid(), f, IMMEDIATE ), 
+        m.getDTO()
       );
     }
     catch (InsufficientPrivilegeException eIP)  {
