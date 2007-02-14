@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.31 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: Composite.java,v 1.32 2007-02-14 22:06:40 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -245,15 +245,21 @@ public class Composite extends GrouperAPI {
       Group           g   = this.getOwnerGroup();
       MemberOf        mof = MemberOf.internal_addComposite(rs, g, this);
 
-      Set cur     = g.getMemberships();         // Current mships
-      Set should  = mof.internal_getEffSaves(); // What mships should be
-      Set deletes = new LinkedHashSet(cur);     // deletes  = cur - should
+      
+      Set cur       = HibernateMembershipDAO.findAllByOwnerAndField( g.getDTO().getUuid(), Group.getDefaultList() ); // current mships
+      Set should    = mof.internal_getEffSaves(); // What mships should be
+      Set deletes   = new LinkedHashSet(cur);     // deletes  = cur - should
       deletes.removeAll(should);
-      Set adds    = new LinkedHashSet(should);  // adds     = should - cur
+      Set adds      = new LinkedHashSet(should);  // adds     = should - cur
       adds.removeAll(cur);
+      Map modified  = new HashMap();
+      modified      = mof.identifyGroupsAndStemsToMarkAsModified( modified, adds.iterator() );
+      modified      = mof.identifyGroupsAndStemsToMarkAsModified( modified, deletes.iterator() );
+      Set modGroups = new LinkedHashSet( ( (Map) modified.get("groups") ).values() );
+      Set modStems  = new LinkedHashSet( ( (Map) modified.get("stems") ).values() );
 
-      if ( (adds.size() > 0) || (deletes.size() > 0) ) {
-        HibernateCompositeDAO.update(adds, deletes);
+      if ( adds.size() > 0 || deletes.size() > 0 || modGroups.size() > 0 || modStems.size() > 0 ) {
+        HibernateCompositeDAO.update(adds, deletes, modGroups, modStems);
         sw.stop();
         EventLog.compositeUpdate(this, adds, deletes, sw);
         Composite._update(deletes);

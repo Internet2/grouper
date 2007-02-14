@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.42 2007-02-14 19:34:09 blair Exp $
+ * @version $Id: MemberOf.java,v 1.43 2007-02-14 22:06:40 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -50,6 +50,7 @@ class MemberOf extends BaseMemberOf {
     mof.setSession(s);
     mof.effSaves.addAll(  mof._evalComposite()  );  // Find the composites
     mof.saves.addAll(     mof.effSaves          );
+    mof._identifyGroupsAndStemsToMarkAsModified();
     mof.saves.add( mof.getComposite() ); // Save the composite
     Set groups = mof.getModifiedGroups();
     g.internal_setModified(); // Add the owner the the modified list
@@ -82,7 +83,7 @@ class MemberOf extends BaseMemberOf {
 
       mof.effSaves.addAll( mof._evalAddImmediate()  );  // Find the new effs
       mof.saves.addAll(   mof.effSaves              );
-      mof.identifyGroupsAndStemsToMarkAsModified();
+      mof._identifyGroupsAndStemsToMarkAsModified();
 
       mof.saves.add(_ms);   // Save the immediate
       // TODO 20070130 bah
@@ -139,6 +140,7 @@ class MemberOf extends BaseMemberOf {
         throw new ModelException(e);
       }
     }
+    mof._identifyGroupsAndStemsToMarkAsModified();
 
     mof.deletes.add( mof.getComposite() );   // Delete the composite
     Set groups = mof.getModifiedGroups();
@@ -181,7 +183,7 @@ class MemberOf extends BaseMemberOf {
 
       // And now set everything else
       mof.deletes.addAll(mof.effDeletes);
-      mof.identifyGroupsAndStemsToMarkAsModified();
+      mof._identifyGroupsAndStemsToMarkAsModified();
 
       mof.deletes.add(_ms); // Delete the immediate
       // TODO 20070130 bah    
@@ -213,20 +215,31 @@ class MemberOf extends BaseMemberOf {
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since   1.2.0
-  protected void identifyGroupsAndStemsToMarkAsModified() {
+  // m->{ "group" | "stem" } = { group or stem uuid = group or stem object }
+  // @since   1.2.0 
+  protected Map identifyGroupsAndStemsToMarkAsModified(Map m, Iterator it) 
+    throws  IllegalStateException
+  {
+    // This method is still a lot bigger and more hackish than I'd like but...
+
     // So that everything has the same modify time within here
     String        modifierUuid  = this.getSession().getMember().getUuid();
     long          modifyTime    = new java.util.Date().getTime();
 
-    Map           groups  = new HashMap();
-    Map           stems   = new HashMap();
+    // TODO 20070214 this is a little hackish
+    Map           groups        = new HashMap();
+    if (m.containsKey("groups")) {
+      groups = (Map) m.get("groups");
+    }
+    Map           stems         = new HashMap();
+    if (m.containsKey("stems")) {
+      stems = (Map) m.get("stems");
+    }
+    
     MembershipDTO _ms;
     String        k;
     GroupDTO      _g;
     StemDTO       _ns;
-    Iterator      it      = this.effSaves.iterator();
-    // TODO 20070213 this is too big
     try {
       while (it.hasNext()) {
         _ms = (MembershipDTO) it.next();
@@ -251,40 +264,17 @@ class MemberOf extends BaseMemberOf {
           throw new IllegalStateException( "unknown membership type: " + _ms.getListType() );
         }
       }
-      it = this.effDeletes.iterator();
-      while (it.hasNext()) {
-        _ms = (MembershipDTO) it.next();
-        k   = _ms.getOwnerUuid();
-        if      ( _ms.getListType().equals(FieldType.LIST.toString()) || _ms.getListType().equals(FieldType.ACCESS.toString()) ) {
-          if ( !groups.containsKey(k) ) {
-            _g = HibernateGroupDAO.findByUuid(k);
-            _g.setModifierUuid(modifierUuid);
-            _g.setModifyTime(modifyTime);
-            groups.put(k, _g);
-          }
-        }
-        else if ( _ms.getListType().equals(FieldType.NAMING.toString()) ) {
-          if ( !stems.containsKey(k) ) {
-            _ns = HibernateStemDAO.findByUuid(k);
-            _ns.setModifierUuid(modifierUuid);
-            _ns.setModifyTime(modifyTime);
-            stems.put(k, _ns);
-          }
-        }
-        else {
-          throw new IllegalStateException( "unknown membership type: " + _ms.getListType() );
-        }
-      }
-      this.setModifiedGroups( new LinkedHashSet( groups.values() ) );
-      this.setModifiedStems( new LinkedHashSet( stems.values() ) );
     }
     catch (GroupNotFoundException eGNF) {
-      throw new IllegalStateException( "modified a group that cannot be found: " + eGNF.getMessage() );
+      throw new IllegalStateException( "attempt to modify a group that cannot be found: " + eGNF.getMessage() );
     }
     catch (StemNotFoundException eNSNF) {
-      throw new IllegalStateException( "modified a stem that cannot be found: " + eNSNF.getMessage() );
+      throw new IllegalStateException( "attempt to modify a stem that cannot be found: " + eNSNF.getMessage() );
     }
-  } // protected void identifyGroupsAndStemsToMarkAsModified()
+    m.put("groups", groups);
+    m.put("stems", stems);
+    return m;
+  } // protected Map identifyGroupsAndStemsToMarkAsModified(m, it)
 
   // @since   1.2.0
   protected Set internal_getDeletes() {
@@ -581,6 +571,17 @@ class MemberOf extends BaseMemberOf {
     }
     return hasMembers;
   } // private Set _findMembersOfMember()
+
+  // @since   1.2.0
+  private void _identifyGroupsAndStemsToMarkAsModified() {
+    Map modified  = new HashMap();
+    modified      = this.identifyGroupsAndStemsToMarkAsModified( modified, this.effSaves.iterator() );
+    modified      = this.identifyGroupsAndStemsToMarkAsModified( modified, this.effDeletes.iterator() );
+    Map groups    = (Map) modified.get("groups");
+    Map stems     = (Map) modified.get("stems");
+    this.setModifiedGroups( new LinkedHashSet( groups.values() ) );
+    this.setModifiedStems( new LinkedHashSet( stems.values() ) );
+  } // private void _identifyGroupsAndStemsToMarkAsModified()
 
 } // class MemberOf extends BaseMemberOf
 
