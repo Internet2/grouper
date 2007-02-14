@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.3 2007-02-14 19:34:09 blair Exp $
+ * @version $Id: TestGroup43.java,v 1.4 2007-02-14 19:55:17 blair Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -30,7 +30,7 @@ public class TestGroup43 extends GrouperTest {
 
   public TestGroup43(String name) {
     super(name);
-    System.err.println("TESTGROUP43");
+    System.err.println("TODO 20070214 TESTGROUP43 - TEST COMPOSITES");
   }
 
   protected void setUp () {
@@ -57,8 +57,8 @@ public class TestGroup43 extends GrouperTest {
       gA.addMember(subjA);
       long    post  = new java.util.Date().getTime();
       assertTrue( "gA modify time updated", gA.getModifyTime().getTime() > orig );
-      assertTrue( "gA modifyTime > pre",    gA.getModifyTime().getTime() > pre );
-      assertTrue( "gA modifyTime < post",   gA.getModifyTime().getTime() < post );
+      assertTrue( "gA modifyTime >= pre",    gA.getModifyTime().getTime() >= pre );
+      assertTrue( "gA modifyTime <= post",   gA.getModifyTime().getTime() <= post );
 
       r.rs.stop();
     }
@@ -81,8 +81,8 @@ public class TestGroup43 extends GrouperTest {
       gA.deleteMember(subjA);
       long    post  = new java.util.Date().getTime();
       assertTrue( "gA modify time updated", gA.getModifyTime().getTime() > orig );
-      assertTrue( "gA modifyTime > pre",    gA.getModifyTime().getTime() > pre );
-      assertTrue( "gA modifyTime < post",   gA.getModifyTime().getTime() < post );
+      assertTrue( "gA modifyTime >= pre",    gA.getModifyTime().getTime() >= pre );
+      assertTrue( "gA modifyTime <= post",   gA.getModifyTime().getTime() <= post );
 
       r.rs.stop();
     }
@@ -108,8 +108,8 @@ public class TestGroup43 extends GrouperTest {
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
       Group g = GroupFinder.findByUuid( s, gA.getUuid() );
-      assertTrue( "gA modifyTime > pre",  g.getModifyTime().getTime() > pre );
-      assertTrue( "gA modifyTime < post", g.getModifyTime().getTime() < post );
+      assertTrue( "gA modifyTime >= pre",  g.getModifyTime().getTime() >= pre );
+      assertTrue( "gA modifyTime <= post", g.getModifyTime().getTime() <= post );
 
       s.stop();
       r.rs.stop();
@@ -137,8 +137,8 @@ public class TestGroup43 extends GrouperTest {
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
       Group g = GroupFinder.findByUuid( s, gA.getUuid() );
-      assertTrue( "gA modifyTime > pre",  g.getModifyTime().getTime() > pre );
-      assertTrue( "gA modifyTime < post", g.getModifyTime().getTime() < post );
+      assertTrue( "gA modifyTime >= pre",  g.getModifyTime().getTime() >= pre );
+      assertTrue( "gA modifyTime <= post", g.getModifyTime().getTime() <= post );
 
       s.stop();
       r.rs.stop();
@@ -165,8 +165,8 @@ public class TestGroup43 extends GrouperTest {
       gA.grantPriv(subjA, AccessPrivilege.ADMIN);
       long    post  = new java.util.Date().getTime();
       assertTrue( "gA modify time updated", gA.getModifyTime().getTime() > orig );
-      assertTrue( "gA modifyTime > pre",    gA.getModifyTime().getTime() > pre );
-      assertTrue( "gA modifyTime < post",   gA.getModifyTime().getTime() < post );
+      assertTrue( "gA modifyTime >= pre",    gA.getModifyTime().getTime() >= pre );
+      assertTrue( "gA modifyTime <= post",   gA.getModifyTime().getTime() <= post );
 
       r.rs.stop();
     }
@@ -189,8 +189,8 @@ public class TestGroup43 extends GrouperTest {
       gA.revokePriv(subjA, AccessPrivilege.ADMIN);
       long    post  = new java.util.Date().getTime();
       assertTrue( "gA modify time updated", gA.getModifyTime().getTime() > orig );
-      assertTrue( "gA modifyTime > pre",    gA.getModifyTime().getTime() > pre );
-      assertTrue( "gA modifyTime < post",   gA.getModifyTime().getTime() < post );
+      assertTrue( "gA modifyTime >= pre",    gA.getModifyTime().getTime() >= pre );
+      assertTrue( "gA modifyTime <= post",   gA.getModifyTime().getTime() <= post );
 
       r.rs.stop();
     }
