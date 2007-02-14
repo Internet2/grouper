@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import  java.util.Collection;
+import  java.util.Date;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
@@ -26,23 +27,23 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.2 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: MembershipDTO.java,v 1.3 2007-02-14 17:34:14 blair Exp $
  */
 class MembershipDTO extends BaseGrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
-  private long    createTime;
+  private long    createTime      = new Date().getTime();           // reasonable default
   private String  creatorUUID;
-  private int     depth;
+  private int     depth           = 0;                              // reasonable default
   private String  id;
-  private String  listName;
-  private String  listType;
+  private String  listName;                                         // TODO 20070213 set reasonable default
+  private String  listType;                                         // TODO 20070213 set reasonable default
   private String  memberUUID;
   private String  ownerUUID;
-  private String  parentUUID;
-  private String  type;
-  private String  membershipUUID;
-  private String  viaUUID;
+  private String  parentUUID      = null;                           // reasonable default
+  private String  type            = Membership.IMMEDIATE;           // reasonable default
+  private String  membershipUUID  = GrouperUuid.internal_getUuid(); // reasonable default
+  private String  viaUUID         = null;                           // reasonable default
 
 
   // PUBLIC INSTANCE METHODS //

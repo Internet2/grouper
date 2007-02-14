@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.75 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.76 2007-02-14 17:34:14 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -250,9 +250,10 @@ import  java.util.*;
     }
     return mships;
   } // protected static Set internal_canViewMemberships(s, c)
-  
+ 
   // If the subject being added is a group, verify that we can VIEW it
   // @since   1.2.0
+  // TODO 20070213 bah.  i really hate this method.
   protected static Member internal_canViewSubject(GrouperSession s, Subject subj)
     throws  InsufficientPrivilegeException,
             ModelException

@@ -26,7 +26,7 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.1 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: Rosetta.java,v 1.2 2007-02-14 17:34:14 blair Exp $
  */
 class Rosetta {
 
@@ -123,6 +123,11 @@ class Rosetta {
   } // protected static Collection getDTO(c)
 
   // @since   1.2.0
+  protected static GrouperDTO getDTO(GrouperAPI api) {
+    return api.getDTO();
+  } // protected static GrouperDTO getDTO(api)
+
+  // @since   1.2.0
   protected static GrouperDTO getDTO(HibernateDAO dao) {
     // TODO 20070206 do i even need to check?
     if      (dao instanceof HibernateFieldDAO)      {
@@ -139,7 +144,13 @@ class Rosetta {
 
   // @since   1.2.0
   protected static GrouperDTO getDTO(Object obj) {
-    if (obj instanceof HibernateDAO) {
+    if      (obj instanceof GrouperAPI)   {
+      return getDTO( (GrouperAPI) obj );
+    }
+    else if (obj instanceof GrouperDTO)   { // TODO 20070212 this is redundant 
+      return (GrouperDTO) obj;
+    }
+    else if (obj instanceof HibernateDAO) {
       return getDTO( (HibernateDAO) obj );
     }
     throw new IllegalArgumentException( "cannot translate obj to dto: " + obj.getClass().getName() );
