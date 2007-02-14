@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.5 2007-02-14 20:01:15 blair Exp $
+ * @version $Id: TestGroup43.java,v 1.6 2007-02-14 22:06:40 blair Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -30,7 +30,6 @@ public class TestGroup43 extends GrouperTest {
 
   public TestGroup43(String name) {
     super(name);
-    System.err.println("TODO 20070214 TESTGROUP43 - TEST COMPOSITES");
   }
 
   protected void setUp () {
@@ -148,6 +147,43 @@ public class TestGroup43 extends GrouperTest {
     }
   } // public void testGroupModifyAttributesUpdatedAfterDeletingEffectiveMember()
 
+
+  // COMPOSITES //
+
+  // @since   1.2.0
+  public void testGroupModifyAttributesUpdatedAfterUpdatingComplement() {
+    LOG.info("testGroupModifyAttributesUpdatedAfterAddingImmediateMember");
+    try {
+      R       r     = R.populateRegistry(1, 3, 3);
+      Group   gA    = r.getGroup("a", "a");
+      Group   gB    = r.getGroup("a", "b");
+      Group   gC    = r.getGroup("a", "c");
+      Subject subjA = r.getSubject("a");
+      Subject subjB = r.getSubject("b");
+      Subject subjC = r.getSubject("c");
+
+      gA.addMember(subjA);
+      gB.addMember(subjB);
+      gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
+
+      long    orig  = gC.getModifyTime().getTime();
+      long    pre   = new java.util.Date().getTime();
+      gA.addMember(subjC);
+      long    post  = new java.util.Date().getTime();
+
+      // load group in new session so we don't (potentially) get stale data
+      GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
+      Group g = GroupFinder.findByUuid( s, gC.getUuid() );
+      assertTrue( "gC modifyTime >= pre",  g.getModifyTime().getTime() >= pre );
+      assertTrue( "gC modifyTime <= post", g.getModifyTime().getTime() <= post );
+
+      s.stop();
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testGroupModifyAttributesUpdatedAfterAddingImmediateMember()
 
 
   // ACCESS PRIVS //

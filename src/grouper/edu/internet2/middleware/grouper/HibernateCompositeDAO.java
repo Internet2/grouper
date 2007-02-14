@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.9 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.10 2007-02-14 22:06:40 blair Exp $
  * @since   1.2.0
  */
 class HibernateCompositeDAO extends HibernateDAO {
@@ -119,7 +119,7 @@ class HibernateCompositeDAO extends HibernateDAO {
   } // private static CompositeDTO findByUuid(uuid)
 
   // @since   1.2.0
-  protected static void update(Set toAdd, Set toDelete) 
+  protected static void update(Set toAdd, Set toDelete, Set modGroups, Set modStems) 
     throws  GrouperDAOException
   {
     try {
@@ -134,6 +134,14 @@ class HibernateCompositeDAO extends HibernateDAO {
         while (it.hasNext()) {
           hs.save( Rosetta.getDAO( it.next() ) );
         }
+        it = modGroups.iterator();
+        while (it.hasNext()) {
+          hs.update( Rosetta.getDAO( it.next() ) );
+        }
+        it = modStems.iterator();
+        while (it.hasNext()) {
+          hs.update( Rosetta.getDAO( it.next() ) );
+        }
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -147,7 +155,7 @@ class HibernateCompositeDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( E.COMP_UPDATE + eH.getMessage(), eH);
     }
-  } // protected static void update(toAdd, toDelete)
+  } // protected static void update(toAdd, toDelete, modGroups, modStems)
 
 
   // GETTERS //
