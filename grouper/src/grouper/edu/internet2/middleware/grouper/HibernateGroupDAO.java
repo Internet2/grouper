@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.11 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.12 2007-02-14 19:34:09 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
@@ -509,37 +509,6 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void revokePriv(dto, toDelete)
-
-  // @since   1.2.0
-  protected static void updateMemberships(MemberOf mof)
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        Iterator it = mof.internal_getDeletes().iterator();
-        while (it.hasNext()) {
-          hs.delete( Rosetta.getDAO( it.next() ) );
-        }
-        it = mof.internal_getSaves().iterator();
-        while (it.hasNext()) {
-          hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
-        }
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static void updateMemberships(mof)
 
 
   // PRIVATE CLASS METHODS //

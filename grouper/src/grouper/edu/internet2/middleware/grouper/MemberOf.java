@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.41 2007-02-14 17:46:06 blair Exp $
+ * @version $Id: MemberOf.java,v 1.42 2007-02-14 19:34:09 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -181,6 +181,8 @@ class MemberOf extends BaseMemberOf {
 
       // And now set everything else
       mof.deletes.addAll(mof.effDeletes);
+      mof.identifyGroupsAndStemsToMarkAsModified();
+
       mof.deletes.add(_ms); // Delete the immediate
       // TODO 20070130 bah    
       if ( mof.getGroup() != null ) {
