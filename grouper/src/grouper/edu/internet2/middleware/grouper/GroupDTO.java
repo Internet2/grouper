@@ -27,23 +27,23 @@ import  org.apache.commons.lang.builder.*;
  * {@link Group} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.2 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.3 2007-02-15 20:42:17 blair Exp $
  */
 class GroupDTO extends BaseGrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
-  private Map     attributes;
-  private String  createSource;
-  private long    createTime;
-  private String  creatorUUID;
-  private String  id;
-  private String  modifierUUID;
-  private String  modifySource;
-  private long    modifyTime;
-  private String  parentUUID;
-  private Set     types;
-  private String  uuid;
-
+  private Map               attributes;
+  private String            createSource;
+  private long              createTime      = 0; // default to the epoch
+  private String            creatorUUID;
+  private HibernateGroupDAO dao;
+  private String            id;
+  private String            modifierUUID;
+  private String            modifySource;
+  private long              modifyTime      = 0; // default to the epoch
+  private String            parentUUID;
+  private Set               types;
+  private String            uuid;
 
   // PUBLIC INSTANCE METHODS //
 
@@ -109,17 +109,7 @@ class GroupDTO extends BaseGrouperDTO {
   // TODO 20070125 this doesn't fit with everything else
   protected static GroupDTO getDTO(HibernateGroupDAO dao) {
     GroupDTO dto = new GroupDTO();
-    dto.setAttributes( dao.getAttributes() );
-    dto.setCreateSource( dao.getCreateSource() );
-    dto.setCreateTime( dao.getCreateTime() );
-    dto.setCreatorUuid( dao.getCreatorUuid() );
-    dto.setId( dao.getId() );
-    dto.setModifierUuid( dao.getModifierUuid() );
-    dto.setModifySource( dao.getModifySource() );
-    dto.setModifyTime( dao.getModifyTime() );
-    dto.setUuid( dao.getUuid() );
-    dto.setParentUuid( dao.getParentUuid() );
-    dto.setTypes( dao.getTypes() );
+    dto._setDAO(dao);
     return dto;
   } // protected static GroupDTO getDTO(dao)
 
@@ -127,7 +117,7 @@ class GroupDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
   
   // @since   1.2.0
-  // TODO 20070125 is this the direction i want to take?
+  // TODO 20070215 deprecate/rename/move
   protected HibernateGroupDAO getDAO() {
     HibernateGroupDAO dao = new HibernateGroupDAO();
     dao.setAttributes( this.getAttributes() );
@@ -145,40 +135,92 @@ class GroupDTO extends BaseGrouperDTO {
   } // protected HibernateGroupDAO getDAO()
 
 
+  // PRIVATE INSTANCE METHODS //
+
+  // TODO 20070215 these methods should be renamed and moved to `GrouperDTO`
+
+  // @since   1.2.0
+  private HibernateGroupDAO _getDAO() {
+    if (this.dao == null) {
+      throw new IllegalStateException( "attempt to get unitialized dao in " + this.getClass().getName() );
+    }
+    return this.dao;
+  } // private HibernateGroupDAO _getDAO()
+
+  // @since   1.2.0
+  private void _setDAO(HibernateGroupDAO dao) {
+    this.dao = dao;
+  } // private void _setDAO(dao)
+
 
   // GETTERS //
 
+  // TODO 20070215 smarter, more DRY, lazy-loading, please
+
   protected Map getAttributes() {
+    if (this.attributes == null && this.dao != null) {
+      this.attributes = this.dao.getAttributes();
+    }
     return this.attributes;
   }
   protected String getCreateSource() {
+    if (this.createSource == null && this.dao != null) {
+      this.createSource = this.dao.getCreateSource();
+    }
     return this.createSource;
   }
   protected long getCreateTime() {
+    if (this.createTime == GrouperConfig.EPOCH && this.dao != null) {
+      this.createTime = this.dao.getCreateTime();
+    }
     return this.createTime;
   }
   protected String getCreatorUuid() {
+    if (this.creatorUUID == null && this.dao != null) {
+      this.creatorUUID = this.dao.getCreatorUuid();
+    }
     return this.creatorUUID;
   }
   protected String getId() {
+    if (this.id == null && this.dao != null) {
+      this.id = this.dao.getId();
+    }
     return this.id;
   }
   protected String getModifierUuid() {
+    if (this.modifierUUID == null && this.dao != null) {
+      this.modifierUUID = this.dao.getModifierUuid();
+    }
     return this.modifierUUID;
   }
   protected String getModifySource() {
+    if (this.modifySource == null && this.dao != null) {
+      this.modifySource = this.dao.getModifySource();
+    }
     return this.modifySource;
   }
   protected long getModifyTime() {
+    if (this.modifyTime == GrouperConfig.EPOCH && this.dao != null) {
+      this.modifyTime = this.dao.getModifyTime();
+    }
     return this.modifyTime;
   }
   protected String getParentUuid() {
+    if (this.parentUUID == null && this.dao != null) {
+      this.parentUUID = this.dao.getParentUuid();
+    }
     return this.parentUUID;
   }
   protected Set getTypes() {
+    if (this.types == null && this.dao != null) {
+      this.types = this.dao.getTypes();
+    }
     return this.types;
   }
   protected String getUuid() {
+    if (this.uuid == null && this.dao != null) {
+      this.uuid = this.dao.getUuid();
+    }
     return this.uuid;
   }
 
