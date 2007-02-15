@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.38 2007-02-14 18:15:50 blair Exp $
+ * @version $Id: GroupType.java,v 1.39 2007-02-15 18:30:50 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -249,7 +249,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       Set fields = this.getDTO().getFields();
       if ( fields.remove(f) ) {
         this.getDTO().setFields(fields);
-        HibernateFieldDAO.delete( f.getDTO() );
+        HibernateGroupTypeDAO.deleteField( f.getDTO() );
         sw.stop();
         EventLog.info(
           s,
@@ -395,7 +395,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       dto.setType(type);
       dto.setWritePrivilege(write);
 
-      dto.setId( HibernateFieldDAO.create(dto) );
+      dto.setId( HibernateGroupTypeDAO.createField(dto) );
 
       Field f = new Field();
       f.setDTO(dto);
