@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.39 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.40 2007-02-15 20:42:17 blair Exp $
  */
 public class GrouperConfig {
 
@@ -51,6 +51,7 @@ public class GrouperConfig {
   protected static final String ATTR_N        = "name";
   protected static final String BT            = "true";
   protected static final String EMPTY_STRING  = "";
+  protected static final long   EPOCH         = 0;
   protected static final String GCGAA         = "groups.create.grant.all.admin";
   protected static final String GCGAOI        = "groups.create.grant.all.optin";
   protected static final String GCGAOO        = "groups.create.grant.all.optout";
