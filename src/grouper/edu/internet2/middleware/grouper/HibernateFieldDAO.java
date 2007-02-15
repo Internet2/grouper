@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.8 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.9 2007-02-15 18:30:50 blair Exp $
  * @since   1.2.0
  */
 class HibernateFieldDAO extends HibernateDAO {
@@ -46,56 +46,6 @@ class HibernateFieldDAO extends HibernateDAO {
 
 
   // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static String create(FieldDTO f)
-    throws  GrouperDAOException
-  {
-    try {
-      Session       hs  = HibernateDAO.getSession();
-      Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(f);
-      try {
-        hs.save(dao);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-      return dao.getId();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static String create(FieldDTO f)
-
-  // @since   1.2.0
-  protected static void delete(FieldDTO f) 
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        hs.delete( Rosetta.getDAO(f) );
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close(); 
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static void delete(f)
 
   // @since   1.2.0
   protected static Set findAll() 

@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.7 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.8 2007-02-15 18:30:50 blair Exp $
  */
 class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
 
@@ -155,6 +155,32 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
   } // protected static String create(GroupTypeDTO gt)
 
   // @since   1.2.0
+  protected static String createField(FieldDTO _f)
+    throws  GrouperDAOException
+  {
+    try {
+      Session       hs  = HibernateDAO.getSession();
+      Transaction   tx  = hs.beginTransaction();
+      HibernateDAO  dao = Rosetta.getDAO(_f);
+      try {
+        hs.save(dao);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+      return dao.getId();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static String create(FieldDTO _f)
+
+  // @since   1.2.0
   protected static void delete(GroupTypeDTO type)
     throws  GrouperDAOException 
   {
@@ -177,6 +203,30 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void delete(type
+
+  // @since   1.2.0
+  protected static void deleteField(FieldDTO _f) 
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateDAO.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        hs.delete( Rosetta.getDAO(_f) );
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close(); 
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static void deleteField(_f)
 
   // @since   1.2.0
   protected static Set findAll() 

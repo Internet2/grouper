@@ -28,7 +28,7 @@ import  net.sf.hibernate.cfg.*;
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.8 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.9 2007-02-15 18:30:50 blair Exp $
  * @since   1.2.0
  */
 abstract class HibernateDAO {
@@ -174,5 +174,5 @@ abstract class HibernateDAO {
   // @since   1.2.0
   protected abstract String getId();
 
-} // abstracdt class HibernateDAO
+} // abstract class HibernateDAO
 
