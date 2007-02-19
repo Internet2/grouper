@@ -31,7 +31,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.99 2007-02-14 17:34:14 blair Exp $
+ * @version $Id: Stem.java,v 1.100 2007-02-19 15:31:23 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -535,6 +535,14 @@ public class Stem extends GrouperAPI implements Owner {
   } // public int hashCode()
 
   /**
+   * @since   1.2.0
+   * @return  Boolean true if this is the root stem of the Groups Registry.
+   */
+  public boolean isRootStem() {
+    return this.getDTO().getName().equals(ROOT_INT); // TODO 20070219 this should exist at this layer
+  } // public boolean isRootStem()
+
+  /**
    * Revoke all privileges of the specified type on this stem.
    * <pre class="eg">
    * // Revoke CREATE from everyone on this stem.
@@ -676,11 +684,18 @@ public class Stem extends GrouperAPI implements Owner {
     try {
       this.getDTO().setDisplayExtension(value);
       this.internal_setModified();
-      try {
-        this.getDTO().setDisplayName( U.internal_constructName( this.getParentStem().getDisplayName(), value ) );
+      if (this.isRootStem()) {
+        this.getDTO().setDisplayName(value);
       }
-      catch (StemNotFoundException eSNF) {
-        this.getDTO().setDisplayName(value); // I guess we're the root stem
+      else {
+        try {
+          this.getDTO().setDisplayName( U.internal_constructName( this.getParentStem().getDisplayName(), value ) );
+        }
+        catch (StemNotFoundException eShouldNeverHappen) {
+          throw new IllegalStateException( 
+            "this should never happen: non-root stem without parent: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen 
+          );
+        }
       }
       // Now iterate through all child groups and stems (as root), renaming each.
       GrouperSession  orig  = this.getSession();
@@ -861,14 +876,6 @@ public class Stem extends GrouperAPI implements Owner {
       throw new StemAddException( E.CANNOT_CREATE_STEM + eDAO.getMessage(), eDAO );
     }
   }  // protected Stem internal_addChildStem(extn, dExtn, uuid)
-
-  // @since   1.2.0
-  protected boolean internal_isRootStem() {
-    if (this.getName().equals(ROOT_EXT)) {
-      return true;
-    }
-    return false;
-  } // protected boolean internal_isRootStem()
 
 
   // PRIVATE INSTANCE METHODS //

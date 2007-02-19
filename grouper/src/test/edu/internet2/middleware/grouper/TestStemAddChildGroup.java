@@ -22,9 +22,9 @@ import  junit.framework.*;
  * Test {@link Stem.addChildGroup()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildGroup.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestStemAddChildGroup.java,v 1.7 2007-02-19 15:31:23 blair Exp $
  */
-public class TestStemAddChildGroup extends TestCase {
+public class TestStemAddChildGroup extends GrouperTest {
 
   public TestStemAddChildGroup(String name) {
     super(name);

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.41 2007-02-08 16:25:25 blair Exp $
+$Id: API.txt,v 1.42 2007-02-19 15:31:23 blair Exp $
 
 ---
 
@@ -445,6 +445,7 @@ $Id: API.txt,v 1.41 2007-02-08 16:25:25 blair Exp $
 * void                  grantPriv(subject, naming priv)
 * boolean               hasCreate(subject)
 * boolean               hasStem(subject)
+* boolean               isRootStem()
 * void                  revokePriv(naming priv)
 * void                  revokePriv(subject, naming priv) 
 * void                  setDescription(value)
