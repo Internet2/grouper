@@ -16,18 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.regex.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AttributeValidator.java,v 1.9 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: AttributeValidator.java,v 1.10 2007-02-19 17:53:48 blair Exp $
  */
 class AttributeValidator {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final Pattern  RE_COLON  = Pattern.compile(":");
-  private static final Pattern  RE_WS     = Pattern.compile("^\\s*$");
-
 
   // PROTECTED CLASS METHODS //
 
@@ -41,36 +35,6 @@ class AttributeValidator {
     return Validator.internal_isNotNullOrBlank(value);
   } // protected static boolean internal_isPermittedValue(value)
   
-  protected static void internal_namingValue(String value)
-    throws  ModelException
-  {
-    Validator.internal_notNullPerModel(value, E.ATTR_NULL);
-    _noColon(value);
-    _notJustWhiteSpace(value);
-  } // protected static void internal_namingValue(value)
-   
-
-  // PRIVATE CLASS METHODS // 
-
-  // @since 1.0
-  private static void _noColon(String value) 
-    throws  ModelException
-  {
-    Matcher m = RE_COLON.matcher(value);
-    if (m.find()) {
-      throw new ModelException(E.ATTR_COLON);
-    }
-  } // private static void _noColon(value)
- 
-  // @since 1.0
-  private static void _notJustWhiteSpace(String value) 
-    throws  ModelException
-  {
-    Matcher m = RE_WS.matcher(value);
-    if (m.find()) {
-      throw new ModelException(E.ATTR_NULL);
-    }
-  } // private static void _notJustWhiteSpace(value)
 
 } // class AttributeValidator
 
