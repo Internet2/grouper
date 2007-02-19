@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.93 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.94 2007-02-19 15:31:23 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -601,7 +601,7 @@ public class XmlImporter {
     this._setDocument(doc);
     try {
       this.importRoot = ns.getName();
-      if (ns.internal_isRootStem()) {
+      if (ns.isRootStem()) {
         this.importRoot = GrouperConfig.EMPTY_STRING;
       }
       this._processProperties();

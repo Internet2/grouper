@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.83 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.84 2007-02-19 15:31:23 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -288,7 +288,7 @@ public class XmlExporter {
   {
     this.xml            = new XmlWriter(writer);
     this.isRelative     = relative;
-    if (ns.internal_isRootStem()) {
+    if (ns.isRootStem()) {
       this.includeParent = false; // TODO 20061010 includeParent is still sort of magic to /me
     }
     this._export(ns);

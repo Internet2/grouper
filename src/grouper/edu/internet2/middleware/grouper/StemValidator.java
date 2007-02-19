@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.19 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: StemValidator.java,v 1.20 2007-02-19 15:31:23 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -43,7 +43,7 @@ class StemValidator {
     if (!PrivilegeResolver.internal_canCREATE( ns.getSession(), ns, ns.getSession().getSubject() )) {
       throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
     }
-    if (ns.internal_isRootStem()) {
+    if (ns.isRootStem()) {
       throw new GroupAddException("cannot create groups at root stem level");
     }
     try {
