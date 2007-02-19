@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.20 2007-02-19 15:31:23 blair Exp $
+ * @version $Id: StemValidator.java,v 1.21 2007-02-19 17:53:48 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -33,12 +33,13 @@ class StemValidator {
             InsufficientPrivilegeException
   {
     boolean rv = false;
-    try {
-      AttributeValidator.internal_namingValue(extension);
-      AttributeValidator.internal_namingValue(displayExtension);
+    NamingValidator nv = NamingValidator.validateName(extension);
+    if ( !nv.getIsValid() ) {
+      throw new GroupAddException( nv.getErrorMessage() );
     }
-    catch (ModelException eM) {
-      throw new GroupAddException(eM.getMessage(), eM);
+    nv = NamingValidator.validateName(displayExtension);
+    if ( !nv.getIsValid() ) {
+      throw new GroupAddException( nv.getErrorMessage() );
     }
     if (!PrivilegeResolver.internal_canCREATE( ns.getSession(), ns, ns.getSession().getSubject() )) {
       throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
@@ -62,12 +63,13 @@ class StemValidator {
             StemAddException
   {
     boolean rv = false;
-    try {
-      AttributeValidator.internal_namingValue(extension);
-      AttributeValidator.internal_namingValue(displayExtension);
+    NamingValidator nv = NamingValidator.validateName(extension);
+    if ( !nv.getIsValid() ) {
+      throw new StemAddException( nv.getErrorMessage() );
     }
-    catch (ModelException eM) {
-      throw new StemAddException(eM.getMessage(), eM);
+    nv = NamingValidator.validateName(displayExtension);
+    if ( !nv.getIsValid() ) {
+      throw new StemAddException( nv.getErrorMessage() );
     }
     if (!RootPrivilegeResolver.internal_canSTEM( ns, ns.getSession().getSubject()) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);

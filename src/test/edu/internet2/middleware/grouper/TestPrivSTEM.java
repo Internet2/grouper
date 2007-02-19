@@ -23,9 +23,9 @@ import  org.apache.commons.logging.*;
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.7 2007-02-19 17:53:48 blair Exp $
  */
-public class TestPrivSTEM extends TestCase {
+public class TestPrivSTEM extends GrouperTest {
 
   // Private Class Constants
   private static final Log        LOG   = LogFactory.getLog(TestPrivSTEM.class);
@@ -293,19 +293,24 @@ public class TestPrivSTEM extends TestCase {
 
   // Modify stem attrs with STEM
   public void testModifyttrs() {
-    LOG.info("testModifyAttrs");
-    // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
-    GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-    // Get root stem and grant STEM on it to !root subject
-    Stem            root    = StemHelper.findRootStem(s);
-    PrivHelper.grantPriv(s, root, nrs.getSubject(), PRIV);
-    // Now get root as !root subject 
-    Stem            nrroot  = StemHelper.findRootStem(nrs);
-    // Now modify stem attrs
-    StemHelper.setAttr(nrroot, "description", "foo");
-    StemHelper.setAttr(nrroot, "displayExtension", "foo");
+    try {
+      LOG.info("testModifyAttrs");
+      // Get root and !root sessions
+      GrouperSession  s       = SessionHelper.getRootSession();
+      GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
+      // Get root stem and grant STEM on it to !root subject
+      Stem            root    = StemHelper.findRootStem(s);
+      PrivHelper.grantPriv(s, root, nrs.getSubject(), PRIV);
+      // Now get root as !root subject 
+      Stem            nrroot  = StemHelper.findRootStem(nrs);
+      // Now modify stem attrs
+      StemHelper.setAttr(nrroot, "description", "foo");
+      StemHelper.setAttr(nrroot, "displayExtension", "foo");
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
   } // public void testModifyAttrs()
 
-}
+} // public class TestPrivSTEM extends GrouperTest
 

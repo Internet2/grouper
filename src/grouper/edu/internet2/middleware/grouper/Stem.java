@@ -31,7 +31,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.101 2007-02-19 15:42:01 blair Exp $
+ * @version $Id: Stem.java,v 1.102 2007-02-19 17:53:48 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -645,16 +645,15 @@ public class Stem extends GrouperAPI implements Owner {
   } // public void setDescription(value)
 
   /**
-   * Set stem displayExtension.
+   * Set <i>displayExtension</i>.
+   * <p>This will also update the <i>displayName</i> of all child stems and groups.</p>
    * <pre class="eg">
-   * // Set displayExtension
    * try {
    *  ns.setDisplayExtension(value);
    * }
-   * }
-   * catch (InsufficientPrivilegeException e0) {
+   * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to set displayExtension
-   * catch (StemModifyException e1) {
+   * catch (StemModifyException eNSM) {
    *   // Error setting displayExtension
    * }
    * </pre>
@@ -668,15 +667,16 @@ public class Stem extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    try {
-      AttributeValidator.internal_namingValue(value);
-    }
-    catch (ModelException eM) {
-      if (!(this.getDTO().getName().equals(ROOT_INT) && value.equals(ROOT_EXT))) {
-        throw new StemModifyException(eM.getMessage(), eM);
+    NamingValidator nv = NamingValidator.validateName(value);
+    if ( !nv.getIsValid() ) {
+      // TODO 20070219 this should not be here
+      if ( this.isRootStem() && value.equals(ROOT_EXT) ) {
+        // Appease Oracle
+        value = ROOT_INT;   
       }
-      // Appease Oracle
-      value = ROOT_INT;
+      else {
+        throw new StemModifyException( nv.getErrorMessage() );
+      }
     }
     if (!RootPrivilegeResolver.internal_canSTEM(this, this.getSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
@@ -710,6 +710,32 @@ public class Stem extends GrouperAPI implements Owner {
     }
     EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_DE, value, sw);
   } // public void setDisplayExtension(value)
+
+  /**
+   * Set <i>extension</i>.
+   * <p>This will also update the <i>name</i> of all child stems and groups.</p>
+   * <pre class="eg">
+   * try {
+   *  ns.setExtension(value);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to set "extension"
+   * catch (StemModifyException eNSM) {
+   *   // Error setting "extension"
+   * }
+   * </pre>
+   * @param   value   Set <i>extension</i> to this value.
+   * @throws  InsufficientPrivilegeException
+   * @throws  StemModifyException
+   */
+/*
+  public void setExtension(String value) 
+    throws  InsufficientPrivilegeException,
+            StemModifyException
+  {
+    // TODO 20070219 DRY w/ "setDisplayExtension"
+  } // public void setExtension(value)
+*/
 
   public String toString() {
     // TODO 20070125 replace with call to DTO?
