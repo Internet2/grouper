@@ -20,38 +20,31 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestNoCachePCache0.java,v 1.5 2007-02-19 20:43:29 blair Exp $
- * @since   1.1.0
+ * @version $Id: Test_Unit_API_Stem_isRootStem.java,v 1.1 2007-02-19 20:43:29 blair Exp $
+ * @since   1.2.0
  */
-public class TestNoCachePCache0 extends GrouperTest {
+public class Test_Unit_API_Stem_isRootStem extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestNoCachePCache0.class);
+  // PRIVATE CLASS CONSTANTS //
+  private static final Log LOG = LogFactory.getLog(Test_Unit_API_Stem_isRootStem.class);
 
-  public TestNoCachePCache0(String name) {
-    super(name);
-  }
 
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
+  // TESTS //  
 
-  protected void tearDown () {
-    LOG.debug("tearDown");
-  }
-
-  public void testInstantiateNoCachePrivilegeCache() {
-    LOG.info("testInstantiateNoCachePrivilegeCache");
+  public void testIsRootStem_DoNotThrowNullPointerException() {
     try {
-      Class           klass = NoCachePrivilegeCache.class;
-      PrivilegeCache  pc    = BasePrivilegeCache.getCache( klass.getName() );
-      assertNotNull(pc);
-      assertTrue( klass.isInstance(pc) );
+      LOG.info("testIsRootStem_DoNotThrowNullPointerException");
+      Stem ns = new Stem();
+      ns.setDTO( new StemDTO() );
+      assertFalse( ns.isRootStem() );
+    }
+    catch (NullPointerException eNP) {
+      fail( "threw NullPointerException: " + eNP.getMessage() );
     }
     catch (Exception e) {
       unexpectedException(e);
     }
-  } // public void testInstantiateNoCachePrivilegeCache()
-
-} // public class TestNoCachePCache0
+  } // public void testSetExtension_NullValue()
+    
+} // public class Test_Unit_API_Stem_isRootStem extends GrouperTest
 

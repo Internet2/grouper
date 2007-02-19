@@ -17,15 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.11 2007-02-14 20:55:35 blair Exp $
+ * @version $Id: T.java,v 1.12 2007-02-19 20:43:29 blair Exp $
  * @since   1.0
  */
-public class T {
+public class T extends GrouperTest {
 
   // PROTECTED CLASS CONSTANTS //
   protected static final int DATE_OFFSET = 10;
@@ -42,28 +41,23 @@ public class T {
   // @since   1.0
   protected static void amount(String msg, int exp, int got) { 
     LOG.debug("amount()");
-    Assert.assertTrue(msg + " - exp[" + exp + "] got[" + got + "]", exp == got);
+    assertTrue(msg + " - exp[" + exp + "] got[" + got + "]", exp == got);
   } // protected static void amount(msg, exp, got)
 
   // @since   1.0
   protected static void e(Exception e) {
-    GrouperTest.internal_e(e);
-  } // protected static void internal_e(e)
-
-  // @since   1.1.0
-  protected static void fail(String msg) {
-    Assert.fail("FAIL: " + msg);
-  } // protected static void fail(msg)
+    new GrouperTest().unexpectedException(e);
+  } // protected static void unexpectedException(e)
 
   // @since   1.1.0
   protected static void ok(String msg) {
-    Assert.assertTrue("OK: " + msg, true);
+    assertTrue("OK: " + msg, true);
   } // prortected static void ok(msg)
 
   // @since   1.0
   protected static void string(String msg, String exp, String got) { 
     LOG.debug("string()");
-    Assert.assertTrue(msg + " - exp[" + exp + "] got[" + got + "]", exp.equals(got));
+    assertTrue(msg + " - exp[" + exp + "] got[" + got + "]", exp.equals(got));
   } // protected static void string(msg, exp, got)
 
 
@@ -94,14 +88,14 @@ public class T {
     LOG.debug("getSource()");
     try {
       Source sa = SubjectFinder.getSource(id);
-      Assert.assertNotNull( "sa not null"           , sa                    );
-      Assert.assertTrue(    "sa instanceof Source"  , sa instanceof Source  );
+      assertNotNull( "sa not null"           , sa                    );
+      assertTrue(    "sa instanceof Source"  , sa instanceof Source  );
       T.string("sa id", sa.getId(), id);
     }
     catch (SourceUnavailableException eSU) {
-      Assert.fail("unexpected exception: " + eSU.getMessage());
+      fail("unexpected exception: " + eSU.getMessage());
     }
   } // protected static void getSource(id)
 
-} // public class T
+} // public class T extends GrouperTest
 

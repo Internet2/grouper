@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.6 2007-02-14 22:06:40 blair Exp $
+ * @version $Id: TestGroup43.java,v 1.7 2007-02-19 20:43:29 blair Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -225,8 +225,8 @@ public class TestGroup43 extends GrouperTest {
       gA.revokePriv(subjA, AccessPrivilege.ADMIN);
       long    post  = new java.util.Date().getTime();
       assertTrue( "gA modify time updated", gA.getModifyTime().getTime() > orig );
-      assertTrue( "gA modifyTime >= pre",    gA.getModifyTime().getTime() >= pre );
-      assertTrue( "gA modifyTime <= post",   gA.getModifyTime().getTime() <= post );
+      assertTrue( "gA modifyTime >= pre",   gA.getModifyTime().getTime() >= pre );
+      assertTrue( "gA modifyTime <= post",  gA.getModifyTime().getTime() <= post );
 
       r.rs.stop();
     }

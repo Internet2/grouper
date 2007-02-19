@@ -17,36 +17,237 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
+import  java.util.HashMap;
+import  java.util.Map;
 import  org.apache.commons.logging.*;
 
 /**
+ * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
+ * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.10 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: R.java,v 1.11 2007-02-19 20:43:29 blair Exp $
+ * @since   1.2.0
  */
-class R {
+public class R {
 
-  // Private Class Constants //
+  // PRIVATE CLASS CONSTANTS //
   private static final Log LOG = LogFactory.getLog(R.class);
 
-  // Protected Instance Variables //
+  
+  // PROTECTED INSTANCE VARIABLES //
   protected GrouperSession  rs    = null;
   protected Stem            root  = null;
   protected Stem            ns    = null;
 
-  // Private Instance Variables //
-  private   Map             groups    = new HashMap();
-  private   Map             stems     = new HashMap();
-  private   Map             subjects  = new HashMap();
+
+  // PRIVATE INSTANCE VARIABLES //
+  private Map             groups    = new HashMap();
+  private GrouperSession  s;
+  private Map             stems     = new HashMap();
+  private Map             subjects  = new HashMap();
 
 
-  // Constructors //
-  private R() {
+  // CONSTRUCTORS //
+
+  /**
+   * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
+   * <p/>
+   * @since   1.2.0
+   */
+  public R() {
     super();
   } // R()
 
 
-  // Protected Class Methods //
+  // PUBLIC CLASS METHODS //
+
+  /**
+   * Initializes and returns the "bobco" pre-defined context.
+   * <p/>
+   * @throws  GrouperRuntimeException
+   * @since   1.2.0
+   */
+  public static R getBobCo() 
+    throws  GrouperRuntimeException
+  {
+    R r = new R();
+    r.setSession( r.startSession() );
+    Stem bobco  = r.addStem("bobco", "network based services");
+    Stem nas    = r.addStem(bobco, "nas", "network applications support");
+    Stem nsc    = r.addStem(bobco, "nsc", "network security center");
+    Stem nsd    = r.addStem(bobco, "nsd", "network services databases");
+    Stem oao    = r.addStem(bobco, "oando", "orienation and outreach");
+    r.addGroup( bobco, bobco.getName(), bobco.getDisplayName() );
+    r.addGroup( nas, nas.getName(), nas.getDisplayName() );
+    r.addGroup( nsc, nsc.getName(), nsc.getDisplayName() );
+    r.addGroup( nsd, nsd.getName(), nsd.getDisplayName() );
+    r.addGroup( oao, oao.getName(), oao.getDisplayName() );
+    return r;
+  } // public static R getBobCo()
+
+
+  // PUBLIC INSTANCE METHODS //
+
+  /**
+   * Adds a child {@link Group} beneath <i>parent</i>.
+   * <p/>
+   * @return  Child {@link Group}. 
+   * @throws  GrouperRuntimeException
+   * @since   1.2.0
+   */
+  public Group addGroup(Stem parent, String extn, String displayExtn) 
+    throws  GrouperRuntimeException
+  {
+    try {
+      Group child = parent.addChildGroup(extn, displayExtn);
+      this.groups.put( child.getName(), child );
+      return child;
+    }
+    catch (GroupAddException eGA) {
+      throw new GrouperRuntimeException( eGA.getMessage(), eGA );
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      throw new GrouperRuntimeException( eIP.getMessage(), eIP );
+    }
+  } // public Group addGroup(parent, extn, displayExtn)
+
+  /**
+   * Adds a child {@link Stem} beneath the root stem.
+   * <p/>
+   * @return  Child {@link Stem}.
+   * @throws  GrouperRuntimeException
+   * @since   1.2.0
+   */
+  public Stem addStem(String extn, String displayExtn) 
+    throws  GrouperRuntimeException
+  {
+    return addStem( this.findRootStem(), extn, displayExtn );
+  } // public Stem addStem(extn)
+
+  /**
+   * Adds a child {@link Stem} beneath <i>parent</i>.
+   * <p/>
+   * @return  Child {@link Stem}.
+   * @throws  GrouperRuntimeException
+   * @since   1.2.0
+   */
+  public Stem addStem(Stem parent, String extn, String displayExtn) 
+    throws  GrouperRuntimeException 
+  {
+    try {
+      Stem child = parent.addChildStem(extn, displayExtn);
+      this.stems.put( child.getName(), child );
+      return child;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      throw new GrouperRuntimeException( eIP.getMessage(), eIP );
+    }
+    catch (StemAddException eNSA) {
+      throw new GrouperRuntimeException( eNSA.getMessage(), eNSA );
+    }
+  } // public Stem addStem(parent, extn, displayExtn)
+
+  /**
+   * @return  The root {@link Stem} of the Groups Registry.
+   * @since   1.2.0
+   */
+  public Stem findRootStem() {
+    if (this.root == null) {
+      this.root = StemFinder.findRootStem( this.getSession() );
+    }
+    return this.root;
+  } // public Stem findRootStem()
+
+  /**
+   * Starts, associates and returns a {@link GrouperSession} running as <i>GrouperSystem</i>.
+   * <p/>
+   * @return  Return {@link GrouperSession} running as <i>GrouperSystem</i>.
+   * @throws  GrouperRuntimeException
+   * @since   1.2.0
+   */
+  public GrouperSession startSession() 
+    throws  GrouperRuntimeException
+  {
+    return this.startRootSession();
+  } // public GrouperSession startSession()
+
+  /**
+   * Starts, associates and returns a {@link GrouperSession} running as <i>subj</i>.
+   * <p/>
+   * @return  Return {@link GrouperSession} running as <i>subj</i>.
+   * @throws  GrouperRuntimeException
+   * @since   1.2.0 
+   */
+  public GrouperSession startSession(Subject subj) 
+    throws  GrouperRuntimeException
+  {
+    try {
+      this.setSession( GrouperSession.start(subj) );
+      return this.getSession();
+    }
+    catch (SessionException eS) {
+      throw new GrouperRuntimeException( eS.getMessage(), eS );
+    }
+  } // public GrouperSession startSession(subj)
+
+  /**
+   * Starts, associates and returns a {@link GrouperSession} running as <i>GrouperAll</i>.
+   * <p/>
+   * @return  Return {@link GrouperSession} running as <i>GrouperSystem</i>.
+   * @throws  GrouperRuntimeException
+   * @since   1.2.0
+   */
+  public GrouperSession startAllSession() 
+    throws  GrouperRuntimeException
+  {
+    return this.startSession( SubjectFinder.findAllSubject() );
+  } // public GrouperSession startAllSession()
+
+  /**
+   * Starts, associates and returns a {@link GrouperSession} running as <i>GrouperSystem</i>.
+   * <p/>
+   * @return  Return {@link GrouperSession} running as <i>GrouperSystem</i>.
+   * @throws  GrouperRuntimeException
+   * @since   1.2.0
+   */
+  public GrouperSession startRootSession() 
+    throws  GrouperRuntimeException
+  {
+    return this.startSession( SubjectFinder.findRootSubject() );
+  } // public GrouperSession startRootSession()
+
+
+  // GETTERS //
+
+  /**
+   * Returns {@link GrouperSession} associated with this {@link R}.  
+   * <p>If no session is associated, a root session will be created and associated..</p>
+   * @return  {@link GrouperSession} 
+   * @since   1.2.0
+   */
+  public GrouperSession getSession() {
+    if (this.s == null) {
+      this.s = this.startSession();
+    }
+    return this.s;
+  } // public GrouperSession getSession()
+
+
+  // SETTERS //
+
+  /**
+   * Set {@link GrouperSession} associated with this {@link R}.
+   * <p/>
+   * @since   1.2.0
+   */
+  public void setSession(GrouperSession s) {
+    this.s = s;
+  } // public void setSession(s)
+
+
+  // TODO 20070219 EVERYTHING BELOW SHOULD BE ELIMINATED //
+
+  // PROTECTED CLASS METHODS //
   protected static R populateRegistry(int nStems, int nGroups, int nSubjects) 
     throws  Exception
   {
@@ -81,7 +282,7 @@ class R {
   } // protected static R populateRegistry(nStems, nGroups, nSubjects)
 
 
-  // Protected Instance Methods //
+  // PROTECTED INSTANCE METHODS //
   protected Group getGroup(String stem, String group) 
     throws  Exception
   {
@@ -114,11 +315,12 @@ class R {
   } // protected Subject getSubject(id)
 
 
-  // Private Class Methods //
+  // PRIVATE CLASS METHODS //
+
   private static String _getSuffix(int i) {
     int     base  = 97;
     return  new Character( (char) (i + base) ).toString();
   } // private static String _getSuffix(i)
 
-}
+} // public class R
 
