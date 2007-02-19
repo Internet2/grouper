@@ -31,7 +31,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.100 2007-02-19 15:31:23 blair Exp $
+ * @version $Id: Stem.java,v 1.101 2007-02-19 15:42:01 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -697,11 +697,8 @@ public class Stem extends GrouperAPI implements Owner {
           );
         }
       }
-      // Now iterate through all child groups and stems (as root), renaming each.
-      GrouperSession  orig  = this.getSession();
-      this.setSession( orig.getDTO().getRootSession() );
+      // Now iterate through all child groups and stems, renaming each.
       HibernateStemDAO.renameStemAndChildren( this, this._renameChildren() );
-      this.setSession(orig);
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set displayExtension: " + eDAO.getMessage(), eDAO );
@@ -980,9 +977,7 @@ public class Stem extends GrouperAPI implements Owner {
     }
   } // private void _grantOptionalPrivUponCreate(root, o, p, opt)
 
-  private Set _renameChildGroups() 
-    throws  HibernateException
-  {
+  private Set _renameChildGroups() {
     Map       attrs;
     GroupDTO  child;
     Set       groups  = new LinkedHashSet();
@@ -1002,29 +997,22 @@ public class Stem extends GrouperAPI implements Owner {
   private Set _renameChildren() 
     throws  StemModifyException
   {
-    Set objects = new LinkedHashSet();
-    try {
-      objects.addAll( this._renameChildStemsAndGroups() );
-      objects.addAll( this._renameChildGroups() );
-    }
-    catch (HibernateException eH) {
-      String msg = E.HIBERNATE + eH.getMessage();
-      ErrorLog.error(Stem.class, msg);
-      throw new StemModifyException(msg, eH);
-    }
-    return objects;
+    Set children = new LinkedHashSet();
+    children.addAll( this._renameChildStemsAndGroups() );
+    children.addAll( this._renameChildGroups() );
+    return children;
   } // private Set _renameChildren()
 
-  private Set _renameChildStemsAndGroups() 
-    throws  HibernateException
-  {
+  private Set _renameChildStemsAndGroups() {
     Set       children  = new LinkedHashSet();
     Iterator  it        = HibernateStemDAO.findChildStems(this).iterator();
     while (it.hasNext()) {
       Stem child = new Stem();
       child.setDTO( (StemDTO) it.next() );
       child.setSession( this.getSession() );
-      child.getDTO().setDisplayName( U.internal_constructName( this.getDisplayName(), child.getDisplayExtension() ) );
+      child.getDTO().setDisplayName(
+        U.internal_constructName( this.getDTO().getDisplayName(), child.getDTO().getDisplayExtension() ) 
+      );
 
       children.addAll( child._renameChildGroups() );
 
