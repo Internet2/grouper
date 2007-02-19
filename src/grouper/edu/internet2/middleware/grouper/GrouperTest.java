@@ -19,12 +19,13 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
 
 /**
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.12 2007-02-14 18:15:50 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.13 2007-02-19 20:43:29 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -32,10 +33,18 @@ public class GrouperTest extends TestCase {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String G   = "group";
+  private static final Log    LOG = LogFactory.getLog(GrouperTest.class);
   private static final String NS  = "stem";
 
 
   // CONSTRUCTORS //
+
+  /**
+   * @since   1.2.0
+   */
+  public GrouperTest() {
+    super();
+  } // public GrouperTest()
 
   /** 
    * @since   1.1.0
@@ -471,14 +480,27 @@ public class GrouperTest extends TestCase {
     _assertString(NS, ns.getName(), "uuid", val, ns.getUuid());
   } // public void assertStemDescription(ns, val)
 
+  /**
+   * @since   1.2.0
+   */
+  public void unexpectedException(Exception e) {
+    e.printStackTrace();
+    fail( "UNEXPECTED EXCEPTION: " + e.getMessage() );
+  } // public void unexpectedException(e)
 
-  // PROTECTED CLASS METHODS //
+
+  // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected static void internal_e(Exception e) {
-    e.printStackTrace();
-    fail("UNEXPECTED EXCEPTION: " + e.getMessage());
-  } // protected static void e(e)
+  protected void setUp () {
+    LOG.debug("setUp");
+    RegistryReset.reset();
+  } // protected void setUp()
+
+  // @since   1.2.0
+  protected void tearDown () {
+    LOG.debug("tearDown");
+  } // protected void tearDown()
 
 
   // PRIVATE INSTANCE METHODS //

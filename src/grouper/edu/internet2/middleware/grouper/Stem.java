@@ -31,7 +31,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.102 2007-02-19 17:53:48 blair Exp $
+ * @version $Id: Stem.java,v 1.103 2007-02-19 20:43:29 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -539,7 +539,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Boolean true if this is the root stem of the Groups Registry.
    */
   public boolean isRootStem() {
-    return this.getDTO().getName().equals(ROOT_INT); // TODO 20070219 this should exist at this layer
+    return ROOT_INT.equals( this.getDTO().getName() ); // TODO 20070219 this should exist at this layer
   } // public boolean isRootStem()
 
   /**
@@ -698,7 +698,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
       // Now iterate through all child groups and stems, renaming each.
-      HibernateStemDAO.renameStemAndChildren( this, this._renameChildren() );
+      HibernateStemDAO.renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_DE) );
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set displayExtension: " + eDAO.getMessage(), eDAO );
@@ -728,14 +728,56 @@ public class Stem extends GrouperAPI implements Owner {
    * @throws  InsufficientPrivilegeException
    * @throws  StemModifyException
    */
-/*
   public void setExtension(String value) 
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
     // TODO 20070219 DRY w/ "setDisplayExtension"
+    StopWatch sw = new StopWatch();
+    sw.start();
+    NamingValidator nv = NamingValidator.validateName(value);
+    if ( !nv.getIsValid() ) {
+      // TODO 20070219 this should not be here
+      if ( this.isRootStem() && value.equals(ROOT_EXT) ) {
+        // Appease Oracle
+        value = ROOT_INT;   
+      }
+      else {
+        throw new StemModifyException( nv.getErrorMessage() );
+      }
+    }
+    if (!RootPrivilegeResolver.internal_canSTEM(this, this.getSession().getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    }
+    try {
+      this.getDTO().setExtension(value);
+      this.internal_setModified();
+      if (this.isRootStem()) {
+        this.getDTO().setName(value);
+      }
+      else {
+        try {
+          this.getDTO().setName( U.internal_constructName( this.getParentStem().getName(), value ) );
+        }
+        catch (StemNotFoundException eShouldNeverHappen) {
+          throw new IllegalStateException( 
+            "this should never happen: non-root stem without parent: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen 
+          );
+        }
+      }
+      // Now iterate through all child groups and stems, renaming each.
+      HibernateStemDAO.renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_E) );
+    }
+    catch (GrouperDAOException eDAO) {
+      throw new StemModifyException( "unable to set extension: " + eDAO.getMessage(), eDAO );
+    }
+    sw.stop();
+    // Reset for logging purposes
+    if (value.equals(ROOT_INT)) {
+      value = ROOT_EXT;
+    }
+    EL.stemSetAttr( this.getSession(), this.getName(), GrouperConfig.ATTR_E, value, sw );
   } // public void setExtension(value)
-*/
 
   public String toString() {
     // TODO 20070125 replace with call to DTO?
@@ -1003,7 +1045,8 @@ public class Stem extends GrouperAPI implements Owner {
     }
   } // private void _grantOptionalPrivUponCreate(root, o, p, opt)
 
-  private Set _renameChildGroups() {
+  // @since   1.2.0
+  private Set _renameChildGroups(String attr, String modifier, long modifyTime) {
     Map       attrs;
     GroupDTO  child;
     Set       groups  = new LinkedHashSet();
@@ -1011,43 +1054,74 @@ public class Stem extends GrouperAPI implements Owner {
     while (it.hasNext()) {
       child = (GroupDTO) it.next();
       attrs = child.getAttributes();
-      attrs.put( GrouperConfig.ATTR_DN, U.internal_constructName( this.getDisplayName(), (String) attrs.get(GrouperConfig.ATTR_DE) ) );
-      child.setModifierUuid( this.getSession().getMember().getUuid() );
-      child.setModifyTime( new Date().getTime() );
+      if      ( attr.equals(GrouperConfig.ATTR_DE) )  {
+        attrs.put( 
+          GrouperConfig.ATTR_DN, 
+          U.internal_constructName( this.getDisplayName(), (String) attrs.get(GrouperConfig.ATTR_DE) ) 
+        );
+      }
+      else if ( attr.equals(GrouperConfig.ATTR_E) )   {
+        attrs.put(  
+          GrouperConfig.ATTR_N, 
+          U.internal_constructName( this.getName(), (String) attrs.get(GrouperConfig.ATTR_E) ) 
+        );
+      }
+      else {
+        throw new IllegalStateException( "attempt to update invalid naming attribute: " + attr);
+      }
+      child.setModifierUuid(modifier);
+      child.setModifyTime(modifyTime);
       child.setAttributes(attrs);
       groups.add(child);
     }
     return groups;
-  } // private Set _renameChildGroups()
+  } // private Set _renameChildGroups(attr, modifier, modifyTime)
 
-  private Set _renameChildren() 
+  // @since   1.2.0
+  private Set _renameChildren(String attr) 
     throws  StemModifyException
   {
-    Set children = new LinkedHashSet();
-    children.addAll( this._renameChildStemsAndGroups() );
-    children.addAll( this._renameChildGroups() );
+    Set     children    = new LinkedHashSet();
+    String  modifier    = this.getSession().getMember().getUuid();
+    long    modifyTime  = new Date().getTime();
+    children.addAll( this._renameChildStemsAndGroups(attr, modifier, modifyTime) );
+    children.addAll( this._renameChildGroups(attr, modifier, modifyTime) );
     return children;
-  } // private Set _renameChildren()
+  } // private Set _renameChildren(attr)
 
-  private Set _renameChildStemsAndGroups() {
+  // @since   1.2.0
+  private Set _renameChildStemsAndGroups(String attr, String modifier, long modifyTime) 
+    throws  IllegalStateException
+  {
     Set       children  = new LinkedHashSet();
     Iterator  it        = HibernateStemDAO.findChildStems(this).iterator();
     while (it.hasNext()) {
       Stem child = new Stem();
       child.setDTO( (StemDTO) it.next() );
       child.setSession( this.getSession() );
-      child.getDTO().setDisplayName(
-        U.internal_constructName( this.getDTO().getDisplayName(), child.getDTO().getDisplayExtension() ) 
-      );
+      if      ( attr.equals(GrouperConfig.ATTR_DE) )  {
+        child.getDTO().setDisplayName(
+          U.internal_constructName( this.getDTO().getDisplayName(), child.getDTO().getDisplayExtension() ) 
+        );
+      }
+      else if ( attr.equals(GrouperConfig.ATTR_E) )   {
+        child.getDTO().setName(
+          U.internal_constructName( this.getDTO().getName(), child.getDTO().getExtension() ) 
+        );
+      }
+      else {
+        throw new IllegalStateException( "attempt to update invalid naming attribute: " + attr);
+      }
 
-      children.addAll( child._renameChildGroups() );
+      children.addAll( child._renameChildGroups(attr, modifier, modifyTime) );
 
-      child.internal_setModified();
+      child.getDTO().setModifierUuid(modifier);
+      child.getDTO().setModifyTime(modifyTime);
       children.add( child.getDTO() );
-      children.addAll( child._renameChildStemsAndGroups() );
+      children.addAll( child._renameChildStemsAndGroups(attr, modifier, modifyTime) );
     }
     return children;
-  } // private Set _renameChildStemsAndGroups()
+  } // private Set _renameChildStemsAndGroups(attr, modifier, modifyTime)
 
   private void _revokeAllNamingPrivs() 
     throws  InsufficientPrivilegeException,

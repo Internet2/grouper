@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSimpleWPCache2.java,v 1.4 2007-01-08 18:04:07 blair Exp $
+ * @version $Id: TestSimpleWPCache2.java,v 1.5 2007-02-19 20:43:29 blair Exp $
  * @since   1.1.0
  */
 public class TestSimpleWPCache2 extends GrouperTest {
@@ -68,7 +68,7 @@ public class TestSimpleWPCache2 extends GrouperTest {
       s.stop();
     }
     catch (Exception e) {
-      internal_e(e);
+      unexpectedException(e);
     }
   } // public void testPutOk()
 

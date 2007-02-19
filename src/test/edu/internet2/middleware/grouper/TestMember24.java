@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember24.java,v 1.3 2007-01-08 18:04:07 blair Exp $
+ * @version $Id: TestMember24.java,v 1.4 2007-02-19 20:43:29 blair Exp $
  * @since   1.1.0
  */
 public class TestMember24 extends GrouperTest {
@@ -65,7 +65,7 @@ public class TestMember24 extends GrouperTest {
       }
     }
     catch (Exception e) {
-      internal_e(e);
+      unexpectedException(e);
     }
   } // public void testSetSubjectIdNotRoot
 
