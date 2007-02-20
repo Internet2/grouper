@@ -26,7 +26,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.72 2007-02-14 17:34:14 blair Exp $
+ * @version $Id: Membership.java,v 1.73 2007-02-20 20:29:20 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -269,33 +269,53 @@ public class Membership extends GrouperAPI {
 
   // @since   1.2.0
   protected static void internal_addImmediateMembership(
-    GrouperSession s, Owner o, Subject subj, Field f
+    GrouperSession s, Group g, Subject subj, Field f
   )
     throws  MemberAddException
   {
     try {
       GrouperSessionValidator.internal_validate(s);
-      Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
-
-      MembershipDTO dto = new MembershipDTO();
-      dto.setCreatorUuid( s.getMember().getUuid() );
-      dto.setListName( f.getName() );
-      dto.setListType( f.getType().toString() );
-      dto.setMemberUuid( m.getUuid() );
-      dto.setOwnerUuid( o.getUuid() );
-      MembershipValidator.internal_validateImmediate(dto);
-
-      MemberOf mof = MemberOf.internal_addImmediate( s, o, dto, m.getDTO() );
+      Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
+      MemberOf  mof = new MemberOf();
+      mof.addImmediate( s, g, f, m.getDTO() );
       HibernateMembershipDAO.update(mof);
-      EL.addEffMembers( s, o, subj, f, mof.internal_getEffSaves() );
+      EL.addEffMembers( s, g, subj, f, mof.internal_getEffSaves() );
     }
+    catch (IllegalStateException eIS)           {
+      throw new MemberAddException( eIS.getMessage(), eIS );
+    }    
     catch (InsufficientPrivilegeException eIP)  {
       throw new MemberAddException(eIP.getMessage(), eIP);
     }
-    catch (ModelException eM)                   {
-      throw new MemberAddException(eM.getMessage(), eM);
+    catch (MemberNotFoundException eMNF)        {
+      throw new MemberAddException( eMNF.getMessage(), eMNF );
+    }
+  } // protected static void internal_addImmediateMembership(s, g, subj, f)
+
+  // @since   1.2.0
+  protected static void internal_addImmediateMembership(
+    GrouperSession s, Stem ns, Subject subj, Field f
+  )
+    throws  MemberAddException
+  {
+    try {
+      GrouperSessionValidator.internal_validate(s);
+      Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
+      MemberOf  mof = new MemberOf();
+      mof.addImmediate( s, ns, f, m.getDTO() );
+      HibernateMembershipDAO.update(mof);
+      EL.addEffMembers( s, ns, subj, f, mof.internal_getEffSaves() );
+    }
+    catch (IllegalStateException eIS)           {
+      throw new MemberAddException( eIS.getMessage(), eIS );
     }    
-  } // protected static void internal_addImmediateMembership(s, o, subj, f)
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new MemberAddException(eIP.getMessage(), eIP);
+    }
+    catch (MemberNotFoundException eMNF)        {
+      throw new MemberAddException( eMNF.getMessage(), eMNF );
+    }
+  } // protected static void internal_addImmediateMembership(s, ns, subj, f)
 
   // @since   1.2.0
   protected static MemberOf internal_delImmediateMembership(
@@ -306,7 +326,8 @@ public class Membership extends GrouperAPI {
     try {
       GrouperSessionValidator.internal_validate(s); 
       // Who we're deleting
-      Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
+      //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
+      Member m = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       return MemberOf.internal_delImmediate(
         s, o, 
         HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( o.getUuid(), m.getUuid(), f, IMMEDIATE ), 
@@ -316,12 +337,12 @@ public class Membership extends GrouperAPI {
     catch (InsufficientPrivilegeException eIP)  {
       throw new MemberDeleteException(eIP.getMessage(), eIP);
     }
+    catch (MemberNotFoundException eMNF)        {
+      throw new MemberDeleteException( eMNF.getMessage(), eMNF );
+    }
     catch (MembershipNotFoundException eMSNF)   {
       throw new MemberDeleteException(eMSNF.getMessage(), eMSNF);
     }
-    catch (ModelException eM)                   {
-      throw new MemberDeleteException(eM.getMessage(), eM);
-    } 
   } // protected static void internal_delImmediateMembership(s, o, subj, f)
 
   // @since   1.2.0

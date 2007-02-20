@@ -22,7 +22,7 @@ import  java.util.Set;
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.1 2007-02-14 17:34:14 blair Exp $
+ * @version $Id: BaseMemberOf.java,v 1.2 2007-02-20 20:29:20 blair Exp $
  * @since   1.2.0
  */
 abstract class BaseMemberOf {
@@ -50,7 +50,13 @@ abstract class BaseMemberOf {
 
   // PROTECTED ABSTRACT METHODS //
 
-  // TODO 20070213 NOTHING
+  // @since   1.2.0
+  protected abstract void addImmediate(GrouperSession s, Group g, Field f, MemberDTO _m)
+    throws  IllegalStateException;  // TODO 20070220 what would be more appropriate?
+
+  // @since   1.2.0
+  protected abstract void addImmediate(GrouperSession s, Stem ns, Field f, MemberDTO _m)
+    throws  IllegalStateException;  // TODO 20070220 what would be more appropriate?
 
 
   // GETTERS //

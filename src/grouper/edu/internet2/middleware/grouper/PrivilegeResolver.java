@@ -24,7 +24,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.76 2007-02-14 17:34:14 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.77 2007-02-20 20:29:20 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -251,32 +251,6 @@ import  java.util.*;
     return mships;
   } // protected static Set internal_canViewMemberships(s, c)
  
-  // If the subject being added is a group, verify that we can VIEW it
-  // @since   1.2.0
-  // TODO 20070213 bah.  i really hate this method.
-  protected static Member internal_canViewSubject(GrouperSession s, Subject subj)
-    throws  InsufficientPrivilegeException,
-            ModelException
-  {
-    try {
-      Member  m = MemberFinder.findBySubject(s, subj);
-      if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
-        Subject who   = s.getSubject();
-        Group   what  = m.toGroup();
-        if (!internal_canVIEW(what, who)) {
-          throw new InsufficientPrivilegeException(E.CANNOT_VIEW);
-        }
-      }
-      return m;
-    }
-    catch (GroupNotFoundException eGNF)         {
-      throw new ModelException(eGNF.getMessage(), eGNF);
-    }
-    catch (MemberNotFoundException eMNF)        {
-      throw new ModelException(eMNF.getMessage(), eMNF);
-    }
-  } // protected static Member internal_canViewSubject(s, subj)
-
   // @since   1.2.0
   protected static AccessAdapter internal_getAccess() {
     if (access == null) {

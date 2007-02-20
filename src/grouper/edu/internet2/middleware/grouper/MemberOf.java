@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.43 2007-02-14 22:06:40 blair Exp $
+ * @version $Id: MemberOf.java,v 1.44 2007-02-20 20:29:20 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -37,8 +37,27 @@ class MemberOf extends BaseMemberOf {
   private Set saves       = new LinkedHashSet();
 
 
-  // PROTECTED CLASS METHODS //
+  // PROTECTED INSTANCE METHODS //
  
+  // @since   1.2.0
+  protected void addImmediate(GrouperSession s, Group g, Field f, MemberDTO _m)
+    throws  IllegalStateException 
+  {
+    this.setGroup(g);
+    this._evaluateImmediateMembership(s, f, _m);
+  } // protected void addImmediate(s, g, f, _m)
+
+  // @since   1.2.0
+  protected void addImmediate(GrouperSession s, Stem ns, Field f, MemberDTO _m)
+    throws  IllegalStateException
+  {
+    this.setStem(ns);
+    this._evaluateImmediateMembership(s, f, _m);
+  } // protected void addImmediate(s, ns, f, _m)
+
+
+  // PROTECTED CLASS METHODS //
+
   // Calculate addition of a composite membership 
   // @since   1.2.0
   protected static MemberOf internal_addComposite(GrouperSession s, Group g, Composite c)
@@ -58,57 +77,6 @@ class MemberOf extends BaseMemberOf {
     mof.setModifiedGroups(groups);
     return mof;
   } // protected static MemberOf internal_addComposite(s, g, c)
-
-  // @since   1.2.0
-  protected static MemberOf internal_addImmediate(
-    GrouperSession s, Owner o, MembershipDTO _ms, MemberDTO _m
-  )
-    throws  ModelException
-  {
-    try {
-      MemberOf mof = new MemberOf();
-      if (o instanceof Group) {
-        mof.setGroup( (Group) o );
-      }
-      else {
-        mof.setStem( (Stem) o );
-      }
-      mof.setField( FieldFinder.find( _ms.getListName() ) );
-      mof.setMemberDTO(_m);
-      mof.setMembershipDTO(_ms);
-      mof.setSession(s);
-
-      // TODO 20070213 why?
-      mof.saves.add(_m);     // Save the member
-
-      mof.effSaves.addAll( mof._evalAddImmediate()  );  // Find the new effs
-      mof.saves.addAll(   mof.effSaves              );
-      mof._identifyGroupsAndStemsToMarkAsModified();
-
-      mof.saves.add(_ms);   // Save the immediate
-      // TODO 20070130 bah
-      if ( mof.getGroup() != null ) {
-        Set   groups  = mof.getModifiedGroups();
-        Group g       = mof.getGroup();
-        g.internal_setModified();
-        mof.setGroup(g);
-        groups.add( g.getDTO() );
-        mof.setModifiedGroups(groups);
-      }
-      else {
-        Set   stems = mof.getModifiedStems();
-        Stem  ns    = mof.getStem();
-        ns.internal_setModified();
-        mof.setStem(ns);
-        stems.add( ns.getDTO() );
-        mof.setModifiedStems(stems);
-      }
-      return mof;
-    }
-    catch (SchemaException eS) {
-      throw new ModelException( eS.getMessage(), eS );
-    }
-  } // protected static MemberOf internal_addImmediate(s, o, _ms, _m)
 
   // Calculate deletion of a composite membership 
   // @since   1.2.0
@@ -271,6 +239,23 @@ class MemberOf extends BaseMemberOf {
     catch (StemNotFoundException eNSNF) {
       throw new IllegalStateException( "attempt to modify a stem that cannot be found: " + eNSNF.getMessage() );
     }
+    // add the owner
+    if      ( this.getGroup() != null ) {
+      _g = this.getGroup().getDTO();
+      _g.setModifierUuid(modifierUuid);
+      _g.setModifyTime(modifyTime);
+      groups.put( _g.getUuid(), _g );
+    }
+    else if ( this.getStem() != null )  {
+      _ns = this.getStem().getDTO();
+      _ns.setModifierUuid(modifierUuid);
+      _ns.setModifyTime(modifyTime);
+      stems.put( _ns.getUuid(), _ns );
+    }
+    else {
+      throw new IllegalStateException("MemberOf has no group or stem as owner");
+    }
+    // assemble the map
     m.put("groups", groups);
     m.put("stems", stems);
     return m;
@@ -300,8 +285,9 @@ class MemberOf extends BaseMemberOf {
   // PRIVATE INSTANCE METHODS //
 
   // Add m's hasMembers to o
+  // @since   1.2.0
   private Set _addHasMembersToOwner(Set hasMembers) 
-    throws  ModelException
+    throws  IllegalStateException
   {
     Set           mships  = new LinkedHashSet();
     MembershipDTO hasMS;
@@ -331,7 +317,10 @@ class MemberOf extends BaseMemberOf {
           dto.setParentUuid( hasMS.getMembershipUuid() );
         }
       }
-      MembershipValidator.internal_validateEffective(dto);
+      EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
+      if ( !v.getIsValid() ) {
+          throw new IllegalStateException( v.getErrorMessage() );
+      }
 
       mships.add(dto);
     }
@@ -339,8 +328,9 @@ class MemberOf extends BaseMemberOf {
   } // private Set _addHasMembersToOwner(hasMembers)
 
   // Add m's hasMembers to where g isMember
+  // @since   1.2.0
   private Set _addHasMembersToWhereGroupIsMember(Set isMember, Set hasMembers) 
-    throws  ModelException
+    throws  IllegalStateException
   {
     Set     mships  = new LinkedHashSet();
 
@@ -378,7 +368,10 @@ class MemberOf extends BaseMemberOf {
               dto.setParentUuid( hasMS.getMembershipUuid() );
             }
           }
-          MembershipValidator.internal_validateEffective(dto);
+          EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
+          if ( !v.getIsValid() ) {
+            throw new IllegalStateException( v.getErrorMessage() );
+          }
 
           mships.add(dto);
         }
@@ -389,8 +382,9 @@ class MemberOf extends BaseMemberOf {
   } // private Set _addHasMembersToWhereGroupIsMember(isMember, hasMembers)
 
   // Add m to where g isMember
+  // @since   1.2.0
   private Set _addMemberToWhereGroupIsMember(Set isMember) 
-    throws  ModelException
+    throws  IllegalStateException
   {
     Set     mships  = new LinkedHashSet();
 
@@ -423,7 +417,10 @@ class MemberOf extends BaseMemberOf {
             dto.setParentUuid( this.getMembershipDTO().getMembershipUuid() );
           }
         }
-        MembershipValidator.internal_validateEffective(dto);
+        EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
+        if ( !v.getIsValid() ) {
+            throw new IllegalStateException( v.getErrorMessage() );
+        }
 
         mships.add(dto);
       }
@@ -535,10 +532,34 @@ class MemberOf extends BaseMemberOf {
     }
   } // private Set _evalCompositeUnion()
 
-  // Evaluate an immediate membership
-  private Set _evalAddImmediate() 
-    throws  ModelException
+  // @since   1.2.0
+  // TODO 20070220 split; this method has gotten too large
+  private void _evaluateImmediateMembership(GrouperSession s, Field f, MemberDTO _m) 
+    throws  IllegalStateException
   {
+    MembershipDTO _ms = new MembershipDTO();
+    _ms.setCreatorUuid( s.getMember().getUuid() );
+    _ms.setListName( f.getName() );
+    _ms.setListType( f.getType().toString() );
+    _ms.setMemberUuid( _m.getMemberUuid() );
+    _ms.setOwnerUuid( this.getOwnerUuid() );
+
+    ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
+    if ( !v.getIsValid() ) {
+      throw new IllegalStateException( v.getErrorMessage() );
+    }
+
+    try {
+      // TODO 20070220 i really shouldn't be throwing schema exceptions here
+      this.setField( FieldFinder.find( _ms.getListName() ) );
+    }
+    catch (SchemaException eS) {
+      throw new IllegalStateException( eS.getMessage(), eS );
+    }
+    this.setMemberDTO(_m);
+    this.setMembershipDTO(_ms);
+    this.setSession(s);
+
     Set results = new LinkedHashSet();
     // If we are working on a group, where is it a member
     Set isMember = new LinkedHashSet();
@@ -548,21 +569,25 @@ class MemberOf extends BaseMemberOf {
         HibernateMembershipDAO.findAllByMember( this.getGroup().toMember().getUuid() )
       );
     }
-    // Members of m if o is a group
+    // Members of _m if owner is a group
     Set hasMembers = this._findMembersOfMember();
-    // Add m to where o is a member if f == "members"
+    // Add _m to where owner is member if f == "members"
     results.addAll( this._addMemberToWhereGroupIsMember(isMember) );
-    // Add members of m to o
-    results.addAll( this._addHasMembersToOwner(hasMembers) ); 
-    // Add members of m to where o is a member if f == "members"
+    // Add members of _m to owner
+    results.addAll( this._addHasMembersToOwner(hasMembers) );
+    // Add members of _m to where owner is member if f == "members"
     results.addAll( this._addHasMembersToWhereGroupIsMember(isMember, hasMembers) );
-    return results;
-  } // private Set _evalAddImmediate()
+
+    this.effSaves.addAll(results);
+
+    this.saves.addAll( this.effSaves );
+    this._identifyGroupsAndStemsToMarkAsModified();
+
+    this.saves.add(_ms);   // Save the immediate
+  } // private void _evaluateImmediateMembership(s, f, _m)
 
   // Find m's hasMembers
-  private Set _findMembersOfMember() 
-    throws  ModelException
-  {
+  private Set _findMembersOfMember() {
     Set hasMembers = new LinkedHashSet();
     if (this.getMemberDTO().getSubjectTypeId().equals("group")) {
       hasMembers = HibernateMembershipDAO.findAllByOwnerAndField(

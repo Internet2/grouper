@@ -31,7 +31,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.103 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: Stem.java,v 1.104 2007-02-20 20:29:20 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -852,7 +852,6 @@ public class Stem extends GrouperAPI implements Owner {
     try {
       // TODO 20070130 refactor!
       GroupDTO  dto   = new GroupDTO();    
-      // XXX
       Map       attrs = new HashMap();
       attrs.put( GrouperConfig.ATTR_DE, dExtn );
       attrs.put( GrouperConfig.ATTR_DN, U.internal_constructName( this.getDisplayName(), dExtn ) );

@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.80 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: Member.java,v 1.81 2007-02-20 20:29:20 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1141,6 +1141,7 @@ public class Member extends GrouperAPI implements Serializable {
   public Group toGroup() 
     throws GroupNotFoundException 
   {
+    // TODO 20070220 should i do privilege resolution here?
     if ( SubjectFinder.internal_getGSA().getId().equals( this.getDTO().getSubjectSourceId() ) ) {
       if (this.g == null) {
         this.g = GroupFinder.findByUuid( this.getSession(), this.getDTO().getSubjectId() );

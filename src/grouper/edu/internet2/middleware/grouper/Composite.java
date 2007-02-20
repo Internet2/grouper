@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.32 2007-02-14 22:06:40 blair Exp $
+ * @version $Id: Composite.java,v 1.33 2007-02-20 20:29:20 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -60,7 +60,6 @@ public class Composite extends GrouperAPI {
   public Group getLeftGroup() 
     throws  GroupNotFoundException
   {
-    // XXX
     Group g = new Group();
     g.setDTO( HibernateGroupDAO.findByUuid( this.getDTO().getLeftFactorUuid() ) );
     g.setSession( this.getSession() );
