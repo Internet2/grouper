@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_Stem_setExtension.java,v 1.1 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: Test_Integration_Stem_setExtension.java,v 1.2 2007-02-20 16:07:52 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_Stem_setExtension extends GrouperTest {
@@ -50,241 +50,151 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
     }
   } // public void testSetExtension_NotPrivileged()
 
-/*
-  public void testPropagateDisplayExtensionChangeRootAsRoot() {
-    LOG.info("testPropagateExtensionChangeRootAsRoot");
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Stem            i2    = StemHelper.addChildStem(edu, "i2", "internet2");
-    Stem            uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
-    Group           bsd   = StemHelper.addChildGroup(uofc, "bsd", "biological sciences division");
-    Group           psd   = StemHelper.addChildGroup(uofc, "psd", "physical sciences division");
-
-    String exp = "";
-    Assert.assertTrue(
-      "root displayExtn exp(" + exp + ") got(" + root.getDisplayExtension() + ")", 
-      root.getDisplayExtension().equals(exp)
-    );
-    Assert.assertTrue(
-      "root displayName exp(" + exp + ") got(" + root.getDisplayName() + ")", 
-      root.getDisplayName().equals(exp));
-    exp = "education";
-    Assert.assertTrue(
-      "edu displayExtn exp(" + exp + ") got(" + edu.getDisplayExtension() + ")",
-      edu.getDisplayExtension().equals(exp)
-    );
-    Assert.assertTrue(
-      "edu displayName exp(" + exp + ") got(" + edu.getDisplayName() + ")",
-      edu.getDisplayName().equals(exp)
-    );
-    exp = edu.getDisplayName() + ":internet2";
-    Assert.assertTrue("i2 displayName", i2.getDisplayName().equals(exp));
-    exp = edu.getDisplayName() + ":uchicago";
-    Assert.assertTrue("uofc displayName", uofc.getDisplayName().equals(exp));
-    exp = uofc.getDisplayName() + ":biological sciences division";
-    Assert.assertTrue("bsd displayName" , bsd.getDisplayName().equals(exp));
-    exp = uofc.getDisplayName() + ":physical sciences division";
-    Assert.assertTrue("psd displayName" , psd.getDisplayName().equals(exp));
-
-    // Now rename
-    exp = "root stem";
+  public void testSetExtension_ChangeAsRoot() {
     try {
-      root.setDisplayExtension(exp);
-      Assert.assertTrue(
-        "mod'd root displayExtension=(" + root.getDisplayExtension() + ") (" + exp + ")", 
-        root.getDisplayExtension().equals(exp)
-      );
-      Assert.assertTrue(
-        "mod'd root displayName (" + root.getDisplayName() + ") (" + exp + ")", 
-        root.getDisplayName().equals(exp)
-      );
+      LOG.info("testSetExtension_ChangeAsRoot");
+      R       r     = R.getContext("i2mi");
+      Stem    i2mi  = r.getStem("i2mi");
+      String  val   = "new extension";
+      i2mi.setExtension(val);
+      assertEquals( "extn updated within session", val, i2mi.getExtension() );
+      assertEquals( "name updated within session", val, i2mi.getName() );
     }
     catch (Exception e) {
-      Assert.fail("unable to change stem displayName: " + e.getMessage());
+      unexpectedException(e);
     }
-    
-    // Now retrieve the children and check them 
-    Stem eduR = StemHelper.findByName(s, edu.getName());
-    exp = root.getDisplayName() + ":education";
-    Assert.assertTrue(
-      "mod'd edu displayName=(" + eduR.getDisplayName() + ") (" + exp + ")", 
-      eduR.getDisplayName().equals(exp)
-    );
+  } // public void testSetExtension_ChangeAsRoot()
 
-    Stem i2R = StemHelper.findByName(s, i2.getName());
-    exp = eduR.getDisplayName() + ":internet2";
-    Assert.assertTrue(
-      "mod'd i2 displayName=(" + i2R.getDisplayName() + ") (" + exp + ")", 
-      i2R.getDisplayName().equals(exp)
-    );
-
-    exp = eduR.getDisplayName() + ":uchicago";
-    Stem  uofcR = StemHelper.findByName(s, uofc.getName());
-    Assert.assertTrue(
-      "mod'd uofc displayName=(" + uofcR.getDisplayName() + ") (" + exp + ")", 
-      uofcR.getDisplayName().equals(exp)
-    );
-    exp = uofcR.getDisplayName() + ":biological sciences division";
-    Group bsdR  = GroupHelper.findByName(s, bsd.getName());
-    Assert.assertTrue(
-      "mod'd bsd edu displayName=(" + bsdR.getDisplayName() + ") (" + exp + ")", 
-      bsdR.getDisplayName().equals(exp)
-    );
-    exp = uofcR.getDisplayName() + ":physical sciences division";
-    Group psdR  = GroupHelper.findByName(s, psd.getName());
-    Assert.assertTrue(
-      "mod'd psd edu displayName=(" + psdR.getDisplayName() + ") (" + exp + ")", 
-      psdR.getDisplayName().equals(exp)
-    );
-
-    // Now reset root's displayExtension
-    // TODO 20070219 hack! hack! hack!
-    root.getDTO().setDisplayExtension(Stem.ROOT_INT);
-    root.getDTO().setDisplayName(Stem.ROOT_INT);
-    HibernateDAO.update( root.getDTO() );
-  } // public void testPropagateExtensionChangeRootAsRoot()
-
-  public void testPropagateDisplayExtensionChangeAsRoot() {
-    LOG.info("testPropagateExtensionChangeAsRoot");
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Stem            i2    = StemHelper.addChildStem(edu, "i2", "internet2");
-    Stem            uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
-    Group           bsd   = StemHelper.addChildGroup(uofc, "bsd", "biological sciences division");
-    Group           psd   = StemHelper.addChildGroup(uofc, "psd", "physical sciences division");
-
-    String exp = "education";
-    Assert.assertTrue("edu displayExtn" , edu.getDisplayExtension().equals(exp));
-    Assert.assertTrue("edu displayName" , edu.getDisplayName().equals(exp));
-    exp = edu.getDisplayName() + ":internet2";
-    Assert.assertTrue("i2 displayName", i2.getDisplayName().equals(exp));
-    exp = edu.getDisplayName() + ":uchicago";
-    Assert.assertTrue("uofc displayName", uofc.getDisplayName().equals(exp));
-    exp = uofc.getDisplayName() + ":biological sciences division";
-    Assert.assertTrue("bsd displayName" , bsd.getDisplayName().equals(exp));
-    exp = uofc.getDisplayName() + ":physical sciences division";
-    Assert.assertTrue("psd displayName" , psd.getDisplayName().equals(exp));
-   
-    // Now rename
-    exp = "higher ed";
+  public void testSetExtension_ChangeAsNonRoot() {
     try {
-      edu.setDisplayExtension(exp);
-      Assert.assertTrue(
-        "mod'd edu displayExtension (" + edu.getDisplayExtension() + ")", 
-        edu.getDisplayExtension().equals(exp)
-      );
-      Assert.assertTrue(
-        "mod'd edu displayName (" + edu.getDisplayName() + ")", 
-        edu.getDisplayName().equals(exp)
-      );
+      LOG.info("testSetExtension_ChangeAsNonRoot");
+      R       r     = R.getContext("i2mi");
+      Stem    i2mi  = r.getStem("i2mi");
+      i2mi.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
+    
+      // Change and verify in a new session
+      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
+      String  val = "new extension";
+      ns.setExtension(val);
+      assertEquals( "extn updated within session", val, ns.getExtension() );
+      assertEquals( "name updated within session", val, ns.getName() );
     }
     catch (Exception e) {
-      Assert.fail("unable to change stem displayName: " + e.getMessage());
+      unexpectedException(e);
     }
-    
-    // Now retrieve the children and check them 
-    Stem i2R = StemHelper.findByName(s, i2.getName());
-    exp = edu.getDisplayName() + ":internet2";
-    Assert.assertTrue(
-      "mod'd i2 displayName=(" + i2R.getDisplayName() + ") (" + exp + ")", 
-      i2R.getDisplayName().equals(exp)
-    );
+  } // public void testSetExtension_ChangeAsNonRoot()
 
-    exp = edu.getDisplayName() + ":uchicago";
-    Stem  uofcR = StemHelper.findByName(s, uofc.getName());
-    Assert.assertTrue(
-      "mod'd uofc displayName=(" + uofcR.getDisplayName() + ") (" + exp + ")", 
-      uofcR.getDisplayName().equals(exp)
-    );
-    exp = uofcR.getDisplayName() + ":biological sciences division";
-    Group bsdR  = GroupHelper.findByName(s, bsd.getName());
-    Assert.assertTrue(
-      "mod'd bsd edu displayName=(" + bsdR.getDisplayName() + ") (" + exp + ")", 
-      bsdR.getDisplayName().equals(exp)
-    );
-    exp = uofcR.getDisplayName() + ":physical sciences division";
-    Group psdR  = GroupHelper.findByName(s, psd.getName());
-    Assert.assertTrue(
-      "mod'd psd edu displayName=(" + psdR.getDisplayName() + ") (" + exp + ")", 
-      psdR.getDisplayName().equals(exp)
-    );
-
-  } // public void testPropagateExtensionChangeAsRoot()
-
-  public void testPropagateDisplayExtensionChangeAsNonRoot() {
-    LOG.info("testPropagateExtensionChangeAsNonRoot");
+  public void testSetExtension_ChangeAsRootAndPersistAcrossSessions() {
     try {
-      // Create stems + groups as root
-      GrouperSession  s     = SessionHelper.getRootSession();
-      Stem            root  = StemHelper.findRootStem(s);
-      Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-      Stem            i2    = StemHelper.addChildStem(edu, "i2", "internet2");
-      Stem            uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
-      Group           bsd   = StemHelper.addChildGroup(uofc, "bsd", "biological sciences division");
-      Group           psd   = StemHelper.addChildGroup(uofc, "psd", "physical sciences division");
-      // Grant subj0 STEM on edu
-      PrivHelper.grantPriv(s, edu, SubjectTestHelper.SUBJ0, NamingPrivilege.STEM);
-      // And revoke VIEW + READ from ALL on one of the child groups
-      PrivHelper.revokePriv(s, psd, SubjectTestHelper.SUBJA, AccessPrivilege.VIEW);
-      PrivHelper.revokePriv(s, psd, SubjectTestHelper.SUBJA, AccessPrivilege.READ);
-   
-      // Now rename as subj0
-      GrouperSession  nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-      Stem            eduNR = StemHelper.findByName(nrs, edu.getName());
-   
-      // Now rename
-      String exp = "higher ed";
-      try {
-        eduNR.setDisplayExtension(exp);
-        Assert.assertTrue(
-        "mod'd edu displayExtension (" + eduNR.getDisplayExtension() + ")", 
-        eduNR.getDisplayExtension().equals(exp)
-        );
-        Assert.assertTrue(
-          "mod'd edu displayName (" + edu.getDisplayName() + ")", 
-          eduNR.getDisplayName().equals(exp)
-        );
-      }
-      catch (Exception e) {
-        Assert.fail("unable to change stem displayName: " + e.getMessage());
-      }
-    
-      // Now retrieve the children and check them 
-      Stem i2R = StemHelper.findByName(nrs, i2.getName());
-      exp = eduNR.getDisplayName() + ":internet2";
-      Assert.assertTrue(
-        "mod'd i2 displayName=(" + i2R.getDisplayName() + ") (" + exp + ")", 
-        i2R.getDisplayName().equals(exp)
-      );
+      LOG.info("testSetExtension_ChangeAsRootAndPersistAcrossSessions");
+      R       r     = R.getContext("i2mi");
+      Stem    i2mi  = r.getStem("i2mi");
+      String  val   = "new extension";
+      i2mi.setExtension(val);
 
-      exp = eduNR.getDisplayName() + ":uchicago";
-      Stem  uofcR = StemHelper.findByName(nrs, uofc.getName());
-      Assert.assertTrue(
-        "mod'd uofc displayName=(" + uofcR.getDisplayName() + ") (" + exp + ")", 
-        uofcR.getDisplayName().equals(exp)
-      );
-      exp = uofcR.getDisplayName() + ":biological sciences division";
-      Group bsdR  = GroupHelper.findByName(nrs, bsd.getName());
-      Assert.assertTrue(
-        "mod'd bsd edu displayName=(" + bsdR.getDisplayName() + ") (" + exp + ")", 
-        bsdR.getDisplayName().equals(exp)
-      );
-
-      // Check this one as root as subj0 doesn't have READ or VIEW
-      exp = uofcR.getDisplayName() + ":physical sciences division";
-      Group psdR  = GroupHelper.findByName(s, psd.getName());
-      Assert.assertTrue(
-        "mod'd psd edu displayName=(" + psdR.getDisplayName() + ") (" + exp + ")", 
-        psdR.getDisplayName().equals(exp)
-      );
+      // Verify in another session
+      Stem ns = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
+      assertEquals( "extn verification", i2mi.getExtension(), ns.getExtension() );
+      assertEquals( "name verification", i2mi.getName(), ns.getName() );
+    }
+    catch (StemNotFoundException eNSNF) {
+      fail( "did not find renamed stem by name: " + eNSNF.getMessage() );
     }
     catch (Exception e) {
-      T.e(e);
+      unexpectedException(e);
     }
-  } // public void testPropagateExtensionChangeAsNonRoot()
-*/
+  } // public void testSetExtension_ChangeAsRootAndPersistAcrossSessions()
+
+  public void testSetExtension_ChangeAsNonRootAndPersistAcrossSessions() {
+    try {
+      LOG.info("testSetExtension_ChangeAsNonRootAndPersistAcrossSessions");
+      R       r     = R.getContext("i2mi");
+      Stem    i2mi  = r.getStem("i2mi");
+      i2mi.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
+
+      // Change in a new session
+      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
+      String  val = "new extension";
+      ns.setExtension(val);
+
+      // Verify in another session
+      Stem verify = StemFinder.findByName( r.startAllSession(), ns.getName() );
+      assertEquals( "extn verification", ns.getExtension(), verify.getExtension() );
+      assertEquals( "name verification", ns.getName(), verify.getName() );
+    }
+    catch (StemNotFoundException eNSNF) {
+      fail( "did not find renamed stem by name: " + eNSNF.getMessage() );
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  } // public void testSetExtension_ChangeAsNonRootAndPersistAcrossSessions()
+
+  public void testSetExtension_ChangeAndPropagateAsRoot() {
+    try {
+      LOG.info("testSetExtension_ChangeAndPropagateAsRoot");
+      R       r     = R.getContext("grouper");
+      Stem    i2mi  = r.getStem("i2mi");
+      String  val   = "new extension";
+      i2mi.setExtension(val);
+
+      // Verify propagation in a new session
+      GrouperSession  s       = r.startAllSession();
+      Stem            grouper = StemFinder.findByName(s, "new extension:grouper");
+      assertEquals( "child stem extn verification", "grouper", grouper.getExtension() );
+      assertEquals( "child stem name verification", val + ":grouper", grouper.getName() );
+      Group           dev     = GroupFinder.findByName( s, grouper.getName() + ":grouper-dev" );
+      assertEquals( "child group 0 extn verification", "grouper-dev", dev.getExtension());
+      assertEquals( "child group 0 name verification", grouper.getName() + ":" + dev.getExtension(), dev.getName() );
+      Group           users   = GroupFinder.findByName( s, grouper.getName() + ":grouper-users" );
+      assertEquals( "child group 1 extn verification", "grouper-users", users.getExtension());
+      assertEquals( "child group 1 name verification", grouper.getName() + ":" + users.getExtension(), users.getName() );
+    }
+    catch (GroupNotFoundException eGNF) {
+      fail( "did not find renamed group by name: " + eGNF.getMessage() );
+    }  
+    catch (StemNotFoundException eNSNF) {
+      fail( "did not find renamed stem by name: " + eNSNF.getMessage() );
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  } // public void testSetExtension_ChangeAndPropagateAsRoot()
+
+  public void testSetExtension_ChangeAndPropagateAsNonRoot() {
+    try {
+      LOG.info("testSetExtension_ChangeAndPropagateAsRoot");
+      R       r     = R.getContext("grouper");
+      Stem    i2mi  = r.getStem("i2mi");
+      i2mi.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
+
+      // Change in a new session
+      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
+      String  val = "new extension";
+      ns.setExtension(val);
+
+      // Verify propagation in a new session
+      GrouperSession  s       = r.startAllSession();
+      Stem            grouper = StemFinder.findByName(s, "new extension:grouper");
+      assertEquals( "child stem extn verification", "grouper", grouper.getExtension() );
+      assertEquals( "child stem name verification", val + ":grouper", grouper.getName() );
+      Group           dev     = GroupFinder.findByName( s, grouper.getName() + ":grouper-dev" );
+      assertEquals( "child group 0 extn verification", "grouper-dev", dev.getExtension());
+      assertEquals( "child group 0 name verification", grouper.getName() + ":" + dev.getExtension(), dev.getName() );
+      Group           users   = GroupFinder.findByName( s, grouper.getName() + ":grouper-users" );
+      assertEquals( "child group 1 extn verification", "grouper-users", users.getExtension());
+      assertEquals( "child group 1 name verification", grouper.getName() + ":" + users.getExtension(), users.getName() );
+    }
+    catch (GroupNotFoundException eGNF) {
+      fail( "did not find renamed group by name: " + eGNF.getMessage() );
+    }  
+    catch (StemNotFoundException eNSNF) {
+      fail( "did not find renamed stem by name: " + eNSNF.getMessage() );
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  } // public void testSetExtension_ChangeAndPropagateAsNonRoot()
 
 } // public class Test_Integration_Stem_setExtension extends GrouperTest
 

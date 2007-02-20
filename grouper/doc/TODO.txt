@@ -4,7 +4,7 @@
 This file provides more detailed information on future Grouper
 development as listed in `doc/ROADMAP.txt`.
 
-$Id: TODO.txt,v 1.72 2007-02-19 17:53:48 blair Exp $
+$Id: TODO.txt,v 1.73 2007-02-20 16:07:52 blair Exp $
 
 ---
 
@@ -13,6 +13,7 @@ $Id: TODO.txt,v 1.72 2007-02-19 17:53:48 blair Exp $
             This may not be complete by 1.2.0.
 * FEATURE   Allow simple namespace renaming.
 * INTERNAL  Convert all validators
+* INTERNAL  Migrate all ROOT_(EXT|INT) code into DAO 
 
 ## Later
 * REFACTOR  Stop manually generating XML in `XmlExporter`.  Look into using
@@ -41,6 +42,6 @@ $Id: TODO.txt,v 1.72 2007-02-19 17:53:48 blair Exp $
 
 ---
 
-$Id: TODO.txt,v 1.72 2007-02-19 17:53:48 blair Exp $
+$Id: TODO.txt,v 1.73 2007-02-20 16:07:52 blair Exp $
 
 
