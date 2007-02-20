@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.11 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: R.java,v 1.12 2007-02-20 16:07:52 blair Exp $
  * @since   1.2.0
  */
 public class R {
@@ -62,28 +62,27 @@ public class R {
   // PUBLIC CLASS METHODS //
 
   /**
-   * Initializes and returns the "bobco" pre-defined context.
+   * Initializes and returns a pre-defined context.
    * <p/>
    * @throws  GrouperRuntimeException
+   * @throws  IllegalStateException
    * @since   1.2.0
    */
-  public static R getBobCo() 
-    throws  GrouperRuntimeException
+  public static R getContext(String ctx) 
+    throws  GrouperRuntimeException,
+            IllegalStateException
   {
-    R r = new R();
-    r.setSession( r.startSession() );
-    Stem bobco  = r.addStem("bobco", "network based services");
-    Stem nas    = r.addStem(bobco, "nas", "network applications support");
-    Stem nsc    = r.addStem(bobco, "nsc", "network security center");
-    Stem nsd    = r.addStem(bobco, "nsd", "network services databases");
-    Stem oao    = r.addStem(bobco, "oando", "orienation and outreach");
-    r.addGroup( bobco, bobco.getName(), bobco.getDisplayName() );
-    r.addGroup( nas, nas.getName(), nas.getDisplayName() );
-    r.addGroup( nsc, nsc.getName(), nsc.getDisplayName() );
-    r.addGroup( nsd, nsd.getName(), nsd.getDisplayName() );
-    r.addGroup( oao, oao.getName(), oao.getDisplayName() );
-    return r;
-  } // public static R getBobCo()
+    // TODO 20070220 don't hardcode here, please
+    if      ( ctx.equals("grouper") ) { 
+      return _getContextGrouper();
+    }
+    else if ( ctx.equals("i2mi") )    {
+      return _getContextI2MI();
+    }
+    else {
+      throw new IllegalStateException("unknown context: " + ctx);
+    }
+  } // public static R getContext(ctx)
 
 
   // PUBLIC INSTANCE METHODS //
@@ -217,6 +216,28 @@ public class R {
   } // public GrouperSession startRootSession()
 
 
+  // PRIVATE CLASS METHODS //
+
+  // @since   1.2.0 
+  private static R _getContextGrouper() 
+    throws  GrouperRuntimeException
+  {
+    R     r       = getContext("i2mi");
+    Stem  i2mi    = r.getStem("i2mi");
+    Stem  grouper = r.addStem(i2mi, "grouper", "grouper");
+    r.addGroup( grouper, "grouper-dev", "grouper development" );
+    r.addGroup( grouper, "grouper-users", "grouper users" );
+    return r;
+  } // private static R _getContextGrouper()
+
+  // @since   1.2.0
+  private static R _getContextI2MI() {
+    R     r     = new R();
+    Stem  i2mi  = r.addStem("i2mi", "internet2 middleware initiative");
+    return r;
+  } // private static R _getContextI2MI()
+  
+
   // GETTERS //
 
   /**
@@ -231,6 +252,22 @@ public class R {
     }
     return this.s;
   } // public GrouperSession getSession()
+
+  /**
+   * Returns a cached {@link Stem}.
+   * <p/>
+   * @return  Cached {@link Stem} if it exists.
+   * @throws  GrouperRuntimeException
+   * @since   1.2.0
+   */
+  public Stem getStem(String stem) 
+    throws  GrouperRuntimeException
+  {
+    if (this.stems.containsKey(stem)) {
+      return (Stem) this.stems.get(stem);
+    }
+    throw new GrouperRuntimeException("stem not found: " + stem);
+  } // public Stem getStem(stem)
 
 
   // SETTERS //
@@ -292,15 +329,6 @@ public class R {
     }
     throw new Exception("group not found: " + key);
   } // protected Group getGroup(stem, group)
-
-  protected Stem getStem(String stem) 
-    throws  Exception
-  {
-    if (this.stems.containsKey(stem)) {
-      return (Stem) this.stems.get(stem);
-    }
-    throw new Exception("stem not found: " + stem);
-  } // protected Stem getStem(stem)
 
   protected Subject getSubject(String id) 
     throws  Exception

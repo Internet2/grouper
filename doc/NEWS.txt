@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.50 2007-02-19 15:31:23 blair Exp $
+$Id: NEWS.txt,v 1.51 2007-02-20 16:07:52 blair Exp $
 
 ---
 
@@ -9,6 +9,7 @@ $Id: NEWS.txt,v 1.50 2007-02-19 15:31:23 blair Exp $
 Estimated Release: 200703
 
 ## Changes
+* NEW:    `Stem.setExtension(value)`
 * NEW:    `Stem.isRootStem()`
 * UPDATE: The database schema has changed significantly and is not backwards
           compatibile.
