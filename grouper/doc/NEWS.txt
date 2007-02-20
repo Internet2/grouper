@@ -1,12 +1,12 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.51 2007-02-20 16:07:52 blair Exp $
+$Id: NEWS.txt,v 1.52 2007-02-20 16:08:29 blair Exp $
 
 ---
 
 # Grouper 1.2.0-cvs
 
-Estimated Release: 200703
+Estimated Release: Late 200703, Early 200704
 
 ## Changes
 * NEW:    `Stem.setExtension(value)`
