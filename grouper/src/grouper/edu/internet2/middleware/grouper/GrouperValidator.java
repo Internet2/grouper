@@ -19,10 +19,13 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperValidator.java,v 1.1 2007-02-19 17:53:48 blair Exp $
+ * @version $Id: GrouperValidator.java,v 1.2 2007-02-20 20:29:20 blair Exp $
  * @since   1.2.0
  */
 class GrouperValidator {
+
+  // TODO 20070220 make this an interface with a !arg instance method "validate()".
+  //               everything should call and implement that.
 
   // PRIVATE INSTANCE VARIABLES //
   private String  errorMessage  = GrouperConfig.EMPTY_STRING;

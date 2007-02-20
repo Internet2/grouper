@@ -19,10 +19,10 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.23 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.24 2007-02-20 20:29:20 blair Exp $
  * @since   1.0
  */
-class MembershipValidator {
+class MembershipValidator extends GrouperValidator {
 
   // PROTECTED CLASS METHODS //
 
@@ -46,139 +46,101 @@ class MembershipValidator {
   } // protected static void internal_validateComposite(dto)
 
   // @since   1.2.0
-  protected static void internal_validateEffective(MembershipDTO dto)
-    throws  ModelException
-  {
-    _validate(dto, Membership.EFFECTIVE); 
-    // Verify Depth
-    if ( !(dto.getDepth() > 0) ) {
-      throw new ModelException( E.ERR_D + dto.getDepth() );
+  protected static MembershipValidator validate(MembershipDTO _ms) {
+    MembershipValidator v = new MembershipValidator();
+    if ( _ms.getCreateTime() == GrouperConfig.EPOCH )       {
+      v.setErrorMessage("creation time is set to epoch");
     }
-    // Verify Via
-    if ( dto.getViaUuid() == null ) {
-      throw new ModelException(E.ERR_VC + "null");
-    }    
-    // Verify Parent Membership
-    if ( dto.getParentUuid() == null ) {
-      throw new ModelException(E.MSV_NO_PARENT);
+    else if ( _ms.getCreatorUuid() == null )                {
+      v.setErrorMessage("null creator");
     }
-  } // protected static void internal_validateEffective(dto)
-
-  // @since   1.2.0
-  protected static void internal_validateImmediate(MembershipDTO dto)
-    throws  ModelException
-  {
-    _validate(dto, Membership.IMMEDIATE); 
-    _validateDoesNotExist(dto);
-    _notCircular(dto);
-    // Verify Depth
-    if ( dto.getDepth() != 0 ) {
-      throw new ModelException( E.ERR_D + dto.getDepth() );
+    else if ( !v._doesOwnerExist( _ms.getOwnerUuid() ) )    {
+      v.setErrorMessage("unable to find membership owner");
     }
-    // Verify Via
-    if ( dto.getViaUuid() != null ) {
-      throw new ModelException(E.ERR_IV);
+    else if ( !v._doesMemberExist( _ms.getMemberUuid() ) )  {
+      v.setErrorMessage("unable to find membership member");
     }
-    // Verify Parent Membership
-    if ( dto.getParentUuid() != null ) {
-      throw new ModelException(E.ERR_PMS);
+    else if ( !v._doesFieldExist( _ms.getListName() ) )     {
+      v.setErrorMessage("unable to find membership field");
     }
-  } // protected static void internal_validateImmediate(dto)
+    else if ( !v._isFieldValidType( _ms.getListType() ) )   {
+      v.setErrorMessage( E.ERR_FT + _ms.getListType() );
+    }
+    else {
+      v.setIsValid(true);
+    }
+    return v;
+  } // protected static MembershipValidator validate(_ms)
 
 
   // PRIVATE CLASS METHODS //
 
   // @since 1.0
-  private static void _notCircular(MembershipDTO dto) 
-    throws  ModelException
-  {
-    try {
-      if ( dto.getListName().equals(GrouperConfig.LIST) ) {
-        GroupDTO  g = HibernateGroupDAO.findByUuid( dto.getOwnerUuid() );
-        MemberDTO m = HibernateMemberDAO.findByUuid( dto.getMemberUuid() );
-        // TODO 20070124 is this still sufficient and accurate?
-        if ( g.getUuid().equals( m.getSubjectId() ) ) {
-          throw new ModelException(E.MSV_CIRCULAR);
-        }
-      }
-    }
-    catch (GroupNotFoundException eGNF) {
-      // If the owner is not a group then it can't be circular
-    } 
-    catch (MemberNotFoundException eMNF) {
-      throw new ModelException( eMNF.getMessage(), eMNF );
-    } 
-  } // private static void _notCircular(dto)
-
-  // @since 1.0
   private static void _validate(MembershipDTO dto, String type) 
     throws  ModelException
   {
-    Validator.internal_notNullPerModel( dto.getCreateTime(),  "null creation time" );
-    Validator.internal_notNullPerModel( dto.getCreatorUuid(), "null creator"       );
-    // Verify type
-    if ( !dto.getType().equals(type) ) {
-      throw new ModelException( E.MSV_TYPE + dto.getType() );
-    }
-    // Verify Owner
-    try {
-      HibernateGroupDAO.findByUuid( dto.getOwnerUuid() );
-    }
-    catch (GroupNotFoundException eGNF) {
-      try {
-        HibernateStemDAO.findByUuid( dto.getOwnerUuid() );
-      }
-      catch (StemNotFoundException eNSNF) {
-        throw new ModelException("unable to find membership owner");
-      }
-    }
-    // Verify Member
-    try {
-      HibernateMemberDAO.findByUuid( dto.getMemberUuid() );
-    }
-    catch (GrouperDAOException eDAO) {
-      throw new ModelException(E.ERR_M + ": " + eDAO.getMessage() );
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new ModelException(E.ERR_M + ": " + eMNF.getMessage() );
-    }
-    // Verify Field
-    try {
-      Field f = FieldFinder.find( dto.getListName() );
-      if (! 
-        ( 
-              ( f.getType().equals(FieldType.ACCESS) ) 
-          ||  ( f.getType().equals(FieldType.LIST  ) )    
-          ||  ( f.getType().equals(FieldType.NAMING) )
-        )
-      )
-      {
-        throw new ModelException(E.ERR_FT + f.getType());
-      }
-    }
-    catch (SchemaException eS) {
-      throw new ModelException( eS.getMessage(), eS );
+    MembershipValidator v = MembershipValidator.validate(dto);
+    if ( !v.getIsValid() ) {
+      throw new ModelException( v.getErrorMessage() );
     }
   } // private static void _validate(dto, type)
 
-  // Verify that membership doesn't already exist
-  // @since 1.0
-  private static void _validateDoesNotExist(MembershipDTO dto) 
-    throws  ModelException
-  {
+
+  // PRIVATE INSTANCE METHODS //
+
+  // @since   1.2.0
+  // TODO 20070220 this is still fuck
+  private boolean _doesFieldExist(String name) {
     try {
-      HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(
-        dto.getOwnerUuid(), dto.getMemberUuid(), FieldFinder.find( dto.getListName() ), Membership.IMMEDIATE
-      );
-      throw new ModelException(E.ERR_MAE);
-    }
-    catch (MembershipNotFoundException eMNF) {
-      // Ignore - this is what we want. 
+      FieldFinder.find(name);
+      return true;
     }
     catch (SchemaException eS) {
-      throw new ModelException( eS.getMessage(), eS );
+      return false;
     }
-  } // private static void _validateDoesNotExist(dto)
+  } // private boolean _doesFieldExist(name)
 
-} // class MembershipValidator
+  // @since   1.2.0
+  // TODO 20070220 this is still fuck
+  private boolean _doesMemberExist(String memberUUID) {
+    try {
+      HibernateMemberDAO.findByUuid(memberUUID);
+      return true;
+    }
+    catch (MemberNotFoundException eMNF) {
+      return false;
+    }
+  } // private boolean _doesMemberExist(memberUUID)
+
+  // @since   1.2.0
+  // TODO 20070220 this is still fuck
+  private boolean _doesOwnerExist(String ownerUUID) {
+    try {
+      HibernateGroupDAO.findByUuid(ownerUUID);
+      return true;
+    }
+    catch (GroupNotFoundException eGNF) {
+      try {
+        HibernateStemDAO.findByUuid(ownerUUID);
+        return true;
+      }
+      catch (StemNotFoundException eNSNF) {
+        return false;
+      }
+    }
+  } // private boolean _doesOwnerExist(ownerUUID)
+
+  // @since   1.2.0
+  private boolean _isFieldValidType(String type) {
+    if (
+          FieldType.ACCESS.toString().equals(type)
+      ||  FieldType.LIST.toString().equals(type)
+      ||  FieldType.NAMING.toString().equals(type)
+    )
+    {
+      return true;
+    }
+    return false;
+  } // private boolean _isFieldValidType(type)
+} // class MembershipValidator extends GrouperValidator
 

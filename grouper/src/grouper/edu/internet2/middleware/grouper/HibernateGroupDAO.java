@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.12 2007-02-14 19:34:09 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.13 2007-02-20 20:29:20 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
@@ -635,7 +635,6 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   // SETTERS //
 
   protected void setAttributes(Map attributes) {
-    // XXX
     this.attributes = attributes;
   }
   protected void setCreateSource(String createSource) {
