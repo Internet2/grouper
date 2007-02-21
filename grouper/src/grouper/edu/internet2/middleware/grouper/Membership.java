@@ -26,7 +26,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.73 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: Membership.java,v 1.74 2007-02-21 20:04:46 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -318,21 +318,19 @@ public class Membership extends GrouperAPI {
   } // protected static void internal_addImmediateMembership(s, ns, subj, f)
 
   // @since   1.2.0
-  protected static MemberOf internal_delImmediateMembership(
-    GrouperSession s, Owner o, Subject subj, Field f
-  )
+  protected static MemberOf internal_delImmediateMembership(GrouperSession s, Group g, Subject subj, Field f)
     throws  MemberDeleteException
   {
     try {
       GrouperSessionValidator.internal_validate(s); 
-      // Who we're deleting
-      //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
-      Member m = MemberFinder.internal_findViewableMemberBySubject(s, subj);
-      return MemberOf.internal_delImmediate(
-        s, o, 
-        HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( o.getUuid(), m.getUuid(), f, IMMEDIATE ), 
+      Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
+      MemberOf  mof = new MemberOf();
+      mof.deleteImmediate(
+        s, g, 
+        HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( g.getUuid(), m.getUuid(), f, IMMEDIATE ), 
         m.getDTO()
       );
+      return mof;
     }
     catch (InsufficientPrivilegeException eIP)  {
       throw new MemberDeleteException(eIP.getMessage(), eIP);
@@ -343,103 +341,164 @@ public class Membership extends GrouperAPI {
     catch (MembershipNotFoundException eMSNF)   {
       throw new MemberDeleteException(eMSNF.getMessage(), eMSNF);
     }
-  } // protected static void internal_delImmediateMembership(s, o, subj, f)
+  } // protected static void internal_delImmediateMembership(s, g, subj, f)
 
   // @since   1.2.0
-  protected static Set internal_deleteAllField(GrouperSession s, Owner o, Field f)
+  protected static MemberOf internal_delImmediateMembership(GrouperSession s, Stem ns, Subject subj, Field f)
+    throws  MemberDeleteException
+  {
+    try {
+      GrouperSessionValidator.internal_validate(s); 
+      // Who we're deleting
+      //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
+      Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
+      MemberOf  mof = new MemberOf();
+      mof.deleteImmediate(
+        s, ns,
+        HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( ns.getUuid(), m.getUuid(), f, IMMEDIATE ), 
+        m.getDTO()
+      );
+      return mof;
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new MemberDeleteException(eIP.getMessage(), eIP);
+    }
+    catch (MemberNotFoundException eMNF)        {
+      throw new MemberDeleteException( eMNF.getMessage(), eMNF );
+    }
+    catch (MembershipNotFoundException eMSNF)   {
+      throw new MemberDeleteException(eMSNF.getMessage(), eMSNF);
+    }
+  } // protected static void internal_delImmediateMembership(s, ns, subj, f)
+
+  // @since   1.2.0
+  protected static Set internal_deleteAllField(GrouperSession s, Group g, Field f)
     throws  MemberDeleteException,
             SchemaException
   {
     try {
       GrouperSessionValidator.internal_validate(s);
-      GrouperSession  orig  = s;
-      GrouperSession  root  = orig.getDTO().getRootSession();
-      // TODO 20070130 bah
-      if (o instanceof Group) {
-        ( (Group) o ).setSession(root);
-      }
-      else {
-        ( (Stem) o ).setSession(root);
+
+      Set         deletes = new LinkedHashSet();
+      MemberOf    mof;
+      Membership  ms;
+
+      // Deal with where group is a member
+      Iterator itIs = g.toMember().getImmediateMemberships(f).iterator();
+      while (itIs.hasNext()) {
+        ms   = (Membership) itIs.next();
+        ms.setSession(s);
+        mof  = new MemberOf();
+        mof.deleteImmediate(
+          s, ms.getGroup(),
+          HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( 
+            ms.getGroup().getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
+          ),
+          ms.getMember().getDTO()
+        );
+        deletes.addAll( mof.internal_getDeletes() );
       }
 
-      Set deletes = new LinkedHashSet();
-
-      if (o instanceof Group) { // then deal with its immediate membership
-        Membership  msG;
-        MemberOf    mofG;
-        Iterator    iterIs  = ( (Group) o).toMember().getImmediateMemberships(f).iterator();
-        // TODO 20070109 i'm not happy about the try/catch and call to `getOwner()`
-        while (iterIs.hasNext()) {
-          msG   = (Membership) iterIs.next();
-          mofG  = Membership.internal_delImmediateMembership(
-            s, MembershipHelper.getOwner(msG), msG.getMember().getSubject(), msG.getList()
-          );
-          deletes.addAll( mofG.internal_getDeletes() );
-        }
+      // Deal with group's members
+      Iterator itHas = HibernateMembershipDAO.findAllByOwnerAndFieldAndType( g.getUuid(), f, IMMEDIATE ).iterator();
+      while (itHas.hasNext()) {
+        ms = new Membership();
+        ms.setSession(s);
+        ms.setDTO( (MembershipDTO) itHas.next() );
+        mof = new MemberOf();
+        mof.deleteImmediate(
+          s, g,
+          HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(
+            g.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
+          ),
+          ms.getMember().getDTO()
+        );
+        deletes.addAll( mof.internal_getDeletes() );
       }
 
-      // Now deal with immediate members
-      Membership  msM;
-      MemberOf    mofM;
-      Iterator    iterHas = MembershipFinder.internal_findAllByOwnerAndFieldAndType(
-        root, o, f, IMMEDIATE
-      ).iterator();
-      while (iterHas.hasNext()) {
-        msM   = (Membership) iterHas.next();
-        mofM  = Membership.internal_delImmediateMembership(s, o, msM.getMember().getSubject(), f);
-        deletes.addAll( mofM.internal_getDeletes() );
-      }
-
-      // TODO 20070130 bah
-      if (o instanceof Group) {
-        ( (Group) o ).setSession(orig);
-      }
-      else {
-        ( (Stem) o ).setSession(orig);
-      }
       return deletes;
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new MemberDeleteException( eGNF.getMessage(), eGNF );
     }
     catch (MemberNotFoundException eMNF) {
       throw new MemberDeleteException(eMNF);
     }
-    catch (SubjectNotFoundException eSNF) {
-      throw new MemberDeleteException(eSNF);
+    catch (MembershipNotFoundException eMSNF) {
+      throw new MemberDeleteException( eMSNF.getMessage(), eMSNF );
     }
-  } // protected static Set internal_deleteAllField(s, o, f)
+  } // protected static Set internal_deleteAllField(s, g, f)
 
   // @since   1.2.0
-  protected static Set internal_deleteAllFieldType(GrouperSession s, Owner o, FieldType type) 
+  protected static Set internal_deleteAllField(GrouperSession s, Stem ns, Field f)
+    throws  MemberDeleteException,
+            SchemaException
+  {
+    try {
+      GrouperSessionValidator.internal_validate(s);
+
+      Set         deletes = new LinkedHashSet();
+      MemberOf    mof;
+      Membership  ms;
+
+      // Deal with stem's members
+      Iterator itHas = HibernateMembershipDAO.findAllByOwnerAndFieldAndType( ns.getUuid(), f, IMMEDIATE ).iterator();
+      while (itHas.hasNext()) {
+        ms = new Membership();
+        ms.setSession(s);
+        ms.setDTO( (MembershipDTO) itHas.next() );
+        mof = new MemberOf();
+        mof.deleteImmediate(
+          s, ns,
+          HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(
+            ns.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
+          ),
+          ms.getMember().getDTO()
+        );
+        deletes.addAll( mof.internal_getDeletes() );
+      }
+
+      return deletes;
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new MemberDeleteException( eMNF.getMessage(), eMNF );
+    }
+    catch (MembershipNotFoundException eMSNF) {
+      throw new MemberDeleteException( eMSNF.getMessage(), eMSNF );
+    }
+  } // protected static Set internal_deleteAllField(s, ns, f)
+
+  // @since   1.2.0
+  protected static Set internal_deleteAllFieldType(GrouperSession s, Group g, FieldType type) 
     throws  MemberDeleteException,
             SchemaException
   {
     GrouperSessionValidator.internal_validate(s);
-    GrouperSession orig = s;
-    // TODO 20070130 bah
-    if (o instanceof Group) {
-      ( (Group) o ).setSession( orig.getDTO().getRootSession() );
-    }
-    else {
-      ( (Stem) o ).setSession( orig.getDTO().getRootSession() );
-    }
-
-    Set deletes = new LinkedHashSet();
-
+    Set       deletes = new LinkedHashSet();
     Field     f;
-    Iterator  iter  = FieldFinder.findAllByType(type).iterator();
-    while (iter.hasNext()) {
-      f = (Field) iter.next();
-      deletes.addAll( internal_deleteAllField(s, o, f) );
-    }
-
-    // TODO 20070130 bah
-    if (o instanceof Group) {
-      ( (Group) o ).setSession(orig);
-    }
-    else {
-      ( (Stem) o ).setSession(orig);
+    Iterator  it      = FieldFinder.findAllByType(type).iterator();
+    while (it.hasNext()) {
+      f = (Field) it.next();
+      deletes.addAll( internal_deleteAllField(s, g, f) );
     }
     return deletes;
-  } // protected static Set internal_deleteAllFieldType(s, o, f)
+  } // protected static Set internal_deleteAllFieldType(s, g, f)
+
+  // @since   1.2.0
+  protected static Set internal_deleteAllFieldType(GrouperSession s, Stem ns, FieldType type) 
+    throws  MemberDeleteException,
+            SchemaException
+  {
+    GrouperSessionValidator.internal_validate(s);
+    Set       deletes = new LinkedHashSet();
+    Field     f;
+    Iterator  it      = FieldFinder.findAllByType(type).iterator();
+    while (it.hasNext()) {
+      f = (Field) it.next();
+      deletes.addAll( internal_deleteAllField(s, ns, f) );
+    }
+    return deletes;
+  } // protected static Set internal_deleteAllFieldType(s, ns, f)
 
 
   // PROTECTED INSTANCE METHODS //

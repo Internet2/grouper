@@ -26,11 +26,11 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.44 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: MemberOf.java,v 1.45 2007-02-21 20:04:46 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
-  // PRIVATE INSTANCE VARIABLES //
+  // PRIVATE INSTANCE VARIABLES // TODO 20070221 move these to "BaseMemberOf"?
   private Set deletes     = new LinkedHashSet();
   private Set effDeletes  = new LinkedHashSet();
   private Set effSaves    = new LinkedHashSet();
@@ -44,7 +44,7 @@ class MemberOf extends BaseMemberOf {
     throws  IllegalStateException 
   {
     this.setGroup(g);
-    this._evaluateImmediateMembership(s, f, _m);
+    this._evaluateAddImmediateMembership(s, f, _m);
   } // protected void addImmediate(s, g, f, _m)
 
   // @since   1.2.0
@@ -52,8 +52,24 @@ class MemberOf extends BaseMemberOf {
     throws  IllegalStateException
   {
     this.setStem(ns);
-    this._evaluateImmediateMembership(s, f, _m);
+    this._evaluateAddImmediateMembership(s, f, _m);
   } // protected void addImmediate(s, ns, f, _m)
+
+  // @since   1.2.0
+  protected void deleteImmediate(GrouperSession s, Group g, MembershipDTO _ms, MemberDTO _m)
+    throws  IllegalStateException
+  {
+    this.setGroup(g);
+    this._evaluateDeleteImmediateMembership(s, _ms, _m);
+  } // protected void deleteImmediate(s, g, ms, m)
+
+  // @since   1.2.0
+  protected void deleteImmediate(GrouperSession s, Stem ns, MembershipDTO _ms, MemberDTO _m)
+    throws  IllegalStateException
+  {
+    this.setStem(ns);
+    this._evaluateDeleteImmediateMembership(s, _ms, _m);
+  } // protected void deleteImmediate(s, ns, ms, m)
 
 
   // PROTECTED CLASS METHODS //
@@ -97,12 +113,14 @@ class MemberOf extends BaseMemberOf {
 
     // Delete this group's members
     Membership  ms;
+    MemberOf    msMOF;
     Iterator    iterH = g.getMemberships().iterator();
     while (iterH.hasNext()) {
       ms = (Membership) iterH.next();
       try {
-        MemberOf msMof = MemberOf.internal_delImmediate( s, g, ms.getDTO(), ms.getMember().getDTO() );
-        mof.deletes.addAll( msMof.internal_getDeletes() );
+        msMOF = new MemberOf();
+        msMOF.deleteImmediate( s, g, ms.getDTO(), ms.getMember().getDTO() );
+        mof.deletes.addAll( msMOF.internal_getDeletes() );
       }
       catch (Exception e) {
         throw new ModelException(e);
@@ -117,68 +135,6 @@ class MemberOf extends BaseMemberOf {
     mof.setModifiedGroups(groups);
     return mof;
   } // protected static MemberOf internal_delComposite(s, o, c)
-
-  // @since   1.2.0
-  protected static MemberOf internal_delImmediate(
-    GrouperSession s, Owner o, MembershipDTO _ms, MemberDTO _m
-  )
-    throws  MemberDeleteException
-  {
-    try {
-      MemberOf mof = new MemberOf();
-      if (o instanceof Group) {
-        mof.setGroup( (Group) o );
-      }
-      else {
-        mof.setStem( (Stem) o );
-      }
-      mof.setField( FieldFinder.find( _ms.getListName() ) );
-      mof.setMemberDTO(_m);
-      mof.setMembershipDTO(_ms);
-      mof.setSession(s);
-
-      // Find child memberships that need deletion
-      Set           children  = new LinkedHashSet();
-      Iterator      it        = MembershipFinder.internal_findAllChildrenNoPriv(_ms).iterator();
-      while (it.hasNext()) {
-        children.add( (MembershipDTO) it.next() );
-      }
-      mof.effDeletes.addAll(children);
-      // Find all effective memberships that need deletion
-      mof.effDeletes.addAll( 
-        MembershipFinder.internal_findAllForwardMembershipsNoPriv(s, _ms, children) 
-      );
-
-      // And now set everything else
-      mof.deletes.addAll(mof.effDeletes);
-      mof._identifyGroupsAndStemsToMarkAsModified();
-
-      mof.deletes.add(_ms); // Delete the immediate
-      // TODO 20070130 bah    
-      if ( mof.getGroup() != null ) {
-        Set   groups  = mof.getModifiedGroups();
-        Group g       = mof.getGroup();
-        g.setSession( mof.getSession() );
-        g.internal_setModified();
-        mof.setGroup(g);
-        groups.add( g.getDTO() );
-        mof.setModifiedGroups(groups);
-      }
-      else {
-        Set   stems = mof.getModifiedStems();
-        Stem  ns    = mof.getStem();
-        ns.setSession( mof.getSession() );
-        ns.internal_setModified();
-        mof.setStem(ns);
-        stems.add( ns.getDTO() );
-        mof.setModifiedStems(stems);
-      }
-      return mof;
-    }
-    catch (SchemaException eS) {
-      throw new MemberDeleteException( eS.getMessage(), eS );
-    }
-  } // protected static MemberOf internal_delImmediate(s, o, ms, m)
 
 
   // PROTECTED INSTANCE METHODS //
@@ -534,7 +490,7 @@ class MemberOf extends BaseMemberOf {
 
   // @since   1.2.0
   // TODO 20070220 split; this method has gotten too large
-  private void _evaluateImmediateMembership(GrouperSession s, Field f, MemberDTO _m) 
+  private void _evaluateAddImmediateMembership(GrouperSession s, Field f, MemberDTO _m) 
     throws  IllegalStateException
   {
     MembershipDTO _ms = new MembershipDTO();
@@ -584,7 +540,45 @@ class MemberOf extends BaseMemberOf {
     this._identifyGroupsAndStemsToMarkAsModified();
 
     this.saves.add(_ms);   // Save the immediate
-  } // private void _evaluateImmediateMembership(s, f, _m)
+  } // private void _evaluateAddImmediateMembership(s, f, _m)
+
+  // @since   1.2.0
+  private void _evaluateDeleteImmediateMembership(GrouperSession s, MembershipDTO _ms, MemberDTO _m) 
+    throws  IllegalStateException
+  {
+    try {
+      // TODO 20070221 i really shouldn't be throwing schema exceptions here
+      this.setField( FieldFinder.find( _ms.getListName() ) );
+    }
+    catch (SchemaException eS) {
+      throw new IllegalStateException( eS.getMessage(), eS );
+    }
+    this.setMemberDTO(_m);
+    this.setMembershipDTO(_ms);
+    this.setSession(s);
+
+    // Find child memberships that need deletion
+    Set       children  = new LinkedHashSet();
+    Iterator  it        = MembershipFinder.internal_findAllChildrenNoPriv(_ms).iterator();
+    while (it.hasNext()) {
+      children.add( (MembershipDTO) it.next() );
+    }
+    this.effDeletes.addAll(children);
+    // Find all effective memberships that need deletion
+    try {
+      // TODO 20070221 i really shouldn't be throwing schema exceptions here
+      this.effDeletes.addAll( MembershipFinder.internal_findAllForwardMembershipsNoPriv(s, _ms, children) );
+    }
+    catch (SchemaException eS) {
+      throw new IllegalStateException( eS.getMessage(), eS );
+    }
+
+    // And now set everything else
+    this.deletes.addAll(this.effDeletes);
+    this._identifyGroupsAndStemsToMarkAsModified();
+
+    this.deletes.add(_ms); // Delete the immediate
+  } // private void _evaluateDeleteImmediateMembership(s, _ms, _m)
 
   // Find m's hasMembers
   private Set _findMembersOfMember() {
