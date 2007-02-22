@@ -29,13 +29,17 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.13 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.14 2007-02-22 17:40:30 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateGroupDAO.class.getName();
+
+
+  // PRIVATE CLASS VARIABLES //
+  private static SimpleBooleanCache existsCache = new SimpleBooleanCache();
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -58,7 +62,8 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   public boolean onDelete(Session hs) 
     throws  CallbackException
   {
-    // TODO 20070201 onDelete not implemented - should delete attrs
+    // FIXME 20070222 onDelete not implemented - should delete attrs
+    existsCache.put( this.getUuid(), true );
     return Lifecycle.NO_VETO;
   } // public boolean onDelete(hs)
 
@@ -73,6 +78,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   {
     try {
       this._updateAttributes(hs);
+      existsCache.put( this.getUuid(), true );
     }
     catch (HibernateException eH) {
       throw new CallbackException( eH.getMessage(), eH );
@@ -149,6 +155,32 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void deleteType(g, t)
+
+  // @since   1.2.0
+  protected static boolean exists(String uuid)
+    throws  GrouperDAOException
+  {
+    if ( existsCache.containsKey(uuid) ) {
+      return existsCache.get(uuid).booleanValue();
+    }
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("select g.id from HibernateGroupDAO as g where g.uuid = :uuid");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".Exists");
+      qry.setString("uuid", uuid);
+      boolean rv  = false;
+      if ( qry.uniqueResult() != null ) {
+        rv = true;
+      }
+      hs.close();
+      existsCache.put(uuid, rv);
+      return rv;
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static boolean exists(uuid)
 
   // @since   1.2.0
   protected static Map findAllAttributesByGroup(String uuid)
@@ -449,6 +481,14 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // private static GroupDTO findByUuid(uuid)
+
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateGroupDAO");
+    existsCache.removeAll(); 
+  } // protected static void reset(hs)
 
   // @since   1.2.0
   protected static void revokePriv(GroupDTO dto, MemberOf mof)
