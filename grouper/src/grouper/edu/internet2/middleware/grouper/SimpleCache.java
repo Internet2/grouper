@@ -23,7 +23,7 @@ import  java.util.Map;
  * Simple cache implementation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.2 2007-02-22 18:01:38 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.3 2007-02-22 23:23:55 blair Exp $
  * @since   1.2.0     
  */
 class SimpleCache {
@@ -72,6 +72,16 @@ class SimpleCache {
   protected void put(Object key, Object value) {
     ( (Map) this.getCache() ).put(key, value);  
   } // protected void put(key, value)
+
+  /**
+   * Remove an {@link Object} from the cache.
+   * <p/>
+   * @return  The removed {@link Object}.
+   * @since   1.2.0
+   */
+  protected Object remove(Object key) {
+    return ( (Map) this.getCache() ).remove(key);
+  } // protected Object remove(key)
 
   /**
    * Remove all cached {@link Object}s.
