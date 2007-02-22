@@ -22,12 +22,20 @@ import  java.io.Serializable;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.17 2007-02-08 16:25:25 blair Exp $    
+ * @version $Id: Field.java,v 1.18 2007-02-22 23:23:55 blair Exp $    
  */
 public class Field extends GrouperAPI implements Serializable {
 
   // PUBLIC CLASS CONSTANTS //
   public static final long serialVersionUID = 2072790175332537149L;
+
+
+  // PRIVATE CLASS CONSTANTS //
+  private static final String KEY_GROUPTYPE = "grouptype"; // for state cache
+
+
+  // PRIVATE INSTANCE VARIABLES //
+  private SimpleCache stateCache = new SimpleCache();
 
 
   // PUBLIC INSTANCE METHODS //
@@ -49,8 +57,15 @@ public class Field extends GrouperAPI implements Serializable {
   public GroupType getGroupType() 
     throws  IllegalStateException
   {
+    String uuid = this.getDTO().getGroupTypeUuid();
+    if ( this.stateCache.containsKey(KEY_GROUPTYPE) ) {
+      return (GroupType) this.stateCache.get(KEY_GROUPTYPE);
+    }
     try {
-      return (GroupType) Rosetta.getAPI( HibernateGroupTypeDAO.findByUuid( this.getDTO().getGroupTypeUuid() ) );
+      GroupType type = new GroupType();
+      type.setDTO( HibernateGroupTypeDAO.findByUuid(uuid) );
+      this.stateCache.put(KEY_GROUPTYPE, type);
+      return type;
     }
     catch (SchemaException eS) {
       throw new IllegalStateException( "unable to fetch GroupType: " + eS.getMessage() );

@@ -26,23 +26,12 @@ import  java.util.Set;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.27 2007-02-14 18:15:50 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.28 2007-02-22 23:23:55 blair Exp $
  */
 public class FieldFinder {
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final Map FIELDS = new HashMap();
-
-
-  // STATIC
-  static {
-    Field     f;
-    Iterator  iter  = findAll().iterator();
-    while (iter.hasNext()) {
-      f = (Field) iter.next();
-      FIELDS.put(f.getName(), f);
-    }
-  } // static 
+  // PRIVATE CLASS VARIABLES //
+  private static SimpleCache fieldCache = new SimpleCache();
 
 
   // PUBLIC CLASS METHODS //
@@ -58,14 +47,12 @@ public class FieldFinder {
   public static Field find(String name) 
     throws  SchemaException
   {
-    // First check to see if type is cached.
-    if (FIELDS.containsKey(name)) {
-      return (Field) FIELDS.get(name);
+    if ( fieldCache.containsKey(name) ) {
+      return (Field) fieldCache.get(name);
     }
-    // If not, refresh known types as it may be new and try again. 
     internal_updateKnownFields();
-    if (FIELDS.containsKey(name)) {
-      return (Field) FIELDS.get(name);
+    if ( fieldCache.containsKey(name) ) {
+      return (Field) fieldCache.get(name);
     }
     throw new SchemaException("field not found: " + name);
   } // public static Field find(name)
@@ -100,33 +87,35 @@ public class FieldFinder {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
+  // TODO 20070222 i really hate this method
   protected static void internal_updateKnownFields() {
-    // This method irks me still even if it is now more functionally correct
-    Set fieldsInRegistry = findAll();
-    // Look for types to add
-    Field     f;
-    Iterator  addIter = fieldsInRegistry.iterator();
-    while (addIter.hasNext()) {
-      f = (Field) addIter.next();
-      if ( !FIELDS.containsKey( f.getName() ) ) {
-        FIELDS.put( f.getName(), f ); // New field.  Add it to the cached list.
+    Field f;
+    Set   fieldsInRegistry = findAll();
+
+    // find fields to add to the cache
+    Iterator it = fieldsInRegistry.iterator();
+    while (it.hasNext()) {
+      f = (Field) it.next();
+      if ( !fieldCache.containsKey( f.getName() ) ) {
+        fieldCache.put( f.getName(), f ); // TODO 20070222 make sure the "GroupType" is loaded?
       }
     }
-    // Look for fields to remove
-    Set       toDel   = new LinkedHashSet();
-    Field     fD;
-    Iterator  delIter = FIELDS.values().iterator();
-    while (delIter.hasNext()) {
-      fD = (Field) delIter.next();
-      if (!fieldsInRegistry.contains(fD)) {
-        toDel.add(fD.getName()); 
+
+    // find fields to remove from the cache
+    // TODO 20070222 this exposes a failing of "SimpleCache" that i should remedy
+    Set       toDel = new LinkedHashSet();
+    Map.Entry kv;
+    it              = ( (Map) fieldCache.getCache() ).entrySet().iterator();
+    while (it.hasNext()) {
+      kv = (Map.Entry) it.next();
+      if ( !fieldsInRegistry.contains( (Field) kv.getValue() ) ) {
+        toDel.add( kv.getKey() );
       }
     }
-    String    field;
-    Iterator  toDelIter = toDel.iterator();
-    while (toDelIter.hasNext()) {
-      field = (String) toDelIter.next();
-      FIELDS.remove(field);  
+    // and now remove the fields
+    it = toDel.iterator();
+    while (it.hasNext()) {
+      fieldCache.remove( (String) it.next() );
     }
   } // protected static void internal_updateKnownFields()
 
