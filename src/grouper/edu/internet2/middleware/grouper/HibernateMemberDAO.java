@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.subject.Subject;
 import  java.io.Serializable;
 import  java.util.HashMap;
 import  java.util.Map;
@@ -25,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.10 2007-02-22 17:40:30 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.11 2007-02-22 20:12:43 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
@@ -132,7 +133,15 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
       ErrorLog.fatal( HibernateMemberDAO.class, eH.getMessage() );
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static MemberDTO findByUuid(uuid)
+  } // protected static boolean exists(uuid)
+
+  // @since   1.2.0
+  protected static MemberDTO findBySubject(Subject subj)
+    throws  GrouperDAOException,
+            MemberNotFoundException
+  {
+    return findBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() );
+  } // protected static MemberDTO findBySubject(subj)
 
   // @since   1.2.0
   protected static MemberDTO findBySubject(String id, String src, String type) 

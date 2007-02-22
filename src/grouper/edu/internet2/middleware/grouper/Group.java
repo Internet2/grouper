@@ -30,19 +30,22 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.126 2007-02-14 19:34:09 blair Exp $
+ * @version $Id: Group.java,v 1.127 2007-02-22 20:12:43 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final EventLog EL = new EventLog();
+  private static final EventLog EL          = new EventLog();
+  private static final String   KEY_MEMBER  = "member";   // for state caching
+  private static final String   KEY_SUBJECT = "subject";  // for state caching
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private Member  as_member = null;
-  private Subject as_subj   = null;
-  private Subject creator;
-  private Subject modifier;
+  private Subject creator;  // TODO 20070222 move to state cache
+  private Subject modifier; // TODO 20070222 move to state cache
+  private SimpleCache stateCache = new SimpleCache();
+  
+
   
   
   // PUBLIC CLASS METHODS //
@@ -2005,22 +2008,24 @@ public class Group extends GrouperAPI implements Owner {
   public Member toMember() 
     throws  GrouperRuntimeException
   {
-    GrouperSessionValidator.internal_validate(this.getSession());
-    if (as_member == null) {
-      try {
-        as_member = MemberFinder.findBySubject(
-          this.getSession(), this.toSubject()
-        );
-      }  
-      catch (MemberNotFoundException eMNF) {
-        // If we can't convert a group to a member we have major issues
-        // and should probably just give up
-        String msg = E.GROUP_G2M + eMNF.getMessage();
-        ErrorLog.fatal(Group.class, msg);
-        throw new GrouperRuntimeException(msg, eMNF);
-      }
+    if ( this.stateCache.containsKey(KEY_MEMBER) ) {
+      return (Member) this.stateCache.get(KEY_MEMBER);
     }
-    return as_member;
+    try {
+      GrouperSessionValidator.internal_validate( this.getSession() );
+      Member m = new Member();
+      m.setDTO( HibernateMemberDAO.findBySubject( this.toSubject() ) );
+      m.setSession( this.getSession() );
+      this.stateCache.put(KEY_MEMBER, m);
+      return m;
+    }  
+    catch (MemberNotFoundException eMNF) {
+      // If we can't convert a group to a member we have major issues
+      // and should probably just give up
+      String msg = E.GROUP_G2M + eMNF.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new GrouperRuntimeException(msg, eMNF);
+    }
   } // public Member toMember()
 
   /**
@@ -2035,22 +2040,30 @@ public class Group extends GrouperAPI implements Owner {
   public Subject toSubject() 
     throws  GrouperRuntimeException
   {
-    GrouperSessionValidator.internal_validate(this.getSession());
-    if (as_subj == null) {
-      try {
-        as_subj = SubjectFinder.findById(
-          this.getUuid(), "group", SubjectFinder.internal_getGSA().getId()
-        );
-      }
-      catch (Exception e) {
-        // If we can't find an existing group as a subject we have
-        // major issues and shoudl probably just give up
-        String msg = E.GROUP_G2S + e.getMessage();
-        ErrorLog.fatal(Group.class, msg);
-        throw new GrouperRuntimeException(msg, e);
-      }
+    if ( this.stateCache.containsKey(KEY_SUBJECT) ) {
+      return (Subject) this.stateCache.get(KEY_SUBJECT);
     }
-    return as_subj;
+    try {
+      this.stateCache.put( 
+        KEY_SUBJECT, SubjectFinder.findById( this.getUuid(), "group", SubjectFinder.internal_getGSA().getId() )
+      );
+      return (Subject) this.stateCache.get(KEY_SUBJECT);
+    }
+    catch (SourceUnavailableException eShouldNeverHappen0)  {
+      String msg = E.GROUP_G2S + eShouldNeverHappen0.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new GrouperRuntimeException(msg, eShouldNeverHappen0);
+    }
+    catch (SubjectNotFoundException eShouldNeverHappen1)    {
+      String msg = E.GROUP_G2S + eShouldNeverHappen1.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new GrouperRuntimeException(msg, eShouldNeverHappen1);
+    }
+    catch (SubjectNotUniqueException eShouldNeverHappen2)   {
+      String msg = E.GROUP_G2S + eShouldNeverHappen2.getMessage();
+      ErrorLog.fatal(Group.class, msg);
+      throw new GrouperRuntimeException(msg, eShouldNeverHappen2);
+    }
   } // public Subject toSubject()
 
   public String toString() {
