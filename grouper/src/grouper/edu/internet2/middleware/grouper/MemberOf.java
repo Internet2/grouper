@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.45 2007-02-21 20:04:46 blair Exp $
+ * @version $Id: MemberOf.java,v 1.46 2007-02-22 18:01:38 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -249,6 +249,7 @@ class MemberOf extends BaseMemberOf {
     MembershipDTO hasMS;
     MembershipDTO dto;
     Iterator      it      = hasMembers.iterator();
+    // TODO 20070222 stash values outside of while loop so that they don't need to be repeatedly // fetched
     while (it.hasNext()) {
       hasMS = (MembershipDTO) Rosetta.getDTO( it.next() );
 

@@ -25,9 +25,19 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.47 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.48 2007-02-22 18:01:38 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
+
+  // PRIVATE CLASS CONSTANTS //
+  private static final String KEY_MEMBER = "member"; // for state caching
+
+
+  // PRIVATE INSTANCE VARIABLES //
+  private SimpleCache stateCache = new SimpleCache();
+  
+
+
 
   // PUBLIC CLASS METHODS //
 
@@ -110,10 +120,14 @@ public class GrouperSession extends GrouperAPI {
   public Member getMember() 
     throws  IllegalStateException
   {
+    if ( this.stateCache.containsKey(KEY_MEMBER) ) {
+      return (Member) this.stateCache.get(KEY_MEMBER);
+    }
     try {
       Member m = new Member();
       m.setDTO( HibernateMemberDAO.findByUuid( this.getDTO().getMemberUuid() ) );
       m.setSession(this);
+      this.stateCache.put(KEY_MEMBER, m);
       return m;
     }
     catch (MemberNotFoundException eShouldNeverHappen) {
