@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.48 2007-02-22 18:01:38 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.49 2007-02-22 19:05:59 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -213,6 +213,7 @@ public class GrouperSession extends GrouperAPI {
       EventLog.info( this.toString(), "session: stop duration=" + + dur + "ms", sw );
     }
     this.setDTO(null);
+    this.stateCache.removeAll();
   } // public void stop()
 
   public String toString() {
