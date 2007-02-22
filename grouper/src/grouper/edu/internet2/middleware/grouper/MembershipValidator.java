@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.24 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.25 2007-02-22 17:40:30 blair Exp $
  * @since   1.0
  */
 class MembershipValidator extends GrouperValidator {
@@ -48,22 +48,22 @@ class MembershipValidator extends GrouperValidator {
   // @since   1.2.0
   protected static MembershipValidator validate(MembershipDTO _ms) {
     MembershipValidator v = new MembershipValidator();
-    if ( _ms.getCreateTime() == GrouperConfig.EPOCH )       {
+    if ( _ms.getCreateTime() == GrouperConfig.EPOCH )             {
       v.setErrorMessage("creation time is set to epoch");
     }
-    else if ( _ms.getCreatorUuid() == null )                {
+    else if ( _ms.getCreatorUuid() == null )                      {
       v.setErrorMessage("null creator");
     }
-    else if ( !v._doesOwnerExist( _ms.getOwnerUuid() ) )    {
+    else if ( !v._doesOwnerExist( _ms.getOwnerUuid() ) )          {
       v.setErrorMessage("unable to find membership owner");
     }
-    else if ( !v._doesMemberExist( _ms.getMemberUuid() ) )  {
+    else if ( !HibernateMemberDAO.exists( _ms.getMemberUuid() ) ) {
       v.setErrorMessage("unable to find membership member");
     }
-    else if ( !v._doesFieldExist( _ms.getListName() ) )     {
+    else if ( !v._doesFieldExist( _ms.getListName() ) )           {
       v.setErrorMessage("unable to find membership field");
     }
-    else if ( !v._isFieldValidType( _ms.getListType() ) )   {
+    else if ( !v._isFieldValidType( _ms.getListType() ) )         {
       v.setErrorMessage( E.ERR_FT + _ms.getListType() );
     }
     else {
@@ -102,31 +102,17 @@ class MembershipValidator extends GrouperValidator {
 
   // @since   1.2.0
   // TODO 20070220 this is still fuck
-  private boolean _doesMemberExist(String memberUUID) {
-    try {
-      HibernateMemberDAO.findByUuid(memberUUID);
-      return true;
-    }
-    catch (MemberNotFoundException eMNF) {
-      return false;
-    }
-  } // private boolean _doesMemberExist(memberUUID)
-
-  // @since   1.2.0
-  // TODO 20070220 this is still fuck
   private boolean _doesOwnerExist(String ownerUUID) {
-    try {
-      HibernateGroupDAO.findByUuid(ownerUUID);
+    if ( HibernateGroupDAO.exists(ownerUUID) ) {
       return true;
     }
-    catch (GroupNotFoundException eGNF) {
-      try {
-        HibernateStemDAO.findByUuid(ownerUUID);
-        return true;
-      }
-      catch (StemNotFoundException eNSNF) {
-        return false;
-      }
+    // TODO 20070222 add "HibernateStemDAO.exists(uuid)"
+    try {
+      HibernateStemDAO.findByUuid(ownerUUID);
+      return true;
+    }
+    catch (StemNotFoundException eNSNF) {
+      return false;
     }
   } // private boolean _doesOwnerExist(ownerUUID)
 

@@ -16,19 +16,26 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.io.Serializable;
+import  java.util.HashMap;
+import  java.util.Map;
 import  net.sf.hibernate.*;
 
 /**
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.9 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.10 2007-02-22 17:40:30 blair Exp $
  * @since   1.2.0
  */
-class HibernateMemberDAO extends HibernateDAO {
+class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateMemberDAO.class.getName();
+
+
+  // PRIVATE CLASS VARIABLES //
+  private static SimpleBooleanCache existsCache = new SimpleBooleanCache();
 
 
   // HIBERNATE PROPERTIES //
@@ -37,6 +44,39 @@ class HibernateMemberDAO extends HibernateDAO {
   private String  subjectID;
   private String  subjectSourceID;
   private String  subjectTypeID;
+
+
+  // PUBLIC INSTANCE METHODS //
+
+  // @since   1.2.0 
+  public boolean onDelete(Session hs) 
+    throws  CallbackException
+  {
+    existsCache.put( this.getMemberUuid(), true );
+    return Lifecycle.NO_VETO;
+  } // public boolean onDelete(hs)
+
+  // @since   1.2.0
+  public void onLoad(Session hs, Serializable id) {
+    // nothing
+  } // public void onLoad(hs, id)
+
+  // @since   1.2.0
+  public boolean onSave(Session hs) 
+    throws  CallbackException
+  {
+    existsCache.put( this.getMemberUuid(), true );
+    return Lifecycle.NO_VETO;
+  } // public boolean onSave(hs)
+
+  // @since   1.2.0
+  public boolean onUpdate(Session hs) 
+    throws  CallbackException
+  {
+    // nothing
+    return Lifecycle.NO_VETO;
+  } // public boolean onUpdate(hs)k
+
 
 
   // PROTECTED CLASS METHODS //
@@ -66,6 +106,33 @@ class HibernateMemberDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static String create(dto)
+
+  // @since   1.2.0
+  protected static boolean exists(String uuid) 
+    throws  GrouperDAOException
+  {
+    if ( existsCache.containsKey(uuid) ) {
+      return existsCache.get(uuid).booleanValue();
+    }
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("select m.id from HibernateMemberDAO as m where m.memberUuid = :uuid");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".Exists");
+      qry.setString("uuid", uuid);
+      boolean rv  = false;
+      if ( qry.uniqueResult() != null ) {
+        rv = true; 
+      }
+      hs.close();
+      existsCache.put(uuid, rv);
+      return rv;
+    }
+    catch (HibernateException eH) {
+      ErrorLog.fatal( HibernateMemberDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static MemberDTO findByUuid(uuid)
 
   // @since   1.2.0
   protected static MemberDTO findBySubject(String id, String src, String type) 
@@ -136,6 +203,14 @@ class HibernateMemberDAO extends HibernateDAO {
   } // protected static MemberDTO findByUuid(uuid)
 
   // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateMemberDAO as m where m.subjectId != 'GrouperSystem'");
+    existsCache.removeAll(); 
+  } // protected static void reset(hs)
+
+  // @since   1.2.0
   protected static void update(MemberDTO dto) 
     throws  GrouperDAOException
   {
@@ -194,5 +269,5 @@ class HibernateMemberDAO extends HibernateDAO {
     this.subjectTypeID = subjectTypeID;
   }
 
-} // class HibernateMemberDAO extends HibernateDAO
+} // class HibernateMemberDAO extends HibernateDAO implements Lifecycle
 

@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.10 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.11 2007-02-22 17:40:30 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {
@@ -42,9 +42,9 @@ class HibernateRegistryDAO {
 
         hs.delete("from HibernateCompositeDAO");
         hs.delete("from HibernateAttributeDAO"); // TODO 20070207 this should not be necessary
-        hs.delete("from HibernateGroupDAO");
+        HibernateGroupDAO.reset(hs);
         hs.delete("from HibernateStemDAO as ns where ns.name not like '" + Stem.ROOT_INT + "'");
-        hs.delete("from HibernateMemberDAO as m where m.subjectId != 'GrouperSystem'");
+        HibernateMemberDAO.reset(hs);
         // TODO 20070207 what about associated fields?
         // TODO 20070207 and tuples!
         hs.delete("from HibernateGroupTypeTupleDAO");
