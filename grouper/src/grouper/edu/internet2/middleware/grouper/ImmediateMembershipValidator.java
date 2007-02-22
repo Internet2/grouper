@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.1 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.2 2007-02-22 20:12:43 blair Exp $
  * @since   1.2.0
  */
 class ImmediateMembershipValidator extends MembershipValidator {
@@ -51,7 +51,11 @@ class ImmediateMembershipValidator extends MembershipValidator {
     else if ( v._isCircular(_ms) )                            { // cannot be a direct member of oneself
       v.setErrorMessage(E.MSV_CIRCULAR);
     }
-    else if ( v._exists(_ms) )                                { // cannot already exist
+    else if ( HibernateMembershipDAO.exists(                    // cannot already exist
+        _ms.getOwnerUuid(), _ms.getMemberUuid(), _ms.getListName(), Membership.IMMEDIATE 
+      )
+    )
+    {
       v.setErrorMessage(E.ERR_MAE);
     }
     else {
@@ -62,26 +66,6 @@ class ImmediateMembershipValidator extends MembershipValidator {
 
 
   // PRIVATE INSTANCE METHODS //
-
-  // @since   1.2.0
-  // TODO 20070220 this is still fuck
-  private boolean _exists(MembershipDTO _ms) 
-    throws  IllegalStateException
-  {
-    try {
-      HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(
-        _ms.getOwnerUuid(), _ms.getMemberUuid(), FieldFinder.find( _ms.getListName() ), Membership.IMMEDIATE
-      );
-      return true;
-    }
-    catch (MembershipNotFoundException eMNF) {
-      return false; 
-      // Ignore - this is what we want. 
-    }
-    catch (SchemaException eS) {
-      throw new IllegalStateException( eS.getMessage(), eS );
-    }
-  } // private boolean _exists(_ms)
 
   // @since   1.2.0
   // TODO 20070220 this is still fuck

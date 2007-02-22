@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.19 2007-02-14 17:34:14 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.20 2007-02-22 20:12:43 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO extends HibernateDAO {
@@ -51,6 +51,38 @@ class HibernateMembershipDAO extends HibernateDAO {
 
 
   // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  // TODO 20070222 this isn't exactly ideal
+  protected static boolean exists(String ownerUUID, String memberUUID, String listName, String msType)
+    throws  GrouperDAOException
+  {
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery(
+        "select ms.id from HibernateMembershipDAO as ms where  "
+        + "     ms.ownerUuid  = :owner            "
+        + "and  ms.memberUuid = :member           "
+        + "and  ms.listName   = :fname            "
+        + "and  ms.type       = :type             "
+      );
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".Exists");
+      qry.setString( "owner",  ownerUUID  );
+      qry.setString( "member", memberUUID );
+      qry.setString( "fname",  listName   );
+      qry.setString( "type",   msType     );
+      boolean rv  = false;
+      if ( qry.uniqueResult() != null ) {
+        rv = true;
+      }
+      hs.close();
+      return rv;
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static boolean exists(ownerUUID, memberUUID, listName, msType)
 
   // @since   1.2.0
   protected static Set findAllByCreatedAfter(Date d, Field f) 
@@ -378,40 +410,6 @@ class HibernateMembershipDAO extends HibernateDAO {
     }
     return mships;
   } // protected static Set findAllImmediateByMemberAndField(mUUID, f)
-
-  // @since   1.2.0
-  protected static MembershipDTO findByOwnerAndMemberAndFieldAndType(String ownerUUID, String mUUID, Field f, String type)
-    throws  GrouperDAOException,
-            MembershipNotFoundException // TODO 20061219 should throw/return something else.  null?
-  {
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery(
-        "from HibernateMembershipDAO as ms where  "
-        + "     ms.ownerUuid  = :owner            "
-        + "and  ms.memberUuid = :member           "
-        + "and  ms.listName   = :fname            "
-        + "and  ms.listType   = :ftype            "
-        + "and  ms.type       = :type             "
-      );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByOwnerAndMemberAndFieldAndType");
-      qry.setString( "owner",  ownerUUID              );
-      qry.setString( "member", mUUID                  );
-      qry.setString( "fname",  f.getName()            );
-      qry.setString( "ftype",  f.getType().toString() ); 
-      qry.setString( "type",   type                   );
-      HibernateMembershipDAO dao = (HibernateMembershipDAO) qry.uniqueResult();
-      hs.close();
-      if (dao == null) {
-        throw new MembershipNotFoundException(); // TODO 20070104 null or ex?
-      }
-      return MembershipDTO.getDTO(dao);
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static MembershipDTO findByOwnerAndMemberAndFieldAndType(ownerUUID, mUUID, f, type)
 
   // @since   1.2.0
   protected static MembershipDTO findByUuid(String uuid) 

@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.38 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: E.java,v 1.39 2007-02-22 20:12:43 blair Exp $
  * @since   1.0
  */
 class E {
@@ -97,7 +97,7 @@ class E {
   protected static final String GNA_SNF                   = "membership stem not found: ";
   protected static final String GPA_MNF                   = "membership member not found: ";
   protected static final String GROUP_G2M                 = "could not convert group to member: ";
-  protected static final String GROUP_G2S                 = "could not convert group to subject: ";
+  protected static final String GROUP_G2S                 = "should never happen: could not convert group to subject: ";
   protected static final String GROUP_ACTC                = "cannot add composite membership to group with composite membership";
   protected static final String GROUP_ACTM                = "cannot add composite membership to group with members";
   protected static final String GROUP_AMTC                = "cannot add member to composite membership";
