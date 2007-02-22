@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.32 2007-02-14 18:15:50 blair Exp $
+ * @version $Id: EventLog.java,v 1.33 2007-02-22 18:59:09 blair Exp $
  */
 class EventLog {
 
@@ -34,10 +34,13 @@ class EventLog {
 
 
   // PRIVATE INSTANCE VARIALBES //
-  private boolean       log_eff_group_add = false;
-  private boolean       log_eff_group_del = false;
-  private boolean       log_eff_stem_add  = false;
-  private boolean       log_eff_stem_del  = false;
+  private boolean     log_eff_group_add = false;
+  private boolean     log_eff_group_del = false;
+  private boolean     log_eff_stem_add  = false;
+  private boolean     log_eff_stem_del  = false;
+  private SimpleCache groupCache        = new SimpleCache();
+  private SimpleCache stemCache         = new SimpleCache();
+  private SimpleCache subjectCache      = new SimpleCache();
 
 
   // CONSTRUCTORS //
@@ -348,39 +351,13 @@ class EventLog {
 
   private void _eff(
     GrouperSession root, GrouperSession s, String msg, String name, 
-    Subject subj, Field f,MembershipDTO eff, String field
+    Subject subj, Field f, MembershipDTO eff, String field
   )
   {
-    // Get eff owner
-    try {
-      Group g = new Group();
-      g.setDTO( HibernateGroupDAO.findByUuid( eff.getOwnerUuid() ) );
-      msg += "group=" + U.internal_q( g.getName() );
-    }
-    catch (GroupNotFoundException eGNF) {
-      try {
-        StemDTO ns = HibernateStemDAO.findByUuid( eff.getOwnerUuid() );
-        msg += "stem=" + U.internal_q( ns.getName() );
-      }
-      catch (StemNotFoundException eSNF) {
-        ErrorLog.error(EventLog.class, E.EVENT_EFFOWNER + eSNF.getMessage());
-        msg += "owner=???";
-      }
-    }   
+    msg += this._getEffOwnerMsg(eff);
     // Get eff field
     msg += " " + field + U.internal_q( eff.getListName() );
-    // Get eff subject
-    try {
-      MemberDTO m       = HibernateMemberDAO.findByUuid( eff.getMemberUuid() );
-      Subject   subject = SubjectFinder.findById(
-        m.getSubjectId(), m.getSubjectTypeId(), m.getSubjectSourceId()
-      );
-      msg += " subject=" + SubjectHelper.internal_getPretty(subject);
-    }
-    catch (Exception e) {
-      ErrorLog.error(EventLog.class, E.EVENT_EFFSUBJ + e.getMessage());
-      msg += "subject=???";
-    }
+    msg += this._getEffSubjectMsg(eff);
     // Get added or removed message that caused this effective membership change
     msg += " (" + name + " ";
     if      ( f.getType().equals(FieldType.ACCESS) )  {
@@ -399,6 +376,79 @@ class EventLog {
     LOG.info( LogHelper.internal_formatMsg(s, msg) );
     // Reset to the original session
   } // private void _eff(root, s, msg, name, subj, f, eff, field)
+
+  // @since   1.2.0
+  // TODO 20070222 this is still pretty nasty
+  private String _getEffOwnerMsg(MembershipDTO _eff) {
+    String  msg   = GrouperConfig.EMPTY_STRING;
+    String  uuid  = _eff.getOwnerUuid();
+
+    Group   g     = null;
+    Stem    ns    = null;
+    if      ( this.groupCache.containsKey(uuid) )   {
+      g = (Group) this.groupCache.get(uuid);
+    }
+    else if ( this.stemCache.containsKey(uuid) )  {
+      ns = (Stem) this.stemCache.get(uuid);
+    }
+    else {
+      try {
+        g = new Group();
+        g.setDTO( HibernateGroupDAO.findByUuid(uuid) );
+        this.groupCache.put(uuid, g);
+      }
+      catch (GroupNotFoundException eGNF) {
+        try {
+          ns = new Stem();
+          ns.setDTO( HibernateStemDAO.findByUuid(uuid) );
+        }
+        catch (StemNotFoundException eSNF) {
+          ErrorLog.error(EventLog.class, E.EVENT_EFFOWNER + eSNF.getMessage());
+        }
+      }   
+    }
+    if (g != null) {
+      msg += "group=" + U.internal_q( g.getName() );
+    }
+    else if (ns != null ) {
+      msg += "stem=" + U.internal_q( ns.getName() );
+    }
+    else {
+      msg += "owner=???";
+    }
+    return msg;
+  } // private String _getEffOwnerMsg(_eff)
+
+  // @since   1.2.0
+  // TODO 20070222 this is still pretty nasty
+  private String _getEffSubjectMsg(MembershipDTO _eff) {
+    String  msg   = GrouperConfig.EMPTY_STRING;
+    String  uuid  = _eff.getMemberUuid();
+
+    Subject subj  = null;
+    if ( this.subjectCache.containsKey(uuid) ) {
+      subj = (Subject) this.subjectCache.get(uuid);
+    }
+    else {
+      try {
+        MemberDTO _m  = HibernateMemberDAO.findByUuid( _eff.getMemberUuid() );
+        subj          = SubjectFinder.findById(
+          _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId()
+        );
+        this.subjectCache.put(uuid, subj);
+      }
+      catch (Exception e) {
+        ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + e.getMessage() );
+      }
+    }
+    if (subj != null) {
+      msg += " subject=" + SubjectHelper.internal_getPretty(subj); // TODO 20070222 maybe cache pretty value instead?
+    }
+    else {
+      msg += "subject=???";
+    }
+    return msg;
+  } // private String _getEffSubjectMsg(_eff)
 
   private void _grantPriv(
     GrouperSession s, String msg, String name, Subject subj, Privilege p, StopWatch sw
