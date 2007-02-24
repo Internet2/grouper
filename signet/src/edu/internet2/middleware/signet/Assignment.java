@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.16 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: Assignment.java,v 1.17 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -23,6 +23,7 @@ import java.util.Set;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
+import edu.internet2.middleware.signet.tree.TreeNode;
 
 /**
 * 
@@ -62,15 +63,14 @@ import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 * 
 */
 
-public interface Assignment
-extends Grantable
+public interface Assignment extends Grantable
 {
   /**
    * Gets the scope (usually an organization) of this Assignment.
    * 
    * @return the scope (usually an organization) of this Assignment.
    */
-  public edu.internet2.middleware.signet.tree.TreeNode getScope();
+  public TreeNode getScope();
 
   /**
    * Gets the <code>Function</code> which is the subject of this Assignment.
@@ -91,18 +91,17 @@ extends Grantable
   /**
    * Changes the grantability of an existing Assignment. To save this change
    * to the database, call <code>Assignment.save()</code>.
-   * 
    * @param editor the <code>SignetSubject</code> who is responsible for
    * this change.
-   *
    * @param canGrant <code>true</code> if this Assignment should be grantable
    * to others by its current grantee, and <code>false</code> otherwise.
-   * 
+   * @param checkAuth Flag to indicate whether to check for Edit authority by given actor.
+   * Note that quite often several values may be set/updated for a Grantable for
+   * the actor. Setting checkAuth to false assumes that the caller of the 'set'
+   * methods has already called checkEditAuthority(SignetSubject).
    * @throws SignetAuthorityException
    */
-  public void setCanGrant
-    (SignetSubject  editor,
-     boolean            canGrant)
+  public void setCanGrant(SignetSubject editor, boolean canGrant, boolean checkAuth)
   throws SignetAuthorityException;
 
   /**
@@ -117,19 +116,18 @@ extends Grantable
   /**
    * Changes the direct usability of an existing Assignment. To save this change
    * to the database, call <code>Assignment.save()</code>;
-   * 
    * @param editor the <code>SignetSubject</code> who is responsible for
    * this change.
-   * 
    * @param canUse <code>false</code> if this Assignment should only be
    * granted to others (and not directly used) by its current grantee, and
    * <code>true</code> otherwise.
-   * 
+   * @param checkAuth Flag to indicate whether to check for Edit authority by given actor.
+   * Note that quite often several values may be set/updated for a Grantable for
+   * the actor. Setting checkAuth to false assumes that the caller of the 'set'
+   * methods has already called checkEditAuthority(SignetSubject).
    * @throws SignetAuthorityException
    */
-  public void setCanUse
-    (SignetSubject  editor,
-     boolean            canUse)
+  public void setCanUse(SignetSubject editor, boolean canUse, boolean checkAuth)
   throws SignetAuthorityException;
 
   /**
@@ -145,18 +143,17 @@ extends Grantable
   /**
    * Changes the {@link Limit}-values applied to an existing Assignment. To save
    * this change in the database, call Assignment.save().
-   * 
    * @param editor the <code>SignetSubject</code> who is responsible for
    * this change.
-   * 
    * @param limitValues the complete Set of {@link LimitValue}s that should be
    * associated with this Assignment.
-   * 
+   * @param checkAuth Flag to indicate whether to check for Edit authority by given actor.
+   * Note that quite often several values may be set/updated for a Grantable for
+   * the actor. Setting checkAuth to false assumes that the caller of the 'set'
+   * methods has already called checkEditAuthority(SignetSubject).
    * @throws SignetAuthorityException
    *
    */
-  public void setLimitValues
-    (SignetSubject  editor,
-     Set                limitValues)
+  public void setLimitValues(SignetSubject editor, Set limitValues, boolean checkAuth)
   throws SignetAuthorityException;
 }

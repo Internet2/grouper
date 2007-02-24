@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.3 2006-11-30 04:21:49 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.4 2007-02-24 02:11:31 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -17,13 +17,8 @@
  */
 package edu.internet2.middleware.signet.subjsrc;
 
-import java.util.ArrayList;
+import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
 
 /**
  * An "attribute of interest" that is persisted with it's corresponding Subject.
@@ -31,11 +26,13 @@ import java.util.Set;
  */
 public class SignetSubjectAttr
 {
+	public static final String ATTR_TYPE_STRING = "string";
+	public static final String ATTR_TYPE_INT = "integer";
+	public static final String ATTR_TYPE_FLOAT = "float";
+	public static final String ATTR_TYPE_DATE = "date";
+
 	/** DB primary key */
 	protected Long		subjectAttr_PK;
-
-	/** DB foreign key to a SignetSubject record */
-	protected Long		subject_FK;
 
 	/** Reference to my parent (support for Hibernate bidirectional assoc.) 
 	 * which essentially duplicates subject_FK
@@ -51,22 +48,45 @@ public class SignetSubjectAttr
 	 */
 	protected String	mappedName;
 
-	/** Source attribute values from the original Source stored as SignetSubjectAttrValue objects*/
-	protected List		sourceValues;
+	/** The attribute's value */
+	protected String	attr_value;
+
+	/** The attribute's type (e.g. string, integer, float, etc.) */
+	protected String	attr_type;
 
 	/** date/time stamp of the most recent update of the persisted value */
 	protected Date		modifyDate;
 
+	/** the sequence number for multi-valued attributes */
+	protected long sequence;
 
 	/** default constructor */
 	public SignetSubjectAttr()
 	{
 		mappedName = null;
-		sourceValues = new ArrayList();
+		attr_value = null;
+		attr_type = ATTR_TYPE_STRING;
 		refreshModifyDate();
 		subjectAttr_PK = null;
-		subject_FK = null;
 		parent = null;
+		modifyDate = new Date(System.currentTimeMillis());
+	}
+
+	/**
+	 * Copy constructor does a deep copy of origAttr
+	 * @param origAttr
+	 */
+	public SignetSubjectAttr(SignetSubjectAttr origAttr)
+	{
+		this();
+		if (null != origAttr)
+		{
+			setAttr_value(origAttr.getAttr_value());
+			setAttr_type(origAttr.getAttr_type());
+			setMappedName(origAttr.getMappedName());
+			setSequence(origAttr.getSequence());
+			setParent(origAttr.getParent());
+		}
 	}
 
 	/**
@@ -76,29 +96,36 @@ public class SignetSubjectAttr
 	public SignetSubjectAttr(String mappedName)
 	{
 		this();
+		setMappedName(mappedName);
 		this.mappedName = mappedName;
 	}
 
-	/**
-	 * Create an attribute with the Signet-mapped name and one source value
-	 * @param mappedName
-	 * @param sourceValue
-	 */
-	public SignetSubjectAttr(String mappedName, SignetSubjectAttrValue sourceValue)
+	public SignetSubjectAttr(String mappedName, String value)
 	{
 		this(mappedName);
-		addSourceValue(sourceValue);
+		setAttr_value(value);
+		setAttr_type(ATTR_TYPE_STRING);
 	}
 
-	/**
-	 * Create an attribute with the Signet-mapped name and Set of source values
-	 * @param mappedName
-	 * @param sourceValues A Set of SignetSubjectAttrValue objects
-	 */
-	public SignetSubjectAttr(String mappedName, List sourceValues)
+	public SignetSubjectAttr(String mappedName, int value)
 	{
 		this(mappedName);
-		setSourceValues(sourceValues);
+		setAttr_value(Integer.toString(value));
+		setAttr_type(ATTR_TYPE_INT);
+	}
+
+	public SignetSubjectAttr(String mappedName, float value)
+	{
+		this(mappedName);
+		setAttr_value(Float.toString(value));
+		setAttr_type(ATTR_TYPE_FLOAT);
+	}
+
+	public SignetSubjectAttr(String mappedName, Date value)
+	{
+		this(mappedName);
+		setAttr_value(DateFormat.getInstance().format(value));
+		setAttr_type(ATTR_TYPE_DATE);
 	}
 
 
@@ -120,28 +147,11 @@ public class SignetSubjectAttr
 
 
 	/**
-	 * @return Returns the signetSubject DB key.
-	 */
-	protected Long getSubject_FK()
-	{
-		return (subject_FK);
-	}
-
-	/**
-	 * @param signetSubject Set the signetSubject DB key.
-	 */
-	protected void setSubject_FK(Long signetSubjectKey)
-	{
-		this.subject_FK = signetSubjectKey;
-	}
-
-	/**
 	 * Take care of Hibernate bidirectional assoc.
 	 */
 	public void setParent(SignetSubject subject)
 	{
 		parent = subject;
-		setSubject_FK((null != subject) ? subject.getSubject_PK() : null);
 	}
 
 	/**
@@ -170,111 +180,88 @@ public class SignetSubjectAttr
 	}
 
 
-	/**
-	 * @return A List of SignetSubjectAttrValue objects, may be empty but never null
-	 */
-	public List getSourceValues()
+	/** Support for Hibernate, wrapper for getValue() */
+	protected String getAttr_value()
 	{
-		return(sourceValues);
+		return (getValue());
 	}
 
-	/**
-	 * Replace this Attribute's set of Values and sets each Value's parent.
-	 * Support for Hibernate.
-	 * @param sourceValues A List of SignetSubjectAttrValue objects
-	 */
-	public void setSourceValues(List sourceValues)
+	/** Support for Hibernate, wrapper for setValue(String) */
+	protected void setAttr_value(String newValue)
 	{
-		if (null != (this.sourceValues = sourceValues)) // yes, I do mean "="
-		{
-			for (Iterator iter = this.sourceValues.iterator(); iter.hasNext(); )
-				((SignetSubjectAttrValue)iter.next()).setParent(this);
-		}
-	}
-
-	/**
-	 * Replace the Attribute's set of Values and sets each Value's parent and sequence.
-	 * @param strValues A Set of Strings
-	 */
-	public void setSourceValues(Set strValues)
-	{
-		this.sourceValues.clear();
-
-		if (null != strValues)
-		{
-			for (Iterator strs = strValues.iterator(); strs.hasNext(); )
-				addSourceValue((String)strs.next());
-		}
+		setValue(newValue);
 	}
 
 
-	/**
-	 * Add another value to this attribute. Assumes the value's 0-based sequence
-	 * has already been set. Sets the value's parent reference.
-	 * @param value The SignetSubjectAttrValue to add
-	 */
-	public void addSourceValue(SignetSubjectAttrValue value)
+	public String getValue()
 	{
-		if (null != value)
-		{
-			int seq = (int)value.getSequence();
-			sourceValues.add(seq, value);
-			value.setParent(this);
-			refreshModifyDate();
-		}
+		return (attr_value);
 	}
 
-	/**
-	 * Add another value to this attribute. Sets the value's sequence to the next
-	 * highest (1-based) number.
-	 * @param strValue A String to convert to a SignetSubjectAttrValue, then add
-	 */
-	public void addSourceValue(String strValue)
+	public void setValue(String newValue)
 	{
-		if (null != strValue)
-		{
-			SignetSubjectAttrValue value = new SignetSubjectAttrValue(strValue);
-			value.setSequence(sourceValues.size());
-			addSourceValue(value);
-		}
+		attr_value = newValue;
+		setAttr_type(ATTR_TYPE_STRING);
 	}
 
-	/**
-	 * Remove the specified value from this attribute
-	 * @param value The value to remove from this attribute
-	 * @return true if value was removed, otherwise false
-	 */
-	public boolean removeSourceValue(SignetSubjectAttrValue value)
+	public void setValue(int newValue)
 	{
-//TODO need to resequence the remaining value records!
-		boolean retval = sourceValues.remove(value);
-		if (retval)
-			refreshModifyDate();
-		return (retval);
+		setValue(new Integer(newValue));
+	}
+
+	public void setValue(Integer newValue)
+	{
+		attr_value = newValue.toString();
+		setAttr_type(ATTR_TYPE_INT);
+	}
+
+	public void setValue(float newValue)
+	{
+		setValue(new Float(newValue));
+	}
+
+	public void setValue(Float newValue)
+	{
+		attr_value = newValue.toString();
+		setAttr_type(ATTR_TYPE_FLOAT);
+	}
+
+	public void setValue(Date newValue)
+	{
+		attr_value = DateFormat.getInstance().format(newValue);
+		setAttr_type(ATTR_TYPE_DATE);
 	}
 
 
-	/**
-	 * @return A set of String objects representing the value(s) of this attribute,
-	 * may be an empty Set, but never null.
-	 */
-	public Set getValuesAsStringSet()
+	/** @return the data type of this attribute */
+	public String getType()
 	{
-		Set retval = new HashSet();
-
-		if (null == sourceValues)
-			return (retval);
-
-		// Convert the Set of SignetSubjectAttrValue objects into a Set of Strings
-		for (Iterator values = sourceValues.iterator(); values.hasNext(); )
-		{
-			String tmpValue = ((SignetSubjectAttrValue)values.next()).getValue();
-			retval.add(tmpValue);
-		}
-
-		return (retval);
+		return (attr_type);
 	}
 
+	/** for Hibernate only */
+	protected String getAttr_type()
+	{
+		return (attr_type);
+	}
+
+	/** for Hibernate only */
+	private void setAttr_type(String _attr_type)
+	{
+		attr_type = _attr_type;
+	}
+
+
+	/** @return the sequence number of this attribute (0 for single-valued attribute) */
+	public long getSequence()
+	{
+		return (sequence);
+	}
+
+	protected void setSequence(long sequence)
+	{
+		this.sequence = sequence;
+	}
 
 	/**
 	 * @return The modifyDate
@@ -287,7 +274,7 @@ public class SignetSubjectAttr
 	/**
 	 * @param modifyDate The modifyDate to set.
 	 */
-	public void setModifyDate(Date modifyDate)
+	private void setModifyDate(Date modifyDate)
 	{
 		this.modifyDate = modifyDate;
 	}
@@ -295,7 +282,7 @@ public class SignetSubjectAttr
 	/**
 	 * Sets the ModifyDate to the current system time.
 	 */
-	public void refreshModifyDate()
+	private void refreshModifyDate()
 	{
 		setModifyDate(new Date(System.currentTimeMillis()));
 	}
@@ -307,15 +294,6 @@ public class SignetSubjectAttr
 
 		// check my status first
 		retval = (null != subjectAttr_PK) && (0L < subjectAttr_PK.longValue());
-
-		if (retval && (null != sourceValues)) // check children's status if necessary
-		{
-			for (ListIterator vals = sourceValues.listIterator(); (vals.hasNext()) && retval; )
-			{
-				SignetSubjectAttrValue val = (SignetSubjectAttrValue)vals.next();
-				retval = val.isPersisted();
-			}
-		}
 
 		return (retval);
 	}
@@ -332,16 +310,26 @@ public class SignetSubjectAttr
 	public String toString()
 	{
 		StringBuffer buf = new StringBuffer();
-		buf.append(mappedName);
-		buf.append("(key=" + ((null != subjectAttr_PK) ? subjectAttr_PK.toString() : "(null)"));
-//		buf.append(",subject_PK=" + ((null != subject_FK) ? subject_FK.toString() : "(null)") + ")" + "=");
 
-		for (Iterator values = sourceValues.iterator(); values.hasNext(); )
-			buf.append("\"" + values.next() + "\"" + (values.hasNext() ? "," : ""));
+		buf.append("name=" + mappedName);
+		buf.append(", value=" + attr_value);
+		buf.append(", type=" + attr_type);
+		buf.append(", seq=" + sequence);
+		buf.append(", modifyDate=" + DateFormat.getDateInstance().format(modifyDate));
+		buf.append(", DBkey=" + ((null != subjectAttr_PK) ? subjectAttr_PK.toString() : "(null)"));
+		buf.append(", parentFK=");
+		if ((null != parent) && (null != parent.getSubject_PK()))
+			buf.append(parent.getSubject_PK().toString());
+		else
+			buf.append("(null)");
 
 		return (buf.toString());
 	}
 
+
+	/** Overrides Object#equals(java.lang.Object).
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	public boolean equals(Object o)
 	{
 		if (o instanceof SignetSubjectAttr)
@@ -350,32 +338,107 @@ public class SignetSubjectAttr
 			return (false);
 	}
 
-	/** Deep compare of <mappedName> and <sourceValues> only  */
+	/**
+	 * Compare two SignetSubjectAttr objects for equality
+	 * @param attr The SignetSubjectAttr to compare
+	 * @return true if mappedName, attr_value, attr_type, and sequence are equal, otherwise false
+	 */
 	public boolean equals(SignetSubjectAttr attr)
 	{
+		if (null == attr)
+			return (false);
+
 		boolean retval = false; // assume failure
 
-		if (null != attr)
-		{
-			if (retval = mappedName.equals(attr.getMappedName())) // yes, I do mean "="
-			{
-				List otherValues = attr.getSourceValues();
-				if (retval = sourceValues.size() == otherValues.size()) // yes, I do mean "="
-				for (int i = 0; (i < sourceValues.size()) && retval; i++)
-				{
-					SignetSubjectAttrValue myValue = (SignetSubjectAttrValue)sourceValues.get(i);
-					SignetSubjectAttrValue otherValue = (SignetSubjectAttrValue)otherValues.get(i);
-					retval = myValue.equals(otherValue);
-				}
-			}
-		}
+		if (retval = mappedName.equals(attr.getMappedName())) // yes, I do mean "="
+			if (retval = attr_value.equals(attr.getAttr_value()))  // yes, I do mean "="
+				if (retval = attr_type.equals(attr.getAttr_type())) // yes, I do mean "="
+//					if (retval = modifyDate.equals(attr.getModifyDate())) // yes, I do mean "="
+						retval = (sequence == attr.getSequence()); // yes, I do mean "="
+//						if (retval = (sequence == attr.getSequence())) // yes, I do mean "="
+//							if (retval = ((null != parent) & (null != attr.getParent()))) // yes, I do mean "=" and "&"
+//								retval = parent.getSubject_PK().equals(attr.getParent().getSubject_PK());
+//		if (null != attr)
+//		{
+//			if (retval = subj_attr_id.equals(attr.subj_attr_id)) // yes, I do mean "="
+//				if (retval = attr_valuesEqual(attr.getValue()))
+//					retval = modifyDatesEqual(attr.getModifyDate());
+////			if (retval = mappedName.equals(attr.getMappedName())) // yes, I do mean "="
+////			{
+////				List otherValues = attr.getSourceValues();
+////				if (retval = sourceValues.size() == otherValues.size()) // yes, I do mean "="
+////				for (int i = 0; (i < sourceValues.size()) && retval; i++)
+////				{
+////					SignetSubjectAttrValue myValue = (SignetSubjectAttrValue)sourceValues.get(i);
+////					SignetSubjectAttrValue otherValue = (SignetSubjectAttrValue)otherValues.get(i);
+////					retval = myValue.equals(otherValue);
+////				}
+////			}
+////		}
 
 		return (retval);
 	}
 
-	public int hashCode()
+	public boolean attr_valuesEqual(String otherValue)
 	{
-		return (toString().hashCode());
+		boolean retval;
+
+		if (null != attr_value)
+		{
+			if (null != otherValue)
+				retval = attr_value.equals(otherValue);
+			else
+				retval = false;
+		}
+		else
+		{
+			if (null == otherValue)
+				retval = true;
+			else
+				retval = false;
+		}
+		return (retval);
+		
 	}
+
+	public boolean modifyDatesEqual(Date otherDate)
+	{
+		boolean retval = false; // assume failure
+		if (null != modifyDate)
+		{
+			retval = modifyDate.equals(otherDate);
+		}
+		else
+		{
+			if (null == otherDate)
+				retval = true;
+			else
+				retval = false;
+		}
+		return (retval);
+		
+	}
+
+
+//	public int hashCode()
+//	{
+//		StringBuffer buf = new StringBuffer();
+//
+//		buf.append(mappedName);
+//		buf.append(attr_value);
+//		buf.append(attr_type);
+//		buf.append(sequence);
+//System.out.println("SignetSubjectAttr.hashCode: Attr=" + this.mappedName + " ownerId=" + parent.getId());
+//		DateFormat df = DateFormat.getInstance();
+//		String fmtDate = df.format(modifyDate);
+//		buf.append(fmtDate);
+//		buf.append((null != subjectAttr_PK) ? subjectAttr_PK.toString() : "(null)");
+//		if ((null != parent) && (null != parent.getSubject_PK()))
+//			buf.append(parent.getSubject_PK().toString());
+//		else
+//			buf.append("(null)");
+//
+//		return (buf.toString().hashCode());
+//	}
 
 }

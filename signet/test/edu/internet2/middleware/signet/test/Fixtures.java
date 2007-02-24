@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.37 2007-01-16 18:21:21 ddonn Exp $
-$Date: 2007-01-16 18:21:21 $
+$Id: Fixtures.java,v 1.38 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.naming.OperationNotSupportedException;
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Category;
@@ -33,6 +35,7 @@ import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.Tree;
@@ -48,7 +51,10 @@ public class Fixtures
   Signet		signet;
   Subsystem	subsystem;
   Tree			tree;
-  
+  protected HibernateDB hibr;
+  protected Session hs;
+  protected Transaction tx;
+
   private static final int SUBSYSTEM_OWNER_SUBJECT_NUMBER = 1000;
   
   /**
@@ -126,19 +132,21 @@ public class Fixtures
   {
     super();
     this.signet = signet;
-    
+    hibr = signet.getPersistentDB();
+    hs = hibr.openSession();
+
     // Let's start with a clean slate of Assignments. This will help us
     // to more reliably predict the number of duplicate Assignments later,
     // while testing Assignment.findDuplicates().
     deleteAssignmentsAndProxies();
     
-    signet.getPersistentDB().beginTransaction();
+    tx = hs.beginTransaction();
     createMetadata(signet);
-    signet.getPersistentDB().commit();
+    tx.commit();
     
-    signet.getPersistentDB().beginTransaction();
+    tx = hs.beginTransaction();
     createGrantables(signet);
-    signet.getPersistentDB().commit();
+    tx.commit();
   }
   
   private void createGrantables(Signet signet)
@@ -160,7 +168,7 @@ public class Fixtures
     for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
     {
       Assignment assignment = getOrCreateAssignment(subsystemOwner, i);
-      assignment.save();
+      hibr.save(hs, assignment);
     }
     
     for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
@@ -188,7 +196,7 @@ public class Fixtures
       
       Proxy proxy
         = getOrCreateProxy(grantorNumber, granteeNumber, proxiedSubsystem);
-      proxy.save();
+      hibr.save(hs, proxy);
     }
     
     // This is intended to create an Assignment for Subject 0 that can
@@ -202,7 +210,7 @@ public class Fixtures
            0,  // subject-number
                  2,  // function-number
                  limitChoiceNumbers);
-    assignment.save();
+    hibr.save(hs, assignment);
     
     // Grant and immediately revoke an Assignment from subject0 to subject2.
     // This will come in handy later for testing the Assignment.getRevoker()
@@ -215,9 +223,9 @@ public class Fixtures
            2, // grantee subject number
            0,
            limitChoiceNumbersForRevocation);
-    assignmentForRevocation.save();
+    hibr.save(hs, assignmentForRevocation);
     assignmentForRevocation.revoke(pSubject0);
-    assignmentForRevocation.save();
+    hibr.save(hs, assignmentForRevocation);
     
     // Grant and immediately revoke a Proxy from subject0 to subject2.
     // This will come in handy later for testing the Proxy.getRevoker()
@@ -227,9 +235,9 @@ public class Fixtures
           (0, // grantor subject number
            2, // grantee subject number
            this.subsystem);
-    proxyForRevocation.save();
+    hibr.save(hs, proxyForRevocation);
     proxyForRevocation.revoke(pSubject0);
-    proxyForRevocation.save();
+    hibr.save(hs, proxyForRevocation);
   }
 
   private void createMetadata(Signet signet2)
@@ -241,31 +249,27 @@ public class Fixtures
     
     this.subsystem = getOrCreateSubsystem();
     
-    tree = signet.getPersistentDB().getTree(Constants.TREE_ID);
+    tree = signet.getPersistentDB().getTree(hs, Constants.TREE_ID);
     this.subsystem.setTree(this.tree);
     
     for (int i = 0; i < Constants.MAX_CATEGORIES; i++)
     {
       getOrCreateCategory(i); 
-//      Category category = getOrCreateCategory(i); 
     }
     
     for (int i = 0; i < Constants.MAX_CHOICE_SETS; i++)
     {
       getOrCreateChoiceSet(i); 
-//      ChoiceSet choiceSet = getOrCreateChoiceSet(i); 
     }
     
     for (int i = 0; i < Constants.MAX_LIMITS; i++)
     {
       getOrCreateLimit(i);
-//      Limit limit = getOrCreateLimit(i);
     }
     
     for (int i = 0; i < Constants.MAX_FUNCTIONS; i++)
     {
       getOrCreateFunction(i);
-//      Function function = getOrCreateFunction(i);
     }
     
     for (int permissionNum = 0;
@@ -284,8 +288,8 @@ public class Fixtures
         permission.addLimit(getOrCreateLimit(limitNum));
       }
     }
-    
-    this.subsystem.save();
+
+    hibr.save(hs, subsystem);
   }
 
   private SignetSubject designateSubsystemOwner
@@ -307,8 +311,8 @@ public class Fixtures
              false,  // canExtend
              Constants.YESTERDAY,
              Constants.TOMORROW);
-    
-    newProxy.save();
+
+    hibr.save(hs, newProxy);
     
     return subsystemOwner;
   }
@@ -328,7 +332,7 @@ public class Fixtures
              Constants.YESTERDAY,
              Constants.TOMORROW);
 
-    newProxy.save();
+    hibr.save(hs, newProxy);
     
     return sysAdmin;
   }

@@ -1,38 +1,30 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml,v 1.3 2007-01-16 18:21:21 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml,v 1.4 2007-02-24 02:11:31 ddonn Exp $ -->
 
-<hibernate-mapping>
+<hibernate-mapping
+		default-lazy="false" >
+
 	<class
-		name="edu.internet2.middleware.signet.subjsrc.SignetSubjectAttr"
-		table="signet_subjectattribute"
-		lazy="false" >
-
+			name="edu.internet2.middleware.signet.subjsrc.SignetSubjectAttr"
+			table="signet_subjectattribute" >
 		<id name="subjectAttr_PK"
 				type="long"
 				column="subjectAttrKey"
 				unsaved-value="null" >
 			<generator class="native" />
 		</id>
+		<timestamp name="modifyDate" column="modifyDatetime" />
 
-		<property name="mappedName"	column="name"			type="string" />
-        <property name="modifyDate"	column="modifyDatetime"	type="date" />
-
-		<list name="sourceValues"
-				cascade="all"
-				lazy="false"
-				inverse="true" >
-			<key column="subjectAttrKey" />
-			<index column="sequence" type="long" />
-			<one-to-many class="edu.internet2.middleware.signet.subjsrc.SignetSubjectAttrValue" />
-		</list>
-
+		<property name="mappedName"	column="attr_name"	type="string"	not-null="true" />
+		<property name="attr_value" column="attr_value"	type="string"	not-null="true" />
+		<property name="attr_type"	column="attr_type"	type="string"	not-null="true" />
+		<property name="sequence"	column="attr_seq"	type="long"		not-null="true" />
 		<many-to-one name="parent"
 				class="edu.internet2.middleware.signet.subjsrc.SignetSubject"
 				column="subjectKey"
-				not-null="true" >
+				cascade="save-update" >
 		</many-to-one>
-
 	</class>
 </hibernate-mapping>

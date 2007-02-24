@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.17 2006-12-15 20:45:37 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.18 2007-02-24 02:11:32 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -19,6 +19,7 @@ package edu.internet2.middleware.signet;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -39,7 +40,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 
 	/** Database primary key. GrantableImpl is unusual among Signet entities in
 	 * that it has a numeric, not alphanumeric ID.
-	 * Note!! Overrides super.id (a very bad practice) */
+	 * Note!! Overrides/masks super.id (a dangerous practice) */
 	private Integer			id;
 
 	/** If this Grantable instance was granted directly by a PrivilegedSubject,
@@ -71,6 +72,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	{
 		super();
 		instanceNumber = MIN_INSTANCE_NUMBER;
+		setHistory(new HashSet());
 	}
   
 	/**
@@ -87,6 +89,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 		super(signet, null, null, null);
 
 		instanceNumber = MIN_INSTANCE_NUMBER;
+		setHistory(new HashSet());
 
 		setGrantorId(grantor.getSubject_PK());
 		setProxyForEffectiveEditor(grantor);
@@ -114,9 +117,8 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	// Grantor methods
 	////////////////////////////////////
 
-	/*
-	 * (non-Javadoc)
-	 * @see edu.internet2.middleware.signet.Assignment#getGrantor()
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Grantable#getGrantor()
 	 */
 	public SignetSubject getGrantor()
 	{
@@ -127,11 +129,11 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 			Signet signet = getSignet();
 			if (null != signet)
 				subject = signet.getSubject(grantorId.longValue());
-  else
-	log.warn("No Signet found for class " + this.getClass().getName());
+			else
+				log.warn("No Signet found in " + this.getClass().getName() + ".getGrantor()" + " where id=" + id);
 		}
-else
-	log.warn("No grantorId found for class " + this.getClass().getName());
+		else
+			log.warn("No grantorId found in " + this.getClass().getName() + ".getGrantor()" + " where id=" + id);
 
 		return (subject);
 	}
@@ -186,11 +188,11 @@ else
 			Signet signet = getSignet();
 			if (null != signet)
 				subject = signet.getSubject(proxyId.longValue());
-  else
-	  log.warn("No Signet found for class " + this.getClass().getName());
+			else
+				log.warn("No Signet found in " + this.getClass().getName() + ".getProxy()" + " where id=" + id);
 		}
-else
-  log.warn("No proxyId found for class " + this.getClass().getName());
+		else
+			log.warn("No proxyId found in " + this.getClass().getName() + ".getProxy()" + " where id=" + id);
 
 		return (subject);
 	}
@@ -225,7 +227,8 @@ else
 	
 	/**
 	 * For the given Subject, determine if it is acting as another subject.
-	 * If so, set this.proxy to that Subject. Otherwise, set this.proxy to null.
+	 * If so, set this.grantorId to the actingAs Id and proxyId to the Subject's Id.
+	 * Otherwise, set this.grantorId to the Subject's Id and this.proxyId to null.
 	 * @param subject The Subject in question.
 	 */
 	public void setProxyForEffectiveEditor(SignetSubject subject)
@@ -239,9 +242,15 @@ else
 		Long actingAsKey = actingAs.getSubject_PK();
 
 		if ( !subjKey.equals(actingAsKey)) // if ids != then Subject is acting as someone else
-			proxyId = actingAsKey;
+		{
+			grantorId = actingAsKey;
+			proxyId = subjKey;
+		}
 		else
+		{
+			grantorId = subjKey;
 			proxyId = null;
+		}
 	}
 
 
@@ -259,14 +268,14 @@ else
 
 		if (null != granteeId)
 		{
-		Signet signet = getSignet();
-		if (null != signet)
-			subject = signet.getSubject(granteeId.longValue());
-else
-	log.warn("No Signet found for class " + this.getClass().getName());
+			Signet signet = getSignet();
+			if (null != signet)
+				subject = signet.getSubject(granteeId.longValue());
+			else
+				log.warn("No Signet found in " + this.getClass().getName() + ".getGrantee()" + " where id=" + id);
 		}
 		else
-			log.warn("No granteeId found for class " + this.getClass().getName());
+			log.warn("No granteeId found in " + this.getClass().getName() + ".getGrantee()" + " where id=" + id);
 
 		return (subject);
 	}
@@ -314,11 +323,11 @@ else
 			Signet signet = getSignet();
 			if (null != signet)
 				subject = signet.getSubject(revokerId.longValue());
-  else
-	  log.warn("No Signet found for class " + this.getClass().getName());
+			else
+				log.warn("No Signet found in " + this.getClass().getName() + ".getRevoker()" + " where id=" + id);
 		}
-else
-  log.warn("No revokerId found for class " + this.getClass().getName());
+		else
+		  log.warn("No revokerId found in " + this.getClass().getName() + ".getRevoker()" + " where id=" + id);
 
 		return (subject);
 	}
@@ -410,7 +419,7 @@ else
 	 * @param actor
 	 * @throws NullPointerException, SignetAuthorityException
 	 */
-	protected void checkEditAuthority(SignetSubject actor)
+	public void checkEditAuthority(SignetSubject actor)
 		throws NullPointerException, SignetAuthorityException
 	{
 		if (null == actor)
@@ -428,9 +437,11 @@ else
 	 * @see edu.internet2.middleware.signet.Grantable#setEffectiveDate(edu.internet2.middleware.signet.subjsrc.SignetSubject,
 	 * java.util.Date)
 	 */
-	public void setEffectiveDate(SignetSubject actor, Date date) throws SignetAuthorityException
+	public void setEffectiveDate(SignetSubject actor, Date date, boolean checkAuth)
+			throws SignetAuthorityException
 	{
-		checkEditAuthority(actor);
+		if (checkAuth)
+			checkEditAuthority(actor);
 
 		if (date == null)
 		{
@@ -466,12 +477,13 @@ else
 	 * (non-Javadoc)
 	 * @see edu.internet2.middleware.signet.Assignment#setExpirationDate(java.util.Date)
 	 */
-	public void setExpirationDate(SignetSubject actor, Date expirationDate) throws SignetAuthorityException
+	public void setExpirationDate(SignetSubject actor, Date expirationDate, boolean checkAuth)
+			throws SignetAuthorityException
 	{
-		checkEditAuthority(actor);
+		if (checkAuth)
+			checkEditAuthority(actor);
 
 		this.expirationDate = expirationDate;
-		setModifyDatetime(new Date());
 
 		setGrantorId(actor.getSubject_PK());
 		setProxyForEffectiveEditor(actor);

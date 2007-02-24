@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.16 2006-10-25 00:10:25 ddonn Exp $
-$Date: 2006-10-25 00:10:25 $
+$Id: Common.java,v 1.17 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import org.hibernate.Session;
 import junit.framework.TestCase;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentHistory;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.Tree;
@@ -307,10 +309,13 @@ public class Common extends TestCase
   public static TreeNode getRootNode(Signet signet)
   throws ObjectNotFoundException
   {
-    Tree tree = signet.getPersistentDB().getTree(Constants.TREE_ID);
+	  HibernateDB hibr = signet.getPersistentDB();
+	  Session hs = hibr.openSession();
+    Tree tree = signet.getPersistentDB().getTree(hs, Constants.TREE_ID);
     Set roots = tree.getRoots();
     TreeNode root = (TreeNode)(Common.getSingleSetMember(roots));
-    
+    hibr.closeSession(hs);
+
     return root;
   }
   

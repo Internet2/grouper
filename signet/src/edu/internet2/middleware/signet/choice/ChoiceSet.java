@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSet.java,v 1.10 2006-01-24 19:23:03 acohen Exp $
-$Date: 2006-01-24 19:23:03 $
+$Id: ChoiceSet.java,v 1.11 2007-02-24 02:11:31 ddonn Exp $
+$Date: 2007-02-24 02:11:31 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -74,10 +74,5 @@ public interface ChoiceSet
      int    choiceDisplayOrder,
      int    choiceRank)
   throws OperationNotSupportedException;
-
-  /**
-   * Persists the current state of this ChoiceSet.
-   */
-  public void save();
 
 }

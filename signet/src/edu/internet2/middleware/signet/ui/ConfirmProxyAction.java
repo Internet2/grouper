@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.16 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: ConfirmProxyAction.java,v 1.17 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -21,22 +21,20 @@ package edu.internet2.middleware.signet.ui;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessages;
-
+import org.apache.struts.util.MessageResources;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
@@ -66,7 +64,6 @@ public final class ConfirmProxyAction extends BaseAction
   {
     // Setup message array in case there are errors
     ArrayList messages = new ArrayList();
-    ActionMessages actionMessages = null;
 
     // Confirm message resources loaded
     MessageResources resources = getResources(request);
@@ -83,13 +80,6 @@ public final class ConfirmProxyAction extends BaseAction
     }
 
     HttpSession session = request.getSession();
-    Date    effectiveDate   = null;
-    Date    expirationDate  = null;
-  
-    // currentProxy is present in the session only if we are editing
-    // an existing Proxy. Otherwise, we're attempting to create a new one.
-    Proxy proxy
-      = (Proxy)(session.getAttribute(Constants.PROXY_ATTRNAME));
   
     Signet signet = (Signet)(session.getAttribute("signet"));
   
@@ -97,10 +87,14 @@ public final class ConfirmProxyAction extends BaseAction
     {
       return (mapping.findForward("notInitialized"));
     }
-  
-    Common.showHttpParams
-      ("ConfirmProxyAction.execute()", signet.getLogger(), request);
+
+// debug
+Common.dumpHttpParams("ConfirmProxyAction.execute()", signet.getLogger(), request);
     
+    // currentProxy is present in the session only if we are editing
+    // an existing Proxy. Otherwise, we're attempting to create a new one.
+    Proxy proxy = (Proxy)(session.getAttribute(Constants.PROXY_ATTRNAME));
+
     SignetSubject currentGrantee = null;
     Subsystem subsystem = null;
     
@@ -122,70 +116,35 @@ public final class ConfirmProxyAction extends BaseAction
       }
     }
     
-    Date defaultEffectiveDate;
-    if ((proxy != null) && (proxy.getStatus().equals(Status.ACTIVE)))
+    Date defaultEffectiveDate = Common.getDefaultEffectiveDate(proxy);
+    ActionMessages actionMsgs = new ActionMessages();
+    Date effectiveDate = Common.getDateParam(request, Constants.EFFECTIVE_DATE_PREFIX,
+    		defaultEffectiveDate, actionMsgs);
+    Date expirationDate = Common.getDateParam(request, Constants.EXPIRATION_DATE_PREFIX,
+    		null, actionMsgs);
+	// If we've detected any data-entry errors, bail out now
+    if ( !actionMsgs.isEmpty())
     {
-      // You can't change the effective date of an active Proxy.
-      defaultEffectiveDate = proxy.getEffectiveDate();
+    	saveMessages(request, actionMsgs);
+		return findDataEntryErrors(mapping);
     }
-    else
-    {
-      defaultEffectiveDate = new Date();
-    }
-
-    try
-    {
-      effectiveDate
-        = Common.getDateParam
-            (request, Constants.EFFECTIVE_DATE_PREFIX, defaultEffectiveDate);
-    }
-    catch (DataEntryException dee)
-    {
-      actionMessages
-        = addActionMessage
-            (request, actionMessages, Constants.EFFECTIVE_DATE_PREFIX);
-    }
-  
-    try
-    {
-      expirationDate
-        = Common.getDateParam(request, Constants.EXPIRATION_DATE_PREFIX);
-    }
-    catch (DataEntryException dee)
-    {
-      actionMessages
-        = addActionMessage
-            (request, actionMessages, Constants.EXPIRATION_DATE_PREFIX);
-    }
-  
-    // If we've detected any data-entry errors, let's bail out here, before we
-    // try to use that bad data.
-    if (actionMessages != null)
-    {
-      return findDataEntryErrors(mapping);
-    }
-  
+    actionMsgs = null;
 
     SignetSubject loggedInUser = (SignetSubject)session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
   
-    if (proxy != null)
+    if (proxy != null) // We're editing an existing Proxy
     {
-      // We're editing an existing Proxy.
-      proxy.setEffectiveDate(loggedInUser, effectiveDate);
-      proxy.setExpirationDate(loggedInUser, expirationDate);
+      proxy.checkEditAuthority(loggedInUser); // throws on error
+      proxy.setEffectiveDate(loggedInUser, effectiveDate, false);
+      proxy.setExpirationDate(loggedInUser, expirationDate, false);
       proxy.evaluate();
     }
-    else
+    else // We're creating a new Proxy
     {
-      // We're creating a new Proxy.
-      proxy
-        = loggedInUser.grantProxy
-            (currentGrantee,
-             subsystem,
-             true,  // canUse
-             false, // canExtend
-             effectiveDate,
-             expirationDate);
+    	boolean canUse = true;
+    	boolean canExtend = false;
+    	proxy = loggedInUser.grantProxy(currentGrantee, subsystem,
+			canUse, canExtend,  effectiveDate, expirationDate);
     }
     
     session.setAttribute
@@ -205,10 +164,13 @@ public final class ConfirmProxyAction extends BaseAction
   
     // If we've gotten this far, there must be no duplicate Proxies.
     // Let's save this Proxy in the database.
-  
-    signet.getPersistentDB().beginTransaction();
-    proxy.save();
-    signet.getPersistentDB().commit();
+
+    HibernateDB hibr = signet.getPersistentDB();
+    Session hs = hibr.openSession();
+    Transaction tx = hs.beginTransaction();
+    hibr.save(hs, proxy);
+    tx.commit();
+    hibr.closeSession(hs);
   
     session.setAttribute(Constants.PROXY_ATTRNAME, proxy);
 
@@ -216,20 +178,5 @@ public final class ConfirmProxyAction extends BaseAction
     return findSuccess(mapping);
   }
 
-  private ActionMessages addActionMessage
-    (HttpServletRequest request,
-     ActionMessages     msgs,
-     String             msgKey)
-  {
-    if (msgs == null)
-    {
-      msgs = new ActionMessages();
-    }
-    
-    ActionMessage msg = new ActionMessage("dateformat");
-    msgs.add(msgKey, msg);
-    saveMessages(request, msgs);
-    
-    return msgs;
-  }
+
 }

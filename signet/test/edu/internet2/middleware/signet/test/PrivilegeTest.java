@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeTest.java,v 1.8 2006-10-25 00:10:25 ddonn Exp $
-$Date: 2006-10-25 00:10:25 $
+$Id: PrivilegeTest.java,v 1.9 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -12,11 +12,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import junit.framework.TestCase;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Privilege;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
@@ -29,6 +32,9 @@ public class PrivilegeTest extends TestCase
 {
   private Signet		signet;
   private Fixtures	fixtures;
+  protected HibernateDB hibr;
+  protected Session hs;
+  protected Transaction tx;
   
   public static void main(String[] args)
   {
@@ -43,16 +49,20 @@ public class PrivilegeTest extends TestCase
     super.setUp();
     
     signet = new Signet();
-    signet.getPersistentDB().beginTransaction();
+    hibr = signet.getPersistentDB();
+    hs = hibr.openSession();
+    tx = hs.beginTransaction();
     fixtures = new Fixtures(signet);
-    signet.getPersistentDB().commit();
-    signet.getPersistentDB().close();
+    tx.commit();
+    hibr.closeSession(hs);
     
     // Let's use a new Signet session, to make sure we're actually
     // pulling data from the database, and not just referring to in-memory
     // structures.
     signet = new Signet();
-    signet.getPersistentDB().beginTransaction();
+    hibr = signet.getPersistentDB();
+    hs = hibr.openSession();
+    tx = hs.beginTransaction();
   }
 
   /*
@@ -61,8 +71,8 @@ public class PrivilegeTest extends TestCase
   protected void tearDown() throws Exception
   {
     super.tearDown();
-    signet.getPersistentDB().commit();
-    signet.getPersistentDB().close();
+    tx.commit();
+    hibr.closeSession(hs);
   }
 
   /**

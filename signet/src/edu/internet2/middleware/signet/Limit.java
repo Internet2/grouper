@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.14 2006-02-09 10:21:36 lmcrae Exp $
-$Date: 2006-02-09 10:21:36 $
+$Id: Limit.java,v 1.15 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -97,8 +97,4 @@ extends Comparable
    */
   public SelectionType getSelectionType();
 
-  /**
-   * Persists the current state of this Limit.
-   */
-  public void save();
 }

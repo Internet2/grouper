@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetImpl.java,v 1.10 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: ChoiceSetImpl.java,v 1.11 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -56,8 +56,7 @@ public class ChoiceSetImpl implements ChoiceSet
    */
   ChoiceSetImpl()
   {
-    super();
-    this.choices = new HashSet();
+    choices = new HashSet();
   }
   
   /**
@@ -72,12 +71,11 @@ public class ChoiceSetImpl implements ChoiceSet
      ChoiceSetAdapter choiceSetAdapter,
   	 String           id)
   {
-    super();
-    this.setSignet(signet);
+    this();
+    setSignet(signet);
     this.id = id;
     this.subsystem = subsystem;
-    this.setChoiceSetAdapter(choiceSetAdapter);
-    this.choices = new HashSet();
+    setChoiceSetAdapter(choiceSetAdapter);
     
     ((SubsystemImpl)subsystem).add(this);
   }
@@ -255,13 +253,6 @@ public class ChoiceSetImpl implements ChoiceSet
                     .isEquals();
   }
 
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.choice.ChoiceSet#save()
-   */
-  public void save()
-  {
-    signet.getPersistentDB().save(this);
-  }
   
   /* This method is for use only by Hibernate.
    * 

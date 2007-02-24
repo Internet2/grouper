@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.41 2006-12-15 20:45:37 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.42 2007-02-24 02:11:32 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -43,7 +43,21 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
     this.limitValues = new HashSet(0);
   }
   
-  public AssignmentImpl
+  /**
+   * Create a new AssignmentImpl with known values
+   * @param signet
+   * @param grantor
+   * @param grantee
+   * @param scope
+   * @param function
+   * @param limitValues
+   * @param canUse
+   * @param canGrant
+   * @param effectiveDate
+   * @param expirationDate
+   * @throws SignetAuthorityException
+   */
+public AssignmentImpl
   	(Signet							    signet,
      SignetSubject	grantor,
      SignetSubject 	    grantee,
@@ -132,12 +146,8 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
       throw new SignetAuthorityException(decision);
     }
 
-    AssignmentHistory historyRecord
-      = new AssignmentHistoryImpl(this);
-  
-    Set historySet = new HashSet(1);
-    historySet.add(historyRecord);
-    this.setHistory(historySet);
+	setInstanceNumber(MIN_INSTANCE_NUMBER - 1); // createHistory bumps instance number
+	createHistoryRecord();
   }
   
   /**
@@ -261,9 +271,11 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.signet.Assignment#setCanGrant(edu.internet2.middleware.signet.subjsrc.SignetSubject, boolean)
 	 */
-	public void setCanGrant(SignetSubject actor, boolean canGrant) throws SignetAuthorityException
+	public void setCanGrant(SignetSubject actor, boolean canGrant, boolean checkAuth)
+			throws SignetAuthorityException
 	{
-		checkEditAuthority(actor);
+		if (checkAuth)
+			checkEditAuthority(actor);
 
 		this.canGrant = canGrant;
 
@@ -300,9 +312,11 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.signet.Assignment#setCanUse(edu.internet2.middleware.signet.subjsrc.SignetSubject, boolean)
 	 */
-	public void setCanUse(SignetSubject actor, boolean canUse) throws SignetAuthorityException
+	public void setCanUse(SignetSubject actor, boolean canUse, boolean checkAuth)
+				throws SignetAuthorityException
 	{
-		checkEditAuthority(actor);
+		if (checkAuth)
+			checkEditAuthority(actor);
 
 		this.canUse = canUse;
 
@@ -414,12 +428,21 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.signet.Assignment#setLimitValues(edu.internet2.middleware.signet.subjsrc.SignetSubject, java.util.Set)
 	 */
-	public void setLimitValues(SignetSubject actor, Set limitValues) throws SignetAuthorityException
+	public void setLimitValues(SignetSubject actor, Set limitValues, boolean checkAuth)
+					throws SignetAuthorityException
 	{
 		checkLimitValues(limitValues);
-		checkEditAuthority(actor);
+		if (checkAuth)
+			checkEditAuthority(actor);
 
-		this.setLimitValues(limitValues);
+		// don't run afoul of Hibernate
+		if (null != this.limitValues)
+		{
+			this.limitValues.clear();
+			this.limitValues.addAll(limitValues);
+		}
+		else
+			this.setLimitValues(limitValues);
 
 		setGrantorId(actor.getSubject_PK());
 		setProxyForEffectiveEditor(actor);
@@ -463,6 +486,7 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
   }
   
 	/**
+	 * for use by Hibernate
 	 * @param limitValues
 	 */
   private void setLimitValues(Set limitValues)
@@ -478,24 +502,15 @@ public class AssignmentImpl extends GrantableImpl implements Assignment
     return getSignet().getPersistentDB().findDuplicates(this);
   }
 
-  
-	/* (non-Javadoc)
-	 * @see edu.internet2.middleware.signet.EntityImpl#save()
+	/*
+	 * (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Grantable#createHistoryRecord()
 	 */
-	public void save()
+	public void createHistoryRecord()
 	{
-		if (null != getId())
-		{
-			// This isn't the first time we've saved this Assignment.
-			// We'll increment the instance-number accordingly, and save
-			// its history-record right now (just after we save the Assignment
-			// record itself, so as to avoid hitting any referential-integrity
-			// problems in the database).
-			incrementInstanceNumber();
-			getHistory().add(new AssignmentHistoryImpl(this));
-		}
-
-		super.save();
+		incrementInstanceNumber();
+		getHistory().add(new AssignmentHistoryImpl(this));
 	}
+
 
 }

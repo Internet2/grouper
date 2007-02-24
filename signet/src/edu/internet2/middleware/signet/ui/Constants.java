@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.26 2006-12-15 20:45:37 ddonn Exp $
-$Date: 2006-12-15 20:45:37 $
+$Id: Constants.java,v 1.27 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -23,9 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.Category;
-// import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
-// import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
@@ -190,7 +188,6 @@ public final class Constants
         public Permission getPermission(String id){return null;}
 //        public void setHelpText(String helpText) {}
         public String getHelpText() {return null;}
-        public void save() {}
         public void inactivate() {}
         public Status getStatus() {return null;}
         public Date getCreateDatetime() {return null;}

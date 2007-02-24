@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.6 2006-10-25 00:13:31 ddonn Exp $
-  $Date: 2006-10-25 00:13:31 $
+  $Id: assignment.jsp,v 1.7 2007-02-24 02:11:32 ddonn Exp $
+  $Date: 2007-02-24 02:11:32 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -231,7 +231,7 @@
     AssignmentHistory historyRecord = historyArray[i];
 %>
       <tr>
-        <th class="label" scope="row">
+        <th class="label" scope="row"> </th>
         <td>
           <%=Common.displayDatetime(Constants.DATETIME_FORMAT_12_MINUTE, historyRecord.getDate())%>
         </td>

@@ -22,7 +22,9 @@ package edu.internet2.middleware.signet.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
+import org.hibernate.Session;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 
 public class AssignmentReconcile
 {
@@ -32,11 +34,13 @@ public class AssignmentReconcile
       try {
 
          Signet signet = new Signet();
-         signet.getPersistentDB().beginTransaction();
+         HibernateDB hibr = signet.getPersistentDB();
+         Session hs = hibr.openSession();
 
          processReconcile (signet, reconcileDate);
-         signet.getPersistentDB().commit();
 
+         hs.getTransaction().commit();
+         hibr.closeSession(hs);
       } catch (java.text.ParseException exc) {
          System.out.println("Error: " + exc.getMessage());
       } catch (Exception exc) {

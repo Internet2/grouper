@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.26 2006-10-25 00:10:25 ddonn Exp $
-$Date: 2006-10-25 00:10:25 $
+$Id: AssignmentTest.java,v 1.27 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import junit.framework.TestCase;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
@@ -22,6 +24,7 @@ import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
@@ -30,6 +33,9 @@ public class AssignmentTest extends TestCase
 {
   private Signet		signet;
   private Fixtures	fixtures;
+  protected HibernateDB hibr;
+  protected Session hs;
+  protected Transaction tx;
   
   public static void main(String[] args)
   {
@@ -44,16 +50,20 @@ public class AssignmentTest extends TestCase
     super.setUp();
     
     signet = new Signet();
-    signet.getPersistentDB().beginTransaction();
+    hibr = signet.getPersistentDB();
+    hs = hibr.openSession();
+    tx = hs.beginTransaction();
     fixtures = new Fixtures(signet);
-    signet.getPersistentDB().commit();
-    signet.getPersistentDB().close();
+    tx.commit();
+    hibr.closeSession(hs);
     
     // Let's use a new Signet session, to make sure we're actually
     // pulling data from the database, and not just referring to in-memory
     // structures.
     signet = new Signet();
-    signet.getPersistentDB().beginTransaction();
+    hibr = signet.getPersistentDB();
+    hs = hibr.openSession();
+    tx = hs.beginTransaction();
   }
 
   /*
@@ -62,8 +72,8 @@ public class AssignmentTest extends TestCase
   protected void tearDown() throws Exception
   {
     super.tearDown();
-    signet.getPersistentDB().commit();
-    signet.getPersistentDB().close();
+    tx.commit();
+    hibr.closeSession(hs);
   }
 
   /**
@@ -115,7 +125,11 @@ public class AssignmentTest extends TestCase
       }
       
       assignment.revoke(revoker);
-      assignment.save();
+      hs = hibr.openSession();
+      tx = hs.beginTransaction();
+      hibr.save(hs, assignment);
+      tx.commit();
+      hibr.closeSession(hs);
     }
   }
   
@@ -168,7 +182,11 @@ public class AssignmentTest extends TestCase
                  assignmentReceived.canGrant(),
                  Constants.TODAY,  // EffectiveDate and expirationDate are not
                  Constants.TOMORROW); // considered when finding duplicates.
-        duplicateAssignment.save();
+	    hs = hibr.openSession();
+	    tx = hs.beginTransaction();
+	    hibr.save(hs, duplicateAssignment);
+	    tx.commit();
+	    hibr.closeSession(hs);
         
         // At this point, there shoule be exactly one duplicate Assignment.
         assertEquals(1, assignmentReceived.findDuplicates().size());
@@ -311,8 +329,12 @@ public class AssignmentTest extends TestCase
         
         // Update the Assignment with the altered LimitValues.
         assignment.setLimitValues
-          (Common.getOriginalGrantor(assignment), newLimitValues);
-        assignment.save();
+          (Common.getOriginalGrantor(assignment), newLimitValues, true);
+        hs = hibr.openSession();
+        tx = hs.beginTransaction();
+        hibr.save(hs, assignment);
+        tx.commit();
+        hibr.closeSession(hs);
       }
       
       // Examine every single altered LimitValue for every received Assignment,
@@ -350,8 +372,12 @@ public class AssignmentTest extends TestCase
         
         // Update the Assignment with the restored original LimitValues.
         assignment.setLimitValues
-          (Common.getOriginalGrantor(assignment), originalLimitValues);
-        assignment.save();
+          (Common.getOriginalGrantor(assignment), originalLimitValues, true);
+        hs = hibr.openSession();
+        tx = hs.beginTransaction();
+        hibr.save(hs, assignment);
+        tx.commit();
+        hibr.closeSession(hs);
       }
     }
   }
@@ -395,8 +421,12 @@ public class AssignmentTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setEffectiveDate
           (grantor,
-           Constants.DAY_BEFORE_YESTERDAY);
-        assignment.save();
+           Constants.DAY_BEFORE_YESTERDAY, true);
+        hs = hibr.openSession();
+        tx = hs.beginTransaction();
+        hibr.save(hs, assignment);
+        tx.commit();
+        hibr.closeSession(hs);
       }
       
       // Examine every single altered EffectiveDate for every received
@@ -416,8 +446,12 @@ public class AssignmentTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setEffectiveDate
           (grantor,
-           Constants.YESTERDAY);
-        assignment.save();
+           Constants.YESTERDAY, true);
+        hs = hibr.openSession();
+        tx = hs.beginTransaction();
+        hibr.save(hs, assignment);
+        tx.commit();
+        hibr.closeSession(hs);
       }
     }
   }
@@ -466,8 +500,12 @@ public class AssignmentTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setExpirationDate
           (grantor,
-           Constants.DAY_AFTER_TOMORROW);
-        assignment.save();
+           Constants.DAY_AFTER_TOMORROW, true);
+        hs = hibr.openSession();
+        tx = hs.beginTransaction();
+        hibr.save(hs, assignment);
+        tx.commit();
+        hibr.closeSession(hs);
       }
       
       // Examine every single altered expirationDate for every received
@@ -487,8 +525,12 @@ public class AssignmentTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setExpirationDate
           (grantor,
-           Constants.TOMORROW);
-        assignment.save();
+           Constants.TOMORROW, true);
+        hs = hibr.openSession();
+        tx = hs.beginTransaction();
+        hibr.save(hs, assignment);
+        tx.commit();
+        hibr.closeSession(hs);
       }
     }
   }
@@ -522,20 +564,21 @@ public class AssignmentTest extends TestCase
     Date nextWeek = Common.getDate(7);
     
     SignetSubject grantor = Common.getOriginalGrantor(assignment);
-    
-    assignment.setEffectiveDate(grantor, Constants.YESTERDAY);
-    assignment.setExpirationDate(grantor, Constants.TOMORROW);
+
+    assignment.checkEditAuthority(grantor); // throws if fails
+    assignment.setEffectiveDate(grantor, Constants.YESTERDAY, false);
+    assignment.setExpirationDate(grantor, Constants.TOMORROW, false);
     assignment.evaluate();
     assertEquals(Status.ACTIVE, assignment.getStatus());
     
-    assignment.setEffectiveDate(grantor, Constants.TOMORROW);
-    assignment.setExpirationDate(grantor, nextWeek);
-    assignment.evaluate();
+	assignment.setEffectiveDate(grantor, Constants.TOMORROW, false);
+	assignment.setExpirationDate(grantor, nextWeek, false);
+	assignment.evaluate();
     assertEquals(Status.PENDING, assignment.getStatus());
     
-    assignment.setEffectiveDate(grantor, lastWeek);
-    assignment.setExpirationDate(grantor, Constants.YESTERDAY);
-    assignment.evaluate();
+	assignment.setEffectiveDate(grantor, lastWeek, false);
+	assignment.setExpirationDate(grantor, Constants.YESTERDAY, false);
+	assignment.evaluate();
     assertEquals(Status.INACTIVE, assignment.getStatus());
   }
 
@@ -548,13 +591,8 @@ public class AssignmentTest extends TestCase
          subjectIndex < Constants.MAX_SUBJECTS;
          subjectIndex++)
     {
-//      Subject subject
-//        = signet.getSubjectSources().getSubject
-//            (Signet.DEFAULT_SUBJECT_TYPE_ID,
-//             Common.makeSubjectId(subjectIndex));
       
 	SignetSubject pSubject = signet.getSubject(SignetAppSource.SIGNET_SOURCE_ID, Common.makeSubjectId(subjectIndex));
-//      PrivilegedSubject pSubject = signet.getSubjectSources().getPrivilegedSubject(subject);
       
       Set assignmentsReceived = pSubject.getAssignmentsReceived();
       assignmentsReceived
@@ -576,8 +614,12 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the altered isGrantable flag.
         SignetSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setCanGrant
-          (grantor, !originalIsGrantable);
-        assignment.save();
+          (grantor, !originalIsGrantable, true);
+        hs = hibr.openSession();
+        tx = hs.beginTransaction();
+        hibr.save(hs, assignment);
+        tx.commit();
+        hibr.closeSession(hs);
       }
       
       // Examine every single altered "isGrantable" flag for every received
@@ -595,8 +637,12 @@ public class AssignmentTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setCanGrant
           (grantor,
-           Constants.ASSIGNMENT_CANGRANT);
-        assignment.save();
+           Constants.ASSIGNMENT_CANGRANT, true);
+        hs = hibr.openSession();
+        tx = hs.beginTransaction();
+        hibr.save(hs, assignment);
+        tx.commit();
+        hibr.closeSession(hs);
       }
     }
   }
@@ -638,8 +684,12 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the altered canUse flag.
         SignetSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setCanUse
-          (grantor, !originalCanUse);
-        assignment.save();
+          (grantor, !originalCanUse, true);
+        hs = hibr.openSession();
+        tx = hs.beginTransaction();
+        hibr.save(hs, assignment);
+        tx.commit();
+        hibr.closeSession(hs);
       }
       
       // Examine every single altered "canUse" flag for every received
@@ -657,8 +707,12 @@ public class AssignmentTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setCanUse
           (grantor,
-           Constants.ASSIGNMENT_CANUSE);
-        assignment.save();
+           Constants.ASSIGNMENT_CANUSE, true);
+        hs = hibr.openSession();
+        tx = hs.beginTransaction();
+        hibr.save(hs, assignment);
+        tx.commit();
+        hibr.closeSession(hs);
       }
     }
   }

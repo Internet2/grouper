@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml,v 1.4 2007-01-16 18:21:21 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml,v 1.5 2007-02-24 02:11:31 ddonn Exp $ -->
 
-<hibernate-mapping>
+<hibernate-mapping
+		default-lazy="false" >
+
 	<class
 			name="edu.internet2.middleware.signet.subjsrc.SignetSubject"
-			table="signet_subject"
-			lazy="false" >
+			table="signet_subject" >
 
 		<id name="subject_PK"
 				type="long"
@@ -15,17 +16,16 @@
 				unsaved-value="null" > 
 			<generator class="native" />
 		</id>
+        <timestamp name="modifyDatetime" column="modifyDatetime" />
 
 		<property name="id"				column="subjectid"	type="string" />
 		<property name="subjectType"	column="type"		type="string" />
 		<property name="name"			column="name"		type="string" />
 		<property name="sourceId"		column="sourceid"	type="string" />
-        <property name="modifyDatetime"	column="modifyDatetime"	type="date" />
         <property name="synchDatetime"	column="syncDatetime"	type="date" />
 
 		<set name="subjectAttrs"
 				cascade="all"
-				lazy="false"
 				inverse="true" >
 			<key column="subjectKey" />
 			<one-to-many class="edu.internet2.middleware.signet.subjsrc.SignetSubjectAttr" />

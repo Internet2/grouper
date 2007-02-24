@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping>
+
+<hibernate-mapping
+		default-lazy="false" >
+
 	<class
 		name="edu.internet2.middleware.signet.TreeNodeImpl"
 		table="signet_treeNode">

@@ -1,6 +1,6 @@
 /*--
-$Id: Entity.java,v 1.8 2006-02-09 10:19:35 lmcrae Exp $
-$Date: 2006-02-09 10:19:35 $
+$Id: Entity.java,v 1.9 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -29,13 +29,6 @@ import edu.internet2.middleware.signet.Status;
 */
 interface Entity
 {  
-  /**
-   * Saves the current state of this Signet entity, and any Signet entities
-   * that it refers to.
-   *
-   */
-  public void save();
-
   /**
    * Gets the <code>Status</code> of this entity. {@link Assignment}s and
    * {@link Proxy}s may have the status <code>ACTIVE</code>,

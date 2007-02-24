@@ -1,8 +1,6 @@
 /*
-SubsystemXmlLoader.java
-Created on Jan 15, 2005
-
-Copyright 2006 Internet2, Stanford University
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SubsystemXmlLoader.java,v 1.19 2007-02-24 02:11:32 ddonn Exp $
+Copyright 2007 Internet2, Stanford University
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,26 +17,19 @@ limitations under the License.
 
 package edu.internet2.middleware.signet.util;
 
-/**
- * @author lmcrae@stanford.edu
- *
- */
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.Transaction;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -53,54 +44,38 @@ import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetFactory;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.SubsystemImpl;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.tree.Tree;
-// import java.util.logging.Logger;
 
-public class SubsystemXmlLoader {
-    private Map choiceSetMap = new HashMap();
-    private Map limitMap = new HashMap();
-    private Map categoryMap = new HashMap();
-    private Map permissionMap = new HashMap();
-//  private Logger logger;
+/**
+ * Utility application to import Subsystems into Signet's persistent store.
+ * 
+ * @version $Revision: 1.19 $
+ * @author lmcrae@stanford.edu
+ *
+ */
+public class SubsystemXmlLoader
+{
+    private Map choiceSetMap;
+    private Map limitMap;
+    private Map categoryMap;
+    private Map permissionMap;
 
     /**
      * Default constructor.
      *
      */
-    public SubsystemXmlLoader() throws Exception {
-        // this.logger = Logger.getLogger(this.toString());
+    public SubsystemXmlLoader() throws Exception
+    {
+		choiceSetMap = new HashMap();
+		limitMap = new HashMap();
+		categoryMap = new HashMap();
+		permissionMap = new HashMap();
     }
 
-    private void removeSubsystem(String subsystemId) {
-        if (! readYesOrNo(
-        		"\nYou are about to delete data for subsystem "
-        		+ subsystemId
-        		+ " and the associated assignments."
-				+ "\nDo you wish"
-				+ " to continue (Y/N)? ")) {
-        	System.exit(0);
-        }
-
-    	SubsystemDestroyer destroyer = new SubsystemDestroyer(subsystemId);
-    	try {
-    		destroyer.execute();
-    	}
-    	catch (HibernateException he) {
-    		System.out.println("-Error: unable to remove subsystem " +
-    				subsystemId);
-			System.out.println(he.getMessage());
-			System.exit(1);
-    	}
-    	catch (SQLException sqle) {
-    		System.out.println("-Error: unable to remove subsystem " +
-    				subsystemId);
-			System.out.println(sqle.getMessage());
-			System.exit(1);
-    	}
-    }
-    
     private void processXML(String fName, boolean validate)
         throws IOException, JDOMException, ObjectNotFoundException,
             javax.naming.OperationNotSupportedException {
@@ -118,13 +93,15 @@ public class SubsystemXmlLoader {
         Element subsystemHelpTextElem = rootElem.getChild("HelpText");
         String subsystemHelpText = subsystemHelpTextElem.getTextTrim();
 
-        // -- Check for existence of subsystem
-        if (subsystemExists(subsystemId))
-        {
-          removeSubsystem(subsystemId);
-        }
-
+        // init Signet, persistent store, etc.
         Signet signet = new Signet();
+        HibernateDB hibr = signet.getPersistentDB();
+
+        // -- Check for existence of subsystem
+        if (subsystemExists(hibr, subsystemId))
+        {
+          removeSubsystem(hibr, subsystemId);
+        }
 
         System.out.println("+ " + rootElem.getName());
         System.out.println("- " + subsystemIdElem.getName() + " = " + subsystemId);
@@ -137,79 +114,59 @@ public class SubsystemXmlLoader {
 
         // Check for existence of named scope tree
         Tree tempTree = null;
+Session hs = hibr.openSession();
 
-        try {
-            tempTree = signet.getPersistentDB().getTree(scopeId);
-        } catch (ObjectNotFoundException e) {
+        try { tempTree = hibr.getTree(hs, scopeId); }
+        catch (ObjectNotFoundException e)
+        {
+        	hibr.closeSession(hs);
             throw new ObjectNotFoundException("Subsystem " + subsystemId + " -- Scope \"" + scopeId
                 + "\" is not a defined Tree");
         }
 
-        // Start transaction and process remainder of document
-        signet.getPersistentDB().beginTransaction();
-
+Transaction tx = hs.beginTransaction();
         Subsystem subsystem = SignetFactory.newSubsystem(
         		signet, subsystemId, subsystemName, subsystemHelpText, Status.ACTIVE);
         subsystem.setTree(tempTree);
-        subsystem.save();
-        signet.getPersistentDB().commit();
 
         try {
-        	signet.getPersistentDB().beginTransaction();
-
             processChoiceSet(signet, subsystem, rootElem);
             processLimit(signet, subsystem, rootElem);
             processPermission(signet, subsystem, rootElem);
             processCategory(signet, subsystem, rootElem);
             processFunction(signet, subsystem, rootElem);
-
-            signet.getPersistentDB().commit();
+hs.saveOrUpdate(subsystem);
+tx.commit();
 
         } catch (ObjectNotFoundException e) {
+        	tx.rollback();
             throw new ObjectNotFoundException(e.getMessage());
         } catch (NumberFormatException e) {
+        	tx.rollback();
             throw new NumberFormatException(e.getMessage());
         }
-    }
-
-    private boolean subsystemExists(String subsystemId)
-    {
-      Configuration  cfg = new Configuration();
-      SessionFactory sessionFactory;
-      Session        session;
-      Connection     conn;
-      int            subsystemCount = 0;
-
-      try
-      {
-        // Read the "hibernate.cfg.xml" file.
-        cfg.configure();
-        sessionFactory = cfg.buildSessionFactory();
-        session = sessionFactory.openSession();
-        conn = session.connection();
-        
-        Statement stmt = conn.createStatement();
-        ResultSet results
-          = stmt.executeQuery
-              ("select count(*) from signet_subsystem where subsystemID='"
-               + subsystemId
-               + "'");
-        while (results.next())
+        finally
         {
-          subsystemCount = results.getInt(1);
+        	hibr.closeSession(hs);
         }
-        session.close();
-      }
-      catch (Exception e)
-      {
-        throw new RuntimeException(e);
-      }
-      
-      return (subsystemCount > 0);
     }
+
+    private boolean subsystemExists(HibernateDB hibr, String subsystemId)
+	{
+    	Session hs = hibr.openSession();
+		Query query = hibr.createQuery(hs,
+				"from " + SubsystemImpl.class.getName() +
+				" where subsystemID='" + subsystemId + "'");
+		List results = query.list();
+		int subsystemCount = results.size();
+		hibr.closeSession(hs);
+
+		return (0 < subsystemCount);
+	}
 
     private void processChoiceSet(Signet signet, Subsystem subsystem, Element rootElem)
-        throws javax.naming.OperationNotSupportedException, NumberFormatException {
+        throws javax.naming.OperationNotSupportedException, NumberFormatException
+    {
         List choicesets = rootElem.getChildren("ChoiceSet");
         Iterator choicesetIter = choicesets.iterator();
         while (choicesetIter.hasNext()) {
@@ -225,8 +182,7 @@ public class SubsystemXmlLoader {
             		signet, SignetFactory.DEFAULT_CHOICE_SET_ADAPTER_NAME);
             ChoiceSet choiceset = SignetFactory.newChoiceSet(
             		signet, csAdapter, subsystem, choicesetId);
-            choiceset.save();
-            this.choiceSetMap.put(choicesetId, choiceset);
+            choiceSetMap.put(choicesetId, choiceset);
 
             Element choicesetChoice = choicesetElem.getChild("Choice");
 
@@ -277,9 +233,8 @@ public class SubsystemXmlLoader {
         }
     }
 
-    private void processLimit
-      (Signet signet, Subsystem subsystem, Element rootElem)
-    throws ObjectNotFoundException
+    private void processLimit(Signet signet, Subsystem subsystem, Element rootElem)
+    		throws ObjectNotFoundException
     {
       List limits = rootElem.getChildren("Limit");
       Iterator limitIter = limits.iterator();
@@ -312,7 +267,7 @@ public class SubsystemXmlLoader {
         System.out.println("- - - Renderer = " + rendererId);
 
         ChoiceSet limitChoiceSet
-        	= (ChoiceSet) this.choiceSetMap.get(limitChoiceSetId);
+        	= (ChoiceSet)choiceSetMap.get(limitChoiceSetId);
         if (limitChoiceSet == null)
         {
           throw new ObjectNotFoundException
@@ -324,15 +279,15 @@ public class SubsystemXmlLoader {
 
 		Limit limit = SignetFactory.newLimit(signet, subsystem, limitId, DataType.TEXT,
 				limitChoiceSet, limitName, limitNumber, limitHelpText, Status.ACTIVE, rendererId);
-        limit.save();
-        this.limitMap.put(limitId, limit);
+        limitMap.put(limitId, limit);
         
         limitNumber++;
       }
     }
 
     private void processPermission(Signet signet, Subsystem subsystem, Element rootElem)
-        throws ObjectNotFoundException {
+        	throws ObjectNotFoundException
+    {
         List permissions = rootElem.getChildren("Permission");
         Iterator permissionIter = permissions.iterator();
         while (permissionIter.hasNext()) {
@@ -354,7 +309,7 @@ public class SubsystemXmlLoader {
                 System.out.println("- - - PermissionLimit = "
                     + permissionLimitId);
 
-                Limit permissionLimit = (Limit) this.limitMap.get(permissionLimitId);
+                Limit permissionLimit = (Limit)limitMap.get(permissionLimitId);
                 if (permissionLimit == null) {
                     throw new ObjectNotFoundException("Permission " + permissionId + " -- Limit \""
                         + permissionLimitId + "\" is not defined");
@@ -370,12 +325,12 @@ public class SubsystemXmlLoader {
                 String permissionPrereqId = permissionPrereqElem.getTextTrim();
                 System.out.println("- - - PermissionPrerequisite = " + permissionPrereqId);
             }
-            permission.save();
-            this.permissionMap.put(permissionId, permission);
+            permissionMap.put(permissionId, permission);
         }
     }
 
-    private void processCategory(Signet signet, Subsystem subsystem, Element rootElem) {
+    private void processCategory(Signet signet, Subsystem subsystem, Element rootElem)
+    {
         List categories = rootElem.getChildren("Category");
         Iterator categoryIter = categories.iterator();
         while (categoryIter.hasNext()) {
@@ -392,15 +347,13 @@ public class SubsystemXmlLoader {
             System.out.println("- - - Name = " + categoryName);
 
             Category category = SignetFactory.newCategory(subsystem, categoryId, categoryName, Status.ACTIVE);
-//            Category category = signet.newCategory(subsystem, categoryId, categoryName,
-//                    Status.ACTIVE);
-            category.save();
-            this.categoryMap.put(categoryId, category);
+            categoryMap.put(categoryId, category);
         }
     }
 
     private void processFunction(Signet signet, Subsystem subsystem, Element rootElem)
-        throws ObjectNotFoundException {
+        throws ObjectNotFoundException
+    {
         List functions = rootElem.getChildren("Function");
         Iterator functionIter = functions.iterator();
         while (functionIter.hasNext()) {
@@ -424,15 +377,15 @@ public class SubsystemXmlLoader {
             String functionCategoryId = functionCategoryElem.getTextTrim();
             System.out.println("- - - CategoryID = " + functionCategoryId);
 
-            Category functionCategory = (Category) this.categoryMap.get(functionCategoryId);
+            Category functionCategory = (Category)categoryMap.get(functionCategoryId);
             if (functionCategory == null) {
                 throw new ObjectNotFoundException("Function " + functionId + " -- Category \""
                     + functionCategoryId + "\" is not defined");
             }
 
+            // factory method adds function to the category and category's subsystem
             Function function = SignetFactory.newFunction(signet, functionCategory,
             		functionId, functionName, Status.ACTIVE, functionHelpText);
-            function.save();
 
             List functionPermissions = functionElem.getChildren("FunctionPermission");
             Iterator functionPermissionIter = functionPermissions.iterator();
@@ -441,7 +394,7 @@ public class SubsystemXmlLoader {
                 String functionPermissionId = functionPermissionElem.getTextTrim();
                 System.out.println("- - - FunctionPermission = " + functionPermissionId);
 
-                Permission functionPermission = (Permission) this.permissionMap.get(functionPermissionId);
+                Permission functionPermission = (Permission)permissionMap.get(functionPermissionId);
                 if (functionPermission == null) {
                     throw new ObjectNotFoundException("Function " + functionId
                         + " -- Permission \"" + functionPermissionId + "\" is not defined");
@@ -452,33 +405,37 @@ public class SubsystemXmlLoader {
         }
     }
 
-    public static void main(String[] args) {
-        try {
-            if (args.length < 1) {
-                System.err.println("Usage: SubsystemXmlLoader <xml file>");
-                return;
-            }
-
-			SubsystemXmlLoader processor = new SubsystemXmlLoader();
-
-            String fName = args[0];
-
-            // Process the XML file
-            // The second param indicates whether XML will
-            // be validated.
-            processor.processXML(fName, true);
-        } catch (JDOMException e) {
-            System.out.println("-" + e.getMessage());
-        } catch (ObjectNotFoundException e) {
-            System.out.println("-Error: " + e.getMessage());
-        } catch (NumberFormatException e) {
-            System.out.println("-Error: " + e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
+    private void removeSubsystem(HibernateDB hibr, String subsystemId) {
+        if (! readYesOrNo(
+        		"\nYou are about to delete data for subsystem "
+        		+ subsystemId
+        		+ " and the associated assignments."
+				+ "\nDo you wish"
+				+ " to continue (Y/N)? "))
+        {
+        	System.out.println("Operation canceled.");
+        	System.exit(0);
         }
+
+    	SubsystemDestroyer destroyer = new SubsystemDestroyer();
+    	try {
+    		destroyer.execute(hibr, subsystemId);
+    	}
+    	catch (HibernateException he) {
+    		System.out.println("-Error: unable to remove subsystem " +
+    				subsystemId);
+			System.out.println(he.getMessage());
+			System.exit(1);
+    	}
+    	catch (SQLException sqle) {
+    		System.out.println("-Error: unable to remove subsystem " +
+    				subsystemId);
+			System.out.println(sqle.getMessage());
+			System.exit(1);
+    	}
     }
     
-    private static boolean readYesOrNo(String prompt) {
+    private boolean readYesOrNo(String prompt) {
         while (true) {
             String response = promptedReadLine(prompt);
             if (response.length() > 0) {
@@ -494,19 +451,51 @@ public class SubsystemXmlLoader {
         }
     }
     
-    private static String promptedReadLine(String prompt) {
-        try {
+    private String promptedReadLine(String prompt)
+    {
+        try
+        {
             System.out.print(prompt);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             return reader.readLine();
-        } catch (java.io.IOException e) {
+        }
+        catch (java.io.IOException e)
+        {
             return null;
         }
     }
     
-    private static BufferedReader reader;
+    
+    public static void main(String[] args)
+    {
+    	boolean status = false; // assume failure
+        try {
+            if (args.length < 1) {
+                System.err.println("Usage: SubsystemXmlLoader <xml file>");
+                System.exit(0);
+            }
 
-    static {
-        reader = new BufferedReader(new InputStreamReader(System.in));
+			SubsystemXmlLoader processor = new SubsystemXmlLoader();
+
+            String fName = args[0];
+
+            // Process the XML file
+            // The second param indicates whether XML will
+            // be validated.
+            processor.processXML(fName, true);
+            status = true;
+        } catch (JDOMException e) {
+            System.out.println("-" + e.getMessage());
+        } catch (ObjectNotFoundException e) {
+            System.out.println("-Error: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("-Error: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (status)
+        	System.out.println("Operation successful.");
+        System.out.println("SubsystemXmlLoader done.");
     }
 
 }

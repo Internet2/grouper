@@ -1,5 +1,5 @@
 /*
-SubsystemXmlDestroyer.java
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SubsystemDestroyer.java,v 1.9 2007-02-24 02:11:32 ddonn Exp $
 Created on Feb 22, 2005
 
 Copyright 2006 Internet2, Stanford University
@@ -24,17 +24,16 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 
-public class SubsystemDestroyer {
-
-	private static SessionFactory sessionFactory;
-    private Session session;
-
-    private String subsystemId = null;
-    
-    private String[] statements = new String[] {
+/**
+ * @version $Revision: 1.9 $
+ * @author lmcrae
+ *
+ */
+public class SubsystemDestroyer
+{
+    private static final String[] statements = new String[] {
         "delete from signet_assignmentLimit_history  where assignment_historyID in (select signet_assignment_history.historyID from signet_assignment_history, signet_assignment, signet_function where signet_assignment_history.assignmentID = signet_assignment.assignmentID and signet_assignment.functionKey = signet_function.functionKey and signet_function.subsystemID=?)",
         "delete from signet_assignmentLimit     where assignmentID in (select signet_assignment.assignmentID from signet_assignment, signet_function where signet_assignment.functionKey=signet_function.functionKey and signet_function.subsystemID=?)",
         "delete from signet_assignment_history  where assignmentID in (select signet_assignment.assignmentID from signet_assignment, signet_function where signet_assignment.functionKey = signet_function.functionKey and signet_function.subsystemID=?)",
@@ -54,7 +53,7 @@ public class SubsystemDestroyer {
 		"delete from signet_subsystem           where subsystemID = ?"
 	};
     
-    private String[] tables = new String[] {
+    private static final String[] tables = new String[] {
         "signet_assignmentLimit_history",
         "signet_assignmentLimit",
         "signet_assignment_history",
@@ -74,49 +73,29 @@ public class SubsystemDestroyer {
 		"signet_subsystem"
 	};
 	
-    static
-    /* runs at class load time */
-    {
-        Configuration cfg = new Configuration();
 
-        try {
-            // Read the "hibernate.cfg.xml" file.
-            cfg.configure();
-            sessionFactory = cfg.buildSessionFactory();
-        }
-        catch (HibernateException he) {
-            throw new RuntimeException(he);
-        }
+    /** default constructor */
+	public SubsystemDestroyer()
+	{
+	}
 
-    }
-    
-    /**
-     *
-     *
-     */
-    public SubsystemDestroyer(String subsystemId) {
-        try {
-		    this.session = sessionFactory.openSession();
-		    this.subsystemId = subsystemId;
-		}
-		catch (HibernateException he) {
-		    throw new RuntimeException(he);
-        }
-    }
 
-	/*
+	/**
 	 * Deletes all Subsystem metadata and associated assignments.
-	 *
+	 * @param hibr
+	 * @param subsystemId
+	 * @throws HibernateException
+	 * @throws SQLException
 	 */
-	public void execute()
+	public void execute(HibernateDB hibr, String subsystemId)
 	    throws HibernateException, SQLException {
-	    
-	    Connection conn = this.session.connection();
-	    
+
+		Session hs = hibr.openSession();
+		Connection conn = hs.connection();
 	    try {
-	        //conn.setAutoCommit(true);
-	        for (int i = 0; i < this.statements.length; i++) {
-	        	execute(conn, this.statements[i], this.tables[i]);
+	        conn.setAutoCommit(true);
+	        for (int i = 0; i < statements.length; i++) {
+	        	execute(conn, statements[i], tables[i], subsystemId);
 	    	}
 	    	conn.commit();
 	    }
@@ -124,20 +103,33 @@ public class SubsystemDestroyer {
 	        conn.rollback();
 	    	System.out.println("SQL error occurred: " + ex.getMessage());
 	    }
-	    finally {
+	    finally
+	    {
 	    	conn.close();
+	    	hibr.closeSession(hs);
 	    }
-
 	}
 	
-	private void execute(Connection conn, String sql, String table)
+	/**
+	 * @param conn
+	 * @param sql
+	 * @param table
+	 * @param subsystemId
+	 * @throws SQLException
+	 */
+	private void execute(Connection conn, String sql, String table, String subsystemId)
 		throws SQLException {
 		PreparedStatement ps = conn.prepareStatement(sql);
-		ps.setString(1, this.subsystemId);
+		ps.setString(1, subsystemId);
 		int rows = ps.executeUpdate();
 	    System.out.println("Delete from " + table + " -- " + rows + " rows affected");
 	}
-	
+
+
+    /**
+     * note: this is untested as of 01/30/07
+     * @param args
+     */
     public static void main(String[] args) {
         try {
             if (args.length < 1) {
@@ -145,8 +137,9 @@ public class SubsystemDestroyer {
                 return;
             }
 			String subsystemId = args[0];
-            SubsystemDestroyer processor = new SubsystemDestroyer(subsystemId);
-            processor.execute();
+            HibernateDB hibr = new HibernateDB(null); // untested, don't know whether passing null will work (DMD)
+            SubsystemDestroyer processor = new SubsystemDestroyer();
+            processor.execute(hibr, subsystemId);
 
         } catch (Exception e) {
             e.printStackTrace();

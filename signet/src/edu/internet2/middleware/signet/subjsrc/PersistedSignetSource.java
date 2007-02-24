@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.6 2007-01-09 01:01:25 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.7 2007-02-24 02:11:31 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -19,12 +19,15 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.subjsrc;
 
+import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
+import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
+import edu.internet2.middleware.signet.resource.ResLoaderApp;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -388,9 +391,15 @@ public String latencyMinutes;
 		SignetSubject retval;
 
 		if (null != persistMgr)
+		{
 			retval = persistMgr.getSubject(subject_pk);
+			setSubjectSource(retval);
+		}
 		else
+		{
 			retval = null;
+			log.warn("No Persistence Manager found");
+		}
 
 		return (retval);
 	}
@@ -398,8 +407,7 @@ public String latencyMinutes;
 
 	/**
 	 * Find a SignetSubject from the Persisted store that matches the given
-	 * sourceId and subjectId. If found, check if subject.isStale() and 
-	 * try to get fresh Subject info from SubjectAPI.
+	 * sourceId and subjectId.
 	 * Pseudo-override of SignetSubject#getSubject(String subjectId)
 	 * @param sourceId The sourceId
 	 * @param subjectId The subjectId
@@ -412,10 +420,7 @@ public String latencyMinutes;
 		try
 		{
 			retval = persistMgr.getSubject(sourceId, subjectId);
-			if (null != retval)
-				retval.setSource(signetSources.getSource(sourceId));
-			if (isStale(retval))
-				signetSources.synchSubject(retval);
+			setSubjectSource(retval);
 		}
 		catch (ObjectNotFoundException e)
 		{
@@ -433,18 +438,33 @@ public String latencyMinutes;
 	public Subject getSubjectByIdentifier(String identifier)
 	{
 		SignetSubject retval = null;
+		Object[] msgData;
+		MessageFormat msgFmt;
 
 		try
 		{
 			retval = persistMgr.getSubjectByIdentifier(identifier);
-			if (null != retval)
-				retval.setSource(signetSources.getSource(retval.getSourceId()));
+			setSubjectSource(retval);
 			if (isStale(retval))
-				signetSources.synchSubject(retval);
+			{
+				Subject apiSubject = getSources().getSubjectBySource(retval.getSourceId(), retval.getId());
+				retval.synchSubject(apiSubject);
+			}
 		}
-		catch (ObjectNotFoundException e)
+		catch (ObjectNotFoundException onfe)
 		{
-			log.warn(e);
+			msgData = new Object[] { getSourceId(), identifier };
+			String msgTemplate = ResLoaderApp.getString("HibernateDb.msg.exc.SubjNotFound");  //$NON-NLS-1$
+			msgFmt = new MessageFormat(msgTemplate);
+			log.warn(msgFmt.format(msgData));
+		}
+		catch (SignetRuntimeException rte)
+		{
+			msgData = new Object[] { rte.getMessage(), getSourceId(), identifier };
+			msgFmt = new MessageFormat(ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_1") + //$NON-NLS-1$
+					ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_2") + //$NON-NLS-1$
+					ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_3")); //$NON-NLS-1$
+			log.error(msgFmt.format(msgData));
 		}
 
 		return (retval);
@@ -459,7 +479,25 @@ public String latencyMinutes;
 	{
 //TODO Implement getSubjects
 System.out.println("PersistedSignetSource.getSubjects: not implemented yet!");
-		return null;
+		return new Vector();
+	}
+
+	/**
+	 * Attempt to lookup the original SubjectAPI Source for the Subject and
+	 * set its value. If the original Source is unavailable, set the Subject's
+	 * Source to the PersistedSignetSource (i.e. this).
+	 * @param subject The just-retrieved-from-persisted-store subject
+	 */
+	protected void setSubjectSource(SignetSubject subject)
+	{
+		if (null == subject)
+			return;
+
+		SignetSource src = signetSources.getSource(subject.getSourceId());
+		if (null != src)
+			subject.setSource(src);
+		else
+			subject.setSource(this);
 	}
 
 

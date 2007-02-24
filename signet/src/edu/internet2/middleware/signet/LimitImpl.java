@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.17 2006-12-16 01:08:53 ddonn Exp $
-$Date: 2006-12-16 01:08:53 $
+$Id: LimitImpl.java,v 1.18 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -181,11 +181,6 @@ public final class LimitImpl implements Limit
   throws ObjectNotFoundException
   {
     this.subsystemId = subsystemId;
-    
-    if (this.getSignet() != null)
-    {
-      subsystem = getSignet().getPersistentDB().getSubsystem(subsystemId);
-    }
   }
 
   public ChoiceSet getChoiceSet()
@@ -222,11 +217,6 @@ public final class LimitImpl implements Limit
   void setChoiceSetId(String choiceSetId) throws ObjectNotFoundException
   {
     this.choiceSetId = choiceSetId;
-    
-    if (getSignet() != null)
-    {
-      choiceSet = getSignet().getPersistentDB().getSubsystem(subsystemId).getChoiceSet(choiceSetId);
-    }
   }
   
   void setValueType(String valueType)
@@ -410,15 +400,6 @@ public final class LimitImpl implements Limit
          + " a single-select or a multiple-select. Renderer-names must begin"
          + " with either 'singleChoice' or 'multipleChoice' to be recognized.");
       
-  }
-
-
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Limit#save()
-   */
-  public void save()
-  {
-    getSignet().getPersistentDB().save(this);
   }
 
 

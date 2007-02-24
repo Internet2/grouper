@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/reconcile/Reconciler.java,v 1.3 2007-01-16 18:21:21 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/reconcile/Reconciler.java,v 1.4 2007-02-24 02:11:32 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -25,10 +25,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.Grantable;
 import edu.internet2.middleware.signet.GrantableImpl;
+import edu.internet2.middleware.signet.ProxyImpl;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.Status;
@@ -40,6 +45,24 @@ import edu.internet2.middleware.signet.dbpersist.HibernateDB;
  */
 public class Reconciler
 {
+	public static final String Qry_assign_P1 = "inactiveStatus";
+	public static final String Qry_assign_P2 = "currentDate";
+	public static final String Qry_assignment =
+			"from " +
+			AssignmentImpl.class.getName() +
+			" as assignment" +
+			" where status != :" + Qry_assign_P1 +
+			" and effectiveDate <= :" + Qry_assign_P2;
+
+	public static final String Qry_proxy_P1 = "inactiveStatus";
+	public static final String Qry_proxy_P2 = "currentDate";
+	public static final String Qry_proxy =
+			"from " +
+			ProxyImpl.class.getName() +
+			" as proxy " +
+			" where status != :" + Qry_proxy_P1 +
+			" and effectiveDate <= :" + Qry_proxy_P2; 
+
 	// Local copy of the Signet that created me
 	protected Signet		signet;
 
@@ -99,20 +122,19 @@ public class Reconciler
     //  b) Those whose effective-dates are later than the current Date.
    
     List  assignmentResultList;
+	Session hs = persistMgr.openSession();
+
     try
     {
-      Query assignmentQuery = persistMgr.createQuery(
-    		  "from edu.internet2.middleware.signet.AssignmentImpl" 
-                 + " as assignment" + " where status != :inactiveStatus"  
-                 + " and effectiveDate <= :currentDate"); 
-
-      assignmentQuery.setParameter("inactiveStatus", Status.INACTIVE); 
-      assignmentQuery.setParameter("currentDate", date); 
+      Query assignmentQuery = persistMgr.createQuery(hs, Qry_assignment);
+      assignmentQuery.setParameter(Qry_assign_P1, Status.INACTIVE); 
+      assignmentQuery.setParameter(Qry_assign_P2, date); 
 
       assignmentResultList = assignmentQuery.list();
     }
     catch (HibernateException e)
     {
+    	hs.close();
       throw new SignetRuntimeException(e);
     }
     
@@ -121,30 +143,37 @@ public class Reconciler
     List  proxyResultList;
     try
     {
-      Query proxyQuery = persistMgr.createQuery(
-    		  "from edu.internet2.middleware.signet.ProxyImpl" 
-                 + " as proxy" + " where status != :inactiveStatus"  
-                 + " and effectiveDate <= :currentDate"); 
-
-      proxyQuery.setParameter("inactiveStatus", Status.INACTIVE); 
-      proxyQuery.setParameter("currentDate", date); 
+      Query proxyQuery = persistMgr.createQuery(hs, Qry_proxy);
+      proxyQuery.setParameter(Qry_proxy_P1, Status.INACTIVE); 
+      proxyQuery.setParameter(Qry_proxy_P2, date); 
 
       proxyResultList = proxyQuery.list();
     }
     catch (HibernateException e)
     {
+    	hs.close();
       throw new SignetRuntimeException(e);
     }
 
     changedGrantables.addAll(reconcileGrantables(proxyResultList, date));
-    
+
+	persistMgr.closeSession(hs);
+
     return (changedGrantables);
   }
 
 
+	/**
+	 * Evaluate the collection of Grantables for reconciliation with supplied Date.
+	 * Each reconciled Grantable creates its own History record and then both
+	 * get persisted.
+	 * @param grantables The collection of Grantables to reconcile
+	 * @param date The Date to reconcile against
+	 * @return A HashSet of reconciled (only) Grantables
+	 */
 	public Set reconcileGrantables(Collection grantables, Date date)
 	{
-		HashSet retval = new HashSet();
+		List grantList = new Vector();
 
 		if (null != grantables)
 		{
@@ -156,13 +185,23 @@ public class Reconciler
 
 				if (grantable.evaluate(date))
 				{
-					grantable.save();
-					retval.add(grantable);
+					grantable.createHistoryRecord();
+//					grantable.save();
+					grantList.add(grantable);
 				}
+			}
+
+			if (0 < grantList.size())
+			{
+				Session hs = persistMgr.openSession();
+				Transaction tx = hs.beginTransaction();
+				persistMgr.save(hs, grantList);
+				tx.commit();
+				persistMgr.closeSession(hs);
 			}
 		}
 
-		return (retval);
+		return (new HashSet(grantList));
 	}
 
 

@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.14 2007-01-16 18:21:21 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.15 2007-02-24 02:11:32 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -21,7 +21,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 
 /**
  * Every Signet entity contains an entity of this abstract class, which
@@ -37,7 +36,7 @@ public abstract class EntityImpl implements Entity, Name
 	protected Log				log;
 
   private Signet				signet;
-  private String 				id;
+  private String 				id; // see GrantableImpl, has an Integer id defined
   private String 				name;
   private Status 				status;
   
@@ -335,32 +334,9 @@ public abstract class EntityImpl implements Entity, Name
       this.signet = signet;
     }
   }
-  
-	/* (non-Javadoc)
-	 * @see edu.internet2.middleware.signet.Entity#save()
-	 */
-	public void save()
-	{
-		if (null != signet)
-		{
-			HibernateDB hibr = signet.getPersistentDB();
-			if (null != hibr)
-			{
-				setModifyDatetime(new Date());
-
-				hibr.beginTransaction();
-				hibr.save(this);
-				hibr.commit();
-			}
-			else
-				log.error("No Persistent DB available while attempting to save " + this.getClass().getName() + ".");
-		}
-		else
-			log.error("No Signet instance available while attempting to save " + this.getClass().getName() + ".");
-	}
 
 
-	// ///////////////////////////////////////
+	/////////////////////////////////////////
 	// overrides Object
 	/////////////////////////////////////////
 

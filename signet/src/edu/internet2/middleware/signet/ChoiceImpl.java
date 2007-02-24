@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceImpl.java,v 1.10 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: ChoiceImpl.java,v 1.11 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -50,12 +50,29 @@ class ChoiceImpl implements Choice
    */
   ChoiceImpl()
   {
-    super();
   }
   
+	/**
+	 * @param choiceSet
+	 * @param value
+	 * @param displayValue
+	 * @param displayOrder
+	 * @param rank
+	 */
+	ChoiceImpl(ChoiceSet choiceSet, String value, String displayValue, int displayOrder, int rank)
+	{
+		this();
+		this.choiceSet = choiceSet;
+		this.displayOrder = displayOrder;
+		this.displayValue = displayValue;
+		this.rank = rank;
+		this.value = value;
+	}
+
+
   /**
-   * @param displayOrder The displayOrder to set.
-   */
+	 * @param displayOrder The displayOrder to set.
+	 */
   void setDisplayOrder(int displayOrder)
   {
     this.displayOrder = displayOrder;
@@ -75,21 +92,6 @@ class ChoiceImpl implements Choice
   void setRank(int rank)
   {
     this.rank = rank;
-  }
-
-  ChoiceImpl
-  	(ChoiceSet choiceSet,
-  	 String    value,
-     String    displayValue,
-     int       displayOrder,
-     int       rank)
-  {
-    super();
-    this.choiceSet = choiceSet;
-    this.displayOrder = displayOrder;
-    this.displayValue = displayValue;
-    this.rank = rank;
-    this.value = value;
   }
 
   /* (non-Javadoc)

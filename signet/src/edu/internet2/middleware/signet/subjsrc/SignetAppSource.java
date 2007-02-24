@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetAppSource.java,v 1.5 2007-01-09 01:01:25 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetAppSource.java,v 1.6 2007-02-24 02:11:31 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -89,7 +89,6 @@ public class SignetAppSource extends SignetSource
 				signetSubject.setName(SignetSubject.SIGNET_NAME);
 				signetSubject.setType(SubjectTypeEnum.APPLICATION.getName());
 				signetSubject.setDescription(SignetSubject.SIGNET_DESC);
-				signetSubject.setModifyDatetime(new Date(System.currentTimeMillis()));
 				signetSubject.setSynchDatetime(new Date(0L));
 			}
 			retval = signetSubject;

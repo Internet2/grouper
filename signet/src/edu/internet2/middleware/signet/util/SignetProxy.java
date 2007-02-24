@@ -1,5 +1,5 @@
 /*
-SignetProxy.java
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SignetProxy.java,v 1.8 2007-02-24 02:11:32 ddonn Exp $
 Created on Sep 12, 2005
 
 Copyright 2006 Internet2, Stanford University
@@ -23,6 +23,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Vector;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
@@ -44,8 +47,18 @@ public class SignetProxy
       try {
 
 	      Signet signet = new Signet();
+
 	      SignetSubject signetSubject = signet.getSignetSubject();
-	
+	      if ( !signetSubject.isPersisted()) // persist Signet super subject
+	      {
+	    	  HibernateDB hibr = signet.getPersistentDB();
+	    	  Session hs = hibr.openSession();
+	    	  Transaction tx = hs.beginTransaction();
+	    	  hibr.save(hs, signetSubject);
+	    	  tx.commit();
+	    	  hibr.closeSession(hs);
+	      }
+
 	      if (action.equals(ACTION_GRANT)) {
 	
 	         grant(signet, signetSubject, adminIdentifier, subsystemId);
@@ -117,15 +130,15 @@ public class SignetProxy
       Subsystem subsystem = null;
       boolean error;
       String statusMsg = null;
-      HibernateDB hibr = signet.getPersistentDB();
+		HibernateDB hibr = signet.getPersistentDB();
 
       if (subsystemId.equals(""))
       {
-         proxiesSet = filterProxiesByNoSubsystem(proxiesSet);
-         if (error = (proxiesSet.size() > 0))
-            statusMsg = new String("Signet system administration proxy already exists for " + granteeId);
-         else
-        	 statusMsg = new String("Granting Signet system administration proxy to " + granteeId);
+		proxiesSet = filterProxiesByNoSubsystem(proxiesSet);
+		if (error = (proxiesSet.size() > 0))
+			statusMsg = new String("Signet system administration proxy already exists for " + granteeId);
+		else
+			statusMsg = new String("Granting Signet system administration proxy to " + granteeId);
       }
       else
       {
@@ -145,7 +158,11 @@ public class SignetProxy
 		Proxy sysAdminProxy = grantorSubj.grantProxy(
 				granteeSubj, subsystem, false, true, new Date(), null);
 
-		sysAdminProxy.save();
+		Session hs = hibr.openSession();
+		Transaction tx = hs.beginTransaction();
+		hibr.save(hs, sysAdminProxy);
+		tx.commit();
+		hibr.closeSession(hs);
       }
    }
 
@@ -166,21 +183,25 @@ public class SignetProxy
             System.out.println("No current Signet system administration proxy found for " + adminIdentifier);
             return;
          }
-   
-         signet.getPersistentDB().beginTransaction();
-   
+
          System.out.println("Revoking Signet system administration proxy from " + adminIdentifier);
-   
+
+		Vector proxyList = new Vector();
          // Should be only one Signet system administration proxy, but revoke all that exist
          Iterator proxiesIterator2 = proxiesSet.iterator();
          while (proxiesIterator2.hasNext())
          {
             Proxy sysAdminProxy = (Proxy)(proxiesIterator2.next());
             sysAdminProxy.revoke(signetSubject);
-            sysAdminProxy.save();
+            proxyList.add(sysAdminProxy);
          }
-   
-         signet.getPersistentDB().commit();
+
+		HibernateDB hibr = signet.getPersistentDB();
+		Session hs = hibr.openSession();
+		Transaction tx = hs.beginTransaction();
+		hibr.save(hs, proxyList);
+		tx.commit();
+		hibr.closeSession(hs);
 
       } else {
          Subsystem subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
@@ -192,21 +213,25 @@ public class SignetProxy
             System.out.println("No current Signet subsystem owner proxy found for " + adminIdentifier + " for " + subsystemId);
             return;
          }
-   
-         signet.getPersistentDB().beginTransaction();
-   
+
          System.out.println("Revoking Signet subsystem owner proxy from " + adminIdentifier + " for " + subsystemId);
-   
+
+		Vector proxyList = new Vector();
          // Should be only one Signet subsystem owner proxy for a person, but revoke all that exist
          Iterator proxiesIterator2 = proxiesSet.iterator();
          while (proxiesIterator2.hasNext())
          {
             Proxy sysAdminProxy = (Proxy)(proxiesIterator2.next());
             sysAdminProxy.revoke(signetSubject);
-            sysAdminProxy.save();
+			proxyList.add(sysAdminProxy);
          }
    
-      signet.getPersistentDB().commit();
+		HibernateDB hibr = signet.getPersistentDB();
+		Session hs = hibr.openSession();
+		Transaction tx = hs.beginTransaction();
+		hibr.save(hs, proxyList);
+		tx.commit();
+		hibr.closeSession(hs);
       }
    }
 
@@ -254,9 +279,7 @@ public class SignetProxy
             SignetSubject grantee = sysAdminProxy.getGrantee();
             System.out.println("   " + grantee.getName());
          }
-
       }
-
    }
 
    private Set filterProxies(Set all, Status status)

@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.73 2006-12-15 20:45:37 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.74 2007-02-24 02:11:32 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -33,11 +33,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.struts.Globals;
+import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentHistory;
@@ -109,8 +108,7 @@ public class Common
    * @param log
    * @param request
    */
-  public static void showHttpParams
-  	(String prefix, Log log, HttpServletRequest request)
+  public static void dumpHttpParams(String prefix, Log log, HttpServletRequest request)
   {
     Enumeration paramNames = request.getParameterNames();
     while (paramNames.hasMoreElements())
@@ -530,24 +528,6 @@ public class Common
     return diff;
   }
 
-  /**
-   * @param log
-   * @param request
-   */
-  public static void showHttpParams
-  	(String prefix, Logger logger, HttpServletRequest request)
-  {
-    Enumeration paramNames = request.getParameterNames();
-    while (paramNames.hasMoreElements())
-    {
-      String paramName = (String)(paramNames.nextElement());
-      String[] paramValues = request.getParameterValues(paramName);
-      logger.log
-      	(Level.WARNING,
-      	 prefix + ": " + paramName + "=" + printArray(paramValues));
-    }
-  }
-  
   private static String printArray(String[] items)
   {
     StringBuffer out = new StringBuffer();
@@ -1460,18 +1440,7 @@ public class Common
     
     return outStr.toString();
   }
-  
-  static public Date getDateParam
-    (HttpServletRequest request,
-     String             nameRoot)
-  throws DataEntryException
-  {
-    return getDateParam
-      (request,
-       nameRoot,
-       null);
-  }
-  
+
   static public Date getDateParam
     (HttpServletRequest request,
      String             nameRoot,
@@ -1517,7 +1486,38 @@ public class Common
     
     return date;
   }
-  
+
+
+	protected static Date getDefaultEffectiveDate(Grantable grantable)
+	{
+		Date retval;
+
+		// You can't change the effective date of an active record.
+		if ((grantable != null) && (grantable.getStatus().equals(Status.ACTIVE)))
+			retval = grantable.getEffectiveDate();
+		else
+			retval = new Date();
+	
+		return (retval);
+	}
+
+
+	protected static Date getDateParam(HttpServletRequest request,
+			String nameRoot, Date defaultDate, ActionMessages msgs)
+	{
+		Date retval = null;
+
+		try { retval = getDateParam(request, nameRoot, defaultDate); }
+		catch (DataEntryException dee)
+		{
+			ActionMessage msg = new ActionMessage("dateformat");
+			msgs.add(nameRoot, msg);
+		}
+
+		return (retval);
+	}
+
+
 //  static public String subsystemSelectionMultiple
 //    (PrivilegedSubject loggedInPrivilegedSubject,
 //     PrivilegedSubject actingAs,
@@ -2003,42 +2003,54 @@ public class Common
     
     return displayStr;
   }
-  
-  private static Set getAssignmentsGrantedForReport
-    (SignetSubject  pSubject,
-     Subsystem          subsystem,
-     Set                statusSet)
-  {
-    Set assignments = pSubject.getAssignmentsGranted();
-    assignments = filterAssignments(assignments, statusSet);
-    assignments = filterAssignments(assignments, subsystem);
-    
-    return assignments;
-  }
-  
-  private static Set getAssignmentsReceivedForReport
-    (SignetSubject  pSubject,
-     Subsystem          subsystem,
-     Set                statusSet)
-  {
-    Set assignments = pSubject.getAssignmentsReceived();
-    assignments = filterAssignments(assignments, statusSet);
-    assignments = filterAssignments(assignments, subsystem);
-    
-    return assignments;
-  }
-  
-  private static Set getProxiesGrantedForReport
-    (SignetSubject  pSubject,
-     Subsystem          subsystem,
-     Set                statusSet)
-  {
-    Set proxies = pSubject.getProxiesGranted();
-    proxies = filterProxies(proxies, statusSet);
-    proxies = filterProxies(proxies, subsystem);
-    
-    return proxies;
-  }
+
+//  private static Set getAssignmentsGrantedForReport
+//    (SignetSubject  pSubject,
+//     Subsystem          subsystem,
+//     Set                statusSet)
+//  {
+//    Set assignments = pSubject.getAssignmentsGranted();
+//    assignments = filterAssignments(assignments, statusSet);
+//    assignments = filterAssignments(assignments, subsystem);
+//    
+//    return assignments;
+//  }
+//  
+//  private static Set getAssignmentsReceivedForReport
+//    (SignetSubject  pSubject,
+//     Subsystem          subsystem,
+//     Set                statusSet)
+//  {
+//    Set assignments = pSubject.getAssignmentsReceived();
+//    assignments = filterAssignments(assignments, statusSet);
+//    assignments = filterAssignments(assignments, subsystem);
+//    
+//    return assignments;
+//  }
+//  
+//  private static Set getProxiesGrantedForReport
+//    (SignetSubject  pSubject,
+//     Subsystem          subsystem,
+//     Set                statusSet)
+//  {
+//    Set proxies = pSubject.getProxiesGranted();
+//    proxies = filterProxies(proxies, statusSet);
+//    proxies = filterProxies(proxies, subsystem);
+//    
+//    return proxies;
+//  }
+//  
+//  private static Set getProxiesReceivedForReport
+//    (SignetSubject  pSubject,
+//     Subsystem          subsystem,
+//     Set                statusSet)
+//  {
+//    Set proxies = pSubject.getProxiesReceived();
+//    proxies = filterProxies(proxies, statusSet);
+//    proxies = filterProxies(proxies, subsystem);
+//    
+//    return proxies;
+//  }
   
   public static boolean hasUsableProxies(SignetSubject pSubject)
   {
@@ -2068,74 +2080,91 @@ public class Common
     return false;
   }
   
-  private static Set getProxiesReceivedForReport
-    (SignetSubject  pSubject,
-     Subsystem          subsystem,
-     Set                statusSet)
+	/**
+	 * For the given Subject, Subsystem and PrivDisplayType, get all the
+	 * Assignments and Proxies.
+	 * @param pSubject The Subject
+	 * @param subsystemFilter The Subsystem
+	 * @param privDisplayType The display type ((current | former) & (granted | received))
+	 * @return A SortedSet of Assignments and Proxies
+	 */
+  public static SortedSet getGrantablesForReport(
+		SignetSubject	pSubject,
+		Subsystem		subsystemFilter,
+		PrivDisplayType	privDisplayType)
   {
-    Set proxies = pSubject.getProxiesReceived();
-    proxies = filterProxies(proxies, statusSet);
-    proxies = filterProxies(proxies, subsystem);
-    
-    return proxies;
-  }
-  
-  public static SortedSet getGrantablesForReport
-    (SignetSubject  pSubject,
-     Subsystem          subsystemFilter,
-     PrivDisplayType    privDisplayType)
-  {
-    SortedSet grantables = new TreeSet(grantableReportComparator);
-    
-    if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
-    {
-      grantables.addAll
-        (getAssignmentsGrantedForReport
-          (pSubject, subsystemFilter, activeAndPendingStatus));
-
-      grantables.addAll
-        (getProxiesGrantedForReport
-            (pSubject, subsystemFilter, activeAndPendingStatus));
-    }
-    else if (privDisplayType.equals(PrivDisplayType.CURRENT_RECEIVED))
-    {
-      grantables.addAll
-        (getAssignmentsReceivedForReport
-          (pSubject, subsystemFilter, activeAndPendingStatus));
-
-      grantables.addAll
-        (getProxiesReceivedForReport
-          (pSubject, subsystemFilter, activeAndPendingStatus));
-    }
-    else if (privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
-    {
-      grantables.addAll
-        (getAssignmentsGrantedForReport
-          (pSubject, subsystemFilter, inactiveStatus));
-
-      grantables.addAll
-        (getProxiesGrantedForReport
-            (pSubject, subsystemFilter, inactiveStatus));
-    }
-    else if (privDisplayType.equals(PrivDisplayType.FORMER_RECEIVED))
-    {
-      grantables.addAll
-        (getAssignmentsReceivedForReport
-          (pSubject, subsystemFilter, inactiveStatus));
-
-      grantables.addAll
-        (getProxiesReceivedForReport
-          (pSubject, subsystemFilter, inactiveStatus));
-    }
+	Set activeStatus = null;
+	int grantRcvFlag = 0;
+	if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+	{
+		grantRcvFlag = GRANT_FLAG;
+		activeStatus = activeAndPendingStatus;
+	}
+	else if (privDisplayType.equals(PrivDisplayType.CURRENT_RECEIVED))
+	{
+		grantRcvFlag = RECEIVE_FLAG;
+		activeStatus = activeAndPendingStatus;
+	}
+	else if (privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
+	{
+		grantRcvFlag = GRANT_FLAG;
+		activeStatus = inactiveStatus;
+	}
+	else if (privDisplayType.equals(PrivDisplayType.FORMER_RECEIVED))
+	{
+		grantRcvFlag = RECEIVE_FLAG;
+		activeStatus = inactiveStatus;
+	}
     else
     {
-      throw new IllegalArgumentException
-        ("Unrecognized PrivDisplayTypeValue: " + privDisplayType);
+      throw new IllegalArgumentException("Unrecognized PrivDisplayTypeValue: " + privDisplayType);
     }
-  
-    return grantables;
+
+    SortedSet grantables = new TreeSet(grantableReportComparator);
+    grantables.addAll(getAssignmentsForReport(pSubject, subsystemFilter, activeStatus, grantRcvFlag));
+    grantables.addAll(getProxiesForReport(pSubject, subsystemFilter, activeStatus, grantRcvFlag));
+
+    return (grantables);
   }
   
+	protected static int GRANT_FLAG = 0x01;
+	protected static int RECEIVE_FLAG = 0x02;
+
+	protected static Set getAssignmentsForReport(
+			SignetSubject pSubject,
+			Subsystem subsystem,
+			Set statusSet,
+			int grantRecvFlag)
+	{
+		Set assignments = new HashSet();
+
+		if (0 != (GRANT_FLAG & grantRecvFlag))
+			assignments.addAll(pSubject.getAssignmentsGranted());
+		if (0 != (RECEIVE_FLAG & grantRecvFlag))
+			assignments.addAll(pSubject.getAssignmentsReceived());
+		assignments = filterAssignments(assignments, statusSet);
+		assignments = filterAssignments(assignments, subsystem);
+
+		return (assignments);
+	}
+
+	protected static Set getProxiesForReport(
+			SignetSubject pSubject,
+			Subsystem subsystem,
+			Set statusSet,
+			int grantRecvFlag)
+	{
+		Set proxies = new HashSet();
+		if (0 != (GRANT_FLAG & grantRecvFlag))
+			proxies.addAll(pSubject.getProxiesGranted());
+		if (0 != (RECEIVE_FLAG & grantRecvFlag))
+			proxies.addAll(pSubject.getProxiesReceived());
+		proxies = filterProxies(proxies, statusSet);
+		proxies = filterProxies(proxies, subsystem);
+		
+		return (proxies);
+	}
+
   public static Set removeGroups(Set setWithGroups)
   {
     Set setWithoutGroups = new HashSet();
@@ -2621,5 +2650,6 @@ public class Common
 
 		return (retval);
 	}
+
 
 }

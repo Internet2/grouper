@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.23 2006-10-25 00:10:25 ddonn Exp $
-$Date: 2006-10-25 00:10:25 $
+$Id: PrivilegedSubjectTest.java,v 1.24 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -141,10 +141,10 @@ public class PrivilegedSubjectTest extends BaseTestCase
       //        Limit 2
       //          limit-value: 2
       
-      Subsystem subsystem = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
+      Subsystem subsystem = hibr.getSubsystem(Constants.SUBSYSTEM_ID);
       Function function
         = Common.getFunction(subsystem, fixtures.makeFunctionId(subjectIndex));
-      Tree tree = signet.getPersistentDB().getTree(Constants.TREE_ID);
+      Tree tree = hibr.getTree(hs, Constants.TREE_ID);
       TreeNode treeNode = fixtures.getRoot(tree);
       Limit limit = subsystem.getLimit(fixtures.makeLimitId(subjectIndex));
       Set grantableChoices
@@ -267,7 +267,7 @@ public class PrivilegedSubjectTest extends BaseTestCase
 //    PrivilegedSubject pSubject0 = signet.getSubjectSources().getPrivilegedSubject(subject0);
 //    PrivilegedSubject pSubject2 = signet.getSubjectSources().getPrivilegedSubject(subject2);
     
-    Subsystem subsystem0 = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
+    Subsystem subsystem0 = hibr.getSubsystem(Constants.SUBSYSTEM_ID);
     
     Proxy newProxy
       = pSubject2.grantProxy
@@ -466,7 +466,7 @@ public class PrivilegedSubjectTest extends BaseTestCase
 //    PrivilegedSubject pSubject1 = signet.getSubjectSources().getPrivilegedSubject(subject1);
 //    PrivilegedSubject pSubject2 = signet.getSubjectSources().getPrivilegedSubject(subject2);
 
-    Subsystem subsystem = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
+    Subsystem subsystem = hibr.getSubsystem(Constants.SUBSYSTEM_ID);
     
     pSubject1.setActingAs(pSubject0);
     
@@ -529,9 +529,9 @@ public class PrivilegedSubjectTest extends BaseTestCase
     
     // Let's grant a new Assignment which should become active at some point
     // in the future:
-    Tree tree = signet.getPersistentDB().getTree(Constants.TREE_ID);
+    Tree tree = hibr.getTree(hs, Constants.TREE_ID);
     TreeNode treeNode = fixtures.getRoot(tree);
-    Subsystem subsystem = signet.getPersistentDB().getSubsystem(Constants.SUBSYSTEM_ID);
+    Subsystem subsystem = hibr.getSubsystem(Constants.SUBSYSTEM_ID);
     Function function1
       = Common.getFunction(subsystem, fixtures.makeFunctionId(1));
     Limit[] limitsInDisplayOrder

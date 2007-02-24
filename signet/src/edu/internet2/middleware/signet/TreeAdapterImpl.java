@@ -1,6 +1,6 @@
 /*--
-$Id: TreeAdapterImpl.java,v 1.4 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: TreeAdapterImpl.java,v 1.5 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,8 +19,11 @@ limitations under the License.
 package edu.internet2.middleware.signet;
 
 import javax.naming.OperationNotSupportedException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import edu.internet2.middleware.signet.AdapterUnavailableException;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.tree.AbstractTreeAdapter;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
@@ -118,9 +121,12 @@ throws OperationNotSupportedException
   // resides in the SQL database. Signet transactiona always nest, so this
   // operation will either be part of some larger transaction that's
   // already in progress, or will commit as its own small transaction.
-  signet.getPersistentDB().beginTransaction();
-  signet.getPersistentDB().save(treeImpl);
-  signet.getPersistentDB().commit();
+  HibernateDB hibr = signet.getPersistentDB();
+  Session hs = hibr.openSession();
+  Transaction tx = hs.beginTransaction();
+  hibr.save(hs, treeImpl);
+  tx.commit();
+  hibr.closeSession(hs);
 
   return treeImpl;
 }

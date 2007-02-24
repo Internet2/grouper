@@ -1,6 +1,6 @@
 /*--
-$Id: TreeXMLLoaderTest.java,v 1.3 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: TreeXMLLoaderTest.java,v 1.4 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,11 +9,13 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet.util.test;
 
 import java.sql.SQLException;
+import org.hibernate.Session;
 
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
 
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.signet.util.TreeXmlLoader;
@@ -76,7 +78,9 @@ public class TreeXMLLoaderTest extends TestCase
     SQLException,
     ObjectNotFoundException
   {
-    Tree tree = signet.getPersistentDB().getTree("testNewTree_id");
+	  HibernateDB hibr = signet.getPersistentDB();
+	  Session hs = hibr.openSession();
+    Tree tree = hibr.getTree(hs, "testNewTree_id");
     
     TreeNode node0
       = treeLoader.newTreeNode

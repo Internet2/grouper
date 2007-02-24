@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.51 2007-01-09 01:01:25 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.52 2007-02-24 02:11:32 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -36,7 +36,7 @@
 		Alternatively, if you don't need to have Ant deploy the newly built
 		Signet to a running instance of Tomcat, you can comment out this line.
 	-->
-	<!-- <import file="signetBuildTomcatDefs.xml" /> -->
+	<import file="signetBuildTomcatDefs.xml" />
 
 
 	<!-- ======================== Public Targets =========================== -->
@@ -126,7 +126,9 @@
 			depends="create_sourcepath, create_classpath" >
 		<path id="javadoc.src.path">
 			<pathelement location="${source_java.dir}" />
+<!--
 			<pathelement location="${custom.java.dir}" />
+-->
 		</path>
 		<javadoc packagenames="edu.internet2.middleware.signet, 
 				edu.internet2.middleware.signet.choice, 

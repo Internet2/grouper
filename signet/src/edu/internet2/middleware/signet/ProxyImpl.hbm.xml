@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.hbm.xml,v 1.9 2007-01-16 18:21:21 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.hbm.xml,v 1.10 2007-02-24 02:11:32 ddonn Exp $ -->
 
-<hibernate-mapping>
+<hibernate-mapping
+		default-lazy="false" >
+
 	<class
 		name="edu.internet2.middleware.signet.ProxyImpl"
-		table="signet_proxy"
-		lazy="true">
+		table="signet_proxy" >
 		
 <!--
 		NOTE: The following ID declaration must be used on HSQL.
@@ -15,6 +16,7 @@
 		<id name="id" type="int" column="proxyID">
 			<generator class="native" />
 		</id>
+        <timestamp name="modifyDatetime" column="modifyDatetime" />
 
 <!-- 
 		NOTE: The following ID declaration, while correct,
@@ -28,11 +30,7 @@
        		<generator class="native"/> 
     	</id>
 -->
-    	
-<!--		
-		<timestamp name="modifyDatetime"/>
--->
-        <property name="modifyDatetime" column="modifyDatetime" />
+
         <property name="grantorId"		column="grantorkey"		type="long" />
         <property name="proxyId"		column="proxySubjectkey" type="long" />
         <property name="granteeId"		column="granteekey"		type="long" />
@@ -41,7 +39,6 @@
 		<set
 			name="history"
 			inverse="true"
-			lazy="true"
 			table="signet_proxy_history"
 			cascade="save-update">
 			

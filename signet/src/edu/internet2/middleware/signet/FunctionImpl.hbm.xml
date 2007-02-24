@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping>
+
+<hibernate-mapping
+		default-lazy="false" >
+
 	<class
 		name="edu.internet2.middleware.signet.FunctionImpl"
 		table="signet_function">
@@ -33,8 +36,7 @@
 		<set
 			name="permissions"
 			table="signet_function_permission"
-			cascade="save-update"
-			lazy="false">
+			cascade="save-update" >
 			<key>
 				 <column name="functionKey"/>
 			</key>

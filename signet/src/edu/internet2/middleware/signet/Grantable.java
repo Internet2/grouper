@@ -1,6 +1,6 @@
 /*--
-$Id: Grantable.java,v 1.9 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: Grantable.java,v 1.10 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -89,19 +89,18 @@ extends Entity, Comparable
   /**
    * Changes the effective date of an existing grantable entity. To save this change
    * to the database, call <code>save()</code>.
-   * 
    * @param actor the <code>PrivilegedSubject</code> who is responsible for
    * this change.
-   * 
    * @param effectiveDate the date on which this grantable entity should be scheduled
    * to change from {@link Status} value PENDING to <code>Status</code> value
    * ACTIVE.
-   * 
+   * @param checkAuth Flag to indicate whether to check for Edit authority by given actor.
+   * Note that quite often several values may be set/updated for a Grantable for
+   * the actor. Setting checkAuth to false assumes that the caller of the 'set'
+   * methods has already called checkEditAuthority(SignetSubject).
    * @throws SignetAuthorityException
    */
-  public void setEffectiveDate
-    (SignetSubject  actor,
-     Date               effectiveDate)
+  public void setEffectiveDate(SignetSubject actor, Date effectiveDate, boolean checkAuth)
   throws SignetAuthorityException;
   
   /**
@@ -126,18 +125,17 @@ extends Entity, Comparable
   /**
    * Changes the expiration date of an existing grantable entity. To save this change
    * to the database, call <code>save()</code>.
-   * 
    * @param editor the PrivilegedSubject who is responsible for this change.
-   * 
    * @param expirationDate the date on which this grantable entity should be scheduled
    * to change from {@link Status} value ACTIVE to <code>Status</code> value
    * INACTIVE.
-   * 
+   * @param checkAuth Flag to indicate whether to check for Edit authority by given actor.
+   * Note that quite often several values may be set/updated for a Grantable for
+   * the actor. Setting checkAuth to false assumes that the caller of the 'set'
+   * methods has already called checkEditAuthority(SignetSubject).
    * @throws SignetAuthorityException
    */
-  public void setExpirationDate
-    (SignetSubject  editor,
-     Date               expirationDate)
+  public void setExpirationDate(SignetSubject editor, Date expirationDate, boolean checkAuth)
   throws SignetAuthorityException;
   
   /**
@@ -208,14 +206,11 @@ extends Entity, Comparable
    */
   public Set findDuplicates();
   
-  /**
-   * Persists the current state of this grantable entity. Calling this method
-   * generates a History record containing the current state of this entity.
-   * In this way, you can regulate the "granularity" of Signet history records.
-   *
-   */
-  public void save();
-  
+	/**
+	 * Generate a History object from this and add it to the history Set.
+	 */
+	public void createHistoryRecord();
+
   /**
    * Retrieves the <code>Set</code> of objects which describe the history of
    * this grantable entity.
@@ -224,4 +219,12 @@ extends Entity, Comparable
    */
   public Set getHistory();
 
+	/**
+	 * Check whether the Subject has Edit permissions for this Grantable
+	 * @param actor
+	 * @throws NullPointerException
+	 * @throws SignetAuthorityException
+	 */
+	public void checkEditAuthority(SignetSubject actor)
+		throws NullPointerException, SignetAuthorityException;
 }

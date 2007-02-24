@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.16 2006-12-15 20:45:37 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.17 2007-02-24 02:11:32 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -18,7 +18,6 @@ limitations under the License.
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 import edu.internet2.middleware.signet.resource.ResLoaderApp;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
@@ -96,31 +95,28 @@ public class ProxyImpl extends GrantableImpl implements Proxy
         throw new SignetAuthorityException(decision);
       }
     }
-    
+
     if ( !(canUse | canExtend)) // if can't use and can't extend
     {
       throw new IllegalArgumentException(
     		  ResLoaderApp.getString("ProxyImpl.ProxyImpl.CantUseOrExtend")); //$NON-NLS-1$
     }
-    
+
     this.subsystem = (SubsystemImpl)subsystem;
     this.canUse = canUse;
     this.canExtend = canExtend;
-    
-    Decision decision = this.getGrantor().canEdit(this);
-    
+
+    Decision decision = grantor.canEdit(this);
+
     if (decision.getAnswer() == false)
     {
       throw new SignetAuthorityException(decision);
     }
 
-    ProxyHistory historyRecord = new ProxyHistoryImpl(this);
-  
-    Set historySet = new HashSet(1);
-    historySet.add(historyRecord);
-    this.setHistory(historySet);
+	setInstanceNumber(MIN_INSTANCE_NUMBER - 1); // createHistory bumps instance number
+	createHistoryRecord();
   }
-  
+
   void setSubsystem(Subsystem subsystem)
   {
     this.subsystem = (SubsystemImpl)subsystem;
@@ -132,10 +128,10 @@ public class ProxyImpl extends GrantableImpl implements Proxy
     {
       this.subsystem.setSignet(this.getSignet());
     }
-    
+
     return this.subsystem;
   }
-  
+
   /* (non-Javadoc)
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
@@ -196,24 +192,16 @@ public class ProxyImpl extends GrantableImpl implements Proxy
   }
 
 
-	/* (non-Javadoc)
-	 * @see edu.internet2.middleware.signet.EntityImpl#save()
+	/*
+	 * (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Grantable#createHistoryRecord()
 	 */
-	public void save()
+	public void createHistoryRecord()
 	{
-		if (null != getId())
-		{
-			// This isn't the first time we've saved this Proxy.
-			// We'll increment the instance-number accordingly, and save
-			// its history-record right now (just after we save the Proxy
-			// record itself, so as to avoid hitting any referential-integrity
-			// problems in the database).
-			incrementInstanceNumber();
-			getHistory().add(new ProxyHistoryImpl(this));
-		}
-
-		super.save();
+		incrementInstanceNumber();
+		getHistory().add(new ProxyHistoryImpl(this));
 	}
+
 
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.signet.Assignment#getActualStartDatetime()

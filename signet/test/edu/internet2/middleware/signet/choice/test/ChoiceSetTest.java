@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetTest.java,v 1.11 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: ChoiceSetTest.java,v 1.12 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,12 +9,15 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet.choice.test;
 
 import java.util.Set;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import junit.framework.TestCase;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.test.Constants;
 import edu.internet2.middleware.signet.test.Fixtures;
 
@@ -22,7 +25,10 @@ public class ChoiceSetTest extends TestCase
 {
   private Signet		signet;
   private Fixtures	fixtures;
-  
+  protected HibernateDB hibr;
+  protected Session hs;
+  protected Transaction tx;
+
   public static void main(String[] args)
   {
     junit.textui.TestRunner.run(ChoiceSetTest.class);
@@ -36,7 +42,9 @@ public class ChoiceSetTest extends TestCase
     super.setUp();
     
     signet = new Signet();
-    signet.getPersistentDB().beginTransaction();
+    hibr = signet.getPersistentDB();
+    hs = hibr.openSession();
+    tx = hs.beginTransaction();
     fixtures = new Fixtures(signet);
   }
 
@@ -47,8 +55,8 @@ public class ChoiceSetTest extends TestCase
   {
     super.tearDown();
     
-    signet.getPersistentDB().commit();
-    signet.getPersistentDB().close();
+    tx.commit();
+    hibr.closeSession(hs);
   }
 
   /**

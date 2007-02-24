@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.6 2007-01-09 01:01:25 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.7 2007-02-24 02:11:31 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -28,6 +28,8 @@ import java.util.Vector;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.xml.sax.SAXException;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetRuntimeException;
@@ -589,8 +591,14 @@ public class SignetSources
 		boolean isPersisted = sigSubject.isPersisted();
 		boolean synchStatus = sigSubject.synchSubject(apiSubject);
 		if (isPersisted && synchStatus)
-			sigSubject.save(); // re-persist the updated Subject
-
+		{
+			HibernateDB hibr = persistedSource.getPersistedStoreMgr();
+			Session hs = hibr.openSession();
+			Transaction tx = hs.beginTransaction();
+			hibr.save(hs, sigSubject);
+			tx.commit();
+			hibr.closeSession(hs);
+		}
 		return (synchStatus);
 	}
 

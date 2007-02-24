@@ -1,0 +1,44 @@
+Signet  02/22/07
+Release Notes for CVS-tagged version SIGNET_1_1_TMP08
+
+Changes in this version:
+
+1. Changed the Hibernate session management architecture. The previous version
+opened and used one Hibernate Session for the entire life of the application
+(seriously frowned upon by Hibernate documentation). 
+The new implementation opens a new Session (and Transaction) for each DB
+interaction, then commits/closes after the transaction is complete. THIS HAS
+CAUSED A TREMENDOUS SLOW-DOWN OF ALL DB ACCESS. I need to look into 
+connection pooling (a Hibernate Session opens a DB connection behind the
+scenes) to improve performance.
+Another drawback to the new architecture is that I had to disable all of
+Hibernates caching (*.hbm.xml now contain 'default_lazy="false"') which I'm
+sure also contributes to the SLOW-DOWN. If lazy fetching is on (default in
+Hibernate 3.2), the Session must remain open until the record is no longer
+needed by the application. I couldn't find a clean way to manage Sessions, and
+the records associated with them, carried throughout the application.
+
+2. Changed (again!) the way SignetSubjectAttr handles multi-valued attributes.
+Removed SignetSubjectAttrValue and added a 'sequence' field to
+SignetSubjectAttr.
+
+3. Did some performance tuning of ConfirmAction and ConfirmProxyAction to
+allow for the optional, one-time, call to Grantable.checkEditAuthority for
+_all_ field updates, instead of checking it for _every_ field update.
+
+4. For all persistent records that have a modifyDatetime field, gave the
+responsibility of keeping the value current to Hibernate by declaring the
+field (in *.hbm.xml) as <timestamp... /> CAUTION: Hibernate has fits if the
+application modifies this field directly, or through setModifyDatetime(...).
+Don't call setModifyDatetime() or set the value internally; let Hibernate do it.
+
+5. Most, if not all, JUnit test code is probably broken. All changes made were
+only to get the code to compile. None of the unit tests were run to verify
+whether they, or the application code, actually work.
+
+Still To Do:
+
+1. Fix poor Hibernate/DB performance.
+
+2. Write new unit tests that match the new architecture.
+

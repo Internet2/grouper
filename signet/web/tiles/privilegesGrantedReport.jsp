@@ -1,4 +1,4 @@
-<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.38 2006-12-15 20:45:37 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.39 2007-02-24 02:11:32 ddonn Exp $ -->
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.util.Set" %>
@@ -142,15 +142,13 @@
   }
   
   SortedSet assignmentsAndProxies;
-
-  assignmentsAndProxies
-    = Common.getGrantablesForReport
-        (pSubject, subsystemFilter, privDisplayType);
+  assignmentsAndProxies = Common.getGrantablesForReport(pSubject, subsystemFilter, privDisplayType);
              
   Iterator assignmentsAndProxiesIterator = assignmentsAndProxies.iterator();
   while (assignmentsAndProxiesIterator.hasNext())
   {
     Grantable grantable = (Grantable)(assignmentsAndProxiesIterator.next());
+
     SignetSubject grantee = grantable.getGrantee();
 %>
         <TR>

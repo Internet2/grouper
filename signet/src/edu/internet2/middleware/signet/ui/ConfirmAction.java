@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.20 2006-12-15 20:45:37 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.21 2007-02-24 02:11:32 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -26,13 +26,15 @@ import javax.servlet.http.HttpSession;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.SignetAuthorityException;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
@@ -79,162 +81,143 @@ public ActionForward execute
    HttpServletResponse response)
 throws Exception
 {
-  // Setup message array in case there are errors
-  ArrayList messages = new ArrayList();
-  ActionMessages actionMessages = null;
-
   // Confirm message resources loaded
   MessageResources resources = getResources(request);
   if (resources==null)
   {
+	// Setup message array in case there are errors
+	ArrayList messages = new ArrayList();
     messages.add(Constants.ERROR_MESSAGES_NOT_LOADED);
-  }
-
-  // If there were errors, forward to our failure page
-  if (messages.size()>0)
-  {
     request.setAttribute(Constants.ERROR_KEY,messages);
     return findFailure(mapping);
   }
 
   HttpSession session = request.getSession(); 
-  Date    effectiveDate   = null;
-  Date    expirationDate  = null;
 
-  SignetSubject grantor = (SignetSubject)session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
-  SignetSubject grantee = (SignetSubject)session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
-
-  TreeNode scope = (TreeNode)(session.getAttribute("currentScope"));
-  Function function = (Function)(session.getAttribute("currentFunction"));
-  
-  // currentAssignment is present in the session only if we are editing
-  // an existing Assignment. Otherwise, we're attempting to create a new one.
-  Assignment assignment
-    = (Assignment)(session.getAttribute("currentAssignment"));
-  
   Signet signet = (Signet)(session.getAttribute("signet"));
-  
   if (signet == null)
   {
     return (mapping.findForward("notInitialized"));
   }
-  
-  Common.showHttpParams
-    ("ConfirmAction.execute()", signet.getLogger(), request);
 
-  Date defaultEffectiveDate;
-  if ((assignment != null) && (assignment.getStatus().equals(Status.ACTIVE)))
-  {
-    // You can't change the effective date of an active Assignment.
-    defaultEffectiveDate = assignment.getEffectiveDate();
-  }
-  else
-  {
-    defaultEffectiveDate = new Date();
-  }
+// debug
+Common.dumpHttpParams("ConfirmAction.execute()", signet.getLogger(), request);
 
-  try
-  {
-    effectiveDate
-      = Common.getDateParam
-          (request, Constants.EFFECTIVE_DATE_PREFIX, defaultEffectiveDate);
-  }
-  catch (DataEntryException dee)
-  {
-    actionMessages
-      = addActionMessage
-          (request, actionMessages, Constants.EFFECTIVE_DATE_PREFIX);
-  }
-  
-  try
-  {
-    expirationDate
-      = Common.getDateParam(request, Constants.EXPIRATION_DATE_PREFIX);
-  }
-  catch (DataEntryException dee)
-  {
-    actionMessages
-      = addActionMessage
-          (request, actionMessages, Constants.EXPIRATION_DATE_PREFIX);
-  }
+	// currentAssignment is present in the session only if we are editing
+	// an existing Assignment. Otherwise, we're attempting to create a new one.
+	Assignment assignment = (Assignment)(session.getAttribute("currentAssignment"));
 
-  Set limitValues = LimitRenderer.getAllLimitValues(signet, request);
-  
-  // If we've detected any data-entry errors, let's bail out here, before we
-  // try to use that bad data.
-  if (actionMessages != null)
-  {
-    return findDataEntryErrors(mapping);
-  }
+	Date defaultEffectiveDate = Common.getDefaultEffectiveDate(assignment);
+	ActionMessages actionMsgs = new ActionMessages();
+	Date effectiveDate = Common.getDateParam(request, Constants.EFFECTIVE_DATE_PREFIX,
+			defaultEffectiveDate, actionMsgs);
+	Date expirationDate = Common.getDateParam(request, Constants.EXPIRATION_DATE_PREFIX,
+			null, actionMsgs);
+	// If we've detected any data-entry errors, bail out now
+	if ( !actionMsgs.isEmpty())
+	{
+		saveMessages(request, actionMsgs);
+		return findDataEntryErrors(mapping);
+	}
+	actionMsgs = null;
 
-  boolean canUse = Common.paramIsPresent(request.getParameter(Constants.CAN_USE_HTTPPARAMNAME));
-  boolean canGrant = Common.paramIsPresent(request.getParameter(Constants.CAN_GRANT_HTTPPARAMNAME));
+	Set limitValues = LimitRenderer.getAllLimitValues(signet, request);
 
-  if (assignment != null)
-  {
-    // We're editing an existing Assignment.
-    assignment.setLimitValues(grantor, limitValues);
-    assignment.setCanGrant(grantor, canGrant);
-    assignment.setCanUse(grantor, canUse);
-    assignment.setEffectiveDate(grantor, effectiveDate);
-    assignment.setExpirationDate(grantor, expirationDate);
-    assignment.evaluate();
-  }
-  else
-  {
-    // We're creating a new Assignment.
-    assignment
-      = grantor.grant
-          (grantee,
-           scope,
-           function,
-           limitValues,
-           canUse,
-           canGrant,
-           effectiveDate,
-           expirationDate);
-  }
-  
+	SignetSubject grantor = (SignetSubject)session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
+	boolean canGrant = Common.paramIsPresent(request.getParameter(Constants.CAN_GRANT_HTTPPARAMNAME));
+	boolean canUse = Common.paramIsPresent(request.getParameter(Constants.CAN_USE_HTTPPARAMNAME));
+
+	// Editing existing or creating new?
+	if (assignment == null)
+	{
+		SignetSubject grantee = (SignetSubject)session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
+		TreeNode scope = (TreeNode)(session.getAttribute("currentScope"));
+		Function function = (Function)(session.getAttribute("currentFunction"));
+
+		assignment = createAssignment(grantor, grantee, scope, function, limitValues,
+				canGrant, canUse, effectiveDate, expirationDate);
+	}
+	else
+		editAssignment(assignment, grantor, limitValues, canGrant, canUse, effectiveDate, expirationDate);
+
   // Let's see whether or not the Assignment we want to save has any
   // duplicates. If it does, we'll sidetrack the user with a warning
   // screen.
-  
+
   Set duplicateAssignments = assignment.findDuplicates();
-  if (duplicateAssignments.size() > 0)
+  if ( !duplicateAssignments.isEmpty())
   {
     session.setAttribute("currentAssignment", assignment);
     session.setAttribute("currentLimitValues", limitValues);
     session.setAttribute("duplicateAssignments", duplicateAssignments);
     return findDuplicateAssignments(mapping);
   }
-  
-  // If we've gotten this far, there must be no duplicate Assignments.
-  // Let's save this Assignment in the database.
-  
-  signet.getPersistentDB().beginTransaction();
-  assignment.save();
-  signet.getPersistentDB().commit();
-  
-  session.setAttribute("currentAssignment", assignment);
 
-  // Forward to our success page
-  return findSuccess(mapping);
+	// Persist the Assignment
+
+	HibernateDB hibr = signet.getPersistentDB();
+	Session hs = hibr.openSession();
+	Transaction tx = hs.beginTransaction();
+	hibr.save(hs, assignment);
+	tx.commit();
+	hibr.closeSession(hs);
+
+	// return the new/edited Assignment to caller
+	session.setAttribute("currentAssignment", assignment);
+
+	// Forward to our success page
+	return findSuccess(mapping);
 }
 
-  private ActionMessages addActionMessage
-    (HttpServletRequest request,
-     ActionMessages     msgs,
-     String             msgKey)
-  {
-    if (msgs == null)
-    {
-      msgs = new ActionMessages();
-    }
-    
-    ActionMessage msg = new ActionMessage("dateformat");
-    msgs.add(msgKey, msg);
-    saveMessages(request, msgs);
-    
-    return msgs;
-  }
+
+	/**
+	 * Edit an existing Assignment
+	 * @param assignment
+	 * @param grantor
+	 * @param limitValues
+	 * @param canGrant
+	 * @param canUse
+	 * @param effectiveDate
+	 * @param expirationDate
+	 */
+	protected void editAssignment(Assignment assignment, SignetSubject grantor,
+			Set limitValues, boolean canGrant, boolean canUse,
+			Date effectiveDate, Date expirationDate)
+		throws SignetAuthorityException
+	{
+		// We're editing an existing Assignment.
+		assignment.checkEditAuthority(grantor); // throws exception, bails out on error
+		assignment.setLimitValues(grantor, limitValues, false);
+		assignment.setCanGrant(grantor, canGrant, false);
+		assignment.setCanUse(grantor, canUse, false);
+		assignment.setEffectiveDate(grantor, effectiveDate, false);
+		assignment.setExpirationDate(grantor, expirationDate, false);
+		assignment.evaluate();
+	}
+
+	/**
+	 * Create a new Assignment
+	 * @param grantor
+	 * @param grantee
+	 * @param scope
+	 * @param function
+	 * @param limitValues
+	 * @param canGrant
+	 * @param canUse
+	 * @param effectiveDate
+	 * @param expirationDate
+	 * @return
+	 */
+	protected Assignment createAssignment(SignetSubject grantor, SignetSubject grantee,
+			TreeNode scope, Function function, Set limitValues,
+			boolean canGrant, boolean canUse,
+			Date effectiveDate, Date expirationDate)
+		throws SignetAuthorityException
+	{
+		Assignment assignment = grantor.grant(grantee, scope, function, limitValues,
+           canUse, canGrant, effectiveDate, expirationDate);
+		return (assignment);
+	}
+
+
 }

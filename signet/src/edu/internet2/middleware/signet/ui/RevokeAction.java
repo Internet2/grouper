@@ -1,6 +1,6 @@
 /*--
-$Id: RevokeAction.java,v 1.8 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: RevokeAction.java,v 1.9 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -19,6 +19,7 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
+import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -26,8 +27,11 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Grantable;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
@@ -85,17 +89,21 @@ public final class RevokeAction extends BaseAction
         
     // Find the Grantable objects specified by the multi-valued "revoke" parameter, and revoke them.
     String[] assignmentIDs = request.getParameterValues("revoke");
-    
-    signet.getPersistentDB().beginTransaction();
-    
+
+    Vector revList = new Vector();
     for (int i = 0; i < assignmentIDs.length; i++)
     {
       Grantable grantableInstance = Common.getGrantableFromParamStr(signet, assignmentIDs[i]);
       grantableInstance.revoke(loggedInPrivilegedSubject);
-      grantableInstance.save();
+      revList.add(grantableInstance);
     }
-    
-    signet.getPersistentDB().commit();
+
+	HibernateDB hibr = signet.getPersistentDB();
+	Session hs = hibr.openSession();
+	Transaction tx = hs.beginTransaction();
+	hibr.save(hs, revList);
+    tx.commit();
+    hibr.closeSession(hs);
 
     // Forward to our success page
     return findSuccess(mapping);

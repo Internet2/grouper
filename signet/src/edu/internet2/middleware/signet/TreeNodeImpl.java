@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.13 2006-11-30 04:21:49 ddonn Exp $
-$Date: 2006-11-30 04:21:49 $
+$Id: TreeNodeImpl.java,v 1.14 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -24,6 +24,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.tree.Tree;
@@ -129,7 +131,10 @@ implements
     {
       try
       {
-        tree = (TreeImpl)(getSignet().getPersistentDB().getTree(treeId));
+		HibernateDB hibr = getSignet().getPersistentDB();
+		Session hs = hibr.openSession();
+		tree = (TreeImpl)(hibr.getTree(hs, treeId));
+		hibr.closeSession(hs);
       }
       catch (ObjectNotFoundException onfe)
       {
@@ -161,7 +166,10 @@ implements
     Signet signet;
     if (null != (signet = getSignet()))
     {
-      tree = (TreeImpl)(signet.getPersistentDB().getTree(treeId));
+    	HibernateDB hibr = signet.getPersistentDB();
+    	Session hs = hibr.openSession();
+      tree = (TreeImpl)(hibr.getTree(hs, treeId));
+      	hibr.closeSession(hs);
     }
   }
 
@@ -201,10 +209,17 @@ implements
 
   private void saveRelationship(TreeNode childNode, TreeNode parentNode)
   {
-    TreeNodeRelationship tnr = new TreeNodeRelationship(childNode.getTree()
-        .getId(), childNode.getId(), parentNode.getId());
+    TreeNodeRelationship tnr = new TreeNodeRelationship(
+    		childNode.getTree().getId(),
+    		childNode.getId(),
+    		parentNode.getId());
 
-    getSignet().getPersistentDB().save(tnr);
+    HibernateDB hibr = getSignet().getPersistentDB();
+    Session hs = hibr.openSession();
+    Transaction tx = hs.beginTransaction();
+    hibr.save(hs, tnr);
+    tx.commit();
+    hibr.closeSession(hs);
   }
   
   /* (non-Javadoc)
@@ -333,7 +348,10 @@ implements
     Signet signet;
     if (null != (signet = getSignet()))
     {
-      tree = (TreeImpl)(signet.getPersistentDB().getTree(treeId));
+    	HibernateDB hibr = signet.getPersistentDB();
+    	Session hs = hibr.openSession();
+      tree = (TreeImpl)(hibr.getTree(hs, treeId));
+      	hibr.closeSession(hs);
     }
   }
   

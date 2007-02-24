@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.7 2007-01-16 18:21:21 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.8 2007-02-24 02:11:31 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -17,6 +17,7 @@
 package edu.internet2.middleware.signet.subjsrc;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -26,9 +27,12 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import org.apache.commons.collections.set.UnmodifiableSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.Category;
@@ -45,6 +49,7 @@ import edu.internet2.middleware.signet.ProxyImpl;
 import edu.internet2.middleware.signet.Reason;
 import edu.internet2.middleware.signet.SelectionType;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetApiUtil;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.Status;
@@ -59,7 +64,6 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.signet.ui.Common;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
@@ -124,7 +128,6 @@ public class SignetSubject implements Subject, Comparable
 		synchDatetime = new Date(0L);
 		signetSubjectAttrs = new HashSet();
 		signetSource = null;
-
 		actingAs = null;
 	}
 
@@ -255,51 +258,71 @@ public class SignetSubject implements Subject, Comparable
 	 * Synchronize the SignetSubjectAttrs with the SubjectAPI's attr values. Use
 	 * this Subject's attributes of interest to get attributes, and attr values,
 	 * from the SubjectAPI's Subject and replace this Subject's attrs and values.
-	 * @param apiSubject The SubjectAPI Subject to synch with
+	 * Note: this routine just deletes the old SignetSubjectAttrs and adds new ones.
+	 * 
+	 * @param apiSubject The SubjectAPI Subject to synch with. If {@param apiSubject} is a
+	 * SignetSubject, this routine redirects to {@link #synchAttributes(SignetSubject)}.
 	 */
 	protected void synchAttributes(Subject apiSubject)
 	{
 		if (null == apiSubject)
 			return;
 
+		// check if it's a SignetSubject
 		if (apiSubject instanceof SignetSubject)
 		{
-log.warn(
- "SignetSubject.synchAttributes(Subject) is redirecting to method " +
- "synchAttributes(SignetSubject) where SignetSubject = \n" +
- ((SignetSubject)apiSubject).toString());
+			log.warn(
+				"SignetSubject.synchAttributes(Subject)" +
+				" is redirecting to method synchAttributes(SignetSubject) " +
+				"where SignetSubject = \n" + ((SignetSubject)apiSubject).toString());
 			synchAttributes((SignetSubject)apiSubject);
 			return;
 		}
 
 		if (null == signetSource) // can't continue without a Source's mapped attributes
+		{
+			log.warn("SignetSubject.synchAttributes(Subject)" +
+				": SignetSubject has a null Source " +
+				"where SignetSubject = \n" + toString() +
+				"\nUnable to synchronize attributes.");
 			return;
+		}
+
+		// remove old attributes. Can't do a "new HashSet" because of Hibernate
+		signetSubjectAttrs.clear();
+
+		Hashtable mappedNames = signetSource.getMappedAttributes(); // mapped attribute names from SubjectSources.xml
 
 		// Get the "attributes of interest" for our Source and the attribute's value
-		Map apiAttrs = apiSubject.getAttributes(); // attributes from the original Subject (a Map of Name/Set pairs)
-		Hashtable sourceAttrMap = signetSource.getMappedAttributes(); // mapped attribute names from SubjectSources.xml
-
 		// the mappedAttribute is the key; the sourceAttribute is the value
-		for (Enumeration sigAttrNames = sourceAttrMap.keys(); sigAttrNames.hasMoreElements();)
+		Map apiAttrs = apiSubject.getAttributes(); // attributes from the original Subject (a Map of Name/Set pairs)
+		// loop to add the original Subject's attributes
+		for (Enumeration sigAttrNames = mappedNames.keys(); sigAttrNames.hasMoreElements(); )
 		{
 			// get the signet attribute name
 			String sigAttrName = (String)sigAttrNames.nextElement();
-
 			// get the mapped attribute name
-			String apiAttrName = (String)sourceAttrMap.get(sigAttrName);
-
+			String apiAttrName = (String)mappedNames.get(sigAttrName);
 			// get the values of the subjectApi attribute (a Set of String objects)
 			Set apiAttrValues = (Set)apiAttrs.get(apiAttrName);
 
-			// if the SignetSubjectAttr exists update it, otherwise create it
-			SignetSubjectAttr sigAttr = getAttribute(sigAttrName);
-			if (null == sigAttr)
-			{
-				sigAttr = new SignetSubjectAttr(sigAttrName);
-				addAttribute(sigAttr);
-			}
+			// create new attribute(s)
 
-			sigAttr.setSourceValues(apiAttrValues); // replace the existing attr values
+			if ((null == apiAttrValues) || (0 == apiAttrValues.size()))
+			{
+				log.warn("SignetSubject.synchAttributes: No apiAttrValues for Subject \"" +
+						getName() + "\" " +
+						"and Attribute \"" + sigAttrName + "\".");
+			}
+			else
+			{
+				for (Iterator attrValues = apiAttrValues.iterator(); attrValues.hasNext(); )
+				{
+					String newValue = (String)attrValues.next();
+					SignetSubjectAttr newAttr = new SignetSubjectAttr(sigAttrName, newValue);
+					addAttribute(newAttr);
+				}
+			}
 		}
 	}
 
@@ -307,6 +330,8 @@ log.warn(
 	/**
 	 * Synchronize this SignetSubjectAttrs with another SignetSubject's attr values.
 	 * No mapping of attribute names is required because they're both SignetSubjects.
+	 * Deletes this Subject's attributes and adds _copies_ of the source subject's
+	 * attributes, adjusted to be children of this Subject.
 	 * @param sigSubject The SignetSubject to synch with
 	 */
 	protected void synchAttributes(SignetSubject sigSubject)
@@ -319,9 +344,12 @@ log.warn(
 		else
 			signetSubjectAttrs = new HashSet();
 
-		Map attrs = sigSubject.getAttributes();
-		if (null != attrs)
-			signetSubjectAttrs.addAll(attrs.values());
+		for (Iterator attrs = sigSubject.signetSubjectAttrs.iterator(); attrs.hasNext(); )
+		{
+			SignetSubjectAttr newAttr = new SignetSubjectAttr((SignetSubjectAttr)attrs.next());
+			newAttr.setParent(this);
+			signetSubjectAttrs.add(newAttr);
+		}
 	}
 
 
@@ -352,8 +380,8 @@ log.warn(
 	/////////////////////////////////
 
 	/**
-	 * @return Returns the subjectKey.
 	 * Support for Hibernate
+	 * @return Returns the subjectKey.
 	 */
 	public Long getSubject_PK()
 	{
@@ -361,8 +389,8 @@ log.warn(
 	}
 
 	/**
-	 * @param subjectKey The subjectKey to set.
 	 * Support for Hibernate
+	 * @param subjectKey The subjectKey to set.
 	 */
 	public void setSubject_PK(Long subjectKey)
 	{
@@ -371,8 +399,8 @@ log.warn(
 
 
 	/**
-	 * @return Returns the modifyDatetime.
 	 * Support for Hibernate
+	 * @return Returns the modifyDatetime.
 	 */
 	public Date getModifyDatetime()
 	{
@@ -380,18 +408,18 @@ log.warn(
 	}
 
 	/**
-	 * @param modifyDatetime The modifyDatetime to set.
 	 * Support for Hibernate
+	 * @param modifyDatetime The modifyDatetime to set.
 	 */
-	public void setModifyDatetime(Date modifyDatetime)
+	private void setModifyDatetime(Date modifyDatetime)
 	{
 		this.modifyDatetime = modifyDatetime;
 	}
 
 
 	/**
-	 * @return Returns the synchDatetime.
 	 * Support for Hibernate
+	 * @return Returns the synchDatetime.
 	 */
 	public Date getSynchDatetime()
 	{
@@ -399,8 +427,8 @@ log.warn(
 	}
 
 	/**
-	 * @param synchDatetime The synchDatetime to set.
 	 * Support for Hibernate
+	 * @param synchDatetime The synchDatetime to set.
 	 */
 	public void setSynchDatetime(Date synchDatetime)
 	{
@@ -409,8 +437,8 @@ log.warn(
 
 
 	/**
-	 * @return Returns the sourceId.
 	 * Support for Hibernate
+	 * @return Returns the sourceId.
 	 */
 	public String getSourceId()
 	{
@@ -435,15 +463,15 @@ log.warn(
 		//   - signetSource - which may or may not exist from one
 		//     Signet run to the next.
 		// The sourceId is valid (it's how we got this Subject into persisted 
-		// store in the frist place), but the original Source may not be
+		// store in the first place), but the original Source may not be
 		// available during this execution (hence the invention of the
 		// 'failover' flag in SubjectSources.xml.
 	}
 
 
 	/**
-	 * @return Returns the signetSubjectAttrs.
 	 * Support for Hibernate
+	 * @return Returns the signetSubjectAttrs.
 	 */
 	public Set getSubjectAttrs()
 	{
@@ -480,9 +508,6 @@ log.warn(
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
 			assignsGranted = persistSrc.getAssignmentsGranted(subject_PK.longValue(), Status.ACTIVE.toString());
-			Signet signet = signetSource.getSignet();
-			for (Iterator assigns = assignsGranted.iterator(); assigns.hasNext(); )
-				((AssignmentImpl)assigns.next()).setSignet(signet);
 		}
 		else
 		{
@@ -497,7 +522,6 @@ log.warn(
 	/**
 	 * Support for Hibernate
 	 * @return Returns the assignmentsReceived.
-	 * @throws ObjectNotFoundException
 	 */
 	public Set getAssignmentsReceived()
 	{
@@ -513,9 +537,6 @@ log.warn(
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
 			assignsReceived = persistSrc.getAssignmentsReceived(subject_PK.longValue(), Status.ACTIVE.toString());
-			Signet signet = signetSource.getSignet();
-			for (Iterator assigns = assignsReceived.iterator(); assigns.hasNext(); )
-				((AssignmentImpl)assigns.next()).setSignet(signet);
 		}
 		else
 		{
@@ -546,9 +567,6 @@ log.warn(
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
 			proxiesGranted = persistSrc.getProxiesGranted(subject_PK.longValue(), Status.ACTIVE.toString());
-			Signet signet = signetSource.getSignet();
-			for (Iterator proxies = proxiesGranted.iterator(); proxies.hasNext(); )
-				((ProxyImpl)proxies.next()).setSignet(signet);
 		}
 		else
 		{
@@ -578,9 +596,6 @@ log.warn(
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
 			proxiesReceived = persistSrc.getProxiesReceived(subject_PK.longValue(), Status.ACTIVE.toString());
-			Signet signet = signetSource.getSignet();
-			for (Iterator proxies = proxiesReceived.iterator(); proxies.hasNext(); )
-				((ProxyImpl)proxies.next()).setSignet(signet);
 		}
 		else
 		{
@@ -592,33 +607,14 @@ log.warn(
 	}
 
 
-	/**
-	 * Save (persist) this Subject in Signet's persistence layer
-	 */
-	public void save()
-	{
-		HibernateDB hibr = signetSource.getSignet().getPersistentDB();
-		hibr.beginTransaction();
-		hibr.save(this);
-try
-{
-		hibr.commit();
-}
-catch (SignetRuntimeException e)
-{
-System.out.println("SignetSubject.save: exception during commit. SignetSubject =\n" + toString());
-}
-	}
-
-
 	////////////////////////////////////
 	// implements Subject
 	////////////////////////////////////
 
 	/**
 	 * Return the ID (as originally obtained from the SubjectAPI) of this Subject.
-	 * @see edu.internet2.middleware.subject.Subject#getId()
 	 * Also provides support for Hibernate
+	 * @see edu.internet2.middleware.subject.Subject#getId()
 	 */
 	public String getId()
 	{
@@ -636,8 +632,8 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 
 
 	/**
+	 * Hibernate can't handle SubjectType, @see SignetSubject#getSubjectType(String).
 	 * @see edu.internet2.middleware.subject.Subject#getType()
-	 * Hibernate can't handle SubjectType, @see SignetSubject#getSubjectType(String)
 	 */
 	public SubjectType getType()
 	{
@@ -655,9 +651,9 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 
 
 	/**
+	 * provides support for Hibernate
 	 * @return Returns the Subject Type Id
 	 * @see edu.internet2.middleware.subject.Subject#getType()
-	 * provides support for Hibernate
 	 */
 	public String getSubjectType()
 	{
@@ -675,8 +671,8 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 
 
 	/**
+	 * provides support for Hibernate
 	 * @see edu.internet2.middleware.subject.Subject#getName()
-	 * Also provides support for Hibernate
 	 */
 	public String getName()
 	{
@@ -699,7 +695,9 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	 */
 	public String getDescription()
 	{
-		String descAttrName = signetSource.getSources().getPersistedSource().getSignetDescription();
+		SignetSources srcs = signetSource.getSources();
+		PersistedSignetSource pSrc = srcs.getPersistedSource();
+		String descAttrName = pSrc.getSignetDescription();
 		String retval = getAttributeValue(descAttrName);
 		return (retval);
 	}
@@ -713,14 +711,12 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	public void setDescription(String subjectDescription)
 	{
 		String descAttrName = signetSource.getSources().getPersistedSource().getSignetDescription();
-		SignetSubjectAttr attr = getAttribute(descAttrName);
+		SignetSubjectAttr attr = getAttributeForName(descAttrName);
 		if (null == attr)
-		{
-			attr = new SignetSubjectAttr(descAttrName);
-			addAttribute(attr);
-		}
-		attr.getSourceValues().clear(); // we only want one description
-		attr.addSourceValue(subjectDescription);
+			addAttribute(new SignetSubjectAttr(descAttrName, subjectDescription));
+		else
+			attr.setAttr_value(subjectDescription);
+
 	}
 
 
@@ -748,10 +744,25 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	 * Return a SignetSubjectAttr that has a matching mappedName, or null.
 	 * Pseudo-implementation of Subject interface (related, but not part of the
 	 * interface).
+	 * If the attribute has multiple values, the value of the first
+	 * (i.e. sequence==0) is returned.
 	 * @param mappedName The mappedName to search for
 	 * @return a SignetSubjectAttr that has a matching mappedName, or null
 	 */
-	public SignetSubjectAttr getAttribute(String mappedName)
+	public SignetSubjectAttr getAttributeForName(String mappedName)
+	{
+		return (getAttributeForName(mappedName, 0L));
+	}
+
+	/**
+	 * Return a SignetSubjectAttr that has a matching mappedName and sequence, or null.
+	 * Pseudo-implementation of Subject interface (related, but not part of the
+	 * interface).
+	 * @param mappedName The mappedName to search for
+	 * @param sequence The sequece (for multi-valued attributes)
+	 * @return a SignetSubjectAttr that has a matching mappedName and sequence, or null
+	 */
+	public SignetSubjectAttr getAttributeForName(String mappedName, long sequence)
 	{
 		SignetSubjectAttr retval = null;
 
@@ -761,7 +772,8 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 				attrs.hasNext() && (null == retval); )
 			{
 				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
-				if (attr.getMappedName().equals(mappedName))
+				if ((attr.getMappedName().equals(mappedName)) &&
+						(sequence == attr.getSequence()))
 					retval = attr;
 			}
 		}
@@ -769,26 +781,60 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		return (retval);
 	}
 
+	/**
+	 * Get an ordered list, by sequence, of all attributes matching the supplied
+	 * attribute name.
+	 * @return An ordered list of attributes. May be an empty Vector (never null).
+	 */
+	public Vector getAttributesForName(String mappedName)
+	{
+		Vector retval = new Vector();
+
+		if (null != signetSubjectAttrs)
+		{
+			ArrayList tmpList = new ArrayList();
+
+			for (Iterator attrs = signetSubjectAttrs.iterator(); attrs.hasNext(); )
+			{
+				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
+				if (attr.getMappedName().equals(mappedName))
+					tmpList.add(new Long(attr.getSequence()).intValue(), attr);
+			}
+			for (int i = 0; i < tmpList.size(); i++)
+				retval.add(tmpList.get(i));
+		}
+
+		return (retval);
+	}
 
 	/**
 	 * Searchs for a SignetSubjectAttr that has a matching mappedName and returns
 	 * the Source value, or null if the attribute was not found. If the attribute
 	 * has multiple values, the value of the first (i.e. sequence==0) is returned.
 	 * @param mappedName The Signet (mapped) attribute name.
-	 * @return The SubjectAPI Subject's attribute value.
+	 * @return The SubjectAPI Subject's attribute value or null if no attribute is found.
 	 * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String)
 	 */
 	public String getAttributeValue(String mappedName)
 	{
+		return (getAttributeValue(mappedName, 0L));
+	}
+
+	/**
+	 * Searchs for a SignetSubjectAttr that has a matching mappedName and returns
+	 * the Source value, or null if the attribute was not found. If the attribute
+	 * has multiple values, the value of the first (i.e. sequence==0) is returned.
+	 * @param mappedName The Signet (mapped) attribute name.
+	 * @return The SubjectAPI Subject's attribute value or null if no attribute is found.
+	 * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String)
+	 */
+	public String getAttributeValue(String mappedName, long sequence)
+	{
 		String retval = null;
 
-		Set values = getAttributeValues(mappedName);
-		for (Iterator viter = values.iterator(); viter.hasNext() && (null == retval); )
-		{
-			SignetSubjectAttrValue value = (SignetSubjectAttrValue)viter.next();
-			if (0 == value.getSequence())
-				retval = value.getValue();
-		}
+		SignetSubjectAttr attr = getAttributeForName(mappedName, sequence);
+		if (null != attr)
+			retval = attr.getValue();
 
 		return (retval);
 	}
@@ -799,7 +845,7 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	 * all values for a given mappedName. If no attribute is found that matches
 	 * 'mappedName', then an empty Set is returned (never null!).
 	 * @param mappedName The Signet-specific attribute name
-	 * @return A Set of attribute values for the given key
+	 * @return A Set of attribute values for the given key (never null)
 	 * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
 	 */
 	public Set getAttributeValues(String mappedName)
@@ -809,15 +855,11 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		if ((null == mappedName) || (0 >= mappedName.length()))
 			return (retval);
 
-		if (null != signetSubjectAttrs)
+		Vector attrs = getAttributesForName(mappedName);
+		for (Iterator iattrs = attrs.iterator(); iattrs.hasNext(); )
 		{
-			for (Iterator attrs = signetSubjectAttrs.iterator();
-					attrs.hasNext() && (0 >= retval.size()); )
-			{
-				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
-				if (attr.getMappedName().equals(mappedName))
-					retval.addAll(attr.getSourceValues());
-			}
+			SignetSubjectAttr attr = (SignetSubjectAttr)iattrs.next();
+			retval.add(attr.getValue());
 		}
 
 		return (retval);
@@ -825,7 +867,8 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 
 	/**
 	 * Returns a HashMap of mappedAttributeName (key) and SourceApi values (as a Set).
-	 * @return A Map of name / Attribute Set pairs
+	 * @return A Map of name / Attribute Set pairs. If no attributes are found,
+	 * an empty Map is returned (never null).
 	 * @see edu.internet2.middleware.subject.Subject#getAttributes()
 	 */
 	public Map getAttributes()
@@ -840,12 +883,16 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 //System.out.println("SignetSubject.getAttributes: attr_obj is a " + attr_obj.getClass().getName());
 //SignetSubjectAttr attr = (SignetSubjectAttr)attr_obj;
 				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
-
-				Set valueSet = new HashSet();
-				for (Iterator values = attr.getSourceValues().iterator(); values.hasNext(); )
-					valueSet.add(((SignetSubjectAttrValue)values.next()).getValue());
-
-				retval.put(attr.getMappedName(), valueSet);
+				String attrName = attr.getMappedName();
+				Set values;
+				if (retval.containsKey(attrName))
+					values = (Set)retval.get(attrName);
+				else
+				{
+					values = new HashSet();
+					retval.put(attrName, values);
+				}
+				values.add(attr.getValue());
 			}
 		}
 
@@ -853,15 +900,19 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 	/**
-	 * Take care of the bidirectional assoc.
+	 * Add a SignetSubjectAttr to the Subject and take care of the bidirectional assoc.
+	 * NOTE: Do not attempt to re-parent an attribute from another SignetSubject. Instead,
+	 * use the SignetSubjectAttr copy constructor and pass the copy here.
 	 * Required by Hibernate
 	 */
 	public void addAttribute(SignetSubjectAttr attr)
 	{
 		if (null != attr)
 		{
-			signetSubjectAttrs.add(attr);
 			attr.setParent(this);
+			Vector v = getAttributesForName(attr.getMappedName());
+			attr.setSequence(v.size());
+			signetSubjectAttrs.add(attr);
 		}
 	}
 
@@ -870,6 +921,10 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	// Carryover from PrivilegedSubjectImpl
 	///////////////////////////////////////
 
+	/**
+	 * @param actingAs
+	 * @throws SignetAuthorityException
+	 */
 	public void setActingAs(SignetSubject actingAs) throws SignetAuthorityException
 	{
 		if (equals(actingAs))
@@ -888,24 +943,31 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		}
 	}
 
+	/**
+	 * @return The "acting as" Subject
+	 */
 	public SignetSubject getEffectiveEditor()
 	{
 		return (null == actingAs ? this : actingAs);
 	}
   
 
+	/**
+	 * Determine if this Subject may act as 'actingAs' given the subsystem
+	 * @param actingAs The Subject to test for a Proxy
+	 * @param subsystem The Subsystem to test for a Proxy
+	 * @return true if either a Proxy has been granted to this Subject, or
+	 * actingAs is null, otherwise returns false.
+	 */
 	public boolean canActAs(SignetSubject actingAs, Subsystem subsystem)
 	{
 		// Everyone can act as nobody else, i.e. self
 		if (null == actingAs)
 			return true;
 
-		Set proxies;
-		proxies = Common.filterProxies(getProxiesReceived(), Status.ACTIVE);
-		proxies = Common.filterProxies(proxies, subsystem);
-		proxies = Common.filterProxiesByGrantor(proxies, actingAs);
+		Set proxies = getFilteredProxySet(actingAs, subsystem);
 
-		return (proxies.size() > 0);
+		return ( !proxies.isEmpty());
 	}
 
 
@@ -919,7 +981,8 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	 * matches this SignetSubject, then canEdit would return false, since in
 	 * most situations it does not make sense to attempt to extend or modify
 	 * your own authority.
-	 * @throws SubjectNotFoundException
+	 * @param grantableInstance
+	 * @return
 	 */
 	public Decision canEdit(Grantable grantableInstance)
 	{
@@ -950,6 +1013,12 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
+	/**
+	 * Determine whether this Subject can edit the given Assignment
+	 * @param assignment
+	 * @param effEditor
+	 * @return A Decision
+	 */
 	public Decision canEdit(Assignment assignment, SignetSubject effEditor)
 	{
 		// The Signet application can only do one thing: Grant (or edit) a Proxy to
@@ -1025,6 +1094,12 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
+	/**
+	 * Determine whether this Subject can edit the given Proxy
+	 * @param proxy
+	 * @param effEditor
+	 * @return A Decision
+	 */
 	public Decision canEdit(Proxy proxy, SignetSubject effEditor)
 	{
 		Decision retval = null;
@@ -1053,6 +1128,10 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	 * proxies from the specified grantor. A "useable" proxy is one that can
 	 * be used(!) to grant Assignments. A proxy that is not "useable" can be
 	 * extended to another person, but may not be used to grant Assignments.
+	 * @param proxyGrantor
+	 * @param subsystem
+	 * @return true if this PrivilegedSubject holds any "useable"
+	 * proxies from the specified grantor.
 	 */
 	public boolean canUseProxy(SignetSubject proxyGrantor, Subsystem subsystem)
 	{
@@ -1071,6 +1150,10 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	 * proxies from the specified grantor. An "extensible" proxy is one that can
 	 * be used to grant Proxies. A proxy that is not "extensible" can be used to
 	 * grant Assignments, but may not be used to extend Proxies.
+	 * @param proxyGrantor
+	 * @param subsystem
+	 * @return true if this PrivilegedSubject holds any "extensible"
+	 * proxies from the specified grantor.
 	 */
 	public boolean canExtendProxy(SignetSubject proxyGrantor, Subsystem subsystem)
 	{
@@ -1252,6 +1335,11 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
+	/**
+	 * Returns an UnmodifiableSet of TreeNodes that match the grantable Assignments for the provided Function
+	 * @param aFunction
+	 * @return an UnmodifiableSet of TreeNodes that match the grantable Assignments for the provided Function
+	 */
 	public Set getGrantableScopes(Function aFunction)
 	{
 		Set grantableScopes = new HashSet();
@@ -1275,10 +1363,16 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 			}
 		}
 
+		SignetApiUtil.setEntitysSignetValue(grantableScopes, signetSource.getSignet());
+
 		return UnmodifiableSet.decorate(grantableScopes);
 	}
 
-
+	/**
+	 * Returns a Set of grantable Assignments that match the provided Function
+	 * @param function
+	 * @return a Set of grantable Assignments that match the provided Function
+	 */
 	private Set getGrantableAssignments(Function function)
 	{
 		Set assignments = new HashSet();
@@ -1296,6 +1390,11 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
+	/**
+	 * Returns a Set of grantable Assignments that match the provided Subsystem
+	 * @param subsystem
+	 * @return a Set of grantable Assignments that match the provided Subsystem
+	 */
 	private Collection getGrantableAssignments(Subsystem subsystem)
 	{
 		Collection assignments = new HashSet();
@@ -1312,6 +1411,11 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
+	/**
+	 * Returns an UnmodifiableSet of grantable Functions
+	 * @param category
+	 * @return an UnmodifiableSet of grantable Functions
+	 */
 	public Set getGrantableFunctions(Category category)
 	{
 		// First, check to see if the we are the Signet superSubject.
@@ -1334,6 +1438,12 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
+	/**
+	 * Returns a Set of Assignments that match the provided Status
+	 * @param all
+	 * @param status
+	 * @return a Set of Assignments that match the provided Status
+	 */
 	protected Set filterAssignments(Set all, Status status)
 	{
 		Set statusSet = new HashSet();
@@ -1341,6 +1451,12 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		return filterAssignments(all, statusSet);
 	}
 
+	/**
+	 * Returns a Set of Assignments that match any of the provided Statuses
+	 * @param all
+	 * @param statusSet
+	 * @return a Set of Assignments that match any of the provided Statuses
+	 */
 	protected Set filterAssignments(Set all, Set statusSet)
 	{
 		if ((null == statusSet) || (null == all))
@@ -1357,6 +1473,12 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		return (subset);
 	}
 
+	/**
+	 * Returns a Set of Proxies that match the provided Status
+	 * @param all
+	 * @param status
+	 * @return a Set of Proxies that match the provided Status
+	 */
 	protected Set filterProxies(Set all, Status status)
 	{
 		Set statusSet = new HashSet();
@@ -1364,6 +1486,12 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		return filterProxies(all, statusSet);
 	}
 
+	/**
+	 * Returns a Set of Proxies that match any of the provided Statuses
+ 	 * @param all
+	 * @param statusSet
+	 * @return a Set of Proxies that match any of the provided Statuses
+	 */
 	protected Set filterProxies(Set all, Set statusSet)
 	{
 		if (statusSet == null)
@@ -1384,6 +1512,12 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
+	/**
+	 * Returns a Set of Proxies that match the provided grantor
+	 * @param all
+	 * @param grantor
+	 * @return a Set of Proxies that match the provided grantor
+	 */
 	private Set filterProxiesByGrantor(Set all, SignetSubject grantor)
 	{
 		if ((null == grantor) || (null == all))
@@ -1432,6 +1566,10 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	// found in our set of Proxyied Subsystems, then we add it to our list
 	// of grantable subsystems.
 	//
+	/**
+	 * Returns A set of Subsystems that are grantable for this subject's assignments
+	 * @return A set of Subsystems that are grantable for this subject's assignments
+	 */
 	public Set getGrantableSubsystemsForAssignment()
 	{
 		Set grantableSubsystems = new HashSet();
@@ -1509,20 +1647,24 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		}
 	}
 
+	//
+	// First, determine who the effectiveEditor is. That's the PrivilegedSubject we're "acting for", if anyone, or ourself, if we're
+	// not "acting for" another.
+	// 
+	// Then, we have two possibilities to consider:
+	// 
+	// 1) We are "acting for" ourself only.
+	// 
+	// In this case, we can grant a Proxy for any Subsystem, without regard to any Assignments or Proxies we currently hold.
+	// 
+	// 2) We are "acting for" another.
+	// 
+	// In this case, we look through the extensible Proxies that we've received from that other PrivilegedSubject, plucking the
+	// Subsystem from each, keeping in mind that the NULL Subsystem indicates that we can extend a Proxy for any Subsystem.
+	//
 	/**
-	 * First, determine who the effectiveEditor is. That's the PrivilegedSubject we're "acting for", if anyone, or ourself, if we're
-	 * not "acting for" another.
-	 * 
-	 * Then, we have two possibilities to consider:
-	 * 
-	 * 1) We are "acting for" ourself only.
-	 * 
-	 * In this case, we can grant a Proxy for any Subsystem, without regard to any Assignments or Proxies we currently hold.
-	 * 
-	 * 2) We are "acting for" another.
-	 * 
-	 * In this case, we look through the extensible Proxies that we've received from that other PrivilegedSubject, plucking the
-	 * Subsystem from each, keeping in mind that the NULL Subsystem indicates that we can extend a Proxy for any Subsystem.
+	 * Returns A set of Subsystems that are grantable for this subject's Proxies
+	 * @return A set of Subsystems that are grantable for this subject's Proxies
 	 */
 	public Set getGrantableSubsystemsForProxy()
 	{
@@ -1557,6 +1699,11 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
+	/**
+	 * Returns a Set of Category's for the given subsystem
+	 * @param subsystem
+	 * @return a Set of Category's for the given subsystem
+	 */
 	public Set getGrantableCategories(Subsystem subsystem)
 	{
 		if (hasSuperSubjectPrivileges(subsystem))
@@ -1575,6 +1722,11 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
+	/**
+	 * Returns true if this Subject can act as Signet for the given subsystem
+	 * @param subsystem
+	 * @returntrue if this Subject can act as Signet for the given subsystem
+	 */
 	private boolean hasSuperSubjectPrivileges(Subsystem subsystem)
 	{
 		boolean retval = false;
@@ -1588,13 +1740,28 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 			// esteemed personage. If we're just "acting as", then we need to make
 			// sure that our set of active Proxies actually includes this Subystem.
 			Set proxies = getFilteredProxySet(privSubj, subsystem);
-			retval = (this.equals(privSubj)) || (0 < proxies.size());
+			retval = (this.equals(privSubj)) || ( !proxies.isEmpty());
 		}
 
 		return (retval);
 	}
 
 
+	/**
+	 * Returns a newly granted Assignment. If either this Subject or the
+	 * Grantee Subject are not already persisted, then persist them before
+	 * creating the Assignment. The Assignment is not persisted here.
+	 * @param grantee The Subject receiving the Assignment (grantor is 'this')
+	 * @param scope The Scope of the Assignment
+	 * @param function The function within the Scope
+	 * @param limitValues The limits of the function
+	 * @param canUse Can the grantee use the privilege
+	 * @param canGrant Can the grantee grant the privilege
+	 * @param effectiveDate When does it start
+	 * @param expirationDate When does it end
+	 * @return a newly granted Assignment
+	 * @throws SignetAuthorityException
+	 */
 	public Assignment grant(
 			SignetSubject grantee,
 			TreeNode scope,
@@ -1604,20 +1771,35 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 			Date effectiveDate, Date expirationDate)
 		throws SignetAuthorityException
 	{
+		HibernateDB hibr = signetSource.getSignet().getPersistentDB();
+		Session hs = hibr.openSession();
+		Transaction tx = hs.beginTransaction();
 		if ( !isPersisted())
-			save();
+			hibr.save(hs, this);
 		if ( !grantee.isPersisted())
-			grantee.save();
+			hibr.save(hs, grantee);
+		tx.commit();
+		hibr.closeSession(hs);
 
 		Assignment newAssignment = new AssignmentImpl(
 				signetSource.getSignet(), this, grantee, scope, function, limitValues,
 				canUse, canGrant, effectiveDate, expirationDate);
-		newAssignment.save();
 
 		return (newAssignment);
 	}
 
 
+	/**
+	 * Returns a newly granted Proxy, does NOT persist the Proxy (caller must do that).
+	 * @param grantee The recipient of the Proxy (grantor is 'this')
+	 * @param subsystem Subsystem to associate with the Proxy
+	 * @param canUse Grantee can use this Proxy
+	 * @param canExtend Grantee can extend this proxy
+	 * @param effectiveDate Datetime this proxy becomes effective
+	 * @param expirationDate Datetime this proxy is no longer effective
+	 * @return  a newly granted Proxy
+	 * @throws SignetAuthorityException
+	 */
 	public Proxy grantProxy(SignetSubject grantee, Subsystem subsystem,
 			boolean canUse, boolean canExtend,
 			Date effectiveDate,	Date expirationDate)
@@ -1628,21 +1810,28 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 			throw new IllegalArgumentException("Cannot grant a Proxy to a NULL grantee.");
 		}
 
-		if ( !grantee.isPersisted()) // grantee may have just come in from SubjectAPI
-			grantee.save();
-
 		Signet mySignet = signetSource.getSignet();
+
+		if ( !grantee.isPersisted()) // grantee may have just come in from SubjectAPI
+		{
+			HibernateDB hibr = mySignet.getPersistentDB();
+			Session hs = hibr.openSession();
+			Transaction tx = hs.beginTransaction();
+			hibr.save(hs, grantee);
+			tx.commit();
+			hibr.closeSession(hs);
+		}
+
 		Proxy newProxy = new ProxyImpl(mySignet, this, grantee, subsystem,
 				canUse, canExtend, effectiveDate, expirationDate);
-		newProxy.save();
 
 		return (newProxy);
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * @see edu.internet2.middleware.signet.PrivilegedSubject#getPrivileges()
+	/**
+	 * Returns the current Privileges for this Subject
+	 * @return the current Privileges for this Subject
 	 */
 	public Set getPrivileges()
 	{
@@ -1661,6 +1850,11 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	}
 
 
+	/**
+	 * For all received Assignments and Proxies, reconcile by the current date/time
+	 * @return A Set of Grantables whose status changed due to reconciliation,
+	 * may be an empty Set, but never null.
+	 */
 	public Set reconcile()
 	{
 		return (reconcile(new Date()));
@@ -1717,6 +1911,7 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 	////////////////////////////////////
 
 	/**
+	 * Format this Subject to a printable String
 	 * @return A String that represents this SignetSubject
 	 */
 	public String toString()
@@ -1735,6 +1930,11 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		return (buf.toString());
 	}
 
+	/**
+	 * Returns a formatted date string
+	 * @param date
+	 * @return a formatted date string
+	 */
 	protected String dateToString(Date date)
 	{
 		String dateStr;
@@ -1747,7 +1947,10 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		return (dateStr);
 	}
 
-	/** @return a formatted String of the SignetSubjectAttrs */
+	/**
+	 * returns a formatted String of the SignetSubjectAttrs
+	 * @return a formatted String of the SignetSubjectAttrs
+	*/
 	protected String attrsToString()
 	{
 		StringBuffer buf = new StringBuffer();
@@ -1756,18 +1959,8 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		{
 			for (Iterator attrs = signetSubjectAttrs.iterator(); attrs.hasNext();)
 			{
-//Object o = attrs.next();
-//if ( !(o instanceof SignetSubjectAttr))
-//{
-//	buf.append("ATTR IS A " + o.getClass().getName() + " ");
-//	Thread.currentThread().dumpStack();
-//}
-//else
-//{
 				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
-//SignetSubjectAttr attr = (SignetSubjectAttr)o;
 				buf.append(attr.toString() + " ");
-//}
 			}
 		}
 		else
@@ -1776,11 +1969,17 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		return (buf.toString());
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	public int hashCode()
 	{
 		return (toString().hashCode());
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	public boolean equals(Object o)
 	{
 		if (o instanceof SignetSubject)
@@ -1793,34 +1992,24 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 
 	/**
 	 * Field-by-field comparison to another SignetSubject
+	 * @param sigSubject
 	 * @return true if all fields are equal, otherwise false
 	 */
 	protected boolean equals(SignetSubject sigSubject)
 	{
-//System.out.println("SignetSubject.equals(SignetSubject): top");
-//		if (null == sigSubject)
-//			return (false);
-//System.out.println("SignetSubject.equals(SignetSubject): comparing this to that...");
-//System.out.println("  this=" + toString());
-//System.out.println("  that=" + sigSubject.toString());
-//boolean eq = toString().equals(sigSubject.toString());
-//System.out.println("  this " + (eq ? "equals" : "not equal to") + " that ");
-//		// quick (to implement) and dirty
-//		return (eq);
-		boolean retval = false; // assume failure
-		if (null != sigSubject)
-		{
+		boolean retval;
+		if (retval = (null != sigSubject))
 			if (retval = valuesEqual(subjectId, sigSubject.getId())) // yes, I do mean "="
 				if (retval = valuesEqual(subjectType, sigSubject.getType().getName())) // yes, I do mean "="
 					if (retval = valuesEqual(subjectName, sigSubject.getName())) // yes, I do mean "="
 						if (retval = valuesEqual(sourceId, sigSubject.getSourceId())) // yes, I do mean "="
 							retval = compareAttributes(sigSubject);
-		}
 		return (retval);
 	}
 
 	/**
 	 * Field-by-field comparison to a Subject
+	 * @param apiSubject
 	 * @return true if equivilent fields are equal, otherwise false
 	 */
 	protected boolean equals(Subject apiSubject)
@@ -1838,14 +2027,19 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 				if (retval = valuesEqual(subjectType, apiSubject.getType().getName())) // yes, I do mean "="
 					if (retval = valuesEqual(subjectName, apiSubject.getName())) // yes, I do mean "="
 						if (retval = valuesEqual(sourceId, apiSubject.getSource().getId())) // yes, I do mean "="
-							retval = compareSubjApiAttrs(signetSubjectAttrs, apiSubject.getAttributes());
+							retval = compareSubjApiAttrs(apiSubject.getAttributes());
 		}
 
 		return (retval);
 	}
 
 
-	/** Compare two Strings for equality. Does a few more checks than String.equals() */
+	/**
+	 * Compare two Strings for equality. Does a few more checks than String.equals() 
+	 * @param value1
+	 * @param value2
+	 * @return
+	 */
 	protected boolean valuesEqual(String value1, String value2)
 	{
 		boolean retval = false; // assume failure
@@ -1880,21 +2074,18 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		if (null == otherAttrs)
 			return (false);
 
-		// if list sizes are not equal, they're not equal
-		boolean retval = (signetSubjectAttrs.size() == otherAttrs.size());
-
-		if (retval)
+//		// if list sizes are not equal, they're not equal
+//		boolean retval = (signetSubjectAttrs.size() == otherAttrs.size());
+boolean retval = true; // assume success
+		// for each of my attributes, get the corresponding attribute for
+		// the other SignetSubject, and compare values. Break on
+		// first non-equal value (ie retval == false).
+		for (Iterator myAttrs = signetSubjectAttrs.iterator();
+				myAttrs.hasNext() && retval; )
 		{
-			// for each of my attributes, get the corresponding attribute for
-			// the other SignetSubject, and compare values. Break on
-			// first non-equal value.
-			for (Iterator myAttrs = signetSubjectAttrs.iterator();
-					myAttrs.hasNext() && retval; )
-			{
-				SignetSubjectAttr myAttr = (SignetSubjectAttr)myAttrs.next();
-				SignetSubjectAttr otherAttr = subject.getAttribute(myAttr.getMappedName());
-				retval = myAttr.equals(otherAttr);
-			}
+			SignetSubjectAttr myAttr = (SignetSubjectAttr)myAttrs.next();
+			SignetSubjectAttr otherAttr = subject.getAttributeForName(myAttr.getMappedName(), myAttr.getSequence());
+			retval = myAttr.equals(otherAttr);
 		}
 
 		return (retval);
@@ -1902,16 +2093,17 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 
 
 	/**
-	 * Compare the Attributes for a SignetSubject and a Subject (from SubjectAPI).
+	 * Compare the Attributes for this SignetSubject and a Subject (from SubjectAPI).
 	 * This method must dereference the SignetSubject's attribute name mapping
 	 * to match the SubjectAPI's attribute names before the value comparison
 	 * can be performed.
-	 * @param sigAttrs A Set of SignetSubjectAttr objects
 	 * @param apiAttrs A Map of Attr Name (key) / Attr Values (a Set!) pairs
 	 * @return true if all attribute's values are equal, otherwise false
 	 */
-	protected boolean compareSubjApiAttrs(Set sigAttrs, Map apiAttrs)
+	protected boolean compareSubjApiAttrs(Map apiAttrs)
 	{
+		Set sigAttrs = signetSubjectAttrs; // use a shorter name here
+
 		// if both are null, they're equal
 		if ((null == sigAttrs) && (null == apiAttrs))
 			return (true);
@@ -1920,24 +2112,35 @@ System.out.println("SignetSubject.save: exception during commit. SignetSubject =
 		if ((null == sigAttrs) || (null == apiAttrs))
 			return (false);
 
-		// if list sizes are not equal, they're not equal
-		boolean retval = (sigAttrs.size() == apiAttrs.size());
-
-		if (retval)
+		boolean retval = true; // assume success
+		Hashtable mappedNames = signetSource.getMappedAttributes();
+		for (Enumeration names = mappedNames.keys(); names.hasMoreElements() && retval; )
 		{
-			// for each signet attribute, deref the mapped name, get the
-			// corresponding SubjectAPI attr, and compare values. Break on
-			// first non-equal value.
-			Hashtable mappedNames = signetSource.getMappedAttributes();
-			for (Iterator attrs = sigAttrs.iterator();
-					attrs.hasNext() && retval;)
-			{
-				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
-				String apiAttrName = (String)mappedNames.get(attr.getMappedName());
-				Set apiValues = (Set)apiAttrs.get(apiAttrName);
-				retval = compareAttrValues(attr.getValuesAsStringSet(), apiValues);
-			}
+			String mappedName = (String)names.nextElement();
+			String apiName = (String)mappedNames.get(mappedName);
+			Set myValues = getAttributeValues(mappedName);
+			Set apiValues = (Set)apiAttrs.get(apiName);
+			retval = (myValues.size() == apiValues.size()) &&
+					(myValues.containsAll(apiValues));
 		}
+//		// if list sizes are not equal, they're not equal
+//		boolean retval = (sigAttrs.size() == apiAttrs.size());
+//
+//		if (retval)
+//		{
+//			// for each signet attribute, deref the mapped name, get the
+//			// corresponding SubjectAPI attr, and compare values. Break on
+//			// first non-equal value.
+//			Hashtable mappedNames = signetSource.getMappedAttributes();
+//
+//			for (Iterator attrs = sigAttrs.iterator(); attrs.hasNext() && retval; )
+//			{
+//				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
+//				String apiAttrName = (String)mappedNames.get(attr.getMappedName());
+//				Set apiValues = (Set)apiAttrs.get(apiAttrName);
+//				retval = compareAttrValues(attr.getValuesAsStringSet(), apiValues);
+//			}
+//		}
 
 		return (retval);
 	}

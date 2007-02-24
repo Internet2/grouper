@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyTest.java,v 1.6 2006-10-25 00:10:25 ddonn Exp $
-$Date: 2006-10-25 00:10:25 $
+$Id: ProxyTest.java,v 1.7 2007-02-24 02:11:32 ddonn Exp $
+$Date: 2007-02-24 02:11:32 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -11,12 +11,15 @@ package edu.internet2.middleware.signet.test;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import junit.framework.TestCase;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
@@ -25,6 +28,9 @@ public class ProxyTest extends TestCase
   private Signet		signet;
 // not used
 //  private Fixtures	fixtures;
+  protected HibernateDB hibr;
+  protected Session hs;
+  protected Transaction tx;
   
   public static void main(String[] args)
   {
@@ -39,16 +45,20 @@ public class ProxyTest extends TestCase
     super.setUp();
     
     signet = new Signet();
-    signet.getPersistentDB().beginTransaction();
+    hibr = signet.getPersistentDB();
+    hs = hibr.openSession();
+    tx = hs.beginTransaction();
     /* fixtures = */ new Fixtures(signet);
-    signet.getPersistentDB().commit();
-    signet.getPersistentDB().close();
+    tx.commit();
+    hibr.closeSession(hs);
     
     // Let's use a new Signet session, to make sure we're actually
     // pulling data from the database, and not just referring to in-memory
     // structures.
     signet = new Signet();
-    signet.getPersistentDB().beginTransaction();
+    hibr = signet.getPersistentDB();
+    hs = hibr.openSession();
+    tx = hs.beginTransaction();
   }
 
   /*
@@ -57,8 +67,8 @@ public class ProxyTest extends TestCase
   protected void tearDown() throws Exception
   {
     super.tearDown();
-    signet.getPersistentDB().commit();
-    signet.getPersistentDB().close();
+    tx.commit();
+    hibr.closeSession(hs);
   }
 
   /**
@@ -110,7 +120,7 @@ public class ProxyTest extends TestCase
       if (!(proxy.getStatus().equals(Status.INACTIVE)))
       {
         proxy.revoke(revoker);
-        proxy.save();
+        hibr.save(hs, proxy);
       }
     }
   }
@@ -159,7 +169,7 @@ public class ProxyTest extends TestCase
                  proxyReceived.canExtend(),
                  Constants.TODAY,  // EffectiveDate and expirationDate are not
                  Constants.TOMORROW); // considered when finding duplicates.
-        duplicateProxy.save();
+        hibr.save(hs, duplicateProxy);
         
         // At this point, there should be exactly one duplicate Proxy.
         assertEquals(1, proxyReceived.findDuplicates().size());
@@ -207,8 +217,8 @@ public class ProxyTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(proxy);
         proxy.setEffectiveDate
           (grantor,
-           Constants.DAY_BEFORE_YESTERDAY);
-        proxy.save();
+           Constants.DAY_BEFORE_YESTERDAY, true);
+        hibr.save(hs, proxy);
       }
       
       // Examine every single altered EffectiveDate for every received
@@ -228,8 +238,8 @@ public class ProxyTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(proxy);
         proxy.setEffectiveDate
           (grantor,
-           Constants.YESTERDAY);
-        proxy.save();
+           Constants.YESTERDAY, true);
+        hibr.save(hs, proxy);
       }
     }
   }
@@ -274,8 +284,8 @@ public class ProxyTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(proxy);
         proxy.setExpirationDate
           (grantor,
-           Constants.DAY_AFTER_TOMORROW);
-        proxy.save();
+           Constants.DAY_AFTER_TOMORROW, true);
+        hibr.save(hs, proxy);
       }
       
       // Examine every single altered expirationDate for every received
@@ -295,8 +305,8 @@ public class ProxyTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(proxy);
         proxy.setExpirationDate
           (grantor,
-           Constants.TOMORROW);
-        proxy.save();
+           Constants.TOMORROW, true);
+        hibr.save(hs, proxy);
       }
     }
   }
@@ -330,19 +340,20 @@ public class ProxyTest extends TestCase
     Date nextWeek = Common.getDate(7);
     
     SignetSubject grantor = Common.getOriginalGrantor(proxy);
-    
-    proxy.setEffectiveDate(grantor, Constants.YESTERDAY);
-    proxy.setExpirationDate(grantor, Constants.TOMORROW);
+
+    proxy.checkEditAuthority(grantor); // throws on error
+    proxy.setEffectiveDate(grantor, Constants.YESTERDAY, false);
+    proxy.setExpirationDate(grantor, Constants.TOMORROW, false);
     proxy.evaluate();
     assertEquals(Status.ACTIVE, proxy.getStatus());
     
-    proxy.setEffectiveDate(grantor, Constants.TOMORROW);
-    proxy.setExpirationDate(grantor, nextWeek);
+    proxy.setEffectiveDate(grantor, Constants.TOMORROW, false);
+    proxy.setExpirationDate(grantor, nextWeek, false);
     proxy.evaluate();
     assertEquals(Status.PENDING, proxy.getStatus());
     
-    proxy.setEffectiveDate(grantor, lastWeek);
-    proxy.setExpirationDate(grantor, Constants.YESTERDAY);
+    proxy.setEffectiveDate(grantor, lastWeek, false);
+    proxy.setExpirationDate(grantor, Constants.YESTERDAY, false);
     proxy.evaluate();
     assertEquals(Status.INACTIVE, proxy.getStatus());
   }
@@ -385,7 +396,7 @@ public class ProxyTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(proxy);
         proxy.setCanExtend
           (grantor, !originalIsExtensible);
-        proxy.save();
+        hibr.save(hs, proxy);
       }
       
       // Examine every single altered "isExtensible" flag for every received
@@ -404,7 +415,7 @@ public class ProxyTest extends TestCase
         proxy.setCanExtend
           (grantor,
            Constants.PROXY_CANEXTEND);
-        proxy.save();
+        hibr.save(hs, proxy);
       }
     }
   }
@@ -447,7 +458,7 @@ public class ProxyTest extends TestCase
         SignetSubject grantor = Common.getOriginalGrantor(proxy);
         proxy.setCanUse
           (grantor, !originalCanUse);
-        proxy.save();
+        hibr.save(hs, proxy);
       }
       
       // Examine every single altered "canUse" flag for every received
@@ -466,7 +477,7 @@ public class ProxyTest extends TestCase
         proxy.setCanUse
           (grantor,
            Constants.PROXY_CANUSE);
-        proxy.save();
+        hibr.save(hs, proxy);
       }
     }
   }

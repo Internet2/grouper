@@ -1,11 +1,13 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping>
+
+<hibernate-mapping
+		default-lazy="false" >
+
 	<class
 		name="edu.internet2.middleware.signet.PermissionImpl"
-		table="signet_permission"
-		lazy="true">
+		table="signet_permission" >
 		
 		<id name="key" type="int" column="permissionKey">
 			<generator class="native"/>
@@ -17,8 +19,7 @@
 			name="functions"
 			table="signet_function_permission"
 			inverse="true"
-			cascade="save-update"
-			lazy="false">
+			cascade="save-update" >
 			
 			<key column="permissionKey"/>
 			
@@ -33,8 +34,7 @@
 			name="limits"
 			table="signet_permission_limit"
 			inverse="true"
-			cascade="save-update"
-			lazy="false">
+			cascade="save-update" >
 			
 			<key column="permissionKey"/>
 			

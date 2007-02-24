@@ -28,6 +28,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
@@ -37,6 +39,7 @@ import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.SignetFactory;
 import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
@@ -85,7 +88,7 @@ public class AssignmentXmlLoader
       String inputFileName = args[0];
       BufferedReader in = new BufferedReader(new FileReader(inputFileName));
 
-      loader.processFile(loader, in);
+      loader.processFile(in);
 
       in.close();
     }
@@ -99,13 +102,8 @@ public class AssignmentXmlLoader
     }
   }
   
-  private void processFile
-    (AssignmentXmlLoader loader,
-     BufferedReader      in)
-  throws
-    XMLStreamException,
-    ObjectNotFoundException,
-    SignetAuthorityException
+  private void processFile(BufferedReader in)
+  		throws XMLStreamException, ObjectNotFoundException, SignetAuthorityException
   {
     int    newAssignmentCount = 0;
     Signet signet             = new Signet();
@@ -119,8 +117,10 @@ public class AssignmentXmlLoader
     
     //  Get current time
     long start = System.currentTimeMillis();
-    
-    signet.getPersistentDB().beginTransaction();
+
+	HibernateDB hibr = signet.getPersistentDB();
+	Session hs = hibr.openSession();
+	hs.beginTransaction();
       
     while (true)
     {
@@ -135,7 +135,7 @@ public class AssignmentXmlLoader
       {
         if (parser.getLocalName().equals(ELEMENTNAME_ASSIGNMENTS))
         {
-          newAssignmentCount = processAssignments(signet, parser, loader);
+          newAssignmentCount = processAssignments(signet, parser);
         }
         else
         {
@@ -145,10 +145,10 @@ public class AssignmentXmlLoader
         }
       }
     }
-    
-    signet.getPersistentDB().commit();
-    signet.getPersistentDB().close();
-    
+
+	hs.getTransaction().commit();
+	hibr.closeSession(hs);
+
     //  Get elapsed time in milliseconds
     long elapsedTimeMillis = System.currentTimeMillis()-start;
     
@@ -166,14 +166,8 @@ public class AssignmentXmlLoader
        + " Assignments per second).");
   }
   
-  private int processAssignments
-    (Signet              signet,
-     XMLStreamReader     parser,
-     AssignmentXmlLoader loader)
-  throws
-    XMLStreamException,
-    ObjectNotFoundException,
-    SignetAuthorityException
+  private int processAssignments(Signet signet, XMLStreamReader parser)
+  		throws XMLStreamException, ObjectNotFoundException, SignetAuthorityException
   {
     Subsystem subsystem       = null;
     int       assignmentCount = 0;
@@ -227,22 +221,14 @@ public class AssignmentXmlLoader
     }
   }
   
-  private Assignment processAssignment
-    (Signet          signet,
-     XMLStreamReader parser,
-     Subsystem       subsystem)
-  throws
-    XMLStreamException,
-    ObjectNotFoundException,
-    SignetAuthorityException
+  private Assignment processAssignment(Signet signet, XMLStreamReader parser, Subsystem subsystem)
+  			throws XMLStreamException, ObjectNotFoundException, SignetAuthorityException
   {
     Function          function    = null;
     SignetSubject grantor     = null;
     SignetSubject actingAs    = null;
     SignetSubject grantee     = null;
     TreeNode          scope       = null;
-    Set               limitValues = new HashSet();
-    Assignment        assignment  = null;
     
     int attributeCount = parser.getAttributeCount();
     for (int i = 0; i < attributeCount; i++)
@@ -283,8 +269,11 @@ public class AssignmentXmlLoader
         }
       }
     }
+
     
-    while (true)
+    Set limitValues = new HashSet();
+    Assignment assignment = null;
+    while (parser.hasNext() && (null == assignment))
     {
       int event = parser.next();
       
@@ -298,11 +287,16 @@ public class AssignmentXmlLoader
           if (parser.getLocalName().equals(ELEMENTNAME_ASSIGNMENT))
           {
               System.out.println("Assignment: " + grantor.getName() + " granting " + function.getName() + " to " + grantee.getName());
-              assignment
-                = buildAssignmentIfComplete
-                    (function, grantor, actingAs, grantee, scope, limitValues);
-              
-              return assignment;
+
+              assignment = buildAssignmentIfComplete(function, grantor,
+            		  actingAs, grantee, scope, limitValues);
+
+              HibernateDB hibr = signet.getPersistentDB();
+              Session hs = hibr.openSession();
+              Transaction tx = hs.beginTransaction();
+              hibr.save(hs, assignment);
+              tx.commit();
+              hibr.closeSession(hs);
           }
               
           break;
@@ -320,10 +314,12 @@ public class AssignmentXmlLoader
           System.out.println("FOUND NEW EVENT: " + event);
         }
       }
+              
+    return assignment;
   }
-  
+
+
   private SignetSubject getSubject(Signet signet, String subjectId)
-//  throws ObjectNotFoundException
   {
     SignetSubject pSubject;
     
@@ -331,21 +327,6 @@ public class AssignmentXmlLoader
     	pSubject = signet.getSignetSubject();
     else
     	pSubject = signet.getSubjectByIdentifier(subjectId);
-//    try
-//    {
-//      pSubject = signet.getSubjectSources().getPrivilegedSubjectByDisplayId(
-//    		  Signet.DEFAULT_SUBJECT_TYPE_ID, subjectId);
-//    }
-//    catch (ObjectNotFoundException onfe)
-//    {
-//      // Let's give this exception a little more detail.
-//      throw new ObjectNotFoundException
-//        ("Unable to find Subject '"
-//         + subjectId
-//         + "' of type '"
-//         + Signet.DEFAULT_SUBJECT_TYPE_ID + "'.",
-//         onfe);
-//    }
     
     return pSubject;
   }
@@ -484,8 +465,6 @@ public class AssignmentXmlLoader
              true,
              new java.util.Date(),
              null);
-      
-      assignment.save();
     }
     
     return assignment;

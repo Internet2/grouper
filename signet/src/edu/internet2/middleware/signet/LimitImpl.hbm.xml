@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping>	
+
+<hibernate-mapping
+		default-lazy="false" >
+
 	<class
 		name="edu.internet2.middleware.signet.LimitImpl"
 		table="signet_limit">
@@ -15,11 +18,8 @@
 		<set
 			name="permissions"
 			table="signet_permission_limit"
-			cascade="save-update"
-			lazy="false">
-			<key>
-				 <column name="limitKey"/>
-			</key>
+			cascade="save-update" >
+			<key column="limitKey" />
 			<many-to-many
 				class="edu.internet2.middleware.signet.PermissionImpl"
 				column="permissionKey"/>
