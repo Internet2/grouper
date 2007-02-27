@@ -16,20 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  org.apache.commons.collections.map.*;
+import  edu.internet2.middleware.subject.Subject;
+import  org.apache.commons.collections.keyvalue.MultiKey;
 
 /** 
  * A simple caching implementation of {@link SubjectCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleSubjectCache.java,v 1.2 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SimpleSubjectCache.java,v 1.3 2007-02-27 20:22:21 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleSubjectCache extends BaseSubjectCache {
 
   // PROTECTED INSTANCE VARIABLES //
-  protected MultiKeyMap cache = MultiKeyMap.decorate(new HashedMap());
+  protected SimpleCache cache = new SimpleCache();
 
 
   // PUBLIC INSTANCE METHODS //
@@ -41,8 +41,9 @@ public class SimpleSubjectCache extends BaseSubjectCache {
    * @since   1.1.0
    */
   public Subject get(String id, String type, String source) {
-    if (this.cache.containsKey(id, type, source)) {
-      return (Subject) this.cache.get(id, type, source);
+    MultiKey k = new MultiKey(id, type, source);
+    if ( this.cache.containsKey(k) ) {
+      return (Subject) this.cache.get(k);
     }
     return null;
   } // public Subject get(id, source, type)
@@ -57,7 +58,7 @@ public class SimpleSubjectCache extends BaseSubjectCache {
     throws  SubjectCacheException
   {
     // Store the value without any cache flushing
-    this.cache.put(id, type, source, subj);
+    this.cache.put( new MultiKey(id, type, source), subj );
   } // public void put(o, subj, p, hasPriv)
 
   /**
@@ -69,7 +70,7 @@ public class SimpleSubjectCache extends BaseSubjectCache {
   public void removeAll() 
     throws  SubjectCacheException
   {
-    this.cache.clear(); 
+    this.cache.removeAll();
   } // public void removeAll()
 
 } // public class SimpleSubjectCache extends BaseSubjectCache
