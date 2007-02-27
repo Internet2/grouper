@@ -16,8 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
+import  edu.internet2.middleware.subject.Subject;
+import  java.util.Date;
+import  org.apache.commons.collections.keyvalue.MultiKey;
 
 /** 
  * A simple caching implementation of {@link PrivilegeCache} with better support
@@ -41,7 +42,7 @@ import  java.util.*;
  * edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge = 10000
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.9 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.10 2007-02-27 20:39:06 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
@@ -76,8 +77,9 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
   public PrivilegeCacheElement get(Owner o, Subject subj, Privilege p) {
     // I'm not sure the logic is entirely correct within here but it does a
     // better job of tracking changes to the wheel group so...
-    PrivilegeCacheElement result = new NullPrivilegeCacheElement(o, subj, p);
-    if (this.internal_getCache().containsKey(o, p, subj)) { 
+    MultiKey              k       = new MultiKey(o, p, subj);
+    PrivilegeCacheElement result  = new NullPrivilegeCacheElement(o, subj, p);
+    if ( this.internal_getCache().containsKey(k) ) {
       // The privilege is cached ...
       // ... But is the wheel group enabled?
       boolean useCached = true;
@@ -109,7 +111,7 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
         }
       }
       if (useCached) {
-        result = (PrivilegeCacheElement) this.internal_getCache().get(o, p, subj);
+        result = (PrivilegeCacheElement) this.internal_getCache().get(k);
       }
     }
     return result;
