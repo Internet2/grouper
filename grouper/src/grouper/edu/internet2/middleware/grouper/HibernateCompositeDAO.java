@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.10 2007-02-14 22:06:40 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.11 2007-02-27 18:48:07 blair Exp $
  * @since   1.2.0
  */
 class HibernateCompositeDAO extends HibernateDAO {
@@ -117,6 +117,13 @@ class HibernateCompositeDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // private static CompositeDTO findByUuid(uuid)
+
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateCompositeDAO");
+  } // protected static void reset(hs)
 
   // @since   1.2.0
   protected static void update(Set toAdd, Set toDelete, Set modGroups, Set modStems) 

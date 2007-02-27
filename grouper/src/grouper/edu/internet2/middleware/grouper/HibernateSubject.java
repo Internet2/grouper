@@ -19,15 +19,15 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * Hibernate representation of the JDBC Subject table.
  * <p/>
- * <p><b>This class is experimental and will change in future Grouper
- * releases.</b></p>
+ * <p><b>This class is experimental and will change in future Grouper releases.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateSubject.java,v 1.21 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: HibernateSubject.java,v 1.22 2007-02-27 18:48:07 blair Exp $
  * @since   1.0
  */
 public class HibernateSubject implements Serializable {
@@ -136,6 +136,14 @@ public class HibernateSubject implements Serializable {
       return HibernateRegistrySubjectDAO.create(subj);
     }
   } // protected static HibernateSubject internal_add(id, type, name)
+
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateSubjectAttribute"); // TDOO 20061018 this shouldn't be necessary
+    hs.delete("from HibernateSubject");
+  } // protected static void reset(hs)
 
 
   // GETTERS //

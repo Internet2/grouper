@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.14 2007-02-22 17:40:30 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.15 2007-02-27 18:48:07 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
@@ -486,6 +486,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   protected static void reset(Session hs) 
     throws  HibernateException
   {
+    hs.delete("from HibernateAttributeDAO"); // TODO 20070207 this should not be necessary
     hs.delete("from HibernateGroupDAO");
     existsCache.removeAll(); 
   } // protected static void reset(hs)
