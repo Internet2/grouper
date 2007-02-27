@@ -19,31 +19,12 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.25 2007-02-22 17:40:30 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.26 2007-02-27 18:08:09 blair Exp $
  * @since   1.0
  */
 class MembershipValidator extends GrouperValidator {
 
   // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static void internal_validateComposite(MembershipDTO dto)
-    throws  ModelException
-  {
-    _validate(dto, Membership.COMPOSITE); 
-    // Verify Depth
-    if ( dto.getDepth() != 0 ) {
-      throw new ModelException( E.ERR_D + dto.getDepth() );
-    }
-    // Verify Via
-    if ( dto.getViaUuid() == null ) {
-      throw new ModelException(E.ERR_VC + "null");
-    }    
-    // Verify Parent Membership
-    if ( dto.getParentUuid() != null ) {
-      throw new ModelException(E.ERR_PMS);
-    }
-  } // protected static void internal_validateComposite(dto)
 
   // @since   1.2.0
   protected static MembershipValidator validate(MembershipDTO _ms) {

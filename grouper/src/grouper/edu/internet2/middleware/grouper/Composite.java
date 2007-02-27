@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.33 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: Composite.java,v 1.34 2007-02-27 18:08:09 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -194,36 +194,37 @@ public class Composite extends GrouperAPI {
 
   // PRIVATE CLASS METHODS //
 
-  // @since   1.0
-  private static void _update(Set mships) {
-    Set         updates = new LinkedHashSet();
-    Iterator    iterMS  = mships.iterator();
-    while (iterMS.hasNext()) {
-      // TODO 20070125 !!!
-      Object obj = iterMS.next();
-      if (obj instanceof MembershipDTO) {
-        Membership tmp = new Membership();
-        tmp.setDTO( (MembershipDTO) obj );
-        updates.add( MembershipHelper.getOwner(tmp) );
+  // given a set of memberships, extract the owner group and locate where each is the
+  // member of a factor so that all factors can be updated as appropriate.
+  // @since   1.2.0
+  private static void _update(GrouperSession s, Set mships) {
+    try {
+      Set groupsToUpdate  = new LinkedHashSet();
+      // first find the owning group uuid for each membership
+      MembershipDTO _ms;
+      Iterator      it  = mships.iterator();
+      while (it.hasNext()) {
+        _ms = (MembershipDTO) it.next();
+        groupsToUpdate.add( HibernateGroupDAO.findByUuid( _ms.getOwnerUuid() ) );
       }
-      else {
-        updates.add( MembershipHelper.getOwner( (Membership) obj ) );
-      }
-    }
-    Group     g;
-    Iterator  iter;
-    Composite c;
-    Iterator  iterU = updates.iterator();
-    while (iterU.hasNext()) {
-      g     = (Group) iterU.next();
-      iter  = HibernateCompositeDAO.findAsFactor( g.getDTO() ).iterator();
-      while (iter.hasNext()) {
-        c = new Composite();
-        c.setDTO( (CompositeDTO) iter.next() );
-        c._update();
+      // and then find where each group is a factor and update 
+      Composite c;
+      Iterator itFactor;
+      it = groupsToUpdate.iterator();
+      while (it.hasNext()) {
+        itFactor = HibernateCompositeDAO.findAsFactor( (GroupDTO) it.next() ).iterator();  
+        while (itFactor.hasNext()) {
+          c = new Composite();
+          c.setSession(s);
+          c.setDTO( (CompositeDTO) itFactor.next() );
+          c._update();
+        }
       }
     }
-  } // private static void _update(mships)
+    catch (GroupNotFoundException eGNF) {
+      throw new IllegalStateException( eGNF.getMessage(), eGNF );
+    }
+  } // private static void _update(s, mships)
 
 
   // PRIVATE INSTANCE METHODS //
@@ -237,14 +238,12 @@ public class Composite extends GrouperAPI {
     try {
       StopWatch sw  = new StopWatch();
       sw.start();
-      // TODO 20070208 THIS. SHOULD. NOT. BE. NECESSARY.
-      //GrouperSession rs  = this.getSession().getDTO().getRootSession();
-      GrouperSession rs = GrouperSession.start( SubjectFinder.findRootSubject() );
-      this.setSession(rs);
-      Group           g   = this.getOwnerGroup();
-      MemberOf        mof = MemberOf.internal_addComposite(rs, g, this);
 
-      
+      Group     g   = new Group();
+      MemberOf  mof = new MemberOf();
+      g.setDTO( HibernateGroupDAO.findByUuid( this.getDTO().getFactorOwnerUuid() ) ); 
+      mof.addComposite( this.getSession(), g, this );
+  
       Set cur       = HibernateMembershipDAO.findAllByOwnerAndField( g.getDTO().getUuid(), Group.getDefaultList() ); // current mships
       Set should    = mof.internal_getEffSaves(); // What mships should be
       Set deletes   = new LinkedHashSet(cur);     // deletes  = cur - should
@@ -261,20 +260,16 @@ public class Composite extends GrouperAPI {
         HibernateCompositeDAO.update(adds, deletes, modGroups, modStems);
         sw.stop();
         EventLog.compositeUpdate(this, adds, deletes, sw);
-        Composite._update(deletes);
-        Composite._update(adds);
+        Composite._update( this.getSession(), deletes);
+        Composite._update( this.getSession(), adds);
       }
     }
     catch (GroupNotFoundException eGNF) {
       String msg = E.COMP_UPDATE + eGNF.getMessage();
       ErrorLog.error(Composite.class, msg);
     }
-    catch (ModelException eM) {
-      String msg = E.COMP_UPDATE + eM.getMessage();
-      ErrorLog.error(Composite.class, msg);
-    }
-    catch (SessionException eS) {
-      String msg = E.COMP_UPDATE + eS.getMessage();
+    catch (IllegalStateException eIS)   {
+      String msg = E.COMP_UPDATE + eIS.getMessage();
       ErrorLog.error(Composite.class, msg);
     }
   } // private void _update()

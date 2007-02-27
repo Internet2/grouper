@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.46 2007-02-22 18:01:38 blair Exp $
+ * @version $Id: MemberOf.java,v 1.47 2007-02-27 18:08:09 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -39,6 +39,28 @@ class MemberOf extends BaseMemberOf {
 
   // PROTECTED INSTANCE METHODS //
  
+  // @since   1.2.0
+  protected void addComposite(GrouperSession s, Group g, Composite c)
+    throws  IllegalStateException
+  {
+    this.setComposite(c);
+    this.setGroup(g);
+    this.setSession(s);
+    this._evaluateAddCompositeMembership(); // find memberships to add
+    this.saves.add(c);                      // add the composite
+  } // protected void addComposite(s, g, c)
+
+  // @since   1.2.0
+  protected void deleteComposite(GrouperSession s, Group g, Composite c)
+    throws  IllegalStateException
+  {
+    this.setComposite(c);
+    this.setGroup(g);
+    this.setSession(s);
+    this._evaluateDeleteCompositeMembership();  // find memberships to delete
+    this.deletes.add(c);                        // delete the composite
+  } // protected void deleteComposite(s, o, c)
+
   // @since   1.2.0
   protected void addImmediate(GrouperSession s, Group g, Field f, MemberDTO _m)
     throws  IllegalStateException 
@@ -70,71 +92,6 @@ class MemberOf extends BaseMemberOf {
     this.setStem(ns);
     this._evaluateDeleteImmediateMembership(s, _ms, _m);
   } // protected void deleteImmediate(s, ns, ms, m)
-
-
-  // PROTECTED CLASS METHODS //
-
-  // Calculate addition of a composite membership 
-  // @since   1.2.0
-  protected static MemberOf internal_addComposite(GrouperSession s, Group g, Composite c)
-    throws  ModelException
-  {
-    MemberOf mof = new MemberOf();
-    mof.setComposite(c);
-    mof.setGroup(g);
-    mof.setSession(s);
-    mof.effSaves.addAll(  mof._evalComposite()  );  // Find the composites
-    mof.saves.addAll(     mof.effSaves          );
-    mof._identifyGroupsAndStemsToMarkAsModified();
-    mof.saves.add( mof.getComposite() ); // Save the composite
-    Set groups = mof.getModifiedGroups();
-    g.internal_setModified(); // Add the owner the the modified list
-    groups.add( g.getDTO() );
-    mof.setModifiedGroups(groups);
-    return mof;
-  } // protected static MemberOf internal_addComposite(s, g, c)
-
-  // Calculate deletion of a composite membership 
-  // @since   1.2.0
-  protected static MemberOf internal_delComposite(GrouperSession s, Group g, Composite c)
-    throws  ModelException
-  {
-    //  TODO  20061011 In theory I shouldn't need to pass along `o` as I can just get it 
-    //        via `c.getOwner()` *but* `TestGroup36` throws a `HibernateException`
-    //        when I retrieve `o` that way.
-    
-    //  TODO  20061011 I'm really uncertain about this code.  Expect it to be
-    //        both flawed and evolving for quite some time.
-    
-    MemberOf mof = new MemberOf();
-    mof.setComposite(c);
-    mof.setGroup(g);
-    mof.setSession(s);
-
-    // Delete this group's members
-    Membership  ms;
-    MemberOf    msMOF;
-    Iterator    iterH = g.getMemberships().iterator();
-    while (iterH.hasNext()) {
-      ms = (Membership) iterH.next();
-      try {
-        msMOF = new MemberOf();
-        msMOF.deleteImmediate( s, g, ms.getDTO(), ms.getMember().getDTO() );
-        mof.deletes.addAll( msMOF.internal_getDeletes() );
-      }
-      catch (Exception e) {
-        throw new ModelException(e);
-      }
-    }
-    mof._identifyGroupsAndStemsToMarkAsModified();
-
-    mof.deletes.add( mof.getComposite() );   // Delete the composite
-    Set groups = mof.getModifiedGroups();
-    g.internal_setModified();
-    groups.add( g.getDTO() );
-    mof.setModifiedGroups(groups);
-    return mof;
-  } // protected static MemberOf internal_delComposite(s, o, c)
 
 
   // PROTECTED INSTANCE METHODS //
@@ -386,108 +343,84 @@ class MemberOf extends BaseMemberOf {
     return mships;
   } // private Set _addHasMembersToWhereGroupIsMember(isMember, hasMembers)
 
-  // Convert a set of memberships into composite memberships
-  private Set _createNewMembershipObjects(Set members) 
-    throws  ModelException
+  // @since   1.2.0
+  private Set _createNewCompositeMembershipObjects(Set memberUUIDs) 
+    throws  IllegalStateException
   {
-    Set           mships  = new LinkedHashSet();
-    Member        m;
-    MembershipDTO dto;
-    Iterator      iter    = members.iterator();
-    while (iter.hasNext()) {
-      m   = (Member) iter.next();
-
-      dto = new MembershipDTO();
-      dto.setCreatorUuid( this.getSession().getMember().getUuid() );
-      dto.setDepth(0);
-      dto.setListName( this.getField().getName() );
-      dto.setListType( this.getField().getType().toString() );
-      dto.setMemberUuid( m.getUuid() );
-      dto.setOwnerUuid( this.getOwnerUuid() );
-      dto.setParentUuid(null);
-      dto.setType(Membership.COMPOSITE);
-      dto.setViaUuid( this.getComposite().getUuid() );
-      MembershipValidator.internal_validateComposite(dto);
-
-      mships.add(dto);
+    CompositeMembershipValidator  v;
+    Set                           mships  = new LinkedHashSet();
+    MembershipDTO                 _ms;
+    Iterator                      it      = memberUUIDs.iterator();
+    while (it.hasNext()) {
+      _ms = new MembershipDTO();
+      _ms.setCreatorUuid( this.getSession().getMember().getUuid() );
+      _ms.setDepth(0);
+      _ms.setListName( this.getField().getName() );
+      _ms.setListType( this.getField().getType().toString() );
+      _ms.setMemberUuid( (String) it.next() );
+      _ms.setOwnerUuid( this.getOwnerUuid() );
+      _ms.setParentUuid(null);
+      _ms.setType(Membership.COMPOSITE);
+      _ms.setViaUuid( this.getComposite().getUuid() );
+     
+      v = CompositeMembershipValidator.validate(_ms);
+      if ( !v.getIsValid() ) {
+        throw new IllegalStateException( v.getErrorMessage() );
+      }
+      mships.add(_ms);
     }
     return mships;
-  } // private Set _createNewMembershipObjects(members)
+  } // private Set _createNewCompositeMembershipObjects(memberUUIDs)
 
-  // Evaluate a composite membership
-  // @since 1.0
-  private Set _evalComposite() 
-    throws  ModelException 
+  // @since   1.2.0
+  private void _evaluateAddCompositeMembership()
+    throws  IllegalStateException
   {
-    Set results = new LinkedHashSet();
-    if      (this.getComposite().getType().equals(CompositeType.COMPLEMENT))   {
-      results.addAll( this._evalCompositeComplement() );
+    if      ( this.getComposite().getType().equals(CompositeType.COMPLEMENT) )    {
+      this.effSaves.addAll( this._evaluateAddCompositeMembershipComplement() );
     }
-    else if (this.getComposite().getType().equals(CompositeType.INTERSECTION)) {
-      results.addAll( this._evalCompositeIntersection() );
+    else if ( this.getComposite().getType().equals(CompositeType.INTERSECTION) )  {
+      this.effSaves.addAll( this._evaluateAddCompositeMembershipIntersection() );
     }
-    else if (this.getComposite().getType().equals(CompositeType.UNION))        {
-      results.addAll( this._evalCompositeUnion() );
+    else if ( this.getComposite().getType().equals(CompositeType.UNION) )         {
+      this.effSaves.addAll( this._evaluateAddCompositeMembershipUnion() );
     }
     else {
-      throw new ModelException(E.MOF_CTYPE + this.getComposite().getType().toString());
+      throw new IllegalStateException( E.MOF_CTYPE + this.getComposite().getType().toString() );
     }
-    return results;
-  } // private Set _evalComposite()
+    this.saves.addAll(this.effSaves);
+    this._identifyGroupsAndStemsToMarkAsModified();
+  } // private void _evaluateAddCompositeMembership()
 
-  // Evaluate a complement composite membership
-  // @since 1.0
-  private Set _evalCompositeComplement() 
-    throws  ModelException
+  // @since   1.2.0
+  private Set _evaluateAddCompositeMembershipComplement() 
+    throws  IllegalStateException
   {
-    try {
-      Set   tmp   = new LinkedHashSet();
-      Group left  = this.getComposite().getLeftGroup();  // TODO 20070212  !privs
-      Group right = this.getComposite().getRightGroup(); // TODO 20070212  !privs
-      tmp.addAll( left.getMembers() );      // TODO 20070212  !privs
-      tmp.removeAll( right.getMembers() );  // TODO 20070212  !privs
-      return this._createNewMembershipObjects(tmp);
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new ModelException(eGNF);
-    }
-  } // private Set _evalCompositeComplement()
+    Set memberUUIDs = new LinkedHashSet();
+    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getDTO().getLeftFactorUuid() ) );
+    memberUUIDs.removeAll( this._findMemberUUIDs( this.getComposite().getDTO().getRightFactorUuid() ) );
+    return this._createNewCompositeMembershipObjects(memberUUIDs);
+  } // private Set _evaluateAddCompositeMembershipComplement()
+  
+  // @since   1.2.0
+  private Set _evaluateAddCompositeMembershipIntersection() 
+    throws  IllegalStateException
+  {
+    Set memberUUIDs = new LinkedHashSet();
+    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getDTO().getLeftFactorUuid() ) );
+    memberUUIDs.retainAll( this._findMemberUUIDs( this.getComposite().getDTO().getRightFactorUuid() ) );
+    return this._createNewCompositeMembershipObjects(memberUUIDs);
+  } // private Set _evaluateAddCompositeMembershipIntersection()
 
-  // Evaluate an intersection composite membership
-  // @since 1.0
-  private Set _evalCompositeIntersection() 
-    throws  ModelException
+  // @since   1.2.0
+  private Set _evaluateAddCompositeMembershipUnion() 
+    throws  IllegalStateException
   {
-    try {
-      Set   tmp   = new LinkedHashSet();
-      Group left  = this.getComposite().getLeftGroup();    // TODO 20070212  !privs
-      Group right = this.getComposite().getRightGroup();   // TODO 20070212  !privs
-      tmp.addAll(     left.getMembers()   );  // TODO 20070212  !privs
-      tmp.retainAll(  right.getMembers()  );  // TODO 20070212  !privs
-      return this._createNewMembershipObjects(tmp);
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new ModelException(eGNF);
-    }
-  } // private Set _evalCompositeIntersection()
-
-  // Evaluate a union composite membership
-  // @since 1.0
-  private Set _evalCompositeUnion() 
-    throws  ModelException
-  {
-    try {
-      Set   tmp   = new LinkedHashSet();
-      Group left  = this.getComposite().getLeftGroup();  // TODO 20070212  !privs
-      Group right = this.getComposite().getRightGroup(); // TODO 20070212  !privs
-      tmp.addAll( left.getMembers() );      // TODO 20070212  !privs
-      tmp.addAll( right.getMembers()  );    // TODO 20070212  !privs
-      return this._createNewMembershipObjects(tmp);
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new ModelException(eGNF);
-    }
-  } // private Set _evalCompositeUnion()
+    Set memberUUIDs = new LinkedHashSet();
+    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getDTO().getLeftFactorUuid() ) );
+    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getDTO().getRightFactorUuid() ) );
+    return this._createNewCompositeMembershipObjects(memberUUIDs);
+  } // private Set _evaluateAddCompositeMembershipUnion()
 
   // @since   1.2.0
   // TODO 20070220 split; this method has gotten too large
@@ -544,6 +477,29 @@ class MemberOf extends BaseMemberOf {
   } // private void _evaluateAddImmediateMembership(s, f, _m)
 
   // @since   1.2.0
+  private void _evaluateDeleteCompositeMembership() 
+    throws  IllegalStateException
+  {
+    MembershipDTO _ms;
+    MemberOf      mof;
+    Iterator      it  = HibernateMembershipDAO.findAllByOwnerAndField( 
+      this.getGroup().getUuid(), Group.getDefaultList() 
+    ).iterator();
+    try {
+      while (it.hasNext()) {
+        _ms = (MembershipDTO) it.next();
+        mof = new MemberOf();
+        mof.deleteImmediate( this.getSession(), this.getGroup(), _ms, HibernateMemberDAO.findByUuid( _ms.getMemberUuid() ) );
+        this.deletes.addAll( mof.internal_getDeletes() );
+      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new IllegalStateException( eMNF.getMessage(), eMNF );
+    }
+    this._identifyGroupsAndStemsToMarkAsModified();
+  } // private void _evalulateDeleteCompositeMembership()
+
+  // @since   1.2.0
   private void _evaluateDeleteImmediateMembership(GrouperSession s, MembershipDTO _ms, MemberDTO _m) 
     throws  IllegalStateException
   {
@@ -591,6 +547,25 @@ class MemberOf extends BaseMemberOf {
     }
     return hasMembers;
   } // private Set _findMembersOfMember()
+
+  // Given a group uuid, find the uuids of all of its members
+  // @since   1.2.0
+  private Set _findMemberUUIDs(String groupUUID) 
+    throws  IllegalStateException
+  {
+    try {
+      Set       memberUUIDs = new LinkedHashSet();
+      GroupDTO  _g          = HibernateGroupDAO.findByUuid(groupUUID);
+      Iterator  it          = HibernateMembershipDAO.findAllByOwnerAndField( _g.getUuid(), Group.getDefaultList() ).iterator();
+      while (it.hasNext()) {
+        memberUUIDs.add( ( (MembershipDTO) it.next() ).getMemberUuid() );  
+      }
+      return memberUUIDs;
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new IllegalStateException( eGNF.getMessage(), eGNF );
+    }
+  } // private Set _findMemberUUIDs(groupUUID)
 
   // @since   1.2.0
   private void _identifyGroupsAndStemsToMarkAsModified() {

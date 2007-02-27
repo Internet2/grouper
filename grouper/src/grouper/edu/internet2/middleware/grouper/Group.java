@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.127 2007-02-22 20:12:43 blair Exp $
+ * @version $Id: Group.java,v 1.128 2007-02-27 18:08:09 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -117,7 +117,8 @@ public class Group extends GrouperAPI implements Owner {
       c.setSession( this.getSession() );
 
       GroupValidator.internal_canAddCompositeMember(this);
-      MemberOf mof = MemberOf.internal_addComposite( this.getSession(), this, c );
+      MemberOf mof = new MemberOf();
+      mof.addComposite( this.getSession(), this, c );
       HibernateMembershipDAO.update(mof);
       EventLog.groupAddComposite( this.getSession(), c, mof, sw );
       Composite.internal_update(this);
@@ -509,7 +510,8 @@ public class Group extends GrouperAPI implements Owner {
       CompositeDTO  dto = HibernateCompositeDAO.findAsOwner( this.getDTO() );
       Composite     c   = new Composite();
       c.setDTO(dto);
-      MemberOf      mof = MemberOf.internal_delComposite( this.getSession(), this, c );
+      MemberOf      mof = new MemberOf();
+      mof.deleteComposite( this.getSession(), this, c );
       HibernateMembershipDAO.update(mof);
       EventLog.groupDelComposite( this.getSession(), c, mof, sw );
       Composite.internal_update(this);
