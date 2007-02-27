@@ -22,8 +22,9 @@ import  org.apache.commons.lang.builder.*;
 /**
  * Stub Hibernate {@link Group} and {@link GroupType} tuple DAO.
  * <p/>
+ * TODO 20070227 eliminate this class if possible
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.1 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.2 2007-02-27 18:48:07 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupTypeTupleDAO extends HibernateDAO {
@@ -106,6 +107,13 @@ class HibernateGroupTypeTupleDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static HibernateGroupTypeTupleDAO findByGroupAndType(g, type)
+
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateGroupTypeTupleDAO");
+  } // protected static void reset(hs)
 
 
   // GETTERS //

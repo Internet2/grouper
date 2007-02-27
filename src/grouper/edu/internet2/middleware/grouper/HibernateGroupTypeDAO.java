@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.8 2007-02-15 18:30:50 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.9 2007-02-27 18:48:07 blair Exp $
  */
 class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
 
@@ -269,6 +269,17 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static GroupTypeDTO findByUuid(uuid)
+
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete(
+      "from HibernateGroupTypeDAO as t where ("
+      + " t.name != 'base' and t.name != 'naming' "
+      + ")"
+    );
+  } // protected static void reset(hs)
 
 
   // GETTERS //

@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.21 2007-02-22 20:15:26 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.22 2007-02-27 18:48:07 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO extends HibernateDAO {
@@ -496,6 +496,13 @@ class HibernateMembershipDAO extends HibernateDAO {
     }
     return mships;
   } // protected static Set findMemberships(mUUID, f)
+
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateMembershipDAO");
+  } // protected static void reset(hs)
 
   // @since   1.2.0
   // TODO 20070124 refactor usage of this method

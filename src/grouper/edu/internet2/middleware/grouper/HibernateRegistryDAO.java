@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.11 2007-02-22 17:40:30 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.12 2007-02-27 18:48:07 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {
@@ -37,27 +37,15 @@ class HibernateRegistryDAO {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        hs.delete("from HibernateMembershipDAO");
-        hs.delete("from HibernateGrouperSessionDAO");
-
-        hs.delete("from HibernateCompositeDAO");
-        hs.delete("from HibernateAttributeDAO"); // TODO 20070207 this should not be necessary
+        HibernateMembershipDAO.reset(hs);
+        HibernateGrouperSessionDAO.reset(hs);
+        HibernateCompositeDAO.reset(hs);
         HibernateGroupDAO.reset(hs);
-        hs.delete("from HibernateStemDAO as ns where ns.name not like '" + Stem.ROOT_INT + "'");
+        HibernateStemDAO.reset(hs);
         HibernateMemberDAO.reset(hs);
-        // TODO 20070207 what about associated fields?
-        // TODO 20070207 and tuples!
-        hs.delete("from HibernateGroupTypeTupleDAO");
-        hs.delete(
-          "from HibernateGroupTypeDAO as t where (  "
-          + "     t.name != 'base'    "
-          + "and  t.name != 'naming'  "
-          + ")"
-        );
-        // TODO 20061018 Once properly mapped I can delete the explicit attr delete
-        hs.delete("from HibernateSubjectAttribute");
-        hs.delete("from HibernateSubject");
-
+        HibernateGroupTypeTupleDAO.reset(hs);
+        HibernateGroupTypeDAO.reset(hs);
+        HibernateSubject.reset(hs);
         tx.commit();
       }
       catch (HibernateException eH) {

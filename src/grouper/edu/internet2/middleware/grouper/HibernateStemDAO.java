@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.11 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.12 2007-02-27 18:48:07 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -405,6 +405,13 @@ class HibernateStemDAO extends HibernateDAO {
     }
   } // protected static void renameStemAndChildren(ns, children)
   
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateStemDAO as ns where ns.name not like '" + Stem.ROOT_INT + "'");
+  } // protected static void reset(hs)
+
   // @since   1.2.0
   protected static void revokePriv(StemDTO ns, MemberOf mof)
     throws  GrouperDAOException
