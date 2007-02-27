@@ -10,9 +10,10 @@
 		table="signet_category">
 		
 		<id name="key" type="int" column="categoryKey">
-			<generator class="native"/>
+			<generator class="sequence">
+				<param name="sequence">categorySerial</param>
+			</generator>
 		</id>
-		
 		<timestamp name="modifyDatetime"/>
 		
 		<property

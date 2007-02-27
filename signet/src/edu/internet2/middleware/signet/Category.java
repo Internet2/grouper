@@ -1,6 +1,6 @@
 /*--
-$Id: Category.java,v 1.5 2006-02-09 10:18:15 lmcrae Exp $
-$Date: 2006-02-09 10:18:15 $
+$Id: Category.java,v 1.6 2007-02-27 03:01:49 ddonn Exp $
+$Date: 2007-02-27 03:01:49 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -20,11 +20,11 @@ package edu.internet2.middleware.signet;
 
 import java.util.Set;
 
-import edu.internet2.middleware.subject.Subject;
+//import edu.internet2.middleware.subject.Subject;
 
 /**
 * Category organizes a group of {@link Function}s. Each <code>Function</code> is
-* intended to correspond to a business-level task that a {@link Subject}
+* intended to correspond to a business-level task that a {@link edu.internet2.middleware.subject.Subject}
 * must perform in order to accomplish some business operation.
 * 
 */

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.hbm.xml,v 1.10 2007-02-24 02:11:32 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.hbm.xml,v 1.11 2007-02-27 03:01:49 ddonn Exp $ -->
 
 <hibernate-mapping
 		default-lazy="false" >
@@ -14,7 +14,9 @@
 		NOTE: The following ID declaration must be used on HSQL.
 -->
 		<id name="id" type="int" column="proxyID">
-			<generator class="native" />
+			<generator class="sequence">
+				<param name="sequence">proxySerial</param>
+			</generator>
 		</id>
         <timestamp name="modifyDatetime" column="modifyDatetime" />
 

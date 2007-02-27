@@ -10,9 +10,10 @@
 		table="signet_limit">
 		
 		<id name="key" type="int" column="limitKey">
-			<generator class="native"/>
+			<generator class="sequence">
+				<param name="sequence">limitSerial</param>
+			</generator>
 		</id>
-
 		<timestamp name="modifyDatetime"/>
 		
 		<set

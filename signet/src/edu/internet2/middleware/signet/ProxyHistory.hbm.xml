@@ -10,7 +10,9 @@
 		table="signet_proxy_history" >
 		
 		<id name="historyId" type="int" column="historyID">
-			<generator class="native"/>
+			<generator class="sequence">
+				<param name="sequence">proxyHistorySerial</param>
+			</generator>
 		</id>
 		
 		<many-to-one

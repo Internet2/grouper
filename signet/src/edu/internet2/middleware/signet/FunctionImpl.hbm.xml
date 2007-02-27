@@ -10,9 +10,10 @@
 		table="signet_function">
 		
 		<id name="key" type="int" column="functionKey">
-			<generator class="native"/>
+			<generator class="sequence">
+				<param name="sequence">functionSerial</param>
+			</generator>
 		</id>
-		
 		<timestamp name="modifyDatetime"/>
 		
 		<property

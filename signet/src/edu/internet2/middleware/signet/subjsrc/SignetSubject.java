@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.8 2007-02-24 02:11:31 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.9 2007-02-27 03:01:49 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -982,7 +982,7 @@ public class SignetSubject implements Subject, Comparable
 	 * most situations it does not make sense to attempt to extend or modify
 	 * your own authority.
 	 * @param grantableInstance
-	 * @return
+	 * @return A Descision of true if editing is permitted, false otherwise
 	 */
 	public Decision canEdit(Grantable grantableInstance)
 	{

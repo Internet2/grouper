@@ -10,7 +10,9 @@
 		table="signet_assignment_history" >
 		
 		<id name="historyId" type="int" column="historyID">
-			<generator class="native"/>
+			<generator class="sequence">
+				<param name="sequence">assignmentHistorySerial</param>
+			</generator>
 		</id>
 
 		<many-to-one

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml,v 1.4 2007-02-24 02:11:31 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml,v 1.5 2007-02-27 03:01:49 ddonn Exp $ -->
 
 <hibernate-mapping
 		default-lazy="false" >
@@ -13,7 +13,9 @@
 				type="long"
 				column="subjectAttrKey"
 				unsaved-value="null" >
-			<generator class="native" />
+			<generator class="sequence">
+				<param name="sequence">subjectAttrSerial</param>
+			</generator>
 		</id>
 		<timestamp name="modifyDate" column="modifyDatetime" />
 

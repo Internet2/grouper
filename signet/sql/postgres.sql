@@ -5,7 +5,7 @@
 --    1/10/2006 - renamed signet_privilegedSubject to signet_subject
 --    3/09/2006 - add categoryKey, functionKey, subjectKey, choiceKey, choiceSetKey
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.26 2007-02-24 02:11:32 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.27 2007-02-27 03:01:49 ddonn Exp $
 --
 
 -- Database: signet_db
@@ -68,11 +68,11 @@ drop table SubjectType;
 
 -- Miscellaneous
 drop sequence limitSerial;
-drop sequence assignmenthistoryserial;
-drop sequence proxyhistoryserial;
+drop sequence assignmentHistorySerial;
+drop sequence proxyHistorySerial;
 
 -- Signet Implementation-specific
-DROP SEQUENCE hibernate_sequence;
+-- DROP SEQUENCE hibernate_sequence;
 
 
 -- Subsystem tables
@@ -184,7 +184,7 @@ create table signet_permission_limit
 
 -- Signet Subject table
 
--- create sequence subjectSerial START 1;
+create sequence subjectSerial START 1;
 
 create table signet_subject (
 	subjectKey			int8				NOT NULL,
@@ -199,7 +199,7 @@ create table signet_subject (
 )
 ;
 
--- create sequence subjectAttrSerial START 1;
+create sequence subjectAttrSerial START 1;
 
 create table signet_subjectAttribute (
 	subjectAttrKey	int8			NOT NULL, -- PK
@@ -499,5 +499,5 @@ create index SubjectAttribute_1
 )
 ;
 
-CREATE SEQUENCE hibernate_sequence
-	START WITH 1;
+-- CREATE SEQUENCE hibernate_sequence
+--	START WITH 1;
