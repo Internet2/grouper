@@ -16,20 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  org.apache.commons.collections.map.*;
+import  edu.internet2.middleware.subject.Subject;
+import  org.apache.commons.collections.keyvalue.MultiKey;
 
 /** 
  * A simple caching implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimplePrivilegeCache.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: SimplePrivilegeCache.java,v 1.8 2007-02-27 20:39:06 blair Exp $
  * @since   1.1.0     
  */
 public class SimplePrivilegeCache extends BasePrivilegeCache {
 
   // PRIVATE INSTANCE VARIABLES //
-  private MultiKeyMap cache = null; 
+  private SimpleCache cache = new SimpleCache();
 
 
   // PUBLIC INSTANCE METHODS //
@@ -41,8 +41,9 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
    * @since   1.1.0
    */
   public PrivilegeCacheElement get(Owner o, Subject subj, Privilege p) {
-    if (this.internal_getCache().containsKey(o, p, subj)) {
-      return (PrivilegeCacheElement) this.internal_getCache().get(o, p, subj);
+    MultiKey k = new MultiKey(o, p, subj);
+    if ( this.internal_getCache().containsKey(k) ) {
+      return (PrivilegeCacheElement) this.internal_getCache().get(k);
     }
     return new NullPrivilegeCacheElement(o, subj, p);
   } // public PrivilegeCacheElement get(o, subj, p)
@@ -69,7 +70,7 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
     throws  PrivilegeCacheException
   {
     // Store the value without any cache flushing
-    this.internal_getCache().put( o, p, subj, new PrivilegeCacheElement(o, subj, p, hasPriv) );
+    this.internal_getCache().put( new MultiKey(o, p, subj), new PrivilegeCacheElement(o, subj, p, hasPriv) );
   } // public void put(o, subj, p, hasPriv)
 
   /**
@@ -81,7 +82,7 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
   public void removeAll() 
     throws  PrivilegeCacheException
   {
-    this.internal_getCache().clear(); 
+    this.internal_getCache().removeAll();
   } // public void removeAll()
 
   /**
@@ -112,12 +113,9 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected MultiKeyMap internal_getCache() {
-    if (this.cache == null) {
-      this.cache = MultiKeyMap.decorate( new HashedMap() );
-    }
+  protected SimpleCache internal_getCache() {
     return this.cache;
-  } // protected MultiKeyMap internal_getCache()
+  } // protected SimpleCache internal_getCache()
 
 } // public class SimplePrivilegeCache extends BasePrivilegeCache
 
