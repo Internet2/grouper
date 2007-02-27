@@ -22,9 +22,9 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup36.java,v 1.4 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGroup36.java,v 1.5 2007-02-27 18:08:09 blair Exp $
  */
-public class TestGroup36 extends TestCase {
+public class TestGroup36 extends GrouperTest {
 
   private static final Log LOG = LogFactory.getLog(TestGroup36.class);
 
@@ -57,6 +57,7 @@ public class TestGroup36 extends TestCase {
         r.rs, gA, subjA
       );  
       gA.delete(); 
+      mA    = MemberFinder.findBySubject(r.rs, subjA);
       T.amount("subjA mships after deletion", 1, mA.getMemberships().size());
       r.rs.stop();
     }
@@ -65,5 +66,5 @@ public class TestGroup36 extends TestCase {
     }
   } // public void testCompositeIsDeletedWhenGroupIsDeleted()
 
-}
+} // public class TestGroup36 extends GrouperTest
 
