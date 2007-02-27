@@ -23,13 +23,25 @@ import  java.util.Map;
  * Simple cache implementation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.3 2007-02-22 23:23:55 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.4 2007-02-27 20:13:35 blair Exp $
  * @since   1.2.0     
  */
 class SimpleCache {
 
   // PRIVATE INSTANCE VARIABLES //
-  private Map cache = new HashMap();
+  private Object cache;
+
+
+  // CONSTRUCTORS //
+
+  /**
+   * Initialize a new {@link SimpleCache}.
+   * <p/>
+   * @since   1.2.0
+   */
+  public SimpleCache() {
+    this.setCache( new HashMap() );
+  } // public SimpleCache()
 
 
   // PUBLIC INSTANCE METHODS //
@@ -98,7 +110,7 @@ class SimpleCache {
    * @since   1.2.0
    */
   protected void setCache(Object cache) {
-    this.cache = (Map) cache;
+    this.cache = cache;
   } // protected void setCache(cache)
 
 } // class SimpleCache
