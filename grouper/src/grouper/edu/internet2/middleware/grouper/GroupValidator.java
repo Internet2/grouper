@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.26 2007-02-19 17:53:48 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.27 2007-02-28 17:20:13 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -159,7 +159,8 @@ class GroupValidator {
   protected static void internal_canGetAttribute(Group g, String attr) 
     throws  AttributeNotFoundException
   {
-    if (!AttributeValidator.internal_isPermittedName(attr)) {
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(attr);
+    if ( !v.getIsValid() ) {
       throw new AttributeNotFoundException(E.INVALID_ATTR_NAME);
     }
     try {
@@ -253,10 +254,12 @@ class GroupValidator {
             ModelException,
             SchemaException
   {
-    if (!AttributeValidator.internal_isPermittedName(attr)) {
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(attr);
+    if ( !v.getIsValid() ) {
       throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
     }
-    if (!AttributeValidator.internal_isPermittedValue(value)) {
+    v = NotNullOrEmptyValidator.validate(value);
+    if ( !v.getIsValid() ) {
       throw new GroupModifyException(E.INVALID_ATTR_VALUE + value);
     }
     if (
