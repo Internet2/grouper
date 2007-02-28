@@ -21,9 +21,42 @@ import  java.util.Map;
 
 /** 
  * Simple cache implementation.
- * <p/>
+ * <p><b>NOTE: THIS IS AN EVOLVING IMPLEMENTATION.</b></p>
+ * <p>
+ * This class provides a uniform API for caching throughout the Grouper API.  The default
+ * implementation is just a thin wrapper around a {@link HashMap}.  While all of the
+ * current implementations and extensions to {@link SimpleCache} use a {@link HashMap} in
+ * some form, in theory other mechanisms can be used.
+ * </p>
+ * <p><b>Other Implementations</b></p>
+ * <p>
+ * {@link SimpleBooleanCache} is a wrapper around {@link SimpleCache} that allows
+ * <i>boolean</i> values to be stored-and-retrieved in the cache.  {@link SimplePrivilegeCache},
+ * {@link SimpleWheelPrivilegeCache} and {@link SimpleSubjectCache} all use {@link SimpleCache}
+ * internally.
+ * </p>
+ * <p><b>Using {@link SimpleCache}</b></p>
+ * <pre class="eg">
+ * // Create a new cache
+ * SimpleCache cache = new SimpleCache();
+ *
+ * // Add an object to the cache
+ * cache.put("key", "value");
+ *
+ * // Check if the cache contains the specified key
+ * boolean rv = cache.containsKey("key");
+ * 
+ * // Get an object from the cache
+ * String value = cache.get("key");
+ * 
+ * // Remove an object from the cache
+ * cache.remove("key");
+ *
+ * // Remove all elements from the cache
+ * cache.removeAll();
+ * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.4 2007-02-27 20:13:35 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.5 2007-02-28 17:05:34 blair Exp $
  * @since   1.2.0     
  */
 class SimpleCache {
