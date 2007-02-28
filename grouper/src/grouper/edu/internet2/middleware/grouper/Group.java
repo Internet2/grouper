@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.129 2007-02-28 17:20:13 blair Exp $
+ * @version $Id: Group.java,v 1.130 2007-02-28 17:40:44 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -1059,7 +1059,7 @@ public class Group extends GrouperAPI implements Owner {
   public Set getImmediateMemberships(Field f) 
     throws  SchemaException
   {
-    GrouperSessionValidator.internal_validate(this.getSession());
+    GrouperSession.validate(this.getSession());
     return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
       this.getSession(), this, f, Membership.IMMEDIATE
     );
@@ -2015,7 +2015,7 @@ public class Group extends GrouperAPI implements Owner {
       return (Member) this.stateCache.get(KEY_MEMBER);
     }
     try {
-      GrouperSessionValidator.internal_validate( this.getSession() );
+      GrouperSession.validate( this.getSession() );
       Member m = new Member();
       m.setDTO( HibernateMemberDAO.findBySubject( this.toSubject() ) );
       m.setSession( this.getSession() );

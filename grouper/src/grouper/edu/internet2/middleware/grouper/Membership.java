@@ -26,7 +26,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.74 2007-02-21 20:04:46 blair Exp $
+ * @version $Id: Membership.java,v 1.75 2007-02-28 17:40:44 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -274,7 +274,7 @@ public class Membership extends GrouperAPI {
     throws  MemberAddException
   {
     try {
-      GrouperSessionValidator.internal_validate(s);
+      GrouperSession.validate(s);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       MemberOf  mof = new MemberOf();
       mof.addImmediate( s, g, f, m.getDTO() );
@@ -299,7 +299,7 @@ public class Membership extends GrouperAPI {
     throws  MemberAddException
   {
     try {
-      GrouperSessionValidator.internal_validate(s);
+      GrouperSession.validate(s);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       MemberOf  mof = new MemberOf();
       mof.addImmediate( s, ns, f, m.getDTO() );
@@ -322,7 +322,7 @@ public class Membership extends GrouperAPI {
     throws  MemberDeleteException
   {
     try {
-      GrouperSessionValidator.internal_validate(s); 
+      GrouperSession.validate(s); 
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       MemberOf  mof = new MemberOf();
       mof.deleteImmediate(
@@ -348,7 +348,7 @@ public class Membership extends GrouperAPI {
     throws  MemberDeleteException
   {
     try {
-      GrouperSessionValidator.internal_validate(s); 
+      GrouperSession.validate(s); 
       // Who we're deleting
       //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
@@ -377,7 +377,7 @@ public class Membership extends GrouperAPI {
             SchemaException
   {
     try {
-      GrouperSessionValidator.internal_validate(s);
+      GrouperSession.validate(s);
 
       Set         deletes = new LinkedHashSet();
       MemberOf    mof;
@@ -435,7 +435,7 @@ public class Membership extends GrouperAPI {
             SchemaException
   {
     try {
-      GrouperSessionValidator.internal_validate(s);
+      GrouperSession.validate(s);
 
       Set         deletes = new LinkedHashSet();
       MemberOf    mof;
@@ -473,7 +473,7 @@ public class Membership extends GrouperAPI {
     throws  MemberDeleteException,
             SchemaException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set       deletes = new LinkedHashSet();
     Field     f;
     Iterator  it      = FieldFinder.findAllByType(type).iterator();
@@ -489,7 +489,7 @@ public class Membership extends GrouperAPI {
     throws  MemberDeleteException,
             SchemaException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set       deletes = new LinkedHashSet();
     Field     f;
     Iterator  it      = FieldFinder.findAllByType(type).iterator();

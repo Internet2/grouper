@@ -24,7 +24,7 @@ import  java.util.Set;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.39 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.40 2007-02-28 17:40:44 blair Exp $
  */
 public class GroupFinder {
 
@@ -89,7 +89,7 @@ public class GroupFinder {
   public static Group findByName(GrouperSession s, String name) 
     throws GroupNotFoundException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Group g = new Group();
     g.setDTO( HibernateGroupDAO.findByName(name) );
     g.setSession(s);
@@ -147,7 +147,7 @@ public class GroupFinder {
   public static Group findByUuid(GrouperSession s, String uuid) 
     throws GroupNotFoundException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Group g = new Group();
     g.setDTO( HibernateGroupDAO.findByUuid(uuid) );
     g.setSession(s);
@@ -167,7 +167,7 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByAnyApproximateAttr(val) );
   } // protected static Set internal_findAllByAnyApproximateAttr(s, val)
 
@@ -177,7 +177,7 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByApproximateAttr(attr, val) );
   } // protected static Set internal_findAllByApproximateAttr(s, attr, val)
 
@@ -187,7 +187,7 @@ public class GroupFinder {
   {
     // @filtered  true
     // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByApproximateName(name) );
   } // protected static Set internal_findAllByApproximateName(s, name)
 

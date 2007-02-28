@@ -23,7 +23,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.78 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.79 2007-02-28 17:40:45 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -220,7 +220,7 @@ import  java.util.*;
 
   // @since   1.2.0
   protected static Set internal_canViewMemberships(GrouperSession s, Collection c) {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set           mships  = new LinkedHashSet();
     Membership    ms;
     String        msg     = "canViewMemberships: ";
@@ -347,7 +347,7 @@ import  java.util.*;
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     boolean rv = false;
     PrivilegeCacheElement el = s.getDTO().getAccessCache().get(g, subj, priv);
     if (el.getIsCached()) {
