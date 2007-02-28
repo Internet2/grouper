@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.29 2007-02-28 19:10:44 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.30 2007-02-28 19:37:31 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -268,7 +268,7 @@ class GroupValidator {
       ||  attr.equals(GrouperConfig.ATTR_E)
     )
     {
-      NamingValidator nv = NamingValidator.validateName(value);
+      NamingValidator nv = NamingValidator.validate(value);
       if ( !nv.getIsValid() ) {
         throw new ModelException( nv.getErrorMessage() );
       }

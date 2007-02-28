@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MemberModifyValidator.java,v 1.1 2007-02-28 19:10:44 blair Exp $
+ * @version $Id: MemberModifyValidator.java,v 1.2 2007-02-28 19:37:31 blair Exp $
  * @since   1.2.0
  */
 class MemberModifyValidator extends GrouperValidator {
@@ -39,7 +39,7 @@ class MemberModifyValidator extends GrouperValidator {
       v.setIsValid(true);
     }
     return v;
-  } // protected static MemberModifyValidator validateName(name)
+  } // protected static MemberModifyValidator validate(m)
 
 } // class MemberModifyValidator extends GrouperValidator
 
