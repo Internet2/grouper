@@ -16,13 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
 
 /**
  * Test {@link Stem.addChildGroup()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildGroup.java,v 1.7 2007-02-19 15:31:23 blair Exp $
+ * @version $Id: TestStemAddChildGroup.java,v 1.8 2007-02-28 15:32:16 blair Exp $
  */
 public class TestStemAddChildGroup extends GrouperTest {
 

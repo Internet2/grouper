@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.15 2007-02-27 18:48:07 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.16 2007-02-28 15:32:16 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
@@ -52,7 +52,6 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   private String  modifySource;
   private long    modifyTime;
   private String  parentUUID;
-  private Set     types;
   private String  uuid;
 
 
@@ -703,7 +702,8 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     this.parentUUID = parentUUID;
   }
   protected void setTypes(Set types) {
-    this.types = types;
+    // as types are retrieved dynamically we don't need to cache them locally.
+    // and, yes, that could be considered a poor design decision.
   }
   protected void setUuid(String uuid) {
     this.uuid = uuid;

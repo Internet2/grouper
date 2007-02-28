@@ -17,14 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /** 
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.77 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.78 2007-02-28 15:32:16 blair Exp $
  */
  class PrivilegeResolver {
 

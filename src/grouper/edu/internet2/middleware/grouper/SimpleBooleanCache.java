@@ -16,14 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.HashMap;
-import  java.util.Map;
 
 /** 
  * Simple cache implementation for holding boolean values.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleBooleanCache.java,v 1.1 2007-02-22 17:40:30 blair Exp $
+ * @version $Id: SimpleBooleanCache.java,v 1.2 2007-02-28 15:32:16 blair Exp $
  * @since   1.2.0     
  */
 class SimpleBooleanCache extends SimpleCache {

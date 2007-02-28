@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.7 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestGroup43.java,v 1.8 2007-02-28 15:32:16 blair Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -166,7 +166,6 @@ public class TestGroup43 extends GrouperTest {
       gB.addMember(subjB);
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
 
-      long    orig  = gC.getModifyTime().getTime();
       long    pre   = new java.util.Date().getTime();
       gA.addMember(subjC);
       long    post  = new java.util.Date().getTime();

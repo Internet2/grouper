@@ -17,12 +17,11 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup36.java,v 1.5 2007-02-27 18:08:09 blair Exp $
+ * @version $Id: TestGroup36.java,v 1.6 2007-02-28 15:32:16 blair Exp $
  */
 public class TestGroup36 extends GrouperTest {
 
