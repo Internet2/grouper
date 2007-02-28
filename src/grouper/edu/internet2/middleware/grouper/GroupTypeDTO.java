@@ -23,7 +23,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GroupType} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeDTO.java,v 1.2 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: GroupTypeDTO.java,v 1.3 2007-02-28 15:34:32 blair Exp $
  * @since   1.2.0
  */
 class GroupTypeDTO extends BaseGrouperDTO {
@@ -85,7 +85,6 @@ class GroupTypeDTO extends BaseGrouperDTO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // TODO 20070124 this doesn't fit with everything else
   protected static GroupTypeDTO getDTO(HibernateGroupTypeDAO dao) {
     GroupTypeDTO dto = new GroupTypeDTO();
     dto.setCreateTime( dao.getCreateTime() );
