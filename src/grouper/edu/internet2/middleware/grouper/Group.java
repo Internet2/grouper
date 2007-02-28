@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.131 2007-02-28 19:10:44 blair Exp $
+ * @version $Id: Group.java,v 1.132 2007-02-28 19:55:26 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -104,16 +104,20 @@ public class Group extends GrouperAPI implements Owner {
       sw.start();
 
       Composite     c   = new Composite();
-      CompositeDTO  dto = new CompositeDTO();
-      dto.setCreateTime( new Date().getTime() );
-      dto.setCreatorUuid( this.getSession().getMember().getUuid() );
-      dto.setFactorOwnerUuid( this.getDTO().getUuid() );
-      dto.setLeftFactorUuid( left.getDTO().getUuid() );
-      dto.setRightFactorUuid( right.getDTO().getUuid() );
-      dto.setType( type.toString() );
-      dto.setUuid( GrouperUuid.internal_getUuid() );
-      CompositeValidator.internal_validate(dto);
-      c.setDTO(dto);
+      CompositeDTO  _c  = new CompositeDTO();
+      _c.setCreateTime( new Date().getTime() );
+      _c.setCreatorUuid( this.getSession().getMember().getUuid() );
+      _c.setFactorOwnerUuid( this.getDTO().getUuid() );
+      _c.setLeftFactorUuid( left.getDTO().getUuid() );
+      _c.setRightFactorUuid( right.getDTO().getUuid() );
+      _c.setType( type.toString() );
+      _c.setUuid( GrouperUuid.internal_getUuid() );
+      CompositeValidator v = CompositeValidator.validate(_c);
+      if (v.isInvalid()) {
+        throw new MemberAddException( v.getErrorMessage() );
+      }
+
+      c.setDTO(_c);
       c.setSession( this.getSession() );
 
       GroupValidator.internal_canAddCompositeMember(this);
