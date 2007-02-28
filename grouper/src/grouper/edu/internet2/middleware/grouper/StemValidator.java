@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: StemValidator.java,v 1.21 2007-02-19 17:53:48 blair Exp $
+ * @version $Id: StemValidator.java,v 1.22 2007-02-28 19:37:31 blair Exp $
  * @since   1.0
  */
 class StemValidator {
@@ -33,11 +33,11 @@ class StemValidator {
             InsufficientPrivilegeException
   {
     boolean rv = false;
-    NamingValidator nv = NamingValidator.validateName(extension);
+    NamingValidator nv = NamingValidator.validate(extension);
     if ( !nv.getIsValid() ) {
       throw new GroupAddException( nv.getErrorMessage() );
     }
-    nv = NamingValidator.validateName(displayExtension);
+    nv = NamingValidator.validate(displayExtension);
     if ( !nv.getIsValid() ) {
       throw new GroupAddException( nv.getErrorMessage() );
     }
@@ -63,11 +63,11 @@ class StemValidator {
             StemAddException
   {
     boolean rv = false;
-    NamingValidator nv = NamingValidator.validateName(extension);
+    NamingValidator nv = NamingValidator.validate(extension);
     if ( !nv.getIsValid() ) {
       throw new StemAddException( nv.getErrorMessage() );
     }
-    nv = NamingValidator.validateName(displayExtension);
+    nv = NamingValidator.validate(displayExtension);
     if ( !nv.getIsValid() ) {
       throw new StemAddException( nv.getErrorMessage() );
     }

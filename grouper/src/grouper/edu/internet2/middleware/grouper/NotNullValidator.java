@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: NotNullValidator.java,v 1.1 2007-02-28 17:40:45 blair Exp $
+ * @version $Id: NotNullValidator.java,v 1.2 2007-02-28 19:37:31 blair Exp $
  * @since   1.2.0
  */
 class NotNullValidator extends GrouperValidator {
@@ -36,7 +36,7 @@ class NotNullValidator extends GrouperValidator {
       v.setIsValid(true);
     }
     return v;
-  } // protected static NotNullValidator validateName(name)
+  } // protected static NotNullValidator validate(value)
 
 } // class NotNullValidator extends GrouperValidator
 

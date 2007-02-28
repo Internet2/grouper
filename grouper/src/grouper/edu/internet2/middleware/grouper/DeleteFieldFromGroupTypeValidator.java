@@ -19,29 +19,24 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: NotNullOrEmptyValidator.java,v 1.3 2007-02-28 19:37:31 blair Exp $
+ * @version $Id: DeleteFieldFromGroupTypeValidator.java,v 1.1 2007-02-28 19:37:31 blair Exp $
  * @since   1.2.0
  */
-class NotNullOrEmptyValidator extends GrouperValidator {
+class DeleteFieldFromGroupTypeValidator extends GrouperValidator {
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static NotNullOrEmptyValidator validate(String value) {
-    NotNullOrEmptyValidator v   = new NotNullOrEmptyValidator();
-    NotNullValidator        nnv = NotNullValidator.validate(value);
-    if ( !nnv.getIsValid() ) {
-      v.setErrorMessage( nnv.getErrorMessage() );
-      return v;
-    }
-    if ( value.equals(GrouperConfig.EMPTY_STRING) )  {
-      v.setErrorMessage("empty value");
+  protected static DeleteFieldFromGroupTypeValidator validate(GroupType type, Field f) {
+    DeleteFieldFromGroupTypeValidator v = new DeleteFieldFromGroupTypeValidator();
+    if ( !f.getGroupType().equals(type) ) {
+      v.setErrorMessage( E.FIELD_DOES_NOT_BELONG_TO_TYPE + f.getGroupType() );
     }
     else {
       v.setIsValid(true);
     }
     return v;
-  } // protected static NotNullOrEmptyValidator validate(value)
+  } // protected static DeleteFieldFromGroupTypeValidator validate(type, f)
 
-} // class NotNullOrEmptyValidator extends GrouperValidator
+} // class DeleteFieldFromGroupTypeValidator extends GrouperValidator
 

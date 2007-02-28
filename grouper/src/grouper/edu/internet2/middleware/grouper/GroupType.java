@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.39 2007-02-15 18:30:50 blair Exp $
+ * @version $Id: GroupType.java,v 1.40 2007-02-28 19:37:31 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -103,7 +103,10 @@ public class GroupType extends GrouperAPI implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    this._cannotModifySystemTypes();
+    ModifyGroupTypeValidator v = ModifyGroupTypeValidator.validate(s, this);
+    if (v.isInvalid()) {
+      throw new InsufficientPrivilegeException( v.getErrorMessage() );
+    }
     if (!Privilege.isAccess(read)) {
       throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
     }
@@ -140,7 +143,10 @@ public class GroupType extends GrouperAPI implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    this._cannotModifySystemTypes();
+    ModifyGroupTypeValidator v = ModifyGroupTypeValidator.validate(s, this);
+    if (v.isInvalid()) {
+      throw new InsufficientPrivilegeException( v.getErrorMessage() );
+    }
     if (!Privilege.isAccess(read)) {
       throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
     }
@@ -238,7 +244,14 @@ public class GroupType extends GrouperAPI implements Serializable {
     StopWatch sw  = new StopWatch();
     sw.start();
     Field     f   = FieldFinder.find(name);  
-    GroupTypeValidator.internal_canDeleteFieldFromType(s, this, f);
+    ModifyGroupTypeValidator          vModify = ModifyGroupTypeValidator.validate(s, this);
+    if (vModify.isInvalid()) {
+      throw new InsufficientPrivilegeException( vModify.getErrorMessage() );
+    }
+    DeleteFieldFromGroupTypeValidator vDelete = DeleteFieldFromGroupTypeValidator.validate(this, f);
+    if (vDelete.isInvalid()) {
+      throw new SchemaException( vDelete.getErrorMessage() );
+    }
     if ( f.internal_isInUse() ) {
       String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
       ErrorLog.error(GroupType.class, msg);
@@ -380,7 +393,11 @@ public class GroupType extends GrouperAPI implements Serializable {
   {
     StopWatch sw  = new StopWatch();
     sw.start();
-    GroupTypeValidator.internal_canAddFieldToType(s, this, name, type, read, write);
+    AddFieldToGroupTypeValidator v = AddFieldToGroupTypeValidator.validate(name);
+    if (v.isInvalid()) {
+      throw new SchemaException( v.getErrorMessage() );
+    }
+
     try {
       boolean nullable = true;
       if (required == true) {
@@ -425,17 +442,6 @@ public class GroupType extends GrouperAPI implements Serializable {
     return (GroupTypeDTO) super.getDTO();
   } // protected GroupTypeDTO getDTO()
 
-
-  // PRIVATE INSTANCE METHODS //
- 
-  //  @since    1.2.0
-  private void _cannotModifySystemTypes()
-    throws  InsufficientPrivilegeException
-  {
-    if ( internal_isSystemType(this) ) {
-      throw new InsufficientPrivilegeException(E.GROUPTYPE_CANNOT_MODIFY_SYSTEM_TYPES);
-    }
-  } // private void _cannotModifySystemTypes()
 
 } // public class GroupType extends GrouperAPI implements Serializable
 

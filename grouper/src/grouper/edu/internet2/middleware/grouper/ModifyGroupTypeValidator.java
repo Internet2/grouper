@@ -19,29 +19,27 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: NotNullOrEmptyValidator.java,v 1.3 2007-02-28 19:37:31 blair Exp $
+ * @version $Id: ModifyGroupTypeValidator.java,v 1.1 2007-02-28 19:37:31 blair Exp $
  * @since   1.2.0
  */
-class NotNullOrEmptyValidator extends GrouperValidator {
+class ModifyGroupTypeValidator extends GrouperValidator {
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static NotNullOrEmptyValidator validate(String value) {
-    NotNullOrEmptyValidator v   = new NotNullOrEmptyValidator();
-    NotNullValidator        nnv = NotNullValidator.validate(value);
-    if ( !nnv.getIsValid() ) {
-      v.setErrorMessage( nnv.getErrorMessage() );
-      return v;
+  protected static ModifyGroupTypeValidator validate(GrouperSession s, GroupType type) {
+    ModifyGroupTypeValidator v = new ModifyGroupTypeValidator();
+    if      ( !RootPrivilegeResolver.internal_isRoot(s) )  {
+      v.setErrorMessage(E.GROUPTYPE_CANNOT_MODIFY_TYPE);
     }
-    if ( value.equals(GrouperConfig.EMPTY_STRING) )  {
-      v.setErrorMessage("empty value");
+    else if ( GroupType.internal_isSystemType(type) )     {
+      v.setErrorMessage(E.GROUPTYPE_CANNOT_MODIFY_SYSTEM_TYPES);
     }
     else {
       v.setIsValid(true);
     }
     return v;
-  } // protected static NotNullOrEmptyValidator validate(value)
+  } // protected static ModifyGroupTypeValidator validate(s, type)
 
-} // class NotNullOrEmptyValidator extends GrouperValidator
+} // class ModifyGroupTypeValidator extends GrouperValidator
 

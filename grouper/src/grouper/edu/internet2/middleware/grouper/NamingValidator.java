@@ -20,7 +20,7 @@ import  java.util.regex.Pattern;
 
 /** 
  * @author  blair christensen.
- * @version $Id: NamingValidator.java,v 1.1 2007-02-19 17:53:48 blair Exp $
+ * @version $Id: NamingValidator.java,v 1.2 2007-02-28 19:37:31 blair Exp $
  * @since   1.2.0
  */
 class NamingValidator extends GrouperValidator {
@@ -33,7 +33,7 @@ class NamingValidator extends GrouperValidator {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static NamingValidator validateName(String name) {
+  protected static NamingValidator validate(String name) {
     NamingValidator nv = new NamingValidator();
     if      (name == null)                    {
       nv.setErrorMessage(E.ATTR_NULL);
@@ -48,7 +48,7 @@ class NamingValidator extends GrouperValidator {
       nv.setIsValid(true);
     }
     return nv;
-  } // protected static NamingValidator validateName(name)
+  } // protected static NamingValidator validate(name)
 
 } // class NamingValidator extends GrouperValidator
 

@@ -19,29 +19,25 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: NotNullOrEmptyValidator.java,v 1.3 2007-02-28 19:37:31 blair Exp $
+ * @version $Id: AddFieldToGroupTypeValidator.java,v 1.1 2007-02-28 19:37:31 blair Exp $
  * @since   1.2.0
  */
-class NotNullOrEmptyValidator extends GrouperValidator {
+class AddFieldToGroupTypeValidator extends GrouperValidator {
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static NotNullOrEmptyValidator validate(String value) {
-    NotNullOrEmptyValidator v   = new NotNullOrEmptyValidator();
-    NotNullValidator        nnv = NotNullValidator.validate(value);
-    if ( !nnv.getIsValid() ) {
-      v.setErrorMessage( nnv.getErrorMessage() );
-      return v;
+  protected static AddFieldToGroupTypeValidator validate(String name) {
+    AddFieldToGroupTypeValidator v = new AddFieldToGroupTypeValidator();
+    try {
+      FieldFinder.find(name); // TODO 20070228 why don't i use the dao here?
+      v.setErrorMessage(E.FIELD_ALREADY_EXISTS + name);
     }
-    if ( value.equals(GrouperConfig.EMPTY_STRING) )  {
-      v.setErrorMessage("empty value");
-    }
-    else {
-      v.setIsValid(true);
+    catch (SchemaException eS) {
+      v.setIsValid(true); // the field doesn't exist
     }
     return v;
-  } // protected static NotNullOrEmptyValidator validate(value)
+  } // protected static AddFieldToGroupTypeValidator validate(name)
 
-} // class NotNullOrEmptyValidator extends GrouperValidator
+} // class AddFieldToGroupTypeValidator extends GrouperValidator
 
