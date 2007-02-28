@@ -23,7 +23,6 @@ import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Map;
 import  java.util.Set;
-import  net.sf.hibernate.*;
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.lang.builder.*;
 
@@ -31,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.104 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: Stem.java,v 1.105 2007-02-28 15:32:16 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 

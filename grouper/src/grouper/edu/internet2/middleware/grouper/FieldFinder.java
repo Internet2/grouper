@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Map;
@@ -26,7 +25,7 @@ import  java.util.Set;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.28 2007-02-22 23:23:55 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.29 2007-02-28 15:32:16 blair Exp $
  */
 public class FieldFinder {
 

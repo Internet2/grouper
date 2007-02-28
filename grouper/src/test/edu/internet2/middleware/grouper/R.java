@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.12 2007-02-20 16:07:52 blair Exp $
+ * @version $Id: R.java,v 1.13 2007-02-28 15:32:16 blair Exp $
  * @since   1.2.0
  */
 public class R {
@@ -232,8 +232,8 @@ public class R {
 
   // @since   1.2.0
   private static R _getContextI2MI() {
-    R     r     = new R();
-    Stem  i2mi  = r.addStem("i2mi", "internet2 middleware initiative");
+    R r = new R();
+    r.addStem("i2mi", "internet2 middleware initiative");
     return r;
   } // private static R _getContextI2MI()
   

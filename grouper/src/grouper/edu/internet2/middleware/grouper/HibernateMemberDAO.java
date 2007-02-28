@@ -18,15 +18,13 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.Subject;
 import  java.io.Serializable;
-import  java.util.HashMap;
-import  java.util.Map;
 import  net.sf.hibernate.*;
 
 /**
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.11 2007-02-22 20:12:43 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.12 2007-02-28 15:32:16 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO extends HibernateDAO implements Lifecycle {

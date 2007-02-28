@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Group} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.3 2007-02-15 20:42:17 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.4 2007-02-28 15:32:16 blair Exp $
  */
 class GroupDTO extends BaseGrouperDTO {
 
@@ -138,15 +138,7 @@ class GroupDTO extends BaseGrouperDTO {
   // PRIVATE INSTANCE METHODS //
 
   // TODO 20070215 these methods should be renamed and moved to `GrouperDTO`
-
-  // @since   1.2.0
-  private HibernateGroupDAO _getDAO() {
-    if (this.dao == null) {
-      throw new IllegalStateException( "attempt to get unitialized dao in " + this.getClass().getName() );
-    }
-    return this.dao;
-  } // private HibernateGroupDAO _getDAO()
-
+  
   // @since   1.2.0
   private void _setDAO(HibernateGroupDAO dao) {
     this.dao = dao;
