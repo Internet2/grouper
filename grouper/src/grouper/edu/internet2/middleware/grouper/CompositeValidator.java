@@ -19,67 +19,69 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.10 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.11 2007-02-28 19:55:26 blair Exp $
  * @since   1.0
  */
-class CompositeValidator {
+class CompositeValidator extends GrouperValidator {
 
   // PROTECTED CLASS METHODS //
 
   //  @since 1.2.0
-  protected static void internal_validate(CompositeDTO c) 
-    throws  ModelException
-  {
-    if (c.getCreateTime() <= 0) {
-      throw new ModelException("composite has invalid createTime");
+  protected static CompositeValidator validate(CompositeDTO _c) {
+    CompositeValidator v = new CompositeValidator();
+    // validate basic attributes
+    if      ( _c.getCreateTime() <= GrouperConfig.EPOCH )  {
+      v.setErrorMessage("composite has invalid createTime");
     }
-    if (c.getCreatorUuid() == null) {
-      throw new ModelException("composite has null creator");
+    else if ( _c.getCreatorUuid() == null )                {
+      v.setErrorMessage("composite has null creator");
     }
-    if (c.getUuid() == null) {
-      throw new ModelException("composite has null uuid");
+    else if ( _c.getUuid() == null )                       {
+      v.setErrorMessage("composite has null uuid");
     }
-    try {
-      HibernateGroupDAO.findByUuid( c.getFactorOwnerUuid() );
+    else if ( _c.getType() == null )                       {
+      v.setErrorMessage(E.COMP_T);
     }
-    catch (GroupNotFoundException eGNF) {
-      throw new ModelException("invalid owner class");
-    }
-    try {
-      HibernateGroupDAO.findByUuid( c.getLeftFactorUuid() );
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new ModelException("invalid left factor class");
-    }
-    try {
-      HibernateGroupDAO.findByUuid( c.getRightFactorUuid() );
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new ModelException("invalid right factor class");
-    }
-    _notCyclic(c);
-    if ( c.getType() == null ) {
-      throw new ModelException(E.COMP_T);
-    }
-  } // protected static void validate(Composite c)
+    else {  
+      // validate that owner and factors are existing groups
+      try {
+        HibernateGroupDAO.findByUuid( _c.getFactorOwnerUuid() );
+      }
+      catch (GroupNotFoundException eGNF) {
+        v.setErrorMessage("invalid owner class");
+        return v;
+      }
+      try {
+        HibernateGroupDAO.findByUuid( _c.getLeftFactorUuid() );
+      }
+      catch (GroupNotFoundException eGNF) {
+        v.setErrorMessage("invalid left factor class");
+        return v;
+      }
+      try {
+        HibernateGroupDAO.findByUuid( _c.getRightFactorUuid() );
+      }
+      catch (GroupNotFoundException eGNF) {
+        v.setErrorMessage("invalid right factor class");
+        return v;
+      }
 
-
-  // PRIVATE CLASS METHODS //  
-
-  // @since   1.2.0
-  private static void _notCyclic(CompositeDTO c) 
-    throws  ModelException
-  {
-    if ( c.getLeftFactorUuid().equals( c.getRightFactorUuid() ) )   {
-      throw new ModelException(E.COMP_LR);
+      // validate that this is not a cyclical composite
+      if      ( _c.getLeftFactorUuid().equals( _c.getRightFactorUuid() ) )  {
+        v.setErrorMessage(E.COMP_LR);
+      }
+      else if ( _c.getFactorOwnerUuid().equals( _c.getLeftFactorUuid() ) )  {
+        v.setErrorMessage(E.COMP_CL);
+      }
+      else if ( _c.getFactorOwnerUuid().equals( _c.getRightFactorUuid() ) ) {
+        v.setErrorMessage(E.COMP_CR);
+      }
+      else {
+        v.setIsValid(true);
+      }
     }
-    if ( c.getFactorOwnerUuid().equals( c.getLeftFactorUuid() ) )   {
-      throw new ModelException(E.COMP_CL);
-    }
-    if ( c.getFactorOwnerUuid().equals( c.getRightFactorUuid() ) )  {
-      throw new ModelException(E.COMP_CR);
-    }
-  } // private static void _notCyclic(c)
+    return v;
+  } // protected static CompositeValidator validate(_c)
 
-} // class CompositeValidator
+} // class CompositeValidator extends GrouperValidator 
 
