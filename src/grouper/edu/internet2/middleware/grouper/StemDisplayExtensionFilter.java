@@ -23,7 +23,7 @@ import  java.util.*;
  * Query by stem attribute.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDisplayExtensionFilter.java,v 1.8 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: StemDisplayExtensionFilter.java,v 1.9 2007-02-28 17:40:45 blair Exp $
  */
 public class StemDisplayExtensionFilter extends BaseQueryFilter {
 
@@ -53,7 +53,7 @@ public class StemDisplayExtensionFilter extends BaseQueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set candidates  = StemFinder.internal_findAllByApproximateDisplayExtension(s, this.val);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;

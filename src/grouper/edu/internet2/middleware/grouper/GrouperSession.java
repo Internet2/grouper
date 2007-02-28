@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.49 2007-02-22 19:05:59 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.50 2007-02-28 17:40:44 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -80,6 +80,20 @@ public class GrouperSession extends GrouperAPI {
       throw new SessionException(msg, eMNF);
     }
   } // public static GrouperSession start(subject)
+
+  /**
+   * @throws  IllegalStateException
+   * @since   1.2.0
+   */
+  public static void validate(GrouperSession s) 
+    throws  IllegalStateException
+  {
+    NotNullValidator v = NotNullValidator.validate(s);
+    if ( !v.getIsValid() ) {
+      throw new IllegalStateException(E.SV_O);
+    }
+    s.validate();
+  } // public static void validate(s)
 
 
   // PUBLIC INSTANCE METHODS //
@@ -225,6 +239,26 @@ public class GrouperSession extends GrouperAPI {
       .toString();
   } // public String toString()
 
+  /**
+   * @throws  IllegalStateException
+   * @since   1.2.0
+   */
+  public void validate() 
+    throws  IllegalStateException
+  {
+    NotNullValidator v = NotNullValidator.validate( this.getDTO().getMemberUuid() );
+    if ( !v.getIsValid() ) {
+      throw new IllegalStateException(E.SV_M);
+    }
+    v = NotNullValidator.validate( this.getDTO().getSessionUuid() );  
+    if ( !v.getIsValid() ) {
+      throw new IllegalStateException(E.SV_I);
+    }
+    v = NotNullValidator.validate( this.getDTO().getStartTime() );
+    if ( !v.getIsValid() ) {
+      throw new IllegalStateException(E.SV_T);
+    }
+  } // public void validate(
 
   // PROTECTED INSTANCE METHODS //
 

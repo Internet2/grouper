@@ -19,29 +19,24 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: NotNullOrEmptyValidator.java,v 1.2 2007-02-28 17:40:45 blair Exp $
+ * @version $Id: NotNullValidator.java,v 1.1 2007-02-28 17:40:45 blair Exp $
  * @since   1.2.0
  */
-class NotNullOrEmptyValidator extends GrouperValidator {
+class NotNullValidator extends GrouperValidator {
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static NotNullOrEmptyValidator validate(String value) {
-    NotNullOrEmptyValidator v   = new NotNullOrEmptyValidator();
-    NotNullValidator        nnv = NotNullValidator.validate(value);
-    if ( !nnv.getIsValid() ) {
-      v.setErrorMessage( nnv.getErrorMessage() );
-      return v;
-    }
-    if ( value.equals(GrouperConfig.EMPTY_STRING) )  {
-      v.setErrorMessage("empty value");
+  protected static NotNullValidator validate(Object value) {
+    NotNullValidator v = new NotNullValidator();
+    if (value == null) {
+      v.setErrorMessage("null value");
     }
     else {
       v.setIsValid(true);
     }
     return v;
-  } // protected static NotNullOrEmptyValidator validateName(name)
+  } // protected static NotNullValidator validateName(name)
 
-} // class NotNullOrEmptyValidator extends GrouperValidator
+} // class NotNullValidator extends GrouperValidator
 

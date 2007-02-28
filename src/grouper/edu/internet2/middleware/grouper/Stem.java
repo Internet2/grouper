@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.105 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: Stem.java,v 1.106 2007-02-28 17:40:45 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -123,7 +123,7 @@ public class Stem extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    GrouperSessionValidator.internal_validate(this.getSession());
+    GrouperSession.validate(this.getSession());
     StemValidator.internal_canDeleteStem(this);
     try {
       String name = this.getName();   // Preserve name for logging

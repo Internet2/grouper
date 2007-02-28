@@ -24,7 +24,7 @@ import  java.util.*;
  * Query by groups created before the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupCreatedBeforeFilter.java,v 1.11 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GroupCreatedBeforeFilter.java,v 1.12 2007-02-28 17:40:44 blair Exp $
  */
 public class GroupCreatedBeforeFilter extends BaseQueryFilter {
 
@@ -53,7 +53,7 @@ public class GroupCreatedBeforeFilter extends BaseQueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set candidates  = GroupFinder.internal_findAllByCreatedBefore(s, this.d);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;

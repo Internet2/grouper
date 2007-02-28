@@ -31,7 +31,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.52 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.53 2007-02-28 17:40:44 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -71,7 +71,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
     throws  SchemaException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     return MembershipFinder.internal_findSubjects(
       s, g, (Field) FieldFinder.find( (String) priv2list.get(priv) )
     );
@@ -100,7 +100,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   ) 
     throws  SchemaException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set groups = new LinkedHashSet();
     try {
       Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
@@ -137,7 +137,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @return  Set of privileges.
    */
   public Set getPrivs(GrouperSession s, Group g, Subject subj) {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
       Member    m     = MemberFinder.findBySubject(s, subj);
@@ -196,7 +196,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
             SchemaException
   {
     try {
-      GrouperSessionValidator.internal_validate(s);
+      GrouperSession.validate(s);
       Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
       GroupValidator.internal_isTypeEqual(f, FieldType.ACCESS);
       GroupValidator.internal_canWriteField(g, s.getSubject(), f);
@@ -226,7 +226,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws  SchemaException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(s, subj);
@@ -264,7 +264,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException,
             SchemaException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
     GroupValidator.internal_isTypeEqual(f, FieldType.ACCESS);
     GroupValidator.internal_canWriteField(g, s.getSubject(), f);
@@ -305,7 +305,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException,
             SchemaException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
     GroupValidator.internal_isTypeEqual(f, FieldType.ACCESS);
     GroupValidator.internal_canWriteField( g, s.getSubject(), f );

@@ -25,7 +25,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.36 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: StemFinder.java,v 1.37 2007-02-28 17:40:45 blair Exp $
  */
 public class StemFinder {
 
@@ -49,7 +49,7 @@ public class StemFinder {
   public static Stem findByName(GrouperSession s, String name) 
     throws StemNotFoundException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     // TODO 20070201 bah.  should be in dao if it exists at all.
     if ( name.equals(Stem.ROOT_EXT) ) {
       name = Stem.ROOT_INT;
@@ -73,7 +73,7 @@ public class StemFinder {
   public static Stem findRootStem(GrouperSession s) 
     throws  GrouperRuntimeException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     try {
       return StemFinder.findByName(s, Stem.ROOT_INT);
     }
@@ -103,7 +103,7 @@ public class StemFinder {
   public static Stem findByUuid(GrouperSession s, String uuid) 
     throws StemNotFoundException
   {
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Stem ns = new Stem();
     ns.setDTO( HibernateStemDAO.findByUuid(uuid) );
     ns.setSession(s);

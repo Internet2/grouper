@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.27 2007-02-28 17:20:13 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.28 2007-02-28 17:40:44 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -110,7 +110,7 @@ class GroupValidator {
     throws  GrouperRuntimeException,
             InsufficientPrivilegeException
   {
-    GrouperSessionValidator.internal_validate( g.getSession() );
+    GrouperSession.validate( g.getSession() );
     if (
       !PrivilegeResolver.internal_canADMIN( g.getSession(), g, g.getSession().getSubject() )
     )

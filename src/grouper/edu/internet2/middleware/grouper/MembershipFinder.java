@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.75 2007-02-14 17:34:14 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.76 2007-02-28 17:40:44 blair Exp $
  */
 public class MembershipFinder {
   
@@ -53,7 +53,7 @@ public class MembershipFinder {
   {
      // @filtered  true
      // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     try {
       Field       f   = Group.getDefaultList();
       Member      m   = MemberFinder.findBySubject(s, subj);
@@ -99,7 +99,7 @@ public class MembershipFinder {
   {
      // @filtered  true
      // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set mships = new LinkedHashSet();
     try {
       Member m = MemberFinder.findBySubject(s, subj);
@@ -147,7 +147,7 @@ public class MembershipFinder {
   {
     // @filtered  true
     // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
       Membership  ms  = new Membership();
@@ -222,7 +222,7 @@ public class MembershipFinder {
   protected static Set internal_findMembers(GrouperSession s, Group g, Field f) {
      // @filtered  true  MembershipFinder.findMemberships(s, g, f) 
      // @session   true  MembershipFinder.findMemberships(s, g, f)
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set         members = new LinkedHashSet();
     Membership  ms;
     Iterator    iter    = internal_findMemberships(s, g, f).iterator();
@@ -242,7 +242,7 @@ public class MembershipFinder {
   protected static Set internal_findSubjects(GrouperSession s, Owner o, Field f) {
     // @filtered  true
     // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set         subjs = new LinkedHashSet();
     Membership  ms;
     Iterator    iter  = internal_findMemberships(s, o, f).iterator();
@@ -264,7 +264,7 @@ public class MembershipFinder {
   protected static Set internal_findSubjectsNoPriv(GrouperSession s, Owner o, Field f) {
      // @filtered  false
      // @session   true 
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set           subjs = new LinkedHashSet();
     MembershipDTO ms;
     MemberDTO     m;
@@ -300,7 +300,7 @@ public class MembershipFinder {
   protected static Set internal_findMembersByType(GrouperSession s, Group g, Field f, String type) {
      // @filtered  true  MembershipFinder.findMembershipsByType(s, o, f) 
      // @session   true  MembershipFinder.findMembershipsByType(s, o, f)
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set         members = new LinkedHashSet();
     Membership  ms;
     Iterator    it      = internal_findAllByOwnerAndFieldAndType(s, g, f, type).iterator();
@@ -356,7 +356,7 @@ public class MembershipFinder {
   protected static Set internal_findAllByOwnerAndFieldAndType(GrouperSession s, Owner o, Field f, String type) {
      // @filtered  true
      // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     return PrivilegeResolver.internal_canViewMemberships(
       s, HibernateMembershipDAO.findAllByOwnerAndFieldAndType(o.getUuid(), f, type)
     );
@@ -369,7 +369,7 @@ public class MembershipFinder {
   {
     // @filtered  true
     // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     return PrivilegeResolver.internal_canViewMemberships( 
       s, HibernateMembershipDAO.findAllEffectiveByMemberAndField( m.getUuid(), f ) 
     );
@@ -389,7 +389,7 @@ public class MembershipFinder {
   protected static Set internal_findAllImmediateByMemberAndField(GrouperSession s, Member m, Field f) {
     // @filtered  true
     // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     return PrivilegeResolver.internal_canViewMemberships( 
       s, HibernateMembershipDAO.findAllImmediateByMemberAndField( m.getUuid(), f ) 
     );
@@ -399,7 +399,7 @@ public class MembershipFinder {
   protected static Set internal_findMemberships(GrouperSession s, Member m, Field f) {
      // @filtered  true
      // @session   true
-    GrouperSessionValidator.internal_validate(s);
+    GrouperSession.validate(s);
     Set mships = new LinkedHashSet();
     mships.addAll( HibernateMembershipDAO.findMemberships( m.getUuid(), f ) );
     if ( !m.equals( MemberFinder.internal_findAllMember() ) ) {
