@@ -24,7 +24,7 @@ import  java.util.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.31 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.32 2007-02-28 19:10:44 blair Exp $
  */
 public class SubjectFinder {
 
@@ -474,7 +474,10 @@ public class SubjectFinder {
           break;
         }
       }
-      Validator.internal_valueNotNull(gsa, E.SF_GETSA);
+      NotNullValidator v = NotNullValidator.validate(gsa);
+      if (v.isInvalid()) {
+        throw new IllegalArgumentException(E.SF_GETSA);
+      }
     }
     return gsa;
   } // protected static Source internal_getGSA()

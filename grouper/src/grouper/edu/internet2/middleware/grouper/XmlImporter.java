@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.94 2007-02-19 15:31:23 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.95 2007-02-28 19:10:44 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -286,10 +286,12 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (Validator.internal_isNullOrBlank(id)) {
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(id);
+    if (v.isInvalid()) {
       if (type.equals("group")) {
         if (this._isRelativeImport(idfr)) {
-          if (Validator.internal_isNotNullOrBlank(this.importRoot)) {
+          v = NotNullOrEmptyValidator.validate(this.importRoot);
+          if (v.isValid()) {
             idfr = U.internal_constructName( this.importRoot, idfr.substring(1) );
           }
           else {
@@ -449,9 +451,9 @@ public class XmlImporter {
         name = U.internal_constructName(stem, name);
       }
     }
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(importRoot);
     if (
-          Validator.internal_isNotNullOrBlank(importRoot)
-      &&  this.importedGroups.containsKey(importRoot + Stem.ROOT_INT + name)
+      v.isValid() && this.importedGroups.containsKey(importRoot + Stem.ROOT_INT + name)
     ) 
     {
       return importRoot + Stem.ROOT_INT + name;
@@ -543,7 +545,8 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (Validator.internal_isNullOrBlank(type)) {
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(type);
+    if (v.isInvalid()) {
       return SubjectFinder.findById(id);
     }
     return SubjectFinder.findById(id, type);
@@ -554,7 +557,8 @@ public class XmlImporter {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (Validator.internal_isNullOrBlank(type)) {
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(type);
+    if (v.isInvalid()) {
       return SubjectFinder.findByIdentifier(identifier);
     }
     return SubjectFinder.findByIdentifier(identifier, type);
@@ -662,11 +666,12 @@ public class XmlImporter {
 
   // @since   1.0
   private boolean _optionTrue(String key) {
-    if (Validator.internal_isNullOrBlank(key)) {
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(key);
+    if (v.isInvalid()) {
       options.setProperty(key, "false");
       return false;
     }
-    return "true".equals(options.getProperty(key));
+    return "true".equals( options.getProperty(key) );
   } // private boolean _optionTrue(key)
 
   // @since   1.1.0
@@ -843,14 +848,11 @@ public class XmlImporter {
         LOG.debug("cannot write (" + name + ") on (" + g.getName() + ")");
         continue;
       }
-      orig    = g.getAttribute(name); 
-      val     = ( (Text) elAttr.getFirstChild() ).getData();
-      if (
-            Validator.internal_isNotNullOrBlank(val)
-        &&  !val.equals(orig)
-        &&  ( Validator.internal_isNullOrBlank(orig) || this._isUpdatingAttributes() )
-      )
-      {
+      orig                          = g.getAttribute(name); 
+      val                           = ( (Text) elAttr.getFirstChild() ).getData();
+      NotNullOrEmptyValidator vOrig = NotNullOrEmptyValidator.validate(orig);
+      NotNullOrEmptyValidator vVal  = NotNullOrEmptyValidator.validate(val);
+      if ( vVal.isValid() && !val.equals(orig) && ( vOrig.isInvalid() || this._isUpdatingAttributes() ) ) {
         g.setAttribute(name, val);
       } 
     }
@@ -953,9 +955,10 @@ public class XmlImporter {
       e.getAttribute(GrouperConfig.ATTR_DE),
       e.getAttribute("id")
     );
-    String description = e.getAttribute(GrouperConfig.ATTR_D);
-    if (Validator.internal_isNotNullOrBlank(description)) {
-      child.setDescription(description);
+    String                  desc  = e.getAttribute(GrouperConfig.ATTR_D);
+    NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(desc);
+    if (v.isValid()) {
+      child.setDescription(desc);
     }
     this._setInternalAttributes(child, e);
     this.importedGroups.put( child.getName(), SPECIAL_C );
@@ -969,8 +972,9 @@ public class XmlImporter {
     if (!"groupRef".equals(tagName)) {
       throw new IllegalStateException("Expected tag: <groupRef> but found <" + tagName + ">");
     }
-    String name = groupE.getAttribute(GrouperConfig.ATTR_N);
-    if (Validator.internal_isNullOrBlank(name)) {
+    String                  name  = groupE.getAttribute(GrouperConfig.ATTR_N);
+    NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(name);
+    if (v.isInvalid()) {
       throw new IllegalStateException("Expected 'name' atribute for <groupRef>");
     }
     return GroupFinder.findByName( s, this._getAbsoluteName(name, stem) );
@@ -1008,12 +1012,14 @@ public class XmlImporter {
     // will trigger the creation of the group.
     Group g = GroupFinder.findByName(this.s, newGroup);
     if (this._isUpdatingAttributes()) {
-      String dExtn  = e.getAttribute(GrouperConfig.ATTR_DE);
-      if (Validator.internal_isNotNullOrBlank(dExtn) && !dExtn.equals(g.getDisplayExtension())) {
+      String                  dExtn = e.getAttribute(GrouperConfig.ATTR_DE);
+      NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(dExtn);
+      if ( v.isValid() && !dExtn.equals( g.getDisplayExtension() ) ) {
         g.setDisplayExtension(dExtn);
       }
-      String desc   = e.getAttribute(GrouperConfig.ATTR_D);
-      if (Validator.internal_isNotNullOrBlank(desc) && !desc.equals(g.getDisplayExtension())) {
+      String desc = e.getAttribute(GrouperConfig.ATTR_D);
+      v           = NotNullOrEmptyValidator.validate(desc);
+      if ( v.isValid() && !desc.equals( g.getDisplayExtension() ) ) {
         g.setDisplayExtension(desc);
       }
     }
@@ -1350,9 +1356,10 @@ public class XmlImporter {
       e.getAttribute(GrouperConfig.ATTR_DE),
       e.getAttribute("id")
     );
-    String  description   = e.getAttribute(GrouperConfig.ATTR_D);
-    if (Validator.internal_isNotNullOrBlank(description)) {
-      child.setDescription(description);
+    String                  desc  = e.getAttribute(GrouperConfig.ATTR_D);
+    NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(desc);
+    if (v.isValid()) {
+      child.setDescription(desc);
     }
     this._setInternalAttributes(child, e);
   } // private void _processPathCreate(e, stem)
@@ -1368,12 +1375,14 @@ public class XmlImporter {
     // will trigger the creation of the stem.
     Stem ns = StemFinder.findByName(this.s, newStem);
     if (this._isUpdatingAttributes()) {
-      String dExtn  = e.getAttribute(GrouperConfig.ATTR_DE);
-      if (Validator.internal_isNotNullOrBlank(dExtn) && !dExtn.equals(ns.getDisplayExtension())) {
+      String                  dExtn = e.getAttribute(GrouperConfig.ATTR_DE);
+      NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(dExtn);
+      if ( v.isValid() && !dExtn.equals( ns.getDisplayExtension() ) ) {
         ns.setDisplayExtension(dExtn);
       }
-      String desc   = e.getAttribute(GrouperConfig.ATTR_D);
-      if (Validator.internal_isNotNullOrBlank(desc) && !desc.equals(ns.getDisplayExtension())) {
+      String desc = e.getAttribute(GrouperConfig.ATTR_D);
+      v           = NotNullOrEmptyValidator.validate(desc);
+      if ( v.isValid() && !desc.equals( ns.getDisplayExtension() ) ) {
         ns.setDisplayExtension(desc);
       }
     }

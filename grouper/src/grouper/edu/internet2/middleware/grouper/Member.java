@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.81 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: Member.java,v 1.82 2007-02-28 19:10:44 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -55,7 +55,10 @@ public class Member extends GrouperAPI implements Serializable {
   public boolean canAdmin(Group g) 
     throws  IllegalArgumentException
   {
-    Validator.internal_argNotNull(g, E.GROUP_NULL);
+    NotNullValidator v = NotNullValidator.validate(g);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
     try {
       return PrivilegeResolver.internal_canADMIN(
         this.getSession(), g, this.getSubject()
@@ -78,7 +81,10 @@ public class Member extends GrouperAPI implements Serializable {
   public boolean canCreate(Stem ns) 
     throws  IllegalArgumentException
   {
-    Validator.internal_argNotNull(ns, E.STEM_NULL);
+    NotNullValidator v = NotNullValidator.validate(ns);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.STEM_NULL);
+    }
     try {
       return PrivilegeResolver.internal_canCREATE(
         this.getSession(), ns, this.getSubject()
@@ -101,7 +107,10 @@ public class Member extends GrouperAPI implements Serializable {
   public boolean canOptin(Group g) 
     throws  IllegalArgumentException
   {
-    Validator.internal_argNotNull(g, E.GROUP_NULL);
+    NotNullValidator v = NotNullValidator.validate(g);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
     try {
       return PrivilegeResolver.internal_canOPTIN(
         this.getSession(), g, this.getSubject()
@@ -124,7 +133,10 @@ public class Member extends GrouperAPI implements Serializable {
   public boolean canOptout(Group g) 
     throws  IllegalArgumentException
   {
-    Validator.internal_argNotNull(g, E.GROUP_NULL);
+    NotNullValidator v = NotNullValidator.validate(g);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
     try {
       return PrivilegeResolver.internal_canOPTOUT(
         this.getSession(), g, this.getSubject()
@@ -147,7 +159,10 @@ public class Member extends GrouperAPI implements Serializable {
   public boolean canRead(Group g)
     throws  IllegalArgumentException
   {
-    Validator.internal_argNotNull(g, E.GROUP_NULL);
+    NotNullValidator v = NotNullValidator.validate(g);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
     try {
       return PrivilegeResolver.internal_canREAD(
         this.getSession(), g, this.getSubject()
@@ -170,7 +185,10 @@ public class Member extends GrouperAPI implements Serializable {
   public boolean canStem(Stem ns) 
     throws  IllegalArgumentException
   {
-    Validator.internal_argNotNull(ns, E.STEM_NULL);
+    NotNullValidator v = NotNullValidator.validate(ns);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.STEM_NULL);
+    }
     try {
       return PrivilegeResolver.internal_canSTEM(ns, this.getSubject());
     }
@@ -191,7 +209,10 @@ public class Member extends GrouperAPI implements Serializable {
   public boolean canUpdate(Group g) 
     throws  IllegalArgumentException
   {
-    Validator.internal_argNotNull(g, E.GROUP_NULL);
+    NotNullValidator v = NotNullValidator.validate(g);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
     try {
       return PrivilegeResolver.internal_canUPDATE(
         this.getSession(), g, this.getSubject()
@@ -214,7 +235,10 @@ public class Member extends GrouperAPI implements Serializable {
   public boolean canView(Group g) 
     throws  IllegalArgumentException
   {
-    Validator.internal_argNotNull(g, E.GROUP_NULL);
+    NotNullValidator v = NotNullValidator.validate(g);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
     try {
       return PrivilegeResolver.internal_canVIEW(g, this.getSubject());
     }
@@ -1063,7 +1087,14 @@ public class Member extends GrouperAPI implements Serializable {
   {
     StopWatch sw    = new StopWatch();
     sw.start();
-    MemberValidator.internal_canSetSubjectId(this, id);
+    NotNullValidator      nnv = NotNullValidator.validate(id);
+    if ( !nnv.getIsValid() ) {
+      throw new IllegalArgumentException( nnv.getErrorMessage() );
+    }
+    MemberModifyValidator mmv = MemberModifyValidator.validate(this);
+    if ( !mmv.getIsValid() ) {
+      throw new InsufficientPrivilegeException( mmv.getErrorMessage() );
+    }
     String    orig  = this.getDTO().getSubjectId(); // preserve original for logging purposes
     this.getDTO().setSubjectId(id);
     HibernateMemberDAO.update( this.getDTO() );
@@ -1097,9 +1128,16 @@ public class Member extends GrouperAPI implements Serializable {
     throws  IllegalArgumentException,
             InsufficientPrivilegeException
   {
-    StopWatch sw    = new StopWatch();
+    StopWatch sw = new StopWatch();
     sw.start();
-    MemberValidator.internal_canSetSubjectSourceId(this, id);
+    NotNullValidator      nnv = NotNullValidator.validate(id);
+    if ( !nnv.getIsValid() ) {
+      throw new IllegalArgumentException( nnv.getErrorMessage() );
+    }
+    MemberModifyValidator mmv = MemberModifyValidator.validate(this);
+    if ( !mmv.getIsValid() ) {
+      throw new InsufficientPrivilegeException( mmv.getErrorMessage() );
+    }
     String    orig  = this.getDTO().getSubjectSourceId();
     this.getDTO().setSubjectSourceId(id);
     HibernateMemberDAO.update( this.getDTO() );

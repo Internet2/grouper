@@ -22,7 +22,7 @@ import  java.util.*;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.12 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: U.java,v 1.13 2007-02-28 19:10:44 blair Exp $
  * @since   1.0
  */
 class U {
@@ -58,7 +58,8 @@ class U {
 
   // @since   1.2.0
   protected static String internal_qp(String input) {
-    if (Validator.internal_isNotNullOrBlank(input)) {
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(input);
+    if (v.isValid()) {
       return QP_OPEN + input + QP_CLOSE;
     }
     return GrouperConfig.EMPTY_STRING;

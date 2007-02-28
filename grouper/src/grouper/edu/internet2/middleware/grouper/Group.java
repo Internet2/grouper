@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.130 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: Group.java,v 1.131 2007-02-28 19:10:44 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -298,7 +298,10 @@ public class Group extends GrouperAPI implements Owner {
     throws  IllegalArgumentException,
             SchemaException
   {
-    Validator.internal_argNotNull(subj, E.SUBJ_NULL);
+    NotNullValidator v = NotNullValidator.validate(subj);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.SUBJ_NULL);
+    }
     GroupValidator.internal_isTypeValid(f);
     try {
       GroupValidator.internal_canReadField(this, subj, f);
@@ -354,7 +357,10 @@ public class Group extends GrouperAPI implements Owner {
     throws  IllegalArgumentException,
             SchemaException
   {
-    Validator.internal_argNotNull(subj, E.SUBJ_NULL);
+    NotNullValidator v = NotNullValidator.validate(subj);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.SUBJ_NULL);
+    } 
     GroupValidator.internal_isTypeValid(f);
     try {
       GroupValidator.internal_canWriteField(this, subj, f);

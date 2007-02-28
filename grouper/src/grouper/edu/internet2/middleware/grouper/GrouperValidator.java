@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperValidator.java,v 1.2 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: GrouperValidator.java,v 1.3 2007-02-28 19:10:44 blair Exp $
  * @since   1.2.0
  */
 class GrouperValidator {
@@ -38,6 +38,19 @@ class GrouperValidator {
   protected GrouperValidator() {
     super();
   } // protected GrouperValidator()
+
+
+  // PROTECTED INSTANCE METHODS //
+
+  // @since   1.2.0
+  protected boolean isInvalid() {
+    return !this.getIsValid();
+  } // protected boolean isInvalid()
+
+  // @since   1.2.0
+  protected boolean isValid() {
+    return this.getIsValid();
+  } // protected boolean isValid()
 
 
   // GETTERS //
