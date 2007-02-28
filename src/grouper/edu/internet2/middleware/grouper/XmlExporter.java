@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.84 2007-02-19 15:31:23 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.85 2007-02-28 19:10:44 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -577,15 +577,18 @@ public class XmlExporter {
     String key    = "export.subject-attributes.source." + source + "." + type;
     String value  = options.getProperty(key);
     // TODO 20061018 i'm not keen on these repetitive "if"s
-    if (Validator.internal_isNullOrBlank(value)) {
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(value);
+    if (v.isInvalid()) {
       key   = "export.subject-attributes.source." + source;
       value = options.getProperty(key);
     }
-    if (Validator.internal_isNullOrBlank(value)) {
+    v = NotNullOrEmptyValidator.validate(value);
+    if (v.isInvalid()) {
       key   = "export.subject-attributes.type." + type;
       value = options.getProperty(key);
     }
-    if (Validator.internal_isNullOrBlank(value)) {
+    v = NotNullOrEmptyValidator.validate(value);
+    if (v.isInvalid()) {
       return null;
     }
     if (XmlUtils.SPECIAL_STAR.equals(value)) {
@@ -699,8 +702,9 @@ public class XmlExporter {
     Stem parent = startStem;
     do {
       try {
-        parent = parent.getParentStem();
-        if (Validator.internal_isNullOrBlank( parent.getExtension() ) ) {
+        parent                    = parent.getParentStem();
+        NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate( parent.getExtension() );
+        if (v.isInvalid()) {
           parent = null;
         } 
         else {
@@ -718,11 +722,12 @@ public class XmlExporter {
   // @since   1.1.0
   // TODO 20061003 deprecate
   private boolean _optionTrue(String key) {
-    if (Validator.internal_isNullOrBlank(key)) {
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(key);
+    if (v.isInvalid()) {
       options.setProperty(key, "false");
       return false;
     }
-    return "true".equals(options.getProperty(key));
+    return "true".equals( options.getProperty(key) );
   } // private boolean _optionTrue(key)
 
   // @since   1.1.0
@@ -935,10 +940,10 @@ public class XmlExporter {
   {
     if ( !f.getType().equals(FieldType.LIST) && g.canReadField(f) ) {
       try {
-        String val = XmlUtils.internal_xmlE( g.getAttribute( f.getName() ) );
+        String            val = XmlUtils.internal_xmlE( g.getAttribute( f.getName() ) );
+        NotNullValidator  v   = NotNullValidator.validate(val);
         if (
-                Validator.internal_isNotNullOrBlank(val)
-            &&  ":description:extension:displayExtension:".indexOf(":" + f.getName() + ":") == -1
+          v.isValid() && ":description:extension:displayExtension:".indexOf(":" + f.getName() + ":") == -1
         ) 
         {
           this.xml.internal_indent();
@@ -1078,7 +1083,8 @@ public class XmlExporter {
   private void _writeInternalAttribute(String attr, String val)
     throws  IOException
   {
-    if (!Validator.internal_isNotNullOrBlank(val)) {
+    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(val);
+    if (v.isInvalid()) {
       // Since I'm now using the internal methods to access the attr values I
       // need to be more careful about NULLs
       val = GrouperConfig.EMPTY_STRING;
@@ -1471,8 +1477,9 @@ public class XmlExporter {
     if ("group".equals(subj.getType().getName())) {
       this.xml.internal_put(" id='" + subj.getId() + "'");
     }
-    Iterator exportAttrs = _getExportAttributes(subj);
-    if (Validator.internal_isNullOrBlank(exportAttrs)) {
+    Iterator          exportAttrs = _getExportAttributes(subj);
+    NotNullValidator  v           = NotNullValidator.validate(exportAttrs);
+    if (v.isInvalid()) {
       this.xml.internal_puts("/>");
       return;
     }

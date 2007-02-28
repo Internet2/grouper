@@ -24,7 +24,7 @@ import  java.util.Set;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.40 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.41 2007-02-28 19:10:44 blair Exp $
  */
 public class GroupFinder {
 
@@ -56,9 +56,18 @@ public class GroupFinder {
     throws  GroupNotFoundException,
             IllegalArgumentException
   {
-    Validator.internal_argNotNull( s,    "null session"   );
-    Validator.internal_argNotNull( attr, "null attribute" );
-    Validator.internal_argNotNull( val,  "null value"     );
+    NotNullValidator v = NotNullValidator.validate(s);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException("null session");
+    }
+    v = NotNullValidator.validate(attr);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException("null attribute");
+    }
+    v = NotNullValidator.validate(val);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException("null value");
+    }
     GroupDTO dto = HibernateGroupDAO.findByAttribute(attr, val);
     if (dto != null) {
       Group g = new Group();
@@ -120,8 +129,14 @@ public class GroupFinder {
     throws  GroupNotFoundException,
             IllegalArgumentException
   {
-    Validator.internal_argNotNull( s,    "null session" );
-    Validator.internal_argNotNull( type, "null type"    );
+    NotNullValidator v = NotNullValidator.validate(s);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException("null session");
+    }
+    v = NotNullValidator.validate(type);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException("null type");
+    }
     Set groups = PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByType(type) );
     if (groups.size() == 1) {
       return (Group) new ArrayList(groups).get(0);

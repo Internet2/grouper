@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.28 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.29 2007-02-28 19:10:44 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -305,7 +305,10 @@ class GroupValidator {
     throws  IllegalArgumentException,
             SchemaException
   {
-    Validator.internal_argNotNull(f, E.FIELD_NULL);
+    NotNullValidator v = NotNullValidator.validate(f);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.FIELD_NULL);
+    }
     if (
       !
       (
