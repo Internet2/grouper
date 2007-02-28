@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.128 2007-02-27 18:08:09 blair Exp $
+ * @version $Id: Group.java,v 1.129 2007-02-28 17:20:13 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -447,7 +447,8 @@ public class Group extends GrouperAPI implements Owner {
     try {
       StopWatch sw = new StopWatch();
       sw.start();
-      if (!AttributeValidator.internal_isPermittedName(attr)) {
+      NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(attr);
+      if ( !v.getIsValid() ) {
         throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
       }
       Field f = FieldFinder.find(attr);
