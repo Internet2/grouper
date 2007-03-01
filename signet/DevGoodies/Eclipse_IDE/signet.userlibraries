@@ -5,7 +5,6 @@
 <archive path="C:/Projects/signet/lib/i2mi-common/asm.jar"/>
 <archive path="C:/Projects/signet/lib/i2mi-common/asm-attrs.jar"/>
 <archive path="C:/Projects/signet/lib/i2mi-common/cglib-2.1.3.jar"/>
-<archive path="C:/Projects/signet/lib/i2mi-common/commons-beanutils-1.7.0.jar"/>
 <archive path="C:/Projects/signet/lib/i2mi-common/commons-collections-3.2.jar"/>
 <archive path="C:/Projects/signet/lib/i2mi-common/commons-dbcp-1.2.1.jar"/>
 <archive path="C:/Projects/signet/lib/i2mi-common/commons-digester-1.7.jar"/>
@@ -13,7 +12,7 @@
 <archive path="C:/Projects/signet/lib/i2mi-common/commons-logging-1.1.jar"/>
 <archive path="C:/Projects/signet/lib/i2mi-common/commons-pool-1.3.jar"/>
 <archive path="C:/Projects/signet/lib/i2mi-common/dom4j-1.6.1.jar"/>
-<archive javadoc="file:/C:/JavaDev/backup/Hibernate/hibernate-3.2/doc/api/" path="C:/Projects/signet/lib/i2mi-common/hibernate3.jar"/>
+<archive javadoc="file:/C:/JavaDev/hibernate-3.2/doc/api/" path="C:/Projects/signet/lib/i2mi-common/hibernate3.jar"/>
 <archive path="C:/Projects/signet/lib/i2mi-common/jdom.jar"/>
 <archive path="C:/Projects/signet/lib/i2mi-common/jta.jar"/>
 <archive path="C:/Projects/signet/lib/i2mi-common/junit-4.1.jar"/>

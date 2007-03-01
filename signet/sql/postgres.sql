@@ -5,7 +5,7 @@
 --    1/10/2006 - renamed signet_privilegedSubject to signet_subject
 --    3/09/2006 - add categoryKey, functionKey, subjectKey, choiceKey, choiceSetKey
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.27 2007-02-27 03:01:49 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.28 2007-03-01 23:15:30 ddonn Exp $
 --
 
 -- Database: signet_db
@@ -13,7 +13,7 @@
 -- DROP DATABASE signet_db;
 
 -- Notes:
---   Postres strongly recommends using UTF8 encoding.
+--   Postgres strongly recommends using UTF8 encoding.
 --   Replace the Owner with an appropriate owner name for your installation.
 --   Use template0 unless you have reason to not use it.
 -- CREATE DATABASE signet_db
@@ -36,10 +36,17 @@ drop sequence choiceSetSerial;
 -- Assignment tables
 drop table signet_assignmentLimit_history;
 drop table signet_assignment_history cascade;
+drop sequence assignmentHistorySerial;
+
 drop table signet_assignmentLimit;
+
 drop table signet_assignment cascade;
 drop sequence assignmentSerial;
+
+-- Proxy tables
 drop table signet_proxy_history cascade;
+drop sequence proxyHistorySerial;
+
 drop table signet_proxy cascade;
 drop sequence proxySerial;
 
@@ -53,6 +60,7 @@ drop sequence functionSerial;
 drop table signet_permission cascade;
 drop sequence permissionSerial;
 drop table signet_limit cascade;
+drop sequence limitSerial;
 drop table signet_subsystem cascade;
 
 -- Signet Subject table
@@ -65,14 +73,6 @@ drop sequence subjectAttrSerial;
 drop table SubjectAttribute;
 drop table Subject;
 drop table SubjectType;
-
--- Miscellaneous
-drop sequence limitSerial;
-drop sequence assignmentHistorySerial;
-drop sequence proxyHistorySerial;
-
--- Signet Implementation-specific
--- DROP SEQUENCE hibernate_sequence;
 
 
 -- Subsystem tables
@@ -187,7 +187,7 @@ create table signet_permission_limit
 create sequence subjectSerial START 1;
 
 create table signet_subject (
-	subjectKey			int8				NOT NULL,
+	subjectKey			int8				DEFAULT nextval('subjectSerial'),
 	sourceID            varchar(64)         NOT NULL,
 	subjectID     		varchar(64)         NOT NULL,
 	type                varchar(32)         NOT NULL,
@@ -202,7 +202,7 @@ create table signet_subject (
 create sequence subjectAttrSerial START 1;
 
 create table signet_subjectAttribute (
-	subjectAttrKey	int8			NOT NULL, -- PK
+	subjectAttrKey	int8			DEFAULT nextval('subjectAttrSerial'), -- PK
 	subjectKey		int8			NOT NULL, -- FK
 	attr_name		varchar(31)		NOT NULL,
 	attr_seq		int8			NOT NULL,
@@ -499,5 +499,3 @@ create index SubjectAttribute_1
 )
 ;
 
--- CREATE SEQUENCE hibernate_sequence
---	START WITH 1;
