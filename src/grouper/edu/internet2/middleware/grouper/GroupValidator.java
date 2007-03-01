@@ -20,29 +20,12 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.30 2007-02-28 19:37:31 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.31 2007-03-01 19:46:33 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
 
   // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static void internal_canAddCompositeMember(Group g)
-    throws  InsufficientPrivilegeException,
-            ModelException,
-            SchemaException
-  {
-    Field f = Group.getDefaultList();
-    internal_isTypeEqual(f, FieldType.LIST);
-    internal_canWriteField(g, g.getSession().getSubject(), f);
-    if ( g.hasComposite() ) {
-      throw new ModelException(E.GROUP_ACTC);
-    }
-    if (g.getMembers().size() > 0) {
-      throw new ModelException(E.GROUP_ACTM);
-    }
-  } // protected static void internal_canAddCompositeMember(g)
 
   // @since   1.2.0
   protected static void internal_canAddMember(Group g, Subject subj, Field f)
@@ -231,7 +214,7 @@ class GroupValidator {
     if (!PrivilegeResolver.internal_canOPTOUT(g.getSession(), g, subj)) {
       throw new InsufficientPrivilegeException(E.CANNOT_OPTOUT);
     }
-  } // protected static void internal_canOptin(g, subj, f)
+  } // protected static void internal_canOptout(g, subj, f)
 
   // @since   1.2.0
   protected static void internal_canReadField(Group g, Subject subj, Field f)
