@@ -31,7 +31,7 @@ import  java.util.Set;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.55 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.56 2007-03-01 19:00:53 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -195,7 +195,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
     try {
       GrouperSession.validate(s);
       Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-      StemValidator.internal_canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
+      PrivilegeResolver.internal_canPrivDispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
+      if (!f.getType().equals(FieldType.NAMING)) {
+        throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
+      }  
       Membership.internal_addImmediateMembership(s, ns, subj, f);
     }
     catch (MemberAddException eMA) {
@@ -262,7 +265,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
   {
     GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-    StemValidator.internal_canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
+    PrivilegeResolver.internal_canPrivDispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
+    if (!f.getType().equals(FieldType.NAMING)) {
+      throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
+    }  
     ns.internal_setModified();
     try {
       HibernateStemDAO.revokePriv( ns.getDTO(), Membership.internal_deleteAllField(s, ns, f) );
@@ -302,7 +308,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
   {
     GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-    StemValidator.internal_canWriteField(ns, s.getSubject(), f, FieldType.NAMING);
+    PrivilegeResolver.internal_canPrivDispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
+    if (!f.getType().equals(FieldType.NAMING)) {
+      throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
+    }  
     try {
       MemberOf mof = Membership.internal_delImmediateMembership(s, ns, subj, f);
       ns.internal_setModified();

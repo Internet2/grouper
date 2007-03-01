@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.107 2007-02-28 19:37:31 blair Exp $
+ * @version $Id: Stem.java,v 1.108 2007-03-01 19:00:53 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -124,7 +124,13 @@ public class Stem extends GrouperAPI implements Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     GrouperSession.validate(this.getSession());
-    StemValidator.internal_canDeleteStem(this);
+    if ( !PrivilegeResolver.internal_canSTEM( this, this.getSession().getSubject() ) ) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    }
+    DeleteStemValidator v = DeleteStemValidator.validate(this);
+    if (v.isInvalid()) {
+      throw new StemDeleteException( v.getErrorMessage() );
+    }
     try {
       String name = this.getName();   // Preserve name for logging
       this._revokeAllNamingPrivs();   // Revoke privs
@@ -845,8 +851,12 @@ public class Stem extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if (!StemValidator.internal_canAddChildGroup(this, extn, dExtn)) {
-      throw new GroupAddException();
+    if ( !RootPrivilegeResolver.internal_canCREATE( this.getSession(), this, this.getSession().getSubject() ) ) {
+      throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
+    } 
+    AddGroupValidator v = AddGroupValidator.validate(this, extn, dExtn);
+    if (v.isInvalid()) {
+      throw new GroupAddException( v.getErrorMessage() );
     }
     try {
       // TODO 20070130 refactor!
@@ -906,8 +916,12 @@ public class Stem extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if ( !StemValidator.internal_canAddChildStem(this, extn, dExtn) ) {
-      throw new StemAddException();
+    if (!RootPrivilegeResolver.internal_canSTEM( this, this.getSession().getSubject() ) ) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    } 
+    AddStemValidator v = AddStemValidator.validate(this, extn, dExtn);
+    if (v.isInvalid()) {
+      throw new StemAddException( v.getErrorMessage() );
     }
     try {
       StemDTO dto = new StemDTO();
