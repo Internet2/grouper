@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.132 2007-02-28 19:55:26 blair Exp $
+ * @version $Id: Group.java,v 1.133 2007-03-01 19:46:33 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -103,6 +103,10 @@ public class Group extends GrouperAPI implements Owner {
       StopWatch sw  = new StopWatch();
       sw.start();
 
+      PrivilegeResolver.internal_canPrivDispatch( 
+        this.getSession(), this, this.getSession().getSubject(), Group.getDefaultList().getWritePriv() 
+      );
+
       Composite     c   = new Composite();
       CompositeDTO  _c  = new CompositeDTO();
       _c.setCreateTime( new Date().getTime() );
@@ -112,15 +116,18 @@ public class Group extends GrouperAPI implements Owner {
       _c.setRightFactorUuid( right.getDTO().getUuid() );
       _c.setType( type.toString() );
       _c.setUuid( GrouperUuid.internal_getUuid() );
-      CompositeValidator v = CompositeValidator.validate(_c);
-      if (v.isInvalid()) {
-        throw new MemberAddException( v.getErrorMessage() );
+      CompositeValidator vComp = CompositeValidator.validate(_c);
+      if (vComp.isInvalid()) {
+        throw new MemberAddException( vComp.getErrorMessage() );
       }
-
       c.setDTO(_c);
       c.setSession( this.getSession() );
 
-      GroupValidator.internal_canAddCompositeMember(this);
+      AddCompositeMemberValidator vAdd = AddCompositeMemberValidator.validate(this);
+      if (vAdd.isInvalid()) {
+        throw new MemberAddException( vAdd.getErrorMessage() );
+      }
+
       MemberOf mof = new MemberOf();
       mof.addComposite( this.getSession(), this, c );
       HibernateMembershipDAO.update(mof);
@@ -130,9 +137,6 @@ public class Group extends GrouperAPI implements Owner {
     }
     catch (GrouperDAOException eDAO) {
       throw new MemberAddException( eDAO.getMessage(), eDAO );
-    }
-    catch (ModelException eM) {
-      throw new MemberAddException( eM.getMessage(), eM ); // Fragile tests rely upon the message being precise
     }
     catch (SchemaException eS) {
       throw new MemberAddException(eS);
