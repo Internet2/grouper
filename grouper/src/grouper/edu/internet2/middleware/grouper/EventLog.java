@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.33 2007-02-22 18:59:09 blair Exp $
+ * @version $Id: EventLog.java,v 1.34 2007-03-01 17:27:19 blair Exp $
  */
 class EventLog {
 
@@ -39,6 +39,7 @@ class EventLog {
   private boolean     log_eff_stem_add  = false;
   private boolean     log_eff_stem_del  = false;
   private SimpleCache groupCache        = new SimpleCache();
+  private SimpleCache memberDTOCache    = new SimpleCache();
   private SimpleCache stemCache         = new SimpleCache();
   private SimpleCache subjectCache      = new SimpleCache();
 
@@ -431,14 +432,32 @@ class EventLog {
     }
     else {
       try {
-        MemberDTO _m  = HibernateMemberDAO.findByUuid( _eff.getMemberUuid() );
-        subj          = SubjectFinder.findById(
-          _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId()
-        );
-        this.subjectCache.put(uuid, subj);
+        MemberDTO _m = null;
+        if ( this.memberDTOCache.containsKey( _eff.getMemberUuid() ) ) {
+          _m = (MemberDTO) this.memberDTOCache.get( _eff.getMemberUuid() );
+        }
+        else {
+          _m  = HibernateMemberDAO.findByUuid( _eff.getMemberUuid() );
+          this.memberDTOCache.put( _eff.getMemberUuid(), _m );
+        }
+        if (_m != null) {
+          subj = SubjectFinder.findById(
+            _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId()
+          );
+          this.subjectCache.put(uuid, subj);
+        }
       }
-      catch (Exception e) {
-        ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + e.getMessage() );
+      catch (MemberNotFoundException eMNF)    {
+        ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eMNF.getMessage() );
+      }
+      catch (SourceUnavailableException eSU)  {
+        ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eSU.getMessage() );
+      }
+      catch (SubjectNotFoundException eSNF)   {
+        ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eSNF.getMessage() );
+      }
+      catch (SubjectNotUniqueException eSNU)  {
+        ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eSNU.getMessage() );
       }
     }
     if (subj != null) {
