@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.134 2007-03-05 20:04:17 blair Exp $
+ * @version $Id: Group.java,v 1.135 2007-03-05 20:23:22 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -240,7 +240,15 @@ public class Group extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    GroupValidator.internal_canAddType(this.getSession(), this, type);
+    if ( this.hasType(type ) ) {
+      throw new GroupModifyException(E.GROUP_HAS_TYPE);
+    }
+    if ( GroupType.internal_isSystemType(type) ) {
+      throw new SchemaException("cannot edit system group types");
+    }
+    if ( !PrivilegeResolver.internal_canADMIN( this.getSession(), this, this.getSession().getSubject() ) ) {
+      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
+    }
     try {
       Set types = this.getDTO().getTypes();
       types.add( type.getDTO() );
@@ -402,7 +410,11 @@ public class Group extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    GroupValidator.internal_canDeleteGroup(this);
+    GrouperSession.validate( this.getSession() );
+    if ( !PrivilegeResolver.internal_canADMIN( this.getSession(), this, this.getSession().getSubject() ) )
+    {
+      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
+    }
     try {
       // Revoke all access privs
       this._revokeAllAccessPrivs();
@@ -652,7 +664,15 @@ public class Group extends GrouperAPI implements Owner {
     sw.start();
     String msg = E.GROUP_TYPEDEL + type + ": "; 
     try {
-      GroupValidator.internal_canDeleteType( this.getSession(), this, type );
+      if ( !this.hasType(type) ) {
+        throw new ModelException("does not have type");
+      }
+      if ( GroupType.internal_isSystemType(type) ) {
+        throw new SchemaException("cannot edit system group types");
+      }
+      if ( !PrivilegeResolver.internal_canADMIN( this.getSession(), this, this.getSession().getSubject() ) ) {
+        throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
+      }
 
       Set types = this.getDTO().getTypes();
       types.remove( type.getDTO() );
@@ -735,7 +755,10 @@ public class Group extends GrouperAPI implements Owner {
       if ( !FieldType.ATTRIBUTE.equals( f.getType() ) ) {
         throw new AttributeNotFoundException( E.FIELD_INVALID_TYPE + f.getType() );
       }
-      GroupValidator.internal_canGetAttribute(this, f);
+      GrouperValidator v = GetGroupAttributeValidator.validate(this, f);
+      if (v.isInvalid()) {
+        throw new AttributeNotFoundException( v.getErrorMessage() );
+      }
       String  val   = GrouperConfig.EMPTY_STRING;
       Map     attrs = this.getDTO().getAttributes();
       if (attrs.containsKey(attr)) {

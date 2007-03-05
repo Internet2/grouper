@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.32 2007-03-05 20:04:17 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.33 2007-03-05 20:23:22 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -45,18 +45,6 @@ class GroupValidator {
       throw new MemberAddException(E.GROUP_AMTC);
     }
   } // protected static void internal_canAddMember(g, subj, f)
-
-  // @since   1.2.0
-  protected static void internal_canAddType(GrouperSession s, Group g, GroupType type) 
-    throws  GroupModifyException,
-            InsufficientPrivilegeException,
-            SchemaException
-  {
-    if (g.hasType(type)) {
-      throw new GroupModifyException(E.GROUP_HAS_TYPE);
-    }
-    GroupValidator.internal_canModGroupType(s, g, type);
-  } // protected static void internal_canAddType(s, g, type)
 
   // @since   1.2.0
   protected static void internal_canDelAttribute(Group g, Field f) 
@@ -87,20 +75,6 @@ class GroupValidator {
   } // protected static void internal_canDelCompositeMember(g)
 
   // @since   1.2.0
-  protected static void internal_canDeleteGroup(Group g)
-    throws  GrouperRuntimeException,
-            InsufficientPrivilegeException
-  {
-    GrouperSession.validate( g.getSession() );
-    if (
-      !PrivilegeResolver.internal_canADMIN( g.getSession(), g, g.getSession().getSubject() )
-    )
-    {
-      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
-    }
-  } // protected static void internal_canDeleteGroup(g)
-
-  // @since   1.2.0
   protected static void internal_canDelMember(Group g, Subject subj, Field f)
     throws  InsufficientPrivilegeException,
             MemberDeleteException,
@@ -118,52 +92,6 @@ class GroupValidator {
       throw new MemberDeleteException(E.GROUP_DMFC);
     }
   } // protected static void internal_canDelMember(g, subj, f)
-
-  // @since   1.2.0
-  protected static void internal_canDeleteType(GrouperSession s, Group g, GroupType type) 
-    throws  InsufficientPrivilegeException,
-            ModelException,
-            SchemaException
-  {
-    if (!g.hasType(type)) {
-      throw new ModelException("does not have type");
-    }
-    internal_canModGroupType(s, g, type);
-  } // protected static void internal_canDeleteGroupType(s, g, type)
-
-  // @since   1.2.0
-  protected static void internal_canGetAttribute(Group g, Field f)
-    throws  AttributeNotFoundException
-  {
-    GrouperValidator v = NotNullValidator.validate(f);
-    if ( !v.getIsValid() ) {
-      throw new AttributeNotFoundException(E.INVALID_ATTR_NAME);
-    }
-    try {
-      if (!g.hasType( f.getGroupType() ) ) {
-        throw new SchemaException(E.GROUP_DOES_NOT_HAVE_TYPE + f.getGroupType().toString());
-      }
-      if ( !g.canReadField( g.getSession().getSubject(), f ) ) {
-        throw new AttributeNotFoundException();
-      }
-    }
-    catch (SchemaException eS) {
-      throw new AttributeNotFoundException( eS.getMessage() );
-    }
-  } // protected static void internal_canGetAttribute(g, attr)
-
-  // @since   1.2.0
-  protected static void internal_canModGroupType(GrouperSession s, Group g, GroupType type) 
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    if ( GroupType.internal_isSystemType(type) ) {
-      throw new SchemaException("cannot edit system group types");
-    }
-    if (!PrivilegeResolver.internal_canADMIN(s, g, s.getSubject())) {
-      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
-    }
-  } // protected static void internal_canModGroupType(s, g, type)
 
   // @since   1.2.0
   protected static void internal_canOptin(Group g, Subject subj, Field f) 
