@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU1.java,v 1.8 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestCompositeU1.java,v 1.9 2007-03-05 20:04:17 blair Exp $
  * @since   1.0
  */
 public class TestCompositeU1 extends TestCase {
@@ -58,7 +58,6 @@ public class TestCompositeU1 extends TestCase {
     }
     catch (InsufficientPrivilegeException eIP) {
       Assert.assertTrue("OK: cannot del union without privileges", true);
-      T.string("error message", E.CANNOT_UPDATE, eIP.getMessage());
     }
     catch (Exception e) {
       T.e(e);

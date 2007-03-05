@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup6.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGroup6.java,v 1.4 2007-03-05 20:04:17 blair Exp $
  */
 public class TestGroup6 extends TestCase {
 
@@ -53,7 +53,7 @@ public class TestGroup6 extends TestCase {
         Assert.fail("IllegalArgumentException not thrown");
       }
       catch (IllegalArgumentException eIA) {
-        T.string("IllegalArgumentException", E.FIELD_NULL, eIA.getMessage());
+        T.string( "IllegalArgumentException", "field: null value", eIA.getMessage() );
       }
 
       r.rs.stop();

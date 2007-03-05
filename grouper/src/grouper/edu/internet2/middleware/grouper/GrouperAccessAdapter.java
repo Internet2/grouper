@@ -31,7 +31,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.53 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.54 2007-03-05 20:04:17 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -198,8 +198,12 @@ public class GrouperAccessAdapter implements AccessAdapter {
     try {
       GrouperSession.validate(s);
       Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-      GroupValidator.internal_isTypeEqual(f, FieldType.ACCESS);
-      GroupValidator.internal_canWriteField(g, s.getSubject(), f);
+      if ( !FieldType.ACCESS.equals( f.getType() ) ) {
+        throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+      }
+      if ( !g.internal_canWriteField( s.getSubject(), f, FieldType.ACCESS ) ) {
+        throw new InsufficientPrivilegeException();
+      }
       Membership.internal_addImmediateMembership(s, g, subj, f);
     }
     catch (MemberAddException eMA) {
@@ -266,8 +270,12 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-    GroupValidator.internal_isTypeEqual(f, FieldType.ACCESS);
-    GroupValidator.internal_canWriteField(g, s.getSubject(), f);
+    if ( !FieldType.ACCESS.equals( f.getType() ) ) {
+      throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+    }
+    if ( !g.internal_canWriteField( s.getSubject(), f, FieldType.ACCESS ) ) {
+      throw new InsufficientPrivilegeException();
+    }
     g.internal_setModified();
     try {
       HibernateGroupDAO.revokePriv( g.getDTO(), Membership.internal_deleteAllField(s, g, f) );
@@ -307,8 +315,12 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-    GroupValidator.internal_isTypeEqual(f, FieldType.ACCESS);
-    GroupValidator.internal_canWriteField( g, s.getSubject(), f );
+    if ( !FieldType.ACCESS.equals( f.getType() ) ) {
+      throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+    }
+    if ( !g.internal_canWriteField( s.getSubject(), f, FieldType.ACCESS ) ) {
+      throw new InsufficientPrivilegeException();
+    }
     try {
       MemberOf mof = Membership.internal_delImmediateMembership(s, g, subj, f);
       g.internal_setModified();
