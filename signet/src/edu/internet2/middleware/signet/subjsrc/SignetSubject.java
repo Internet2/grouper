@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.9 2007-02-27 03:01:49 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.10 2007-03-05 18:10:51 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -715,7 +715,7 @@ public class SignetSubject implements Subject, Comparable
 		if (null == attr)
 			addAttribute(new SignetSubjectAttr(descAttrName, subjectDescription));
 		else
-			attr.setAttr_value(subjectDescription);
+			attr.setAttrValue(subjectDescription);
 
 	}
 
@@ -751,7 +751,7 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public SignetSubjectAttr getAttributeForName(String mappedName)
 	{
-		return (getAttributeForName(mappedName, 0L));
+		return (getAttributeForName(mappedName, 0));
 	}
 
 	/**
@@ -762,7 +762,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @param sequence The sequece (for multi-valued attributes)
 	 * @return a SignetSubjectAttr that has a matching mappedName and sequence, or null
 	 */
-	public SignetSubjectAttr getAttributeForName(String mappedName, long sequence)
+	public SignetSubjectAttr getAttributeForName(String mappedName, int sequence)
 	{
 		SignetSubjectAttr retval = null;
 
@@ -798,7 +798,7 @@ public class SignetSubject implements Subject, Comparable
 			{
 				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
 				if (attr.getMappedName().equals(mappedName))
-					tmpList.add(new Long(attr.getSequence()).intValue(), attr);
+					tmpList.add(attr.getSequence(), attr);
 			}
 			for (int i = 0; i < tmpList.size(); i++)
 				retval.add(tmpList.get(i));
@@ -817,7 +817,7 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public String getAttributeValue(String mappedName)
 	{
-		return (getAttributeValue(mappedName, 0L));
+		return (getAttributeValue(mappedName, 0));
 	}
 
 	/**
@@ -828,7 +828,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @return The SubjectAPI Subject's attribute value or null if no attribute is found.
 	 * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String)
 	 */
-	public String getAttributeValue(String mappedName, long sequence)
+	public String getAttributeValue(String mappedName, int sequence)
 	{
 		String retval = null;
 

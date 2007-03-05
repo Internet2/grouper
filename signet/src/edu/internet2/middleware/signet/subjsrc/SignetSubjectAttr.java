@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.4 2007-02-24 02:11:31 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.5 2007-03-05 18:10:51 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -49,23 +49,23 @@ public class SignetSubjectAttr
 	protected String	mappedName;
 
 	/** The attribute's value */
-	protected String	attr_value;
+	protected String	attrValue;
 
 	/** The attribute's type (e.g. string, integer, float, etc.) */
-	protected String	attr_type;
+	protected String	attrType;
 
 	/** date/time stamp of the most recent update of the persisted value */
 	protected Date		modifyDate;
 
 	/** the sequence number for multi-valued attributes */
-	protected long sequence;
+	protected int sequence;
 
 	/** default constructor */
 	public SignetSubjectAttr()
 	{
 		mappedName = null;
-		attr_value = null;
-		attr_type = ATTR_TYPE_STRING;
+		attrValue = null;
+		attrType = ATTR_TYPE_STRING;
 		refreshModifyDate();
 		subjectAttr_PK = null;
 		parent = null;
@@ -81,8 +81,8 @@ public class SignetSubjectAttr
 		this();
 		if (null != origAttr)
 		{
-			setAttr_value(origAttr.getAttr_value());
-			setAttr_type(origAttr.getAttr_type());
+			setAttrValue(origAttr.getAttrValue());
+			setAttrType(origAttr.getAttrType());
 			setMappedName(origAttr.getMappedName());
 			setSequence(origAttr.getSequence());
 			setParent(origAttr.getParent());
@@ -103,29 +103,29 @@ public class SignetSubjectAttr
 	public SignetSubjectAttr(String mappedName, String value)
 	{
 		this(mappedName);
-		setAttr_value(value);
-		setAttr_type(ATTR_TYPE_STRING);
+		setAttrValue(value);
+		setAttrType(ATTR_TYPE_STRING);
 	}
 
 	public SignetSubjectAttr(String mappedName, int value)
 	{
 		this(mappedName);
-		setAttr_value(Integer.toString(value));
-		setAttr_type(ATTR_TYPE_INT);
+		setAttrValue(Integer.toString(value));
+		setAttrType(ATTR_TYPE_INT);
 	}
 
 	public SignetSubjectAttr(String mappedName, float value)
 	{
 		this(mappedName);
-		setAttr_value(Float.toString(value));
-		setAttr_type(ATTR_TYPE_FLOAT);
+		setAttrValue(Float.toString(value));
+		setAttrType(ATTR_TYPE_FLOAT);
 	}
 
 	public SignetSubjectAttr(String mappedName, Date value)
 	{
 		this(mappedName);
-		setAttr_value(DateFormat.getInstance().format(value));
-		setAttr_type(ATTR_TYPE_DATE);
+		setAttrValue(DateFormat.getInstance().format(value));
+		setAttrType(ATTR_TYPE_DATE);
 	}
 
 
@@ -181,13 +181,13 @@ public class SignetSubjectAttr
 
 
 	/** Support for Hibernate, wrapper for getValue() */
-	protected String getAttr_value()
+	protected String getAttrValue()
 	{
 		return (getValue());
 	}
 
 	/** Support for Hibernate, wrapper for setValue(String) */
-	protected void setAttr_value(String newValue)
+	protected void setAttrValue(String newValue)
 	{
 		setValue(newValue);
 	}
@@ -195,13 +195,13 @@ public class SignetSubjectAttr
 
 	public String getValue()
 	{
-		return (attr_value);
+		return (attrValue);
 	}
 
 	public void setValue(String newValue)
 	{
-		attr_value = newValue;
-		setAttr_type(ATTR_TYPE_STRING);
+		attrValue = newValue;
+		setAttrType(ATTR_TYPE_STRING);
 	}
 
 	public void setValue(int newValue)
@@ -211,8 +211,8 @@ public class SignetSubjectAttr
 
 	public void setValue(Integer newValue)
 	{
-		attr_value = newValue.toString();
-		setAttr_type(ATTR_TYPE_INT);
+		attrValue = newValue.toString();
+		setAttrType(ATTR_TYPE_INT);
 	}
 
 	public void setValue(float newValue)
@@ -222,43 +222,43 @@ public class SignetSubjectAttr
 
 	public void setValue(Float newValue)
 	{
-		attr_value = newValue.toString();
-		setAttr_type(ATTR_TYPE_FLOAT);
+		attrValue = newValue.toString();
+		setAttrType(ATTR_TYPE_FLOAT);
 	}
 
 	public void setValue(Date newValue)
 	{
-		attr_value = DateFormat.getInstance().format(newValue);
-		setAttr_type(ATTR_TYPE_DATE);
+		attrValue = DateFormat.getInstance().format(newValue);
+		setAttrType(ATTR_TYPE_DATE);
 	}
 
 
 	/** @return the data type of this attribute */
 	public String getType()
 	{
-		return (attr_type);
+		return (attrType);
 	}
 
 	/** for Hibernate only */
-	protected String getAttr_type()
+	protected String getAttrType()
 	{
-		return (attr_type);
+		return (attrType);
 	}
 
 	/** for Hibernate only */
-	private void setAttr_type(String _attr_type)
+	private void setAttrType(String _attr_type)
 	{
-		attr_type = _attr_type;
+		attrType = _attr_type;
 	}
 
 
 	/** @return the sequence number of this attribute (0 for single-valued attribute) */
-	public long getSequence()
+	public int getSequence()
 	{
 		return (sequence);
 	}
 
-	protected void setSequence(long sequence)
+	protected void setSequence(int sequence)
 	{
 		this.sequence = sequence;
 	}
@@ -312,8 +312,8 @@ public class SignetSubjectAttr
 		StringBuffer buf = new StringBuffer();
 
 		buf.append("name=" + mappedName);
-		buf.append(", value=" + attr_value);
-		buf.append(", type=" + attr_type);
+		buf.append(", value=" + attrValue);
+		buf.append(", type=" + attrType);
 		buf.append(", seq=" + sequence);
 		buf.append(", modifyDate=" + DateFormat.getDateInstance().format(modifyDate));
 		buf.append(", DBkey=" + ((null != subjectAttr_PK) ? subjectAttr_PK.toString() : "(null)"));
@@ -341,7 +341,7 @@ public class SignetSubjectAttr
 	/**
 	 * Compare two SignetSubjectAttr objects for equality
 	 * @param attr The SignetSubjectAttr to compare
-	 * @return true if mappedName, attr_value, attr_type, and sequence are equal, otherwise false
+	 * @return true if mappedName, attrValue, attrType, and sequence are equal, otherwise false
 	 */
 	public boolean equals(SignetSubjectAttr attr)
 	{
@@ -351,8 +351,8 @@ public class SignetSubjectAttr
 		boolean retval = false; // assume failure
 
 		if (retval = mappedName.equals(attr.getMappedName())) // yes, I do mean "="
-			if (retval = attr_value.equals(attr.getAttr_value()))  // yes, I do mean "="
-				if (retval = attr_type.equals(attr.getAttr_type())) // yes, I do mean "="
+			if (retval = attrValue.equals(attr.getAttrValue()))  // yes, I do mean "="
+				if (retval = attrType.equals(attr.getAttrType())) // yes, I do mean "="
 //					if (retval = modifyDate.equals(attr.getModifyDate())) // yes, I do mean "="
 						retval = (sequence == attr.getSequence()); // yes, I do mean "="
 //						if (retval = (sequence == attr.getSequence())) // yes, I do mean "="
@@ -383,10 +383,10 @@ public class SignetSubjectAttr
 	{
 		boolean retval;
 
-		if (null != attr_value)
+		if (null != attrValue)
 		{
 			if (null != otherValue)
-				retval = attr_value.equals(otherValue);
+				retval = attrValue.equals(otherValue);
 			else
 				retval = false;
 		}
@@ -425,8 +425,8 @@ public class SignetSubjectAttr
 //		StringBuffer buf = new StringBuffer();
 //
 //		buf.append(mappedName);
-//		buf.append(attr_value);
-//		buf.append(attr_type);
+//		buf.append(attrValue);
+//		buf.append(attrType);
 //		buf.append(sequence);
 //System.out.println("SignetSubjectAttr.hashCode: Attr=" + this.mappedName + " ownerId=" + parent.getId());
 //		DateFormat df = DateFormat.getInstance();

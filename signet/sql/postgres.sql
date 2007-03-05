@@ -5,7 +5,7 @@
 --    1/10/2006 - renamed signet_privilegedSubject to signet_subject
 --    3/09/2006 - add categoryKey, functionKey, subjectKey, choiceKey, choiceSetKey
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.28 2007-03-01 23:15:30 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.29 2007-03-05 18:10:51 ddonn Exp $
 --
 
 -- Database: signet_db
@@ -67,7 +67,7 @@ drop table signet_subsystem cascade;
 drop table signet_subjectAttribute;
 drop table signet_subject;
 drop sequence subjectSerial;
-drop sequence subjectAttrSerial;
+drop sequence subjectAttributeSerial;
 
 -- Local Source Subject tables (optional)
 drop table SubjectAttribute;
@@ -199,20 +199,20 @@ create table signet_subject (
 )
 ;
 
-create sequence subjectAttrSerial START 1;
+create sequence subjectAttributeSerial START 1;
 
 create table signet_subjectAttribute (
-	subjectAttrKey	int8			DEFAULT nextval('subjectAttrSerial'), -- PK
-	subjectKey		int8			NOT NULL, -- FK
-	attr_name		varchar(31)		NOT NULL,
-	attr_seq		int8			NOT NULL,
-	attr_value		varchar(255)	NOT NULL,
-	attr_type		varchar(31)		DEFAULT 'string',
-	modifyDatetime	timestamp		NOT NULL,
-	primary key (subjectAttrKey),
+	subjectAttributeKey	int8			DEFAULT nextval('subjectAttributeSerial'),
+	subjectKey			int8			NOT NULL,
+	attributeName		varchar(31)		NOT NULL,
+	attributeSequence	int				NOT NULL,
+	attributeValue		varchar(255)	NOT NULL,
+	attributeType		varchar(31)		DEFAULT 'string',
+	modifyDatetime		timestamp		NOT NULL,
+	primary key (subjectAttributeKey),
 	foreign key (subjectKey)
 		references signet_subject(subjectKey) ON DELETE CASCADE,
-	unique (subjectKey, attr_name, attr_seq)
+	unique (subjectKey, attributeName, attributeSequence)
 )
 ;
 

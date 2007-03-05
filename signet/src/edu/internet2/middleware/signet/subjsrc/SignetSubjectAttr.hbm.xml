@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml,v 1.5 2007-02-27 03:01:49 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml,v 1.6 2007-03-05 18:10:51 ddonn Exp $ -->
 
 <hibernate-mapping
 		default-lazy="false" >
@@ -11,18 +11,18 @@
 			table="signet_subjectattribute" >
 		<id name="subjectAttr_PK"
 				type="long"
-				column="subjectAttrKey"
+				column="subjectAttributeKey"
 				unsaved-value="null" >
 			<generator class="sequence">
-				<param name="sequence">subjectAttrSerial</param>
+				<param name="sequence">subjectAttributeSerial</param>
 			</generator>
 		</id>
 		<timestamp name="modifyDate" column="modifyDatetime" />
 
-		<property name="mappedName"	column="attr_name"	type="string"	not-null="true" />
-		<property name="attr_value" column="attr_value"	type="string"	not-null="true" />
-		<property name="attr_type"	column="attr_type"	type="string"	not-null="true" />
-		<property name="sequence"	column="attr_seq"	type="long"		not-null="true" />
+		<property name="mappedName"	column="attributeName"		type="string"	not-null="true" />
+		<property name="attrValue" column="attributeValue"		type="string"	not-null="true" />
+		<property name="attrType"	column="attributeType"		type="string"	not-null="true" />
+		<property name="sequence"	column="attributeSequence"	type="integer"	not-null="true" />
 		<many-to-one name="parent"
 				class="edu.internet2.middleware.signet.subjsrc.SignetSubject"
 				column="subjectKey"

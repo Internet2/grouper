@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.7 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.8 2007-03-05 18:10:51 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -68,7 +68,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  * @author $Author: ddonn $
  */
 public class HibernateDB
@@ -128,7 +128,7 @@ public class HibernateDB
 				SignetSubject.class.getName() + " subj, " +		//$NON-NLS-1$
 				SignetSubjectAttr.class.getName() + " attr " +	//$NON-NLS-1$
 			" where " + 										//$NON-NLS-1$
-				" attr.attr_value = :subjIdentifier " +			//$NON-NLS-1$
+				" attr.attrValue = :subjIdentifier " +			//$NON-NLS-1$
 				" and " + 										//$NON-NLS-1$
 				" attr.mappedName = 'subjectAuthId' " +			//$NON-NLS-1$
 				" and " + 										//$NON-NLS-1$
