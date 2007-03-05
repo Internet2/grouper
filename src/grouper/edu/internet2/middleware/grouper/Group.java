@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.133 2007-03-01 19:46:33 blair Exp $
+ * @version $Id: Group.java,v 1.134 2007-03-05 20:04:17 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -201,6 +201,9 @@ public class Group extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
+    if ( !FieldType.LIST.equals( f.getType() ) ) {
+      throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+    }
     GroupValidator.internal_canAddMember(this, subj, f);
     Membership.internal_addImmediateMembership( this.getSession(), this, subj, f );
     EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
@@ -298,26 +301,35 @@ public class Group extends GrouperAPI implements Owner {
    * @param   f     Check privileges on this {@link Field}.
    * @return  True if {@link Subject} can read {@link Field}, false otherwise.
    * @throws  IllegalArgumentException if null {@link Subject} or {@link Field}
-   * @throws  SchemaException if invalid {@link Field}
-   * @throws  SubjectNotFoundException if invalid {@link Subject}
-   * @since   1.0
+   * @throws  SchemaException if invalid {@link Field} or {@link Subject}.
+   * @since   1.2.0
    */
   public boolean canReadField(Subject subj, Field f) 
     throws  IllegalArgumentException,
             SchemaException
   {
-    NotNullValidator v = NotNullValidator.validate(subj);
+    GrouperValidator v = NotNullValidator.validate(subj);
     if (v.isInvalid()) {
-      throw new IllegalArgumentException(E.SUBJ_NULL);
+      throw new IllegalArgumentException( "subject: " + v.getErrorMessage() );
     }
-    GroupValidator.internal_isTypeValid(f);
+    v = NotNullValidator.validate(f);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException( "field: " + v.getErrorMessage() );
+    }
+    v = FieldTypeValidator.validate(f);
+    if (v.isInvalid()) {
+      throw new SchemaException( v.getErrorMessage() );
+    }
+    if ( !this.hasType( f.getGroupType() ) ) {
+      throw new SchemaException(E.INVALID_GROUP_TYPE + f.getGroupType().toString());
+    }
     try {
-      GroupValidator.internal_canReadField(this, subj, f);
+      PrivilegeResolver.internal_canPrivDispatch( this.getSession(), this, subj, f.getReadPriv() );
+      return true;
     }
     catch (InsufficientPrivilegeException eIP) {
       return false;
     }
-    return true;
   } // public boolean canReadField(subj, f)
 
   /**
@@ -365,18 +377,7 @@ public class Group extends GrouperAPI implements Owner {
     throws  IllegalArgumentException,
             SchemaException
   {
-    NotNullValidator v = NotNullValidator.validate(subj);
-    if (v.isInvalid()) {
-      throw new IllegalArgumentException(E.SUBJ_NULL);
-    } 
-    GroupValidator.internal_isTypeValid(f);
-    try {
-      GroupValidator.internal_canWriteField(this, subj, f);
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      return false;
-    }
-    return true;
+    return this.internal_canWriteField(subj, f, FieldType.LIST);
   } // public boolean canWriteField(subj, f)
 
   /**
@@ -603,6 +604,9 @@ public class Group extends GrouperAPI implements Owner {
   {
     StopWatch sw  = new StopWatch();
     sw.start();
+    if ( !FieldType.LIST.equals( f.getType() ) ) {
+      throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+    }
     GroupValidator.internal_canDelMember(this, subj, f);
     MemberOf  mof = Membership.internal_delImmediateMembership( this.getSession(), this, subj, f );
     try {
@@ -726,13 +730,22 @@ public class Group extends GrouperAPI implements Owner {
   public String getAttribute(String attr) 
     throws  AttributeNotFoundException
   {
-    GroupValidator.internal_canGetAttribute(this, attr);
-    String  val   = GrouperConfig.EMPTY_STRING;
-    Map     attrs = this.getDTO().getAttributes();
-    if (attrs.containsKey(attr)) {
-      return (String) attrs.get(attr);
+    try {
+      Field f = FieldFinder.find(attr);
+      if ( !FieldType.ATTRIBUTE.equals( f.getType() ) ) {
+        throw new AttributeNotFoundException( E.FIELD_INVALID_TYPE + f.getType() );
+      }
+      GroupValidator.internal_canGetAttribute(this, f);
+      String  val   = GrouperConfig.EMPTY_STRING;
+      Map     attrs = this.getDTO().getAttributes();
+      if (attrs.containsKey(attr)) {
+        return (String) attrs.get(attr);
+      }
+      return val;
     }
-    return val;
+    catch (SchemaException eS) {
+      throw new AttributeNotFoundException( eS.getMessage() );
+    }
   } // public String getAttribute(attr)
 
   /**
@@ -1891,6 +1904,10 @@ public class Group extends GrouperAPI implements Owner {
     try {
       StopWatch sw = new StopWatch();
       sw.start();
+      Field f = FieldFinder.find(attr);
+      if ( !FieldType.ATTRIBUTE.equals( f.getType() ) ) {
+        throw new AttributeNotFoundException( E.FIELD_INVALID_TYPE + f.getType() );
+      }
       GroupValidator.internal_canSetAttribute(this, attr, value);
       Map attrs = this.getDTO().getAttributes();
       attrs.put(attr, value);
@@ -2101,6 +2118,36 @@ public class Group extends GrouperAPI implements Owner {
   } // protected GroupDTO getDTO()
  
   // TODO 20070125 revisit these methods once initial daoification is complete
+
+  // @since   1.2.0
+  // TODO 20070305 make into a validator?
+  protected boolean internal_canWriteField(Subject subj, Field f, FieldType type)
+    throws  IllegalArgumentException,
+            SchemaException
+  {
+    GrouperValidator v = NotNullValidator.validate(subj);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException( "subject: " + v.getErrorMessage() );
+    } 
+    v = NotNullValidator.validate(f);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException( "field: " + v.getErrorMessage() );
+    }
+    v = FieldTypeValidator.validate(f);
+    if (v.isInvalid()) {
+      throw new SchemaException( v.getErrorMessage() );
+    }
+    if ( !this.hasType( f.getGroupType() ) ) {
+      throw new SchemaException( E.INVALID_GROUP_TYPE + f.getGroupType().toString() );
+    }
+    try {
+      PrivilegeResolver.internal_canPrivDispatch( this.getSession(), this, subj, f.getWritePriv() );
+      return true;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      return false;
+    }
+  } // protected boolean internal_canWriteField(subj, f, type)
 
   // @since   1.2.0 
   // TODO 20070206 i dislike this method
