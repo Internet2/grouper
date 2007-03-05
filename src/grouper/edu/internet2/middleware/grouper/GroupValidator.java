@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.33 2007-03-05 20:23:22 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.34 2007-03-05 20:28:33 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -97,9 +97,11 @@ class GroupValidator {
   protected static void internal_canOptin(Group g, Subject subj, Field f) 
     throws  InsufficientPrivilegeException
   {
-    if (!
-        (SubjectHelper.internal_eq(g.getSession().getSubject(), subj)) 
-      && f.equals(Group.getDefaultList()) 
+    if ( 
+      !
+      (
+        SubjectHelper.internal_eq(g.getSession().getSubject(), subj) && f.equals(Group.getDefaultList()) 
+      )
     )
     {
       throw new InsufficientPrivilegeException(E.GROUP_COI);
@@ -113,9 +115,11 @@ class GroupValidator {
   protected static void internal_canOptout(Group g, Subject subj, Field f) 
     throws  InsufficientPrivilegeException
   {
-    if (!
-        (SubjectHelper.internal_eq(g.getSession().getSubject(), subj)) 
-      && f.equals(Group.getDefaultList()) 
+    if (
+      !
+      (
+        SubjectHelper.internal_eq(g.getSession().getSubject(), subj) && f.equals(Group.getDefaultList()) 
+      )
     )
     {
       throw new InsufficientPrivilegeException(E.GROUP_COO);
