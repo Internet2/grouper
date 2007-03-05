@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.145 2007-01-09 17:30:23 blair Exp $ -->
+<!-- $Id: build.xml,v 1.146 2007-03-05 14:42:37 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -40,13 +40,15 @@
   <property name="memory.max"             value="192m"/>
 
   <property name="hsqldb.jar"             location="${lib}/hsqldb-1.7.2.11.jar" />
+
+  <property name="clover.jar"             location="${user.home}/.ant/lib/clover.jar"/>
   <!-- Global Properties -->
 
   <taskdef  name="schemaexport"
             classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
             classpathref="project.classpath"
   />
-  <taskdef  resource="clovertasks"/>
+  <taskdef  resource="cloverlib.xml" classpath="${clover.jar}"/>
 
   <!-- bench -->
   <target name="bench" 
