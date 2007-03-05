@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GroupValidator.java,v 1.34 2007-03-05 20:28:33 blair Exp $
+ * @version $Id: GroupValidator.java,v 1.35 2007-03-05 20:37:01 blair Exp $
  * @since   1.0
  */
 class GroupValidator {
@@ -34,10 +34,8 @@ class GroupValidator {
             SchemaException
   {
     if ( !g.canWriteField(f) ) { 
-      try {
-        internal_canOptin(g, subj, f);
-      }
-      catch (InsufficientPrivilegeException eIP1) {
+      GrouperValidator v = CanOptinValidator.validate(g, subj, f);
+      if (v.isInvalid()) {
         throw new InsufficientPrivilegeException();
       }
     }
@@ -81,10 +79,8 @@ class GroupValidator {
             SchemaException
   {
     if ( !g.canWriteField(f) ) {
-      try {
-        internal_canOptout(g, subj, f);
-      }
-      catch (InsufficientPrivilegeException eIP) {
+      GrouperValidator v = CanOptoutValidator.validate(g, subj, f);
+      if (v.isInvalid()) {
         throw new InsufficientPrivilegeException();
       }
     }
@@ -92,42 +88,6 @@ class GroupValidator {
       throw new MemberDeleteException(E.GROUP_DMFC);
     }
   } // protected static void internal_canDelMember(g, subj, f)
-
-  // @since   1.2.0
-  protected static void internal_canOptin(Group g, Subject subj, Field f) 
-    throws  InsufficientPrivilegeException
-  {
-    if ( 
-      !
-      (
-        SubjectHelper.internal_eq(g.getSession().getSubject(), subj) && f.equals(Group.getDefaultList()) 
-      )
-    )
-    {
-      throw new InsufficientPrivilegeException(E.GROUP_COI);
-    } 
-    if (!PrivilegeResolver.internal_canOPTIN(g.getSession(), g, subj)) {
-      throw new InsufficientPrivilegeException(E.CANNOT_OPTIN);
-    }
-  } // protected static void internal_canOptin(g, subj, f)
-
-  // @since   1.2.0
-  protected static void internal_canOptout(Group g, Subject subj, Field f) 
-    throws  InsufficientPrivilegeException
-  {
-    if (
-      !
-      (
-        SubjectHelper.internal_eq(g.getSession().getSubject(), subj) && f.equals(Group.getDefaultList()) 
-      )
-    )
-    {
-      throw new InsufficientPrivilegeException(E.GROUP_COO);
-    } 
-    if (!PrivilegeResolver.internal_canOPTOUT(g.getSession(), g, subj)) {
-      throw new InsufficientPrivilegeException(E.CANNOT_OPTOUT);
-    }
-  } // protected static void internal_canOptout(g, subj, f)
 
   // @return  Attribute as {@link Field}
   // @since   1.2.0
