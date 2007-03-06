@@ -20,16 +20,16 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteUnitTests_API.java,v 1.1 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: Suite_Unit.java,v 1.1 2007-03-06 18:07:55 blair Exp $
  * @since   1.2.0
  */
-public class SuiteUnitTests_API extends GrouperTest {
+public class Suite_Unit extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest( SuiteUnitTests_API_Stem.suite() ); 
+    suite.addTest( Suite_Unit_API.suite() ); // API-level unit tests
     return suite;
   } // static public Test suite()
 
-} // public class SuiteUnitTests_API extends GrouperTest
+} // public class Suite_Unit extends GrouperTest
 
