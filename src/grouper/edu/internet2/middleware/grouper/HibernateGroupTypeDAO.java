@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.9 2007-02-27 18:48:07 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.10 2007-03-06 20:19:00 blair Exp $
  */
 class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
 
@@ -76,17 +76,6 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
   public boolean onDelete(Session hs) 
     throws  CallbackException
   {
-    try {
-      Query qry = hs.createQuery("from HibernateFieldDAO as f where f.groupTypeUuid = :type");
-      qry.setString( "type", this.getTypeUuid() );
-      Iterator it = qry.iterate();
-      while (it.hasNext()) {
-        hs.delete( (HibernateFieldDAO) it.next() );
-      }
-    }
-    catch (HibernateException eH) {
-      throw new CallbackException( eH.getMessage(), eH );
-    }
     return Lifecycle.NO_VETO;
   } // public boolean onDelete(hs)
 
@@ -181,14 +170,21 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
   } // protected static String create(FieldDTO _f)
 
   // @since   1.2.0
-  protected static void delete(GroupTypeDTO type)
+  protected static void delete(GroupTypeDTO _type, Set fields)
     throws  GrouperDAOException 
   {
     try {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        hs.delete( Rosetta.getDAO(type) ); // associated fields deleted in this `onDelete()`
+        // delete fields
+        Iterator it = fields.iterator();
+        while (it.hasNext()) {
+          hs.delete( Rosetta.getDAO( it.next() ) );
+        }
+        // delete grouptype
+        hs.delete( Rosetta.getDAO(_type) );
+
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -274,11 +270,20 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
   protected static void reset(Session hs) 
     throws  HibernateException
   {
-    hs.delete(
-      "from HibernateGroupTypeDAO as t where ("
-      + " t.name != 'base' and t.name != 'naming' "
-      + ")"
-    );
+    GroupTypeDTO  _type;
+    Iterator      it    = HibernateGroupTypeDAO.findAll().iterator();
+    Iterator      itF;
+    while (it.hasNext()) {
+      _type = (GroupTypeDTO) it.next();
+      if ( ! ( _type.getName().equals("base") || _type.getName().equals("naming") ) ) {
+        itF = _type.getFields().iterator(); 
+        while (itF.hasNext()) {
+          FieldDTO f = (FieldDTO) itF.next();
+          hs.delete( Rosetta.getDAO(f) );
+        }
+        hs.delete( Rosetta.getDAO(_type) );
+      }
+    }
   } // protected static void reset(hs)
 
 

@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.1 2007-03-06 19:29:21 blair Exp $
+ * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.2 2007-03-06 20:19:00 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
@@ -61,13 +61,13 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
       String  uuid  = g.getUuid();
 
       assertTrue( 
-        "group has attributes in registry before deletion", 
+        "group has attributes in registry before reset", 
         HibernateGroupDAO.findAllAttributesByGroup(uuid).size() > 0 
       );
       RegistryReset.reset();  // attributes should be deleted when 
                               // registry is reset
       assertEquals(
-        "group does not have attributes in registry after deletion",
+        "group does not have attributes in registry after reset",
         0, HibernateGroupDAO.findAllAttributesByGroup(uuid).size()
       );
     }
