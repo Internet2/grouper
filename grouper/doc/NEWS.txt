@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.54 2007-03-06 17:02:42 blair Exp $
+$Id: NEWS.txt,v 1.55 2007-03-06 17:19:14 blair Exp $
 
 ---
 
@@ -37,6 +37,7 @@ Estimated Release: Late 200703, Early 200704
   lifespan of the cached group.  The default TTL is 5 seconds.  This value can be 
   customized by setting the "edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge" 
   parameter in `conf/grouper.properties`.
+* "RegistrySubject" now provides a partial implementation of the "Subject" interface.
 
 ## Bugs Fixed
 

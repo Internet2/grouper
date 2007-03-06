@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API.txt,v 1.45 2007-03-06 17:02:42 blair Exp $
+$Id: API.txt,v 1.46 2007-03-06 17:19:14 blair Exp $
 
 ---
 
@@ -418,7 +418,7 @@ $Id: API.txt,v 1.45 2007-03-06 17:02:42 blair Exp $
 
 ## QueryFilter extends BaseQueryFilter
 
-## RegistrySubject - SUBJECT TO CHANGE!
+## RegistrySubject implements Subject - SUBJECT TO CHANGE!
 * RegistrySubject RegistrySubject.add(GrouperSession, id, type, name)
 * String          getId()
 
