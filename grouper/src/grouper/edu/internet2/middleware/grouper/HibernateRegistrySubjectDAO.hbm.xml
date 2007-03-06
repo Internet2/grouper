@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateSubjectAttribute.hbm.xml,v 1.7 2007-01-04 17:50:51 blair Exp $ -->
+<!-- $Id: HibernateRegistrySubjectDAO.hbm.xml,v 1.1 2007-03-06 17:02:42 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="HibernateSubjectAttribute" table="SubjectAttribute">
+  <class name="HibernateRegistrySubjectDAO" table="Subject">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">HibernateDAO.getSession();</meta>
@@ -31,39 +31,40 @@
     <cache usage="read-write"/>
 
     <!-- id -->
-    <composite-id>
-      <key-many-to-one  name="subjectId"  
-                        class="edu.internet2.middleware.grouper.HibernateSubject"
-      >
-        <column name="subjectId"
-                not-null="true"
-                index="subjectattribute_id_idx"
-        />
-      </key-many-to-one>
-      <key-property name="name"
-                    type="string"
-      >
-        <column name="name"
-                length="255" 
-                not-null="true"
-                index="subjectattribute_key_idx"
-        />
-      </key-property>
-      <key-property name="value"
-                    type="string"
-      >
-        <column name="value"
-                length="255" 
-                not-null="true"
-        />
-      </key-property>
-    </composite-id>
-    <!-- id --> 
-     
-    <property name="searchValue"
+    <id name="id" 
+        type="string"
+        unsaved-value="null"
+        length="64"
+    >
+      <column name="subjectId"
+              index="subject_idx"
+      />
+      <generator class="assigned"/>
+    </id>
+    <!-- id -->
+
+    <!-- type -->
+    <property name="type"
               type="string"
+    >
+      <column name="subjectTypeId"
+              not-null="true"
+              length="32"
+              index="subject_idx"
+      />
+    </property>
+    <!-- type -->
+         
+    <!-- name -->
+    <property name="name"
+              type="string"
+              not-null="true"
+    >
+      <column name="name"
               length="255"
-    />
+      />
+    </property>
+    <!-- name -->
 
   </class>
 </hibernate-mapping>

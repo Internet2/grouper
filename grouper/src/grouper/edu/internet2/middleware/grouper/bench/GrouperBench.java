@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.19 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperBench.java,v 1.20 2007-03-06 17:02:43 blair Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -51,7 +51,7 @@ public class GrouperBench {
       run( new FindRootStem()                 );
       run( new AddRootStem()                  );
       run( new AddGroup()                     );
-      run( new AddHibernateSubject()          );
+      run( new AddRegistrySubject()          );
       run( new AddImmMember()                 );
       run( new AddEffMember()                 );
       run( new Add10EffMembers()              );

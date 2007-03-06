@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding an immediate {@link Membership}.
  * @author  blair christensen.
- * @version $Id: AddImmMember.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: AddImmMember.java,v 1.6 2007-03-06 17:02:43 blair Exp $
  * @since   1.1.0
  */
 public class AddImmMember extends BaseGrouperBenchmark {
@@ -61,7 +61,7 @@ public class AddImmMember extends BaseGrouperBenchmark {
       Stem            root  = StemFinder.findRootStem(s);
       Stem            ns    = root.addChildStem("example", "example");
       this.g                = ns.addChildGroup("group", "group");
-      HibernateSubject.add(s, "subj0", "person", "subject0");
+      RegistrySubject.add(s, "subj0", "person", "subject0");
       this.subj             = SubjectFinder.findById("subj0");
     }
     catch (Exception e) {

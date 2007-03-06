@@ -22,7 +22,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.12 2007-02-27 18:48:07 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.13 2007-03-06 17:02:42 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistryDAO {
@@ -45,7 +45,7 @@ class HibernateRegistryDAO {
         HibernateMemberDAO.reset(hs);
         HibernateGroupTypeTupleDAO.reset(hs);
         HibernateGroupTypeDAO.reset(hs);
-        HibernateSubject.reset(hs);
+        HibernateRegistrySubjectDAO.reset(hs);
         tx.commit();
       }
       catch (HibernateException eH) {

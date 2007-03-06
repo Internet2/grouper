@@ -23,7 +23,7 @@ import  edu.internet2.middleware.subject.*;
  * Benchmarking adding a member to a group that is privileged on a lot of other
  * groups.
  * @author  blair christensen.
- * @version $Id: AddAsEffMemberToLotsOfGroups.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: AddAsEffMemberToLotsOfGroups.java,v 1.5 2007-03-06 17:02:43 blair Exp $
  * @since   1.2.0
  */
 public class AddAsEffMemberToLotsOfGroups extends BaseGrouperBenchmark {
@@ -73,7 +73,7 @@ public class AddAsEffMemberToLotsOfGroups extends BaseGrouperBenchmark {
         tmpG.grantPriv(tmpS, AccessPrivilege.ADMIN);
       }
       String subjectId = "AddAsEffMemberToLotsOfGroups";
-      HibernateSubject.add(s, subjectId, "person", subjectId + " Subject");
+      RegistrySubject.add(s, subjectId, "person", subjectId + " Subject");
       this.subj = SubjectFinder.findById(subjectId);
     }
     catch (Exception e) {

@@ -25,7 +25,7 @@ package edu.internet2.middleware.grouper;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.41 2007-01-08 18:04:07 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.42 2007-03-06 17:02:43 blair Exp $
  */
 public class RegistryReset {
 
@@ -89,6 +89,7 @@ public class RegistryReset {
   } // protected static void internal_addTestSubjects()
 
   // @since   1.2.0
+  // TODO 20070306 KILL! THIS! METHOD!
   protected static void internal_resetRegistryAndAddTestSubjects() { 
     RegistryReset rr = new RegistryReset();
     try {
@@ -109,7 +110,11 @@ public class RegistryReset {
     for (int i=0; i<10; i++) {
       String  id    = "test.subject." + i;
       String  name  = "my name is " + id;
-      HibernateSubject.internal_add(id, SUBJ_TYPE, name);
+      RegistrySubjectDTO  _subj = new RegistrySubjectDTO();
+      _subj.setId(id);
+      _subj.setName(name);
+      _subj.setType(SUBJ_TYPE);
+      HibernateRegistrySubjectDAO.create(_subj);
     }
   } // private void _addSubjects()
 

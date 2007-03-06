@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding 10 union {@link Composite} {@link Membership}s.
  * @author  blair christensen.
- * @version $Id: Add100UnionMembers.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: Add100UnionMembers.java,v 1.4 2007-03-06 17:02:43 blair Exp $
  * @since   1.1.0
  */
 public class Add100UnionMembers extends BaseGrouperBenchmark {
@@ -70,7 +70,7 @@ public class Add100UnionMembers extends BaseGrouperBenchmark {
       String          type  = "person";
       for (int i=0; i < CNT; i++) {
         String id = "subj" + i;
-        HibernateSubject.add(s, id, type, "subject " + i);
+        RegistrySubject.add(s, id, type, "subject " + i);
         subjects[i] = SubjectFinder.findById(id);
         // add half to each group
         if (i % 2 == 0) {
