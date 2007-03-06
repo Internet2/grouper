@@ -20,16 +20,17 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteIntegrationTests_Stem.java,v 1.1 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: Suite_Unit_API_Stem.java,v 1.1 2007-03-06 18:07:55 blair Exp $
  * @since   1.2.0
  */
-public class SuiteIntegrationTests_Stem extends GrouperTest {
+public class Suite_Unit_API_Stem extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTestSuite(Test_Integration_Stem_setExtension.class);
+    suite.addTestSuite(Test_Unit_API_Stem_isRootStem.class);
+    suite.addTestSuite(Test_Unit_API_Stem_setExtension.class);
     return suite;
   } // static public Test suite()
 
-} // public class SuiteIntegrationTests_Stem extends GrouperTest
+} // public class Suite_Unit_API_Stem extends GrouperTest
 
