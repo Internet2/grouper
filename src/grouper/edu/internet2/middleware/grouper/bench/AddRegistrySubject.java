@@ -19,12 +19,12 @@ package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*;      
 
 /**
- * Benchmark adding a {@link HibernateSubject}.
+ * Benchmark adding a {@link RegistrySubject}.
  * @author  blair christensen.
- * @version $Id: AddHibernateSubject.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: AddRegistrySubject.java,v 1.1 2007-03-06 17:02:43 blair Exp $
  * @since   1.1.0
  */
-public class AddHibernateSubject extends BaseGrouperBenchmark {
+public class AddRegistrySubject extends BaseGrouperBenchmark {
 
   // PRIVATE INSTANCE VARIABLES //
   GrouperSession s;
@@ -32,7 +32,7 @@ public class AddHibernateSubject extends BaseGrouperBenchmark {
 
   // MAIN //
   public static void main(String args[]) {
-    BaseGrouperBenchmark gb = new AddHibernateSubject();
+    BaseGrouperBenchmark gb = new AddRegistrySubject();
     gb.benchmark();
   } // public static void main(args[])
 
@@ -42,9 +42,9 @@ public class AddHibernateSubject extends BaseGrouperBenchmark {
   /**
    * @since 1.1.0
    */
-  protected AddHibernateSubject() {
+  protected AddRegistrySubject() {
     super();
-  } // protected AddHibernateSubject()
+  } // protected AddRegistrySubject()
 
   // PUBLIC INSTANCE METHODS //
 
@@ -69,12 +69,12 @@ public class AddHibernateSubject extends BaseGrouperBenchmark {
     throws GrouperRuntimeException 
   {
     try {
-      HibernateSubject.add(s, "subj0", "person", "subject 0");
+      RegistrySubject.add(s, "subj0", "person", "subject 0");
     }
     catch (Exception e) {
       throw new GrouperRuntimeException(e);
     }
   } // public void run()
 
-} // public class AddHibernateSubject
+} // public class AddRegistrySubject
 

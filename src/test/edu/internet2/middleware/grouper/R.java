@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.13 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: R.java,v 1.14 2007-03-06 17:02:43 blair Exp $
  * @since   1.2.0
  */
 public class R {
@@ -308,9 +308,15 @@ public class R {
     }
 
     for (int i=0; i<nSubjects; i++) {
-      String            id    = _getSuffix(i);
-      String            name  = "subject " + id;
-      HibernateSubject  subj  = HibernateSubject.internal_add(id, "person", name);
+      String              id    = _getSuffix(i);
+      String              name  = "subject " + id;
+      RegistrySubjectDTO  _subj = new RegistrySubjectDTO();
+      _subj.setId(id);
+      _subj.setName(name);
+      _subj.setType("person");
+      HibernateRegistrySubjectDAO.create(_subj);
+      RegistrySubject     subj  = new RegistrySubject();
+      subj.setDTO(_subj);
       r.subjects.put(id, subj);
       LOG.debug("created subject: " + subj);
     }

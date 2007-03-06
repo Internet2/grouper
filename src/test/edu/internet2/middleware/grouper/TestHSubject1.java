@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestHSubject1.java,v 1.4 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestHSubject1.java,v 1.5 2007-03-06 17:02:43 blair Exp $
  * @since   1.1.0
  */
 public class TestHSubject1 extends GrouperTest {
@@ -41,10 +41,10 @@ public class TestHSubject1 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  public void testFailToAddHibernateSubjectAsNonRoot() {
-    LOG.info("testFailToAddHibernateSubjectAsNonRoot");
+  public void testFailToAddRegistrySubjectAsNonRoot() {
+    LOG.info("testFailToAddRegistrySubjectAsNonRoot");
     try {
-      HibernateSubject.add(
+      RegistrySubject.add(
         GrouperSession.start( SubjectFinder.findAllSubject() ),
         "subj id", "subj type", "subj name"
       );
@@ -56,7 +56,7 @@ public class TestHSubject1 extends GrouperTest {
     catch (Exception e) {
       unexpectedException(e);
     }
-  } // public void testFailToAddHibernateSubjectAsNonRoot()
+  } // public void testFailToAddRegistrySubjectAsNonRoot()
 
 } // public class TestHSubject1
 

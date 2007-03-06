@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.53 2007-02-28 17:40:44 blair Exp $
+$Id: NEWS.txt,v 1.54 2007-03-06 17:02:42 blair Exp $
 
 ---
 
@@ -8,35 +8,37 @@ $Id: NEWS.txt,v 1.53 2007-02-28 17:40:44 blair Exp $
 
 Estimated Release: Late 200703, Early 200704
 
-## Changes
-* NEW:    `GrouperSession::validate()`
-* NEW:    `GrouperSession#validate()`
-* NEW:    `Stem#setExtension(value)`
-* NEW:    `Stem#isRootStem()`
-* UPDATE: The database schema has changed significantly and is not backwards
-          compatibile.
-* NEW:    `Membership#getViaComposite()`
-* NEW:    `Membership#getType()`
-* NEW:    `Membership#getCreateTime()`
-* NEW:    `Membership#getCreator()`
-* NEW:    `Membership#getOwner()`
-* NEW:    `Membership#getStem()`
-* UPDATE: API updated to include an internal DAO layer providing separation
-          between the business logic and the persistence logic.  Classes that
-          have been converted:
-          * `GrouperSession`
-* NEW:    Benchmark: `AddLotsOfGroupsToStem`
-* NEW:    Benchmark: `AddAsEffMemberToLotsOfGroups`
-* NEW:    Benchmark: `MemberHasRead`
-* NEW:    `GroupTypeFilter` (BUGZILLA#585)
-* NEW:    `GroupFinder.findByType(GrouperSession, GroupType)` (BUGZILLA#585)
-* NEW:    Added `lib/UmlGraph-4.4.jar` and `html-uml` ant target for generating
-          Javadoc with (poorly) embedded UML graphs.
-* UPDATE: Changed caching of wheel group in `SimpleWheelPrivilegeCache` by
-          setting a TTL on the lifespan of the cached group.  The default TTL is
-          5 seconds.  This value can be customized by setting the 
-          `edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge`
-          parameter in `conf/grouper.properties`.  
+## Incompabilities
+* The database schema has changed significantly and is not backwards compatible.
+* "RegistrySubject" has replaced the "HibernateSubject" class.
+
+## New Features
+* "GrouperSession::validate()"
+* "GrouperSession#validate()"
+* "GroupTypeFilter`"(BUGZILLA#585)
+* "GroupFinder.findByType(GrouperSession, GroupType)" (BUGZILLA#585)
+* "Membership#getViaComposite()"
+* "Membership#getType()"
+* "Membership#getCreateTime()"
+* "Membership#getCreator()"
+* "Membership#getStem()"
+* "Stem#isRootStem()"
+* "Stem#setExtension(value)"
+* Benchmark: "AddLotsOfGroupsToStem"
+* Benchmark: "AddAsEffMemberToLotsOfGroups"
+* Benchmark: "MemberHasRead"
+* Added `lib/UmlGraph-4.4.jar` and `html-uml` ant target for generating Javadoc with
+  (poorly) embedded UML graphs.
+
+## Improvements
+* API updated to include an internal DAO layer providing separation between the business
+  logic and the persistence logic. 
+* Changed caching of wheel group in `SimpleWheelPrivilegeCache` by setting a TTL on the 
+  lifespan of the cached group.  The default TTL is 5 seconds.  This value can be 
+  customized by setting the "edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge" 
+  parameter in `conf/grouper.properties`.
+
+## Bugs Fixed
 
 ---
 

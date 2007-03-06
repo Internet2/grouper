@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark finding an already existing {@link Member} by {@link Subject}.
  * @author  blair christensen.
- * @version $Id: FindExistingMemberBySubject.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: FindExistingMemberBySubject.java,v 1.4 2007-03-06 17:02:43 blair Exp $
  * @since   1.1.0
  */
 public class FindExistingMemberBySubject extends BaseGrouperBenchmark {
@@ -58,7 +58,7 @@ public class FindExistingMemberBySubject extends BaseGrouperBenchmark {
   {
     try {
       this.s = GrouperSession.start( SubjectFinder.findRootSubject());
-      HibernateSubject.add(this.s, "subj0", "person", "subject 0");
+      RegistrySubject.add(this.s, "subj0", "person", "subject 0");
       this.subj = SubjectFinder.findById("subj0");
       MemberFinder.findBySubject(s, subj);
     }

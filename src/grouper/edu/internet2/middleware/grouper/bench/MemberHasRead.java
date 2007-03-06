@@ -22,7 +22,7 @@ import  edu.internet2.middleware.grouper.*;
  * Benchmark <code>Member.hasRead()</code> when <i>GrouperAll</i> has a large
  * number of memberships.
  * @author  blair christensen.
- * @version $Id: MemberHasRead.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: MemberHasRead.java,v 1.5 2007-03-06 17:02:43 blair Exp $
  * @since   1.2.0
  */
 public class MemberHasRead extends BaseGrouperBenchmark {
@@ -67,7 +67,7 @@ public class MemberHasRead extends BaseGrouperBenchmark {
         ns.addChildGroup("group " + i, "group " + i);
       }
       String subjectId = "MemberHasRead";
-      HibernateSubject.add(s, subjectId, "person", subjectId + " Subject");
+      RegistrySubject.add(s, subjectId, "person", subjectId + " Subject");
       this.m = MemberFinder.findBySubject( s, SubjectFinder.findById(subjectId) );
     }
     catch (Exception e) {

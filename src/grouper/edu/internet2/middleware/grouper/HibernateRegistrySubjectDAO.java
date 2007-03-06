@@ -20,57 +20,38 @@ import  edu.internet2.middleware.subject.*;
 import  net.sf.hibernate.*;
 
 /**
- * Stub Hibernate {@link HibernateSubject} DAO.
+ * Stub Hibernate {@link RegistrySubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.8 2007-01-08 14:36:45 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.9 2007-03-06 17:02:42 blair Exp $
  * @since   1.2.0
  */
-class HibernateRegistrySubjectDAO {
+class HibernateRegistrySubjectDAO extends HibernateDAO {
+  
+  // PRIVATE INSTANCE VARIABLES //
+  private String id;
+  private String name;
+  private String type;
+
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static HibernateSubject create(HibernateSubject subj)
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        hs.save(subj);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-      return subj;
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static HibernateSubject add(id, type, name)
-
-  // @since   1.2.0
-  protected static HibernateSubject find(String id, String type) 
+  protected static HibernateRegistrySubjectDAO find(String id, String type) 
     throws  GrouperDAOException,
             SubjectNotFoundException
   {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from HibernateSubject as hs where " 
-        + "     hs.subjectId      = :id    "
-        + " and hs.subjectTypeId  = :type  "
+        "from HibernateRegistrySubjectDAO as rs where " 
+        + "     rs.id   = :id    "
+        + " and rs.type = :type  "
       );
       qry.setCacheable(true); // This was set to false but I'm not sure why
       qry.setString( "id",   id   );
       qry.setString( "type", type );
-      HibernateSubject subj = (HibernateSubject) qry.uniqueResult();
+      HibernateRegistrySubjectDAO subj = (HibernateRegistrySubjectDAO) qry.uniqueResult();
       hs.close();
       if (subj == null) { // TODO 20070108 null or ex?
         throw new SubjectNotFoundException("subject not found"); 
@@ -80,7 +61,41 @@ class HibernateRegistrySubjectDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static HibernateSubject find(id, type)
+  } // protected static HibernateRegistrySubjectDAO find(id, type)
 
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateRegistrySubjectAttributeDAO"); // TDOO 20061018 this shouldn't be necessary
+    hs.delete("from HibernateRegistrySubjectDAO");
+  } // protected static void reset(hs)
+
+
+  // GETTERS //
+
+  protected String getId() {
+    return this.id;
+  }
+  protected String getName() {
+    return this.name;
+  }
+  protected String getType() {
+    return this.type;
+  }
+
+
+  // SETTERS //
+
+  protected void setId(String id) {
+    this.id = id;
+  }
+  protected void setName(String name) {
+    this.name = name;
+  }
+  protected void setType(String type) {
+    this.type = type;
+  }
+    
 } // class HibernateRegistrySubjectDAO
 

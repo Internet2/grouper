@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestHSubject2.java,v 1.4 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestHSubject2.java,v 1.5 2007-03-06 17:02:43 blair Exp $
  * @since   1.1.0
  */
 public class TestHSubject2 extends GrouperTest {
@@ -44,17 +44,17 @@ public class TestHSubject2 extends GrouperTest {
   public void testFailToAddAlreadyExistingSubject() {
     LOG.info("testFailToAddAlreadyExistingSubject");
     try {
-      HibernateSubject.add(
+      RegistrySubject.add(
         GrouperSession.start( SubjectFinder.findRootSubject() ),
         "subj id", "subj type", "subj name"
       );
       // Now add it again
       try {
-        HibernateSubject.add(
+        RegistrySubject.add(
           GrouperSession.start( SubjectFinder.findRootSubject() ),
           "subj id", "subj type", "subj name"
         );
-        fail("added already existing HibernateSubject");
+        fail("added already existing RegistrySubject");
       }
       catch (GrouperException eG) {
         assertTrue(true);

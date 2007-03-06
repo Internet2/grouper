@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding a union {@link Composite} {@link Membership}.
  * @author  blair christensen.
- * @version $Id: AddUnionMember.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: AddUnionMember.java,v 1.6 2007-03-06 17:02:43 blair Exp $
  * @since   1.1.0
  */
 public class AddUnionMember extends BaseGrouperBenchmark {
@@ -63,8 +63,8 @@ public class AddUnionMember extends BaseGrouperBenchmark {
       this.g0               = ns.addChildGroup("group 0", "group 0");
       this.g1               = ns.addChildGroup("group 1", "group 1");
       this.g2               = ns.addChildGroup("group 2", "group 2");
-      HibernateSubject.add(s, "subj0", "person", "subject 0");
-      HibernateSubject.add(s, "subj1", "person", "subject 1");
+      RegistrySubject.add(s, "subj0", "person", "subject 0");
+      RegistrySubject.add(s, "subj1", "person", "subject 1");
       this.subj0            = SubjectFinder.findById("subj0");
       this.subj1            = SubjectFinder.findById("subj1");
       this.g0.addMember(this.subj0);
