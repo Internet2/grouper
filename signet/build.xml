@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.53 2007-02-25 17:51:00 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.54 2007-03-06 23:15:50 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -147,6 +147,7 @@
 			notree="false"
 			nonavbar="false"
 			noindex="false"
+			overview="${source_java.dir}/edu/internet2/middleware/signet/signet_overview.html"
 			splitindex="true"
 			author="true"
 			version="true"
