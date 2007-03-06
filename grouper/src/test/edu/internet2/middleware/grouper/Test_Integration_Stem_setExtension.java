@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_Stem_setExtension.java,v 1.2 2007-02-20 16:07:52 blair Exp $
+ * @version $Id: Test_Integration_Stem_setExtension.java,v 1.3 2007-03-06 19:29:21 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_Stem_setExtension extends GrouperTest {
@@ -163,7 +163,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
 
   public void testSetExtension_ChangeAndPropagateAsNonRoot() {
     try {
-      LOG.info("testSetExtension_ChangeAndPropagateAsRoot");
+      LOG.info("testSetExtension_ChangeAndPropagateNonAsRoot");
       R       r     = R.getContext("grouper");
       Stem    i2mi  = r.getStem("i2mi");
       i2mi.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );

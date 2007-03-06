@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.16 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.17 2007-03-06 19:29:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
@@ -61,8 +61,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   public boolean onDelete(Session hs) 
     throws  CallbackException
   {
-    // FIXME 20070222 onDelete not implemented - should delete attrs
-    existsCache.put( this.getUuid(), true );
+    existsCache.put( this.getUuid(), false );
     return Lifecycle.NO_VETO;
   } // public boolean onDelete(hs)
 
@@ -128,6 +127,39 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static void addType(g, t)
+
+  // @since   1.2.0
+  protected static void delete(GroupDTO _g, Set mships)
+    throws  GrouperDAOException 
+  {
+    try {
+      Session     hs  = HibernateDAO.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        // delete memberships
+        Iterator it = mships.iterator();
+        while (it.hasNext()) {
+          hs.delete( Rosetta.getDAO( it.next() ) );
+        }
+        // delete attributes
+        hs.delete( "from HibernateAttributeDAO where group_id = ?", _g.getUuid(), Hibernate.STRING );
+        // delete group
+        hs.delete( Rosetta.getDAO(_g) );
+
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      } 
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static void delete(c)
 
   // @since   1.2.0
   protected static void deleteType(Group g, GroupType t) 
@@ -485,7 +517,9 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   protected static void reset(Session hs) 
     throws  HibernateException
   {
-    hs.delete("from HibernateAttributeDAO"); // TODO 20070207 this should not be necessary
+    hs.delete("from HibernateAttributeDAO");  // TODO 20070306 ideally i could just put the right hooks into 
+                                              //               "onDelete()" but right now that is blowing up 
+                                              //               due to the session being flushed 
     hs.delete("from HibernateGroupDAO");
     existsCache.removeAll(); 
   } // protected static void reset(hs)
