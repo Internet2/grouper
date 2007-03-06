@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.137 2007-03-06 15:58:47 blair Exp $
+ * @version $Id: Group.java,v 1.138 2007-03-06 19:29:21 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -436,9 +436,10 @@ public class Group extends GrouperAPI implements Owner {
           this.getSession().getDTO().getRootSession(), this, FieldType.LIST
         )
       );
-      deletes.add(this);            // ... And add the group last for good luck    
+      //deletes.add(this);            // ... And add the group last for good luck    
       String name = this.getName(); // Preserve name for logging
-      HibernateGroupDAO.delete(deletes);
+      HibernateGroupDAO.delete( this.getDTO(), deletes );
+      //HibernateGroupDAO.delete(deletes);
       sw.stop();
       EventLog.info(this.getSession(), M.GROUP_DEL + U.internal_q(name), sw);
     }
