@@ -17,17 +17,21 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+import  java.util.HashMap;
+import  java.util.LinkedHashSet;
+import  java.util.Map;
+import  java.util.Set;
 
 /** 
  * A {@link Subject} local to the Groups Registry.
  * <p/>
- * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE * RELEASES.</b></p>
+ * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.1 2007-03-06 17:02:43 blair Exp $
+ * @version $Id: RegistrySubject.java,v 1.2 2007-03-06 17:19:14 blair Exp $
  * @since   1.2.0
  */
-public class RegistrySubject extends GrouperAPI {
-  // FIXME 20070306 IMPLEMENT SUBJECT!
+public class RegistrySubject extends GrouperAPI implements Subject {
 
   // PUBLIC CLASS METHODS //
 
@@ -83,6 +87,46 @@ public class RegistrySubject extends GrouperAPI {
   // PUBLIC INSTANCE METHODS //
 
   /**
+   * Return the subject's attribute.
+   *  <p/>
+   * <p><b>NOTE:</b> This is not currently implemented and will always return an empty map.</p>
+   * @since   1.2.0
+   */
+  public Map getAttributes() {
+    return new HashMap();
+  } // public Map getAttributes()
+
+  /**
+   * Return the value of the specified attribute.
+   * <p/>
+   * <p><b>NOTE:</b> This is not currently implemented and will always return an empty string.</p>
+   * @since   1.2.0
+   */
+  public String getAttributeValue(String name) {
+    return GrouperConfig.EMPTY_STRING;
+  } // public String getAttributevalue(name)
+
+  /**
+   * Return the values for the specified attribute.
+   * <p/>
+   * <p><b>NOTE:</b> This is not currently implemented and will always return an empty set.</p>
+   * @since   1.2.0
+   */
+  public Set getAttributeValues(String name) {
+    return new LinkedHashSet();
+  } // public Set getAttributeValues(name)
+
+  /**
+   * Return this subject's description.
+   * <p/>
+   * <p><b>NOTE:</b> This is not currently implemented and will always return an empty string.</p>
+   * @since   1.2.0
+   */
+  public String getDescription() {
+    return GrouperConfig.EMPTY_STRING;
+  } // public String getDescription()
+
+  /**
    * Return the subject id.
    * <p/>
    * @since   1.2.0
@@ -90,6 +134,46 @@ public class RegistrySubject extends GrouperAPI {
   public String getId() {
     return this.getDTO().getId();
   } // public String getId()
+
+  /**
+   * Return the subject's name.
+   * <p/>
+   * @since   1.2.0
+   */
+  public String getName() {
+    return this.getDTO().getName();
+  } // public String getName()
+
+  /**
+   * Return the source.
+   * <p/>
+   * <p><b>NOTE:</b> The current implementation is very crude and inefficient.  It
+   * attempts to query for the subject to identify the source.</p>
+   * @throws  IllegalStateException if source cannot be returned.
+   * @since   1.2.0
+   */
+  public Source getSource() 
+    throws  IllegalStateException
+  {
+    try {
+      return SubjectFinder.findById( this.getDTO().getId(), this.getDTO().getType()).getSource();
+    }
+    catch (SubjectNotFoundException eSNF)   {
+      throw new IllegalStateException( eSNF.getMessage(), eSNF );
+    }
+    catch (SubjectNotUniqueException eSNU)  {
+      throw new IllegalStateException( eSNU.getMessage(), eSNU );
+    }
+  } // public Source getSource()
+
+  /**
+   * Return this subject's {@link SubjectType}.
+   * <p/>
+   * @since   1.2.0
+   */
+  public SubjectType getType() {
+    return SubjectTypeEnum.valueOf( this.getDTO().getType() );
+  } // public SubjectType getType()
 
 
   // PROTECTED INSTANCE METHODS //
@@ -99,5 +183,5 @@ public class RegistrySubject extends GrouperAPI {
     return (RegistrySubjectDTO) super.getDTO();
   } // protected RegistrySubjectDTO getDTO()
 
-} // public class RegistrySubject extends GrouperAPI implements Serializable
+} // public class RegistrySubject extends GrouperAPI implements Subject
 
