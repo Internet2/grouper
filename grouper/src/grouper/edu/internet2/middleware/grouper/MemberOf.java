@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.47 2007-02-27 18:08:09 blair Exp $
+ * @version $Id: MemberOf.java,v 1.48 2007-03-06 15:58:47 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -232,8 +232,8 @@ class MemberOf extends BaseMemberOf {
         }
       }
       EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
-      if ( !v.getIsValid() ) {
-          throw new IllegalStateException( v.getErrorMessage() );
+      if (v.isInvalid()) {
+        throw new IllegalStateException( v.getErrorMessage() );
       }
 
       mships.add(dto);
@@ -283,7 +283,7 @@ class MemberOf extends BaseMemberOf {
             }
           }
           EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
-          if ( !v.getIsValid() ) {
+          if (v.isInvalid()) {
             throw new IllegalStateException( v.getErrorMessage() );
           }
 
@@ -332,8 +332,8 @@ class MemberOf extends BaseMemberOf {
           }
         }
         EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
-        if ( !v.getIsValid() ) {
-            throw new IllegalStateException( v.getErrorMessage() );
+        if (v.isInvalid()) {
+          throw new IllegalStateException( v.getErrorMessage() );
         }
 
         mships.add(dto);
@@ -364,7 +364,7 @@ class MemberOf extends BaseMemberOf {
       _ms.setViaUuid( this.getComposite().getUuid() );
      
       v = CompositeMembershipValidator.validate(_ms);
-      if ( !v.getIsValid() ) {
+      if (v.isInvalid()) {
         throw new IllegalStateException( v.getErrorMessage() );
       }
       mships.add(_ms);
@@ -435,7 +435,7 @@ class MemberOf extends BaseMemberOf {
     _ms.setOwnerUuid( this.getOwnerUuid() );
 
     ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
-    if ( !v.getIsValid() ) {
+    if (v.isInvalid()) {
       throw new IllegalStateException( v.getErrorMessage() );
     }
 

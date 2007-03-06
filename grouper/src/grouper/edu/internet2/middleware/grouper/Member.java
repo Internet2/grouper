@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.82 2007-02-28 19:10:44 blair Exp $
+ * @version $Id: Member.java,v 1.83 2007-03-06 15:58:47 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1087,13 +1087,13 @@ public class Member extends GrouperAPI implements Serializable {
   {
     StopWatch sw    = new StopWatch();
     sw.start();
-    NotNullValidator      nnv = NotNullValidator.validate(id);
-    if ( !nnv.getIsValid() ) {
-      throw new IllegalArgumentException( nnv.getErrorMessage() );
+    GrouperValidator v = NotNullValidator.validate(id);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException( v.getErrorMessage() );
     }
-    MemberModifyValidator mmv = MemberModifyValidator.validate(this);
-    if ( !mmv.getIsValid() ) {
-      throw new InsufficientPrivilegeException( mmv.getErrorMessage() );
+    v = MemberModifyValidator.validate(this);
+    if (v.isInvalid()) {
+      throw new InsufficientPrivilegeException( v.getErrorMessage() );
     }
     String    orig  = this.getDTO().getSubjectId(); // preserve original for logging purposes
     this.getDTO().setSubjectId(id);
@@ -1130,13 +1130,13 @@ public class Member extends GrouperAPI implements Serializable {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    NotNullValidator      nnv = NotNullValidator.validate(id);
-    if ( !nnv.getIsValid() ) {
-      throw new IllegalArgumentException( nnv.getErrorMessage() );
+    GrouperValidator v = NotNullValidator.validate(id);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException( v.getErrorMessage() );
     }
-    MemberModifyValidator mmv = MemberModifyValidator.validate(this);
-    if ( !mmv.getIsValid() ) {
-      throw new InsufficientPrivilegeException( mmv.getErrorMessage() );
+    v = MemberModifyValidator.validate(this);
+    if (v.isInvalid()) {
+      throw new InsufficientPrivilegeException( v.getErrorMessage() );
     }
     String    orig  = this.getDTO().getSubjectSourceId();
     this.getDTO().setSubjectSourceId(id);
