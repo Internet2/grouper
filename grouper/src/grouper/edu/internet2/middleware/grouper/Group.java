@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.135 2007-03-05 20:23:22 blair Exp $
+ * @version $Id: Group.java,v 1.136 2007-03-06 15:43:51 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -204,7 +204,15 @@ public class Group extends GrouperAPI implements Owner {
     if ( !FieldType.LIST.equals( f.getType() ) ) {
       throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
     }
-    GroupValidator.internal_canAddMember(this, subj, f);
+    if ( !this.canWriteField(f) ) { 
+      GrouperValidator v = CanOptinValidator.validate(this, subj, f);
+      if (v.isInvalid()) {
+        throw new InsufficientPrivilegeException();
+      }
+    }
+    if ( ( Group.getDefaultList().equals(f) ) && ( this.hasComposite() ) ) {
+      throw new MemberAddException(E.GROUP_AMTC);
+    }
     Membership.internal_addImmediateMembership( this.getSession(), this, subj, f );
     EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
     Composite.internal_update(this);
@@ -479,7 +487,12 @@ public class Group extends GrouperAPI implements Owner {
         throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
       }
       Field f = FieldFinder.find(attr);
-      GroupValidator.internal_canDelAttribute(this, f);
+      if (f.getRequired()) {
+        throw new ModelException( E.GROUP_DRA + f.getName() );
+      }
+      if ( !this.canWriteField(f) ) {
+        throw new InsufficientPrivilegeException();
+      }
 
       // TODO 20061011 REFACTOR: I'm not comfortable with this code
       Map attrs = this.getDTO().getAttributes();
@@ -534,7 +547,12 @@ public class Group extends GrouperAPI implements Owner {
     try {
       StopWatch sw  = new StopWatch();
       sw.start();
-      GroupValidator.internal_canDelCompositeMember(this);
+      if ( !this.canWriteField( this.getSession().getSubject(), Group.getDefaultList() ) ) {
+        throw new InsufficientPrivilegeException();
+      }
+      if ( !this.hasComposite() ) {
+        throw new ModelException(E.GROUP_DCFC); 
+      }
       CompositeDTO  dto = HibernateCompositeDAO.findAsOwner( this.getDTO() );
       Composite     c   = new Composite();
       c.setDTO(dto);
@@ -619,7 +637,15 @@ public class Group extends GrouperAPI implements Owner {
     if ( !FieldType.LIST.equals( f.getType() ) ) {
       throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
     }
-    GroupValidator.internal_canDelMember(this, subj, f);
+    if ( !this.canWriteField(f) ) {
+      GrouperValidator v = CanOptoutValidator.validate(this, subj, f);
+      if (v.isInvalid()) {
+        throw new InsufficientPrivilegeException();
+      }
+    }
+    if ( (f.equals( Group.getDefaultList() ) ) && ( this.hasComposite() ) ) {
+      throw new MemberDeleteException(E.GROUP_DMFC);
+    }
     MemberOf  mof = Membership.internal_delImmediateMembership( this.getSession(), this, subj, f );
     try {
       HibernateMembershipDAO.update(mof);
@@ -1931,7 +1957,31 @@ public class Group extends GrouperAPI implements Owner {
       if ( !FieldType.ATTRIBUTE.equals( f.getType() ) ) {
         throw new AttributeNotFoundException( E.FIELD_INVALID_TYPE + f.getType() );
       }
-      GroupValidator.internal_canSetAttribute(this, attr, value);
+
+      // TODO 20070306 this is all rather nasty
+      GrouperValidator v = NotNullOrEmptyValidator.validate(attr);
+      if (v.isInvalid()) {
+        throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
+      }
+      v = NotNullOrEmptyValidator.validate(value);
+      if (v.isInvalid()) {
+        throw new GroupModifyException(E.INVALID_ATTR_VALUE + value);
+      }
+      if (
+            attr.equals(GrouperConfig.ATTR_DE)
+        ||  attr.equals(GrouperConfig.ATTR_DN)
+        ||  attr.equals(GrouperConfig.ATTR_E)
+      )
+      {
+        NamingValidator nv = NamingValidator.validate(value);
+        if ( !nv.getIsValid() ) {
+          throw new ModelException( nv.getErrorMessage() );
+        }
+      }
+      if ( !this.canWriteField( FieldFinder.find(attr) ) ) {
+        throw new InsufficientPrivilegeException();
+      }
+
       Map attrs = this.getDTO().getAttributes();
       attrs.put(attr, value);
       if      ( attr.equals(GrouperConfig.ATTR_E) )   {
