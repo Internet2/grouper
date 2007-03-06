@@ -7,13 +7,13 @@
 </c:if>
 
 <c:if test="${savedSubjectsSize>0}">
-	<html:form action="/populateListSavedGroups.do">
+	<html:form action="/populateListSavedGroups.do" method="post">
 	<tiles:insert definition="searchGroupResultFieldChoiceDef"/>
 	<c:if test="${!empty groupSearchResultField && !empty mediaMap['search.group.result-field']}">
 		<html:submit property="x" value="${navMap['saved-subjects.groups.change-field']}"/>
 	</c:if>
 	</html:form>
-	<html:form action="/removeSavedGroups.do">
+	<html:form action="/removeSavedGroups.do" method="post">
 	<ul>
 	<c:forEach var="group" items="${savedSubjects}">
 		<li><input name="subjectIds" type="checkbox" value="<c:out value="${group.id}"/>"/>

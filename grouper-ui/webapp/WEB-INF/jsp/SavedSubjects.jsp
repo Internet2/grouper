@@ -8,7 +8,7 @@
 
 <c:if test="${savedSubjectsSize>0}">
 	
-	<html:form action="/removeSavedSubjects.do">
+	<html:form action="/removeSavedSubjects.do" method="post">
 	<ul>
 	<c:forEach var="subject" items="${savedSubjects}">
 		<li><input name="subjectIds" type="checkbox" value="<c:out value="${subject.id}"/>"/>

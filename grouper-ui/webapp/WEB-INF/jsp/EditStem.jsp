@@ -2,13 +2,13 @@
 			Form for creating newstems or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditStem.jsp,v 1.4 2006-10-05 09:00:36 isgwb Exp $
+  @version $Id: EditStem.jsp,v 1.5 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
 <div class="editForm">
 
-    <html:form action="/saveStem" styleId="StemFormBean">
+    <html:form action="/saveStem" styleId="StemFormBean" method="post">
 		<fieldset>
     <html:hidden property="stemId"/>
 

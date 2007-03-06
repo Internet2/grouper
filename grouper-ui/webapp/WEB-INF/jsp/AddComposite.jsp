@@ -12,7 +12,7 @@
 <c:if test="${savedSubjectsSize<2}">
 <fmt:message bundle="${nav}" key="groups.composite.add.insufficient-saved"/>
 </c:if>
-<html:form action="/saveComposite">
+<html:form action="/saveComposite" method="post">
 <input type="hidden" name="groupId" value="<c:out value="${browseParent.groupId}"/>">
 <fieldset>
 <div class="formRow">

@@ -4,7 +4,7 @@
 		  the active node.
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsFindListHeaderView.jsp,v 1.2 2005-11-08 15:49:50 isgwb Exp $
+  @version $Id: browseStemsFindListHeaderView.jsp,v 1.3 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -15,7 +15,7 @@
   			</tiles:insert>
 
 <div class="browseForFindMembersForm">
-<form action="populateAssignNewMembers.do">
+<form action="populateAssignNewMembers.do" method="post">
 <input type="hidden" name="callerPageId" value="<c:out value="${grouperForm.map.callerPageId}"/>"/>
 <fieldset>
 		<div style="display:none"><input name="alreadyChecked" type="hidden" value="true"/></div>

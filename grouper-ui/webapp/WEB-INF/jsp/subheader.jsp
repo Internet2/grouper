@@ -2,7 +2,7 @@
 		 Stanard tile which displays a menu bar below the header
 --%><%--
   @author Gary Brown.
-  @version $Id: subheader.jsp,v 1.4 2006-04-03 12:54:04 isgwb Exp $
+  @version $Id: subheader.jsp,v 1.5 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -17,7 +17,7 @@
 			<fmt:message bundle="${nav}" key="logout"/> 
 		</html:link></c:if>
 		<c:if test="${authUser!='GrouperSystem' && isWheelGroupMember}">
-		<form method="post" style="display:inline">
+		<form method="post" style="display:inline" action="<c:out value="${pageUrl}"/>">
 		<select class="inNav" name="wheelGroupAction">
 			<option value="toMortal"><fmt:message bundle="${nav}" key="wheelgroup.action.to-mortal"/></option>
 			<option value="toAdmin" <c:if test="${activeWheelGroupMember}">selected="selected"</c:if>><fmt:message bundle="${nav}" key="wheelgroup.action.to-admin"/></option>

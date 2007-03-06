@@ -4,7 +4,7 @@
 		  when searching for subjects in 'Find' mode
 --%><%--
   @author Gary Brown.
-  @version $Id: searchForPrivAssignmentListHeaderView.jsp,v 1.2 2005-11-08 16:17:42 isgwb Exp $
+  @version $Id: searchForPrivAssignmentListHeaderView.jsp,v 1.3 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -14,7 +14,7 @@
 	</fmt:message>
 </h2>
 <div class="assignMembersForm">
-    <form class="AssignMembersForm" action="doAssignNewMembers.do">
+    <form class="AssignMembersForm" action="doAssignNewMembers.do" method="post">
 	<input type="hidden" name="callerPageId" value="<c:out value="${SearchFormBean.map.callerPageId}"/>"/>
 	<fieldset>
 		<c:if test="${forStems}">

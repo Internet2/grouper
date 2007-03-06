@@ -3,12 +3,12 @@
 		see a list of Subjects with that privilege for the active group
 --%><%--
   @author Gary Brown.
-  @version $Id: selectGroupPrivilege.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: selectGroupPrivilege.jsp,v 1.2 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div class="selectGroupPrivilege">
-<html:form action="populateGroupPriviligees">
+<html:form action="populateGroupPriviligees" method="post">
 <fieldset>
 	<input type="hidden" name="groupId" value="<c:out value="${group.groupId}"/>"/>
 	<input type="submit" value="<fmt:message bundle="${nav}" key="priv.show-subjects-with"/>"/>

@@ -4,14 +4,14 @@
 		  includes a form dor chaning the page size
 --%><%--
   @author Gary Brown.
-  @version $Id: genericListHeaderView.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: genericListHeaderView.jsp,v 1.2 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <c:choose>
 	<c:when test="${pager.count>0}">
 		<c:if test="${empty allowPageSizeChange && pager.count > pager.pageSize}">
-		<html:form action="${pager.target}">
+		<html:form action="${pager.target}" method="post">
 		<c:forEach var="entry" items="${pager.params}">
 			<c:if test="${entry.key != 'pageSize'}">
 		<input type="hidden" name="<c:out value="${entry.key}"/>" value="<c:out value="${entry.value}"/>" /></c:if>

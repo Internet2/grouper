@@ -2,14 +2,14 @@
 		Tile which lets user select alternative list field for Manipulation
 --%><%--
   @author Gary Brown.
-  @version $Id: selectListFields.jsp,v 1.2 2006-07-19 11:10:38 isgwb Exp $
+  @version $Id: selectListFields.jsp,v 1.3 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:if test="${listFieldsSize gt 0}">
 <div id="selectListField">
 <h3><fmt:message bundle="${nav}" key="groups.summary.select-list"/></h3>
-<form action="populateGroupMembers.do">
+<form action="populateGroupMembers.do" method="post">
 <input type="hidden" name="groupId" value="<c:out value="${browseParent.id}"/>"/>
 	<select name="listField">
 		<c:forEach var="listField" items="${listFields}">

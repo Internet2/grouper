@@ -12,7 +12,7 @@ Can save and
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
 <tiles:insert definition="showStemsLocationDef" controllerUrl="/prepareBrowsePath.do"/>
-<html:form styleId="EditGroupAttributesForm" action="/saveGroupAttributes">
+<html:form styleId="EditGroupAttributesForm" action="/saveGroupAttributes" method="post">
 <html:hidden property="groupId"/>
 <div class="groupInfo">
 <div class="groupTypes">

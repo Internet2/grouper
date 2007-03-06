@@ -3,11 +3,11 @@
 		  membership / privileges for the active group to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.5 2006-07-06 14:56:05 isgwb Exp $
+  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.6 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<html:form styleId="GroupOrStemMemberFormBean" action="/saveGroupMember">
+<html:form styleId="GroupOrStemMemberFormBean" action="/saveGroupMember" method="post">
 <fieldset>
 	<html:hidden property="asMemberOf"/>
 	<html:hidden property="contextGroup"/>

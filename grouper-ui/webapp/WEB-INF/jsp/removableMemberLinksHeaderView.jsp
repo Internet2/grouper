@@ -2,7 +2,7 @@
 		  Dynamic tile used  to provide form header for removing all, or selected members
 --%><%--
   @author Gary Brown.
-  @version $Id: removableMemberLinksHeaderView.jsp,v 1.1 2006-10-03 11:33:37 isgwb Exp $
+  @version $Id: removableMemberLinksHeaderView.jsp,v 1.2 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -13,7 +13,7 @@
   			</tiles:insert>
 
 <div class="browseForFindMembersForm">
-<form action="removeGroupMembers.do">
+<form action="removeGroupMembers.do" method="post">
 <input type="hidden" name="groupId" value="<c:out value="${grouperForm.map.groupId}"/>"/>
 <input type="hidden" name="contextSubject" value="<c:out value="${grouperForm.map.contextSubject}"/>"/>
 <input type="hidden" name="contextSubjectId" value="<c:out value="${grouperForm.map.contextSubjectId}"/>"/>

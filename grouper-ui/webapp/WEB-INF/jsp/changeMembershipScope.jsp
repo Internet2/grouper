@@ -3,12 +3,12 @@
 		or all members of the active group should be displayed
 --%><%--
   @author Gary Brown.
-  @version $Id: changeMembershipScope.jsp,v 1.3 2006-07-17 10:01:50 isgwb Exp $
+  @version $Id: changeMembershipScope.jsp,v 1.4 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div class="changeScope">
-<html:form method="get" action="/populateGroupMembers">
+<html:form method="post" action="/populateGroupMembers">
 <html:hidden property="groupId"/>
 <html:hidden property="contextSubject"/>
 <html:hidden property="contextSubjectId"/>

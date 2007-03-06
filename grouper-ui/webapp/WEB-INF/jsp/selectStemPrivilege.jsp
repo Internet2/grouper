@@ -3,11 +3,11 @@
 		see a list of Subjects with that privilege for the active stem
 --%><%--
   @author Gary Brown.
-  @version $Id: selectStemPrivilege.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: selectStemPrivilege.jsp,v 1.2 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<html:form action="populateStemPriviligees">
+<html:form action="populateStemPriviligees" method="post">
 <fieldset>
 	<html:hidden property="stemId"/>
 	<input type="hidden" name="stems" value="true"/>

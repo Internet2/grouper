@@ -4,7 +4,7 @@
 		  memberships of the curent node
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsFind.jsp,v 1.4 2006-03-01 16:04:15 isgwb Exp $
+  @version $Id: browseStemsFind.jsp,v 1.5 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -18,7 +18,7 @@
 
 		<c:if test="${listFieldsSize gt 0}">
 		<div id="browseStemsFindSelectList">
-		<html:form action="/browseStemsFind">
+		<html:form action="/browseStemsFind" method="post">
 			<html:hidden property="currentNode"/>
 			<html:hidden property="groupId"/>
 			<html:hidden property="callerPageId"/>

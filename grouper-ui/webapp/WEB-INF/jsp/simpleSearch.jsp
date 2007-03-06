@@ -2,7 +2,7 @@
 		Tile which displays the simple search form for people and groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearch.jsp,v 1.2 2005-11-08 16:19:56 isgwb Exp $
+  @version $Id: simpleSearch.jsp,v 1.3 2007-03-06 11:05:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -13,7 +13,7 @@
 </h2>
 <p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><fmt:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a></p>
 
- <html:form styleId="SearchFormBean" action="/searchNewMembers">
+ <html:form styleId="SearchFormBean" action="/searchNewMembers" method="post">
  		<html:hidden property="searchInNameOrExtension"/>
 		<html:hidden property="searchInDisplayNameOrExtension"/>
 		<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>

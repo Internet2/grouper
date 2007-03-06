@@ -4,7 +4,7 @@
 <h3>You will get a very different view of available groups depending on who you log in as. SuperUser sees everything.<p/>
 </h3>
 
-<html:form action="/login"><fmt:message bundle="${nav}" key="auth.username"/> <!--html:text property="username" size="50"/-->
+<html:form action="/login" method="post"><fmt:message bundle="${nav}" key="auth.username"/> <!--html:text property="username" size="50"/-->
 <html:select property="username">
 <option>81122</option>
 <option>83891</option>

@@ -3,12 +3,12 @@
 		  privileges for the active stem to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyStemMemberPrivilegesView.jsp,v 1.2 2005-11-08 16:15:22 isgwb Exp $
+  @version $Id: modifyStemMemberPrivilegesView.jsp,v 1.3 2007-03-06 11:05:49 isgwb Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<html:form styleId="GroupOrStemMemberFormBean" action="/saveStemMember">
+<html:form styleId="GroupOrStemMemberFormBean" action="/saveStemMember" method="post">
 	<html:hidden property="asMemberOf"/>
 	<html:hidden property="contextGroup"/>
 	<html:hidden property="contextSubjectId"/>
