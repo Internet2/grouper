@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.108 2007-03-01 19:00:53 blair Exp $
+ * @version $Id: Stem.java,v 1.109 2007-03-06 15:58:47 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -673,7 +673,7 @@ public class Stem extends GrouperAPI implements Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     NamingValidator nv = NamingValidator.validate(value);
-    if ( !nv.getIsValid() ) {
+    if (nv.isInvalid()) {
       // TODO 20070219 this should not be here
       if ( this.isRootStem() && value.equals(ROOT_EXT) ) {
         // Appease Oracle
@@ -741,7 +741,7 @@ public class Stem extends GrouperAPI implements Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     NamingValidator nv = NamingValidator.validate(value);
-    if ( !nv.getIsValid() ) {
+    if (nv.isInvalid()) {
       // TODO 20070219 this should not be here
       if ( this.isRootStem() && value.equals(ROOT_EXT) ) {
         // Appease Oracle

@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.136 2007-03-06 15:43:51 blair Exp $
+ * @version $Id: Group.java,v 1.137 2007-03-06 15:58:47 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -483,7 +483,7 @@ public class Group extends GrouperAPI implements Owner {
       StopWatch sw = new StopWatch();
       sw.start();
       NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(attr);
-      if ( !v.getIsValid() ) {
+      if (v.isInvalid()) {
         throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
       }
       Field f = FieldFinder.find(attr);
@@ -1973,9 +1973,9 @@ public class Group extends GrouperAPI implements Owner {
         ||  attr.equals(GrouperConfig.ATTR_E)
       )
       {
-        NamingValidator nv = NamingValidator.validate(value);
-        if ( !nv.getIsValid() ) {
-          throw new ModelException( nv.getErrorMessage() );
+        v = NamingValidator.validate(value);
+        if (v.isInvalid()) {
+          throw new ModelException( v.getErrorMessage() );
         }
       }
       if ( !this.canWriteField( FieldFinder.find(attr) ) ) {

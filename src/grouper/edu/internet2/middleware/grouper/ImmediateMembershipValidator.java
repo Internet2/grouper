@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.2 2007-02-22 20:12:43 blair Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.3 2007-03-06 15:58:47 blair Exp $
  * @since   1.2.0
  */
 class ImmediateMembershipValidator extends MembershipValidator {
@@ -31,7 +31,7 @@ class ImmediateMembershipValidator extends MembershipValidator {
     ImmediateMembershipValidator  v   = new ImmediateMembershipValidator();
     // Perform generic Membership validation
     MembershipValidator           vMS = MembershipValidator.validate(_ms);
-    if ( !vMS.getIsValid() ) {
+    if (vMS.isInvalid()) {
       v.setErrorMessage( vMS.getErrorMessage() );  
       return v;
     }

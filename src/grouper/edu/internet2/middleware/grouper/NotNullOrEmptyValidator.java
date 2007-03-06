@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: NotNullOrEmptyValidator.java,v 1.3 2007-02-28 19:37:31 blair Exp $
+ * @version $Id: NotNullOrEmptyValidator.java,v 1.4 2007-03-06 15:58:47 blair Exp $
  * @since   1.2.0
  */
 class NotNullOrEmptyValidator extends GrouperValidator {
@@ -30,7 +30,7 @@ class NotNullOrEmptyValidator extends GrouperValidator {
   protected static NotNullOrEmptyValidator validate(String value) {
     NotNullOrEmptyValidator v   = new NotNullOrEmptyValidator();
     NotNullValidator        nnv = NotNullValidator.validate(value);
-    if ( !nnv.getIsValid() ) {
+    if (nnv.isInvalid()) {
       v.setErrorMessage( nnv.getErrorMessage() );
       return v;
     }

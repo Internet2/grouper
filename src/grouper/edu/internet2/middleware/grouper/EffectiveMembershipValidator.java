@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: EffectiveMembershipValidator.java,v 1.1 2007-02-20 20:29:20 blair Exp $
+ * @version $Id: EffectiveMembershipValidator.java,v 1.2 2007-03-06 15:58:47 blair Exp $
  * @since   1.2.0
  */
 class EffectiveMembershipValidator extends MembershipValidator {
@@ -31,7 +31,7 @@ class EffectiveMembershipValidator extends MembershipValidator {
     EffectiveMembershipValidator  v   = new EffectiveMembershipValidator();
     // Perform generic Membership validation
     MembershipValidator           vMS = MembershipValidator.validate(_ms);
-    if ( !vMS.getIsValid() ) {
+    if (vMS.isInvalid()) {
       v.setErrorMessage( vMS.getErrorMessage() );  
       return v;
     }
