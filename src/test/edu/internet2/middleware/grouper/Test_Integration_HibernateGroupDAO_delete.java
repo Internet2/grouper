@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.2 2007-03-06 20:19:00 blair Exp $
+ * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.3 2007-03-07 19:13:59 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
@@ -75,6 +75,52 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
       unexpectedException(e);
     }
   } // public void testDelete_AttributesDeletedWhenRegistryIsReset()
+
+  public void testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted() {
+    try {
+      LOG.info("testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted");
+      R         r     = R.getContext("grouper");
+      Group     g     = r.getGroup("i2mi:grouper", "grouper-dev");
+      GroupType type  = GroupTypeFinder.find("base");
+
+      HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), type.getDTO() );
+      assertTrue("group has type tuple in registry before deletion", true);
+      g.delete(); // type tuples should be deleted automatically when group is deleted
+      try {
+        HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), type.getDTO() );
+        fail("type tuple still exists after group deletion");
+      }
+      catch (GrouperDAOException eExpected) {
+        assertTrue("group no longer has type tuple after group deletion", true);
+      }
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  } // public void testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted()
+
+  public void testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset() {
+    try {
+      LOG.info("testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset");
+      R         r     = R.getContext("grouper");
+      Group     g     = r.getGroup("i2mi:grouper", "grouper-dev");
+      GroupType type  = GroupTypeFinder.find("base");
+
+      HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), type.getDTO() );
+      assertTrue("group has type tuple in registry before reset", true);
+      RegistryReset.reset();  // tuples should be deleted when registry is reset
+      try {
+        HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), type.getDTO() );
+        fail("type tuple still exists after reset");
+      }
+      catch (GrouperDAOException eExpected) {
+        assertTrue("group no longer has type tuple after reset", true);
+      }
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  } // public void testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset()
 
 } // public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest
 
