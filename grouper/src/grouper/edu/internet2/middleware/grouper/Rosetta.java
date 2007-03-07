@@ -26,7 +26,7 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.2 2007-02-14 17:34:14 blair Exp $
+ * @version $Id: Rosetta.java,v 1.3 2007-03-07 15:48:41 blair Exp $
  */
 class Rosetta {
 
@@ -84,6 +84,9 @@ class Rosetta {
   protected static GrouperAPI getAPI(Object obj) {
     if      (obj instanceof BaseGrouperDTO)  {
       return getAPI( (BaseGrouperDTO) obj );
+    }
+    else if (obj instanceof Field)           { // TODO 20070307 why does gsh trigger this?
+      return (Field) obj;
     }
     else if (obj instanceof HibernateDAO)    {
       return getAPI( (HibernateDAO) obj );  
