@@ -21,12 +21,13 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.22 2007-03-06 18:07:55 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.23 2007-03-07 16:57:00 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
+    suite.addTestSuite( Test_UnresolvedBugs.class );
     suite.addTest( Suite_Unit.suite() );
     suite.addTest( Suite_Integration.suite() );
 
