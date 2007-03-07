@@ -14,6 +14,8 @@ ehcache-1.2.3.jar [outgoing addition]
 hibernate3.jar [outgoing addition]
 HIBR3_README.txt [outgoing addition]
 hsqldb.jar [outgoing addition]
+jdbc2_0-stdext.jar [outgoing addition]
+jdbc2_0-stdext.license.txt [outgoing addition]
 jdom.jar [outgoing addition]
 jdom.license.txt [outgoing addition]
 jta.jar [outgoing addition]
@@ -72,5 +74,5 @@ Released: 20060807
 
 ---
 
-$Id: NEWS.txt,v 1.5 2007-03-07 22:32:08 ddonn Exp $
+$Id: NEWS.txt,v 1.6 2007-03-07 23:20:44 ddonn Exp $
 
