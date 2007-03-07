@@ -15,7 +15,7 @@ import  java.util.*;
  * Pretty print results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: p.java,v 1.8 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: p.java,v 1.9 2007-03-07 16:07:38 blair Exp $
  * @since   0.0.1
  */
 public class p {
@@ -55,8 +55,8 @@ public class p {
       else if (obj instanceof GroupType)        {
         _pp(i, (GroupType) obj);
       }
-      else if (obj instanceof HibernateSubject) {
-        _pp(i, (HibernateSubject) obj);
+      else if (obj instanceof RegistrySubject) {
+        _pp(i, (RegistrySubject) obj);
       }
       else if (obj instanceof Integer)          {
         i.println(obj);
@@ -112,9 +112,9 @@ public class p {
   private static void _pp(Interpreter i, Group g) {
       i.println(
         "group: "
-        + "name="         + U.q(g.getName()         ) 
-        + "displayName="  + U.q(g.getDisplayName()  )  
-        + "uuid="         + U.q(g.getUuid()         )
+        + "name="        + U.q(g.getName()        ) 
+        + "displayName=" + U.q(g.getDisplayName() )  
+        + "uuid="        + U.q(g.getUuid()        )
       );
   } // private static void _pp(i, g)
 
@@ -124,14 +124,14 @@ public class p {
       i.println("type: " + U.q(t.getName()));
   } // private static void _pp(i, t)
 
-  // Handle {@link HibernateSubject}s
+  // Handle {@link RegistrySubject}s
   // @since   0.0.1
-  private static void _pp(Interpreter i, HibernateSubject subj) {
+  private static void _pp(Interpreter i, RegistrySubject subj) {
       i.println(
         "hibernatesubject: " 
-        + "id="     + U.q(  subj.getSubjectId()       )
-        + "type="   + U.q(  subj.getSubjectTypeId()   )
-        + "name="   + U.q(  subj.getName()            )
+        + "id="   + U.q(  subj.getId()             )
+        + "type=" + U.q(  subj.getType().getName() )
+        + "name=" + U.q(  subj.getName()           )
       );
   } // private static void _pp(i, subj)
 
@@ -140,10 +140,10 @@ public class p {
   private static void _pp(Interpreter i, Member m) {
       i.println(
         "member: " 
-        + "id="     + U.q(  m.getSubjectId()        )
-        + "type="   + U.q(  m.getSubjectTypeId()    )
-        + "source=" + U.q(  m.getSubjectSourceId()  )
-        + "uuid="   + U.q(  m.getUuid()             )
+        + "id="     + U.q(  m.getSubjectId()       )
+        + "type="   + U.q(  m.getSubjectTypeId()   )
+        + "source=" + U.q(  m.getSubjectSourceId() )
+        + "uuid="   + U.q(  m.getUuid()            )
       );
   } // private static void _pp(i, m)
 

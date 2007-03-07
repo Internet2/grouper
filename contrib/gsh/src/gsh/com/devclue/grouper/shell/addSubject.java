@@ -10,10 +10,10 @@ import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
 
 /**
- * Add {@link HibernateSubject} to Groups Registry.
+ * Add {@link RegistrySubject} to Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addSubject.java,v 1.7 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: addSubject.java,v 1.8 2007-03-07 16:07:38 blair Exp $
  * @since   0.0.1
  */
 public class addSubject {
@@ -21,25 +21,25 @@ public class addSubject {
   // PUBLIC CLASS METHODS //
 
   /**
-   * Add {@link HibernateSubject} to Groups Registry.
+   * Add {@link RegistrySubject} to Groups Registry.
    * <p/>
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   id          Subject <i>id</i>.
    * @param   type        Subject <i>type</i>.
    * @param   name        Subject <i>name</i>.
-   * @return  Added {@link HibernateSubject}.
+   * @return  Added {@link RegistrySubject}.
    * @throws  GrouperShellException
    * @since   0.0.1
    */
-  public static HibernateSubject invoke(
+  public static RegistrySubject invoke(
     Interpreter i, CallStack stack, String id, String type, String name
   ) 
     throws  GrouperShellException
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      return HibernateSubject.add( GrouperShell.getSession(i), id, type, name );
+      return RegistrySubject.add( GrouperShell.getSession(i), id, type, name );
     }
     catch (GrouperException eG)                 { 
       GrouperShell.error(i, eG);
@@ -48,7 +48,7 @@ public class addSubject {
       GrouperShell.error(i, eIP);
     }
     return null;
-  } // public static HibernateSubject invoke(i, stack, parent, name)
+  } // public static RegistrySubject invoke(i, stack, parent, name)
 
 } // public class addSubject
 

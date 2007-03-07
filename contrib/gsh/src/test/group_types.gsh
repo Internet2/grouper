@@ -1,6 +1,6 @@
 #
 # GrouperShell Group Type Tests
-# $Id: group_types.gsh,v 1.2 2006-08-10 18:47:53 blair Exp $
+# $Id: group_types.gsh,v 1.3 2007-03-07 16:07:38 blair Exp $
 #
 
 #
@@ -25,7 +25,7 @@ assertTrue( "added attr", attr.getType().equals(FieldType.ATTRIBUTE) )
 list    = typeAddList(name, "custom list"     , AccessPrivilege.READ, AccessPrivilege.ADMIN)
 assertTrue( "added list", list.getType().equals(FieldType.LIST) )
 found   = typeFind(name)
-assertTrue( "found custom type", found != null             )
+assertTrue( "found custom type", found != null )
 fields  = typeGetFields(name)
 assertTrue( "type has 2 fields", fields.size() == 2 )
 
@@ -41,6 +41,7 @@ assertTrue( "deleted type from group", groupDelType(g.getName(), name) )
 
 # and then remove it
 assertTrue( "deleted custom attr", typeDelField(name, "custom attribute") )
+fields  = typeGetFields(name)
 assertTrue( "type now has 1 field", fields.size() == 1 )
 assertTrue( "deleted group type", typeDel(name) )
 
