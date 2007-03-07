@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.12 2007-02-27 18:48:07 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.13 2007-03-07 20:30:44 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -74,7 +74,9 @@ class HibernateStemDAO extends HibernateDAO {
           hs.save(gtt); // new group-type tuple
         }
         hs.update( Rosetta.getDAO(parent) );
-        hs.save( Rosetta.getDAO(m) );
+        if ( !HibernateMemberDAO.exists( m.getMemberUuid() ) ) {
+          hs.save( Rosetta.getDAO(m) );
+        }
         tx.commit();
       }
       catch (HibernateException eH) {

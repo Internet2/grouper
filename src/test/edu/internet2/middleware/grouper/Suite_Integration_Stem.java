@@ -20,13 +20,14 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Integration_Stem.java,v 1.1 2007-03-06 18:07:55 blair Exp $
+ * @version $Id: Suite_Integration_Stem.java,v 1.2 2007-03-07 20:30:44 blair Exp $
  * @since   1.2.0
  */
 public class Suite_Integration_Stem extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
+    suite.addTestSuite(Test_Integration_Stem_internal_addChildGroup.class);
     suite.addTestSuite(Test_Integration_Stem_setExtension.class);
     return suite;
   } // static public Test suite()

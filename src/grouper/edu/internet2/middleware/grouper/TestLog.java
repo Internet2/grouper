@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
  * (Some) Grouper test logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestLog.java,v 1.1 2007-03-07 16:57:00 blair Exp $
+ * @version $Id: TestLog.java,v 1.2 2007-03-07 20:30:44 blair Exp $
  * @since   1.2.0
  */
 class TestLog {
@@ -40,14 +40,14 @@ class TestLog {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static void lookInto(Class c, String msg) {
-    LOG.info( LogHelper.internal_formatClass(c) + "LOOK INTO: " + msg );
-  } // protected static void lookInto(c, msg)
+  protected static void resolved(Class c, String msg) {
+    LOG.info( LogHelper.internal_formatClass(c) + "failure possibly resolved: " + msg );
+  } // protected static void resolved(c, msg)
 
   // @since 1.0
-  protected static void stillFailing(Class c, String msg) {
-    LOG.info( LogHelper.internal_formatClass(c) + "still failing: " + msg );
-  } // protected static void stilLFailing(c, msg)
+  protected static void unresolved(Class c, String msg) {
+    LOG.info( LogHelper.internal_formatClass(c) + "failure still unresolved: " + msg );
+  } // protected static void unresolved(c, msg)
 
 } // class TestLog
 

@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.109 2007-03-06 15:58:47 blair Exp $
+ * @version $Id: Stem.java,v 1.110 2007-03-07 20:30:44 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -883,15 +883,30 @@ public class Stem extends GrouperAPI implements Owner {
       GrouperSubject  subj  = new GrouperSubject(dto);
       MemberDTO       m     = new MemberDTO();
       // TODO 20070123 this could be more elegant
-      m.setMemberUuid( GrouperUuid.internal_getUuid() );
+      // TODO 20070307 this is even worse now that i'm checking for existence both here
+      //               and in the dao.
       m.setSubjectId( subj.getId() );
       m.setSubjectSourceId( subj.getSource().getId() );
       m.setSubjectTypeId( subj.getType().getName() );
+      if (uuid == null) {
+        m.setMemberUuid( GrouperUuid.internal_getUuid() ); // assign a new uuid
+      }
+      else {
+        try {
+          // member already exists.  use existing uuid.
+          m.setMemberUuid( HibernateMemberDAO.findBySubject(subj).getMemberUuid() );
+        }
+        catch (MemberNotFoundException eMNF) {
+          // couldn't find member.  assign new uuid.
+          m.setMemberUuid( GrouperUuid.internal_getUuid() ); 
+        }
+      }
 
       dto.setId( HibernateStemDAO.createChildGroup( this.getDTO(), dto, m) );
       Group child = new Group();
       child.setDTO(dto);
       child.setSession( this.getSession() );
+        
 
       sw.stop();
       EventLog.info(s, M.GROUP_ADD + U.internal_q(child.getName()), sw);

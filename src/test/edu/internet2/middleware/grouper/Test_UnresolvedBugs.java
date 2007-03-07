@@ -23,58 +23,25 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_UnresolvedBugs.java,v 1.2 2007-03-07 19:13:59 blair Exp $
+ * @version $Id: Test_UnresolvedBugs.java,v 1.3 2007-03-07 20:30:44 blair Exp $
  * @since   1.2.0
  */
 public class Test_UnresolvedBugs extends GrouperTest {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Test_UnresolvedBugs.class);
+  private static final String KLASS = Test_UnresolvedBugs.class.getName();
+  private static final Log    LOG   = LogFactory.getLog(Test_UnresolvedBugs.class);
 
+  /*
+   * Use "TestLog.resolved(KLASS, msg)" and "TestLog.unresolved(KLASS, msg)"
+   */
 
   // TESTS //  
 
   public void testUnresolvedBug0() {
     try {
       LOG.info("testUnresolvedBug0");
-    
-      RegistryReset.reset();
-      R               r     = new R();
-      GrouperSession  s     = r.getSession();
-      Stem            root  = StemFinder.findRootStem(s).addChildStem("uchicago", "uchicago");
-      Stem            ns    = root.addChildStem("nsit", "nsit");
-      Group           g     = ns.addChildGroup("nas", "nas");
-
-      XmlExporter     exporter  = new XmlExporter(s, new Properties());
-      Writer          w         = new StringWriter();
-      exporter.export(w);
-      String          xml       = w.toString();
-
-      g.delete();
-      ns.delete();
-
-/* 
-      root.delete();
-      root  = StemFinder.findRootStem(s).addChildStem("uchicago", "uchicago");
-      ns = root.internal_addChildStem("nsit", "nsit", ns.getUuid() );
-      // this fails
-      g = ns.internal_addChildGroup("nas", "nas", g.getUuid() );
-      // this does not
-      //g = ns.addChildGroup("nas", "nas");
-*/
-      XmlImporter importer = new XmlImporter(s, new Properties());
-      // FIXME 20070307 why does this error out when trying to save the child group?
-      try {
-        importer.load( XmlReader.getDocumentFromString(xml) );
-        String msg = "GrouperException not thrown when adding child group from xml";
-        TestLog.lookInto(Test_UnresolvedBugs.class, msg);
-        fail(msg);
-      }
-      catch (GrouperException eG) {
-        String msg = "GrouperException thrown when adding child group from xml";
-        TestLog.stillFailing(Test_UnresolvedBugs.class, msg);
-        assertTrue(msg, true);
-      }
+      assertTrue("no known unresolved bugs", true);
     }
     catch (Exception e) {
       unexpectedException(e);
