@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.12 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.13 2007-03-07 20:30:44 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
@@ -51,7 +51,7 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
   public boolean onDelete(Session hs) 
     throws  CallbackException
   {
-    existsCache.put( this.getMemberUuid(), true );
+    existsCache.put( this.getMemberUuid(), false );
     return Lifecycle.NO_VETO;
   } // public boolean onDelete(hs)
 
