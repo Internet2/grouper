@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.138 2007-03-06 19:29:21 blair Exp $
+ * @version $Id: Group.java,v 1.139 2007-03-07 20:43:13 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -489,7 +489,7 @@ public class Group extends GrouperAPI implements Owner {
       }
       Field f = FieldFinder.find(attr);
       if (f.getRequired()) {
-        throw new ModelException( E.GROUP_DRA + f.getName() );
+        throw new GroupModifyException( E.GROUP_DRA + f.getName() );
       }
       if ( !this.canWriteField(f) ) {
         throw new InsufficientPrivilegeException();
@@ -515,9 +515,6 @@ public class Group extends GrouperAPI implements Owner {
     }
     catch (InsufficientPrivilegeException eIP) {
       throw eIP;
-    }
-    catch (ModelException eM) {
-      throw new GroupModifyException(eM.getMessage(), eM);
     }
     catch (SchemaException eS) {
       throw new AttributeNotFoundException(eS.getMessage(), eS);
@@ -552,7 +549,7 @@ public class Group extends GrouperAPI implements Owner {
         throw new InsufficientPrivilegeException();
       }
       if ( !this.hasComposite() ) {
-        throw new ModelException(E.GROUP_DCFC); 
+        throw new MemberDeleteException(E.GROUP_DCFC); 
       }
       CompositeDTO  dto = HibernateCompositeDAO.findAsOwner( this.getDTO() );
       Composite     c   = new Composite();
@@ -569,10 +566,6 @@ public class Group extends GrouperAPI implements Owner {
     }
     catch (GrouperDAOException eDAO) {
       throw new MemberDeleteException( eDAO.getMessage(), eDAO );
-    }
-    catch (ModelException eM) {
-      // Fragile tests rely upon the message being precise
-      throw new MemberDeleteException(eM.getMessage(), eM);
     }
     catch (SchemaException eS) {
       throw new MemberDeleteException(eS);
@@ -692,7 +685,7 @@ public class Group extends GrouperAPI implements Owner {
     String msg = E.GROUP_TYPEDEL + type + ": "; 
     try {
       if ( !this.hasType(type) ) {
-        throw new ModelException("does not have type");
+        throw new GroupModifyException("does not have type");
       }
       if ( GroupType.internal_isSystemType(type) ) {
         throw new SchemaException("cannot edit system group types");
@@ -719,11 +712,6 @@ public class Group extends GrouperAPI implements Owner {
       msg += eDAO.getMessage();
       ErrorLog.error(Group.class, msg);
       throw new GroupModifyException(msg, eDAO);
-    }
-    catch (ModelException eM) {
-      msg += eM.getMessage();
-      ErrorLog.error(Group.class, msg);
-      throw new GroupModifyException(msg, eM);
     }
   } // public void deleteType(type)
 
@@ -1976,7 +1964,7 @@ public class Group extends GrouperAPI implements Owner {
       {
         v = NamingValidator.validate(value);
         if (v.isInvalid()) {
-          throw new ModelException( v.getErrorMessage() );
+          throw new GroupModifyException( v.getErrorMessage() );
         }
       }
       if ( !this.canWriteField( FieldFinder.find(attr) ) ) {
@@ -2002,9 +1990,6 @@ public class Group extends GrouperAPI implements Owner {
     }
     catch (InsufficientPrivilegeException eIP) {
       throw eIP;
-    }
-    catch (ModelException eM) {
-      throw new GroupModifyException(eM.getMessage(), eM);
     }
     catch (SchemaException eS) {
       throw new AttributeNotFoundException(eS.getMessage(), eS);
