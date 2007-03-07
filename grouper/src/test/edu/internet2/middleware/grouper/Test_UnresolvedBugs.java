@@ -16,20 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.StringWriter;
-import  java.io.Writer;
-import  java.util.Properties;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_UnresolvedBugs.java,v 1.3 2007-03-07 20:30:44 blair Exp $
+ * @version $Id: Test_UnresolvedBugs.java,v 1.4 2007-03-07 20:36:10 blair Exp $
  * @since   1.2.0
  */
 public class Test_UnresolvedBugs extends GrouperTest {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = Test_UnresolvedBugs.class.getName();
+  // commented out to silence warnings in eclipse:
+  // private static final String KLASS = Test_UnresolvedBugs.class.getName();
   private static final Log    LOG   = LogFactory.getLog(Test_UnresolvedBugs.class);
 
   /*
