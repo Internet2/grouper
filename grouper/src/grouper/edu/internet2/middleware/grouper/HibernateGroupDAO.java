@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.17 2007-03-06 19:29:21 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.18 2007-03-07 19:13:59 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
@@ -77,11 +77,11 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       this._updateAttributes(hs);
       existsCache.put( this.getUuid(), true );
+      return Lifecycle.NO_VETO;
     }
     catch (HibernateException eH) {
       throw new CallbackException( eH.getMessage(), eH );
     }
-    return Lifecycle.NO_VETO;
   } // public boolean onSave(hs)
 
   // @since   1.2.0
@@ -143,6 +143,8 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
         }
         // delete attributes
         hs.delete( "from HibernateAttributeDAO where group_id = ?", _g.getUuid(), Hibernate.STRING );
+        // delete type tuples
+        hs.delete( "from HibernateGroupTypeTupleDAO where group_uuid = ?", _g.getUuid(), Hibernate.STRING );
         // delete group
         hs.delete( Rosetta.getDAO(_g) );
 
@@ -517,9 +519,10 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   protected static void reset(Session hs) 
     throws  HibernateException
   {
-    hs.delete("from HibernateAttributeDAO");  // TODO 20070306 ideally i could just put the right hooks into 
-                                              //               "onDelete()" but right now that is blowing up 
-                                              //               due to the session being flushed 
+    // TODO 20070307 ideally i would just put hooks for associated tables into "onDelete()" 
+    //               but right now that is blowing up due to the session being flushed.
+    hs.delete("from HibernateGroupTypeTupleDAO");
+    hs.delete("from HibernateAttributeDAO"); 
     hs.delete("from HibernateGroupDAO");
     existsCache.removeAll(); 
   } // protected static void reset(hs)
@@ -622,7 +625,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     throws  HibernateException
   {
     // TODO 20070201 refactor.  this is too big.
-    Transaction tx  = hs.beginTransaction();
+    Transaction tx  = hs.beginTransaction(); // TODO 20070307 why don't we just use parent tx?
     Query       qry = hs.createQuery("from HibernateAttributeDAO as a where a.groupUuid = :uuid");
     qry.setCacheable(true);
     qry.setCacheRegion(KLASS + "._UpdateAttributes");

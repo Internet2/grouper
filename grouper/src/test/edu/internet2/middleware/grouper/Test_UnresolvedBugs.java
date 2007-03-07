@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_UnresolvedBugs.java,v 1.1 2007-03-07 16:57:00 blair Exp $
+ * @version $Id: Test_UnresolvedBugs.java,v 1.2 2007-03-07 19:13:59 blair Exp $
  * @since   1.2.0
  */
 public class Test_UnresolvedBugs extends GrouperTest {
@@ -53,6 +53,15 @@ public class Test_UnresolvedBugs extends GrouperTest {
       g.delete();
       ns.delete();
 
+/* 
+      root.delete();
+      root  = StemFinder.findRootStem(s).addChildStem("uchicago", "uchicago");
+      ns = root.internal_addChildStem("nsit", "nsit", ns.getUuid() );
+      // this fails
+      g = ns.internal_addChildGroup("nas", "nas", g.getUuid() );
+      // this does not
+      //g = ns.addChildGroup("nas", "nas");
+*/
       XmlImporter importer = new XmlImporter(s, new Properties());
       // FIXME 20070307 why does this error out when trying to save the child group?
       try {
