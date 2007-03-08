@@ -5,7 +5,7 @@
 --    1/10/2006 - renamed signet_privilegedSubject to signet_subject
 --    3/09/2006 - add categoryKey, functionKey, subjectKey, choiceKey, choiceSetKey
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.29 2007-03-05 18:10:51 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.30 2007-03-08 07:11:47 lmcrae Exp $
 --
 
 -- Database: signet_db
@@ -187,9 +187,9 @@ create table signet_permission_limit
 create sequence subjectSerial START 1;
 
 create table signet_subject (
-	subjectKey			int8				DEFAULT nextval('subjectSerial'),
+	subjectKey          int8                DEFAULT nextval('subjectSerial'),
 	sourceID            varchar(64)         NOT NULL,
-	subjectID     		varchar(64)         NOT NULL,
+	subjectID           varchar(64)         NOT NULL,
 	type                varchar(32)         NOT NULL,
 	name                varchar(255)        NOT NULL,
 	modifyDatetime      timestamp           NOT NULL,
@@ -202,16 +202,16 @@ create table signet_subject (
 create sequence subjectAttributeSerial START 1;
 
 create table signet_subjectAttribute (
-	subjectAttributeKey	int8			DEFAULT nextval('subjectAttributeSerial'),
-	subjectKey			int8			NOT NULL,
-	attributeName		varchar(31)		NOT NULL,
-	attributeSequence	int				NOT NULL,
-	attributeValue		varchar(255)	NOT NULL,
-	attributeType		varchar(31)		DEFAULT 'string',
-	modifyDatetime		timestamp		NOT NULL,
+	subjectAttributeKey int8                DEFAULT nextval('subjectAttributeSerial'),
+	subjectKey          int8                NOT NULL,
+	attributeName       varchar(31)         NOT NULL,
+	attributeSequence   integer             NOT NULL,
+	attributeValue      varchar(255)        NOT NULL,
+	attributeType       varchar(31)         DEFAULT 'string',
+	modifyDatetime      timestamp           NOT NULL,
 	primary key (subjectAttributeKey),
 	foreign key (subjectKey)
-		references signet_subject(subjectKey) ON DELETE CASCADE,
+	    references signet_subject(subjectKey) ON DELETE CASCADE,
 	unique (subjectKey, attributeName, attributeSequence)
 )
 ;
@@ -455,16 +455,6 @@ create table signet_proxy_history
 
 -- Subject tables (optional, for local subject tables)
 
-create table SubjectType
-(
-	subjectTypeID     varchar(32)           NOT NULL,
-	name              varchar(120)          NOT NULL,
-	adapterClass      varchar(255)          NOT NULL,
-	modifyDatetime    timestamp             NOT NULL,
-	primary key (subjectTypeID)
-)
-;
-
 create table Subject
 (
 	subjectTypeID     varchar(32)           NOT NULL,
@@ -498,4 +488,3 @@ create index SubjectAttribute_1
 	  value
 )
 ;
-
