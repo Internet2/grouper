@@ -22,7 +22,7 @@ import  java.io.Serializable;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.18 2007-02-22 23:23:55 blair Exp $    
+ * @version $Id: Field.java,v 1.19 2007-03-08 20:04:38 blair Exp $    
  */
 public class Field extends GrouperAPI implements Serializable {
 
@@ -34,8 +34,8 @@ public class Field extends GrouperAPI implements Serializable {
   private static final String KEY_GROUPTYPE = "grouptype"; // for state cache
 
 
-  // PRIVATE INSTANCE VARIABLES //
-  private SimpleCache stateCache = new SimpleCache();
+  // PRIVATE TRANSIENT INSTANCE VARIABLES //
+  private transient SimpleCache stateCache = new SimpleCache();
 
 
   // PUBLIC INSTANCE METHODS //
