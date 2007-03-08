@@ -20,13 +20,14 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Unit_API.java,v 1.1 2007-03-06 18:07:55 blair Exp $
+ * @version $Id: Suite_Unit_API.java,v 1.2 2007-03-08 16:42:13 blair Exp $
  * @since   1.2.0
  */
 public class Suite_Unit_API extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
+    suite.addTest( Suite_Unit_API_GrouperSourceAdapter.suite() ); 
     suite.addTest( Suite_Unit_API_Stem.suite() ); 
     return suite;
   } // static public Test suite()
