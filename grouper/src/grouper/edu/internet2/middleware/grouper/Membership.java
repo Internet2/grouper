@@ -26,7 +26,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.75 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: Membership.java,v 1.76 2007-03-08 19:07:20 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -229,7 +229,7 @@ public class Membership extends GrouperAPI {
   /**
    * Get this membership's via group.
    * <p>{@link Group}s with {@link Composite} memberships will <b>not</b> have a
-   * via group.  Use the {@link #getVia() getVia()} method instead.</p>
+   * via group.  Use the {@link #getViaComposite() getViaComposite()} method instead.</p>
    * <pre class="eg">
    * try {
    *   Group via = ms.getViaGroup();

@@ -22,7 +22,7 @@ import  java.util.Set;
  * Query by {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFilter.java,v 1.6 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: GroupTypeFilter.java,v 1.7 2007-03-08 19:07:20 blair Exp $
  * @since   1.2.0
  */
 public class GroupTypeFilter extends BaseQueryFilter {
@@ -37,8 +37,9 @@ public class GroupTypeFilter extends BaseQueryFilter {
   /**
    * {@link QueryFilter} that returns groups that have the specified 
    * {@link GroupType}.
-   * @param   name  Find groups matching this name.
+   * @param   type  Find groups of this type.
    * @param   ns    Restrict results to within this stem.
+   * @since   1.2.0
    */
   public GroupTypeFilter(GroupType type, Stem ns) {
     this.type = type;
