@@ -1,7 +1,7 @@
 --
 -- This is the HSQL DDL for the Signet database
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/hsql.sql,v 1.40 2006-10-25 00:12:50 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/hsql.sql,v 1.41 2007-03-08 07:10:01 lmcrae Exp $
 --
 
 -- Tree tables
@@ -27,7 +27,6 @@ drop table signet_permission if exists;
 drop table signet_limit if exists;
 drop table signet_subsystem if exists;
 -- Signet Subject table
-drop table signet_subjectAttrValue if exists;
 drop table signet_subjectAttribute if exists;
 drop table signet_subject if exists;
 -- Local Source Subject tables (optional)
@@ -130,11 +129,11 @@ foreign key (limitKey) references signet_limit (limitKey)
 -- Signet Subject tables
 --
 create table signet_subject (
-subjectKey			bigint              NOT NULL IDENTITY,
+subjectKey          bigint              NOT NULL IDENTITY,
 sourceID            varchar(64)         NOT NULL,
 subjectID           varchar(64)         NOT NULL,
 type                varchar(32)         NOT NULL,
-name                varchar(120)        NOT NULL,
+name                varchar(255)        NOT NULL,
 modifyDatetime      datetime            NOT NULL,
 syncDatetime        datetime            NOT NULL,
 primary key (subjectKey),
@@ -142,14 +141,17 @@ unique (sourceID, subjectID)
 )
 ;
 create table signet_subjectAttribute (
-subjectAttrKey	bigint			NOT NULL,
-subjectKey		bigint			NOT NULL,
-name			varchar(32)		NOT NULL,
-modifyDatetime	datetime		NOT NULL,
-primary key (subjectAttrKey),
+subjectAttributeKey  bigint             NOT NULL,
+subjectKey           bigint             NOT NULL,
+attributeName        varchar(31)        NOT NULL,
+attributeSequence    integer            NOT NULL,
+attributeValue       varchar(255)       NOT NULL,
+attributeType        varchar(31)        DEFAULT 'string',
+modifyDatetime       timestamp          NOT NULL,
+primary key (subjectAttributeKey),
 foreign key (subjectKey)
-references signet_subject(subjectKey) ON DELETE CASCADE,
-unique (subjectKey, name)
+    references signet_subject(subjectKey) ON DELETE CASCADE,
+unique (subjectKey, attributeName, attributeSequence)
 )
 ;
 
@@ -390,14 +392,6 @@ foreign key (revokerKey) references signet_subject (subjectKey)
 --
 -- Subject tables (optional, for local subject tables)
 --
-create table SubjectType (
-  subjectTypeID     varchar(32)     NOT NULL,
-  name              varchar(120)    NOT NULL,
-  adapterClass      varchar(255)    NOT NULL,
-  modifyDatetime    datetime        NOT NULL,
-  primary key (subjectTypeID)
-)
-;
 create table Subject (
   subjectTypeID     varchar(32)     NOT NULL,
   subjectID         varchar(64)     NOT NULL,

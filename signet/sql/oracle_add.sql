@@ -2,7 +2,7 @@
 -- This is the Oracle DDL for the Signet database
 -- Tom Poage, University of California at Davis, 10 Feb 2006
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/oracle_add.sql,v 1.5 2006-04-11 23:20:32 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/oracle_add.sql,v 1.6 2007-03-08 07:10:07 lmcrae Exp $
 --
 
 -- Subsystem tables
@@ -99,13 +99,28 @@ FOREIGN KEY (limitKey) REFERENCES signet_limit (limitKey)
 -- Signet Subject tables
 CREATE TABLE signet_subject (
 subjectKey          NUMERIC(12)         NOT NULL,
-subjectTypeID       NVARCHAR2(32)       NOT NULL,
+sourceID            NVARCHAR2(64)       NOT NULL,
 subjectID           NVARCHAR2(64)       NOT NULL,
-name                NVARCHAR2(120)      NOT NULL,
-description         NVARCHAR2(255)      NOT NULL,
+type                NVARCHAR2(32)       NOT NULL,
+name                NVARCHAR2(255)      NOT NULL,
 modifyDatetime      TIMESTAMP           DEFAULT SYSDATE,
+syncDatetime        TIMESTAMP           NOT NULL,
 PRIMARY KEY (subjectKey),
-UNIQUE (subjectTypeID, subjectID)
+UNIQUE (sourceID, subjectID)
+)
+;
+CREATE TABLE signet_subjectAttribute (
+subjectAttributeKey NUMERIC(12)     NOT NULL,
+subjectKey          NUMERIC(12)     NOT NULL,
+attributeName       NVARCHAR2(31)   NOT NULL,
+attributeSequence   NUMERIC(12)     NOT NULL,
+attributeValue      NVARCHAR2(255)  NOT NULL,
+attributeType       NVARCHAR2(31)   DEFAULT 'string',
+modifyDatetime      timestamp       NOT NULL,
+PRIMARY KEY (subjectAttributeKey),
+FOREIGN KEY (subjectKey)
+    REFERENCES signet_subject(subjectKey),
+UNIQUE (subjectKey, attributeName, attributeSequence)
 )
 ;
 -- Tree tables
@@ -359,5 +374,15 @@ ON SubjectAttribute (
 )
 ;
 
-CREATE SEQUENCE hibernate_sequence
-	START WITH 1;
+CREATE SEQUENCE categorySerial          START WITH 1;
+CREATE SEQUENCE functionSerial          START WITH 1;
+CREATE SEQUENCE permissionSerial        START WITH 1;
+CREATE SEQUENCE limitSerial             START WITH 1;
+CREATE SEQUENCE subjectSerial           START WITH 1;
+CREATE SEQUENCE subjectAttributeSerial  START WITH 1;
+CREATE SEQUENCE choiceSetSerial         START WITH 1;
+CREATE SEQUENCE choiceSerial            START WITH 1;
+CREATE SEQUENCE assignmentSerial        START WITH 1;
+CREATE SEQUENCE assignmentHistorySerial START WITH 1;
+CREATE SEQUENCE proxySerial             START WITH 1;
+CREATE SEQUENCE proxyHistorySerial      START WITH 1;

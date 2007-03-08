@@ -2,7 +2,7 @@
 -- This is the Oracle DDL for the Signet database
 -- Author Tom Poage, University of California at Davis, 10 Feb 2006
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/oracle_drop.sql,v 1.2 2006-04-11 23:20:32 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/oracle_drop.sql,v 1.3 2007-03-08 07:10:11 lmcrae Exp $
 --
 
 -- These are roughly grouped by dependency order wrt foreign
@@ -36,14 +36,27 @@ DROP TABLE signet_tree;
 
 -- Signet Subject table
 DROP TABLE signet_subject;
+DROP TABLE signet_subjectAttribute;
 
 -- Local Source Subject tables (optional)
 DROP TABLE SubjectAttribute;
 DROP TABLE Subject;
 DROP TABLE SubjectType;
 
--- Common primary key sequence for all tables
-DROP SEQUENCE hibernate_sequence;
+-- Common primary key sequences for all tables
+DROP SEQUENCE categorySerial;
+DROP SEQUENCE functionSerial;
+DROP SEQUENCE permissionSerial;
+DROP SEQUENCE limitSerial;
+DROP SEQUENCE subjectSerial;
+DROP SEQUENCE subjectAttributeSerial;
+DROP SEQUENCE choiceSetSerial;
+DROP SEQUENCE choiceSerial;
+DROP SEQUENCE assignmentSerial;
+DROP SEQUENCE assignmentHistorySerial;
+DROP SEQUENCE proxySerial;
+DROP SEQUENCE proxyHistorySerial
+
 
 -- If Oracle 10g, clean up recycle bin
 -- PURGE RECYCLEBIN;

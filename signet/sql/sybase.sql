@@ -6,7 +6,7 @@
 --     fixes; spelled out "integer" everywhere.  Dropped "clustered" subsystem
 --     primary index declaration
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/sybase.sql,v 1.44 2006-04-11 23:20:32 ddonn Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/sybase.sql,v 1.45 2007-03-08 07:11:15 lmcrae Exp $
 --
 -- Tree tables
 drop table signet_treeNodeRelationship;
@@ -32,6 +32,7 @@ drop table signet_limit;
 drop table signet_subsystem;
 -- Signet Subject table
 drop table signet_subject;
+drop table signet_subjectAttribute;
 -- Local Source Subject tables (optional)
 drop table SubjectAttribute;
 drop table Subject;
@@ -131,13 +132,27 @@ foreign key (limitKey) references signet_limit (limitKey)
 -- Signet Subject table
 create table signet_subject (
 subjectKey          numeric(12,0)       IDENTITY,
-subjectTypeID       varchar(32)         NOT NULL,
+sourceID            varchar(64)         NOT NULL,
 subjectID           varchar(64)         NOT NULL,
-description         varchar(255)        NOT NULL,
-name                varchar(120)        NOT NULL,
+type                varchar(32)         NOT NULL,
+name                varchar(255)        NOT NULL,
 modifyDatetime      smalldatetime       NOT NULL,
+syncDatetime        smalldatetime       NOT NULL,
 primary key (subjectKey),
-unique (subjectTypeID, subjectID)
+unique (sourceID, subjectID)
+)
+;
+create table signet_subjectAttribute (
+subjectAttributeKey numeric(12,0)       IDENTITY,
+subjectKey          integer             NOT NULL,
+attributeName       varchar(31)         NOT NULL,
+attributeSequence   integer             NOT NULL,
+attributeValue      varchar(255)        NOT NULL,
+attributeType       varchar(31)         DEFAULT 'string',
+modifyDatetime      smalldatetime       NOT NULL,
+primary key (subjectAttributeKey),
+foreign key (subjectKey) references signet_subject(subjectKey)
+unique (subjectKey, attributeName, attributeSequence)
 )
 ;
 -- Tree tables
@@ -209,19 +224,20 @@ functionKey         numeric(12,0)       NOT NULL,
 grantorKey          numeric(12,0)       NOT NULL,
 granteeKey          numeric(12,0)       NOT NULL,
 proxyKey            numeric(12,0)       NULL,
+revokerKey          numeric(12,0)       NULL,
 scopeID             varchar(64)         NULL,
 scopeNodeID         varchar(64)         NULL,
 canUse              bit                 NOT NULL,
 canGrant            bit                 NOT NULL,
 effectiveDate       smalldatetime       NOT NULL,
 expirationDate      smalldatetime       NULL,
-revokerKey          numeric(12,0)       NULL,
 modifyDatetime      smalldatetime       NOT NULL,
 primary key (assignmentID),
 foreign key (grantorKey) references signet_subject (subjectKey),
 foreign key (granteeKey) references signet_subject (subjectKey),
 foreign key (proxyKey) references signet_subject (subjectKey),
 foreign key (revokerKey) references signet_subject (subjectKey)
+foreign key (functionKey) references signet_function (functionKey)
 )
 ;
 create index signet_assignment_1
@@ -264,13 +280,13 @@ functionKey         numeric(12,0)       NOT NULL,
 grantorKey          numeric(12,0)       NOT NULL,
 granteeKey          numeric(12,0)       NOT NULL,
 proxyKey            numeric(12,0)       NULL,
+revokerKey          numeric(12,0)       NULL,
 scopeID             varchar(64)         NULL,
 scopeNodeID         varchar(64)         NULL,
 canUse              bit                 NOT NULL,
 canGrant            bit                 NOT NULL,
 effectiveDate       smalldatetime       NOT NULL,
 expirationDate      smalldatetime       NULL,
-revokerKey          numeric(12,0)       NULL,
 historyDatetime     smalldatetime       NOT NULL,
 modifyDatetime      smalldatetime       NOT NULL,
 primary key (historyID),
@@ -310,11 +326,11 @@ subsystemID         varchar(64)         NULL,
 grantorKey          numeric(12,0)       NOT NULL,
 granteeKey          numeric(12,0)       NOT NULL,
 proxySubjectKey     numeric(12,0)       NULL,
+revokerKey          numeric(12,0)       NULL,
 canUse              bit                 NOT NULL,
 canExtend           bit                 NOT NULL,
 effectiveDate       smalldatetime       NOT NULL,
 expirationDate      smalldatetime       NULL,
-revokerKey          numeric(12,0)       NULL,
 modifyDatetime      smalldatetime       NOT NULL,
 primary key (proxyID),
 foreign key (grantorKey) references signet_subject (subjectKey),
@@ -333,11 +349,11 @@ subsystemID         varchar(64)         NULL,
 grantorKey          numeric(12,0)       NOT NULL,
 granteeKey          numeric(12,0)       NOT NULL,
 proxySubjectKey     numeric(12,0)       NULL,
+revokerKey          numeric(12,0)       NULL,
 canUse              bit                 NOT NULL,
 canExtend           bit                 NOT NULL,
 effectiveDate       smalldatetime       NOT NULL,
 expirationDate      smalldatetime       NULL,
-revokerKey          numeric(12,0)       NULL,
 historyDatetime     smalldatetime       NOT NULL,
 modifyDatetime      smalldatetime       NOT NULL,
 primary key (historyID),
@@ -349,15 +365,6 @@ foreign key (revokerKey) references signet_subject (subjectKey)
 )
 ;
 -- Subject tables (optional, for local subject tables)
-create table SubjectType
-(
-subjectTypeID     varchar(32)           NOT NULL,
-name              varchar(120)          NOT NULL,
-adapterClass      varchar(255)          NOT NULL,
-modifyDatetime    smalldatetime         NOT NULL,
-primary key (subjectTypeID)
-)
-;
 create table Subject
 (
 subjectTypeID     varchar(32)           NOT NULL,
