@@ -20,16 +20,16 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Integration_GrouperSourceAdapter.java,v 1.1 2007-03-08 15:31:28 blair Exp $
+ * @version $Id: Suite_Unit_API_GrouperSourceAdapter.java,v 1.1 2007-03-08 16:42:13 blair Exp $
  * @since   1.2.0
  */
-public class Suite_Integration_GrouperSourceAdapter extends GrouperTest {
+public class Suite_Unit_API_GrouperSourceAdapter extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTestSuite(Test_Integration_GrouperSourceAdapter_search.class);
+    suite.addTestSuite(Test_Unit_API_GrouperSourceAdapter_search.class);
     return suite;
   } // static public Test suite()
 
-} // public class Suite_Integration_GrouperSourceAdapter extends GrouperTest
+} // public class Suite_Unit_API_GrouperSourceAdapter extends GrouperTest
 
