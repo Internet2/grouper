@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.83 2007-03-06 15:58:47 blair Exp $
+ * @version $Id: Member.java,v 1.84 2007-03-08 19:07:20 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1044,9 +1044,7 @@ public class Member extends GrouperAPI implements Serializable {
 
   /**
    * Test whether a member belongs to the specified group list.
-   * <p>
-   * This method will eventually be deprecated and replaced by {@link #isMember(Owner, Field)}.
-   * </p>
+   * <p/>
    * <pre class="eg">
    * // Does this member belong to the specified group?
    * if (m.isMember(g, f)) {
