@@ -38,7 +38,7 @@ import  java.util.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.21 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.22 2007-03-08 15:31:28 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -184,8 +184,15 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * // Use it directly
    * Set subjects = source.search("admins");
    * </pre>
+   * @throws  IllegalArgumentException if <i>searchValue</i> is null.
    */
-  public Set search(String searchValue) {
+  public Set search(String searchValue) 
+    throws  IllegalArgumentException
+  {
+    GrouperValidator v = NotNullValidator.validate(searchValue);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException( v.getErrorMessage() );
+    }
     Set   subjs  = new LinkedHashSet();
     Stem  root   = StemFinder.findRootStem(this._getSession());
     try {
