@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.85 2007-02-28 19:10:44 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.86 2007-03-08 18:48:42 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1218,7 +1218,7 @@ public class XmlExporter {
       this.xml.internal_undent();
       this.xml.internal_puts();
     }
-  } // private void _writeListField(g, f)
+  } // private void _writeList(g, f)
 
   // @since   1.1.0
   private void _writeMembers(Collection members, Group group, Field field)
