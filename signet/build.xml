@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.54 2007-03-06 23:15:50 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.55 2007-03-08 02:43:29 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -36,7 +36,7 @@
 		Alternatively, if you don't need to have Ant deploy the newly built
 		Signet to a running instance of Tomcat, you can comment out this line.
 	-->
-	<!-- <import file="signetBuildTomcatDefs.xml" /> -->
+	<import file="signetBuildTomcatDefs.xml" />
 
 
 	<!-- ======================== Public Targets =========================== -->
@@ -147,7 +147,7 @@
 			notree="false"
 			nonavbar="false"
 			noindex="false"
-			overview="${source_java.dir}/edu/internet2/middleware/signet/signet_overview.html"
+			overview="${source_javadoc_oview}"
 			splitindex="true"
 			author="true"
 			version="true"
@@ -821,13 +821,9 @@
 	<target name="config_db_dialect"
 			if="db.cfg.dialect" >
 		<replace file="${dist_config.dir}/hibernate.cfg.xml"
-				token="@DB_DIALECT@"
+				token="${db.cfg.dialect.token}"
 				value="${db.cfg.dialect}" />
-<!-- not used in sources.xml
-		<replace file="${dist_config.dir}/sources.xml"
-				token="@DB_DIALECT@"
-				value="${db.cfg.dialect}" />
--->
+		<!-- Note: dialect is not used in sources.xml -->
 	</target>
 
 
@@ -835,11 +831,11 @@
 	<target name="config_db_driver"
 			if="db.cfg.driver" >
 		<replace file="${dist_config.dir}/hibernate.cfg.xml"
-				token="@DB_DRIVER@"
+				token="${db.cfg.driver.token}"
 				value="${db.cfg.driver}" />
 		<replace file="${dist_config.dir}/sources.xml"
-				token="@DB_DRIVER@"
-				value="${db.cfg.driver}" />
+				token="${db.cfg.driver.token}"
+				value="${db.cfg.driver.subjapi}" />
 	</target>
 
 
@@ -847,11 +843,11 @@
 	<target name="config_db_url"
 			if="db.cfg.url" >
 		<replace file="${dist_config.dir}/hibernate.cfg.xml"
-				token="@DB_URL@"
+				token="${db.cfg.url.token}"
 				value="${db.cfg.url}" />
 		<replace file="${dist_config.dir}/sources.xml"
-				token="@DB_URL@"
-				value="${db.cfg.url}" />
+				token="${db.cfg.url.token}"
+				value="${db.cfg.url.subjapi}" />
 	</target>
 
 
@@ -859,11 +855,11 @@
 	<target name="config_db_user"
 			if="db.cfg.username" >
 		<replace file="${dist_config.dir}/hibernate.cfg.xml"
-				token="@DB_USERNAME@"
+				token="${db.cfg.username.token}"
 				value="${db.cfg.username}" />
 		<replace file="${dist_config.dir}/sources.xml"
-				token="@DB_USERNAME@"
-				value="${db.cfg.username}" />
+				token="${db.cfg.username.token}"
+				value="${db.cfg.username.subjapi}" />
 	</target>
 
 
@@ -871,13 +867,23 @@
 	<target name="config_db_pwd"
 			if="db.cfg.password" >
 		<replace file="${dist_config.dir}/hibernate.cfg.xml"
-				token="@DB_PASSWORD@"
+				token="${db.cfg.password.token}"
 				value="${db.cfg.password}" />
 		<replace file="${dist_config.dir}/sources.xml"
-				token="@DB_PASSWORD@"
-				value="${db.cfg.password}" />
+				token="${db.cfg.password.token}"
+				value="${db.cfg.password.subjapi}" />
 	</target>
 
+
+	<!-- - - - - - - - - target: config_javadoc_version - -->
+<!--
+	<target name="config_javadoc_version"
+			if="source_javadoc_oview" >
+		<replace file="${source_javadoc_oview}"
+				token="@version"
+				value="@version ${signet_basename}_${signet_version}" />
+	</target>
+-->
 
 	<!-- - - - - - - - - target: create_war_file - -->
 	<target name="create_war_file"

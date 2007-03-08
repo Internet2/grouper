@@ -1,7 +1,17 @@
 Signet  03/05/07
-Release Notes for CVS-tagged version SIGNET_1_2_RC02
 
+Release Notes for CVS-tagged version SIGNET_1_2_RC02
+----------------------------------------------------
 Changes in this version:
 
 1. Renamed several DB fields for consistency.
+2. Moved jdbc-2_0-stdext* from /lib to /lib/i2mi-common
+3. Modified the build to permit separate databases to be specified for 
+Signet Persistent Store and the SubjectAPI.
+
+Other Middleware Build Dependencies
+-----------------------------------
+i2mi-common: CVS tag = signet_1_2
+subject_api: CVS tag = signet_1_2
+
 
