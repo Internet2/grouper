@@ -20,21 +20,16 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Unit_API.java,v 1.6 2007-03-09 20:36:28 blair Exp $
+ * @version $Id: Suite_Unit_API_ImmediateMembershipValidator.java,v 1.1 2007-03-09 20:36:28 blair Exp $
  * @since   1.2.0
  */
-public class Suite_Unit_API extends GrouperTest {
+public class Suite_Unit_API_ImmediateMembershipValidator extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest( Suite_Unit_API_CompositeMembershipValidator.suite() ); 
-    suite.addTest( Suite_Unit_API_CompositeValidator.suite() ); 
-    suite.addTest( Suite_Unit_API_EffectiveMembershipValidator.suite() ); 
-    suite.addTest( Suite_Unit_API_GrouperSourceAdapter.suite() ); 
-    suite.addTest( Suite_Unit_API_ImmediateMembershipValidator.suite() ); 
-    suite.addTest( Suite_Unit_API_Stem.suite() ); 
+    suite.addTestSuite(Test_Unit_API_ImmediateMembershipValidator_validate.class);
     return suite;
   } // static public Test suite()
 
-} // public class Suite_Unit_API extends GrouperTest
+} // public class Suite_Unit_API_ImmediateMembershipValidator extends GrouperTest
 

@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Integration.java,v 1.6 2007-03-09 19:28:21 blair Exp $
+ * @version $Id: Suite_Integration.java,v 1.7 2007-03-09 20:36:28 blair Exp $
  * @since   1.2.0
  */
 public class Suite_Integration extends GrouperTest {
@@ -29,6 +29,7 @@ public class Suite_Integration extends GrouperTest {
     TestSuite suite = new TestSuite();
     // API
     suite.addTest( Suite_Integration_CompositeValidator.suite() );
+    suite.addTest( Suite_Integration_ImmediateMembershipValidator.suite() );
     suite.addTest( Suite_Integration_Stem.suite() );
     // DAO
     suite.addTest( Suite_Integration_HibernateGroupDAO.suite() );
