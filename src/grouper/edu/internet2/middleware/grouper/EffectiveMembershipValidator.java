@@ -19,37 +19,49 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: EffectiveMembershipValidator.java,v 1.2 2007-03-06 15:58:47 blair Exp $
+ * @version $Id: EffectiveMembershipValidator.java,v 1.3 2007-03-09 19:53:37 blair Exp $
  * @since   1.2.0
  */
 class EffectiveMembershipValidator extends MembershipValidator {
+
+  // PROTECTED CLASS CONSTANTS // 
+  protected static final String INVALID_DEPTH       = "membership depth is less than 1";
+  protected static final String INVALID_PARENTUUID  = "membership has invalid parentUuid";
+  protected static final String INVALID_TYPE        = "membership type is not EFFECTIVE";
+  protected static final String INVALID_VIAUUID     = "membership has invalid viaUuid";
+
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
   protected static EffectiveMembershipValidator validate(MembershipDTO _ms) {
-    EffectiveMembershipValidator  v   = new EffectiveMembershipValidator();
-    // Perform generic Membership validation
-    MembershipValidator           vMS = MembershipValidator.validate(_ms);
-    if (vMS.isInvalid()) {
-      v.setErrorMessage( vMS.getErrorMessage() );  
-      return v;
+    EffectiveMembershipValidator  v     = new EffectiveMembershipValidator();
+    NotNullValidator              vNull = NotNullValidator.validate(_ms);
+    if (vNull.isInvalid()) {
+      v.setErrorMessage( vNull.getErrorMessage() );
     }
-    // Perform effective Membership validation
-    if      ( !Membership.EFFECTIVE.equals( _ms.getType() ) ) { // type must be effective
-      v.setErrorMessage( E.MSV_TYPE + _ms.getType() );
+    // validate effective membership attributes
+    else if ( !Membership.EFFECTIVE.equals( _ms.getType() ) ) { // type must be effective
+      v.setErrorMessage(INVALID_TYPE);
     }
     else if ( _ms.getDepth() < 1 )                            { // must have depth > 0
-      v.setErrorMessage( E.ERR_D + _ms.getDepth() );
+      v.setErrorMessage(INVALID_DEPTH);
     }
     else if ( _ms.getViaUuid() == null )                      { // must have a via
-      v.setErrorMessage( E.ERR_VC + "null" );
+      v.setErrorMessage(INVALID_VIAUUID);
     }
     else if ( _ms.getParentUuid() == null )                   { // must have a parent
-      v.setErrorMessage(E.MSV_NO_PARENT);
+      v.setErrorMessage(INVALID_PARENTUUID);
     }
     else {
-      v.setIsValid(true);
+      // Perform generic Membership validation
+      MembershipValidator vMS = MembershipValidator.validate(_ms);
+      if (vMS.isInvalid()) {
+        v.setErrorMessage( vMS.getErrorMessage() );
+      }
+      else {
+        v.setIsValid(true);
+      }
     }
     return v;
   } // protected static EffectiveMembershipValidator validate(_ms)
