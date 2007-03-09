@@ -19,34 +19,49 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeMembershipValidator.java,v 1.2 2007-03-06 15:58:47 blair Exp $
+ * @version $Id: CompositeMembershipValidator.java,v 1.3 2007-03-09 20:07:31 blair Exp $
  * @since   1.2.0
  */
 class CompositeMembershipValidator extends MembershipValidator {
+
+  // PROTECTED CLASS CONSTANTS // 
+  protected static final String INVALID_DEPTH       = "membership depth is != 0";
+  protected static final String INVALID_PARENTUUID  = "membership cannot have parentUuid";
+  protected static final String INVALID_TYPE        = "membership type is not COMPOSITE";
+  protected static final String INVALID_VIAUUID     = "membership has invalid viaUuid";
+
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
   protected static CompositeMembershipValidator validate(MembershipDTO _ms) {
-    CompositeMembershipValidator  v   = new CompositeMembershipValidator();
-    // Perform generic Membership validation
-    MembershipValidator           vMS = MembershipValidator.validate(_ms);
-    if (vMS.isInvalid()) {
-      v.setErrorMessage( vMS.getErrorMessage() );  
-      return v;
+    CompositeMembershipValidator  v     = new CompositeMembershipValidator();
+    NotNullValidator              vNull = NotNullValidator.validate(_ms);
+    if (vNull.isInvalid()) {
+      v.setErrorMessage( vNull.getErrorMessage() );
     }
-    // Perform composite Membership validation
-    if      ( _ms.getDepth() != 0 )         { // depth must be 0
-      v.setErrorMessage( E.ERR_D + _ms.getDepth() );
+    // validate composite membership attributes
+    else if ( !Membership.COMPOSITE.equals( _ms.getType() ) ) { // type must be composite
+      v.setErrorMessage(INVALID_TYPE);
     }
-    else if ( _ms.getViaUuid() == null )    { // must have a via
-      v.setErrorMessage(E.ERR_VC + "null");
+    else if ( _ms.getDepth() != 0 )                           { // depth must be 0
+      v.setErrorMessage(INVALID_DEPTH);
     }
-    else if ( _ms.getParentUuid() != null ) { // must not have a parent
-      v.setErrorMessage(E.ERR_PMS);
+    else if ( _ms.getViaUuid() == null )                      { // must have a via
+      v.setErrorMessage(INVALID_VIAUUID);
+    }
+    else if ( _ms.getParentUuid() != null )                   { // must not have a parent
+      v.setErrorMessage(INVALID_PARENTUUID);
     }
     else {
-      v.setIsValid(true);
+      // Perform generic Membership validation
+      MembershipValidator vMS = MembershipValidator.validate(_ms);
+      if (vMS.isInvalid()) {
+        v.setErrorMessage( vMS.getErrorMessage() );
+      }
+      else {
+        v.setIsValid(true);
+      }
     }
     return v;
   } // protected static CompositeMembershipValidator validate(_ms)
