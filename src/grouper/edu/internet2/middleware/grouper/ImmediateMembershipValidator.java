@@ -19,47 +19,61 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.3 2007-03-06 15:58:47 blair Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.4 2007-03-09 20:36:28 blair Exp $
  * @since   1.2.0
  */
 class ImmediateMembershipValidator extends MembershipValidator {
+
+  // PROTECTED CLASS CONSTANTS // 
+  protected static final String INVALID_CIRCULAR    = "membership cannot be circular";
+  protected static final String INVALID_DEPTH       = "membership depth != 0";
+  protected static final String INVALID_EXISTS      = "membership already exists";
+  protected static final String INVALID_PARENTUUID  = "membership cannot have parentUuid";
+  protected static final String INVALID_TYPE        = "membership type is not IMMEDIATE";
+  protected static final String INVALID_VIAUUID     = "membership cannot have viaUuid";
+
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
   protected static ImmediateMembershipValidator validate(MembershipDTO _ms) {
-    ImmediateMembershipValidator  v   = new ImmediateMembershipValidator();
-    // Perform generic Membership validation
-    MembershipValidator           vMS = MembershipValidator.validate(_ms);
-    if (vMS.isInvalid()) {
-      v.setErrorMessage( vMS.getErrorMessage() );  
-      return v;
+    ImmediateMembershipValidator  v     = new ImmediateMembershipValidator();
+    NotNullValidator              vNull = NotNullValidator.validate(_ms);
+    if (vNull.isInvalid()) {
+      v.setErrorMessage( vNull.getErrorMessage() );
     }
-    // Perform immediate Membership validation
-    if      ( !Membership.IMMEDIATE.equals( _ms.getType() ) ) { // type must be immediate
-      v.setErrorMessage( E.MSV_TYPE + _ms.getType() );
+    // validate immediate membership attributes
+    else if ( !Membership.IMMEDIATE.equals( _ms.getType() ) ) { // type must be immediate
+      v.setErrorMessage(INVALID_TYPE);
     }
     else if ( _ms.getDepth() != 0 )                           { // must have depth == 0
-      v.setErrorMessage( E.ERR_D + _ms.getDepth() );
+      v.setErrorMessage(INVALID_DEPTH);
     }
     else if ( _ms.getViaUuid() != null )                      { // must not have a via
-      v.setErrorMessage(E.ERR_IV);
+      v.setErrorMessage(INVALID_VIAUUID);
     }
     else if ( _ms.getParentUuid() != null )                   { // must not have a parent
-      v.setErrorMessage(E.ERR_PMS);
+      v.setErrorMessage(INVALID_PARENTUUID);
     }
     else if ( v._isCircular(_ms) )                            { // cannot be a direct member of oneself
-      v.setErrorMessage(E.MSV_CIRCULAR);
+      v.setErrorMessage(INVALID_CIRCULAR);
     }
     else if ( HibernateMembershipDAO.exists(                    // cannot already exist
         _ms.getOwnerUuid(), _ms.getMemberUuid(), _ms.getListName(), Membership.IMMEDIATE 
       )
     )
     {
-      v.setErrorMessage(E.ERR_MAE);
+      v.setErrorMessage(INVALID_EXISTS);
     }
     else {
-      v.setIsValid(true);
+      // Perform generic Membership validation
+      MembershipValidator vMS = MembershipValidator.validate(_ms);
+      if (vMS.isInvalid()) {
+        v.setErrorMessage( vMS.getErrorMessage() );
+      }
+      else {
+        v.setIsValid(true);
+      }
     }
     return v;
   } // protected static ImmediateMembershipValidator validate(_ms)
