@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.39 2007-02-22 20:12:43 blair Exp $
+ * @version $Id: E.java,v 1.40 2007-03-09 19:28:21 blair Exp $
  * @since   1.0
  */
 class E {
@@ -58,11 +58,8 @@ class E {
   protected static final String CACHE                     = "cache error: ";
   protected static final String CACHE_INIT                = "unable to get cache manager: ";
   protected static final String CACHE_NOTFOUND            = "cache not found: ";
-  protected static final String COMP_CL                   = "left factor is owner";
-  protected static final String COMP_CR                   = "right factor is owner";
   protected static final String COMP_L                    = "no composite left factor";
   protected static final String COMP_LC                   = "composite left factor is not a group";
-  protected static final String COMP_LR                   = "same left and right composite factors";
   protected static final String COMP_NOTOWNER             = "not a composite owner";
   protected static final String COMP_NULL_LEFT_GROUP      = "composite with null left group: uuid=";
   protected static final String COMP_NULL_OWNER_GROUP     = "composite with null owner group: uuid=";
@@ -71,7 +68,6 @@ class E {
   protected static final String COMP_OC                   = "invalid owner class";
   protected static final String COMP_R                    = "no composite right factor";
   protected static final String COMP_RC                   = "composite right factor is not a group";
-  protected static final String COMP_T                    = "no composite type";
   protected static final String COMP_UPDATE               = "unable to update composite membership: ";
   protected static final String COMPF_FINDASFACTOR        = "error retrieving owner group: ";
   protected static final String COMPF_ISFACTOR            = "error determing where object is a factor: ";

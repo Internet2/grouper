@@ -20,21 +20,16 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Integration.java,v 1.6 2007-03-09 19:28:21 blair Exp $
+ * @version $Id: Suite_Integration_CompositeValidator.java,v 1.1 2007-03-09 19:28:21 blair Exp $
  * @since   1.2.0
  */
-public class Suite_Integration extends GrouperTest {
+public class Suite_Integration_CompositeValidator extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    // API
-    suite.addTest( Suite_Integration_CompositeValidator.suite() );
-    suite.addTest( Suite_Integration_Stem.suite() );
-    // DAO
-    suite.addTest( Suite_Integration_HibernateGroupDAO.suite() );
-    suite.addTest( Suite_Integration_HibernateGroupTypeDAO.suite() );
+    suite.addTestSuite(Test_Integration_CompositeValidator_validate.class);
     return suite;
   } // static public Test suite()
 
-} // public class Suite_Integration extends GrouperTest
+} // public class Suite_Integration_CompositeValidator extends GrouperTest
 
