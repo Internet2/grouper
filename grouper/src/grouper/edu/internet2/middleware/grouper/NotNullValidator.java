@@ -19,10 +19,14 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: NotNullValidator.java,v 1.2 2007-02-28 19:37:31 blair Exp $
+ * @version $Id: NotNullValidator.java,v 1.3 2007-03-09 19:28:21 blair Exp $
  * @since   1.2.0
  */
 class NotNullValidator extends GrouperValidator {
+
+  // PROTECTED CLASS CONSTANTS //
+  protected static final String INVALID = "null value";
+
 
   // PROTECTED CLASS METHODS //
 
@@ -30,7 +34,7 @@ class NotNullValidator extends GrouperValidator {
   protected static NotNullValidator validate(Object value) {
     NotNullValidator v = new NotNullValidator();
     if (value == null) {
-      v.setErrorMessage("null value");
+      v.setErrorMessage(INVALID);
     }
     else {
       v.setIsValid(true);
