@@ -1,36 +1,35 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.6 2006-11-21 18:51:29 ddonn Exp $
-$Date: 2006-11-21 18:51:29 $
+$Id: JDBCSourceAdapter.java,v 1.7 2007-03-10 13:31:17 khuxtable Exp $
+$Date: 2007-03-10 13:31:17 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
  */
 package edu.internet2.middleware.subject.provider;
 
-import java.util.Properties;
-import java.util.Set;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Properties;
+import java.util.Set;
 
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import javax.sql.DataSource;
-import java.sql.ResultSetMetaData;
 
 import org.apache.commons.dbcp.ConnectionFactory;
 import org.apache.commons.dbcp.DriverManagerConnectionFactory;
 import org.apache.commons.dbcp.PoolableConnectionFactory;
 import org.apache.commons.dbcp.PoolingDataSource;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPoolFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import edu.internet2.middleware.subject.InvalidQueryException;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -52,7 +51,6 @@ public class JDBCSourceAdapter
 
 	protected DataSource dataSource;
 
-
     /**
      * Allocates new JDBCSourceAdapter;
      */
@@ -62,6 +60,7 @@ public class JDBCSourceAdapter
     
     /**
      * Allocates new JDBCSourceAdapter;
+     * 
      * @param id
      * @param name
      */
@@ -72,7 +71,6 @@ public class JDBCSourceAdapter
     /**
      * {@inheritDoc}
      */
-    
     public Subject getSubject(String id)
     throws SubjectNotFoundException,SubjectNotUniqueException {
         return uniqueSearch(id, "searchSubject");
@@ -81,13 +79,20 @@ public class JDBCSourceAdapter
     /**
      * {@inheritDoc}
      */
-    
     public Subject getSubjectByIdentifier(String id)
     throws SubjectNotFoundException, SubjectNotUniqueException  {
         return uniqueSearch(id, "searchSubjectByIdentifier");
     }
     
-    
+    /**
+     * Perform a search for a unique subject.
+     * 
+     * @param id
+     * @param searchType
+     * @return
+     * @throws SubjectNotFoundException
+     * @throws SubjectNotUniqueException
+     */
     private Subject uniqueSearch(String id, String searchType)
     throws SubjectNotFoundException, SubjectNotUniqueException  {
         Subject subject = null;
@@ -97,12 +102,14 @@ public class JDBCSourceAdapter
             return subject;
         }
         Connection conn = null;
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         try {
             conn = this.dataSource.getConnection();
-            stmt = conn.createStatement();
-            ResultSet rs = getSqlResults(search, id, conn, stmt );
+            stmt = prepareStatement(search, conn);
+            ResultSet rs = getSqlResults(id, stmt, search);
             subject = createUniqueSubject(rs, search,  id);
+        } catch (InvalidQueryException nqe) {
+            log.error("InvalidQueryException occurred: " + nqe.getMessage(), nqe);
         } catch (SQLException ex) {
             log.error("SQLException occurred: " + ex.getMessage(), ex);
         } finally {
@@ -114,6 +121,7 @@ public class JDBCSourceAdapter
         }
         return subject;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -125,11 +133,11 @@ public class JDBCSourceAdapter
             return result;
         }
         Connection conn = null;
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         try {
             conn = this.dataSource.getConnection();
-            stmt = conn.createStatement();
-            ResultSet rs = getSqlResults(search, searchValue, conn, stmt);
+            stmt = prepareStatement(search, conn);
+            ResultSet rs = getSqlResults(searchValue, stmt, search);
             if (rs==null) {
                 return result;
             }
@@ -137,6 +145,8 @@ public class JDBCSourceAdapter
                 Subject subject = createSubject(rs);
                 result.add(subject);
             }
+        } catch (InvalidQueryException nqe) {
+            log.error("InvalidQueryException occurred: " + nqe.getMessage(), nqe);
         } catch (SQLException ex) {
             log.debug("SQLException occurred: " + ex.getMessage(), ex);
         } finally {
@@ -146,7 +156,13 @@ public class JDBCSourceAdapter
         return result;
     }
     
-    private Subject createSubject(ResultSet rs ) {
+    /**
+     * Create a subject from the current row in the resultSet
+     * 
+     * @param rs
+     * @return
+     */
+    private Subject createSubject(ResultSet rs) {
         String name = "";
         String subjectID = "";
         String description = "";
@@ -165,6 +181,16 @@ public class JDBCSourceAdapter
         return subject;
     }
     
+    /**
+     * Create a unique subject from the resultSet.
+     * 
+     * @param rs
+     * @param search
+     * @param searchValue
+     * @return
+     * @throws SubjectNotFoundException
+     * @throws SubjectNotUniqueException
+     */
     private Subject createUniqueSubject(ResultSet rs, Search search, String searchValue)
     throws SubjectNotFoundException,SubjectNotUniqueException {
         Subject subject =null;
@@ -187,23 +213,61 @@ public class JDBCSourceAdapter
         
     }
     
-    
-    protected ResultSet getSqlResults(Search search, String searchValue, Connection conn, Statement stmt){
-        ResultSet rs = null;
+    /**
+     * Prepare a statement handle from the search object.
+     * 
+     * @param search
+     * @param conn
+     * @return
+     * @throws InvalidQueryException
+     * @throws SQLException
+     */
+    protected PreparedStatement prepareStatement(Search search, Connection conn)
+    throws InvalidQueryException, SQLException {
         String sql = search.getParam("sql");
-        if (sql==null) {
-            log.error("Search sql not found for search type:  " + search.getSearchType());
-            return null;
+        if (sql == null) {
+            log.error("No sql parameter for search type " + search.getSearchType());
+            return null; // Should throw an exception here, but we don't have one yet.
         }
-        
-        sql = sql.replaceAll("%TERM%", searchValue);
+        if (sql.contains("%TERM%")) {
+            log.debug("%TERM% detected. Possible old style SQL query");
+            throw new InvalidQueryException("%TERM%. Possibly old style SQL query");
+        }
+        if (search.getParam("numParameters") == null) {
+            log.debug("No numParameters parameter specified.");
+            throw new InvalidQueryException("No numParameters parameter specified.");
+        }
         try {
-            rs = stmt.executeQuery(sql);
+            Integer.parseInt(search.getParam("numParameters"));
+        } catch (NumberFormatException e) {
+            log.debug("Non-numeric numParameters parameter specified.");
+            throw new InvalidQueryException("Non-numeric numParameters parameter specified.");
+        }
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        return stmt;
+    }
+    
+    /**
+     * Set the parameters in the prepared statement and execute the query.
+     * 
+     * @param searchValue
+     * @param stmt
+     * @param search
+     * @return resultSet
+     */
+    protected ResultSet getSqlResults(String searchValue, PreparedStatement stmt, Search search) {
+        ResultSet rs = null;
+        try {
+            for (int i = 1; i <= Integer.parseInt(search.getParam("numParameters")); i++) {
+                stmt.setString(i, searchValue);
+            }
+            rs = stmt.executeQuery();
         } catch (SQLException ex) {
             log.debug("SQLException occurred: " + ex.getMessage(), ex);
         }
         return rs;
     }
+
     /**
      * Loads attributes for the argument subject.
      */
@@ -340,9 +404,6 @@ public class JDBCSourceAdapter
         }
     }
     
-    
-    
-    
     protected void closeConnection(Connection conn) {
         if (conn != null) {
             try {
@@ -353,7 +414,7 @@ public class JDBCSourceAdapter
         }
     }
     
-    protected void closeStatement(Statement stmt) {
+    protected void closeStatement(PreparedStatement stmt) {
         if (stmt != null) {
             try {
                 stmt.close();
@@ -366,35 +427,28 @@ public class JDBCSourceAdapter
 	/**
 	 * @return the descriptionAttributeName
 	 */
-	public String getDescriptionAttributeName()
-	{
+	public String getDescriptionAttributeName() {
 		return descriptionAttributeName;
 	}
 
 	/**
 	 * @return the nameAttributeName
 	 */
-	public String getNameAttributeName()
-	{
+	public String getNameAttributeName() {
 		return nameAttributeName;
 	}
 
 	/**
 	 * @return the subjectIDAttributeName
 	 */
-	public String getSubjectIDAttributeName()
-	{
+	public String getSubjectIDAttributeName() {
 		return subjectIDAttributeName;
 	}
 
 	/**
 	 * @return the subjectTypeString
 	 */
-	public String getSubjectTypeString()
-	{
+	public String getSubjectTypeString() {
 		return subjectTypeString;
 	}
-
-
-
 }

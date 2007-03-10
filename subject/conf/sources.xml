@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.5 2006-06-08 00:13:01 esluss Exp $
+$Id: sources.xml,v 1.6 2007-03-10 13:31:17 khuxtable Exp $
 -->
 
 <sources>
@@ -64,6 +64,10 @@ $Id: sources.xml,v 1.5 2006-06-08 00:13:01 esluss Exp $
     <search>
         <searchType>searchSubject</searchType>
         <param>
+        	<param-name>numParameters</param-name>
+        	<param-value>1</param-value>
+        </param>
+        <param>
             <param-name>sql</param-name>
             <param-value>
                 select id, 
@@ -77,32 +81,16 @@ $Id: sources.xml,v 1.5 2006-06-08 00:13:01 esluss Exp $
                   left join faculty on (faculty.individualid = id)
                   left join staff on (staff.individualid = id)
                   left join student on (student.individualid = id)
-                where (id='%TERM%')
+                where (id=?)
             </param-value>
        </param>
     </search>
     <search>
         <searchType>searchSubjectByIdentifier</searchType>
         <param>
-            <param-name>sql</param-name>
-            <param-value>
-                select id, 
-                  concat(firstname, concat(' ', lastname)) as name, 
-                  concat(lastname, concat(', ', firstname)) as lfname,
-                  lastname, firstname, middlename,
-                  account.name as loginid,
-                  department, curriculum, appointment
-                from individual 
-                  left join account on (account.individualid = id)
-                  left join faculty on (faculty.individualid = id)
-                  left join staff on (staff.individualid = id)
-                  left join student on (student.individualid = id)
-                where (account.name='%TERM%')
-            </param-value>
+        	<param-name>numParameters</param-name>
+        	<param-value>1</param-value>
         </param>
-    </search>
-    <search>
-       <searchType>search</searchType>
         <param>
             <param-name>sql</param-name>
             <param-value>
@@ -117,10 +105,34 @@ $Id: sources.xml,v 1.5 2006-06-08 00:13:01 esluss Exp $
                   left join faculty on (faculty.individualid = id)
                   left join staff on (staff.individualid = id)
                   left join student on (student.individualid = id)
-                where (firstname like '%%TERM%%')
-                  or (lastname like '%%TERM%%') 
-                  or (department like '%%TERM%%') 
-                  or (account.name like '%%TERM%%')
+                where (account.name=?)
+            </param-value>
+        </param>
+    </search>
+    <search>
+       <searchType>search</searchType>
+        <param>
+        	<param-name>numParameters</param-name>
+        	<param-value>4</param-value>
+        </param>
+        <param>
+            <param-name>sql</param-name>
+            <param-value>
+                select id, 
+                  concat(firstname, concat(' ', lastname)) as name, 
+                  concat(lastname, concat(', ', firstname)) as lfname,
+                  lastname, firstname, middlename,
+                  account.name as loginid,
+                  department, curriculum, appointment
+                from individual 
+                  left join account on (account.individualid = id)
+                  left join faculty on (faculty.individualid = id)
+                  left join staff on (staff.individualid = id)
+                  left join student on (student.individualid = id)
+                where (firstname like '%'||?||'%')
+                  or (lastname like '%'||?||'%') 
+                  or (department like '%'||?||'%') 
+                  or (account.name like '%'||?||'%')
             </param-value>
         </param>
     </search>
