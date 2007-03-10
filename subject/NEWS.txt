@@ -1,4 +1,20 @@
 
+# Subject 0.3.0-rc1
+
+Released: ????????
+
+## Changes
+* UPDATE: Added code to JNDISourceAdapter to escape LDAP filter characters,
+          thus preventing LDAP injection in query arguments.
+* UPDATE: Changed syntax of SQL queries for JDBCSourceAdapter to use the
+          syntax for prepared statements in a basic manner. This prevents
+          SQL injection in query arguments and also speeds up the queries
+          significantly.
+    * Updated JDBCSourceAdapter to use prepared statements
+    * Added InvalidQueryException to throw when old-style SQL queries are
+      detected.
+    * Updated sources.xml to reflect new SQL syntax.
+
 # Subject 0.2.2-cvs
 
 Released: ????????
@@ -29,7 +45,7 @@ Released: 20060627
 
 ---
 
-$Id: NEWS.txt,v 1.8 2006-08-07 19:25:51 blair Exp $
+$Id: NEWS.txt,v 1.9 2007-03-10 13:33:21 khuxtable Exp $
 
 
 
