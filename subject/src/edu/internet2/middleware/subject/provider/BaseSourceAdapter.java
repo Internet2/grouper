@@ -1,6 +1,6 @@
 /*--
-$Id: BaseSourceAdapter.java,v 1.4 2006-06-07 19:00:06 esluss Exp $
-$Date: 2006-06-07 19:00:06 $
+$Id: BaseSourceAdapter.java,v 1.5 2007-03-11 15:48:30 khuxtable Exp $
+$Date: 2007-03-11 15:48:30 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -51,7 +51,7 @@ public abstract class BaseSourceAdapter
      * @param id
      * @param name
      */
-    public BaseSourceAdapter(String id, String name){
+    public BaseSourceAdapter(String id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -173,7 +173,6 @@ public abstract class BaseSourceAdapter
      */
     protected Properties getInitParams() {
         return this.params;
-        
     }
 
 //esluss - added addAttribute and getAttribute. review
@@ -185,7 +184,6 @@ public abstract class BaseSourceAdapter
     protected Set getAttributes() {
         return this.attributes;
     }
-    
     
     protected void setSearches(HashMap searches) {
         this.searches = searches;
@@ -203,6 +201,5 @@ public abstract class BaseSourceAdapter
     public void loadSearch(Search search) {
         log.debug("Loading search: " + search.getSearchType());
         this.searches.put(search.getSearchType(), search );
-        
     }
 }
