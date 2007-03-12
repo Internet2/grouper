@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.beanutils.WrapDynaBean;
@@ -29,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectAsMap.java,v 1.5 2006-04-03 12:49:02 isgwb Exp $
+ * @version $Id: SubjectAsMap.java,v 1.6 2007-03-12 09:55:25 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
 
@@ -72,6 +73,9 @@ public class SubjectAsMap extends ObjectAsMap {
 		if(obj!=null) return obj;
 		obj = super.get(key);
 		//Map overrides wrapped Subject
+		if(obj==null && "useMulti".equals(key)) {
+			return null;
+		}
 		
 		if(obj!=null && !"".equals(obj)) return obj;
 			//if (values != null && values.size() != 0)
@@ -90,7 +94,25 @@ public class SubjectAsMap extends ObjectAsMap {
 					obj = subject.getSource().getId();
 				if (obj == null) {
 					//No value so check wrapped Subject for value
-					obj = subject.getAttributeValue((String) key);
+					String sep = (String)this.get("useMulti");
+					if(sep==null) {
+						obj = subject.getAttributeValue((String) key);
+					}else{
+						StringBuffer sb = new StringBuffer();
+						Set values = (Set)subject.getAttributeValues((String)key);
+						Iterator it = values.iterator();
+						Object val;
+						int count=0;
+						while(it.hasNext()) {
+							val=it.next();
+							if(count>0) {
+								sb.append(sep);
+								sb.append(" ");
+							}
+							sb.append(val);
+						}
+						obj=sb.toString();
+					}
 				}
 		
 		return obj;

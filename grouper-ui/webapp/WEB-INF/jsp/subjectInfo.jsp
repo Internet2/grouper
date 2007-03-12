@@ -2,7 +2,7 @@
 			Displays subject attributes
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectInfo.jsp,v 1.5 2006-07-17 10:05:17 isgwb Exp $
+  @version $Id: subjectInfo.jsp,v 1.6 2007-03-12 09:55:25 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -10,7 +10,7 @@
 <div class="SubjectInfo">
 
 <c:forEach var="attrName" items="${subjectAttributeNames}">
-
+<c:set target="${subject}" property="useMulti" value="${navMap['subject.attribute.multi.separator']}"/>
 <div class="formRow">
 	<div class="formLeft">
 		<c:out value="${attrName}"/>
