@@ -167,7 +167,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.8 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.9 2007-03-12 09:47:25 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -334,6 +334,8 @@ public abstract class GrouperCapableAction
 	 */
 	public static void saveAsCallerPage(HttpServletRequest request,DynaActionForm form,String sessionKeepers){
 		
+		//If we have already got a thisPageId don't overwrite it
+		if(request.getAttribute("thisPageId")!=null) return;
 		//Dont`s save again if we are restoring this page + retrieve previously
 		//saved pageId
 		if(!isEmpty(request.getParameter("_reinstatePageId"))) {
