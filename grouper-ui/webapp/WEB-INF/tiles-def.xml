@@ -450,7 +450,7 @@
 	  <put name="maintainModule" type="String" value="y"/>
  </definition>
  
-  <definition name="searchFromDef" path="/WEB-INF/jsp/searchFrom.jsp">
+  <definition name="searchFromDef" path="/WEB-INF/jsp/searchFrom.jsp" controllerUrl="/prepareBrowsePath.do">
 	  <description>
 		Tile which displays a select list of parent stems to scope a search
 		to a branch of the groups hierarchy
@@ -649,6 +649,12 @@
 	 <definition name="selectGroupSearchFieldsDef" path="/WEB-INF/jsp/selectGroupSearchFields.jsp">
 		<description>
 			Called from advanced group search. Displays fields which can be searched
+	  </description>
+	 </definition>
+	 
+	 	 <definition name="selectGroupSearchTypesDef" path="/WEB-INF/jsp/selectGroupSearchTypes.jsp">
+		<description>
+			Called from advanced group search. Displays group types which can be searched
 	  </description>
 	 </definition>
 	 

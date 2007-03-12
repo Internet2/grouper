@@ -2,7 +2,7 @@
 		Tile which displays the advanced search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchGroups.jsp,v 1.5 2007-03-06 11:05:49 isgwb Exp $
+  @version $Id: advancedSearchGroups.jsp,v 1.6 2007-03-12 09:56:40 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -29,6 +29,9 @@
 	<fieldset>			
 		<fieldset class="nested">
 				<tiles:insert definition="selectGroupSearchFieldsDef"/>
+		</fieldset>
+		<fieldset class="nested">
+				<tiles:insert definition="selectGroupSearchTypesDef"/>
 		</fieldset>
 		<div class="formRow"><tiles:insert definition="searchFromDef"/></div><br/>
 		<tiles:insert definition="searchGroupResultFieldChoiceDef"/>

@@ -130,7 +130,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table> 
  * @author Gary Brown.
- * @version $Id: SearchGroupsAction.java,v 1.5 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: SearchGroupsAction.java,v 1.6 2007-03-12 09:56:40 isgwb Exp $
  */
 
 public class SearchGroupsAction extends GrouperCapableAction {
@@ -199,6 +199,8 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		pager.setParam("searchInNameOrExtension", searchInNameOrExtension);
 		
 		Map searchFieldParams = filterParameters(request,"searchField.");
+		Map searchTypeParams = filterParameters(request,"searchType.");
+		searchFieldParams.putAll(searchTypeParams);
 		if(!searchFieldParams.isEmpty()){
 			pager.setParams(searchFieldParams);
 			session.setAttribute("advancedSearchFieldParams",searchFieldParams);

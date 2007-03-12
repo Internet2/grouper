@@ -34,6 +34,9 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupAnyAttributeFilter;
 import edu.internet2.middleware.grouper.GroupAttributeFilter;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFilter;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperQuery;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -121,7 +124,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.11 2006-10-05 09:00:36 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.12 2007-03-12 09:56:40 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -457,7 +460,10 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		for (int i=1;i<=maxCount;i++) {
 			field = getSingle("searchField." + i,attr);
 			query = getSingle("searchField." + i + ".query",attr);
-			if(i==1 && (field==null || query==null)) throw new IllegalArgumentException("The first search field and query value must be enetered");
+			if(i==1 && (field==null || query==null)) {
+				if(getSingle("searchType.1" ,attr)!=null) break;
+				throw new IllegalArgumentException("The first search field and query value must be enetered");
+			}
 			andOrNot = getSingle("searchField." + i + ".searchAndOrNot",attr);
 			if(query==null || "".equals(query)) query = lastQuery;
 			if(i>1) {
@@ -488,6 +494,38 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			lastField = field;
 			lastAndOrNot = andOrNot;
 		}
+		//Now add GroupTYpe filter
+		String groupTypeText = navBundle.getString("find.results.group-type");
+		String groupType=null;
+		maxCountStr = getSingle("maxTypes",attr);
+		maxCount = Integer.parseInt(maxCountStr);
+		GroupType gt=null;
+		for (int i=1;i<=maxCount;i++) {
+			groupType = getSingle("searchType." + i,attr);
+			if(groupType==null) break;
+			gt=GroupTypeFinder.find(groupType);
+			
+			andOrNot = getSingle("searchType." + i + ".searchAndOrNot",attr);
+			
+			
+				if(queryFilter==null) {
+					queryFilter=new GroupTypeFilter(gt,fromStem);
+					outTerms.add(groupTypeText);
+					outTerms.add(gt.getName());
+				}else{
+					if("and".equals(andOrNot)) {
+						queryFilter = new IntersectionFilter(queryFilter,new GroupTypeFilter(gt,fromStem));
+					}else if("or".equals(andOrNot)){
+						queryFilter = new UnionFilter(queryFilter,new GroupTypeFilter(gt,fromStem));
+					}else{
+						queryFilter = new ComplementFilter(queryFilter,new GroupTypeFilter(gt,fromStem));
+					}
+					outTerms.add(andOrNot);
+					outTerms.add(groupTypeText);
+					outTerms.add(groupType);
+				}
+		}
+		
 		
 		GrouperQuery q = GrouperQuery.createQuery(s,queryFilter);
 		res.addAll(q.getGroups());

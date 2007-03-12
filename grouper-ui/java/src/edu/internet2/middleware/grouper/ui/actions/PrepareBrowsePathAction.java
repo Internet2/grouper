@@ -100,7 +100,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  *
  * @author Gary Brown.
- * @version $Id: PrepareBrowsePathAction.java,v 1.4 2006-10-05 09:00:36 isgwb Exp $
+ * @version $Id: PrepareBrowsePathAction.java,v 1.5 2007-03-12 09:56:40 isgwb Exp $
  */
 
 public class PrepareBrowsePathAction extends LowLevelGrouperCapableAction {
@@ -110,7 +110,7 @@ public class PrepareBrowsePathAction extends LowLevelGrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		if(request.getAttribute("browsePath")!=null) return null;
 		DynaActionForm browseForm = (DynaActionForm) form;
 		ResourceBundle nav = getNavResources(request);
 		String rootName = null;

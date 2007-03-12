@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 
 import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -26,6 +28,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
+
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
@@ -103,7 +107,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareGroupSearchFormAction.java,v 1.6 2006-10-05 09:00:36 isgwb Exp $
+ * @version $Id: PrepareGroupSearchFormAction.java,v 1.7 2007-03-12 09:56:40 isgwb Exp $
  */
 public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 
@@ -120,6 +124,9 @@ public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 		searchForm.set("searchInDisplayNameOrExtension",searchDisplayNameOrExtension);
 		searchForm.set("searchInNameOrExtension",searchNameOrExtension);
 		request.setAttribute("fields",GrouperHelper.getSearchableFields(getNavResources(request)));
+		Set groupTypes=GroupTypeFinder.findAllAssignable();
+		request.setAttribute("types",groupTypes);
+		request.setAttribute("typesSize",new Integer(groupTypes.size()));
 		if(browsePath==null) {
 			GroupOrStem curGroupOrStem = getCurrentGroupOrStem(grouperSession,session);
 			if(curGroupOrStem!=null) {
