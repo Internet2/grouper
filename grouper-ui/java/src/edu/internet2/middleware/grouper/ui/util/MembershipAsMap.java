@@ -18,6 +18,7 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.util;
 
 import edu.internet2.middleware.grouper.GrouperHelper;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -27,7 +28,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipAsMap.java,v 1.2 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: MembershipAsMap.java,v 1.3 2007-03-12 09:49:08 isgwb Exp $
  */
 public class MembershipAsMap extends ObjectAsMap {
 
@@ -68,9 +69,27 @@ public class MembershipAsMap extends ObjectAsMap {
 				put("parentMembership",new MembershipAsMap(membership.getParentMembership()));
 			}catch(Exception igex){}
 		}catch(Exception e) {
-			throw new RuntimeException(e.getMessage());
+			throw new RuntimeException(membershipToString(membership) + e.getMessage());
 		}
-
+	}
+	
+	public String membershipToString(Membership mship) {
+		Member m=null;
+		try {
+			m=mship.getMember();
+		}catch(Exception e) {
+			throw new RuntimeException("Problem getting member for Membership: " + mship.toString());
+		}
+		StringBuffer sb=new StringBuffer("Member Uuid: ");
+		sb.append(m.getUuid());
+		sb.append("\nSubject Id: ");
+		sb.append(m.getSubjectId());
+		sb.append("\nSubject Source: ");
+		sb.append(m.getSubjectSourceId());
+		sb.append("\nSubject type: ");
+		sb.append(m.getSubjectTypeId());
+		sb.append("\n");
+		return sb.toString();
 	}
 
 	
