@@ -70,6 +70,12 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><font face="Arial, Helvetica, sans-serif">Checks if browsePath iis present 
       - if not derives it from current browseNode and SETs it</font></td>
   </tr>
+    <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">stemFields</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of fields that stems have. Note, Grouper
+    does not model Stem fields so Maps are used to emulate Group fields</font></td>
+  </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">currentLocation</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
@@ -107,7 +113,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareGroupSearchFormAction.java,v 1.7 2007-03-12 09:56:40 isgwb Exp $
+ * @version $Id: PrepareGroupSearchFormAction.java,v 1.8 2007-03-13 17:26:37 isgwb Exp $
  */
 public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 
@@ -125,6 +131,8 @@ public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 		searchForm.set("searchInNameOrExtension",searchNameOrExtension);
 		request.setAttribute("fields",GrouperHelper.getSearchableFields(getNavResources(request)));
 		Set groupTypes=GroupTypeFinder.findAllAssignable();
+		List stemFields = GrouperHelper.getSearchableStemFields(getNavResources(request));
+		request.setAttribute("stemFields",stemFields);
 		request.setAttribute("types",groupTypes);
 		request.setAttribute("typesSize",new Integer(groupTypes.size()));
 		if(browsePath==null) {

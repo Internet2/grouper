@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +95,12 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">CollectionPager</font></td>
   </tr>
+    <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">queryOutTerms</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">List of query terms / operators used
+    to render a human readable version of the search query</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -103,6 +110,12 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">stemSearchResultField</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Maintain user selection</font></td>
+  </tr>
+    <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">advancedSearchStemFieldParams</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Map of search form data used to
+    pre-populate search form on subsequent accesses</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">subtitle=stems.action.search</font></td>
@@ -121,7 +134,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SearchStemsAction.java,v 1.5 2006-02-24 13:42:00 isgwb Exp $
+ * @version $Id: SearchStemsAction.java,v 1.6 2007-03-13 17:26:37 isgwb Exp $
  */
 public class SearchStemsAction extends GrouperCapableAction {
 
@@ -155,9 +168,9 @@ public class SearchStemsAction extends GrouperCapableAction {
 		Map attr = new HashMap();
 		attr.put("searchInDisplayNameOrExtension",searchInDisplayNameOrExtension);
 		attr.put("searchInNameOrExtension",searchInNameOrExtension);
-		
+		List outTerms = new ArrayList();
 		List stemRes = repositoryBrowser.search(grouperSession, query,
-				searchFrom, request.getParameterMap(),null);
+				searchFrom, request.getParameterMap(),outTerms);
 		
 		//Page results
 		int total = stemRes.size();
@@ -172,16 +185,21 @@ public class SearchStemsAction extends GrouperCapableAction {
 			end = total;
 		stemRes = GrouperHelper.stems2Maps(grouperSession, stemRes.subList(
 				start, end));
+		
+		Map searchFieldParams = filterParameters(request,"searchField.");
+		session.setAttribute("advancedSearchStemFieldParams",searchFieldParams);
 
 		//Set up CollectionPager for results
 		CollectionPager pager = new CollectionPager(stemRes, total, null,
 				start, null, pageSize);
+		pager.setParams(searchFieldParams);
 		pager.setParam("searchTerm", query);
 		pager.setParam("searchFrom", searchFrom);
 		pager.setParam("searchInNameOrExtension", searchInNameOrExtension);
 		pager.setParam("searchInDisplayNameOrExtension", searchInDisplayNameOrExtension);
 		pager.setTarget(mapping.getPath());
 		request.setAttribute("pager", pager);
+		request.setAttribute("queryOutTerms",outTerms);
 		if (!isEmpty(searchFrom)) {
 			Stem fromStem = StemFinder.findByName(grouperSession,
 					searchFrom);

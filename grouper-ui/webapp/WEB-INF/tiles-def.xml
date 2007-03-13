@@ -645,6 +645,11 @@
 			called in loop in view chainPath
 	  </description>
 	 </definition>
+	 	 <definition name="selectStemSearchFieldsDef" path="/WEB-INF/jsp/selectStemSearchFields.jsp">
+		<description>
+			Called from advanced stem search. Displays fields which can be searched
+	  </description>
+	 </definition>
 	 
 	 <definition name="selectGroupSearchFieldsDef" path="/WEB-INF/jsp/selectGroupSearchFields.jsp">
 		<description>

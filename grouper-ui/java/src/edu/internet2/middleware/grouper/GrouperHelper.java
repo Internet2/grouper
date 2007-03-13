@@ -17,6 +17,9 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,6 +32,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import net.sf.hibernate.Session;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
@@ -54,9 +58,15 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.24 2006-10-05 15:13:21 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.25 2007-03-13 17:26:37 isgwb Exp $
  */
 
+/**
+ * @author isgwb
+ *
+ * TODO To change the template for this generated type comment go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
 /**
  * @author isgwb
  *
@@ -2713,10 +2723,18 @@ public class GrouperHelper {
 		try {
 			stemMap.put("description",bundle.getString("stems.edit.description"));
 		}catch(Exception e){}
-		map.put("stems",stemMap);
+			map.put("stems",stemMap);
 		return map;
 	}
 	
+	
+	/**
+	 * Returns whether the user associated with the active GrouperSession can edit
+	 * any cuustom attribute associate with the supplied group
+	 * @param group
+	 * @return
+	 * @throws SchemaException
+	 */
 	public static boolean canUserEditAnyCustomAttribute(Group group) throws SchemaException{
 		Set types = group.getTypes();
 		if(types.isEmpty()) return false;
@@ -2739,6 +2757,57 @@ public class GrouperHelper {
 		}
 		return false;
 	}
+	
+	private static String[] searchableStemFields=new String[] {"displayExtension","extension","displayName","name"};
+	
+	/**
+	 * Returns a list of Maps representing name / displayNames for stem fields
+	 * Stems don't have fields in the way Groups do. This approach allows for similar
+	 * code for advanced group and stem searching
+	 * @param bundle
+	 * @return
+	 */
+	public static List getSearchableStemFields(ResourceBundle bundle) {
+		List res = new ArrayList();
+		for (int i=0;i<searchableStemFields.length;i++) {
+			Map map = new HashMap();
+			map.put("name",searchableStemFields[i]);
+			map.put("displayName",bundle.getString("field.stem.displayName." + searchableStemFields[i]));
+			res.add(map);
+		}
+		return res;
+	}
+	
+	
+	
+	/*public static List query(String sql) throws Exception{
+		Connection con = null;
+		try {
+			  List results = new ArrayList();
+		      Session hs  = HibernateHelper.getSession();
+		      
+		      con = hs.connection();
+		      Statement stmt = con.createStatement();
+		      ResultSet rs = stmt.executeQuery(sql);
+		      Object obj;
+		      while(rs.next()) {
+		    	  obj = rs.getObject(1);
+		    	  results.add(obj);
+		      }
+		      return results;
+		    }
+		    catch (Exception e) {
+		      throw new QueryException("error finding groups: " +
+e.getMessage(), e);
+		    }finally {
+		    	try {
+		    		con.close();
+		    	}catch(Exception e){}
+		    }
+
+	}*/
 }
+
+
 
 

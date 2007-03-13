@@ -2,83 +2,39 @@
 		Tile which displays the advanced search form for stems
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchStems.jsp,v 1.2 2007-03-06 11:05:49 isgwb Exp $
+  @version $Id: advancedSearchStems.jsp,v 1.3 2007-03-13 17:26:37 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+
 <a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><fmt:message bundle="${nav}" key="page.skip.search"/></a>
-<div class="advancedSearchGroups">
-	<h2 class="actionheader">
-		<fmt:message bundle="${nav}" key="stems.heading.search"/>
-	</h2>
-	<p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=false"><fmt:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a></p>
+<div class="advancedSearchStems">
+<h2 class="actionheader">
+	<fmt:message bundle="${nav}" key="find.heading.stems-advanced-search"/>
+</h2><p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=false"><fmt:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a></p>
+
+		<c:set var="submitAction" value="/searchStems"/>
+
+	<html:form styleId="SearchFormBean" action="${submitAction}" method="post">
+	<input type="hidden" name="searchFor" value="stems"/>
+	<input type="hidden" name="newSearch" value="Y"/>
+	<input type="hidden" name="advSearch" value="Y"/>
 	
-    <html:form action="/searchStems" styleId="SearchStemsAction" method="post">
-	<fieldset>
-    <div class="formRow">
-			<div class="formLeft">
-				<label for="searchTerm"><fmt:message bundle="${nav}" key="find.search-term"/></label>
-			</div>
-			<div class="formRight">
-				<html:text property="searchTerm" size="25" styleId="searchTerm"/>
-			</div>
-			</div>
-			<fieldset class="nested">
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInDisplayExtension"><fmt:message bundle="${nav}" key="find.search-in-display-extension"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInDisplayNameOrExtension" value="extension" styleId="formSearchInDisplayExtension"/>
-			</div>
-		</div>
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInDisplayName"><fmt:message bundle="${nav}" key="find.search-in-display-name"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInDisplayNameOrExtension" value="name" styleId="formSearchInDisplayName"/>
-			</div>
-		</div>
-				<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInDisplayNone"></label><fmt:message bundle="${nav}" key="find.search-in-display-none"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInDisplayNameOrExtension" value="" styleId="formSearchInDisplayNone"/>
-			</div>
-		</div>
-		</fieldset>
+	<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
+	<input type="hidden" name="previousCallerPageId" value="<c:out value="${grouperForm.map.callerPageId}"/>"/>
+	<fieldset>			
 		<fieldset class="nested">
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInExtension"><fmt:message bundle="${nav}" key="find.search-in-extension"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInNameOrExtension" value="extension" styleId="formSearchInExtension"/>
-			</div>
-		</div>
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInName"><fmt:message bundle="${nav}" key="find.search-in-name"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInNameOrExtension" value="name" styleId="formSearchInName"/>
-			</div>
-		</div>
-		<div class="formRow">
-			<div class="formLeft">
-				<label for="formSearchInNone"><fmt:message bundle="${nav}" key="find.search-in-none"/></label>
-			</div>
-			<div class="formRight">
-				<html:radio property="searchInNameOrExtension" value="" styleId="formSearchInNone"/>
-			</div>
-		</div>
+				<tiles:insert definition="selectStemSearchFieldsDef"/>
 		</fieldset>
 		<div class="formRow"><tiles:insert definition="searchFromDef"/></div><br/>
-    	<html:submit property="submit.search" value="${navMap['stems.action.search']}"/>
+    	
+
+		<tiles:insert definition="searchStemResultFieldChoiceDef"/>
+		<html:submit property="submit.search" value="${navMap['stems.action.search']}"/>
+
 	</fieldset>
 	</html:form>
-</div> 
+</div>
 <a name="endSearch" id="endSearch"></a>
+
 </grouper:recordTile>

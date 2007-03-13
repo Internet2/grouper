@@ -43,7 +43,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.IntersectionFilter;
 import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemDisplayExtensionFilter;
+import edu.internet2.middleware.grouper.StemDisplayNameFilter;
+import edu.internet2.middleware.grouper.StemExtensionFilter;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemNameAnyFilter;
+import edu.internet2.middleware.grouper.StemNameFilter;
 import edu.internet2.middleware.grouper.UnionFilter;
 import edu.internet2.middleware.subject.Subject;
 
@@ -124,7 +129,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.12 2007-03-12 09:56:40 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.13 2007-03-13 17:26:37 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -423,7 +428,13 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		boolean isAdvancedSearch = "Y".equals(getSingle("advSearch",attr));
 		List results = null;
 		if("stems".equals(search)) {
-			results = GrouperHelper.searchStems(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension);
+			if(isAdvancedSearch) {
+				results = advancedStemSearch(s,from,attr,outTerms);
+			}else {
+				results = GrouperHelper.searchStems(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension);
+				if(outTerms!=null) outTerms.add(query);
+			}
+			
 		}else{
 			if(isAdvancedSearch) {
 				results = advancedSearch(s,from,attr,outTerms);
@@ -441,6 +452,79 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		return filtered;
 	}
 	
+	/**
+	 * Only accessible from Create groups, implements stem search logic
+	 * @param s
+	 * @param from
+	 * @param attr
+	 * @param outTerms
+	 * @return
+	 * @throws Exception
+	 */
+	public List advancedStemSearch(GrouperSession s,String from,Map attr,List outTerms) throws Exception{
+		List res = new ArrayList();
+		String maxCountStr = getSingle("maxFields",attr);
+		int maxCount = Integer.parseInt(maxCountStr);
+		String lastQuery = null;
+		String lastField = null;
+		String lastAndOrNot = null;
+		String field;
+		String query;
+		String andOrNot;
+		Map fieldMaps = (Map)GrouperHelper.getFieldsAsMap(navBundle).get("stems");
+		String lastFieldDisplayName=null;
+		QueryFilter queryFilter = null;
+		if(outTerms==null) outTerms=new ArrayList();
+		
+		Stem fromStem = StemFinder.findByName(s,from);
+		for (int i=1;i<=maxCount;i++) {
+			field = getSingle("searchField." + i,attr);
+			query = getSingle("searchField." + i + ".query",attr);
+			if(i==1 && (field==null || query==null)) {
+				if(getSingle("searchType.1" ,attr)!=null) break;
+				throw new IllegalArgumentException("The first search field and query value must be enetered");
+			}
+			andOrNot = getSingle("searchField." + i + ".searchAndOrNot",attr);
+			if(query==null || "".equals(query)) query = lastQuery;
+			if(i>1) {
+				if(queryFilter==null) {
+					queryFilter=getStemAttributeFilter(lastField,lastQuery,fromStem);
+					outTerms.add(lastQuery);
+					lastFieldDisplayName=(String)fieldMaps.get(lastField);
+					outTerms.add(lastFieldDisplayName);
+				}
+				if(field==null && i==2) {
+					break;
+				}
+				if(field==null && i>2) break;
+				
+				if("and".equals(lastAndOrNot)) {
+					queryFilter = new IntersectionFilter(queryFilter,getStemAttributeFilter(field,query,fromStem));
+				}else if("or".equals(lastAndOrNot)){
+					queryFilter = new UnionFilter(queryFilter,getStemAttributeFilter(field,query,fromStem));
+				}else{
+					queryFilter = new ComplementFilter(queryFilter,getStemAttributeFilter(field,query,fromStem));
+				}
+				outTerms.add(lastAndOrNot);
+				outTerms.add(query);
+				outTerms.add(field);
+				
+			}
+			lastQuery = query;
+			lastField = field;
+			lastAndOrNot = andOrNot;
+		}
+		
+		
+		GrouperQuery q = GrouperQuery.createQuery(s,queryFilter);
+		res.addAll(q.getStems());
+		return res;
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#advancedSearch(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.util.Map, java.util.List)
+	 */
 	public List advancedSearch(GrouperSession s,String from,Map attr,List outTerms) throws Exception{
 		List res = new ArrayList();
 		String maxCountStr = getSingle("maxFields",attr);
@@ -538,6 +622,21 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		}else{
 			return new GroupAttributeFilter(field,query,from);
 		}
+	}
+	
+	private QueryFilter getStemAttributeFilter(String field,String query,Stem from) {
+		if("_any".equals(field)) {
+			return new StemNameAnyFilter(query,from);
+		}else if("extension".equals(field)){
+			return new StemExtensionFilter(query,from);
+		}else if("displayExtension".equals(field)){
+			return new StemDisplayExtensionFilter(query,from);
+		}else if("name".equals(field)){
+			return new StemNameFilter(query,from);
+		}else if("displayName".equals(field)){
+			return new StemDisplayNameFilter(query,from);
+		}
+		throw new IllegalArgumentException("["  +field + "] is not a valid Stem attribute");
 	}
 
 	
