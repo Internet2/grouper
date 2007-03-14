@@ -20,23 +20,19 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Integration.java,v 1.8 2007-03-14 18:13:52 blair Exp $
+ * @version $Id: Suite_Integration_HibernateStemDAO.java,v 1.1 2007-03-14 18:13:52 blair Exp $
  * @since   1.2.0
  */
-public class Suite_Integration extends GrouperTest {
+public class Suite_Integration_HibernateStemDAO extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    // API
-    suite.addTest( Suite_Integration_CompositeValidator.suite() );
-    suite.addTest( Suite_Integration_ImmediateMembershipValidator.suite() );
-    suite.addTest( Suite_Integration_Stem.suite() );
-    // DAO
-    suite.addTest( Suite_Integration_HibernateGroupDAO.suite() );
-    suite.addTest( Suite_Integration_HibernateGroupTypeDAO.suite() );
-    suite.addTest( Suite_Integration_HibernateStemDAO.suite() );
+    suite.addTestSuite(Test_Integration_HibernateStemDAO_findAllByApproximateDisplayExtension.class);
+    suite.addTestSuite(Test_Integration_HibernateStemDAO_findAllByApproximateDisplayName.class);
+    suite.addTestSuite(Test_Integration_HibernateStemDAO_findAllByApproximateExtension.class);
+    suite.addTestSuite(Test_Integration_HibernateStemDAO_findAllByApproximateName.class);
     return suite;
   } // static public Test suite()
 
-} // public class Suite_Integration extends GrouperTest
+} // public class Suite_Integration_HibernateStemDAO extends GrouperTest
 
