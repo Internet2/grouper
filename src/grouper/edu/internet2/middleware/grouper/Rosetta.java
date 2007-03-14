@@ -26,7 +26,7 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.4 2007-03-14 18:27:12 blair Exp $
+ * @version $Id: Rosetta.java,v 1.5 2007-03-14 19:31:47 blair Exp $
  */
 class Rosetta {
 
@@ -66,7 +66,6 @@ class Rosetta {
   protected static GrouperAPI getAPI(HibernateDAO dao) 
     throws  IllegalArgumentException
   {
-    // TODO 20070206 do i even need to check?
     if      (dao instanceof HibernateFieldDAO)     {
       Field f = new Field();
       f.setDTO( FieldDTO.getDTO( (HibernateFieldDAO) dao ) );
@@ -132,7 +131,6 @@ class Rosetta {
 
   // @since   1.2.0
   protected static GrouperDTO getDTO(HibernateDAO dao) {
-    // TODO 20070206 do i even need to check?
     if      (dao instanceof HibernateFieldDAO)      {
       return FieldDTO.getDTO( (HibernateFieldDAO) dao );
     }

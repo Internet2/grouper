@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.42 2007-03-14 19:10:00 blair Exp $
+ * @version $Id: GroupType.java,v 1.43 2007-03-14 19:31:47 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -181,7 +181,7 @@ public class GroupType extends GrouperAPI implements Serializable {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if ( internal_isSystemType(this) ) {
+    if ( this.isSystemType() ) {
       String msg = E.GROUPTYPE_NODELSYS + this.getDTO().getName();
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
@@ -315,6 +315,14 @@ public class GroupType extends GrouperAPI implements Serializable {
     return this.getDTO().hashCode();
   } // public int hashCode()
 
+  // @since   1.2.0
+  public boolean isSystemType() {
+    if ( "base".equals( this.getName() ) || "naming".equals( this.getName() ) ) {
+      return true;
+    }
+    return false;
+  } // public boolean isSystemType()
+  
   /**
    */
   public String toString() {
@@ -335,56 +343,36 @@ public class GroupType extends GrouperAPI implements Serializable {
       ErrorLog.error(GroupType.class, msg);
       throw new InsufficientPrivilegeException(msg);
     }
-    GroupType type = null;
-    try {
-      // TODO 20070206 call the dao method
-      type = GroupTypeFinder.find(name);  // type already exists
-    }
-    catch (SchemaException eS) {
-      // Type not found.  This is what we want.
-    } 
-    // TODO 20070206 yuck
-    if (type != null) {
+    if ( HibernateGroupTypeDAO.existsByName(name) ) {
       String msg = E.GROUPTYPE_EXISTS + name;
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     }
-    GroupTypeDTO dto = new GroupTypeDTO();
-    dto.setCreateTime( new Date().getTime() );
-    dto.setCreatorUuid( s.getMember().getUuid() );
-    dto.setFields( new LinkedHashSet() );
-    dto.setIsAssignable(isAssignable);  
-    dto.setIsInternal(isInternal);
-    dto.setName(name);
-    dto.setTypeUuid( GrouperUuid.internal_getUuid() );
+    GroupTypeDTO _gt = new GroupTypeDTO();
+    _gt.setCreateTime( new Date().getTime() );
+    _gt.setCreatorUuid( s.getMember().getUuid() );
+    _gt.setFields( new LinkedHashSet() );
+    _gt.setIsAssignable(isAssignable);  
+    _gt.setIsInternal(isInternal);
+    _gt.setName(name);
+    _gt.setTypeUuid( GrouperUuid.internal_getUuid() );
     try {
-      dto.setId( HibernateGroupTypeDAO.create(dto) );
+      _gt.setId( HibernateGroupTypeDAO.create(_gt) );
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg, eDAO);
     }
-    type = new GroupType();
-    type.setDTO(dto);
+    GroupType type = new GroupType();
+    type.setDTO(_gt);
     return type;
   } // protected static GroupType internal_createType(s, name, isAssignable, isInternal)
-
-  // @since   1.2.0
-  // TODO 20070206 rename|relocate
-  protected static boolean internal_isSystemType(GroupType type) {
-    String name = type.getName();
-    if ( (name.equals("base")) || (name.equals("naming")) ) {
-      return true;
-    }
-    return false;
-  } // protected static boolean internal_isSystemType(type)
 
 
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  // TODO 20070206 rename|relocate
   protected Field internal_addField(
     GrouperSession s, String name, FieldType type, Privilege read, Privilege write, boolean required
   )

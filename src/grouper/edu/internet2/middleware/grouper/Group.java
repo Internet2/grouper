@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.140 2007-03-14 19:10:00 blair Exp $
+ * @version $Id: Group.java,v 1.141 2007-03-14 19:31:47 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -251,7 +251,7 @@ public class Group extends GrouperAPI implements Owner {
     if ( this.hasType(type ) ) {
       throw new GroupModifyException(E.GROUP_HAS_TYPE);
     }
-    if ( GroupType.internal_isSystemType(type) ) {
+    if ( type.isSystemType() ) {
       throw new SchemaException("cannot edit system group types");
     }
     if ( !PrivilegeResolver.internal_canADMIN( this.getSession(), this, this.getSession().getSubject() ) ) {
@@ -687,7 +687,7 @@ public class Group extends GrouperAPI implements Owner {
       if ( !this.hasType(type) ) {
         throw new GroupModifyException("does not have type");
       }
-      if ( GroupType.internal_isSystemType(type) ) {
+      if ( type.isSystemType() ) {
         throw new SchemaException("cannot edit system group types");
       }
       if ( !PrivilegeResolver.internal_canADMIN( this.getSession(), this, this.getSession().getSubject() ) ) {
@@ -2209,7 +2209,7 @@ public class Group extends GrouperAPI implements Owner {
   } // protected boolean internal_canWriteField(subj, f, type)
 
   // @since   1.2.0 
-  // TODO 20070206 i dislike this method
+  // i dislike this method
   protected void internal_setModified() {
     this.getDTO().setModifierUuid( this.getSession().getMember().getUuid() );
     this.getDTO().setModifyTime( new Date().getTime() );

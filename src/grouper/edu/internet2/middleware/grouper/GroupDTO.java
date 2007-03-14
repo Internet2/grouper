@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Group} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.4 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.5 2007-03-14 19:31:47 blair Exp $
  */
 class GroupDTO extends BaseGrouperDTO {
 
@@ -57,10 +57,8 @@ class GroupDTO extends BaseGrouperDTO {
     if (!(other instanceof GroupDTO)) {
       return false;
     }
-    GroupDTO that = (GroupDTO) other;
-    // TODO 20070201 should i use more than this?
     return new EqualsBuilder()
-      .append( this.getUuid(), that.getUuid() )
+      .append( this.getUuid(), ( (GroupDTO) other ).getUuid() )
       .isEquals();
   } // public boolean equals(other)
 

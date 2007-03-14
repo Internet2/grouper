@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Composite} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeDTO.java,v 1.3 2007-02-14 18:15:50 blair Exp $
+ * @version $Id: CompositeDTO.java,v 1.4 2007-03-14 19:31:47 blair Exp $
  */
 class CompositeDTO extends BaseGrouperDTO {
 
@@ -53,10 +53,8 @@ class CompositeDTO extends BaseGrouperDTO {
     if (!(other instanceof CompositeDTO)) {
       return false;
     }
-    CompositeDTO that = (CompositeDTO) other;
-    // TODO 20070201 should i use more than this?
     return new EqualsBuilder()
-      .append( this.getUuid(), that.getUuid() )
+      .append( this.getUuid(), ( (CompositeDTO) other ).getUuid() )
       .isEquals();
   } // public boolean equals(other)
 
