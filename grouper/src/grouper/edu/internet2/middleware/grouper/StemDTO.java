@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Stem} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDTO.java,v 1.2 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: StemDTO.java,v 1.3 2007-03-14 19:31:47 blair Exp $
  */
 class StemDTO extends BaseGrouperDTO {
 
@@ -59,10 +59,8 @@ class StemDTO extends BaseGrouperDTO {
     if (!(other instanceof StemDTO)) {
       return false;
     }
-    StemDTO that = (StemDTO) other;
-    // TODO 20070201 should i use more than this?
     return new EqualsBuilder()
-      .append( this.getUuid(), that.getUuid() )
+      .append( this.getUuid(), ( (StemDTO) other ).getUuid() )
       .isEquals();
   } // public boolean equals(other)
 

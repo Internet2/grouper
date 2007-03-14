@@ -21,13 +21,14 @@ import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
 import  net.sf.hibernate.*;
+
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.10 2007-03-06 20:19:00 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.11 2007-03-14 19:31:47 blair Exp $
  */
 class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
 
@@ -224,6 +225,26 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
     }
   } // protected static void deleteField(_f)
 
+  // @since   1.2.0
+  protected static boolean existsByName(String name)
+    throws  GrouperDAOException
+  {
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("select gt.id from HibernateGroupTypeDAO gt where gt.name = :name");
+      qry.setString("name", name);
+      boolean rv  = false;
+      if ( qry.uniqueResult() != null ) {
+        rv = true;
+      }
+      hs.close();
+      return rv;
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static boolean existsByName(name)
+  
   // @since   1.2.0
   protected static Set findAll() 
     throws  GrouperDAOException

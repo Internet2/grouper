@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * Basic {@link Field} DTO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldDTO.java,v 1.1 2007-02-08 16:25:25 blair Exp $    
+ * @version $Id: FieldDTO.java,v 1.2 2007-03-14 19:31:47 blair Exp $    
  * @since   1.2.0
  */
 class FieldDTO extends BaseGrouperDTO {
@@ -84,7 +84,6 @@ class FieldDTO extends BaseGrouperDTO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // TODO 20070206 this doesn't fit with everything else
   protected static FieldDTO getDTO(HibernateFieldDAO dao) {
     FieldDTO dto = new FieldDTO();
     dto.setFieldUuid( dao.getFieldUuid() );
