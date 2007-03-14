@@ -26,7 +26,7 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.3 2007-03-07 15:48:41 blair Exp $
+ * @version $Id: Rosetta.java,v 1.4 2007-03-14 18:27:12 blair Exp $
  */
 class Rosetta {
 
@@ -138,9 +138,6 @@ class Rosetta {
     }
     else if (dao instanceof HibernateGroupTypeDAO)  {
       return GroupTypeDTO.getDTO( (HibernateGroupTypeDAO) dao );
-    }
-    else if (dao instanceof HibernateSettingsDAO)   {
-      return SettingsDTO.getDTO( (HibernateSettingsDAO) dao );
     }
     throw new IllegalArgumentException( "cannot translate dao to dto: " + dao.getClass().getName() );
   } // protected static GrouperDTO getDTO(obj)
