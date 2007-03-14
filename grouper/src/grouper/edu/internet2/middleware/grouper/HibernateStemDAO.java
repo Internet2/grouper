@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.15 2007-03-14 19:10:00 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.16 2007-03-14 19:54:08 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -359,7 +359,7 @@ class HibernateStemDAO extends HibernateDAO {
   } // protected sdtatic Set findChildGroups(ns)
 
   // @since   1.2.0
-  protected static Set findChildStems(Stem ns) // TODO 20601219 rename
+  protected static Set findChildStems(Stem ns) // TODO 200601219 rename
     throws  GrouperDAOException
   {
     Set stems = new LinkedHashSet();

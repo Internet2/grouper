@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Group} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.5 2007-03-14 19:31:47 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.6 2007-03-14 19:54:08 blair Exp $
  */
 class GroupDTO extends BaseGrouperDTO {
 
@@ -93,7 +93,6 @@ class GroupDTO extends BaseGrouperDTO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // TODO 20070125 this doesn't fit with everything else
   protected static Collection getDTO(Collection c) {
     Set       groups  = new LinkedHashSet();
     Iterator  it      = c.iterator();
@@ -104,7 +103,6 @@ class GroupDTO extends BaseGrouperDTO {
   } // protected static Collection getDTO(c)
 
   // @since   1.2.0
-  // TODO 20070125 this doesn't fit with everything else
   protected static GroupDTO getDTO(HibernateGroupDAO dao) {
     GroupDTO dto = new GroupDTO();
     dto._setDAO(dao);

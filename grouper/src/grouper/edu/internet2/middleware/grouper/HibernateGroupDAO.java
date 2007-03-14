@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.19 2007-03-14 19:10:00 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.20 2007-03-14 19:54:08 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
@@ -67,7 +67,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
 
   // @since   1.2.0
   public void onLoad(Session hs, Serializable id) {
-    // TODO 20070201 onLoad not implemented
+    // nothing
   } // public void onLoad(hs, id)
 
   // @since   1.2.0
@@ -623,50 +623,42 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   private void _updateAttributes(Session hs) 
     throws  HibernateException
   {
-    // TODO 20070201 refactor.  this is too big.
-    Transaction tx  = hs.beginTransaction(); // TODO 20070307 why don't we just use parent tx?
-    Query       qry = hs.createQuery("from HibernateAttributeDAO as a where a.groupUuid = :uuid");
+    // TODO 20070314 refactor.  this is too big.
+    Query qry = hs.createQuery("from HibernateAttributeDAO as a where a.groupUuid = :uuid");
     qry.setCacheable(true);
     qry.setCacheRegion(KLASS + "._UpdateAttributes");
     qry.setString("uuid", this.uuid);
     HibernateAttributeDAO a;
     Map                   attrs = new HashMap(this.attributes);
     String                k;
-    Iterator it = qry.iterate();
-    try {
-      while (it.hasNext()) {
-        a = (HibernateAttributeDAO) it.next();
-        k = a.getAttrName();
-        if ( attrs.containsKey(k) ) {
-          // attr both in db and in memory.  compare.
-          if ( !a.getValue().equals( (String) attrs.get(k) ) ) {
-            a.setValue( (String) attrs.get(k) );
-            hs.update(a);
-          }
-          attrs.remove(k);
+    Iterator              it = qry.iterate();
+    while (it.hasNext()) {
+      a = (HibernateAttributeDAO) it.next();
+      k = a.getAttrName();
+      if ( attrs.containsKey(k) ) {
+        // attr both in db and in memory.  compare.
+        if ( !a.getValue().equals( (String) attrs.get(k) ) ) {
+          a.setValue( (String) attrs.get(k) );
+          hs.update(a);
         }
-        else {
-          // attr only in db.
-          hs.delete(a);
-          attrs.remove(k);
-        }
+        attrs.remove(k);
       }
-      // now handle entries that were only in memory
-      Map.Entry kv;
-      it = attrs.entrySet().iterator();
-      while (it.hasNext()) {
-        kv = (Map.Entry) it.next();
-        HibernateAttributeDAO dao = new HibernateAttributeDAO(); 
-        dao.setAttrName( (String) kv.getKey() );
-        dao.setGroupUuid(this.uuid);
-        dao.setValue( (String) kv.getValue() );
-        hs.save(dao);
+      else {
+        // attr only in db.
+        hs.delete(a);
+        attrs.remove(k);
       }
-      tx.commit();
     }
-    catch (HibernateException eH) {
-      tx.rollback();
-      throw eH;
+    // now handle entries that were only in memory
+    Map.Entry kv;
+    it = attrs.entrySet().iterator();
+    while (it.hasNext()) {
+      kv = (Map.Entry) it.next();
+      HibernateAttributeDAO dao = new HibernateAttributeDAO(); 
+      dao.setAttrName( (String) kv.getKey() );
+      dao.setGroupUuid(this.uuid);
+      dao.setValue( (String) kv.getValue() );
+      hs.save(dao);
     }
   } // private void _updateAttributes(hs)
 

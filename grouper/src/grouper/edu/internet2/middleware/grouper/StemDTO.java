@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Stem} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDTO.java,v 1.3 2007-03-14 19:31:47 blair Exp $
+ * @version $Id: StemDTO.java,v 1.4 2007-03-14 19:54:08 blair Exp $
  */
 class StemDTO extends BaseGrouperDTO {
 
@@ -98,7 +98,6 @@ class StemDTO extends BaseGrouperDTO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // TODO 20070125 this doesn't fit with everything else
   protected static Collection getDTO(Collection c) {
     Set       stems = new LinkedHashSet();
     Iterator  it    = c.iterator();
@@ -109,7 +108,6 @@ class StemDTO extends BaseGrouperDTO {
   } // protected static Collection getDTO(c)
 
   // @since   1.2.0
-  // TODO 20070125 this doesn't fit with everything else
   protected static StemDTO getDTO(HibernateStemDAO dao) {
     StemDTO dto = new StemDTO();
     dto.setCreateSource( dao.getCreateSource() );
@@ -133,7 +131,6 @@ class StemDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
   
   // @since   1.2.0
-  // TODO 20070125 is this the direction i want to take?
   protected HibernateStemDAO getDAO() {
     HibernateStemDAO dao = new HibernateStemDAO();
     dao.setCreateSource( this.getCreateSource() );

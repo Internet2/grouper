@@ -25,7 +25,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.37 2007-02-28 17:40:45 blair Exp $
+ * @version $Id: StemFinder.java,v 1.38 2007-03-14 19:54:08 blair Exp $
  */
 public class StemFinder {
 
@@ -50,7 +50,7 @@ public class StemFinder {
     throws StemNotFoundException
   {
     GrouperSession.validate(s);
-    // TODO 20070201 bah.  should be in dao if it exists at all.
+    // TODO 20070314 bah.  should be in dao if it exists at all.
     if ( name.equals(Stem.ROOT_EXT) ) {
       name = Stem.ROOT_INT;
     }
