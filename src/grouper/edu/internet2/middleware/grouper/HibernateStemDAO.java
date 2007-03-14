@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.14 2007-03-14 18:13:52 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.15 2007-03-14 19:10:00 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -61,17 +61,16 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session       hs  = HibernateDAO.getSession();
       Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(child);
+      HibernateDAO  _g  = Rosetta.getDAO(child);
       try {
-        hs.save(dao);
-        // TODO 20070207 add group-type tuples
+        hs.save(_g);
+        // add group-type tuples
         Iterator it = child.getTypes().iterator();
         while (it.hasNext()) {
-          GroupTypeDTO                dto = (GroupTypeDTO) it.next();
-          HibernateGroupTypeTupleDAO  gtt = new HibernateGroupTypeTupleDAO();
-          gtt.setGroupUuid( child.getUuid() );
-          gtt.setTypeUuid( dto.getTypeUuid() );
-          hs.save(gtt); // new group-type tuple
+          HibernateGroupTypeTupleDAO dao = new HibernateGroupTypeTupleDAO();
+          dao.setGroupUuid( child.getUuid() );
+          dao.setTypeUuid( ( (GroupTypeDTO) it.next() ).getTypeUuid() );
+          hs.save(dao); // new group-type tuple
         }
         hs.update( Rosetta.getDAO(parent) );
         if ( !HibernateMemberDAO.exists( m.getMemberUuid() ) ) {
@@ -86,7 +85,7 @@ class HibernateStemDAO extends HibernateDAO {
       finally {
         hs.close();
       }
-      return dao.getId();
+      return _g.getId();
     }
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );

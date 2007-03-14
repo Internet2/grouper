@@ -22,7 +22,7 @@ import  java.io.Serializable;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.19 2007-03-08 20:04:38 blair Exp $    
+ * @version $Id: Field.java,v 1.20 2007-03-14 19:10:00 blair Exp $    
  */
 public class Field extends GrouperAPI implements Serializable {
 
@@ -121,14 +121,6 @@ public class Field extends GrouperAPI implements Serializable {
   protected FieldDTO getDTO() {
     return (FieldDTO) super.getDTO();
   } // protected FieldDTO getDTO()
-
-  // @since   1.2.0
-  // TODO 20070206 rename|relocate
-  protected boolean internal_isInUse() 
-    throws  SchemaException
-  {
-    return HibernateFieldDAO.isInUse(this);
-  } // protected boolean internal_isInUse()
 
 } // public class Field extends GrouperAPI implements Serializable
 

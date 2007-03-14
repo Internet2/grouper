@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.41 2007-03-06 20:19:00 blair Exp $
+ * @version $Id: GroupType.java,v 1.42 2007-03-14 19:10:00 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -252,7 +252,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     if (vDelete.isInvalid()) {
       throw new SchemaException( vDelete.getErrorMessage() );
     }
-    if ( f.internal_isInUse() ) {
+    if ( HibernateFieldDAO.isInUse(f) ) {
       String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);

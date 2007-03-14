@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.7 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestGroupTypes.java,v 1.8 2007-03-14 19:10:00 blair Exp $
  */
 public class TestGroupTypes extends GrouperTest {
 
@@ -463,10 +463,10 @@ public class TestGroupTypes extends GrouperTest {
 
       try {
         g.setAttribute(name, name);
-        Assert.fail("added field without type");
+        fail("added field without type");
       }
-      catch (Exception e) { // TODO 20070207 bah.  too much!
-        Assert.assertTrue("could not add field without type", true);
+      catch (AttributeNotFoundException eExpected) { 
+        assertTrue("could not add field without type", true);
       }
     }
     catch (Exception e) {

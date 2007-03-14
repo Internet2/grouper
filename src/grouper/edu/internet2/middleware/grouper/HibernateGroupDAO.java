@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.18 2007-03-07 19:13:59 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.19 2007-03-14 19:10:00 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
@@ -421,18 +421,17 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   protected static Set findAllByType(GroupType type) 
     throws  GrouperDAOException
   {
-    // TODO 20070207 this could probably be more elegant
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateGroupTypeTupleDAO as gtt where gtt.typeUuid = :type");
+      // TODO 20070314 use a join query?
+      Query   qry = hs.createQuery("select gtt.groupUuid from HibernateGroupTypeTupleDAO gtt where gtt.typeUuid = :type");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByType");
       qry.setString( "type", type.getDTO().getTypeUuid() );
       Iterator it = qry.list().iterator();
       while (it.hasNext()) {
-        HibernateGroupTypeTupleDAO gtt = (HibernateGroupTypeTupleDAO) it.next();
-        groups.add( findByUuid( gtt.getGroupUuid() ) );
+        groups.add( findByUuid( (String) it.next() ) );
       }
       hs.close();
     }
@@ -611,7 +610,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-    catch (SchemaException eS) { // TODO 20070207 this should NOT be thrown here
+    catch (SchemaException eS) { 
       throw new GrouperDAOException( eS.getMessage(), eS );
     }
     return types;
