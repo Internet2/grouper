@@ -3,7 +3,7 @@
 		  to display a child group
 --%><%--
   @author Gary Brown.
-  @version $Id: browseChildGroup.jsp,v 1.3 2006-07-13 10:27:14 isgwb Exp $
+  @version $Id: browseChildGroup.jsp,v 1.4 2007-03-14 10:04:48 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -16,5 +16,5 @@
 			paramName="viewObject" 
 			paramProperty="id"
 			title="${linkTitle}">
-				<span class="groupSubject"><c:out value="${viewObject.displayExtension}"/></span>
+				<span class="groupSubject"><c:out value="${viewObject[mediaMap['group.display']]}"/></span>
  </html:link>]
