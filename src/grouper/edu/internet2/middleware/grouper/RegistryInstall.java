@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.34 2007-02-14 17:06:28 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.35 2007-03-14 18:27:12 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -70,10 +70,6 @@ public class RegistryInstall {
     naming.internal_addField( s, "creators", FieldType.NAMING, NamingPrivilege.STEM, NamingPrivilege.STEM, false);
     naming.internal_addField( s, "stemmers", FieldType.NAMING, NamingPrivilege.STEM, NamingPrivilege.STEM, false);
 
-    // TODO 20070207 what should i do with `Settings`?
-    SettingsDTO settings = new SettingsDTO();
-    settings.setSchemaVersion( Settings.internal_getCurrentSchemaVersion() );
-    HibernateSettingsDAO.create(settings);
   } // private static void _installFieldsAndTypes(s)
 
   private static void _installGroupsAndStems(GrouperSession s) 

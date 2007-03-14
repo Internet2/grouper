@@ -28,7 +28,7 @@ import  net.sf.hibernate.cfg.*;
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.10 2007-03-06 17:02:42 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.11 2007-03-14 18:27:12 blair Exp $
  * @since   1.2.0
  */
 abstract class HibernateDAO {
@@ -59,7 +59,6 @@ abstract class HibernateDAO {
         .addClass(HibernateMembershipDAO.class)
         .addClass(HibernateRegistrySubjectDAO.class)
         .addClass(HibernateRegistrySubjectAttributeDAO.class)
-        .addClass(HibernateSettingsDAO.class)
         .addClass(HibernateStemDAO.class)
         ;
       // And finally create our session factory
