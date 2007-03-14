@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.13 2007-03-07 20:30:44 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.14 2007-03-14 18:13:52 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -154,7 +154,7 @@ class HibernateStemDAO extends HibernateDAO {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.displayExtension like :value");
+      Query   qry = hs.createQuery("from HibernateStemDAO as ns where lower(ns.displayExtension) like lower(:value)");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByApproximateDisplayExtension");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
@@ -174,7 +174,7 @@ class HibernateStemDAO extends HibernateDAO {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.displayName like :value");
+      Query   qry = hs.createQuery("from HibernateStemDAO as ns where lower(ns.displayName) like lower(:value)");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByApproximateDisplayName");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
@@ -194,7 +194,7 @@ class HibernateStemDAO extends HibernateDAO {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.extension like :value");
+      Query   qry = hs.createQuery("from HibernateStemDAO as ns where lower(ns.extension) like lower(:value)");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByApproximateExtension");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
@@ -214,7 +214,7 @@ class HibernateStemDAO extends HibernateDAO {
     Set stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.name like :value");
+      Query   qry = hs.createQuery("from HibernateStemDAO as ns where lower(ns.name) like lower(:value)");
       qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByApproximateName");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
