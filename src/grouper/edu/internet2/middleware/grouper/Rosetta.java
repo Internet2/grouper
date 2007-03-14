@@ -26,7 +26,7 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.5 2007-03-14 19:31:47 blair Exp $
+ * @version $Id: Rosetta.java,v 1.6 2007-03-14 19:54:08 blair Exp $
  */
 class Rosetta {
 
@@ -145,7 +145,7 @@ class Rosetta {
     if      (obj instanceof GrouperAPI)   {
       return getDTO( (GrouperAPI) obj );
     }
-    else if (obj instanceof GrouperDTO)   { // TODO 20070212 this is redundant 
+    else if (obj instanceof GrouperDTO)   { // TODO 20070314 this is redundant 
       return (GrouperDTO) obj;
     }
     else if (obj instanceof HibernateDAO) {

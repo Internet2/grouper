@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.141 2007-03-14 19:31:47 blair Exp $
+ * @version $Id: Group.java,v 1.142 2007-03-14 19:54:08 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -2228,10 +2228,10 @@ public class Group extends GrouperAPI implements Owner {
       rv = true;
     }
     catch (InsufficientPrivilegeException eIP) {
-      // TODO 20070131  ignore - for now
+      return false ;
     }
     catch (SchemaException eS) {
-      // TODO 20070131  ignore - for now
+      return false;
     }
     return rv;
   } // private boolean _canReadField(name)

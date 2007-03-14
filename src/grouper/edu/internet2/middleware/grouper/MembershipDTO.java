@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.3 2007-02-14 17:34:14 blair Exp $
+ * @version $Id: MembershipDTO.java,v 1.4 2007-03-14 19:54:08 blair Exp $
  */
 class MembershipDTO extends BaseGrouperDTO {
 
@@ -36,8 +36,8 @@ class MembershipDTO extends BaseGrouperDTO {
   private String  creatorUUID;
   private int     depth           = 0;                              // reasonable default
   private String  id;
-  private String  listName;                                         // TODO 20070213 set reasonable default
-  private String  listType;                                         // TODO 20070213 set reasonable default
+  private String  listName;
+  private String  listType;
   private String  memberUUID;
   private String  ownerUUID;
   private String  parentUUID      = null;                           // reasonable default
@@ -109,7 +109,6 @@ class MembershipDTO extends BaseGrouperDTO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // TODO 20070124 this doesn't fit with everything else
   protected static Collection getDTO(Collection c) {
     Set       mships  = new LinkedHashSet();
     Iterator it       = c.iterator();
@@ -121,7 +120,6 @@ class MembershipDTO extends BaseGrouperDTO {
   } // protected static Collection getDTO(c)
 
   // @since   1.2.0
-  // TODO 20070124 this doesn't fit with everything else
   protected static MembershipDTO getDTO(HibernateMembershipDAO dao) {
     MembershipDTO dto = new MembershipDTO();
     dto.setCreateTime( dao.getCreateTime() );

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Composite} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeDTO.java,v 1.4 2007-03-14 19:31:47 blair Exp $
+ * @version $Id: CompositeDTO.java,v 1.5 2007-03-14 19:54:08 blair Exp $
  */
 class CompositeDTO extends BaseGrouperDTO {
 
@@ -86,7 +86,6 @@ class CompositeDTO extends BaseGrouperDTO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // TODO 20070125 this doesn't fit with everything else
   protected static Collection getDTO(Collection c) {
     Set       composites  = new LinkedHashSet();
     Iterator  it          = c.iterator();
@@ -98,7 +97,6 @@ class CompositeDTO extends BaseGrouperDTO {
   } // protected static Collection getDTO(c)
 
   // @since   1.2.0
-  // TODO 20070125 this doesn't fit with everything else
   protected static CompositeDTO getDTO(HibernateCompositeDAO dao) {
     CompositeDTO dto = new CompositeDTO();
     dto.setCreateTime( dao.getCreateTime() );
@@ -116,7 +114,6 @@ class CompositeDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
   
   // @since   1.2.0
-  // TODO 20070125 is this the direction i want to take?
   protected HibernateCompositeDAO getDAO() {
     HibernateCompositeDAO dao = new HibernateCompositeDAO();
     dao.setCreateTime( this.getCreateTime() );

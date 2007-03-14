@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.110 2007-03-07 20:30:44 blair Exp $
+ * @version $Id: Stem.java,v 1.111 2007-03-14 19:54:08 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -808,7 +808,7 @@ public class Stem extends GrouperAPI implements Owner {
       StemDTO dto = new StemDTO();
       dto.setCreatorUuid( s.getMember().getUuid() );
       dto.setCreateTime( new Date().getTime() );
-      // TODO 20070131 ROOT_INT should be moved to DAO layer
+      // TODO 20070314 ROOT_INT should be moved to DAO layer
       dto.setDisplayExtension(ROOT_INT);
       dto.setDisplayName(ROOT_INT);
       dto.setExtension(ROOT_INT);
@@ -859,7 +859,7 @@ public class Stem extends GrouperAPI implements Owner {
       throw new GroupAddException( v.getErrorMessage() );
     }
     try {
-      // TODO 20070130 refactor!
+      // TODO 20070314 refactor!
       GroupDTO  dto   = new GroupDTO();    
       Map       attrs = new HashMap();
       attrs.put( GrouperConfig.ATTR_DE, dExtn );
