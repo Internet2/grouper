@@ -16,12 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.Date;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_ImmediateMembershipValidator_validate.java,v 1.1 2007-03-09 20:36:28 blair Exp $
+ * @version $Id: Test_Unit_API_ImmediateMembershipValidator_validate.java,v 1.2 2007-03-14 18:20:05 blair Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_ImmediateMembershipValidator_validate extends GrouperTest {
