@@ -42,7 +42,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge = 10000
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.10 2007-02-27 20:39:06 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.11 2007-03-14 19:10:00 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
@@ -62,7 +62,7 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
   // PRIVATE INSTANCE VARIABLES //
   private long  lastModified    = 0;
   private long  maxWheelAge     = internal_getMaxWheelAge();
-  private Group wheel           = null;
+  private GroupDTO _wheel       = null;
   private long  wheelFetchTime  = 0;
 
 
@@ -86,21 +86,18 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
       if (Boolean.valueOf(GrouperConfig.getProperty(GrouperConfig.GWU))) {
         try {
           // Does the wheel group exist or has it been too long since we last fetched it?
-          GrouperSession rs = ( (GrouperAPI) o ).getSession().getDTO().getRootSession();
-          if ( (this.wheel == null) || this._isItTimeToUpdateWheel() ) {
-            // TODO 20070208 couldn't i just use the DAO?
-            this.wheel = GroupFinder.findByName( rs, GrouperConfig.getProperty(GrouperConfig.GWG) );
+          if ( (this._wheel == null) || this._isItTimeToUpdateWheel() ) {
+            this._wheel = HibernateGroupDAO.findByName( GrouperConfig.getProperty(GrouperConfig.GWG) );
             this.wheelFetchTime = new Date().getTime();
             DebugLog.info(SimpleWheelPrivilegeCache.class, FOUND_WHEEL_GROUP);
           }
           else {
-            this.wheel.setSession(rs);
             DebugLog.info(SimpleWheelPrivilegeCache.class, REUSING_WHEEL_GROUP);
           }
           // If the wheel group has been modified since the last time the cache
           // was updated then do not return the cached result.  Instead, let the
           // privilege resolution code resolve the privilege.
-          if (this.wheel.getModifyTime().getTime() > this.lastModified) {
+          if ( this._wheel.getModifyTime() > this.lastModified ) {
             useCached = false;  
           }
           // Otherwise return nothing and let the privilege resolution code
