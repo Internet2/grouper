@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.151 2007-03-15 17:58:02 blair Exp $ -->
+<!-- $Id: build.xml,v 1.152 2007-03-15 18:03:20 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -18,7 +18,6 @@
   <property name="build.lib"              location="${build.dir}/lib"/>
   <property name="build.test"             location="${build.dir}/test"/>
   <property name="lib"                    location="${basedir}/lib"/>
-  <property name="log.dbinit"             location="${basedir}/db-init.log"     />
   <property name="log.eg.run"             location="${basedir}/eg.log"          />
   <property name="log.test.build"         location="${basedir}/test-build.log"  />
   <property name="log.test.run"           location="${basedir}/test.log"        />
@@ -40,6 +39,7 @@
     <delete dir="${build.dir}"/>  
     <delete dir="${dist.dir}"/>
     <delete file="${build.log}"/>
+    <delete file="${db-init.log}"/>
     <delete file="${javadoc.log}"/>
     <delete file="${schemaexport.log}"/>
   </target>
@@ -72,6 +72,20 @@
     <record name="${build.log}" action="stop"/>
   </target>
   <!-- target: compile -->
+
+  <!-- target: db-init -->
+  <target name="db-init" 
+          depends="build"
+          description="Initialize Groups Registry"
+  >
+    <record name="${db-init.log}" action="start"/>
+    <java fork="true"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.RegistryInstall"
+    />
+    <record name="${db-init.log}" action="stop"/>
+  </target>
+  <!-- target: db-init -->
 
   <!-- target: init-conf -->
   <!-- expands macros in several configuration files to set proper absolute paths -->
@@ -286,20 +300,6 @@
     </java>
   </target>
   <!-- db -->
-
-  <!-- db-init -->
-  <target name="db-init" 
-          depends="build"
-          description="initialize database"
-  >
-    <record name="${log.dbinit}" action="start"/>
-    <java fork="true"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.RegistryInstall"
-    />
-    <record name="${log.dbinit}" action="stop"/>
-  </target>
-  <!-- db-init -->
 
   <!-- db-reset -->
   <target name="db-reset"
