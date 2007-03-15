@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.152 2007-03-15 18:03:20 blair Exp $ -->
+<!-- $Id: build.xml,v 1.153 2007-03-15 18:16:12 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -14,15 +14,12 @@
 
   <!-- TODO 20070315 REVIEW ALL PROPERTIES BELOW -->
   <property name="src.test"               location="${src.dir}/test"/>
-  <property name="dist.test"              location="${dist.dir}/test"/>
   <property name="build.lib"              location="${build.dir}/lib"/>
   <property name="build.test"             location="${build.dir}/test"/>
   <property name="lib"                    location="${basedir}/lib"/>
   <property name="log.eg.run"             location="${basedir}/eg.log"          />
   <property name="log.test.build"         location="${basedir}/test-build.log"  />
-  <property name="log.test.run"           location="${basedir}/test.log"        />
   <property name="hprof.depth"            value="25"/>
-  <property name="memory.max"             value="192m"/>
   <property name="hsqldb.jar"             location="${lib}/hsqldb-1.7.2.11.jar" />
   <!-- Global Properties -->
 
@@ -42,6 +39,7 @@
     <delete file="${db-init.log}"/>
     <delete file="${javadoc.log}"/>
     <delete file="${schemaexport.log}"/>
+    <delete file="${test.log}"/>
   </target>
   <!-- target: clean -->
 
@@ -147,7 +145,7 @@
   </target>
   <!-- target: javadoc -->
 
-  <!-- schemaexport -->
+  <!-- target: schemaexport -->
   <target name="schemaexport" 
           description="Generate SQL schema appropriate for configured database"
           depends="build"
@@ -174,14 +172,52 @@
     </schemaexport>
     <record name="${schemaexport.log}" action="stop"/>
   </target>
-  <!-- schemaexport -->
+  <!-- target: schemaexport -->
+
+  <!-- target: test -->
+  <target name="test" 
+          depends="test-build"
+          description="Run Grouper Tests"
+  >
+    <echo/>
+    <echo message="*** results can be found in ${dist.dir.test} ***"/>
+    <echo/>
+    <record name="${test.log}" action="start" append="yes"/>
+    <mkdir dir="${dist.dir.test}"/>
+    <junit  fork="yes"
+            haltonerror="yes"
+            haltonfailure="yes"
+            maxmemory="${memory.max}"
+            printsummary="yes"
+            showoutput="yes"
+    >
+      <classpath  refid="project.classpath"/>
+      <formatter  type="xml"/>
+      <test       name="edu.internet2.middleware.grouper.SuiteDefault"
+                  todir="${dist.dir.test}"
+      />
+<!-- TODO 20061228 Switch to batchtest once I've migrated the tests
+      <batchtest  fork="yes"
+                  todir="${dist.dir.test}"
+      >
+        <formatter  type="xml"/>
+        <fileset    dir="${src.test}">
+          <include  name="**/Test*.java"/>
+          <exclude  name="**/Suite*.java"/>
+        </fileset>  
+      </batchtest>
+-->
+    </junit>
+    <record name="${test.log}" action="stop"/>
+  </target>
+  <!-- target: test -->
 
 
   <!-- TODO 20070315 REVIEW ALL TASKS BELOW -->
 
   <!-- bench -->
   <target name="bench" 
-          description="Runs benchmarks"
+          description="TODO 20070315 Runs benchmarks"
           depends="build"
   >
     <java fork="true"
@@ -195,7 +231,7 @@
 
   <!-- bench-clean -->
   <target name="bench-clean" 
-          description="clean up benchmarking output" 
+          description="TODO 20070315 clean up benchmarking output" 
   >
     <delete>
       <fileset dir="." includes="bench-*-*.txt"/>
@@ -205,7 +241,7 @@
 
   <!-- bench-run -->
   <target name="bench-run" 
-          description="Runs the benchmark specified with -Dname=NAME"
+          description="TODO 20070315 Runs the benchmark specified with -Dname=NAME"
           depends="build, ensure-name"
   >
     <java fork="true"
@@ -219,7 +255,7 @@
 
   <!-- bench-run-shark -->
   <target name="bench-run-shark" 
-          description="Runs the benchmark specified with -Dname=NAME and enables Shark profiling"
+          description="TODO 20070315 Runs the benchmark specified with -Dname=NAME and enables Shark profiling"
           depends="build, ensure-name"
   >
     <java fork="true"
@@ -235,7 +271,7 @@
 
   <!-- bench-run-prof -->
   <target name="bench-run-prof" 
-          description="Runs and profiles the benchmark specified with -Dname=NAME"
+          description="TODO 20070315 Runs and profiles the benchmark specified with -Dname=NAME"
           depends="build, ensure-name"
   >
     <java fork="true"
@@ -250,7 +286,7 @@
   <!-- bench-run-prof -->
 
   <!-- clean.clover -->
-  <target name="clean.clover" depends="init-clover" description="clean up after clover">
+  <target name="clean.clover" depends="init-clover" description="TODO 20070315 clean up after clover">
     <clover-clean/>
   </target>
   <!-- clean.clover -->
@@ -260,7 +296,7 @@
     <clover-report>
       <current  outfile="clover">
         <format       type="html"/>
-        <testresults  dir="${dist.test}">
+        <testresults  dir="${dist.dir.test}">
           <include  name="**/TEST*xml"/>
         </testresults>
       </current>
@@ -282,7 +318,7 @@
   <!-- cpd -->
 
   <!-- db -->
-  <target name="db" depends="init" description="Launch HSQLDB UI">
+  <target name="db" depends="init" description="TODO 20070315 Launch HSQLDB UI">
     <property file="${conf.hibernate}"/>
     <java fork="true"
           classpathref="project.classpath"
@@ -303,7 +339,7 @@
 
   <!-- db-reset -->
   <target name="db-reset"
-          description="reset the db"
+          description="TODO 20070315 reset the db"
           depends="build"
   >
     <java fork="true"
@@ -317,7 +353,7 @@
   <!-- dist -->
   <target name="dist" 
           depends="build" 
-          description="package grouper"
+          description="TODO 20070315 package grouper"
   >
     <mkdir dir="${dist.dir}/lib" />
     <jar destfile="${dist.dir}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.dir.grouper}">
@@ -338,7 +374,7 @@
   <!-- dist-lib -->
   <target name="dist-lib"
           depends="init" 
-          description="package 3rd party libraries"
+          description="TODO 20070315 package 3rd party libraries"
     >
     <!-- ugly, i know -->
     <unzip dest="${build.lib}">
@@ -362,7 +398,7 @@
   <!-- eg-bootstrap -->
   <target name="eg-bootstrap"
           depends="build"
-          description="run example bootstrap programs"
+          description="TODO 20070315 run example bootstrap programs"
   >
     <record name="${log.eg.run}" action="start"/>
     <antcall  target="db-reset"/>
@@ -463,7 +499,7 @@
 
   <!-- hsqldb -->
   <target name="hsqldb" 
-          description="connect to hsqldb running in server mode"
+          description="TODO 20070315 connect to hsqldb running in server mode"
           depends="init"
   >
     <java fork="true"
@@ -479,7 +515,7 @@
 
   <!-- hsqldb-start -->
   <target name="hsqldb-start" 
-          description="starts hsqldb in server mode"
+          description="TODO 20070315 starts hsqldb in server mode"
           depends="init"
   >
     <java fork="true"
@@ -494,7 +530,7 @@
 
   <!-- hsqldb-stop -->
   <target name="hsqldb-stop" 
-          description="stops hsqldb running in server mode"
+          description="TODO 20070315 stops hsqldb running in server mode"
           depends="init"
   >
     <java fork="true"
@@ -514,7 +550,7 @@
   <!-- info -->
   <target name="info" 
           depends="build"
-          description="report system and configuration information"
+          description="TODO 20070315 report system and configuration information"
   >
     <java fork="true"
           classpathref="project.classpath"
@@ -566,7 +602,7 @@
 
   <!-- profile -->
   <target name="profile"
-          description="Runs and profiles the case specified with -Dname=NAME"
+          description="TODO 20070315 Runs and profiles the case specified with -Dname=NAME"
           depends="build, ensure-name"
   >
     <!-- Setup profiling run -->
@@ -589,7 +625,7 @@
 
   <!-- profile-clean -->
   <target name="profile-clean" 
-          description="clean up profiling output" 
+          description="TODO 20070315 clean up profiling output" 
   >
     <delete>
       <fileset dir="." includes="profile-*-*.txt"/>
@@ -599,7 +635,7 @@
 
   <!-- runtest -->
   <target name="runtest" 
-          description="Runs the test you specify on the command line with -Dtest=NAME" 
+          description="TODO 20070315 Runs the test you specify on the command line with -Dtest=NAME" 
           depends="test-build, ensure-test-name">
     <record name="${log.test.run}" action="start"/>
     <junit printsummary="withOutAndErr" fork="true"> 
@@ -617,7 +653,7 @@
 
   <!-- runtestprof -->
   <target name="runtestprof" 
-          description="Runs and profiles the test case you specify on the command line with -Dtest=NAME" 
+          description="TODO 20070315 Runs and profiles the test case you specify on the command line with -Dtest=NAME" 
           depends="test-build, ensure-test-name">
     <record name="${log.test.run}" action="start"/>
     <java fork="true"
@@ -636,7 +672,7 @@
 
   <!-- serialver -->
   <target name="serialver" 
-          description="Runs serialver on class specified with -Dname=NAME"
+          description="TODO 20070315 Runs serialver on class specified with -Dname=NAME"
           depends="build, ensure-name"
   >
     <exec executable="serialver">
@@ -649,7 +685,7 @@
 
   <!-- sql -->
   <target name="sql"
-          description="Apply sql file to Groups Registry [Pass -Dname=filename.sql]"
+          description="TODO 20070315 Apply sql file to Groups Registry [Pass -Dname=filename.sql]"
           depends="ensure-name"
   >
     <property file="${conf.dir}/grouper.hibernate.properties"/>
@@ -673,44 +709,6 @@
     <record name="${log.test.build}" action="stop"/>
   </target>
   <!-- test-build -->
-
-  <!-- test -->
-  <target name="test" 
-          depends="test-build"
-          description="run unit tests"
-  >
-    <echo/>
-    <echo   message="*** results can be found in ${dist.test} ***"/>
-    <echo/>
-    <record name="${log.test.run}" action="start"/>
-    <mkdir  dir="${dist.test}"/>
-    <junit  fork="yes"
-            haltonerror="yes"
-            haltonfailure="yes"
-            maxmemory="${memory.max}"
-            printsummary="yes"
-            showoutput="yes"
-    >
-      <classpath  refid="project.classpath"/>
-      <formatter  type="xml"/>
-      <test       name="edu.internet2.middleware.grouper.SuiteDefault"
-                  todir="${dist.test}"
-      />
-<!-- TODO 20061228 Switch to batchtest once I've migrated the tests
-      <batchtest  fork="yes"
-                  todir="${dist.test}"
-      >
-        <formatter  type="xml"/>
-        <fileset    dir="${src.test}">
-          <include  name="**/Test*.java"/>
-          <exclude  name="**/Suite*.java"/>
-        </fileset>  
-      </batchtest>
--->
-    </junit>
-    <record name="${log.test.run}" action="stop"/>
-  </target>
-  <!-- test -->
 
   <!-- with.clover -->
   <target name="with.clover" depends="init, init-clover">
@@ -737,7 +735,7 @@
 
   <!-- xml-export -->    
   <target name="xml-export"
-          description='Perform XML export of Groups Registry [Pass -Dcmd="command line arguments"]'
+          description='TODO 20070315 Perform XML export of Groups Registry [Pass -Dcmd="command line arguments"]'
           depends="ensure-cmd"        
   >
     <java fork="true"
@@ -753,7 +751,7 @@
       
   <!-- xml-import -->    
   <target name="xml-import"
-          description='Perform XML import of Groups Registry [Pass -Dcmd="command line arguments"]'
+          description='TODO 20070315 Perform XML import of Groups Registry [Pass -Dcmd="command line arguments"]'
           depends="ensure-cmd"        
   >
     <java fork="true"
