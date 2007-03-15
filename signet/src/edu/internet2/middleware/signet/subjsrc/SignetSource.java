@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.5 2007-01-09 01:01:25 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.6 2007-03-15 00:14:27 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -70,9 +70,6 @@ public class SignetSource implements Source
 	    stored in each SignetSubject. */
 	protected Hashtable		mappedAttributes;
 
-	/** Reference to the SourceManager used by this Signet instance */
-	protected SourceManager	sourceManager;
-
 	/** Reference to the real SubjectAPI Source that this is wrapping */
 	protected Source		apiSource;
 
@@ -91,7 +88,6 @@ public class SignetSource implements Source
 		failover = false;
 		usage = new Vector();
 		mappedAttributes = new Hashtable();
-		sourceManager = null;
 		apiSource = null;
 	}
 
@@ -122,12 +118,11 @@ public class SignetSource implements Source
 
 	/**
 	 * Tell this SignetSource about the SubjectAPI SourceManager, then lookup
-	 * the corresponding SubjectAPI Source.
+	 * the corresponding SubjectAPI Source based on the previously-set sourceId.
 	 * @param sourceManager The SubjectAPI SourceManager instance
 	 */
 	public void setSourceManager(SourceManager sourceManager)
 	{
-		this.sourceManager = sourceManager;
 		try { apiSource = sourceManager.getSource(id); }
 		catch (SourceUnavailableException e)
 		{

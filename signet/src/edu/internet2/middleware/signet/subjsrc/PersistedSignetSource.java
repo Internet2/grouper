@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.7 2007-02-24 02:11:31 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.8 2007-03-15 00:14:26 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -110,12 +110,6 @@ public String latencyMinutes;
 	public HibernateDB getPersistedStoreMgr()
 	{
 		return (persistMgr);
-	}
-
-
-	public void setSignetSources(SignetSources signetSources)
-	{
-		this.signetSources = signetSources;
 	}
 
 
@@ -339,7 +333,7 @@ public String latencyMinutes;
 	 */
 	public void setSourceManager(SourceManager sourceManager)
 	{
-		this.sourceManager = sourceManager;
+		; // do nothing
 	}
 
 

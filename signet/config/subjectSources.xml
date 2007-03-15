@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/subjectSources.xml,v 1.4 2006-11-30 04:21:49 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/subjectSources.xml,v 1.5 2007-03-15 00:14:27 ddonn Exp $ -->
 
 <!--
 	Signet Subject Source Mapping File
@@ -10,7 +10,7 @@
 	File Dependencies:
 		signet.properties references this file (i.e. property
 			signet.subject.sources)
-		sources.xml declares Sources that elements in this file refernce
+		sources.xml declares Sources that elements in this file reference
 			(i.e. sourceId="local_person")
 
 	A signetSubjectSources comprises:
@@ -21,7 +21,8 @@
 		sourceName : a user-friendly name for display
 		latencyMinutes : time interval that determines whether the persisted
 			Subject is stale and requires resynchronization with it's
-			original Source, if it is available.
+			original Source, if it is available (the original Source is
+			defined/connected during this executable's instance).
 		and has the following attributes:
 			one signetName : the mappedAttribute value Signet uses as Name 
 			one signetSortName : the mappedAttribute value Signet uses as SortName
@@ -35,7 +36,8 @@
 		signetName : Signet's friendly, displayable description of the underlying Source
 		status : Active or Inactive
 		failover : If true, use whatever information is available (i.e. from
-			the persistent store) if the Source is not available
+			the persistent store) if the Source is not available (see
+			latencyMinutes, above)
 		type : Signet-specific classification of the Source
 		and has the following attributes:
 			one-or-more usage : A means of categorizing a Source. For instance,

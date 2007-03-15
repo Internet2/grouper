@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.7 2007-02-24 02:11:31 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.8 2007-03-15 00:14:27 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -88,11 +88,16 @@ public class SignetSources
 	protected Log				log;
 
 	/** List of "standard" Subject Sources as defined in SubjectSources.xml.
-	 * signetSources is a Vector, as opposed to a Hashtable, because it will be
+	 * sourceList is a Vector, as opposed to a Hashtable, because it will be
 	 * a relatively short list and lookup times shouldn't be an issue.
 	 * This Vector gets populated by parsing the SubjectSources.xml via Digester.
 	 */
-	protected Vector			signetSources;
+	protected Vector			sourceList;
+
+	/** The SourceAPI SourceManager instance used to lookup "standard" Subject
+	 * Sources.
+	 */
+	protected SourceManager		sourceManager;
 
 	/** The one Source that is the Persisted store of Subjects. Signet is told of
 	 * the Persisted store from the parsing of the SubjectSources.xml when it
@@ -106,9 +111,6 @@ public class SignetSources
 	 */
 	protected SignetAppSource	sigAppSource;
 
-	/** The SourceAPI SourceManager instance */
-	protected SourceManager		sourceManager;
-
 	/** Local copy of Signet, for use by PersistedSignetSource */
 	protected Signet			signet;
 
@@ -119,7 +121,7 @@ public class SignetSources
 		log = LogFactory.getLog(SignetSources.class);
 
 		persistedSource = null;
-		signetSources = new Vector();
+		sourceList = new Vector();
 
 		try { sourceManager = SourceManager.getInstance(); }
 		catch (Exception e)
@@ -283,7 +285,7 @@ public class SignetSources
 					if (null == persistedSource)
 					{
 						persistedSource = (PersistedSignetSource)signetSource;
-						persistedSource.setSignetSources(this);
+						persistedSource.setSources(this);
 						persistedSource.setPersistedStoreMgr(new HibernateDB(signet));
 					}
 					else
@@ -292,7 +294,7 @@ public class SignetSources
 				else
 				{
 					signetSource.setSourceManager(sourceManager); // add the SourceManager and lookup the SubjectAPI Source
-					signetSources.add(signetSource); // append to end of list
+					sourceList.add(signetSource); // append to end of list
 				}
 
 				signetSource.setSources(this);
@@ -314,7 +316,7 @@ public class SignetSources
 		if ((null != sourceId) && (0 < sourceId.length()))
 		{
 			if (null != (retval = getSource(sourceId)))
-				signetSources.remove(retval);
+				sourceList.remove(retval);
 		}
 
 		return (retval);
@@ -390,7 +392,7 @@ public class SignetSources
 			retval = (SignetSubject)persistedSource.getSubjectByIdentifier(identifier);
 
 		// if it's not in persisted store, check all regular sources
-		for (Iterator srcs = signetSources.iterator();
+		for (Iterator srcs = sourceList.iterator();
 				srcs.hasNext() && (null == retval);)
 		{
 			SignetSource src = (SignetSource)srcs.next();
@@ -414,7 +416,7 @@ public class SignetSources
 		if ((null == identifier) || (0 >= identifier.length()))
 			return (retval);
 
-		for (Iterator srcs = signetSources.iterator(); srcs.hasNext(); )
+		for (Iterator srcs = sourceList.iterator(); srcs.hasNext(); )
 		{
 			SignetSource src = (SignetSource)srcs.next();
 			Set subjs = src.search(identifier);
@@ -454,7 +456,7 @@ public class SignetSources
 	{
 		Vector retval = new Vector();
 
-		for (Iterator srcs = signetSources.iterator(); srcs.hasNext();)
+		for (Iterator srcs = sourceList.iterator(); srcs.hasNext();)
 		{
 			SignetSource src = (SignetSource)srcs.next();
 			retval.addAll(src.getSubjects());
@@ -609,7 +611,7 @@ public class SignetSources
 	 */
 	public Vector getSources()
 	{
-		return (signetSources);
+		return (sourceList);
 	}
 
 	/**
@@ -629,7 +631,7 @@ public class SignetSources
 		if ((null != sigAppSource) && sigAppSource.hasUsage(usage))
 			retval.add(sigAppSource);
 
-		for (Iterator srcs = signetSources.iterator(); srcs.hasNext(); )
+		for (Iterator srcs = sourceList.iterator(); srcs.hasNext(); )
 		{
 			SignetSource src = (SignetSource)srcs.next();
 			if (src.hasUsage(usage))
@@ -650,7 +652,7 @@ public class SignetSources
 
 		if ((null != type) && (0 < type.length()))
 		{
-			for (Iterator srcs = signetSources.iterator(); srcs.hasNext();)
+			for (Iterator srcs = sourceList.iterator(); srcs.hasNext();)
 			{
 				SignetSource src = (SignetSource)srcs.next();
 				if (src.isSubjectType(type))
@@ -678,7 +680,7 @@ public class SignetSources
 		SignetSource retval = null;
 
 		// iterate until found or exhausted the list
-		for (Iterator srcs = signetSources.iterator(); srcs.hasNext() && (null == retval);)
+		for (Iterator srcs = sourceList.iterator(); srcs.hasNext() && (null == retval);)
 		{
 			SignetSource src = (SignetSource)srcs.next();
 			if (src.getId().equals(sourceId))
@@ -738,7 +740,7 @@ public class SignetSources
 	{
 		StringBuffer buf = new StringBuffer();
 
-		for (Iterator srcs = signetSources.iterator(); srcs.hasNext();)
+		for (Iterator srcs = sourceList.iterator(); srcs.hasNext();)
 			buf.append(srcs.next().toString() + "\n----------\n");
 
 		return (buf.toString());

@@ -1,0 +1,17 @@
+Signet  03/14/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_RC03
+----------------------------------------------------
+Changes in this version:
+
+1. Come minor code cleanup after UML exposed inconsistencies
+2. UML class diagrams (Jude model and JPGs)
+3. Updated SQL DDLs for HSQL, Oracle, Sybase
+4. Removed table SubjectType from DDL
+
+Other Middleware Build Dependencies
+-----------------------------------
+i2mi-common: CVS tag = signet_1_2
+subject_api: CVS tag = signet_1_2
+
+

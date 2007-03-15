@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.5 2007-03-05 18:10:51 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.6 2007-03-15 00:14:27 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -361,7 +361,7 @@ public class SignetSubjectAttr
 //		if (null != attr)
 //		{
 //			if (retval = subj_attr_id.equals(attr.subj_attr_id)) // yes, I do mean "="
-//				if (retval = attr_valuesEqual(attr.getValue()))
+//				if (retval = attrValuesEqual(attr.getValue()))
 //					retval = modifyDatesEqual(attr.getModifyDate());
 ////			if (retval = mappedName.equals(attr.getMappedName())) // yes, I do mean "="
 ////			{
@@ -379,27 +379,27 @@ public class SignetSubjectAttr
 		return (retval);
 	}
 
-	public boolean attr_valuesEqual(String otherValue)
-	{
-		boolean retval;
-
-		if (null != attrValue)
-		{
-			if (null != otherValue)
-				retval = attrValue.equals(otherValue);
-			else
-				retval = false;
-		}
-		else
-		{
-			if (null == otherValue)
-				retval = true;
-			else
-				retval = false;
-		}
-		return (retval);
-		
-	}
+//	protected boolean attrValuesEqual(String otherValue)
+//	{
+//		boolean retval;
+//
+//		if (null != attrValue)
+//		{
+//			if (null != otherValue)
+//				retval = attrValue.equals(otherValue);
+//			else
+//				retval = false;
+//		}
+//		else
+//		{
+//			if (null == otherValue)
+//				retval = true;
+//			else
+//				retval = false;
+//		}
+//		return (retval);
+//		
+//	}
 
 	public boolean modifyDatesEqual(Date otherDate)
 	{
