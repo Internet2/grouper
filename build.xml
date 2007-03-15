@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.148 2007-03-15 16:43:34 blair Exp $ -->
+<!-- $Id: build.xml,v 1.149 2007-03-15 17:00:27 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -13,36 +13,23 @@
   <property file="buildGrouper.properties" />
 
   <!-- TODO 20070315 REVIEW ALL PROPERTIES BELOW -->
-  <property name="conf"                   location="${basedir}/conf"/>
-  <property name="cf"                     value="${conf}/grouper.hibernate.properties"/>
-
-  <property name="src"                    location="${basedir}/src"/>
-  <property name="src.conf"               location="${src}/conf"/>
-  <property name="src.grouper"            location="${src}/grouper"/>
-  <property name="src.test"               location="${src}/test"/>
-
+  <property name="cf"                     value="${conf.dir}/grouper.hibernate.properties"/>
+  <property name="src.test"               location="${src.dir}/test"/>
   <property name="dist.run"               location="${dist.dir}/run"/>
   <property name="dist.test"              location="${dist.dir}/test"/>
-  <property name="build.grouper"          location="${build.dir}/grouper"/>
   <property name="build.javadoc"          location="${dist.dir}/api"/>
   <property name="build.lib"              location="${build.dir}/lib"/>
   <property name="build.sql"              location="${build.dir}/sql"/>
   <property name="build.test"             location="${build.dir}/test"/>
-
   <property name="lib"                    location="${basedir}/lib"/>
-
   <property name="log.schema"             location="${basedir}/schemaexport.log"/>
   <property name="log.dbinit"             location="${basedir}/db-init.log"     />
-  <property name="log.build"              location="${basedir}/build.log"       />
   <property name="log.eg.run"             location="${basedir}/eg.log"          />
   <property name="log.test.build"         location="${basedir}/test-build.log"  />
   <property name="log.test.run"           location="${basedir}/test.log"        />
-
   <property name="hprof.depth"            value="25"/>
   <property name="memory.max"             value="192m"/>
-
   <property name="hsqldb.jar"             location="${lib}/hsqldb-1.7.2.11.jar" />
-
   <property name="clover.jar"             location="${user.home}/.ant/lib/clover.jar"/>
   <!-- Global Properties -->
 
@@ -52,6 +39,13 @@
   />
   <taskdef  resource="cloverlib.xml" classpath="${clover.jar}"/>
 
+  <!-- target: build -->
+  <!-- TODO 20070315 deprecrate post 1.2.0 -->
+  <target name="build">
+    <antcall target="compile"/>
+  </target>
+  <!-- target: build -->
+
   <!-- target: clean -->
   <target name="clean" 
           description="Clean out (delete) previous build products including Java classes and the Grouper dist directory">
@@ -59,6 +53,55 @@
     <delete dir="${dist.dir}"/>
   </target>
   <!-- target: clean -->
+
+  <!-- target: compile -->
+  <target name="compile" 
+          description="Compile .java files, copy Hibernate mapping files"
+          depends="init-conf"
+  >
+    <record name="${build.log}" action="start"/>
+    <mkdir  dir="${build.dir.grouper}"/>
+    <javac  srcdir="${src.dir.grouper}" 
+            destdir="${build.dir.grouper}"
+            debug="${compile.debug}"
+            deprecation="${compile.deprecation}"
+            optimize="${compile.optimize}"
+    >
+      <classpath refid="project.classpath" />
+<!--  20061011 I'll eventually have to deal with this migration
+      <compilerarg  value="-Xlint:unchecked"  />
+-->
+    </javac>
+    <copy todir="${build.dir.grouper}">
+      <fileset dir="${src.dir.grouper}">
+        <include name="**/*.hbm.xml"/>      <!-- hibernate mappings -->
+        <include name="**/*.properties"/>   <!-- xml default export|import properties -->
+      </fileset>
+    </copy>
+    <record name="${build.log}" action="stop"/>
+  </target>
+  <!-- target: compile -->
+
+  <!-- target: init-conf -->
+  <!-- expands macros in several configuration files to set proper absolute paths -->
+  <target name="init-conf"
+          depends="init"
+  >
+    <dirname property="base" file="build.xml"/>
+    <pathconvert  targetos="unix"
+                  property="converted.base"
+    >
+        <path path="${base}"/>
+    </pathconvert>
+    <filter token="base"  value="${converted.base}"/>
+    <!-- Apparently ${file.separator} is not appropriate here -->
+    <filter token="slash" value="/"/>
+    <copy todir="${conf.dir}" filtering="true">
+      <fileset dir="${src.dir.conf}"/>
+    </copy>
+  </target>
+  <!-- target: init-conf -->
+
 
   <!-- TODO 20070315 REVIEW ALL TASKS BELOW -->
 
@@ -132,25 +175,6 @@
   </target>
   <!-- bench-run-prof -->
 
-  <!-- build -->
-  <target name="build" 
-          depends="init, conf-init"
-          description="compile the source " >
-    <record name="${log.build}" action="start"/>
-    <javac srcdir="${src.grouper}" destdir="${build.grouper}">
-      <classpath    refid="project.classpath" />
-<!--  20061011 I'll eventually have to deal with this migration
-      <compilerarg  value="-Xlint:unchecked"  />
--->
-    </javac>
-    <record name="${log.build}" action="stop"/>
-    <!-- include hibernate mappings + default export|import properties -->
-    <copy todir="${build.grouper}">
-      <fileset dir="${src.grouper}" includes="**/*.hbm.xml, **/*.properties"/>
-    </copy>
-  </target>
-  <!-- build -->
-
   <!-- clean.clover -->
   <target name="clean.clover" description="clean up after clover">
     <clover-clean/>
@@ -170,33 +194,11 @@
   </target>
   <!-- clover.html -->
 
-  <!-- conf-init -->
-  <target name="conf-init"
-          description="applies filter to several configuration files to set full paths"
-          depends="init"
-  >
-    <dirname  property="base" 
-              file="build.xml"
-    />
-    <pathconvert  targetos="unix"
-                  property="converted.base"
-    >
-        <path path="${base}"/>
-    </pathconvert>
-    <filter token="base"  value="${converted.base}"/>
-    <!-- Apparently ${file.separator} is not appropriate here -->
-    <filter token="slash" value="/"/>
-    <copy todir="${conf}" filtering="true">
-      <fileset dir="${src.conf}"/>
-    </copy>
-  </target>
-  <!-- conf-init -->
-
   <!-- cpd -->
   <target name="cpd">
     <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" />
     <cpd minimumTokenCount="95" outputFile="${dist.run}/cpd.txt">
-      <fileset dir="${src.grouper}">
+      <fileset dir="${src.dir.grouper}">
         <include  name="**/*.java"    />
         <exclude  name="**/bench/**/" />
         <exclude  name="**/eg/**/"    />
@@ -258,7 +260,7 @@
           description="package grouper"
   >
     <mkdir dir="${dist.dir}/lib" />
-    <jar destfile="${dist.dir}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.grouper}">
+    <jar destfile="${dist.dir}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.dir.grouper}">
       <manifest>
         <attribute name="Built-By"                value="${user.name}"/>
         <attribute name="Implementation-Vendor"   value="${impl.vendor}" />
@@ -393,7 +395,7 @@
           <include name="**/*.jar"/>
         </fileset>
       </auxClassPath>
-      <sourcePath path="${src.grouper}"/>
+      <sourcePath path="${src.dir.grouper}"/>
       <class location="${dist.dir}/lib/${app.name}.jar"/>
     </findbugs>
   </target>
@@ -410,7 +412,7 @@
               stylesheetfile="${basedir}/doc/stylesheet.css"
               classpathref="project.classpath" 
     >
-      <packageset dir="${src.grouper}" defaultexcludes="yes">
+      <packageset dir="${src.dir.grouper}" defaultexcludes="yes">
         <exclude name="edu/internet2/middleware/grouper/bench/**"/>
         <exclude name="edu/internet2/middleware/grouper/prof/**"/>
       </packageset>
@@ -427,7 +429,7 @@
           maxmemory="${memory.max}"
           classpathref="project.classpath"
           jar="${hsqldb.jar}"
-          dir="${conf}"
+          dir="${conf.dir}"
     >
       <arg  value="grouper" />
     </java>
@@ -444,7 +446,7 @@
           maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="org.hsqldb.Server"
-          dir="${conf}"
+          dir="${conf.dir}"
     />
   </target>
   <!-- hsqldb-start -->
@@ -459,7 +461,7 @@
           maxmemory="${memory.max}"
           classpathref="project.classpath"
           jar="${hsqldb.jar}"
-          dir="${conf}"
+          dir="${conf.dir}"
     >
       <arg  value="--sql"     />
       <arg  value="shutdown;" />
@@ -483,7 +485,6 @@
   <!-- init -->
   <target name="init">
     <tstamp />
-    <mkdir dir="${build.grouper}" />
     <mkdir dir="${build.sql}"     />
     <mkdir dir="${build.test}"    />
     <mkdir dir="${dist.dir}"          />
@@ -492,11 +493,11 @@
     <path id="project.classpath">
       <pathelement path="${classpath}"/>
       <!-- for configuration files -->
-      <pathelement location="${conf}"/>
+      <pathelement location="${conf.dir}"/>
       <fileset dir="${lib}">
         <include name="**/*.jar"/>
       </fileset>
-      <pathelement  location="${build.grouper}"/>
+      <pathelement  location="${build.dir.grouper}"/>
       <pathelement  location="${build.test}"/>
       <pathelement  location="${user.home}/.ant/lib/clover.jar"/>
     </path>
@@ -518,7 +519,7 @@
                   toConsole="false"
                   linkPrefix="http://macinthrope.uchicago.edu/~blair/grouper/api/"
       />
-      <fileset dir="${src.grouper}">
+      <fileset dir="${src.dir.grouper}">
         <include name="**/*.java"/>
       </fileset>
     </pmd>
@@ -607,7 +608,7 @@
       drop="no"
       delimiter=";"
       output="${build.sql}/schema-export.sql">
-      <fileset dir="${src.grouper}">
+      <fileset dir="${src.dir.grouper}">
         <include name="**/*.hbm.xml"/>
       </fileset>
     </schemaexport>
@@ -633,7 +634,7 @@
           description="Apply sql file to Groups Registry [Pass -Dname=filename.sql]"
           depends="ensure-name"
   >
-    <property file="${conf}/grouper.hibernate.properties"/>
+    <property file="${conf.dir}/grouper.hibernate.properties"/>
     <sql  classpathref="project.classpath"
           driver="${hibernate.connection.driver_class}"
           url="${hibernate.connection.url}"
@@ -696,7 +697,7 @@
   <!-- with.clover -->
   <target name="with.clover" depends="init">
     <clover-setup>
-      <fileset  dir="${src.grouper}">
+      <fileset  dir="${src.dir.grouper}">
         <exclude  name="**/bench/*"/>
         <exclude  name="**/eg/**"/>
         <exclude  name="**/prof/*"/>
