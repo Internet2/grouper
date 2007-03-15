@@ -1,6 +1,8 @@
-<!-- $Id: build.xml,v 1.153 2007-03-15 18:16:12 blair Exp $ -->
+<!-- $Id: build.xml,v 1.154 2007-03-15 18:26:02 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
+
+  <!-- PROPERTIES -->
 
   <!-- Grouper Distribution and Versioning Properties -->
   <property name="app.name"               value="grouper"/>
@@ -22,6 +24,37 @@
   <property name="hprof.depth"            value="25"/>
   <property name="hsqldb.jar"             location="${lib}/hsqldb-1.7.2.11.jar" />
   <!-- Global Properties -->
+
+
+  <!-- TARGETS -->
+
+  <!-- target: bench -->
+  <target name="bench" 
+          depends="build"
+          description="Run Grouper API benchmarks"
+  >
+    <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.bench.GrouperBench"
+          failonerror="true"
+    />
+  </target>
+  <!-- target: bench -->
+
+  <!-- target: bench-run -->
+  <target name="bench-run" 
+          description="Run the Grouper API benchmark specified with -Dname=NAME"
+          depends="build, ensure-name"
+  >
+    <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.bench.${name}"
+          failonerror="true"
+    />
+  </target>
+  <!-- target: bench-run -->
 
   <!-- target: build -->
   <!-- TODO 20070315 deprecrate post 1.2.0 -->
@@ -214,44 +247,6 @@
 
 
   <!-- TODO 20070315 REVIEW ALL TASKS BELOW -->
-
-  <!-- bench -->
-  <target name="bench" 
-          description="TODO 20070315 Runs benchmarks"
-          depends="build"
-  >
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.bench.GrouperBench"
-          failonerror="true"
-    />
-  </target>
-  <!-- bench -->
-
-  <!-- bench-clean -->
-  <target name="bench-clean" 
-          description="TODO 20070315 clean up benchmarking output" 
-  >
-    <delete>
-      <fileset dir="." includes="bench-*-*.txt"/>
-    </delete>
-  </target>
-  <!-- bench-clean -->
-
-  <!-- bench-run -->
-  <target name="bench-run" 
-          description="TODO 20070315 Runs the benchmark specified with -Dname=NAME"
-          depends="build, ensure-name"
-  >
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.bench.${name}"
-          failonerror="true"
-    />
-  </target>
-  <!-- bench-run -->
 
   <!-- bench-run-shark -->
   <target name="bench-run-shark" 
