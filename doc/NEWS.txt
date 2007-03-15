@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.56 2007-03-15 15:08:38 blair Exp $
+$Id: NEWS.txt,v 1.57 2007-03-15 19:22:51 blair Exp $
 
 ---
 
@@ -29,6 +29,8 @@ Estimated Release: Late 200703, Early 200704
 * Benchmark: "MemberHasRead"
 
 ## Improvements
+* Updated Subject API from 0.2.1 to 0.3.0rc1-cvs.
+  NOTE: This will require an update to your "JDBCSourceAdapter" queries.
 * API updated to include an internal DAO layer providing separation between the business
   logic and the persistence logic. 
 * Changed caching of wheel group in `SimpleWheelPrivilegeCache` by setting a TTL on the 

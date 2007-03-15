@@ -111,16 +111,16 @@ logging services for purposes of application debugging and auditing."
 * License:  Apache License, Version 2.0
 * Updated:  ?
 
-# subject-0.2.1.jar
+# subject-0.3.0-rc1-cvs.jar
 
 "The I2MI Subject Interface."
 
-* Version:  0.2.1
+* Version:  0.3.0rc1-cvs
 * Source:   <http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/subject/?cvsroot=I2MI>
 * License:  Apache License, Version 2.0 (?)
-* Updated:  20060627
+* Updated:  20070315
 
 ---
 
-$Id: README.txt,v 1.8 2007-03-15 15:08:38 blair Exp $
+$Id: README.txt,v 1.9 2007-03-15 19:22:51 blair Exp $
 
