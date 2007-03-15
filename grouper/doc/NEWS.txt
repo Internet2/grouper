@@ -1,6 +1,6 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.55 2007-03-06 17:19:14 blair Exp $
+$Id: NEWS.txt,v 1.56 2007-03-15 15:08:38 blair Exp $
 
 ---
 
@@ -27,8 +27,6 @@ Estimated Release: Late 200703, Early 200704
 * Benchmark: "AddLotsOfGroupsToStem"
 * Benchmark: "AddAsEffMemberToLotsOfGroups"
 * Benchmark: "MemberHasRead"
-* Added `lib/UmlGraph-4.4.jar` and `html-uml` ant target for generating Javadoc with
-  (poorly) embedded UML graphs.
 
 ## Improvements
 * API updated to include an internal DAO layer providing separation between the business
