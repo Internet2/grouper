@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.150 2007-03-15 17:12:27 blair Exp $ -->
+<!-- $Id: build.xml,v 1.151 2007-03-15 17:58:02 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -13,15 +13,11 @@
   <property file="buildGrouper.properties" />
 
   <!-- TODO 20070315 REVIEW ALL PROPERTIES BELOW -->
-  <property name="cf"                     value="${conf.dir}/grouper.hibernate.properties"/>
   <property name="src.test"               location="${src.dir}/test"/>
-  <property name="dist.run"               location="${dist.dir}/run"/>
   <property name="dist.test"              location="${dist.dir}/test"/>
   <property name="build.lib"              location="${build.dir}/lib"/>
-  <property name="build.sql"              location="${build.dir}/sql"/>
   <property name="build.test"             location="${build.dir}/test"/>
   <property name="lib"                    location="${basedir}/lib"/>
-  <property name="log.schema"             location="${basedir}/schemaexport.log"/>
   <property name="log.dbinit"             location="${basedir}/db-init.log"     />
   <property name="log.eg.run"             location="${basedir}/eg.log"          />
   <property name="log.test.build"         location="${basedir}/test-build.log"  />
@@ -30,11 +26,6 @@
   <property name="memory.max"             value="192m"/>
   <property name="hsqldb.jar"             location="${lib}/hsqldb-1.7.2.11.jar" />
   <!-- Global Properties -->
-
-  <taskdef  name="schemaexport"
-            classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
-            classpathref="project.classpath"
-  />
 
   <!-- target: build -->
   <!-- TODO 20070315 deprecrate post 1.2.0 -->
@@ -50,6 +41,7 @@
     <delete dir="${dist.dir}"/>
     <delete file="${build.log}"/>
     <delete file="${javadoc.log}"/>
+    <delete file="${schemaexport.log}"/>
   </target>
   <!-- target: clean -->
 
@@ -140,6 +132,35 @@
     <record name="${javadoc.log}" action="stop"/>
   </target>
   <!-- target: javadoc -->
+
+  <!-- schemaexport -->
+  <target name="schemaexport" 
+          description="Generate SQL schema appropriate for configured database"
+          depends="build"
+  >
+    <taskdef  name="schemaexport"
+              classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
+              classpathref="project.classpath"
+    />
+    <record name="${schemaexport.log}" action="start"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir.run}"/>
+    <mkdir dir="${build.dir.sql}"/>
+    <mkdir dir="${build.dir.sql}"     />
+    <schemaexport properties="${conf.hibernate}"
+                  delimiter=";"
+                  drop="no"
+                  output="${schemaexport.out}"
+                  quiet="yes"
+                  text="no"
+    >
+      <fileset dir="${src.dir.grouper}">
+        <include name="**/*.hbm.xml"/>
+      </fileset>
+    </schemaexport>
+    <record name="${schemaexport.log}" action="stop"/>
+  </target>
+  <!-- schemaexport -->
 
 
   <!-- TODO 20070315 REVIEW ALL TASKS BELOW -->
@@ -236,7 +257,7 @@
   <!-- cpd -->
   <target name="cpd">
     <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" />
-    <cpd minimumTokenCount="95" outputFile="${dist.run}/cpd.txt">
+    <cpd minimumTokenCount="95" outputFile="${dist.dir.run}/cpd.txt">
       <fileset dir="${src.dir.grouper}">
         <include  name="**/*.java"    />
         <exclude  name="**/bench/**/" />
@@ -248,7 +269,7 @@
 
   <!-- db -->
   <target name="db" depends="init" description="Launch HSQLDB UI">
-    <property file="${cf}"/>
+    <property file="${conf.hibernate}"/>
     <java fork="true"
           classpathref="project.classpath"
           classname="org.hsqldb.util.DatabaseManager"
@@ -426,7 +447,7 @@
               effort="max"
               reportLevel="low"
               output="html"
-              outputFile="${dist.run}/findbugs_grouper.html"
+              outputFile="${dist.dir.run}/findbugs_grouper.html"
               jvmargs="-Xmx${memory.max}"
     >
       <auxClassPath>
@@ -505,10 +526,7 @@
   <!-- init -->
   <target name="init">
     <tstamp />
-    <mkdir dir="${build.sql}"     />
     <mkdir dir="${build.test}"    />
-    <mkdir dir="${dist.dir}"          />
-    <mkdir dir="${dist.run}"      />
     <!-- only define our classpath once -->
     <path id="project.classpath">
       <pathelement path="${classpath}"/>
@@ -535,7 +553,7 @@
       <ruleset>rulesets/favorites.xml</ruleset>
       <ruleset>basic</ruleset>
       <formatter  type="html" 
-                  toFile="${dist.run}/pmd_grouper.html"
+                  toFile="${dist.dir.run}/pmd_grouper.html"
                   toConsole="false"
                   linkPrefix="http://macinthrope.uchicago.edu/~blair/grouper/api/"
       />
@@ -615,26 +633,6 @@
     <record name="${log.test.run}" action="stop"/>
   </target>
   <!-- runtestprof -->
-
-  <!-- schemaexport -->
-  <target name="schemaexport" depends="build">
-    <record name="${log.schema}" action="start"/>
-    <mkdir dir="${dist.dir}" />
-    <mkdir dir="${dist.run}" />
-    <schemaexport
-      properties="${cf}"
-      quiet="yes"
-      text="no"
-      drop="no"
-      delimiter=";"
-      output="${build.sql}/schema-export.sql">
-      <fileset dir="${src.dir.grouper}">
-        <include name="**/*.hbm.xml"/>
-      </fileset>
-    </schemaexport>
-    <record name="${log.schema}" action="stop"/>
-  </target>
-  <!-- schemaexport -->
 
   <!-- serialver -->
   <target name="serialver" 
