@@ -23,6 +23,8 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,6 +56,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperComparator;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
@@ -68,7 +71,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.11 2006-10-05 15:14:00 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.12 2007-03-15 15:30:16 isgwb Exp $
  */
 
 /**
@@ -450,13 +453,25 @@ public abstract class LowLevelGrouperCapableAction
 				}
 			}
 		}
+		String sortContext="search";
+		String field = (String)session.getAttribute("groupSearchResultField");
+		if(field !=null) {
+			sortContext="search:" + field;
+		}
+		savedAsMaps=sort(savedAsMaps,request,sortContext);
 		request.setAttribute("savedSubjects",new ArrayList(savedAsMaps));
 		request.setAttribute("savedSubjectsSize",new Integer(savedAsMaps.size()));	
 	}
 	
 	protected void makeSavedSubjectsAvailable(HttpServletRequest request) {
 		HttpSession session = request.getSession();
+		String field = (String)session.getAttribute("groupSearchResultField");
+		String sortContext="search";
+		if(field !=null) {
+			sortContext="search:" + field;
+		}
 		List savedAsMaps =  GrouperHelper.subjects2Maps(getSavedSubjects(session).toArray());
+		savedAsMaps=sort(savedAsMaps,request,sortContext);
 		request.setAttribute("savedSubjects",new ArrayList(savedAsMaps));
 		request.setAttribute("savedSubjectsSize",new Integer(savedAsMaps.size()));	
 	}
@@ -482,6 +497,39 @@ public abstract class LowLevelGrouperCapableAction
 			session.setAttribute("savedSubjectsSet",savedSubjects);
 		}
 		return savedSubjects;
+	}
+	
+	public static List sort(Collection input,HttpServletRequest request,String context) {
+		HttpSession session = request.getSession();
+		GrouperComparator gc = (GrouperComparator)session.getAttribute("GrouperComparator");
+		ResourceBundle config = getMediaResources(request);
+		String maxStr=config.getString("comparator.sort.limit");
+		int max=Integer.parseInt(maxStr);
+		if(gc==null) {
+			String comparatorClass = null;
+			try {
+				comparatorClass=config.getString("comparator.impl");
+				
+			}catch(Exception e){}
+			if(comparatorClass==null) comparatorClass="edu.internet2.middleware.grouper.ui.DefaultComparatorImpl";
+			try {
+				gc = (GrouperComparator)Class.forName(comparatorClass).newInstance();
+			}catch(Exception e) {
+				throw new IllegalStateException("Cannot create " + comparatorClass + " instance");
+			}
+			session.setAttribute("GrouperComparator",gc);
+		}
+		gc.setContext(context);
+		gc.setConfigBundle(config);
+		
+		List toSort=null;
+		if(input instanceof List) {
+			toSort=(List)input;
+		}else{
+			toSort=new ArrayList(input);
+		}
+		if(toSort.size()<=max) Collections.sort(toSort,gc);
+		return toSort;
 	}
 }
 

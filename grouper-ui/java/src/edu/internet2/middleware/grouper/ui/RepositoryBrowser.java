@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 
 /**
@@ -32,7 +35,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: RepositoryBrowser.java,v 1.7 2006-10-05 09:00:36 isgwb Exp $
+ * @version $Id: RepositoryBrowser.java,v 1.8 2007-03-15 15:30:16 isgwb Exp $
  */
 
 public interface RepositoryBrowser {
@@ -55,11 +58,14 @@ public interface RepositoryBrowser {
 	 * @param isFlat
 	 * @param isForAssignment
 	 * @param omitForAssignment
+	 * @param context
+	 * @param request
 	 * @return Set of children for current node
 	 * @throws Exception
 	 */
 	public Set getChildren(String node, String listField,int start, int pageSize,
-			StringBuffer totalCount, boolean isFlat, boolean isForAssignment,String omitForAssignment)
+			StringBuffer totalCount, boolean isFlat, boolean isForAssignment,
+			String omitForAssignment,String context,HttpServletRequest request)
 			throws Exception;
 
 	/**

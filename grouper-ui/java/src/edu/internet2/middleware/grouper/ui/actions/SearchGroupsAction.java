@@ -130,7 +130,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table> 
  * @author Gary Brown.
- * @version $Id: SearchGroupsAction.java,v 1.6 2007-03-12 09:56:40 isgwb Exp $
+ * @version $Id: SearchGroupsAction.java,v 1.7 2007-03-15 15:30:16 isgwb Exp $
  */
 
 public class SearchGroupsAction extends GrouperCapableAction {
@@ -158,8 +158,10 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		String searchInNameOrExtension = (String) searchForm.get("searchInNameOrExtension");
 		String searchInDisplayNameOrExtension = (String) searchForm.get("searchInDisplayNameOrExtension");
 		String groupSearchResultField = (String) searchForm.get("groupSearchResultField");
+		String sortContext="search";
 		if(!isEmpty(groupSearchResultField)) {
 			session.setAttribute("groupSearchResultField",groupSearchResultField);
+			sortContext=sortContext + ":" + groupSearchResultField;
 		}
 		
 		//Take account of paging
@@ -180,6 +182,7 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		try {
 			groupRes = repositoryBrowser.search(grouperSession, query,
 				searchFrom, request.getParameterMap(),outTerms);
+			groupRes=sort(groupRes,request,sortContext);
 		}catch(IllegalArgumentException e) {
 			request.setAttribute("message",new Message("find.results.empty-search",true));
 			return new ActionForward("/populate" + getBrowseMode(session) + "Groups.do");

@@ -26,10 +26,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.config.ActionConfig;
 import org.apache.struts.config.ModuleConfig;
-import org.apache.struts.util.ModuleUtils;
-
 import java.util.*;
-
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 
@@ -167,7 +164,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.9 2007-03-12 09:47:25 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.10 2007-03-15 15:30:16 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -447,6 +444,8 @@ public abstract class GrouperCapableAction
 			session.setAttribute("activeWheelGroupMember",Boolean.FALSE);
 		}
 	}	
+	
+	
 }
 
 

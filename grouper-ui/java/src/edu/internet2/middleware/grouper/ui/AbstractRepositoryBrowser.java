@@ -28,6 +28,8 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import edu.internet2.middleware.grouper.ComplementFilter;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -50,6 +52,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNameAnyFilter;
 import edu.internet2.middleware.grouper.StemNameFilter;
 import edu.internet2.middleware.grouper.UnionFilter;
+import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -129,7 +132,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.13 2007-03-13 17:26:37 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.14 2007-03-15 15:30:16 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -203,36 +206,41 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	 * @param start
 	 * @param pageSize
 	 * @param totalCount
+	 * @param context
+	 * @param request
 	 * @return
 	 * @throws Exception
 	 */
-	protected Set getFlatChildren(int start,int pageSize,StringBuffer totalCount) throws Exception{
+	protected Set getFlatChildren(int start,int pageSize,StringBuffer totalCount,String context,HttpServletRequest request) throws Exception{
 		if("stem".equals(flatType)) {
-			List l = GrouperHelper.stems2Maps(s,new ArrayList( GrouperHelper.getStemsForPrivileges(
+			List l = GrouperHelper.stems2Maps(s,LowLevelGrouperCapableAction.sort(GrouperHelper.getStemsForPrivileges(
 		
 				s, flatPrivs, start, pageSize,
-				totalCount)));
+				totalCount),request,context));
 			return new LinkedHashSet(l);
 		}
 		if(flatPrivs.length==1 && flatPrivs[0].equals("MEMBER")) {
-			
-			Set tmp = GrouperHelper.getMembershipsSet(getGrouperSession(),
-					start, pageSize, totalCount);
-			List tmpList = new ArrayList(tmp);
-			tmpList = GrouperHelper.groups2Maps(getGrouperSession(),tmpList);
+			/*Set tmp = GrouperHelper.getMembershipsSet(getGrouperSession(),start, pageSize, totalCount);*/
+			Set tmp = GrouperHelper.getMembershipsSet(getGrouperSession());
+			totalCount.append("" + tmp.size());
+			List tmpList = LowLevelGrouperCapableAction.sort(tmp,request,context);
+			int end = start + pageSize;
+			if (end > tmpList.size())
+				end = tmpList.size();
+			tmpList = GrouperHelper.groups2Maps(getGrouperSession(),tmpList.subList(start,end));
 			return new LinkedHashSet(tmpList);
 		}
-		List l=GrouperHelper.groups2Maps(s,new ArrayList( GrouperHelper.getGroupsForPrivileges(
+		List l=GrouperHelper.groups2Maps(s,LowLevelGrouperCapableAction.sort( GrouperHelper.getGroupsForPrivileges(
 				s, flatPrivs, start, pageSize,
-				totalCount)));
+				totalCount),request,context));
 		return new LinkedHashSet(l);
 	}
 	
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.RepositoryBrowser#getChildren(java.lang.String, int, int, java.lang.StringBuffer, boolean, boolean)
 	 */
-	public Set getChildren(String node,String listField,int start,int pageSize,StringBuffer totalCount,boolean isFlat,boolean isForAssignment,String omitForAssignment) throws Exception{
-		if(isFlat) return getFlatChildren(start,pageSize,totalCount);
+	public Set getChildren(String node,String listField,int start,int pageSize,StringBuffer totalCount,boolean isFlat,boolean isForAssignment,String omitForAssignment,String context,HttpServletRequest request) throws Exception{
+		if(isFlat) return getFlatChildren(start,pageSize,totalCount,"flat",request);
 		
 		Set results = new LinkedHashSet();
 		GroupOrStem groupOrStem = GroupOrStem.findByID(s,node);
@@ -241,13 +249,15 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		if(listField==null || "".equals(listField)) listField="members";
 		Field field = FieldFinder.find(listField);
 		Set allChildren = new LinkedHashSet();
+		List sortedChildren=null;
 		int resultSize=0;
 		if(isForAssignment) {
 			if(group !=null) {//display immediate members
 				allChildren = group.getImmediateMemberships(field);
+				sortedChildren=LowLevelGrouperCapableAction.sort(allChildren,request,context);
 				resultSize = allChildren.size();
 				results.addAll(GrouperHelper.groupList2SubjectsMaps(
-						s, new ArrayList(allChildren), start, pageSize));
+						s, sortedChildren, start, pageSize));
 				if(totalCount!=null) {
 					totalCount.setLength(0);
 					totalCount.append(resultSize);
@@ -264,7 +274,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 				}else{
 					throw new RuntimeException(node + " is not recognised");
 				}
-				allChildren.addAll(GrouperHelper.getChildrenAsMaps(s, stemName));
+				allChildren.addAll(LowLevelGrouperCapableAction.sort(GrouperHelper.getChildrenAsMaps(s, stemName),request,context));
 				//Map validStems  = GrouperHelper.getValidStems(s,browseMode);
 				boolean addChild = false;
 				int end = start + pageSize;

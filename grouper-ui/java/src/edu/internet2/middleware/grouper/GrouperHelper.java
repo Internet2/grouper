@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.25 2007-03-13 17:26:37 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.26 2007-03-15 15:30:16 isgwb Exp $
  */
 
 /**
@@ -1261,7 +1261,7 @@ public class GrouperHelper {
 	 * @return List of stems matched
 	 */
 	public static List searchStems(GrouperSession s, String query, String from,String searchInDisplayNameOrExtension,String searchInNameOrExtension) throws StemNotFoundException,QueryException{
-		GrouperQuery q = GrouperQuery.createQuery(s,new StemNameFilter(query,StemFinder.findByName(s,from)));
+		GrouperQuery q = GrouperQuery.createQuery(s,new StemNameAnyFilter(query,StemFinder.findByName(s,from)));
 		Set res = q.getStems();
 		List displayResults = new ArrayList(res);
 		/*List nonDisplayResults=null; 

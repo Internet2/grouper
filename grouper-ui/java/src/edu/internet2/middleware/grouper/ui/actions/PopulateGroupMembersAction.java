@@ -213,7 +213,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.14 2006-10-03 11:22:06 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.15 2007-03-15 15:30:16 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -318,6 +318,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		}
 		Map countMap = new HashMap();
 		List uniqueMemberships = GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap);
+		uniqueMemberships=sort(uniqueMemberships,request,"members");
 		//Set up CollectionPager for view
 		String startStr = request.getParameter("start");
 		if (startStr == null || "".equals(startStr))
