@@ -1,6 +1,6 @@
-<!-- $Id: build.xml,v 1.149 2007-03-15 17:00:27 blair Exp $ -->
+<!-- $Id: build.xml,v 1.150 2007-03-15 17:12:27 blair Exp $ -->
 
-<project name="Grouper" default="build" basedir=".">
+<project name="Grouper" default="compile" basedir=".">
 
   <!-- Grouper Distribution and Versioning Properties -->
   <property name="app.name"               value="grouper"/>
@@ -17,7 +17,6 @@
   <property name="src.test"               location="${src.dir}/test"/>
   <property name="dist.run"               location="${dist.dir}/run"/>
   <property name="dist.test"              location="${dist.dir}/test"/>
-  <property name="build.javadoc"          location="${dist.dir}/api"/>
   <property name="build.lib"              location="${build.dir}/lib"/>
   <property name="build.sql"              location="${build.dir}/sql"/>
   <property name="build.test"             location="${build.dir}/test"/>
@@ -30,14 +29,12 @@
   <property name="hprof.depth"            value="25"/>
   <property name="memory.max"             value="192m"/>
   <property name="hsqldb.jar"             location="${lib}/hsqldb-1.7.2.11.jar" />
-  <property name="clover.jar"             location="${user.home}/.ant/lib/clover.jar"/>
   <!-- Global Properties -->
 
   <taskdef  name="schemaexport"
             classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
             classpathref="project.classpath"
   />
-  <taskdef  resource="cloverlib.xml" classpath="${clover.jar}"/>
 
   <!-- target: build -->
   <!-- TODO 20070315 deprecrate post 1.2.0 -->
@@ -49,8 +46,10 @@
   <!-- target: clean -->
   <target name="clean" 
           description="Clean out (delete) previous build products including Java classes and the Grouper dist directory">
-    <delete dir="${build.dir}"/>
+    <delete dir="${build.dir}"/>  
     <delete dir="${dist.dir}"/>
+    <delete file="${build.log}"/>
+    <delete file="${javadoc.log}"/>
   </target>
   <!-- target: clean -->
 
@@ -101,6 +100,46 @@
     </copy>
   </target>
   <!-- target: init-conf -->
+
+  <!-- target: init-clover -->
+  <!-- include clover task definitions -->
+  <target name="init-clover">
+    <taskdef resource="cloverlib.xml" classpath="${lib.jar.clover}"/>
+  </target>
+  <!-- target: init-clover -->
+
+  <!-- target: javadoc -->
+  <target name="javadoc"
+          description="Create the JavaDocs"
+          depends="init"
+  >
+    <delete dir="${dist.dir.javadoc}"/>
+    <mkdir  dir="${dist.dir.javadoc}"/>
+    <record name="${javadoc.log}" action="start"/>
+    <!-- TODO 20070315 use "overview=..." -->
+    <javadoc  destdir="${dist.dir.javadoc}"
+              access="public"
+              author="true"
+              breakiterator="true"
+              classpathref="project.classpath" 
+              nodeprecatedlist="false"
+              nodeprecated="false"
+              noindex="false"
+              nonavbar="false"
+              notree="false"
+              splitindex="true"
+              stylesheetfile="${javadoc.css}"
+              use="true"
+              version="true"
+    >
+      <packageset dir="${src.dir.grouper}" defaultexcludes="yes">
+        <exclude name="edu/internet2/middleware/grouper/bench/**"/>
+        <exclude name="edu/internet2/middleware/grouper/prof/**"/>
+      </packageset>
+    </javadoc>
+    <record name="${javadoc.log}" action="stop"/>
+  </target>
+  <!-- target: javadoc -->
 
 
   <!-- TODO 20070315 REVIEW ALL TASKS BELOW -->
@@ -176,7 +215,7 @@
   <!-- bench-run-prof -->
 
   <!-- clean.clover -->
-  <target name="clean.clover" description="clean up after clover">
+  <target name="clean.clover" depends="init-clover" description="clean up after clover">
     <clover-clean/>
   </target>
   <!-- clean.clover -->
@@ -400,25 +439,6 @@
     </findbugs>
   </target>
   <!-- findbugs -->
-
-  <!-- html -->
-  <target name="html" depends="build" description="generate public api docs" >
-    <delete dir="${build.javadoc}"/>
-    <mkdir  dir="${build.javadoc}"/>
-    <javadoc  destdir="${build.javadoc}"
-              author="true"
-              version="true"
-              access="public"
-              stylesheetfile="${basedir}/doc/stylesheet.css"
-              classpathref="project.classpath" 
-    >
-      <packageset dir="${src.dir.grouper}" defaultexcludes="yes">
-        <exclude name="edu/internet2/middleware/grouper/bench/**"/>
-        <exclude name="edu/internet2/middleware/grouper/prof/**"/>
-      </packageset>
-    </javadoc>
-  </target>
-  <!-- html -->
 
   <!-- hsqldb -->
   <target name="hsqldb" 
@@ -695,7 +715,7 @@
   <!-- test -->
 
   <!-- with.clover -->
-  <target name="with.clover" depends="init">
+  <target name="with.clover" depends="init, init-clover">
     <clover-setup>
       <fileset  dir="${src.dir.grouper}">
         <exclude  name="**/bench/*"/>
@@ -707,7 +727,7 @@
   <!-- with.clover -->
 
   <!-- with.clover.test -->
-  <target name="with.clover.test" depends="init">
+  <target name="with.clover.test" depends="init, init-clover">
     <taskdef resource="clovertasks"/>
     <clover-setup>
       <fileset  dir="${src.test}">
