@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GrouperSession} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.4 2007-03-16 18:42:21 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.5 2007-03-16 19:46:17 blair Exp $
  */
 class GrouperSessionDTO extends BaseGrouperDTO {
 
@@ -37,7 +37,7 @@ class GrouperSessionDTO extends BaseGrouperDTO {
   private String          id;
   private String          memberUUID;
   private PrivilegeCache  namingCache;
-  private GrouperSession  rootSession; // TODO 20070314 convert to dto?
+  private GrouperSession  rootSession;
   private String          sessionUUID;
   private Date            startTime;
   private Subject         subject;

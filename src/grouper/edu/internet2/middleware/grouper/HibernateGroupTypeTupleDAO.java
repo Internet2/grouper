@@ -22,9 +22,8 @@ import  org.apache.commons.lang.builder.*;
 /**
  * Stub Hibernate {@link Group} and {@link GroupType} tuple DAO.
  * <p/>
- * TODO 20070227 eliminate this class if possible
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.2 2007-02-27 18:48:07 blair Exp $
+ * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.3 2007-03-16 19:46:17 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupTypeTupleDAO extends HibernateDAO {

@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.95 2007-02-28 19:10:44 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.96 2007-03-16 19:46:16 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -780,9 +780,11 @@ public class XmlImporter {
       }
     }
     catch (SubjectNotFoundException eSNF)   {
+      LOG.warn( "Not granting access privilege: " + eSNF.getMessage( ) );
       return;
     }
     catch (SubjectNotUniqueException eSNU)  {
+      LOG.warn( "Not granting access privilege: " + eSNU.getMessage() );
       return;
     }
   } // private void _processAccesgPrivListGrantPriv(g, p, el)
@@ -1117,9 +1119,11 @@ public class XmlImporter {
       }
     }
     catch (SubjectNotFoundException eSNF)   {
+      LOG.warn( "Not adding membership: " + eSNF.getMessage() );
       return;
     }
     catch (SubjectNotUniqueException eSNU)  {
+      LOG.warn( "Not adding membership: " + eSNU.getMessage() );
       return;
     }
   } // private void _processMembershipListAddMember(g, f, el)
@@ -1301,9 +1305,11 @@ public class XmlImporter {
       }
     }
     catch (SubjectNotFoundException eSNF)   {
+      LOG.warn( "Not granting naming privilege: " + eSNF.getMessage() );
       return;
     }
     catch (SubjectNotUniqueException eSNU)  {
+      LOG.warn( "Not granting naming privilege: " + eSNU.getMessage() );
       return;
     }
   } // private void _processNamingPrivListGrantPriv(ns, p, el)
@@ -1423,26 +1429,16 @@ public class XmlImporter {
     this.options = xmlOptions;        // replace current with merged options
   } // private void _processProperties()
 
-  // @since   1.1.0
-  private boolean _setCreateSubject(Owner o, Element e) {
-    Element e0  = this._getImmediateElement(e, "subject");
-    String  msg = "error setting createSubject: ";
-    try {
-      // TODO 20070130 not happy about this
-      if (o instanceof Group) {
-        ( (Group) o).getDTO().setCreatorUuid( 
-          MemberFinder.internal_findBySubject(
-            e0.getAttribute("id"), e0.getAttribute("source"), e0.getAttribute("type")
-          ).getMemberUuid()
-        );
-      }
-      else {
-        ( (Stem) o).getDTO().setCreatorUuid( 
-          MemberFinder.internal_findBySubject(
-            e0.getAttribute("id"), e0.getAttribute("source"), e0.getAttribute("type")
-          ).getMemberUuid()
-        );
-      }
+  // @since   1.2.0
+  private boolean _setCreateSubject(Group g, Element e) {
+    Element elSubj = this._getImmediateElement(e, "subject");
+    String  msg    = "error setting createSubject: ";
+    try { 
+      g.getDTO().setCreatorUuid(
+        MemberFinder.internal_findBySubject(
+          elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
+        ).getMemberUuid()
+      );
       return true;
     }
     catch (MemberNotFoundException eMNF) {
@@ -1450,33 +1446,59 @@ public class XmlImporter {
     }
     LOG.error(msg);
     return false;
-  } // private boolean _setCreateSubject(o, e)
-
-  // @since   1.1.0
-  private boolean _setCreateTime(Owner o, Element e) {
-    String msg = "error setting createTime: ";
+  } // private boolean setCreateSubject(g, e)
+  
+  // @since   1.2.0
+  private boolean _setCreateSubject(Stem ns, Element e) {
+    Element elSubj = this._getImmediateElement(e, "subject");
+    String  msg    = "error setting createSubject: ";
     try { 
-      // TODO 20070130 not happy about this
-      if (o instanceof Group) {
-        ( (Group) o ).getDTO().setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
-      }
-      else {
-        ( (Stem) o ).getDTO().setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
-      }
+      ns.getDTO().setCreatorUuid(
+        MemberFinder.internal_findBySubject(
+          elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
+        ).getMemberUuid()
+      );
       return true;
     }
-    catch (GrouperException eG) {
-      msg += eG.getMessage();
+    catch (MemberNotFoundException eMNF) {
+      msg += eMNF.getMessage();
     }
-    catch (ParseException eP)   {
+    LOG.error(msg);
+    return false;
+  } // private boolean setCreateSubject(ns, e)
+
+  // @since   1.2.0
+  private boolean _setCreateTime(Group g, Element e) {
+    String msg = "error setting createTime: ";
+    try {
+      g.getDTO().setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
+      return true;
+    } catch (GrouperException eG) {
+       msg += eG.getMessage();
+    } catch (ParseException eP) {
       msg += eP.getMessage();
     }
     LOG.error(msg);
     return false;
-  } // private boolean _setCreateTime(o, e)
+  } // private boolean _setCreateTime(g, e)
 
-  // @since   1.1.0
-  private void _setInternalAttributes(Owner o, Element e) 
+  // @since   1.2.0
+  private boolean _setCreateTime(Stem ns, Element e) {
+    String msg = "error setting createTime: ";
+    try {
+      ns.getDTO().setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
+      return true;
+    } catch (GrouperException eG) {
+       msg += eG.getMessage();
+    } catch (ParseException eP) {
+      msg += eP.getMessage();
+    }
+    LOG.error(msg);
+    return false;
+  } // private boolean _setCreateTime(ns, e)
+
+  // @since   1.2.0
+  private void _setInternalAttributes(Group g, Element e) 
     throws  GrouperDAOException
   {
     String    attr;
@@ -1486,23 +1508,50 @@ public class XmlImporter {
     while (it.hasNext()) {
       e0    = (Element) it.next();
       attr  = e0.getAttribute("name");
-      if      (attr.equals("createSubject"))  {
-        if (this._setCreateSubject(o, e0)) {
+      if      ( "createSubject".equals(attr) ) {
+        if ( this._setCreateSubject(g, e0) ) {
           modified = true;
         }
       }
-      else if (attr.equals("createTime"))     {
-        if (this._setCreateTime(o, e0)) {
+      else if ( "createTime".equals(attr) ) {
+        if ( this._setCreateTime(g, e0) ) {
           modified = true;
         }
       }
     }
     if (modified) {
-      HibernateDAO.update(o);
+      HibernateDAO.update(g);
+    }
+  } // private void _setInternalAttributesAttributes(g, e)
+  
+  // @since   1.2.0
+  private void _setInternalAttributes(Stem ns, Element e) 
+    throws  GrouperDAOException
+  {
+    String    attr;
+    boolean   modified    = false;
+    Element   e0;
+    Iterator  it          = this._getInternalAttributes(e).iterator();
+    while (it.hasNext()) {
+      e0    = (Element) it.next();
+      attr  = e0.getAttribute("name");
+      if      ( "createSubject".equals(attr) ) {
+        if ( this._setCreateSubject(ns, e0) ) {
+          modified = true;
+        }
+      }
+      else if ( "createTime".equals(attr) ) {
+        if ( this._setCreateTime(ns, e0) ) {
+          modified = true;
+        }
+      }
+    }
+    if (modified) {
+      HibernateDAO.update(ns);
     }
   } // private void _setInternalAttributesAttributes(ns, e)
 
-
+  
   // GETTERS //
 
   // @since   1.1.0

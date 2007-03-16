@@ -17,12 +17,16 @@
 
 package edu.internet2.middleware.grouper;
 import  java.lang.reflect.*;
-import  java.util.*;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.List;
+import  java.util.Properties;
+import  java.util.Set;
 
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.13 2007-02-28 19:10:44 blair Exp $
+ * @version $Id: U.java,v 1.14 2007-03-16 19:46:17 blair Exp $
  * @since   1.0
  */
 class U {
@@ -35,6 +39,15 @@ class U {
 
 
   // PROTECTED CLASS METHODS //
+  
+  // @since   1.2.0
+  protected static boolean getBooleanProperty(Properties props, String key) {
+    String val = props.getProperty(key);
+    if (val == null) {
+      return false;
+    }
+    return "true".equals(val);
+  } // protected static boolean getBooleanProperty(props, key)
   
   // This isn't the best place for this but until I have a better idea...
   // @since   1.2.0

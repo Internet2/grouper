@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.86 2007-03-08 18:48:42 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.87 2007-03-16 19:46:17 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -720,17 +720,6 @@ public class XmlExporter {
   } // private Stack _getParentStems(o)
 
   // @since   1.1.0
-  // TODO 20061003 deprecate
-  private boolean _optionTrue(String key) {
-    NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(key);
-    if (v.isInvalid()) {
-      options.setProperty(key, "false");
-      return false;
-    }
-    return "true".equals( options.getProperty(key) );
-  } // private boolean _optionTrue(key)
-
-  // @since   1.1.0
   private void _setFromStem(Owner o)
     throws  StemNotFoundException
   {
@@ -966,7 +955,7 @@ public class XmlExporter {
     throws  IOException,
             SchemaException
   {
-    if (this._optionTrue("export.group.custom-attributes")) {
+    if ( U.getBooleanProperty( this.options, "export.group.custom-attributes" ) ) {
       Set types = g.getRemovableTypes(); 
       if (!types.isEmpty()) {
         this.xml.internal_indent();
@@ -1011,10 +1000,10 @@ public class XmlExporter {
             SubjectNotFoundException
   {
     List lists = new ArrayList();
-    if (this._optionTrue("export.group.members")) {
+    if ( U.getBooleanProperty(this.options, "export.group.members") ) {
       lists.add("members");
     }
-    if (this._optionTrue("export.group.lists")) {
+    if ( U.getBooleanProperty(this.options, "export.group.lists") ) {
       lists.addAll( _getListFieldsForGroup(g) );
     }
     Iterator it = lists.iterator();
@@ -1128,44 +1117,50 @@ public class XmlExporter {
   } // private void _writeInternalAttribute(attr, subj, comment)
 
   // @since   1.2.0
-  private void _writeInternalAttributes(Owner o) 
+  private void _writeInternalAttributes(Group g) 
     throws  IOException,
             MemberNotFoundException,
             StemNotFoundException,
             SubjectNotFoundException
   {
-    if (
-      ( o instanceof Group && this._isGroupInternalAttrsExportEnabled() )
-      ||
-      ( o instanceof Stem  && this._isStemInternalAttrsExportEnabled()  )
-    )
-    {
+    if ( this._isGroupInternalAttrsExportEnabled() ) {
       this.xml.internal_indent();
       this.xml.internal_puts("<internalAttributes>");
-      this._writeInternalAttribute( "parentStem",     this._getParentStemName(o)   );
-      // TODO 20070130 grrrrr
-      if (o instanceof Group) {
-        Group     g   = (Group) o;
-        GroupDTO  dto = g.getDTO();
-        this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, dto.getCreatorUuid() ) );
-        this._writeInternalAttribute( "createTime",     dto.getCreateTime() );
-        this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, dto.getModifierUuid() ) );
-        this._writeInternalAttribute( "modifyTime",     dto.getModifyTime() );
-      }
-      else {
-        Stem    ns  = (Stem) o;
-        StemDTO dto = ns.getDTO();
-        this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, dto.getCreatorUuid() ) );
-        this._writeInternalAttribute( "createTime",     dto.getCreateTime() );
-        this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, dto.getModifierUuid() ) );
-        this._writeInternalAttribute( "modifyTime",     dto.getModifyTime() );
-      }
+      this._writeInternalAttribute( "parentStem",     this._getParentStemName(g)   );
+      GroupDTO _g = g.getDTO();
+      this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, _g.getCreatorUuid() ) );
+      this._writeInternalAttribute( "createTime",     _g.getCreateTime() );
+      this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, _g.getModifierUuid() ) );
+      this._writeInternalAttribute( "modifyTime",     _g.getModifyTime() );
       this.xml.internal_puts("</internalAttributes>");
       this.xml.internal_undent();
       this.xml.internal_puts();
     }
-  } // private void _writeInternalAttributes(o)
-
+  } // private void _writeInternalAttributes(g)
+  
+  // @since   1.2.0
+  private void _writeInternalAttributes(Stem ns) 
+    throws  IOException,
+            MemberNotFoundException,
+            StemNotFoundException,
+            SubjectNotFoundException
+  {
+    if ( this._isStemInternalAttrsExportEnabled() ) {
+      this.xml.internal_indent();
+      this.xml.internal_puts("<internalAttributes>");
+      this._writeInternalAttribute( "parentStem",     this._getParentStemName(ns)   );
+      StemDTO _ns = ns.getDTO();
+      this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, _ns.getCreatorUuid() ) );
+      this._writeInternalAttribute( "createTime",     _ns.getCreateTime() );
+      this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, _ns.getModifierUuid() ) );
+      this._writeInternalAttribute( "modifyTime",     _ns.getModifyTime() );
+      this.xml.internal_puts("</internalAttributes>");
+      this.xml.internal_undent();
+      this.xml.internal_puts();
+    }
+  } // private void _writeInternalAttributes(ns)
+  
+  
   // @since   1.1.0
   private void _writeList(Group g, Field f) 
     throws  CompositeNotFoundException,
@@ -1324,7 +1319,8 @@ public class XmlExporter {
       if (
         (!subject.getId().equals("GrouperSystem"))
         && 
-        (isImmediate || !_optionTrue("export.privs.immediate-only"))) 
+        (isImmediate || !U.getBooleanProperty(this.options, "export.privs.immediate-only") )
+      )
       {
         this._writeSubject(subject, " immediate='" + isImmediate + "' ");
       }
@@ -1406,8 +1402,6 @@ public class XmlExporter {
             MemberNotFoundException
   {
     if (this._isNamingPrivExportEnabled()) {
-      // TODO 20061003 this originally called `getStemmers()` for both.  i
-      //      should verify this.
       this._writePrivileges("stem"  , ns.getStemmers(), ns);
       this._writePrivileges("create", ns.getCreators(), ns);
     } 
