@@ -4,6 +4,16 @@ with *Grouper*.
 
 ---
 
+# commons-discovery-0.4.jar
+
+"The Discovery component is about discovering, or finding, implementations for pluggable
+interfaces."  This library is used by FindBugs.
+
+* Version:  0.4
+* Source:   <http://jakarta.apache.org/commons/discovery/>
+* License:  Apache License, Version 2.0
+* Updated:  20070316
+
 # commons-lang-2.0.jar
 
 "The standard Java libraries fail to provide enough methods for
@@ -122,5 +132,5 @@ logging services for purposes of application debugging and auditing."
 
 ---
 
-$Id: README.txt,v 1.9 2007-03-15 19:22:51 blair Exp $
+$Id: README.txt,v 1.10 2007-03-16 13:31:50 blair Exp $
 

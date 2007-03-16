@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.155 2007-03-15 19:22:14 blair Exp $ -->
+<!-- $Id: build.xml,v 1.156 2007-03-16 13:31:50 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -301,6 +301,8 @@
   <!-- cpd -->
   <target name="cpd">
     <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" />
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir.run}"/>
     <cpd minimumTokenCount="95" outputFile="${dist.dir.run}/cpd.txt">
       <fileset dir="${src.dir.grouper}">
         <include  name="**/*.java"    />
@@ -473,6 +475,8 @@
   <target name="findbugs" depends="dist,dist-lib">
     <taskdef  name="findbugs"       classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
     <property name="findbugs.home"  location="${user.home}/Applications/findbugs"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir.run}"/>
     <findbugs home="${findbugs.home}"
               effort="max"
               reportLevel="low"
@@ -579,6 +583,8 @@
   <!-- pmd -->
   <target name="pmd" depends="init">
     <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir.run}"/>
     <pmd shortFilenames="true">
       <ruleset>rulesets/favorites.xml</ruleset>
       <ruleset>basic</ruleset>
