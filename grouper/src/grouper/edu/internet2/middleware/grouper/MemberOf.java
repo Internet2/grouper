@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.48 2007-03-06 15:58:47 blair Exp $
+ * @version $Id: MemberOf.java,v 1.49 2007-03-16 19:46:16 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -202,41 +202,47 @@ class MemberOf extends BaseMemberOf {
   private Set _addHasMembersToOwner(Set hasMembers) 
     throws  IllegalStateException
   {
-    Set           mships  = new LinkedHashSet();
+    Set           mships      = new LinkedHashSet();
     MembershipDTO hasMS;
-    MembershipDTO dto;
-    Iterator      it      = hasMembers.iterator();
-    // TODO 20070222 stash values outside of while loop so that they don't need to be repeatedly // fetched
+    MembershipDTO _ms;
+    Iterator      it          = hasMembers.iterator();
+    // cache values outside of iterator
+    int           depth       = this.getMembershipDTO().getDepth();
+    String        listName    = this.getMembershipDTO().getListName();
+    String        listType    = this.getMembershipDTO().getListType();
+    String        memberUUID  = this.getSession().getMember().getUuid();
+    String        msUUID      = this.getMembershipDTO().getMembershipUuid();
+    String        ownerUUID   = this.getMembershipDTO().getOwnerUuid();
     while (it.hasNext()) {
       hasMS = (MembershipDTO) Rosetta.getDTO( it.next() );
 
-      dto = new MembershipDTO();
-      dto.setCreatorUuid( this.getSession().getMember().getUuid() );
-      dto.setDepth( this.getMembershipDTO().getDepth() + hasMS.getDepth() + 1 );
-      dto.setListName( this.getMembershipDTO().getListName() );
-      dto.setListType( this.getMembershipDTO().getListType() );
-      dto.setMemberUuid( hasMS.getMemberUuid() );
-      dto.setOwnerUuid( this.getMembershipDTO().getOwnerUuid() );
-      dto.setType(Membership.EFFECTIVE);
+      _ms = new MembershipDTO();
+      _ms.setCreatorUuid(memberUUID);
+      _ms.setDepth(depth + hasMS.getDepth() + 1);
+      _ms.setListName(listName);
+      _ms.setListType(listType);
+      _ms.setMemberUuid( hasMS.getMemberUuid() );
+      _ms.setOwnerUuid(ownerUUID);
+      _ms.setType(Membership.EFFECTIVE);
       if ( hasMS.getDepth() == 0 ) {
-        dto.setViaUuid( hasMS.getOwnerUuid() );  // hasMember m was immediate
-        dto.setParentUuid( this.getMembershipDTO().getMembershipUuid() );
+        _ms.setViaUuid( hasMS.getOwnerUuid() );  // hasMember m was immediate
+        _ms.setParentUuid(msUUID);
       }
       else {
-        dto.setViaUuid( hasMS.getViaUuid() ); // hasMember m was effective
+        _ms.setViaUuid( hasMS.getViaUuid() ); // hasMember m was effective
         if ( hasMS.getParentUuid() != null ) {
-          dto.setParentUuid( hasMS.getParentUuid() );
+          _ms.setParentUuid( hasMS.getParentUuid() );
         }
         else {
-          dto.setParentUuid( hasMS.getMembershipUuid() );
+          _ms.setParentUuid( hasMS.getMembershipUuid() );
         }
       }
-      EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
+      EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(_ms);
       if (v.isInvalid()) {
         throw new IllegalStateException( v.getErrorMessage() );
       }
 
-      mships.add(dto);
+      mships.add(_ms);
     }
     return mships;
   } // private Set _addHasMembersToOwner(hasMembers)
@@ -504,7 +510,6 @@ class MemberOf extends BaseMemberOf {
     throws  IllegalStateException
   {
     try {
-      // TODO 20070221 i really shouldn't be throwing schema exceptions here
       this.setField( FieldFinder.find( _ms.getListName() ) );
     }
     catch (SchemaException eS) {
@@ -523,7 +528,6 @@ class MemberOf extends BaseMemberOf {
     this.effDeletes.addAll(children);
     // Find all effective memberships that need deletion
     try {
-      // TODO 20070221 i really shouldn't be throwing schema exceptions here
       this.effDeletes.addAll( MembershipFinder.internal_findAllForwardMembershipsNoPriv(s, _ms, children) );
     }
     catch (SchemaException eS) {

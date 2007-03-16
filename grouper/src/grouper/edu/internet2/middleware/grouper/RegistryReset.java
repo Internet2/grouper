@@ -25,7 +25,7 @@ package edu.internet2.middleware.grouper;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.43 2007-03-16 18:16:03 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.44 2007-03-16 19:46:17 blair Exp $
  */
 public class RegistryReset {
 
@@ -89,7 +89,6 @@ public class RegistryReset {
   } // protected static void internal_addTestSubjects()
 
   // @since   1.2.0
-  // TODO 20070306 KILL! THIS! METHOD!
   protected static void internal_resetRegistryAndAddTestSubjects() { 
     RegistryReset rr = new RegistryReset();
     try {
@@ -101,7 +100,6 @@ public class RegistryReset {
       rr._abort(e.getMessage());
     }
   } // protected static void internal_resetRegistryAndAddTestSubjects()
-
 
   // PRIVATE INSTANCE METHODS //
   private void _addSubjects()   
