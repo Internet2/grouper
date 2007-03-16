@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.6 2007-03-10 13:31:17 khuxtable Exp $
+$Id: sources.xml,v 1.7 2007-03-16 22:22:16 khuxtable Exp $
 -->
 
 <sources>
@@ -30,12 +30,12 @@ $Id: sources.xml,v 1.6 2007-03-10 13:31:17 khuxtable Exp $
     
     <init-param>
       <param-name>dbDriver</param-name>
-      <param-value>org.hsqldb.jdbcDriver</param-value>
+      <param-value>com.mysql.jdbc.Driver</param-value>
     </init-param>
     <init-param>
       <param-name>dbUrl</param-name>
    <!-- <param-value>jdbc:hsqldb:hsql://localhost/grouper</param-value>  -->	
-      <param-value>jdbc:hsqldb:hsql://localhost/uc-subjects</param-value>
+      <param-value>jdbc:mysql://localhost/bogusdb</param-value>
     </init-param>
 
 
