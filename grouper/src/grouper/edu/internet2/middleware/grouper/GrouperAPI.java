@@ -24,13 +24,13 @@ import  java.util.Set;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.1 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: GrouperAPI.java,v 1.2 2007-03-16 18:42:21 blair Exp $
  */
 abstract class GrouperAPI {
 
   // PROTECTED INSTANCE VARIABLES //
   protected GrouperDTO      dto;
-  protected GrouperSession  s;    // TODO 20070123 to dto or not to dto?
+  protected GrouperSession  s;
 
 
   // CONSTRUCTORS //
@@ -72,7 +72,6 @@ abstract class GrouperAPI {
   protected GrouperSession getSession() 
     throws  IllegalStateException
   {
-    // TODO 20070123 should i do any session validation here?
     if (this.s == null) {
       throw new IllegalStateException( "null session in class " + this.getClass().getName() );
     }
@@ -86,7 +85,6 @@ abstract class GrouperAPI {
 
   // @since   1.2.0
   protected void setSession(GrouperSession s) {
-    // TODO 20070123 should i do any session validation here?
     if (s == null) {
       throw new IllegalStateException( "null session in class " + this.getClass().getName() );
     }

@@ -25,11 +25,10 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.13 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.14 2007-03-16 18:42:21 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
-  // TODO 20070214 this should probably extend `Assert` rather than `TestCase`, but...
 
   // PRIVATE CLASS CONSTANTS //
   private static final String G   = "group";

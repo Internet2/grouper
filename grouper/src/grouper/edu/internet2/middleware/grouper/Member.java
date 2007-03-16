@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.84 2007-03-08 19:07:20 blair Exp $
+ * @version $Id: Member.java,v 1.85 2007-03-16 18:42:20 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1208,7 +1208,6 @@ public class Member extends GrouperAPI implements Serializable {
     return (MemberDTO) super.getDTO();
   } // protected MemberDTO getDTO()
 
-  // TODO 20070130  can i relocate this?
   // @since   1.2.0
   protected boolean isMember(String ownerUUID, Field f) {
     boolean rv      = false;

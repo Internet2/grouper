@@ -30,23 +30,21 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.143 2007-03-16 18:16:03 blair Exp $
+ * @version $Id: Group.java,v 1.144 2007-03-16 18:42:21 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final EventLog EL          = new EventLog();
-  private static final String   KEY_MEMBER  = "member";   // for state caching
-  private static final String   KEY_SUBJECT = "subject";  // for state caching
+  private static final EventLog EL            = new EventLog();
+  private static final String   KEY_CREATOR   = "creator";  // for state caching
+  private static final String   KEY_MEMBER    = "member";   // for state caching
+  private static final String   KEY_MODIFIER  = "modifier"; // for state caching
+  private static final String   KEY_SUBJECT   = "subject";  // for state caching
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private Subject creator;  // TODO 20070222 move to state cache
-  private Subject modifier; // TODO 20070222 move to state cache
   private SimpleCache stateCache = new SimpleCache();
-  
 
-  
   
   // PUBLIC CLASS METHODS //
   
@@ -863,22 +861,25 @@ public class Group extends GrouperAPI implements Owner {
   public Subject getCreateSubject() 
     throws SubjectNotFoundException
   {
-    if (this.creator == null) {
-      try {
-        MemberDTO dto = HibernateMemberDAO.findByUuid( this.getDTO().getCreatorUuid() );
-        this.creator  = SubjectFinder.findById( dto.getSubjectId(), dto.getSubjectTypeId(), dto.getSubjectSourceId() );
-      }
-      catch (MemberNotFoundException eMNF) {
-        throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
-      }
-      catch (SourceUnavailableException eSU) {
-        throw new SubjectNotFoundException( eSU.getMessage(), eSU );
-      }
-      catch (SubjectNotUniqueException eSNU) {
-        throw new SubjectNotFoundException( eSNU.getMessage(), eSNU );
-      }
+    if ( this.stateCache.containsKey(KEY_CREATOR) ) {
+      return (Subject) this.stateCache.get(KEY_CREATOR);
     }
-    return this.creator; 
+    try {
+      MemberDTO dto = HibernateMemberDAO.findByUuid( this.getDTO().getCreatorUuid() );
+      this.stateCache.put(
+        KEY_CREATOR, SubjectFinder.findById( dto.getSubjectId(), dto.getSubjectTypeId(), dto.getSubjectSourceId() )
+      );
+      return (Subject) this.stateCache.get(KEY_CREATOR);
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
+    }
+    catch (SourceUnavailableException eSU) {
+      throw new SubjectNotFoundException( eSU.getMessage(), eSU );
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      throw new SubjectNotFoundException( eSNU.getMessage(), eSNU );
+    }
   } // public Subject getCreateSubject() 
   
   /**
@@ -1231,25 +1232,28 @@ public class Group extends GrouperAPI implements Owner {
   public Subject getModifySubject() 
     throws SubjectNotFoundException
   {
-    if (this.modifier == null) {
-      if ( this.getDTO().getModifierUuid() == null) {
-        throw new SubjectNotFoundException("group has not been modified");
-      }
-      try {
-        MemberDTO dto = HibernateMemberDAO.findByUuid( this.getDTO().getModifierUuid() );
-        this.modifier = SubjectFinder.findById( dto.getSubjectId(), dto.getSubjectTypeId(), dto.getSubjectSourceId() );
-      }
-      catch (MemberNotFoundException eMNF) {
-        throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
-      }
-      catch (SourceUnavailableException eSU) {
-        throw new SubjectNotFoundException( eSU.getMessage(), eSU );
-      }
-      catch (SubjectNotUniqueException eSNU) {
-        throw new SubjectNotFoundException( eSNU.getMessage(), eSNU );
-      }
+    if ( this.stateCache.containsKey(KEY_MODIFIER) ) {
+      return (Subject) this.stateCache.get(KEY_MODIFIER);
     }
-    return this.modifier; 
+    if ( this.getDTO().getModifierUuid() == null ) {
+      throw new SubjectNotFoundException("group has not been modified");
+    }
+    try {
+      MemberDTO dto = HibernateMemberDAO.findByUuid( this.getDTO().getModifierUuid() );
+      this.stateCache.put(
+        KEY_MODIFIER, SubjectFinder.findById( dto.getSubjectId(), dto.getSubjectTypeId(), dto.getSubjectSourceId() )
+      );
+      return (Subject) this.stateCache.get(KEY_MODIFIER);
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
+    }
+    catch (SourceUnavailableException eSU) {
+      throw new SubjectNotFoundException( eSU.getMessage(), eSU );
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      throw new SubjectNotFoundException( eSNU.getMessage(), eSNU );
+    }  
   } // public Subject getModifySubject()
   
   /**

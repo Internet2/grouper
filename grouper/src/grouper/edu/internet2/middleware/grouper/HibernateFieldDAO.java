@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.9 2007-02-15 18:30:50 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.10 2007-03-16 18:42:20 blair Exp $
  * @since   1.2.0
  */
 class HibernateFieldDAO extends HibernateDAO {
@@ -47,6 +47,28 @@ class HibernateFieldDAO extends HibernateDAO {
 
   // PROTECTED CLASS METHODS //
 
+  // @since   1.2.0
+  protected static boolean existsByName(String name) 
+    throws  GrouperDAOException
+  {
+    // TODO 20070316 cache?
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("select f.id from HibernateFieldDAO f where f.name = :name");
+      qry.setString("name", name);
+      boolean rv  = false;
+      if ( qry.uniqueResult() != null ) {
+        rv = true; 
+      }
+      hs.close();
+      return rv;
+    }
+    catch (HibernateException eH) {
+      ErrorLog.fatal( HibernateFieldDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static boolean existsByName(name)
+  
   // @since   1.2.0
   protected static Set findAll() 
     throws  GrouperRuntimeException

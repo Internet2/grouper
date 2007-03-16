@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.14 2007-03-06 17:02:43 blair Exp $
+ * @version $Id: R.java,v 1.15 2007-03-16 18:42:21 blair Exp $
  * @since   1.2.0
  */
 public class R {
@@ -72,7 +72,6 @@ public class R {
     throws  GrouperRuntimeException,
             IllegalStateException
   {
-    // TODO 20070220 don't hardcode here, please
     if      ( ctx.equals("grouper") ) { 
       return _getContextGrouper();
     }
@@ -282,8 +281,6 @@ public class R {
   } // public void setSession(s)
 
 
-  // TODO 20070219 EVERYTHING BELOW SHOULD BE ELIMINATED //
-
   // PROTECTED CLASS METHODS //
   protected static R populateRegistry(int nStems, int nGroups, int nSubjects) 
     throws  Exception
@@ -339,9 +336,7 @@ public class R {
   protected Subject getSubject(String id) 
     throws  Exception
   {
-    // TODO 20061011 Bah.  We stash HibernateSubjects but we need Subjects.  
-    //      Perhaps I should have a convenience method to return the
-    //      real thing?
+    // Bah.  We stash RegistrySubjects but we need Subjects.  
     if (this.subjects.containsKey(id)) {
       return SubjectFinder.findById(id, "person");
     }

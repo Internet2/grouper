@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddFieldToGroupTypeValidator.java,v 1.1 2007-02-28 19:37:31 blair Exp $
+ * @version $Id: AddFieldToGroupTypeValidator.java,v 1.2 2007-03-16 18:42:20 blair Exp $
  * @since   1.2.0
  */
 class AddFieldToGroupTypeValidator extends GrouperValidator {
@@ -29,11 +29,10 @@ class AddFieldToGroupTypeValidator extends GrouperValidator {
   // @since   1.2.0
   protected static AddFieldToGroupTypeValidator validate(String name) {
     AddFieldToGroupTypeValidator v = new AddFieldToGroupTypeValidator();
-    try {
-      FieldFinder.find(name); // TODO 20070228 why don't i use the dao here?
+    if ( HibernateFieldDAO.existsByName(name) ) {
       v.setErrorMessage(E.FIELD_ALREADY_EXISTS + name);
     }
-    catch (SchemaException eS) {
+    else {
       v.setIsValid(true); // the field doesn't exist
     }
     return v;

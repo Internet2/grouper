@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: FieldTypeValidator.java,v 1.1 2007-03-05 20:04:17 blair Exp $
+ * @version $Id: FieldTypeValidator.java,v 1.2 2007-03-16 18:42:21 blair Exp $
  * @since   1.2.0
  */
 class FieldTypeValidator extends GrouperValidator {
@@ -27,8 +27,6 @@ class FieldTypeValidator extends GrouperValidator {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // TODO 20070305 this is *really* misnamed.  this is really for field types acceptable
-  //               for use with groups.  which, well, yeah, is most of them.
   protected static FieldTypeValidator validate(Field f) {
     FieldTypeValidator v = new FieldTypeValidator();
     if (

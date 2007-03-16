@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.10 2007-02-19 17:53:48 blair Exp $
+ * @version $Id: TestStem.java,v 1.11 2007-03-16 18:42:21 blair Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -233,7 +233,7 @@ public class TestStem extends GrouperTest {
     );
 
     // Now reset root's displayExtension
-    // TODO 20070219 hack! hack! hack!
+    // hack! hack! hack!
     root.getDTO().setDisplayExtension(Stem.ROOT_INT);
     root.getDTO().setDisplayName(Stem.ROOT_INT);
     HibernateDAO.update( root.getDTO() );
