@@ -23,13 +23,9 @@ import  edu.internet2.middleware.subject.provider.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.14 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.15 2007-03-16 18:16:03 blair Exp $
  */
 class SubjectHelper {
-
-  // PROTECTED CLASS CONSTANTS //
-  protected static final String BAD_SUBJ_ID   = "i do not exist"; // TODO 20070108 what is this doing here?
-
 
   // PROTECTED CLASS METHODS //
 

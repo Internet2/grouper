@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.27 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.28 2007-03-16 18:16:03 blair Exp $
  * @since   1.0
  */
 class MembershipValidator extends GrouperValidator {
@@ -69,19 +69,11 @@ class MembershipValidator extends GrouperValidator {
   } // private boolean _doesFieldExist(name)
 
   // @since   1.2.0
-  // TODO 20070220 this is still fuck
   private boolean _doesOwnerExist(String ownerUUID) {
     if ( HibernateGroupDAO.exists(ownerUUID) ) {
       return true;
     }
-    // TODO 20070222 add "HibernateStemDAO.exists(uuid)"
-    try {
-      HibernateStemDAO.findByUuid(ownerUUID);
-      return true;
-    }
-    catch (StemNotFoundException eNSNF) {
-      return false;
-    }
+    return HibernateStemDAO.exists(ownerUUID);
   } // private boolean _doesOwnerExist(ownerUUID)
 
   // @since   1.2.0

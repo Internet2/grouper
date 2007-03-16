@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.16 2007-03-14 19:54:08 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.17 2007-03-16 18:16:03 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -146,6 +146,27 @@ class HibernateStemDAO extends HibernateDAO {
     }
   } // protected static String createRootStem(root)
 
+  // @since   1.2.0
+  protected static boolean exists(String uuid) 
+    throws  GrouperDAOException
+  {
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("select ns.id from HibernateStemDAO ns where ns.uuid = :uuid");
+      qry.setString("uuid", uuid);
+      boolean rv  = false;
+      if ( qry.uniqueResult() != null ) {
+        rv = true; 
+      }
+      hs.close();
+      return rv;
+    }
+    catch (HibernateException eH) {
+      ErrorLog.fatal( HibernateStemDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } // protected static boolean exists(uuid)
+  
   // @since   1.2.0
   protected static Set findAllByApproximateDisplayExtension(String val) 
     throws  GrouperDAOException
@@ -291,6 +312,46 @@ class HibernateStemDAO extends HibernateDAO {
     }
     return stems;
   } // protected static Set findAllByCreatedBefore(d)
+  
+  // @since   1.2.0
+  protected static Set findAllChildGroups(Stem ns)
+    throws  GrouperDAOException
+  {
+    Set groups = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.parentUuid = :parent");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindChildGroups");
+      qry.setString( "parent", ns.getUuid() );
+      groups.addAll( GroupDTO.getDTO( qry.list() ) );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return groups;
+  } // protected static Set findAllChildGroups(ns)
+  
+  // @since   1.2.0
+  protected static Set findAllChildStems(Stem ns)
+    throws  GrouperDAOException
+  {
+    Set stems = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.parentUuid = :parent");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindChildStems");
+      qry.setString( "parent", ns.getUuid() );
+      stems.addAll( StemDTO.getDTO( qry.list() ) );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return stems;
+  } // protected sdtatic Set findAllChildStems(ns)
 
   // @since   1.2.0
   protected static StemDTO findByName(String name) 
@@ -306,7 +367,7 @@ class HibernateStemDAO extends HibernateDAO {
       HibernateStemDAO dao = (HibernateStemDAO) qry.uniqueResult();
       hs.close();
       if (dao == null) {
-        throw new StemNotFoundException(); // TODO 20070104 null or ex?
+        throw new StemNotFoundException();
       }
       return StemDTO.getDTO(dao);
     }
@@ -329,7 +390,7 @@ class HibernateStemDAO extends HibernateDAO {
       HibernateStemDAO dao = (HibernateStemDAO) qry.uniqueResult();
       hs.close();
       if (dao == null) {
-        throw new StemNotFoundException(); // TODO 20070104 null or ex?
+        throw new StemNotFoundException();
       }
       return StemDTO.getDTO(dao);
     }
@@ -337,46 +398,6 @@ class HibernateStemDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } // protected static StemDTO findByUuid(uuid)
-
-  // @since   1.2.0
-  protected static Set findChildGroups(Stem ns) // TODO 20061219 rename
-    throws  GrouperDAOException
-  {
-    Set groups = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.parentUuid = :parent");
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindChildGroups");
-      qry.setString( "parent", ns.getUuid() );
-      groups.addAll( GroupDTO.getDTO( qry.list() ) );
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return groups;
-  } // protected sdtatic Set findChildGroups(ns)
-
-  // @since   1.2.0
-  protected static Set findChildStems(Stem ns) // TODO 200601219 rename
-    throws  GrouperDAOException
-  {
-    Set stems = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.parentUuid = :parent");
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindChildStems");
-      qry.setString( "parent", ns.getUuid() );
-      stems.addAll( StemDTO.getDTO( qry.list() ) );
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return stems;
-  } // protected sdtatic Set findChildStems(ns)
 
   // @since   1.2.0
   protected static void renameStemAndChildren(Stem ns, Set children)

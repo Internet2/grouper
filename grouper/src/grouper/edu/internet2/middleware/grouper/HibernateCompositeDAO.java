@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.11 2007-02-27 18:48:07 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.12 2007-03-16 18:16:03 blair Exp $
  * @since   1.2.0
  */
 class HibernateCompositeDAO extends HibernateDAO {
@@ -85,7 +85,7 @@ class HibernateCompositeDAO extends HibernateDAO {
       qry.setString( "uuid", g.getUuid() );
       HibernateCompositeDAO dao = (HibernateCompositeDAO) qry.uniqueResult();
       hs.close();
-      if (dao == null) { // TODO 20070104 null or exception?
+      if (dao == null) {
         throw new CompositeNotFoundException(E.COMP_NOTOWNER);
       }
       return CompositeDTO.getDTO(dao);

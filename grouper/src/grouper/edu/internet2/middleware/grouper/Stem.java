@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.111 2007-03-14 19:54:08 blair Exp $
+ * @version $Id: Stem.java,v 1.112 2007-03-16 18:16:03 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -170,7 +170,7 @@ public class Stem extends GrouperAPI implements Owner {
   public Set getChildGroups() {
     Subject   subj    = this.getSession().getSubject();
     Set       groups  = new LinkedHashSet();
-    Iterator  it      = HibernateStemDAO.findChildGroups(this).iterator();
+    Iterator  it      = HibernateStemDAO.findAllChildGroups(this).iterator();
     while (it.hasNext()) {
       Group child = new Group();
       child.setDTO( (GroupDTO) it.next() );
@@ -192,7 +192,7 @@ public class Stem extends GrouperAPI implements Owner {
    */
   public Set getChildStems() {
     Set       stems = new LinkedHashSet();
-    Iterator  it    = HibernateStemDAO.findChildStems(this).iterator();
+    Iterator  it    = HibernateStemDAO.findAllChildStems(this).iterator();
     while (it.hasNext()) {
       Stem child = new Stem();
       child.setDTO( (StemDTO) it.next() );
@@ -1077,7 +1077,7 @@ public class Stem extends GrouperAPI implements Owner {
     Map       attrs;
     GroupDTO  child;
     Set       groups  = new LinkedHashSet();
-    Iterator  it      = HibernateStemDAO.findChildGroups(this).iterator();
+    Iterator  it      = HibernateStemDAO.findAllChildGroups(this).iterator();
     while (it.hasNext()) {
       child = (GroupDTO) it.next();
       attrs = child.getAttributes();
@@ -1121,7 +1121,7 @@ public class Stem extends GrouperAPI implements Owner {
     throws  IllegalStateException
   {
     Set       children  = new LinkedHashSet();
-    Iterator  it        = HibernateStemDAO.findChildStems(this).iterator();
+    Iterator  it        = HibernateStemDAO.findAllChildStems(this).iterator();
     while (it.hasNext()) {
       Stem child = new Stem();
       child.setDTO( (StemDTO) it.next() );

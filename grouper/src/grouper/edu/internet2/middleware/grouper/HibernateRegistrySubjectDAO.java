@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link RegistrySubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.9 2007-03-06 17:02:42 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.10 2007-03-16 18:16:03 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistrySubjectDAO extends HibernateDAO {
@@ -53,7 +53,7 @@ class HibernateRegistrySubjectDAO extends HibernateDAO {
       qry.setString( "type", type );
       HibernateRegistrySubjectDAO subj = (HibernateRegistrySubjectDAO) qry.uniqueResult();
       hs.close();
-      if (subj == null) { // TODO 20070108 null or ex?
+      if (subj == null) {
         throw new SubjectNotFoundException("subject not found"); 
       }
       return subj;

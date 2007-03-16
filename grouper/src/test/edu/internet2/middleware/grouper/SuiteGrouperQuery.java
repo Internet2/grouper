@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteGrouperQuery.java,v 1.2 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SuiteGrouperQuery.java,v 1.3 2007-03-16 18:16:04 blair Exp $
  * @since   1.2.0
  */
 public class SuiteGrouperQuery extends TestCase {
@@ -28,7 +28,6 @@ public class SuiteGrouperQuery extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( TestGroupTypeFilter.class );
-    // TODO 20061127 Rearrange
     suite.addTestSuite( TestQuery0.class                );  // StemDisplayExtensionFilter - nothing
     suite.addTestSuite( TestQuery1.class                );  // StemDisplayExtensionFilter - something
     suite.addTestSuite( TestQuery2.class                );  // StemDisplayExtensionFilter - something scoped

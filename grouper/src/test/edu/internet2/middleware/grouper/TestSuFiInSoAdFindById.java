@@ -22,7 +22,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder.findById()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdFindById.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestSuFiInSoAdFindById.java,v 1.8 2007-03-16 18:16:04 blair Exp $
  */
 public class TestSuFiInSoAdFindById extends TestCase {
 
@@ -41,7 +41,7 @@ public class TestSuFiInSoAdFindById extends TestCase {
   // Tests
 
   public void testFindByIdBadId() {
-    SubjectTestHelper.getSubjectByBadId(SubjectHelper.BAD_SUBJ_ID);
+    SubjectTestHelper.getSubjectByBadId("i do not exist");
     Assert.assertTrue("failed to find bad subject", true);
   } // public void testFindByIdBadId()
 
