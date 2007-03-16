@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.156 2007-03-16 13:31:50 blair Exp $ -->
+<!-- $Id: build.xml,v 1.157 2007-03-16 17:34:53 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -105,7 +105,7 @@
 
   <!-- target: db-init -->
   <target name="db-init" 
-          depends="build"
+          depends="init, build"
           description="Initialize Groups Registry"
   >
     <record name="${db-init.log}" action="start"/>
@@ -180,7 +180,7 @@
   <!-- target: schemaexport -->
   <target name="schemaexport" 
           description="Generate SQL schema appropriate for configured database"
-          depends="build"
+          depends="init, build"
   >
     <taskdef  name="schemaexport"
               classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
@@ -636,7 +636,7 @@
   <!-- runtest -->
   <target name="runtest" 
           description="TODO 20070315 Runs the test you specify on the command line with -Dtest=NAME" 
-          depends="test-build, ensure-test-name">
+          depends="init, test-build, ensure-test-name">
     <record name="${test.log}" action="start" append="yes"/>
     <junit printsummary="withOutAndErr" fork="true"> 
         <classpath    refid="project.classpath" />
@@ -700,7 +700,7 @@
   <!-- sql -->
 
   <!-- test-build -->
-  <target name="test-build" depends="build">
+  <target name="test-build" depends="init, build">
     <record name="${test.log}" action="start" append="yes"/>
     <javac srcdir="${src.test}" destdir="${build.test}">
       <classpath  refid="project.classpath"/>
@@ -724,7 +724,6 @@
 
   <!-- with.clover.test -->
   <target name="with.clover.test" depends="init, init-clover">
-    <taskdef resource="clovertasks"/>
     <clover-setup>
       <fileset  dir="${src.test}">
         <include  name="**/Test*.java"/>
