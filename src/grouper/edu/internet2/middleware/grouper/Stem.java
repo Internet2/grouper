@@ -30,11 +30,12 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.112 2007-03-16 18:16:03 blair Exp $
+ * @version $Id: Stem.java,v 1.113 2007-03-16 18:42:21 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
   // PROTECTED CLASS CONSTANTS //
+  // TODO 20070316 move ROOT_INT to DAO
   protected static final String ROOT_EXT  = GrouperConfig.EMPTY_STRING; // Appease Oracle
   protected static final String ROOT_INT  = ":";                        // Appease Oracle
 
@@ -544,7 +545,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Boolean true if this is the root stem of the Groups Registry.
    */
   public boolean isRootStem() {
-    return ROOT_INT.equals( this.getDTO().getName() ); // TODO 20070219 this should exist at this layer
+    return ROOT_INT.equals( this.getDTO().getName() );
   } // public boolean isRootStem()
 
   /**
@@ -674,7 +675,6 @@ public class Stem extends GrouperAPI implements Owner {
     sw.start();
     NamingValidator nv = NamingValidator.validate(value);
     if (nv.isInvalid()) {
-      // TODO 20070219 this should not be here
       if ( this.isRootStem() && value.equals(ROOT_EXT) ) {
         // Appease Oracle
         value = ROOT_INT;   
@@ -742,7 +742,6 @@ public class Stem extends GrouperAPI implements Owner {
     sw.start();
     NamingValidator nv = NamingValidator.validate(value);
     if (nv.isInvalid()) {
-      // TODO 20070219 this should not be here
       if ( this.isRootStem() && value.equals(ROOT_EXT) ) {
         // Appease Oracle
         value = ROOT_INT;   
@@ -808,7 +807,6 @@ public class Stem extends GrouperAPI implements Owner {
       StemDTO dto = new StemDTO();
       dto.setCreatorUuid( s.getMember().getUuid() );
       dto.setCreateTime( new Date().getTime() );
-      // TODO 20070314 ROOT_INT should be moved to DAO layer
       dto.setDisplayExtension(ROOT_INT);
       dto.setDisplayName(ROOT_INT);
       dto.setExtension(ROOT_INT);

@@ -25,7 +25,7 @@ import  java.util.Set;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.29 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.30 2007-03-16 18:42:21 blair Exp $
  */
 public class FieldFinder {
 
@@ -101,7 +101,8 @@ public class FieldFinder {
     }
 
     // find fields to remove from the cache
-    // TODO 20070222 this exposes a failing of "SimpleCache" that i should remedy
+    // TODO 20070316 this exposes a failing of "SimpleCache" that i should remedy.
+    //               i wonder what particular failing i was referring to...
     Set       toDel = new LinkedHashSet();
     Map.Entry kv;
     it              = ( (Map) fieldCache.getCache() ).entrySet().iterator();

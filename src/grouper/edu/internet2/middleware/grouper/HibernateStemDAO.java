@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.17 2007-03-16 18:16:03 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.18 2007-03-16 18:42:21 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -150,6 +150,7 @@ class HibernateStemDAO extends HibernateDAO {
   protected static boolean exists(String uuid) 
     throws  GrouperDAOException
   {
+    // TODO 20070316 cache?
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("select ns.id from HibernateStemDAO ns where ns.uuid = :uuid");
