@@ -28,7 +28,7 @@ import  net.sf.hibernate.cfg.*;
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.11 2007-03-14 18:27:12 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.12 2007-03-16 18:16:03 blair Exp $
  * @since   1.2.0
  */
 abstract class HibernateDAO {
@@ -138,7 +138,7 @@ abstract class HibernateDAO {
 
   // @since   1.2.0
 	protected static Session getSession()
-    throws HibernateException // TODO 20070104 eH or eDAO?
+    throws HibernateException
   {
 		return FACTORY.openSession();
 	} // protected static Session getSession()

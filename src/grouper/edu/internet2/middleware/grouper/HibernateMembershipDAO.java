@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.22 2007-02-27 18:48:07 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.23 2007-03-16 18:16:03 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO extends HibernateDAO {
@@ -170,7 +170,6 @@ class HibernateMembershipDAO extends HibernateDAO {
         + "     ms.memberUuid  = :member          "
         + "and  ms.viaUuid     = :via             "
       );
-      qry.setCacheable(false);  // TODO 20061219 Comment was "Don't cache".  Why not?
       qry.setString( "member", mUUID   );
       qry.setString( "via",    viaUUID );
       mships.addAll( MembershipDTO.getDTO( qry.list() ) );
@@ -270,7 +269,7 @@ class HibernateMembershipDAO extends HibernateDAO {
   // @since   1.2.0
   protected static MembershipDTO findByOwnerAndMemberAndFieldAndType(String ownerUUID, String mUUID, Field f, String type)
     throws  GrouperDAOException,
-            MembershipNotFoundException // TODO 20061219 should throw/return something else.  null?
+            MembershipNotFoundException
   {
     try {
       Session hs  = HibernateDAO.getSession();
@@ -292,7 +291,7 @@ class HibernateMembershipDAO extends HibernateDAO {
       HibernateMembershipDAO dao = (HibernateMembershipDAO) qry.uniqueResult();
       hs.close();
       if (dao == null) {
-        throw new MembershipNotFoundException(); // TODO 20070104 null or ex?
+        throw new MembershipNotFoundException();
       }
       return MembershipDTO.getDTO(dao);
     }
@@ -459,7 +458,6 @@ class HibernateMembershipDAO extends HibernateDAO {
       HibernateMembershipDAO dao = (HibernateMembershipDAO) qry.uniqueResult();
       hs.close();
       if (dao == null) {
-        // TODO 20070104 null or ex?
         throw new MembershipNotFoundException("could not find membership with uuid: " + U.internal_q(uuid));
       }
       return MembershipDTO.getDTO(dao);
@@ -471,7 +469,7 @@ class HibernateMembershipDAO extends HibernateDAO {
   } // protected static MembershipDTO findByUuid(uuid)
 
   // @since   1.2.0  
-  protected static Set findMemberships(String mUUID, Field f) // TODO 20061219 rename
+  protected static Set findMembershipsByMemberAndField(String mUUID, Field f)
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -495,7 +493,7 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findMemberships(mUUID, f)
+  } // protected static Set findMembershipsByMemberAndField(mUUID, f)
 
   // @since   1.2.0
   protected static void reset(Session hs) 

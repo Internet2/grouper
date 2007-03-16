@@ -23,7 +23,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder} class with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinderInternal.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestSubjectFinderInternal.java,v 1.8 2007-03-16 18:16:04 blair Exp $
  */
 public class TestSubjectFinderInternal extends TestCase {
 
@@ -42,12 +42,12 @@ public class TestSubjectFinderInternal extends TestCase {
   // Tests
 
   public void testFinderBadSubject() {
-    SubjectTestHelper.getSubjectByBadId(SubjectHelper.BAD_SUBJ_ID);
+    SubjectTestHelper.getSubjectByBadId("i do not exist");
     Assert.assertTrue("failed to get bad subject", true);
   } // public void testFinderBadSubject()
 
   public void testFinderBadSubjectWithType() {
-    SubjectTestHelper.getSubjectByBadIdType(SubjectHelper.BAD_SUBJ_ID, "person");
+    SubjectTestHelper.getSubjectByBadIdType("i do not exist", "person");
     Assert.assertTrue("failed to get bad subject", true);
   } // public void testFinderBadSubjectWithType()
 

@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.20 2007-03-14 19:54:08 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.21 2007-03-16 18:16:03 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
@@ -416,7 +416,6 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     return groups;
   } // protected static Set findAllByModifiedBefore(d)
 
-  // TODO 20061127 can i use a variant of this query in `GroupType.delete()`?
   // @since   1.2.0
   protected static Set findAllByType(GroupType type) 
     throws  GrouperDAOException
@@ -424,7 +423,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
-      // TODO 20070314 use a join query?
+      // TODO 20070316 use a join query?
       Query   qry = hs.createQuery("select gtt.groupUuid from HibernateGroupTypeTupleDAO gtt where gtt.typeUuid = :type");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByType");

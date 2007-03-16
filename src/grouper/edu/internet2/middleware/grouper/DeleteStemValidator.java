@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: DeleteStemValidator.java,v 1.1 2007-03-01 19:00:53 blair Exp $
+ * @version $Id: DeleteStemValidator.java,v 1.2 2007-03-16 18:16:03 blair Exp $
  * @since   1.2.0
  */
 class DeleteStemValidator extends GrouperValidator {
@@ -32,10 +32,10 @@ class DeleteStemValidator extends GrouperValidator {
     if      ( Stem.ROOT_EXT.equals( ns.getName() ) )            {
       v.setErrorMessage("cannot delete root stem");
     }
-    else if ( HibernateStemDAO.findChildStems(ns).size() > 0 )  {
+    else if ( HibernateStemDAO.findAllChildStems(ns).size() > 0 )  {
       v.setErrorMessage("cannot delete stem with child stems");
     }
-    else if ( HibernateStemDAO.findChildGroups(ns).size() > 0 ) {
+    else if ( HibernateStemDAO.findAllChildGroups(ns).size() > 0 ) {
       v.setErrorMessage("cannot delete stem with child groups");
     }
     else {
