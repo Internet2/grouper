@@ -27,10 +27,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
- * Class for making sure a connection can be make to the Hsql database. This
- * does not use any of the non-test classes.
- * 
- * @author Gil Singer
+ * Unit tests for JDBCSourceAdapter.
  */
 public class JDBCSourceAdapterTest
         extends TestCase {
@@ -51,7 +48,7 @@ public class JDBCSourceAdapterTest
      */
     protected void setUp() {
 
-        source = new JDBCSourceAdapter("jdbc", "jdbc source adapter");
+        source = new JDBCSourceAdapter("jdbc", "JDBC Subject Source");
         source.addInitParam("maxActive", "4");
         source.addInitParam("maxIdle", "4");
         source.addInitParam("maxWait", "1");
@@ -207,7 +204,7 @@ public class JDBCSourceAdapterTest
     }
 
     /**
-     * A test of Subject ID search capability.
+     * Make sure we can't inject SQL into statement.
      */
     public void testSQLInjection() {
         Subject subject = null;
