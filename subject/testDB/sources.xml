@@ -280,7 +280,7 @@
 	        <param>
 	            <param-name>filter</param-name>
 	            <param-value>
-	                (&amp; (exampleEduRegId=%TERM%) (objectclass=exampleEduPerson))
+	                (&amp; (kitnEduPersonRegId=%TERM%) (objectclass=kitnEduPerson))
 	            </param-value>
 	        </param>
 	        <param>
@@ -292,7 +292,7 @@
 	        <param>
 	            <param-name>base</param-name>
 	            <param-value>
-	                ou=people,dc=example,dc=edu
+	                ou=kitn,dc=example,dc=edu
 	            </param-value>
 	        </param>
 	    </search>
@@ -301,7 +301,7 @@
 	        <param>
 	            <param-name>filter</param-name>
 	            <param-value>
-	                (&amp; (uid=%TERM%) (objectclass=exampleEduPerson))
+	                (&amp; (uid=%TERM%) (objectclass=kitnEduPerson))
 	            </param-value>
 	        </param>
 	        <param>
@@ -313,7 +313,7 @@
 	        <param>
 	            <param-name>base</param-name>
 	            <param-value>
-	                ou=people,dc=example,dc=edu
+	                ou=kitn,dc=example,dc=edu
 	            </param-value>
 	        </param>
 	    </search>
@@ -323,7 +323,7 @@
 	        <param>
 	            <param-name>filter</param-name>
 	            <param-value>
-	                (&amp; (|(uid=%TERM%)(cn=*%TERM%*)(exampleEduRegId=%TERM%))(objectclass=exampleEduPerson))
+	                (&amp; (|(uid=%TERM%)(cn=*%TERM%*)(kitnEduPersonRegId=%TERM%))(objectclass=kitnEduPerson))
 	            </param-value>
 	        </param>
 	        <param>
@@ -335,7 +335,7 @@
 	        <param>
 	            <param-name>base</param-name>
 	            <param-value>
-	                ou=people,dc=example,dc=edu
+	                ou=kitn,dc=example,dc=edu
 	            </param-value>
 	        </param>
 	    </search>
