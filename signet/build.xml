@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.55 2007-03-08 02:43:29 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.56 2007-03-19 20:47:24 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -244,7 +244,7 @@
 
 	<!-- - - - - - - - - target: assemble_all - - - - - - - - - -->
 	<target name="assemble_all"
-			depends="create_distdirs, copy_readmes, copy_config_files, copy_libs, copy_sql, copy_util_scripts, configure_hibernate" >
+			depends="create_distdirs, copy_readmes, copy_config_files, copy_libs, copy_sql, copy_util_scripts, config_util_run_script, configure_hibernate" >
 	</target>
 
 
@@ -465,6 +465,20 @@
 				<include name="${signet.jar.util.files}" />
 			</fileset>
 		</jar>
+	</target>
+
+
+	<!-- - - - - - - - - target: config_util_run_script - -->
+	<target name="config_util_run_script" >
+		<replace file="${dist.util.dir}/dist-signet_cp.bat"
+				token="${signet.jar.api.token}"
+				value="${signet.jar.api.filename}" />
+		<replace file="${dist.util.dir}/dist-signet_cp.bat"
+				token="${signet.jar.ui.token}"
+				value="${signet.jar.ui.filename}" />
+		<replace file="${dist.util.dir}/dist-signet_cp.bat"
+				token="${signet.jar.util.token}"
+				value="${signet.jar.util.filename}" />
 	</target>
 
 
