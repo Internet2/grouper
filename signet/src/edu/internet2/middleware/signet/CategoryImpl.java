@@ -1,6 +1,6 @@
 /*--
-$Id: CategoryImpl.java,v 1.10 2006-12-16 01:08:53 ddonn Exp $
-$Date: 2006-12-16 01:08:53 $
+$Id: CategoryImpl.java,v 1.11 2007-03-19 23:12:10 ddonn Exp $
+$Date: 2007-03-19 23:12:10 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -62,9 +62,6 @@ implements Category
    * @param name
    *            A descriptive name which will appear in UIs and documents
    *            exposed to users.
-   * @param description
-   *            A prose description which will appear in help-text and other
-   *            explanatory materials.
    * @param status
    * 			The {@link Status} of this CategoryImpl.
    */

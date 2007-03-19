@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.57 2007-03-19 20:51:42 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.58 2007-03-19 23:12:10 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -122,11 +122,11 @@
 
     <!-- =============== target: javadoc =================== -->
 	<target name="javadoc"
-			description="Create the JavaDocs"
+			description="Create the Signet JavaDocs plus zip and gzip archives"
 			depends="create_sourcepath, create_classpath" >
 		<path id="javadoc.src.path">
 			<pathelement location="${source_java.dir}" />
-<!--
+<!-- Uncomment this if you want to add your Doppleganger source JavaDocs
 			<pathelement location="${custom.java.dir}" />
 -->
 		</path>
@@ -141,7 +141,7 @@
 			sourcepathref="javadoc.src.path"
 			classpathref="source.class.path"
 			destdir="${dist_doc.dir}"
-			access="public"
+			access="package"
 			use="true"
 			breakiterator="true"
 			notree="false"
@@ -153,6 +153,27 @@
 			version="true"
 			nodeprecatedlist="false"
 			nodeprecated="false" />
+
+		<delete file="${signet.javadoc.zipfile}" />
+		<delete file="${signet.javadoc.gzipfile}" />
+
+		<zip destfile="${signet.javadoc.zipfile}" >
+			<fileset dir="${dist_doc.dir}" >
+				<exclude name="${signet.javadoc.zipfile}" />
+				<exclude name="${signet.javadoc.gzipfile}" />
+				<include name="*/**" />
+			</fileset>
+		</zip>
+
+		<tar destfile="${signet.javadoc.gzipfile}"
+				longfile="gnu"
+				compression="gzip" >
+			<tarfileset dir="${dist_doc.dir}" mode="755" >
+				<include name="*/**" />
+				<exclude name="${signet.javadoc.zipfile}" />
+				<exclude name="${signet.javadoc.gzipfile}" />
+			</tarfileset>
+		</tar>
 	</target>
 
 

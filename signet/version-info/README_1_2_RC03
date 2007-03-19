@@ -10,6 +10,7 @@ Changes in this version:
 4. Removed table SubjectType from DDL
 5. Updated signet.properties version info
 6. Automated the insertion of Signet jar filenames (using Ant token replacement) in the distributed file 'dist-signet_cp.bat'
+7. Automated the creation of JavaDoc zip and gzip files. Cleaned up JavaDoc warnings
 
 Other Middleware Build Dependencies
 -----------------------------------

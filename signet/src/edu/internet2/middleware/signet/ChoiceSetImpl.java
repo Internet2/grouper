@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetImpl.java,v 1.11 2007-02-24 02:11:32 ddonn Exp $
-$Date: 2007-02-24 02:11:32 $
+$Id: ChoiceSetImpl.java,v 1.12 2007-03-19 23:12:10 ddonn Exp $
+$Date: 2007-03-19 23:12:10 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -60,10 +60,11 @@ public class ChoiceSetImpl implements ChoiceSet
   }
   
   /**
-   * @param id
-   * @param subsystem
-   * @param choiceSetAdapter
-   * @param choices
+   * Constructor
+   * @param signet An instance of Signet
+   * @param subsystem The subsystem
+   * @param choiceSetAdapter The choiceSetAdapter
+   * @param id The id
    */
   ChoiceSetImpl
   	(Signet           signet,

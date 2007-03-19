@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.14 2007-02-24 02:11:32 ddonn Exp $
-$Date: 2007-02-24 02:11:32 $
+$Id: TreeNodeImpl.java,v 1.15 2007-03-19 23:12:10 ddonn Exp $
+$Date: 2007-03-19 23:12:10 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -297,8 +297,8 @@ implements
   }
 
   /**
-   * @param allScopes
-   * @return
+   * @param treeNodes A Set of TreeNodes
+   * @return True if this node is an ancestor of all nodes in the set
    */
   public boolean isAncestorOfAll(Set treeNodes)
   {

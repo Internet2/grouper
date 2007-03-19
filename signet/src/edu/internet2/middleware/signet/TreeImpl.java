@@ -1,6 +1,6 @@
 /*--
-$Id: TreeImpl.java,v 1.10 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: TreeImpl.java,v 1.11 2007-03-19 23:12:10 ddonn Exp $
+$Date: 2007-03-19 23:12:10 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -133,7 +133,7 @@ public class TreeImpl extends EntityImpl implements Tree
   }
 
   /**
-   * @param subsystem The subsystem to set.
+   * @param subsystems The subsystem to set.
    */
   void setSubsystems(Set subsystems)
   {

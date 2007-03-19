@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemImpl.java,v 1.20 2006-11-30 04:21:49 ddonn Exp $
-$Date: 2006-11-30 04:21:49 $
+$Id: SubsystemImpl.java,v 1.21 2007-03-19 23:12:10 ddonn Exp $
+$Date: 2007-03-19 23:12:10 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -66,13 +66,14 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
   }
 
   /**
+   * @param signet A Signet instance
    * @param id
    *            A short mnemonic id which will appear in XML documents and
    *            other documents used by analysts.
    * @param name
    *            A descriptive name which will appear in UIs and documents
    *            exposed to users.
-   * @param description
+   * @param helpText
    *            A prose description which will appear in help-text and other
    *            explanatory materials.
    * @param status

@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.18 2007-02-24 02:11:32 ddonn Exp $
-$Date: 2007-02-24 02:11:32 $
+$Id: LimitImpl.java,v 1.19 2007-03-19 23:12:10 ddonn Exp $
+$Date: 2007-03-19 23:12:10 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -285,7 +285,7 @@ public final class LimitImpl implements Limit
   }
   
   /**
-   * @param dataType The dataType to set.
+   * @param valueType The dataType to set.
    */
   void setDataType(DataType valueType)
   {

@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.16 2006-12-16 01:08:53 ddonn Exp $
-$Date: 2006-12-16 01:08:53 $
+$Id: FunctionImpl.java,v 1.17 2007-03-19 23:12:10 ddonn Exp $
+$Date: 2007-03-19 23:12:10 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -58,8 +58,8 @@ public class FunctionImpl extends EntityImpl implements Function
   }
 
   /**
-   * @param subsystem
-   * 			The {@link Subsystem} which contains this function.
+   * Constructor
+   * @param signet A Signet instance
    * @param category
    * 			The {@link Category} which contains this function.
    * 			This value is explicitly allowed to be NULL.

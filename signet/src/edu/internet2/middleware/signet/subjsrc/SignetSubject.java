@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.10 2007-03-05 18:10:51 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.11 2007-03-19 23:12:10 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -260,7 +260,7 @@ public class SignetSubject implements Subject, Comparable
 	 * from the SubjectAPI's Subject and replace this Subject's attrs and values.
 	 * Note: this routine just deletes the old SignetSubjectAttrs and adds new ones.
 	 * 
-	 * @param apiSubject The SubjectAPI Subject to synch with. If {@param apiSubject} is a
+	 * @param apiSubject The SubjectAPI Subject to synch with. If apiSubject is a
 	 * SignetSubject, this routine redirects to {@link #synchAttributes(SignetSubject)}.
 	 */
 	protected void synchAttributes(Subject apiSubject)
@@ -2038,7 +2038,7 @@ public class SignetSubject implements Subject, Comparable
 	 * Compare two Strings for equality. Does a few more checks than String.equals() 
 	 * @param value1
 	 * @param value2
-	 * @return
+	 * @return True if the Strings are equal or both null
 	 */
 	protected boolean valuesEqual(String value1, String value2)
 	{
@@ -2061,8 +2061,11 @@ public class SignetSubject implements Subject, Comparable
 	 * Compare the Attributes between this and another SignetSubject.
 	 * This method DOES NOT dereference the SignetSubject's attribute name mapping
 	 * because the attributes names should already be identical.
-	 * @param The SignetSubject that contains the attributes to compare (passing the
-	 * whole SignetSubject because getAttributes returns an unwieldy Map)
+	 * 
+	 * @param subject The SignetSubject that contains the attributes to compare
+	 * (passing the whole SignetSubject because getAttributes returns an unwieldy\
+	 * Map)
+	 * 
 	 * @return true if all attribute's values are equal, otherwise false
 	 */
 	protected boolean compareAttributes(SignetSubject subject)

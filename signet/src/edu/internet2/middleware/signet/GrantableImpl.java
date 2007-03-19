@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.18 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.19 2007-03-19 23:12:10 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -492,9 +492,10 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 
 
 	/**
+	 * Returns a status based upon now, effectiveDate, and expirationDate
 	 * @param effectiveDate
 	 * @param expirationDate
-	 * @return
+	 * @return Status.PENDING, Status.INACTIVE, or Status.ACTIVE
 	 */
 	protected Status determineStatus(Date effectiveDate, Date expirationDate)
 	{
@@ -520,7 +521,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	/**
 	 * @param effectiveDate
 	 * @param expirationDate
-	 * @return
+	 * @return True if expirationDate precedes effectiveDate
 	 */
 	protected boolean datesInWrongOrder(Date effectiveDate, Date expirationDate)
 	{
