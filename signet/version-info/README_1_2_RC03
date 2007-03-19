@@ -8,6 +8,8 @@ Changes in this version:
 2. UML class diagrams (Jude model and JPGs)
 3. Updated SQL DDLs for HSQL, Oracle, Sybase
 4. Removed table SubjectType from DDL
+5. Updated signet.properties version info
+6. Automated the insertion of Signet jar filenames (using Ant token replacement) in the distributed file 'dist-signet_cp.bat'
 
 Other Middleware Build Dependencies
 -----------------------------------

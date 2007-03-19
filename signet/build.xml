@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.56 2007-03-19 20:47:24 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.57 2007-03-19 20:51:42 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -36,7 +36,7 @@
 		Alternatively, if you don't need to have Ant deploy the newly built
 		Signet to a running instance of Tomcat, you can comment out this line.
 	-->
-	<import file="signetBuildTomcatDefs.xml" />
+	<!-- <import file="signetBuildTomcatDefs.xml" /> -->
 
 
 	<!-- ======================== Public Targets =========================== -->
