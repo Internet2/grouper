@@ -2,10 +2,10 @@
 		  Allow user to select which fields they want to search
 --%><%--
   @author Gary Brown.
-  @version $Id: selectGroupSearchFields.jsp,v 1.5 2007-03-13 17:26:37 isgwb Exp $
---%>
+  @version $Id: selectGroupSearchFields.jsp,v 1.6 2007-03-21 10:20:18 isgwb Exp $
+--%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<%@include file="/WEB-INF/jsp/include.jsp"%>
+
 <tiles:importAttribute ignore="true"/>
 <div class="searchFieldTitle">
 		<div class="formRow">
