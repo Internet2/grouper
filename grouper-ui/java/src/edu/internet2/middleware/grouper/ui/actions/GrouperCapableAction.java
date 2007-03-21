@@ -26,6 +26,8 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.config.ActionConfig;
 import org.apache.struts.config.ModuleConfig;
+import org.apache.struts.upload.MultipartRequestWrapper;
+
 import java.util.*;
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
@@ -164,7 +166,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.10 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.11 2007-03-21 11:47:24 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -359,7 +361,16 @@ public abstract class GrouperCapableAction
 		ActionConfig ac= (ActionConfig)request.getAttribute("org.apache.struts.action.mapping.instance");
 		Map[] data = new Map[2];
 		//Save request parameters
-		data[0] = new HashMap(request.getParameterMap());
+		Map reqMap = request.getParameterMap();
+		if(reqMap==null) {
+			if(request instanceof MultipartRequestWrapper) {
+				reqMap = ((MultipartRequestWrapper)request).getRequest().getParameterMap();
+			}else{
+				reqMap = new HashMap();
+			}
+			
+		}
+		data[0] = new HashMap(reqMap);
 		//save path
 		data[0].put("_callerPagePath",ac.getPath());
 		
