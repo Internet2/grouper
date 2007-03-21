@@ -23,29 +23,36 @@ import  edu.internet2.middleware.subject.provider.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.15 2007-03-16 18:16:03 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.16 2007-03-21 18:02:28 blair Exp $
  */
 class SubjectHelper {
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static boolean internal_eq(Subject a, Subject b) {
+  protected static boolean eq(Object a, Object b) {
     if ( (a == null) || (b == null) ) {
       return false;
     }
-    if 
-    (
-      a.getId().equals(b.getId())
-      && a.getType().equals(b.getType())
-      && a.getSource().equals(b.getSource())
+    if ( !(a instanceof Subject) ) {
+      return false;
+    }
+    if ( !(b instanceof Subject) ) {
+      return false;
+    }
+    Subject subjA = (Subject) a;
+    Subject subjB = (Subject) b;
+    if (
+         subjA.getId().equals( subjB.getId() )
+      && subjA.getSource().getId().equals( subjB.getSource().getId() )
+      && subjA.getType().getName().equals( subjB.getType().getName() )
     )
     {
       return true;
     }
     return false;
-  } // protected static boolean internal_eq(a, b)
-
+  } // protected static boolean eq(a, b)
+  
   // @since   1.2.0
   protected static String internal_getPretty(Subject subj) {
     String pretty = subj.getId();

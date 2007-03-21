@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.88 2007-03-21 16:45:04 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.89 2007-03-21 18:02:28 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -289,7 +289,7 @@ public class XmlExporter {
     this.xml            = new XmlWriter(writer);
     this.isRelative     = relative;
     if (ns.isRootStem()) {
-      this.includeParent = false; // TODO 20061010 includeParent is still sort of magic to /me
+      this.includeParent = false; // TODO 20070321 includeParent is still sort of magic to /me
     }
     this._export(ns);
   } // public void export(writer, ns, relative)
@@ -1168,7 +1168,7 @@ public class XmlExporter {
             SchemaException,
             SubjectNotFoundException
   {
-    // TODO 20061005 refactor: this is ugly
+    // TODO 20070321 refactor: this is ugly
     if (g.canReadField(f)) {
       boolean isComposite = false;
       Set     membersSet  = null;
@@ -1302,7 +1302,7 @@ public class XmlExporter {
     throws  IOException,
             MemberNotFoundException
   {
-    // TODO 20061005 refactor: aesthetically this is wrong
+    // TODO 20070321 why the removal?
     if (subjects.size() == 1) {
       subjects.remove( SubjectFinder.findRootSubject() );
     }
@@ -1451,7 +1451,7 @@ public class XmlExporter {
   private void _writeSubject(Subject subj, String immediate) 
     throws  IOException 
   {
-    // TODO 20061005 this. is. ugly.
+    // TODO 20070321 this. is. ugly.
     String attrName = "id";
     String id       = null;
     if ("group".equals(subj.getType().getName())) {

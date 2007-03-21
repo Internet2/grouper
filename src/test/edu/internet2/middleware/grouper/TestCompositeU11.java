@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU11.java,v 1.7 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestCompositeU11.java,v 1.8 2007-03-21 18:02:28 blair Exp $
  */
 public class TestCompositeU11 extends GrouperTest {
 
@@ -63,7 +63,7 @@ public class TestCompositeU11 extends GrouperTest {
       Membership ms = MembershipFinder.findCompositeMembership(r.rs, a, subjA);
       Assert.assertNotNull( "imm ms"    , ms);
       Assert.assertEquals(  "ms group"  , a     , ms.getGroup()   );
-      Assert.assertTrue(    "ms subj"   , SubjectHelper.internal_eq(subjA, ms.getMember().getSubject())  );
+      Assert.assertTrue(    "ms subj"   , SubjectHelper.eq(subjA, ms.getMember().getSubject())  );
       Assert.assertEquals(  "ms list"   , f     , ms.getList()    );
       T.amount( "ms depth", 0, ms.getDepth() );
       Composite via = ms.getViaComposite();

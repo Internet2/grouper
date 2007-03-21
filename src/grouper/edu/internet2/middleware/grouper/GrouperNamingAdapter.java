@@ -31,7 +31,7 @@ import  java.util.Set;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.56 2007-03-01 19:00:53 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.57 2007-03-21 18:02:28 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -105,7 +105,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
         GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj), f ) 
       );
       // The ALL subject
-      if ( !( SubjectHelper.internal_eq(subj, SubjectFinder.findAllSubject() ) ) ) {
+      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
         stems.addAll( 
           GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.internal_findAllMember(), f ) 
         );

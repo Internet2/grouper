@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.97 2007-03-21 16:45:04 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.98 2007-03-21 18:02:28 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1125,7 +1125,7 @@ public class XmlImporter {
             SchemaException,
             SubjectNotFoundException
   {
-    // TODO 20061004 this needs more refactoring
+    // TODO 20070321 this needs more refactoring
     //      So this handles elminating current members if in replace mode and
     //      then adding a composite mship if that's our thing?  Why are they
     //      combined?

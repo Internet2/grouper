@@ -23,7 +23,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.79 2007-02-28 17:40:45 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.80 2007-03-21 18:02:28 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -354,7 +354,7 @@ import  java.util.*;
       rv = el.getHasPriv(); // use cached result
     }
     else {
-      try { // TODO 20061011 Eliminate the try/catch
+      try { // TODO 20070321. Eliminate the try/catch.  Too bad it is in the privilege interface.
         if (
              RootPrivilegeResolver.internal_isRoot(s, subj)
           || internal_getAccess().hasPriv(s, g, subj, priv)
@@ -383,7 +383,7 @@ import  java.util.*;
       rv = el.getHasPriv(); // use cached result
     }
     else {
-      try { // TODO 20061011 Eliminate the try/catch
+      try { // TODO 20070321 Eliminate the try/catch.  Too bad it is in the privilege interface.
         if (
              RootPrivilegeResolver.internal_isRoot(s, subj)
           || internal_getNaming().hasPriv(s, ns, subj, priv)

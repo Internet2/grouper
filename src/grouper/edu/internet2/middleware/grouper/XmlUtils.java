@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.15 2007-02-14 18:15:50 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.16 2007-03-21 18:02:28 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -102,7 +102,7 @@ class XmlUtils {
     Iterator        it  = g.getPrivs(subj).iterator();
     while (it.hasNext()) {
       ap = (AccessPrivilege) it.next();
-      if ( ap.getName().equals(p) && SubjectHelper.internal_eq( ap.getOwner(), subj ) ) {
+      if ( ap.getName().equals(p) && SubjectHelper.eq( ap.getOwner(), subj ) ) {
         return true;
       }
     }
@@ -115,7 +115,7 @@ class XmlUtils {
     Iterator        it  = ns.getPrivs(subj).iterator();
     while (it.hasNext()) {
       np = (NamingPrivilege) it.next();
-      if ( np.getName().equals(p) && SubjectHelper.internal_eq( np.getOwner(), subj ) ) {
+      if ( np.getName().equals(p) && SubjectHelper.eq( np.getOwner(), subj ) ) {
         return true;
       }
     }

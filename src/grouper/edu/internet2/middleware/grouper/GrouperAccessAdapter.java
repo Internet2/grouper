@@ -31,7 +31,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.54 2007-03-05 20:04:17 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.55 2007-03-21 18:02:28 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -109,7 +109,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
         GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj), f ) 
       );
       // The ALL subject
-      if ( !( SubjectHelper.internal_eq(subj, SubjectFinder.findAllSubject() ) ) ) {
+      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
         groups.addAll( 
           GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.internal_findAllMember(), f ) 
         );

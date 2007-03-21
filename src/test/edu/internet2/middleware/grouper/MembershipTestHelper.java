@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.7 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.8 2007-03-21 18:02:28 blair Exp $
  */
 public class MembershipTestHelper {
 
@@ -179,7 +179,7 @@ public class MembershipTestHelper {
       Field   f   = FieldFinder.find(list);
       Member  m   = MemberFinder.findBySubject(s, subj);
       msg += "["+g.getName()+"]["+m+"]["+f.getName()+"] ";
-      Assert.assertTrue(msg + "m.subj == subj", SubjectHelper.internal_eq( m.getSubject(), subj ) );
+      Assert.assertTrue(msg + "m.subj == subj", SubjectHelper.eq( m.getSubject(), subj ) );
       Assert.assertTrue(msg + "g hasMember"   , g.hasMember(subj, f));
       Assert.assertTrue(msg + "g hasImmMember", g.hasImmediateMember(subj, f));
       Assert.assertTrue(msg + "m isMember"    , m.isMember(g, f));
@@ -201,7 +201,7 @@ public class MembershipTestHelper {
       Member  m   = MemberFinder.findBySubject(s, subj);
       msg += "["+g.getName()+"]["+m+"]["+f.getName()+"]"
         + "["+depth+"]["+via.getName()+"] ";
-      Assert.assertTrue(msg + "m.subj == subj", SubjectHelper.internal_eq( m.getSubject(), subj ) );
+      Assert.assertTrue(msg + "m.subj == subj", SubjectHelper.eq( m.getSubject(), subj ) );
       Assert.assertTrue(msg + "g hasMember"   , g.hasMember(subj, f));
       Assert.assertTrue(msg + "g hasEffMember", g.hasEffectiveMember(subj, f));
       Assert.assertTrue(msg + "m isMember"    , m.isMember(g, f));

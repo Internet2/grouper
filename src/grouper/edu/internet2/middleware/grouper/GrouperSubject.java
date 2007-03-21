@@ -29,7 +29,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.32 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.33 2007-03-21 18:02:28 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -61,19 +61,7 @@ public class GrouperSubject implements Subject {
    * @since 1.0
    */
   public boolean equals(Object other) {
-    // TODO 20061011 I should modify *SubjectHelper.internal_eq(this, other)* so that I can just call that.
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof Subject)) {
-      return false;
-    }
-    Subject otherSubject = (Subject) other;
-    return new EqualsBuilder()
-      .append(  this.getId()              , otherSubject.getId()              )
-      .append(  this.getSource().getId()  , otherSubject.getSource().getId()  )
-      .append(  this.getType().getName()  , otherSubject.getType().getName()  )
-      .isEquals();
+    return SubjectHelper.eq(this, other);
   } // public boolean equals(other)
 
   public Map getAttributes() {

@@ -22,7 +22,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.8 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.9 2007-03-21 18:02:28 blair Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -55,7 +55,7 @@ class GrouperPrivilegeAdapter {
       ms.setDTO( (MembershipDTO) it.next() );
       ms.setSession(s);
       try {
-        if (!SubjectHelper.internal_eq(m.getSubject(), subj)) {
+        if (!SubjectHelper.eq(m.getSubject(), subj)) {
           owner   = m.getSubject();
           revoke  = false;
         }
