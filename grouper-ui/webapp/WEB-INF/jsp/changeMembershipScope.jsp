@@ -1,19 +1,26 @@
 <%-- @annotation@
 		Tile which displays a form which allows a user to change whether only immediate, or only effective 
-		or all members of the active group should be displayed
+		or all members of the active group should be displayed. If a group has custom list attributes the user can
+		select the 'Default' memnership list or a custom list. 
+		
+		If configured, an dthe user has appropriate privileges, it is possible to import/export members from/to flat files
 --%><%--
   @author Gary Brown.
-  @version $Id: changeMembershipScope.jsp,v 1.4 2007-03-06 11:05:49 isgwb Exp $
+  @version $Id: changeMembershipScope.jsp,v 1.5 2007-03-21 11:09:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<h2 class="actionheader">
+	<fmt:message bundle="${nav}" key="groups.heading.change-members-list-scope"/>
+</h2>
 <div class="changeScope">
-<html:form method="post" action="/populateGroupMembers">
+<html:form  action="/populateGroupMembers" enctype="multipart/form-data">
 <html:hidden property="groupId"/>
 <html:hidden property="contextSubject"/>
 <html:hidden property="contextSubjectId"/>
 <html:hidden property="contextSubjectType"/>
-<html:hidden property="callerPageId"/>
+<!--html:hidden property="callerPageId"/-->
+<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 <fieldset>
 	<span class="membershipListScope">
 		<html:radio property="membershipListScope" value="imm"/> <fmt:message bundle="${nav}" key="groups.list-members.scope.imm"/>
@@ -34,8 +41,50 @@
 		</span>
 	</c:if>
 	<span class="membershipListScope">
-		<input type="submit" value="<fmt:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
+		<input name="submit.changeScope" type="submit" value="<fmt:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
 	</span>
+	<c:if test="${MembershipExporter.active}">
+	<h2 class="actionheader">
+	<fmt:message bundle="${nav}" key="groups.heading.export-members"/>
+	</h2>
+	
+		<c:choose>
+			<c:when test="${MembershipExporter.numberOfAvailableFormats ==1}">
+				<input type="hidden" name="exportFormat" value="<c:out value="${MembershipExporter.availableFormats[0]}"/>"/>
+			</c:when>
+			<c:otherwise>
+			<select name="exportFormat" title="<c:out value="${navMap['groups.export.select-format-title']}"/>">
+					<c:forEach var="format" items="${MembershipExporter.availableFormats}">
+						<option<c:if test="${format==exportFormat}"> selected="selected"</c:if>><c:out value="${format}"/></option>
+					</c:forEach>
+			</select>
+			</c:otherwise>
+		</c:choose>
+		<input type="submit" name="submit.export" value="<c:out value="${navMap['groups.export.submit']}"/>"/>
+	</c:if>
+	
+<html:hidden property="groupId"/>
+	<c:if test="${MembershipImportManager.active}">
+	<h2 class="actionheader">
+	<fmt:message bundle="${nav}" key="groups.heading.import-members"/>
+	</h2>
+	<html:file property="importData" title="${navMap['groups.import.select-file-title']}"/>
+		<c:choose>
+			<c:when test="${MembershipImportmanager.numberOfAvailableFormats ==1}">
+				<input type="hidden" name="importFormat" value="<c:out value="${MembershipImportmanager.availableFormats[0]}"/>"/>
+			</c:when>
+			<c:otherwise>
+			<select name="importFormat" title="<c:out value=
+			"${navMap['groups.import.select-format-title']}"/>">
+					<c:forEach var="format" items="${MembershipImportManager.availableFormats}">
+						<option<c:if test="${format==importFormat}"> selected="selected"</c:if>><c:out value="${format}"/></option>
+					</c:forEach>
+			</select>
+			</c:otherwise>
+		</c:choose>
+		<input type="submit" name="submit.import" value="<c:out value="${navMap['groups.import.submit']}"/>"/>
+		
+	</c:if>
 	</fieldset>
 </html:form>
 </div>

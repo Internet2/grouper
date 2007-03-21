@@ -63,6 +63,12 @@
 	  <form-property name="contextSubjectId" type="java.lang.String"/>
 	  <form-property name="contextSubjectType" type="java.lang.String"/>
 	  <form-property name="callerPageId" type="java.lang.String"/>
+	  <form-property name="importData" type="org.apache.struts.upload.FormFile"/>
+	  <form-property name="exportFormat" type="java.lang.String"/>
+	  <form-property name="importFormat" type="java.lang.String"/>
+	  <form-property name="submit.export" type="java.lang.String"/>
+	  <form-property name="submit.import" type="java.lang.String"/>
+	  
     </form-bean>
     
 	  <form-bean dynamic="true" name="SubjectFormBean"
@@ -499,12 +505,29 @@
             <forward name="AssignSubjects" path="/populateAssignNewMembers.do" redirect="false"/>
      		   </action>
     
-    <action name="GroupFormBean" path="/populateGroupMembers" scope="request"
+>    <action name="GroupFormBean" path="/populateGroupMembers" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupMembersAction"
             unknown="false" validate="false">
      
       <forward name="GroupMembers" path="GroupMembersDef" redirect="false"/>
 	  <forward name="AddGroupMembers" path="/populateFindNewMembers.do" redirect="false"/>
+	   <forward name="ExportMembers" path="/exportMembers.do" redirect="false"/>
+	    <forward name="ImportMembers" path="/importMembers.do" redirect="false"/>
+    </action>
+	
+	    <action name="GroupFormBean" path="/exportMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.ExportMembersAction"
+            unknown="false" validate="false">
+     
+      <forward name="GroupMembers" path="GroupMembersDef" redirect="false"/>
+	   <forward name="ExportMembers" path="ExportMembersDef" redirect="false"/>
+    </action>
+	
+		 <action name="GroupFormBean" path="/importMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.ImportMembersAction"
+            unknown="false" validate="false">
+
+	   <forward name="ImportMembers" path="ImportMembersDef" redirect="false"/>
     </action>
 	
 	    <action name="GroupFormBean" path="/removeGroupMembers" scope="request"
@@ -787,6 +810,7 @@
       <forward name="Results" path="SearchStemResultsDef" redirect="false"/>
     </action>
   </action-mappings>
+  <controller maxFileSize="1M" memFileSize="256K"/>
   <plug-in className="org.apache.struts.tiles.TilesPlugin">
     <set-property property="moduleAware" value="true"/>
     <set-property property="definitions-debug" value="0"/>

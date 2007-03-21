@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.7 2006-11-07 00:29:54 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.8 2007-03-21 11:09:49 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -168,6 +168,8 @@ public class SessionInitialiser {
 		}
 		if(getAuthUser(session)!=null) session.setAttribute("sessionInited", Boolean.TRUE);
 		session.setAttribute("fieldList",GrouperHelper.getFieldsAsMap(chainedBundle));
+		session.setAttribute("MembershipExporter",new MembershipExporter(chainedMediaBundle));
+		session.setAttribute("MembershipImportManager",new MembershipImportManager(chainedMediaBundle,chainedBundle));
 	}
 
 	/**

@@ -3,17 +3,18 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.10 2006-10-03 11:32:49 isgwb Exp $
+  @version $Id: GroupMembers.jsp,v 1.11 2007-03-21 11:09:49 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
 <tiles:insert definition="showStemsLocationDef"/>
 
+<tiles:insert definition="changeMembershipScopeDef"/>
 
 <h2 class="actionheader">
 	<fmt:message bundle="${nav}" key="groups.heading.list-members"/>
 </h2>
-<tiles:insert definition="changeMembershipScopeDef"/>
+
 <c:choose>
 	<c:when test="${!removableMembers}">
 		<tiles:insert definition="dynamicTileDef">

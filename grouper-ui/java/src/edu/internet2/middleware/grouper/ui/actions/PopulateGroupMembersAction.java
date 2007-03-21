@@ -17,9 +17,10 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,8 +44,7 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
-import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
-import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
+
 
 /**
  * Top level Strut's action which retrieves and makes available group members.  
@@ -97,6 +97,18 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Custom list field we should 
       display 'members' for</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">submit.import</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates that user has clicked 
+      'Import members' button</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">submit.export</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates that user has clicked 
+      'Export members' button</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
@@ -178,6 +190,12 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
       members from the current list. Only true if there are members to be removed 
       and immediate members are being viewed</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">exportMembers</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Collection of memberships to 
+      be exported</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -213,7 +231,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.15 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.16 2007-03-21 11:09:49 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -221,7 +239,8 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 	// Forwards
 	static final private String FORWARD_GroupMembers = "GroupMembers";
 	static final private String FORWARD_AddGroupMembers = "AddGroupMembers"; 
-
+	static final private String FORWARD_ExportMembers = "ExportMembers";
+	static final private String FORWARD_ImportMembers = "ImportMembers";
 	static final private String FORWARD_StemMembers = "StemMembers";
 
 	//------------------------------------------------------------ Action
@@ -233,10 +252,16 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			throws Exception {
 		
 		if(!isEmpty(request.getParameter("submit.addMembers"))) return mapping.findForward(FORWARD_AddGroupMembers);
+		if(!isEmpty(request.getParameter("submit.import"))) {
+			return mapping.findForward(FORWARD_ImportMembers);
+		}
+		
 		session.setAttribute("subtitle","groups.action.show-members");
 		String noResultsKey="groups.list-members.none";
 		DynaActionForm groupForm = (DynaActionForm) form;
-		saveAsCallerPage(request,groupForm,"findForNode membershipListScope");
+		if(isEmpty(request.getParameter("submit.export"))) {
+			saveAsCallerPage(request,groupForm,"findForNode membershipListScope");
+		}
 		request.setAttribute("contextSubject",groupForm.get("contextSubject"));
 		//Identify the group whose membership we are showing
 		String groupId = (String)groupForm.get("groupId");
@@ -319,6 +344,15 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		Map countMap = new HashMap();
 		List uniqueMemberships = GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap);
 		uniqueMemberships=sort(uniqueMemberships,request,"members");
+		request.setAttribute("browseParent", GrouperHelper.group2Map(
+				grouperSession, group));
+		if(!isEmpty(request.getParameter("submit.export"))) {
+			request.setAttribute("exportMembers",uniqueMemberships);
+			
+			return mapping.findForward(FORWARD_ExportMembers);
+		}
+		
+		
 		//Set up CollectionPager for view
 		String startStr = request.getParameter("start");
 		if (startStr == null || "".equals(startStr))
@@ -355,8 +389,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		Map privs = GrouperHelper.hasAsMap(grouperSession, GroupOrStem.findByGroup(grouperSession, group));
 		request.setAttribute("groupPrivs", privs);
 
-		request.setAttribute("browseParent", GrouperHelper.group2Map(
-				grouperSession, group));
+		
 		request.setAttribute("groupMembership", membership);
 		request.setAttribute("noResultsKey", noResultsKey);
 		request.setAttribute("removableMembers",new Boolean("imm".equals(membershipListScope) && group.canWriteField(mField) && !group.isComposite() && members.size()>0));

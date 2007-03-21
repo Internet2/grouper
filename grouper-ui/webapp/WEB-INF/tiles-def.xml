@@ -491,6 +491,20 @@
 		Tile which displays the subject search form
 	  </description>
 	  <put name="content" type="page" value="/WEB-INF/jsp/SimpleSubjectSearch.jsp"/>
+  </definition> 
+
+<definition name="ExportMembersDef" extends="BaseDef" >
+	  <description>
+		Tile which displays exported member data
+	  </description>
+	  <put name="content" type="page" value="/WEB-INF/jsp/ExportMembers.jsp"/>
+  </definition>
+
+<definition name="ImportMembersDef" extends="BaseDef">
+	  <description>
+		Tile which shows 'log' of import process
+	  </description>
+	  <put name="content" type="page" value="/WEB-INF/jsp/ImportMembers.jsp"/>
   </definition>  
   
   <definition name="subjectSearchFragmentDef" path="/WEB-INF/jsp/subjectSearchFragment.jsp"  controllerUrl="/prepareSubjectSearch.do"><put name="maintainModule" type="String" value="y"/>
