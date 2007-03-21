@@ -12,6 +12,7 @@ Changes in this version:
 6. Automated the insertion of Signet jar filenames (using Ant token replacement) in the distributed file 'dist-signet_cp.bat'
 7. Automated the creation of JavaDoc zip and gzip files. Cleaned up JavaDoc warnings
 8. Added build_configuration_tips.txt
+9. Updated Signet ERD and signet.userlibraries
 
 Other Middleware Build Dependencies
 -----------------------------------
