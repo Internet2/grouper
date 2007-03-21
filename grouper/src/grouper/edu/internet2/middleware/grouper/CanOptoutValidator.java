@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.Subject;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CanOptoutValidator.java,v 1.1 2007-03-05 20:37:01 blair Exp $
+ * @version $Id: CanOptoutValidator.java,v 1.2 2007-03-21 18:02:28 blair Exp $
  * @since   1.2.0
  */
 class CanOptoutValidator extends GrouperValidator {
@@ -33,7 +33,7 @@ class CanOptoutValidator extends GrouperValidator {
     if      (
       !
       (
-        SubjectHelper.internal_eq( g.getSession().getSubject(), subj ) && Group.getDefaultList().equals(f)
+        SubjectHelper.eq( g.getSession().getSubject(), subj ) && Group.getDefaultList().equals(f)
       )
     )
     {

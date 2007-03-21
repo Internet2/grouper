@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.34 2007-02-27 18:08:09 blair Exp $
+ * @version $Id: Composite.java,v 1.35 2007-03-21 18:02:28 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -231,7 +231,7 @@ public class Composite extends GrouperAPI {
 
   // @since   1.2.0
   private void _update() {
-    //  TODO  20061011 Assuming this is actually correct I am sure it can be
+    //  TODO  20070321 Assuming this is actually correct I am sure it can be
     //        improved upon.  At least it isn't as bad as the first
     //        (functional) approach taken.  Or even the second, third
     //        or fourth approaches!

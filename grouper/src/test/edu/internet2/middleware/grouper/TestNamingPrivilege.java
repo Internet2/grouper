@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestNamingPrivilege.java,v 1.8 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestNamingPrivilege.java,v 1.9 2007-03-21 18:02:28 blair Exp $
  */
 public class TestNamingPrivilege extends GrouperTest {
 
@@ -92,11 +92,11 @@ public class TestNamingPrivilege extends GrouperTest {
         );
         Assert.assertTrue(
           "edu/subj0 owner create: " + np.getOwner().getId(),
-          SubjectHelper.internal_eq(np.getOwner(), uofc.toSubject())
+          SubjectHelper.eq(np.getOwner(), uofc.toSubject())
         );
         Assert.assertTrue(
           "edu/subj0 subj create: " + np.getSubject().getId(),
-          SubjectHelper.internal_eq(np.getSubject(), subj0)
+          SubjectHelper.eq(np.getSubject(), subj0)
         );
         Assert.assertTrue(
           "edu/subj0 isRevokable create: " + np.isRevokable(),
@@ -131,11 +131,11 @@ public class TestNamingPrivilege extends GrouperTest {
         );
         Assert.assertTrue(
           "uofc/subj0 owner stem: " + np.getOwner().getId(),
-          SubjectHelper.internal_eq(np.getOwner(), subj0)
+          SubjectHelper.eq(np.getOwner(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 subj stem: " + np.getSubject().getId(),
-          SubjectHelper.internal_eq(np.getSubject(), subj0)
+          SubjectHelper.eq(np.getSubject(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 isRevokable stem: " + np.isRevokable(),

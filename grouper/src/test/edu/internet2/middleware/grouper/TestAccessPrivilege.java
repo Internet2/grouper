@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestAccessPrivilege.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestAccessPrivilege.java,v 1.8 2007-03-21 18:02:28 blair Exp $
  */
 public class TestAccessPrivilege extends TestCase {
 
@@ -91,11 +91,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "i2/subj0 owner optin: " + ap.getOwner().getId(),
-          SubjectHelper.internal_eq(ap.getOwner(), uofc.toSubject())
+          SubjectHelper.eq(ap.getOwner(), uofc.toSubject())
         );
         Assert.assertTrue(
           "i2/subj0 subj optin: " + ap.getSubject().getId(),
-          SubjectHelper.internal_eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "i2/subj0 isRevokable optin: " + ap.isRevokable(),
@@ -117,11 +117,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "i2/subj0 owner read: " + ap.getOwner().getId(),
-          SubjectHelper.internal_eq(ap.getOwner(), SubjectTestHelper.SUBJA)
+          SubjectHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
         );
         Assert.assertTrue(
           "i2/subj0 subj read: " + ap.getSubject().getId(),
-          SubjectHelper.internal_eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "i2/subj0 isRevokable read: " + ap.isRevokable(),
@@ -143,11 +143,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "i2/subj0 owner view: " + ap.getOwner().getId(),
-          SubjectHelper.internal_eq(ap.getOwner(), SubjectTestHelper.SUBJA)
+          SubjectHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
         );
         Assert.assertTrue(
           "i2/subj0 subj view: " + ap.getSubject().getId(),
-          SubjectHelper.internal_eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "i2/subj0 isRevokable view: " + ap.isRevokable(),
@@ -182,11 +182,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "uofc/subj0 owner update: " + ap.getOwner().getId(),
-          SubjectHelper.internal_eq(ap.getOwner(), subj0)
+          SubjectHelper.eq(ap.getOwner(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 subj update: " + ap.getSubject().getId(),
-          SubjectHelper.internal_eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 isRevokable update: " + ap.isRevokable(),
@@ -208,11 +208,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "uofc/subj0 owner read: " + ap.getOwner().getId(),
-          SubjectHelper.internal_eq(ap.getOwner(), SubjectTestHelper.SUBJA)
+          SubjectHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
         );
         Assert.assertTrue(
           "uofc/subj0 subj read: " + ap.getSubject().getId(),
-          SubjectHelper.internal_eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 isRevokable read: " + ap.isRevokable(),
@@ -234,11 +234,11 @@ public class TestAccessPrivilege extends TestCase {
         );
         Assert.assertTrue(
           "uofc/subj0 owner view: " + ap.getOwner().getId(),
-          SubjectHelper.internal_eq(ap.getOwner(), SubjectTestHelper.SUBJA)
+          SubjectHelper.eq(ap.getOwner(), SubjectTestHelper.SUBJA)
         );
         Assert.assertTrue(
           "uofc/subj0 subj view: " + ap.getSubject().getId(),
-          SubjectHelper.internal_eq(ap.getSubject(), subj0)
+          SubjectHelper.eq(ap.getSubject(), subj0)
         );
         Assert.assertTrue(
           "uofc/subj0 isRevokable view: " + ap.isRevokable(),

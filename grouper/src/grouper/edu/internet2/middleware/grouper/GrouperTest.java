@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.14 2007-03-16 18:42:21 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.15 2007-03-21 18:02:28 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -539,7 +539,7 @@ public class GrouperTest extends TestCase {
 
   // @since   1.1.0
   private void _assertSubject(String type, String who, String what, Subject exp, Subject got) {
-    if (SubjectHelper.internal_eq(exp, got)) {
+    if (SubjectHelper.eq(exp, got)) {
       assertTrue(true);
     }
     else {
