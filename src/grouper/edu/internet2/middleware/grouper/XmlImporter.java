@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.96 2007-03-16 19:46:16 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.97 2007-03-21 16:45:04 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -662,6 +662,9 @@ public class XmlImporter {
     catch (SubjectNotFoundException eSNF)       {
       throw new GrouperException(eSNF.getMessage(), eSNF);
     }
+    catch (SubjectNotUniqueException eSNU)      {
+      throw new GrouperException( eSNU.getMessage(), eSNU );
+    }
   } // private void _load(ns, doc)
 
   // @since   1.0
@@ -719,7 +722,8 @@ public class XmlImporter {
             InsufficientPrivilegeException,
             RevokePrivilegeException,
             SchemaException,
-            SubjectNotFoundException
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     if (this.accessPrivLists != null) {
       Iterator it = this.accessPrivLists.iterator();
@@ -736,7 +740,9 @@ public class XmlImporter {
             GroupNotFoundException,
             InsufficientPrivilegeException,
             RevokePrivilegeException,
-            SchemaException
+            SchemaException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     String  groupName = (String) map.get("group");
     Element privs     = (Element) map.get("privileges");
@@ -765,29 +771,19 @@ public class XmlImporter {
   private void _processAccessPrivListGrantPriv(Group g, Privilege p, Element el)
     throws  GrantPrivilegeException,
             InsufficientPrivilegeException,
-            SchemaException
+            SchemaException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
-    if (!this._isSubjectElementImmediate(el)) {
-      return;
-    }
-    try {
-      // TODO 20061005 how should i handle subject resolution failure?
+    if ( this._isSubjectElementImmediate(el) ) {
       Subject subj = this._findSubject( 
         el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
       );
-      if (!XmlUtils.internal_hasImmediatePrivilege(subj, g, p.getName())) {
+      if ( !XmlUtils.internal_hasImmediatePrivilege( subj, g, p.getName() ) ) {
         g.grantPriv(subj, p);
       }
     }
-    catch (SubjectNotFoundException eSNF)   {
-      LOG.warn( "Not granting access privilege: " + eSNF.getMessage( ) );
-      return;
-    }
-    catch (SubjectNotUniqueException eSNU)  {
-      LOG.warn( "Not granting access privilege: " + eSNU.getMessage() );
-      return;
-    }
-  } // private void _processAccesgPrivListGrantPriv(g, p, el)
+  } // private void _processAccessPrivListGrantPriv(g, p, el)
 
   // @since   1.1.0
   private void _processAttributes(Element e, String group) 
@@ -1037,7 +1033,8 @@ public class XmlImporter {
             MemberAddException,
             MemberDeleteException,
             SchemaException,
-            SubjectNotFoundException
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     if (this.membershipLists != null) {
       Iterator it = this.membershipLists.iterator();
@@ -1057,7 +1054,8 @@ public class XmlImporter {
             MemberAddException,
             MemberDeleteException,
             SchemaException,
-            SubjectNotFoundException
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     Element list      = (Element) map.get("list");
     String  groupName = (String) map.get("group");
@@ -1104,27 +1102,17 @@ public class XmlImporter {
   private void _processMembershipListAddMember(Group g, Field f, Element el) 
     throws  InsufficientPrivilegeException,
             MemberAddException,
-            SchemaException
+            SchemaException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
-    if (!this._isSubjectElementImmediate(el)) {
-      return;
-    }
-    try {
-      // TODO 20061004 how should i handle subject resolution failure?
+    if ( this._isSubjectElementImmediate(el) ) {
       Subject subj = this._findSubject( 
         el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
       );
-      if (!g.hasImmediateMember(subj, f)) {
+      if ( !g.hasImmediateMember(subj, f) ) {
         g.addMember(subj, f);
       }
-    }
-    catch (SubjectNotFoundException eSNF)   {
-      LOG.warn( "Not adding membership: " + eSNF.getMessage() );
-      return;
-    }
-    catch (SubjectNotUniqueException eSNU)  {
-      LOG.warn( "Not adding membership: " + eSNU.getMessage() );
-      return;
     }
   } // private void _processMembershipListAddMember(g, f, el)
 
@@ -1244,7 +1232,8 @@ public class XmlImporter {
             RevokePrivilegeException,
             SchemaException,
             StemNotFoundException,
-            SubjectNotFoundException
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     if (this.namingPrivLists != null) {
       Iterator it = this.namingPrivLists.iterator();
@@ -1261,7 +1250,9 @@ public class XmlImporter {
             InsufficientPrivilegeException,
             RevokePrivilegeException,
             SchemaException,
-            StemNotFoundException
+            StemNotFoundException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
     String    stemName  = (String) map.get("stem");
     Element   privs     = (Element) map.get("privileges");
@@ -1290,27 +1281,17 @@ public class XmlImporter {
   private void _processNamingPrivListGrantPriv(Stem ns, Privilege p, Element el)
     throws  GrantPrivilegeException,
             InsufficientPrivilegeException,
-            SchemaException
+            SchemaException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
   {
-    if (!this._isSubjectElementImmediate(el)) {
-      return;
-    }
-    try {
-      // TODO 20061005 how should i handle subject resolution failure?
+    if ( this._isSubjectElementImmediate(el) ) {
       Subject subj = this._findSubject( 
         el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
       );
-      if (!XmlUtils.internal_hasImmediatePrivilege(subj, ns, p.getName())) {
+      if ( !XmlUtils.internal_hasImmediatePrivilege( subj, ns, p.getName() ) ) {
         ns.grantPriv(subj, p);
       }
-    }
-    catch (SubjectNotFoundException eSNF)   {
-      LOG.warn( "Not granting naming privilege: " + eSNF.getMessage() );
-      return;
-    }
-    catch (SubjectNotUniqueException eSNU)  {
-      LOG.warn( "Not granting naming privilege: " + eSNU.getMessage() );
-      return;
     }
   } // private void _processNamingPrivListGrantPriv(ns, p, el)
 

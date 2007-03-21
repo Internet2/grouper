@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.87 2007-03-16 19:46:17 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.88 2007-03-21 16:45:04 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -49,7 +49,7 @@ public class XmlExporter {
   // PRIVATE INSTANCE VARIABLES //
   private GrouperSession  s;
   private String          fromStem      = null;
-  // TODO 20061003 i still do not understand the entirety of how `includeParent` and `isRelative` interact
+  // TODO 20070321 i need to figure out all the details of how "includeParent" and "isRelative" interact
   private boolean         includeParent = true;
   private boolean         isRelative    = false;
   private Properties      options;
@@ -839,7 +839,6 @@ public class XmlExporter {
   } // private void _writeGroup(g)
 
   // @since   1.1.0
-  // TODO 20061003 DRY _writeStemFooter()
   private void _writeGroupFooter(Group g) 
     throws  IOException
   {
@@ -850,7 +849,6 @@ public class XmlExporter {
   } // private void _writeGroupFooter(g)
 
   // @since   1.1.0
-  // TODO 20061003 DRY _writeStemHeader()
   private void _writeGroupHeader(Group g)  
     throws  IOException
   {
@@ -1425,7 +1423,7 @@ public class XmlExporter {
     Stem ns = (Stem) obj;
     if (stack.isEmpty()) {
       if (this.includeParent) {
-        // TODO 20061003 won't this cause the parent to be exported but no the target?
+        // TODO 20070321 won't this cause the parent to be exported but no the target?
         this._writeStem(ns);
       } 
       else {
