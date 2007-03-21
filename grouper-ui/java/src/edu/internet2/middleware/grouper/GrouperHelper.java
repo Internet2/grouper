@@ -58,21 +58,10 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.26 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.27 2007-03-21 10:32:44 isgwb Exp $
  */
 
-/**
- * @author isgwb
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
-/**
- * @author isgwb
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
+
 public class GrouperHelper {
 	public static HashMap list2privMap;
 	static {
