@@ -23,9 +23,13 @@ import  edu.internet2.middleware.subject.provider.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.16 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.17 2007-03-22 16:40:04 blair Exp $
  */
 class SubjectHelper {
+
+  // PRIVATE CLASS CONSTANTS //
+  private static final String SUBJECT_DELIM = "/";
+
 
   // PROTECTED CLASS METHODS //
 
@@ -52,14 +56,24 @@ class SubjectHelper {
     }
     return false;
   } // protected static boolean eq(a, b)
-  
+ 
   // @since   1.2.0
+  protected static String getPretty(MemberDTO _m) {
+    return  U.internal_q( _m.getSubjectId() ) // don't bother grabbing the name.  names aren't consistent, after all.
+            + SUBJECT_DELIM
+            + U.internal_q( _m.getSubjectTypeId() ) 
+            + SUBJECT_DELIM
+            + U.internal_q( _m.getSubjectSourceId() );
+  } // protected static String getPretty(_m)
+ 
+  // @since   1.2.0
+  // TODO 20070322 rename
   protected static String internal_getPretty(Subject subj) {
-    String pretty = subj.getId();
-    if (subj.getType().equals(SubjectTypeEnum.valueOf("group"))) {
-      pretty = subj.getName();
-    }
-    return U.internal_q(pretty) + "/" + U.internal_q(subj.getType().getName()) + "/" + U.internal_q(subj.getSource().getId());
+    return  U.internal_q( subj.getId() )
+            + SUBJECT_DELIM
+            + U.internal_q( subj.getType().getName() ) 
+            + SUBJECT_DELIM
+            + U.internal_q( subj.getSource().getId() );
   } // protected static String internal_getPretty(subj)
 
 } // class SubjectHelper

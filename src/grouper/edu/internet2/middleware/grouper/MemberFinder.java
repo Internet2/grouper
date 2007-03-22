@@ -23,7 +23,7 @@ import  edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.33 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.34 2007-03-22 16:40:04 blair Exp $
  */
 public class MemberFinder {
 
@@ -74,9 +74,8 @@ public class MemberFinder {
     throws MemberNotFoundException
   {
     GrouperSession.validate(s);
-    MemberDTO dto = HibernateMemberDAO.findByUuid(uuid);
-    Member    m   = new Member();
-    m.setDTO(dto);
+    Member m = new Member();
+    m.setDTO( s.cachingFindMemberByUuid(uuid) );
     m.setSession(s);
     return m;
   } // public static Member findByUuid(s, uuid)

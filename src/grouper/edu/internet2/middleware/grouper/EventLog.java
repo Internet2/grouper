@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.35 2007-03-22 14:58:40 blair Exp $
+ * @version $Id: EventLog.java,v 1.36 2007-03-22 16:40:04 blair Exp $
  */
 class EventLog {
 
@@ -39,9 +39,8 @@ class EventLog {
   private boolean     log_eff_stem_add  = false;
   private boolean     log_eff_stem_del  = false;
   private SimpleCache groupCache        = new SimpleCache();
-  private SimpleCache memberDTOCache    = new SimpleCache();
   private SimpleCache stemCache         = new SimpleCache();
-  private SimpleCache subjectCache      = new SimpleCache();
+  private SimpleCache subjectMsgCache   = new SimpleCache();
 
 
   // CONSTRUCTORS //
@@ -354,7 +353,7 @@ class EventLog {
     msg += this._getEffOwnerMsg(eff);
     // Get eff field
     msg += " " + field + U.internal_q( eff.getListName() );
-    msg += this._getEffSubjectMsg(eff);
+    msg += this._getEffSubjectMsg(s, eff);
     // Get added or removed message that caused this effective membership change
     msg += " (" + name + " ";
     if      ( f.getType().equals(FieldType.ACCESS) )  {
@@ -420,52 +419,28 @@ class EventLog {
 
   // @since   1.2.0
   // TODO 20070222 this is still pretty nasty
-  private String _getEffSubjectMsg(MembershipDTO _eff) {
-    String  msg   = GrouperConfig.EMPTY_STRING;
-    String  uuid  = _eff.getMemberUuid();
-
-    Subject subj  = null;
-    if ( this.subjectCache.containsKey(uuid) ) {
-      subj = (Subject) this.subjectCache.get(uuid);
+  private String _getEffSubjectMsg(GrouperSession s, MembershipDTO _eff) {
+    String uuid = _eff.getMemberUuid();
+    if ( this.subjectMsgCache.containsKey(uuid) ) {
+      return (String) this.subjectMsgCache.get(uuid);
     }
     else {
+      String msg  = " "; // prefix with whitespace
       try {
-        MemberDTO _m = null;
-        if ( this.memberDTOCache.containsKey( _eff.getMemberUuid() ) ) {
-          _m = (MemberDTO) this.memberDTOCache.get( _eff.getMemberUuid() );
-        }
-        else {
-          _m  = HibernateMemberDAO.findByUuid( _eff.getMemberUuid() );
-          this.memberDTOCache.put( _eff.getMemberUuid(), _m );
-        }
+        MemberDTO _m = s.cachingFindMemberByUuid(uuid);
         if (_m != null) {
-          subj = SubjectFinder.findById(
-            _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId()
-          );
-          this.subjectCache.put(uuid, subj);
+          // cache <member uuid> => <pretty subject string> mapping
+          msg += SubjectHelper.getPretty(_m);
+          this.subjectMsgCache.put( uuid, msg);
+          return msg;
         }
       }
       catch (MemberNotFoundException eMNF)    {
         ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eMNF.getMessage() );
       }
-      catch (SourceUnavailableException eSU)  {
-        ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eSU.getMessage() );
-      }
-      catch (SubjectNotFoundException eSNF)   {
-        ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eSNF.getMessage() );
-      }
-      catch (SubjectNotUniqueException eSNU)  {
-        ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eSNU.getMessage() );
-      }
     }
-    if (subj != null) {
-      msg += " subject=" + SubjectHelper.internal_getPretty(subj); // TODO 20070222 maybe cache pretty value instead?
-    }
-    else {
-      msg += "subject=???";
-    }
-    return msg;
-  } // private String _getEffSubjectMsg(_eff)
+    return " subject=???";
+  } // private String _getEffSubjectMsg(s, _eff)
 
   private void _grantPriv(
     GrouperSession s, String msg, String name, Subject subj, Privilege p, StopWatch sw
