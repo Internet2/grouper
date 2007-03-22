@@ -30,15 +30,15 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.144 2007-03-16 18:42:21 blair Exp $
+ * @version $Id: Group.java,v 1.145 2007-03-22 16:40:04 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL            = new EventLog();
-  private static final String   KEY_CREATOR   = "creator";  // for state caching
-  private static final String   KEY_MEMBER    = "member";   // for state caching
-  private static final String   KEY_MODIFIER  = "modifier"; // for state caching
+  private static final String   KEY_CREATOR   = "creator";  // for state caching // TODO 20070322 deprecate
+  private static final String   KEY_MEMBER    = "member";   // for state caching  
+  private static final String   KEY_MODIFIER  = "modifier"; // for state caching // TODO 20070322 deprecate
   private static final String   KEY_SUBJECT   = "subject";  // for state caching
 
 
@@ -865,9 +865,9 @@ public class Group extends GrouperAPI implements Owner {
       return (Subject) this.stateCache.get(KEY_CREATOR);
     }
     try {
-      MemberDTO dto = HibernateMemberDAO.findByUuid( this.getDTO().getCreatorUuid() );
+      MemberDTO _m = this.getSession().cachingFindMemberByUuid( this.getDTO().getCreatorUuid() );
       this.stateCache.put(
-        KEY_CREATOR, SubjectFinder.findById( dto.getSubjectId(), dto.getSubjectTypeId(), dto.getSubjectSourceId() )
+        KEY_CREATOR, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
       );
       return (Subject) this.stateCache.get(KEY_CREATOR);
     }
@@ -1239,9 +1239,9 @@ public class Group extends GrouperAPI implements Owner {
       throw new SubjectNotFoundException("group has not been modified");
     }
     try {
-      MemberDTO dto = HibernateMemberDAO.findByUuid( this.getDTO().getModifierUuid() );
+      MemberDTO _m = this.getSession().cachingFindMemberByUuid( this.getDTO().getModifierUuid() );
       this.stateCache.put(
-        KEY_MODIFIER, SubjectFinder.findById( dto.getSubjectId(), dto.getSubjectTypeId(), dto.getSubjectSourceId() )
+        KEY_MODIFIER, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
       );
       return (Subject) this.stateCache.get(KEY_MODIFIER);
     }

@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.51 2007-03-06 15:58:47 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.52 2007-03-22 16:40:04 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -34,9 +34,8 @@ public class GrouperSession extends GrouperAPI {
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private SimpleCache stateCache = new SimpleCache();
-  
-
+  private SimpleCache findMemberByUuidCache = new SimpleCache();
+  private SimpleCache stateCache            = new SimpleCache();
 
 
   // PUBLIC CLASS METHODS //
@@ -139,7 +138,7 @@ public class GrouperSession extends GrouperAPI {
     }
     try {
       Member m = new Member();
-      m.setDTO( HibernateMemberDAO.findByUuid( this.getDTO().getMemberUuid() ) );
+      m.setDTO( this.cachingFindMemberByUuid( this.getDTO().getMemberUuid() ) );
       m.setSession(this);
       this.stateCache.put(KEY_MEMBER, m);
       return m;
@@ -260,7 +259,21 @@ public class GrouperSession extends GrouperAPI {
     }
   } // public void validate(
 
+
   // PROTECTED INSTANCE METHODS //
+
+  // proactive caching on a per-session basis
+  // @since   1.2.0
+  protected MemberDTO cachingFindMemberByUuid(String uuid) 
+    throws  GrouperDAOException,      // TODO 20070322 is this appropriate here?
+            MemberNotFoundException
+  {
+    if ( this.findMemberByUuidCache.containsKey(uuid) ) {
+      return (MemberDTO) this.findMemberByUuidCache.get(uuid);
+    }
+    this.findMemberByUuidCache.put( uuid, HibernateMemberDAO.findByUuid(uuid) );
+    return (MemberDTO) this.findMemberByUuidCache.get(uuid);
+  } // protected MemberDTO cachingFindMemberByUuid(uuid)
 
   // @since   1.2.0
   protected GrouperSessionDTO getDTO() {
