@@ -13,6 +13,7 @@ Changes in this version:
 7. Automated the creation of JavaDoc zip and gzip files. Cleaned up JavaDoc warnings
 8. Added build_configuration_tips.txt
 9. Updated Signet ERD and signet.userlibraries
+10. Specify logo image and Signet image in signetResUi.properties
 
 Other Middleware Build Dependencies
 -----------------------------------
