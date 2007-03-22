@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.157 2007-03-16 17:34:53 blair Exp $ -->
+<!-- $Id: build.xml,v 1.158 2007-03-22 17:58:42 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -54,6 +54,21 @@
     />
   </target>
   <!-- target: bench-run -->
+
+  <!-- target: bench-run-yourkit -->
+  <target name="bench-run-yourkit" 
+          depends="build, ensure-name"
+  >
+    <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.bench.${name}"
+          failonerror="true"
+    >
+      <jvmarg value="-agentlib:yjpagent=sampling,alloc,onexit=memory,onexit=telemetry"/>
+    </java>
+  </target>
+  <!-- target: bench-run-shark -->
 
   <!-- target: build -->
   <!-- TODO 20070315 deprecrate post 1.2.0 -->
