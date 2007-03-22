@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.145 2007-03-22 16:40:04 blair Exp $
+ * @version $Id: Group.java,v 1.146 2007-03-22 16:49:33 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -865,7 +865,8 @@ public class Group extends GrouperAPI implements Owner {
       return (Subject) this.stateCache.get(KEY_CREATOR);
     }
     try {
-      MemberDTO _m = this.getSession().cachingFindMemberByUuid( this.getDTO().getCreatorUuid() );
+      // when called from "GrouperSubject" there is no attached session
+      MemberDTO _m = HibernateMemberDAO.findByUuid( this.getDTO().getCreatorUuid() );
       this.stateCache.put(
         KEY_CREATOR, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
       );
@@ -1239,7 +1240,8 @@ public class Group extends GrouperAPI implements Owner {
       throw new SubjectNotFoundException("group has not been modified");
     }
     try {
-      MemberDTO _m = this.getSession().cachingFindMemberByUuid( this.getDTO().getModifierUuid() );
+      // when called from "GrouperSubject" there is no attached session
+      MemberDTO _m = HibernateMemberDAO.findByUuid( this.getDTO().getModifierUuid() );
       this.stateCache.put(
         KEY_MODIFIER, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
       );
