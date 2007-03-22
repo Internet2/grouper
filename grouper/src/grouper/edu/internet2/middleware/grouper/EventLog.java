@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.34 2007-03-01 17:27:19 blair Exp $
+ * @version $Id: EventLog.java,v 1.35 2007-03-22 14:58:40 blair Exp $
  */
 class EventLog {
 
@@ -167,23 +167,19 @@ class EventLog {
 
   // PROTECTED INSTANCE METHODS //
 
-  protected void addEffMembers(
-    GrouperSession s, Object o, Subject subj, Field f, Set effs
-  )
-  {
-    if 
-    ( o.getClass().equals(Group.class) && this.log_eff_group_add == true ) 
-    {
-      Group g = (Group) o;
+  // @since   1.2.0
+  protected void addEffMembers(GrouperSession s, Group g, Subject subj, Field f, Set effs) {
+    if (this.log_eff_group_add) {
       this._addEffs(s, "group=" + g.getName(), subj, f, effs);
     }
-    else if
-    ( o.getClass().equals(Group.class) && this.log_eff_group_add == true ) 
-    {
-      Stem ns = (Stem) o;
+  } // protected void addEffMembers(s, g, subj, f, effs)
+
+  // @since   1.2.0
+  protected void addEffMembers(GrouperSession s, Stem ns, Subject subj, Field f, Set effs) {
+    if (this.log_eff_stem_add) {
       this._addEffs(s, "stem=" + ns.getName(), subj, f, effs);
     }
-  } // protected void addEffMembers(s, o, subj, f, effs)
+  } // protected void addEffMembers(s, ns, subj, f, effs)
 
   protected void delEffMembers(
     GrouperSession s, Owner o, Subject subj, Field f, Set effs
@@ -394,14 +390,16 @@ class EventLog {
     }
     else {
       try {
-        g = new Group();
-        g.setDTO( HibernateGroupDAO.findByUuid(uuid) );
+        GroupDTO _g = HibernateGroupDAO.findByUuid(uuid);
+        g           = new Group();
+        g.setDTO(_g);
         this.groupCache.put(uuid, g);
       }
       catch (GroupNotFoundException eGNF) {
         try {
-          ns = new Stem();
-          ns.setDTO( HibernateStemDAO.findByUuid(uuid) );
+          StemDTO _ns = HibernateStemDAO.findByUuid(uuid);
+          ns          = new Stem();
+          ns.setDTO(_ns);
         }
         catch (StemNotFoundException eSNF) {
           ErrorLog.error(EventLog.class, E.EVENT_EFFOWNER + eSNF.getMessage());
