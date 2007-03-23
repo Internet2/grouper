@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.50 2007-03-22 16:40:04 blair Exp $
+ * @version $Id: MemberOf.java,v 1.51 2007-03-23 13:55:04 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -496,7 +496,7 @@ class MemberOf extends BaseMemberOf {
         _ms = (MembershipDTO) it.next();
         mof = new MemberOf();
         mof.deleteImmediate( 
-          this.getSession(), this.getGroup(), _ms, this.getSession().cachingFindMemberByUuid( _ms.getMemberUuid() ) 
+          this.getSession(), this.getGroup(), _ms, HibernateMemberDAO.findByUuid( _ms.getMemberUuid() ) 
         );
         this.deletes.addAll( mof.internal_getDeletes() );
       }
