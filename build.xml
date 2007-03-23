@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.158 2007-03-22 17:58:42 blair Exp $ -->
+<!-- $Id: build.xml,v 1.159 2007-03-23 19:38:56 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -20,7 +20,6 @@
   <property name="build.test"             location="${build.dir}/test"/>
   <property name="lib"                    location="${basedir}/lib"/>
   <property name="log.eg.run"             location="${basedir}/eg.log"          />
-  <property name="hprof.depth"            value="25"/>
   <property name="hsqldb.jar"             location="${lib}/hsqldb-1.7.2.11.jar" />
   <!-- Global Properties -->
 
@@ -277,22 +276,6 @@
     </java>
   </target>
   <!-- bench-run-shark -->
-
-  <!-- bench-run-prof -->
-  <target name="bench-run-prof" 
-          description="TODO 20070315 Runs and profiles the benchmark specified with -Dname=NAME"
-          depends="build, ensure-name"
-  >
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.bench.${name}"
-          failonerror="true"
-    >
-      <jvmarg value="-Xrunhprof:cpu=samples,file=bench-${name}-${DSTAMP}${TSTAMP}.txt,depth=${hprof.depth}"/>
-    </java>
-  </target>
-  <!-- bench-run-prof -->
 
   <!-- clean.clover -->
   <target name="clean.clover" depends="init-clover" description="TODO 20070315 clean up after clover">
@@ -615,39 +598,6 @@
   </target>
   <!-- pmd -->
 
-  <!-- profile -->
-  <target name="profile"
-          description="TODO 20070315 Runs and profiles the case specified with -Dname=NAME"
-          depends="build, ensure-name"
-  >
-    <!-- Setup profiling run -->
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.prof.${name}Setup"
-          failonerror="true"
-    />
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.prof.${name}"
-          failonerror="true"
-    >
-      <jvmarg value="-Xrunhprof:cpu=samples,file=profile-${name}-${DSTAMP}${TSTAMP}.txt,depth=${hprof.depth}"/>
-    </java>
-  </target>
-  <!-- profile -->
-
-  <!-- profile-clean -->
-  <target name="profile-clean" 
-          description="TODO 20070315 clean up profiling output" 
-  >
-    <delete>
-      <fileset dir="." includes="profile-*-*.txt"/>
-    </delete>
-  </target>
-  <!-- profile-clean -->
-
   <!-- runtest -->
   <target name="runtest" 
           description="TODO 20070315 Runs the test you specify on the command line with -Dtest=NAME" 
@@ -665,25 +615,6 @@
     <record name="${test.log}" action="stop"/>
   </target>
   <!-- runtest -->
-
-  <!-- runtestprof -->
-  <target name="runtestprof" 
-          description="TODO 20070315 Runs and profiles the test case you specify on the command line with -Dtest=NAME" 
-          depends="test-build, ensure-test-name">
-    <record name="${test.log}" action="start" append="yes"/>
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="junit.textui.TestRunner"
-          taskname="junit"
-          failonerror="true"
-    >
-      <arg    value="edu.internet2.middleware.grouper.${test}"/>
-      <jvmarg value="-Xrunhprof:cpu=samples,file=hprof.txt,depth=${hprof.depth}"/>
-    </java>
-    <record name="${test.log}" action="stop"/>
-  </target>
-  <!-- runtestprof -->
 
   <!-- serialver -->
   <target name="serialver" 
