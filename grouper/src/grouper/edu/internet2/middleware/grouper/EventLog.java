@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.36 2007-03-22 16:40:04 blair Exp $
+ * @version $Id: EventLog.java,v 1.37 2007-03-23 13:55:04 blair Exp $
  */
 class EventLog {
 
@@ -40,7 +40,6 @@ class EventLog {
   private boolean     log_eff_stem_del  = false;
   private SimpleCache groupCache        = new SimpleCache();
   private SimpleCache stemCache         = new SimpleCache();
-  private SimpleCache subjectMsgCache   = new SimpleCache();
 
 
   // CONSTRUCTORS //
@@ -418,26 +417,13 @@ class EventLog {
   } // private String _getEffOwnerMsg(_eff)
 
   // @since   1.2.0
-  // TODO 20070222 this is still pretty nasty
   private String _getEffSubjectMsg(GrouperSession s, MembershipDTO _eff) {
-    String uuid = _eff.getMemberUuid();
-    if ( this.subjectMsgCache.containsKey(uuid) ) {
-      return (String) this.subjectMsgCache.get(uuid);
+    try {
+      return " " + SubjectHelper.getPretty( s.cachingFindMemberDTOByUuid( _eff.getMemberUuid() ) );
     }
-    else {
-      String msg  = " "; // prefix with whitespace
-      try {
-        MemberDTO _m = s.cachingFindMemberByUuid(uuid);
-        if (_m != null) {
-          // cache <member uuid> => <pretty subject string> mapping
-          msg += SubjectHelper.getPretty(_m);
-          this.subjectMsgCache.put( uuid, msg);
-          return msg;
-        }
-      }
-      catch (MemberNotFoundException eMNF)    {
-        ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eMNF.getMessage() );
-      }
+    catch (MemberNotFoundException eMNF)    {
+      // TODO 20070323 this can't help performance
+      ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eMNF.getMessage() );
     }
     return " subject=???";
   } // private String _getEffSubjectMsg(s, _eff)

@@ -26,7 +26,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.77 2007-03-22 16:40:04 blair Exp $
+ * @version $Id: Membership.java,v 1.78 2007-03-23 13:55:04 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -83,7 +83,7 @@ public class Membership extends GrouperAPI {
   {
     try {
       Member m = new Member();
-      m.setDTO( this.getSession().cachingFindMemberByUuid( this.getDTO().getCreatorUuid() ) );
+      m.setDTO( HibernateMemberDAO.findByUuid( this.getDTO().getCreatorUuid() ) );
       m.setSession( this.getSession() );
       return m;
     }
@@ -150,7 +150,7 @@ public class Membership extends GrouperAPI {
       throw new MemberNotFoundException("membership does not have a member!");
     }
     Member m = new Member();
-    m.setDTO( this.getSession().cachingFindMemberByUuid(uuid) );
+    m.setDTO( HibernateMemberDAO.findByUuid(uuid) );
     m.setSession( this.getSession() );
     return m;
   } // public Member getMember()
