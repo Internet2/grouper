@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.27 2007-03-21 10:32:44 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.28 2007-03-27 12:11:42 isgwb Exp $
  */
 
 
@@ -2206,7 +2206,9 @@ public class GrouperHelper {
 	
 	private static Map getMembershipAndCount(GrouperSession s,Group group,Subject subject) throws MemberNotFoundException,SchemaException {
 		Set memberships = null;
-		memberships = MembershipFinder.findMembershipsNoPrivsNoSession(group,MemberFinder.findBySubject(subject),FieldFinder.find("members"));
+		//memberships = MembershipFinder.findMembershipsNoPrivsNoSession(group,MemberFinder.findBySubject(s,subject),FieldFinder.find("members"));
+		memberships=group.getMemberships(FieldFinder.find("members"));
+		
 		if(memberships.size()==0) return null;
 		Iterator it = memberships.iterator();
 		Membership m = (Membership)it.next();
@@ -2734,7 +2736,7 @@ public class GrouperHelper {
 		Field field;
 		while(it.hasNext()) {
 			groupType=(GroupType)it.next();
-			if(!groupType.getAssignable()) continue;
+			if(groupType.isSystemType()) continue;
 			fields = groupType.getFields();
 			fieldsIterator = fields.iterator();
 			while(fieldsIterator.hasNext()) {
