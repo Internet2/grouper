@@ -110,7 +110,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DoSearchSubjectsAction.java,v 1.7 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: DoSearchSubjectsAction.java,v 1.8 2007-03-27 12:09:24 isgwb Exp $
  */
 public class DoSearchSubjectsAction extends GrouperCapableAction {
 
@@ -164,7 +164,7 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		Map addAttr = new HashMap();
 		addAttr.put("returnTo","/doSearchSubjects.do");
 		addAttr.put("returnToLinkKey","subject.action.return-results");
-		List mapResults = GrouperHelper.subjects2Maps(sort(results,request,"search").toArray(),addAttr);
+		List mapResults = GrouperHelper.subjects2Maps(sort(results,request,"search:"  +groupSearchResultField).toArray(),addAttr);
 		
 		String startStr = request.getParameter("start");
 		if (startStr == null || "".equals(startStr))
