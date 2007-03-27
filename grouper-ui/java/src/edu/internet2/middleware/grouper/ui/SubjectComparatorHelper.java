@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper.ui;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import edu.internet2.middleware.grouper.GrouperSubject;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
@@ -40,7 +42,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectComparatorHelper.java,v 1.1 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: SubjectComparatorHelper.java,v 1.2 2007-03-27 12:13:00 isgwb Exp $
  */
 
 public class SubjectComparatorHelper implements GrouperComparatorHelper{
@@ -59,7 +61,14 @@ public class SubjectComparatorHelper implements GrouperComparatorHelper{
 	 */
 	public String getComparisonString(Object obj, ResourceBundle config,
 			String context) {
-		if(context.startsWith("search:")) context="search";
+		String attrStr=null;
+		if(context.startsWith("search:")) {
+			if(obj instanceof GrouperSubject) {
+				attrStr=context.substring(7);
+			}else{
+				context="search";
+			}
+		}
 		Subject subject=null;
 		String type = null;
 		if(obj instanceof Subject) {
@@ -93,10 +102,12 @@ public class SubjectComparatorHelper implements GrouperComparatorHelper{
 		String[] parts=(String[])partsCache.get(type + ".sort." + context);
 		
 		if(parts==null) {
-			String attrStr=null;
-			try {
-				attrStr=config.getString(type + ".sort." + context);
-			}catch(Exception e){}
+			
+			if(attrStr==null) {
+				try {
+					attrStr=config.getString(type + ".sort." + context);
+				}catch(Exception e){}
+				}
 			if(attrStr==null) {
 				try {
 					attrStr=config.getString(type + ".sort.default");
