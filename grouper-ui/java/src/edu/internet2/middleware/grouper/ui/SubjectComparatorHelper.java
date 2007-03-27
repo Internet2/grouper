@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectComparatorHelper.java,v 1.2 2007-03-27 12:13:00 isgwb Exp $
+ * @version $Id: SubjectComparatorHelper.java,v 1.3 2007-03-27 14:16:04 isgwb Exp $
  */
 
 public class SubjectComparatorHelper implements GrouperComparatorHelper{
@@ -99,7 +99,7 @@ public class SubjectComparatorHelper implements GrouperComparatorHelper{
 			}else{
 			throw new IllegalStateException("Invalid object type");
 		}
-		String[] parts=(String[])partsCache.get(type + ".sort." + context);
+		String[] parts=(String[])partsCache.get(type + ".sort." + context + "." + subject.getSource().getId());
 		
 		if(parts==null) {
 			
@@ -139,7 +139,7 @@ public class SubjectComparatorHelper implements GrouperComparatorHelper{
 				
 			}
 			parts=attrStr.split(" ");
-			partsCache.put(type + ".sort." + context,parts);
+			partsCache.put(type + ".sort." + context+ "." + subject.getSource().getId(),parts);
 		}
 		StringBuffer sb=new StringBuffer();
 		String val="";
