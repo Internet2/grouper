@@ -22,13 +22,12 @@ import  java.io.Serializable;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
-import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.86 2007-03-28 17:00:06 blair Exp $
+ * @version $Id: Member.java,v 1.87 2007-03-28 18:12:12 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1177,12 +1176,11 @@ public class Member extends GrouperAPI implements Serializable {
   public Group toGroup() 
     throws GroupNotFoundException 
   {
-    // TODO 20070220 should i do privilege resolution here?
     if ( SubjectFinder.internal_getGSA().getId().equals( this.getDTO().getSubjectSourceId() ) ) {
       if (this.g == null) {
         this.g = GroupFinder.findByUuid( this.getSession(), this.getDTO().getSubjectId() );
       }
-      this.g.setSession(this.getSession());
+      this.g.setSession( this.getSession() ); // in case we are using cached group
       return this.g;
     }
     else {
@@ -1191,13 +1189,7 @@ public class Member extends GrouperAPI implements Serializable {
   } // public Group toGroup()
 
   public String toString() {
-    // TODO 20070125 replace with call to DTO?
-    try {
-      return SubjectHelper.internal_getPretty(this.getSubject());
-    }
-    catch (SubjectNotFoundException eSNF) {
-      return new ToStringBuilder(this).toString();
-    }
+    return SubjectHelper.getPretty( this.getDTO() );
   } // public String toString()
 
 

@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.147 2007-03-28 16:27:46 blair Exp $
+ * @version $Id: Group.java,v 1.148 2007-03-28 18:12:12 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -1202,7 +1202,11 @@ public class Group extends GrouperAPI implements Owner {
   public Set getMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.internal_findMemberships( this.getSession(), this, f );
+    return new LinkedHashSet( 
+      PrivilegeResolver.internal_canViewMemberships( 
+        this.getSession(), HibernateMembershipDAO.findAllByOwnerAndField( this.getUuid(), f )
+      )
+    );
   } // public Set getMemberships(f)
 
   /**
@@ -2165,7 +2169,6 @@ public class Group extends GrouperAPI implements Owner {
   } // public Subject toSubject()
 
   public String toString() {
-    // TODO 20070125 replace with call to DTO?
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
       .append( GrouperConfig.ATTR_N, (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_N) )
@@ -2180,8 +2183,6 @@ public class Group extends GrouperAPI implements Owner {
   protected GroupDTO getDTO() {
     return (GroupDTO) super.getDTO();
   } // protected GroupDTO getDTO()
- 
-  // TODO 20070125 revisit these methods once initial daoification is complete
 
   // @since   1.2.0
   // TODO 20070305 make into a validator?

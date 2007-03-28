@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.53 2007-03-23 13:55:04 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.54 2007-03-28 18:12:12 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -66,17 +66,15 @@ public class GrouperSession extends GrouperAPI {
       StopWatch sw = new StopWatch();
       sw.start();
 
-      Member m = MemberFinder.internal_findBySubject(subject); // this will create the member if it doesn't already exist
-
-      GrouperSessionDTO dto = new GrouperSessionDTO();
-      dto.setMemberUuid( m.getUuid() );
-      dto.setStartTime( new Date() );
-      dto.setSessionUuid( GrouperUuid.internal_getUuid() );
-      dto.setSubject(subject);
-
-      dto.setId( HibernateGrouperSessionDAO.create(dto) );
-      GrouperSession s = new GrouperSession();
-      s.setDTO(dto);
+      //  this will create the member if it doesn't already exist
+      Member            m   = MemberFinder.internal_findBySubject(subject); 
+      GrouperSession    s   = new GrouperSession();
+      GrouperSessionDTO _s  = new GrouperSessionDTO()
+        .setMemberUuid( m.getUuid() )
+        .setStartTime( new Date() )
+        .setSessionUuid( GrouperUuid.internal_getUuid() )
+        .setSubject(subject);
+      s.setDTO( _s.setId( HibernateGrouperSessionDAO.create(_s) ) );
 
       sw.stop();
       EventLog.info( s.toString(), M.S_START, sw );
@@ -239,7 +237,6 @@ public class GrouperSession extends GrouperAPI {
   } // public void stop()
 
   public String toString() {
-    // TODO 20070125 replace with call to DTO?
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append( "session_id",   this.getDTO().getSessionUuid()                                 )
       .append( "subject_id",   U.internal_q( this.getDTO().getSubject().getId() )             )

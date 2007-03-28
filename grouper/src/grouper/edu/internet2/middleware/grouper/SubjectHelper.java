@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.18 2007-03-28 15:06:10 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.19 2007-03-28 18:12:12 blair Exp $
  */
 class SubjectHelper {
 
@@ -66,14 +66,13 @@ class SubjectHelper {
   } // protected static String getPretty(_m)
  
   // @since   1.2.0
-  // TODO 20070322 rename
-  protected static String internal_getPretty(Subject subj) {
+  protected static String getPretty(Subject subj) {
     return  U.internal_q( subj.getId() )
             + SUBJECT_DELIM
             + U.internal_q( subj.getType().getName() ) 
             + SUBJECT_DELIM
             + U.internal_q( subj.getSource().getId() );
-  } // protected static String internal_getPretty(subj)
+  } // protected static String getPretty(subj)
 
 } // class SubjectHelper
  

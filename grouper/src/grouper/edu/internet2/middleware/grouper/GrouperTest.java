@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.15 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.16 2007-03-28 18:12:12 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -330,7 +330,7 @@ public class GrouperTest extends TestCase {
       }
       else {
         _fail(
-          G, name, SubjectHelper.internal_getPretty(subj)  + " is member/" + f.getName(),
+          G, name, SubjectHelper.getPretty(subj)  + " is member/" + f.getName(),
           Boolean.toString(exp), Boolean.toString(got)
         );
       }
@@ -521,7 +521,7 @@ public class GrouperTest extends TestCase {
     }
     else {
       _fail(
-        type, who, SubjectHelper.internal_getPretty(subj) + " has " + what, 
+        type, who, SubjectHelper.getPretty(subj) + " has " + what, 
         Boolean.toString(exp), Boolean.toString(got)
       );
     }
@@ -543,7 +543,7 @@ public class GrouperTest extends TestCase {
       assertTrue(true);
     }
     else {
-      _fail(type, who, what, SubjectHelper.internal_getPretty(exp), SubjectHelper.internal_getPretty(got));
+      _fail(type, who, what, SubjectHelper.getPretty(exp), SubjectHelper.getPretty(got));
     }
   } // private void _assertSubject(type, who, what, exp, got)
 

@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Group} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.8 2007-03-28 17:00:06 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.9 2007-03-28 18:12:12 blair Exp $
  */
 class GroupDTO extends BaseGrouperDTO {
 
@@ -131,8 +131,6 @@ class GroupDTO extends BaseGrouperDTO {
 
 
   // PRIVATE INSTANCE METHODS //
-
-  // TODO 20070215 these methods should be renamed and moved to `GrouperDTO`
   
   // @since   1.2.0
   private void _setDAO(HibernateGroupDAO dao) {

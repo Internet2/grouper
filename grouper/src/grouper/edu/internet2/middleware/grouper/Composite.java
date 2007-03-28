@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.35 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: Composite.java,v 1.36 2007-03-28 18:12:12 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -141,10 +141,9 @@ public class Composite extends GrouperAPI {
   } // public int hashCode()
 
   /**
-   * @since 1.0
+   * @since   1.0
    */
   public String toString() {
-    // TODO 20070125 replace with call to DTO?
     return  new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append( "type",  this.getType()                                     )
       .append( "owner", U.internal_q( CompositeHelper.getOwnerName(this) ) )
@@ -155,8 +154,6 @@ public class Composite extends GrouperAPI {
 
 
   // PROTECTED CLASS METHODS //
-
-  // TODO 20070125 revisit these methods once initial daoification is complete
 
   // @since   1.2.0
   protected static void internal_update(Group g) {
@@ -177,8 +174,6 @@ public class Composite extends GrouperAPI {
   protected CompositeDTO getDTO() {
     return (CompositeDTO) super.getDTO();
   } // protected CompositeDTO getDTO()
- 
-  // TODO 20070125 revisit these methods once initial daoification is complete
 
   // @since   1.1.0
   protected String getName() {

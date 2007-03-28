@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link RegistrySubject} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistrySubjectDTO.java,v 1.1 2007-03-06 17:02:43 blair Exp $
+ * @version $Id: RegistrySubjectDTO.java,v 1.2 2007-03-28 18:12:12 blair Exp $
  */
 class RegistrySubjectDTO extends BaseGrouperDTO {
 
@@ -102,14 +102,17 @@ class RegistrySubjectDTO extends BaseGrouperDTO {
 
   // SETTERS //
 
-  protected void setId(String id) {
+  protected RegistrySubjectDTO setId(String id) {
     this.id = id;
+    return this;
   }
-  protected void setName(String name) {
+  protected RegistrySubjectDTO setName(String name) {
     this.name = name;
+    return this;
   }
-  protected void setType(String type) {
+  protected RegistrySubjectDTO setType(String type) {
     this.type = type;
+    return this;
   }
 
 } // class RegistrySubjectDTO extends BaseGrouperDTO

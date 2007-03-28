@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.37 2007-03-23 13:55:04 blair Exp $
+ * @version $Id: EventLog.java,v 1.38 2007-03-28 18:12:12 blair Exp $
  */
 class EventLog {
 
@@ -285,7 +285,7 @@ class EventLog {
   {
     String subject = GrouperConfig.EMPTY_STRING;
     try {
-      subject = SubjectHelper.internal_getPretty(ms.getMember().getSubject());
+      subject = SubjectHelper.getPretty(ms.getMember().getSubject());
     }
     catch (Exception e) {
       subject = U.internal_q(e.getMessage());
@@ -366,7 +366,7 @@ class EventLog {
     }
     // Get added or removed subject that caused this effective
     // membership change
-    msg += " subject=" + SubjectHelper.internal_getPretty(subj) + ")";
+    msg += " subject=" + SubjectHelper.getPretty(subj) + ")";
     // Now log it
     LOG.info( LogHelper.internal_formatMsg(s, msg) );
     // Reset to the original session
@@ -435,7 +435,7 @@ class EventLog {
     EventLog.info(
       s,
       msg + U.internal_q(name) + " priv=" + U.internal_q(p.getName()) + " subject=" 
-      + SubjectHelper.internal_getPretty(subj),
+      + SubjectHelper.getPretty(subj),
       sw
     );
   } // private void _grantPriv(s, msg, name, subj, p, sw)
@@ -447,7 +447,7 @@ class EventLog {
     EventLog.info(
       s,
       msg + U.internal_q(group) + " list=" + U.internal_q(f.getName()) + " subject=" 
-      + SubjectHelper.internal_getPretty(subj),
+      + SubjectHelper.getPretty(subj),
       sw
     );
   } // private void _member(s, msg, group, subj, f, sw)
@@ -468,7 +468,7 @@ class EventLog {
     EventLog.info(
       s,
       msg + U.internal_q(name) + " priv=" + U.internal_q(p.getName()) + " subject=" 
-      + SubjectHelper.internal_getPretty(subj),
+      + SubjectHelper.getPretty(subj),
       sw
     );
   } // private void _revokePriv(s, msg, name, subj, p, sw)
