@@ -26,7 +26,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.78 2007-03-23 13:55:04 blair Exp $
+ * @version $Id: Membership.java,v 1.79 2007-03-28 17:00:06 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -264,8 +264,6 @@ public class Membership extends GrouperAPI {
 
 
   // PROTECTED CLASS METHODS //
-
-  // TODO 20070123 figure out what to do with these protected class methods
 
   // @since   1.2.0
   protected static void internal_addImmediateMembership(

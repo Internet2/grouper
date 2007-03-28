@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.113 2007-03-16 18:42:21 blair Exp $
+ * @version $Id: Stem.java,v 1.114 2007-03-28 17:00:06 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -857,55 +857,51 @@ public class Stem extends GrouperAPI implements Owner {
       throw new GroupAddException( v.getErrorMessage() );
     }
     try {
-      // TODO 20070314 refactor!
-      GroupDTO  dto   = new GroupDTO();    
-      Map       attrs = new HashMap();
+      Map attrs = new HashMap();
       attrs.put( GrouperConfig.ATTR_DE, dExtn );
       attrs.put( GrouperConfig.ATTR_DN, U.internal_constructName( this.getDisplayName(), dExtn ) );
       attrs.put( GrouperConfig.ATTR_E,  extn );
       attrs.put( GrouperConfig.ATTR_N,  U.internal_constructName( this.getName(), extn ) );
-      dto.setAttributes(attrs);
-      dto.setCreateTime( new Date().getTime() );
-      dto.setCreatorUuid( this.getSession().getMember().getUuid() );
-      dto.setParentUuid( this.getDTO().getUuid() );
-      Set       types = new LinkedHashSet();
+      Set types = new LinkedHashSet();
       types.add( GroupTypeFinder.find("base").getDTO() ); 
-      dto.setTypes(types);
+      GroupDTO _g = new GroupDTO()
+        .setAttributes(attrs)
+        .setCreateTime( new Date().getTime() )
+        .setCreatorUuid( this.getSession().getMember().getUuid() )
+        .setParentUuid( this.getDTO().getUuid() )
+        .setTypes(types);
       if (uuid == null) {
-        dto.setUuid( GrouperUuid.internal_getUuid() );
+        _g.setUuid( GrouperUuid.internal_getUuid() );
       }
       else {
-        dto.setUuid(uuid);
+        _g.setUuid(uuid);
       }
 
-      GrouperSubject  subj  = new GrouperSubject(dto);
-      MemberDTO       m     = new MemberDTO();
-      // TODO 20070123 this could be more elegant
-      // TODO 20070307 this is even worse now that i'm checking for existence both here
-      //               and in the dao.
-      m.setSubjectId( subj.getId() );
-      m.setSubjectSourceId( subj.getSource().getId() );
-      m.setSubjectTypeId( subj.getType().getName() );
+      GrouperSubject  subj  = new GrouperSubject(_g);
+      MemberDTO       _m    = new MemberDTO()
+        .setSubjectId( subj.getId() )
+        .setSubjectSourceId( subj.getSource().getId() )
+        .setSubjectTypeId( subj.getType().getName() );
+      // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
+      //               for existence in the dao as well.
       if (uuid == null) {
-        m.setMemberUuid( GrouperUuid.internal_getUuid() ); // assign a new uuid
+        _m.setMemberUuid( GrouperUuid.internal_getUuid() ); // assign a new uuid
       }
       else {
         try {
           // member already exists.  use existing uuid.
-          m.setMemberUuid( HibernateMemberDAO.findBySubject(subj).getMemberUuid() );
+          _m.setMemberUuid( HibernateMemberDAO.findBySubject(subj).getMemberUuid() );
         }
         catch (MemberNotFoundException eMNF) {
           // couldn't find member.  assign new uuid.
-          m.setMemberUuid( GrouperUuid.internal_getUuid() ); 
+          _m.setMemberUuid( GrouperUuid.internal_getUuid() ); 
         }
       }
 
-      dto.setId( HibernateStemDAO.createChildGroup( this.getDTO(), dto, m) );
       Group child = new Group();
-      child.setDTO(dto);
+      child.setDTO( _g.setId( HibernateStemDAO.createChildGroup( this.getDTO(), _g, _m ) ) );
       child.setSession( this.getSession() );
         
-
       sw.stop();
       EventLog.info(s, M.GROUP_ADD + U.internal_q(child.getName()), sw);
       _grantDefaultPrivsUponCreate(child);

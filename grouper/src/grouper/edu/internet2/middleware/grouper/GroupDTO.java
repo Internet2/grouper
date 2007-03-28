@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Group} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.7 2007-03-16 18:42:20 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.8 2007-03-28 17:00:06 blair Exp $
  */
 class GroupDTO extends BaseGrouperDTO {
 
@@ -214,38 +214,49 @@ class GroupDTO extends BaseGrouperDTO {
 
   // SETTERS //
 
-  protected void setAttributes(Map attributes) {
+  protected GroupDTO setAttributes(Map attributes) {
     this.attributes = attributes;
+    return this;
   }
-  protected void setCreateSource(String createSource) {
+  protected GroupDTO setCreateSource(String createSource) {
     this.createSource = createSource;
+    return this;
   }
-  protected void setCreateTime(long createTime) {
+  protected GroupDTO setCreateTime(long createTime) {
     this.createTime = createTime;
+    return this;
   }
-  protected void setCreatorUuid(String creatorUUID) {
+  protected GroupDTO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
+    return this;  
   }
-  protected void setId(String id) {
+  protected GroupDTO setId(String id) {
     this.id = id;
+    return this;
   }
-  protected void setModifierUuid(String modifierUUID) {
+  protected GroupDTO setModifierUuid(String modifierUUID) {
     this.modifierUUID = modifierUUID;
+    return this;
   }
-  protected void setModifySource(String modifySource) {
+  protected GroupDTO setModifySource(String modifySource) {
     this.modifySource = modifySource;
+    return this;
   }
-  protected void setModifyTime(long modifyTime) {
+  protected GroupDTO setModifyTime(long modifyTime) {
     this.modifyTime = modifyTime;
+    return this;
   }
-  protected void setParentUuid(String parentUUID) {
+  protected GroupDTO setParentUuid(String parentUUID) {
     this.parentUUID = parentUUID;
+    return this;
   }
-  protected void setTypes(Set types) {
+  protected GroupDTO setTypes(Set types) {
     this.types = types;
+    return this;
   }
-  protected void setUuid(String uuid) {
+  protected GroupDTO setUuid(String uuid) {
     this.uuid = uuid;
+    return this;
   }
 
 } // class GroupDTO extends BaseGrouperDTO

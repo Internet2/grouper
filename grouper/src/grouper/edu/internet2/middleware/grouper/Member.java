@@ -28,7 +28,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.85 2007-03-16 18:42:20 blair Exp $
+ * @version $Id: Member.java,v 1.86 2007-03-28 17:00:06 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1229,8 +1229,6 @@ public class Member extends GrouperAPI implements Serializable {
 
 
   // PRIVATE INSTANCE METHODS //
-
-  // TODO 20070123 review all of the below methods to determine whether they should remain
 
   // @since   1.1.0
   private Set _getGroups(Iterator it) {
