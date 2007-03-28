@@ -23,7 +23,7 @@ import  edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.35 2007-03-23 13:55:04 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.36 2007-03-28 16:27:46 blair Exp $
  */
 public class MemberFinder {
 
@@ -119,31 +119,27 @@ public class MemberFinder {
       throw new MemberNotFoundException();
     }
     Member m = new Member();
-    m.setDTO( internal_findBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) );
+    m.setDTO( internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) );
     return m;
   } // protected static Member internal_findBySubject(subj)
 
   // @since   1.2.0
-  // TODO 20070123  this should really be renamed to reflect that it will create the member
-  //                if it cannot be found
-  protected static MemberDTO internal_findBySubject(String id, String src, String type) 
-    throws  MemberNotFoundException
+  protected static MemberDTO internal_findOrCreateBySubject(String id, String src, String type) 
+    //throws  MemberNotFoundException
   {
-    // @session false
-    MemberDTO dto = null;
     try {
-      dto = HibernateMemberDAO.findBySubject(id, src, type);
+      return HibernateMemberDAO.findBySubject(id, src, type);
     }
     catch (MemberNotFoundException eMNF) {
-      dto = new MemberDTO();
+      MemberDTO dto = new MemberDTO();
       dto.setMemberUuid( GrouperUuid.internal_getUuid() );
       dto.setSubjectId(id);
       dto.setSubjectSourceId(src);
       dto.setSubjectTypeId(type);
       dto.setId( HibernateMemberDAO.create(dto) ); // create new member
+      return dto;
     }
-    return dto; // return existing member
-  } // protected static Member internal_findBySubject(id, src, type)
+  } // protected static MemberDTO internal_findOrCreateBySubject(id, src, type)
 
   // @since   1.2.0
   protected static Member internal_findViewableMemberBySubject(GrouperSession s, Subject subj)

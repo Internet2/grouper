@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.146 2007-03-22 16:49:33 blair Exp $
+ * @version $Id: Group.java,v 1.147 2007-03-28 16:27:46 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -493,7 +493,6 @@ public class Group extends GrouperAPI implements Owner {
         throw new InsufficientPrivilegeException();
       }
 
-      // TODO 20061011 REFACTOR: I'm not comfortable with this code
       Map attrs = this.getDTO().getAttributes();
       if (attrs.containsKey(attr)) {
         String val = (String) attrs.get(attr); // for logging

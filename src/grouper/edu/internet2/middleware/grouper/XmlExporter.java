@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.89 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.90 2007-03-28 16:27:46 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -576,7 +576,8 @@ public class XmlExporter {
     String type   = subj.getType().getName();
     String key    = "export.subject-attributes.source." + source + "." + type;
     String value  = options.getProperty(key);
-    // TODO 20061018 i'm not keen on these repetitive "if"s
+    // TODO 20070328 i'm not keen on these repetitive "if"s but i'm afraid to touch this code until
+    //               i have added more black box testing
     NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(value);
     if (v.isInvalid()) {
       key   = "export.subject-attributes.source." + source;
