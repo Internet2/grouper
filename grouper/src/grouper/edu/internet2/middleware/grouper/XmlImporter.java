@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.98 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.99 2007-03-28 16:27:46 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1411,42 +1411,24 @@ public class XmlImporter {
   } // private void _processProperties()
 
   // @since   1.2.0
-  private boolean _setCreateSubject(Group g, Element e) {
+  private void _setCreateSubject(Group g, Element e) {
     Element elSubj = this._getImmediateElement(e, "subject");
-    String  msg    = "error setting createSubject: ";
-    try { 
-      g.getDTO().setCreatorUuid(
-        MemberFinder.internal_findBySubject(
-          elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
-        ).getMemberUuid()
-      );
-      return true;
-    }
-    catch (MemberNotFoundException eMNF) {
-      msg += eMNF.getMessage();
-    }
-    LOG.error(msg);
-    return false;
-  } // private boolean setCreateSubject(g, e)
+    g.getDTO().setCreatorUuid(
+      MemberFinder.internal_findOrCreateBySubject(
+        elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
+      ).getMemberUuid()
+    );
+  } // private void setCreateSubject(g, e)
   
   // @since   1.2.0
-  private boolean _setCreateSubject(Stem ns, Element e) {
+  private void _setCreateSubject(Stem ns, Element e) {
     Element elSubj = this._getImmediateElement(e, "subject");
-    String  msg    = "error setting createSubject: ";
-    try { 
-      ns.getDTO().setCreatorUuid(
-        MemberFinder.internal_findBySubject(
-          elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
-        ).getMemberUuid()
-      );
-      return true;
-    }
-    catch (MemberNotFoundException eMNF) {
-      msg += eMNF.getMessage();
-    }
-    LOG.error(msg);
-    return false;
-  } // private boolean setCreateSubject(ns, e)
+    ns.getDTO().setCreatorUuid(
+      MemberFinder.internal_findOrCreateBySubject(
+        elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
+      ).getMemberUuid()
+    );
+  } // private void setCreateSubject(ns, e)
 
   // @since   1.2.0
   private boolean _setCreateTime(Group g, Element e) {
@@ -1490,9 +1472,8 @@ public class XmlImporter {
       e0    = (Element) it.next();
       attr  = e0.getAttribute("name");
       if      ( "createSubject".equals(attr) ) {
-        if ( this._setCreateSubject(g, e0) ) {
-          modified = true;
-        }
+        this._setCreateSubject(g, e0);
+        modified = true;
       }
       else if ( "createTime".equals(attr) ) {
         if ( this._setCreateTime(g, e0) ) {
@@ -1517,9 +1498,8 @@ public class XmlImporter {
       e0    = (Element) it.next();
       attr  = e0.getAttribute("name");
       if      ( "createSubject".equals(attr) ) {
-        if ( this._setCreateSubject(ns, e0) ) {
-          modified = true;
-        }
+        this._setCreateSubject(ns, e0);
+        modified = true;
       }
       else if ( "createTime".equals(attr) ) {
         if ( this._setCreateTime(ns, e0) ) {

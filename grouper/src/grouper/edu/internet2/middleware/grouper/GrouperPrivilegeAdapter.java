@@ -22,7 +22,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.9 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.10 2007-03-28 16:27:46 blair Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -45,7 +45,7 @@ class GrouperPrivilegeAdapter {
   )
     throws  SchemaException
   {
-    // TODO 20061005 refactor: this is a monstrosity
+    // TODO 20070328 i have to be able to break this up
     Membership  ms;
     Subject     owner   = subj;
     Set         privs   = new LinkedHashSet();
@@ -63,12 +63,14 @@ class GrouperPrivilegeAdapter {
       catch (SubjectNotFoundException eSNF) {
         ErrorLog.error(GrouperPrivilegeAdapter.class, eSNF.getMessage());
       }
-      try {
-        owner   = ms.getViaGroup().toSubject();
-        revoke  = false;
-      }
-      catch (GroupNotFoundException eGNF) {
-        // ignore
+      if ( ms.getDTO().getViaUuid() != null ) {
+        try {
+          owner   = ms.getViaGroup().toSubject();
+          revoke  = false;
+        }
+        catch (GroupNotFoundException eGNF) {
+          ErrorLog.error( GrouperPrivilegeAdapter.class, eGNF.getMessage() );
+        }
       }
       try {
         if (Privilege.isAccess(p))  {

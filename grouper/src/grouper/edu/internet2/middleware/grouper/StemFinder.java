@@ -25,7 +25,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.38 2007-03-14 19:54:08 blair Exp $
+ * @version $Id: StemFinder.java,v 1.39 2007-03-28 16:27:46 blair Exp $
  */
 public class StemFinder {
 
@@ -243,64 +243,38 @@ public class StemFinder {
     return HibernateStemDAO.findByName(name);
   } // protected static StemDTO internal_findByName(name)
 
-  // TODO 20061018 Is this the right location?  And should it be top-down?
   // @since   1.2.0
-  protected static boolean internal_isChild(Stem ns, Group g) {
-    Stem parent = g.getParentStem();
-    try {
-      while (parent != null) {
-        if (parent.equals(ns)) {
-          return true;
-        }
-        // parent is root.  don't bother searching further.
-        if (parent.getName().equals(Stem.ROOT_EXT)) {
-          return false;
-        }
-        parent = parent.getParentStem();
-      }
+  protected static boolean internal_isChild(Stem ns, Group child) {
+    Stem parent = child.getParentStem();
+    if ( parent.equals(ns) ) {
+      return true;
     }
-    catch (StemNotFoundException eSNF) {
-      String msg = E.STEMF_ISCHILDGROUP + U.internal_q(parent.getName()) + " " + eSNF.getMessage();
-      ErrorLog.error(StemFinder.class, msg);
-    }
-    return false;
-  } // protected static boolean internal_isChild(ns, g)
+    return internal_isChild(ns, parent);
+  } // protected static boolean internal_isChild(ns, child)
 
-  // TODO 20061018 Is this the right location?  And should it be top-down?
   // @since   1.2.0
-  protected static boolean internal_isChild(Stem ns, Stem stem) {
-    // our start stem is the root stem.  bail out immediately.
-    if (stem.getName().equals(Stem.ROOT_EXT)) {
-      return false;
+  protected static boolean internal_isChild(Stem ns, Stem child) {
+    if ( Stem.ROOT_EXT.equals( child.getName() ) ) {
+      return false; // child stem is the root stem.  bail out immediately.
     }
-    Stem parent = null;
+    StemDTO _parent = null;
     try {
-      parent = stem.getParentStem();
-      while (parent != null) {
-        if (parent.equals(ns)) {
+      _parent = HibernateStemDAO.findByUuid( child.getDTO().getParentUuid() );
+      while (_parent != null) {
+        if ( _parent.getUuid().equals( ns.getUuid() ) ) {
           return true;
         }
-        // parent is root.  don't bother searching further.
-        if (parent.getName().equals(Stem.ROOT_EXT)) {
-          return false;
+        if ( Stem.ROOT_EXT.equals( _parent.getName() ) ) {
+          return false; // _parent is root.  don't bother searching further.
         }
-        parent = parent.getParentStem();
+        _parent = HibernateStemDAO.findByUuid( _parent.getParentUuid() );
       }
     }
-    catch (StemNotFoundException eSNF) {
-      String msg = E.STEMF_ISCHILDSTEM;
-      if (parent == null) {
-        msg += "null";
-      }
-      else {
-        msg += U.internal_q(parent.getName());
-      }
-      msg += " start=" + U.internal_q(stem.getName());
-      msg += " " + eSNF.getMessage();
-      ErrorLog.error(StemFinder.class, msg);
+    catch (StemNotFoundException eNSNF) {
+      ErrorLog.error( StemFinder.class, "internal_isChild: " + eNSNF.getMessage() );
     }
     return false;
-  } // protected static boolean internal_isChild(ns, stem)
+  } // protected static boolean internal_isChild(ns, child)
 
 } // public class StemFinder
 

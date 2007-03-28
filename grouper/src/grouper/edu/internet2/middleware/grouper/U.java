@@ -26,7 +26,7 @@ import  java.util.Set;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.14 2007-03-16 19:46:17 blair Exp $
+ * @version $Id: U.java,v 1.15 2007-03-28 16:27:46 blair Exp $
  * @since   1.0
  */
 class U {
@@ -52,7 +52,6 @@ class U {
   // This isn't the best place for this but until I have a better idea...
   // @since   1.2.0
   protected static String internal_constructName(String stem, String extn) {
-    // TODO 20061018 I should perform validation here, no?
     if (stem.equals(Stem.ROOT_EXT)) {
       return extn;
     }
