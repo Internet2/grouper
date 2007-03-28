@@ -17,13 +17,12 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 
 /**
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.17 2007-03-22 16:40:04 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.18 2007-03-28 15:06:10 blair Exp $
  */
 class SubjectHelper {
 
