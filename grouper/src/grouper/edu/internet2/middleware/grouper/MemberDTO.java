@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Member} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberDTO.java,v 1.2 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: MemberDTO.java,v 1.3 2007-03-28 16:43:22 blair Exp $
  */
 class MemberDTO extends BaseGrouperDTO {
 
@@ -115,20 +115,25 @@ class MemberDTO extends BaseGrouperDTO {
 
   // SETTERS //
 
-  protected void setId(String id) {
+  protected MemberDTO setId(String id) {
     this.id = id;
+    return this;
   }
-  protected void setMemberUuid(String memberUUID) {
+  protected MemberDTO setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
+   return this;
   }
-  protected void setSubjectId(String subjectID) {
+  protected MemberDTO setSubjectId(String subjectID) {
     this.subjectID = subjectID;
+    return this;
   }
-  protected void setSubjectSourceId(String subjectSourceID) {
+  protected MemberDTO setSubjectSourceId(String subjectSourceID) {
     this.subjectSourceID = subjectSourceID;
+    return this;
   }
-  protected void setSubjectTypeId(String subjectTypeID) {
+  protected MemberDTO setSubjectTypeId(String subjectTypeID) {
     this.subjectTypeID = subjectTypeID;
+    return this;
   }
 
 } // class MemberDTO extends BaseGrouperDTO
