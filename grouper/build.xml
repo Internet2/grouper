@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.160 2007-03-26 13:59:06 blair Exp $ -->
+<!-- $Id: build.xml,v 1.161 2007-03-28 20:35:31 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -67,6 +67,21 @@
       <jvmarg value="-agentlib:yjpagent=sampling,alloc,onexit=memory,onexit=telemetry"/>
     </java>
   </target>
+  <!-- target: bench-run-yourkit -->
+
+  <!-- target: bench-run-shark -->
+  <target name="bench-run-shark" 
+          depends="build, ensure-name"
+  >
+    <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.bench.${name}"
+          failonerror="true"
+    >
+      <jvmarg value="-XrunShark"/>
+    </java>
+  </target>
   <!-- target: bench-run-shark -->
 
   <!-- target: build -->
@@ -88,6 +103,49 @@
     <delete file="${test.log}"/>
   </target>
   <!-- target: clean -->
+
+  <!-- target: clover.clean -->
+  <target name="clover.clean" depends="clover.init">
+    <clover-clean/>
+  </target>
+  <!-- target: clover.clean -->
+
+  <!-- target: clover.init -->
+  <target name="clover.init">
+    <taskdef resource="cloverlib.xml" classpath="${lib.jar.clover}"/>
+  </target>
+  <!-- target: clover.init -->
+
+  <!-- target: clover.log -->
+  <target name="clover.log" 
+          depends="with.clover"
+  >
+    <clover-log/>
+  </target>
+  <!-- target: clover.log -->
+
+  <!-- target: clover.html -->
+  <target name="clover.html" 
+          depends="with.clover"
+  >
+    <clover-report>
+      <current  outfile="clover">
+        <format type="html"/>
+        <testresults dir="${dist.dir.test}">
+          <include name="**/TEST*xml"/>
+        </testresults>
+      </current>
+    </clover-report>
+  </target>
+  <!-- target: clover.html -->
+
+  <!-- target: clover.swing -->
+ <target  name="clover.swing" 
+          depends="with.clover"
+  >
+   <clover-view/>
+ </target>
+  <!-- target: clover-swing -->
 
   <!-- target: compile -->
   <target name="compile" 
@@ -117,6 +175,44 @@
   </target>
   <!-- target: compile -->
 
+  <!-- target: cpd -->
+  <target name="cpd">
+    <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" />
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir.run}"/>
+    <cpd minimumTokenCount="95" outputFile="${dist.dir.run}/cpd.txt">
+      <fileset dir="${src.dir.grouper}">
+        <include  name="**/*.java"    />
+        <exclude  name="**/bench/**/" />
+        <exclude  name="**/eg/**/"    />
+      </fileset>
+    </cpd>
+  </target>
+  <!-- target: cpd -->
+
+  <!-- target: db -->
+  <target name="db" 
+          depends="init" 
+          description="Launch HSQLDB UI"
+  >
+    <property file="${conf.hibernate}"/>
+    <java fork="true"
+          classpathref="project.classpath"
+          classname="org.hsqldb.util.DatabaseManager"
+          maxmemory="${memory.max}"
+    >
+      <arg value="-driver"/>
+      <arg value="${hibernate.connection.driver_class}"/>
+      <arg value="-url"/>
+      <arg value="${hibernate.connection.url}"/>
+      <arg value="-user"/>
+      <arg value="${hibernate.connection.username}"/>
+      <arg value="-password"/>
+      <arg value="${hibernate.connection.password}"/>
+    </java>
+  </target>
+  <!-- target: db -->
+
   <!-- target: db-init -->
   <target name="db-init" 
           depends="init, build"
@@ -130,6 +226,157 @@
     <record name="${db-init.log}" action="stop"/>
   </target>
   <!-- target: db-init -->
+
+  <!-- target: db.reset -->
+  <!-- reset the groups registry -->
+  <target name="db.reset"
+          depends="build"
+  >
+    <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.RegistryReset"
+    />
+  </target>
+  <!-- target: db.reset -->
+
+  <!-- target: eg.bootstrap -->
+  <!-- run example bootstrap programs -->
+  <target name="eg.bootstrap"
+          depends="build"
+  >
+    <record name="${log.eg.run}" action="start"/>
+    <antcall  target="db.reset"/>
+    <antcall  target="eg.run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap1"  /> 
+    </antcall>
+    <antcall  target="eg.run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap2"  /> 
+    </antcall>
+    <antcall  target="eg.run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap3"  /> 
+    </antcall>
+    <antcall  target="eg.run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap4"  /> 
+    </antcall>
+    <antcall  target="eg.run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap5"  /> 
+    </antcall>
+    <antcall  target="eg.run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap6"  /> 
+    </antcall>
+    <antcall  target="eg.run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap7"  /> 
+    </antcall>
+    <antcall  target="eg.run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap8"  /> 
+    </antcall>
+    <antcall  target="eg.run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap9"  /> 
+    </antcall>
+    <antcall  target="eg.run">
+      <param  name="package"  value="bootstrap"   />
+      <param  name="name"     value="Bootstrap10" /> 
+    </antcall>
+    <record name="${log.eg.run}" action="stop"/>
+  </target>
+  <!--target:  eg.bootstrap -->
+
+  <!-- target: eg.run -->
+  <target name="eg.run">
+    <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.eg.${package}.${name}"
+          failonerror="true"
+    />
+  </target>
+  <!-- target: eg.run -->
+
+  <!-- target: findbugs -->
+  <target name="findbugs" 
+          depends="dist,dist-lib"
+  >
+    <taskdef  name="findbugs"       classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+    <property name="findbugs.home"  location="${user.home}/Applications/findbugs"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir.run}"/>
+    <findbugs home="${findbugs.home}"
+              effort="max"
+              reportLevel="low"
+              output="html"
+              outputFile="${dist.dir.run}/findbugs_grouper.html"
+              jvmargs="-Xmx${memory.max}"
+    >
+      <auxClassPath>
+        <fileset dir="${lib}">
+          <include name="**/*.jar"/>
+        </fileset>
+      </auxClassPath>
+      <sourcePath path="${src.dir.grouper}"/>
+      <class location="${dist.dir}/lib/${app.name}.jar"/>
+    </findbugs>
+  </target>
+  <!-- target: findbugs -->
+
+  <!-- target: hsqldb -->
+  <!-- connect to hsqldb running in server mode -->
+  <target name="hsqldb" 
+          depends="init"
+  >
+    <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          jar="${hsqldb.jar}"
+          dir="${conf.dir}"
+    >
+      <arg value="grouper" />
+    </java>
+  </target>
+  <!-- target: hsqldb -->
+
+  <!-- target: hsqldb.start -->
+  <!-- start hsqldb in server mode -->
+  <target name="hsqldb.start" 
+          depends="init"
+  >
+    <java fork="true"
+          spawn="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="org.hsqldb.Server"
+          dir="${conf.dir}"
+    />
+  </target>
+  <!-- target: hsqldb.start -->
+
+  <!-- target: hsqldb.stop -->
+  <!-- stop hsqldb running in server mode -->
+  <target name="hsqldb.stop" 
+          depends="init"
+  >
+    <java fork="true"
+          spawn="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          jar="${hsqldb.jar}"
+          dir="${conf.dir}"
+    >
+      <arg  value="--sql"     />
+      <arg  value="shutdown;" />
+      <arg  value="grouper"   />
+    </java>
+  </target>
+  <!-- target: hsqldb.stop -->
 
   <!-- target: init-conf -->
   <!-- expands macros in several configuration files to set proper absolute paths -->
@@ -150,13 +397,6 @@
     </copy>
   </target>
   <!-- target: init-conf -->
-
-  <!-- target: init-clover -->
-  <!-- include clover task definitions -->
-  <target name="init-clover">
-    <taskdef resource="cloverlib.xml" classpath="${lib.jar.clover}"/>
-  </target>
-  <!-- target: init-clover -->
 
   <!-- target: javadoc -->
   <target name="javadoc"
@@ -191,6 +431,27 @@
   </target>
   <!-- target: javadoc -->
 
+  <!-- target: pmd -->
+  <target name="pmd" 
+          depends="init">
+    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir.run}"/>
+    <pmd shortFilenames="true">
+      <ruleset>rulesets/favorites.xml</ruleset>
+      <ruleset>basic</ruleset>
+      <formatter  type="html" 
+                  toFile="${dist.dir.run}/pmd_grouper.html"
+                  toConsole="false"
+                  linkPrefix="http://macinthrope.uchicago.edu/~blair/grouper/api/"
+      />
+      <fileset dir="${src.dir.grouper}">
+        <include name="**/*.java"/>
+      </fileset>
+    </pmd>
+  </target>
+  <!-- target: pmd -->
+
   <!-- target: schemaexport -->
   <target name="schemaexport" 
           description="Generate SQL schema appropriate for configured database"
@@ -220,9 +481,21 @@
   </target>
   <!-- target: schemaexport -->
 
+  <!-- target: serialver -->
+  <target name="serialver" 
+          depends="build, ensure-name"
+  >
+    <exec executable="serialver">
+      <arg  value="-classpath"/>
+      <arg  value="${project.classpath.string}"/>
+      <arg  value="edu.internet2.middleware.grouper.${name}"/>
+    </exec>  
+  </target>
+  <!-- target: serialver -->
+
   <!-- target: test -->
   <target name="test" 
-          depends="test-build"
+          depends="test.build"
           description="Run Grouper Tests"
   >
     <echo/>
@@ -258,91 +531,70 @@
   </target>
   <!-- target: test -->
 
+  <!-- target: test.build -->
+  <target name="test.build" 
+          depends="init, build"
+  >
+    <record name="${test.log}" action="start" append="yes"/>
+    <javac srcdir="${src.test}" destdir="${build.test}">
+      <classpath  refid="project.classpath"/>
+      <include name="**/*.java" />
+    </javac>
+    <record name="${test.log}" action="stop"/>
+  </target>
+  <!-- target: test.build -->
 
-  <!-- TODO 20070315 REVIEW ALL TASKS BELOW -->
+  <!-- target: test.run -->
+  <target name="test.run" 
+          depends="init, test.build, ensure-test-name"
+  >
+    <record name="${test.log}" action="start" append="yes"/>
+    <junit printsummary="withOutAndErr" fork="true"> 
+        <classpath    refid="project.classpath" />
+        <formatter    type="plain" usefile="false"/>
+      <batchtest>
+        <fileset dir="${src.test}">
+          <include name="**/${test}.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+    <record name="${test.log}" action="stop"/>
+  </target>
+  <!-- target: test.run -->
 
-  <!-- bench-run-shark -->
-  <target name="bench-run-shark" 
-          description="TODO 20070315 Runs the benchmark specified with -Dname=NAME and enables Shark profiling"
-          depends="build, ensure-name"
+  <!-- target: xml-export -->    
+  <target name="xml-export"
+          depends="ensure-cmd"        
+          description='Perform XML export of Groups Registry [Pass -Dcmd="command line arguments"]'
   >
     <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.bench.${name}"
+          classname="edu.internet2.middleware.grouper.XmlExporter"
           failonerror="true"
     >
-      <jvmarg value="-XrunShark"/>
+      <arg line="${cmd}"/>
     </java>
   </target>
-  <!-- bench-run-shark -->
-
-  <!-- clean.clover -->
-  <target name="clean.clover" depends="init-clover" description="TODO 20070315 clean up after clover">
-    <clover-clean/>
-  </target>
-  <!-- clean.clover -->
-
-  <!-- clover.html -->
-  <target name="clover.html" depends="with.clover">
-    <clover-report>
-      <current  outfile="clover">
-        <format       type="html"/>
-        <testresults  dir="${dist.dir.test}">
-          <include  name="**/TEST*xml"/>
-        </testresults>
-      </current>
-    </clover-report>
-  </target>
-  <!-- clover.html -->
-
-  <!-- cpd -->
-  <target name="cpd">
-    <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" />
-    <mkdir dir="${dist.dir}"/>
-    <mkdir dir="${dist.dir.run}"/>
-    <cpd minimumTokenCount="95" outputFile="${dist.dir.run}/cpd.txt">
-      <fileset dir="${src.dir.grouper}">
-        <include  name="**/*.java"    />
-        <exclude  name="**/bench/**/" />
-        <exclude  name="**/eg/**/"    />
-      </fileset>
-    </cpd>
-  </target>
-  <!-- cpd -->
-
-  <!-- db -->
-  <target name="db" depends="init" description="TODO 20070315 Launch HSQLDB UI">
-    <property file="${conf.hibernate}"/>
-    <java fork="true"
-          classpathref="project.classpath"
-          classname="org.hsqldb.util.DatabaseManager"
-          maxmemory="${memory.max}"
-    >
-      <arg value="-driver"/>
-      <arg value="${hibernate.connection.driver_class}"/>
-      <arg value="-url"/>
-      <arg value="${hibernate.connection.url}"/>
-      <arg value="-user"/>
-      <arg value="${hibernate.connection.username}"/>
-      <arg value="-password"/>
-      <arg value="${hibernate.connection.password}"/>
-    </java>
-  </target>
-  <!-- db -->
-
-  <!-- db-reset -->
-  <target name="db-reset"
-          description="TODO 20070315 reset the db"
-          depends="build"
+  <!-- target: xml-export -->
+      
+  <!-- target: xml-import -->    
+  <target name="xml-import"
+          depends="ensure-cmd"        
+          description='Perform XML import of Groups Registry [Pass -Dcmd="command line arguments"]'
   >
     <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.RegistryReset"
-    />
+          classname="edu.internet2.middleware.grouper.XmlImporter"
+          failonerror="true"
+    >
+      <arg line="${cmd}"/>
+    </java>
   </target>
-  <!-- db-reset -->
+  <!-- target: xml-import -->
+
+  <!-- TODO 20070315 REVIEW ALL TASKS BELOW -->
 
   <!-- dist -->
   <target name="dist" 
@@ -389,68 +641,6 @@
   </target>
   <!-- dist-lib -->
 
-  <!-- eg-bootstrap -->
-  <target name="eg-bootstrap"
-          depends="build"
-          description="TODO 20070315 run example bootstrap programs"
-  >
-    <record name="${log.eg.run}" action="start"/>
-    <antcall  target="db-reset"/>
-    <antcall  target="eg-run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap1"  /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap2"  /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap3"  /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap4"  /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap5"  /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap6"  /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap7"  /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap8"  /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap9"  /> 
-    </antcall>
-    <antcall  target="eg-run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap10" /> 
-    </antcall>
-    <record name="${log.eg.run}" action="stop"/>
-  </target>
-  <!-- eg -bootstrap -->
-
-  <!-- eg-run -->
-  <target name="eg-run">
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.eg.${package}.${name}"
-          failonerror="true"
-    />
-  </target>
-  <!-- eg-run -->
-
   <!-- ensure-cmd -->
   <target name="ensure-cmd" unless="cmd">
     <fail message='You must run this target with -Dcmd="command line arguments"'/>
@@ -468,80 +658,6 @@
     <fail message="You must run this target with -Dtest=TestName"/>
   </target>
   <!-- ensure-test-name -->
-
-  <!-- findbugs -->
-  <target name="findbugs" depends="dist,dist-lib">
-    <taskdef  name="findbugs"       classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
-    <property name="findbugs.home"  location="${user.home}/Applications/findbugs"/>
-    <mkdir dir="${dist.dir}"/>
-    <mkdir dir="${dist.dir.run}"/>
-    <findbugs home="${findbugs.home}"
-              effort="max"
-              reportLevel="low"
-              output="html"
-              outputFile="${dist.dir.run}/findbugs_grouper.html"
-              jvmargs="-Xmx${memory.max}"
-    >
-      <auxClassPath>
-        <fileset dir="${lib}">
-          <include name="**/*.jar"/>
-        </fileset>
-      </auxClassPath>
-      <sourcePath path="${src.dir.grouper}"/>
-      <class location="${dist.dir}/lib/${app.name}.jar"/>
-    </findbugs>
-  </target>
-  <!-- findbugs -->
-
-  <!-- hsqldb -->
-  <target name="hsqldb" 
-          description="TODO 20070315 connect to hsqldb running in server mode"
-          depends="init"
-  >
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          jar="${hsqldb.jar}"
-          dir="${conf.dir}"
-    >
-      <arg  value="grouper" />
-    </java>
-  </target>
-  <!-- hsqldb -->
-
-  <!-- hsqldb-start -->
-  <target name="hsqldb-start" 
-          description="TODO 20070315 starts hsqldb in server mode"
-          depends="init"
-  >
-    <java fork="true"
-          spawn="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="org.hsqldb.Server"
-          dir="${conf.dir}"
-    />
-  </target>
-  <!-- hsqldb-start -->
-
-  <!-- hsqldb-stop -->
-  <target name="hsqldb-stop" 
-          description="TODO 20070315 stops hsqldb running in server mode"
-          depends="init"
-  >
-    <java fork="true"
-          spawn="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          jar="${hsqldb.jar}"
-          dir="${conf.dir}"
-    >
-      <arg  value="--sql"     />
-      <arg  value="shutdown;" />
-      <arg  value="grouper"   />
-    </java>
-  </target>
-  <!-- hsqldb-stop -->
 
   <!-- info -->
   <target name="info" 
@@ -578,57 +694,6 @@
   </target>
   <!-- init -->
 
-  <!-- pmd -->
-  <target name="pmd" depends="init">
-    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"/>
-    <mkdir dir="${dist.dir}"/>
-    <mkdir dir="${dist.dir.run}"/>
-    <pmd shortFilenames="true">
-      <ruleset>rulesets/favorites.xml</ruleset>
-      <ruleset>basic</ruleset>
-      <formatter  type="html" 
-                  toFile="${dist.dir.run}/pmd_grouper.html"
-                  toConsole="false"
-                  linkPrefix="http://macinthrope.uchicago.edu/~blair/grouper/api/"
-      />
-      <fileset dir="${src.dir.grouper}">
-        <include name="**/*.java"/>
-      </fileset>
-    </pmd>
-  </target>
-  <!-- pmd -->
-
-  <!-- runtest -->
-  <target name="runtest" 
-          description="TODO 20070315 Runs the test you specify on the command line with -Dtest=NAME" 
-          depends="init, test-build, ensure-test-name">
-    <record name="${test.log}" action="start" append="yes"/>
-    <junit printsummary="withOutAndErr" fork="true"> 
-        <classpath    refid="project.classpath" />
-        <formatter    type="plain" usefile="false"/>
-      <batchtest>
-        <fileset dir="${src.test}">
-          <include name="**/${test}.java"/>
-        </fileset>
-      </batchtest>
-    </junit>
-    <record name="${test.log}" action="stop"/>
-  </target>
-  <!-- runtest -->
-
-  <!-- serialver -->
-  <target name="serialver" 
-          description="TODO 20070315 Runs serialver on class specified with -Dname=NAME"
-          depends="build, ensure-name"
-  >
-    <exec executable="serialver">
-      <arg  value="-classpath"                                />
-      <arg  value="${project.classpath.string}"               />
-      <arg  value="edu.internet2.middleware.grouper.${name}"  />
-    </exec>  
-  </target>
-  <!-- serialver -->
-
   <!-- sql -->
   <target name="sql"
           description="TODO 20070315 Apply sql file to Groups Registry [Pass -Dname=filename.sql]"
@@ -645,19 +710,8 @@
   </target>
   <!-- sql -->
 
-  <!-- test-build -->
-  <target name="test-build" depends="init, build">
-    <record name="${test.log}" action="start" append="yes"/>
-    <javac srcdir="${src.test}" destdir="${build.test}">
-      <classpath  refid="project.classpath"/>
-      <include name="**/*.java" />
-    </javac>
-    <record name="${test.log}" action="stop"/>
-  </target>
-  <!-- test-build -->
-
   <!-- with.clover -->
-  <target name="with.clover" depends="init, init-clover">
+  <target name="with.clover" depends="init, clover.init">
     <clover-setup>
       <fileset  dir="${src.dir.grouper}">
         <exclude  name="**/bench/*"/>
@@ -669,7 +723,7 @@
   <!-- with.clover -->
 
   <!-- with.clover.test -->
-  <target name="with.clover.test" depends="init, init-clover">
+  <target name="with.clover.test" depends="init, clover.init">
     <clover-setup>
       <fileset  dir="${src.test}">
         <include  name="**/Test*.java"/>
@@ -678,49 +732,7 @@
   </target> 
   <!-- with.clover.test -->
 
-  <!-- xml-export -->    
-  <target name="xml-export"
-          description='TODO 20070315 Perform XML export of Groups Registry [Pass -Dcmd="command line arguments"]'
-          depends="ensure-cmd"        
-  >
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.XmlExporter"
-          failonerror="true"
-    >
-      <arg line="${cmd}"/>
-    </java>
-  </target>
-  <!-- xml-export -->
-      
-  <!-- xml-import -->    
-  <target name="xml-import"
-          description='TODO 20070315 Perform XML import of Groups Registry [Pass -Dcmd="command line arguments"]'
-          depends="ensure-cmd"        
-  >
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.XmlImporter"
-          failonerror="true"
-    >
-      <arg line="${cmd}"/>
-    </java>
-  </target>
-  <!-- xml-import -->
-      
-
-  <!-- these remaining ant targets are not very well organized -->
   <target name="jar" depends="dist" />
-
-  <target name="clover.log" depends="with.clover">
-    <clover-log/>
-  </target>
-
- <target name="clover.swing" depends="with.clover">
-   <clover-view/>
- </target>
 
 </project>
 
