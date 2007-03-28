@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.80 2007-03-23 13:55:04 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.81 2007-03-28 18:12:12 blair Exp $
  */
 public class MembershipFinder {
   
@@ -186,76 +186,80 @@ public class MembershipFinder {
     return children;
   } // protected static Set internal_findAllChildrenNoPriv(dto)
 
-  // TODO 20061019 Smaller!  Also: What does this even do?  I can't even remember.
+  // TODO 20070328 i'm still not sure what all is going on here but at least the method is now smaller
   // @since   1.2.0
   protected static Set internal_findAllForwardMembershipsNoPriv(
     GrouperSession s, MembershipDTO dto, Set children
   )  
     throws  SchemaException 
   {
-    // @filtered  false
-    // @session   false
-    Set         mships      = new LinkedHashSet();
-    Iterator    it          = HibernateMembershipDAO.findAllByMemberAndVia( dto.getMemberUuid(), dto.getOwnerUuid() ).iterator();
-    Iterator    childIter;
-    Iterator    newChildIter;
+    Set           mships  = new LinkedHashSet();
+    Iterator      it      = HibernateMembershipDAO.findAllByMemberAndVia( dto.getMemberUuid(), dto.getOwnerUuid() ).iterator();
+    Iterator      childIt;
+    MembershipDTO _eff;
+    MembershipDTO _child;
     while (it.hasNext()) {
-      MembershipDTO eff = (MembershipDTO) it.next();
-      childIter = children.iterator();
-      while (childIter.hasNext()) {
-        MembershipDTO child = (MembershipDTO) childIter.next();
-        newChildIter        = HibernateMembershipDAO.findAllEffective(
-          eff.getOwnerUuid(), child.getMemberUuid(), FieldFinder.find( eff.getListName() ), 
-          child.getViaUuid(), eff.getDepth() + child.getDepth()
-        ).iterator();
-        while (newChildIter.hasNext()) {
-          MembershipDTO newChild = (MembershipDTO) newChildIter.next();
-          mships.add(newChild);
-        }
+      _eff    = (MembershipDTO) it.next();
+      childIt = children.iterator();
+      while (childIt.hasNext()) {
+        _child = (MembershipDTO) childIt.next();
+        mships.addAll(
+          HibernateMembershipDAO.findAllEffective(
+            _eff.getOwnerUuid(), _child.getMemberUuid(), FieldFinder.find( _eff.getListName() ), 
+            _child.getViaUuid(), _eff.getDepth() + _child.getDepth()    
+          )
+        );
       }
-      mships.add(eff);
+      mships.add(_eff);
     }
     return mships;
   } // protected static Set internal_findAllForwardMembershipsNoPriv(s, dto, children)
 
   // @since   1.2.0
-  protected static Set internal_findMembers(GrouperSession s, Group g, Field f) {
-     // @filtered  true  MembershipFinder.findMemberships(s, g, f) 
-     // @session   true  MembershipFinder.findMemberships(s, g, f)
+  protected static Set internal_findMembers(GrouperSession s, Group g, Field f)
+    throws  GrouperRuntimeException
+  {
     GrouperSession.validate(s);
-    Set         members = new LinkedHashSet();
-    Membership  ms;
-    Iterator    iter    = internal_findMemberships(s, g, f).iterator();
-    while (iter.hasNext()) {
-      ms = (Membership) iter.next();
-      try {
-        members.add(ms.getMember());
+    Set       members = new LinkedHashSet();
+    Iterator  it      = PrivilegeResolver.internal_canViewMemberships(
+      s, HibernateMembershipDAO.findAllByOwnerAndField( g.getUuid(), f )
+    ).iterator();
+    try {
+      while (it.hasNext()) {
+        members.add ( ( (Membership) it.next() ).getMember() );
       }
-      catch (MemberNotFoundException eMNF) {
-        // Ignore
-      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      String msg = "internal_findMembers: " + eMNF.getMessage();
+      ErrorLog.fatal(MembershipFinder.class, msg);
+      throw new GrouperRuntimeException(msg, eMNF);
     }
     return members;
   } // protected static Set internal_findMembers(s, g, f)
 
   // @since   1.2.0
-  protected static Set internal_findSubjects(GrouperSession s, Owner o, Field f) {
-    // @filtered  true
-    // @session   true
+  protected static Set internal_findSubjects(GrouperSession s, Owner o, Field f) 
+    throws  GrouperRuntimeException
+  {
     GrouperSession.validate(s);
-    Set         subjs = new LinkedHashSet();
-    Membership  ms;
-    Iterator    iter  = internal_findMemberships(s, o, f).iterator();
-    while (iter.hasNext()) {
-      ms = (Membership) iter.next();
-      try {
-        subjs.add(ms.getMember().getSubject());
+    Set       subjs = new LinkedHashSet();
+    Iterator  it    = PrivilegeResolver.internal_canViewMemberships(
+      s, HibernateMembershipDAO.findAllByOwnerAndField( o.getUuid(), f )
+    ).iterator();
+    try {
+      while (it.hasNext()) {
+        subjs.add ( ( (Membership) it.next() ).getMember().getSubject() );
       }
-      catch (Exception e) {
-        // @exception MemberNotFoundException
-        // @exception SubjectNotFoundException
-        ErrorLog.error(MembershipFinder.class, E.MSF_FINDSUBJECTS + e.getMessage());
-      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      String msg = "internal_findSubjects: " + eMNF.getMessage();
+      ErrorLog.fatal(MembershipFinder.class, msg);
+      throw new GrouperRuntimeException(msg, eMNF);
+    }
+    catch (SubjectNotFoundException eSNF) {
+      String msg = "internal_findSubjects: " + eSNF.getMessage();
+      ErrorLog.fatal(MembershipFinder.class, msg);
+      throw new GrouperRuntimeException(msg, eSNF);
     }
     return subjs;
   } // protected static Set internal_findSubjects(s, o, f)
@@ -283,16 +287,6 @@ public class MembershipFinder {
     }
     return subjs;
   } // protected static Set internal_findSubjectsNoPriv(s, o, f)
-
-  // @since   1.2.0
-  // TODO 20070124 kill!
-  protected static Set internal_findMemberships(GrouperSession s, Owner o, Field f) {
-    return new LinkedHashSet( 
-      PrivilegeResolver.internal_canViewMemberships( 
-        s, HibernateMembershipDAO.findAllByOwnerAndField( o.getUuid(), f )
-      )
-    );
-  } // protected static Set internal_findMemberships(s, o, f)
 
   // @since   1.2.0
   protected static Set internal_findMembersByType(GrouperSession s, Group g, Field f, String type) {

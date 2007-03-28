@@ -17,13 +17,12 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.38 2007-03-28 16:43:52 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.39 2007-03-28 18:12:12 blair Exp $
  */
 public class MemberFinder {
 
@@ -144,17 +143,13 @@ public class MemberFinder {
             MemberNotFoundException
   {
     Member m = findBySubject(s, subj);
-    if ( m.getSubjectType().equals( SubjectTypeEnum.valueOf("group") ) ) {
-      Subject who = s.getSubject();
+    if ( SubjectFinder.internal_getGSA().getId().equals( m.getDTO().getSubjectSourceId() ) ) {
+      // subject is a group.  is it VIEWable?
       try {
-        Group what = m.toGroup();
-        // TODO 20070220 this logic should really probably be in `Member.toGroup()`
-        if ( !PrivilegeResolver.internal_canVIEW(what, who) ) {
-          throw new InsufficientPrivilegeException(E.CANNOT_VIEW);
-        }
+        GroupFinder.findByUuid( s, m.getSubjectId() ); // TODO 20070328 this is rather heavy
       }
       catch (GroupNotFoundException eGNF) {
-        throw new MemberNotFoundException( eGNF.getMessage(), eGNF );
+        throw new MemberNotFoundException( eGNF.getMessage(), eGNF );  
       }
     }
     return m;

@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GrouperSession} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.5 2007-03-16 19:46:17 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.6 2007-03-28 18:12:12 blair Exp $
  */
 class GrouperSessionDTO extends BaseGrouperDTO {
 
@@ -125,13 +125,14 @@ class GrouperSessionDTO extends BaseGrouperDTO {
   {
     // TODO 20070119 should i care if we are fetching a root session from within another root session?
     if (this.rootSession == null) {
-      GrouperSessionDTO dto = new GrouperSessionDTO();
-      dto.setMemberUuid( MemberFinder.internal_findRootMember().getUuid() );
-      dto.setSessionUuid( GrouperUuid.internal_getUuid() );
-      dto.setStartTime( new Date() );
-      dto.setSubject( SubjectFinder.findRootSubject() );
-      GrouperSession    rs  = new GrouperSession();
-      rs.setDTO(dto);
+      GrouperSession rs = new GrouperSession();
+      rs.setDTO(
+        new GrouperSessionDTO()
+          .setMemberUuid( MemberFinder.internal_findRootMember().getUuid() )
+          .setSessionUuid( GrouperUuid.internal_getUuid() )
+          .setStartTime( new Date() )
+          .setSubject( SubjectFinder.findRootSubject() )
+      );
       this.setRootSession(rs);
     }
     return this.rootSession;
@@ -149,29 +150,37 @@ class GrouperSessionDTO extends BaseGrouperDTO {
 
   // SETTERS //
 
-  protected void setAccessCache(PrivilegeCache accessCache) {
+  protected GrouperSessionDTO setAccessCache(PrivilegeCache accessCache) {
     this.accessCache = accessCache;
+    return this;
   }
-  protected void setId(String id) {
+  protected GrouperSessionDTO setId(String id) {
     this.id = id;
+    return this;
   }
-  protected void setMemberUuid(String memberUUID) {
+  protected GrouperSessionDTO setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
+    return this;
   }
-  protected void setNamingCache(PrivilegeCache namingCache) {
+  protected GrouperSessionDTO setNamingCache(PrivilegeCache namingCache) {
     this.namingCache = namingCache;
+    return this;
   }
-  protected void setRootSession(GrouperSession rootSession) {
+  protected GrouperSessionDTO setRootSession(GrouperSession rootSession) {
     this.rootSession = rootSession;
+    return this;
   }
-  protected void setSessionUuid(String sessionUUID) {
+  protected GrouperSessionDTO setSessionUuid(String sessionUUID) {
     this.sessionUUID = sessionUUID;
+    return this;
   }
-  protected void setStartTime(Date startTime) {
+  protected GrouperSessionDTO setStartTime(Date startTime) {
     this.startTime = startTime;
+    return this;
   }
-  protected void setSubject(Subject subject) {
+  protected GrouperSessionDTO setSubject(Subject subject) {
     this.subject = subject;
+    return this;
   }
 
 } // class GrouperSessionDTO extends BaseGrouperDTO

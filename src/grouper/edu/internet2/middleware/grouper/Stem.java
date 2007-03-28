@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.114 2007-03-28 17:00:06 blair Exp $
+ * @version $Id: Stem.java,v 1.115 2007-03-28 18:12:12 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -784,7 +784,6 @@ public class Stem extends GrouperAPI implements Owner {
   } // public void setExtension(value)
 
   public String toString() {
-    // TODO 20070125 replace with call to DTO?
     return new ToStringBuilder(this)
       .append( GrouperConfig.ATTR_DN, this.getDTO().getDisplayName()  )
       .append( GrouperConfig.ATTR_N,  this.getDTO().getName()         )
@@ -796,8 +795,6 @@ public class Stem extends GrouperAPI implements Owner {
 
 
   // PROTECTED CLASS METHODS //
-
-  // TODO 20070125 revisit these methods once initial daoification is complete
 
   // @since   1.2.0
   protected static Stem internal_addRootStem(GrouperSession s) 
@@ -839,8 +836,6 @@ public class Stem extends GrouperAPI implements Owner {
   protected StemDTO getDTO() {
     return (StemDTO) super.getDTO();
   } // protected StemDTO getDTO()
- 
-  // TODO 20070125 revisit these methods once initial daoification is complete
 
   // @since   1.2.0
   protected Group internal_addChildGroup(String extn, String dExtn, String uuid) 

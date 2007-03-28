@@ -28,7 +28,7 @@ import  java.util.Set;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.2 2007-03-06 17:19:14 blair Exp $
+ * @version $Id: RegistrySubject.java,v 1.3 2007-03-28 18:12:12 blair Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -71,14 +71,11 @@ public class RegistrySubject extends GrouperAPI implements Subject {
     }
     catch (SubjectNotFoundException eSNF) {
       RegistrySubject     subj  = new RegistrySubject();
-
-      RegistrySubjectDTO  _subj = new RegistrySubjectDTO();
-      _subj.setId(id);
-      _subj.setName(name);
-      _subj.setType(type);
-
-      _subj.setId( HibernateRegistrySubjectDAO.create(_subj) ); // TODO 20070306 redundant, no?
-      subj.setDTO(_subj);
+      RegistrySubjectDTO  _subj = new RegistrySubjectDTO()
+        .setId(id)
+        .setName(name)
+        .setType(type);
+      subj.setDTO( _subj.setId( HibernateRegistrySubjectDAO.create(_subj) ) );
       return subj;
     }
   } // public static RegistrySubject add(s, id, type, name)
