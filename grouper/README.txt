@@ -51,9 +51,6 @@ Please send email to the [grouper-dev][1] list.
       Destination for compiled jar files.
     * "run"
       HSQLDB data directory.
-  * "doc"
-    * "API.txt"
-      API class and method summary.
   * "lib"
     Third-party jar files included with Grouper.
     * "README.txt"
