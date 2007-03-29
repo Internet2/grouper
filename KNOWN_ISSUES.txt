@@ -1,0 +1,29 @@
+
+# KNOWN ISSUES
+
+* Test Failures 
+  "TestGroup43" and "TestStem12" will periodically fail.  If they do, please
+  try running the tests again before reporting a problem.  I hope to resolve
+  this problem shortly.
+  
+  Updated: 20070329
+
+* Effective Membership Performance
+  Operations that perform large numbers of membership changes continue to be
+  slow.  I had managed to speed them up but then I realized that releases 1.1.0
+  and earlier of the Grouper API were buggy and did not update the "modify*"
+  attributes.  Fixing that bug has wiped out almost all performance gains in
+  this section of code.
+
+  Right now effective membership logging many of the performance problems.  If
+  you need more speed I recommend disabling one-or-all of the following,
+  especially during large batch operations.  These configuration parameters
+  can be found in "GROUPER_HOME/conf/grouper.properties".
+
+      memberships.log.group.effective.add = false
+      memberships.log.group.effective.del = false
+      memberships.log.stem.effective.add  = false
+      memberships.log.stem.effective.del  = false
+
+  Updated: 20070329
+

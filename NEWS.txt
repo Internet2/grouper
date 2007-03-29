@@ -1,6 +1,5 @@
-# Grouper News
 
-$Id: NEWS.txt,v 1.58 2007-03-29 15:28:59 blair Exp $
+# NEWS
 
 ---
 
@@ -31,12 +30,12 @@ Estimated Release: Late 200704
 ## Improvements
 * Updated Subject API from 0.2.1 to 0.3.0rc1-cvs.
   NOTE: This will require an update to your "JDBCSourceAdapter" queries.
-* API updated to include an internal DAO layer providing separation between the business
-  logic and the persistence logic. 
+* API updated to include an experimental and internal (for now) DAO layer providing
+  separation between the business logic and the persistence logic.
 * Changed caching of wheel group in `SimpleWheelPrivilegeCache` by setting a TTL on the 
   lifespan of the cached group.  The default TTL is 5 seconds.  This value can be 
   customized by setting the "edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge" 
-  parameter in `conf/grouper.properties`.
+  parameter in "conf/grouper.properties".
 * "RegistrySubject" now provides a partial implementation of the "Subject" interface.
 
 ## Bugs Fixed
@@ -483,6 +482,4 @@ Release 200412
 * Insufficient documentation
 * Insufficient test coverage
 * Slow
-
-
 

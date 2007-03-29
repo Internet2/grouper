@@ -54,10 +54,6 @@ Please send email to the [grouper-dev][1] list.
   * "doc"
     * "API.txt"
       API class and method summary.
-    * "KNOWN_ISSUES.txt"
-      Known issues with the Grouper API and Groups Registry.
-    * "NEWS.txt"    
-      Release notes.
   * "lib"
     Third-party jar files included with Grouper.
     * "README.txt"
