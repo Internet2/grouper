@@ -58,10 +58,6 @@ Please send email to the [grouper-dev][1] list.
       Known issues with the Grouper API and Groups Registry.
     * "NEWS.txt"    
       Release notes.
-    * "ROADMAP.txt"
-      Development roadmap for future Grouper releases.
-    * "TODO.txt"
-      A more detailed list of work that needs to be done.
   * "lib"
     Third-party jar files included with Grouper.
     * "README.txt"
