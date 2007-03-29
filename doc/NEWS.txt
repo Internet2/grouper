@@ -1,12 +1,12 @@
 # Grouper News
 
-$Id: NEWS.txt,v 1.57 2007-03-15 19:22:51 blair Exp $
+$Id: NEWS.txt,v 1.58 2007-03-29 15:28:59 blair Exp $
 
 ---
 
-# Grouper 1.2.0-cvs
+# Grouper 1.2.0
 
-Estimated Release: Late 200703, Early 200704
+Estimated Release: Late 200704
 
 ## Incompabilities
 * The database schema has changed significantly and is not backwards compatible.
@@ -40,6 +40,8 @@ Estimated Release: Late 200703, Early 200704
 * "RegistrySubject" now provides a partial implementation of the "Subject" interface.
 
 ## Bugs Fixed
+* "modify*" attributes were not always changed on effective membership changes.
+* "build.xml" did not honor preexisting CLASSPATH.
 
 ---
 
