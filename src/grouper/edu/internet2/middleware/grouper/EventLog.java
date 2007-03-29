@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.38 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: EventLog.java,v 1.39 2007-03-29 19:05:29 blair Exp $
  */
 class EventLog {
 
@@ -419,7 +419,7 @@ class EventLog {
   // @since   1.2.0
   private String _getEffSubjectMsg(GrouperSession s, MembershipDTO _eff) {
     try {
-      return " " + SubjectHelper.getPretty( s.cachingFindMemberDTOByUuid( _eff.getMemberUuid() ) );
+      return " " + HibernateMemberDAO.findByUuid( _eff.getMemberUuid() );
     }
     catch (MemberNotFoundException eMNF)    {
       // TODO 20070323 this can't help performance

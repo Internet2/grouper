@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.54 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.55 2007-03-29 19:05:29 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -34,7 +34,6 @@ public class GrouperSession extends GrouperAPI {
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private SimpleCache findMemberDTOByUuidCache;
   private SimpleCache stateCache;
 
 
@@ -42,8 +41,7 @@ public class GrouperSession extends GrouperAPI {
   
   // @since   1.2.0
   protected GrouperSession() {
-    this.findMemberDTOByUuidCache = new SimpleCache();
-    this.stateCache               = new SimpleCache();
+    this.stateCache = new SimpleCache();
   } // protected GrouperSession()
 
   
@@ -267,19 +265,6 @@ public class GrouperSession extends GrouperAPI {
 
 
   // PROTECTED INSTANCE METHODS //
-
-  // proactive caching on a per-session basis
-  // @since   1.2.0
-  protected MemberDTO cachingFindMemberDTOByUuid(String uuid) 
-    throws  GrouperDAOException,      // TODO 20070322 is this appropriate here?
-            MemberNotFoundException
-  {
-    if ( this.findMemberDTOByUuidCache.containsKey(uuid) ) {
-      return (MemberDTO) this.findMemberDTOByUuidCache.get(uuid);
-    }
-    this.findMemberDTOByUuidCache.put( uuid, HibernateMemberDAO.findByUuid(uuid) );
-    return (MemberDTO) this.findMemberDTOByUuidCache.get(uuid);
-  } // protected MemberDTO cachingFindMemberDTOByUuid(uuid)
 
   // @since   1.2.0
   protected GrouperSessionDTO getDTO() {
