@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.164 2007-03-29 16:04:43 blair Exp $ -->
+<!-- $Id: build.xml,v 1.165 2007-03-29 16:25:50 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -516,7 +516,9 @@
     <delete dir="${dist.dir.javadoc}"/>
     <mkdir  dir="${dist.dir.javadoc}"/>
     <record name="${javadoc.log}" action="start"/>
+    <copy file="${src.doc.css}" tofile="${javadoc.css}"/>
     <!-- TODO 20070315 use "overview=..." -->
+    <echo message="generating javadoc in ${dist.dir.javadoc}"/>
     <javadoc  destdir="${dist.dir.javadoc}"
               access="public"
               author="true"
