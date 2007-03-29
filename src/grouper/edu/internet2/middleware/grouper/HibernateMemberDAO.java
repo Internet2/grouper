@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.14 2007-03-29 19:05:29 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.15 2007-03-29 19:26:30 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
@@ -118,7 +118,7 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("select m.id from HibernateMemberDAO as m where m.memberUuid = :uuid");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".Exists");
       qry.setString("uuid", uuid);
       boolean rv  = false;

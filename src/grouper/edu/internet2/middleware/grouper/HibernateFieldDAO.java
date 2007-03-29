@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.10 2007-03-16 18:42:20 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.11 2007-03-29 19:26:30 blair Exp $
  * @since   1.2.0
  */
 class HibernateFieldDAO extends HibernateDAO {
@@ -77,7 +77,7 @@ class HibernateFieldDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateFieldDAO order by name asc");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAll");
       fields.addAll( Rosetta.getDTO( qry.list() ) );
       hs.close();  
@@ -98,7 +98,7 @@ class HibernateFieldDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateFieldDAO as f where f.groupTypeUuid = :uuid order by f.name asc");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllFieldsByGroupType");
       qry.setString("uuid", uuid);
       Iterator it = qry.iterate();
@@ -121,7 +121,7 @@ class HibernateFieldDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateFieldDAO where type = :type order by name asc");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByType");
       qry.setString( "type", type.toString() );
       fields.addAll( Rosetta.getDTO( qry.list() ) );
