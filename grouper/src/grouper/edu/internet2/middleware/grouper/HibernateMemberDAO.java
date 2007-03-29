@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.13 2007-03-07 20:30:44 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.14 2007-03-29 19:05:29 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
@@ -34,7 +34,8 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
 
 
   // PRIVATE CLASS VARIABLES //
-  private static SimpleBooleanCache existsCache = new SimpleBooleanCache();
+  private static SimpleBooleanCache existsCache   = new SimpleBooleanCache();
+  private static SimpleCache        uuid2dtoCache = new SimpleCache();
 
 
   // HIBERNATE PROPERTIES //
@@ -52,6 +53,7 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
     throws  CallbackException
   {
     existsCache.put( this.getMemberUuid(), false );
+    uuid2dtoCache.remove( this.getMemberUuid() );
     return Lifecycle.NO_VETO;
   } // public boolean onDelete(hs)
 
@@ -154,8 +156,8 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
         + "and  m.subjectSourceId = :source "
         + "and  m.subjectTypeId   = :type"
       );
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindBySubject");
+      qry.setCacheable(false); // but i probably should - or at least permit it
+      //qry.setCacheRegion(KLASS + ".FindBySubject");
       qry.setString( "sid",    id   );
       qry.setString( "type",   type );
       qry.setString( "source", src  );
@@ -164,13 +166,14 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
       if (dao == null) {
         throw new MemberNotFoundException();
       }
-      MemberDTO dto = new MemberDTO();
-      dto.setId( dao.getId() );
-      dto.setMemberUuid( dao.getMemberUuid() );
-      dto.setSubjectId( dao.getSubjectId() );
-      dto.setSubjectSourceId( dao.getSubjectSourceId() );
-      dto.setSubjectTypeId( dao.getSubjectTypeId() );
-      return dto;
+      MemberDTO _m = new MemberDTO()
+        .setId( dao.getId() )
+        .setMemberUuid( dao.getMemberUuid() )
+        .setSubjectId( dao.getSubjectId() )
+        .setSubjectSourceId( dao.getSubjectSourceId() )
+        .setSubjectTypeId( dao.getSubjectTypeId() );
+      uuid2dtoCache.put( _m.getMemberUuid(), _m );
+      return _m;
     }
     catch (HibernateException eH) {
       String msg = E.MEMBER_NEITHER_FOUND_NOR_CREATED + eH.getMessage();
@@ -184,24 +187,28 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle {
     throws  GrouperDAOException,
             MemberNotFoundException
   {
+    if ( uuid2dtoCache.containsKey(uuid) ) {
+      return (MemberDTO) uuid2dtoCache.get(uuid);
+    }
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateMemberDAO as m where m.memberUuid = :uuid");
-      qry.setCacheable(true);
-      qry.setCacheRegion(KLASS + ".FindByUuid");
+      qry.setCacheable(false); // but i probably should - or at least permit it
+      //qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
       HibernateMemberDAO dao = (HibernateMemberDAO) qry.uniqueResult(); 
       hs.close();
       if (dao == null) {
         throw new MemberNotFoundException();
       }
-      MemberDTO dto = new MemberDTO();
-      dto.setId( dao.getId() );
-      dto.setMemberUuid( dao.getMemberUuid() );
-      dto.setSubjectId( dao.getSubjectId() );
-      dto.setSubjectSourceId( dao.getSubjectSourceId() );
-      dto.setSubjectTypeId( dao.getSubjectTypeId() );
-      return dto;
+      MemberDTO _m = new MemberDTO()
+        .setId( dao.getId() )
+        .setMemberUuid( dao.getMemberUuid() )
+        .setSubjectId( dao.getSubjectId() )
+        .setSubjectSourceId( dao.getSubjectSourceId() )
+        .setSubjectTypeId( dao.getSubjectTypeId() );
+      uuid2dtoCache.put(uuid, _m);
+      return _m;
     }
     catch (HibernateException eH) {
       ErrorLog.fatal( HibernateMemberDAO.class, eH.getMessage() );
