@@ -1,52 +1,104 @@
 
 # Grouper README
 
-Welcome to _Grouper_.  
+This file is intended to give you a brief overview of how this directory tree
+is structured so that you may get started with compiling, testing and using
+Grouper.  Please see the [Grouper Wiki][0] for more detailed documentation.
 
-This file is intended to give you a brief overview of how this
-directory tree is structured and how to get started with compiling,
-testing and running Grouper.
+## Contents
 
-The [Grouper Wiki](https://wiki.internet2.edu/confluence/display/GrouperWG/Home)
-has additional documentation.
+1.  Reporting Problems
+2.  Project Layout
+3.  Building Grouper
+4.  Initializing The Database
+5.  Testing Grouper
+6.  Installing Grouper
+7.  Using Grouper
+8.  Building API Documentation
+9.  Getting Grouper
 
----
 
 ## Reporting Problems
 
-Please send email to [grouper-dev](mailto:grouper-dev@internet2.edu).
+Please send email to the [grouper-dev][1] list.
 
----
 
 ## Project Layout
 
-See `PROJECT_LAYOUT` for more information.
+* "GROUPER_HOME"
+  Top-level of this Grouper directory tree.
+  * "build"
+    Destination for all compiled Java classes and generated DDL.
+    * "conf"
+      Grouper configuration files.
+      * "ehcache.xml"
+        Hibernate ehcache configuration.
+      * "grouper.hibernate.properties"
+        Grouper's Hibernate configuration file.  
+        NOTE: This file is generated during the build process.
+      * "grouper.properties"
+        Grouper configuration.
+      * "log4j.properties"
+        Logging configuration.  
+        NOTE: This file is generated during the build process.
+      * "sources.xml"
+        Subject API resolver configuration.
+        NOTE: This file is generated during the build process.
+  * "dist"
+    * "api"
+      Destination for generated JavaDoc.
+    * "lib"
+      Destination for compiled jar files.
+    * "run"
+      HSQLDB data directory.
+  * "doc"
+    * "API.txt"
+      API class and method summary.
+    * "KNOWN_ISSUES.txt"
+      Known issues with the Grouper API and Groups Registry.
+    * "NEWS.txt"    
+      Release notes.
+    * "ROADMAP.txt"
+      Development roadmap for future Grouper releases.
+    * "TODO.txt"
+      A more detailed list of work that needs to be done.
+  * "lib"
+    Third-party jar files included with Grouper.
+    * "README.txt"
+      Information on all of the jar files in the "GROUPER_HOME/lib" directory.    
+  * "src"
+    * "conf"
+      Contains configuration files that are to be filtered by Ant during the
+      build process.
+    * "grouper"
+      Grouper API source.
+    * "test"
+      Grouper API test source.
 
----
 
-## Building
+## Building Grouper
 
     % ant build
 
-Build Grouper from source.
+This will compile the Grouper API source and generate several configuration
+files.
 
----
 
-## Initializing Database
+## Initializing The Database
 
     % ant schemaexport
 
-This creates a DDL appropriate for the database you are using and
-applies it to the database
+This generates a DDL appropriate for the database configured in
+"GROUPER_HOME/conf/grouper.hibernate.properties" and applies it to the
+database.
 
     % ant db-init
 
 This initializes the Groups Registry with Grouper's default schema and
-installs the root stem.
+installs the root stem
 
----
 
-## Testing
+## Testing Grouper
 
     % ant test
 
@@ -54,69 +106,56 @@ This adds some test subjects to the Groups Registry and then runs the
 Grouper test suite.  This is a *destructive* action and will destroy
 any data within the configured database.
 
-A *JDBCSourceAdapter* for subjects must be configured for the test suite to
-complete successfully.
+A "JDBCSourceAdapter" for subjects must be configured in
+"GROUPER_HOME/conf/sources.xml" for the test suite to complete successfully.
 
----
 
-## Installing
+## Installing Grouper
 
 These are optional tasks that may make runtime invocation easier.
 
   % ant dist 
 
-Builds a `grouper.jar` file in the `dist/lib` directory.
+Builds "GROUPER_HOME/dist/lib/grouper.jar" from the compiled Grouper source.
 
-  % ant dist-lib
+  % ant dist.lib
 
-Builds a `grouper-lib.jar` file in the `dist/lib` directory.  This is a
-rollup of all the third party .jar files that Grouper relies upon that
-are located in `java/lib`.
+Builds "GROUPER_HOME/dist/lib/grouper-lib.jar".  This jar will contain all of
+the files included within the jar files in the "GROUPER_HOME/lib" directory.
 
---
 
-## Using
+## Using Grouper
 
-You may now try using any of the sample contributed programs (located
-in `contrib/`) or your own Grouper code.  You will need to add the
-following to your _$CLASSPATH_ to use Grouper:
+You need to have the following items in your CLASSPATH to use Grouper:
+* "GROUPER_HOME/dist/lib/grouper.jar" or the "GROUPER_HOME/build/grouper"
+  directory.
+* "GROUPER_HOME/dist/lib/grouper-lib.jar" or all of the jar files in the
+  "GROUPER_HOME/lib" directory.
+* The "GROUPER_HOME/conf" directory.
 
-* Full pathname of `grouper.jar` OR the the full pathanme of the 
-  `build/grouper` directory
-* Full pathname of `grouper-lib.jar` OR the full pathname of all of 
-  the .jar files in `java/lib`
-* Full pathname of the Grouper configuration directory
 
----
+## Building API Documentation
 
-## Building Documentation
+  % ant javadoc
 
-To build the javadoc(1) documentation:
+This will build the javadoc(1) document.
 
-  % ant html
-
-Please see the [Grouper Wiki](https://wiki.internet2.edu/confluence/display/GrouperWG/Home)
-for additional documentation.
-
----
 
 ## Getting Grouper
 
-### Releases
-
 Grouper releases are available from Grouper's Internet2 Middleware page:
   <http://middleware.internet2.edu/dir/groups/grouper/#software>
-
-### Anonymous CVS
 
 Read-only anonymous access to the Grouper CVS repository is now
 available.  To perform a CVS checkout, run the following commands.
 When prompted for a password, hit enter.
 
-  % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
-  % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co grouper
+    % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
+    % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co grouper
 
----
 
-$Id: README.txt,v 1.2 2006-07-20 15:02:06 blair Exp $
+## Notes
+
+[0]: <https://wiki.internet2.edu/confluence/display/GrouperWG/Home>
+[1]: <ailto:grouper-dev@internet2.edu>
 
