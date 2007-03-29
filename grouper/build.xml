@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.162 2007-03-29 15:23:40 blair Exp $ -->
+<!-- $Id: build.xml,v 1.163 2007-03-29 15:28:59 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -8,7 +8,7 @@
   <property name="app.name"     value="grouper"/>
   <property name="impl.url"     value="http://middleware.internet2.edu/dir/groups/grouper/"/>
   <property name="impl.vendor"  value="Internet2"/>
-  <property name="impl.version" value="1.2.0-cvs"/>
+  <property name="impl.version" value="1.2.0"/>
 
   <!-- Grouper Global Build Properties -->
   <property file="buildGrouper.properties" />
