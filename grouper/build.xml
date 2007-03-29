@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.163 2007-03-29 15:28:59 blair Exp $ -->
+<!-- $Id: build.xml,v 1.164 2007-03-29 16:04:43 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -576,7 +576,6 @@
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir.run}"/>
     <mkdir dir="${build.dir.sql}"/>
-    <mkdir dir="${build.dir.sql}"     />
     <schemaexport properties="${conf.hibernate}"
                   delimiter=";"
                   drop="no"
