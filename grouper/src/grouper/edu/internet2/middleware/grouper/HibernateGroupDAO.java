@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.21 2007-03-16 18:16:03 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.22 2007-03-29 19:26:30 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
@@ -199,7 +199,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("select g.id from HibernateGroupDAO as g where g.uuid = :uuid");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".Exists");
       qry.setString("uuid", uuid);
       boolean rv  = false;
@@ -223,7 +223,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateAttributeDAO as a where a.groupUuid = :uuid");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllAttributesByGroup");
       qry.setString("uuid", uuid);
       HibernateAttributeDAO a;
@@ -249,7 +249,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateAttributeDAO as a where lower(a.value) like :value");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr");
       qry.setString( "value", "%" + val.toLowerCase() + "%" );
       Iterator it = qry.iterate();
@@ -280,7 +280,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
       Query   qry = hs.createQuery(
         "from HibernateAttributeDAO as a where a.attrName = :field and lower(a.value) like :value"
       );
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByApproximateAttr");
       qry.setString("field", attr);
       qry.setString( "value", "%" + val.toLowerCase() + "%" );
@@ -316,7 +316,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
         + "or (a.attrName = 'extension'         and lower(a.value) like :value) "
         + "or (a.attrName = 'displayExtension'  and lower(a.value) like :value) "
       );
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByApproximateName");
       qry.setString( "value", "%" + name.toLowerCase() + "%" );
       Iterator it = qry.iterate();
@@ -344,7 +344,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.createTime > :time");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
       qry.setLong( "time", d.getTime() );
       groups.addAll( GroupDTO.getDTO( qry.list() ) );
@@ -364,7 +364,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.createTime < :time");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedBefore");
       qry.setLong( "time", d.getTime() );
       groups.addAll( GroupDTO.getDTO( qry.list() ) );
@@ -384,7 +384,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.modifyTime > :time");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByModifiedAfter");
       qry.setLong( "time", d.getTime() );
       groups.addAll( GroupDTO.getDTO( qry.list() ) );
@@ -404,7 +404,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.modifyTime < :time");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByModifiedBefore");
       qry.setLong( "time", d.getTime() );
       groups.addAll( GroupDTO.getDTO( qry.list() ) );
@@ -451,7 +451,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateAttributeDAO as a where a.attrName = :field and a.value like :value");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByAttribute");
       qry.setString("field", attr);
       qry.setString("value", val);
@@ -475,7 +475,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateAttributeDAO as a where a.attrName = 'name' and a.value = :value");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByName");
       qry.setString("value", name);
       HibernateAttributeDAO a = (HibernateAttributeDAO) qry.uniqueResult();
@@ -498,7 +498,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.uuid = :uuid");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
       HibernateGroupDAO dao = (HibernateGroupDAO) qry.uniqueResult();
@@ -624,7 +624,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
   {
     // TODO 20070314 refactor.  this is too big.
     Query qry = hs.createQuery("from HibernateAttributeDAO as a where a.groupUuid = :uuid");
-    qry.setCacheable(true);
+    qry.setCacheable(false);
     qry.setCacheRegion(KLASS + "._UpdateAttributes");
     qry.setString("uuid", this.uuid);
     HibernateAttributeDAO a;

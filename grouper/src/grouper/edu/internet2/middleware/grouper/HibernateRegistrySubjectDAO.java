@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link RegistrySubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.10 2007-03-16 18:16:03 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.11 2007-03-29 19:26:30 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistrySubjectDAO extends HibernateDAO {
@@ -48,7 +48,7 @@ class HibernateRegistrySubjectDAO extends HibernateDAO {
         + "     rs.id   = :id    "
         + " and rs.type = :type  "
       );
-      qry.setCacheable(true); // This was set to false but I'm not sure why
+      qry.setCacheable(false); // This was set to false but I'm not sure why
       qry.setString( "id",   id   );
       qry.setString( "type", type );
       HibernateRegistrySubjectDAO subj = (HibernateRegistrySubjectDAO) qry.uniqueResult();

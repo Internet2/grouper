@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.12 2007-03-16 18:16:03 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.13 2007-03-29 19:26:30 blair Exp $
  * @since   1.2.0
  */
 class HibernateCompositeDAO extends HibernateDAO {
@@ -59,7 +59,7 @@ class HibernateCompositeDAO extends HibernateDAO {
         + " c.leftFactorUuid = :left or c.rightFactorUuid = :right "
         + ")"
       );
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAsFactor");
       qry.setString( "left",  g.getUuid() );
       qry.setString( "right", g.getUuid() );
@@ -80,7 +80,7 @@ class HibernateCompositeDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateCompositeDAO as c where c.factorOwnerUuid = :uuid");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAsOwner");
       qry.setString( "uuid", g.getUuid() );
       HibernateCompositeDAO dao = (HibernateCompositeDAO) qry.uniqueResult();
@@ -103,7 +103,7 @@ class HibernateCompositeDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateCompositeDAO as c where c.uuid = :uuid");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
       HibernateCompositeDAO dao = (HibernateCompositeDAO) qry.uniqueResult();

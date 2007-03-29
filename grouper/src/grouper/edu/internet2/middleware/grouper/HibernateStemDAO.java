@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.18 2007-03-16 18:42:21 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.19 2007-03-29 19:26:30 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO {
@@ -176,7 +176,7 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateStemDAO as ns where lower(ns.displayExtension) like lower(:value)");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByApproximateDisplayExtension");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       stems.addAll( StemDTO.getDTO( qry.list() ) );
@@ -196,7 +196,7 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateStemDAO as ns where lower(ns.displayName) like lower(:value)");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByApproximateDisplayName");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       stems.addAll( StemDTO.getDTO( qry.list() ) );
@@ -216,7 +216,7 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateStemDAO as ns where lower(ns.extension) like lower(:value)");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByApproximateExtension");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       stems.addAll( StemDTO.getDTO( qry.list() ) );
@@ -236,7 +236,7 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateStemDAO as ns where lower(ns.name) like lower(:value)");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByApproximateName");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
       stems.addAll( StemDTO.getDTO( qry.list() ) );
@@ -262,7 +262,7 @@ class HibernateStemDAO extends HibernateDAO {
         + "or lower(ns.extension)         like :name "
         + "or lower(ns.displayExtension)  like :name" 
       );
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByApproximateNameAny");
       qry.setString("name", "%" + name.toLowerCase() + "%");
       stems.addAll( StemDTO.getDTO( qry.list() ) );
@@ -282,7 +282,7 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.createTime > :time");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
       qry.setLong( "time", d.getTime() );
       stems.addAll( StemDTO.getDTO( qry.list() ) );
@@ -302,7 +302,7 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.createTime < :time");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedBefore");
       qry.setLong( "time", d.getTime() );
       stems.addAll( StemDTO.getDTO( qry.list() ) );
@@ -322,7 +322,7 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.parentUuid = :parent");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindChildGroups");
       qry.setString( "parent", ns.getUuid() );
       groups.addAll( GroupDTO.getDTO( qry.list() ) );
@@ -342,7 +342,7 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.parentUuid = :parent");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindChildStems");
       qry.setString( "parent", ns.getUuid() );
       stems.addAll( StemDTO.getDTO( qry.list() ) );
@@ -362,7 +362,7 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.name = :name");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByName");
       qry.setString("name", name);
       HibernateStemDAO dao = (HibernateStemDAO) qry.uniqueResult();
@@ -385,7 +385,7 @@ class HibernateStemDAO extends HibernateDAO {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.uuid = :uuid");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
       HibernateStemDAO dao = (HibernateStemDAO) qry.uniqueResult();

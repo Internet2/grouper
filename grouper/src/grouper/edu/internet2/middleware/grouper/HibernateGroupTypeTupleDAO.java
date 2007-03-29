@@ -23,7 +23,7 @@ import  org.apache.commons.lang.builder.*;
  * Stub Hibernate {@link Group} and {@link GroupType} tuple DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.3 2007-03-16 19:46:17 blair Exp $
+ * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.4 2007-03-29 19:26:30 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupTypeTupleDAO extends HibernateDAO {
@@ -91,7 +91,7 @@ class HibernateGroupTypeTupleDAO extends HibernateDAO {
         + " gtt.groupUuid  = :group"
         + " and gtt.typeUuid   = :type"
       );
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByGroupAndType");
       qry.setString( "group", g.getUuid()        );
       qry.setString( "type",  type.getTypeUuid() );

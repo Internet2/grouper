@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.11 2007-03-14 19:31:47 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.12 2007-03-29 19:26:30 blair Exp $
  */
 class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
 
@@ -253,7 +253,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateGroupTypeDAO order by name asc");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAll");
       types.addAll( Rosetta.getDTO( qry.list() ) );
       hs.close();  
@@ -272,7 +272,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateGroupTypeDAO as gt where gt.typeUuid = :uuid");
-      qry.setCacheable(true);
+      qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
       HibernateGroupTypeDAO dao = (HibernateGroupTypeDAO) qry.uniqueResult();
