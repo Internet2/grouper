@@ -24,7 +24,7 @@ import  java.util.Properties;
  * Report on system and configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperInfo.java,v 1.4 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: GrouperInfo.java,v 1.5 2007-03-29 15:23:26 blair Exp $
  * @since   1.1.0
  */
 public class GrouperInfo {
@@ -35,7 +35,6 @@ public class GrouperInfo {
   private GrouperInfo() {
     super();
   } // private GrouperInfo()
-
 
 
   // PUBLIC CLASS METHODS //
@@ -49,48 +48,53 @@ public class GrouperInfo {
    * @since   1.1.0
    */
   public static void main(String[] args) {
-    _getSystemInfo();
-    _getGrouperInfo();
-    _getSubjectInfo();
-    _getHibernateInfo();
+    GrouperInfo info = new GrouperInfo();
+    info._printSystemInfo();
+    System.out.println();
+    info._printGrouperInfo();
+    System.out.println();
+    info._printSubjectInfo();
+    System.out.println();
+    info._printHibernateInfo();
     System.exit(0);
   } // public static void main(args)
 
 
-  // PRIVATE CLASS METHODS //
+  // PRIVATE INSTANCE METHODS //
 
-  // @since   1.1.0
-  private static void _get(String key, Properties props) {
+  // @since   1.2.0
+  private void _print(String key, Properties props) {
     System.out.println(key + ": " + props.getProperty(key, GrouperConfig.EMPTY_STRING));
-  } // private static void _get(key, props)
+  } // private void _print(key, props)
 
-  // @since   1.1.0
-  private static void _getGrouperInfo() {
-    //_getProps( GrouperConfig.getProperties() );
+  // @since   1.2.0
+  private void _printGrouperInfo() {
     Properties props = GrouperConfig.internal_getProperties();
-    _get( "privileges.access.interface"       , props );
-    _get( "privileges.naming.interface"       , props );
-    _get( "privileges.access.cache.interface" , props );
-    _get( "privileges.naming.cache.interface" , props );
-    _get( "groups.wheel.use"                  , props );
-    _get( "groups.wheel.group"                , props );
-  } // private static void _getGrouperInfo()
+    this._print( "privileges.access.interface"       , props );
+    this._print( "privileges.naming.interface"       , props );
+    this._print( "privileges.access.cache.interface" , props );
+    this._print( "privileges.naming.cache.interface" , props );
+    this._print( "groups.wheel.use"                  , props );
+    this._print( "groups.wheel.group"                , props );
+  } // private void _printGrouperInfo()
 
-  // @since   1.1.0
-  private static void _getHibernateInfo() {
+  // @since   1.2.0
+  private void _printHibernateInfo() {
     Properties props = GrouperConfig.internal_getHibernateProperties();
-    _get( "hibernate.dialect"                 , props );
-    _get( "hibernate.connection.driver_class" , props );
-    _get( "hibernate.connection.url"          , props );
-    _get( "hibernate.dbcp.ps.maxIdle"         , props );
-    _get( "hibernate.cache.provider_class"    , props );
-  } // private static void _getHibernateInfo()
+    this._print( "hibernate.dialect"                 , props );
+    this._print( "hibernate.connection.driver_class" , props );
+    this._print( "hibernate.connection.url"          , props );
+    this._print( "hibernate.dbcp.ps.maxIdle"         , props );
+    this._print( "hibernate.cache.provider_class"    , props );
+  } // private void _printHibernateInfo()
 
-  // @since   1.1.0
-  private static void _getSubjectInfo() {
-    Iterator iter = SubjectFinder.getSources().iterator();
-    while (iter.hasNext()) {
-      Source sa = (Source) iter.next();
+
+  // @since   1.2.0
+  private void _printSubjectInfo() {
+    Source    sa;
+    Iterator  it  = SubjectFinder.getSources().iterator();
+    while (it.hasNext()) {
+      sa = (Source) it.next();
       System.out.println(
         "source:"
         + " id="    + sa.getId()
@@ -98,18 +102,18 @@ public class GrouperInfo {
         + " class=" + sa.getClass().getName()
       );
     }
-  } // private static void _getSubjectInfo()
+  } // private void _printSubjectInfo()
 
-  // @since   1.1.0
-  private static void _getSystemInfo() {
+  // @since   1.2.0
+  private void _printSystemInfo() {
     Properties props = System.getProperties();  
-    _get( "java.version"    , props );
-    _get( "java.vendor"     , props );
-    _get( "java.class.path" , props );
-    _get( "os.name"         , props );
-    _get( "os.arch"         , props );
-    _get( "os.version"      , props );
-  } // private static void _getSystemInfo()
+    this._print( "os.name"        , props );
+    this._print( "os.arch"        , props );
+    this._print( "os.version"     , props );
+    this._print( "java.version"   , props );
+    this._print( "java.vendor"    , props );
+    this._print( "java.class.path", props );
+  } // private void _printSystemInfo()
 
 } // public class GrouperInfo
 
