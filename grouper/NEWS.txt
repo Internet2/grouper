@@ -7,6 +7,15 @@
 
 Estimated Release: Late 200704
 
+## TODO 
+* Merge extension "framework" back into HEAD
+  * Convert gsh to an (included) extension
+  * Convert "bench" to an (included) extension
+  * Convert "eg.bootstrap" to an extension
+* Look into failures of "TestGroup43" and "TestStem12"
+* Identify upgrade path
+  - This **might** involve creating a new DAO that uses the old mapping files.
+
 ## Incompabilities
 * The database schema has changed significantly and is not backwards compatible.
 * "RegistrySubject" has replaced the "HibernateSubject" class.
