@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.165 2007-03-29 16:25:50 blair Exp $ -->
+<!-- $Id: build.xml,v 1.166 2007-04-02 17:26:10 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -14,11 +14,17 @@
   <property file="buildGrouper.properties" />
 
 
+  <!-- IMPORTS -->
+
+  <!-- extension tasks -->
+  <import file="${ext.dir}/ext-build.xml"/>
+
+
   <!-- TARGETS -->
 
   <!-- target: bench -->
   <target name="bench" 
-          depends="build"
+          depends="compile"
           description="Run Grouper API benchmarks"
   >
     <java fork="true"
@@ -33,7 +39,7 @@
   <!-- target: bench.run -->
   <target name="bench.run" 
           description="Run the Grouper API benchmark specified with -Dname=NAME"
-          depends="build, ensure.name"
+          depends="compile, ensure.name"
   >
     <java fork="true"
           maxmemory="${memory.max}"
@@ -46,7 +52,7 @@
 
   <!-- target: bench.run.yourkit -->
   <target name="bench.run.yourkit" 
-          depends="build, ensure.name"
+          depends="compile, ensure.name"
   >
     <java fork="true"
           maxmemory="${memory.max}"
@@ -61,7 +67,7 @@
 
   <!-- target: bench.run.shark -->
   <target name="bench.run.shark" 
-          depends="build, ensure.name"
+          depends="compile, ensure.name"
   >
     <java fork="true"
           maxmemory="${memory.max}"
@@ -83,7 +89,7 @@
 
   <!-- target: clean -->
   <target name="clean" 
-          description="Clean out (delete) previous build products including Java classes, the Grouper dist directory and log files"
+          description="Clean out (delete) previous build products including Java classes, the Grouper dist directory, log files and extensions"
   >
     <delete dir="${build.dir}"/>  
     <delete dir="${dist.dir}"/>
@@ -91,6 +97,8 @@
       <fileset dir="${basedir}" includes="*.log"/>
       <fileset dir="${basedir}" includes="*.log.?"/>
     </delete>
+    <!-- clean extensions -->
+    <antcall target="ext.clean"/>
   </target>
   <!-- target: clean -->
 
@@ -161,6 +169,10 @@
         <include name="**/*.properties"/>   <!-- xml default export|import properties -->
       </fileset>
     </copy>
+    <!-- build extensions -->
+    <antcall target="ext.compile"/>
+    <!-- TODO 20070319 not sure if this is the right location - or name -->
+    <antcall target="ext.install"/>
     <record name="${build.log}" action="stop"/>
   </target>
   <!-- target: compile -->
@@ -205,7 +217,7 @@
 
   <!-- target: db.init -->
   <target name="db.init" 
-          depends="init, build"
+          depends="init, compile"
           description="Initialize Groups Registry"
   >
     <record name="${db.init.log}" action="start"/>
@@ -227,7 +239,7 @@
   <!-- target: db.reset -->
   <!-- reset the groups registry -->
   <target name="db.reset"
-          depends="build"
+          depends="compile"
   >
     <java fork="true"
           maxmemory="${memory.max}"
@@ -239,7 +251,7 @@
 
   <!-- target: dist -->
   <target name="dist" 
-          depends="build" 
+          depends="compile" 
           description="Create Grouper API jar"
   >
     <mkdir dir="${dist.dir}/lib"/>
@@ -292,7 +304,7 @@
   <!-- target: eg.bootstrap -->
   <!-- run example bootstrap programs -->
   <target name="eg.bootstrap"
-          depends="build"
+          depends="compile"
   >
     <record name="${basedir}/eg.log" action="start"/>
     <antcall  target="db.reset"/>
@@ -447,7 +459,7 @@
 
   <!-- target: info -->
   <target name="info" 
-          depends="build"
+          depends="compile"
           description="Report system and configuration information"
   >
     <java fork="true"
@@ -539,6 +551,8 @@
         <exclude name="edu/internet2/middleware/grouper/prof/**"/>
       </packageset>
     </javadoc>
+    <!-- generate extension documentation -->
+    <antcall target="ext.doc"/>
     <record name="${javadoc.log}" action="stop"/>
   </target>
   <!-- target: javadoc -->
@@ -567,7 +581,7 @@
 
   <!-- target: schemaexport -->
   <target name="schemaexport" 
-          depends="init, build"
+          depends="init, compile"
           description="Generate SQL schema appropriate for configured database"
   >
     <taskdef  name="schemaexport"
@@ -595,7 +609,7 @@
 
   <!-- target: serialver -->
   <target name="serialver" 
-          depends="build, ensure.name"
+          depends="compile, ensure.name"
   >
     <exec executable="serialver">
       <arg  value="-classpath"/>
@@ -623,7 +637,7 @@
 
   <!-- target: test -->
   <target name="test" 
-          depends="test.build"
+          depends="test.compile"
           description="Run Grouper Tests"
   >
     <echo/>
@@ -655,13 +669,15 @@
       </batchtest>
 -->
     </junit>
+    <!-- test extensions -->
+    <antcall target="ext.test"/>
     <record name="${test.log}" action="stop"/>
   </target>
   <!-- target: test -->
 
-  <!-- target: test.build -->
-  <target name="test.build" 
-          depends="init, build"
+  <!-- target: test.compile -->
+  <target name="test.compile" 
+          depends="init, compile"
   >
     <record name="${test.log}" action="start" append="yes"/>
     <javac srcdir="${src.dir.test}" destdir="${build.dir.test}">
@@ -670,11 +686,11 @@
     </javac>
     <record name="${test.log}" action="stop"/>
   </target>
-  <!-- target: test.build -->
+  <!-- target: test.compile -->
 
   <!-- target: test.run -->
   <target name="test.run" 
-          depends="init, test.build, ensure.test.name"
+          depends="init, test.compile, ensure.test.name"
           description="Run the Grouper API test specified with -Dname=NAME"
   >
     <record name="${test.log}" action="start" append="yes"/>

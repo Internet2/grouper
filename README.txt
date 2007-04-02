@@ -51,6 +51,8 @@ Please send email to the [grouper-dev][1] list.
       Destination for compiled jar files.
     * "run"
       HSQLDB data directory.
+  * "ext"
+    Top-level directory for Grouper API extensions.
   * "lib"
     Third-party jar files included with Grouper.
     * "README.txt"

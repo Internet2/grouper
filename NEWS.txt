@@ -8,10 +8,9 @@
 Estimated Release: Late 200704
 
 ## TODO 
-* Merge extension "framework" back into HEAD
-  * Convert gsh to an (included) extension
-  * Convert "bench" to an (included) extension
-  * Convert "eg.bootstrap" to an extension
+* Convert gsh to an (included) extension
+* Convert "bench" to an (included) extension
+* Convert "eg.bootstrap" to an extension
 * Look into failures of "TestGroup43" and "TestStem12"
 * Identify upgrade path
   - This **might** involve creating a new DAO that uses the old mapping files.
@@ -21,6 +20,7 @@ Estimated Release: Late 200704
 * "RegistrySubject" has replaced the "HibernateSubject" class.
 
 ## New Features
+* Prototype Grouper API extension framework (see "ext/README.txt" for more details)
 * "GrouperSession::validate()"
 * "GrouperSession#validate()"
 * "GroupTypeFilter`"(BUGZILLA#585)
