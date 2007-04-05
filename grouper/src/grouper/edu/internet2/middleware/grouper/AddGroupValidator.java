@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddGroupValidator.java,v 1.1 2007-03-01 19:00:53 blair Exp $
+ * @version $Id: AddGroupValidator.java,v 1.2 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
 class AddGroupValidator extends GrouperValidator {
@@ -45,7 +45,7 @@ class AddGroupValidator extends GrouperValidator {
     else {
       try {
         // TODO 20070301 add "existsByName()" method to DAO?
-        HibernateGroupDAO.findByName( U.internal_constructName( parent.getName(), extn ) );
+        GrouperDAOFactory.getFactory().getGroup().findByName( U.internal_constructName( parent.getName(), extn ) );
         v.setErrorMessage("group already exists");
       }
       catch (GroupNotFoundException eGNF) {

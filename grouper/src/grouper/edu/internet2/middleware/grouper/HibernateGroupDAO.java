@@ -29,10 +29,10 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.22 2007-03-29 19:26:30 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.23 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
-class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
+class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateGroupDAO.class.getName();
@@ -56,6 +56,528 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
 
 
   // PUBLIC INSTANCE METHODS //
+
+  /**
+   * @since   1.2.0
+   */
+  public void addType(Group g, GroupType t) 
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateDAO.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        HibernateGroupTypeTupleDAO gtt = new HibernateGroupTypeTupleDAO();
+        gtt.setGroupUuid( g.getDTO().getUuid() );
+        gtt.setTypeUuid( t.getDTO().getUuid() );
+        hs.save(gtt); // new group-type tuple
+        hs.saveOrUpdate( Rosetta.getDAO(g) ); // modified group
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close(); 
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public void delete(GroupDTO _g, Set mships)
+    throws  GrouperDAOException 
+  {
+    try {
+      Session     hs  = HibernateDAO.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        // delete memberships
+        Iterator it = mships.iterator();
+        while (it.hasNext()) {
+          hs.delete( Rosetta.getDAO( it.next() ) );
+        }
+        // delete attributes
+        hs.delete( "from HibernateAttributeDAO where group_id = ?", _g.getUuid(), Hibernate.STRING );
+        // delete type tuples
+        hs.delete( "from HibernateGroupTypeTupleDAO where group_uuid = ?", _g.getUuid(), Hibernate.STRING );
+        // delete group
+        hs.delete( Rosetta.getDAO(_g) );
+
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      } 
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public void deleteType(Group g, GroupType t) 
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateDAO.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        HibernateGroupTypeTupleDAO gtt = HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), t.getDTO() );
+        hs.delete(gtt); // delete group-type tuple
+        hs.saveOrUpdate( Rosetta.getDAO(g) ); // save modified group
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close(); 
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public boolean exists(String uuid)
+    throws  GrouperDAOException
+  {
+    if ( existsCache.containsKey(uuid) ) {
+      return existsCache.get(uuid).booleanValue();
+    }
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("select g.id from HibernateGroupDAO as g where g.uuid = :uuid");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".Exists");
+      qry.setString("uuid", uuid);
+      boolean rv  = false;
+      if ( qry.uniqueResult() != null ) {
+        rv = true;
+      }
+      hs.close();
+      existsCache.put(uuid, rv);
+      return rv;
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public Map findAllAttributesByGroup(String uuid)
+    throws  GrouperDAOException
+  {
+    Map attrs = new HashMap();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateAttributeDAO as a where a.groupUuid = :uuid");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllAttributesByGroup");
+      qry.setString("uuid", uuid);
+      HibernateAttributeDAO a;
+      Iterator              it = qry.iterate();
+      while (it.hasNext()) {
+        a = (HibernateAttributeDAO) it.next();
+        attrs.put( a.getAttrName(), a.getValue() );
+      }
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return attrs;
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByAnyApproximateAttr(String val) 
+    throws  GrouperDAOException,
+            IllegalStateException
+  {
+    Set groups = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateAttributeDAO as a where lower(a.value) like :value");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr");
+      qry.setString( "value", "%" + val.toLowerCase() + "%" );
+      Iterator it = qry.iterate();
+      while (it.hasNext()) {
+        groups.add( this.findByUuid( ( (HibernateAttributeDAO) it.next()).getGroupUuid() ) );
+      }
+      hs.close();
+    }
+    catch (GroupNotFoundException eShouldNeverHappen) {
+      throw new IllegalStateException( 
+        "this should never happen: attribute without owning group: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen
+      );
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return groups;
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByApproximateAttr(String attr, String val) 
+    throws  GrouperDAOException,
+            IllegalStateException
+  {
+    Set groups = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery(
+        "from HibernateAttributeDAO as a where a.attrName = :field and lower(a.value) like :value"
+      );
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllByApproximateAttr");
+      qry.setString("field", attr);
+      qry.setString( "value", "%" + val.toLowerCase() + "%" );
+      Iterator it = qry.iterate();
+      while (it.hasNext()) {
+        groups.add( this.findByUuid( ( (HibernateAttributeDAO) it.next()).getGroupUuid() ) );
+      }
+      hs.close();
+    }
+    catch (GroupNotFoundException eShouldNeverHappen) {
+      throw new IllegalStateException( 
+        "this should never happen: attribute without owning group: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen
+      );
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return groups;
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByApproximateName(String name) 
+    throws  GrouperDAOException,
+            IllegalStateException
+  {
+    Set groups = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery(
+        "from HibernateAttributeDAO as a where "
+        + "   (a.attrName = 'name'              and lower(a.value) like :value) "
+        + "or (a.attrName = 'displayName'       and lower(a.value) like :value) "
+        + "or (a.attrName = 'extension'         and lower(a.value) like :value) "
+        + "or (a.attrName = 'displayExtension'  and lower(a.value) like :value) "
+      );
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllByApproximateName");
+      qry.setString( "value", "%" + name.toLowerCase() + "%" );
+      Iterator it = qry.iterate();
+      while (it.hasNext()) {
+        groups.add( this.findByUuid( ( (HibernateAttributeDAO) it.next()).getGroupUuid() ) );
+      }
+      hs.close();
+    }
+    catch (GroupNotFoundException eShouldNeverHappen) {
+      throw new IllegalStateException( 
+        "this should never happen: attribute without owning group: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen
+      );
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return groups;
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByCreatedAfter(Date d) 
+    throws  GrouperDAOException
+  {
+    Set groups = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.createTime > :time");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
+      qry.setLong( "time", d.getTime() );
+      groups.addAll( GroupDTO.getDTO( qry.list() ) );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return groups;
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByCreatedBefore(Date d) 
+    throws  GrouperDAOException
+  {
+    Set groups = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.createTime < :time");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllByCreatedBefore");
+      qry.setLong( "time", d.getTime() );
+      groups.addAll( GroupDTO.getDTO( qry.list() ) );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return groups;
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByModifiedAfter(Date d) 
+    throws  GrouperDAOException
+  {
+    Set groups = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.modifyTime > :time");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllByModifiedAfter");
+      qry.setLong( "time", d.getTime() );
+      groups.addAll( GroupDTO.getDTO( qry.list() ) );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return groups;
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByModifiedBefore(Date d) 
+    throws  GrouperDAOException
+  {
+    Set groups = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.modifyTime < :time");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllByModifiedBefore");
+      qry.setLong( "time", d.getTime() );
+      groups.addAll( GroupDTO.getDTO( qry.list() ) );
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return groups;
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByType(GroupType type) 
+    throws  GrouperDAOException
+  {
+    Set groups = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      // TODO 20070316 use a join query?
+      Query   qry = hs.createQuery("select gtt.groupUuid from HibernateGroupTypeTupleDAO gtt where gtt.typeUuid = :type");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllByType");
+      qry.setString( "type", type.getDTO().getUuid() );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        groups.add( findByUuid( (String) it.next() ) );
+      }
+      hs.close();
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new GrouperDAOException( eGNF.getMessage(), eGNF );
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return groups;
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public GroupDTO findByAttribute(String attr, String val) 
+    throws  GrouperDAOException,
+            GroupNotFoundException
+  {
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateAttributeDAO as a where a.attrName = :field and a.value like :value");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindByAttribute");
+      qry.setString("field", attr);
+      qry.setString("value", val);
+      HibernateAttributeDAO a = (HibernateAttributeDAO) qry.uniqueResult();
+      hs.close();
+      if (a == null) {
+        throw new GroupNotFoundException();
+      }
+      return this.findByUuid( a.getGroupUuid() );
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public GroupDTO findByName(String name) 
+    throws  GrouperDAOException,
+            GroupNotFoundException
+  {
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateAttributeDAO as a where a.attrName = 'name' and a.value = :value");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindByName");
+      qry.setString("value", name);
+      HibernateAttributeDAO a = (HibernateAttributeDAO) qry.uniqueResult();
+      hs.close();
+      if (a == null) {
+        throw new GroupNotFoundException();
+      }
+      return this.findByUuid( a.getGroupUuid() );
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public GroupDTO findByUuid(String uuid) 
+    throws  GrouperDAOException,
+            GroupNotFoundException
+  {
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.uuid = :uuid");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindByUuid");
+      qry.setString("uuid", uuid);
+      HibernateGroupDAO dao = (HibernateGroupDAO) qry.uniqueResult();
+      hs.close();
+      if (dao == null) {
+        throw new GroupNotFoundException();
+      }
+      return GroupDTO.getDTO(dao);
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public Map getAttributes() {
+    return findAllAttributesByGroup( this.getUuid() );
+  }
+  
+  /**
+   * @since   1.2.0
+   */
+  public String getCreateSource() {
+    return this.createSource;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public long getCreateTime() {
+    return this.createTime;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getModifierUuid() {
+    return this.modifierUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getModifySource() {
+    return this.modifySource;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public long getModifyTime() {
+    return this.modifyTime;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getParentUuid() {
+    return this.parentUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public Set getTypes() {
+    return _findAllTypesByGroup( this.getUuid() );
+  }
+  
+  /**
+   * @since   1.2.0
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
 
   // @since   1.2.0 
   public boolean onDelete(Session hs) 
@@ -97,436 +619,10 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     return Lifecycle.NO_VETO;
   } // public boolean onUpdate(hs)k
 
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static void addType(Group g, GroupType t) 
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        HibernateGroupTypeTupleDAO gtt = new HibernateGroupTypeTupleDAO();
-        gtt.setGroupUuid( g.getDTO().getUuid() );
-        gtt.setTypeUuid( t.getDTO().getTypeUuid() );
-        hs.save(gtt); // new group-type tuple
-        hs.saveOrUpdate( Rosetta.getDAO(g) ); // modified group
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close(); 
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static void addType(g, t)
-
-  // @since   1.2.0
-  protected static void delete(GroupDTO _g, Set mships)
-    throws  GrouperDAOException 
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        // delete memberships
-        Iterator it = mships.iterator();
-        while (it.hasNext()) {
-          hs.delete( Rosetta.getDAO( it.next() ) );
-        }
-        // delete attributes
-        hs.delete( "from HibernateAttributeDAO where group_id = ?", _g.getUuid(), Hibernate.STRING );
-        // delete type tuples
-        hs.delete( "from HibernateGroupTypeTupleDAO where group_uuid = ?", _g.getUuid(), Hibernate.STRING );
-        // delete group
-        hs.delete( Rosetta.getDAO(_g) );
-
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      } 
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static void delete(c)
-
-  // @since   1.2.0
-  protected static void deleteType(Group g, GroupType t) 
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        HibernateGroupTypeTupleDAO gtt = HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), t.getDTO() );
-        hs.delete(gtt); // delete group-type tuple
-        hs.saveOrUpdate( Rosetta.getDAO(g) ); // save modified group
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close(); 
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static void deleteType(g, t)
-
-  // @since   1.2.0
-  protected static boolean exists(String uuid)
-    throws  GrouperDAOException
-  {
-    if ( existsCache.containsKey(uuid) ) {
-      return existsCache.get(uuid).booleanValue();
-    }
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("select g.id from HibernateGroupDAO as g where g.uuid = :uuid");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".Exists");
-      qry.setString("uuid", uuid);
-      boolean rv  = false;
-      if ( qry.uniqueResult() != null ) {
-        rv = true;
-      }
-      hs.close();
-      existsCache.put(uuid, rv);
-      return rv;
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static boolean exists(uuid)
-
-  // @since   1.2.0
-  protected static Map findAllAttributesByGroup(String uuid)
-    throws  GrouperDAOException
-  {
-    Map attrs = new HashMap();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateAttributeDAO as a where a.groupUuid = :uuid");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAllAttributesByGroup");
-      qry.setString("uuid", uuid);
-      HibernateAttributeDAO a;
-      Iterator              it = qry.iterate();
-      while (it.hasNext()) {
-        a = (HibernateAttributeDAO) it.next();
-        attrs.put( a.getAttrName(), a.getValue() );
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return attrs;
-  } // protected static Map findAllAttributesByGroup(uuid)
-
-  // @since   1.2.0
-  protected static Set findAllByAnyApproximateAttr(String val) 
-    throws  GrouperDAOException,
-            IllegalStateException
-  {
-    Set groups = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateAttributeDAO as a where lower(a.value) like :value");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr");
-      qry.setString( "value", "%" + val.toLowerCase() + "%" );
-      Iterator it = qry.iterate();
-      while (it.hasNext()) {
-        groups.add( HibernateGroupDAO.findByUuid( ( (HibernateAttributeDAO) it.next()).getGroupUuid() ) );
-      }
-      hs.close();
-    }
-    catch (GroupNotFoundException eShouldNeverHappen) {
-      throw new IllegalStateException( 
-        "this should never happen: attribute without owning group: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen
-      );
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return groups;
-  } // protected static Set findAllByAnyApproximateAttr(val)
-
-  // @since   1.2.0
-  protected static Set findAllByApproximateAttr(String attr, String val) 
-    throws  GrouperDAOException,
-            IllegalStateException
-  {
-    Set groups = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery(
-        "from HibernateAttributeDAO as a where a.attrName = :field and lower(a.value) like :value"
-      );
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAllByApproximateAttr");
-      qry.setString("field", attr);
-      qry.setString( "value", "%" + val.toLowerCase() + "%" );
-      Iterator it = qry.iterate();
-      while (it.hasNext()) {
-        groups.add( HibernateGroupDAO.findByUuid( ( (HibernateAttributeDAO) it.next()).getGroupUuid() ) );
-      }
-      hs.close();
-    }
-    catch (GroupNotFoundException eShouldNeverHappen) {
-      throw new IllegalStateException( 
-        "this should never happen: attribute without owning group: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen
-      );
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return groups;
-  } // protected static Set findAllByApproximateAttr(attr, val)
-
-  // @since   1.2.0
-  protected static Set findAllByApproximateName(String name) 
-    throws  GrouperDAOException,
-            IllegalStateException
-  {
-    Set groups = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery(
-        "from HibernateAttributeDAO as a where "
-        + "   (a.attrName = 'name'              and lower(a.value) like :value) "
-        + "or (a.attrName = 'displayName'       and lower(a.value) like :value) "
-        + "or (a.attrName = 'extension'         and lower(a.value) like :value) "
-        + "or (a.attrName = 'displayExtension'  and lower(a.value) like :value) "
-      );
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAllByApproximateName");
-      qry.setString( "value", "%" + name.toLowerCase() + "%" );
-      Iterator it = qry.iterate();
-      while (it.hasNext()) {
-        groups.add( HibernateGroupDAO.findByUuid( ( (HibernateAttributeDAO) it.next()).getGroupUuid() ) );
-      }
-      hs.close();
-    }
-    catch (GroupNotFoundException eShouldNeverHappen) {
-      throw new IllegalStateException( 
-        "this should never happen: attribute without owning group: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen
-      );
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return groups;
-  } // protected static Set internal_findAllByApproximateName(name)
-
-  // @since   1.2.0
-  protected static Set findAllByCreatedAfter(Date d) 
-    throws  GrouperDAOException
-  {
-    Set groups = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.createTime > :time");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
-      qry.setLong( "time", d.getTime() );
-      groups.addAll( GroupDTO.getDTO( qry.list() ) );
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return groups;
-  } // protected static Set findAllByCreatedAfter(d)
-
-  // @since   1.2.0
-  protected static Set findAllByCreatedBefore(Date d) 
-    throws  GrouperDAOException
-  {
-    Set groups = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.createTime < :time");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAllByCreatedBefore");
-      qry.setLong( "time", d.getTime() );
-      groups.addAll( GroupDTO.getDTO( qry.list() ) );
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return groups;
-  } // protected static Set findAllByCreatedBefore(d)
-
-  // @since   1.2.0
-  protected static Set findAllByModifiedAfter(Date d) 
-    throws  GrouperDAOException
-  {
-    Set groups = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.modifyTime > :time");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAllByModifiedAfter");
-      qry.setLong( "time", d.getTime() );
-      groups.addAll( GroupDTO.getDTO( qry.list() ) );
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return groups;
-  } // protected static Set findAllByModifiedAfter(d)
-
-  // @since   1.2.0
-  protected static Set findAllByModifiedBefore(Date d) 
-    throws  GrouperDAOException
-  {
-    Set groups = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.modifyTime < :time");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAllByModifiedBefore");
-      qry.setLong( "time", d.getTime() );
-      groups.addAll( GroupDTO.getDTO( qry.list() ) );
-      hs.close();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return groups;
-  } // protected static Set findAllByModifiedBefore(d)
-
-  // @since   1.2.0
-  protected static Set findAllByType(GroupType type) 
-    throws  GrouperDAOException
-  {
-    Set groups = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      // TODO 20070316 use a join query?
-      Query   qry = hs.createQuery("select gtt.groupUuid from HibernateGroupTypeTupleDAO gtt where gtt.typeUuid = :type");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAllByType");
-      qry.setString( "type", type.getDTO().getTypeUuid() );
-      Iterator it = qry.list().iterator();
-      while (it.hasNext()) {
-        groups.add( findByUuid( (String) it.next() ) );
-      }
-      hs.close();
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new GrouperDAOException( eGNF.getMessage(), eGNF );
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-    return groups;
-  } // protected static Set findAllByType(s, type)
-
-  // @since   1.2.0
-  protected static GroupDTO findByAttribute(String attr, String val) 
-    throws  GrouperDAOException,
-            GroupNotFoundException
-  {
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateAttributeDAO as a where a.attrName = :field and a.value like :value");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindByAttribute");
-      qry.setString("field", attr);
-      qry.setString("value", val);
-      HibernateAttributeDAO a = (HibernateAttributeDAO) qry.uniqueResult();
-      hs.close();
-      if (a == null) {
-        throw new GroupNotFoundException();
-      }
-      return HibernateGroupDAO.findByUuid( a.getGroupUuid() );
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static GroupDTO findByAttribute(attr, val)
-
-  // @since   1.2.0
-  protected static GroupDTO findByName(String name) 
-    throws  GrouperDAOException,
-            GroupNotFoundException
-  {
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateAttributeDAO as a where a.attrName = 'name' and a.value = :value");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindByName");
-      qry.setString("value", name);
-      HibernateAttributeDAO a = (HibernateAttributeDAO) qry.uniqueResult();
-      hs.close();
-      if (a == null) {
-        throw new GroupNotFoundException();
-      }
-      return HibernateGroupDAO.findByUuid( a.getGroupUuid() );
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static GroupDTO findByName(name)
-
-  // @since   1.2.0
-  protected static GroupDTO findByUuid(String uuid) 
-    throws  GrouperDAOException,
-            GroupNotFoundException
-  {
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.uuid = :uuid");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindByUuid");
-      qry.setString("uuid", uuid);
-      HibernateGroupDAO dao = (HibernateGroupDAO) qry.uniqueResult();
-      hs.close();
-      if (dao == null) {
-        throw new GroupNotFoundException();
-      }
-      return GroupDTO.getDTO(dao);
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // private static GroupDTO findByUuid(uuid)
-
-  // @since   1.2.0
-  protected static void reset(Session hs) 
-    throws  HibernateException
-  {
-    // TODO 20070307 ideally i would just put hooks for associated tables into "onDelete()" 
-    //               but right now that is blowing up due to the session being flushed.
-    hs.delete("from HibernateGroupTypeTupleDAO");
-    hs.delete("from HibernateAttributeDAO"); 
-    hs.delete("from HibernateGroupDAO");
-    existsCache.removeAll(); 
-  } // protected static void reset(hs)
-
-  // @since   1.2.0
-  protected static void revokePriv(GroupDTO dto, MemberOf mof)
+  /**
+   * @since   1.2.0
+   */
+  public void revokePriv(GroupDTO _g, MemberOf mof)
     throws  GrouperDAOException
   {
     try {
@@ -541,7 +637,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
         while (it.hasNext()) {
           hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
         }
-        hs.update( Rosetta.getDAO(dto) );
+        hs.update( Rosetta.getDAO(_g) );
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -555,10 +651,12 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static void revokePriv(dto, mof)
+  } 
 
-  // @since   1.2.0
-  protected static void revokePriv(GroupDTO dto, Set toDelete)
+  /**
+   * @since   1.2.0
+   */
+  public void revokePriv(GroupDTO _g, Set toDelete)
     throws  GrouperDAOException
   {
     try {
@@ -569,7 +667,7 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
         while (it.hasNext()) {
           hs.delete( Rosetta.getDAO( it.next() ) );
         }
-        hs.update( Rosetta.getDAO(dto) );
+        hs.update( Rosetta.getDAO(_g) );
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -583,7 +681,112 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static void revokePriv(dto, toDelete)
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setAttributes(Map attributes) {
+    this.attributes = attributes;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setCreateSource(String createSource) {
+    this.createSource = createSource;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setCreateTime(long createTime) {
+    this.createTime = createTime;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setModifierUuid(String modifierUUID) {
+    this.modifierUUID = modifierUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setModifySource(String modifySource) {
+    this.modifySource = modifySource;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setModifyTime(long modifyTime) {
+    this.modifyTime = modifyTime;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setParentUuid(String parentUUID) {
+    this.parentUUID = parentUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setTypes(Set types) {
+    // TODO 20070405 try to make this behave more like the rest of the *etters
+    // as types are retrieved dynamically we don't need to cache them locally.
+    // and, yes, that could be considered a poor design decision.
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupDAO setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+
+  // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    // TODO 20070307 ideally i would just put hooks for associated tables into "onDelete()" 
+    //               but right now that is blowing up due to the session being flushed.
+    hs.delete("from HibernateGroupTypeTupleDAO");
+    hs.delete("from HibernateAttributeDAO"); 
+    hs.delete("from HibernateGroupDAO");
+    existsCache.removeAll(); 
+  } // protected static void reset(hs)
 
 
   // PRIVATE CLASS METHODS //
@@ -598,11 +801,12 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
       Query   qry = hs.createQuery("from HibernateGroupTypeTupleDAO as gtt where gtt.groupUuid = :group");
       qry.setCacheable(false);
       qry.setString("group", uuid);
+      GroupTypeDAO                dao = GrouperDAOFactory.getFactory().getGroupType(); 
       HibernateGroupTypeTupleDAO  gtt;
       Iterator                    it  = qry.iterate();
       while (it.hasNext()) {
         gtt = (HibernateGroupTypeTupleDAO) it.next();
-        types.add( HibernateGroupTypeDAO.findByUuid( gtt.getTypeUuid() ) );
+        types.add( dao.findByUuid( gtt.getTypeUuid() ) );
       }
       hs.close();
     }
@@ -661,80 +865,5 @@ class HibernateGroupDAO extends HibernateDAO implements Lifecycle {
     }
   } // private void _updateAttributes(hs)
 
-
-  // GETTERS //
-
-  protected Map getAttributes() {
-    return findAllAttributesByGroup( this.getUuid() );
-  }
-  protected String getCreateSource() {
-    return this.createSource;
-  }
-  protected long getCreateTime() {
-    return this.createTime;
-  }
-  protected String getCreatorUuid() {
-    return this.creatorUUID;
-  }
-  protected String getId() {
-    return this.id;
-  }
-  protected String getModifierUuid() {
-    return this.modifierUUID;
-  }
-  protected String getModifySource() {
-    return this.modifySource;
-  }
-  protected long getModifyTime() {
-    return this.modifyTime;
-  }
-  protected String getParentUuid() {
-    return this.parentUUID;
-  }
-  protected Set getTypes() {
-    return _findAllTypesByGroup( this.getUuid() );
-  }
-  protected String getUuid() {
-    return this.uuid;
-  }
-
-
-  // SETTERS //
-
-  protected void setAttributes(Map attributes) {
-    this.attributes = attributes;
-  }
-  protected void setCreateSource(String createSource) {
-    this.createSource = createSource;
-  }
-  protected void setCreateTime(long createTime) {
-    this.createTime = createTime;
-  }
-  protected void setCreatorUuid(String creatorUUID) {
-    this.creatorUUID = creatorUUID;
-  }
-  protected void setId(String id) {
-    this.id = id;
-  }
-  protected void setModifierUuid(String modifierUUID) {
-    this.modifierUUID = modifierUUID;
-  }
-  protected void setModifySource(String modifySource) {
-    this.modifySource = modifySource;
-  }
-  protected void setModifyTime(long modifyTime) {
-    this.modifyTime = modifyTime;
-  }
-  protected void setParentUuid(String parentUUID) {
-    this.parentUUID = parentUUID;
-  }
-  protected void setTypes(Set types) {
-    // as types are retrieved dynamically we don't need to cache them locally.
-    // and, yes, that could be considered a poor design decision.
-  }
-  protected void setUuid(String uuid) {
-    this.uuid = uuid;
-  }
-
-} // class HibernateGroupDAO extends HibernateDAO implements Lifecycle
+} // class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle
 

@@ -29,7 +29,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.33 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.34 2007-04-05 14:28:28 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -119,7 +119,7 @@ public class GrouperSubject implements Subject {
     if ( this.attrs.size() == 0 ) {
       try {
         Group g = new Group();
-        g.setDTO( HibernateGroupDAO.findByUuid( this.getId() ) );
+        g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getId() ) );
         this._populateAttributes(g); // populate `this.attrs`
       }
       catch (GroupNotFoundException eGNF) {

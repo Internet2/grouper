@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateMembershipDAO.hbm.xml,v 1.1 2007-02-08 16:25:25 blair Exp $ -->
+<!-- $Id: HibernateMembershipDAO.hbm.xml,v 1.2 2007-04-05 14:28:28 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
@@ -165,9 +165,9 @@
     </property>
     <!-- parentUuid -->
 
-    <!-- membershipUuid -->
+    <!-- uuid -->
     <property 
-      name="membershipUuid"
+      name="uuid"
       type="string"
       not-null="true"
       unique="true"
@@ -178,7 +178,7 @@
               length="128"
       />
     </property>
-    <!-- membershipUuid -->
+    <!-- uuid -->
 
     <!-- creatorUuid -->
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->

@@ -25,10 +25,10 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.13 2007-03-29 19:26:30 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.14 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
-class HibernateCompositeDAO extends HibernateDAO {
+class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateCompositeDAO.class.getName();
@@ -45,10 +45,12 @@ class HibernateCompositeDAO extends HibernateDAO {
   private String  uuid;
 
 
-  // PROTECTED CLASS METHODS //
+  // PUBLIC INSTANCE METHODS //
 
-  // @since   1.2.0
-  protected static Set findAsFactor(GroupDTO g) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAsFactor(GroupDTO _g) 
     throws  GrouperDAOException
   {
     Set composites = new LinkedHashSet();
@@ -61,8 +63,8 @@ class HibernateCompositeDAO extends HibernateDAO {
       );
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAsFactor");
-      qry.setString( "left",  g.getUuid() );
-      qry.setString( "right", g.getUuid() );
+      qry.setString( "left",  _g.getUuid() );
+      qry.setString( "right", _g.getUuid() );
       composites.addAll( CompositeDTO.getDTO( qry.list() ) );
       hs.close();
     }
@@ -70,10 +72,12 @@ class HibernateCompositeDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return composites;
-  } // protected static Set findAsFactor(g)
+  } // public Set findAsFactor(_g)
 
-  // @since   1.2.0
-  protected static CompositeDTO findAsOwner(GroupDTO g) 
+  /**
+   * @since   1.2.0
+   */
+  public CompositeDTO findAsOwner(GroupDTO _g) 
     throws  CompositeNotFoundException,
             GrouperDAOException
   {
@@ -82,7 +86,7 @@ class HibernateCompositeDAO extends HibernateDAO {
       Query   qry = hs.createQuery("from HibernateCompositeDAO as c where c.factorOwnerUuid = :uuid");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAsOwner");
-      qry.setString( "uuid", g.getUuid() );
+      qry.setString( "uuid", _g.getUuid() );
       HibernateCompositeDAO dao = (HibernateCompositeDAO) qry.uniqueResult();
       hs.close();
       if (dao == null) {
@@ -93,10 +97,12 @@ class HibernateCompositeDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH) ;
     }
-  } // protected static CompositeDTO findAsOwner(g)
+  } // public CompositeDTO findAsOwner(_g)
 
-  // @since   1.2.0
-  protected static CompositeDTO findByUuid(String uuid) 
+  /**
+   * @since   1.2.0
+   */
+  public CompositeDTO findByUuid(String uuid) 
     throws  CompositeNotFoundException,
             GrouperDAOException
   {
@@ -116,17 +122,132 @@ class HibernateCompositeDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // private static CompositeDTO findByUuid(uuid)
+  } // public CompositeDTO findByUuid(uuid)
 
-  // @since   1.2.0
-  protected static void reset(Session hs) 
-    throws  HibernateException
-  {
-    hs.delete("from HibernateCompositeDAO");
-  } // protected static void reset(hs)
+  /**
+   * @since   1.2.0
+   */
+  public long getCreateTime() {
+    return this.createTime;
+  }
 
-  // @since   1.2.0
-  protected static void update(Set toAdd, Set toDelete, Set modGroups, Set modStems) 
+  /**
+   * @since   1.2.0
+   */
+  public String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getFactorOwnerUuid() {
+    return this.factorOwnerUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getLeftFactorUuid() {
+    return this.leftFactorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getRightFactorUuid() {
+    return this.rightFactorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getType() {
+    return this.type;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateCompositeDAO setCreateTime(long createTime) {
+    this.createTime = createTime;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateCompositeDAO setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateCompositeDAO setFactorOwnerUuid(String factorOwnerUUID) {
+    this.factorOwnerUUID = factorOwnerUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateCompositeDAO setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateCompositeDAO setLeftFactorUuid(String leftFactorUUID) {
+    this.leftFactorUUID = leftFactorUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateCompositeDAO setRightFactorUuid(String rightFactorUUID) {
+    this.rightFactorUUID = rightFactorUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateCompositeDAO setType(String type) {
+    this.type = type;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateCompositeDAO setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void update(Set toAdd, Set toDelete, Set modGroups, Set modStems) 
     throws  GrouperDAOException
   {
     try {
@@ -162,62 +283,17 @@ class HibernateCompositeDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( E.COMP_UPDATE + eH.getMessage(), eH);
     }
-  } // protected static void update(toAdd, toDelete, modGroups, modStems)
+  } // public void update(toAdd, toDelete, modGroups, modStems)
 
 
-  // GETTERS //
+  // PROTECTED CLASS METHODS //
 
-  protected long getCreateTime() {
-    return this.createTime;
-  }
-  protected String getCreatorUuid() {
-    return this.creatorUUID;
-  }
-  protected String getFactorOwnerUuid() {
-    return this.factorOwnerUUID;
-  }
-  protected String getId() {
-    return this.id;
-  }
-  protected String getLeftFactorUuid() {
-    return this.leftFactorUUID;
-  }
-  protected String getRightFactorUuid() {
-    return this.rightFactorUUID;
-  }
-  protected String getType() {
-    return this.type;
-  }
-  protected String getUuid() {
-    return this.uuid;
-  }
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateCompositeDAO");
+  } // protected static void reset(hs)
 
-  // SETTERS //
-
-  protected void setCreateTime(long createTime) {
-    this.createTime = createTime;
-  }
-  protected void setCreatorUuid(String creatorUUID) {
-    this.creatorUUID = creatorUUID;
-  }
-  protected void setFactorOwnerUuid(String factorOwnerUUID) {
-    this.factorOwnerUUID = factorOwnerUUID;
-  }
-  protected void setId(String id) {
-    this.id = id;
-  }
-  protected void setLeftFactorUuid(String leftFactorUUID) {
-    this.leftFactorUUID = leftFactorUUID;
-  }
-  protected void setRightFactorUuid(String rightFactorUUID) {
-    this.rightFactorUUID = rightFactorUUID;
-  }
-  protected void setType(String type) {
-    this.type = type;
-  }
-  protected void setUuid(String uuid) {
-    this.uuid = uuid;
-  }
-
-} // class HibernateCompositeDAO extends HibernateDAO 
+} // class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO
 

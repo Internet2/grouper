@@ -23,7 +23,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GroupType} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeDTO.java,v 1.3 2007-02-28 15:34:32 blair Exp $
+ * @version $Id: GroupTypeDTO.java,v 1.4 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
 class GroupTypeDTO extends BaseGrouperDTO {
@@ -36,7 +36,7 @@ class GroupTypeDTO extends BaseGrouperDTO {
   private boolean isInternal    = false;
   private String  id;
   private String  name;
-  private String  typeUUID;
+  private String  uuid;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -53,7 +53,7 @@ class GroupTypeDTO extends BaseGrouperDTO {
     }
     GroupTypeDTO that = (GroupTypeDTO) other;
     return new EqualsBuilder()
-      .append( this.getTypeUuid(), that.getTypeUuid() )
+      .append( this.getUuid(), that.getUuid() )
       .isEquals();
   } // public boolean equals(other)
   
@@ -62,7 +62,7 @@ class GroupTypeDTO extends BaseGrouperDTO {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getTypeUuid() )
+      .append( this.getUuid() )
       .toHashCode();
   } // public int hashCode()
   
@@ -77,7 +77,7 @@ class GroupTypeDTO extends BaseGrouperDTO {
       .append( "isAssignable", this.getIsAssignable() )
       .append( "isInternal",   this.getIsInternal()   )
       .append( "name",         this.getName()         )
-      .append( "typeUuid",     this.getTypeUuid()     )
+      .append( "uuid",         this.getUuid()         )
       .toString();
   } // public String toString()
 
@@ -86,16 +86,16 @@ class GroupTypeDTO extends BaseGrouperDTO {
 
   // @since   1.2.0
   protected static GroupTypeDTO getDTO(HibernateGroupTypeDAO dao) {
-    GroupTypeDTO dto = new GroupTypeDTO();
-    dto.setCreateTime( dao.getCreateTime() );
-    dto.setCreatorUuid( dao.getCreatorUuid() );
-    dto.setFields( dao.getFields() );
-    dto.setId( dao.getId() );
-    dto.setIsAssignable( dao.getIsAssignable() );
-    dto.setIsInternal( dao.getIsInternal() );
-    dto.setName( dao.getName() );
-    dto.setTypeUuid( dao.getTypeUuid() );
-    return dto;
+    return new GroupTypeDTO()
+      .setCreateTime( dao.getCreateTime() )
+      .setCreatorUuid( dao.getCreatorUuid() )
+      .setFields( dao.getFields() )
+      .setId( dao.getId() )
+      .setIsAssignable( dao.getIsAssignable() )
+      .setIsInternal( dao.getIsInternal() )
+      .setName( dao.getName() )
+      .setUuid( dao.getUuid() )
+      ;
   } // protected static GroupTypeDTO getDTO(dao)
 
 
@@ -103,16 +103,16 @@ class GroupTypeDTO extends BaseGrouperDTO {
 
   // @since   1.2.0
   protected HibernateGroupTypeDAO getDAO() {
-    HibernateGroupTypeDAO dao = new HibernateGroupTypeDAO();
-    dao.setCreateTime( this.getCreateTime() );
-    dao.setCreatorUuid( this.getCreatorUuid() );
-    dao.setFields( this.getFields() );
-    dao.setId( this.getId() );
-    dao.setIsAssignable( this.getIsAssignable() );
-    dao.setIsInternal( this.getIsInternal() );
-    dao.setName( this.getName() );
-    dao.setTypeUuid( this.getTypeUuid() );
-    return dao;
+    return new HibernateGroupTypeDAO()
+      .setCreateTime( this.getCreateTime() )
+      .setCreatorUuid( this.getCreatorUuid() )
+      .setFields( this.getFields() )
+      .setId( this.getId() )
+      .setIsAssignable( this.getIsAssignable() )
+      .setIsInternal( this.getIsInternal() )
+      .setName( this.getName() )
+      .setUuid( this.getUuid() )
+      ;
   } // protected HibernateGroupTypeDAO getDAO()
 
 
@@ -139,36 +139,44 @@ class GroupTypeDTO extends BaseGrouperDTO {
   protected String getName() {
     return this.name;
   }
-  protected String getTypeUuid() {
-    return this.typeUUID;
+  protected String getUuid() {
+    return this.uuid;
   }
 
 
   // SETTERS //
 
-  protected void setCreatorUuid(String creatorUUID) {
+  protected GroupTypeDTO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
+    return this;
   }
-  protected void setCreateTime(long createTime) {
+  protected GroupTypeDTO setCreateTime(long createTime) {
     this.createTime = createTime;
+    return this;
   }
-  protected void setFields(Set fields) {
+  protected GroupTypeDTO setFields(Set fields) {
     this.fields = fields;
+    return this;
   }
-  protected void setIsAssignable(boolean isAssignable) {
+  protected GroupTypeDTO setIsAssignable(boolean isAssignable) {
     this.isAssignable = isAssignable;
+    return this;
   }
-  protected void setIsInternal(boolean isInternal) {
+  protected GroupTypeDTO setIsInternal(boolean isInternal) {
     this.isInternal = isInternal;
+    return this;
   }
-  protected void setId(String id) {
+  protected GroupTypeDTO setId(String id) {
     this.id = id;
+    return this;
   }
-  protected void setName(String name) {
+  protected GroupTypeDTO setName(String name) {
     this.name = name;
+    return this;
   }
-  protected void setTypeUuid(String typeUUID) {
-    this.typeUUID = typeUUID;
+  protected GroupTypeDTO setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
   }
 
 } // class GroupTypeDTO extends BaseGrouperDTO

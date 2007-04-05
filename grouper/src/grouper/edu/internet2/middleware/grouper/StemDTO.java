@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Stem} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDTO.java,v 1.4 2007-03-14 19:54:08 blair Exp $
+ * @version $Id: StemDTO.java,v 1.5 2007-04-05 14:28:28 blair Exp $
  */
 class StemDTO extends BaseGrouperDTO {
 
@@ -109,22 +109,22 @@ class StemDTO extends BaseGrouperDTO {
 
   // @since   1.2.0
   protected static StemDTO getDTO(HibernateStemDAO dao) {
-    StemDTO dto = new StemDTO();
-    dto.setCreateSource( dao.getCreateSource() );
-    dto.setCreateTime( dao.getCreateTime() );
-    dto.setCreatorUuid( dao.getCreatorUuid() );
-    dto.setDescription( dao.getDescription() );
-    dto.setDisplayExtension( dao.getDisplayExtension() );
-    dto.setDisplayName( dao.getDisplayName() );
-    dto.setExtension( dao.getExtension() );
-    dto.setId( dao.getId() );
-    dto.setModifierUuid( dao.getModifierUuid() );
-    dto.setModifySource( dao.getModifySource() );
-    dto.setModifyTime( dao.getModifyTime() );
-    dto.setName( dao.getName() );
-    dto.setUuid( dao.getUuid() );
-    dto.setParentUuid( dao.getParentUuid() );
-    return dto;
+    return new StemDTO()
+      .setCreateSource( dao.getCreateSource() )
+      .setCreateTime( dao.getCreateTime() )
+      .setCreatorUuid( dao.getCreatorUuid() )
+      .setDescription( dao.getDescription() )
+      .setDisplayExtension( dao.getDisplayExtension() )
+      .setDisplayName( dao.getDisplayName() )
+      .setExtension( dao.getExtension() )
+      .setId( dao.getId() )
+      .setModifierUuid( dao.getModifierUuid() )
+      .setModifySource( dao.getModifySource() )
+      .setModifyTime( dao.getModifyTime() )
+      .setName( dao.getName() )
+      .setUuid( dao.getUuid() )
+      .setParentUuid( dao.getParentUuid() )
+      ;
   } // protected static StemDTO getDTO(dao)
 
 
@@ -132,22 +132,22 @@ class StemDTO extends BaseGrouperDTO {
   
   // @since   1.2.0
   protected HibernateStemDAO getDAO() {
-    HibernateStemDAO dao = new HibernateStemDAO();
-    dao.setCreateSource( this.getCreateSource() );
-    dao.setCreateTime( this.getCreateTime() );
-    dao.setCreatorUuid( this.getCreatorUuid() );
-    dao.setDescription( this.getDescription() );
-    dao.setDisplayExtension( this.getDisplayExtension() );
-    dao.setDisplayName( this.getDisplayName() );
-    dao.setExtension( this.getExtension() );
-    dao.setId( this.getId() );
-    dao.setModifierUuid( this.getModifierUuid() );
-    dao.setModifySource( this.getModifySource() );
-    dao.setModifyTime( this.getModifyTime() );
-    dao.setName( this.getName() );
-    dao.setUuid( this.getUuid() );
-    dao.setParentUuid( this.getParentUuid() );
-    return dao;
+    return new HibernateStemDAO()
+      .setCreateSource( this.getCreateSource() )
+      .setCreateTime( this.getCreateTime() )
+      .setCreatorUuid( this.getCreatorUuid() )
+      .setDescription( this.getDescription() )
+      .setDisplayExtension( this.getDisplayExtension() )
+      .setDisplayName( this.getDisplayName() )
+      .setExtension( this.getExtension() )
+      .setId( this.getId() )
+      .setModifierUuid( this.getModifierUuid() )
+      .setModifySource( this.getModifySource() )
+      .setModifyTime( this.getModifyTime() )
+      .setName( this.getName() )
+      .setUuid( this.getUuid() )
+      .setParentUuid( this.getParentUuid() )
+      ;
   } // protected HibernateStemDAO getDAO()
 
 
@@ -199,47 +199,61 @@ class StemDTO extends BaseGrouperDTO {
 
   // SETTERS //
 
-  protected void setCreateSource(String createSource) {
+  protected StemDTO setCreateSource(String createSource) {
     this.createSource = createSource;
+    return this;
   }
-  protected void setCreateTime(long createTime) {
+  protected StemDTO setCreateTime(long createTime) {
     this.createTime = createTime;
+    return this;
   }
-  protected void setCreatorUuid(String creatorUUID) {
+  protected StemDTO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
+    return this;
   }
-  protected void setDescription(String description) {
+  protected StemDTO setDescription(String description) {
     this.description = description;
+    return this;
   }
-  protected void setDisplayExtension(String displayExtension) {
+  protected StemDTO setDisplayExtension(String displayExtension) {
     this.displayExtension = displayExtension;
+    return this;
   }
-  protected void setDisplayName(String displayName) {
+  protected StemDTO setDisplayName(String displayName) {
     this.displayName = displayName;
+    return this;
   }
-  protected void setExtension(String extension) {
+  protected StemDTO setExtension(String extension) {
     this.extension = extension;
+    return this;
   }
-  protected void setId(String id) {
+  protected StemDTO setId(String id) {
     this.id = id;
+    return this;
   }
-  protected void setModifierUuid(String modifierUUID) {
+  protected StemDTO setModifierUuid(String modifierUUID) {
     this.modifierUUID = modifierUUID;
+    return this;
   }
-  protected void setModifySource(String modifySource) {
+  protected StemDTO setModifySource(String modifySource) {
     this.modifySource = modifySource;
+    return this;
   }
-  protected void setModifyTime(long modifyTime) {
+  protected StemDTO setModifyTime(long modifyTime) {
     this.modifyTime = modifyTime;
+    return this;
   }
-  protected void setName(String name) {
+  protected StemDTO setName(String name) {
     this.name = name;
+    return this;
   }
-  protected void setParentUuid(String parentUUID) {
+  protected StemDTO setParentUuid(String parentUUID) {
     this.parentUUID = parentUUID;
+    return this;
   }
-  protected void setUuid(String uuid) {
+  protected StemDTO setUuid(String uuid) {
     this.uuid = uuid;
+    return this;
   }
 
 } // class StemDTO extends BaseGrouperDTO

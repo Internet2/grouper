@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddFieldToGroupTypeValidator.java,v 1.2 2007-03-16 18:42:20 blair Exp $
+ * @version $Id: AddFieldToGroupTypeValidator.java,v 1.3 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
 class AddFieldToGroupTypeValidator extends GrouperValidator {
@@ -29,7 +29,7 @@ class AddFieldToGroupTypeValidator extends GrouperValidator {
   // @since   1.2.0
   protected static AddFieldToGroupTypeValidator validate(String name) {
     AddFieldToGroupTypeValidator v = new AddFieldToGroupTypeValidator();
-    if ( HibernateFieldDAO.existsByName(name) ) {
+    if ( GrouperDAOFactory.getFactory().getField().existsByName(name) ) {
       v.setErrorMessage(E.FIELD_ALREADY_EXISTS + name);
     }
     else {

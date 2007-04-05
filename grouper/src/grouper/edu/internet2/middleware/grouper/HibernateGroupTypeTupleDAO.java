@@ -23,7 +23,7 @@ import  org.apache.commons.lang.builder.*;
  * Stub Hibernate {@link Group} and {@link GroupType} tuple DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.4 2007-03-29 19:26:30 blair Exp $
+ * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.5 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupTypeTupleDAO extends HibernateDAO {
@@ -88,13 +88,13 @@ class HibernateGroupTypeTupleDAO extends HibernateDAO {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from HibernateGroupTypeTupleDAO as gtt where"
-        + " gtt.groupUuid  = :group"
-        + " and gtt.typeUuid   = :type"
+        + " gtt.groupUuid    = :group"
+        + " and gtt.typeUuid = :type"
       );
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByGroupAndType");
       qry.setString( "group", g.getUuid()        );
-      qry.setString( "type",  type.getTypeUuid() );
+      qry.setString( "type",  type.getUuid() );
       HibernateGroupTypeTupleDAO dao = (HibernateGroupTypeTupleDAO) qry.uniqueResult();
       hs.close();
       if (dao == null) {

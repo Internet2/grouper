@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.44 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: GroupType.java,v 1.45 2007-04-05 14:28:28 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -192,14 +192,14 @@ public class GroupType extends GrouperAPI implements Serializable {
       throw new InsufficientPrivilegeException(msg);
     }
     try {
-      if ( HibernateGroupDAO.findAllByType(this).size() > 0 ) {
+      if ( GrouperDAOFactory.getFactory().getGroup().findAllByType(this).size() > 0 ) {
         String msg = E.GROUPTYPE_DELINUSE;
         ErrorLog.error(GroupType.class, msg);
         throw new SchemaException(msg);
       }
       // Now delete the type
       String typeName = this.getDTO().getName(); // For logging purposes
-      HibernateGroupTypeDAO.delete( this.getDTO(), this.getDTO().getFields() );
+      GrouperDAOFactory.getFactory().getGroupType().delete( this.getDTO(), this.getDTO().getFields() );
       sw.stop();
       EventLog.info(s, M.GROUPTYPE_DEL + U.internal_q(typeName), sw);
       // Now update the cached types + fields
@@ -252,7 +252,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     if (vDelete.isInvalid()) {
       throw new SchemaException( vDelete.getErrorMessage() );
     }
-    if ( HibernateFieldDAO.isInUse(f) ) {
+    if ( GrouperDAOFactory.getFactory().getField().isInUse(f) ) {
       String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
@@ -262,7 +262,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       Set fields = this.getDTO().getFields();
       if ( fields.remove(f) ) {
         this.getDTO().setFields(fields);
-        HibernateGroupTypeDAO.deleteField( f.getDTO() );
+        GrouperDAOFactory.getFactory().getGroupType().deleteField( f.getDTO() );
         sw.stop();
         EventLog.info(
           s,
@@ -343,21 +343,23 @@ public class GroupType extends GrouperAPI implements Serializable {
       ErrorLog.error(GroupType.class, msg);
       throw new InsufficientPrivilegeException(msg);
     }
-    if ( HibernateGroupTypeDAO.existsByName(name) ) {
+    GroupTypeDAO dao = GrouperDAOFactory.getFactory().getGroupType();
+    if ( dao.existsByName(name) ) {
       String msg = E.GROUPTYPE_EXISTS + name;
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     }
-    GroupTypeDTO _gt = new GroupTypeDTO();
-    _gt.setCreateTime( new Date().getTime() );
-    _gt.setCreatorUuid( s.getMember().getUuid() );
-    _gt.setFields( new LinkedHashSet() );
-    _gt.setIsAssignable(isAssignable);  
-    _gt.setIsInternal(isInternal);
-    _gt.setName(name);
-    _gt.setTypeUuid( GrouperUuid.internal_getUuid() );
+    GroupTypeDTO _gt = new GroupTypeDTO()
+      .setCreateTime( new Date().getTime() )
+      .setCreatorUuid( s.getMember().getUuid() )
+      .setFields( new LinkedHashSet() )
+      .setIsAssignable(isAssignable)
+      .setIsInternal(isInternal)
+      .setName(name)
+      .setUuid( GrouperUuid.internal_getUuid() )
+      ;
     try {
-      _gt.setId( HibernateGroupTypeDAO.create(_gt) );
+      _gt.setId( dao.create(_gt) );
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
@@ -391,19 +393,19 @@ public class GroupType extends GrouperAPI implements Serializable {
       if (required == true) {
         nullable = false;
       }
-      FieldDTO dto = new FieldDTO();
-      dto.setFieldUuid( GrouperUuid.internal_getUuid() );
-      dto.setGroupTypeUuid( this.getDTO().getTypeUuid() );
-      dto.setIsNullable(nullable);
-      dto.setName(name);
-      dto.setReadPrivilege(read);
-      dto.setType(type);
-      dto.setWritePrivilege(write);
-
-      dto.setId( HibernateGroupTypeDAO.createField(dto) );
+      FieldDTO _f = new FieldDTO()
+        .setGroupTypeUuid( this.getDTO().getUuid() )
+        .setIsNullable(nullable)
+        .setName(name)
+        .setReadPrivilege(read)
+        .setType(type)
+        .setUuid( GrouperUuid.internal_getUuid() )
+        .setWritePrivilege(write)
+        ;
+      _f.setId( GrouperDAOFactory.getFactory().getGroupType().createField(_f) );
 
       Field f = new Field();
-      f.setDTO(dto);
+      f.setDTO(_f);
 
       Set fields = this.getDTO().getFields();
       fields.add(f);

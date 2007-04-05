@@ -22,15 +22,17 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Registry} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistryDAO.java,v 1.14 2007-03-07 19:13:59 blair Exp $
+ * @version $Id: HibernateRegistryDAO.java,v 1.15 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
-class HibernateRegistryDAO {
+class HibernateRegistryDAO implements RegistryDAO {
 
-  // PROTECTED CLASS METHODS //
+  // PUBLIC INSTANCE METHODS //
 
-  // @since   1.2.0
-  protected static void resetRegistry() 
+  /**
+   * @since   1.2.0
+   */
+  public void reset() 
     throws  GrouperDAOException
   {
     try {
@@ -59,7 +61,7 @@ class HibernateRegistryDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static void resetRegistry()
+  } 
 
-} // class HibernateRegistryDAO
+} // class HibernateRegistryDAO implements RegistryDAO
 

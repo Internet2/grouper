@@ -23,10 +23,10 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link RegistrySubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.11 2007-03-29 19:26:30 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.12 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
-class HibernateRegistrySubjectDAO extends HibernateDAO {
+class HibernateRegistrySubjectDAO extends HibernateDAO implements RegistrySubjectDAO {
   
   // PRIVATE INSTANCE VARIABLES //
   private String id;
@@ -34,10 +34,12 @@ class HibernateRegistrySubjectDAO extends HibernateDAO {
   private String type;
 
 
-  // PROTECTED CLASS METHODS //
+  // PUBLIC INSTANCE METHODS //
 
-  // @since   1.2.0
-  protected static HibernateRegistrySubjectDAO find(String id, String type) 
+  /**
+   * @since   1.2.0
+   */
+  public HibernateRegistrySubjectDAO find(String id, String type) 
     throws  GrouperDAOException,
             SubjectNotFoundException
   {
@@ -48,7 +50,7 @@ class HibernateRegistrySubjectDAO extends HibernateDAO {
         + "     rs.id   = :id    "
         + " and rs.type = :type  "
       );
-      qry.setCacheable(false); // This was set to false but I'm not sure why
+      qry.setCacheable(false); 
       qry.setString( "id",   id   );
       qry.setString( "type", type );
       HibernateRegistrySubjectDAO subj = (HibernateRegistrySubjectDAO) qry.uniqueResult();
@@ -61,7 +63,55 @@ class HibernateRegistrySubjectDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static HibernateRegistrySubjectDAO find(id, type)
+  } // public HibernateRegistrySubjectDAO find(id, type)
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getName() {
+    return this.name;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getType() {
+    return this.type;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateRegistrySubjectDAO setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateRegistrySubjectDAO setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateRegistrySubjectDAO setType(String type) {
+    this.type = type;
+    return this;
+  }
+   
+ 
+  // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
   protected static void reset(Session hs) 
@@ -72,30 +122,5 @@ class HibernateRegistrySubjectDAO extends HibernateDAO {
   } // protected static void reset(hs)
 
 
-  // GETTERS //
-
-  protected String getId() {
-    return this.id;
-  }
-  protected String getName() {
-    return this.name;
-  }
-  protected String getType() {
-    return this.type;
-  }
-
-
-  // SETTERS //
-
-  protected void setId(String id) {
-    this.id = id;
-  }
-  protected void setName(String name) {
-    this.name = name;
-  }
-  protected void setType(String type) {
-    this.type = type;
-  }
-    
-} // class HibernateRegistrySubjectDAO
+} // class HibernateRegistrySubjectDAO extends HibernateDAO implements RegistrySubjectDAO 
 

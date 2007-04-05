@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddCompositeMemberValidator.java,v 1.1 2007-03-01 19:46:33 blair Exp $
+ * @version $Id: AddCompositeMemberValidator.java,v 1.2 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
 class AddCompositeMemberValidator extends GrouperValidator {
@@ -32,7 +32,12 @@ class AddCompositeMemberValidator extends GrouperValidator {
     if      ( g.hasComposite() )  {
       v.setErrorMessage(E.GROUP_ACTC);
     }
-    else if ( HibernateMembershipDAO.findAllByOwnerAndField( g.getUuid(), Group.getDefaultList() ).size() > 0 )  {
+    else if ( 
+      GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField(
+        g.getUuid(), Group.getDefaultList() 
+      ).size() > 0 
+    )
+    {
       v.setErrorMessage(E.GROUP_ACTM);
     }
     else {

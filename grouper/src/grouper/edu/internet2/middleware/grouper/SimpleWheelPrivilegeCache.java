@@ -42,7 +42,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge = 10000
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.11 2007-03-14 19:10:00 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.12 2007-04-05 14:28:28 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
@@ -87,7 +87,7 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
         try {
           // Does the wheel group exist or has it been too long since we last fetched it?
           if ( (this._wheel == null) || this._isItTimeToUpdateWheel() ) {
-            this._wheel = HibernateGroupDAO.findByName( GrouperConfig.getProperty(GrouperConfig.GWG) );
+            this._wheel = GrouperDAOFactory.getFactory().getGroup().findByName( GrouperConfig.getProperty(GrouperConfig.GWG) );
             this.wheelFetchTime = new Date().getTime();
             DebugLog.info(SimpleWheelPrivilegeCache.class, FOUND_WHEEL_GROUP);
           }

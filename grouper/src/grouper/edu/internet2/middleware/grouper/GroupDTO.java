@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Group} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.9 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.10 2007-04-05 14:28:28 blair Exp $
  */
 class GroupDTO extends BaseGrouperDTO {
 
@@ -114,19 +114,19 @@ class GroupDTO extends BaseGrouperDTO {
   
   // @since   1.2.0
   protected HibernateGroupDAO getDAO() {
-    HibernateGroupDAO dao = new HibernateGroupDAO();
-    dao.setAttributes( this.getAttributes() );
-    dao.setCreateSource( this.getCreateSource() );
-    dao.setCreateTime( this.getCreateTime() );
-    dao.setCreatorUuid( this.getCreatorUuid() );
-    dao.setId( this.getId() );
-    dao.setModifierUuid( this.getModifierUuid() );
-    dao.setModifySource( this.getModifySource() );
-    dao.setModifyTime( this.getModifyTime() );
-    dao.setUuid( this.getUuid() );
-    dao.setParentUuid( this.getParentUuid() );
-    dao.setTypes( this.getTypes() );
-    return dao;
+    return new HibernateGroupDAO()
+      .setAttributes( this.getAttributes() )
+      .setCreateSource( this.getCreateSource() )
+      .setCreateTime( this.getCreateTime() )
+      .setCreatorUuid( this.getCreatorUuid() )
+      .setId( this.getId() )
+      .setModifierUuid( this.getModifierUuid() )
+      .setModifySource( this.getModifySource() )
+      .setModifyTime( this.getModifyTime() )
+      .setUuid( this.getUuid() )
+      .setParentUuid( this.getParentUuid() )
+      .setTypes( this.getTypes() )
+      ;
   } // protected HibernateGroupDAO getDAO()
 
 

@@ -22,7 +22,7 @@ import  java.util.Set;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.16 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.17 2007-04-05 14:28:28 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {
@@ -51,7 +51,7 @@ public class CompositeFinder {
     GrouperSession  s     = g.getSession();
     Member          m     = s.getMember();
     Composite       c;
-    Iterator        it    = HibernateCompositeDAO.findAsFactor( g.getDTO() ).iterator();
+    Iterator        it    = GrouperDAOFactory.getFactory().getComposite().findAsFactor( g.getDTO() ).iterator();
     while (it.hasNext()) {
       c = new Composite();
       c.setDTO( (CompositeDTO) it.next() );
@@ -84,7 +84,7 @@ public class CompositeFinder {
     GrouperSession  s = g.getSession();
     Member          m = s.getMember();
     Composite       c = new Composite();
-    c.setDTO( HibernateCompositeDAO.findAsOwner( g.getDTO() ) );
+    c.setDTO( GrouperDAOFactory.getFactory().getComposite().findAsOwner( g.getDTO() ));
     c.setSession(s);
     try {
       if ( m.canView( c.getOwnerGroup() ) ) {

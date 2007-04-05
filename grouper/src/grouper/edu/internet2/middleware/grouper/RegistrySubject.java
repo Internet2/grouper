@@ -28,7 +28,7 @@ import  java.util.Set;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.3 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: RegistrySubject.java,v 1.4 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -66,7 +66,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
       throw new InsufficientPrivilegeException(E.ROOTLIKE_TO_ADD_HSUBJ);
     }    
     try {
-      HibernateRegistrySubjectDAO.find(id, type);
+      GrouperDAOFactory.getFactory().getRegistrySubject().find(id, type);
       throw new GrouperException(E.SUBJ_ALREADY_EXISTS + id + "/" + type + "/" + name);
     }
     catch (SubjectNotFoundException eSNF) {

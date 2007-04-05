@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.87 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: Member.java,v 1.88 2007-04-05 14:28:28 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -546,7 +546,7 @@ public class Member extends GrouperAPI implements Serializable {
    * @return  Member's UUID.
    */
   public String getUuid() {
-    return this.getDTO().getMemberUuid();
+    return this.getDTO().getUuid();
   }
 
   /**
@@ -1001,7 +1001,7 @@ public class Member extends GrouperAPI implements Serializable {
       }
       catch (MembershipNotFoundException eMNF) {
         try {
-          HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(
+          GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
             g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f, Membership.IMMEDIATE
           );
           rv = true;
@@ -1094,7 +1094,7 @@ public class Member extends GrouperAPI implements Serializable {
     }
     String    orig  = this.getDTO().getSubjectId(); // preserve original for logging purposes
     this.getDTO().setSubjectId(id);
-    HibernateMemberDAO.update( this.getDTO() );
+    GrouperDAOFactory.getFactory().getMember().update( this.getDTO() );
     sw.stop();
     EventLog.info(
       this.getSession(),
@@ -1137,7 +1137,7 @@ public class Member extends GrouperAPI implements Serializable {
     }
     String    orig  = this.getDTO().getSubjectSourceId();
     this.getDTO().setSubjectSourceId(id);
-    HibernateMemberDAO.update( this.getDTO() );
+    GrouperDAOFactory.getFactory().getMember().update( this.getDTO() );
     sw.stop();
     EventLog.info(
       this.getSession(),
@@ -1202,15 +1202,16 @@ public class Member extends GrouperAPI implements Serializable {
 
   // @since   1.2.0
   protected boolean isMember(String ownerUUID, Field f) {
-    boolean rv      = false;
-    Set     mships  = HibernateMembershipDAO.findAllByOwnerAndMemberAndField( ownerUUID, this.getDTO().getMemberUuid(), f );
+    boolean       rv      = false;
+    MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
+    Set           mships  = dao.findAllByOwnerAndMemberAndField( ownerUUID, this.getDTO().getUuid(), f );
     if (mships.size() > 0) {
       rv = true;
     }
     else {
       Member all = MemberFinder.internal_findAllMember();
       if ( !this.equals(all) ) {
-        mships = HibernateMembershipDAO.findAllByOwnerAndMemberAndField( ownerUUID, all.getDTO().getMemberUuid(), f );
+        mships = dao.findAllByOwnerAndMemberAndField( ownerUUID, all.getDTO().getUuid(), f );
         if (mships.size() > 0) {
           rv = true;
         }

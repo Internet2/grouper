@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.36 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: Composite.java,v 1.37 2007-04-05 14:28:28 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -60,11 +60,7 @@ public class Composite extends GrouperAPI {
   public Group getLeftGroup() 
     throws  GroupNotFoundException
   {
-    Group g = new Group();
-    g.setDTO( HibernateGroupDAO.findByUuid( this.getDTO().getLeftFactorUuid() ) );
-    g.setSession( this.getSession() );
-    s.getMember().canView(g);
-    return g;
+    return this._getGroup( this.getDTO().getLeftFactorUuid() );
   } // public Group getLeftGroup()
 
   /**
@@ -84,11 +80,7 @@ public class Composite extends GrouperAPI {
   public Group getOwnerGroup() 
     throws  GroupNotFoundException
   {
-    Group g = new Group();
-    g.setDTO( HibernateGroupDAO.findByUuid( this.getDTO().getFactorOwnerUuid() ) );
-    g.setSession( this.getSession() );
-    s.getMember().canView(g);
-    return g;
+    return this._getGroup( this.getDTO().getFactorOwnerUuid() );
   } // public Group getOwnerGroup()
 
   /**
@@ -108,11 +100,7 @@ public class Composite extends GrouperAPI {
   public Group getRightGroup() 
     throws  GroupNotFoundException
   {
-    Group g = new Group();
-    g.setDTO( HibernateGroupDAO.findByUuid( this.getDTO().getRightFactorUuid() ) );
-    g.setSession( this.getSession() );
-    s.getMember().canView(g);
-    return g;
+    return this._getGroup( this.getDTO().getRightFactorUuid() );
   } // public Group getLeftGroup()
 
   /**
@@ -158,7 +146,7 @@ public class Composite extends GrouperAPI {
   // @since   1.2.0
   protected static void internal_update(Group g) {
     Composite c;
-    Iterator  it  = HibernateCompositeDAO.findAsFactor( g.getDTO() ).iterator();
+    Iterator  it  = GrouperDAOFactory.getFactory().getComposite().findAsFactor( g.getDTO() ).iterator();
     while (it.hasNext()) {
       c = new Composite();
       c.setDTO( (CompositeDTO) it.next() );
@@ -200,14 +188,15 @@ public class Composite extends GrouperAPI {
       Iterator      it  = mships.iterator();
       while (it.hasNext()) {
         _ms = (MembershipDTO) it.next();
-        groupsToUpdate.add( HibernateGroupDAO.findByUuid( _ms.getOwnerUuid() ) );
+        groupsToUpdate.add( GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) );
       }
       // and then find where each group is a factor and update 
-      Composite c;
-      Iterator itFactor;
+      Composite     c;
+      CompositeDAO  dao       = GrouperDAOFactory.getFactory().getComposite();
+      Iterator      itFactor;
       it = groupsToUpdate.iterator();
       while (it.hasNext()) {
-        itFactor = HibernateCompositeDAO.findAsFactor( (GroupDTO) it.next() ).iterator();  
+        itFactor = dao.findAsFactor( (GroupDTO) it.next() ).iterator();
         while (itFactor.hasNext()) {
           c = new Composite();
           c.setSession(s);
@@ -225,6 +214,17 @@ public class Composite extends GrouperAPI {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
+  private Group _getGroup(String uuid) 
+    throws  GroupNotFoundException
+  {
+    Group g = new Group();
+    g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
+    g.setSession( this.getSession() );
+    s.getMember().canView(g);
+    return g;
+  } 
+
+  // @since   1.2.0
   private void _update() {
     //  TODO  20070321 Assuming this is actually correct I am sure it can be
     //        improved upon.  At least it isn't as bad as the first
@@ -236,14 +236,16 @@ public class Composite extends GrouperAPI {
 
       Group     g   = new Group();
       MemberOf  mof = new MemberOf();
-      g.setDTO( HibernateGroupDAO.findByUuid( this.getDTO().getFactorOwnerUuid() ) ); 
+      g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getDTO().getFactorOwnerUuid() ) ); 
       mof.addComposite( this.getSession(), g, this );
   
-      Set cur       = HibernateMembershipDAO.findAllByOwnerAndField( g.getDTO().getUuid(), Group.getDefaultList() ); // current mships
-      Set should    = mof.internal_getEffSaves(); // What mships should be
-      Set deletes   = new LinkedHashSet(cur);     // deletes  = cur - should
+      Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
+        g.getDTO().getUuid(), Group.getDefaultList()  // current mships
+      );
+      Set should    = mof.internal_getEffSaves();     // What mships should be
+      Set deletes   = new LinkedHashSet(cur);         // deletes  = cur - should
       deletes.removeAll(should);
-      Set adds      = new LinkedHashSet(should);  // adds     = should - cur
+      Set adds      = new LinkedHashSet(should);      // adds     = should - cur
       adds.removeAll(cur);
       Map modified  = new HashMap();
       modified      = mof.identifyGroupsAndStemsToMarkAsModified( modified, adds.iterator() );
@@ -252,7 +254,7 @@ public class Composite extends GrouperAPI {
       Set modStems  = new LinkedHashSet( ( (Map) modified.get("stems") ).values() );
 
       if ( adds.size() > 0 || deletes.size() > 0 || modGroups.size() > 0 || modStems.size() > 0 ) {
-        HibernateCompositeDAO.update(adds, deletes, modGroups, modStems);
+        GrouperDAOFactory.getFactory().getComposite().update(adds, deletes, modGroups, modStems);
         sw.stop();
         EventLog.compositeUpdate(this, adds, deletes, sw);
         Composite._update( this.getSession(), deletes);

@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateStemDAO_findAllByApproximateDisplayExtension.java,v 1.1 2007-03-14 18:13:52 blair Exp $
+ * @version $Id: Test_Integration_HibernateStemDAO_findAllByApproximateDisplayExtension.java,v 1.2 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateStemDAO_findAllByApproximateDisplayExtension extends GrouperTest {
@@ -41,7 +41,7 @@ public class Test_Integration_HibernateStemDAO_findAllByApproximateDisplayExtens
       assertEquals(
         "stems found by displayExtension",
         1, 
-        HibernateStemDAO.findAllByApproximateDisplayExtension( child.getDisplayExtension() ).size()
+        GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayExtension( child.getDisplayExtension() ).size()
       );
     }
     catch (Exception e) {

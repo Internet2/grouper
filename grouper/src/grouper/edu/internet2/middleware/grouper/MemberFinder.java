@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.39 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.40 2007-04-05 14:28:28 blair Exp $
  */
 public class MemberFinder {
 
@@ -74,7 +74,7 @@ public class MemberFinder {
   {
     GrouperSession.validate(s);
     Member m = new Member();
-    m.setDTO( HibernateMemberDAO.findByUuid(uuid) );
+    m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid(uuid) );
     m.setSession(s);
     return m;
   } // public static Member findByUuid(s, uuid)
@@ -125,15 +125,16 @@ public class MemberFinder {
   // @since   1.2.0
   protected static MemberDTO internal_findOrCreateBySubject(String id, String src, String type) {
     try {
-      return HibernateMemberDAO.findBySubject(id, src, type);
+      return GrouperDAOFactory.getFactory().getMember().findBySubject(id, src, type);
     }
     catch (MemberNotFoundException eMNF) {
       MemberDTO _m = new MemberDTO()
-        .setMemberUuid( GrouperUuid.internal_getUuid() )
         .setSubjectId(id)
         .setSubjectSourceId(src)
-        .setSubjectTypeId(type);
-      return _m.setId( HibernateMemberDAO.create(_m) );
+        .setSubjectTypeId(type)
+        .setUuid( GrouperUuid.internal_getUuid() )
+        ;
+      return _m.setId( GrouperDAOFactory.getFactory().getMember().create(_m) );
     }
   } // protected static MemberDTO internal_findOrCreateBySubject(id, src, type)
 

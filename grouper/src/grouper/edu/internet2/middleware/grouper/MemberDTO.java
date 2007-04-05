@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Member} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberDTO.java,v 1.3 2007-03-28 16:43:22 blair Exp $
+ * @version $Id: MemberDTO.java,v 1.4 2007-04-05 14:28:28 blair Exp $
  */
 class MemberDTO extends BaseGrouperDTO {
 
@@ -48,10 +48,10 @@ class MemberDTO extends BaseGrouperDTO {
     }
     MemberDTO that = (MemberDTO) other;
     return new EqualsBuilder()
-      .append( this.getMemberUuid(),      that.getMemberUuid()      )
       .append( this.getSubjectId(),       that.getSubjectId()       )
       .append( this.getSubjectSourceId(), that.getSubjectSourceId() )
       .append( this.getSubjectTypeId(),   that.getSubjectTypeId()   )
+      .append( this.getUuid(),            that.getUuid()            )
       .isEquals();
   } // public boolean equals(other)
 
@@ -60,10 +60,10 @@ class MemberDTO extends BaseGrouperDTO {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getMemberUuid()      )
       .append( this.getSubjectId()       )
       .append( this.getSubjectSourceId() )
       .append( this.getSubjectTypeId()   )
+      .append( this.getUuid()            )
       .toHashCode();
   } // public int hashCode()
 
@@ -72,10 +72,10 @@ class MemberDTO extends BaseGrouperDTO {
    */
   public String toString() {
     return new ToStringBuilder(this)
-      .append( "memberUuid",      this.getMemberUuid()      )
       .append( "subjectId",       this.getSubjectId()       )
       .append( "subjectSourceId", this.getSubjectSourceId() )
       .append( "subjectTypeId",   this.getSubjectTypeId()   )
+      .append( "uuid",            this.getUuid()            )
       .toString();
   } // public String toString()
 
@@ -84,13 +84,13 @@ class MemberDTO extends BaseGrouperDTO {
 
   // @since   1.2.0
   protected HibernateMemberDAO getDAO() {
-    HibernateMemberDAO dao = new HibernateMemberDAO();
-    dao.setId( this.getId() );
-    dao.setMemberUuid( this.getMemberUuid() );
-    dao.setSubjectId( this.getSubjectId() );
-    dao.setSubjectSourceId( this.getSubjectSourceId() );
-    dao.setSubjectTypeId( this.getSubjectTypeId() );
-    return dao;
+    return new HibernateMemberDAO()
+      .setId( this.getId() )
+      .setSubjectId( this.getSubjectId() )
+      .setSubjectSourceId( this.getSubjectSourceId() )
+      .setSubjectTypeId( this.getSubjectTypeId() )
+      .setUuid( this.getUuid() )
+      ;
   } // protected HibernateMemberDAO getDAO()
 
 
@@ -98,9 +98,6 @@ class MemberDTO extends BaseGrouperDTO {
 
   protected String getId() {
     return this.id;
-  }
-  protected String getMemberUuid() {
-    return this.memberUUID;
   }
   protected String getSubjectId() {
     return this.subjectID;
@@ -111,6 +108,9 @@ class MemberDTO extends BaseGrouperDTO {
   protected String getSubjectTypeId() {
     return this.subjectTypeID;
   }
+  protected String getUuid() {
+    return this.memberUUID;
+  }
     
 
   // SETTERS //
@@ -118,10 +118,6 @@ class MemberDTO extends BaseGrouperDTO {
   protected MemberDTO setId(String id) {
     this.id = id;
     return this;
-  }
-  protected MemberDTO setMemberUuid(String memberUUID) {
-    this.memberUUID = memberUUID;
-   return this;
   }
   protected MemberDTO setSubjectId(String subjectID) {
     this.subjectID = subjectID;
@@ -134,6 +130,10 @@ class MemberDTO extends BaseGrouperDTO {
   protected MemberDTO setSubjectTypeId(String subjectTypeID) {
     this.subjectTypeID = subjectTypeID;
     return this;
+  }
+  protected MemberDTO setUuid(String memberUUID) {
+    this.memberUUID = memberUUID;
+   return this;
   }
 
 } // class MemberDTO extends BaseGrouperDTO
